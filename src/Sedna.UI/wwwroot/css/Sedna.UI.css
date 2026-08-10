@@ -8,6 +8,7 @@
 
    Contents, in cascade order:
      00-header.css
+     00-palette.css
      01-tokens.css
      02-theme-light.css
      03-theme-colour-blind.css
@@ -123,6 +124,204 @@
 
 }
 
+/* ── 00-palette.css → @layer sedna.tokens ──────────────────────────────────────────────── */
+@layer sedna.tokens {
+/* ───────────────────────────────────────────────────────────────────────────
+   TIER 1 — THE PALETTE
+   ───────────────────────────────────────────────────────────────────────────
+   Ramps. Nothing in the library styles anything with these directly; they are
+   the raw material the semantic tokens in 01-tokens.css point at.
+
+   Two rules make the tier split worth having, and a guard enforces each:
+
+   1. A palette token holds a LITERAL. It never references another token. If a
+      ramp step could point at a role, the tiers would invert and "what colour
+      is this" would stop having an answer.
+   2. A palette token is declared ONCE, here, at :root. It is not remapped by
+      variant, colour-vision or contrast — a ramp step is a colour, not a
+      decision. Every remap belongs in tier 2, where the roles live.
+
+   Generated in OKLCH with a fixed hue per family, a lightness curve shared
+   across all families, and a chroma bell peaking at the anchor. That is why
+   step 600 of any two families carries the same visual weight: a green badge
+   and a violet badge sit at the same optical level, which HSL cannot deliver.
+
+   The brand anchors appear at their published values, unrounded. Do not round
+   them and do not "tidy" a step by eye — docs/BRANDING.md §7.1 names six pairs
+   sitting within 0.3 of the WCAG AA floor, and a nudge takes one below it.
+
+   Full tables, with the measured contrast for every step:
+   docs/BRANDING.md §2.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+    /* ── The two absolutes ─────────────────────────────────────────────────
+       Neither is a ramp step: the slate ramp runs 50 (#f8fafc, Ice White) to
+       950 (#04071b), and both ends are deliberately short of the extremes.
+
+       They are here so tier 2 never has to carry a raw literal. That matters
+       most for --on-solid, which is the "white" in "white on --brand" — the
+       4.55:1 pair that sets where --brand sits. Substituting slate-50 there
+       would quietly lower every white-on-solid ratio the manual quotes, which
+       is the exact failure the tier rules exist to prevent.
+
+       High contrast also needs true black-on-white and white-on-black; that is
+       the mode's whole point, not a gap in the ramps. */
+    --white: #ffffff;
+    --black: #000000;
+
+    /* ── Slate — the neutral spine ─────────────────────────────────────────
+       Four of the seven core brand colours are steps on this one ramp:
+       50 Ice White, 400 Dust Gray, 800 Navy Slate, 900 Deep Space. */
+    --slate-50: #f8fafc;
+    --slate-100: #eef4fb;
+    --slate-200: #dde7f3;
+    --slate-300: #c8d5e5;
+    --slate-400: #94a3b8;
+    --slate-500: #707e93;
+    --slate-600: #515e72;
+    --slate-700: #354255;
+    --slate-750: #2a3649;
+    --slate-800: #1e293b;
+    --slate-850: #162033;
+    --slate-900: #0f172a;
+    --slate-925: #0a1225;
+    --slate-950: #04071b;
+
+    /* ── Coral — the brand ramp ────────────────────────────────────────────
+       500 is Sedna Red, the brand you SEE. 600 is the brand you CLICK: the
+       darkest-chroma point on this hue that still carries white text at AA
+       (4.55:1). See docs/BRANDING.md §3.1 — that gap is a constraint, not a
+       preference. */
+    --coral-50: #fff4f1;
+    --coral-100: #ffe9e3;
+    --coral-200: #ffd1c5;
+    --coral-300: #ffb4a0;
+    --coral-400: #ff8f74;
+    --coral-500: #ff6b4a;
+    --coral-600: #d73f1a;
+    --coral-700: #be2e06;
+    --coral-800: #a22000;
+    --coral-900: #7b1403;
+    --coral-950: #580000;
+
+    /* ── Orbit — accent and information ───────────────────────────────────
+       400 is Orbit Blue. Links and info own blue outright now that the brand
+       is coral (§3.2). */
+    --orbit-50: #eff8ff;
+    --orbit-100: #e0f1ff;
+    --orbit-200: #bde3ff;
+    --orbit-300: #90d2ff;
+    --orbit-400: #59c3ff;
+    --orbit-500: #3aa8e2;
+    --orbit-600: #158fc6;
+    --orbit-700: #0077a5;
+    --orbit-800: #005e82;
+    --orbit-900: #004661;
+    --orbit-950: #002c3f;
+
+    /* ── Navy — the mark, illustration, marketing ─────────────────────────
+       Deliberately NOT consumed by any semantic token. It exists so diagrams,
+       spot illustration and the mark itself have a governed range; 900 is the
+       orbit stroke in the logo. */
+    --navy-50: #f4f7fc;
+    --navy-100: #e9eff9;
+    --navy-200: #d4def0;
+    --navy-300: #bacae7;
+    --navy-400: #9db4dd;
+    --navy-500: #809dd2;
+    --navy-600: #6484c2;
+    --navy-700: #4b6cab;
+    --navy-800: #35548f;
+    --navy-900: #17346e;
+    --navy-950: #0e2450;
+
+    /* ── Green — go ───────────────────────────────────────────────────────
+       The filled step is 700, not 500: --on-solid is white and the mid tone
+       cannot carry it at AA. Every filled family follows that rule. */
+    --green-200: #a2f4b6;
+    --green-300: #75e594;
+    --green-400: #44d272;
+    --green-500: #22c55e;
+    --green-600: #00a043;
+    --green-700: #008433;
+    --green-800: #006924;
+    --green-900: #004e16;
+
+    /* ── Amber — warn ─────────────────────────────────────────────────────── */
+    --amber-200: #ffd5a2;
+    --amber-300: #feba61;
+    --amber-400: #f09f24;
+    --amber-500: #f59e0b;
+    --amber-600: #b87300;
+    --amber-700: #995e00;
+    --amber-800: #7a4900;
+    --amber-900: #5d3400;
+
+    /* ── Crimson — danger ─────────────────────────────────────────────────
+       Danger is crimson rather than red because red sits 7° from the coral
+       brand in OKLCH: a Delete button and a Save button would be the same
+       colour at a glance. Crimson is 32° away and slightly darker, so the two
+       separate on hue AND lightness. §3.3 — this one is forced. */
+    --crimson-200: #ffceda;
+    --crimson-300: #ffafc4;
+    --crimson-400: #ff87ab;
+    --crimson-500: #f44588;
+    --crimson-600: #d92b73;
+    --crimson-700: #c72268;
+    --crimson-800: #a60653;
+    --crimson-900: #80003d;
+
+    /* ── Violet — secret ─────────────────────────────────────────────────── */
+    --violet-200: #ded7ff;
+    --violet-300: #cbbfff;
+    --violet-400: #b6a2ff;
+    --violet-500: #a283ff;
+    --violet-600: #8e61f7;
+    --violet-700: #754bd3;
+    --violet-800: #5d37ad;
+    --violet-900: #452685;
+
+    /* ── Cyan, Orange, Teal — categorical badge hues, no meaning ─────────── */
+    --cyan-200: #9cecfc;
+    --cyan-300: #6adcf1;
+    --cyan-400: #22d3ee;
+    --cyan-500: #00b0c8;
+    --cyan-600: #0096aa;
+    --cyan-700: #007b8d;
+    --cyan-800: #00616f;
+    --cyan-900: #004853;
+
+    --orange-200: #ffd4ae;
+    --orange-300: #feb979;
+    --orange-400: #f59e4b;
+    --orange-500: #da852e;
+    --orange-600: #bf6e10;
+    --orange-700: #a15800;
+    --orange-800: #814400;
+    --orange-900: #623000;
+
+    --teal-200: #a5eee1;
+    --teal-300: #79dfcf;
+    --teal-400: #47cbb9;
+    --teal-500: #14b8a6;
+    --teal-600: #009a8b;
+    --teal-700: #007f72;
+    --teal-800: #00645a;
+    --teal-900: #004b42;
+
+    /* ── Indigo — inline code ─────────────────────────────────────────────── */
+    --indigo-200: #d4dbff;
+    --indigo-300: #bbc5ff;
+    --indigo-400: #9fabff;
+    --indigo-500: #8590fd;
+    --indigo-600: #6f79e0;
+    --indigo-700: #5a61bf;
+    --indigo-800: #464b9b;
+    --indigo-900: #323777;
+}
+}
+
 /* ── 01-tokens.css → @layer sedna.tokens ──────────────────────────────────────────────── */
 @layer sedna.tokens {
 /* ═══ Tokens — the contract ═════════════════════════════════════════════════
@@ -148,32 +347,51 @@
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-mono: "SF Mono", Menlo, Consolas, monospace;
 
-    /* ── Surfaces, text, lines ──────────────────────────────────────────── */
-    --bg:              #111827;
-    --bg-elevated:     #1f2937;
-    --bg-hover:        #283346;
-    --fg:              #f3f4f6;
-    --fg-soft:         #d1d5db;          /* body copy on cards */
-    --muted:           #9ca3af;
-    --border:          #374151;
-    --border-strong:   #4b5563;
-    --border-hover:    #6b7280;
+    /* ── Surfaces, text, lines ──────────────────────────────────────────────
+       Dark is the library's default and the identity is strongest here: Deep
+       Space canvas, Navy Slate elevated surface, Ice White text, Dust Gray
+       muted — the four guide colours used exactly as named. See
+       docs/BRANDING.md §6. */
+    --bg:              var(--slate-900);   /* Deep Space */
+    --bg-elevated:     var(--slate-800);   /* Navy Slate */
+    --bg-hover:        var(--slate-750);
+    --fg:              var(--slate-50);    /* Ice White */
+    --fg-soft:         var(--slate-300);         /* body copy on cards */
+    --muted:           var(--slate-400);   /* Dust Gray */
+    --border:          var(--slate-700);
+    --border-strong:   var(--slate-600);
+    --border-hover:    var(--slate-500);
     --divider:         rgba(255, 255, 255, 0.06);
-    --card-bg:         #1f2937;
+    --card-bg:         var(--slate-800);
     --surface-soft:    rgba(255, 255, 255, 0.03);
     --surface-strong:  rgba(255, 255, 255, 0.05);
-    --on-solid:        #ffffff;          /* text on any filled/solid button */
-    --redacted:        #f87171;
+    /* Pure white, deliberately, and not the slate ramp's lightest step — that
+       is Ice White (#f8fafc), which is measurably darker. This token is the
+       "white" in "white on --brand" (4.55:1), one of the six pairs sitting
+       within 0.3 of the AA floor in docs/BRANDING.md §7.1, and it is shared by
+       every filled control. Ice White here would lower all six ratios at once,
+       which is why --white exists in the palette as an absolute. */
+    --on-solid:        var(--white);          /* text on any filled/solid button */
+    --redacted:        var(--crimson-400);
 
     /* ── Brand — THE app override point ─────────────────────────────────────
-       Neutral blue by default. An app redefines this family (and --accent /
-       --sidebar-active) in its own override file; nothing else needs touching.
-       The four ring tokens are separate because the alphas differ per control. */
-    --brand:            #2563eb;
-    --brand-hover:      #1d4ed8;
-    --brand-active:     #1e40af;
-    --brand-soft:       #60a5fa;         /* icons/spinners on tinted surfaces */
-    --brand-text:       #93c5fd;         /* readable brand text on the theme bg */
+       An app redefines this family (and --accent / --sidebar-active) in its own
+       override file, or supplies a whole theme; nothing else needs touching.
+       The four ring tokens are separate because the alphas differ per control.
+
+       --brand is NOT Sedna Red (coral-500) — Sedna Red is a display colour.
+       White text on coral-500 is 2.82:1, far under the 4.5:1 a .btn label
+       needs. coral-600 is the darkest-chroma point on the Sedna Red hue that
+       still carries white text at AA (4.55:1): solved for maximum chroma at
+       the contrast boundary, not "coral, darkened" — a naive darkening goes
+       brick and dull. Sedna Red itself survives everywhere it can be seen at
+       full strength: --brand-soft, tints, glows, the sidebar indicator. See
+       docs/BRANDING.md §4.1. */
+    --brand:            var(--coral-600);
+    --brand-hover:      var(--coral-700);
+    --brand-active:     var(--coral-800);
+    --brand-soft:       var(--coral-500);         /* icons/spinners on tinted surfaces — Sedna Red at full strength */
+    --brand-text:       var(--coral-400);         /* readable brand text on the theme bg */
     /* Mixed from --brand rather than restated as literals, so redefining --brand
        alone carries the tint and every focus ring with it. An app may still pin any
        of them.
@@ -187,13 +405,13 @@
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
     --brand-ring-check: color-mix(in srgb, var(--brand) 35%, transparent);  /* checkbox focus */
     --brand-glow:       color-mix(in srgb, var(--brand) 18%, transparent);  /* text-input focus glow */
-    --accent:           #60a5fa;         /* links, decorative icons */
+    --accent:           var(--orbit-400);         /* links, decorative icons — Orbit Blue, unmodified */
 
     /* ── Sidebar ───────────────────────────────────────────────────────── */
-    --sidebar-bg:      #111827;
-    --sidebar-border:  #1f2937;
-    --sidebar-fg:      #e5e7eb;
-    --sidebar-active:  #2563eb;
+    --sidebar-bg:      var(--slate-900);
+    --sidebar-border:  var(--slate-800);
+    --sidebar-fg:      var(--slate-200);
+    --sidebar-active:  var(--coral-600);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -202,61 +420,64 @@
        "info", "secret" — informational and sensitive-value surfaces
        [data-cvd="1"] swaps ONLY the go family to blue, so go-vs-danger reads as
        blue-vs-red for deuteranopia/protanopia. Amber and brand keep their roles. */
-    /* The three filled families are one ramp step darker than the palette's own mid
-       tone, because --on-solid is white: white on #16a34a is 3.30:1 and on #d97706 is
-       3.19:1, both below AA for the 13px/500 label a .btn renders, while #15803d and
-       #b45309 reach 5.02:1. Do not lighten them without re-running the contrast audit
-       in docs/accessibility.md. */
-    --go-solid:   #15803d;
-    --go-hover:   #166534;
-    --go-active:  #14532d;
-    --go-bg:      rgba(34, 197, 94, 0.12);
-    --go-border:  #166534;
-    --go-fg:      #4ade80;
-    --go-ring:    rgba(34, 197, 94, 0.5);
+    /* The go and warn solids are one ramp step darker than the palette's own mid
+       tone, because --on-solid is white: the 500/600 mid tones do not clear AA for
+       the 13px/500 label a .btn renders, while step 700 does. White on every solid:
+       go 4.83 · warn 5.31 (docs/BRANDING.md §6). Do not lighten them without
+       re-running the contrast audit in docs/accessibility.md. */
+    --go-solid:   var(--green-700);
+    --go-hover:   var(--green-800);
+    --go-active:  var(--green-900);
+    --go-bg:      rgba(34, 197, 94, 0.12);   /* green-500 */
+    --go-border:  var(--green-800);
+    --go-fg:      var(--green-400);
+    --go-ring:    rgba(34, 197, 94, 0.5);    /* green-500 */
 
-    --warn-solid:      #b45309;
-    --warn-hover:      #92400e;
-    --warn-active:     #78350f;
-    --warn-bg:         rgba(245, 158, 11, 0.12);
-    --warn-bg-hover:   rgba(245, 158, 11, 0.2);
-    --warn-bg-active:  rgba(245, 158, 11, 0.28);
-    --warn-border:     #854d0e;
-    --warn-fg:         #fbbf24;
-    --warn-ring:       rgba(245, 158, 11, 0.4);
-    --warn-ring-solid: rgba(245, 158, 11, 0.5);
+    --warn-solid:      var(--amber-700);
+    --warn-hover:      var(--amber-800);
+    --warn-active:     var(--amber-900);
+    --warn-bg:         rgba(245, 158, 11, 0.12);   /* amber-500 */
+    --warn-bg-hover:   rgba(245, 158, 11, 0.2);    /* amber-500 */
+    --warn-bg-active:  rgba(245, 158, 11, 0.28);   /* amber-500 */
+    --warn-border:     var(--amber-800);
+    --warn-fg:         var(--amber-300);
+    --warn-ring:       rgba(245, 158, 11, 0.4);    /* amber-500 */
+    --warn-ring-solid: rgba(245, 158, 11, 0.5);    /* amber-500 */
 
-    /* #dc2626, not #ef4444: white on #ef4444 is 3.76:1, below AA. Both themes use
-       the same value. */
-    --danger-solid:         #dc2626;
-    --danger-bg:            rgba(127, 29, 29, 0.15);
-    --danger-bg-hover:      rgba(185, 28, 28, 0.25);
-    --danger-bg-active:     rgba(185, 28, 28, 0.35);
-    --danger-border:        rgba(153, 27, 27, 0.6);
-    --danger-border-strong: #991b1b;
-    --danger-fg:            #f87171;
-    --danger-ring:          rgba(239, 68, 68, 0.4);   /* focus ring on a danger control */
+    /* crimson-700, not the old #dc2626: that red sits 7° from the Sedna Red brand
+       in OKLCH — a Delete button and a Save button would read as the same colour
+       at a glance. crimson-700 is 32° away and slightly darker, so the two separate
+       on hue AND lightness (docs/BRANDING.md §4.3 — this one is forced, not
+       cosmetic). It still carries white text at AA: 4.61:1, both themes. */
+    --danger-solid:         var(--crimson-700);
+    --danger-bg:            rgba(128, 0, 61, 0.15);    /* crimson-900 */
+    --danger-bg-hover:      rgba(166, 6, 83, 0.25);    /* crimson-800 */
+    --danger-bg-active:     rgba(166, 6, 83, 0.35);    /* crimson-800 */
+    --danger-border:        rgba(166, 6, 83, 0.6);     /* crimson-800 */
+    --danger-border-strong: var(--crimson-800);
+    --danger-fg:            var(--crimson-400);
+    --danger-ring:          rgba(244, 69, 136, 0.4);   /* crimson-500 — focus ring on a danger control */
 
-    --info-bg:      rgba(96, 165, 250, 0.12);
-    --info-border:  #1e40af;
-    --info-fg:      #93c5fd;
-    --info-solid:   #1d4ed8;                     /* a filled info dot or bar */
-    --info-ring:    rgba(96, 165, 250, 0.5);     /* its glow */
+    --info-bg:      rgba(89, 195, 255, 0.12);    /* orbit-400 */
+    --info-border:  var(--orbit-800);
+    --info-fg:      var(--orbit-300);
+    --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
+    --info-ring:    rgba(89, 195, 255, 0.5);     /* orbit-400 — its glow */
 
-    --secret-bg:     rgba(124, 58, 237, 0.12);
-    --secret-border: #5b21b6;
-    --secret-fg:     #c4b5fd;
+    --secret-bg:     color-mix(in srgb, var(--violet-600) 12%, transparent);
+    --secret-border: var(--violet-800);
+    --secret-fg:     var(--violet-300);
 
     /* Extra badge hues — categorical only, no semantics attached. */
-    --badge-cyan-bg:     rgba(6, 182, 212, 0.15);
-    --badge-cyan-border: #0e7490;
-    --badge-cyan-fg:     #67e8f9;
-    --badge-orange-bg:     rgba(234, 88, 12, 0.15);
-    --badge-orange-border: #9a3412;
-    --badge-orange-fg:     #fb923c;
-    --badge-teal-bg:     rgba(15, 118, 110, 0.15);
-    --badge-teal-border: #134e4a;
-    --badge-teal-fg:     #2dd4bf;
+    --badge-cyan-bg:     rgba(34, 211, 238, 0.15);    /* cyan-400 */
+    --badge-cyan-border: var(--cyan-800);
+    --badge-cyan-fg:     var(--cyan-300);
+    --badge-orange-bg:     rgba(245, 158, 75, 0.15);    /* orange-400 */
+    --badge-orange-border: var(--orange-800);
+    --badge-orange-fg:     var(--orange-300);
+    --badge-teal-bg:     rgba(20, 184, 166, 0.15);    /* teal-500 */
+    --badge-teal-border: var(--teal-800);
+    --badge-teal-fg:     var(--teal-300);
 
     /* ── Component surfaces ─────────────────────────────────────────────── */
     --badge-bg:      rgba(255, 255, 255, 0.07);
@@ -268,20 +489,24 @@
     --skeleton-bg:    rgba(255, 255, 255, 0.06);
     --skeleton-sheen: rgba(255, 255, 255, 0.11);
     --progress-track: rgba(255, 255, 255, 0.08);
-    --btn-active-bg: #1a2232;
-    --code-fg:       #a5b4fc;
-    --code-bg:       rgba(99, 102, 241, 0.1);
+    --btn-active-bg: var(--slate-850);
+    --code-fg:       var(--indigo-300);
+    --code-bg:       rgba(133, 144, 253, 0.1);    /* indigo-500 */
     --backdrop:      rgba(0, 0, 0, 0.65);       /* modal backdrop */
-    --overlay:       rgba(17, 24, 39, 0.66);    /* in-card blocking overlay */
-    --spotlight-dim: rgba(3, 7, 18, 0.62);      /* guided-tour / spotlight dim */
-    --tip-bg:        #0b1220;
-    --tip-border:    #4b5563;
-    --tip-fg:        #f3f4f6;                   /* the tip stays dark in both themes */
-    --scrollbar:       #374151;
-    --scrollbar-hover: #4b5563;
+    --overlay:       rgba(15, 23, 42, 0.66);    /* slate-900 / Deep Space — in-card blocking overlay */
+    --spotlight-dim: rgba(4, 7, 27, 0.62);      /* slate-950 — guided-tour / spotlight dim */
+    --tip-bg:        var(--slate-925);
+    --tip-border:    var(--slate-600);
+    --tip-fg:        var(--slate-50);                   /* the tip stays dark in both themes */
+    --scrollbar:       var(--slate-700);
+    --scrollbar-hover: var(--slate-600);
     --scroll-shade:    rgba(0, 0, 0, 0.3);      /* scroll-edge fade */
 
-    /* ── Shadows (full box-shadow values — themes swap the colour) ───────── */
+    /* ── Shadows (full box-shadow values — themes swap the colour) ─────────
+       Geometry and alpha are carried over unchanged from before the rebrand;
+       only the tinted tokens above (--overlay, --spotlight-dim) move from grey
+       to Deep Space. A shadow's own black has no palette step to trace to —
+       see the rebrand report. */
     --shadow-topbar:    0 3px 8px rgba(0, 0, 0, 0.28);
     --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.18);
     --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.6);
@@ -291,13 +516,17 @@
     --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.4);
     --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.55);
 
-    /* ── Blazor reconnect banner (deliberately dark in both themes) ─────── */
-    --reconnect-warn-bg:     #422006;
-    --reconnect-warn-border: #d97706;
-    --reconnect-warn-fg:     #fde68a;
-    --reconnect-fail-bg:     #450a0a;
-    --reconnect-fail-border: #dc2626;
-    --reconnect-fail-fg:     #fca5a5;
+    /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
+       Not covered by docs/BRANDING.md's per-token tables. Re-expressed as the
+       nearest available step in the amber/crimson ramps at the same relative
+       position (dark solid bg, mid border, light fg) the old literals held —
+       see the rebrand report. */
+    --reconnect-warn-bg:     var(--amber-900);
+    --reconnect-warn-border: var(--amber-600);
+    --reconnect-warn-fg:     var(--amber-200);
+    --reconnect-fail-bg:     var(--crimson-900);
+    --reconnect-fail-border: var(--crimson-700);
+    --reconnect-fail-fg:     var(--crimson-400);
 
     /* ── Spacing scale ──────────────────────────────────────────────────────
        Every padding, margin and gap in the library resolves through one of these.
@@ -387,131 +616,150 @@
     /* ── Metrics ────────────────────────────────────────────────────────── */
     --page-max: 1800px;    /* content column cap on ultra-wide screens */
 }
-
 }
 
 /* ── 02-theme-light.css → @layer sedna.tokens ──────────────────────────────────────────────── */
 @layer sedna.tokens {
 /* ═══ Light theme ═══════════════════════════════════════════════════════════
    Pure token remapping — no selector overrides. `data-theme` rides on <html>;
-   apply it before first paint (see README) so no dark flash occurs. */
+   apply it before first paint (see README) so no dark flash occurs.
+
+   Canvas is Ice White with white cards (docs/BRANDING.md §5). The canvas-to-card
+   separation is deliberately quieter than the default theme's, because the guide
+   specifies Ice White as *the* light surface — cards must therefore keep their
+   border in light theme; it is doing the separation work that lightness alone no
+   longer does. */
 :root[data-theme="light"] {
     --color-scheme:   light;
     --picker-invert:  0;
 
-    --bg:             #f3f4f6;
-    --bg-elevated:    #ffffff;
-    --bg-hover:       #e5e7eb;
-    --fg:             #111827;
-    --fg-soft:        #374151;
-    /* #4b5563, not #6b7280: on the light --bg the lighter grey measures 4.39:1,
-       which is just under AA and is the single most-used text colour after --fg. */
-    --muted:          #4b5563;
-    --border:         #d1d5db;
-    --border-strong:  #9ca3af;
-    --divider:        rgba(0, 0, 0, 0.07);
-    --card-bg:        #ffffff;
-    --surface-soft:   rgba(0, 0, 0, 0.03);
-    --surface-strong: rgba(0, 0, 0, 0.055);
-    --redacted:       #b91c1c;
+    --bg:             var(--slate-50);    /* Ice White */
+    /* No palette step is pure white — see --on-solid's comment in 01-tokens.css.
+       --bg-elevated, --card-bg and --sidebar-bg all need true white here, one
+       step brighter than Ice White's --bg, which the slate ramp has no step for. */
+    --bg-elevated:    var(--white);
+    --bg-hover:       var(--slate-100);
+    --fg:             var(--slate-900);   /* Deep Space */
+    --fg-soft:        var(--slate-700);
+    /* slate-600, not slate-500: the lighter step measures 3.94:1 on the light
+       --bg, which is under AA, and --muted is the single most-used text colour
+       after --fg. slate-600 reaches 6.28:1. */
+    --muted:          var(--slate-600);
+    --border:         var(--slate-300);
+    --border-strong:  var(--slate-400);
+    --divider:        rgba(15, 23, 42, 0.07);    /* slate-900 / Deep Space */
+    --card-bg:        var(--white);
+    --surface-soft:   rgba(15, 23, 42, 0.03);    /* slate-900 */
+    --surface-strong: rgba(15, 23, 42, 0.055);   /* slate-900 */
+    --redacted:       var(--crimson-700);
 
-    --brand-soft: #2563eb;
-    --brand-text: #1d4ed8;
+    --brand-soft: var(--coral-600);
+    --brand-text: var(--coral-700);
     --brand-tint: color-mix(in srgb, var(--brand) 10%, transparent);
-    --accent:     #1d4ed8;
+    --accent:     var(--orbit-700);
 
-    --sidebar-bg:     #ffffff;
-    --sidebar-border: #e5e7eb;
-    --sidebar-fg:     #374151;
+    --sidebar-bg:     var(--white);
+    --sidebar-border: var(--slate-200);
+    --sidebar-fg:     var(--slate-700);
 
-    --go-bg:     rgba(22, 163, 74, 0.1);
-    --go-border: #86efac;
-    --go-fg:     #15803d;
+    --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
+    --go-border: var(--green-300);
+    --go-fg:     var(--green-700);
 
-    --warn-bg:     rgba(217, 119, 6, 0.1);
-    --warn-border: #fcd34d;
-    --warn-fg:     #b45309;
+    --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
+    --warn-border: var(--amber-300);
+    --warn-fg:     var(--amber-700);
 
     /* The hover and active tints and the strong border take the same steps as the
        dark theme, scaled for a light surface. All four move together: a tint
        remapped without its hover pair jumps between two unrelated reds. */
-    --danger-solid: #dc2626;
-    --danger-bg:            rgba(220, 38, 38, 0.08);
-    --danger-bg-hover:      rgba(220, 38, 38, 0.14);
-    --danger-bg-active:     rgba(220, 38, 38, 0.2);
-    --danger-border:        #fca5a5;
-    --danger-border-strong: #dc2626;
-    --danger-fg:            #b91c1c;
-    --danger-ring:          rgba(220, 38, 38, 0.35);
+    --danger-solid: var(--crimson-700);
+    --danger-bg:            rgba(199, 34, 104, 0.08);    /* crimson-700 */
+    --danger-bg-hover:      rgba(199, 34, 104, 0.14);    /* crimson-700 */
+    --danger-bg-active:     rgba(199, 34, 104, 0.2);     /* crimson-700 */
+    --danger-border:        var(--crimson-300);
+    --danger-border-strong: var(--crimson-700);
+    --danger-fg:            var(--crimson-700);
+    --danger-ring:          rgba(199, 34, 104, 0.35);    /* crimson-700 */
 
-    --info-bg:     rgba(37, 99, 235, 0.08);
-    --info-border: #93c5fd;
-    --info-fg:     #1d4ed8;
-    --info-solid:  #2563eb;
-    --info-ring:   rgba(37, 99, 235, 0.4);
+    --info-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
+    --info-border: var(--orbit-300);
+    --info-fg:     var(--orbit-700);
+    --info-solid:  var(--orbit-700);
+    --info-ring:   rgba(89, 195, 255, 0.4);     /* orbit-400 */
 
-    --secret-bg:     rgba(124, 58, 237, 0.08);
-    --secret-border: #c4b5fd;
-    --secret-fg:     #6d28d9;
+    --secret-bg:     color-mix(in srgb, var(--violet-600) 8%, transparent);
+    --secret-border: var(--violet-300);
+    --secret-fg:     var(--violet-700);
 
-    --badge-cyan-bg:     rgba(6, 182, 212, 0.08);
-    --badge-cyan-border: #67e8f9;
-    --badge-cyan-fg:     #0e7490;
-    --badge-orange-bg:     rgba(234, 88, 12, 0.08);
-    --badge-orange-border: #fdba74;
-    --badge-orange-fg:     #c2410c;
-    --badge-teal-bg:     rgba(15, 118, 110, 0.08);
-    --badge-teal-border: #5eead4;
-    --badge-teal-fg:     #0f766e;
+    --badge-cyan-bg:     rgba(34, 211, 238, 0.08);    /* cyan-400 */
+    --badge-cyan-border: var(--cyan-300);
+    --badge-cyan-fg:     var(--cyan-700);
+    --badge-orange-bg:     rgba(245, 158, 75, 0.08);    /* orange-400 */
+    --badge-orange-border: var(--orange-300);
+    --badge-orange-fg:     var(--orange-700);
+    --badge-teal-bg:     rgba(20, 184, 166, 0.08);    /* teal-500 */
+    --badge-teal-border: var(--teal-300);
+    --badge-teal-fg:     var(--teal-700);
 
-    --badge-bg:      rgba(0, 0, 0, 0.04);
-    --table-head-bg: rgba(0, 0, 0, 0.03);
+    --badge-bg:      rgba(15, 23, 42, 0.04);    /* slate-900 */
+    --table-head-bg: rgba(15, 23, 42, 0.03);    /* slate-900 */
 
-    --skeleton-bg:    rgba(0, 0, 0, 0.06);
-    --skeleton-sheen: rgba(0, 0, 0, 0.11);
-    --progress-track: rgba(0, 0, 0, 0.08);
-    --btn-active-bg: #d1d5db;
-    --code-fg:       #4338ca;
-    --code-bg:       rgba(99, 102, 241, 0.08);
-    --backdrop:      rgba(17, 24, 39, 0.35);
-    --overlay:       rgba(243, 244, 246, 0.66);
-    --spotlight-dim: rgba(17, 24, 39, 0.42);
-    --tip-bg:        #111827;
-    --tip-border:    #374151;
-    --scrollbar:       #d1d5db;
-    --scrollbar-hover: #9ca3af;
-    --scroll-shade:    rgba(17, 24, 39, 0.16);
+    --skeleton-bg:    rgba(15, 23, 42, 0.06);    /* slate-900 */
+    --skeleton-sheen: rgba(15, 23, 42, 0.11);    /* slate-900 */
+    --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */
+    --btn-active-bg: var(--slate-300);
+    --code-fg:       var(--indigo-700);
+    --code-bg:       rgba(90, 97, 191, 0.08);    /* indigo-700 */
+    --backdrop:      rgba(15, 23, 42, 0.35);    /* slate-900 */
+    --overlay:       rgba(248, 250, 252, 0.66);   /* slate-50 / Ice White */
+    --spotlight-dim: rgba(15, 23, 42, 0.42);    /* slate-900 */
+    --tip-bg:        var(--slate-925);
+    --tip-border:    var(--slate-700);
+    --scrollbar:       var(--slate-300);
+    --scrollbar-hover: var(--slate-400);
+    --scroll-shade:    rgba(15, 23, 42, 0.16);    /* slate-900 */
 
-    --shadow-topbar:    0 3px 8px rgba(17, 24, 39, 0.1);
-    --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.06);
-    --shadow-modal:     0 24px 64px rgba(17, 24, 39, 0.25);
-    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.25);
-    --shadow-pop:       0 14px 40px rgba(17, 24, 39, 0.22);
-    --shadow-float:     0 10px 30px rgba(17, 24, 39, 0.18);
+    --shadow-topbar:    0 3px 8px rgba(15, 23, 42, 0.1);      /* slate-900 */
+    --shadow-nav-tools: 0 -6px 12px 0 rgba(15, 23, 42, 0.06); /* slate-900 */
+    --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.25);   /* slate-900 */
+    --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.25);    /* slate-900 */
+    --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.22);   /* slate-900 */
+    --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.18);   /* slate-900 */
 }
-
 }
 
 /* ── 03-theme-colour-blind.css → @layer sedna.tokens ──────────────────────────────────────────────── */
 @layer sedna.tokens {
 /* ═══ Colour-blind-safe palette ═════════════════════════════════════════════
-   Independent toggle, composes with either theme. Only the go family moves. */
+   Independent toggle, composes with either theme. The library's own go → blue
+   swap is retuned to Orbit Blue, so go-vs-danger reads as blue-vs-red for
+   deuteranopia/protanopia.
+
+   The rebrand adds a second collision the default palette did not have: under
+   deuteranopia and protanopia, coral and crimson converge — brand and danger
+   both desaturate toward a similar warm brown. Danger therefore also moves
+   colder and darker here, so the pair separates on lightness when hue is
+   unavailable (docs/BRANDING.md §9.2). */
 :root[data-cvd="1"] {
-    --go-solid:  #2563eb;
-    --go-hover:  #1d4ed8;
-    --go-active: #1e40af;
-    --go-bg:     rgba(37, 99, 235, 0.14);
-    --go-border: #1e40af;
-    --go-fg:     #93c5fd;
-    --go-ring:   rgba(37, 99, 235, 0.5);
+    --go-solid:  var(--orbit-700);
+    --go-hover:  var(--orbit-800);
+    --go-active: var(--orbit-900);
+    --go-bg:     rgba(89, 195, 255, 0.14);    /* orbit-400 */
+    --go-border: var(--orbit-800);
+    --go-fg:     var(--orbit-300);
+    --go-ring:   rgba(89, 195, 255, 0.5);     /* orbit-400 */
+
+    /* Added for SednaUI: separate danger from the coral brand by lightness. */
+    --danger-solid: var(--crimson-800);
+    --danger-fg:    var(--crimson-300);
 }
 :root[data-theme="light"][data-cvd="1"] {
-    --go-bg:     rgba(37, 99, 235, 0.08);
-    --go-border: #93c5fd;
-    --go-fg:     #1d4ed8;
+    --go-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
+    --go-border: var(--orbit-300);
+    --go-fg:     var(--orbit-700);
+    --danger-fg: var(--crimson-800);
 }
-
-
 }
 
 /* ── 04-theme-contrast.css → @layer sedna.tokens ──────────────────────────────────────────────── */
@@ -544,151 +792,161 @@
      · Semantic HUES are kept. Turning everything monochrome would destroy the
        go/warn/danger distinction, which is information. Forced colours does that,
        and it has to; this mode does not.
+
+   docs/BRANDING.md §9.3 gives the brand-specific intent (brand text to step 300 dark /
+   800 light, --brand-tint opaque) but no per-token table for this file the way §5 and
+   §6 do for the two themes — the neutral, status and badge values below are the
+   nearest available palette step at the same relative position the pre-rebrand
+   literals held (grey → slate, blue → coral/orbit by role, red → crimson). Several
+   support ramps have no step this dark or this light: see the rebrand report for the
+   full list of the gaps that forced a "nearest available" choice here.
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* Dark, high contrast. */
 :root[data-contrast="more"] {
-    --bg:              #000000;
-    --bg-elevated:     #0b0f18;
-    --bg-hover:        #1f2937;
-    --fg:              #ffffff;
-    --fg-soft:         #ffffff;
-    --muted:           #d1d5db;
-    --border:          #9ca3af;
-    --border-strong:   #d1d5db;
-    --border-hover:    #ffffff;
-    --divider:         #6b7280;
-    --card-bg:         #0b0f18;
-    --surface-soft:    #111827;
-    --surface-strong:  #1f2937;
+    /* Pure black/white: no palette step reaches either extreme, and that is the
+       point of this mode — see --on-solid's comment in 01-tokens.css. */
+    --bg:              var(--black);
+    --bg-elevated:     var(--slate-950);
+    --bg-hover:        var(--slate-800);
+    --fg:              var(--white);
+    --fg-soft:         var(--white);
+    --muted:           var(--slate-300);
+    --border:          var(--slate-400);
+    --border-strong:   var(--slate-300);
+    --border-hover:    var(--white);
+    --divider:         var(--slate-500);
+    --card-bg:         var(--slate-950);
+    --surface-soft:    var(--slate-900);
+    --surface-strong:  var(--slate-800);
 
-    --brand-soft:      #93c5fd;
-    --brand-text:      #bfdbfe;
-    --brand-tint:      #1e3a8a;
-    --accent:          #93c5fd;
+    --brand-soft:      var(--coral-400);
+    --brand-text:      var(--coral-300);
+    --brand-tint:      var(--coral-950);
+    --accent:          var(--orbit-300);
 
-    --sidebar-bg:      #000000;
-    --sidebar-border:  #9ca3af;
-    --sidebar-fg:      #ffffff;
+    --sidebar-bg:      var(--black);
+    --sidebar-border:  var(--slate-400);
+    --sidebar-fg:      var(--white);
 
-    --go-bg:      #052e16;
-    --go-border:  #4ade80;
-    --go-fg:      #86efac;
-    --warn-bg:     #451a03;
-    --warn-border: #fbbf24;
-    --warn-fg:     #fcd34d;
-    --danger-bg:            #450a0a;
-    --danger-border:        #f87171;
-    --danger-border-strong: #fca5a5;
-    --danger-fg:            #fca5a5;
-    --info-bg:     #172554;
-    --info-border: #93c5fd;
-    --info-fg:     #bfdbfe;
-    --info-solid:  #93c5fd;
-    --secret-bg:     #2e1065;
-    --secret-border: #c4b5fd;
-    --secret-fg:     #ddd6fe;
+    --go-bg:      var(--green-900);
+    --go-border:  var(--green-400);
+    --go-fg:      var(--green-300);
+    --warn-bg:     var(--amber-900);
+    --warn-border: var(--amber-400);
+    --warn-fg:     var(--amber-300);
+    --danger-bg:            var(--crimson-900);
+    --danger-border:        var(--crimson-400);
+    --danger-border-strong: var(--crimson-300);
+    --danger-fg:            var(--crimson-300);
+    --info-bg:     var(--orbit-950);
+    --info-border: var(--orbit-300);
+    --info-fg:     var(--orbit-200);
+    --info-solid:  var(--orbit-300);
+    --secret-bg:     var(--violet-900);
+    --secret-border: var(--violet-300);
+    --secret-fg:     var(--violet-200);
 
-    --badge-bg:      #1f2937;
-    --table-head-bg: #1f2937;
-    --badge-cyan-bg: #083344;   --badge-cyan-border: #67e8f9;   --badge-cyan-fg: #a5f3fc;
-    --badge-orange-bg: #431407; --badge-orange-border: #fdba74; --badge-orange-fg: #fed7aa;
-    --badge-teal-bg: #042f2e;   --badge-teal-border: #5eead4;   --badge-teal-fg: #99f6e4;
+    --badge-bg:      var(--slate-800);
+    --table-head-bg: var(--slate-800);
+    --badge-cyan-bg: var(--cyan-900);     --badge-cyan-border: var(--cyan-300);     --badge-cyan-fg: var(--cyan-200);
+    --badge-orange-bg: var(--orange-900); --badge-orange-border: var(--orange-300); --badge-orange-fg: var(--orange-200);
+    --badge-teal-bg: var(--teal-900);     --badge-teal-border: var(--teal-300);     --badge-teal-fg: var(--teal-200);
 
-    --skeleton-bg:    #1f2937;
-    --skeleton-sheen: #374151;
-    --progress-track: #374151;
-    --btn-active-bg:  #374151;
-    --code-fg:        #c7d2fe;
-    --code-bg:        #1e1b4b;
+    --skeleton-bg:    var(--slate-800);
+    --skeleton-sheen: var(--slate-700);
+    --progress-track: var(--slate-700);
+    --btn-active-bg:  var(--slate-700);
+    --code-fg:        var(--indigo-200);
+    --code-bg:        var(--indigo-900);
     --backdrop:       rgba(0, 0, 0, 0.85);
     --overlay:        rgba(0, 0, 0, 0.85);
-    --scrollbar:       #9ca3af;
-    --scrollbar-hover: #d1d5db;
+    --scrollbar:       var(--slate-400);
+    --scrollbar-hover: var(--slate-300);
 }
 
 /* Light, high contrast. Composes with the light theme by being more specific. */
 :root[data-theme="light"][data-contrast="more"] {
-    --bg:              #ffffff;
-    --bg-elevated:     #ffffff;
-    --bg-hover:        #e5e7eb;
-    --fg:              #000000;
-    --fg-soft:         #000000;
-    --muted:           #1f2937;
-    --border:          #4b5563;
-    --border-strong:   #1f2937;
-    --border-hover:    #000000;
-    --divider:         #9ca3af;
-    --card-bg:         #ffffff;
-    --surface-soft:    #f3f4f6;
-    --surface-strong:  #e5e7eb;
+    --bg:              var(--white);
+    --bg-elevated:     var(--white);
+    --bg-hover:        var(--slate-200);
+    --fg:              var(--black);
+    --fg-soft:         var(--black);
+    --muted:           var(--slate-800);
+    --border:          var(--slate-600);
+    --border-strong:   var(--slate-800);
+    --border-hover:    var(--black);
+    --divider:         var(--slate-400);
+    --card-bg:         var(--white);
+    --surface-soft:    var(--slate-100);
+    --surface-strong:  var(--slate-200);
 
-    --brand-soft:      #1e40af;
-    --brand-text:      #1e3a8a;
-    --brand-tint:      #dbeafe;
-    --accent:          #1e3a8a;
+    --brand-soft:      var(--coral-700);
+    --brand-text:      var(--coral-800);
+    --brand-tint:      var(--coral-200);
+    --accent:          var(--orbit-800);
 
-    --sidebar-bg:      #ffffff;
-    --sidebar-border:  #4b5563;
-    --sidebar-fg:      #000000;
+    --sidebar-bg:      var(--white);
+    --sidebar-border:  var(--slate-600);
+    --sidebar-fg:      var(--black);
 
-    --go-bg:      #dcfce7;
-    --go-border:  #166534;
-    --go-fg:      #14532d;
-    --warn-bg:     #fef3c7;
-    --warn-border: #92400e;
-    --warn-fg:     #78350f;
-    --danger-bg:            #fee2e2;
-    --danger-border:        #991b1b;
-    --danger-border-strong: #7f1d1d;
-    --danger-fg:            #7f1d1d;
-    --info-bg:     #dbeafe;
-    --info-border: #1e40af;
-    --info-fg:     #1e3a8a;
-    --info-solid:  #1e3a8a;
-    --secret-bg:     #ede9fe;
-    --secret-border: #5b21b6;
-    --secret-fg:     #4c1d95;
+    --go-bg:      var(--green-200);
+    --go-border:  var(--green-800);
+    --go-fg:      var(--green-900);
+    --warn-bg:     var(--amber-200);
+    --warn-border: var(--amber-800);
+    --warn-fg:     var(--amber-900);
+    --danger-bg:            var(--crimson-200);
+    --danger-border:        var(--crimson-800);
+    --danger-border-strong: var(--crimson-900);
+    --danger-fg:            var(--crimson-900);
+    --info-bg:     var(--orbit-100);
+    --info-border: var(--orbit-800);
+    --info-fg:     var(--orbit-900);
+    --info-solid:  var(--orbit-900);
+    --secret-bg:     var(--violet-200);
+    --secret-border: var(--violet-800);
+    --secret-fg:     var(--violet-900);
 
-    --badge-bg:      #e5e7eb;
-    --table-head-bg: #e5e7eb;
-    --badge-cyan-bg: #cffafe;   --badge-cyan-border: #155e75;   --badge-cyan-fg: #164e63;
-    --badge-orange-bg: #ffedd5; --badge-orange-border: #9a3412; --badge-orange-fg: #7c2d12;
-    --badge-teal-bg: #ccfbf1;   --badge-teal-border: #115e59;   --badge-teal-fg: #134e4a;
+    --badge-bg:      var(--slate-200);
+    --table-head-bg: var(--slate-200);
+    --badge-cyan-bg: var(--cyan-200);     --badge-cyan-border: var(--cyan-800);     --badge-cyan-fg: var(--cyan-900);
+    --badge-orange-bg: var(--orange-200); --badge-orange-border: var(--orange-800); --badge-orange-fg: var(--orange-900);
+    --badge-teal-bg: var(--teal-200);     --badge-teal-border: var(--teal-800);     --badge-teal-fg: var(--teal-900);
 
-    --skeleton-bg:    #e5e7eb;
-    --skeleton-sheen: #d1d5db;
-    --progress-track: #d1d5db;
-    --btn-active-bg:  #9ca3af;
-    --code-fg:        #312e81;
-    --code-bg:        #e0e7ff;
+    --skeleton-bg:    var(--slate-200);
+    --skeleton-sheen: var(--slate-300);
+    --progress-track: var(--slate-300);
+    --btn-active-bg:  var(--slate-400);
+    --code-fg:        var(--indigo-900);
+    --code-bg:        var(--indigo-200);
     --backdrop:       rgba(0, 0, 0, 0.6);
     --overlay:        rgba(255, 255, 255, 0.9);
-    --scrollbar:       #6b7280;
-    --scrollbar-hover: #374151;
-    --redacted:        #7f1d1d;
+    --scrollbar:       var(--slate-500);
+    --scrollbar-hover: var(--slate-700);
+    --redacted:        var(--crimson-900);
 }
 
 /* The OS setting, for anybody who never opens the app's own settings. Only :root
    remaps, so `Appearance_media_queries_only_remap_tokens` holds. */
 @media (prefers-contrast: more) {
     :root {
-        --border:         #9ca3af;
-        --border-strong:  #d1d5db;
-        --divider:        #6b7280;
-        --fg-soft:        #ffffff;
-        --muted:          #d1d5db;
-        --surface-soft:   #111827;
-        --surface-strong: #1f2937;
+        --border:         var(--slate-400);
+        --border-strong:  var(--slate-300);
+        --divider:        var(--slate-500);
+        --fg-soft:        var(--white);
+        --muted:          var(--slate-300);
+        --surface-soft:   var(--slate-900);
+        --surface-strong: var(--slate-800);
     }
     :root[data-theme="light"] {
-        --border:         #4b5563;
-        --border-strong:  #1f2937;
-        --divider:        #9ca3af;
-        --fg-soft:        #000000;
-        --muted:          #1f2937;
-        --surface-soft:   #f3f4f6;
-        --surface-strong: #e5e7eb;
+        --border:         var(--slate-600);
+        --border-strong:  var(--slate-800);
+        --divider:        var(--slate-400);
+        --fg-soft:        var(--black);
+        --muted:          var(--slate-800);
+        --surface-soft:   var(--slate-100);
+        --surface-strong: var(--slate-200);
     }
 }
 }

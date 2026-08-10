@@ -40,6 +40,11 @@ part declares its own.
 Pick a free number inside the right range. **Renumbering an existing part can change its layer as well
 as its order**, which is a behaviour change twice over — check the affected pages.
 
+The `00`–`04` band is full, so it holds two parts numbered `00`: `00-header.css` then
+`00-palette.css`. Ordering still works — the generator sorts by filename, and `h` precedes `p` — and
+both land in `sedna.tokens`, which is what matters. Renumbering `01-tokens.css` to make room would
+have pushed `04-theme-contrast.css` into `05`, i.e. into `sedna.base`.
+
 Two consequences to keep in mind while writing a rule:
 
 - **A later layer beats an earlier one regardless of specificity.** That is why a utility at (0,1,0)
@@ -54,6 +59,15 @@ Two consequences to keep in mind while writing a rule:
   `01-tokens.css` and remapped in `02-theme-light.css` / `03-theme-colour-blind.css`. `transparent`
   and `currentColor` are the only literals allowed; system colour keywords (`Canvas`, `CanvasText`, …)
   are allowed **only** as a `:root` remap inside `@media (forced-colors: active)`.
+- **The token layer has two tiers, and neither leaks into the other.** `00-palette.css` is tier 1: the
+  ramps, holding literals, declared once at bare `:root` and never remapped by variant, colour-vision
+  or contrast — a ramp step is a colour, not a decision. Everything in `01`–`04` is tier 2: roles, each
+  pointing at a palette step. **A hex in tier 2 is a value no theme can reach**, which looks fine until
+  someone switches theme and one surface does not move. `TokenTierTests` fails on either leak, and also
+  re-measures the six near-floor contrast pairs `docs/BRANDING.md` §7.1 names — that file says "do not
+  lighten any of them without re-measuring", and this is the re-measurement.
+  If a colour genuinely is not on a ramp, add it to `00-palette.css`; `--white` and `--black` are there
+  for exactly that reason, because the ramps stop short of both extremes on purpose.
 - **No `!important`.** An app must always be able to win an override. Raise specificity instead — see
   `.nav-link .nav-link-ext` in `11-frame-sidebar.css`.
 - **A token block is `:root` plus attribute filters and nothing else.** Do not put a non-custom-property

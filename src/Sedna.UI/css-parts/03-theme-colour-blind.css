@@ -1,18 +1,29 @@
 /* ═══ Colour-blind-safe palette ═════════════════════════════════════════════
-   Independent toggle, composes with either theme. Only the go family moves. */
+   Independent toggle, composes with either theme. The library's own go → blue
+   swap is retuned to Orbit Blue, so go-vs-danger reads as blue-vs-red for
+   deuteranopia/protanopia.
+
+   The rebrand adds a second collision the default palette did not have: under
+   deuteranopia and protanopia, coral and crimson converge — brand and danger
+   both desaturate toward a similar warm brown. Danger therefore also moves
+   colder and darker here, so the pair separates on lightness when hue is
+   unavailable (docs/BRANDING.md §9.2). */
 :root[data-cvd="1"] {
-    --go-solid:  #2563eb;
-    --go-hover:  #1d4ed8;
-    --go-active: #1e40af;
-    --go-bg:     rgba(37, 99, 235, 0.14);
-    --go-border: #1e40af;
-    --go-fg:     #93c5fd;
-    --go-ring:   rgba(37, 99, 235, 0.5);
+    --go-solid:  var(--orbit-700);
+    --go-hover:  var(--orbit-800);
+    --go-active: var(--orbit-900);
+    --go-bg:     rgba(89, 195, 255, 0.14);    /* orbit-400 */
+    --go-border: var(--orbit-800);
+    --go-fg:     var(--orbit-300);
+    --go-ring:   rgba(89, 195, 255, 0.5);     /* orbit-400 */
+
+    /* Added for SednaUI: separate danger from the coral brand by lightness. */
+    --danger-solid: var(--crimson-800);
+    --danger-fg:    var(--crimson-300);
 }
 :root[data-theme="light"][data-cvd="1"] {
-    --go-bg:     rgba(37, 99, 235, 0.08);
-    --go-border: #93c5fd;
-    --go-fg:     #1d4ed8;
+    --go-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
+    --go-border: var(--orbit-300);
+    --go-fg:     var(--orbit-700);
+    --danger-fg: var(--crimson-800);
 }
-
-

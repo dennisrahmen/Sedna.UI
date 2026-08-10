@@ -181,6 +181,16 @@ Derived on the same lightness curve so they sit level with the primaries.
 | **Teal** (badge) | `#A5EEE1` | `#79DFCF` | `#47CBB9` | `#14B8A6` | `#009A8B` | `#007F72` | `#00645A` | `#004B42` |
 | **Indigo** (code) | `#D4DBFF` | `#BBC5FF` | `#9FABFF` | `#8590FD` | `#6F79E0` | `#5A61BF` | `#464B9B` | `#323777` |
 
+**These eight run 200–900, not 50–950**, because those are the steps the token map
+consumes. One place notices: high contrast (§7.3) wants an ultra-pale tint and an ultra-dark opaque
+background, and reaches for a `100` and a `950` that do not exist. It takes the nearest available step
+instead — 200 and 900 — which is marginally less extreme than the mode would like.
+
+That is a deliberate limit rather than an oversight. Extending a ramp means generating two more steps
+per family on the same lightness curve, and a value invented by eye in the *one* mode whose entire
+purpose is guaranteed separation is worse than a measured step that is slightly conservative. Extend
+them properly when there is a reason to, and re-measure §7.1 afterwards.
+
 ---
 
 ## 3. Three decisions that shaped the system
@@ -409,6 +419,20 @@ badge, never a coloured cell background.
 
 **Empty states and errors.** Say what happened and what to do. An error names the problem and the
 fix; it does not apologise.
+
+**The reconnect banner** is Blazor's own connection UI, restyled in library classes. It stays dark in
+both variants by design — it appears when the circuit is gone, and a banner that changes colour with
+the theme reads as part of the page rather than as something wrong with it. Six tokens, sitting one
+family apart so "retrying" and "gave up" are not the same colour:
+
+| State | Background | Border | Text |
+|---|---|---|---|
+| attempting | amber 900 | amber 600 | amber 200 |
+| failed | crimson 900 | crimson 700 | crimson 400 |
+
+The failed state deliberately lands on the same steps as `--danger-solid` and `--danger-fg`: a dead
+circuit *is* danger-shaped, and borrowing the family rather than inventing one keeps a theme from
+having to answer for it separately.
 
 ---
 

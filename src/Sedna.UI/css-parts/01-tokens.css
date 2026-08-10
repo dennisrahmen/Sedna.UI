@@ -21,32 +21,51 @@
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-mono: "SF Mono", Menlo, Consolas, monospace;
 
-    /* ── Surfaces, text, lines ──────────────────────────────────────────── */
-    --bg:              #111827;
-    --bg-elevated:     #1f2937;
-    --bg-hover:        #283346;
-    --fg:              #f3f4f6;
-    --fg-soft:         #d1d5db;          /* body copy on cards */
-    --muted:           #9ca3af;
-    --border:          #374151;
-    --border-strong:   #4b5563;
-    --border-hover:    #6b7280;
+    /* ── Surfaces, text, lines ──────────────────────────────────────────────
+       Dark is the library's default and the identity is strongest here: Deep
+       Space canvas, Navy Slate elevated surface, Ice White text, Dust Gray
+       muted — the four guide colours used exactly as named. See
+       docs/BRANDING.md §6. */
+    --bg:              var(--slate-900);   /* Deep Space */
+    --bg-elevated:     var(--slate-800);   /* Navy Slate */
+    --bg-hover:        var(--slate-750);
+    --fg:              var(--slate-50);    /* Ice White */
+    --fg-soft:         var(--slate-300);         /* body copy on cards */
+    --muted:           var(--slate-400);   /* Dust Gray */
+    --border:          var(--slate-700);
+    --border-strong:   var(--slate-600);
+    --border-hover:    var(--slate-500);
     --divider:         rgba(255, 255, 255, 0.06);
-    --card-bg:         #1f2937;
+    --card-bg:         var(--slate-800);
     --surface-soft:    rgba(255, 255, 255, 0.03);
     --surface-strong:  rgba(255, 255, 255, 0.05);
-    --on-solid:        #ffffff;          /* text on any filled/solid button */
-    --redacted:        #f87171;
+    /* Pure white, deliberately, and not the slate ramp's lightest step — that
+       is Ice White (#f8fafc), which is measurably darker. This token is the
+       "white" in "white on --brand" (4.55:1), one of the six pairs sitting
+       within 0.3 of the AA floor in docs/BRANDING.md §7.1, and it is shared by
+       every filled control. Ice White here would lower all six ratios at once,
+       which is why --white exists in the palette as an absolute. */
+    --on-solid:        var(--white);          /* text on any filled/solid button */
+    --redacted:        var(--crimson-400);
 
     /* ── Brand — THE app override point ─────────────────────────────────────
-       Neutral blue by default. An app redefines this family (and --accent /
-       --sidebar-active) in its own override file; nothing else needs touching.
-       The four ring tokens are separate because the alphas differ per control. */
-    --brand:            #2563eb;
-    --brand-hover:      #1d4ed8;
-    --brand-active:     #1e40af;
-    --brand-soft:       #60a5fa;         /* icons/spinners on tinted surfaces */
-    --brand-text:       #93c5fd;         /* readable brand text on the theme bg */
+       An app redefines this family (and --accent / --sidebar-active) in its own
+       override file, or supplies a whole theme; nothing else needs touching.
+       The four ring tokens are separate because the alphas differ per control.
+
+       --brand is NOT Sedna Red (coral-500) — Sedna Red is a display colour.
+       White text on coral-500 is 2.82:1, far under the 4.5:1 a .btn label
+       needs. coral-600 is the darkest-chroma point on the Sedna Red hue that
+       still carries white text at AA (4.55:1): solved for maximum chroma at
+       the contrast boundary, not "coral, darkened" — a naive darkening goes
+       brick and dull. Sedna Red itself survives everywhere it can be seen at
+       full strength: --brand-soft, tints, glows, the sidebar indicator. See
+       docs/BRANDING.md §4.1. */
+    --brand:            var(--coral-600);
+    --brand-hover:      var(--coral-700);
+    --brand-active:     var(--coral-800);
+    --brand-soft:       var(--coral-500);         /* icons/spinners on tinted surfaces — Sedna Red at full strength */
+    --brand-text:       var(--coral-400);         /* readable brand text on the theme bg */
     /* Mixed from --brand rather than restated as literals, so redefining --brand
        alone carries the tint and every focus ring with it. An app may still pin any
        of them.
@@ -60,13 +79,13 @@
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
     --brand-ring-check: color-mix(in srgb, var(--brand) 35%, transparent);  /* checkbox focus */
     --brand-glow:       color-mix(in srgb, var(--brand) 18%, transparent);  /* text-input focus glow */
-    --accent:           #60a5fa;         /* links, decorative icons */
+    --accent:           var(--orbit-400);         /* links, decorative icons — Orbit Blue, unmodified */
 
     /* ── Sidebar ───────────────────────────────────────────────────────── */
-    --sidebar-bg:      #111827;
-    --sidebar-border:  #1f2937;
-    --sidebar-fg:      #e5e7eb;
-    --sidebar-active:  #2563eb;
+    --sidebar-bg:      var(--slate-900);
+    --sidebar-border:  var(--slate-800);
+    --sidebar-fg:      var(--slate-200);
+    --sidebar-active:  var(--coral-600);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -75,61 +94,64 @@
        "info", "secret" — informational and sensitive-value surfaces
        [data-cvd="1"] swaps ONLY the go family to blue, so go-vs-danger reads as
        blue-vs-red for deuteranopia/protanopia. Amber and brand keep their roles. */
-    /* The three filled families are one ramp step darker than the palette's own mid
-       tone, because --on-solid is white: white on #16a34a is 3.30:1 and on #d97706 is
-       3.19:1, both below AA for the 13px/500 label a .btn renders, while #15803d and
-       #b45309 reach 5.02:1. Do not lighten them without re-running the contrast audit
-       in docs/accessibility.md. */
-    --go-solid:   #15803d;
-    --go-hover:   #166534;
-    --go-active:  #14532d;
-    --go-bg:      rgba(34, 197, 94, 0.12);
-    --go-border:  #166534;
-    --go-fg:      #4ade80;
-    --go-ring:    rgba(34, 197, 94, 0.5);
+    /* The go and warn solids are one ramp step darker than the palette's own mid
+       tone, because --on-solid is white: the 500/600 mid tones do not clear AA for
+       the 13px/500 label a .btn renders, while step 700 does. White on every solid:
+       go 4.83 · warn 5.31 (docs/BRANDING.md §6). Do not lighten them without
+       re-running the contrast audit in docs/accessibility.md. */
+    --go-solid:   var(--green-700);
+    --go-hover:   var(--green-800);
+    --go-active:  var(--green-900);
+    --go-bg:      rgba(34, 197, 94, 0.12);   /* green-500 */
+    --go-border:  var(--green-800);
+    --go-fg:      var(--green-400);
+    --go-ring:    rgba(34, 197, 94, 0.5);    /* green-500 */
 
-    --warn-solid:      #b45309;
-    --warn-hover:      #92400e;
-    --warn-active:     #78350f;
-    --warn-bg:         rgba(245, 158, 11, 0.12);
-    --warn-bg-hover:   rgba(245, 158, 11, 0.2);
-    --warn-bg-active:  rgba(245, 158, 11, 0.28);
-    --warn-border:     #854d0e;
-    --warn-fg:         #fbbf24;
-    --warn-ring:       rgba(245, 158, 11, 0.4);
-    --warn-ring-solid: rgba(245, 158, 11, 0.5);
+    --warn-solid:      var(--amber-700);
+    --warn-hover:      var(--amber-800);
+    --warn-active:     var(--amber-900);
+    --warn-bg:         rgba(245, 158, 11, 0.12);   /* amber-500 */
+    --warn-bg-hover:   rgba(245, 158, 11, 0.2);    /* amber-500 */
+    --warn-bg-active:  rgba(245, 158, 11, 0.28);   /* amber-500 */
+    --warn-border:     var(--amber-800);
+    --warn-fg:         var(--amber-300);
+    --warn-ring:       rgba(245, 158, 11, 0.4);    /* amber-500 */
+    --warn-ring-solid: rgba(245, 158, 11, 0.5);    /* amber-500 */
 
-    /* #dc2626, not #ef4444: white on #ef4444 is 3.76:1, below AA. Both themes use
-       the same value. */
-    --danger-solid:         #dc2626;
-    --danger-bg:            rgba(127, 29, 29, 0.15);
-    --danger-bg-hover:      rgba(185, 28, 28, 0.25);
-    --danger-bg-active:     rgba(185, 28, 28, 0.35);
-    --danger-border:        rgba(153, 27, 27, 0.6);
-    --danger-border-strong: #991b1b;
-    --danger-fg:            #f87171;
-    --danger-ring:          rgba(239, 68, 68, 0.4);   /* focus ring on a danger control */
+    /* crimson-700, not the old #dc2626: that red sits 7° from the Sedna Red brand
+       in OKLCH — a Delete button and a Save button would read as the same colour
+       at a glance. crimson-700 is 32° away and slightly darker, so the two separate
+       on hue AND lightness (docs/BRANDING.md §4.3 — this one is forced, not
+       cosmetic). It still carries white text at AA: 4.61:1, both themes. */
+    --danger-solid:         var(--crimson-700);
+    --danger-bg:            rgba(128, 0, 61, 0.15);    /* crimson-900 */
+    --danger-bg-hover:      rgba(166, 6, 83, 0.25);    /* crimson-800 */
+    --danger-bg-active:     rgba(166, 6, 83, 0.35);    /* crimson-800 */
+    --danger-border:        rgba(166, 6, 83, 0.6);     /* crimson-800 */
+    --danger-border-strong: var(--crimson-800);
+    --danger-fg:            var(--crimson-400);
+    --danger-ring:          rgba(244, 69, 136, 0.4);   /* crimson-500 — focus ring on a danger control */
 
-    --info-bg:      rgba(96, 165, 250, 0.12);
-    --info-border:  #1e40af;
-    --info-fg:      #93c5fd;
-    --info-solid:   #1d4ed8;                     /* a filled info dot or bar */
-    --info-ring:    rgba(96, 165, 250, 0.5);     /* its glow */
+    --info-bg:      rgba(89, 195, 255, 0.12);    /* orbit-400 */
+    --info-border:  var(--orbit-800);
+    --info-fg:      var(--orbit-300);
+    --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
+    --info-ring:    rgba(89, 195, 255, 0.5);     /* orbit-400 — its glow */
 
-    --secret-bg:     rgba(124, 58, 237, 0.12);
-    --secret-border: #5b21b6;
-    --secret-fg:     #c4b5fd;
+    --secret-bg:     color-mix(in srgb, var(--violet-600) 12%, transparent);
+    --secret-border: var(--violet-800);
+    --secret-fg:     var(--violet-300);
 
     /* Extra badge hues — categorical only, no semantics attached. */
-    --badge-cyan-bg:     rgba(6, 182, 212, 0.15);
-    --badge-cyan-border: #0e7490;
-    --badge-cyan-fg:     #67e8f9;
-    --badge-orange-bg:     rgba(234, 88, 12, 0.15);
-    --badge-orange-border: #9a3412;
-    --badge-orange-fg:     #fb923c;
-    --badge-teal-bg:     rgba(15, 118, 110, 0.15);
-    --badge-teal-border: #134e4a;
-    --badge-teal-fg:     #2dd4bf;
+    --badge-cyan-bg:     rgba(34, 211, 238, 0.15);    /* cyan-400 */
+    --badge-cyan-border: var(--cyan-800);
+    --badge-cyan-fg:     var(--cyan-300);
+    --badge-orange-bg:     rgba(245, 158, 75, 0.15);    /* orange-400 */
+    --badge-orange-border: var(--orange-800);
+    --badge-orange-fg:     var(--orange-300);
+    --badge-teal-bg:     rgba(20, 184, 166, 0.15);    /* teal-500 */
+    --badge-teal-border: var(--teal-800);
+    --badge-teal-fg:     var(--teal-300);
 
     /* ── Component surfaces ─────────────────────────────────────────────── */
     --badge-bg:      rgba(255, 255, 255, 0.07);
@@ -141,20 +163,24 @@
     --skeleton-bg:    rgba(255, 255, 255, 0.06);
     --skeleton-sheen: rgba(255, 255, 255, 0.11);
     --progress-track: rgba(255, 255, 255, 0.08);
-    --btn-active-bg: #1a2232;
-    --code-fg:       #a5b4fc;
-    --code-bg:       rgba(99, 102, 241, 0.1);
+    --btn-active-bg: var(--slate-850);
+    --code-fg:       var(--indigo-300);
+    --code-bg:       rgba(133, 144, 253, 0.1);    /* indigo-500 */
     --backdrop:      rgba(0, 0, 0, 0.65);       /* modal backdrop */
-    --overlay:       rgba(17, 24, 39, 0.66);    /* in-card blocking overlay */
-    --spotlight-dim: rgba(3, 7, 18, 0.62);      /* guided-tour / spotlight dim */
-    --tip-bg:        #0b1220;
-    --tip-border:    #4b5563;
-    --tip-fg:        #f3f4f6;                   /* the tip stays dark in both themes */
-    --scrollbar:       #374151;
-    --scrollbar-hover: #4b5563;
+    --overlay:       rgba(15, 23, 42, 0.66);    /* slate-900 / Deep Space — in-card blocking overlay */
+    --spotlight-dim: rgba(4, 7, 27, 0.62);      /* slate-950 — guided-tour / spotlight dim */
+    --tip-bg:        var(--slate-925);
+    --tip-border:    var(--slate-600);
+    --tip-fg:        var(--slate-50);                   /* the tip stays dark in both themes */
+    --scrollbar:       var(--slate-700);
+    --scrollbar-hover: var(--slate-600);
     --scroll-shade:    rgba(0, 0, 0, 0.3);      /* scroll-edge fade */
 
-    /* ── Shadows (full box-shadow values — themes swap the colour) ───────── */
+    /* ── Shadows (full box-shadow values — themes swap the colour) ─────────
+       Geometry and alpha are carried over unchanged from before the rebrand;
+       only the tinted tokens above (--overlay, --spotlight-dim) move from grey
+       to Deep Space. A shadow's own black has no palette step to trace to —
+       see the rebrand report. */
     --shadow-topbar:    0 3px 8px rgba(0, 0, 0, 0.28);
     --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.18);
     --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.6);
@@ -164,13 +190,17 @@
     --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.4);
     --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.55);
 
-    /* ── Blazor reconnect banner (deliberately dark in both themes) ─────── */
-    --reconnect-warn-bg:     #422006;
-    --reconnect-warn-border: #d97706;
-    --reconnect-warn-fg:     #fde68a;
-    --reconnect-fail-bg:     #450a0a;
-    --reconnect-fail-border: #dc2626;
-    --reconnect-fail-fg:     #fca5a5;
+    /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
+       Not covered by docs/BRANDING.md's per-token tables. Re-expressed as the
+       nearest available step in the amber/crimson ramps at the same relative
+       position (dark solid bg, mid border, light fg) the old literals held —
+       see the rebrand report. */
+    --reconnect-warn-bg:     var(--amber-900);
+    --reconnect-warn-border: var(--amber-600);
+    --reconnect-warn-fg:     var(--amber-200);
+    --reconnect-fail-bg:     var(--crimson-900);
+    --reconnect-fail-border: var(--crimson-700);
+    --reconnect-fail-fg:     var(--crimson-400);
 
     /* ── Spacing scale ──────────────────────────────────────────────────────
        Every padding, margin and gap in the library resolves through one of these.
@@ -260,4 +290,3 @@
     /* ── Metrics ────────────────────────────────────────────────────────── */
     --page-max: 1800px;    /* content column cap on ultra-wide screens */
 }
-

@@ -35,7 +35,9 @@ public class CascadeTests : ScriptTestBase
             ("<table class='table table--zebra'><tbody>"
              + "<tr><td>a</td></tr><tr aria-selected='true'><td id='probe'>b</td></tr>"
              + "</tbody></table>",
-             "#probe", "boxShadow", "rgb(37, 99, 235) 3px 0px 0px 0px inset"),
+             // rgb(215, 63, 26) is --brand — coral-600, the SednaUI rebrand's action
+             // colour (was rgb(37, 99, 235), the pre-rebrand blue).
+             "#probe", "boxShadow", "rgb(215, 63, 26) 3px 0px 0px 0px inset"),
 
             // .form-select's caret survives .form-input's `background` shorthand only
             // on source order, so this fails the moment the part is renumbered.

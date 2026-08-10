@@ -1,0 +1,194 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   TIER 1 — THE PALETTE
+   ───────────────────────────────────────────────────────────────────────────
+   Ramps. Nothing in the library styles anything with these directly; they are
+   the raw material the semantic tokens in 01-tokens.css point at.
+
+   Two rules make the tier split worth having, and a guard enforces each:
+
+   1. A palette token holds a LITERAL. It never references another token. If a
+      ramp step could point at a role, the tiers would invert and "what colour
+      is this" would stop having an answer.
+   2. A palette token is declared ONCE, here, at :root. It is not remapped by
+      variant, colour-vision or contrast — a ramp step is a colour, not a
+      decision. Every remap belongs in tier 2, where the roles live.
+
+   Generated in OKLCH with a fixed hue per family, a lightness curve shared
+   across all families, and a chroma bell peaking at the anchor. That is why
+   step 600 of any two families carries the same visual weight: a green badge
+   and a violet badge sit at the same optical level, which HSL cannot deliver.
+
+   The brand anchors appear at their published values, unrounded. Do not round
+   them and do not "tidy" a step by eye — docs/BRANDING.md §7.1 names six pairs
+   sitting within 0.3 of the WCAG AA floor, and a nudge takes one below it.
+
+   Full tables, with the measured contrast for every step:
+   docs/BRANDING.md §2.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+    /* ── The two absolutes ─────────────────────────────────────────────────
+       Neither is a ramp step: the slate ramp runs 50 (#f8fafc, Ice White) to
+       950 (#04071b), and both ends are deliberately short of the extremes.
+
+       They are here so tier 2 never has to carry a raw literal. That matters
+       most for --on-solid, which is the "white" in "white on --brand" — the
+       4.55:1 pair that sets where --brand sits. Substituting slate-50 there
+       would quietly lower every white-on-solid ratio the manual quotes, which
+       is the exact failure the tier rules exist to prevent.
+
+       High contrast also needs true black-on-white and white-on-black; that is
+       the mode's whole point, not a gap in the ramps. */
+    --white: #ffffff;
+    --black: #000000;
+
+    /* ── Slate — the neutral spine ─────────────────────────────────────────
+       Four of the seven core brand colours are steps on this one ramp:
+       50 Ice White, 400 Dust Gray, 800 Navy Slate, 900 Deep Space. */
+    --slate-50: #f8fafc;
+    --slate-100: #eef4fb;
+    --slate-200: #dde7f3;
+    --slate-300: #c8d5e5;
+    --slate-400: #94a3b8;
+    --slate-500: #707e93;
+    --slate-600: #515e72;
+    --slate-700: #354255;
+    --slate-750: #2a3649;
+    --slate-800: #1e293b;
+    --slate-850: #162033;
+    --slate-900: #0f172a;
+    --slate-925: #0a1225;
+    --slate-950: #04071b;
+
+    /* ── Coral — the brand ramp ────────────────────────────────────────────
+       500 is Sedna Red, the brand you SEE. 600 is the brand you CLICK: the
+       darkest-chroma point on this hue that still carries white text at AA
+       (4.55:1). See docs/BRANDING.md §3.1 — that gap is a constraint, not a
+       preference. */
+    --coral-50: #fff4f1;
+    --coral-100: #ffe9e3;
+    --coral-200: #ffd1c5;
+    --coral-300: #ffb4a0;
+    --coral-400: #ff8f74;
+    --coral-500: #ff6b4a;
+    --coral-600: #d73f1a;
+    --coral-700: #be2e06;
+    --coral-800: #a22000;
+    --coral-900: #7b1403;
+    --coral-950: #580000;
+
+    /* ── Orbit — accent and information ───────────────────────────────────
+       400 is Orbit Blue. Links and info own blue outright now that the brand
+       is coral (§3.2). */
+    --orbit-50: #eff8ff;
+    --orbit-100: #e0f1ff;
+    --orbit-200: #bde3ff;
+    --orbit-300: #90d2ff;
+    --orbit-400: #59c3ff;
+    --orbit-500: #3aa8e2;
+    --orbit-600: #158fc6;
+    --orbit-700: #0077a5;
+    --orbit-800: #005e82;
+    --orbit-900: #004661;
+    --orbit-950: #002c3f;
+
+    /* ── Navy — the mark, illustration, marketing ─────────────────────────
+       Deliberately NOT consumed by any semantic token. It exists so diagrams,
+       spot illustration and the mark itself have a governed range; 900 is the
+       orbit stroke in the logo. */
+    --navy-50: #f4f7fc;
+    --navy-100: #e9eff9;
+    --navy-200: #d4def0;
+    --navy-300: #bacae7;
+    --navy-400: #9db4dd;
+    --navy-500: #809dd2;
+    --navy-600: #6484c2;
+    --navy-700: #4b6cab;
+    --navy-800: #35548f;
+    --navy-900: #17346e;
+    --navy-950: #0e2450;
+
+    /* ── Green — go ───────────────────────────────────────────────────────
+       The filled step is 700, not 500: --on-solid is white and the mid tone
+       cannot carry it at AA. Every filled family follows that rule. */
+    --green-200: #a2f4b6;
+    --green-300: #75e594;
+    --green-400: #44d272;
+    --green-500: #22c55e;
+    --green-600: #00a043;
+    --green-700: #008433;
+    --green-800: #006924;
+    --green-900: #004e16;
+
+    /* ── Amber — warn ─────────────────────────────────────────────────────── */
+    --amber-200: #ffd5a2;
+    --amber-300: #feba61;
+    --amber-400: #f09f24;
+    --amber-500: #f59e0b;
+    --amber-600: #b87300;
+    --amber-700: #995e00;
+    --amber-800: #7a4900;
+    --amber-900: #5d3400;
+
+    /* ── Crimson — danger ─────────────────────────────────────────────────
+       Danger is crimson rather than red because red sits 7° from the coral
+       brand in OKLCH: a Delete button and a Save button would be the same
+       colour at a glance. Crimson is 32° away and slightly darker, so the two
+       separate on hue AND lightness. §3.3 — this one is forced. */
+    --crimson-200: #ffceda;
+    --crimson-300: #ffafc4;
+    --crimson-400: #ff87ab;
+    --crimson-500: #f44588;
+    --crimson-600: #d92b73;
+    --crimson-700: #c72268;
+    --crimson-800: #a60653;
+    --crimson-900: #80003d;
+
+    /* ── Violet — secret ─────────────────────────────────────────────────── */
+    --violet-200: #ded7ff;
+    --violet-300: #cbbfff;
+    --violet-400: #b6a2ff;
+    --violet-500: #a283ff;
+    --violet-600: #8e61f7;
+    --violet-700: #754bd3;
+    --violet-800: #5d37ad;
+    --violet-900: #452685;
+
+    /* ── Cyan, Orange, Teal — categorical badge hues, no meaning ─────────── */
+    --cyan-200: #9cecfc;
+    --cyan-300: #6adcf1;
+    --cyan-400: #22d3ee;
+    --cyan-500: #00b0c8;
+    --cyan-600: #0096aa;
+    --cyan-700: #007b8d;
+    --cyan-800: #00616f;
+    --cyan-900: #004853;
+
+    --orange-200: #ffd4ae;
+    --orange-300: #feb979;
+    --orange-400: #f59e4b;
+    --orange-500: #da852e;
+    --orange-600: #bf6e10;
+    --orange-700: #a15800;
+    --orange-800: #814400;
+    --orange-900: #623000;
+
+    --teal-200: #a5eee1;
+    --teal-300: #79dfcf;
+    --teal-400: #47cbb9;
+    --teal-500: #14b8a6;
+    --teal-600: #009a8b;
+    --teal-700: #007f72;
+    --teal-800: #00645a;
+    --teal-900: #004b42;
+
+    /* ── Indigo — inline code ─────────────────────────────────────────────── */
+    --indigo-200: #d4dbff;
+    --indigo-300: #bbc5ff;
+    --indigo-400: #9fabff;
+    --indigo-500: #8590fd;
+    --indigo-600: #6f79e0;
+    --indigo-700: #5a61bf;
+    --indigo-800: #464b9b;
+    --indigo-900: #323777;
+}

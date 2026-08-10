@@ -1,98 +1,107 @@
 /* ═══ Light theme ═══════════════════════════════════════════════════════════
    Pure token remapping — no selector overrides. `data-theme` rides on <html>;
-   apply it before first paint (see README) so no dark flash occurs. */
+   apply it before first paint (see README) so no dark flash occurs.
+
+   Canvas is Ice White with white cards (docs/BRANDING.md §5). The canvas-to-card
+   separation is deliberately quieter than the default theme's, because the guide
+   specifies Ice White as *the* light surface — cards must therefore keep their
+   border in light theme; it is doing the separation work that lightness alone no
+   longer does. */
 :root[data-theme="light"] {
     --color-scheme:   light;
     --picker-invert:  0;
 
-    --bg:             #f3f4f6;
-    --bg-elevated:    #ffffff;
-    --bg-hover:       #e5e7eb;
-    --fg:             #111827;
-    --fg-soft:        #374151;
-    /* #4b5563, not #6b7280: on the light --bg the lighter grey measures 4.39:1,
-       which is just under AA and is the single most-used text colour after --fg. */
-    --muted:          #4b5563;
-    --border:         #d1d5db;
-    --border-strong:  #9ca3af;
-    --divider:        rgba(0, 0, 0, 0.07);
-    --card-bg:        #ffffff;
-    --surface-soft:   rgba(0, 0, 0, 0.03);
-    --surface-strong: rgba(0, 0, 0, 0.055);
-    --redacted:       #b91c1c;
+    --bg:             var(--slate-50);    /* Ice White */
+    /* No palette step is pure white — see --on-solid's comment in 01-tokens.css.
+       --bg-elevated, --card-bg and --sidebar-bg all need true white here, one
+       step brighter than Ice White's --bg, which the slate ramp has no step for. */
+    --bg-elevated:    var(--white);
+    --bg-hover:       var(--slate-100);
+    --fg:             var(--slate-900);   /* Deep Space */
+    --fg-soft:        var(--slate-700);
+    /* slate-600, not slate-500: the lighter step measures 3.94:1 on the light
+       --bg, which is under AA, and --muted is the single most-used text colour
+       after --fg. slate-600 reaches 6.28:1. */
+    --muted:          var(--slate-600);
+    --border:         var(--slate-300);
+    --border-strong:  var(--slate-400);
+    --divider:        rgba(15, 23, 42, 0.07);    /* slate-900 / Deep Space */
+    --card-bg:        var(--white);
+    --surface-soft:   rgba(15, 23, 42, 0.03);    /* slate-900 */
+    --surface-strong: rgba(15, 23, 42, 0.055);   /* slate-900 */
+    --redacted:       var(--crimson-700);
 
-    --brand-soft: #2563eb;
-    --brand-text: #1d4ed8;
+    --brand-soft: var(--coral-600);
+    --brand-text: var(--coral-700);
     --brand-tint: color-mix(in srgb, var(--brand) 10%, transparent);
-    --accent:     #1d4ed8;
+    --accent:     var(--orbit-700);
 
-    --sidebar-bg:     #ffffff;
-    --sidebar-border: #e5e7eb;
-    --sidebar-fg:     #374151;
+    --sidebar-bg:     var(--white);
+    --sidebar-border: var(--slate-200);
+    --sidebar-fg:     var(--slate-700);
 
-    --go-bg:     rgba(22, 163, 74, 0.1);
-    --go-border: #86efac;
-    --go-fg:     #15803d;
+    --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
+    --go-border: var(--green-300);
+    --go-fg:     var(--green-700);
 
-    --warn-bg:     rgba(217, 119, 6, 0.1);
-    --warn-border: #fcd34d;
-    --warn-fg:     #b45309;
+    --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
+    --warn-border: var(--amber-300);
+    --warn-fg:     var(--amber-700);
 
     /* The hover and active tints and the strong border take the same steps as the
        dark theme, scaled for a light surface. All four move together: a tint
        remapped without its hover pair jumps between two unrelated reds. */
-    --danger-solid: #dc2626;
-    --danger-bg:            rgba(220, 38, 38, 0.08);
-    --danger-bg-hover:      rgba(220, 38, 38, 0.14);
-    --danger-bg-active:     rgba(220, 38, 38, 0.2);
-    --danger-border:        #fca5a5;
-    --danger-border-strong: #dc2626;
-    --danger-fg:            #b91c1c;
-    --danger-ring:          rgba(220, 38, 38, 0.35);
+    --danger-solid: var(--crimson-700);
+    --danger-bg:            rgba(199, 34, 104, 0.08);    /* crimson-700 */
+    --danger-bg-hover:      rgba(199, 34, 104, 0.14);    /* crimson-700 */
+    --danger-bg-active:     rgba(199, 34, 104, 0.2);     /* crimson-700 */
+    --danger-border:        var(--crimson-300);
+    --danger-border-strong: var(--crimson-700);
+    --danger-fg:            var(--crimson-700);
+    --danger-ring:          rgba(199, 34, 104, 0.35);    /* crimson-700 */
 
-    --info-bg:     rgba(37, 99, 235, 0.08);
-    --info-border: #93c5fd;
-    --info-fg:     #1d4ed8;
-    --info-solid:  #2563eb;
-    --info-ring:   rgba(37, 99, 235, 0.4);
+    --info-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
+    --info-border: var(--orbit-300);
+    --info-fg:     var(--orbit-700);
+    --info-solid:  var(--orbit-700);
+    --info-ring:   rgba(89, 195, 255, 0.4);     /* orbit-400 */
 
-    --secret-bg:     rgba(124, 58, 237, 0.08);
-    --secret-border: #c4b5fd;
-    --secret-fg:     #6d28d9;
+    --secret-bg:     color-mix(in srgb, var(--violet-600) 8%, transparent);
+    --secret-border: var(--violet-300);
+    --secret-fg:     var(--violet-700);
 
-    --badge-cyan-bg:     rgba(6, 182, 212, 0.08);
-    --badge-cyan-border: #67e8f9;
-    --badge-cyan-fg:     #0e7490;
-    --badge-orange-bg:     rgba(234, 88, 12, 0.08);
-    --badge-orange-border: #fdba74;
-    --badge-orange-fg:     #c2410c;
-    --badge-teal-bg:     rgba(15, 118, 110, 0.08);
-    --badge-teal-border: #5eead4;
-    --badge-teal-fg:     #0f766e;
+    --badge-cyan-bg:     rgba(34, 211, 238, 0.08);    /* cyan-400 */
+    --badge-cyan-border: var(--cyan-300);
+    --badge-cyan-fg:     var(--cyan-700);
+    --badge-orange-bg:     rgba(245, 158, 75, 0.08);    /* orange-400 */
+    --badge-orange-border: var(--orange-300);
+    --badge-orange-fg:     var(--orange-700);
+    --badge-teal-bg:     rgba(20, 184, 166, 0.08);    /* teal-500 */
+    --badge-teal-border: var(--teal-300);
+    --badge-teal-fg:     var(--teal-700);
 
-    --badge-bg:      rgba(0, 0, 0, 0.04);
-    --table-head-bg: rgba(0, 0, 0, 0.03);
+    --badge-bg:      rgba(15, 23, 42, 0.04);    /* slate-900 */
+    --table-head-bg: rgba(15, 23, 42, 0.03);    /* slate-900 */
 
-    --skeleton-bg:    rgba(0, 0, 0, 0.06);
-    --skeleton-sheen: rgba(0, 0, 0, 0.11);
-    --progress-track: rgba(0, 0, 0, 0.08);
-    --btn-active-bg: #d1d5db;
-    --code-fg:       #4338ca;
-    --code-bg:       rgba(99, 102, 241, 0.08);
-    --backdrop:      rgba(17, 24, 39, 0.35);
-    --overlay:       rgba(243, 244, 246, 0.66);
-    --spotlight-dim: rgba(17, 24, 39, 0.42);
-    --tip-bg:        #111827;
-    --tip-border:    #374151;
-    --scrollbar:       #d1d5db;
-    --scrollbar-hover: #9ca3af;
-    --scroll-shade:    rgba(17, 24, 39, 0.16);
+    --skeleton-bg:    rgba(15, 23, 42, 0.06);    /* slate-900 */
+    --skeleton-sheen: rgba(15, 23, 42, 0.11);    /* slate-900 */
+    --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */
+    --btn-active-bg: var(--slate-300);
+    --code-fg:       var(--indigo-700);
+    --code-bg:       rgba(90, 97, 191, 0.08);    /* indigo-700 */
+    --backdrop:      rgba(15, 23, 42, 0.35);    /* slate-900 */
+    --overlay:       rgba(248, 250, 252, 0.66);   /* slate-50 / Ice White */
+    --spotlight-dim: rgba(15, 23, 42, 0.42);    /* slate-900 */
+    --tip-bg:        var(--slate-925);
+    --tip-border:    var(--slate-700);
+    --scrollbar:       var(--slate-300);
+    --scrollbar-hover: var(--slate-400);
+    --scroll-shade:    rgba(15, 23, 42, 0.16);    /* slate-900 */
 
-    --shadow-topbar:    0 3px 8px rgba(17, 24, 39, 0.1);
-    --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.06);
-    --shadow-modal:     0 24px 64px rgba(17, 24, 39, 0.25);
-    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.25);
-    --shadow-pop:       0 14px 40px rgba(17, 24, 39, 0.22);
-    --shadow-float:     0 10px 30px rgba(17, 24, 39, 0.18);
+    --shadow-topbar:    0 3px 8px rgba(15, 23, 42, 0.1);      /* slate-900 */
+    --shadow-nav-tools: 0 -6px 12px 0 rgba(15, 23, 42, 0.06); /* slate-900 */
+    --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.25);   /* slate-900 */
+    --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.25);    /* slate-900 */
+    --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.22);   /* slate-900 */
+    --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.18);   /* slate-900 */
 }
-
