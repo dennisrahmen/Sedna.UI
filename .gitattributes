@@ -35,3 +35,8 @@
 *.ico binary
 *.woff  binary
 *.woff2 binary
+# `.ttf` was missing here while `.woff2` was declared, so the brand's variable font
+# rode on `text=auto` detection. The heuristic gets it right today; that is not the
+# same as being safe, and a font mangled by CRLF conversion on one machine is the
+# same awful bug as the favicon above.
+*.ttf   binary

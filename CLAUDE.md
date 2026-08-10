@@ -215,29 +215,41 @@ Two constraints, both of which look correct on GitHub and fail on the package pa
 
 ## Brand assets
 
-`assets/brand/` holds the icon (SVG, PNG 16→1024), horizontal logo (light and dark), 1280×640 social
-preview, and a multi-resolution favicon, in the library's default tokens (`#111827`, `#1F2937`, `#2563EB`,
-`#60A5FA`, `#F3F4F6`).
+`assets/brand/` holds the master mark **"Eccentric"** in the Sedna palette. All artwork sits on a
+120-unit grid and the SVGs are the source of truth. The full manual is `docs/BRANDING.md`;
+`assets/brand/README.md` says which file to reach for.
 
-Three are wired into things that fail quietly if renamed, and a test pins them:
+**The mark is drawn three times, not scaled three ways.** The orbit is a hairline that fills in and
+reads as noise when shrunk, so stroke thickens and detail drops as size falls: full (stroke 2.5, 96px+),
+compact (5.5, 32–64px), micro (8, 16px, satellite dropped). **The PNG ladders already switch tier by
+size** — `sedna-ui-icon-16.png` is the micro drawing. Pick by size and the right one comes out.
 
-- `dr-simple-ui-icon-128.png` → packed as `icon.png`, the NuGet package icon. nuget.org requires a raster
-  image of 128×128 or smaller.
-- `dr-simple-ui-social-preview.png` → the README hero.
-- `src/Sedna.UI.Catalogue/wwwroot/favicon.ico` and `logo.png` — the catalogue application's own
-  copies. They no longer travel inside the package, but the drift hazard is identical: update the icon
-  in `assets/brand/` and the site keeps serving the old one.
+**Two ladders, because a transparent mark is invisible on the wrong surface.** `sedna-ui-icon-*` is the
+navy mark for light backgrounds; `sedna-ui-icon-on-dark-*` is the Ice White mark for dark. Where the
+background is unknown — a NuGet listing, a browser tab, an IDE package pane — use `sedna-ui-tile-*`,
+which carries its own Deep Space field.
 
-**Outstanding: the brand rename.** The rename to `sedna-ui-*` names is pending artwork — a ≥1024px
-square transparent icon, a white-wordmark lockup, and a true vector `sedna-ui-icon.svg`. Until that
-artwork lands, these files intentionally keep their `dr-simple-ui-*` names. Renaming the files alone
-breaks three other things, which must move **in the same commit** as the files: `Sedna.UI.csproj`'s
-`PackageIcon` `None Include`, `README.md`'s hero image URL, and `BrandAssetTests`.
+Three are wired into things that fail quietly if renamed, and a test pins each:
 
-The Sedna brand palette — Sedna Red `#FF6B4A`, Orbit Blue `#59C3FF`, Deep Space `#0F172A`, Navy Slate
-`#1E293B`, Ice White `#F8FAFC`, Dust Gray `#94A3B8` — is recorded here only. The library's default
-token values above are deliberately unchanged, so the default theme renders exactly as it did before
-the rename. `README.md`'s badges already use `#FF6B4A`, but that is brand chrome, not a token.
+- `sedna-ui-tile-128.png` → packed as `icon.png`, the NuGet package icon. nuget.org requires a raster
+  image of 128×128 or smaller. The tile rather than the bare mark, for the reason above.
+- `sedna-ui-social-preview.png` → the README hero, which is also the nuget.org readme.
+- `src/Sedna.UI.Catalogue/wwwroot/favicon.ico` and `logo.png` — the catalogue's own copies, of
+  `favicon.ico` and `sedna-ui-tile-64.png`. They no longer travel inside the package, but the drift
+  hazard is identical: update the source and the site keeps serving the old one.
+
+**The SVG trap.** `sedna-ui-wordmark*.svg` and `sedna-ui-logo-*.svg` set live `<text>` in **Outfit**. On
+a machine without it they fall back to a generic sans, which the brand rules forbid outright — and
+nothing errors, the wordmark is simply wrong. Mark and tile SVGs are pure geometry and safe anywhere;
+for anything web-facing use the **PNG** wordmarks and lockups, where the type is already rasterised.
+`assets/brand/font/` holds the variable font so the SVGs open correctly. It is a brand asset only: the
+UI uses the system sans and mono stacks and never loads it, it is not in `wwwroot`, not a `@font-face`,
+and not in the package. Licence in `THIRD-PARTY-NOTICES.md`.
+
+The brand palette — Sedna Red `#FF6B4A`, Orbit Blue `#59C3FF`, Sedna Navy `#17346E`, Deep Space
+`#0F172A`, Navy Slate `#1E293B`, Ice White `#F8FAFC`, Dust Gray `#94A3B8`. The focal body is a gradient
+`#FD7636` → `#F34238` that flattens to Sedna Red. Sedna Navy is not one of the original six swatches;
+it was sampled from the mark because the palette had no mid-dark blue.
 
 ## Icons
 

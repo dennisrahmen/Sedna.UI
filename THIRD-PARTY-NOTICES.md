@@ -1,7 +1,16 @@
 # Third-party notices
 
 `Sedna.UI` is licensed under [Apache-2.0](LICENSE). It redistributes the following third-party
-component, which remains under its own licence.
+components, which remain under their own licences.
+
+Only one of them ships inside the package. The distinction matters for anyone auditing what a
+`dotnet add package` actually pulls in:
+
+| Component | In the `.nupkg` | Where |
+|---|---|---|
+| Remix Icon | **yes** | `_content/Sedna.UI/lib/remixicon/` |
+| `ModelContextProtocol.AspNetCore` | no — the catalogue application only | published in its container image |
+| Outfit | no — a design asset, never loaded as a UI face | `assets/brand/font/` |
 
 ## Remix Icon
 
@@ -65,3 +74,47 @@ application (`src/Sedna.UI.Catalogue`), whose container image is published.
 
 The library itself takes exactly one dependency, `Microsoft.AspNetCore.Components.Web`, and
 `build/verify-package.sh` fails if the packed dependency list is anything else.
+
+## Outfit
+
+The brand's wordmark typeface (<https://github.com/Outfitio/Outfit-Fonts>), licensed under the
+SIL Open Font License 1.1.
+
+| | |
+|---|---|
+| Version | 1.100 |
+| Copyright | Copyright 2021 The Outfit Project Authors |
+| Licence | SIL Open Font License 1.1 (OFL-1.1) |
+| Licence text | [`assets/brand/font/OFL.txt`](assets/brand/font/OFL.txt) |
+| Upstream | <https://github.com/Outfitio/Outfit-Fonts> |
+
+Vendored unmodified as the variable font, in both formats upstream publishes:
+
+```
+assets/brand/font/Outfit[wght].ttf     from fonts/variable/Outfit[wght].ttf
+assets/brand/font/Outfit[wght].woff2   from fonts/variable/Outfit[wght].woff2
+assets/brand/font/OFL.txt              from OFL.txt
+```
+
+The version above is the font's own `name` table entry, not a figure typed from the release page.
+
+### What this is for, and what it is not for
+
+**It is a brand asset, not a UI face.** The wordmark and lockup SVGs set live text in Outfit, so the
+font has to be installed for those files to render as designed. Nothing in the library loads it: the
+UI uses the system sans and mono stacks, and `BRANDING.md` §7.3 says so explicitly — *"The wordmark's
+geometric sans is a brand asset for the mark only and is never loaded as a UI face."*
+
+It is therefore **not** in `wwwroot`, **not** a `@font-face`, and **not** in the package. Adding it to
+any of those would make every consuming app download a font it never renders.
+
+### The trap this exists to defuse
+
+`sedna-ui-wordmark*.svg` and `sedna-ui-logo-*.svg` contain a `<text>` element with
+`font-family="Outfit, sans-serif"`. On a machine without Outfit they silently fall back to a generic
+sans — which the brand rules forbid outright: *"Never rebuild the wordmark in another face."* Nothing
+errors; the wordmark is simply wrong.
+
+So for anything web-facing, use the **PNG** wordmarks and lockups, where the type is already
+rasterised in Outfit. The SVGs are the design source, and this font is what makes them open
+correctly.

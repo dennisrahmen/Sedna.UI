@@ -18,9 +18,12 @@ public class BrandAssetTests
         // image on the package listing, which nothing else would catch.
         string[] required =
         [
-            Path.Combine("assets", "brand", "dr-simple-ui-icon-128.png"),
-            Path.Combine("assets", "brand", "dr-simple-ui-social-preview.png"),
-            Path.Combine("assets", "brand", "dr-simple-ui-icon.svg")
+            // The tile, not the bare mark: it carries its own Deep Space field, and a
+            // transparent mark is invisible on the wrong background. nuget.org, GitHub
+            // and an IDE's package pane are not all the same shade.
+            Path.Combine("assets", "brand", "sedna-ui-tile-128.png"),
+            Path.Combine("assets", "brand", "sedna-ui-social-preview.png"),
+            Path.Combine("assets", "brand", "sedna-ui-icon.svg")
         ];
 
         var missing = required
@@ -44,7 +47,10 @@ public class BrandAssetTests
         [
             (Path.Combine("assets", "brand", "favicon.ico"),
              Path.Combine("src", "Sedna.UI.Catalogue", "wwwroot", "favicon.ico")),
-            (Path.Combine("assets", "brand", "dr-simple-ui-icon-64.png"),
+            // The tile again, for the same reason: the catalogue sidebar is navy in
+            // dark theme and white in light, and one fixed-colour mark cannot read on
+            // both. The tile brings its own field.
+            (Path.Combine("assets", "brand", "sedna-ui-tile-64.png"),
              Path.Combine("src", "Sedna.UI.Catalogue", "wwwroot", "logo.png")),
         ];
 

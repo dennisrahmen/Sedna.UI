@@ -1,4 +1,4 @@
-![Sedna.UI — one design-token contract. Semantic CSS. Consistent Blazor apps.](https://raw.githubusercontent.com/dennisrahmen/Sedna.UI/main/assets/brand/dr-simple-ui-social-preview.png)
+![Sedna.UI — one design-token contract. Semantic CSS. Consistent Blazor apps.](https://raw.githubusercontent.com/dennisrahmen/Sedna.UI/main/assets/brand/sedna-ui-social-preview.png)
 
 [![CI](https://img.shields.io/github/actions/workflow/status/dennisrahmen/Sedna.UI/ci.yml?branch=main&logo=github&style=flat-square&label=ci)](https://github.com/dennisrahmen/Sedna.UI/actions/workflows/ci.yml)
 [![Catalogue](https://img.shields.io/badge/catalogue-browse-FF6B4A?style=flat-square&logo=github)](https://www.sedna-ui.com/)
