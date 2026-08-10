@@ -273,7 +273,7 @@
     },
     {
       "media": null,
-      "selector": ":root[data-theme=\"light\"]",
+      "selector": ":root[data-variant=\"light\"]",
       "tokens": {
         "--color-scheme": "light",
         "--picker-invert": "0",
@@ -369,7 +369,7 @@
     },
     {
       "media": null,
-      "selector": ":root[data-theme=\"light\"][data-cvd=\"1\"]",
+      "selector": ":root[data-variant=\"light\"][data-cvd=\"1\"]",
       "tokens": {
         "--go-bg": "rgba(89, 195, 255, 0.08)",
         "--go-border": "var(--orbit-300)",
@@ -443,7 +443,7 @@
     },
     {
       "media": null,
-      "selector": ":root[data-theme=\"light\"][data-contrast=\"more\"]",
+      "selector": ":root[data-variant=\"light\"][data-contrast=\"more\"]",
       "tokens": {
         "--bg": "var(--white)",
         "--bg-elevated": "var(--white)",
@@ -521,7 +521,7 @@
     },
     {
       "media": "(prefers-contrast: more)",
-      "selector": ":root[data-theme=\"light\"]",
+      "selector": ":root[data-variant=\"light\"]",
       "tokens": {
         "--border": "var(--slate-600)",
         "--border-strong": "var(--slate-800)",

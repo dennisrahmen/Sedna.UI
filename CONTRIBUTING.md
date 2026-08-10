@@ -71,8 +71,8 @@ both humans and AI agents working in this repo.
 ## Reporting a bug
 
 Include the library version, the browser, and the smallest markup that reproduces it. If it is visual,
-state which theme (`data-theme`, `data-cvd`, `data-density`) it appears under: a visual defect is often
-theme-specific.
+state which theme and variant (`data-theme`, `data-variant`, `data-cvd`, `data-density`) it appears
+under: a visual defect is often variant-specific.
 
 ## Maintainers
 

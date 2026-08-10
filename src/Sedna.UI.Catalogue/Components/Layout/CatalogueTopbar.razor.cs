@@ -36,7 +36,7 @@ public partial class CatalogueTopbar : ComponentBase
         if (!firstRender) return;
 
         var settings = await Ui.LoadSettingsAsync();
-        _light = settings.Theme == "light";
+        _light = settings.Variant == "light";
         _colourBlind = settings.ColourBlind;
         _compact = settings.Compact;
         _rtl = settings.Direction == "rtl";
@@ -46,7 +46,7 @@ public partial class CatalogueTopbar : ComponentBase
     private Task ToggleTheme()
     {
         _light = !_light;
-        return Save("theme", _light ? "light" : "dark");
+        return Save("variant", _light ? "light" : "dark");
     }
 
     private Task ToggleColourBlind()

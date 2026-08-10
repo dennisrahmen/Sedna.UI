@@ -159,16 +159,16 @@ public abstract class ScriptTestBase : BrowserTestBase
     }
 
     /// <summary>
-    /// Loads a boot.js-only fixture and reports the theme it stamped on
-    /// <c>&lt;html&gt;</c>.
+    /// Loads a boot.js-only fixture and reports the variant (<c>dark</c> or
+    /// <c>light</c>) it stamped on <c>&lt;html&gt;</c>.
     /// </summary>
-    protected async Task<string> BootTheme(
+    protected async Task<string> BootVariant(
         string bootTag, ColorScheme scheme, IDictionary<string, string>? storage = null)
     {
         // withMainScript: false — the main script would re-apply settings afterwards and
         // could mask a boot defect.
         var page = await Open("<p>x</p>", head: bootTag, withMainScript: false,
             colorScheme: scheme, storage: storage);
-        return await page.EvaluateAsync<string>("() => document.documentElement.dataset.theme");
+        return await page.EvaluateAsync<string>("() => document.documentElement.dataset.variant");
     }
 }

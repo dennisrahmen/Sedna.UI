@@ -18,8 +18,8 @@ window.sednaUiCatalogue = (function () {
 
     /* Computed values for a list of token names, in the theme currently applied.
        Read from the root element rather than from the stylesheet text: a token can
-       be remapped by [data-theme], [data-cvd], a media query or an app override,
-       and only the browser knows which won. */
+       be remapped by [data-theme], [data-variant], [data-cvd], a media query or an
+       app override, and only the browser knows which won. */
     function readTokenValues(names) {
         var computed = getComputedStyle(document.documentElement);
         var out = {};

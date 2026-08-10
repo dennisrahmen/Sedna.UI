@@ -54,7 +54,7 @@ internal static class Assets
     /// <summary>
     /// A token block: a rule whose selector is <c>:root</c> plus zero or more
     /// attribute filters and nothing else — <c>:root</c>,
-    /// <c>:root[data-theme="light"]</c>, <c>:root[data-theme="light"][data-cvd="1"]</c>.
+    /// <c>:root[data-variant="light"]</c>, <c>:root[data-variant="light"][data-cvd="1"]</c>.
     /// A selector with a descendant (<c>:root[data-density="compact"] .table</c>) is
     /// a normal rule, not a token block.
     /// </summary>

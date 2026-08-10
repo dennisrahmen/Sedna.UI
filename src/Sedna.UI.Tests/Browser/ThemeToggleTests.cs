@@ -37,23 +37,23 @@ public class ThemeToggleTests : ScriptTestBase
 
             const root = document.documentElement;
             const dark = snap();
-            root.setAttribute('data-theme', 'light');
+            root.setAttribute('data-variant', 'light');
             const light = snap();
             root.setAttribute('data-cvd', '1');
             const cvd = snap();
-            root.removeAttribute('data-theme'); root.removeAttribute('data-cvd');
+            root.removeAttribute('data-variant'); root.removeAttribute('data-cvd');
             probe.remove();
 
             const out = [];
             for (let i = 0; i < dark.length; i++) {
-                if (light[i] !== dark[i]) out.push('theme changed geometry: ' + dark[i] + ' -> ' + light[i]);
+                if (light[i] !== dark[i]) out.push('variant changed geometry: ' + dark[i] + ' -> ' + light[i]);
                 if (cvd[i] !== light[i]) out.push('cvd changed geometry: ' + light[i] + ' -> ' + cvd[i]);
             }
             return out;
         }");
 
         Assert.True(report.Length == 0,
-            "A theme or palette toggle moved geometry, not just colour:"
+            "A variant or palette toggle moved geometry, not just colour:"
             + Environment.NewLine + string.Join(Environment.NewLine, report));
 
         await page.CloseAsync();

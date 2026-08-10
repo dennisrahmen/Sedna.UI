@@ -106,12 +106,12 @@ public class InteropTests : BunitContext
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
 
-        await Wrapper().SaveSettingAsync("theme", "light");
+        await Wrapper().SaveSettingAsync("variant", "light");
 
         // Not setItem: settings.save also stamps <html> and writes the language
         // cookie, which a raw localStorage write would skip.
         var call = Only("sednaUi.settings.save");
-        Assert.Equal("theme", call.Arguments[0]);
+        Assert.Equal("variant", call.Arguments[0]);
         Assert.Equal("light", call.Arguments[1]);
     }
 

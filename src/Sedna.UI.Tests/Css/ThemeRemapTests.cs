@@ -21,10 +21,10 @@ public class ThemeRemapTests
         // ordinary attribute selectors (`[data-tip]`) are not swept up. ADD ANY NEW
         // APPEARANCE ATTRIBUTE HERE — a theme this test does not know about is a
         // theme that may quietly override selectors. `:root` is optional because
-        // `[data-theme="light"] .btn { }` is the same mistake written shorter.
+        // `[data-variant="light"] .btn { }` is the same mistake written shorter.
         var offenders = Regex.Matches(
                 css,
-                @"(?::root)?(?:\[[^\]]*\])*\[data-(?:theme|cvd|contrast)=[^\]]*\](?:\[[^\]]*\])*\s+[^{,]+\{",
+                @"(?::root)?(?:\[[^\]]*\])*\[data-(?:theme|variant|cvd|contrast)=[^\]]*\](?:\[[^\]]*\])*\s+[^{,]+\{",
                 RegexOptions.Compiled)
             .Select(m => m.Value.Trim())
             .ToList();
@@ -62,7 +62,7 @@ public class ThemeRemapTests
             {
                 // A token block is `:root` plus attribute filters and NOTHING else.
                 // StartsWith(":root") would wave through `:root .btn` and
-                // `:root[data-theme="light"] .table`, which are the very overrides
+                // `:root[data-variant="light"] .table`, which are the very overrides
                 // this guard exists to catch.
                 if (Regex.IsMatch(selector, @"^:root(?:\[[^\]]*\])*$")) continue;
 

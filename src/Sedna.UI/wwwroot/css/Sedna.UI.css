@@ -82,8 +82,8 @@
      * !important inverts layer order, which is why this library uses none. An
        !important inside a layer becomes HARDER for you to override, not easier.
      * Because your unlayered :root wins outright, a token you set at bare :root
-       now also beats this library's [data-theme="light"] value for it. Set both
-       blocks, as the rebrand recipe in the catalogue shows. */
+       now also beats this library's [data-variant="light"] value for it. Set
+       both blocks, as the rebrand recipe in the catalogue shows. */
 @layer sedna.tokens, sedna.base, sedna.frame, sedna.paint, sedna.utilities, sedna.overrides;
 
 /* ── 00-header.css → @layer sedna.tokens ──────────────────────────────────────────────── */
@@ -621,15 +621,16 @@
 /* ── 02-theme-light.css → @layer sedna.tokens ──────────────────────────────────────────────── */
 @layer sedna.tokens {
 /* ═══ Light theme ═══════════════════════════════════════════════════════════
-   Pure token remapping — no selector overrides. `data-theme` rides on <html>;
-   apply it before first paint (see README) so no dark flash occurs.
+   Pure token remapping — no selector overrides. `data-variant` rides on <html>,
+   orthogonal to `data-theme` (which theme; this is which variant of it); apply it
+   before first paint (see README) so no dark flash occurs.
 
    Canvas is Ice White with white cards (docs/BRANDING.md §5). The canvas-to-card
    separation is deliberately quieter than the default theme's, because the guide
    specifies Ice White as *the* light surface — cards must therefore keep their
    border in light theme; it is doing the separation work that lightness alone no
    longer does. */
-:root[data-theme="light"] {
+:root[data-variant="light"] {
     --color-scheme:   light;
     --picker-invert:  0;
 
@@ -754,7 +755,7 @@
     --danger-solid: var(--crimson-800);
     --danger-fg:    var(--crimson-300);
 }
-:root[data-theme="light"][data-cvd="1"] {
+:root[data-variant="light"][data-cvd="1"] {
     --go-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
     --go-border: var(--orbit-300);
     --go-fg:     var(--orbit-700);
@@ -865,8 +866,8 @@
     --scrollbar-hover: var(--slate-300);
 }
 
-/* Light, high contrast. Composes with the light theme by being more specific. */
-:root[data-theme="light"][data-contrast="more"] {
+/* Light, high contrast. Composes with the light variant by being more specific. */
+:root[data-variant="light"][data-contrast="more"] {
     --bg:              var(--white);
     --bg-elevated:     var(--white);
     --bg-hover:        var(--slate-200);
@@ -939,7 +940,7 @@
         --surface-soft:   var(--slate-900);
         --surface-strong: var(--slate-800);
     }
-    :root[data-theme="light"] {
+    :root[data-variant="light"] {
         --border:         var(--slate-600);
         --border-strong:  var(--slate-800);
         --divider:        var(--slate-400);

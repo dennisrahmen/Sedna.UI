@@ -21,7 +21,7 @@
     --danger-solid: var(--crimson-800);
     --danger-fg:    var(--crimson-300);
 }
-:root[data-theme="light"][data-cvd="1"] {
+:root[data-variant="light"][data-cvd="1"] {
     --go-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
     --go-border: var(--orbit-300);
     --go-fg:     var(--orbit-700);

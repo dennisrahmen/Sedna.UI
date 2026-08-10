@@ -36,6 +36,21 @@ public class ScriptContractTests
         Assert.Equal(bootPrefix, mainPrefix);
     }
 
+    [Fact]
+    public void The_boot_script_and_the_main_script_both_read_the_variant_key()
+    {
+        // data-variant is a second stored setting the two scripts must agree about,
+        // alongside the prefix: boot.js resolves it before first paint, and
+        // settings.js keeps it current afterwards (and both fall back through the
+        // same "system" -> prefers-color-scheme path). A typo in either file's key
+        // name would have the two silently stop meeting in localStorage.
+        var boot = StripJsComments(File.ReadAllText(Assets.BootJsPath));
+        var main = StripJsComments(File.ReadAllText(Assets.JsPath));
+
+        Assert.Contains("get('variant')", boot, StringComparison.Ordinal);
+        Assert.Contains("key('variant')", main, StringComparison.Ordinal);
+    }
+
     /// <summary>
     /// Removes JS comments. The line-comment rule skips a <c>//</c> preceded by a
     /// colon so URLs inside string literals survive.

@@ -105,8 +105,8 @@ That makes discipline the only thing left protecting the shared design:
   every future version. A rule override is a private fork of the design that nothing will tell you has
   gone stale.
 - **Two things the layering means for this app's own CSS:** a token set at bare `:root` here also beats
-  the library's `[data-theme="light"]` value for it, so set both blocks; and any unconditional rule here
-  beats a library rule at any specificity. The case to check is a copied
+  the library's `[data-variant="light"]` value for it, so set both blocks; and any unconditional rule
+  here beats a library rule at any specificity. The case to check is a copied
   `.table th, .table td { padding: … }`, which stops compact density from tightening this app's tables.
   **Delete copied library rules.**
 - **Never use `!important` against the library.** Layer order inverts for important declarations, so it
@@ -150,4 +150,5 @@ The version is pinned and does not float. Before bumping it:
 
 1. Read the release notes at <https://github.com/dennisrahmen/Sedna.UI/releases>.
 2. Grep this app's stylesheets for every class name the release adds — see above.
-3. Check the pages this app renders, in each theme (`data-theme`, `data-cvd`, `data-density`).
+3. Check the pages this app renders, in each theme and variant (`data-theme`, `data-variant`,
+   `data-cvd`, `data-density`).

@@ -92,18 +92,20 @@ public interface ISednaUi
     /// </remarks>
     Task InitMarkdownAsync();
 
-    /// <summary>Reads the stored theme, colour-blind, density, direction and language settings.</summary>
+    /// <summary>Reads the stored theme, variant, colour-blind, density, direction and language settings.</summary>
     /// <returns>The settings currently applied.</returns>
     Task<SednaUiSettings> LoadSettingsAsync();
 
     /// <summary>
     /// Stores one setting and applies it immediately.
     /// </summary>
-    /// <param name="key">One of <c>theme</c>, <c>cvd</c>, <c>density</c>, <c>lang</c>.</param>
+    /// <param name="key">One of <c>theme</c>, <c>variant</c>, <c>cvd</c>, <c>density</c>, <c>lang</c>.</param>
     /// <param name="value">
-    /// <c>theme</c> takes <c>dark</c> or <c>light</c>; <c>cvd</c> takes <c>1</c> or
-    /// anything else for off; <c>density</c> takes <c>compact</c> or anything else
-    /// for the default; <c>lang</c> takes a two-letter code.
+    /// <c>theme</c> takes a theme name (nothing stored falls back to <c>sedna</c>);
+    /// <c>variant</c> takes <c>dark</c>, <c>light</c>, or <c>system</c> to follow
+    /// <c>prefers-color-scheme</c> live; <c>cvd</c> takes <c>1</c> or anything else
+    /// for off; <c>density</c> takes <c>compact</c> or anything else for the
+    /// default; <c>lang</c> takes a two-letter code.
     /// </param>
     /// <returns>A task that completes once the setting is stored and applied.</returns>
     Task SaveSettingAsync(string key, string value);

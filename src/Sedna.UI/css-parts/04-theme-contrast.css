@@ -99,8 +99,8 @@
     --scrollbar-hover: var(--slate-300);
 }
 
-/* Light, high contrast. Composes with the light theme by being more specific. */
-:root[data-theme="light"][data-contrast="more"] {
+/* Light, high contrast. Composes with the light variant by being more specific. */
+:root[data-variant="light"][data-contrast="more"] {
     --bg:              var(--white);
     --bg-elevated:     var(--white);
     --bg-hover:        var(--slate-200);
@@ -173,7 +173,7 @@
         --surface-soft:   var(--slate-900);
         --surface-strong: var(--slate-800);
     }
-    :root[data-theme="light"] {
+    :root[data-variant="light"] {
         --border:         var(--slate-600);
         --border-strong:  var(--slate-800);
         --divider:        var(--slate-400);

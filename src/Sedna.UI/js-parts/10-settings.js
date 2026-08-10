@@ -1,23 +1,32 @@
 /* ── Theme / accessibility settings ──────────────────────────────────────────
-   localStorage is the source of truth; the data-theme / data-cvd / data-density
-   attributes and the dir attribute on <html> drive the CSS. The boot script applies
-   them before first paint; save() keeps them applied.
+   localStorage is the source of truth; the data-theme / data-variant / data-cvd /
+   data-density attributes and the dir attribute on <html> drive the CSS. The boot
+   script applies them before first paint; save() keeps them applied.
 
-   data-theme is ALWAYS written, `light` or `dark`, never absent — consuming apps
-   brand the light palette with `:root[data-theme="light"]`, so that selector has
-   to match whenever the light palette is in use. Any future support for the OS
-   preference must resolve prefers-color-scheme into this attribute here, never
-   express it as a @media block, or every app's light-theme branding stops
-   applying with no app edit.
+   data-theme and data-variant are ALWAYS written, never absent — consuming apps
+   brand the light palette with `:root[data-variant="light"]`, so that selector has
+   to match whenever the light palette is in use. data-theme accepts any theme
+   name; "sedna" is the fallback with nothing stored.
+
+   "system" is a real, storable variant preference — not collapsed to dark/light on
+   load — so a settings UI can show "follow system" as selected rather than
+   whichever side the OS happens to be on right now. matchMedia is guarded: it is
+   missing in some embedded webviews, and an exception there must not stop the
+   theme applying.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
     var core = ui._;
     var config = core.config, key = core.key, readRaw = core.readRaw;
 
+    function systemPrefersLight() {
+        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+    }
+
     ui.settings = {
         load: function () {
             var g = function (k) { return readRaw(key(k)); };
+            var v = g('variant');
             return {
                 // The document's own language before the browser's: boot.js leaves
                 // <html lang> alone unless a choice was stored, so reporting
@@ -25,7 +34,8 @@
                 // something different from what the page is actually marked as.
                 lang:    g('lang') || document.documentElement.lang
                              || (navigator.language || 'en').slice(0, 2).toLowerCase(),
-                theme:   g('theme') === 'light' ? 'light' : 'dark',
+                theme:   g('theme') || 'sedna',
+                variant: (v === 'light' || v === 'dark' || v === 'system') ? v : 'dark',
                 cvd:     g('cvd') === '1',
                 compact: g('density') === 'compact',
                 // The document's own direction when nothing is stored, for the same
@@ -50,7 +60,15 @@
         apply: function () {
             var g = function (k) { return readRaw(key(k)); };
             var root = document.documentElement;
-            root.setAttribute('data-theme', g('theme') === 'light' ? 'light' : 'dark');
+            root.setAttribute('data-theme', g('theme') || 'sedna');
+
+            var v = g('variant');
+            var variant;
+            if (v === 'light' || v === 'dark') variant = v;
+            else if (v === 'system') variant = systemPrefersLight() ? 'light' : 'dark';
+            else variant = 'dark';
+            root.setAttribute('data-variant', variant);
+
             if (g('cvd') === '1') root.setAttribute('data-cvd', '1');
             else root.removeAttribute('data-cvd');
             if (g('density') === 'compact') root.setAttribute('data-density', 'compact');
@@ -63,5 +81,16 @@
             if (dir === 'rtl' || dir === 'ltr') root.dir = dir;
         }
     };
+
+    // Live tracking: while the stored preference is literally "system", the
+    // variant follows the OS without a reload. A stored "dark" or "light" is an
+    // explicit choice and must not be disturbed by this listener.
+    try {
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function () {
+                if (readRaw(key('variant')) === 'system') ui.settings.apply();
+            });
+        }
+    } catch (e) { /* ignore */ }
 
 })(window.sednaUi);

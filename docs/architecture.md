@@ -98,7 +98,7 @@ without being in the ordering statement, since an undeclared layer sorts after e
 
 ### Three things it means for your own stylesheet
 
-**A token you set at bare `:root` beats the library's `[data-theme="light"]` value for it.** Set both
+**A token you set at bare `:root` beats the library's `[data-variant="light"]` value for it.** Set both
 blocks, as the rebrand recipe shows.
 
 **An unconditional rule of yours beats a library rule at any specificity.** The case to check is
@@ -170,22 +170,34 @@ Two consequences for a rule that sets a control's height:
 
 ## Theming
 
-`data-theme="light"`, `data-cvd="1"`, `data-density="compact"` and `dir` are set on `<html>`.
+`data-theme`, `data-variant`, `data-cvd="1"`, `data-density="compact"` and `dir` are set on `<html>`.
 
 - `Sedna.UI.boot.js` applies them from `localStorage` before first paint.
-- `sednaUi.settings.save('theme', 'light')` updates them at runtime.
+- `sednaUi.settings.save('variant', 'light')` (or `'theme'`, `'cvd'`, `'density'`) updates them at
+  runtime.
 
 `dir` and `lang` are the two that are written **only from a stored choice**. Both are attributes the host
 page declares about itself, so with nothing stored they are left exactly as the document wrote them — the
 library never infers a document's direction or language from the browser's. Never derive `lang` from
 `navigator.language`: it relabels an English page as German for anybody visiting with a German browser.
 
-`data-theme` is **always** present, set to `light` or `dark`, never absent. Consuming apps select on
-`:root[data-theme="light"]` to brand the light palette, so that selector has to match whenever the light
-palette is in use. Any future support for the operating system's preference must therefore resolve
-`prefers-color-scheme` into this attribute in `boot.js` — expressing it as a `@media` block instead would
-make the light palette reachable without the attribute, and every consuming app's light-theme branding
-would silently stop applying.
+**`data-theme` and `data-variant` are two orthogonal attributes**, both always present, never absent:
+
+- **`data-theme`** — *which* theme, by name; `sedna` with nothing stored.
+- **`data-variant`** — `dark` or `light` — *which variant* of it, what a reader toggles.
+
+Consuming apps select on `:root[data-variant="light"]` to brand the light palette, so that selector has
+to match whenever the light palette is in use. The two used to be one attribute (`data-theme` took
+`dark`/`light` directly), which is why there was nowhere to put a second theme; splitting them is a
+breaking change, permitted pre-1.0 (see [releasing](releasing.md)).
+
+`prefers-color-scheme` resolves into `data-variant` inside `boot.js`, never as a `@media` block —
+a media block would make the light palette reachable without the attribute, and every consuming app's
+light-theme branding would silently stop applying. `sedna.variant` in `localStorage` can hold a stored
+`"system"`, which is a real, user-selectable third mode rather than a value collapsed to `dark`/`light`
+on read: with it stored, the variant follows a live `matchMedia('(prefers-color-scheme: light)')`
+listener, and a stored `dark`/`light` still wins outright over both the listener and the boot script
+tag's own `data-variant-default`.
 
 The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, so go and danger read as
 blue against red. Amber and the brand colour are unchanged.
@@ -246,7 +258,7 @@ Two things the flat list does not say:
 | Member | Purpose |
 |---|---|
 | `configure(options)` | Storage prefix, notification icon, language cookie |
-| `settings` | `load()`, `save(key, value)`, `apply()`. Keys: `theme`, `cvd`, `density`, `dir`, `lang` |
+| `settings` | `load()`, `save(key, value)`, `apply()`. Keys: `theme`, `variant`, `cvd`, `density`, `dir`, `lang` |
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally |
 | `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
 | `confirm(options)` | A `<dialog>.showModal()` confirmation. Returns a promise; `danger: true` reddens confirm and focuses cancel |

@@ -32,7 +32,8 @@ Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your o
 </body>
 ```
 
-`Sedna.UI.boot.js` applies the stored theme before first paint. Load it in `<head>`.
+`Sedna.UI.boot.js` applies the stored theme name and variant before first paint. Load it in
+`<head>`.
 
 ### The reconnect banner
 
@@ -58,9 +59,25 @@ No configuration is required. `sednaUi.configure()` is only needed for the optio
 
 ### Storage keys
 
-Settings are stored under `sedna.theme`, `sedna.cvd`, `sedna.density`, `sedna.dir` and `sedna.lang`.
-`localStorage` is scoped per origin, so apps on different domains never share state and the default
-prefix is fine.
+Settings are stored under `sedna.theme`, `sedna.variant`, `sedna.cvd`, `sedna.density`, `sedna.dir`
+and `sedna.lang`. `localStorage` is scoped per origin, so apps on different domains never share state
+and the default prefix is fine.
+
+`sedna.theme` and `sedna.variant` are two orthogonal choices, both always applied:
+
+- **`sedna.theme`** — *which* theme, by name; `sedna` with nothing stored.
+- **`sedna.variant`** — `dark`, `light`, or `system` to follow `prefers-color-scheme` live. `<html>`
+  always carries the *resolved* `data-variant="dark"` or `data-variant="light"`; `system` only ever
+  appears in the stored preference, for a settings UI that wants to show it as selected.
+
+`data-variant-default` on the boot script tag controls what a visitor who has never chosen sees —
+`dark` (the default), `light`, or `system`:
+
+```html
+<script src="_content/Sedna.UI/js/Sedna.UI.boot.js" data-variant-default="system"></script>
+```
+
+A stored choice always wins over this default; it only ever governs a first-time visitor.
 
 `sedna.dir` and `sedna.lang` are the two that are only applied **once stored**. Both are attributes the
 host page declares about itself, so with nothing stored `<html dir>` and `<html lang>` are left exactly
@@ -92,7 +109,7 @@ Create `wwwroot/css/brand.css` and redefine the brand tokens:
     --sidebar-active: #e41f16;
 }
 
-:root[data-theme="light"] {
+:root[data-variant="light"] {
     --brand-soft: #e41f16;
     --brand-text: #c8170f;
     --accent:     #c8170f;

@@ -8,8 +8,8 @@
     --sidebar-active: #e41f16;
 }
 
-/* The light theme needs the readable-on-white variants. */
-:root[data-theme="light"] {
+/* The light variant needs the readable-on-white variants. */
+:root[data-variant="light"] {
     --brand-soft: #e41f16;
     --brand-text: #c8170f;
     --accent:     #c8170f;

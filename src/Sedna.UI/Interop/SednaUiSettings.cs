@@ -21,12 +21,32 @@ public sealed record SednaUiSettings
     public string Language { get; init; } = "en";
 
     /// <summary>
-    /// <c>"dark"</c> or <c>"light"</c>. Never absent: apps brand the light palette
-    /// with <c>:root[data-theme="light"]</c>, so that selector has to match
-    /// whenever the light palette is in use.
+    /// Which theme is active, by name — falling back to <c>"sedna"</c> with nothing
+    /// stored. Never absent.
     /// </summary>
+    /// <remarks>
+    /// This used to be <c>"dark"</c> or <c>"light"</c>; that concept moved to
+    /// <see cref="Variant"/>. <c>data-theme</c> and <see cref="Theme"/> are now
+    /// orthogonal to it — which design, not which variant of it.
+    /// </remarks>
     [JsonPropertyName("theme")]
-    public string Theme { get; init; } = "dark";
+    public string Theme { get; init; } = "sedna";
+
+    /// <summary>
+    /// <c>"dark"</c>, <c>"light"</c>, or <c>"system"</c>. Never absent: apps brand
+    /// the light palette with <c>:root[data-variant="light"]</c>, so that selector
+    /// has to match whenever the light palette is in use.
+    /// </summary>
+    /// <remarks>
+    /// <c>"system"</c> is a real, storable preference, not collapsed to
+    /// <c>dark</c>/<c>light</c> on read — it is what lets a settings UI show
+    /// "follow system" as selected. The attribute actually applied to
+    /// <c>&lt;html data-variant&gt;</c> is always the resolved <c>dark</c> or
+    /// <c>light</c>; <c>"system"</c> only ever appears here, in the stored
+    /// preference.
+    /// </remarks>
+    [JsonPropertyName("variant")]
+    public string Variant { get; init; } = "dark";
 
     /// <summary>
     /// Whether the colour-blind palette is on, which moves the <c>go</c> family to
