@@ -71,4 +71,30 @@ public class BrandAssetTests
             "Re-copy the brand asset so the catalogue serves the current one: " +
             string.Join("; ", offenders));
     }
+
+    [Fact]
+    public void The_catalogues_branding_page_images_match_their_source_in_assets_brand()
+    {
+        // The Branding page's own copies, under wwwroot/brand/ rather than hand-listed
+        // pairs like the two above — there are more of them, and a name-for-name match
+        // against assets/brand/ is the whole check, so walking the directory cannot miss
+        // one the way a literal list eventually would.
+        var copyDir = Path.Combine(Assets.RepoRoot, "src", "Sedna.UI.Catalogue", "wwwroot", "brand");
+        var offenders = new List<string>();
+
+        foreach (var copyPath in Directory.EnumerateFiles(copyDir))
+        {
+            var name = Path.GetFileName(copyPath);
+            var sourcePath = Path.Combine(Assets.RepoRoot, "assets", "brand", name);
+
+            if (!File.Exists(sourcePath)) { offenders.Add($"assets/brand/{name} is missing"); continue; }
+
+            if (!File.ReadAllBytes(sourcePath).SequenceEqual(File.ReadAllBytes(copyPath)))
+                offenders.Add($"wwwroot/brand/{name} differs from assets/brand/{name}");
+        }
+
+        Assert.True(offenders.Count == 0,
+            "Re-copy the brand asset so the Branding page shows the current one: " +
+            string.Join("; ", offenders));
+    }
 }

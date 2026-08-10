@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using Sedna.UI;
 using Sedna.UI.Catalogue.Components;
 using Sedna.UI.Catalogue.Mcp;
 using Sedna.UI.Catalogue.Navigation;
@@ -7,7 +8,18 @@ using Microsoft.AspNetCore.RateLimiting;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
-builder.Services.AddSednaUi();
+
+// Forest and Cobalt exist so the Branding page's live switcher has more than one
+// palette to move between — proof the architecture generates a theme from one
+// anchor colour rather than hand-tuning a second stylesheet. SednaBrandStyle in
+// App.razor's <head> is what actually emits their [data-theme="…"] blocks; every
+// other page keeps rendering Sedna's own palette, since nothing outside that
+// page's switch ever sets the attribute.
+builder.Services.AddSednaUi(o =>
+{
+    o.Themes = [SednaTheme.Sedna, SednaTheme.Forest, SednaTheme.Cobalt];
+    o.Default = "sedna";
+});
 
 // Scoped: one circuit is one browser, and the toggles are per-browser state.
 builder.Services.AddScoped<ThemeState>();

@@ -165,6 +165,10 @@ var ramp = SednaRamp.FromAnchor("#2f6fed", anchorStep: 500);
 See [architecture](architecture.md#branding) for what `FromAnchor` follows and what
 `SednaUiBrand.ToCss` emits.
 
+The catalogue's own `App.razor` registers `SednaTheme.Sedna`, `.Forest` and `.Cobalt` exactly this
+way, so the [Branding](https://www.sedna-ui.com/branding) page's live switch has three palettes to
+move between.
+
 ## Icons
 
 [Remix Icon](https://remixicon.com) 4.9.1 is bundled in the package — 3,245 icons, no CDN and nothing

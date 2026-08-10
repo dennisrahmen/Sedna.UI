@@ -49,6 +49,9 @@ internal static class CataloguePages
         new("/tokens", Start, "Tokens", "ri-palette-line",
             "Every colour, font and shadow token, read live from the loaded stylesheet.",
             "colour color token variable var swatch"),
+        new("/branding", Start, "Branding", "ri-drop-line",
+            "The mark, its detail tiers, the palette read live, and the decisions behind it.",
+            "logo mark tile wordmark lockup clear space misuse svg outfit theme forest cobalt switch"),
 
         new("/frame", Frame, "Shell and nav", "ri-side-bar-line",
             "Layout, sidebar, topbar and user widget — the chrome this site is built from.",
