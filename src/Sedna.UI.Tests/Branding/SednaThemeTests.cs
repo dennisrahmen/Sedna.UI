@@ -61,8 +61,17 @@ public class SednaThemeTests
             "SednaTheme.Sedna has drifted from css-parts/00-palette.css:\n  " + string.Join("\n  ", mismatches));
     }
 
-    [Fact]
-    public void A_theme_palette_covers_every_step_both_variants_reference()
+    /// <summary>Every built-in theme — extend this when adding one.</summary>
+    public static IEnumerable<object[]> BuiltInThemes()
+    {
+        yield return [SednaTheme.Sedna];
+        yield return [SednaTheme.Forest];
+        yield return [SednaTheme.Cobalt];
+    }
+
+    [Theory]
+    [MemberData(nameof(BuiltInThemes))]
+    public void A_theme_palette_covers_every_step_both_variants_reference(SednaTheme theme)
     {
         // This is what "every theme has a light and a dark variant" actually means. Tier 1 is
         // invariant across variant, so a theme supplies ONE palette — but the shipped light and
@@ -71,11 +80,13 @@ public class SednaThemeTests
         // declared. Nothing would error; light mode would simply render with missing colours.
         //
         // So: collect every palette token the semantic tier references in either variant, and
-        // assert the theme declares all of them.
+        // assert the theme declares all of them. Every built-in theme is checked, not just
+        // Sedna's own — a theme built from generated ramps (forest, cobalt) is exactly the case
+        // that could quietly miss a step FromAnchor was never asked to generate.
         var referenced = ReferencedPaletteTokens();
         Assert.NotEmpty(referenced);
 
-        var declared = SednaTheme.Sedna.Palette.Ramps()
+        var declared = theme.Palette.Ramps()
             .SelectMany(r => r.Ramp.Steps.Select(step => $"--{r.Family}-{step}"))
             .ToHashSet(StringComparer.Ordinal);
 
@@ -84,7 +95,7 @@ public class SednaThemeTests
             .ToList();
 
         Assert.True(missing.Count == 0,
-            "The theme's palette is missing steps the shipped semantic tier references:\n  "
+            $"\"{theme.Name}\"'s palette is missing steps the shipped semantic tier references:\n  "
             + string.Join("\n  ", missing)
             + "\n\nA theme must supply every step BOTH variants reach for, or one variant "
             + "renders with colours that were never declared.");

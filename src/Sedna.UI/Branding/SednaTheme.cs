@@ -105,4 +105,96 @@ public sealed class SednaTheme
 
     private static SednaRamp Ramp(params (int Step, string Hex)[] entries) =>
         new(entries.ToDictionary(e => e.Step, e => e.Hex));
+
+    /// <summary>
+    /// A demo theme with a green brand — proof that a theme is data, not a re-derivation.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Ramp slots keep their names.</b> The twelve slots are ramp identities the semantic
+    /// tier references by name — <c>--brand</c> always resolves to <c>var(--coral-600)</c> — so
+    /// a theme changes the <i>colours</i> a slot holds, never the slot's name. Forest's
+    /// <c>coral</c> ramp is green; that is the theme working as designed, not a bug.
+    /// </para>
+    /// <para>
+    /// <b>Why <c>go</c> moves (docs/BRANDING.md §3.3).</b> A brand hue within ~15° of a
+    /// semantic family must move that family. Forest's green brand anchor and Sedna's own
+    /// <c>green</c> ramp (the <c>go</c> family) measure 0.53° apart at their closest referenced
+    /// steps — the same colour twice over — so <c>go</c> is regenerated from a teal-cyan anchor
+    /// instead, 44.88° from the brand at its closest referenced step and no closer than 36.94°
+    /// to any other family. Every other slot is Sedna's own ramp, unchanged.
+    /// See <c>SednaThemeCollisionTests</c> for the measurement this asserts on every build.
+    /// </para>
+    /// </remarks>
+    public static SednaTheme Forest { get; } = BuildForest();
+
+    private static SednaTheme BuildForest()
+    {
+        var sedna = Sedna.Palette;
+        var palette = new SednaPalette(
+            slate: sedna.Slate,
+            coral: SednaRamp.FromAnchor("#16a34a", 500), // the brand: a forest green
+            orbit: sedna.Orbit,
+            navy: sedna.Navy,
+            green: SednaRamp.FromAnchor("#0a8c8c", 500, SupportSteps), // go, moved off the brand hue
+            amber: sedna.Amber,
+            crimson: sedna.Crimson,
+            violet: sedna.Violet,
+            cyan: sedna.Cyan,
+            orange: sedna.Orange,
+            teal: sedna.Teal,
+            indigo: sedna.Indigo);
+
+        return new SednaTheme("forest", palette);
+    }
+
+    /// <summary>
+    /// A demo theme with a blue brand at roughly the pre-rebrand <c>#2563eb</c> — proof the
+    /// architecture can reproduce the old appearance from data rather than a hand-written
+    /// stylesheet.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Ramp slots keep their names</b> — see <see cref="Forest"/>'s remarks. Cobalt's
+    /// <c>coral</c> ramp is blue; the slot is still called <c>coral</c>.
+    /// </para>
+    /// <para>
+    /// <b>Why <c>orbit</c> moves (docs/BRANDING.md §3.3).</b> Comparing only the raw anchor's
+    /// hue against Sedna's own Orbit Blue suggests plenty of room (~26–28°) — but that check
+    /// is the assumption this class does not make. <see cref="SednaRamp.FromAnchor"/> clamps
+    /// out-of-gamut steps into sRGB, and clamping does not preserve hue: measured across every
+    /// step either family's tokens actually reference, the generated brand ramp's lightest
+    /// steps drift toward Orbit Blue's hue and the two close to 4.96° apart — the same blue
+    /// twice over, which is also the exact defect the pre-rebrand palette had (<c>--brand</c>
+    /// and <c>--info-solid</c> were both <c>#2563eb</c>-adjacent). <c>orbit</c> — which carries
+    /// both <c>--accent</c> and <c>--info-*</c> — is therefore regenerated from a teal-cyan
+    /// anchor instead, 36.42° from the brand at its closest referenced step and no closer than
+    /// 54.75° to any other family. Every other slot is Sedna's own ramp, unchanged.
+    /// See <c>SednaThemeCollisionTests</c> for the measurement this asserts on every build.
+    /// </para>
+    /// </remarks>
+    public static SednaTheme Cobalt { get; } = BuildCobalt();
+
+    private static SednaTheme BuildCobalt()
+    {
+        var sedna = Sedna.Palette;
+        var palette = new SednaPalette(
+            slate: sedna.Slate,
+            coral: SednaRamp.FromAnchor("#2563eb", 500), // the brand: the pre-rebrand blue
+            orbit: SednaRamp.FromAnchor("#0ea5b7", 400), // accent/info, moved off the brand hue
+            navy: sedna.Navy,
+            green: sedna.Green,
+            amber: sedna.Amber,
+            crimson: sedna.Crimson,
+            violet: sedna.Violet,
+            cyan: sedna.Cyan,
+            orange: sedna.Orange,
+            teal: sedna.Teal,
+            indigo: sedna.Indigo);
+
+        return new SednaTheme("cobalt", palette);
+    }
+
+    /// <summary>The eight steps a support ramp (green, amber, … ) covers — see <c>docs/BRANDING.md</c> §2.6.</summary>
+    private static readonly IReadOnlyList<int> SupportSteps = [200, 300, 400, 500, 600, 700, 800, 900];
 }
