@@ -48,10 +48,13 @@ Correct. The manual was written *inside* the constraint this spec removes. Its
 | Brand delivery | a branding service, brand as data | Dennis |
 | CSS emission | **server-rendered into `<head>`, never JS-injected** | Claude (see §4.1) |
 | API shape | a Razor component, `<SednaBrandStyle />` | Dennis relaxed the no-components rule; Claude chose (see §4.2) |
-| Mode attribute | `data-theme` stays `dark` \| `light` | Claude, delegated |
-| Brand attribute | new `data-brand` | Claude, delegated |
+| Attribute model | `data-theme` = **which theme**, `data-variant` = `dark` \| `light` | Dennis ("maybe we need theme and variant option") |
+| Every theme has both variants | **required**, enforced | Dennis |
 | Breaking changes | permitted — pre-1.0 | Dennis |
 | Library colours | now change (unlike PR #10) | Dennis |
+| Demo themes | `forest` (green) and `cobalt` (blue) | Claude, delegated |
+| Ramp generation | Sedna's ramps taken verbatim; demo themes generated from anchors; a test proves the generator reproduces Sedna's | Claude, delegated |
+| The vector | `sednaui-mark-*.svg` — supplied 2026-08-10 | resolved |
 
 Dennis chose the runtime-CSS service with the flash objection stated in front of
 him. That objection is answered by §4.1 rather than by narrowing the request.
@@ -147,7 +150,7 @@ tag.
 
 `ToCss(SednaBrand)` still exists as a public static method — the component calls it,
 and it is what makes per-request multi-tenant emission possible for an app that wants
-it (§12). The component is the ergonomic default, not the only path.
+it (§14). The component is the ergonomic default, not the only path.
 
 **Why this does not reopen what was deleted.** `CLAUDE.md`'s prohibition is aimed at
 the *frame* and at *content*: "Do not add a `<DataTable>`, a `<Card>` or an
@@ -159,10 +162,14 @@ untouched.
 
 **Two consequences to handle, both easy to miss.**
 
-1. **`CLAUDE.md` currently states "There are no components" unconditionally**, and it
-   is auto-loaded into every session in this repository. Left as-is, a future agent
-   reads that as licence to delete `SednaBrandStyle`. It must be qualified in the same
-   commit that adds the component.
+1. **`CLAUDE.md` said "There are no components" unconditionally**, and it is
+   auto-loaded into every session here — left as-is, a future agent would read that as
+   licence to delete `SednaBrandStyle`. **Already fixed**, with Dennis's own reasoning:
+   the objection is that a component hides CSS, HTML and JS so an agent cannot read or
+   edit what it cannot see. That applies only to components containing markup a reader
+   needs, so a service or helper component that emits no UI is allowed. The stated test:
+   if removing it would leave a reader unable to see the markup their page renders it is
+   forbidden; if it would only make them write plumbing by hand, it is fine.
 2. **The library has no `.razor` files today**, so adding one re-activates the Razor
    SDK's globs. `build/verify-package.sh` has a scoped-CSS guard that currently
    reports *"no scoped CSS in use, none expected"*; it goes live the moment a
@@ -208,17 +215,57 @@ attribute flip with no round trip and no flash. Semantic tokens are not emitted:
 they ship in the stylesheet and reference the palette, so a brand that changes only
 anchors needs no semantic block at all.
 
-### 5.4 Mode, and the attribute model
+### 5.4 Theme and variant
 
-`data-theme` keeps `dark` | `light`. A new `data-brand` carries the brand name. They
-are orthogonal: mode is a user toggle, brand is an identity. Collapsing them would
-force every brand to redefine both modes — three brands × two modes is six blocks
-instead of three anchor blocks plus the one shared light remap.
+Two orthogonal attributes, matching how Dennis described it:
+
+```html
+<html data-theme="sedna"  data-variant="dark">
+<html data-theme="sedna"  data-variant="light">
+<html data-theme="forest" data-variant="light">
+```
+
+- **`data-theme`** — which theme. Any registered name.
+- **`data-variant`** — `dark` | `light`. What the user toggles.
+
+**Every theme must define both variants.** This is a requirement, not a
+convention — a user who switches to light must never land on a theme that has no
+light variant. It is enforced twice: `SednaTheme` makes both non-optional in C#, so
+a one-variant theme cannot be constructed; and a guard asserts the emitted CSS
+contains a block for each registered theme × variant pair.
+
+This **breaks `data-theme`**, which currently takes `dark` | `light`. Permitted
+pre-1.0, and it is the honest naming: today's `data-theme="light"` conflates "which
+design" with "which variant of it", which is exactly why there is nowhere to put a
+second theme.
+
+**Migration.** `sedna.theme` in `localStorage` currently holds `dark`/`light`; it
+now holds a theme name, and the new `sedna.variant` holds the variant. Old values
+are **not** read and translated — `CLAUDE.md` forbids compatibility shims, and the
+prefix rename set the precedent. A returning user lands on the default theme in
+their device's variant once. `docs/migrating-to-sedna-ui.md` gains a section, since
+it already documents the storage loss from the prefix change.
 
 Rejected: native `light-dark()`. The Chromium floor supports it and it would
-collapse the light block, but it ties mode to `color-scheme`, which cannot express
-"system" distinctly from an explicit choice, and `[data-cvd]` / `[data-contrast]`
-would still need attribute blocks. Two competing models is worse than one.
+collapse the light block into the same declarations, but it ties the variant to
+`color-scheme`, which cannot express "follow the device" distinctly from an explicit
+choice — and `[data-cvd]` / `[data-contrast]` would still need attribute blocks.
+Two competing models is worse than one.
+
+### 5.5 The demo themes, and why these two
+
+Two themes beyond Sedna, chosen to prove something rather than to decorate:
+
+- **`forest`** — a green brand. Green collides with the `go` family, so the theme
+  must move `go`. That is the same problem `BRANDING.md` §4.3 solves for coral
+  against danger, and demonstrating it makes the constraint visible instead of
+  buried in a manual.
+- **`cobalt`** — a blue brand, at roughly the pre-rebrand `#2563EB`. It proves the
+  architecture can **reproduce the old appearance from data**, which is both a
+  strong demonstration and directly useful to anyone who preferred it.
+
+Every brand hue collides with some semantic family; that is inherent, and these two
+surface it rather than hide it.
 
 ### 5.5 The gaps this closes
 
@@ -306,31 +353,73 @@ demonstrated rather than described.
 Every example is a file under `Examples/Branding/`, rendered *and* printed from the
 same embedded bytes, per the catalogue's own rule.
 
-## 10. Open decisions
+## 10. Ramp generation
 
-These are not implementation details and should be settled before the plan:
+`BRANDING.md`'s ramps are taken **verbatim** for Sedna. They were generated in OKLCH
+with measured contrast, and §9.1 names six pairs sitting within 0.3 of the AA floor —
+recomputing them risks moving one below it.
 
-1. **The vector.** No SVG exists. Either author `sedna-ui-icon.svg` as a faithful
-   vector reduction of the supplied mark, or drop the vectors and amend
-   `BrandAssetTests` plus `assets/brand/README.md`. The 1024 raster means the
-   ladder no longer *needs* a vector, so this is now a question about print and
-   scalable use, not about the icon set.
-2. **The two demo brands.** Names and anchor colours. They exist to prove the
-   switcher works and should be visibly unlike Sedna — a cool green and a warm
-   amber would read clearly against coral. Dennis's call.
-3. **Ramp generation.** Accept `BRANDING.md`'s ramps verbatim for Sedna (measured
-   contrast, do not recompute), and generate for the demo brands from anchors. That
-   means two code paths — supplied ramps and generated ramps — and the generator
-   must reproduce the supplied ones closely enough that the difference is not
-   visible, or the two brands will not look like siblings.
-4. **Where the branding code lives.** A new `Branding/` folder under
-   `src/Sedna.UI/` for `SednaBrand`, `SednaRamp` and `ToCss`, and
-   `Components/SednaBrandStyle.razor` for the component. It is the first C# in the
-   library that emits CSS, and the first `.razor` since components were removed —
-   both are genuine widenings of what the package does, and `CLAUDE.md` has to say
-   so rather than leave a future session to infer it.
+The demo themes are **generated from their anchors**, on the same lightness curve and
+chroma bell. That is two code paths, and the risk is that they diverge: generated
+ramps that do not match the shape of the supplied ones make the themes look like
+different systems rather than siblings.
 
-## 11. Sequencing
+**The risk becomes a test.** Generate Sedna's ramps *from Sedna's anchors* and compare
+against the supplied values, asserting the perceptual difference stays under a stated
+threshold. If the generator cannot reproduce the ramps a designer produced by the same
+stated method, one of the two is wrong, and the test says so before a theme ships.
+
+## 11. The vector, and the trap inside it
+
+Resolved 2026-08-10: `sednaui-3c-assets/` supplies eleven SVGs. All artwork sits on a
+120-unit grid and the SVGs are the stated source of truth. Three detail tiers, which
+map exactly onto §2.2's minimum sizes:
+
+| Tier | Stroke | Use | Satellite |
+|---|---|---|---|
+| `sednaui-mark-*` | 2.5 | 96px and above | yes |
+| `sednaui-mark-compact-*` | 5.5 | 32–64px | yes, larger |
+| `sednaui-mark-micro-*` | 8 | 16px | **dropped** |
+
+The supplied PNG ladders already switch tier by size, so `icon/…-16.png` is the micro
+form and `…-96.png` and up are the full form. `sedna-ui-icon.svg` is therefore
+`sednaui-mark-navy.svg`, and `BrandAssetTests` keeps its requirement unchanged.
+
+**The trap.** `sednaui-wordmark-*.svg` and `sednaui-lockup-*.svg` contain a `<text>`
+element with `font-family="Outfit, sans-serif"`. On any machine without Outfit they
+render the wordmark in a substitute face — which the asset README and `BRANDING.md`
+§2.2 both forbid outright: *"Never rebuild the wordmark in another face."* Nothing
+errors; the wordmark is simply wrong for almost every visitor.
+
+So:
+
+- **Mark and tile SVGs** — pure geometry, no text, no embedded raster. Safe for the
+  favicon source, the catalogue logo, and anywhere scalable.
+- **Wordmark and lockup SVGs** — design source only. Web-facing lockups use the
+  **PNG** versions, where the type is already rasterised in Outfit.
+
+**A guard for it**, because this is precisely the silent class this repository guards:
+no SVG referenced by the README, the package or the catalogue may contain a `<text>`
+element naming a non-system font.
+
+## 12. Open decisions
+
+1. **Which icon ladder becomes the package icon.** The set ships two: `icon/` is the
+   navy mark on transparent, for light backgrounds; `icon-on-dark/` is the Ice White
+   mark, for dark. A transparent mark is invisible on the wrong background, and
+   nuget.org, GitHub and an IDE's package pane are not all the same shade.
+   `sednaui-tile-for-dark-bg` carries its own Deep Space field and so reads on
+   anything — which argues for the tile as the package icon and the bare mark for
+   in-app use. Confirming rather than assuming, because the packed icon is permanent
+   for a published version.
+
+2. **Where the branding code lives.** `Branding/` under `src/Sedna.UI/` for
+   `SednaTheme`, `SednaRamp` and `ToCss`; `Components/SednaBrandStyle.razor` for the
+   component. First CSS-emitting C# in the library and the first `.razor` since
+   components were removed — `CLAUDE.md` now records why both are allowed.
+
+
+## 13. Sequencing
 
 Four stages on one branch, merged as one PR, each green:
 
@@ -345,7 +434,7 @@ Four stages on one branch, merged as one PR, each green:
 Stage 2 is where the visible colour change lands. Everything before it is
 identity-only, which is what PR #10 deliberately stopped short of.
 
-## 12. Not in scope
+## 14. Not in scope
 
 - Recolouring `catalogue.css`. It may only style `.cat-*` / `.ex-*` and defines no
   tokens; it follows the theme because every colour in it is already a library

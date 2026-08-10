@@ -13,9 +13,20 @@ Pixel-identical in every app, never restyled per project.
 **Tier 2 — the paint.** Tables, forms, cards, badges, buttons, panels, alerts. Pages write plain HTML
 and apply the classes.
 
-**Both tiers are CSS classes. There are no components.** Do not add a `<DataTable>`, a `<Card>` or an
+**Both tiers are CSS classes. No component may wrap UI.** Do not add a `<DataTable>`, a `<Card>` or an
 `<AppShell>` — the frame is markup on the catalogue's Shell & nav page, copied like everything else.
 Adding UI means adding classes and a catalogue page.
+
+**The reason is workability, not taste.** A component hides the CSS, the HTML and the JS behind a tag,
+and an agent cannot read or edit what it cannot see — so the markup stops being greppable, copyable and
+reviewable. That is the whole objection, and it only applies to components that *contain markup a
+reader needs*.
+
+**A component that provides a service or a small helper is therefore allowed**, because it hides
+nothing a reader wants: it emits infrastructure, not UI. `SednaBrandStyle`, which renders a `<style>`
+block of brand tokens into `<head>`, is the sanctioned example. The test is simple — if removing the
+component would leave a reader unable to see the markup their page renders, it is forbidden; if it
+would only make them write plumbing by hand, it is fine.
 
 The package is the stylesheet, the script, the icons, the token export, and a small C# surface for the
 things markup cannot express: `ActiveLink` (which link is the current page), `ISednaUi` (typed
@@ -66,6 +77,9 @@ Permanently out of scope:
 - Wrapping tables, forms or page content in components.
 - Wrapping the frame in components. They existed on `main` between `0.1.0` and this release and were
   removed before shipping; do not bring them back.
+
+  This bans components that **hide markup**. It does not ban components outright — see the two-tier
+  section above. A service or helper component that emits no UI is allowed.
 - **The package** loading anything from a remote URL at runtime. Everything it needs ships inside it,
   so no host outage can affect a customer site. The catalogue application is a web server, and that
   rule is about the package.
