@@ -1,42 +1,44 @@
 namespace Sedna.UI;
 
 /// <summary>
-/// A named theme — a palette for each variant, reachable at <c>[data-theme="&lt;name&gt;"]</c>.
+/// A named theme — one palette, reachable at <c>[data-theme="&lt;name&gt;"]</c>.
 /// </summary>
 /// <remarks>
-/// <b>Both variants are mandatory.</b> There is no constructor and no property setter that
-/// takes only one: a user who switches <c>data-variant</c> to <c>light</c> must never land on
-/// a theme with nothing declared for it, so a one-variant theme cannot be constructed at all,
-/// rather than merely being discouraged. For Sedna itself the two are the same palette —
-/// <c>docs/BRANDING.md</c> §4.1 says tier 1 is "not remapped by variant, colour-vision or
-/// contrast", so Sedna's light and dark variants share one set of ramps by design, not by
-/// omission. A theme whose brand needs different anchors in each variant supplies two
-/// different <see cref="SednaPalette"/> instances; <see cref="SednaUiBrand.ToCss"/> currently
-/// emits only <see cref="Dark"/> (see its remarks) — <see cref="Light"/> exists so that
-/// omission is impossible to express in the type today, and so a variant-aware emitter has
-/// data to read once one exists.
+/// <para>
+/// <b>One palette, not one per variant.</b> Tier 1 is invariant across variant by design:
+/// <c>docs/BRANDING.md</c> §4.1 says a ramp step is "not remapped by variant, colour-vision or
+/// contrast — a ramp step is a colour, not a decision", and
+/// <c>TokenTierTests.The_palette_is_declared_once_and_never_remapped_by_a_variant</c> enforces
+/// it. The dark/light difference lives in tier 2, where the semantic roles are, and that ships
+/// in the stylesheet.
+/// </para>
+/// <para>
+/// This type briefly took a palette per variant. Every correct call passed the same object
+/// twice and the emitter read only one of them — an API whose right use is a duplicated
+/// argument and whose wrong use is silent. What the requirement "every theme has a light and a
+/// dark variant" actually means is that a theme's palette must supply every step the semantic
+/// tier reaches for in <em>either</em> variant, and that is checkable:
+/// <c>SednaThemeTests.A_theme_palette_covers_every_step_both_variants_reference</c> reads the
+/// shipped light and dark blocks and asserts it. A theme that only chose dark-suitable anchors
+/// fails there, which is the failure worth catching.
+/// </para>
 /// </remarks>
 public sealed class SednaTheme
 {
     /// <summary>The theme name, matched against <c>data-theme</c>.</summary>
     public string Name { get; }
 
-    /// <summary>The palette used for <c>data-variant="dark"</c>.</summary>
-    public SednaPalette Dark { get; }
+    /// <summary>The ramps this theme supplies. Used by both variants.</summary>
+    public SednaPalette Palette { get; }
 
-    /// <summary>The palette used for <c>data-variant="light"</c>.</summary>
-    public SednaPalette Light { get; }
-
-    /// <summary>Builds a theme. Both <paramref name="dark"/> and <paramref name="light"/> are required.</summary>
+    /// <summary>Builds a theme.</summary>
     /// <param name="name">The theme name, matched against <c>data-theme</c>.</param>
-    /// <param name="dark">The palette used for <c>data-variant="dark"</c>.</param>
-    /// <param name="light">The palette used for <c>data-variant="light"</c>.</param>
-    public SednaTheme(string name, SednaPalette dark, SednaPalette light)
+    /// <param name="palette">The ramps, used by both variants.</param>
+    public SednaTheme(string name, SednaPalette palette)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Name = name;
-        Dark = dark ?? throw new ArgumentNullException(nameof(dark));
-        Light = light ?? throw new ArgumentNullException(nameof(light));
+        Palette = palette ?? throw new ArgumentNullException(nameof(palette));
     }
 
     /// <summary>
@@ -98,9 +100,7 @@ public sealed class SednaTheme
                 (200, "#d4dbff"), (300, "#bbc5ff"), (400, "#9fabff"), (500, "#8590fd"),
                 (600, "#6f79e0"), (700, "#5a61bf"), (800, "#464b9b"), (900, "#323777")));
 
-        // Dark and light are the SAME palette object: tier 1 is invariant across variant for
-        // Sedna, by design (docs/BRANDING.md §4.1). See the type-level remarks above.
-        return new SednaTheme("sedna", palette, palette);
+        return new SednaTheme("sedna", palette);
     }
 
     private static SednaRamp Ramp(params (int Step, string Hex)[] entries) =>

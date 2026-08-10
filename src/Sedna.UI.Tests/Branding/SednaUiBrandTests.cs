@@ -26,7 +26,7 @@ public class SednaUiBrandTests
     [Fact]
     public void An_additional_theme_is_emitted_at_its_own_attribute_selector()
     {
-        var forest = new SednaTheme("forest", SednaTheme.Sedna.Dark, SednaTheme.Sedna.Light);
+        var forest = new SednaTheme("forest", SednaTheme.Sedna.Palette);
         var options = new SednaUiOptions { Themes = [SednaTheme.Sedna, forest], Default = "sedna" };
 
         var css = SednaUiBrand.ToCss(options);
@@ -56,7 +56,7 @@ public class SednaUiBrandTests
         // no nested selector, no non-custom property, no stray text.
         var css = SednaUiBrand.ToCss(new SednaUiOptions
         {
-            Themes = [SednaTheme.Sedna, new SednaTheme("forest", SednaTheme.Sedna.Dark, SednaTheme.Sedna.Light)],
+            Themes = [SednaTheme.Sedna, new SednaTheme("forest", SednaTheme.Sedna.Palette)],
             Default = "sedna",
         });
 

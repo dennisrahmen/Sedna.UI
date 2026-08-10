@@ -31,7 +31,7 @@ public class SednaRampGenerationTests
     public void The_generator_reproduces_the_ramp_from_its_anchor_within_the_threshold(
         string family, int anchorStep)
     {
-        var actual = SednaTheme.Sedna.Dark.Ramps().Single(r => r.Family == family).Ramp;
+        var actual = SednaTheme.Sedna.Palette.Ramps().Single(r => r.Family == family).Ramp;
         var anchorHex = actual[anchorStep];
 
         var generated = SednaRamp.FromAnchor(anchorHex, anchorStep);

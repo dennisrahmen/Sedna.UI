@@ -32,7 +32,7 @@ public class SednaThemeTests
         var generatedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var mismatches = new List<string>();
 
-        foreach (var (family, ramp) in SednaTheme.Sedna.Dark.Ramps())
+        foreach (var (family, ramp) in SednaTheme.Sedna.Palette.Ramps())
         {
             foreach (var step in ramp.Steps)
             {
@@ -62,29 +62,62 @@ public class SednaThemeTests
     }
 
     [Fact]
-    public void Sednas_dark_and_light_variants_are_the_same_palette()
+    public void A_theme_palette_covers_every_step_both_variants_reference()
     {
-        // docs/BRANDING.md §4.1: tier 1 is "not remapped by variant" for Sedna. The built-in
-        // theme reflects that by construction, not by two separately-typed copies that happen
-        // to agree today.
-        Assert.Same(SednaTheme.Sedna.Dark, SednaTheme.Sedna.Light);
+        // This is what "every theme has a light and a dark variant" actually means. Tier 1 is
+        // invariant across variant, so a theme supplies ONE palette — but the shipped light and
+        // dark blocks reach for different steps of it, and a theme that only chose
+        // dark-suitable anchors would leave the light variant pointing at ramp steps it never
+        // declared. Nothing would error; light mode would simply render with missing colours.
+        //
+        // So: collect every palette token the semantic tier references in either variant, and
+        // assert the theme declares all of them.
+        var referenced = ReferencedPaletteTokens();
+        Assert.NotEmpty(referenced);
+
+        var declared = SednaTheme.Sedna.Palette.Ramps()
+            .SelectMany(r => r.Ramp.Steps.Select(step => $"--{r.Family}-{step}"))
+            .ToHashSet(StringComparer.Ordinal);
+
+        var missing = referenced.Except(declared, StringComparer.Ordinal)
+            .OrderBy(t => t, StringComparer.Ordinal)
+            .ToList();
+
+        Assert.True(missing.Count == 0,
+            "The theme's palette is missing steps the shipped semantic tier references:\n  "
+            + string.Join("\n  ", missing)
+            + "\n\nA theme must supply every step BOTH variants reach for, or one variant "
+            + "renders with colours that were never declared.");
+    }
+
+    /// <summary>
+    /// Every <c>--family-step</c> token referenced from a semantic block — dark, light,
+    /// colour-vision and contrast alike.
+    /// </summary>
+    private static ISet<string> ReferencedPaletteTokens()
+    {
+        var css = Assets.StripComments(Assets.Css);
+        var palette = Assets.DeclaredCustomProperties(File.ReadAllText(
+            Path.Combine(Assets.ProjectDir, "css-parts", "00-palette.css")));
+
+        return Regex.Matches(css, @"var\(\s*(--[a-z]+-\d+)\s*\)")
+            .Select(m => m.Groups[1].Value)
+            .Where(palette.Contains)
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     [Fact]
-    public void A_theme_requires_both_variants()
+    public void A_theme_requires_a_palette()
     {
-        var palette = SednaTheme.Sedna.Dark;
-
-        Assert.Throws<ArgumentNullException>(() => new SednaTheme("x", null!, palette));
-        Assert.Throws<ArgumentNullException>(() => new SednaTheme("x", palette, null!));
+        Assert.Throws<ArgumentNullException>(() => new SednaTheme("x", null!));
     }
 
     [Fact]
     public void A_theme_requires_a_name()
     {
-        var palette = SednaTheme.Sedna.Dark;
+        var palette = SednaTheme.Sedna.Palette;
 
-        Assert.Throws<ArgumentException>(() => new SednaTheme("", palette, palette));
-        Assert.Throws<ArgumentNullException>(() => new SednaTheme(null!, palette, palette));
+        Assert.Throws<ArgumentException>(() => new SednaTheme("", palette));
+        Assert.Throws<ArgumentNullException>(() => new SednaTheme(null!, palette));
     }
 }

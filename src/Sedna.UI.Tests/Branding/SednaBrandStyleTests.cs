@@ -24,7 +24,7 @@ public class SednaBrandStyleTests : BunitContext
     [Fact]
     public void A_second_registered_theme_reaches_the_rendered_markup()
     {
-        var forest = new SednaTheme("forest", SednaTheme.Sedna.Dark, SednaTheme.Sedna.Light);
+        var forest = new SednaTheme("forest", SednaTheme.Sedna.Palette);
         var options = new SednaUiOptions { Themes = [SednaTheme.Sedna, forest], Default = "sedna" };
         Services.AddSingleton(options);
 

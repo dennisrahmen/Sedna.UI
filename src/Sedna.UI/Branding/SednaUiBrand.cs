@@ -22,13 +22,12 @@ public static class SednaUiBrand
     /// <c>:root</c> block, because they do not vary by theme.
     /// </para>
     /// <para>
-    /// <b>One block per theme, not per theme×variant.</b> Every registered theme's
-    /// <see cref="SednaTheme.Dark"/> palette is what gets emitted. This matches the rest of the
-    /// shipped stylesheet, where tier 1 is never remapped by variant
-    /// (<c>docs/BRANDING.md</c> §4.1) — <see cref="SednaTheme.Light"/> is mandatory on the type
-    /// so a theme cannot omit it, but nothing here reads it yet. See the remarks on
-    /// <see cref="SednaTheme"/> for what that means for a theme whose two variants genuinely
-    /// differ.
+    /// <b>One block per theme, not per theme×variant.</b> A theme has one
+    /// <see cref="SednaTheme.Palette"/> and it serves both variants, because tier 1 is never
+    /// remapped by variant — <c>docs/BRANDING.md</c> §4.1, enforced by
+    /// <c>TokenTierTests.The_palette_is_declared_once_and_never_remapped_by_a_variant</c>. The
+    /// dark/light difference is a tier-2 concern and already ships in the stylesheet: the light
+    /// block simply reaches for different steps of the same ramps.
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="options"/> is null.</exception>
@@ -53,7 +52,7 @@ public static class SednaUiBrand
 
         css.Append(":root{");
         AppendAbsolutes(css);
-        AppendPalette(css, defaultTheme.Dark);
+        AppendPalette(css, defaultTheme.Palette);
         css.Append('}');
 
         foreach (var theme in themes)
@@ -61,7 +60,7 @@ public static class SednaUiBrand
             if (theme.Name == options.Default) continue;
 
             css.Append("[data-theme=\"").Append(theme.Name).Append("\"]{");
-            AppendPalette(css, theme.Dark);
+            AppendPalette(css, theme.Palette);
             css.Append('}');
         }
 
