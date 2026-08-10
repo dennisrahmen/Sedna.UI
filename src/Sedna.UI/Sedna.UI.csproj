@@ -67,6 +67,14 @@
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
+  <!-- So SednaRampGenerationTests can call the internal Oklch conversion directly, rather than
+       keeping a second, independently-written copy of the same thirty lines in the test project —
+       exactly the kind of drift-prone duplication docs/architecture.md's "one implementation"
+       decisions (build/css-inventory.sh, ui._.score) exist to avoid. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sedna.UI.Tests" />
+  </ItemGroup>
+
   <!-- The only package dependency, and the one a Razor Class Library cannot avoid:
        ComponentBase, RenderFragment and NavigationManager live here. A
        FrameworkReference to Microsoft.AspNetCore.App would keep the .nupkg

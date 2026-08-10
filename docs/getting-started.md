@@ -131,6 +131,40 @@ library classes to work around it. See [architecture](architecture.md#the-token-
 The full token list is on the [Tokens](https://www.sedna-ui.com/tokens) catalogue
 page.
 
+### The branding service
+
+The recipe above overrides a handful of semantic tokens by hand. For a rebrand that also wants
+its own palette — or an app that registers more than one selectable theme — register themes
+instead:
+
+```csharp
+// Program.cs
+builder.Services.AddSednaUi(o =>
+{
+    o.Themes  = [SednaTheme.Sedna, myTheme];
+    o.Default = "sedna";
+});
+```
+
+```razor
+<head>
+    <SednaBrandStyle />
+</head>
+```
+
+`SednaBrandStyle` reads the registered themes from DI and writes the palette CSS into `<head>` —
+`:root { … }` for `Default`, `[data-theme="<name>"] { … }` for every other registered theme.
+`SednaTheme.Sedna` is the built-in; a new theme supplies a `SednaPalette` for each of `Dark` and
+`Light` — both are required, so a theme cannot omit one. A ramp is either supplied whole, step by
+step, or generated from a single anchor colour:
+
+```csharp
+var ramp = SednaRamp.FromAnchor("#2f6fed", anchorStep: 500);
+```
+
+See [architecture](architecture.md#branding) for what `FromAnchor` follows and what
+`SednaUiBrand.ToCss` emits.
+
 ## Icons
 
 [Remix Icon](https://remixicon.com) 4.9.1 is bundled in the package — 3,245 icons, no CDN and nothing

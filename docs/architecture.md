@@ -10,7 +10,8 @@ Pages write plain HTML and apply the classes.
 
 Content UI is always a class, never a component. There is no `<DataTable>` and there will not be one.
 
-Both tiers are CSS classes. The package ships no components at all.
+Both tiers are CSS classes. The package ships one component, `SednaBrandStyle` — a service that
+emits infrastructure CSS, not markup a page depends on. See [Branding](#branding).
 
 ## The frame
 
@@ -203,6 +204,54 @@ The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, s
 blue against red. Amber and the brand colour are unchanged.
 
 `data-density="compact"` tightens `.table` padding. Apps tighten their own page-specific components.
+
+## Branding
+
+A theme is data, not a stylesheet. `SednaTheme` names a palette for each of the two variants —
+`Dark` and `Light` — and both are required constructor arguments, so a one-variant theme cannot
+be constructed. `SednaTheme.Sedna` is the built-in, built from the literal values in
+`00-palette.css`; `SednaThemeTests` asserts the two never drift apart. For Sedna itself the two
+variants are the same palette object, because tier 1 is not remapped by variant (see
+[Theming](#theming) above) — a theme whose brand needs different anchors per variant supplies
+two different palettes instead.
+
+A `SednaPalette` holds the twelve ramps `00-palette.css` declares — `Slate`, `Coral`, `Orbit`,
+`Navy` and the eight support hues — each a `SednaRamp`. Build a `SednaRamp` from an
+already-designed set of steps, taken verbatim, or generate one from a single anchor colour:
+
+```csharp
+var ramp = SednaRamp.FromAnchor("#2f6fed", anchorStep: 500);
+```
+
+`FromAnchor` follows `docs/BRANDING.md` §2.1 — a lightness curve shared across every generated
+ramp, and a chroma bell that peaks at the anchor step. It is implemented over a direct sRGB ⇄
+OKLCH conversion, not a package: the library takes no third-party dependency (see
+[the token contract](#the-token-contract) above).
+
+Register themes and emit the palette CSS:
+
+```csharp
+// Program.cs
+builder.Services.AddSednaUi(o =>
+{
+    o.Themes  = [SednaTheme.Sedna, myTheme];
+    o.Default = "sedna";
+});
+```
+
+```razor
+<head>
+    <SednaBrandStyle />
+</head>
+```
+
+`SednaBrandStyle` reads the registered themes from DI and renders one `<style>`: `:root { … }`
+for `Default`'s palette, then `[data-theme="<name>"] { … }` for every other registered theme —
+palette tokens only, never the semantic tier, which already ships in the stylesheet and already
+points at the palette. It renders as part of the server-rendered document rather than being
+injected by JavaScript, so no page flashes the wrong colours before the theme applies.
+`SednaUiBrand.ToCss(SednaUiOptions)` is the static method behind it, for an app that wants to
+emit the CSS itself — per-request multi-tenant branding, for instance.
 
 ## Semantic families
 

@@ -34,4 +34,21 @@ public sealed class SednaUiOptions
     /// even when it does not elsewhere.
     /// </summary>
     public bool LangCookie { get; set; }
+
+    /// <summary>
+    /// The registered themes. <see cref="SednaBrandStyle"/> and <see cref="SednaUiBrand.ToCss"/>
+    /// emit palette CSS for every one of these, reachable at <c>[data-theme="&lt;name&gt;"]</c>.
+    /// </summary>
+    /// <remarks>
+    /// Defaults to just <see cref="SednaTheme.Sedna"/>. A theme name appearing more than once is
+    /// not rejected here; <see cref="SednaUiBrand.ToCss"/> matches <see cref="Default"/> against
+    /// the first one found.
+    /// </remarks>
+    public IReadOnlyList<SednaTheme> Themes { get; set; } = [SednaTheme.Sedna];
+
+    /// <summary>
+    /// Which registered theme's palette is emitted at bare <c>:root</c>, so it applies with no
+    /// <c>data-theme</c> attribute present. Must name a theme in <see cref="Themes"/>.
+    /// </summary>
+    public string Default { get; set; } = "sedna";
 }

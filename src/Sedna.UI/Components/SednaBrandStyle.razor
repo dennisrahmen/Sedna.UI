@@ -1,0 +1,6 @@
+@* SednaBrandStyle — renders the registered themes' palette CSS into <head>.
+   See the XML doc comment on the partial class in SednaBrandStyle.razor.cs. *@
+@namespace Sedna.UI
+@inject SednaUiOptions Options
+
+<style>@((MarkupString)SednaUiBrand.ToCss(Options))</style>
