@@ -38,6 +38,45 @@ public class SednaThemeContrastTests
     }
 
     /// <summary>
+    /// Every filled control whose label is <c>--on-solid</c> (white), and the ramp step the
+    /// semantic tier points at for its background. Read off <c>01-tokens.css</c>.
+    /// </summary>
+    /// <remarks>
+    /// The brand is not the only white-on-solid pair. <c>--go-solid</c>, <c>--warn-solid</c> and
+    /// <c>--danger-solid</c> are filled backgrounds under the same white label, and a theme that
+    /// regenerates one of those families — as <see cref="SednaTheme.Forest"/> does with
+    /// <c>green</c>, to clear the brand-hue collision — puts a generated colour under white text
+    /// without anything having checked it. Solving the brand step alone would leave
+    /// "Send" inaccessible while "Save" was fine, which is a worse failure than both being wrong
+    /// because it looks deliberate.
+    /// </remarks>
+    public static IEnumerable<object[]> WhiteOnSolidPairs()
+    {
+        foreach (var theme in new[] { SednaTheme.Sedna, SednaTheme.Forest, SednaTheme.Cobalt })
+        {
+            yield return [theme, "--brand", "coral", 600];
+            yield return [theme, "--go-solid", "green", 700];
+            yield return [theme, "--warn-solid", "amber", 700];
+            yield return [theme, "--danger-solid", "crimson", 700];
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(WhiteOnSolidPairs))]
+    public void Every_filled_control_carries_white_text_at_AA(
+        SednaTheme theme, string token, string family, int step)
+    {
+        var hex = theme.Palette.Ramps().Single(r => r.Family == family).Ramp[step];
+        var ratio = Contrast("#ffffff", hex);
+
+        Assert.True(ratio >= 4.5,
+            $"\"{theme.Name}\": {token} resolves to {family}-{step} ({hex}), and white on it is "
+            + $"{ratio:0.00}:1 — below the 4.5:1 AA floor for the --on-solid label every filled "
+            + "control renders. If this family was generated, its filled step needs solving for "
+            + "contrast the same way the brand step is; see docs/BRANDING.md §3.1.");
+    }
+
+    /// <summary>
     /// WCAG 2.1 relative-luminance contrast ratio, written independently of
     /// <c>Oklch.Contrast</c> — this test exists to check that helper's callers produce an
     /// accessible result, so it should not share a formula with the thing it is checking.
