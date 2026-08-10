@@ -48,6 +48,59 @@ internal static class Oklch
     /// <summary>Converts OKLCH back to a <c>#rrggbb</c> sRGB hex colour, clamped to gamut.</summary>
     public static string ToHex(double l, double c, double h)
     {
+        var (rl, gl, bl) = ToLinearSrgb(l, c, h);
+
+        // Out-of-gamut values are clamped rather than gamut-mapped: a generated ramp step
+        // that overshoots sRGB (most reachable near L=1, where the gamut narrows sharply)
+        // ends up at the nearest in-gamut colour instead of failing to render.
+        return FormatHex(ToSrgb(rl), ToSrgb(gl), ToSrgb(bl));
+    }
+
+    /// <summary>
+    /// The largest chroma at lightness <paramref name="l"/> and hue <paramref name="h"/> that
+    /// still round-trips inside the sRGB gamut, found by binary search against the pre-rounding
+    /// linear channels (not <see cref="ToHex"/>'s output, which is already clamped and so is
+    /// always "in gamut" whether or not the request was).
+    /// </summary>
+    /// <remarks>
+    /// This is what keeps a contrast-solved ramp step "as vivid as the boundary allows"
+    /// (<c>docs/BRANDING.md</c> §3.1): the caller picks a lightness and asks for the chroma
+    /// ceiling there, rather than carrying over a chroma value computed for a different
+    /// lightness, which is what a naive darkening does and why it goes dull.
+    /// </remarks>
+    public static double MaxChroma(double l, double h)
+    {
+        // 0 is always in gamut (it is the achromatic point at this lightness); double the
+        // upper bound until it is provably out, then bisect. OKLCH chroma for sRGB colours
+        // never approaches 2, so the doubling loop terminates in a handful of steps.
+        var hi = 0.5;
+        while (hi < 2 && InGamut(l, hi, h)) hi *= 2;
+
+        var lo = 0.0;
+        for (var i = 0; i < 60; i++)
+        {
+            var mid = (lo + hi) / 2;
+            if (InGamut(l, mid, h)) lo = mid; else hi = mid;
+        }
+
+        return lo;
+    }
+
+    private static bool InGamut(double l, double c, double h)
+    {
+        var (r, g, b) = ToLinearSrgb(l, c, h);
+
+        // Compared before sRGB companding, with a tolerance a few orders below a single 8-bit
+        // step, so a value that is only out of gamut by floating-point noise at the boundary
+        // (as the binary search deliberately produces on its last iterations) still counts as in.
+        const double epsilon = 1e-9;
+        return r is >= -epsilon and <= 1 + epsilon
+            && g is >= -epsilon and <= 1 + epsilon
+            && b is >= -epsilon and <= 1 + epsilon;
+    }
+
+    private static (double R, double G, double B) ToLinearSrgb(double l, double c, double h)
+    {
         var hRad = h * (Math.PI / 180);
         var lab_a = c * Math.Cos(hRad);
         var lab_b = c * Math.Sin(hRad);
@@ -66,10 +119,34 @@ internal static class Oklch
         var gl = -1.2684380046 * lCube + 2.6097574011 * mCube - 0.3413193965 * sCube;
         var bl = -0.0041960863 * lCube - 0.7034186147 * mCube + 1.7076147010 * sCube;
 
-        // Out-of-gamut values are clamped rather than gamut-mapped: a generated ramp step
-        // that overshoots sRGB (most reachable near L=1, where the gamut narrows sharply)
-        // ends up at the nearest in-gamut colour instead of failing to render.
-        return FormatHex(ToSrgb(rl), ToSrgb(gl), ToSrgb(bl));
+        return (rl, gl, bl);
+    }
+
+    /// <summary>WCAG 2.1 contrast ratio between two <c>#rrggbb</c> sRGB hex colours.</summary>
+    public static double Contrast(string hexA, string hexB)
+    {
+        var la = RelativeLuminance(hexA);
+        var lb = RelativeLuminance(hexB);
+        var (hi, lo) = la > lb ? (la, lb) : (lb, la);
+        return (hi + 0.05) / (lo + 0.05);
+    }
+
+    /// <summary>WCAG 2.1 relative luminance of a <c>#rrggbb</c> sRGB hex colour.</summary>
+    /// <remarks>
+    /// Deliberately not derived from OKLCH <c>L</c>: the whole reason a ramp step needs to be
+    /// contrast-<em>solved</em> rather than read off a shared lightness curve is that OKLab
+    /// lightness and WCAG luminance weight the channels differently (evenly-ish vs.
+    /// 0.2126/0.7152/0.0722), so they disagree on how bright two different hues are at the
+    /// "same" lightness. This has to go back to sRGB and use WCAG's own weights.
+    /// Uses <see cref="ToLinear"/>'s gamma (the actual sRGB standard's 0.04045 breakpoint)
+    /// rather than the WCAG spec prose's 0.03928 — the two agree to within 1e-5 in the
+    /// resulting linear value, immaterial next to the margin <see cref="SednaRamp"/>'s solver
+    /// aims for, and reusing it avoids a third copy of the same piecewise curve in this file.
+    /// </remarks>
+    public static double RelativeLuminance(string hex)
+    {
+        var (r, g, b) = ParseHex(hex);
+        return 0.2126 * ToLinear(r) + 0.7152 * ToLinear(g) + 0.0722 * ToLinear(b);
     }
 
     private static (double R, double G, double B) ParseHex(string hex)

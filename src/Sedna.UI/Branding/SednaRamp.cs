@@ -61,6 +61,12 @@ public sealed class SednaRamp
     /// Which steps to generate. Defaults to the eleven standard steps (50…950) that coral,
     /// orbit and navy use. Every value must be one of <see cref="StandardSteps"/>.
     /// </param>
+    /// <param name="contrastSolvedStep">
+    /// Solve one nominated step for a WCAG contrast floor instead of reading its lightness off
+    /// the shared curve — see <see cref="ContrastSolvedStep"/> for why this is a parameter here
+    /// rather than special-cased for any particular step number. <see langword="null"/> (the
+    /// default) generates every requested step from the curve, as before.
+    /// </param>
     /// <remarks>
     /// <para>
     /// <b>Lightness</b> comes from a fixed step → L table (<see cref="LightnessCurve"/>),
@@ -84,8 +90,25 @@ public sealed class SednaRamp
     /// degree or so per step (<c>docs/BRANDING.md</c> §2.1 rule 2); a constant hue is the
     /// simplest model that stays inside that tolerance without inventing a second curve to fit.
     /// </para>
+    /// <para>
+    /// <b><see cref="ContrastSolvedStep"/></b> — when the caller nominates one, that step skips
+    /// both the lightness curve and the chroma bell: its lightness is found by binary search
+    /// against <see cref="Oklch.Contrast"/>, hue is still the anchor's own, and chroma is
+    /// <see cref="Oklch.MaxChroma"/> at whatever lightness the search lands on. See
+    /// <c>docs/BRANDING.md</c> §3.1 for why a shared curve cannot do this and a per-hue solve is
+    /// required.
+    /// </para>
     /// </remarks>
-    public static SednaRamp FromAnchor(string anchorHex, int anchorStep, IReadOnlyList<int>? steps = null)
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="contrastSolvedStep"/> names a floor this hue cannot reach at any
+    /// lightness. Thrown rather than silently emitting a step that fails its own contrast
+    /// requirement.
+    /// </exception>
+    public static SednaRamp FromAnchor(
+        string anchorHex,
+        int anchorStep,
+        IReadOnlyList<int>? steps = null,
+        ContrastSolvedStep? contrastSolvedStep = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(anchorHex);
         steps ??= StandardSteps;
@@ -94,6 +117,11 @@ public sealed class SednaRamp
         if (anchorIndex < 0)
             throw new ArgumentOutOfRangeException(nameof(anchorStep), anchorStep,
                 $"The anchor step must be one of: {string.Join(", ", StandardSteps)}.");
+
+        if (contrastSolvedStep is { } floor && !steps.Contains(floor.Step))
+            throw new ArgumentException(
+                $"contrastSolvedStep names step {floor.Step}, which is not in steps ({string.Join(", ", steps)}).",
+                nameof(contrastSolvedStep));
 
         var (_, anchorC, anchorH) = Oklch.FromHex(anchorHex);
 
@@ -104,6 +132,12 @@ public sealed class SednaRamp
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(steps), step,
                     $"Every generated step must be one of: {string.Join(", ", StandardSteps)}.");
+
+            if (contrastSolvedStep is { } solve && solve.Step == step)
+            {
+                result[step] = SolveForContrast(anchorH, solve);
+                continue;
+            }
 
             if (!LightnessCurve.TryGetValue(step, out var l))
                 throw new ArgumentOutOfRangeException(nameof(steps), step,
@@ -161,6 +195,54 @@ public sealed class SednaRamp
     {
         var sigma = distance < 0 ? SigmaLighter : SigmaDarker;
         return sigma * sigma;
+    }
+
+    /// <summary>
+    /// Solves one step for <paramref name="floor"/> instead of the shared curve: hue is fixed at
+    /// <paramref name="hue"/>, lightness is found by binary search, and chroma is
+    /// <see cref="Oklch.MaxChroma"/> at whatever lightness the search lands on — so the result is
+    /// as vivid as the sRGB gamut allows at the contrast boundary, not a fixed chroma carried
+    /// over from a different lightness (which is what goes dull; see <c>docs/BRANDING.md</c> §3.1).
+    /// </summary>
+    /// <remarks>
+    /// The search runs entirely in rounded 8-bit hex — every candidate is rendered through
+    /// <see cref="Oklch.ToHex"/> and measured with <see cref="Oklch.Contrast"/> before being
+    /// compared to the floor — so the ratio this returns is the one the emitted stylesheet
+    /// actually has, not a pre-rounding estimate rounding could later undercut.
+    /// </remarks>
+    private static string SolveForContrast(double hue, ContrastSolvedStep floor)
+    {
+        string RenderAtMaxChroma(double l) => Oklch.ToHex(l, Oklch.MaxChroma(l, hue), hue);
+        double ContrastAt(double l) => Oklch.Contrast(floor.AgainstHex, RenderAtMaxChroma(l));
+
+        // The darkest end of the search range: at L just above 0 the maximum in-gamut chroma is
+        // just above 0 too — the sRGB gamut narrows to a point at both ends of the lightness
+        // axis — so this is within a hair of true black, the highest contrast any colour at this
+        // hue can reach against a lighter background. If even that fails the floor, no lightness
+        // on this hue can clear it: a real limit of the hue, not a bug in the search.
+        const double darkest = 1e-4;
+        const double lightest = 1 - 1e-4;
+
+        var bestPossible = ContrastAt(darkest);
+        if (bestPossible < floor.MinimumRatio)
+            throw new InvalidOperationException(
+                $"Step {floor.Step} at hue {hue:0.0}° cannot reach {floor.MinimumRatio:0.00}:1 "
+                + $"contrast against {floor.AgainstHex} at any lightness. The best achievable, at "
+                + $"the darkest point on this hue, is {bestPossible:0.00}:1.");
+
+        // Binary search for the lightest (least dark, most vivid) point that still clears the
+        // floor: contrast against a fixed light background falls as lightness rises, so this
+        // narrows toward the boundary from both sides. `lo` always satisfies the floor by
+        // invariant (it starts at `darkest`, which does), so it is always a safe result to return.
+        var lo = darkest;
+        var hi = lightest;
+        for (var i = 0; i < 60; i++)
+        {
+            var mid = (lo + hi) / 2;
+            if (ContrastAt(mid) >= floor.MinimumRatio) lo = mid; else hi = mid;
+        }
+
+        return RenderAtMaxChroma(lo);
     }
 
     private static string NormaliseHex(string hex)

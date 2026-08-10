@@ -133,7 +133,11 @@ public sealed class SednaTheme
         var sedna = Sedna.Palette;
         var palette = new SednaPalette(
             slate: sedna.Slate,
-            coral: SednaRamp.FromAnchor("#16a34a", 500), // the brand: a forest green
+            // the brand: a forest green. Its 600 step — what --brand resolves to — is
+            // contrast-solved against white rather than read off the shared lightness curve;
+            // see BrandTextContrastFloor for why and by how much.
+            coral: SednaRamp.FromAnchor("#16a34a", 500,
+                contrastSolvedStep: new ContrastSolvedStep(600, OnSolidWhite, BrandTextContrastFloor)),
             orbit: sedna.Orbit,
             navy: sedna.Navy,
             green: SednaRamp.FromAnchor("#0a8c8c", 500, SupportSteps), // go, moved off the brand hue
@@ -180,7 +184,10 @@ public sealed class SednaTheme
         var sedna = Sedna.Palette;
         var palette = new SednaPalette(
             slate: sedna.Slate,
-            coral: SednaRamp.FromAnchor("#2563eb", 500), // the brand: the pre-rebrand blue
+            // the brand: the pre-rebrand blue. Its 600 step is contrast-solved against white
+            // for the same reason as Forest's — see BrandTextContrastFloor.
+            coral: SednaRamp.FromAnchor("#2563eb", 500,
+                contrastSolvedStep: new ContrastSolvedStep(600, OnSolidWhite, BrandTextContrastFloor)),
             orbit: SednaRamp.FromAnchor("#0ea5b7", 400), // accent/info, moved off the brand hue
             navy: sedna.Navy,
             green: sedna.Green,
@@ -197,4 +204,22 @@ public sealed class SednaTheme
 
     /// <summary>The eight steps a support ramp (green, amber, … ) covers — see <c>docs/BRANDING.md</c> §2.6.</summary>
     private static readonly IReadOnlyList<int> SupportSteps = [200, 300, 400, 500, 600, 700, 800, 900];
+
+    /// <summary>What <c>--on-solid</c> always resolves to, in every theme — see <c>01-tokens.css</c>.</summary>
+    private const string OnSolidWhite = "#ffffff";
+
+    /// <summary>
+    /// The white-text contrast floor a generated theme's brand step (<c>coral-600</c>, what
+    /// <c>--brand</c> resolves to) is solved for — WCAG AA's 4.5:1 floor for
+    /// <c>--on-solid</c> on <c>.btn-primary</c>, plus a margin.
+    /// </summary>
+    /// <remarks>
+    /// 4.5 is a cliff, not a plateau, and Sedna's own hand-solved <c>coral-600</c> sits at 4.55
+    /// (<c>docs/BRANDING.md</c> §3.1) — a margin of 0.05, which the manual does not describe as
+    /// comfortable. This solves for 0.1 above the floor instead: enough that 8-bit sRGB rounding
+    /// of the solved lightness and chroma, or a future change to the solver's own precision,
+    /// cannot tip a passing result back under 4.5, while barely darkening past what AA actually
+    /// requires.
+    /// </remarks>
+    private const double BrandTextContrastFloor = 4.6;
 }
