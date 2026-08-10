@@ -448,15 +448,25 @@ The lowest passing values in the system:
 | Pair | Ratio |
 |---|---|
 | White on `--brand` | 4.55 |
-| White on `--danger-solid` (dark) | 4.61 |
 | `--go-fg` on light canvas | 4.62 |
 | `--teal-fg` on light canvas | 4.69 |
 | `--cyan-fg` on light canvas | 4.76 |
 | `--accent` on light canvas | 4.80 |
+| White on `--go-solid` | 4.83 |
 
 These six sit closest to the floor. **Do not lighten any of them without re-measuring.** If you need
 headroom, take the next darker ramp step rather than adjusting by eye. A theme generated from anchors
 inherits this constraint — the generator has to hit the same boundary, not approximate it.
+
+`TokenTierTests.A_near_floor_pair_still_clears_AA` re-measures these on every build, resolving each
+token through the palette to the literal it ends at. It was proved able to fail by setting `--brand`
+to coral 500, which reports 2.82:1 — the exact figure §3.1 quotes for the mistake it warns against.
+
+**One figure in an earlier draft of this manual was wrong**, and it is recorded here because a
+document claiming measured values has to be checkable: white on `--danger-solid` was given as 4.61,
+which put it in this table. Measured against `#c72268` it is **5.44**, so it is not near the floor and
+has been replaced above by white on `--go-solid`. The other three white-on-solid figures — go 4.83,
+warn 5.31, info 5.02 — verify exactly.
 
 ### 7.2 Colour-vision deficiency
 
