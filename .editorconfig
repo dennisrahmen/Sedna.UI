@@ -1,4 +1,4 @@
-# Formatting and analysis rules for DR.Simple_UI.
+# Formatting and analysis rules for Sedna.UI.
 #
 # TreatWarningsAsErrors is on, so anything raised to warning below fails the build.
 # That is deliberate for the rules that encode a decision this repo has already made;
@@ -73,12 +73,12 @@ dotnet_diagnostic.CA1309.severity = warning   # prefer Ordinal over InvariantCul
 
 # The tests read the real shipped files rather than test fixtures, on purpose — a test
 # asserting things about a copy proves nothing about what ships.
-[src/DR.Simple_UI.Tests/**.cs]
+[src/Sedna.UI.Tests/**.cs]
 dotnet_diagnostic.CS1591.severity = none
 
 # The catalogue application and its tests are not packages: nothing consumes their
 # API, so there is no documentation surface to keep. GenerateDocumentationFile is
 # already false in both, which is what actually stops CS1591 firing; this pins the
 # intent so turning it back on does not read as an oversight.
-[src/DR.Simple_UI.Catalogue{,.Tests}/**.cs]
+[src/Sedna.UI.Catalogue{,.Tests}/**.cs]
 dotnet_diagnostic.CS1591.severity = none

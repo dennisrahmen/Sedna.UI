@@ -1,0 +1,151 @@
+@page "/script"
+
+<CatHead Title="The script">
+    <code>sednaUi</code> holds generic UI behaviour only: hover hints, theme settings,
+    clipboard, toasts, confirmations, and delegated wiring for menus and tabs. App-specific
+    interop stays in the app's own script.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-information-line"></i>
+    <strong>The CSS never depends on the script.</strong> Every class on these pages applies with
+    scripting blocked. What the script adds is behaviour — and the two frame pieces that need
+    state, the collapsed rail's flyout and the user menu, are CSS and C# respectively for exactly
+    that reason.
+</div>
+
+<div class="cat-note">
+    <i class="ri-code-s-slash-line"></i>
+    <strong>From C#, inject <code>ISednaUi</code>.</strong> Register it once with
+    <code>builder.Services.AddSednaUi()</code>. Every member is a JavaScript call, so none of
+    them can run during prerendering — call them from an event handler, or from
+    <code>OnAfterRenderAsync(firstRender: true)</code>. The wrappers do not swallow that exception:
+    a call that silently did nothing would be far harder to find than one that threw.
+</div>
+
+<CatExample TExample="Examples.Interop.ToastsFromCsharp" Title="Toasts from C#"
+            Demo="ex-demo--block">
+    <p>
+        <code>ToastAsync</code> takes the message and a <code>ToastKind</code> — the enum maps to the
+        script's own family names, which are also the CSS modifier suffixes, so
+        <code>ToastKind.Go</code> and <code>.toast-go</code> cannot drift apart.
+    </p>
+    <p>
+        There is no C# equivalent of the remover function <code>toast()</code> returns: it is a
+        JavaScript function and cannot cross the boundary. Dismissing a toast early stays a
+        JavaScript concern.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.ConfirmFromCsharp" Title="Confirmation from C#"
+            Demo="ex-demo--block">
+    <p>
+        <code>await Ui.ConfirmAsync(…)</code> returns a <code>bool</code>, so the decision reads as
+        ordinary C# control flow. It is built on <code>&lt;dialog&gt;.showModal()</code> rather than
+        <code>window.confirm()</code>, which in Blazor Server blocks the circuit for as long as it
+        is open.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Script/Loading.html" Title="Loading it">
+    <p>
+        Three files, and the order matters. <code>boot.js</code> goes in
+        <code>&lt;head&gt;</code> so the stored theme is applied before first paint — loaded at the
+        end of the body it would produce a dark flash on a light-theme app.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.Script.Toasts" Title="Toasts" Demo="ex-demo--block">
+    <p>
+        <code>sednaUi.toast(message, opts)</code> creates the stack on first use, so the app
+        renders nothing and positions nothing. It returns a function that removes that toast early.
+    </p>
+    <p>
+        <code>timeout: 0</code> means it stays until dismissed — right for a failure the reader has
+        to act on. The message is inserted as <em>text</em>, never as markup: it usually carries a
+        value from the server, and this is the one place an app hands the library one.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Script.Confirmation" Title="Confirmation" Demo="ex-demo--block">
+    <p>
+        <code>await sednaUi.confirm({ … })</code> resolves <code>true</code> or
+        <code>false</code>. It is built on <code>&lt;dialog&gt;.showModal()</code>, which is the
+        point: the platform supplies the top layer, a focus trap, Escape-to-close and inert content
+        behind, none of which a div-based overlay gets without a lot of code that is usually
+        subtly wrong.
+    </p>
+    <p>
+        Use it instead of <code>window.confirm()</code>, which cannot be styled, blocks the thread,
+        and in Blazor Server blocks the circuit for as long as it is open. With
+        <code>danger: true</code> the confirm button turns red <em>and</em> focus starts on
+        <strong>Cancel</strong>, so a stray <kbd>Enter</kbd> does not delete anything.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Script.CopyWithoutHandler" Title="Copy without a handler" Demo="ex-demo--block">
+    <p>
+        <code>data-copy="…"</code> copies a literal; <code>data-copy-target="#sel"</code> copies
+        that element's text; an empty <code>data-copy-target</code> inside a
+        <a href="/structure"><code>.code-block</code></a> copies its
+        <code>&lt;pre&gt;</code>. The click is delegated from <code>document</code>, so a button
+        rendered by a later Blazor render works with nothing wired — and nothing is re-bound on
+        every render, which is how per-element handlers leak.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Script.DelegatedMenu" Title="Menus, wired for you" Demo="ex-demo--block">
+    <p>
+        <code>data-menu-toggle</code> on the trigger inside a <code>.menu-anchor</code> handles
+        opening, one panel at a time, the outside click, <kbd>Escape</kbd>, and returning focus to
+        the trigger. The closed state is the <code>hidden</code> attribute, not a class: a hidden
+        panel is out of the tab order and out of the accessibility tree, which an
+        <code>opacity: 0</code> one is not.
+    </p>
+    <p>
+        <code>.menu-anchor</code> hugs its trigger and the panel hangs off the anchor's inline-end
+        edge. An app that wants a full-width anchor sets <code>align-self: stretch</code> on it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Script.DelegatedTabs" Title="Tabs, wired for you" Demo="ex-demo--block">
+    <p>
+        <code>data-tabs</code> on a <code>.tabs</code> container is mostly there for the keyboard:
+        arrow keys, <kbd>Home</kbd> and <kbd>End</kbd> move between tabs, and only the selected tab
+        is a tab stop, so <kbd>Tab</kbd> steps past the tablist instead of through every tab in it.
+        It also shows the panel named by <code>aria-controls</code> and hides the rest.
+    </p>
+    <p>
+        Leave <code>data-tabs</code> off when the component drives <code>aria-selected</code> from
+        C#, or two things set it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Script.HoverHints" Title="Hover hints" Demo="ex-demo--block">
+    <p>
+        <code>data-tip</code> on any control renders one bubble for the whole page through event
+        delegation, so content rendered later needs no wiring.
+        <code>data-tip-pos="left|right|top|bottom"</code> pins a side. Write what the control does
+        <em>and its consequence</em> — a tip that repeats the label earns nothing.
+    </p>
+    <p>
+        The bubble itself is a single <code>.sedna-tip</code> appended to
+        <code>&lt;body&gt;</code> — fixed, so a card's or a table's <code>overflow</code> never
+        clips it — and <code>.sedna-tip--visible</code> is what fades it in. You never write either
+        class; they are listed here because they are in the stylesheet and an app may need to see
+        them in DevTools.
+    </p>
+    <p>
+        Elements inside <code>.sidebar</code> are skipped on purpose: the collapsed rail has a CSS
+        flyout, and both firing draws two tooltips. An app suppresses hints of its own with
+        <code>sednaUi.tips.gate</code>; the library has no knowledge of what is suppressing
+        them.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Script/TipGate.txt" Title="Suppressing hints">
+    <p>
+        Assign a predicate to <code>sednaUi.tips.gate</code> and it is asked before every hint. It
+        stays JavaScript-only, because a predicate cannot cross the interop boundary.
+    </p>
+</CatSnippet>

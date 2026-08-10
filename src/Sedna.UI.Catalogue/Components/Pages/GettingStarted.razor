@@ -1,0 +1,120 @@
+@page "/getting-started"
+@using Sedna.UI.Catalogue.Navigation
+
+<CatHead Title="Getting started" Tier="@CatHead.Site">
+    Install the package, add five lines to the host page, and redefine seven tokens. Nothing else is
+    required.
+</CatHead>
+
+<h2 id="install">Install</h2>
+
+<CatSnippet Name="Index/Install.txt" Title="Add the package">
+    <p>Pin the version. Do not use a floating version range.</p>
+</CatSnippet>
+
+<CatSnippet Name="Index/HostPage.html" Title="Host page">
+    <p>
+        The order matters. <code>boot.js</code> goes in <code>&lt;head&gt;</code> so the stored theme
+        is applied before first paint; your own override file comes after the library stylesheet, and
+        <code>Sedna.UI.js</code> comes before <code>blazor.web.js</code> so
+        <code>window.sednaUi</code> exists before an interactive component can call into it.
+    </p>
+    <p>
+        This is the block this site runs, and a test compares the two — so what you copy is what is
+        deployed.
+    </p>
+</CatSnippet>
+
+<CatSnippet Name="Frame/ReconnectHostPage.html" Title="The reconnect banner">
+    <p>
+        Blazor Server injects its own reconnect UI unless the host page supplies one. Add this inside
+        <code>&lt;body&gt;</code>, before the component that carries the render mode. Supply all four
+        rows — a state with no row renders as an empty bar. The
+        <a href="/frame">Shell and nav</a> page has the state table.
+    </p>
+</CatSnippet>
+
+<CatSnippet Name="Index/Registration.txt" Title="Registration">
+    <p>
+        Only needed for the C# side — <code>ISednaUi</code> wraps toasts, confirmations, the
+        clipboard, the palette, the search index and the settings the theme toggles write. The CSS
+        needs no registration at all.
+    </p>
+    <p>
+        Every member is a JavaScript call, so <strong>none of them can run during
+        prerendering</strong>. Call them from an event handler or from
+        <code>OnAfterRenderAsync(firstRender: true)</code>. They deliberately do not swallow the
+        exception prerendering raises: a call that silently did nothing would be far harder to find.
+    </p>
+</CatSnippet>
+
+<h2 id="branding">Branding</h2>
+<p class="cat-lede">
+    Your whole <code>css/brand.css</code>, loaded after the library. Nothing else changes.
+</p>
+
+<CatSnippet Name="Index/Rebrand.css" Title="Brand tokens">
+    <p>
+        <code>--brand-tint</code>, <code>--brand-ring</code>, <code>--brand-ring-soft</code>,
+        <code>--brand-ring-check</code> and <code>--brand-glow</code> are mixed from
+        <code>--brand</code> and follow it in both themes. Set them only to change the alpha the
+        library chose.
+    </p>
+</CatSnippet>
+
+<div class="cat-note">
+    <i class="ri-error-warning-line"></i>
+    <span>
+        Redefine only tokens the library already declares. <strong>Never declare a
+        <code>--</code> name it does not define</strong> — a later version may claim that name with a
+        different meaning and your app breaks on upgrade. If a value is missing,
+        <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/CONTRIBUTING.md">request
+        it</CatLink> and use an app-prefixed variable until it ships. The full list is on the
+        <a href="/tokens">Tokens</a> page.
+    </span>
+</div>
+
+<h2 id="the-frame">The frame</h2>
+<p class="cat-lede">
+    The shell, sidebar, header and user widget are CSS classes like everything else. There is no
+    <code>&lt;AppShell&gt;</code> and there will not be one — copy the markup from
+    <a href="/frame">Shell and nav</a>.
+</p>
+
+<CatExample TExample="Examples.Interop.ActiveNavLink" Title="Which link is the current page" Demo="ex-demo--block">
+    <p>
+        The one thing markup cannot express. <code>Nav.CssClass(href)</code> appends
+        <code>active</code> and <code>Nav.AriaCurrent(href)</code> returns <code>"page"</code> or
+        null, which Blazor omits. The class colours the item; <code>aria-current</code> is what is
+        announced.
+    </p>
+    <p>
+        Matching drops the query string and the fragment, ignores a trailing slash, and requires a
+        prefix match to end on a path segment — so <code>/queue</code> does not light up on
+        <code>/queue-archive</code>. <strong>The link to the root needs
+        <code>NavLinkMatch.All</code></strong>, or it is active everywhere.
+    </p>
+    <p>
+        <strong>Subscribe to <code>LocationChanged</code> in the component that renders the
+        links</strong>, not in the layout around it. When a parent re-renders, Blazor only hands new
+        parameters to a child whose parameters differ, so a sidebar whose parameters are unchanged is
+        skipped and goes on rendering the previous address. Call
+        <code>sednaUi.scrollPageTop</code> from the same handler:
+        <code>.page</code> is the only scroll container, so navigation otherwise leaves the new page
+        at the old one's offset.
+    </p>
+</CatExample>
+
+<h2 id="agents">For an AI agent</h2>
+
+<div class="cat-note">
+    <i class="ri-robot-2-line"></i>
+    <span>
+        Add the <a href="/mcp-server">MCP server</a> —
+        <code>{ "type": "http", "url": "@CatalogueLinks.Mcp" }</code> — then copy
+        <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md">
+        <code>docs/CLAUDE.consuming-app.md</code></CatLink> into your app's own
+        <code>CLAUDE.md</code>. The server answers questions; the rules file is what stops an agent
+        inventing a token name or wrapping a table in a component.
+    </span>
+</div>

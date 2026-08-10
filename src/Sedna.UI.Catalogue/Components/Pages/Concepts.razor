@@ -1,0 +1,201 @@
+@page "/concepts"
+
+<CatHead Title="Concepts" Tier="@CatHead.Site">
+    Six things that decide how an app writes CSS against this library. Everything else on this site is
+    markup to copy.
+</CatHead>
+
+<h2 id="two-tiers">The two tiers</h2>
+
+<div class="cat-tiles">
+    <div class="card cat-tile">
+        <span class="cat-tile-ic"><i class="ri-side-bar-line"></i></span>
+        <span class="cat-tile-text">
+            <strong>Tier 1 — the frame</strong>
+            <span>Shell, sidebar and nav, header, user widget, toasts, the modal shell.
+            Pixel-identical in every app and never restyled per project.</span>
+        </span>
+    </div>
+    <div class="card cat-tile">
+        <span class="cat-tile-ic"><i class="ri-brush-line"></i></span>
+        <span class="cat-tile-text">
+            <strong>Tier 2 — the paint</strong>
+            <span>Tables, forms, cards, badges, buttons, panels, alerts. Pages write plain HTML and
+            apply the classes.</span>
+        </span>
+    </div>
+</div>
+
+<p class="cat-lede">
+    Both tiers are CSS classes. There is no <code>&lt;DataTable&gt;</code>, no
+    <code>&lt;AppShell&gt;</code>, and there will not be either. The package ships the stylesheet, the
+    script, the icons, the token export, and a small C# surface for what markup cannot express: which
+    nav link is the current page, typed access to the browser API, and the service registration.
+</p>
+
+<h2 id="layers">Cascade layers</h2>
+
+<p class="cat-lede">
+    The whole stylesheet is inside six layers, in this order.
+</p>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Layer</th><th>Part numbers</th><th>What lives there</th></tr></thead>
+        <tbody>
+            <tr><td><code>sedna.tokens</code></td><td class="col-muted">00–04</td><td>Tokens and the theme remap blocks</td></tr>
+            <tr><td><code>sedna.base</code></td><td class="col-muted">05–09</td><td>Bare elements — <code>html</code>, <code>body</code>, <code>a</code>, <code>code</code>, headings</td></tr>
+            <tr><td><code>sedna.frame</code></td><td class="col-muted">10–29</td><td>Tier 1</td></tr>
+            <tr><td><code>sedna.paint</code></td><td class="col-muted">30–79</td><td>Tier 2, then RTL, forced colours and print</td></tr>
+            <tr><td><code>sedna.utilities</code></td><td class="col-muted">80–89</td><td>Single-purpose classes</td></tr>
+            <tr><td><code>sedna.overrides</code></td><td class="col-muted">90–99</td><td>Density and reduced motion — the last word</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="cat-note">
+    <i class="ri-stack-line"></i>
+    <strong>Your stylesheet is unlayered, so it beats every rule here whatever the
+    specificity.</strong> You never have to out-specify the library, and you should not try:
+    <code>.card { padding: 12px }</code> in your own file wins against anything, with no
+    <code>!important</code> and no compound selector. If a rule here has to be overridden to make
+    something work, that is a design problem worth reporting rather than a specificity puzzle.
+</div>
+
+<p class="cat-lede">
+    A later layer beats an earlier one regardless of specificity. That is what makes
+    <code>.text-end</code> at (0,1,0) win against <code>.table td</code> at (0,1,1), and it is why the
+    reduced-motion block sits in the last layer — motion has to be switchable off whatever declared it.
+</p>
+
+<div class="cat-note">
+    <i class="ri-error-warning-line"></i>
+    <strong>The library uses no <code>!important</code>, and you should not use one against it.</strong>
+    Inside a layer an <code>!important</code> declaration becomes <em>harder</em> to override rather
+    than easier, because layer order inverts for important declarations.
+</div>
+
+<h2 id="control-height">One control height</h2>
+
+<p class="cat-lede">
+    <code>--control-height-sm</code> (28px), <code>--control-height</code> (36px) and
+    <code>--control-height-lg</code> (44px) are the height of everything that can sit in a row with
+    another control: buttons, icon buttons, inputs, selects, the read-only value, the input group, the
+    stepper, the search box and the chip.
+</p>
+
+<div class="cat-note">
+    <i class="ri-ruler-line"></i>
+    Two rules follow if you size a control yourself. Keep its own padding and line box
+    <strong>under</strong> the tier, or the tier stops deciding anything and the control grows past it.
+    And if a wrapper draws the border — an input group does — the wrapper takes the height and the
+    children give theirs up, or the wrapper ends up two border-pixels taller than a bare control.
+</div>
+
+<h2 id="tokens">The token contract</h2>
+
+<ul class="list">
+    <li><span class="list-row"><span class="list-main">
+        <span class="list-title">Every colour resolves through a token</span>
+        <span class="list-sub">No hex, <code>rgb()</code> or colour keyword anywhere outside the token blocks. A test enforces it.</span>
+    </span></span></li>
+    <li><span class="list-row"><span class="list-main">
+        <span class="list-title">A theme is a token remap, never a selector override</span>
+        <span class="list-sub">The light and colour-blind blocks contain values and no rules, which is why CSS load order does not affect them.</span>
+    </span></span></li>
+    <li><span class="list-row"><span class="list-main">
+        <span class="list-title">Redefine only names the library declares</span>
+        <span class="list-sub">A new <code>--</code> name risks colliding with a future token. Use an app-prefixed one until yours ships.</span>
+    </span></span></li>
+    <li><span class="list-row"><span class="list-main">
+        <span class="list-title">Some tokens are derived</span>
+        <span class="list-sub"><code>--brand-tint</code>, the three rings and <code>--brand-glow</code> are mixed from <code>--brand</code>, so redefining it carries all five.</span>
+    </span></span></li>
+</ul>
+
+<h2 id="naming">Naming</h2>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Shape</th><th>Rule</th></tr></thead>
+        <tbody>
+            <tr><td><code>.card</code>, <code>.btn-go</code></td><td>Semantic, lowercase-kebab, no app or vendor prefix</td></tr>
+            <tr><td><code>.sedna-row</code>, <code>.sedna-scroll</code></td><td>Library-owned utilities that need a namespace</td></tr>
+            <tr><td><code>.tab--active</code></td><td>A modifier is <code>--</code> on the block</td></tr>
+            <tr><td><code>go</code>, <code>warn</code>, <code>danger</code>, <code>info</code>, <code>secret</code></td><td>Semantic families, chosen by meaning across buttons, badges and alerts</td></tr>
+            <tr><td><code>cyan</code>, <code>orange</code>, <code>teal</code></td><td>Categorical hues with no meaning at all</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="cat-note">
+    <i class="ri-price-tag-3-line"></i>
+    <strong>A plain name is a claim on the shared namespace.</strong> An app that already styles
+    <code>.list</code> or <code>.menu</code> silently gets both rule sets merged on upgrade — no error,
+    just a changed appearance. Every release lists the class names it adds, so a consuming app can grep
+    its own CSS before bumping.
+</div>
+
+<h2 id="z-order">Z-order</h2>
+<p class="cat-lede">
+    Shared by every app. Use one of these values for a new overlay — a test fails on any other. 0 and 1
+    are for local stacking inside a component and are not part of the scale.
+</p>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Layer</th><th class="col-num">z-index</th></tr></thead>
+        <tbody>
+            <tr><td>Topbar, floating action button</td><td class="col-num">60</td></tr>
+            <tr><td>User widget</td><td class="col-num">200</td></tr>
+            <tr><td>Collapsed-rail flyout</td><td class="col-num">400</td></tr>
+            <tr><td>Drawer scrim</td><td class="col-num">480</td></tr>
+            <tr><td>Drawer panel</td><td class="col-num">490</td></tr>
+            <tr><td>Modal backdrop</td><td class="col-num">500</td></tr>
+            <tr><td>Spotlight</td><td class="col-num">510</td></tr>
+            <tr><td>Dropdown menu, palette, popover</td><td class="col-num">550</td></tr>
+            <tr><td>Toast</td><td class="col-num">600</td></tr>
+            <tr><td>Hover hints, reconnect banner</td><td class="col-num">1000</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="cat-note">
+    <i class="ri-information-line"></i>
+    <strong>Two things the numbers do not say.</strong> <code>.topbar</code> and
+    <code>.user-widget</code> establish stacking contexts, so a panel nested in either is ordered
+    <em>within</em> it and cannot be lifted above the modal backdrop by z-index alone. And the top
+    layer — anything promoted by <code>popover</code> or <code>dialog.showModal()</code> — ignores
+    z-index entirely and orders by promotion, which is why the palette and the confirmation dialog
+    carry no rung of their own.
+</div>
+
+<div class="cat-note">
+    <i class="ri-layout-bottom-line"></i>
+    <span>
+        <strong>The drawer sits below the modal backdrop on purpose.</strong> A modal opened from
+        inside a drawer has to cover it — the case a single shared &ldquo;overlay&rdquo; value gets
+        wrong.
+    </span>
+</div>
+
+<h2 id="rtl">Direction and density</h2>
+
+<p class="cat-lede">
+    Every directional property in the library is a logical one, so the whole layout mirrors from
+    <code>dir="rtl"</code> on <code>&lt;html&gt;</code>. Use the switch in the header to check any page
+    on this site.
+</p>
+
+<div class="cat-note">
+    <i class="ri-text-direction-r"></i>
+    <span>
+        Two things logical properties cannot express, and both are handled for you:
+        <code>transform: translateX()</code> has no logical form, and a
+        <code>background-position</code> percentage is always measured from the physical left edge.
+        Anything else you write with <code>margin-inline-start</code>,
+        <code>border-inline-end</code>, <code>inset-inline</code> and <code>text-align: start</code>
+        mirrors for free. <code>data-density="compact"</code> tightens table and cell padding; tighten
+        your own page-specific components alongside it.
+    </span>
+</div>

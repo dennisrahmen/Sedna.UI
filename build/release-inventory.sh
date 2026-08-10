@@ -20,8 +20,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-REL_CSS="src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
-CSS="$ROOT/$REL_CSS"
+# Two paths, deliberately: the working tree's, and the one this ref used.
+# build/css-path.sh owns the history.
+CSS="$ROOT/$("$ROOT/build/css-path.sh" HEAD)"
 INVENTORY="$ROOT/build/css-inventory.sh"
 
 REF="${1:-}"
@@ -37,8 +38,9 @@ fi
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-if ! git -C "$ROOT" show "$REF:$REL_CSS" > "$TMP/old.css" 2>/dev/null; then
-    echo "::error::Cannot read $REL_CSS at $REF. Is the ref right, and did the path exist then?"
+REF_CSS="$("$ROOT/build/css-path.sh" "$REF")" || exit 1
+if ! git -C "$ROOT" show "$REF:$REF_CSS" > "$TMP/old.css" 2>/dev/null; then
+    echo "::error::Cannot read $REF_CSS at $REF. Is the ref right?"
     exit 1
 fi
 

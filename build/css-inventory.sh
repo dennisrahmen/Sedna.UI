@@ -12,7 +12,7 @@
 # build/release-inventory.sh diffs two revisions for the release notes. Both use this
 # one implementation, because the extraction is where the mistakes live:
 #
-#   * A CLASS is not simply a dot followed by a name. `@layer dr.tokens, dr.paint, …`
+#   * A CLASS is not simply a dot followed by a name. `@layer sedna.tokens, sedna.paint, …`
 #     uses DOTTED names, so a naive scan reports six phantom classes — .tokens, .base,
 #     .frame, .paint, .utilities, .overrides. The @layer preludes are removed first.
 #     Constraining the dot instead (requiring a non-identifier before it) looks like it

@@ -2,10 +2,10 @@
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "src/DR.Simple_UI.Catalogue/Dockerfile",
+    "dockerfilePath": "src/Sedna.UI.Catalogue/Dockerfile",
     "watchPatterns": [
-      "src/DR.Simple_UI/**",
-      "src/DR.Simple_UI.Catalogue/**",
+      "src/Sedna.UI/**",
+      "src/Sedna.UI.Catalogue/**",
       "docs/**",
       "global.json",
       "railway.json"

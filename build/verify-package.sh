@@ -8,7 +8,7 @@
 # package restores, the app builds, and every stylesheet link 404s at runtime.
 # So we do not assume — we unpack and assert.
 #
-# Usage:  build/verify-package.sh artifacts/DR.Simple_UI.*.nupkg
+# Usage:  build/verify-package.sh artifacts/Sedna.UI.*.nupkg
 #
 set -euo pipefail
 
@@ -34,18 +34,18 @@ echo
 CONTENTS="$(unzip -Z1 "$PACKAGE")"
 
 # Static web assets are packed under staticwebassets/ and served to a consuming
-# app from _content/DR.Simple_UI/ at runtime.
+# app from _content/Sedna.UI/ at runtime.
 REQUIRED=(
-    "lib/net10.0/DR.Simple_UI.dll"
+    "lib/net10.0/Sedna.UI.dll"
     # GenerateDocumentationFile is on. Without this the C# surface ships
     # with no IntelliSense, which nothing else would notice.
-    "lib/net10.0/DR.Simple_UI.xml"
-    "staticwebassets/css/DR.Simple_UI.css"
-    "staticwebassets/js/DR.Simple_UI.js"
-    "staticwebassets/js/DR.Simple_UI.boot.js"
+    "lib/net10.0/Sedna.UI.xml"
+    "staticwebassets/css/Sedna.UI.css"
+    "staticwebassets/js/Sedna.UI.js"
+    "staticwebassets/js/Sedna.UI.boot.js"
     # The token export. A design tool reads this path out of the restored package,
     # so it is as much a shipped contract as the stylesheet.
-    "staticwebassets/tokens/DR.Simple_UI.tokens.json"
+    "staticwebassets/tokens/Sedna.UI.tokens.json"
     "staticwebassets/lib/remixicon/remixicon.css"
     "staticwebassets/lib/remixicon/remixicon.woff2"
     "staticwebassets/lib/remixicon/LICENSE"
@@ -71,8 +71,8 @@ echo
 # carry the token block the whole contract rests on.
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-unzip -q -o "$PACKAGE" 'staticwebassets/css/DR.Simple_UI.css' -d "$tmp"
-css="$tmp/staticwebassets/css/DR.Simple_UI.css"
+unzip -q -o "$PACKAGE" 'staticwebassets/css/Sedna.UI.css' -d "$tmp"
+css="$tmp/staticwebassets/css/Sedna.UI.css"
 
 if [[ ! -s "$css" ]]; then
     echo "::error::The packed stylesheet is empty."
@@ -89,14 +89,14 @@ fi
 # most plausibly by someone restoring a deleted file.
 if grep -q '^staticwebassets/catalogue/' <<<"$CONTENTS"; then
     echo "::error::The package contains catalogue files. The catalogue is a hosted app now,"
-    echo "         src/DR.Simple_UI.Catalogue — see CLAUDE.md."
+    echo "         src/Sedna.UI.Catalogue — see CLAUDE.md."
     failed=1
 else
     echo "  ok      no catalogue in the package"
 fi
 
 # And the app itself must never be packed with the library.
-if grep -qi 'DR\.Simple_UI\.Catalogue' <<<"$CONTENTS"; then
+if grep -qi 'Sedna\.UI\.Catalogue' <<<"$CONTENTS"; then
     echo "::error::The catalogue application leaked into the package."
     failed=1
 else
@@ -118,9 +118,9 @@ fi
 
 # Blazor CSS isolation: the library ships no components, so no scoped CSS exists.
 # If one ever appears its bundle must be packed too, or those styles vanish.
-if grep -q '^staticwebassets/DR\.Simple_UI\.bundle\.scp\.css$' <<<"$CONTENTS"; then
+if grep -q '^staticwebassets/Sedna\.UI\.bundle\.scp\.css$' <<<"$CONTENTS"; then
     echo "  ok      scoped-CSS bundle packed"
-elif grep -Erq '\.razor\.css$' <<<"$(find src/DR.Simple_UI -name '*.razor.css' 2>/dev/null || true)"; then
+elif grep -Erq '\.razor\.css$' <<<"$(find src/Sedna.UI -name '*.razor.css' 2>/dev/null || true)"; then
     echo "::error::Scoped CSS files exist in the project but no .bundle.scp.css was packed."
     failed=1
 else

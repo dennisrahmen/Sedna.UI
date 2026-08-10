@@ -2,8 +2,8 @@
 
 ## Requesting a token, class or variant
 
-Apps that consume `DR.Simple_UI` cannot release it, so a missing value is a request rather than a local
-fix. [Open an issue](https://github.com/dennisrahmen/DR.Simple_UI/issues) with:
+Apps that consume `Sedna.UI` cannot release it, so a missing value is a request rather than a local
+fix. [Open an issue](https://github.com/dennisrahmen/Sedna.UI/issues) with:
 
 - what you need — a colour role, a button variant, a class
 - where it is used, and what you would otherwise write locally
@@ -30,8 +30,8 @@ that licence.
 Before opening a PR:
 
 ```bash
-dotnet build DR.Simple_UI.slnx
-dotnet test  DR.Simple_UI.slnx
+dotnet build Sedna.UI.slnx
+dotnet test  Sedna.UI.slnx
 ```
 
 The tests are source scans that enforce the design rules, not behaviour checks. If one fails it is
@@ -57,8 +57,11 @@ See [docs/development.md](docs/development.md) for what each guard covers.
 
 ## Adding a class
 
-1. Add it to `src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css`, referencing tokens for every colour.
-2. Add or extend a catalogue page under `src/DR.Simple_UI.Catalogue/Components/Pages/`, with its
+1. Add the rule to the owning part under `src/Sedna.UI/css-parts/` (or a new `NN`-prefixed part, per
+   that directory's own `CLAUDE.md`), referencing tokens for every colour, then re-run
+   `build/bundle-css.sh`. Never edit `src/Sedna.UI/wwwroot/css/Sedna.UI.css` directly — it is
+   generated, and a guard test rejects a hand-edit.
+2. Add or extend a catalogue page under `src/Sedna.UI.Catalogue/Components/Pages/`, with its
    example markup as a file under `Examples/`, and register the page in `CataloguePages`.
 3. `dotnet test`.
 

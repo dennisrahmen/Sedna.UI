@@ -1,0 +1,26 @@
+// JavaScript — a command may run a callback.
+sednaUi.palette.register([
+    { label: 'Dispatch this order', icon: 'ri-send-plane-line', group: 'Orders',
+      note: 'Reserved lines only', keywords: 'send ship release',
+      run: () => dispatchCurrentOrder() },
+    { label: 'Open the queue', icon: 'ri-inbox-line', group: 'Go to', href: '/queue' },
+]);
+
+// C# — a command registered from .NET carries an Href, never a callback: the
+// library does not call back into .NET, so navigation is the one action a
+// serialisable command can perform.
+await Ui.RegisterCommandsAsync(
+[
+    new PaletteCommand { Label = "Open the queue", Icon = "ri-inbox-line",
+                         Group = "Go to", Href = "/queue" },
+    new PaletteCommand { Label = "Account settings", Icon = "ri-user-line",
+                         Group = "Go to", Href = "/settings", Keywords = "profile theme" },
+]);
+
+// register() REPLACES the list. Call it again whenever what is available
+// changes — after a permission check, or on navigation.
+//
+// Groups are shown in registration order and dropped once a query has
+// reordered the list, because a heading over unrelated results is worse than
+// no heading. Ctrl/Cmd-K is wired for you, and does nothing until at least one
+// command is registered, so the browser's own binding is left alone.

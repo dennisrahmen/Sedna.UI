@@ -6,14 +6,15 @@
 The git tag is the version. Tag `v1.2.3` publishes `1.2.3`. No file in the repo records the version.
 
 Release notes come from the annotated tag message. There is no `CHANGELOG.md` — the
-[Releases page](https://github.com/dennisrahmen/DR.Simple_UI/releases) is the changelog.
+[Releases page](https://github.com/dennisrahmen/Sedna.UI/releases) is the changelog.
 
 ## Cutting a release
 
 1. Decide the version using the rules below.
-2. Write the notes to a file outside the repo. List every CSS class the release adds: a consuming app
-   that already styles one of those names sees its appearance change on upgrade with no error, so the
-   list is what lets it grep first.
+2. Write the notes to a file outside the repo. List every CSS class the release adds, and every one it
+   removes: a consuming app that already styles an added name sees its appearance change on upgrade with
+   no error, so the list is what lets it grep first — and a removal is the breaking part of the release,
+   which `build/release-inventory.sh` prints first for that reason.
 3. Tag and push:
 
    ```bash
@@ -92,7 +93,7 @@ long-lived API key is stored in the repository.
    | Field | Value |
    |---|---|
    | Repository Owner | `dennisrahmen` |
-   | Repository | `DR.Simple_UI` |
+   | Repository | `Sedna.UI` |
    | Workflow File | `release.yml` |
    | Environment | *(empty)* |
 
@@ -109,9 +110,9 @@ long-lived API key is stored in the repository.
 
 ## The hosted catalogue
 
-The catalogue is an application, not a static site: `src/DR.Simple_UI.Catalogue`, containerised from
-`src/DR.Simple_UI.Catalogue/Dockerfile` and deployed to Railway at
-<https://simpleui.dennisrahmen.dev/>. `railway.json` at the repository root holds the build and deploy
+The catalogue is an application, not a static site: `src/Sedna.UI.Catalogue`, containerised from
+`src/Sedna.UI.Catalogue/Dockerfile` and deployed to Railway at
+<https://www.sedna-ui.com/>. `railway.json` at the repository root holds the build and deploy
 configuration, so it is reviewable in a pull request rather than living only in a dashboard.
 
 **The site deploys from every push to `main`; the package ships from a `v*` tag.** That split is

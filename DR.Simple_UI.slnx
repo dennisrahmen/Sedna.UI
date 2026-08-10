@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="src/DR.Simple_UI/DR.Simple_UI.csproj" />
-  <Project Path="src/DR.Simple_UI.Tests/DR.Simple_UI.Tests.csproj" />
-  <Project Path="src/DR.Simple_UI.Catalogue/DR.Simple_UI.Catalogue.csproj" />
-  <Project Path="src/DR.Simple_UI.Catalogue.Tests/DR.Simple_UI.Catalogue.Tests.csproj" />
-</Solution>

@@ -1,0 +1,18 @@
+@inject ISednaUi Ui
+
+<div style="display:flex; flex-wrap:wrap; gap:8px">
+    <button class="btn btn-go" type="button" @onclick="Approved">Success toast</button>
+    <button class="btn btn-warn" type="button" @onclick="Lowered">Warning toast</button>
+    <button class="btn btn-danger" type="button" @onclick="Failed">Failure, stays until dismissed</button>
+</div>
+
+@code {
+    private Task Approved() => Ui.ToastAsync(
+        "Dispatched ORD-4209", ToastKind.Go, title: "Sent to the warehouse");
+
+    private Task Lowered() => Ui.ToastAsync("Automation lowered to level 1", ToastKind.Warn);
+
+    // timeout 0 stays until dismissed — right for a failure the reader has to act on.
+    private Task Failed() => Ui.ToastAsync(
+        "Could not reach the warehouse. Nothing was written.", ToastKind.Danger, timeoutMs: 0);
+}

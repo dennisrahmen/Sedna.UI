@@ -1,0 +1,16 @@
+<button class="btn btn-go" type="button"
+        onclick="sednaUi.toast('ORD-4182 is on its way to EU-West.', { kind: 'go', title: 'Order dispatched' })">
+    Dispatch
+</button>
+<button class="btn btn-warn" type="button"
+        onclick="sednaUi.toast('Two of five lines are awaiting stock.', { kind: 'warn', title: 'Partially fulfilled' })">
+    Warn
+</button>
+<button class="btn btn-danger" type="button"
+        onclick="sednaUi.toast('The endpoint returned 503. Nothing was written.', { kind: 'danger', title: 'Import failed', timeout: 0 })">
+    Fail, stays until dismissed
+</button>
+<button class="btn" type="button"
+        onclick="sednaUi.toast('Nightly reconciliation closed 4 stale orders.')">
+    Info
+</button>

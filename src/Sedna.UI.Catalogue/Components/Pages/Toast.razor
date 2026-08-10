@@ -1,0 +1,62 @@
+@page "/toast"
+
+<CatHead Title="Toasts">
+    A confirmation that appears, says what happened, and goes away. Anything the reader still has to
+    act on is an <a href="/alert">alert</a>, which stays until the state changes.
+</CatHead>
+
+<CatExample TExample="Examples.Toast.ToastTriggers" Title="Raising one">
+    <p>
+        <strong>Live.</strong> <code>sednaUi.toast(message, options)</code> renders the stack and
+        the toast, stacks a second under the first, and removes it after its timeout.
+        <code>timeout: 0</code> keeps it until dismissed, which is what a failure wants. From C# it
+        is <code>ToastAsync</code>.
+    </p>
+    <p>
+        The return value is a function that removes that toast early. It stays JavaScript-only,
+        because a function cannot cross the interop boundary.
+    </p>
+    <p>
+        <code>kind</code> is <code>go</code>, <code>warn</code>, <code>danger</code> or
+        <code>info</code>, and <code>info</code> is the default. Pick by what the reader should do
+        next, not by how the message feels.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Toast.Toast" Title="The markup" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        You do not write this for <code>sednaUi.toast</code> — it is here for an app that renders
+        the stack itself, from server state or as part of a page's own model.
+    </p>
+    <p>
+        <code>.toast-stack</code> is the only positioned element: <code>fixed</code> to the
+        bottom-inline-end corner at z-index 600. Each toast is a plain block inside it, so an app
+        renders a list and positions nothing. The stack here is <code>position:static</code> so it
+        can be seen in place rather than pinned to the corner of the screen.
+    </p>
+    <p>
+        Do not put <code>role="alert"</code> on a toast. The library adds the live region when it
+        creates the stack; a second one announces the same text twice.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Toast.ToastOrAlert" Title="Toast or alert" Demo="ex-demo--block">
+    <p>
+        The same event, told both ways. A toast is a receipt for something that already happened and
+        needs nothing from the reader. An <a href="/alert">alert</a> stays until the state changes,
+        and is the only one of the two that may carry an action.
+    </p>
+    <p>
+        A toast with a button in it is an action nobody performs: it is gone in four seconds, and it
+        is announced politely to anybody who cannot see it.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Toast/ToastApi.txt" Title="Raising one">
+    <p>
+        <code>timeout: 0</code> keeps a toast until it is dismissed, which is what a failure the
+        reader has to read needs. The JavaScript call returns a function that removes that toast
+        early; the C# wrapper cannot, because a callback does not cross the interop boundary — keep a
+        withdrawable toast in JavaScript.
+    </p>
+</CatSnippet>

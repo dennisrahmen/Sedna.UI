@@ -1,1 +1,0 @@
-claude mcp add --transport http dr-simple-ui https://simpleui.dennisrahmen.dev/mcp

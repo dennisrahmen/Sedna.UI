@@ -9,7 +9,7 @@
 #   build/vendor-remixicon.sh            # the pinned version below
 #   build/vendor-remixicon.sh 4.9.1      # a specific version
 #
-# What it produces in src/DR.Simple_UI/wwwroot/lib/remixicon/:
+# What it produces in src/Sedna.UI/wwwroot/lib/remixicon/:
 #   remixicon.css      upstream CSS, @font-face reduced to woff2 only
 #   remixicon.woff2    the font
 #   LICENSE            the Remix Icon License, as required when redistributing
@@ -28,10 +28,10 @@
 set -euo pipefail
 
 VERSION="${1:-4.9.1}"
-DEST="src/DR.Simple_UI/wwwroot/lib/remixicon"
+DEST="src/Sedna.UI/wwwroot/lib/remixicon"
 BASE="https://cdn.jsdelivr.net/npm/remixicon@${VERSION}"
 
-if [[ ! -d src/DR.Simple_UI ]]; then
+if [[ ! -d src/Sedna.UI ]]; then
     echo "::error::Run this from the repository root." >&2
     exit 1
 fi
@@ -79,7 +79,7 @@ css = css[:font_face.start()] + replacement + css[font_face.end():]
 # Record the trim next to the upstream header so the change is not a mystery.
 css = css.replace(
     "*/\n@font-face",
-    "*\n* Vendored into DR.Simple_UI by build/vendor-remixicon.sh.\n"
+    "*\n* Vendored into Sedna.UI by build/vendor-remixicon.sh.\n"
     "* Unmodified except the @font-face src list, reduced to woff2 only.\n*/\n@font-face",
     1,
 )

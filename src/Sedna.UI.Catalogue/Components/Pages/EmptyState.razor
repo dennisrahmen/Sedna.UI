@@ -1,0 +1,89 @@
+@page "/empty-state"
+
+<CatHead Title="Empty and live states">
+    What a view shows when it has nothing to show — and what it shows while it is waiting, streaming
+    or disconnected. Say which of those it is: they call for different actions, and showing the
+    wrong one is how a broken page looks fine.
+</CatHead>
+
+<CatExample TExample="Examples.EmptyState.EmptyState" Title="Empty" Demo="ex-demo--block">
+    <p>
+        Four kinds of empty, and they are not interchangeable. Nothing yet is an invitation.
+        Nothing found needs the query echoed back so the reader can see what was searched. Filtered
+        to nothing needs the filters named and a way to clear them. No access needs to say who can
+        see it and how to ask.
+    </p>
+    <p>
+        Give the one action that resolves it, and no others. Inside a <code>.card</code> for a panel,
+        or <code>.empty-state--bare</code> straight on the page.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.EmptyState.Pending" Title="Waiting, and failed" Demo="ex-demo--block">
+    <p>
+        <code>.empty-state--pending</code> is a wait with nothing to report: the first event of a
+        stream, a long request. Put a <code>.spinner-lg</code> where the icon goes. Where there is
+        progress use a <a href="/progress"><code>.progress</code></a> bar; where the shape of what is
+        coming is known, use a <code>.skeleton</code>.
+    </p>
+    <p>
+        <code>.empty-state--failed</code> colours the icon only. A whole red panel reads as
+        destructive rather than as unavailable. <code>.empty-state-detail</code> is the line that
+        makes a failure actionable — the endpoint, the code, the time it was tried — and it belongs
+        there rather than in a console nobody has open.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.EmptyState.Connection" Title="Connection state" Demo="ex-demo--block">
+    <p>
+        <code>.health-badge</code> with a <code>.health-dot</code>, in six states. The three active
+        ones — <code>--live</code>, <code>--streaming</code>, <code>--connecting</code> — pulse; the
+        three settled ones — <code>--idle</code>, <code>--degraded</code>, <code>--down</code> — do
+        not.
+    </p>
+    <p>
+        <strong>The word is not optional.</strong> A colour alone fails for anybody who cannot see
+        it, and green does not say whether it means connected, healthy or finished. Under
+        <code>prefers-reduced-motion</code> the pulse stops and the dot keeps its colour.
+    </p>
+    <p>
+        <code>.stale</code> is how old the number beside it is, for anything polled or pushed.
+        <code>--warn</code> when it is old enough to distrust; what counts as old is the app's
+        judgement.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.EmptyState.OutputPane" Title="Output pane" Demo="ex-demo--block">
+    <p>
+        <code>.output</code> is lines of machine output: a build log, a command's stdout, an event
+        stream, an audit trail. A real list, so the count is announced and a screen reader can walk
+        it. Monospace with tabular figures, because the reader is comparing columns down the page
+        rather than reading prose.
+    </p>
+    <p>
+        <strong>Add <code>data-follow</code> and it sticks to the newest line.</strong> It releases
+        the moment the reader scrolls up to read something, and re-attaches when they scroll back
+        down. Without the release, reading anything in a live stream is impossible; without the
+        re-attach, it never resumes. <code>sednaUi.output.follow(pane)</code> re-attaches it from
+        a &ldquo;jump to latest&rdquo; button.
+    </p>
+    <p>
+        <code>.output-head</code> sits outside the pane so it does not scroll away with the lines.
+        Severity tints the whole line rather than marking its start: the reader is scanning a wall of
+        text, and a single coloured word is easy to miss in one.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.EmptyState.ActivityRow" Title="Work in progress" Demo="ex-demo--block">
+    <p>
+        Background work the reader can see and cancel. There is no activity-row class: it is a
+        <a href="/collections"><code>.list-row</code></a> with a
+        <a href="/progress"><code>.progress</code></a> bar in its subtext and the controls in
+        <code>.list-meta</code>.
+    </p>
+    <p>
+        A determinate bar for work with a known size, an indeterminate one for work that has been
+        accepted but not started. Give the cancel button the job's name — a page of buttons all
+        labelled &ldquo;Cancel&rdquo; is a page where cancelling is a guess.
+    </p>
+</CatExample>

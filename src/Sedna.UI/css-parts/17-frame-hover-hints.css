@@ -1,0 +1,28 @@
+/* ── Hover hints ────────────────────────────────────────────────────────────
+   One floating bubble, created and positioned by Sedna.UI.js (fixed and
+   appended to <body>, so a card's or table's overflow never clips it).
+   Put data-tip="plain-language what-it-does + consequence" on the control. */
+.sedna-tip {
+    position: fixed;
+    /* rtl-ok: Sedna.UI.js writes `left` in pixels after measuring, so a
+       logical property here would be overwritten by a physical one anyway. */
+    top: 0; left: 0;
+    z-index: 1000;
+    max-width: 280px;
+    padding: var(--space-3) var(--space-5);
+    background: var(--tip-bg);
+    color: var(--tip-fg);
+    border: 1px solid var(--tip-border);
+    border-radius: var(--radius-surface);
+    font-size: var(--text-3);
+    font-weight: 500;
+    line-height: 1.45;
+    box-shadow: var(--shadow-tip);
+    pointer-events: none;      /* never intercept the hover it describes */
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease;
+}
+.sedna-tip--visible { opacity: 1; transform: none; }
+.btn[data-tip] { cursor: pointer; }
+

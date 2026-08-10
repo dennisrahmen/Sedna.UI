@@ -1,0 +1,167 @@
+/* ── Table extensions ───────────────────────────────────────────────────────
+   Everything beyond "one class on the table". Each is opt-in, because each costs
+   something: a sticky header needs a scroll container, zebra stripes fight with row
+   selection, and the stacked layout throws away column alignment.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Sticky header ──────────────────────────────────────────────────────────
+   The header stays put while the body scrolls. Two things this needs from the
+   markup, and it silently does nothing without them:
+     1. A scroll container around the table — `.sedna-scroll` with a max-height. The
+        header sticks to the nearest scrolling ancestor, and with none it sticks to
+        the page, where the topbar is already.
+     2. `border-collapse: separate` — a collapsed table's borders belong to the
+        table, not the cell, so the header's bottom border scrolls away and leaves
+        the rows running into the header text. That is why the border is drawn with
+        a box-shadow here rather than a border.
+   z-index 1 is local stacking inside the table, not a rung on the documented scale. */
+.table--sticky { border-collapse: separate; border-spacing: 0; }
+.table--sticky th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    /* Opaque, not the translucent --table-head-bg: rows scrolling underneath would
+       show through it. */
+    background: var(--bg-elevated);
+    box-shadow: inset 0 -1px 0 var(--border);
+}
+.table--sticky td { border-bottom: 1px solid var(--border); }
+
+/* ── Zebra ──────────────────────────────────────────────────────────────────
+   For wide tables where the eye loses the row between the first and last column.
+   Avoid combining it with row selection: two faint background states are hard to
+   tell apart, and the reader cannot see which row is chosen.
+
+   The stripe is (0,2,3) — `:nth-child` counts as a class — which is higher than the
+   hover highlight in 32-tables.css at (0,2,1). Without the second rule below,
+   striped rows would silently stop responding to hover, which reads as a broken
+   table rather than as a styling choice. */
+.table--zebra tbody tr:nth-child(even) > td { background: var(--surface-soft); }
+.table--zebra .tr-clickable:hover > td { background: var(--bg-hover); }
+
+/* ── Sortable header ────────────────────────────────────────────────────────
+   The whole header cell is the control, so put a <button> inside it filling the
+   cell — a click target that is only the label text is a smaller target than it
+   looks. The arrow is keyed off aria-sort, which is what a screen reader announces,
+   so the two cannot disagree. */
+.table th[aria-sort] { padding: 0; }
+.th-sort {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--cell-pad-y) var(--cell-pad-x);
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+.th-sort:hover { color: var(--fg); background: var(--surface-strong); }
+.th-sort:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+/* The caret is drawn with borders rather than taken from the icon font. Two
+   reasons: `font-family` in this library always rides a token and a test enforces
+   it, and pinning a Remix Icon codepoint here would silently point at a different
+   glyph the next time the font is re-vendored.
+
+   It reserves its 8px even when unsorted, so the header does not shift sideways as
+   the reader sorts by one column after another. */
+.th-sort::after {
+    content: '';
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    opacity: 0;
+}
+.table th[aria-sort="none"] .th-sort:hover::after { border-top: 5px solid currentColor; opacity: 0.4; }
+.table th[aria-sort="ascending"] .th-sort::after { border-bottom: 5px solid currentColor; opacity: 1; }
+.table th[aria-sort="descending"] .th-sort::after { border-top: 5px solid currentColor; opacity: 1; }
+.table th[aria-sort="ascending"],
+.table th[aria-sort="descending"] { color: var(--brand-text); }
+
+/* ── Numeric columns ────────────────────────────────────────────────────────
+   Right-aligned and tabular, so digits line up by place value down the column and
+   two numbers can be compared by their shape. Put it on the th AND the td.
+
+   Scoped to `.table .col-num`, not bare `.col-num`. A single-purpose class is (0,1,0)
+   and `.table th, .table td` is (0,1,1), so the bare form loses the text-align it
+   exists to set, silently. A class in `@layer sedna.utilities` wins that collision on
+   layer order instead; this file is in sedna.paint, so it needs the specificity. */
+.table .col-num { text-align: end; font-variant-numeric: tabular-nums; }
+
+/* ── Row selection ──────────────────────────────────────────────────────────
+   aria-selected on the <tr>, not a class, so the state the reader is told matches
+   the state that is drawn. The leading rule is what survives a colour-blind palette
+   and a greyscale print.
+
+   `tbody` is in the selector only to reach (0,2,3) and tie with the zebra stripe
+   above, which then loses on source order. Without it selection is (0,2,2) and an
+   even striped row would show the stripe instead of the selection — the more
+   important of the two signals, silently dropped. */
+.table tbody tr[aria-selected="true"] > td {
+    background: var(--brand-tint);
+    box-shadow: inset 3px 0 0 var(--brand);
+}
+
+/* ── Expandable and nested rows ─────────────────────────────────────────────
+   The detail row is a real <tr> after its parent, so it moves with it when the
+   table is sorted and is read after it. Its cell spans every column.
+
+   The inset rule on the left is the only thing saying it belongs to the row above;
+   a plain indent reads as an unrelated row that happens to start further in. */
+.tr-detail > td {
+    padding: 0;
+    background: var(--surface-soft);
+    box-shadow: inset 3px 0 0 var(--border-strong);
+}
+.tr-detail-body { padding: var(--space-6) var(--space-7); }
+
+/* A grouped header spanning several columns. */
+.table th[colspan] { text-align: center; border-bottom-color: var(--border-strong); }
+
+/* ── Footer totals ──────────────────────────────────────────────────────────
+   In a real <tfoot>, so it is announced as a footer and prints on every page. */
+.table tfoot td,
+.table tfoot th {
+    background: var(--surface-soft);
+    border-top: 1px solid var(--border-strong);
+    border-bottom: none;
+    font-weight: 600;
+    color: var(--fg);
+}
+
+/* ── Stacked layout ────────────────────────────────────────────────────────
+   Below 640px each row becomes a card and each cell a label/value pair, taking its
+   label from `data-label`. Opt-in, and worth understanding before switching on:
+   this throws away column alignment, so comparing a value across rows stops being
+   possible. It is right for a list of records to read one at a time, and wrong for
+   anything the reader scans down a column of.
+
+   The header is hidden rather than removed, because the cells still reference it
+   for screen readers.
+
+   Only geometry and a token-valued surface here — a layout query decides how much
+   room there is, never what something looks like. */
+@media (max-width: 640px) {
+    .table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .table--stack tr { display: block; margin-bottom: var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
+    .table--stack td { display: flex; justify-content: space-between; gap: var(--space-6); border-bottom: 1px solid var(--divider); }
+    .table--stack tr > td:last-child { border-bottom: none; }
+    .table--stack td::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        color: var(--muted);
+        font-size: var(--text-2);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+    /* A cell with no data-label — an actions cell — keeps the full width instead of
+       leaving an empty gutter where the label would be. */
+    .table--stack td:not([data-label])::before { content: none; }
+    .table--stack .col-num { text-align: end; }
+}

@@ -1,6 +1,6 @@
 # Third-party notices
 
-`DR.Simple_UI` is licensed under [Apache-2.0](LICENSE). It redistributes the following third-party
+`Sedna.UI` is licensed under [Apache-2.0](LICENSE). It redistributes the following third-party
 component, which remains under its own licence.
 
 ## Remix Icon
@@ -13,14 +13,14 @@ License v1.0.
 | Version | 4.9.1 |
 | Copyright | Copyright (c) 2017–2026 Remix Design |
 | Licence | Remix Icon License v1.0 |
-| Licence text | [`src/DR.Simple_UI/wwwroot/lib/remixicon/LICENSE`](src/DR.Simple_UI/wwwroot/lib/remixicon/LICENSE) |
+| Licence text | [`src/Sedna.UI/wwwroot/lib/remixicon/LICENSE`](src/Sedna.UI/wwwroot/lib/remixicon/LICENSE) |
 | Upstream | <https://github.com/Remix-Design/RemixIcon> |
 
-Shipped in the package at `_content/DR.Simple_UI/lib/remixicon/` as `remixicon.css` and
+Shipped in the package at `_content/Sedna.UI/lib/remixicon/` as `remixicon.css` and
 `remixicon.woff2`. Vendored by [`build/vendor-remixicon.sh`](build/vendor-remixicon.sh), unmodified
 except that the `@font-face` `src` list is reduced to `woff2`.
 
-### What this means if you use DR.Simple_UI
+### What this means if you use Sedna.UI
 
 The icons are **not** covered by this project's Apache-2.0 licence. They stay under the Remix Icon
 License, and its restrictions carry through to you. In normal use — icons in the UI of an application
@@ -35,7 +35,7 @@ The restrictions that do carry through, in short:
 - Brand icons (GitHub, etc.) may be used only to represent or link to that brand, and grant no
   trademark rights.
 
-Read [the licence](src/DR.Simple_UI/wwwroot/lib/remixicon/LICENSE) if you are doing anything beyond
+Read [the licence](src/Sedna.UI/wwwroot/lib/remixicon/LICENSE) if you are doing anything beyond
 displaying icons in a UI.
 
 ### Why redistribution here is permitted
@@ -57,7 +57,7 @@ ships with the artifact governs, and it is the one vendored here.
 ## Catalogue application dependencies
 
 These are **not redistributed in the NuGet package**. They are dependencies of the hosted catalogue
-application (`src/DR.Simple_UI.Catalogue`), whose container image is published.
+application (`src/Sedna.UI.Catalogue`), whose container image is published.
 
 | Package | Licence | Source |
 |---|---|---|

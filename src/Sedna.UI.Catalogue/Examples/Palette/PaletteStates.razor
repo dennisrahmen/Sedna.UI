@@ -1,0 +1,25 @@
+<div class="sedna-col sedna-gap-3" style="max-width:520px">
+    <div class="palette" style="position:static; inset:auto; display:flex; flex-direction:column">
+        <input class="palette-input" type="text" value="dis" readonly aria-label="Run a command" />
+        <ul class="palette-list" role="listbox" aria-label="Commands">
+            <li role="presentation"><div class="palette-group">Orders</div></li>
+            <li class="palette-item" role="option" aria-selected="true">
+                <i class="ri-send-plane-line"></i> Dispatch this order
+                <span class="palette-item-note">Reserved lines only</span>
+            </li>
+            <li class="palette-item" role="option" aria-selected="false">
+                <i class="ri-close-circle-line"></i> Discard the draft
+                <span class="palette-item-note">Cannot be undone</span>
+            </li>
+        </ul>
+        <div class="palette-footer">
+            <span><span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move</span>
+            <span><span class="kbd">Enter</span> to run</span>
+            <span><span class="kbd">Esc</span> to close</span>
+        </div>
+    </div>
+    <div class="palette" style="position:static; inset:auto; display:flex; flex-direction:column">
+        <input class="palette-input" type="text" value="refund" readonly aria-label="Run a command" />
+        <div class="palette-empty">No command matches &ldquo;refund&rdquo;.</div>
+    </div>
+</div>

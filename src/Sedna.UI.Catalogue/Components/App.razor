@@ -1,0 +1,71 @@
+@* The host page. The five library asset lines below are the block in
+   docs/getting-started.md, in that order, with catalogue.css standing in for the
+   app's own brand.css. HostPageTests asserts the two agree — so the block every
+   consuming app copies is executed on every CI run rather than merely scanned.
+
+   Plain _content/Sedna.UI/… hrefs, deliberately not @@Assets[…]: a
+   fingerprinted URL would make the page that documents the load order differ from
+   the page anyone can paste. *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="_content/Sedna.UI/js/Sedna.UI.boot.js"></script>
+
+    <link rel="stylesheet" href="_content/Sedna.UI/lib/remixicon/remixicon.css" />
+    <link rel="stylesheet" href="_content/Sedna.UI/css/Sedna.UI.css" />
+    <link rel="stylesheet" href="catalogue.css" />
+
+    <link rel="icon" href="favicon.ico" />
+    <HeadOutlet />
+</head>
+<body>
+    @* Blazor's reconnect UI, in the library's own classes. Supply it or the framework
+       injects its default one — a white box with inline styles, in an app that has a
+       theme. This block is Examples/Frame/ReconnectHostPage.html verbatim, and
+       HostPageTests compares the two, so the markup on the Shell & nav page is the
+       markup this site actually runs. *@
+    <div id="components-reconnect-modal">
+        <div class="reconnect-banner reconnect-attempting">
+            <i class="ri-wifi-off-line"></i>
+            <span>
+                Connection lost. Reconnecting…
+                @* Blazor fills these two by id, if they are there. *@
+                <span class="reconnect-attempt">
+                    attempt <span id="components-reconnect-current-attempt">1</span>
+                    of <span id="components-reconnect-max-retries">8</span>
+                </span>
+            </span>
+        </div>
+        <div class="reconnect-banner reconnect-paused">
+            <i class="ri-pause-circle-line"></i>
+            <span>Paused. Your work is held on the server.</span>
+        </div>
+        <div class="reconnect-banner reconnect-failed">
+            <i class="ri-close-circle-line"></i><span>Could not reconnect.</span>
+            <button class="btn btn-sm btn-danger" onclick="location.reload()">
+                <i class="ri-refresh-line"></i> Retry
+            </button>
+        </div>
+        <div class="reconnect-banner reconnect-rejected">
+            <i class="ri-error-warning-line"></i><span>This session has expired on the server.</span>
+            <button class="btn btn-sm btn-danger" onclick="location.reload()">
+                <i class="ri-refresh-line"></i> Reload
+            </button>
+        </div>
+    </div>
+
+    @* Global interactivity. The invariant: every example demo and every code block
+       renders identically before the circuit connects — interactivity adds
+       behaviour, it is never required to see an example. *@
+    <Routes @rendermode="InteractiveServer" />
+
+    @* Sedna.UI.js before blazor.web.js, so window.sednaUi exists before an
+       interactive component can call into it. *@
+    <script src="_content/Sedna.UI/js/Sedna.UI.js"></script>
+    <script src="catalogue.js"></script>
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>

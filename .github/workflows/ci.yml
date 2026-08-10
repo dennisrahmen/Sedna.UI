@@ -42,16 +42,16 @@ jobs:
           bash build/class-history.sh --check
 
       - name: Restore
-        run: dotnet restore DR.Simple_UI.slnx
+        run: dotnet restore Sedna.UI.slnx
 
       - name: Build
-        run: dotnet build DR.Simple_UI.slnx -c Release --no-restore
+        run: dotnet build Sedna.UI.slnx -c Release --no-restore
 
       # The binaries are not restored with the package. Without them the browser
-      # tests pass while asserting nothing, which is why DR_UI_BROWSER_TESTS below
+      # tests pass while asserting nothing, which is why SEDNA_UI_BROWSER_TESTS below
       # turns a missing browser into a failure rather than a silent skip.
       - name: Install Chromium for the browser tests
-        run: pwsh src/DR.Simple_UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+        run: pwsh src/Sedna.UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
 
       # Three layers here. The source scans (no hard-coded colours outside the :root
       # blocks, every catalogue page linked and reachable), the bUnit component tests
@@ -60,26 +60,26 @@ jobs:
       # silently loses to a more specific one.
       - name: Test
         env:
-          DR_UI_BROWSER_TESTS: '1'
-        run: dotnet test DR.Simple_UI.slnx -c Release --no-build --verbosity normal
+          SEDNA_UI_BROWSER_TESTS: '1'
+        run: dotnet test Sedna.UI.slnx -c Release --no-build --verbosity normal
 
       # Packing on every build, not just on a tag: a packaging mistake should
       # fail the PR that introduced it, not the release three weeks later.
       - name: Pack
-        run: dotnet pack src/DR.Simple_UI/DR.Simple_UI.csproj -c Release --no-build -o artifacts
+        run: dotnet pack src/Sedna.UI/Sedna.UI.csproj -c Release --no-build -o artifacts
 
       # Invoked through bash so it does not depend on the executable bit, which git
       # on Windows generally does not record. The script refuses more than one
       # argument rather than silently checking whichever came first.
       - name: Verify package contents
-        run: bash build/verify-package.sh artifacts/DR.Simple_UI.[0-9]*.nupkg
+        run: bash build/verify-package.sh artifacts/Sedna.UI.[0-9]*.nupkg
 
       # Build only, never push. A Dockerfile that no longer restores should fail the
       # pull request that broke it, not surface as a red deploy on main afterwards —
       # the same argument this workflow already makes for packing on every build.
       # Railway builds the image it actually deploys, from the GitHub source.
       - name: Build the catalogue image
-        run: docker build -f src/DR.Simple_UI.Catalogue/Dockerfile -t drsimpleui-catalogue:ci .
+        run: docker build -f src/Sedna.UI.Catalogue/Dockerfile -t sedna-ui-catalogue:ci .
 
       - name: Upload package
         uses: actions/upload-artifact@v4

@@ -1,0 +1,234 @@
+@page "/mcp-server"
+@using Sedna.UI.Catalogue.Navigation
+
+@* Documents the endpoint this same application serves. The route is /mcp-server
+   and not /mcp, because Program.cs maps the MCP transport itself at /mcp. *@
+
+<CatHead Title="MCP server" Tier="@CatHead.Site">
+    This site answers to agents as well as to people. One read-only endpoint, six tools and four
+    resources, over the same bytes the pages render.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-shield-check-line"></i>
+    <strong>Public, unauthenticated and read-only.</strong> Every tool is annotated
+    <code>readOnlyHint</code>, so a client that honours the hint calls them without prompting.
+    <strong>There will never be a seventh tool that writes</strong> — that is what makes calling
+    these unprompted safe, and it is enforced by a test rather than by intention.
+</div>
+
+<h2 id="add-it">Add it</h2>
+<p class="cat-lede">One URL. Streamable HTTP, no key, no install.</p>
+
+<CatSnippet Name="Mcp/Config.txt" Title="Any MCP client">
+    <p>
+        The endpoint is <code>@CatalogueLinks.Mcp</code>. It is stateless, so a client may reconnect
+        or fan out across processes without leaving sessions behind on the server.
+    </p>
+</CatSnippet>
+
+<CatSnippet Name="Mcp/ClaudeCode.txt" Title="Claude Code">
+    <p>Or add it to a project's <code>.mcp.json</code> with the block above.</p>
+</CatSnippet>
+
+<h2 id="tools">The six tools</h2>
+<p class="cat-lede">
+    Six verbs, no overlap. They are shaped around one workflow — an agent writing a page in a
+    consuming app, knowing roughly what it wants and needing the exact markup plus enough semantics
+    to pick the right variant.
+</p>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Tool</th><th>What it answers</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><code>search</code></td>
+                <td>
+                    “What is there for a sortable table with status badges?” Ranks examples,
+                    classes, tokens and pages together. <strong>Returns references, never
+                    markup</strong> — a search that returned markup would spend the context window
+                    on the first call.
+                </td>
+            </tr>
+            <tr>
+                <td><code>get_example</code></td>
+                <td>
+                    The markup for up to five examples, byte-for-byte what this site renders. Valid
+                    in a <code>.razor</code> page and an <code>.html</code> file alike.
+                </td>
+            </tr>
+            <tr>
+                <td><code>describe_class</code></td>
+                <td>
+                    What a class actually does: the declarations from the shipped stylesheet, its
+                    cascade layer, its modifiers, and which examples use it. Also the way to check a
+                    class your app already styles before upgrading.
+                </td>
+            </tr>
+            <tr>
+                <td><code>get_page</code></td>
+                <td>Every example on one page — one call instead of five. With no id, the page list.</td>
+            </tr>
+            <tr>
+                <td><code>get_tokens</code></td>
+                <td>
+                    The tokens as an ordered array of blocks, media condition included, for writing
+                    <code>brand.css</code>.
+                </td>
+            </tr>
+            <tr>
+                <td><code>get_integration_guide</code></td>
+                <td>
+                    The host page and its load order, the branding recipe, the JavaScript and C#
+                    surface, or the rules a consuming app follows.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<CatSnippet Name="Mcp/SearchCall.txt" Title="The whole loop">
+    <p>
+        <code>search</code> → <code>get_example</code> → <code>describe_class</code>. Nothing else
+        is needed to write a page.
+    </p>
+</CatSnippet>
+
+<h2 id="resources">The four resources</h2>
+<p class="cat-lede">
+    Whole artefacts, addressable by URI. A resource is attached by the person, not pulled by the
+    model — which is the right party to decide whether 200&nbsp;KB of stylesheet belongs in a
+    context window.
+</p>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>URI</th><th>Type</th><th>What it is</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><code>sednaui://stylesheet</code></td>
+                <td class="col-muted"><code>text/css</code></td>
+                <td>The whole shipped stylesheet, exactly as the package delivers it.</td>
+            </tr>
+            <tr>
+                <td><code>sednaui://tokens</code></td>
+                <td class="col-muted"><code>application/json</code></td>
+                <td>The token export, as an ordered array of blocks.</td>
+            </tr>
+            <tr>
+                <td><code>sednaui://version</code></td>
+                <td class="col-muted"><code>application/json</code></td>
+                <td>What this catalogue was built from, and the latest released version.</td>
+            </tr>
+            <tr>
+                <td><code>sednaui://docs/{name}</code></td>
+                <td class="col-muted"><code>text/markdown</code></td>
+                <td>
+                    One documentation file: <code>getting-started</code>, <code>architecture</code>,
+                    <code>CLAUDE.consuming-app</code>, <code>releasing</code>.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="cat-note">
+    <i class="ri-information-line"></i>
+    <strong>Nothing is resource-only.</strong> Clients vary widely in resource support and several
+    ignore them entirely, so <code>get_tokens</code> and <code>get_integration_guide</code>
+    duplicate two of these on purpose: the tool is the guaranteed path, the resource the ergonomic
+    one.
+</div>
+
+<h2 id="versions">Say which version you have</h2>
+<p class="cat-lede">
+    This site is built from <code>main</code> and can be ahead of any release. Every tool takes
+    <code>installedVersion</code>.
+</p>
+
+<div class="cat-note">
+    <i class="ri-git-branch-line"></i>
+    <span>
+        Pass it and the <code>meta</code> block names anything your version does not have —
+        “3 of these are not in 0.2.0: <code>.popover</code>, <code>.search-panel</code>,
+        <code>--brand-glow</code>. Upgrade Sedna.UI, or use something else.” The results still
+        come back: filtering them out silently would hide that an upgrade is the fix, which is
+        usually the right answer. Every class and token also carries its own <code>since</code>.
+    </span>
+</div>
+
+<h2 id="limits">Limits</h2>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Limit</th><th>Value</th><th>Why</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>Concurrent requests</td><td class="col-num">16, plus 8 queued</td>
+                <td>The actual control. Not partitioned, so there is nothing to spoof around.</td>
+            </tr>
+            <tr>
+                <td>Per caller</td><td class="col-num">60 burst, 30/min</td>
+                <td>
+                    Fairness, not security: behind a proxy whose addresses we do not control,
+                    per-IP limiting is not a security measure. A token bucket because real agent
+                    traffic is bursty — six <code>get_example</code> calls, then nothing.
+                </td>
+            </tr>
+            <tr>
+                <td>Request body</td><td class="col-num">256 KB</td>
+                <td>JSON-RPC calls here are a few hundred bytes.</td>
+            </tr>
+            <tr>
+                <td>Per call</td>
+                <td class="col-num">25 / 5 / 10</td>
+                <td>
+                    Hits from <code>search</code>, ids per <code>get_example</code>, names per
+                    <code>describe_class</code>. Markup is capped at 8&nbsp;KB per example and cut
+                    at a tag boundary, so a truncated response still parses.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="cat-note">
+    <i class="ri-speed-up-line"></i>
+    <strong>The limits apply to <code>/mcp</code> alone, never globally.</strong> A global limiter
+    would also count this site's own SignalR upgrades and every static asset, so one person
+    browsing would trip a ceiling sized for tool calls. A rejected call answers
+    <code>429</code> with <code>Retry-After: 60</code>.
+</div>
+
+<h2 id="agent-rules">Then give the agent the rules</h2>
+<p class="cat-lede">
+    The server answers questions. It does not stop an agent inventing a class name or wrapping a
+    table in a component.
+</p>
+
+<div class="cat-note">
+    <i class="ri-file-text-line"></i>
+    <span>
+        Copy
+        <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md">
+        <code>docs/CLAUDE.consuming-app.md</code></CatLink> into your app's own
+        <code>CLAUDE.md</code>, or fetch it through
+        <code>get_integration_guide { "section": "rules" }</code>. It is the short list of things
+        that go wrong: inventing token names, restyling the frame, and reaching for a component
+        where a class exists.
+    </span>
+</div>
+
+<CatSnippet Name="Mcp/DescribeClassCall.txt" Title="`describe_class`">
+    <p>
+        Up to ten class names per call. The declarations come from the stylesheet the running app
+        serves, so they are what ships rather than a transcription of it, and
+        <code>usedByExamples</code> points at the pages that show the class in context.
+    </p>
+    <p>
+        Pass <code>installedVersion</code> and <code>meta.warning</code> names everything in the
+        answer that your version does not have. That is the whole reason <code>since</code> exists:
+        this site is built from <code>main</code> and can be ahead of the package you installed.
+    </p>
+</CatSnippet>

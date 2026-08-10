@@ -1,0 +1,95 @@
+@page "/markdown"
+@inject ISednaUi Ui
+
+<CatHead Title="Markdown" Tier="@CatHead.Tier1">
+    Two independent pieces: <code>.markdown-body</code> styles rendered Markdown wherever it
+    appears, and <code>.md-editor</code> is a toolbar + textarea + live preview driven by
+    <code>sednaUi.md</code>.
+</CatHead>
+
+<CatExample TExample="Examples.Markdown.MarkdownBody" Title="`.markdown-body`" Demo="ex-demo--block">
+    <p>
+        Put it on the container holding rendered HTML. It normalises headings, lists, code,
+        quotes and links onto the tokens, and strips the first and last margin so it sits flush
+        in a card body.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Markdown.MarkdownTable" Title="Tables and nested lists" Demo="ex-demo--block">
+    <p>
+        A table in rendered Markdown gets <a href="/table"><code>.table</code></a>'s own borders and
+        header treatment without the class, so a release note or a knowledge-base article looks like
+        the rest of the app. Nested lists indent one step per level and keep their own markers.
+    </p>
+    <p>
+        The rendered container is the one place in an app where the HTML comes from somewhere else, so
+        it must survive anything: a long <code>&lt;code&gt;</code> breaks inside a word rather than
+        running past its column, and a wide table scrolls rather than widening the page.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Markdown.MdEditor" Title="`.md-editor`" Demo="ex-demo--block">
+    <p>
+        <strong>Live below</strong> — type in it, use the toolbar, then switch to Preview. The
+        wiring: the root carries <code>data-md-view</code>, the textarea
+        <code>data-md-input</code>, the preview pane <code>data-md-preview</code>, and toolbar
+        buttons <code>data-md-cmd</code>.
+    </p>
+    <p>
+        <strong>The markup alone does nothing.</strong> The toolbar, the preview and the
+        Write/Preview switch are behaviour, so an editor renders perfectly and sits inert until
+        something calls <code>sednaUi.md.init()</code> — from C#,
+        <code>ISednaUi.InitMarkdownAsync()</code> in <code>OnAfterRenderAsync</code>, which is
+        what this page does. It takes no element and wires every editor in the document, and it is
+        idempotent per editor, so calling it again after a re-render only picks up new ones.
+    </p>
+    <p>
+        The Write/Preview switch is the ordinary
+        <a href="/tabs"><code>.segmented</code></a> control, with
+        <code>data-md-tab</code> on each radio — it is exactly what a segmented control is for, so
+        the editor gets the radio group's keyboard behaviour and announcement instead of two
+        buttons with a toggled class. <code>init()</code> assigns the shared <code>name</code>,
+        because only it knows how many editors are on the page.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Markdown.EditorField" Title="As a form field" Demo="ex-demo--block">
+    <p>
+        <strong>Live below.</strong> The editor in place: a <code>.form-label</code> pointing at the
+        textarea's own id, a <code>.form-hint</code> reached by <code>aria-describedby</code>, and the
+        <a href="/form"><code>.form-actions</code></a> row. Label the textarea, not the
+        <code>.md-editor</code> wrapper — the textarea is the control.
+    </p>
+    <p>
+        A shorter toolbar is a choice, not a variant: leave out the <code>data-md-cmd</code> buttons
+        the field does not need and the rest keeps working.
+    </p>
+</CatExample>
+
+<div class="cat-note">
+    <i class="ri-braces-line"></i>
+    <strong>In Blazor</strong>, bind the textarea with
+    <code>@@bind:event="oninput"</code> and let it own the value. Toolbar edits mutate the
+    textarea and dispatch a bubbling <code>input</code> event so the binding picks them up — the
+    JS never calls back into .NET.
+</div>
+
+<div class="cat-note">
+    <i class="ri-shield-check-line"></i>
+    <code>sednaUi.md.render()</code> escapes all HTML <em>first</em> and only re-introduces a
+    fixed set of constructs, with link hrefs restricted to <code>http:</code>,
+    <code>https:</code>, <code>mailto:</code> and root-relative paths. It is not a
+    spec-complete parser. For untrusted input rendered to other users, sanitise server-side as
+    well rather than relying on this alone.
+</div>
+
+@code {
+    // The one thing on this page that genuinely needs the circuit. An interop call
+    // cannot run during prerendering, so it goes here rather than in OnInitializedAsync
+    // — and the editor renders identically before it, which is the invariant this site
+    // holds to: interactivity adds behaviour, it is never required to see an example.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Ui.InitMarkdownAsync();
+    }
+}

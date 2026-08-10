@@ -1,0 +1,3 @@
+// Suppress hints while something else owns the reader's attention — a tour, a modal,
+// a drag in progress. The library has no knowledge of what is suppressing them.
+sednaUi.tips.gate = el => !document.body.classList.contains('tour-active');

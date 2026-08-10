@@ -1,0 +1,102 @@
+/* ── Responsive frame — OPT IN ───────────────────────────────────────────────
+   Below 900px the sidebar becomes the icon rail, whether or not `.collapsed` is
+   set. Add `.layout--responsive` to `.layout` to turn it on.
+
+   OPT-IN, NOT AUTOMATIC. A bare width query would change how an already-released app
+   looks on a narrow screen with nobody editing anything. The modifier keeps it a new
+   class an app chooses.
+
+   The modifier also carries the specificity. An app that sets
+   `.sidebar { width: 260px }` unconditionally beats a bare
+   `@media .sidebar { width: 56px }` rule, because equal specificity plus later source
+   order goes to the app's own stylesheet. `.layout--responsive .sidebar` is (0,2,0)
+   and outranks it.
+
+   Two things to know before switching it on:
+     · Below 900px a collapse toggle does nothing, because the rail is forced.
+       Hide the toggle at that width, or leave it and accept the no-op.
+     · The rules below mirror 12-frame-collapsed-rail.css. CSS cannot alias a
+       selector, so the list is repeated rather than shared, and
+       `The_responsive_frame_mirrors_the_collapsed_rail` fails if the two drift.
+
+   Geometry only. Nothing here changes a colour: appearance belongs to the token
+   blocks, and a width query is the wrong place to decide what something looks
+   like. `Layout_media_queries_only_change_geometry` enforces it.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .layout--responsive .sidebar { width: 56px; }
+    .layout--responsive .sidebar .brand { justify-content: center; padding: 0; gap: 0; }
+    .layout--responsive .sidebar .brand-text {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+    .layout--responsive .sidebar .nav-section-label { display: none; }
+    .layout--responsive .sidebar .nav-section { margin-bottom: var(--space-4); }
+    .layout--responsive .sidebar .nav-link { justify-content: center; padding: var(--space-4) 0; gap: 0; position: relative; }
+    .layout--responsive .sidebar .nav-section .nav-link { padding-inline-start: 0; }
+    .layout--responsive .sidebar .nav-link > span:not(.nav-count) {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+    .layout--responsive .sidebar .nav-link-ext { display: none; }
+    .layout--responsive .sidebar .nav-count {
+        position: absolute; top: 2px; inset-inline-end: var(--space-3); margin-inline-start: 0;
+        min-width: 15px; padding: 0 var(--space-2); font-size: var(--text-1); line-height: 1.6;
+    }
+    .layout--responsive .sidebar .nav-status-card { align-items: center; padding: var(--space-4) 0; position: relative; }
+    .layout--responsive .sidebar .nav-status-label,
+    .layout--responsive .sidebar .nav-status-state {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+    .layout--responsive .sidebar .nav-status-dot { width: 9px; height: 9px; }
+    .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+
+    /* The rail's own flyout, which is what carries the label once the text is
+       gone. Anchor-positioned for the reason spelled out in
+       12-frame-collapsed-rail.css: the rail scrolls, and a scroll container
+       clips both axes. Every value here is geometry; the surface comes from the
+       tokens the expanded flyout already uses. */
+    .layout--responsive .sidebar [data-tip] { anchor-name: --sedna-rail-tip; anchor-scope: --sedna-rail-tip; }
+    .layout--responsive .sidebar [data-tip]:hover::after {
+        content: attr(data-tip);
+        position: fixed;
+        position-anchor: --sedna-rail-tip;
+        position-area: inline-end;
+        align-self: anchor-center;
+        margin-inline-start: var(--space-5);
+        background: var(--card-bg); color: var(--fg); border: 1px solid var(--border);
+        padding: var(--space-2) var(--space-4); border-radius: var(--radius-surface); font-size: var(--text-3); font-weight: 500;
+        white-space: nowrap; z-index: 400; box-shadow: var(--shadow-flyout);
+        pointer-events: none;
+    }
+
+    /* The user widget's second line is the first thing to go: it is the longest
+       string in the header and the least load-bearing.
+
+       `.topbar--responsive` reaches the same rules without a `.layout` around it, for
+       a header in `.bare-layout`, in `.auth-layout`, or on its own. Same opt-in, same
+       specificity — a topbar's own narrow behaviour must not depend on which shell it
+       happens to be inside. */
+    .layout--responsive .user-email,
+    .topbar--responsive .user-email { display: none; }
+}
+
+/* Under ~560px the name goes too, leaving the avatar. The sign-out button and any
+   header controls keep their full hit area, which is what actually matters on a
+   touch screen. */
+@media (max-width: 560px) {
+    .layout--responsive .user-info,
+    .topbar--responsive .user-info { display: none; }
+    .layout--responsive .user-trigger,
+    .topbar--responsive .user-trigger { padding: 0 var(--space-6); }
+}

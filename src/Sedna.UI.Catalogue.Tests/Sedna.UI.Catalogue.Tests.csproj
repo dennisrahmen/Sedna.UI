@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Sedna.UI.Catalogue.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <!-- WebApplicationFactory. UseKestrel(0) + StartServer() give a real socket on a
+         free port, which is what Playwright needs — the default TestServer is
+         in-memory and has no address to navigate to. -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.56.0" />
+    <PackageReference Include="Deque.AxeCore.Playwright" Version="4.10.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sedna.UI.Catalogue\Sedna.UI.Catalogue.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Linked, not duplicated. Assets is the one implementation of "where do the
+         shipped files live and how is this stylesheet parsed", and two copies of
+         that is exactly the drift its own comments warn about.
+         BrowserTestBase is deliberately NOT linked: it owns a browser per test
+         class, and this suite has to start an app as well, so the lifetime is a
+         collection fixture instead. The gate it defines is reproduced there. -->
+    <Compile Include="..\Sedna.UI.Tests\TestSupport\Assets.cs" Link="TestSupport\Assets.cs" />
+  </ItemGroup>
+
+</Project>

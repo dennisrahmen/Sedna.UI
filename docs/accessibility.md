@@ -70,7 +70,7 @@ Four things are built on native elements specifically so the behaviour is not ha
 
 | Built on | What comes free |
 |---|---|
-| `<dialog>.showModal()` — `.modal` via `drSimpleUi.confirm()`, `.palette`, `.drawer` | top layer, focus trap, Escape, inert content behind |
+| `<dialog>.showModal()` — `.modal` via `sednaUi.confirm()`, `.palette`, `.drawer` | top layer, focus trap, Escape, inert content behind |
 | `<details>`/`<summary>` — `.accordion`, `.tree`, `.nav-group` | open state, keyboard operation, announcement; `name` makes an accordion exclusive with no JS |
 | `<input type="radio">` — `.segmented` | arrow keys, group semantics, chosen state |
 | `<label>` wrapping the input — `.form-check`, `.switch`, `.form-file` | the whole label is the target, and Enter works |

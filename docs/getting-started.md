@@ -3,10 +3,13 @@
 ## Install
 
 ```bash
-dotnet add package DR.Simple_UI
+dotnet add package Sedna.UI
 ```
 
 Pin the version. Do not use a floating version range.
+
+Upgrading from `DR.Simple_UI`? See [Migrating from DR.Simple_UI](migrating-to-sedna-ui.md) instead
+of this page.
 
 ## Host page
 
@@ -17,25 +20,25 @@ Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your o
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script src="_content/DR.Simple_UI/js/DR.Simple_UI.boot.js"></script>
+    <script src="_content/Sedna.UI/js/Sedna.UI.boot.js"></script>
 
-    <link rel="stylesheet" href="_content/DR.Simple_UI/lib/remixicon/remixicon.css" />
-    <link rel="stylesheet" href="_content/DR.Simple_UI/css/DR.Simple_UI.css" />
+    <link rel="stylesheet" href="_content/Sedna.UI/lib/remixicon/remixicon.css" />
+    <link rel="stylesheet" href="_content/Sedna.UI/css/Sedna.UI.css" />
     <link rel="stylesheet" href="css/brand.css" />
 </head>
 <body>
     <!-- … -->
-    <script src="_content/DR.Simple_UI/js/DR.Simple_UI.js"></script>
+    <script src="_content/Sedna.UI/js/Sedna.UI.js"></script>
 </body>
 ```
 
-`DR.Simple_UI.boot.js` applies the stored theme before first paint. Load it in `<head>`.
+`Sedna.UI.boot.js` applies the stored theme before first paint. Load it in `<head>`.
 
 ### The reconnect banner
 
 Blazor Server injects its own reconnect UI — unstyled, with inline styles — unless the host page
 supplies one. Add the block from the catalogue's
-[Shell and nav](https://simpleui.dennisrahmen.dev/frame) page inside `<body>`, before the component that
+[Shell and nav](https://www.sedna-ui.com/frame) page inside `<body>`, before the component that
 carries the render mode.
 
 Supply `.reconnect-attempting`, `.reconnect-failed` and `.reconnect-rejected`; `.reconnect-paused` is
@@ -43,7 +46,7 @@ optional and falls back to the attempting row. Blazor puts the state classes on
 `#components-reconnect-modal` itself and the stylesheet shows one row at a time — omit a required row
 and that state renders as an empty bar.
 
-No configuration is required. `drSimpleUi.configure()` is only needed for the options below.
+No configuration is required. `sednaUi.configure()` is only needed for the options below.
 
 ### `configure()` options
 
@@ -51,15 +54,15 @@ No configuration is required. `drSimpleUi.configure()` is only needed for the op
 |---|---|---|
 | `notifyIcon` | `null` | Icon for desktop notifications. |
 | `langCookie` | `false` | Mirror the language into a cookie for server-side prerendering. |
-| `storagePrefix` | `drui.` | See below. Rarely needed. |
+| `storagePrefix` | `sedna.` | See below. Rarely needed. |
 
 ### Storage keys
 
-Settings are stored under `drui.theme`, `drui.cvd`, `drui.density`, `drui.dir` and `drui.lang`.
+Settings are stored under `sedna.theme`, `sedna.cvd`, `sedna.density`, `sedna.dir` and `sedna.lang`.
 `localStorage` is scoped per origin, so apps on different domains never share state and the default
 prefix is fine.
 
-`drui.dir` and `drui.lang` are the two that are only applied **once stored**. Both are attributes the
+`sedna.dir` and `sedna.lang` are the two that are only applied **once stored**. Both are attributes the
 host page declares about itself, so with nothing stored `<html dir>` and `<html lang>` are left exactly
 as written — the library never infers a document's direction or language from the browser's.
 
@@ -70,8 +73,8 @@ It also matters for `langCookie`, since cookies are not origin-scoped the way `l
 If you override it, set the same value in both places or the theme is not found on reload:
 
 ```html
-<script src="_content/DR.Simple_UI/js/DR.Simple_UI.boot.js" data-prefix="app-a."></script>
-<script>drSimpleUi.configure({ storagePrefix: 'app-a.' });</script>
+<script src="_content/Sedna.UI/js/Sedna.UI.boot.js" data-prefix="app-a."></script>
+<script>sednaUi.configure({ storagePrefix: 'app-a.' });</script>
 ```
 
 ## Branding
@@ -108,7 +111,7 @@ If a value is missing, [request it](../CONTRIBUTING.md). Until it ships, use an 
 (`--myapp-…`) in your own stylesheet rather than a bare name in the shared namespace. Do not override
 library classes to work around it. See [architecture](architecture.md#the-token-contract).
 
-The full token list is on the [Tokens](https://simpleui.dennisrahmen.dev/tokens) catalogue
+The full token list is on the [Tokens](https://www.sedna-ui.com/tokens) catalogue
 page.
 
 ## Icons
@@ -117,7 +120,7 @@ page.
 extra to install. Add the stylesheet:
 
 ```html
-<link rel="stylesheet" href="_content/DR.Simple_UI/lib/remixicon/remixicon.css" />
+<link rel="stylesheet" href="_content/Sedna.UI/lib/remixicon/remixicon.css" />
 ```
 
 Then use the classes on an `<i>`:
@@ -138,12 +141,12 @@ that you may not redistribute them as a standalone icon pack, or use one as a lo
 
 The shell, sidebar, header and user widget are CSS classes, like everything else. There is no
 `<AppShell>` and there will not be one — copy the markup from the catalogue's
-[Shell and nav](https://simpleui.dennisrahmen.dev/frame) page.
+[Shell and nav](https://www.sedna-ui.com/frame) page.
 
 One thing markup cannot express is which navigation link is the current page. The package supplies it:
 
 ```razor
-@using DR.Simple_UI
+@using Sedna.UI
 
 <a class="@Nav.CssClass("queue")" aria-current="@Nav.AriaCurrent("queue")" href="queue">
     <i class="ri-inbox-line"></i><span>Queue</span>
@@ -177,11 +180,11 @@ private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => St
 
 ```csharp
 // Program.cs
-builder.Services.AddDrSimpleUi();
+builder.Services.AddSednaUi();
 ```
 
-That registers `IDrSimpleUi`, a typed wrapper over the browser API — `ToastAsync`, `ConfirmAsync`,
-`CopyTextAsync`, `SaveSettingAsync`, the command palette, and the rest of `drSimpleUi`.
+That registers `ISednaUi`, a typed wrapper over the browser API — `ToastAsync`, `ConfirmAsync`,
+`CopyTextAsync`, `SaveSettingAsync`, the command palette, and the rest of `sednaUi`.
 
 Every member is a JavaScript call, so **none of them can run during prerendering**. Call them from an
 event handler, or from `OnAfterRenderAsync(firstRender: true)`. They deliberately do not swallow the
@@ -193,7 +196,7 @@ suppress hover hints. Both stay JavaScript.
 
 ## Writing pages
 
-Copy markup from the catalogue at <https://simpleui.dennisrahmen.dev/> rather than writing it from
+Copy markup from the catalogue at <https://www.sedna-ui.com/> rather than writing it from
 scratch. Every page carries copy-pasteable HTML for its class family.
 
 The site is built from `main` and can be ahead of the version you have installed. Each class, token and
@@ -204,7 +207,7 @@ example says which release first shipped it, so check that before copying someth
 The catalogue has an MCP server. Add one URL:
 
 ```json
-{ "type": "http", "url": "https://simpleui.dennisrahmen.dev/mcp" }
+{ "type": "http", "url": "https://www.sedna-ui.com/mcp" }
 ```
 
 | Tool | What it answers |

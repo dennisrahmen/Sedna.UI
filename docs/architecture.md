@@ -30,8 +30,8 @@ Three things the package ships that markup cannot express:
 | Member | Purpose |
 |---|---|
 | `ActiveLink.IsActive` / `CssClass` / `AriaCurrent` | Which navigation link is the current page |
-| `IDrSimpleUi` | Typed access to `drSimpleUi` — toasts, confirmations, clipboard, settings, palette, search, the Markdown editor |
-| `AddDrSimpleUi()` | Registers the above, scoped to the circuit |
+| `ISednaUi` | Typed access to `sednaUi` — toasts, confirmations, clipboard, settings, palette, search, the Markdown editor |
+| `AddSednaUi()` | Registers the above, scoped to the circuit |
 
 `ActiveLink` drops the query string and the fragment, treats a trailing slash as insignificant, and
 requires a prefix match to end on a path segment, so `/queue` does not light up on `/queue-archive`. The
@@ -41,7 +41,7 @@ markup that survives navigation subscribes itself — **in the component that re
 the layout around it. Blazor only hands new parameters to a child whose parameters differ, so a
 subscription one level too high re-renders the layout and leaves the links reading the previous address.
 
-`IDrSimpleUi` is `IJSRuntime` calls, so none of it can run during prerendering. Two members of the
+`ISednaUi` is `IJSRuntime` calls, so none of it can run during prerendering. Two members of the
 JavaScript surface have no wrapper because neither can cross the boundary: `toast()` returns a remover
 function, and `tips.gate` is a predicate an app assigns.
 
@@ -75,7 +75,7 @@ Two rules hold for any layout media query added later:
 The shipped stylesheet is entirely inside cascade layers, declared up front:
 
 ```css
-@layer dr.tokens, dr.base, dr.frame, dr.paint, dr.utilities, dr.overrides;
+@layer sedna.tokens, sedna.base, sedna.frame, sedna.paint, sedna.utilities, sedna.overrides;
 ```
 
 **Your stylesheet is unlayered, so it beats all of them, whatever the specificity.** That is the point:
@@ -84,12 +84,12 @@ out-specify.
 
 | Layer | Parts | Holds |
 |---|---|---|
-| `dr.tokens` | `00`–`04` | tokens and the theme remap blocks |
-| `dr.base` | `05`–`09` | bare element styles |
-| `dr.frame` | `10`–`29` | tier 1 |
-| `dr.paint` | `30`–`79` | tier 2, then RTL, forced colours, print |
-| `dr.utilities` | `80`–`89` | single-purpose classes |
-| `dr.overrides` | `90`–`99` | density, reduced motion |
+| `sedna.tokens` | `00`–`04` | tokens and the theme remap blocks |
+| `sedna.base` | `05`–`09` | bare element styles |
+| `sedna.frame` | `10`–`29` | tier 1 |
+| `sedna.paint` | `30`–`79` | tier 2, then RTL, forced colours, print |
+| `sedna.utilities` | `80`–`89` | single-purpose classes |
+| `sedna.overrides` | `90`–`99` | density, reduced motion |
 
 Each part's layer comes from its numeric prefix, so it cannot drift away from the source order. Two
 tests hold the model up: one fails if any rule escapes a layer — an unlayered library rule would
@@ -107,7 +107,7 @@ compact density: an app carrying its own `.table th, .table td { padding: 8px 12
 copied rule.
 
 **`!important` is actively harmful here, not merely unnecessary.** Layer order *inverts* for important
-declarations, so an `!important` inside `dr.paint` is harder for you to override than an ordinary
+declarations, so an `!important` inside `sedna.paint` is harder for you to override than an ordinary
 declaration. The library uses none, and a test enforces it.
 
 ## The token contract
@@ -130,16 +130,16 @@ declaration. The library uses none, and a test enforces it.
 Theme differences are expressed only as token values, so the light and colour-blind blocks contain no
 selector overrides and CSS load order does not affect them.
 
-The full token list is on the [Tokens](https://simpleui.dennisrahmen.dev/tokens) catalogue
+The full token list is on the [Tokens](https://www.sedna-ui.com/tokens) catalogue
 page, which reads its values from the live stylesheet.
 
 Every token also ships as JSON, for a design tool that needs the values without parsing CSS:
 
 | Where | Path |
 |---|---|
-| In a running app | `_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json` |
-| In the repo, and in the restored package | `wwwroot/tokens/DR.Simple_UI.tokens.json` |
-| Hosted | <https://simpleui.dennisrahmen.dev/_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json> |
+| In a running app | `_content/Sedna.UI/tokens/Sedna.UI.tokens.json` |
+| In the repo, and in the restored package | `wwwroot/tokens/Sedna.UI.tokens.json` |
+| Hosted | <https://www.sedna-ui.com/_content/Sedna.UI/tokens/Sedna.UI.tokens.json> |
 
 `blocks` is an **ordered** array of `{ media, selector, tokens }` — merge them in order, applying a block
 when its media condition matches and its selector matches the document root. It is not a map keyed by
@@ -172,8 +172,8 @@ Two consequences for a rule that sets a control's height:
 
 `data-theme="light"`, `data-cvd="1"`, `data-density="compact"` and `dir` are set on `<html>`.
 
-- `DR.Simple_UI.boot.js` applies them from `localStorage` before first paint.
-- `drSimpleUi.settings.save('theme', 'light')` updates them at runtime.
+- `Sedna.UI.boot.js` applies them from `localStorage` before first paint.
+- `sednaUi.settings.save('theme', 'light')` updates them at runtime.
 
 `dir` and `lang` are the two that are written **only from a stored choice**. Both are attributes the host
 page declares about itself, so with nothing stored they are left exactly as the document wrote them — the
@@ -221,7 +221,7 @@ A panel's primary action is a filled button in its semantic colour.
 | Spotlight | 510 | `.spotlight-hole`, `.spotlight-tip` |
 | Popover, dropdown menu | 550 | `.menu`, `.search-panel`, `.popover`, the user widget's own panel |
 | Toast | 600 | `.toast-stack` |
-| Hover hints, reconnect banner | 1000 | `.dr-tip`, `#components-reconnect-modal`, `.skip-link` |
+| Hover hints, reconnect banner | 1000 | `.sedna-tip`, `#components-reconnect-modal`, `.skip-link` |
 
 A new overlay uses one of these values. `Every_z_index_comes_from_the_documented_scale` fails on any
 other, so adding a layer means adding it to this table first.
@@ -241,14 +241,14 @@ Two things the flat list does not say:
 
 ## JavaScript
 
-`DR.Simple_UI.js` exposes the global `drSimpleUi`:
+`Sedna.UI.js` exposes the global `sednaUi`:
 
 | Member | Purpose |
 |---|---|
 | `configure(options)` | Storage prefix, notification icon, language cookie |
 | `settings` | `load()`, `save(key, value)`, `apply()`. Keys: `theme`, `cvd`, `density`, `dir`, `lang` |
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally |
-| `toast(message, options)` | Creates and reuses its own `.toast-stack[data-dr-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
+| `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
 | `confirm(options)` | A `<dialog>.showModal()` confirmation. Returns a promise; `danger: true` reddens confirm and focuses cancel |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |
@@ -279,13 +279,13 @@ per keystroke owns that itself: the debounce length, cancelling a superseded key
 state are all decisions about *its* backend. It renders `.search-panel` with the same classes and
 leaves `data-search` off, and this file stays out of the way.
 
-`drSimpleUi.md.render()` escapes HTML before re-introducing a fixed set of Markdown constructs, and
+`sednaUi.md.render()` escapes HTML before re-introducing a fixed set of Markdown constructs, and
 restricts link hrefs to `http:`, `https:`, `mailto:` and root-relative paths. Sanitise untrusted input
 server-side as well.
 
 ## Icons
 
-[Remix Icon](https://remixicon.com) 4.9.1 is bundled at `_content/DR.Simple_UI/lib/remixicon/`. It is the
+[Remix Icon](https://remixicon.com) 4.9.1 is bundled at `_content/Sedna.UI/lib/remixicon/`. It is the
 only icon set; the library styles `i` elements (`.btn i`, `.nav-link i`) and the icon classes come from
 this font.
 

@@ -1,0 +1,67 @@
+/* ── Popover ────────────────────────────────────────────────────────────────
+   A small panel of *content* anchored to the control that opened it: why a row
+   is pending, what a setting does, the detail behind a number.
+
+     <button class="btn" popovertarget="sla-detail">Why is this overdue?</button>
+
+     <div class="popover" id="sla-detail" popover>
+       <strong class="popover-title">Breached 2h ago</strong>
+       <p>Priority 2 carries a four-hour response target…</p>
+     </div>
+
+   Not a .menu. A menu is a list of *actions* and its items are links and
+   buttons; this is prose, a definition, a small table. Two panels that look
+   alike but mean different things is how a design system starts to rot, so the
+   difference is in what goes inside, and the surfaces are deliberately distinct:
+   a menu is flush-padded for rows, this one has reading padding.
+
+   THE `popover` ATTRIBUTE IS REQUIRED, and so is opening it from a
+   `popovertarget` control. The platform then supplies everything this file would
+   otherwise need JavaScript for — the top layer, light dismiss, Escape, focus
+   handling, and `:popover-open`. There is no sednaUi.popover and there does
+   not need to be one.
+
+   `popovertarget` also makes the invoker the popover's IMPLICIT ANCHOR, which is
+   what lets `position-area` place this with no `anchor-name` anywhere. That
+   matters more than it looks: the alternative is a unique --dashed-ident per
+   instance, which means an inline style on every popover in the app.
+
+   The top layer ignores z-index entirely and paints by promotion order, so the
+   550 below never applies to a real popover. It is there for the fallback path
+   in the z-order table, and so that a panel carrying this class while something
+   has gone wrong lands on the rung the documentation says it does.
+   ─────────────────────────────────────────────────────────────────────────── */
+.popover {
+    /* inset: auto and margin: 0 undo the UA rule that centres a popover in the
+       viewport. Without both, position-area has nothing to do. */
+    inset: auto;
+    margin: 0;
+    position: fixed;
+    position-area: block-end span-inline-end;
+    /* Flips above the trigger when there is no room below. The flip takes the
+       margin with it, so the gap stays on the side facing the invoker. */
+    position-try-fallbacks: flip-block;
+    margin-block-start: var(--space-3);
+    z-index: 550;
+
+    width: max-content;
+    max-width: min(320px, calc(100vw - 32px));
+    padding: var(--space-6) var(--space-7);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-pop);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    line-height: 1.6;
+}
+.popover > :first-child { margin-top: 0; }
+.popover > :last-child { margin-bottom: 0; }
+
+.popover-title {
+    display: block;
+    margin-bottom: var(--space-3);
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-weight: 600;
+}

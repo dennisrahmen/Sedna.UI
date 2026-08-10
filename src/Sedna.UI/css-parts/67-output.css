@@ -1,0 +1,71 @@
+/* ── Output pane ────────────────────────────────────────────────────────────
+   Lines of machine output the reader watches or scrolls back through: a build log, a
+   command's stdout, an event stream, an audit trail.
+
+   `.output` and not `.log`: a plain name is a claim on a shared namespace, and `.log`
+   is commonly already taken in a consuming app.
+
+   A real list, so the count is announced and a screen reader can walk it. The pane is
+   the scroll container; add `data-follow` and Sedna.UI.js sticks it to the newest
+   line, releasing when the reader scrolls up.
+
+   Monospace with tabular figures, because the reader is comparing columns —
+   timestamps, levels, ids — down the page rather than reading prose. */
+.output {
+    display: block;
+    max-height: 320px;
+    overflow-y: auto;
+    margin: 0;
+    padding: var(--space-4) 0;
+    list-style: none;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--fg-soft);
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.65;
+}
+
+/* A header strip for the pane: what is being watched, and its state. Sits outside
+   `.output` so it does not scroll away with the lines. */
+.output-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-6);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-start-start-radius: var(--radius-surface);
+    border-start-end-radius: var(--radius-surface);
+    font-size: var(--text-3);
+    color: var(--muted);
+}
+.output-head + .output {
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+}
+
+/* One line. `white-space: pre-wrap` keeps the output's own alignment while still
+   wrapping a long line rather than forcing the pane to scroll sideways. */
+.output-line {
+    display: block;
+    padding: 0 var(--space-6);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.output-line:hover { background: var(--bg-hover); }
+
+/* A timestamp or a level, quieter than the message it introduces. */
+.output-time { color: var(--muted); }
+
+/* Severity. The whole line is tinted rather than a marker at the start, because the
+   reader is scanning a wall of text and a coloured word is easy to miss in it. */
+.output-line--warn   { background: var(--warn-bg);   color: var(--warn-fg); }
+.output-line--error  { background: var(--danger-bg); color: var(--danger-fg); }
+.output-line--go     { color: var(--go-fg); }
+/* Something the app emitted about itself — "reconnected", "stream closed" — rather
+   than a line from the thing being watched. */
+.output-line--note   { color: var(--muted); font-style: italic; }

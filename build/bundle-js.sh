@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Generates wwwroot/js/DR.Simple_UI.js from every file in js-parts/.
+# Generates wwwroot/js/Sedna.UI.js from every file in js-parts/.
 #
 # Mirrors build/bundle-css.sh: the parts are DISCOVERED, never listed anywhere, so
 # adding a file to js-parts/ puts it in the next build and there is no manifest to
@@ -14,7 +14,7 @@
 #     4x  small interop helpers
 #     5x  notifications and the audio ping
 #
-# Each part is a self-contained IIFE that extends window.drSimpleUi, so a part is a
+# Each part is a self-contained IIFE that extends window.sednaUi, so a part is a
 # valid script on its own — take 00-core.js plus that part to use one feature
 # outside NuGet. Order still matters: 00-core.js creates the global and the shared
 # internals every other part reads.
@@ -23,7 +23,7 @@
 #   * N tags is N requests, each blocking on the previous only for ORDER, and the
 #     library must expose one global before any app code runs. One file removes the
 #     ordering question entirely.
-#   * wwwroot/js/DR.Simple_UI.js is a pinned path that consuming apps hard-code
+#   * wwwroot/js/Sedna.UI.js is a pinned path that consuming apps hard-code
 #     (ShippedAssetsTests asserts it). js-parts/ sits outside wwwroot, so the parts
 #     are not static web assets and there is exactly one script path to reference.
 #
@@ -33,8 +33,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PARTS="$ROOT/src/DR.Simple_UI/js-parts"
-OUT="$ROOT/src/DR.Simple_UI/wwwroot/js/DR.Simple_UI.js"
+PARTS="$ROOT/src/Sedna.UI/js-parts"
+OUT="$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.js"
 
 if [[ ! -d "$PARTS" ]]; then
     echo "::error::No js-parts directory at $PARTS"
@@ -52,13 +52,13 @@ for f in "${FILES[@]}"; do
     base="$(basename "$f")"
     if [[ ! "$base" =~ ^[0-9][0-9]- ]]; then
         echo "::error::$base has no NN- prefix, so its load order is undefined."
-        echo "Rename it, e.g. 60-$base — see src/DR.Simple_UI/js-parts/CLAUDE.md"
+        echo "Rename it, e.g. 60-$base — see src/Sedna.UI/js-parts/CLAUDE.md"
         exit 1
     fi
     # Automatic semicolon insertion turns a missing terminator into a call
     # expression joining two parts. Every part ends with an IIFE, so require it.
     if [[ ! "$(tail -c 40 "$f" | tr -d '[:space:]')" =~ \)\;$ ]]; then
-        echo "::error::$base does not end with a terminated IIFE — '})(window.drSimpleUi);'"
+        echo "::error::$base does not end with a terminated IIFE — '})(window.sednaUi);'"
         echo "Without the semicolon, concatenation can splice it into the next part."
         exit 1
     fi
@@ -73,7 +73,7 @@ RULE="────────────────────────�
     echo "/* ═══════════════════════════════════════════════════════════════════════════"
     echo "   GENERATED FILE — DO NOT EDIT."
     echo ""
-    echo "   Built by build/bundle-js.sh from src/DR.Simple_UI/js-parts/. Edit the part"
+    echo "   Built by build/bundle-js.sh from src/Sedna.UI/js-parts/. Edit the part"
     echo "   that owns the behaviour and re-run that script; a guard test fails the build"
     echo "   if this file and the parts disagree. Adding a part needs no change here —"
     echo "   the directory is the source of truth."

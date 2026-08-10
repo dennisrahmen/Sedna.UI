@@ -14,7 +14,7 @@
 # only *complete* after one. Cutting a release is therefore followed by running
 # this and committing; see docs/releasing.md.
 #
-# Deliberately NOT written under src/DR.Simple_UI/wwwroot/, where it would ship
+# Deliberately NOT written under src/Sedna.UI/wwwroot/, where it would ship
 # inside the package. It is the catalogue app's data.
 #
 # Sits on build/css-inventory.sh, which is the one implementation of "what does
@@ -24,8 +24,10 @@ set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 inventory="$root/build/css-inventory.sh"
-sheet="src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
-out="$root/src/DR.Simple_UI.Catalogue/Data/class-history.json"
+# The stylesheet's path is not constant across history — build/css-path.sh owns the
+# list. Reading a tag at the working tree's path silently attributed nothing.
+sheet="$("$root/build/css-path.sh" HEAD)"
+out="$root/src/Sedna.UI.Catalogue/Data/class-history.json"
 
 check=0
 [[ "${1:-}" == "--check" ]] && check=1
@@ -47,7 +49,7 @@ tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
 emit_first_seen() {
-    local kind="$1" name tag version
+    local kind="$1" name tag version tag_sheet resolved=0
     # An associative array, and the loops read from process substitution rather
     # than a pipe: a `while read` on the right of a pipe runs in a subshell, and
     # every assignment made there is discarded when it exits.
@@ -74,8 +76,12 @@ emit_first_seen() {
 
     for tag in "${tags[@]}"; do
         version="${tag#v}"
-        # A tag from before the stylesheet existed has nothing to read.
-        git -C "$root" show "$tag:$sheet" >"$tmp/sheet.css" 2>/dev/null || continue
+        # A tag from before the stylesheet existed has nothing to read; a tag that
+        # has it under an older name must be read at THAT name.
+        tag_sheet="$("$root/build/css-path.sh" "$tag" 2>/dev/null || true)"
+        [[ -n "$tag_sheet" ]] || continue
+        git -C "$root" show "$tag:$tag_sheet" >"$tmp/sheet.css" 2>/dev/null || continue
+        resolved=$((resolved + 1))
 
         while IFS= read -r name; do
             [[ -z "$name" || -z "${current[$name]:-}" ]] && continue
@@ -83,6 +89,15 @@ emit_first_seen() {
             first["$name"]="$version"
         done < <("$inventory" "$tmp/sheet.css" "$kind")
     done
+
+    # Every release in the output comes from a tag. Resolving none means the path
+    # lookup is broken, not that nothing shipped — and the all-null file that would
+    # be written is self-consistent, so --check could never report it.
+    if [[ $resolved -eq 0 ]]; then
+        echo "::error::No tag yielded a stylesheet, so no release can be attributed." >&2
+        echo "        Check build/css-path.sh against: $(git -C "$root" tag -l 'v*' | tr '\n' ' ')" >&2
+        exit 1
+    fi
 
     # Anything in the working tree that no tag had is unreleased: the empty
     # second field, which becomes JSON null.

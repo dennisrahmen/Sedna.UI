@@ -17,7 +17,7 @@
 # and checked with `--check`, which compares the committed bytes against what the
 # generator emits. The generators write LF, so a CRLF checkout fails the check on
 # Windows while passing on Linux CI — a failure that reads as "the file is stale"
-# and is not. `DR.Simple_UI.tokens.json` also ships inside the package.
+# and is not. `Sedna.UI.tokens.json` also ships inside the package.
 *.json text eol=lf
 
 *.yml text eol=lf

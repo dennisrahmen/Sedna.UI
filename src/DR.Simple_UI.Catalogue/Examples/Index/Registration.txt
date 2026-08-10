@@ -1,2 +1,0 @@
-// Program.cs — registers IDrSimpleUi, the typed wrapper over the browser API.
-builder.Services.AddDrSimpleUi();

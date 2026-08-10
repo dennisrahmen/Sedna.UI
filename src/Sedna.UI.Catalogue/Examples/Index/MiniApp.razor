@@ -1,0 +1,121 @@
+<div class="layout" style="height:420px; border:1px solid var(--border); border-radius:var(--radius-panel); overflow:hidden">
+    <aside class="sidebar" style="width:190px">
+        <a class="brand" href="#">
+            <span class="brand-logo" style="background:var(--brand)"></span>
+            <span class="brand-text"><strong>Acme Ops</strong><span class="brand-sub">orders</span></span>
+        </a>
+        <nav class="nav">
+            <div class="nav-scroll">
+                <div class="nav-section">
+                    <span class="nav-section-label">Today</span>
+                    <a class="nav-link active" href="#"><i class="ri-inbox-line"></i><span>Orders</span><span class="nav-count">12</span></a>
+                    <a class="nav-link" href="#"><i class="ri-truck-line"></i><span>Shipments</span></a>
+                    <a class="nav-link" href="#"><i class="ri-archive-line"></i><span>Stock</span></a>
+                </div>
+            </div>
+            <div class="nav-tools">
+                <a class="nav-link nav-link-tool" href="#"><i class="ri-settings-3-line"></i><span>Settings</span></a>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="content">
+        <header class="topbar">
+            <div class="search" style="max-width:260px">
+                <i class="ri-search-line search-icon" aria-hidden="true"></i>
+                <input class="search-input" type="search" placeholder="Search orders…" aria-label="Search orders" />
+            </div>
+            <div class="topbar-spacer"></div>
+            <span class="health-badge health-badge--live"><span class="health-dot"></span> Live</span>
+            <div class="user-widget">
+                <button class="user-trigger" type="button">
+                    <span class="user-avatar">JW</span>
+                    <span class="user-info">
+                        <span class="user-name">Jordan Weiss</span>
+                        <span class="user-email">jordan.weiss@example.com</span>
+                    </span>
+                </button>
+            </div>
+        </header>
+
+        <div class="page" style="padding:16px">
+            <div class="page-head">
+                <h1 style="font-size:18px">Orders</h1>
+                <div class="page-head-actions">
+                    <button class="btn btn-sm"><i class="ri-download-2-line"></i> Export</button>
+                    <button class="btn btn-sm btn-primary"><i class="ri-add-line"></i> New order</button>
+                </div>
+            </div>
+
+            <div class="stat-row stat-row--divided" style="margin-bottom:14px">
+                <span class="stat">
+                    <span class="stat-label">Dispatched</span>
+                    <span class="stat-value">248</span>
+                    <span class="stat-delta stat-delta--good"><i class="ri-arrow-up-line"></i> 12%</span>
+                </span>
+                <span class="stat">
+                    <span class="stat-label">Backordered</span>
+                    <span class="stat-value">12</span>
+                    <span class="stat-target">of a 20 cap</span>
+                </span>
+                <span class="stat">
+                    <span class="stat-label">Returns</span>
+                    <span class="stat-value">3</span>
+                    <span class="stat-delta stat-delta--good"><i class="ri-arrow-down-line"></i> 2</span>
+                </span>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-field">
+                    <i class="ri-search-line"></i>
+                    <input class="form-input form-input-sm" type="search" placeholder="Filter" aria-label="Filter orders" />
+                </div>
+                <span class="chip"><span class="chip-label">EU-West</span>
+                    <button class="chip-dismiss" type="button" aria-label="Remove the region filter"><i class="ri-close-line"></i></button>
+                </span>
+                <span class="sedna-push toolbar-count">12 of 1,204</span>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr><th>Order</th><th>Customer</th><th>State</th><th class="col-num">Total</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-mono">ORD-4182</td>
+                        <td>
+                            <span class="list-row list-row--flush">
+                                <span class="avatar avatar-sm">PN</span>
+                                <span class="list-main"><span class="list-title">Priya Nair</span></span>
+                            </span>
+                        </td>
+                        <td><span class="badge badge-go">Dispatched</span></td>
+                        <td class="col-num">1,240.00</td>
+                    </tr>
+                    <tr>
+                        <td class="text-mono">ORD-4181</td>
+                        <td>
+                            <span class="list-row list-row--flush">
+                                <span class="avatar avatar-sm">MK</span>
+                                <span class="list-main"><span class="list-title">Milan Kovac</span></span>
+                            </span>
+                        </td>
+                        <td><span class="badge badge-warn">Awaiting stock</span></td>
+                        <td class="col-num">318.50</td>
+                    </tr>
+                    <tr>
+                        <td class="text-mono">ORD-4180</td>
+                        <td>
+                            <span class="list-row list-row--flush">
+                                <span class="avatar avatar-sm avatar--muted"><i class="ri-user-line"></i></span>
+                                <span class="list-main"><span class="list-title">Guest checkout</span></span>
+                            </span>
+                        </td>
+                        <td><span class="badge">Draft</span></td>
+                        <td class="col-num">96.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

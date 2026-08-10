@@ -1,0 +1,91 @@
+/* ── Blazor reconnect banner ──────────────────────────────────────────────────
+   Two things, deliberately separated: `.reconnect-banner` is a strip that says the
+   connection is in trouble, and `#components-reconnect-modal` is the state machine
+   Blazor drives. The strip is visible on its own and goes dark only inside the modal,
+   so a row can be shown outside it — which is how the catalogue demonstrates all of
+   them at once.
+
+   Blazor sets six state classes on the modal. They map onto four rows:
+
+   | Blazor sets                          | The row that shows                        |
+   |--------------------------------------|-------------------------------------------|
+   | `components-reconnect-show`          | `.reconnect-attempting`                   |
+   | `components-reconnect-retrying`      | `.reconnect-attempting`, plus its counter |
+   | `components-reconnect-paused`        | `.reconnect-paused`, or attempting if absent |
+   | `components-reconnect-failed`        | `.reconnect-failed`                       |
+   | `components-reconnect-resume-failed` | `.reconnect-failed`                       |
+   | `components-reconnect-rejected`      | `.reconnect-rejected`                     |
+   | `components-reconnect-hide`          | nothing — this is the connected state     |
+
+   `retrying` is added alongside `show`; every other state replaces the last.
+   `.reconnect-paused` is optional, so a host page written against the three original
+   rows keeps working and only misses the softer wording. */
+#components-reconnect-modal {
+    display: none;
+    position: fixed;
+    bottom: 0; inset-inline: 0;
+    z-index: 1000;
+}
+#components-reconnect-modal.components-reconnect-show,
+#components-reconnect-modal.components-reconnect-retrying,
+#components-reconnect-modal.components-reconnect-paused,
+#components-reconnect-modal.components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-resume-failed,
+#components-reconnect-modal.components-reconnect-rejected { display: block; }
+
+.reconnect-banner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-8);
+    font-size: var(--text-4);
+    font-weight: 500;
+}
+.reconnect-banner i { font-size: var(--text-7); flex-shrink: 0; }
+.reconnect-banner .btn { margin-inline-start: auto; }
+
+/* The counter. Hidden until Blazor has put a number in it, which it does from the
+   second attempt on — before that the markup's placeholder would read as a real count. */
+.reconnect-attempt { opacity: 0.75; font-weight: 400; }
+#components-reconnect-modal .reconnect-attempt { display: none; }
+#components-reconnect-modal.components-reconnect-retrying .reconnect-attempt { display: inline; }
+
+/* Inside the modal, one row at a time. The id carries the specificity, so no
+   !important and nothing for an app to fight. */
+#components-reconnect-modal .reconnect-banner { display: none; }
+/* Blazor adds `retrying` alongside `show`, but it is keyed separately so the row still
+   appears if it ever arrives on its own. */
+#components-reconnect-modal.components-reconnect-show     .reconnect-attempting { display: flex; }
+#components-reconnect-modal.components-reconnect-retrying .reconnect-attempting { display: flex; }
+#components-reconnect-modal.components-reconnect-paused  .reconnect-paused     { display: flex; }
+#components-reconnect-modal.components-reconnect-failed  .reconnect-failed     { display: flex; }
+#components-reconnect-modal.components-reconnect-rejected .reconnect-rejected  { display: flex; }
+/* A failed resume reads as a failed reconnect. */
+#components-reconnect-modal.components-reconnect-resume-failed .reconnect-failed { display: flex; }
+/* Paused with no row of its own falls back to attempting, rather than to an empty bar. */
+#components-reconnect-modal.components-reconnect-paused:not(:has(.reconnect-paused))
+    .reconnect-attempting { display: flex; }
+
+/* Working on it. */
+.reconnect-attempting {
+    background: var(--reconnect-warn-bg);
+    border-top: 1px solid var(--reconnect-warn-border);
+    color: var(--reconnect-warn-fg);
+}
+.reconnect-attempting i { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
+
+/* Paused is not a lost connection: the server released the circuit and kept the state,
+   and the next interaction resumes it. Same amber, no pulse — nothing is in progress. */
+.reconnect-paused {
+    background: var(--reconnect-warn-bg);
+    border-top: 1px solid var(--reconnect-warn-border);
+    color: var(--reconnect-warn-fg);
+}
+
+/* Over. Only a reload helps. */
+.reconnect-failed,
+.reconnect-rejected {
+    background: var(--reconnect-fail-bg);
+    border-top: 1px solid var(--reconnect-fail-border);
+    color: var(--reconnect-fail-fg);
+}

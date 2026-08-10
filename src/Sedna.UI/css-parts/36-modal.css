@@ -1,0 +1,100 @@
+/* ── Modal ──────────────────────────────────────────────────────────────── */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    backdrop-filter: blur(2px);
+}
+.modal {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--shadow-modal);
+}
+/* Width only. A confirmation needs less room than a form, and a diff or a table
+   needs more; nothing else about the panel changes. */
+.modal-sm { max-width: 360px; }
+.modal-lg { max-width: 760px; }
+
+/* ── As a <dialog> ──────────────────────────────────────────────────────────
+   `.modal` on a <dialog> opened with showModal() gets the top layer, a focus trap,
+   Escape-to-close and inert content behind it — none of which a div-based backdrop
+   can do without a lot of code that is usually subtly wrong. sednaUi.confirm()
+   uses this, and an app should too wherever its markup can be a <dialog>.
+
+   No .modal-backdrop is involved: ::backdrop is the platform's own, so the
+   dimming comes from the pseudo-element rather than from an element in the page.
+
+   --dialog-backdrop is declared on the dialog itself rather than referencing
+   var(--backdrop) from ::backdrop directly. ::backdrop inherits from its originating
+   element, so the token has to be one inheritance step away rather than at the
+   document root; an unresolved background is a transparent one, which removes the
+   dimming without failing visibly. */
+/* The entrance animation belongs on `dialog.modal` and never on `.modal`: only a
+   dialog has an opening, going from display:none to shown, which is what starts the
+   animation. A `.modal` panel sitting in the page has nothing to animate from.
+
+   A resting appearance must never depend on an animation having run. An animation with
+   no fill-mode still applies its 0% keyframe while it is PAUSED, and a document is
+   paused whenever its tab is in the background — so the same animation on `.modal`
+   leaves a panel in a background tab at `scale(0.97) translateY(-10px)` for good. */
+dialog.modal {
+    padding: 0;
+    color: var(--fg);
+    --dialog-backdrop: var(--backdrop);
+    animation: sedna-modal-in var(--motion-fast) ease;
+}
+dialog.modal::backdrop {
+    background: var(--dialog-backdrop);
+    backdrop-filter: blur(2px);
+}
+
+@keyframes sedna-modal-in {
+    from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+}
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-7) var(--space-8);
+    border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
+.modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    background: none;
+    border: none;
+    border-radius: var(--radius-inner);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: var(--text-8);
+    padding: 0;
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+.modal-close:hover { background: var(--bg-hover); color: var(--fg); }
+.modal-body {
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+}
+.modal-body p { margin: 0; }
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-7) var(--space-8);
+    border-top: 1px solid var(--border);
+}
+

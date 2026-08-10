@@ -1,0 +1,104 @@
+@page "/table"
+
+<CatHead Title="Tables">
+    One class on the <code>&lt;table&gt;</code>. Write the <code>thead</code> and <code>tbody</code>
+    in the page.
+</CatHead>
+
+<div class="cat-note">
+        There is no <code>&lt;DataTable&gt;</code> component and there will not be one. Tables are written
+        as markup in the page.
+    </div>
+
+<CatExample TExample="Examples.Table.Basic" Title="Basic" Demo="ex-demo--block">
+    <p>
+        Headers are uppercased and muted by the class. <code>.col-muted</code> is for secondary
+        columns — timestamps, counts — and stops them from wrapping.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Table.ClickableRows" Title="Clickable rows" Demo="ex-demo--block">
+    <p>
+        <code>.tr-clickable</code> adds the pointer, the hover fill and
+        <code>user-select:none</code> so a double click does not select the text. Keep a real
+        focusable control in the row for keyboard users — a whole row cannot be tabbed to.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Table.ToolbarCard" Title="With a toolbar, in a card" Demo="ex-demo--block">
+    <p>The standard list page: filter bar above, table inside a card.</p>
+</CatExample>
+
+<div class="cat-note">
+        <strong>Wide tables:</strong> put the table in a container with
+        <code>overflow-x:auto</code> and add <code>.sedna-scroll</code> to it, so the horizontal
+        scrollbar is themed and the page body never scrolls sideways.
+    </div>
+
+    <h2>Extensions</h2>
+    <p class="lede">
+        Each of these is opt-in, because each costs something. A sticky header needs a scroll
+        container, zebra stripes fight with row selection, and the stacked layout throws away column
+        alignment.
+    </p>
+
+<CatExample TExample="Examples.Table.SortableNumericSelected" Title="Sortable, numeric and selected" Demo="ex-demo--block">
+    <p>
+        The sort arrow is keyed off <code>aria-sort</code>, which is what a screen reader
+        announces, so the arrow and the announcement cannot disagree. Put a
+        <code>&lt;button class="th-sort"&gt;</code> inside the header cell filling it — a target
+        that is only the label text is smaller than it looks. The arrow reserves its 8px even when
+        unsorted, so the header does not shift as the reader sorts one column after another.
+    </p>
+    <p>
+        <code>.col-num</code> goes on the <code>th</code> <em>and</em> the <code>td</code>: right
+        aligned and tabular, so digits line up by place value and two numbers can be compared by
+        shape. Row selection is <code>aria-selected</code> on the <code>&lt;tr&gt;</code>, and the
+        leading rule is what survives a colour-blind palette and a greyscale print.
+    </p>
+    <p>
+        <strong>The header buttons here do nothing, and that is the whole design.</strong> The
+        library draws the affordance and announces the state; <em>which</em> column is sorted and in
+        what order is your query, and reordering rows is what a Blazor page does natively. Set
+        <code>aria-sort</code> from that state and the arrow follows.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Table.StickyHeader" Title="Sticky header" Demo="ex-demo--block">
+    <p>
+        <code>.table--sticky</code> needs two things from the markup and silently does nothing
+        without them: a scroll container around the table with a <code>max-height</code>, because
+        the header sticks to the nearest scrolling ancestor and with none it sticks to the page
+        where the topbar already is; and <code>border-collapse: separate</code>, which the class
+        sets, because a collapsed table's borders belong to the table rather than the cell and its
+        header border would scroll away.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Table.ExpandableRows" Title="Expandable rows" Demo="ex-demo--block">
+    <p>
+        The detail row is a real <code>&lt;tr class="tr-detail"&gt;</code> after its parent, so it
+        moves with it when the table is sorted and is read after it. Its cell spans every column.
+        The inset rule on the left is the only thing saying it belongs to the row above — a plain
+        indent reads as an unrelated row that happens to start further in.
+    </p>
+    <p>
+        <strong>Shown expanded, and there is nothing here to collapse it.</strong> Which row is open
+        is your app's state — a <code>bool</code> per row, and <code>aria-expanded</code> on the
+        control that toggles it. There is no <code>sednaUi.table</code>: rendering rows is the
+        one thing a Blazor app already does better than a script could.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Table.StackedNarrowScreen" Title="Stacked on a narrow screen" Demo="ex-demo--block">
+    <p>
+        <code>.table--stack</code> turns each row into a card below 640px, taking each cell's label
+        from <code>data-label</code>. <strong>Understand the trade first:</strong> it throws away
+        column alignment, so comparing one value across rows stops being possible. It is right for
+        a list of records read one at a time, and wrong for anything scanned down a column.
+    </p>
+    <p>
+        Narrow this window to see it. A cell with no <code>data-label</code> — an actions cell —
+        keeps the full width instead of leaving an empty gutter.
+    </p>
+</CatExample>

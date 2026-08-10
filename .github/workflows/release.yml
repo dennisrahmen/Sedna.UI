@@ -53,33 +53,33 @@ jobs:
           echo "NUGET_USER is set."
 
       - name: Restore
-        run: dotnet restore DR.Simple_UI.slnx
+        run: dotnet restore Sedna.UI.slnx
 
       - name: Build
-        run: dotnet build DR.Simple_UI.slnx -c Release --no-restore -p:Version=${{ steps.version.outputs.version }}
+        run: dotnet build Sedna.UI.slnx -c Release --no-restore -p:Version=${{ steps.version.outputs.version }}
 
       # The browser binaries are not restored with the package, and a missing browser
       # is a test FAILURE rather than a skip — so this step is not optional. Without
       # it the Test step below fails and no release can ever publish.
       - name: Install Chromium for the browser tests
-        run: pwsh src/DR.Simple_UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+        run: pwsh src/Sedna.UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
 
       # The same gates as CI. A tag does not get to skip them.
       - name: Test
         env:
-          DR_UI_BROWSER_TESTS: '1'
-        run: dotnet test DR.Simple_UI.slnx -c Release --no-build --verbosity normal
+          SEDNA_UI_BROWSER_TESTS: '1'
+        run: dotnet test Sedna.UI.slnx -c Release --no-build --verbosity normal
 
       - name: Pack
         run: |
-          dotnet pack src/DR.Simple_UI/DR.Simple_UI.csproj \
+          dotnet pack src/Sedna.UI/Sedna.UI.csproj \
             -c Release --no-build -o artifacts \
             -p:Version=${{ steps.version.outputs.version }}
 
       # Invoked through bash so it does not depend on the executable bit, which
       # git on Windows generally does not record.
       - name: Verify package contents
-        run: bash build/verify-package.sh artifacts/DR.Simple_UI.${{ steps.version.outputs.version }}.nupkg
+        run: bash build/verify-package.sh artifacts/Sedna.UI.${{ steps.version.outputs.version }}.nupkg
 
       # ── Trusted publishing ─────────────────────────────────────────────────
       # No long-lived API key exists anywhere. This exchanges the job's GitHub
@@ -89,7 +89,7 @@ jobs:
       # It works because of a trusted publishing policy on nuget.org
       # (username menu → Trusted Publishing) matching:
       #     Repository Owner  dennisrahmen
-      #     Repository        DR.Simple_UI
+      #     Repository        Sedna.UI
       #     Workflow File     release.yml      <- THIS FILE'S NAME
       #     Environment       (empty)
       #
@@ -149,7 +149,7 @@ jobs:
             echo '## Install'
             echo
             echo '```bash'
-            echo "dotnet add package DR.Simple_UI --version $VERSION"
+            echo "dotnet add package Sedna.UI --version $VERSION"
             echo '```'
 
             if [[ -n "$PREV_TAG" ]]; then

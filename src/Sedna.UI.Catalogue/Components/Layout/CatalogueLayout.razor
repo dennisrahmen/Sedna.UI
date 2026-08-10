@@ -1,0 +1,85 @@
+@* .layout > (.sidebar) > .content > (.topbar) > .page — the library's frame,
+   written by hand. With no frame components this markup is the documentation, and
+   FrameMarkupTests asserts every class it names exists in the shipped stylesheet
+   and appears on the Shell & nav page.
+
+   data-interactive is a test hook, not a style hook: a browser test that clicks a
+   Blazor handler has to wait for the circuit, and RendererInfo.IsInteractive is
+   Blazor's own signal for that. Waiting on it beats sleeping. *@
+@inherits LayoutComponentBase
+@implements IDisposable
+@using Sedna.UI.Catalogue.Navigation
+@inject NavigationManager Nav
+@inject ISednaUi Ui
+@inject CatalogueSearch Search
+
+<div class="layout @(_navOpen ? "cat-nav-open" : null)"
+     data-interactive="@(RendererInfo.IsInteractive ? "true" : null)">
+
+    <div class="cat-drawer">
+        <CatalogueSidebar Collapsed="_collapsed" />
+    </div>
+
+    <button class="cat-scrim" type="button" aria-label="Close navigation"
+            hidden="@(!_navOpen)" @onclick="CloseDrawer"></button>
+
+    <div class="content">
+        <CatalogueTopbar @bind-NavOpen="_navOpen" @bind-Collapsed="_collapsed" />
+
+        <HostedNotice />
+
+        <div class="page">
+            <main class="cat-main">
+                @Body
+                <CatalogueFooter />
+            </main>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool _navOpen;
+    private bool _collapsed;
+
+    // This subscription is for the layout's OWN state below — the drawer and the
+    // search panel. It deliberately does not carry the sidebar's active link:
+    // CatalogueSidebar subscribes for itself, because a parent's StateHasChanged
+    // does not reach a child whose parameters are unchanged.
+    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+
+    // The topbar search's index and the palette's commands. Registered here rather
+    // than in the topbar because the layout survives navigation, so this runs once
+    // per circuit; and after the first render, because an interop call cannot run
+    // during prerendering.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Ui.RegisterSearchAsync(Search.Items);
+
+        // Until something is registered, sednaUi.palette deliberately leaves the
+        // browser's own Ctrl-K alone — so a site that documents the palette and
+        // never calls this has one in the stylesheet and none in the browser.
+        await Ui.RegisterCommandsAsync(CatalogueCommands.All);
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        // Navigating from inside the drawer closes it: on a phone the destination
+        // is behind the panel that was just used to reach it.
+        _navOpen = false;
+        // Same for the result panel. It is anchored to a box the enhanced
+        // navigation may have just moved, and a list for the previous page is
+        // worse than none.
+        _ = Ui.CloseSearchAsync();
+
+        // .page is the only scroll container, so nothing the router does moves it and a
+        // new page opens at the offset the previous one was scrolled to.
+        _ = Ui.ScrollPageTopAsync();
+
+        StateHasChanged();
+    }
+
+    private void CloseDrawer() => _navOpen = false;
+}

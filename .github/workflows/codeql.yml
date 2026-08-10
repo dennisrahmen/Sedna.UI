@@ -73,7 +73,7 @@ jobs:
       # means a build change here fails visibly instead of silently analysing nothing.
       - name: Build
         if: matrix.language == 'csharp'
-        run: dotnet build DR.Simple_UI.slnx -c Release
+        run: dotnet build Sedna.UI.slnx -c Release
 
       - name: Analyse
         uses: github/codeql-action/analyze@v3

@@ -1,0 +1,25 @@
+<div class="markdown-body">
+    <h2>Release 0.5.0</h2>
+    <p>Adds the live-state family. Nothing was renamed, so an upgrade needs no app changes.</p>
+    <table>
+        <thead>
+            <tr><th>Class</th><th>Layer</th><th>What it is for</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>.health-badge</code></td><td>sedna.paint</td><td>A connection's state, as a dot and a word</td></tr>
+            <tr><td><code>.output</code></td><td>sedna.paint</td><td>Lines of machine output, with follow-tail</td></tr>
+            <tr><td><code>.stale</code></td><td>sedna.paint</td><td>How old the figure beside it is</td></tr>
+        </tbody>
+    </table>
+    <p>Before bumping:</p>
+    <ol>
+        <li>Grep your own stylesheets for the names above.</li>
+        <li>Check each one you already style &mdash; both rule sets will apply.
+            <ul>
+                <li>Yours wins, because your stylesheet is unlayered.</li>
+                <li>The library's declarations you have not set still land.</li>
+            </ul>
+        </li>
+        <li>Rename yours, or delete it if the library's does the job.</li>
+    </ol>
+</div>

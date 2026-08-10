@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Generates wwwroot/css/DR.Simple_UI.css from every file in css-parts/.
+# Generates wwwroot/css/Sedna.UI.css from every file in css-parts/.
 #
 # The parts are DISCOVERED, never listed anywhere. Add a file to css-parts/ and it
 # is in the next build; there is no manifest to forget to update, which is the one
@@ -10,12 +10,12 @@
 # The prefix also decides the part's CASCADE LAYER, so the layer assignment cannot
 # drift away from the ordering convention and no part has to declare its own:
 #
-#     00-04  @layer dr.tokens      tokens and the theme remap blocks
-#     05-09  @layer dr.base        bare element styles
-#     10-29  @layer dr.frame       the tier-1 frame
-#     30-79  @layer dr.paint       tier-2 content classes, then RTL/forced-colors/print
-#     80-89  @layer dr.utilities   single-purpose classes
-#     90-99  @layer dr.overrides   density — last, it tightens what came before
+#     00-04  @layer sedna.tokens      tokens and the theme remap blocks
+#     05-09  @layer sedna.base        bare element styles
+#     10-29  @layer sedna.frame       the tier-1 frame
+#     30-79  @layer sedna.paint       tier-2 content classes, then RTL/forced-colors/print
+#     80-89  @layer sedna.utilities   single-purpose classes
+#     90-99  @layer sedna.overrides   density — last, it tightens what came before
 #
 # Each part is wrapped in its layer WITHOUT being re-indented, so its text still
 # appears verbatim in the bundle and the drift guard keeps working.
@@ -42,8 +42,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PARTS="$ROOT/src/DR.Simple_UI/css-parts"
-OUT="$ROOT/src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
+PARTS="$ROOT/src/Sedna.UI/css-parts"
+OUT="$ROOT/src/Sedna.UI/wwwroot/css/Sedna.UI.css"
 
 if [[ ! -d "$PARTS" ]]; then
     echo "::error::No css-parts directory at $PARTS"
@@ -63,7 +63,7 @@ for f in "${FILES[@]}"; do
     base="$(basename "$f")"
     if [[ ! "$base" =~ ^[0-9][0-9]- ]]; then
         echo "::error::$base has no NN- prefix, so its place in the cascade is undefined."
-        echo "Rename it, e.g. 45-$base — see src/DR.Simple_UI/css-parts/CLAUDE.md"
+        echo "Rename it, e.g. 45-$base — see src/Sedna.UI/css-parts/CLAUDE.md"
         exit 1
     fi
 done
@@ -75,12 +75,12 @@ trap 'rm -f "$TMP"' EXIT
 layer_for() {
     local n=${1%%-*}
     n=$((10#$n))
-    if   (( n <= 4 ));  then echo "dr.tokens"
-    elif (( n <= 9 ));  then echo "dr.base"
-    elif (( n <= 29 )); then echo "dr.frame"
-    elif (( n <= 79 )); then echo "dr.paint"
-    elif (( n <= 89 )); then echo "dr.utilities"
-    else                     echo "dr.overrides"
+    if   (( n <= 4 ));  then echo "sedna.tokens"
+    elif (( n <= 9 ));  then echo "sedna.base"
+    elif (( n <= 29 )); then echo "sedna.frame"
+    elif (( n <= 79 )); then echo "sedna.paint"
+    elif (( n <= 89 )); then echo "sedna.utilities"
+    else                     echo "sedna.overrides"
     fi
 }
 
@@ -88,7 +88,7 @@ layer_for() {
     echo "/* ═══════════════════════════════════════════════════════════════════════════"
     echo "   GENERATED FILE — DO NOT EDIT."
     echo ""
-    echo "   Built by build/bundle-css.sh from src/DR.Simple_UI/css-parts/. Edit the part"
+    echo "   Built by build/bundle-css.sh from src/Sedna.UI/css-parts/. Edit the part"
     echo "   that owns the rule and re-run that script; a guard test fails the build if"
     echo "   this file and the parts disagree. Adding a part needs no change here — the"
     echo "   directory is the source of truth."
@@ -113,7 +113,7 @@ layer_for() {
     echo "     * Because your unlayered :root wins outright, a token you set at bare :root"
     echo "       now also beats this library's [data-theme=\"light\"] value for it. Set both"
     echo "       blocks, as the rebrand recipe in the catalogue shows. */"
-    echo "@layer dr.tokens, dr.base, dr.frame, dr.paint, dr.utilities, dr.overrides;"
+    echo "@layer sedna.tokens, sedna.base, sedna.frame, sedna.paint, sedna.utilities, sedna.overrides;"
     echo ""
 } >> "$TMP"
 
