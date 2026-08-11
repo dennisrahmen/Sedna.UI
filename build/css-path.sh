@@ -18,13 +18,17 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Newest first. The pre-rename path was here until the history was squashed to a
-# single commit and v0.1.0 removed; with no ref older than the rename left in the
-# repository, an entry for it could never match. The list keeps its shape because
-# the NEXT rename needs it — add a line, never edit one, because an old tag still
-# has to be read at the path it used.
+# Newest first. Add a line for a new path; NEVER edit or remove one while a ref
+# that used it still exists — an old tag has to be read at the path it had.
+#
+# Removing the pre-rename entry while v0.1.0 was still tagged is precisely the
+# mistake this script's own guard caught: class-history.sh resolved no tag at all
+# and failed with "No tag yielded a stylesheet", which is the loud version of the
+# silent all-null file that motivated writing it. An entry retires only once the
+# last ref using it is gone.
 PATHS=(
     "src/Sedna.UI/wwwroot/css/Sedna.UI.css"
+    "src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
 )
 
 REF="${1:-}"
