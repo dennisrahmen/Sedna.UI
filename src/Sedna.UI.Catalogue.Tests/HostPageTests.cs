@@ -1,4 +1,7 @@
+using System.Net;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.FileProviders;
+using Sedna.UI.Catalogue.Health;
 using Sedna.UI.Catalogue.Tests.TestSupport;
 using Sedna.UI.Tests.TestSupport;
 
@@ -91,6 +94,39 @@ public class HostPageTests(CatalogueAppFixture app)
     private static string WithoutComments(string source) =>
         Assets.Squash(Regex.Replace(source, @"<!--.*?-->|@\*.*?\*@", " ",
             RegexOptions.Singleline));
+
+    [Fact]
+    public void The_health_check_covers_every_local_asset_the_host_page_loads()
+    {
+        // Parsed off disk with a plain attribute scan, against the endpoint's own
+        // reading of the embedded copy. Two extractions of one truth, for the
+        // reason build/css-inventory.sh has two: a single implementation agrees
+        // with itself whatever it got wrong.
+        var referenced = Regex.Matches(AppRazor, @"(?:src|href)=""(?<path>[^""@#]+)""")
+            .Select(m => m.Groups["path"].Value)
+            .Where(p => !p.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal);
+
+        Assert.Contains("_framework/blazor.web.js", HostPageAssets.All);
+        Assert.Equal(referenced, HostPageAssets.All.Order(StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void The_health_check_reports_an_asset_the_app_is_not_serving() =>
+        // Proof it can fail. A check only ever run against a correct web root is
+        // indistinguishable from one that returns nothing.
+        Assert.Equal(HostPageAssets.All, HostPageAssets.Missing(new NullFileProvider()));
+
+    [Fact]
+    public async Task The_running_app_reports_healthy()
+    {
+        // Not that the route exists — that every asset the host page names resolves
+        // through the provider the static files middleware serves them from.
+        var response = await app.Client.GetAsync(new Uri("health", UriKind.Relative));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
 
     [Fact]
     public async Task The_stylesheet_the_running_app_serves_is_the_file_that_ships()
