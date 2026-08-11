@@ -144,9 +144,14 @@ public sealed class SednaRamp
                     $"No lightness curve point for step {step}.");
 
             var distance = index - anchorIndex;
+            // The multiplication is done in double, not cast after the fact. `distance` is a
+            // ramp-index delta and cannot overflow an int in practice, but `(double)(d * d)`
+            // multiplies as int first and only then widens — which is the shape of a real
+            // overflow bug, and CodeQL rightly does not try to prove the bound.
+            var squared = (double)distance * distance;
             var c = distance == 0
                 ? anchorC
-                : anchorC * Math.Exp(-((double)(distance * distance)) / BellWidth(distance));
+                : anchorC * Math.Exp(-squared / BellWidth(distance));
 
             result[step] = Oklch.ToHex(l, c, anchorH);
         }
