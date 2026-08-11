@@ -1,0 +1,19 @@
+<!-- Only when the panel cannot be a <dialog> — you are already inside a form and
+     cannot nest another, or the panel has to stay in the page's own stacking
+     context. Everything showModal() gives you has to be written by hand here:
+     Escape, the focus trap, inert content behind, and returning focus on close. -->
+<div class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lock-title">
+        <div class="modal-header">
+            <h3 id="lock-title">Release the lock?</h3>
+            <button class="modal-close" type="button" aria-label="Close"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="modal-body">
+            <p>ORD-4199 goes back to the queue.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" type="button">Cancel</button>
+            <button class="btn btn-primary" type="button">Release</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+@page "/toolbar"
+
+<CatHead Title="Toolbar">
+    The filter bar that sits above a table or list. <code>.toolbar</code> is
+    <code>space-between</code> and wraps; <code>.toolbar-filters</code> groups the controls on
+    the left, and anything after it goes right.
+</CatHead>
+
+<CatExample TExample="Examples.Toolbar.FiltersCount" Title="Filters and a count" Demo="ex-demo--block">
+    <p>
+        <code>.toolbar-input</code> narrows a <code>.form-input</code> to a sensible 160px so it
+        does not eat the row. <code>.toolbar-count</code> is the muted result count.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Toolbar.FiltersActions" Title="Filters and actions" Demo="ex-demo--block">
+    <p>Put the buttons on the right; the primary action goes last.</p>
+</CatExample>
+
+<CatExample TExample="Examples.Toolbar.HeadingAbove" Title="With a heading above it" Demo="ex-demo--block">
+    <p>The full top of a list page.</p>
+</CatExample>
+
+<CatExample TExample="Examples.Toolbar.BulkSelection" Title="With a selection" Demo="ex-demo--block">
+    <p>
+        <strong>Live — open the overflow menu.</strong> The same bar in its selected state: the count
+        and the two ways out of it on the leading side, the actions that apply to the selection on the
+        trailing side. Say how many are selected in text, and offer &ldquo;select all 128&rdquo;
+        separately — selecting a page is not selecting a result set.
+    </p>
+    <p>
+        The overflow is a <a href="/menu"><code>.menu-anchor</code></a> with
+        <code>data-menu-toggle</code>. Anything destructive goes in there behind
+        <code>.menu-item--danger</code>, and names the count it will act on.
+    </p>
+</CatExample>

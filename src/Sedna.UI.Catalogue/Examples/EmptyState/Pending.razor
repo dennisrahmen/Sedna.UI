@@ -1,0 +1,18 @@
+<div class="sedna-col sedna-gap-2" style="max-width:520px">
+    <div class="card">
+        <div class="empty-state empty-state--pending">
+            <span class="spinner spinner-lg"></span>
+            <span class="empty-state-title">Waiting for the first event</span>
+            <p>The stream is connected. Nothing has come through yet.</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="empty-state empty-state--failed">
+            <i class="ri-cloud-off-line"></i>
+            <span class="empty-state-title">Could not load the orders</span>
+            <p>The request did not complete. Nothing has been changed.</p>
+            <span class="empty-state-detail">GET /api/orders &middot; 504 &middot; 12:04:31</span>
+            <button class="btn btn-sm"><i class="ri-refresh-line"></i> Try again</button>
+        </div>
+    </div>
+</div>

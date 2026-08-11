@@ -1,0 +1,45 @@
+/* ── Empty state ────────────────────────────────────────────────────────────
+   No data, no permission, or nothing found. Say which of those it is, and give
+   the one action that resolves it. */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+    padding: var(--space-11) var(--space-9);
+    color: var(--muted);
+}
+.empty-state i {
+    font-size: var(--text-11);
+    color: var(--border-strong);
+    line-height: 1;
+}
+.empty-state-title { font-size: var(--text-5); font-weight: 600; color: var(--fg); }
+.empty-state p     { margin: 0; font-size: var(--text-4); max-width: 44ch; }
+/* Sits directly on the page rather than inside a card. */
+.empty-state--bare { padding: var(--space-9) 0; }
+
+/* ── Not empty yet, and empty because something broke ───────────────────────
+   The same block, for the two states a live view spends most of its time in. Say
+   which one it is: "nothing here" and "we could not load it" call for different
+   actions, and showing the first when it is the second is how a broken page looks
+   fine.
+
+   `--pending` is for a wait with no progress to report — the first event of a stream,
+   a long request. Put a `.spinner-lg` where the icon goes. Where there IS progress,
+   use `.progress`; where the shape of what is coming is known, use `.skeleton`.
+
+   `--failed` keeps the error's own colour on the icon only. A whole red panel reads as
+   destructive rather than as unavailable. */
+.empty-state--pending .spinner,
+.empty-state--pending .spinner-lg { color: var(--muted); }
+.empty-state--failed i { color: var(--danger-fg); }
+/* The line under the title, for the detail that makes a failure actionable: the code,
+   the endpoint, when it was last tried. */
+.empty-state-detail {
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    color: var(--muted);
+}
+

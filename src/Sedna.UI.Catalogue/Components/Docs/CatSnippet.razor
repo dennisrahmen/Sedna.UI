@@ -1,0 +1,27 @@
+@* A snippet that is printed but not rendered: a host-page fragment, a CSS
+   override, an install command, or Razor that would not compile here because it
+   binds to fields a real page owns.
+
+   The file is never a .razor — the Razor SDK's own glob would sweep it into
+   RazorComponent and fail the build — so it carries its content's extension and
+   is text, all the way through. *@
+<section class="cat-ex" data-example data-code-only>
+    <h2 id="@Anchor">
+        <CatTitle Text="@Title" /><a class="cat-anchor" href="#@Anchor" aria-label="Link to this section"><i class="ri-links-line"></i></a>
+    </h2>
+    @ChildContent
+    <CatCode Source="@Source" Label="@($"{Title} — snippet")" />
+</section>
+
+@code {
+    /// The path under Examples/, for example "Index/HostPage.html".
+    [Parameter, EditorRequired] public string Name { get; set; } = default!;
+
+    [Parameter, EditorRequired] public string Title { get; set; } = default!;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string Anchor => Slug.From(CatTitle.Plain(Title));
+
+    private string Source => ExampleSource.For(Name);
+}

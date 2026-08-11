@@ -1,0 +1,10 @@
+<div style="display:flex; flex-wrap:wrap; gap:8px">
+    <button class="btn" type="button"
+            onclick="sednaUi.confirm({ title: 'Apply the reservation?', message: 'The order will be rerouted to EU-West.', confirm: 'Apply' }).then(ok => sednaUi.toast(ok ? 'Applied' : 'Cancelled', { kind: ok ? 'go' : 'info' }))">
+        Confirm an action
+    </button>
+    <button class="btn btn-danger" type="button"
+            onclick="sednaUi.confirm({ title: 'Discard the reservation?', message: 'This cannot be undone.', confirm: 'Discard', danger: true }).then(ok => sednaUi.toast(ok ? 'Discarded' : 'Kept', { kind: ok ? 'danger' : 'info' }))">
+        Confirm something destructive
+    </button>
+</div>

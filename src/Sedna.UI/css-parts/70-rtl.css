@@ -1,0 +1,65 @@
+/* ═══ Right-to-left ═════════════════════════════════════════════════════════
+   Almost nothing is needed here, and that is the point: every directional property
+   in this library is a logical one — `margin-inline-start`, `border-inline-end`,
+   `inset-inline`, `text-align: start` — so the whole layout mirrors from `dir="rtl"`
+   on <html> with no rules at all.
+   `No_physical_direction_properties_without_a_justification` keeps it that way.
+
+   What lands here is the residue that logical properties cannot express, of which
+   there are exactly two kinds:
+
+     1. `transform: translateX()` does not flip. There is no logical translate, so
+        anything that moves a thing along the inline axis needs its sign inverted.
+     2. `background-position` has no logical form. A percentage is always measured
+        from the physical left edge.
+
+   Both are real gaps in CSS rather than shortcuts taken here, which is why each one
+   is named individually instead of being covered by a sweeping rule.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* The switch knob travels from the inline start to the inline end. Its resting
+   position is already logical; only the journey needs mirroring. */
+[dir="rtl"] .switch input[type="checkbox"]:checked::after { transform: translateX(-15px); }
+
+/* The select's caret is two gradients positioned from 100%, which is the physical
+   right edge whatever the direction. Mirrored by measuring from 0% instead, and the
+   reserved padding swaps sides with it. */
+[dir="rtl"] .form-select {
+    padding-inline-end: var(--space-5);
+    padding-inline-start: var(--space-10);
+    background-position:
+        calc(0% + 12px) calc(50% - 2px),
+        calc(0% + 17px) calc(50% - 2px);
+}
+/* The two triangles also swap, or the caret points sideways: the left-hand box has
+   to be the one filled towards the top-left. */
+[dir="rtl"] .form-select {
+    background-image:
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%),
+        linear-gradient(45deg,  transparent 50%, var(--muted) 50%);
+}
+[dir="rtl"] .form-select[multiple],
+[dir="rtl"] .form-select[size]:not([size="1"]) { padding-inline-start: var(--space-5); }
+
+/* The drawer slides in from an inline edge; `inset-inline-end` already puts it on
+   the correct side, so only the direction of travel is wrong. */
+[dir="rtl"] .drawer { transform: translateX(-100%); }
+[dir="rtl"] .drawer--start { transform: translateX(100%); }
+[dir="rtl"] .drawer--open { transform: none; }
+
+/* Kind 2 again. An avatar group's separating gap is a hole masked out of the avatar
+   behind, centred on where the next one lands — and a radial-gradient position is
+   measured from the physical left edge whatever the direction, while the overlap
+   that put it there is a `margin-inline-start`. So the offset is restated from the
+   other edge; the arithmetic is the same, mirrored. */
+[dir="rtl"] .avatar { --avatar-cut-x: calc(var(--avatar-overlap) - var(--avatar-size) / 2); }
+
+/* The tree's disclosure caret points along the inline axis, so it starts mirrored
+   and rotates the other way when open. */
+[dir="rtl"] .tree summary::before { transform: rotate(180deg); }
+[dir="rtl"] .tree details[open] > summary::before { transform: rotate(90deg); }
+
+/* The collapsed rail's flyout needs nothing here, and neither does anything else in
+   the rail. `position-area: inline-end` and `align-self: anchor-center` are both
+   logical and resolve against the writing mode, and the offset is a
+   `margin-inline-start`. */

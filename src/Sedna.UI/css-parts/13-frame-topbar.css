@@ -1,0 +1,36 @@
+/* ── Topbar ─────────────────────────────────────────────────────────────────
+   z-index 60 keeps the header (and its own dropdowns) above page content,
+   while staying far below the modal/spotlight/toast/tip chain documented at
+   "Z-order" in CLAUDE.md. */
+.topbar {
+    display: flex;
+    align-items: stretch;
+    height: 44px;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 60;
+    box-shadow: var(--shadow-topbar);
+}
+.topbar-spacer { flex: 1; }
+.topbar-section {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 0 var(--space-8);
+    border-inline-start: 1px solid var(--border);
+}
+
+/* Square icon button living in the topbar. --start carries its divider on the
+   right (for the leading sidebar toggle); the default divides on the left. */
+.topbar-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; flex-shrink: 0;
+    background: none; border: none; border-inline-start: 1px solid var(--border);
+    color: var(--muted); cursor: pointer; font-size: var(--text-8);
+    text-decoration: none;
+}
+.topbar-btn:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
+

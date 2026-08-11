@@ -1,0 +1,29 @@
+<div class="form-field" style="max-width:560px">
+    <label class="form-label" for="md-reason">Reason for the decision</label>
+    <div class="md-editor" data-md-view="write" id="reason-md">
+        <div class="md-toolbar">
+            <button class="md-tool" type="button" data-md-cmd="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+            <button class="md-tool" type="button" data-md-cmd="code" aria-label="Code"><i class="ri-code-line"></i></button>
+            <button class="md-tool" type="button" data-md-cmd="ul" aria-label="Bullet list"><i class="ri-list-unordered"></i></button>
+            <button class="md-tool" type="button" data-md-cmd="link" aria-label="Link"><i class="ri-link"></i></button>
+            <div class="segmented" role="group" aria-label="Editor view">
+                <label class="segmented-option">
+                    <input type="radio" data-md-tab="write" checked /> Write</label>
+                <label class="segmented-option">
+                    <input type="radio" data-md-tab="preview" /> Preview</label>
+            </div>
+        </div>
+        <textarea class="form-input md-input" id="md-reason" data-md-input rows="5"
+                  aria-describedby="md-reason-hint">Dispatching the three reserved lines now.
+
+- Lines 4 and 5 are out of stock until Monday
+- The customer accepted a split delivery
+</textarea>
+        <div class="markdown-body md-preview" data-md-preview></div>
+    </div>
+    <p class="form-hint" id="md-reason-hint">Kept on the order and shown in its history. Markdown is rendered.</p>
+    <div class="form-actions">
+        <button class="btn" type="button">Discard</button>
+        <button class="btn btn-primary" type="button">Save the reason</button>
+    </div>
+</div>

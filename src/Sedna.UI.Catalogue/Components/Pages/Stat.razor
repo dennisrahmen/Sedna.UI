@@ -1,0 +1,62 @@
+@page "/stat"
+
+<CatHead Title="Stat tiles">
+    One number that matters, with what it is and which way it moved.
+    <code>.stat-row</code> lays a set of them out without a breakpoint.
+</CatHead>
+
+<div class="cat-note">
+        <strong>The label goes above the value.</strong> A number read before its label has to be
+        held in the head while the reader finds out what it means — and on a row of four tiles they do
+        that four times.
+    </div>
+
+<CatExample TExample="Examples.Stat.RowTiles" Title="A row of tiles" Demo="ex-demo--block">
+    <p>
+        The value is <code>tabular-nums</code>: digits of differing widths make a polling
+        dashboard reflow every time it updates, and a page that never sits still is a page nobody
+        can read.
+    </p>
+    <p>
+        <code>--good</code> and <code>--bad</code> are judgement, not direction. More resolved is
+        up and good; more open is up and bad. Put a Remix Icon arrow inside to carry the
+        <em>direction</em>, so it survives the colour-blind palette, a greyscale print and forced
+        colours.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Stat.Variants" Title="Target, link and unavailable" Demo="ex-demo--block">
+    <p>
+        <code>.stat-target</code> is the line saying what the number is measured against. A number on
+        its own is rarely interesting, and a bar under it is a
+        <a href="/progress"><code>.progress</code></a> &mdash; a stat against a target IS progress
+        towards it, so there is no second track class to drift from the first.
+    </p>
+    <p>
+        <code>a.stat</code> makes the whole tile a link to the thing it counts.
+        <code>.stat--unavailable</code> is for a figure that could not be read: an em dash, never a
+        zero. A dashboard that shows 0 because an endpoint did not answer is a dashboard that lies.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Stat.InsideCard" Title="Inside a card" Demo="ex-demo--block">
+    <p>
+        A <code>.stat-row</code> directly inside a <code>.card-body</code> drops the gap and gets
+        a dividing rule between tiles instead, so the card reads as one object rather than four
+        floating numbers.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Stat.Deltas" Title="Which way it moved" Demo="ex-demo--block">
+    <p>
+        <code>--good</code>, <code>--bad</code>, <code>--warn</code> and the bare
+        <code>.stat-delta</code>. The modifier is <em>judgement</em>, not direction: more open orders
+        is up and bad, faster dispatch is down and good. Choose it by whether the reader should be
+        pleased.
+    </p>
+    <p>
+        The arrow carries the direction, so put a <code>ri-arrow-up-line</code> or
+        <code>ri-arrow-down-line</code> inside every delta. Colour alone does not survive a
+        colour-blind palette, a greyscale print or forced colours.
+    </p>
+</CatExample>

@@ -1,0 +1,59 @@
+@page "/layouts"
+
+<CatHead Title="Layouts">
+    Tier 1, like the shell itself: two more page shells, a collapsible nav group, and the skip
+    link. All of it must look the same in every app.
+</CatHead>
+
+<CatExample TExample="Examples.Layouts.AuthLayout" Title="Auth layout" Demo="ex-demo--block">
+    <p>
+        Sign-in, sign-out, &ldquo;check your e-mail&rdquo;, an invitation. One centred card and
+        nothing else: there is no navigation to offer somebody who is not signed in, and a
+        half-populated sidebar behind a sign-in form invites them to try it.
+    </p>
+    <p>
+        <code>.auth-card</code> is capped rather than stretched. A sign-in form the width of a
+        desktop screen has inputs nobody can aim at, and reads as an unfinished page.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Layouts/FullBleedLayout.html" Title="Full-bleed layout">
+    <p>
+        For content that owns the whole area below the header — a map, a board, a diagram editor.
+        <code>.page</code> is the frame's scroll container and pads its content;
+        <code>.full-layout</code> replaces it, taking the padding off and handing scrolling to the
+        child.
+    </p>
+    <p>
+        Used <em>instead of</em> <code>.page</code>, not alongside it —
+        <code>&lt;AppShell PageClass="…"&gt;</code> cannot remove <code>.page</code>'s own padding,
+        so this one case writes the shell markup by hand.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.Layouts.CollapsibleNavGroup" Title="Collapsible nav group" Demo="ex-demo--block">
+    <p>
+        For a section with more children than fits as a flat list. Built on
+        <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code>, so the open state, the keyboard
+        operation and the announcement come from the platform — and the group stays usable with
+        scripting blocked, which the frame must be.
+    </p>
+    <p>
+        Put <code>open</code> on the group containing the current page, so a reader never lands on a
+        page whose own nav entry is hidden. Sub-items indent to sit under the parent's
+        <em>label</em>, not its icon. In the collapsed rail the whole group flattens to icons.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Layouts/SkipLink.html" Title="Skip link">
+    <p>
+        The first focusable thing on the page, jumping past the navigation to the content. Without
+        it a keyboard user tabs through every nav item on <em>every</em> page — which is the single
+        most common reason a shell like this is exhausting to use without a mouse.
+    </p>
+    <p>
+        It is off-screen rather than hidden, so it stays focusable, and it appears above everything
+        when focused. <code>tabindex="-1"</code> on <code>&lt;main&gt;</code> is not optional: without
+        it the jump only scrolls, and focus stays back in the navigation where it was.
+    </p>
+</CatSnippet>

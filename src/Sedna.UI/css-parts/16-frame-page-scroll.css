@@ -1,0 +1,70 @@
+/* ── Page surface + scrolling ───────────────────────────────────────────────
+   .page is the scroll container. Its width stays 100% and the horizontal
+   padding grows instead of capping the width, so the scrollbar stays pinned to
+   the far right of the screen while the content is held to --page-max and
+   centred. On narrow screens the padding floors at 24px.
+
+   position: relative is load-bearing, not decoration. An `overflow` container
+   only clips the absolutely positioned descendants it is the containing block
+   for — so without this, a `.visually-hidden` span inside a page (an
+   icon-only link's label, a table caption) is laid out against the initial
+   containing block instead, escapes the clip, and extends the DOCUMENT's
+   scrollable height by however far down the page it sits. The symptom is a
+   second scrollbar on <html> that scrolls the whole 100dvh shell off the top
+   and reveals empty space below it. `position: relative` with `z-index: auto`
+   creates no stacking context, so nothing in the z-order changes. */
+.page {
+    padding: var(--space-9);
+    padding-inline: max(var(--space-9), calc((100% - var(--page-max)) / 2));
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    position: relative;
+}
+
+.back-link {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    font-size: var(--text-3); color: var(--muted); text-decoration: none; margin-bottom: var(--space-6);
+}
+.back-link:hover { color: var(--fg); }
+
+/* The scrollbar's SHAPE. Its colour and width are inherited from <html> in
+   06-base-elements.css; these pseudo-elements are not inheritable, so the selector is
+   the universal one for the same reason — every scroll container in the document, not
+   a list of the ones the library creates.
+
+   Thin, track-less thumb with breathing room from a transparent, clipped border. */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar); border-radius: var(--radius-pill);
+    border: 2px solid transparent; background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+*::-webkit-scrollbar-corner { background: transparent; }
+
+/* Soft top/bottom scroll shadows so the scroll edge fades instead of cutting
+   hard. The two solid cover gradients (background-attachment: local) ride the
+   content and hide the shadow at the very top/bottom; the two radial shadows
+   (attachment: scroll) are pinned to the box and only show when there IS more
+   content that way. --scroll-bg MUST match the surface the scroller sits on, or
+   the cover itself reads as a permanent dark band. */
+.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list {
+    --scroll-bg: var(--bg);
+    background:
+        linear-gradient(var(--scroll-bg) 30%, transparent) center top,
+        linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
+        radial-gradient(farthest-side at 50% 0, var(--scroll-shade), transparent) center top,
+        radial-gradient(farthest-side at 50% 100%, var(--scroll-shade), transparent) center bottom;
+    background-repeat: no-repeat;
+    background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
+    background-attachment: local, local, scroll, scroll;
+}
+/* Scrollers on an elevated surface match that surface, or the cover gradient reads as
+   a permanent dark band across the top of the panel. */
+.modal .sedna-scroll,
+.drawer-body,
+.palette-list { --scroll-bg: var(--bg-elevated); }
+/* The nav scroller sits on the sidebar, which is its own surface. */
+.nav-scroll { --scroll-bg: var(--sidebar-bg); }
+

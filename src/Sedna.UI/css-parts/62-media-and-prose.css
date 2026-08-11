@@ -1,0 +1,103 @@
+/* ── Media frame ────────────────────────────────────────────────────────────
+   A bounded box for an image or an embed whose size you do not control — a
+   screenshot, an attachment preview, a chart from elsewhere.
+
+   `aspect-ratio` plus `object-fit: contain` is what stops the page reflowing as
+   images arrive: the box has its height before the image loads. `contain` rather
+   than `cover` because these are documents, and cropping a screenshot removes the
+   part somebody needed.
+   ─────────────────────────────────────────────────────────────────────────── */
+.media-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+}
+.media-frame > img,
+.media-frame > video,
+.media-frame > iframe { max-width: 100%; max-height: 100%; object-fit: contain; border: none; }
+.media-frame--square { aspect-ratio: 1; }
+.media-frame--wide { aspect-ratio: 21 / 9; }
+/* Fills and crops — right for a decorative banner, wrong for a document. */
+.media-frame--cover > img { width: 100%; height: 100%; object-fit: cover; }
+
+/* A caption belongs to the figure, so use <figure>/<figcaption> and this styles the
+   caption. An image whose meaning is in the caption still needs a real alt. */
+.media-figure { margin: 0; }
+.media-figure > figcaption { margin-top: var(--space-3); color: var(--muted); font-size: var(--text-3); }
+
+/* ── Gallery ────────────────────────────────────────────────────────────────
+   Thumbnails, breakpoint-free like the other grids. Each tile is a link or a button
+   opening the full item, never a bare div with a click handler. */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
+    gap: var(--space-5);
+}
+.gallery > * { position: relative; display: block; text-decoration: none; }
+.gallery .media-frame { aspect-ratio: 1; }
+.gallery > a:hover .media-frame,
+.gallery > button:hover .media-frame { border-color: var(--border-hover); }
+.gallery > *:focus-visible { outline: none; }
+.gallery > *:focus-visible .media-frame { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* ── Prose ──────────────────────────────────────────────────────────────────
+   Long-form text an app renders from a source it does not control — a release note,
+   a knowledge-base article, an e-mail body.
+
+   `.markdown-body` already styles rendered Markdown; `.prose` is for the same job
+   where the HTML did not come from Markdown. They deliberately look the same: two
+   typographic voices in one app is worse than one shared rule set.
+
+   The measure is capped at 72 characters. Beyond about that the eye loses the line
+   it is returning to, which no amount of line-height fixes. */
+.prose { color: var(--fg-soft); font-size: var(--text-5); line-height: 1.65; max-width: 72ch; }
+.prose > :first-child { margin-top: 0; }
+.prose > :last-child { margin-bottom: 0; }
+.prose h1, .prose h2, .prose h3, .prose h4 { color: var(--fg); line-height: 1.3; margin: 1.4em 0 0.4em; }
+.prose h1 { font-size: 1.5em; }
+.prose h2 { font-size: 1.25em; }
+.prose h3 { font-size: 1.1em; }
+.prose p, .prose ul, .prose ol { margin: 0.8em 0; }
+.prose li { margin: 0.3em 0; }
+.prose a { color: var(--accent); text-decoration: underline; }
+.prose blockquote {
+    margin: 1em 0;
+    padding: 0.2em 0 0.2em 1em;
+    border-inline-start: 3px solid var(--border);
+    color: var(--muted);
+}
+.prose hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+.prose img { max-width: 100%; height: auto; border-radius: var(--radius-inner); }
+/* A table in untrusted prose is the one thing that breaks the page width, because
+   its own content sets its minimum size. */
+.prose table { display: block; overflow-x: auto; max-width: 100%; border-collapse: collapse; }
+.prose th, .prose td { padding: var(--space-3) var(--space-5); border: 1px solid var(--border); text-align: start; }
+.prose th { background: var(--table-head-bg); color: var(--muted); font-size: 0.9em; }
+
+/* ── Redacted ───────────────────────────────────────────────────────────────
+   A value deliberately withheld — a secret, a masked identifier, a field the
+   reader's role cannot see.
+
+   It must not merely LOOK hidden. A blur or a low opacity leaves the real text in
+   the DOM, where it is readable by view-source, by a screen reader, and by anyone
+   who selects it. So the class marks a placeholder the server sent instead of the
+   value; the value never reaches the browser. */
+.redacted {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 1px var(--space-3);
+    background: var(--secret-bg);
+    border: 1px dashed var(--secret-border);
+    border-radius: var(--radius-inner);
+    color: var(--redacted);
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    user-select: none;
+}
+.redacted i { font-size: var(--text-4); }

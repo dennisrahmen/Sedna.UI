@@ -1,0 +1,62 @@
+<button class="btn" type="button" onclick="document.getElementById('filters').showModal()">
+    <i class="ri-filter-3-line"></i> Filters
+</button>
+<button class="btn" type="button" onclick="document.getElementById('nav-drawer').showModal()">
+    <i class="ri-side-bar-line"></i> From the start edge
+</button>
+<button class="btn" type="button" onclick="document.getElementById('assign-sheet').showModal()">
+    <i class="ri-layout-bottom-line"></i> As a sheet
+</button>
+
+<dialog class="drawer" id="filters" aria-labelledby="filters-title">
+    <div class="drawer-header">
+        <h3 id="filters-title">Filter the queue</h3>
+        <button class="modal-close" type="button" aria-label="Close"
+                onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="drawer-body">
+        <div class="form-field">
+            <label class="form-label" for="d-group">Assignment group</label>
+            <select class="form-input form-select" id="d-group">
+                <option>Any</option><option selected>EU-West</option>
+            </select>
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="d-priority">Priority</label>
+            <select class="form-input form-select" id="d-priority">
+                <option>Any</option><option selected>P2 and above</option>
+            </select>
+        </div>
+        <p class="form-hint">Filters apply as you change them.</p>
+    </div>
+    <div class="drawer-footer">
+        <button class="btn" type="button" onclick="this.closest('dialog').close()">Reset</button>
+        <button class="btn btn-primary" type="button" onclick="this.closest('dialog').close()">Done</button>
+    </div>
+</dialog>
+
+<dialog class="drawer drawer--start" id="nav-drawer" aria-labelledby="nav-drawer-title">
+    <div class="drawer-header">
+        <h3 id="nav-drawer-title">Queues</h3>
+        <button class="modal-close" type="button" aria-label="Close"
+                onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="drawer-body">
+        <p>The same panel from the inline start edge, for navigation on a narrow screen.</p>
+    </div>
+</dialog>
+
+<dialog class="drawer sheet" id="assign-sheet" aria-labelledby="assign-sheet-title">
+    <div class="sheet-handle"></div>
+    <div class="drawer-header">
+        <h3 id="assign-sheet-title">Reassign ORD-4209</h3>
+        <button class="modal-close" type="button" aria-label="Close"
+                onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="drawer-body">
+        <p>From the bottom edge — the right shape on a phone, where a side panel has nowhere to come from.</p>
+    </div>
+    <div class="drawer-footer">
+        <button class="btn btn-primary" type="button" onclick="this.closest('dialog').close()">Reassign</button>
+    </div>
+</dialog>

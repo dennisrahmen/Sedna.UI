@@ -1,0 +1,44 @@
+<button class="btn" type="button" onclick="document.getElementById('order-detail').showModal()">
+    <i class="ri-side-bar-right-line"></i> Open ORD-4209
+</button>
+
+<dialog class="drawer" id="order-detail" aria-labelledby="order-detail-title">
+    <div class="drawer-header">
+        <div class="list-row list-row--flush">
+            <span class="avatar"><i class="ri-shopping-bag-3-line"></i></span>
+            <span class="list-main">
+                <span class="list-title" id="order-detail-title">ORD-4209</span>
+                <span class="list-sub">Northwind Retail &middot; EU-West</span>
+            </span>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close"
+                onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="drawer-body">
+        <div class="kv"><span class="k">State</span><span class="v"><span class="badge badge-warn">Pending</span></span></div>
+        <div class="kv"><span class="k">Lines</span><span class="v">5</span></div>
+        <div class="kv"><span class="k">Reserved</span><span class="v">3 of 5</span></div>
+        <div class="kv"><span class="k">Raised</span><span class="v">31 Jul 2026, 09:14</span></div>
+        <hr class="divider" />
+        <ol class="timeline">
+            <li>
+                <span class="timeline-when">09:14</span>
+                <span class="timeline-what">Order received from the storefront.</span>
+            </li>
+            <li>
+                <span class="timeline-when">09:15</span>
+                <span class="timeline-what">Three of five lines reserved automatically.</span>
+            </li>
+            <li>
+                <span class="timeline-when">09:18</span>
+                <span class="timeline-what">Held for a decision &mdash; two lines are out of stock.</span>
+            </li>
+        </ol>
+    </div>
+    <div class="drawer-footer">
+        <button class="btn" type="button" onclick="this.closest('dialog').close()">Close</button>
+        <button class="btn btn-go" type="button" onclick="this.closest('dialog').close()">
+            <i class="ri-check-line"></i> Dispatch what is reserved
+        </button>
+    </div>
+</dialog>

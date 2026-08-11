@@ -1,0 +1,40 @@
+@* Every link the catalogue's own chrome writes goes through here, so a link that
+   leaves the site cannot be missing target, rel or the screen-reader hint.
+
+   Example markup never passes through this component — an example is a separate
+   file that is rendered verbatim, so what the demo shows and what the code block
+   prints stay the same nodes. HostPageTests asserts no page .razor writes a raw
+   <a href="http…> instead. *@
+<a class="@Class" href="@Href" target="@Target" rel="@Rel" aria-label="@Label" @attributes="Extra">
+    @ChildContent
+    @if (External && string.IsNullOrEmpty(Label))
+    {
+        @* The library's own utility, not a second copy of the same recipe in
+           catalogue.css — which is also what puts it inside .page's clip. *@
+        <span class="visually-hidden"> (opens in a new tab)</span>
+    }
+</a>
+
+@code {
+    [Parameter, EditorRequired] public string Href { get; set; } = default!;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// Set when the link already has an accessible name of its own, which the
+    /// hint would otherwise duplicate.
+    [Parameter] public string? Label { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? Extra { get; set; }
+
+    // An absolute http(s) URL is by definition not this site: the catalogue links
+    // to itself with routes, never with a host.
+    private bool External =>
+        Href.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+        || Href.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
+    private string? Target => External ? "_blank" : null;
+
+    // Without noopener the opened tab can reach back through window.opener.
+    private string? Rel => External ? "noopener" : null;
+}

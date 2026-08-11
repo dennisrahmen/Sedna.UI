@@ -1,0 +1,79 @@
+<div class="layout" style="height:460px">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo" style="background:var(--brand)"></div>
+            <div class="brand-text">
+                <strong>Approval Console</strong>
+                <span class="brand-sub">Northwind Retail</span>
+            </div>
+        </div>
+        <nav class="nav">
+            <div class="nav-scroll">
+                <a class="nav-link active" href="#"><i class="ri-inbox-line"></i><span>Queue</span><span class="nav-count">3</span></a>
+                <a class="nav-link" href="#"><i class="ri-chat-3-line"></i><span>Orders</span></a>
+                <a class="nav-link" href="#"><i class="ri-check-double-line"></i><span>Decided</span></a>
+
+                <div class="nav-section">
+                    <span class="nav-section-label">Administration</span>
+                    <a class="nav-link" href="#"><i class="ri-robot-line"></i><span>Automation</span></a>
+                    <a class="nav-link" href="#"><i class="ri-settings-3-line"></i><span>Settings</span></a>
+                </div>
+
+                <a class="nav-status-card nav-status-card--ok" href="#">
+                    <span class="nav-status-label">Workflow API</span>
+                    <span class="nav-status-row">
+                        <span class="nav-status-dot"></span>
+                        <span class="nav-status-state">Connected</span>
+                    </span>
+                </a>
+                <a class="nav-status-card nav-status-card--fail" href="#">
+                    <span class="nav-status-label">MySQL</span>
+                    <span class="nav-status-row">
+                        <span class="nav-status-dot"></span>
+                        <span class="nav-status-state">Unreachable</span>
+                    </span>
+                </a>
+            </div>
+            <div class="nav-tools">
+                <a class="nav-link nav-link-tool" href="#"><i class="ri-book-2-line"></i><span>Documentation</span><i class="ri-external-link-line nav-link-ext"></i></a>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="content">
+        <header class="topbar">
+            <button class="topbar-btn topbar-btn--start" aria-label="Collapse sidebar" data-tip="Collapse the sidebar to an icon rail."><i class="ri-side-bar-line"></i></button>
+            <div class="topbar-spacer"></div>
+            <div class="topbar-section">
+                <span class="health-badge health-badge--healthy"><span class="health-dot"></span> Live</span>
+                <span class="health-badge health-badge--degraded"><span class="health-dot"></span> Degraded</span>
+            </div>
+            <button class="topbar-btn" aria-label="Help" data-tip="What is this console?"><i class="ri-question-line"></i></button>
+            <div class="user-widget">
+                <button class="user-trigger">
+                    <span class="user-avatar"><i class="ri-user-line"></i></span>
+                    <span class="user-info">
+                        <span class="user-name">Alex Fischer</span>
+                        <span class="user-email">alex.fischer@example.com</span>
+                    </span>
+                </button>
+                <a class="user-signout" href="#" aria-label="Sign out" data-tip="Sign out of the console."><i class="ri-logout-box-r-line"></i></a>
+            </div>
+        </header>
+
+        <div class="page">
+            <a class="back-link" href="#"><i class="ri-arrow-left-line"></i> Back to the queue</a>
+            <h1>Approval queue</h1>
+            <p class="lede">Items the AI proposed and is waiting on a human decision for.</p>
+            <div class="card">
+                <div class="card-head">
+                    <strong>ORD-4209</strong>
+                    <span class="badge badge-warn">Pending</span>
+                </div>
+                <div class="card-body">
+                    <p class="form-hint">Reservation: reroute to EU-West (confidence 0.87).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

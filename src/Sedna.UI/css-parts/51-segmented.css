@@ -1,0 +1,68 @@
+/* ── Segmented control ──────────────────────────────────────────────────────
+   Two to four mutually exclusive options, all of them visible, applied the moment
+   one is chosen. Prefer it over a <select> when the options are few and short
+   enough to read at a glance — the cost of a select is one click before you learn
+   what the choices are.
+
+   Built from radios, so it is keyboard- and screen-reader-correct with no ARIA at
+   all: arrow keys move between options, the group is announced as a group, and the
+   chosen one is announced as chosen. Give every input the same `name`, and wrap the
+   control in a <fieldset> or point at a label with aria-labelledby so the group has
+   a name.
+
+   The input is a transparent overlay rather than display:none, because display:none
+   takes it out of the tab order and out of the accessibility tree — which would leave
+   a control that looks operable and is not.
+
+   The chosen state is `:has(input:checked)` on the label, so the whole label — which
+   is also the whole hit area — is what gets painted, and the markup stays a label
+   wrapping an input and its text.
+
+   When measuring this state from a test, switch transitions off first: everything here
+   has a `transition`, and getComputedStyle immediately after the change returns the
+   value at t=0, which is the one being transitioned away from.
+   ─────────────────────────────────────────────────────────────────────────── */
+.segmented {
+    display: inline-flex;
+    padding: var(--space-1);
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+}
+
+.segmented-option {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-6);
+    border-radius: var(--radius-inner);
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+.segmented-option i { font-size: var(--text-5); }
+.segmented-option input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    appearance: none;
+    opacity: 0;
+    cursor: pointer;
+}
+/* The disabled option is excluded from the hover state, and the input overlay gives up
+   its pointer cursor. The overlay is the element actually under the pointer, so its
+   cursor wins over the label's `not-allowed` — without both rules a disabled option
+   shows a hand and lights up on hover while refusing to be chosen. */
+.segmented-option:hover:not(:has(input:disabled)) { color: var(--fg); }
+.segmented-option input:disabled { cursor: not-allowed; }
+
+/* Flat, not raised: a shadow inside a 2px track reads as a rendering artefact at
+   this size. The elevated surface against the inset track is enough. */
+.segmented-option:has(input:checked) { background: var(--bg-elevated); color: var(--fg); }
+.segmented-option:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.segmented-option:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }

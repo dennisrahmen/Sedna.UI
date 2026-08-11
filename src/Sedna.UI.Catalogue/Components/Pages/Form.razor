@@ -1,0 +1,123 @@
+@page "/form"
+
+<CatHead Title="Forms">
+    <code>.form-field</code> stacks a label, a control and a hint with the right gaps.
+    <code>.form-input</code> works on <code>input</code>, <code>select</code> and
+    <code>textarea</code> alike — it is width-100%, so the parent controls the size.
+    Every control here is a native element with a class on it: no wrappers, no
+    <code>@@bind</code> to work around, and <code>required</code> /
+    <code>aria-invalid</code> keep doing what they already do.
+</CatHead>
+
+<CatExample TExample="Examples.Form.Fields" Title="Fields" Demo="ex-demo--block">
+    <p>Label, control, hint. The hint explains the consequence, not the control.</p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.Selects" Title="Selects" Demo="ex-demo--block">
+    <p>
+        Add <code>.form-select</code> beside <code>.form-input</code> to replace the platform
+        caret with one that follows the theme. The caret is drawn from two gradients — this
+        stylesheet loads and inlines nothing, and a pseudo-element does not render on a
+        <code>&lt;select&gt;</code> in any browser. A list box (<code>multiple</code>, or
+        <code>size</code> above 1) drops the caret on its own, since there is nothing to drop.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.TwoUpRows" Title="Two-up rows" Demo="ex-demo--block">
+    <p>
+        <code>.field-grid</code> lays fields out side by side and collapses to one column when
+        there is not room for two — no breakpoint to pick.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.Checkboxes" Title="Checkboxes" Demo="ex-demo--block">
+    <p>
+        <code>.form-check</code> is the clickable label wrapper — the whole label toggles the
+        box. The check mark is drawn in CSS, so it picks up the brand token.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.RadioButtons" Title="Radio buttons" Demo="ex-demo--block">
+    <p>
+        The same <code>.form-check</code> wrapper — the type attribute decides the shape. A radio
+        is an unfilled circle with a brand dot rather than a filled disc, so shape
+        <em>and</em> fill differ from a checkbox and which one is exclusive reads without
+        colour. Give every radio in a set the same <code>name</code>, and wrap the set in a
+        <code>&lt;fieldset&gt;</code> so its label is announced with each option.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.Switches" Title="Switches" Demo="ex-demo--block">
+    <p>
+        <code>.switch</code> is for a setting that takes effect the moment it is flipped. A
+        checkbox is for a value saved with the rest of the form. The difference is when it
+        applies, not how it looks — picking the wrong one misleads the reader about whether
+        <strong>Save</strong> is still needed. It is still an
+        <code>&lt;input type="checkbox"&gt;</code>, so it needs no ARIA.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        <code>.form-input-sm</code>, the default, and <code>.form-input-lg</code>, matching
+        <code>.btn-sm</code>, <code>.btn</code> and <code>.btn-lg</code> exactly. An input group takes
+        the tier on the group with <code>.input-group--sm</code> or <code>--lg</code>, because the
+        group is what draws the border.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.Validation" Title="Validation" Demo="ex-demo--block">
+    <p>
+        The error border keys off <code>aria-invalid</code>, not a class. The attribute is what a
+        screen reader announces, so styling a separate class would let the two disagree — and the
+        reader who most needs the message is the one who would not get it. Point
+        <code>aria-describedby</code> at the message so it is read as part of the field.
+        <code>.form-warning</code> is for a value that is accepted but unwise.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.InputGroups" Title="Input groups" Demo="ex-demo--block">
+    <p>
+        One border around a control and its affixes. The affixes are real siblings rather than
+        padding plus a background image, so a button stays clickable and a unit stays selectable.
+        The focus ring moves out to the group and the inner control gives up its own, or the group
+        draws two rings nested inside each other.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.ReadOnlyValues" Title="Read-only values" Demo="ex-demo--block">
+    <p>
+        <code>.form-value-display</code> is the shape of an input without being one — for
+        values the user can read but not change. Do not use a disabled input for this; it reads
+        as broken rather than as informational.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.SectionsActions" Title="Sections and actions" Demo="ex-demo--block">
+    <p>
+        <code>.form-section</code> is a <code>&lt;fieldset&gt;</code> with the browser's border
+        and inset legend removed. Use the real element: the legend is then announced with every
+        control in the group, which a heading above a <code>&lt;div&gt;</code> is not. The fields
+        go in <code>.form-section-body</code> rather than in the fieldset directly, because a
+        <code>&lt;legend&gt;</code> is not a flex item and lands somewhere different in every
+        engine if you make the fieldset the flex container.
+    </p>
+    <p>
+        <code>.form-actions</code> closes the form. It wraps instead of overflowing, so three
+        buttons on a phone stack rather than pushing the commit button off-screen.
+        <code>.form-actions--split</code> puts a destructive action on the far side, where it
+        cannot be hit by aiming for <strong>Save</strong>, and
+        <code>.form-actions--start</code> aligns the row to the leading edge — for a form embedded
+        in a page rather than closing a dialog, where the far corner is nowhere in particular.
+    </p>
+    <p>
+        Where the group genuinely is not a set of related controls — a heading over a region rather
+        than over fields — use <code>.form-section-title</code> on a plain element instead of a
+        <code>&lt;legend&gt;</code>. It is the same rule, without claiming a grouping that is not
+        there.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.SettingsCard" Title="A settings card" Demo="ex-demo--block">
+    <p>Fields in a card, actions in a footer row.</p>
+</CatExample>

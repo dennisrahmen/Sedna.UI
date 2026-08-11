@@ -1,0 +1,39 @@
+@* A live demo and the source that produced it — the same file, rendered and
+   printed.
+
+   TExample is a type parameter rather than a `Type` passed to DynamicComponent so
+   that the compiler proves the example exists and is a component: a typo is a
+   build error instead of a blank demo. *@
+@typeparam TExample where TExample : IComponent
+
+<section class="cat-ex" data-example>
+    <h2 id="@Anchor">
+        <CatTitle Text="@Title" /><a class="cat-anchor" href="#@Anchor" aria-label="Link to this section"><i class="ri-links-line"></i></a>
+    </h2>
+    @ChildContent
+    <div class="ex-demo @Demo">@Instance</div>
+    <CatCode Source="@Source" Label="@($"{Title} — markup")" />
+</section>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = default!;
+
+    /// "ex-demo--block" lays the demo out as a block instead of a centred row;
+    /// add "ex-demo--pad" for something that needs room around it. Omit for small
+    /// inline things like a badge or a button.
+    [Parameter] public string? Demo { get; set; }
+
+    /// One or two sentences: when to use this, and what the reader would otherwise
+    /// get wrong.
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string Anchor => Slug.From(CatTitle.Plain(Title));
+
+    private string Source => ExampleSource.For(typeof(TExample));
+
+    private RenderFragment Instance => builder =>
+    {
+        builder.OpenComponent<TExample>(0);
+        builder.CloseComponent();
+    };
+}

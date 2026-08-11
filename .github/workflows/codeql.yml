@@ -1,0 +1,81 @@
+name: CodeQL
+
+# Static analysis of the C#, the JavaScript and the workflows.
+#
+# Two things are being scanned, with different risk profiles. The library is a
+# package four apps depend on: its JS touches the DOM, localStorage and the
+# clipboard, and the Markdown renderer escapes untrusted input, which is exactly
+# what a taint analysis is good at and a reviewer is not.
+#
+# The catalogue application is a public, unauthenticated, internet-facing ASP.NET
+# Core app that deserialises attacker-controlled JSON on /mcp and resolves names
+# into embedded-resource lookups. That is why the query pack is `extended` here:
+# it adds the lower-precision security queries, and lower precision is the right
+# trade when the cost of a miss is a live endpoint rather than a build warning.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly, because a new query pack can find something in code that has not
+    # changed — which is the whole reason scheduled scanning exists.
+    - cron: '31 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: csharp
+            build-mode: manual
+          # The shipped script and the catalogue's own. Both are hand-written and
+          # loaded as classic scripts, so there is no bundle to see through.
+          - language: javascript-typescript
+            build-mode: none
+          # The repository now has a deploy path. These queries find workflow
+          # injection and unpinned actions, which is worth having from the moment
+          # a push to main can reach production.
+          - language: actions
+            build-mode: none
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        if: matrix.language == 'csharp'
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Initialise CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # security-and-quality over the default security-extended: this is a
+          # library, and an API-shape problem here is a problem in four apps.
+          queries: security-extended,security-and-quality
+
+      # Manual rather than autobuild: the solution is a .slnx, and being explicit
+      # means a build change here fails visibly instead of silently analysing nothing.
+      - name: Build
+        if: matrix.language == 'csharp'
+        run: dotnet build Sedna.UI.slnx -c Release
+
+      - name: Analyse
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}

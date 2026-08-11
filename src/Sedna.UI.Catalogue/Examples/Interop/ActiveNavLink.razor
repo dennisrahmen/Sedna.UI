@@ -1,0 +1,21 @@
+@inject NavigationManager Nav
+
+<nav class="nav" style="max-width:260px">
+    <div class="nav-scroll">
+        <div class="nav-section">
+            <span class="nav-section-label">Frame</span>
+            <a class="@Nav.CssClass("/frame")" aria-current="@Nav.AriaCurrent("/frame")" href="/frame">
+                <i class="ri-side-bar-line"></i><span>Shell &amp; nav</span>
+            </a>
+            <a class="@Nav.CssClass("/layouts")" aria-current="@Nav.AriaCurrent("/layouts")" href="/layouts">
+                <i class="ri-layout-3-line"></i><span>Layouts</span>
+            </a>
+            @* The root link needs NavLinkMatch.All. With the default Prefix it is
+               active on every page — the same trap the framework's NavLink has. *@
+            <a class="@Nav.CssClass("", match: NavLinkMatch.All)"
+               aria-current="@Nav.AriaCurrent("", NavLinkMatch.All)" href="">
+                <i class="ri-home-4-line"></i><span>Overview</span>
+            </a>
+        </div>
+    </div>
+</nav>

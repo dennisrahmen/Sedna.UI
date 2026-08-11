@@ -1,0 +1,16 @@
+<div class="card">
+    <div class="card-body">
+        <div class="markdown-body">
+            <h2>Escalation policy</h2>
+            <p>Raise to <strong>P2</strong> when <em>either</em> condition holds:</p>
+            <ul>
+                <li>More than 20 users are affected</li>
+                <li>A <code>VIP</code> flag is set on the caller</li>
+            </ul>
+            <blockquote>Never raise priority and reroute in the same decision — the receiving group loses the audit trail.</blockquote>
+            <pre><code>if (affected &gt; 20 || caller.IsVip)
+priority = Priority.P2;</code></pre>
+            <p>See the <a href="#">routing matrix</a> for target groups.</p>
+        </div>
+    </div>
+</div>

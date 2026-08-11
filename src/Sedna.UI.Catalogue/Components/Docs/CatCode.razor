@@ -1,0 +1,46 @@
+@* The code block, built from the library's own .code-block family rather than
+   docs-only chrome — so the catalogue's code blocks are themselves a live demo of
+   a shipped class.
+
+   The copy button needs no wiring: data-copy-target with an empty value already
+   means "the nearest .code-block's <pre>", and the handler is delegated from
+   document, so it survives every Blazor re-render.
+
+   A long snippet clamps and offers an expand control. The threshold is counted in
+   LINES rather than measured in pixels, because the clamp has to be decided
+   server-side: a block that arrived unclamped and collapsed once the circuit
+   connected would reflow the page under the reader. *@
+<div class="code-block @(Clamped ? "code-block--clamped" : null)">
+    @* tabindex on a scrollable region, or the keyboard cannot scroll it at all.
+       A focusable scroll container needs a role and a name to go with it. *@
+    <pre tabindex="0" role="group" aria-label="@(Label ?? "Code example")"><code>@Source</code></pre>
+    <button class="code-block-copy" type="button" data-copy-target="">
+        <i class="ri-file-copy-line"></i><span>Copy</span>
+    </button>
+    @if (Clamped)
+    {
+        <div class="code-block-lip">
+            <button class="code-block-expand" type="button"
+                    data-code-expand data-code-collapse="Show less"
+                    data-code-expand-label="@ExpandLabel"
+                    aria-expanded="false">
+                <i class="ri-expand-up-down-line"></i><span>@ExpandLabel</span>
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    /// Above this many lines a block clamps. Matches --code-clamp at the code block's
+    /// own line height, so the lip lands just below the last full line.
+    private const int ClampAfter = 18;
+
+    [Parameter, EditorRequired] public string Source { get; set; } = default!;
+    [Parameter] public string? Label { get; set; }
+
+    private int Lines => Source.TrimEnd().Count(c => c == '\n') + 1;
+
+    private bool Clamped => Lines > ClampAfter;
+
+    private string ExpandLabel => $"Show all {Lines} lines";
+}

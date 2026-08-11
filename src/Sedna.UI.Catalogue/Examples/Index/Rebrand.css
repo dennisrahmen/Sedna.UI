@@ -1,0 +1,19 @@
+:root {
+    --brand:          #e41f16;
+    --brand-hover:    #c8170f;
+    --brand-active:   #a81209;
+    --brand-soft:     #ff6f66;
+    --brand-text:     #ff8f88;
+    --accent:         #ff6f66;
+    --sidebar-active: #e41f16;
+}
+
+/* The light variant needs the readable-on-white variants. */
+:root[data-variant="light"] {
+    --brand-soft: #e41f16;
+    --brand-text: #c8170f;
+    --accent:     #c8170f;
+}
+
+/* --brand-tint and the four --brand-ring/-glow tokens are mixed from
+   --brand and follow it on their own, in both themes. */

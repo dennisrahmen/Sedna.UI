@@ -1,0 +1,215 @@
+@page "/frame"
+
+<CatHead Title="Shell and nav" Tier="@CatHead.Tier1">
+    The layout chrome: shell, sidebar, nav, topbar, user widget. This must look identical in
+    every app, and nobody — human or AI — should restyle it per project.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-information-line"></i>
+    <strong>The frame is markup, not components.</strong> There is no
+    <code>&lt;AppShell&gt;</code> and there will not be one — copy the markup below. This site is
+    built from exactly these classes, so a regression in the frame shows up here first. Do not add
+    local overrides for the frame: report frame problems against the library.
+</div>
+
+<CatExample TExample="Examples.Frame.FullShell" Title="Full shell" Demo="ex-demo--block">
+    <p>
+        <code>.layout</code> is the flex row that fills the viewport; <code>.content</code> is
+        the column beside the sidebar; <code>.page</code> is the only scroll container. Shown
+        here at a fixed height — in an app the layout fills the window.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.ActiveNavLink" Title="The active link" Demo="ex-demo--block">
+    <p>
+        Which link is the current page is the one thing this markup cannot express, so the package
+        ships <code>ActiveLink</code>: <code>Nav.CssClass(href)</code> appends <code>active</code>
+        and <code>Nav.AriaCurrent(href)</code> returns <code>"page"</code> or null, which Blazor
+        omits. The class colours the item; <code>aria-current</code> is what is announced.
+    </p>
+    <p>
+        Matching drops the query string and the fragment and ignores a trailing slash, and a prefix
+        match must end on a path segment — so <code>/queue</code> does not light up on
+        <code>/queue-archive</code>. <strong>The link to the root needs
+        <code>NavLinkMatch.All</code></strong>, or it is active everywhere.
+    </p>
+    <p>
+        The helpers are pure and do not subscribe to <code>LocationChanged</code>. A page
+        re-rendered by navigation picks up the new state for free; a sidebar that survives
+        navigation subscribes and calls <code>StateHasChanged</code> — this site's own sidebar is
+        the worked example.
+    </p>
+    <p>
+        <strong>Subscribe in the component that renders the links</strong>, not in the layout around
+        it. When a parent re-renders, Blazor only hands new parameters to a child whose parameters
+        actually differ, so a sidebar whose parameters are unchanged is skipped and goes on
+        rendering the previous address. A subscription one level too high compiles and runs and does nothing:
+        the active link then updates on the next unrelated click rather than on navigation.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Frame.HeaderSearch" Title="Header search" Demo="ex-demo--block">
+    <p>
+        <code>.search</code> goes at the start of the topbar, after the nav toggles and before
+        <code>.topbar-spacer</code>. The markup above is the whole of what an app writes: the
+        icon, the input and the clear button. Below 720px the box is hidden, so an app needs
+        another way in on a phone.
+    </p>
+    <p>
+        <code>data-search</code> hands the box to <code>sednaUi.search</code>, which builds the
+        result panel, ranks against the index the app registered, and implements the keyboard —
+        arrows, <code>Home</code>/<code>End</code>, <code>Enter</code> to open,
+        <code>Escape</code> to close and then to clear. <strong>The index is client-side</strong>:
+        register a fixed, known set once and results appear with no round trip. Searching a
+        database is the app's own job — render the panel below with these classes and leave
+        <code>data-search</code> off.
+    </p>
+    <p>
+        The clear button is shown by CSS on <code>:placeholder-shown</code>, so it needs no state
+        and works with scripting blocked. It does need the input to carry a placeholder.
+        <strong>The demo above is live</strong> and shares this site's own index — type in it.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Frame/SearchResults.html" Title="Result panel">
+    <p>
+        One <code>.search-item</code> per result: a <code>.search-item-title</code>, and a
+        <code>.search-item-meta</code> line carrying a <code>.text-mono</code> identifier, a
+        line of context and an optional <code>.search-tag</code> (<code>--warn</code> for
+        something that needs attention). <code>.search-item--sel</code> is where the keyboard is;
+        <code>.search-status</code> is the busy and empty line.
+    </p>
+    <p>
+        <code>.sedna-scroll</code> belongs on the panel: it scrolls past eight rows, and the OS
+        default bar is the one thing on it that would not follow the theme.
+    </p>
+    <p>
+        An <code>&lt;a&gt;</code> rather than a button, so middle-click and “open in a new tab”
+        work and a router can intercept the click. <code>role="option"</code> inside
+        <code>role="listbox"</code> is what makes <code>aria-selected</code> legal, and the box
+        keeps focus while the highlight moves — which is what
+        <code>aria-activedescendant</code> is for.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.Frame.CollapsedRail" Title="Collapsed rail" Demo="ex-demo--block">
+    <p>
+        Add <code>.collapsed</code> to <code>.sidebar</code> — no other markup changes. Labels
+        and status text drop out, the count pill moves onto the icon, and each item's
+        <code>data-tip</code> becomes a CSS flyout that escapes the 56px rail. Hover an icon to
+        see it.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Frame/NarrowScreens.html" Title="Narrow screens">
+    <p>
+        Add <code>.layout--responsive</code> to <code>.layout</code> and the sidebar becomes the
+        rail below 900px, whether or not <code>.collapsed</code> is set. The user widget drops its
+        second line at 900px and its whole text block at 560px, leaving the avatar.
+    </p>
+    <p>
+        <strong>It is opt-in.</strong> An app gets the narrow-screen rail only by adding the modifier.
+        The modifier also outranks an app that sets <code>.sidebar { width: 260px }</code>
+        unconditionally, which a bare <code>@@media</code> rule would not.
+    </p>
+    <p>
+        Below 900px the rail is forced, so a collapse toggle does nothing. Hide the toggle at that
+        width, or leave it and accept the no-op.
+    </p>
+    <p>
+        A header that is not inside a <code>.layout</code> — in <code>.bare-layout</code>, in
+        <code>.auth-layout</code>, or on its own — opts in with <code>.topbar--responsive</code> on
+        the <code>.topbar</code> instead, which reaches the same user-widget rules. A topbar's own
+        narrow behaviour does not depend on which shell it is in.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.Frame.UserMenu" Title="User menu" Demo="ex-demo--block">
+    <p>
+        The panel is the library's one dropdown style, <code>.menu</code> — see
+        <a href="/menu">Menus</a> for its items, labels and separators. There is no second panel
+        style for the header. Only the <em>anchoring</em> belongs to the frame:
+        <code>.user-widget</code> is <code>position: relative</code>, so the panel hangs off the
+        header's bottom edge with nothing measured.
+    </p>
+    <p>
+        Opening it, the outside click and <kbd>Escape</kbd> are your app's state — a
+        <code>bool</code> and an <code>@@onkeydown</code>, with no JavaScript.
+    </p>
+    <p>
+        It is a <em>disclosure</em>, not an ARIA menu: the items are ordinary links and buttons that
+        tab normally. Do not declare <code>role="menu"</code> — it promises arrow-key navigation and a
+        roving tabindex that this markup does not implement.
+    </p>
+    <p>
+        Render <code>.menu-scrim</code> immediately before the panel: a transparent full-viewport
+        element that catches the click dismissing the menu. It carries no z-index — coming first in
+        the markup is what puts the panel above it. The demo omits it, because a fixed element
+        covering the viewport would swallow every click on this page.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Frame.BareShell" Title="Bare shell" Demo="ex-demo--block">
+    <p>
+        <code>.bare-layout</code> — topbar and body, no sidebar. For sign-in, access-denied and
+        error pages, where there is no navigation to offer yet.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Frame.ReconnectBanner" Title="Reconnect banner" Demo="ex-demo--block">
+    <p>
+        Four rows, shown together. Outside <code>#components-reconnect-modal</code> a
+        <code>.reconnect-banner</code> is visible on its own; inside it, one row shows at a time. The
+        banner keeps its dark palette in the light theme.
+    </p>
+    <p>
+        Blazor sets the state class on the modal — you write the rows and never the classes. Six
+        states map onto these four:
+    </p>
+
+    <table class="table">
+        <thead><tr><th>Blazor sets</th><th>The row that shows</th></tr></thead>
+        <tbody>
+            <tr><td><code>components-reconnect-show</code></td><td><code>.reconnect-attempting</code></td></tr>
+            <tr><td><code>components-reconnect-retrying</code></td><td><code>.reconnect-attempting</code>, with its counter revealed</td></tr>
+            <tr><td><code>components-reconnect-paused</code></td><td><code>.reconnect-paused</code>, or the attempting row if there is none</td></tr>
+            <tr><td><code>components-reconnect-failed</code></td><td><code>.reconnect-failed</code></td></tr>
+            <tr><td><code>components-reconnect-resume-failed</code></td><td><code>.reconnect-failed</code></td></tr>
+            <tr><td><code>components-reconnect-rejected</code></td><td><code>.reconnect-rejected</code></td></tr>
+            <tr><td><code>components-reconnect-hide</code></td><td class="col-muted">none — connected</td></tr>
+        </tbody>
+    </table>
+
+    <p>
+        <code>.reconnect-paused</code> is optional; without it a paused circuit shows the attempting
+        row. <code>.reconnect-attempting</code>, <code>.reconnect-failed</code> and
+        <code>.reconnect-rejected</code> are not: omit one and that state renders as an empty bar.
+    </p>
+    <p>
+        <code>.reconnect-attempt</code> is the counter, hidden until there is a number in it. Give one
+        span the id <code>components-reconnect-current-attempt</code> and another
+        <code>components-reconnect-max-retries</code> and Blazor fills both in.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Frame/ReconnectHostPage.html" Title="Reconnect banner in the host page">
+    <p>
+        Paste this into <code>App.razor</code>, inside <code>&lt;body&gt;</code> and before the
+        component that carries the render mode. Supply it, or Blazor injects an unstyled box of its
+        own. This is the block this site runs, and a test compares the two.
+    </p>
+    <p>
+        The reload buttons are plain <code>onclick</code> handlers: the circuit is gone in those
+        states, so a Blazor handler cannot run.
+    </p>
+</CatSnippet>
+
+<div class="cat-note">
+        <strong>Hover hints.</strong> Add <code>data-tip="what it does and its consequence"</code> to
+        actionable controls, plus <code>aria-label</code> on icon-only buttons.
+        <code>Sedna.UI.js</code> renders one bubble for the whole page through event delegation, so
+        content rendered later needs no wiring. Use
+        <code>data-tip-pos="left|right|top|bottom"</code> to set a side.
+        Elements inside <code>.sidebar</code> are skipped; the collapsed rail uses a CSS flyout instead.
+    </div>

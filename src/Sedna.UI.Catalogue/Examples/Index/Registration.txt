@@ -1,0 +1,2 @@
+// Program.cs — registers ISednaUi, the typed wrapper over the browser API.
+builder.Services.AddSednaUi();

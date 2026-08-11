@@ -1,0 +1,55 @@
+@page "/structure"
+
+<CatHead Title="Page structure">
+    The parts that hold a page together: the title row, section breaks, editorial asides, and a
+    block of code or output.
+</CatHead>
+
+<CatExample TExample="Examples.Structure.PageHead" Title="Page head" Demo="ex-demo--block">
+    <p>
+        Heading, an optional supporting line, and the actions that apply to the whole page. It
+        wraps rather than shrinking the title: on a narrow screen the actions drop below the
+        heading, because the heading is what tells you where you are and a truncated one tells you
+        less than nothing.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Structure.Dividers" Title="Dividers" Demo="ex-demo--block">
+    <p>
+        A rule between sections. Use it when two blocks are related but distinct; use whitespace
+        when they are merely sequential, and a <a href="/card">card</a> when one of them is an
+        object in its own right.
+    </p>
+    <p>
+        The labelled variant puts its text in a gap in the rule, made with a flex row rather than a
+        background trick, so it works on any surface and needs no colour to match.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Structure.Callouts" Title="Callouts" Demo="ex-demo--block">
+    <p>
+        An editorial aside inside prose &mdash; a note, a caveat, a worked example. It is part of
+        the content and stays there for good.
+    </p>
+    <p>
+        Three neighbours, and picking the wrong one misleads the reader:
+        <code>.callout</code> is permanent and about the <em>content</em>;
+        <a href="/alert"><code>.alert</code></a> is about the <em>page right now</em>;
+        <a href="/card"><code>.card-warning</code></a> is about <em>one card's own data</em>.
+        An alert that never goes away trains people to ignore alerts.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Structure.CodeBlocks" Title="Code blocks" Demo="ex-demo--block">
+    <p>
+        For a command, a payload, a stack trace &mdash; anything the reader wants verbatim. The
+        copy button appears on hover, and stays visible where there is no hover to speak of: a
+        button permanently over the first line is in the way of the thing it copies.
+    </p>
+    <p>
+        <strong>No syntax highlighting, and there will not be any.</strong> It needs a tokeniser
+        per language, which is either a runtime download or a large bundle, and this package
+        loads nothing at runtime. The block scrolls sideways rather than wrapping, because a
+        wrapped command no longer copies correctly by eye.
+    </p>
+</CatExample>

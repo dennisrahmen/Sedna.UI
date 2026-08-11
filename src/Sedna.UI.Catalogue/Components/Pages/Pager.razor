@@ -1,0 +1,59 @@
+@page "/pager"
+
+<CatHead Title="Pagination and breadcrumbs">
+    Moving through a long result set, and saying where the current page sits.
+</CatHead>
+
+<div class="cat-note">
+        <strong>Pages are addresses.</strong> Use <code>&lt;a href&gt;</code> for every page that
+        exists, not <code>&lt;button&gt;</code> — a page of results should be linkable, openable in a
+        new tab and reachable with the back button. Only the disabled ends are buttons or spans.
+    </div>
+
+<CatExample TExample="Examples.Pager.Pagination" Title="Pagination" Demo="ex-demo--block">
+    <p>
+        Wrap it in <code>&lt;nav aria-label="Pagination"&gt;</code> and put
+        <code>aria-current="page"</code> on the current one. The class colours it;
+        <code>aria-current</code> is what is announced. <code>.page-count</code> pushes the range
+        to the far end, which is where the reader looks to find out how much is left.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Pager.Breadcrumbs" Title="Breadcrumbs" Demo="ex-demo--block">
+    <p>
+        For where a page sits when the sidebar cannot show it — a record three levels inside a
+        section. If the sidebar already highlights the page, a breadcrumb repeats it and earns
+        nothing.
+    </p>
+    <p>
+        The separator is a pseudo-element, so it is never selected when the trail is copied and
+        never read out. The last item is the current page: mark it
+        <code>aria-current="page"</code> and leave it a <code>&lt;span&gt;</code>, not a link to
+        where you already are. Long trails scroll, and it is the leading edge that gets cut,
+        because the levels nearest the current page are the useful ones.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Pager.PagerCompact" Title="Prev, next and the range" Demo="ex-demo--block">
+    <p>
+        Enough for a short list, and for a pager that has to live inside a
+        <a href="/toolbar">toolbar</a> row. <code>.page-count</code> is what makes it usable without
+        numbers: &ldquo;Next&rdquo; alone does not say how much is left.
+    </p>
+    <p>
+        The disabled ends are <code>&lt;span aria-disabled="true"&gt;</code>, not links to nowhere. A
+        page that does not exist has no address, so there is nothing to link to.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Pager.BreadcrumbAbovePageHead" Title="Above the page head" Demo="ex-demo--block">
+    <p>
+        Where a breadcrumb belongs: above the heading, so the trail is read before the title it leads
+        to. <a href="/structure"><code>.page-head</code></a> then carries the title, the supporting
+        line and the actions that apply to the whole page.
+    </p>
+    <p>
+        One <code>&lt;h1&gt;</code> per page, and it is this one. The breadcrumb is navigation, not a
+        heading level.
+    </p>
+</CatExample>

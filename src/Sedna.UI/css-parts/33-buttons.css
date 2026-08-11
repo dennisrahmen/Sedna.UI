@@ -1,0 +1,73 @@
+/* ── Buttons ────────────────────────────────────────────────────────────────
+   Colour language — a panel's primary CTA is always a FILLED button in its
+   semantic colour:
+     .btn-primary    filled brand   — the neutral primary
+     .btn-go         filled green   — sends something outward (approve, apply)
+     .btn-warn-solid filled amber   — changes who is in control (take over)
+     .btn-warn       tinted amber   — a SECONDARY of the above, beside a primary
+     .btn-danger     tinted red     — destructive
+
+   --control-height is shared with the text input, the select and the search box, so
+   a button beside a field is the same height as the field. It also pins an icon-only
+   button to the height of its text siblings: a bare icon's line box (15px/1) is
+   shorter than the 1.4-line text next to it, so without it an icon-only button sits
+   several pixels short in a mixed row. */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    padding: var(--space-3) var(--space-7);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--bg-elevated);
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    line-height: 1.4;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.btn i { font-size: var(--text-6); line-height: 1; }
+.btn:hover         { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+.btn:active        { background: var(--btn-active-bg); }
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.btn:disabled      { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+/* Three tiers. Each sets its height from the matching token and scales its padding,
+   text and icon with it. */
+.btn-sm   { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
+.btn-sm i { font-size: var(--text-4); }
+.btn-lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
+.btn-lg i { font-size: var(--text-8); }
+
+.btn-primary        { background: var(--brand); border-color: var(--brand); color: var(--on-solid); }
+.btn-primary:hover  { background: var(--brand-hover); border-color: var(--brand-hover); }
+.btn-primary:active { background: var(--brand-active); border-color: var(--brand-active); }
+.btn-primary:focus-visible { box-shadow: 0 0 0 2px var(--brand-ring); }
+
+.btn-go        { background: var(--go-solid); border-color: var(--go-solid); color: var(--on-solid); }
+.btn-go:hover  { background: var(--go-hover); border-color: var(--go-hover); }
+.btn-go:active { background: var(--go-active); border-color: var(--go-active); }
+.btn-go:focus-visible { box-shadow: 0 0 0 2px var(--go-ring); }
+
+.btn-warn-solid        { background: var(--warn-solid); border-color: var(--warn-solid); color: var(--on-solid); }
+.btn-warn-solid:hover  { background: var(--warn-hover); border-color: var(--warn-hover); }
+.btn-warn-solid:active { background: var(--warn-active); border-color: var(--warn-active); }
+.btn-warn-solid:focus-visible { box-shadow: 0 0 0 2px var(--warn-ring-solid); }
+
+.btn-warn        { color: var(--warn-fg); border-color: var(--warn-border); background: var(--warn-bg); }
+.btn-warn:hover  { background: var(--warn-bg-hover); border-color: var(--warn-border); }
+.btn-warn:active { background: var(--warn-bg-active); }
+.btn-warn:focus-visible { box-shadow: 0 0 0 2px var(--warn-ring); }
+
+.btn-danger        { color: var(--danger-fg); border-color: var(--danger-border); background: var(--danger-bg); }
+.btn-danger:hover  { background: var(--danger-bg-hover); border-color: var(--danger-border-strong); }
+.btn-danger:active { background: var(--danger-bg-active); }
+/* Its own ring, so focus is not a blue halo around a red destructive button. */
+.btn-danger:focus-visible { box-shadow: 0 0 0 2px var(--danger-ring); }
+

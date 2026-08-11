@@ -1,0 +1,106 @@
+/* ── Range, stepper and date/time controls ──────────────────────────────────
+   The three native controls whose internals need naming per engine. Everything here
+   is a restatement of the same design in different vendor pseudo-elements — the
+   duplication is the platform's, not a choice.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Range ──────────────────────────────────────────────────────────────────
+   `appearance: none` removes the whole native widget, track included, so the track
+   and thumb are both drawn here. The two engines expose different pseudo-elements
+   and CANNOT be combined into one selector list: an unknown pseudo-element
+   invalidates the entire rule, so a shared `::-webkit-…, ::-moz-…` list would apply
+   in neither browser. Hence two blocks that look copy-pasted.
+
+   A range gives no readout. Put the value in text beside it — the thumb position is
+   not a number, and it is unreadable to a screen reader on its own. */
+.form-range {
+    appearance: none;
+    width: 100%;
+    height: 18px;
+    background: none;
+    cursor: pointer;
+}
+.form-range::-webkit-slider-runnable-track {
+    height: 4px;
+    background: var(--progress-track);
+    border-radius: var(--radius-pill);
+}
+.form-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;              /* centres the thumb on the 4px track */
+    background: var(--brand);
+    border: none;
+    border-radius: 50%;
+}
+.form-range::-moz-range-track {
+    height: 4px;
+    background: var(--progress-track);
+    border-radius: var(--radius-pill);
+}
+.form-range::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: var(--brand);
+    border: none;
+    border-radius: 50%;
+}
+.form-range:focus-visible { outline: none; }
+.form-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--brand-ring-check); }
+.form-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--brand-ring-check); }
+.form-range:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* The value readout beside a range. Tabular and fixed-width, so the track does not
+   shift as the number's width changes while dragging. */
+.form-range-value {
+    min-width: 4ch;
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+}
+
+/* ── Stepper ────────────────────────────────────────────────────────────────
+   A number input with its own buttons, for a value adjusted by one at a time. The
+   native spinner is tiny, inconsistent between engines, and invisible until hover in
+   some — so it is removed and replaced with two real buttons, which are also a
+   usable size on touch.
+
+   Give each button an aria-label: "+" and "−" are announced as "plus" and "minus"
+   without saying what of. */
+.stepper { display: inline-flex; align-items: stretch; }
+.stepper .form-input {
+    width: 5ch;
+    text-align: center;
+    border-radius: 0;
+    font-variant-numeric: tabular-nums;
+    /* Hides the native spinner. Firefox needs the property, WebKit needs the
+       pseudo-element; neither implies the other. */
+    appearance: textfield;
+}
+.stepper .form-input::-webkit-outer-spin-button,
+.stepper .form-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper .btn { border-radius: 0; }
+.stepper > :first-child { border-start-start-radius: var(--radius-control); border-end-start-radius: var(--radius-control); }
+.stepper > :last-child  { border-start-end-radius: var(--radius-control);   border-end-end-radius: var(--radius-control); }
+/* One shared border between neighbours rather than two adjacent ones. */
+.stepper > * + * { margin-inline-start: -1px; }
+/* The focused control has to paint above its neighbour, or half its ring is
+   covered. 1 is local stacking, not a rung on the documented scale. */
+.stepper .form-input:focus,
+.stepper .btn:focus-visible { position: relative; z-index: 1; }
+
+/* ── Date and time ──────────────────────────────────────────────────────────
+   `.form-input` already covers the box. What needs naming is the calendar picker
+   icon, which is a UA glyph in its own colour and is invisible on a dark surface
+   until it is inverted. `color-scheme` (set on <html> from --color-scheme) is what
+   makes the picker panel itself dark; this is only the trigger glyph. */
+.form-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.55;
+    /* Not a colour: a filter on a UA glyph we cannot recolour. It flips with the
+       theme through the token below rather than being hard-coded to one direction. */
+    filter: invert(var(--picker-invert));
+}
+.form-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }

@@ -1,0 +1,128 @@
+/* ── Auth and full-bleed layouts ────────────────────────────────────────────
+   Two more shells beside .layout and .bare-layout. Both are tier 1: they must look
+   the same in every app.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Sign-in, sign-out, "check your e-mail", an invitation. One centred card and
+   nothing else — there is no navigation to offer to somebody who is not signed in,
+   and a half-populated sidebar behind a sign-in form invites them to try it. */
+.auth-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
+    min-height: 100dvh;
+    padding: var(--space-9);
+    background: var(--bg);
+}
+.auth-brand { display: flex; align-items: center; gap: var(--space-5); font-size: var(--text-7); font-weight: 600; }
+.auth-brand img { width: 32px; height: 32px; border-radius: var(--radius-surface); }
+/* Capped rather than stretched: a sign-in form the width of a desktop screen has
+   inputs nobody can aim at, and reads as an unfinished page. */
+.auth-card { width: 100%; max-width: 380px; }
+.auth-foot { color: var(--muted); font-size: var(--text-3); text-align: center; }
+
+/* Content that owns the whole area below the header — a map, a board, a diagram
+   editor. `.page` is the frame's scroll container and pads its content; this
+   replaces it, taking the padding off and handing scrolling to the child.
+
+   Used INSTEAD of .page, never alongside it. */
+.full-layout {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+
+/* ── Nav sub-items ──────────────────────────────────────────────────────────
+   A collapsible group inside the sidebar, for a section with more children than fits
+   as a flat list.
+
+   Built on <details>/<summary>: open state, keyboard operation and the announcement
+   come from the platform, and the group stays usable with scripting blocked — which
+   the frame must be. Add `open` in the markup for the group containing the current
+   page, so the reader does not land on a page whose own nav entry is hidden.
+
+   In the collapsed rail the whole group flattens to its icons; the summary's caret
+   and label drop out with everything else, via the existing rail rules. */
+.nav-group > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-7);
+    color: var(--sidebar-fg);
+    font-size: var(--text-4);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+.nav-group > summary::-webkit-details-marker { display: none; }
+.nav-group > summary:hover { background: var(--bg-elevated); }
+.nav-group > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.nav-group > summary > i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
+.nav-group > summary::after {
+    content: '';
+    margin-inline-start: auto;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.45;
+    transition: transform var(--motion-fast) ease;
+}
+.nav-group[open] > summary::after { transform: rotate(-180deg); }
+/* Sub-items indent to sit under the parent's label rather than its icon. */
+/* The indent is the parent's own padding plus the width of its icon and the gap after
+   it. Written as that sum so it stays aligned when the spacing scale is redefined. */
+.nav-group .nav-link {
+    padding-inline-start: calc(var(--space-7) + var(--text-7) + var(--space-4));
+    font-size: var(--text-3);
+}
+.sidebar.collapsed .nav-group > summary { justify-content: center; padding: var(--space-4) 0; gap: 0; }
+.sidebar.collapsed .nav-group > summary::after { display: none; }
+/* Clipped, not display:none — the group still needs its name in the rail. */
+.sidebar.collapsed .nav-group > summary > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.sidebar.collapsed .nav-group .nav-link { padding-inline-start: 0; }
+
+/* ── Skip link ──────────────────────────────────────────────────────────────
+   The first focusable thing on the page, jumping past the navigation to the content.
+   Without it a keyboard user tabs through every nav item on every page.
+
+   Hidden until focused, and then it must be visible ABOVE the header, hence the
+   reconnect/tip rung at 1000: it is the one thing that has to be readable whatever
+   else is on screen.
+
+   Point it at the id on <main>, and give <main> tabindex="-1" so the jump actually
+   moves focus rather than only scrolling. */
+.skip-link {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    z-index: 1000;
+    padding: var(--space-5) var(--space-7);
+    background: var(--brand);
+    border-end-end-radius: var(--radius-surface);
+    color: var(--on-solid);
+    font-size: var(--text-4);
+    font-weight: 500;
+    text-decoration: none;
+    /* Off-screen rather than hidden: it must stay focusable, and it must be the first
+       thing Tab reaches. */
+    transform: translateY(-110%);
+    transition: transform var(--motion-fast) ease;
+}
+.skip-link:focus {
+    transform: none;
+    text-decoration: none;
+    outline: none;
+    box-shadow: 0 0 0 3px var(--brand-ring);
+}

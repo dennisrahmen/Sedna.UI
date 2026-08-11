@@ -1,0 +1,24 @@
+// Position the hole over a target. Returns the rectangle it used, in the
+// hole's own coordinate space, so a bubble can be placed without measuring
+// the target twice.
+const rect = sednaUi.spotlight.at(hole, target);            // 4px of padding
+const wide = sednaUi.spotlight.at(hole, target, { pad: 8 });
+
+// Place the bubble under that rectangle, flipped above when the viewport has
+// no room below.
+sednaUi.spotlight.tipAt(tip, rect);
+sednaUi.spotlight.tipAt(tip, rect, 14);                     // a wider gap
+
+// From Blazor. There is no ISednaUi member for this: both calls take
+// element references, which only IJSRuntime can pass. Position after every
+// render, not only on a step change — the bubble's own size decides where it
+// fits, and that is known only once it has been laid out with this step's
+// text in it.
+protected override async Task OnAfterRenderAsync(bool firstRender)
+{
+    var rect = await Js.InvokeAsync<object>("sednaUi.spotlight.at", _hole, _targets[_step]);
+    await Js.InvokeVoidAsync("sednaUi.spotlight.tipAt", _tip, rect, 12);
+}
+
+// The element the hole sits in has to be positioned: the hole is placed
+// against its offset parent.

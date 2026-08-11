@@ -1,0 +1,12 @@
+# The build context is the repository root. Without this the context carries every
+# bin/ and obj/ on the machine — slow, and capable of poisoning the restore with a
+# host-built project.assets.json that names Windows paths.
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+artifacts/
+.git/
+.github/
+.claude/
+IMPLEMENTATION-PLAN.md

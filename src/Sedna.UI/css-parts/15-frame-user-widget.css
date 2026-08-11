@@ -1,0 +1,55 @@
+/* ── User widget ────────────────────────────────────────────────────────────
+   Stretches to the full topbar height so the hover highlight covers the whole
+   header area rather than a content strip inside it. */
+.user-widget {
+    position: relative;
+    z-index: 200;
+    display: flex;
+    align-items: stretch;
+    border-inline-start: 1px solid var(--border);
+}
+.user-trigger {
+    display: flex; align-items: center; gap: var(--space-5);
+    padding: 0 var(--space-7);
+    background: none; border: none; cursor: pointer;
+    color: var(--fg); white-space: nowrap;
+}
+.user-trigger:hover { background: var(--bg-hover); text-decoration: none; }
+.user-info  { display: flex; flex-direction: column; align-items: flex-start; }
+.user-name  { font-size: var(--text-4); font-weight: 500; line-height: 1.2; }
+.user-email { font-size: var(--text-2); color: var(--muted); line-height: 1.2; }
+.user-avatar {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--brand-tint); color: var(--brand-text); font-size: var(--text-6);
+}
+.user-signout {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 46px; flex-shrink: 0;
+    color: var(--muted); font-size: var(--text-8); text-decoration: none;
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+.user-signout:hover, .user-signout:focus, .user-signout:hover:focus {
+    background: var(--bg-hover); color: var(--fg); text-decoration: none;
+}
+
+/* ── The widget's dropdown ──────────────────────────────────────────────────
+   The panel itself is the tier-2 `.menu` (58-menu.css) — there is one dropdown
+   style in this library, not one per place that needs one. Only the anchoring is
+   the frame's business, and it differs from `.menu-anchor` in one way that matters:
+   no 4px gap, because the panel hangs off the header's bottom edge rather than
+   floating below a button.
+
+   .user-widget is already position: relative, so this needs nothing measured.
+
+   z-index 550 is the popover/dropdown rung. .user-widget also creates a stacking
+   context at 200, so 550 orders the panel WITHIN the widget — which is exactly
+   right: above everything else in the header, and still covered by a modal backdrop
+   opened from inside it. */
+.user-widget > .menu {
+    position: absolute;
+    top: 100%;
+    inset-inline-end: 0;
+    z-index: 550;
+}
+

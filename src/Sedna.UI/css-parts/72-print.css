@@ -1,0 +1,80 @@
+/* ═══ Print ═════════════════════════════════════════════════════════════════
+   An app page printed or saved as PDF. Chrome is the enemy here: a sidebar, a header
+   and a toast stack are navigation, and navigation on paper is a waste of the page.
+
+   Colours are left alone rather than forced to black on white. Browsers do not print
+   backgrounds by default, so the dark theme's surfaces already come out white; forcing
+   text to black as well would break the reader's own "print backgrounds" choice, which
+   is the one case where the dark surfaces are wanted.
+
+   This is a layout media query, so `Layout_media_queries_only_change_geometry`
+   applies: geometry, or a value that comes from a token.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media print {
+    /* The shell stops being a viewport-height flex box: on paper there is no viewport
+       and nothing scrolls, so a `height: 100dvh; overflow: hidden` shell would print
+       exactly one screenful and silently drop the rest. */
+    .layout,
+    .bare-layout,
+    .auth-layout { display: block; height: auto; min-height: 0; overflow: visible; }
+    .content,
+    .page,
+    .full-layout { display: block; overflow: visible; min-height: 0; padding: 0; }
+
+    /* Chrome and overlays. Anything that is navigation, transient, or floating over
+       the content has no meaning on paper. */
+    .sidebar,
+    .topbar,
+    .skip-link,
+    .toast-stack,
+    .sedna-tip,
+    .fab,
+    .drawer,
+    .drawer-scrim,
+    .spotlight-hole,
+    .spotlight-tip,
+    .reconnect-banner,
+    .modal-backdrop,
+    .page-head-actions,
+    .form-actions,
+    .code-block-copy { display: none; }
+
+    /* A card is a box on screen; on paper the border is what keeps it a box, and the
+       shadow is nothing. Kept whole across a page break: a card split in half loses
+       the connection between its head and its numbers. */
+    .card,
+    .code-block,
+    .callout,
+    .media-frame { box-shadow: none; break-inside: avoid; }
+
+    /* A table's header repeats on every page — that is what <thead> is for, and it
+       only happens if the header is not sticky. */
+    .table--sticky th { position: static; }
+    .table thead { display: table-header-group; }
+    .table tfoot { display: table-footer-group; }
+    .table tr { break-inside: avoid; }
+
+    /* Scroll containers have no scrollbar on paper, so their content must be allowed
+       out rather than clipped to the box it had on screen. */
+    .sedna-scroll,
+    .drawer-body,
+    .md-editor .md-preview,
+    .palette-list { max-height: none; overflow: visible; }
+
+    /* An accordion prints what it is showing. Forcing every <details> open would
+       print things the reader deliberately collapsed; leaving them closed loses
+       nothing they were reading. */
+
+    /* A link's destination is invisible on paper. Printed after the text, and only
+       for absolute URLs — a relative href resolves to nothing useful, and printing
+       every in-app link's path makes the page unreadable. */
+    .prose a[href^="http"]::after,
+    .markdown-body a[href^="http"]::after {
+        content: ' (' attr(href) ')';
+        font-size: 0.85em;
+        word-break: break-all;
+    }
+
+    /* Headings should not be the last line on a page. */
+    h1, h2, h3, .card-head, .page-head { break-after: avoid; }
+}

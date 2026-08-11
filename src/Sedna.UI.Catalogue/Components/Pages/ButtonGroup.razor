@@ -1,0 +1,65 @@
+@page "/button-group"
+
+<CatHead Title="Button groups">
+    Two or more buttons that act on the same thing, joined so they read as one control. The
+    variants of a single button — icon-only, ghost, small, the FAB — are on the
+    <a href="/button">Buttons</a> page.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-question-line"></i>
+    <strong>A group is not a way to pick one of several.</strong> That is
+    <a href="/tabs"><code>.segmented</code></a>, which is built from radios and is therefore
+    announced as a choice. A group is several <em>actions</em>. Wrap it in
+    <code>role="group"</code> with an <code>aria-label</code> saying what they act on.
+</div>
+
+<CatExample TExample="Examples.ButtonGroup.ButtonGroup" Title="Button group" Demo="ex-demo--block">
+    <p>
+        One shared border between neighbours rather than two adjacent ones, which is what makes it
+        read as one control instead of a row. The hovered or focused button paints above its
+        neighbour, or half its ring and its darker border edge would be covered.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.ButtonGroup.SplitButton" Title="Split button" Demo="ex-demo--block">
+    <p>
+        A primary action plus a menu of its variants. Two <em>real</em> buttons, not one with a
+        hit-test: the main action must be operable without ever opening the menu, and the caret needs
+        its own accessible name and its own <code>aria-expanded</code>.
+    </p>
+    <p>
+        Between two filled buttons of the same colour the shared edge disappears, so the split is
+        drawn as a lighter inset line instead.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.ButtonGroup.SplitMenu" Title="A split button that opens a menu" Demo="ex-demo--block">
+    <p>
+        <strong>Live — open it.</strong> Wrap the split button and its panel in
+        <code>.menu-anchor</code>, put <code>data-menu-toggle</code> on the caret, and
+        <code>Sedna.UI.js</code> handles the rest: one menu open at a time, a click outside or
+        Escape closes it, and focus returns to the caret. The <code>hidden</code> attribute is the
+        closed state, so the panel is out of the tab order while it is shut.
+    </p>
+    <p>
+        The primary action stays operable without ever opening the menu. Put the destructive variant
+        in the panel with <code>.menu-item--danger</code>, never as the caret's neighbour.
+    </p>
+    <p>
+        The panel carries <code>.menu--start</code> because the trigger is at the leading edge of its
+        row. A panel is 220px at its narrowest and hangs off the anchor's <em>trailing</em> edge by
+        default, so without the modifier it overhangs into whatever is to the left of the split button.
+        Leave it off for a trigger at the trailing end of a row.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.ButtonGroup.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        Add <code>.btn-sm</code> or <code>.btn-lg</code> to every button in the group — the group
+        itself carries no tier. Each button then takes the matching
+        <a href="/concepts">control height</a>, so a group lines up with the chip, field or button
+        beside it at the same size.
+    </p>
+</CatExample>
+

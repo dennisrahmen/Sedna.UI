@@ -1,0 +1,173 @@
+name: Release
+
+# The git tag IS the version. Tag v0.2.0 → package 0.2.0. Nothing in the repo
+# needs editing to release, so a tag can never disagree with a published version.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write        # to create the GitHub release
+  id-token: write        # to request the GitHub OIDC token for trusted publishing
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # full history so SourceLink records real commits
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Derive version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' is not a SemVer version (expected v1.2.3 or v1.2.3-rc.1)."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Releasing $VERSION"
+
+      # Fail before spending a build on a release that cannot publish. Without
+      # this, a missing NUGET_USER surfaces as an opaque failure inside the
+      # NuGet/login action, several minutes in.
+      - name: Preflight — publishing is configured
+        env:
+          NUGET_USER: ${{ secrets.NUGET_USER }}
+        run: |
+          if [[ -z "$NUGET_USER" ]]; then
+            echo "::error::The NUGET_USER secret is not set. It must hold your nuget.org profile name (not an e-mail address). See README → Releasing."
+            exit 1
+          fi
+          echo "NUGET_USER is set."
+
+      - name: Restore
+        run: dotnet restore Sedna.UI.slnx
+
+      - name: Build
+        run: dotnet build Sedna.UI.slnx -c Release --no-restore -p:Version=${{ steps.version.outputs.version }}
+
+      # The browser binaries are not restored with the package, and a missing browser
+      # is a test FAILURE rather than a skip — so this step is not optional. Without
+      # it the Test step below fails and no release can ever publish.
+      - name: Install Chromium for the browser tests
+        run: pwsh src/Sedna.UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      # The same gates as CI. A tag does not get to skip them.
+      - name: Test
+        env:
+          SEDNA_UI_BROWSER_TESTS: '1'
+        run: dotnet test Sedna.UI.slnx -c Release --no-build --verbosity normal
+
+      - name: Pack
+        run: |
+          dotnet pack src/Sedna.UI/Sedna.UI.csproj \
+            -c Release --no-build -o artifacts \
+            -p:Version=${{ steps.version.outputs.version }}
+
+      # Invoked through bash so it does not depend on the executable bit, which
+      # git on Windows generally does not record.
+      - name: Verify package contents
+        run: bash build/verify-package.sh artifacts/Sedna.UI.${{ steps.version.outputs.version }}.nupkg
+
+      # ── Trusted publishing ─────────────────────────────────────────────────
+      # No long-lived API key exists anywhere. This exchanges the job's GitHub
+      # OIDC token for a NuGet API key that is single-use and valid for 1 hour,
+      # so there is no secret to store, rotate, or leak.
+      #
+      # It works because of a trusted publishing policy on nuget.org
+      # (username menu → Trusted Publishing) matching:
+      #     Repository Owner  dennisrahmen
+      #     Repository        Sedna.UI
+      #     Workflow File     release.yml      <- THIS FILE'S NAME
+      #     Environment       (empty)
+      #
+      # RENAMING THIS FILE BREAKS PUBLISHING — the policy matches on the file
+      # name. Rename the policy at the same time, or releases fail at this step.
+      #
+      # The key is requested immediately before the push on purpose: request it
+      # too early in a long job and it can expire before the push runs.
+      - name: Exchange OIDC token for a short-lived NuGet key
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          # The nuget.org profile name, not an e-mail address. Held as a secret
+          # per NuGet's guidance — it identifies the account the policy is
+          # attached to, so it stays out of the logs.
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push to nuget.org
+        run: |
+          dotnet nuget push "artifacts/*.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
+            --skip-duplicate
+
+      # ── Release notes ──────────────────────────────────────────────────────
+      # There is NO CHANGELOG.md in this repo. The GitHub Releases page IS the
+      # changelog, and each release's notes come from its ANNOTATED TAG MESSAGE:
+      #
+      #     git tag -a v0.2.0 -F notes.md && git push origin v0.2.0
+      #
+      # So the notes are written once, at the moment of tagging, and live with
+      # the release they describe — nothing to keep in sync in the working tree.
+      # A lightweight tag (`git tag v0.2.0`) carries no message and falls back to
+      # the commit list.
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          REPO: ${{ github.repository }}
+        run: |
+          # checkout may leave the tag as a bare ref; force-fetch so the tag
+          # OBJECT (and therefore its message) is definitely present.
+          git fetch --force --tags --quiet
+
+          SUBJECT="$(git tag -l --format='%(contents:subject)' "$GITHUB_REF_NAME")"
+          BODY="$(git tag -l --format='%(contents:body)' "$GITHUB_REF_NAME")"
+          PREV_TAG="$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^" 2>/dev/null || true)"
+
+          {
+            if [[ -n "$BODY" ]]; then
+              echo "$BODY"
+            else
+              echo "_No tag annotation — see the commits below._"
+            fi
+
+            echo
+            echo '## Install'
+            echo
+            echo '```bash'
+            echo "dotnet add package Sedna.UI --version $VERSION"
+            echo '```'
+
+            if [[ -n "$PREV_TAG" ]]; then
+              echo
+              echo "**Full diff:** [\`$PREV_TAG...$GITHUB_REF_NAME\`](https://github.com/$REPO/compare/$PREV_TAG...$GITHUB_REF_NAME)"
+            fi
+          } > release-notes.md
+
+          TITLE="$GITHUB_REF_NAME"
+          [[ -n "$SUBJECT" ]] && TITLE="$GITHUB_REF_NAME — $SUBJECT"
+
+          # Deliberately NOT combined with --generate-notes. This step runs AFTER
+          # the push to nuget.org, and a nuget.org version is permanent — a flag
+          # rejection here would leave the package published with no release to
+          # describe it. The compare link above covers what --generate-notes adds.
+          # (gh also has --notes-from-tag, which reads the annotation but leaves
+          # no room for the install snippet.)
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$TITLE" \
+            --notes-file release-notes.md \
+            artifacts/*.nupkg artifacts/*.snupkg

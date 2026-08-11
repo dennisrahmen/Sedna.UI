@@ -1,0 +1,79 @@
+/* ── Chip ───────────────────────────────────────────────────────────────────
+   A chip is a *thing*: an applied filter, a selected recipient, a label attached to
+   a record. A .badge is a *state*: read-only, describing what something is.
+
+   The test is whether it can be removed. If the user put it there and can take it
+   away, it is a chip. If it reflects data, it is a badge. Getting this the wrong way
+   round produces a page of pills where nobody can tell which ones are clickable.
+
+   `.chip` rather than `.tag`: a plain name is a claim on a shared namespace, and
+   `.tag` is commonly already taken in a consuming app.
+   ─────────────────────────────────────────────────────────────────────────── */
+/* A chip is interactive, so it takes the control heights rather than a type scale.
+   The default is the SMALL tier: a chip's home is a filter bar beside a `.btn-sm`,
+   and that is the pairing it has to line up with. `.chip-lg` is the normal tier, for
+   a chip beside a full-size button. */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: 100%;
+    min-height: var(--control-height-sm);
+    padding: var(--space-1) var(--space-2) var(--space-1) var(--space-5);
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+    line-height: 1.6;
+}
+.chip-lg { min-height: var(--control-height); font-size: var(--text-4); padding-inline-start: var(--space-6); }
+.chip-lg .chip-dismiss { width: 22px; height: 22px; }
+/* A chip with no dismiss button does not need the trailing room for one. */
+.chip:not(:has(.chip-dismiss)) { padding-inline-end: var(--space-5); }
+.chip i { font-size: var(--text-5); color: var(--muted); }
+.chip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A status dot inside a chip, for a filter whose value carries a state. Colour it
+   with a semantic token from the markup, or it says nothing. */
+.chip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--border-hover);
+}
+
+/* The remove button. A real <button> with an accessible name — "×" alone is
+   announced as "times" and gives no clue what it removes, so write
+   aria-label="Remove <the value>". */
+.chip-dismiss {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: var(--muted);
+    font-size: var(--text-5);
+    line-height: 1;
+    cursor: pointer;
+}
+.chip-dismiss:hover { background: var(--bg-hover); color: var(--fg); }
+.chip-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* Chosen — a filter that is on, rather than one offered. */
+.chip--active {
+    background: var(--brand-tint);
+    border-color: var(--brand-soft);
+    color: var(--brand-text);
+}
+.chip--active i,
+.chip--active .chip-dismiss { color: var(--brand-text); }
+
+/* A whole row of them, wrapping. */
+.chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }

@@ -1,0 +1,33 @@
+<fieldset class="form-section" style="max-width:520px">
+    <legend class="form-section-title">Proof of delivery</legend>
+    <p class="form-section-hint">Attached to ORD-4209 and visible to the customer.</p>
+    <div class="form-section-body">
+        <div class="form-field">
+            <label class="form-label form-label--required" for="pod-file">Signed note</label>
+            <label class="dropzone" data-dropzone>
+                <input type="file" id="pod-file" required />
+                <i class="ri-upload-cloud-2-line"></i>
+                <span>Drop the scan here, or click to choose</span>
+                <span class="form-hint">PDF or PNG, up to 10 MB</span>
+            </label>
+        </div>
+        <ul class="file-list">
+            <li class="file-item">
+                <i class="ri-file-pdf-2-line"></i>
+                <span class="file-item-name">pod-ord-4209.pdf</span>
+                <span class="file-item-size">640 KB</span>
+                <button class="chip-dismiss" type="button" aria-label="Remove pod-ord-4209.pdf">
+                    <i class="ri-close-line"></i>
+                </button>
+            </li>
+        </ul>
+        <div class="form-field">
+            <label class="form-label" for="pod-note">Note</label>
+            <input class="form-input" id="pod-note" type="text" placeholder="Left with the concierge" />
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn" type="button">Cancel</button>
+        <button class="btn btn-go" type="button"><i class="ri-check-line"></i> Attach and close</button>
+    </div>
+</fieldset>

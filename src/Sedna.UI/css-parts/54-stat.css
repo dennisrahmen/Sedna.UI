@@ -1,0 +1,102 @@
+/* ── Stat tile ──────────────────────────────────────────────────────────────
+   One number that matters, with what it is and — optionally — which way it moved.
+
+   The label goes ABOVE the value. A number read before its label is a number the
+   reader has to hold in their head while they find out what it means, and on a row
+   of four tiles they do that four times.
+
+   The value is tabular-nums: a row of tiles whose digits are different widths
+   reflows as the numbers update, and on a polling dashboard that is a page that
+   never sits still.
+   ─────────────────────────────────────────────────────────────────────────── */
+.stat { display: flex; flex-direction: column; gap: var(--space-1); }
+.stat-label {
+    font-size: var(--text-2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+.stat-value {
+    font-size: var(--text-9);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+}
+/* A unit or denominator that should not compete with the number. */
+.stat-unit { font-size: var(--text-4); font-weight: 500; color: var(--muted); }
+.stat-note { font-size: var(--text-3); color: var(--muted); }
+
+/* ── Delta ──────────────────────────────────────────────────────────────────
+   Which way it moved. Colour alone does not say — put a Remix Icon arrow inside
+   (ri-arrow-up-line / ri-arrow-down-line), so the direction survives a
+   colour-blind palette, a greyscale print and a forced-colors mode.
+
+   --up and --down are direction, not judgement: more open incidents is up and bad,
+   more resolved is up and good. Choose the semantic modifier by whether the reader
+   should be pleased, and let the arrow carry the direction. */
+.stat-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-3);
+    font-weight: 500;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+.stat-delta i { font-size: var(--text-5); }
+.stat-delta--good { color: var(--go-fg); }
+.stat-delta--bad  { color: var(--danger-fg); }
+.stat-delta--warn { color: var(--warn-fg); }
+
+/* ── Against a target ───────────────────────────────────────────────────────
+   A number is rarely interesting on its own. `.stat-target` is the line that says what
+   it is being measured against — "62 of 80", "of a 120 cap" — and `.stat-bar` is the
+   optional filled track under it.
+
+   The bar is a `.progress` with no extra rules: a stat against a target IS progress
+   towards it, and a second track class would drift from the first. */
+.stat-target { font-size: var(--text-3); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ── A stat that opens something ────────────────────────────────────────────
+   For a tile that leads to the thing it counts. An <a>, so it is a real link. The
+   whole tile is the target, which is why the padding and the hover are on it rather
+   than on the value. */
+a.stat {
+    padding: var(--space-4) var(--space-5);
+    margin: calc(var(--space-4) * -1) calc(var(--space-5) * -1);
+    border-radius: var(--radius-surface);
+    color: inherit;
+    text-decoration: none;
+    transition: background var(--motion-fast);
+}
+a.stat:hover { background: var(--bg-hover); text-decoration: none; }
+a.stat:hover .stat-value { color: var(--brand-text); }
+a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* ── Unavailable ────────────────────────────────────────────────────────────
+   The number could not be read. An em dash, not a zero: zero is a measurement and
+   this is the absence of one, and a dashboard that shows 0 for "the endpoint did not
+   answer" is a dashboard that lies. */
+.stat--unavailable .stat-value { color: var(--border-strong); font-weight: 500; }
+.stat--unavailable .stat-delta,
+.stat--unavailable .stat-target { visibility: hidden; }
+
+/* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
+   it is given, so it behaves correctly inside a narrow column too. */
+.stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+    gap: var(--space-7);
+}
+/* Dividers between tiles outside a card too, for a row that sits straight on the
+   page and still has to read as one object. */
+.stat-row--divided { gap: 0; }
+.stat-row--divided > .stat { padding-inline: var(--space-7); border-inline-start: 1px solid var(--divider); }
+.stat-row--divided > .stat:first-child { padding-inline-start: 0; border-inline-start: none; }
+/* Tiles inside a card get a dividing rule between them rather than a gap, so the
+   card reads as one object. */
+.card-body > .stat-row { gap: 0; }
+.card-body > .stat-row > .stat { padding: var(--space-2) var(--space-7); border-inline-start: 1px solid var(--divider); }
+.card-body > .stat-row > .stat:first-child { padding-inline-start: 0; border-inline-start: none; }

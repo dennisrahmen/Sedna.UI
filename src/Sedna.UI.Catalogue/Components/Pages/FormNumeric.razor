@@ -1,0 +1,66 @@
+@page "/form-numeric"
+
+<CatHead Title="Ranges and steppers">
+    The controls whose native internals have to be named per engine. Everything here restates one
+    design in several vendor pseudo-elements.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-information-line"></i>
+    The two engines expose different pseudo-elements and <strong>cannot be combined into one selector
+    list</strong>: an unknown pseudo-element invalidates the whole rule, so a shared
+    <code>::-webkit-…, ::-moz-…</code> list applies in neither browser. Write one rule per engine.
+</div>
+
+<CatExample TExample="Examples.FormNumeric.Range" Title="Range" Demo="ex-demo--block">
+    <p>
+        <code>appearance: none</code> removes the whole native widget, track included, so both are
+        drawn here.
+    </p>
+    <p>
+        A range gives no readout. Put the value in text beside it with
+        <code>.form-range-value</code> — the thumb position is not a number, and it is unreadable to a
+        screen reader on its own. The readout is fixed-width and tabular, so the track does not shift
+        while dragging.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormNumeric.Stepper" Title="Stepper" Demo="ex-demo--block">
+    <p>
+        For a value adjusted one at a time. The native spinner is tiny, inconsistent between engines,
+        and invisible until hover in some — so it is removed and replaced with two real buttons, which
+        are also a usable size on touch.
+    </p>
+    <p>
+        Give each button an <code>aria-label</code>: <code>+</code> and <code>&minus;</code> are
+        announced as &ldquo;plus&rdquo; and &ldquo;minus&rdquo; without saying what of. Hiding the
+        native spinner needs both the Firefox property and the WebKit pseudo-element; neither implies
+        the other.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormNumeric.DateTime" Title="Date and time" Demo="ex-demo--block">
+    <p>
+        <code>.form-input</code> already covers the box. What needs naming is the calendar picker
+        glyph, which the browser draws in a fixed colour we cannot reach — so it is inverted, by an
+        amount that moves with the theme (<code>--picker-invert</code>).
+    </p>
+    <p>
+        The picker <em>panel</em> is dark because <code>color-scheme</code> is set on
+        <code>&lt;html&gt;</code> from <code>--color-scheme</code>. That is also what makes a
+        <code>&lt;select&gt;</code>'s option list and the native scrollbars match the theme.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormNumeric.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        The stepper takes its tier from its children: <code>.btn-sm</code> on both buttons and
+        <code>.form-input-sm</code> on the input. A date or time input is a
+        <code>.form-input</code>, so it takes the tier the same way.
+    </p>
+    <p>
+        Every row here is one <a href="/concepts">control height</a>, so the stepper, the date field
+        and the button beside them agree at each size. Mixing tiers within a row is the one thing that
+        makes a filter bar look assembled by accident.
+    </p>
+</CatExample>

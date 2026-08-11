@@ -1,0 +1,91 @@
+/* ── Button group and split button ──────────────────────────────────────────
+   Adjacent buttons that act on the same thing. The group shares one border between
+   neighbours rather than drawing two adjacent ones, which is what makes it read as
+   one control instead of a row.
+
+   A group is NOT a way to pick one of several — that is `.segmented`, and it is
+   built from radios so it is announced as a choice. A group is several actions.
+   Wrap it in `role="group"` with an `aria-label` saying what they act on.
+   ─────────────────────────────────────────────────────────────────────────── */
+.btn-group { display: inline-flex; align-items: stretch; }
+.btn-group > .btn { border-radius: 0; }
+.btn-group > :first-child { border-start-start-radius: var(--radius-control); border-end-start-radius: var(--radius-control); }
+.btn-group > :last-child  { border-start-end-radius: var(--radius-control);   border-end-end-radius: var(--radius-control); }
+.btn-group > * + * { margin-inline-start: -1px; }
+/* The focused or hovered button paints above its neighbour, or half its ring and
+   its darker border edge are covered. 1 is local stacking, not a documented rung. */
+.btn-group > .btn:hover,
+.btn-group > .btn:focus-visible { position: relative; z-index: 1; }
+
+/* ── Split button ───────────────────────────────────────────────────────────
+   A primary action plus a menu of its variants. Two real buttons, not one with a
+   hit-test: the main action must be operable without ever opening the menu, and the
+   caret needs its own accessible name ("More send options") and its own
+   aria-expanded. */
+.split-btn { display: inline-flex; align-items: stretch; }
+.split-btn > .btn:first-child { border-start-end-radius: 0; border-end-end-radius: 0; }
+.split-btn > .btn:last-child {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+    margin-inline-start: -1px;
+    padding-inline: var(--space-4);
+}
+.split-btn > .btn:hover,
+.split-btn > .btn:focus-visible { position: relative; z-index: 1; }
+/* Between two filled buttons of the same colour the shared edge disappears, so the
+   split is drawn as a lighter inset line instead. */
+.split-btn > .btn-primary + .btn-primary,
+.split-btn > .btn-go + .btn-go,
+.split-btn > .btn-warn-solid + .btn-warn-solid { box-shadow: inset 1px 0 0 var(--surface-strong); }
+
+/* ── Icon-only and floating buttons ─────────────────────────────────────────
+   .btn-icon is a square button with no label. It still needs an aria-label, and
+   `.btn`'s min-height already matches it to text buttons beside it — this only
+   squares the padding so it is not a wide box around one glyph.
+
+   Square by construction, from the same token as the height. Do not hard-code the
+   width: it drifts from the height the moment either tier changes. */
+.btn-icon { padding-inline: 0; width: var(--control-height); }
+.btn-icon.btn-sm { width: var(--control-height-sm); }
+.btn-icon.btn-lg { width: var(--control-height-lg); }
+
+/* .btn-ghost carries no border or fill until hovered, for a dense row of secondary
+   actions — a table row's actions, a toolbar. Everything the button does is still
+   there; only the chrome is deferred. */
+.btn-ghost { background: none; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover { background: var(--bg-hover); border-color: transparent; color: var(--fg); }
+.btn-ghost:active { background: var(--btn-active-bg); }
+
+/* ── Floating action button ─────────────────────────────────────────────────
+   One page-level action, pinned to a corner on a screen too small to show a toolbar.
+   Deliberately not a general pattern: a second FAB has no obvious place, and the
+   first one already covers whatever is under it.
+
+   z-index 60 is the topbar rung — it is chrome at the same level, and it must stay
+   below every overlay so a modal covers it. */
+.fab {
+    position: fixed;
+    inset-block-end: var(--space-8);
+    inset-inline-end: var(--space-8);
+    z-index: 60;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    min-height: 48px;
+    padding: 0 var(--space-8);
+    background: var(--brand);
+    border: none;
+    border-radius: var(--radius-pill);
+    color: var(--on-solid);
+    font-family: inherit;
+    font-size: var(--text-5);
+    font-weight: 500;
+    box-shadow: var(--shadow-float);
+    cursor: pointer;
+}
+.fab i { font-size: var(--text-8); }
+.fab:hover { background: var(--brand-hover); }
+.fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--brand-ring); }
+/* Icon-only: circular, and the label goes in an aria-label. */
+.fab--icon { width: 48px; padding: 0; }

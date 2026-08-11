@@ -1,0 +1,66 @@
+@page "/avatar"
+
+<CatHead Title="Avatars">
+    Who did something, or what did. An avatar carries an image, initials or an icon — and never
+    the name on its own.
+</CatHead>
+
+<CatExample TExample="Examples.Avatar.Avatars" Title="Sizes and fallbacks" Demo="ex-demo--block">
+    <p>
+        Three sizes: <code>.avatar-sm</code>, the default, and <code>.avatar-lg</code>. Inside,
+        an <code>&lt;img&gt;</code>, initials, or a Remix Icon, in that order of preference.
+    </p>
+    <p>
+        <code>.avatar--muted</code> is for an actor with no person behind it — a service account, a
+        runner, an unknown sender. The brand tint stays for people, so a page of rows does not read
+        as uniformly branded.
+    </p>
+    <p>
+        <strong>An avatar is never the only carrier of a name.</strong> Put the name in text beside
+        it, in an <code>alt</code>, or in a <code>.visually-hidden</code> span. Initials are not a
+        name, and a <code>title</code> tooltip is reachable by neither keyboard nor touch.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Avatar.AvatarGroup" Title="Group" Demo="ex-demo--block">
+    <p>
+        Overlapping, for &ldquo;these several people&rdquo;. The gap between them is a hole masked
+        out of the avatar behind, so the group is correct on any surface — a card, the page, a
+        selected table row — without being told which one it is on.
+    </p>
+    <p>
+        The overlap and the gap come from <code>--avatar-size</code>, <code>--avatar-overlap</code>
+        and <code>--avatar-gap</code>, so a size variant sets two numbers and the geometry follows.
+        <code>.avatar-more</code> is the counter and is deliberately not an avatar: it is a number,
+        and the brand tint would make it look like one more person.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Avatar.Lockup" Title="Name with a subtext" Demo="ex-demo--block">
+    <p>
+        An avatar, a name and a second line, with something trailing. There is no
+        <code>.person</code> class for this: it is <code>.list-row</code> with
+        <code>.list-main</code>, <code>.list-title</code>, <code>.list-sub</code> and
+        <code>.list-meta</code> — the same lockup <a href="/collections">Collections</a> documents,
+        which names nothing about people and so serves a device or a service account too.
+    </p>
+    <p>
+        The subtext is whatever identifies the row a second time: an address, an id, a role, a last
+        seen. <code>.list-title</code> and <code>.list-sub</code> both truncate, and
+        <code>.list-main</code> carries the <code>min-width: 0</code> that lets them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Avatar.LockupInATable" Title="In a table cell" Demo="ex-demo--block">
+    <p>
+        <code>.list-row--flush</code> drops the row's own padding for the places that already
+        provide it — a table cell, a card header, a form row.
+    </p>
+    <p>
+        The access column is <code>.value-trigger</code>: a control showing a current value that
+        opens a <a href="/menu">menu</a> to change it. It is quieter than a button and does not
+        pretend to be a field. Use it where a <code>&lt;select&gt;</code> would be wrong because the
+        options need icons or a description; where a plain list of values would do, use a
+        <code>&lt;select&gt;</code>.
+    </p>
+</CatExample>

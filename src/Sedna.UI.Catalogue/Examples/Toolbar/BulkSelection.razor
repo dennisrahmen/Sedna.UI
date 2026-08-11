@@ -1,0 +1,27 @@
+<div class="toolbar">
+    <div class="toolbar-filters">
+        <label class="form-check">
+            <input type="checkbox" checked /> <span>4 selected</span>
+        </label>
+        <button class="btn btn-sm btn-ghost" type="button">Select all 128</button>
+        <button class="btn btn-sm btn-ghost" type="button">Clear</button>
+    </div>
+    <div class="sedna-row sedna-gap-2">
+        <button class="btn btn-sm btn-go" type="button"><i class="ri-send-plane-line"></i> Dispatch</button>
+        <button class="btn btn-sm" type="button"><i class="ri-user-shared-line"></i> Reassign</button>
+        <div class="menu-anchor">
+            <button class="btn btn-sm btn-icon" type="button" data-menu-toggle
+                    aria-label="More actions for the selected orders" aria-expanded="false">
+                <i class="ri-more-2-line"></i>
+            </button>
+            <div class="menu" hidden>
+                <button class="menu-item" type="button"><i class="ri-download-2-line"></i> Export as CSV</button>
+                <button class="menu-item" type="button"><i class="ri-timer-line"></i> Hold for stock</button>
+                <hr class="menu-sep" />
+                <button class="menu-item menu-item--danger" type="button">
+                    <i class="ri-close-circle-line"></i> Cancel 4 orders
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,169 @@
+/* ═══ Utilities ═════════════════════════════════════════════════════════════
+   Single-purpose classes, in `@layer sedna.utilities`.
+
+   The layer is what makes them work at all. A utility is (0,1,0) and a component rule
+   like `.table th, .table td` is (0,1,1), so on specificity alone a utility loses
+   every collision — `.text-end` on a table cell would do nothing. sedna.utilities sits
+   after sedna.paint, so it wins regardless of specificity and no cap convention has to be
+   remembered.
+
+   Deliberately short, and staying short. This is not a utility framework: the point
+   of tier 2 is semantic classes that carry meaning, and a page assembled out of
+   fifteen utilities has moved its design decisions into the markup where nobody can
+   review them. What is here is the handful of adjustments that are genuinely
+   presentational and would otherwise be an inline style.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Taken out of the visual rendering, kept in the accessibility tree — a label for
+   an icon-only control, a table caption, the target of an aria-describedby.
+
+   Not `display: none` and not `width: 0`: both remove the element from the
+   accessibility tree as well, which is the opposite of the point. The 1px box
+   with the content clipped away is what every engine still announces. */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* For something that must come back when it is reached by keyboard — a skip link
+   is the usual case. :focus-within covers a wrapper holding the focusable node. */
+.visually-hidden--focusable:focus,
+.visually-hidden--focusable:focus-within {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+}
+
+/* ── Text ───────────────────────────────────────────────────────────────────
+   Logical, so they mirror with the document direction. `.text-end` on a table cell is
+   the common case. */
+.text-start  { text-align: start; }
+.text-center { text-align: center; }
+.text-end    { text-align: end; }
+
+.text-muted { color: var(--muted); }
+.text-mono  { font-family: var(--font-mono); }
+/* Digits that line up down a column, for anything a reader compares. */
+.text-nums  { font-variant-numeric: tabular-nums; }
+.text-nowrap { white-space: nowrap; }
+/* Two type steps either side of the body size, for a line that has to be quieter or
+   louder than its surroundings without becoming a heading. */
+.text-sm { font-size: var(--text-3); }
+.text-lg { font-size: var(--text-6); }
+/* Breaks inside a word when there is nowhere else to break — an id, a URL, a token
+   name in a narrow column. `anywhere` rather than `break-word` because it also shrinks
+   the min-content width, so the element stops forcing its container wide. */
+.text-break { overflow-wrap: anywhere; }
+/* Cut after n lines with an ellipsis. `-webkit-` prefixed and `display: -webkit-box`
+   are load-bearing: line-clamp has no unprefixed form that works. */
+.text-clamp-2,
+.text-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.text-clamp-2 { -webkit-line-clamp: 2; }
+.text-clamp-3 { -webkit-line-clamp: 3; }
+/* One line, cut with an ellipsis. `min-width: 0` is included because the usual
+   parent is a flex item, which otherwise refuses to shrink below its content and
+   the ellipsis never appears — the single most common reason truncation "does not
+   work". */
+.text-truncate {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────────
+   A row and a column with the library's own gap, for the arrangements that would
+   otherwise be an inline `style="display:flex; gap:8px"` — which is most of them. */
+.sedna-row { display: flex; align-items: center; gap: var(--space-4); }
+.sedna-row-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
+.sedna-col { display: flex; flex-direction: column; gap: var(--space-4); }
+/* Pushes everything after it to the far end of a flex container. */
+.sedna-push { margin-inline-start: auto; }
+
+/* Three gap steps and none. `.sedna-row` and `.sedna-col` set one gap; these are for the
+   rows that need a tighter or looser one, which was an inline `style="gap:12px"`. */
+.sedna-gap-0 { gap: 0; }
+.sedna-gap-1 { gap: var(--space-4); }
+.sedna-gap-2 { gap: var(--space-6); }
+.sedna-gap-3 { gap: var(--space-8); }
+
+/* Cross-axis alignment. `.sedna-row` centres; a row of fields with labels wants
+   `.sedna-start`, and a row of text of different sizes wants `.sedna-baseline`. */
+.sedna-wrap     { flex-wrap: wrap; }
+.sedna-start    { align-items: flex-start; }
+.sedna-center   { align-items: center; }
+.sedna-end      { align-items: flex-end; }
+.sedna-baseline { align-items: baseline; }
+.sedna-between  { justify-content: space-between; }
+
+/* The flex child that takes the remaining room. `min-width: 0` comes with it, because
+   without it the child refuses to shrink below its content and every ellipsis inside
+   stops working — the commonest truncation bug there is. */
+.sedna-fill { flex: 1; min-width: 0; }
+.sedna-shrink-0 { flex-shrink: 0; }
+.sedna-w-full { width: 100%; }
+
+/* Block margins only, and only for removing or adding a step. There is no inline
+   pair: horizontal placement belongs to the layout, not to a utility on the child. */
+.sedna-mt-0 { margin-top: 0; }
+.sedna-mt-1 { margin-top: var(--space-4); }
+.sedna-mt-2 { margin-top: var(--space-6); }
+.sedna-mt-3 { margin-top: var(--space-8); }
+.sedna-mb-0 { margin-bottom: 0; }
+.sedna-mb-1 { margin-bottom: var(--space-4); }
+.sedna-mb-2 { margin-bottom: var(--space-6); }
+.sedna-mb-3 { margin-bottom: var(--space-8); }
+
+/* A hairline between rows without an <hr> and without a wrapper. */
+.sedna-divider-top    { border-top: 1px solid var(--divider); }
+.sedna-divider-bottom { border-bottom: 1px solid var(--divider); }
+
+/* A scroll container on the inline axis — a table too wide for its column, a row of
+   cards. `.sedna-scroll` styles a scroller; this one creates it. */
+.sedna-scroll-x { overflow-x: auto; }
+
+/* ── State ──────────────────────────────────────────────────────────────────
+   Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also
+   removes the element from the accessibility tree and the tab order. This is for
+   hiding something that must stay in the layout's flow calculations. */
+.sedna-invisible { visibility: hidden; }
+
+/* Marks a block as busy without removing it. Pair it with aria-busy="true", which is
+   what is announced; this only stops the reader interacting with stale content. */
+.sedna-busy { opacity: 0.55; pointer-events: none; cursor: progress; }
+
+/* For something unavailable that is NOT a <button>, <input> or <a> — those have the
+   `disabled` attribute, which is announced and removes them from the tab order, and
+   this is no substitute for it. Add aria-disabled="true" alongside. */
+.sedna-disabled {
+    color: var(--muted);
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* ── Print ──────────────────────────────────────────────────────────────────
+   The two every printed page needs: keep the chrome off the paper, and let a sheet
+   carry something the screen does not. 72-print.css handles the frame; these are for
+   an app's own content. */
+@media print {
+    .sedna-no-print { display: none; }
+}
+.sedna-print-only { display: none; }
+@media print {
+    .sedna-print-only { display: revert; }
+}

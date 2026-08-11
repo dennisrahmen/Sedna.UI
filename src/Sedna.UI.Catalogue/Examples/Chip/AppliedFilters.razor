@@ -1,0 +1,34 @@
+<div>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <input class="form-input toolbar-input" type="search" placeholder="Search orders…" />
+            <select class="form-input toolbar-input" aria-label="Region">
+                <option selected>EU-West</option>
+                <option>EU-Central</option>
+            </select>
+        </div>
+        <span class="toolbar-count">18 of 128</span>
+    </div>
+    <div class="chip-set" style="margin-top:10px">
+        <span class="chip chip--active">
+            <span class="chip-dot" style="background:var(--warn-solid)"></span>
+            <span class="chip-label">Pending</span>
+            <button class="chip-dismiss" type="button" aria-label="Stop filtering by Pending">
+                <i class="ri-close-line"></i>
+            </button>
+        </span>
+        <span class="chip chip--active">
+            <span class="chip-label">EU-West</span>
+            <button class="chip-dismiss" type="button" aria-label="Stop filtering by EU-West">
+                <i class="ri-close-line"></i>
+            </button>
+        </span>
+        <span class="chip chip--active">
+            <span class="chip-label">Over 48 h old</span>
+            <button class="chip-dismiss" type="button" aria-label="Stop filtering by age">
+                <i class="ri-close-line"></i>
+            </button>
+        </span>
+        <button class="btn btn-sm btn-ghost" type="button">Clear all</button>
+    </div>
+</div>

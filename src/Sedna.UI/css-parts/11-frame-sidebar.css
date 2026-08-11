@@ -1,0 +1,135 @@
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+.sidebar {
+    width: 220px;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-fg);
+    padding: 0;
+    flex-shrink: 0;
+    border-inline-end: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    transition: width var(--motion-fast) ease;
+}
+
+/* flex-shrink: 0 because the sidebar is a flex column and the brand is the only
+   item in it that can shrink. A nav taller than the viewport — a collapsed rail
+   with more links than fit — would otherwise squeeze the header down onto the
+   logo. A fixed-height header stays its height. */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    height: 44px;
+    flex-shrink: 0;
+    padding: 0 var(--space-7);
+    border-bottom: 1px solid var(--sidebar-border);
+    color: inherit;
+    text-decoration: none;
+}
+.brand:hover { text-decoration: none; }
+.brand-logo { width: 30px; height: 30px; border-radius: var(--radius-surface); flex-shrink: 0; }
+.brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+.brand-sub {
+    display: block; font-size: var(--text-1); color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-top: var(--space-1);
+}
+
+/* No margin above the nav. It would put the scroll container's top edge below
+   the brand's divider, which reads as a gap the first time the nav is scrolled:
+   the content slides under a strip of empty sidebar instead of under the
+   divider, and the scrollbar and the scroll shadow both start late. Nothing is
+   lost: every element that can be first in the nav (.nav-section-label, .nav-link,
+   .nav-status-card) carries its own top padding. */
+.nav { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.nav-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+.nav-section { margin-bottom: var(--space-2); }
+.nav-section-label {
+    display: block;
+    padding: var(--space-4) var(--space-7) var(--space-2);
+    font-size: var(--text-1);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    pointer-events: none;
+}
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-7);
+    color: var(--sidebar-fg);
+    font-size: var(--text-4);
+}
+.nav-section .nav-link { padding-inline-start: var(--space-9); }
+.nav-link i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
+.nav-link:hover { background: var(--bg-elevated); text-decoration: none; }
+.nav-link:hover i { opacity: 1; }
+/* Tinted rather than a solid brand pill, so the count badge on the same row stays
+   readable and any brand hue works underneath. */
+.nav-link.active { background: var(--brand-tint); color: var(--brand-text); }
+.nav-link.active i { opacity: 1; color: var(--brand-text); }
+/* Specificity, not !important: `.nav-link i` (0-1-1) above would otherwise win
+   over a bare `.nav-link-ext` (0-1-0). The library uses no !important anywhere —
+   inside a cascade layer an !important declaration becomes harder for an app to
+   override, not easier, because layer order inverts for important declarations. */
+.nav-link .nav-link-ext { margin-inline-start: auto; font-size: var(--text-2); opacity: 0.35; }
+
+/* Count pill on a nav link (pending items, unread, …). */
+.nav-count {
+    margin-inline-start: auto;
+    background: var(--brand);
+    color: var(--on-solid);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-2); font-weight: 600; line-height: 1.6;
+    padding: 0 var(--space-4); min-width: 18px; text-align: center;
+}
+
+.nav-tools {
+    flex-shrink: 0;
+    border-top: 1px solid var(--sidebar-border);
+    padding: var(--space-2) 0 var(--space-4);
+    box-shadow: var(--shadow-nav-tools);
+}
+/* Quietened by colour, never by opacity. `opacity: 0.55` is theme-blind: on the
+   dark sidebar it lands around 4.6:1 and on the light theme's white sidebar around
+   3:1, under the 4.5:1 floor for 12px text — and a control at half strength beside
+   full-strength siblings reads as disabled rather than as secondary. --muted is the
+   token each theme already tunes for exactly this job. */
+.nav-link-tool { font-size: var(--text-3); color: var(--muted); }
+.nav-link-tool i { opacity: 0.75; }
+.nav-link-tool:hover { color: var(--sidebar-fg); }
+.nav-link-tool:hover i { opacity: 1; }
+.nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: var(--space-5) var(--space-8) var(--space-2); }
+
+/* Sidebar status card (a monitored dependency: API reachable, DB connected, …).
+   The --ok / --fail modifiers are commonly composed dynamically in the nav. */
+.nav-status-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: var(--space-3) var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-inline-start-width: 3px;
+    border-radius: var(--radius-surface);
+    text-decoration: none;
+    transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+.nav-status-card:hover { background: var(--bg-hover); text-decoration: none; }
+.nav-status-label {
+    font-size: var(--text-1); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted);
+}
+.nav-status-row { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); font-weight: 500; }
+.nav-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--border-hover); }
+.nav-status-state { flex: 1; }
+.nav-status-card--ok   { border-inline-start-color: var(--go-solid); }
+.nav-status-card--ok   .nav-status-dot   { background: var(--go-solid); box-shadow: 0 0 5px var(--go-ring); }
+.nav-status-card--ok   .nav-status-state { color: var(--go-fg); }
+.nav-status-card--fail { border-inline-start-color: var(--danger-solid); }
+.nav-status-card--fail .nav-status-dot   { background: var(--danger-solid); }
+.nav-status-card--fail .nav-status-state { color: var(--danger-fg); }
+

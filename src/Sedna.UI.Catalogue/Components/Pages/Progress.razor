@@ -1,0 +1,63 @@
+@page "/progress"
+
+<CatHead Title="Progress and spinners">
+    Four ways to say &ldquo;working&rdquo;. Which one depends on whether you know how far along it
+    is, and whether you know the shape of what is coming.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-question-line"></i>
+    <strong>Pick by what you know.</strong> A percentage is a <code>.progress</code> bar. No
+    percentage, but a known shape — a table of rows, a card — is a <code>.skeleton</code>. Neither is
+    a <code>.spinner</code>. Nothing at all yet, in a panel that will fill, is
+    <a href="/empty-state"><code>.empty-state--pending</code></a>.
+</div>
+
+<CatExample TExample="Examples.Progress.Progress" Title="Progress bar" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Determinate: set the inline <code>width</code> on <code>.progress-bar</code> — the one value
+        only your app knows. Indeterminate: leave the width off and add
+        <code>.progress--indeterminate</code> to the track.
+    </p>
+    <p>
+        Put the number in text as well. A bar is a shape, and a reader who wants to know whether to
+        wait needs the figure. Under <code>prefers-reduced-motion</code> the indeterminate bar is
+        filled rather than blanked, so it still says &ldquo;in progress, no estimate&rdquo;.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Progress.Spinner" Title="Spinner">
+    <p>
+        Sized in <code>em</code>, so it matches whatever text or button it sits in without a second
+        class. <code>.spinner-lg</code> is the standalone size for a panel that is still loading.
+    </p>
+    <p>
+        A spinner says only that something is happening. It stays visible under
+        <code>prefers-reduced-motion</code> — static, but still reading as busy.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Progress.Skeleton" Title="Skeleton" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Give each placeholder the height and width of the content that is coming, so nothing reflows
+        when it arrives. Vary the line widths: identical bars read as a table rather than a
+        paragraph.
+    </p>
+    <p>
+        Mark the container <code>aria-busy="true"</code>. The bars themselves are decoration and
+        should not be announced one by one.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Progress.RunningJobs" Title="A list of running work" Demo="ex-demo--block">
+    <p>
+        Where these three end up in practice: one row per job, with the shape that matches what is
+        known. A percentage gets a determinate bar, a wait with no total gets the indeterminate one
+        and a <code>.spinner</code>, and anything finished gets a <a href="/badge">badge</a> instead —
+        a bar at 100% for good says &ldquo;still working&rdquo;.
+    </p>
+    <p>
+        Add <code>aria-busy="true"</code> to the row while it is running, and put the figure in text
+        as well as in the bar. A bar's width is not a number to anybody who cannot see it.
+    </p>
+</CatExample>

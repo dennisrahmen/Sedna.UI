@@ -1,0 +1,25 @@
+<div>
+    <div class="tabs" role="tablist" data-tabs aria-label="Order views">
+        <button class="tab" role="tab" aria-selected="true" id="t-open" aria-controls="p-open" type="button">
+            <i class="ri-inbox-line"></i> Open <span class="tab-count">12</span>
+        </button>
+        <button class="tab" role="tab" aria-selected="false" id="t-mine" aria-controls="p-mine" type="button" tabindex="-1">
+            Assigned to me <span class="tab-count">3</span>
+        </button>
+        <button class="tab" role="tab" aria-selected="false" id="t-all" aria-controls="p-all" type="button" tabindex="-1">
+            Everything
+        </button>
+        <button class="tab" role="tab" aria-selected="false" aria-disabled="true" disabled type="button" tabindex="-1">
+            Archive
+        </button>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="p-open" aria-labelledby="t-open">
+        <p class="lede">Twelve orders are waiting on a first response.</p>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="p-mine" aria-labelledby="t-mine" hidden>
+        <p class="lede">Three are yours: ORD-4209, ORD-4244 and ORD-4250.</p>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="p-all" aria-labelledby="t-all" hidden>
+        <p class="lede">Everything in the queue, decided or not.</p>
+    </div>
+</div>

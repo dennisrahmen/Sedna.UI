@@ -1,0 +1,103 @@
+/* ── Pagination ─────────────────────────────────────────────────────────────
+   Page-by-page movement through a long result set.
+
+   Use <a href> for every page that exists, not <button>. A page of results is an
+   address: it should be linkable, openable in a new tab, and reachable by the back
+   button. Only the disabled ends are <button disabled> or plain spans.
+
+   Mark the list up as <nav aria-label="Pagination"> with the current page carrying
+   aria-current="page". The class colours the current page; aria-current is what
+   announces it.
+   ─────────────────────────────────────────────────────────────────────────── */
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0 var(--space-4);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-inner);
+    color: var(--fg-soft);
+    font-family: inherit;
+    font-size: var(--text-4);
+    font-variant-numeric: tabular-nums;
+    text-decoration: none;
+    cursor: pointer;
+}
+.page-link:hover { background: var(--bg-hover); border-color: var(--border); text-decoration: none; }
+.page-link:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.page-link[aria-current="page"] {
+    background: var(--brand-tint);
+    border-color: var(--brand-soft);
+    color: var(--brand-text);
+    font-weight: 600;
+}
+.page-link:disabled,
+.page-link[aria-disabled="true"] {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+/* The gap standing in for skipped pages. Not a link, and not focusable. */
+.page-gap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    color: var(--muted);
+    user-select: none;
+}
+/* "121–140 of 1,204" beside the controls. */
+.page-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); }
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────────────
+   Where this page sits, when the sidebar cannot show it — a record three levels
+   inside a section. If the sidebar already highlights the page, a breadcrumb repeats
+   it and earns nothing.
+
+   The separator is a pseudo-element on the item, so it is never selected when the
+   trail is copied and is never read out. The last item is the current page: mark it
+   aria-current="page" and leave it as a <span>, not a link to where you already are.
+
+   Long trails scroll rather than wrap, and the leading edge is what gets cut,
+   because the levels nearest the current page are the useful ones. */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    overflow-x: auto;
+    scrollbar-width: none;
+    font-size: var(--text-3);
+    white-space: nowrap;
+}
+.breadcrumb::-webkit-scrollbar { display: none; }
+.breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-shrink: 0;
+    color: var(--muted);
+    text-decoration: none;
+}
+.breadcrumb-item i { font-size: var(--text-5); }
+/* Colour, not an underline. `text-decoration` propagates to every descendant and
+   cannot be cancelled by one, so an underline here also underlines the item's icon and
+   the `/` separator after it. */
+a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
+.breadcrumb-item + .breadcrumb-item::before {
+    content: '/';
+    color: var(--border-strong);
+    /* Not a font glyph choice: a slash is one character wide in any typeface, so
+       the trail does not reflow when the font falls back. */
+}
+.breadcrumb-item[aria-current="page"] { color: var(--fg); }

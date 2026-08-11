@@ -1,0 +1,226 @@
+/* ── Drawer / sheet ─────────────────────────────────────────────────────────
+   A panel sliding in from an edge, for a secondary flow that should not lose the
+   page behind it — a filter panel, a record's detail, a form on a phone.
+
+   Drawer vs modal: a modal demands an answer before anything else happens, a drawer
+   is a place to work that can be left. If dismissing it loses nothing, it is a
+   drawer.
+
+   The z-order is the documented pair: scrim 480, panel 490. Both sit BELOW the modal
+   backdrop at 500 on purpose — a modal opened from inside a drawer must cover it,
+   which is exactly the case that a single "overlay" rung gets wrong.
+
+   Open/closed is `.drawer--open` on the wrapper, not a `hidden` attribute, because
+   the panel has to stay in the DOM to slide. It is `visibility: hidden` when closed,
+   which does take it out of the tab order and the accessibility tree — a panel that
+   is merely translated off-screen is still tabbable, and Tab then walks the reader
+   into a panel they cannot see.
+   ─────────────────────────────────────────────────────────────────────────── */
+.drawer-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 480;
+    background: var(--backdrop);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--motion-mid) ease, visibility var(--motion-mid);
+}
+
+.drawer {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-end: 0;
+    z-index: 490;
+    display: flex;
+    flex-direction: column;
+    width: min(420px, 100vw);
+    background: var(--bg-elevated);
+    border-inline-start: 1px solid var(--border);
+    box-shadow: var(--shadow-modal);
+    visibility: hidden;
+    transform: translateX(100%);
+    transition: transform var(--motion-mid) ease, visibility var(--motion-mid);
+}
+.drawer--start {
+    inset-inline-end: auto;
+    inset-inline-start: 0;
+    border-inline-start: none;
+    border-inline-end: 1px solid var(--border);
+    transform: translateX(-100%);
+}
+
+/* A sheet comes from the bottom edge instead — the right shape on a phone, where a
+   side panel has nowhere to come from. */
+.sheet {
+    inset-block: auto 0;
+    inset-inline: 0;
+    width: auto;
+    max-height: 85vh;
+    border-inline-start: none;
+    border-top: 1px solid var(--border);
+    border-start-start-radius: var(--radius-panel);
+    border-start-end-radius: var(--radius-panel);
+    transform: translateY(100%);
+}
+
+.drawer--open { visibility: visible; transform: none; }
+.drawer--open + .drawer-scrim,
+.drawer-scrim--open { opacity: 1; visibility: visible; }
+
+/* ── As a <dialog> — the preferred form ─────────────────────────────────────
+   A drawer with a scrim is modal in behaviour: the page behind it should not be
+   reachable while it is open. So say so, and let the platform do it —
+   `<dialog class="drawer">` opened with showModal() gets the focus trap,
+   Escape-to-close and inert content behind, and its ::backdrop replaces
+   .drawer-scrim entirely. A hand-rolled trap is a great deal of code that is usually
+   subtly wrong.
+
+   A top-layer dialog's containing block is the viewport, so the same insets apply
+   unchanged.
+
+   `transition-behavior: allow-discrete` plus `@starting-style` is what keeps the
+   slide: a dialog goes from `display: none` to displayed, and a discrete property
+   cannot be interpolated without opting in. Without them the panel simply appears —
+   which is correct, just abrupt, so this degrades rather than breaks. */
+dialog.drawer {
+    /* The UA stylesheet centres a dialog with `margin: auto` and sizes it to its
+       content with `width`/`height: fit-content`. Both fight the edge anchoring above,
+       and both have to be given back here, or the panel is sized to its own text and
+       vertically centred while every rule that put it at the edge still applies.
+       `height: auto` is what lets `inset-block: 0` mean full height. */
+    margin: 0;
+    height: auto;
+    /* The UA also sets BOTH inline insets to 0 — that is how `margin: auto` centres a
+       dialog. With a definite width and no auto margins that over-constrains the box,
+       and the inset the spec then ignores is the END one, which puts the panel on the
+       START edge. Only one inset may bind. */
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    /* And the UA gives a dialog `border: solid`, which is 3px of currentColor — a
+       near-white frame against the viewport edges. All four edges are restated here
+       rather than left to `.drawer`, whose class selector this rule outranks. */
+    border: none;
+    border-inline-start: 1px solid var(--border);
+    color: var(--fg);
+    --dialog-backdrop: var(--backdrop);
+    transition: transform var(--motion-mid) ease, display var(--motion-mid) allow-discrete, overlay var(--motion-mid) allow-discrete;
+}
+/* A closed dialog goes back to `display: none`. `.drawer`'s own `display: flex` would
+   otherwise keep it in the document as a hidden fixed box, and it is what the
+   `display` transition above animates between. */
+dialog.drawer:not([open]) { display: none; }
+
+/* The two variants, restated at this specificity because the rule above outranks their
+   own class selectors. */
+dialog.drawer.drawer--start {
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    border-inline-start: none;
+    border-inline-end: 1px solid var(--border);
+}
+/* A sheet spans the inline axis, is content-sized in the block axis and capped, and
+   carries its edge on top. */
+dialog.sheet {
+    inset-inline: 0;
+    height: fit-content;
+    max-height: 85vh;
+    border: none;
+    border-top: 1px solid var(--border);
+}
+dialog.drawer::backdrop { background: var(--dialog-backdrop); }
+/* The div form hides itself when closed; a dialog is already display:none, so `open`
+   is what makes it visible and the visibility rule must not fight it. */
+dialog.drawer[open] { visibility: visible; transform: none; }
+@starting-style {
+    dialog.drawer[open] { transform: translateX(100%); }
+    dialog.drawer.drawer--start[open],
+    [dir="rtl"] dialog.drawer[open] { transform: translateX(-100%); }
+    dialog.sheet[open] { transform: translateY(100%); }
+}
+
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-shrink: 0;
+    padding: var(--space-7) var(--space-8);
+    border-bottom: 1px solid var(--border);
+}
+.drawer-header h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
+/* The only scrolling part, so the header and footer stay put. */
+.drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-7) var(--space-8); }
+.drawer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-4);
+    flex-shrink: 0;
+    padding: var(--space-7) var(--space-8);
+    border-top: 1px solid var(--border);
+}
+
+/* A grab handle at the top of a sheet. Decoration only — it is not a control, so it
+   is not focusable and carries no name. Dragging a sheet is a gesture the app
+   implements; the close button is what makes it dismissible for everyone else. */
+.sheet-handle {
+    flex-shrink: 0;
+    width: 36px;
+    height: 4px;
+    margin: var(--space-4) auto 0;
+    background: var(--border-strong);
+    border-radius: var(--radius-pill);
+}
+
+/* ── Tree ───────────────────────────────────────────────────────────────────
+   Nested structure the reader expands — a group hierarchy, a folder of files, a
+   configuration path.
+
+   Built from nested <ul> inside <details>, so expansion, keyboard operation and the
+   announcement come from the platform. A real ARIA `role="tree"` needs single-tab-stop
+   navigation with arrow keys through a flattened view, and implementing half of it is
+   worse than not claiming it: <details> is honest about being a set of disclosures.
+
+   The indent is one padding step per level, applied by nesting rather than by a
+   `--depth` variable the markup has to keep correct. */
+.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+.tree ul { padding-inline-start: var(--space-7); border-inline-start: 1px solid var(--divider); margin-inline-start: var(--space-4); }
+.tree li { font-size: var(--text-4); }
+
+.tree summary,
+.tree-leaf {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-inner);
+    color: var(--fg-soft);
+    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
+}
+.tree summary::-webkit-details-marker { display: none; }
+.tree summary:hover,
+.tree-leaf:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.tree summary:focus-visible,
+.tree-leaf:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.tree summary::before {
+    content: '';
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-block: 4px solid transparent;
+    border-inline-start: 5px solid currentColor;
+    opacity: 0.55;
+    transition: transform var(--motion-fast) ease;
+}
+.tree details[open] > summary::before { transform: rotate(90deg); }
+/* A leaf has no caret, so it needs the same indent to line up with its siblings. */
+/* Same derivation as the nav group: a leaf has no caret, so it takes the summary's
+   padding plus the space the caret and its gap would have occupied. */
+.tree-leaf { padding-inline-start: calc(var(--space-3) + var(--space-6)); }
+.tree-leaf[aria-current="true"] { background: var(--brand-tint); color: var(--brand-text); }
+.tree-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }

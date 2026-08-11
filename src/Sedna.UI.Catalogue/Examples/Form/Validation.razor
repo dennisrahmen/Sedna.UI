@@ -1,0 +1,20 @@
+<div style="max-width:460px; display:flex; flex-direction:column; gap:16px">
+    <div class="form-field">
+        <label class="form-label form-label--required" for="f-mail">Notification address</label>
+        <input class="form-input" id="f-mail" type="email" required
+               aria-invalid="true" aria-describedby="f-mail-err" value="ops.example" />
+        <p class="form-error" id="f-mail-err">
+            <i class="ri-error-warning-line"></i>
+            <span>Not a complete address — nothing would be delivered.</span>
+        </p>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="f-retain">Retention</label>
+        <input class="form-input" id="f-retain" type="text" value="400 days"
+               aria-describedby="f-retain-warn" />
+        <p class="form-warning" id="f-retain-warn">
+            <i class="ri-alert-line"></i>
+            <span>Beyond the 365-day archive window, so the tail cannot be restored.</span>
+        </p>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+@* A slim strip directly under the header rather than a block inside the content
+   column, so it reads as chrome about the site rather than as page content.
+
+   Driven from configuration, not from sniffing the address. The static catalogue
+   hid this whenever the path contained /_content/, because a copy of it shipped
+   inside every consuming app. There is no in-package copy any more, so the only
+   question left is "is this the deployed site", which the host knows. *@
+@inject IConfiguration Config
+
+@if (Config.GetValue("Catalogue:Hosted", false))
+{
+    <div class="cat-hostedbar">
+        <i class="ri-git-branch-line"></i>
+        <span>
+            Showing <strong>main</strong>.
+            <span class="cat-hostedbar-long">
+                This can be ahead of the version your app has installed — check what a
+                class says it needs before copying it.
+            </span>
+            <CatLink Href="@CatalogueLinks.Releases">Releases</CatLink>
+        </span>
+    </div>
+}
+
+@code {
+    // IConfiguration, not IWebHostEnvironment: running the container locally to
+    // check the notice should not require pretending to be Production.
+}

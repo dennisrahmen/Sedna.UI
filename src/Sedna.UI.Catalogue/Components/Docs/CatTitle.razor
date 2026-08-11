@@ -1,0 +1,33 @@
+@* A heading that may name a class.
+
+   Six of the catalogue's headings are a bare class name — `.card-grid`,
+   `.md-editor` — and one contains a tag name. They read as code and should look
+   like it, but Title has to stay a plain string: it is the anchor slug, the
+   accessible name, and what the MCP server returns.
+
+   So backticks mark code, exactly as they would in the prose around them. Blazor
+   escapes the text nodes, which is what makes `<dialog>` safe to write. *@
+@foreach (var (text, isCode) in Parts)
+{
+    if (isCode)
+    {
+        <code>@text</code>
+    }
+    else
+    {
+        @text
+    }
+}
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = default!;
+
+    /// The title with the backticks removed — for a slug, an aria-label, or an index.
+    public static string Plain(string text) =>
+        text.Replace("`", string.Empty, StringComparison.Ordinal);
+
+    private IEnumerable<(string Text, bool IsCode)> Parts =>
+        // Odd segments are inside a backtick pair. An unclosed backtick leaves its
+        // tail as the last segment, so it renders as code rather than vanishing.
+        Text.Split('`').Select((part, i) => (part, i % 2 == 1)).Where(p => p.part.Length > 0);
+}

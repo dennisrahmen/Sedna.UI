@@ -1,0 +1,32 @@
+# Project-scoped MCP config — contains plaintext secrets (API tokens/PATs)
+.mcp.json
+
+# Local secrets must never be committed. Publishing needs no API key at all —
+# the release workflow uses trusted publishing (GitHub OIDC → a single-use,
+# 1-hour NuGet key), so there is nothing long-lived to store here.
+*.apikey
+nuget.config.local
+
+# Working checklist for the build-out. Deliberately not part of the published
+# repo — planning lives outside the tree, like the release notes do.
+IMPLEMENTATION-PLAN.md
+
+# Local preview config for the catalogue (build/verify needs no server).
+.claude/
+
+# Build output
+[Bb]in/
+[Oo]bj/
+artifacts/
+*.nupkg
+*.snupkg
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# OS
+Thumbs.db
+.DS_Store

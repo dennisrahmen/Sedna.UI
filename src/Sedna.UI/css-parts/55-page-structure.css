@@ -1,0 +1,88 @@
+/* ── Page head ──────────────────────────────────────────────────────────────
+   The title row a page opens with: heading, optional supporting line, and the
+   actions that apply to the whole page.
+
+   Wraps rather than shrinking the title. On a narrow screen the actions drop below
+   the heading, which keeps the heading readable — the alternative is a truncated
+   title next to two buttons, and the title is what tells you where you are.
+   ─────────────────────────────────────────────────────────────────────────── */
+.page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-bottom: var(--space-7);
+}
+.page-head-text { min-width: 0; }
+.page-head-text h1 { margin: 0; }
+.page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
+.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+
+/* ── Divider ────────────────────────────────────────────────────────────────
+   A rule between sections. Use it when two blocks are related but distinct; use
+   whitespace when they are simply sequential, and a .card when one of them is an
+   object in its own right.
+
+   With a label it becomes a section break: the text sits in a gap in the rule,
+   made with a flex row rather than a background trick, so it works on any surface
+   and needs no colour to match. */
+.divider { border: none; border-top: 1px solid var(--border); margin: var(--space-8) 0; }
+
+.divider-labelled {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    margin: var(--space-8) 0;
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.divider-labelled::before,
+.divider-labelled::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--border);
+}
+/* Label at the start instead of centred, for a run of sections where a centred
+   label makes the page look like a series of title cards. */
+.divider-labelled--start::before { flex: 0 0 0; }
+
+/* ── Callout ────────────────────────────────────────────────────────────────
+   An editorial aside inside prose: a note, a caveat, a worked example. It is part
+   of the content and stays there for good.
+
+   Three neighbours, and picking the wrong one misleads:
+     .callout       permanent, about the content     — "Note: times are UTC."
+     .alert         about the page right now         — "Could not reach the API."
+     .card-warning  about one card's own data        — "These counts may lag."
+   An .alert that never goes away trains the reader to ignore alerts. */
+.callout {
+    display: flex;
+    gap: var(--space-5);
+    padding: var(--space-6) var(--space-7);
+    margin: var(--space-7) 0;
+    background: var(--surface-soft);
+    border-inline-start: 3px solid var(--border-strong);
+    border-radius: var(--radius-inner);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+}
+.callout > i { font-size: var(--text-8); flex-shrink: 0; color: var(--muted); line-height: 1.4; }
+.callout-body { min-width: 0; }
+.callout-body > :first-child { margin-top: 0; }
+.callout-body > :last-child { margin-bottom: 0; }
+.callout-title { display: block; font-weight: 600; color: var(--fg); margin-bottom: var(--space-1); }
+
+/* The same semantic families as buttons, badges and alerts. Tinted more lightly
+   than an .alert: a callout is read as part of the prose, not scanned as a state. */
+.callout-info   { background: var(--info-bg);   border-inline-start-color: var(--info-border); }
+.callout-info > i   { color: var(--info-fg); }
+.callout-warn   { background: var(--warn-bg);   border-inline-start-color: var(--warn-solid); }
+.callout-warn > i   { color: var(--warn-fg); }
+.callout-danger { background: var(--danger-bg); border-inline-start-color: var(--danger-solid); }
+.callout-danger > i { color: var(--danger-fg); }
+.callout-go     { background: var(--go-bg);     border-inline-start-color: var(--go-solid); }
+.callout-go > i     { color: var(--go-fg); }

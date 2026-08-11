@@ -1,0 +1,43 @@
+/* ═══ TIER 2 — the paint ════════════════════════════════════════════════════
+   Page content. Classes only, never components: pages write plain HTML and apply
+   these, so the markup — and the spacing that emerges from it — stays visible in
+   the .razor file. Copy-pasteable examples for every class below are on the
+   catalogue at https://www.sedna-ui.com/. */
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    overflow: hidden;
+}
+.card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-6) var(--space-7);
+    border-bottom: 1px solid var(--border);
+}
+.card-head-right { display: flex; align-items: center; gap: var(--space-4); }
+.card-body { padding: var(--space-6) var(--space-7); }
+
+/* A caveat about the card's own content, pinned to its bottom edge — a stale
+   figure, a degraded source, a partial result. It is part of the card, so it is
+   not an .alert: an alert is about the page. */
+.card-warning {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-7);
+    border-top: 1px solid var(--warn-border);
+    background: var(--warn-bg);
+    color: var(--warn-fg);
+    font-size: var(--text-3);
+}
+.card-warning i { font-size: var(--text-5); flex-shrink: 0; }
+
+/* Key/value row inside a card body. */
+.kv { display: flex; justify-content: space-between; padding: var(--space-2) 0; }
+.kv .k { color: var(--muted); }
+.kv .v { font-family: var(--font-mono); }
+

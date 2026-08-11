@@ -1,0 +1,30 @@
+<form style="max-width:520px">
+    <fieldset class="form-section">
+        <legend>Escalation</legend>
+        <p class="form-section-hint">Who is paged when nobody has acknowledged in time.</p>
+        <div class="form-section-body">
+            <div class="form-field">
+                <label class="form-label form-label--required" for="f-team">Team</label>
+                <select class="form-input form-select" id="f-team" required>
+                    <option selected>Fulfilment</option>
+                    <option>Network</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="f-after">Escalate after</label>
+                <div class="input-group">
+                    <input class="form-input" id="f-after" type="number" value="15" />
+                    <span class="input-affix">minutes</span>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="form-actions form-actions--split">
+        <button class="btn btn-danger" type="button"><i class="ri-delete-bin-line"></i> Delete rule</button>
+        <span style="display:flex; gap:8px">
+            <button class="btn" type="button">Cancel</button>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </span>
+    </div>
+</form>

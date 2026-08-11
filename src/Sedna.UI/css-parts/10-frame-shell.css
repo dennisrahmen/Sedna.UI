@@ -1,0 +1,25 @@
+/* ═══ TIER 1 — the frame ════════════════════════════════════════════════════
+   Layout chrome that must be pixel-identical in every app. Do not restyle any
+   of this per project; if it is wrong, it is wrong here. */
+
+/* ── Shell ──────────────────────────────────────────────────────────────── */
+/* 100dvh, not 100vh: dvh excludes the mobile browser's own chrome, so the shell is
+   never partly hidden behind it. No 100vh fallback — dvh predates the supported
+   browser floor, so the fallback would be a line that never runs. */
+.layout {
+    display: flex;
+    height: 100dvh;
+    overflow: hidden;
+}
+.content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+/* Bare shell (unauthenticated / minimal pages): topbar + body, no sidebar. */
+.bare-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+}
+.bare-brand  { display: flex; align-items: center; gap: var(--space-5); padding: 0 var(--space-7); font-size: var(--text-6); }
+.bare-brand .brand-logo { width: 28px; height: 28px; border-radius: var(--radius-surface); flex-shrink: 0; }
+

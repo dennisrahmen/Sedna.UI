@@ -1,0 +1,24 @@
+<div class="sedna-row-wrap">
+    <button class="btn" type="button" popovertarget="sla-detail">Why is this overdue?</button>
+
+    <div class="popover" id="sla-detail" popover>
+        <strong class="popover-title">Response target breached 2h ago</strong>
+        <p>
+            Priority 2 carries a four-hour response target measured from the first warehouse
+            update, not from when the order reached this queue.
+        </p>
+        <p>Reassigning does not restart the clock. Only a priority change does.</p>
+    </div>
+
+    <button class="btn btn-secondary" type="button" popovertarget="confidence-detail">
+        Confidence 0.87
+    </button>
+
+    <div class="popover" id="confidence-detail" popover>
+        <strong class="popover-title">How the score is read</strong>
+        <p>
+            Below 0.60 the reservation is never auto-applied. Between 0.60 and 0.90 it waits for a
+            human. Above 0.90 it applies if the action type is on the automation list.
+        </p>
+    </div>
+</div>

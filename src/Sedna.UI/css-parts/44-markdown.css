@@ -1,0 +1,97 @@
+/* ── Markdown editor ────────────────────────────────────────────────────────
+   Toolbar + textarea + rendered preview in one bordered box. The Write/Preview
+   tabs flip [data-md-view] on the root (done by the JS). */
+.md-editor {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    overflow: hidden;
+    background: var(--card-bg);
+}
+.md-toolbar {
+    display: flex; align-items: center; gap: var(--space-1); flex-wrap: wrap;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elevated);
+}
+.md-tool {
+    background: none; border: none; border-radius: var(--radius-control); cursor: pointer;
+    color: var(--fg-soft); font-size: var(--text-6);
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.md-tool:hover { background: var(--bg-hover); color: var(--fg); }
+/* The Write/Preview switch is the tier-2 .segmented control, not a private set of
+   tab classes. It is exactly what a segmented control is for — two mutually
+   exclusive options, applied immediately — and using it means the editor gets the
+   radio group's keyboard behaviour and announcement for free instead of a pair of
+   buttons with a toggled class. Only its position in the toolbar is the editor's
+   business. */
+.md-toolbar .segmented { margin-inline-start: auto; }
+.md-editor .md-input {
+    border: none; border-radius: 0; background: transparent;
+    width: 100%; display: block;
+    font-family: var(--font-mono); font-size: var(--text-3); resize: vertical;
+}
+.md-editor .md-preview {
+    display: none; box-sizing: border-box;
+    padding: var(--space-6) var(--space-7); min-height: 140px;
+    /* height mirrors the textarea (synced in JS); long content scrolls */
+    overflow-y: auto; resize: vertical;
+}
+.md-editor[data-md-view="preview"] .md-input   { display: none; }
+.md-editor[data-md-view="preview"] .md-preview { display: block; }
+
+/* Theme the scroll + resize chrome on both panes so the browser-default white
+   scrollbar corner and resizer grip don't show through. */
+.md-editor .md-input,
+.md-editor .md-preview { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
+.md-editor .md-input::-webkit-scrollbar,
+.md-editor .md-preview::-webkit-scrollbar { width: 10px; height: 10px; }
+.md-editor .md-input::-webkit-scrollbar-thumb,
+.md-editor .md-preview::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: var(--radius-pill); }
+.md-editor .md-input::-webkit-scrollbar-thumb:hover,
+.md-editor .md-preview::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+.md-editor .md-input::-webkit-scrollbar-track,
+.md-editor .md-preview::-webkit-scrollbar-track,
+.md-editor .md-input::-webkit-scrollbar-corner,
+.md-editor .md-preview::-webkit-scrollbar-corner { background: transparent; }
+.md-editor .md-input::-webkit-resizer,
+.md-editor .md-preview::-webkit-resizer {
+    background: linear-gradient(-45deg, transparent 0 4px, var(--scrollbar) 4px 5px,
+                transparent 5px 7px, var(--scrollbar) 7px 8px, transparent 8px);
+}
+
+/* Rendered Markdown — the preview pane, and anywhere else Markdown is shown. */
+.markdown-body { color: var(--fg-soft); font-size: var(--text-4); line-height: 1.6; word-break: break-word; }
+.markdown-body > :first-child { margin-top: 0; }
+.markdown-body > :last-child  { margin-bottom: 0; }
+.markdown-body h1, .markdown-body h2, .markdown-body h3,
+.markdown-body h4, .markdown-body h5, .markdown-body h6 {
+    color: var(--fg); margin: 0.7em 0 0.3em; line-height: 1.3;
+}
+.markdown-body h1 { font-size: 1.4em; }
+.markdown-body h2 { font-size: 1.25em; }
+.markdown-body h3 { font-size: 1.1em; }
+.markdown-body p  { margin: 0.5em 0; }
+.markdown-body ul, .markdown-body ol { margin: 0.5em 0; padding-inline-start: 1.5em; }
+.markdown-body li { margin: 0.15em 0; }
+/* Underlined, not colour alone: a link inside a block of text must be
+   distinguishable without seeing the hue (WCAG 1.4.1). .prose does the same. */
+.markdown-body a  { color: var(--brand-soft); text-decoration: underline; }
+.markdown-body code {
+    font-family: var(--font-mono); font-size: 0.9em;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: var(--radius-inner); padding: 0.1em 0.35em;
+}
+.markdown-body pre {
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-surface);
+    padding: var(--space-5) var(--space-6); overflow-x: auto; margin: 0.6em 0;
+}
+.markdown-body pre code { background: none; border: none; padding: 0; }
+.markdown-body blockquote {
+    border-inline-start: 3px solid var(--border);
+    margin: 0.6em 0; padding: 0.2em 0 0.2em 0.8em;
+    color: var(--muted);
+}
+
+

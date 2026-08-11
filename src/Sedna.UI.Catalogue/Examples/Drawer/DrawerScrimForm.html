@@ -1,0 +1,13 @@
+<!-- Only for a drawer that is deliberately NOT modal — one the reader can leave
+     open while working on the page behind it. `.drawer-scrim` immediately after the
+     panel is what dims the page; the two open classes are yours to toggle, and so
+     are Escape and the focus handling. A drawer WITH a scrim is modal in behaviour,
+     so it should be a <dialog> instead. -->
+<div class="drawer drawer--open" role="dialog" aria-labelledby="filters-title">
+    <div class="drawer-header">
+        <h3 id="filters-title">Filter the queue</h3>
+        <button class="modal-close" type="button" aria-label="Close"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="drawer-body">…</div>
+</div>
+<div class="drawer-scrim drawer-scrim--open"></div>

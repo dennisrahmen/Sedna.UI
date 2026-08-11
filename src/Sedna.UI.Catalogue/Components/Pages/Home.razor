@@ -1,0 +1,106 @@
+@page "/"
+@using Sedna.UI.Catalogue.Navigation
+@inject IJSRuntime Js
+
+<PageTitle>Sedna.UI catalogue</PageTitle>
+
+<div class="cat-hero">
+    <img class="cat-hero-logo" src="logo.png" width="76" height="76" alt="" />
+    <div class="cat-hero-text">
+        <h1>Sedna.UI</h1>
+        <p>One design-token contract. Semantic CSS. Consistent Blazor apps.</p>
+    </div>
+</div>
+
+<div class="cat-hero-rule"></div>
+
+<div class="cat-actions">
+    <a class="btn btn-lg btn-primary" href="/getting-started">Get started <i class="ri-arrow-right-line"></i></a>
+    <a class="btn btn-lg" href="/frame"><i class="ri-side-bar-line"></i> Browse the classes</a>
+    <CatLink Class="btn btn-lg" Href="@CatalogueLinks.NuGet"><i class="ri-box-3-line"></i> NuGet</CatLink>
+</div>
+
+@* Read from the stylesheet the browser loaded, never typed. Three implementations derive
+   these independently — the CSSOM here, build/css-inventory.sh with sed, and .NET regex
+   in the tests. *@
+<div class="cat-facts">
+    <div class="cat-fact"><strong>@Figure(_inventory?.Tokens)</strong><span>design tokens</span></div>
+    <div class="cat-fact"><strong>@Figure(_inventory?.Classes)</strong><span>CSS classes</span></div>
+    <div class="cat-fact"><strong>@Figure(_inventory?.Icons)</strong><span>bundled icons</span></div>
+    <div class="cat-fact"><strong>@ThirdParty</strong><span>third-party dependencies</span></div>
+</div>
+
+<CatExample TExample="Examples.Index.MiniApp" Title="An app built with it" Demo="ex-demo--block">
+    <p>
+        Every class below is the shipped one — the shell, the sidebar, the topbar, the stat row, the
+        toolbar and the table. Nothing here is a picture. Flip the theme, the palette, the density or
+        the direction in the header and watch it all move together.
+    </p>
+</CatExample>
+
+<div class="cat-note">
+    <i class="ri-book-2-line"></i>
+    <span>
+        This whole site is built with <code>Sedna.UI</code> and is a Blazor app like yours, so a
+        regression in the frame shows up here first.
+    </span>
+</div>
+
+<div class="cat-note">
+    <i class="ri-robot-2-line"></i>
+    <span>
+        <strong>For an AI agent, add the <a href="/mcp-server">MCP server</a></strong> —
+        <code>{ "type": "http", "url": "@CatalogueLinks.Mcp" }</code>. It searches this catalogue,
+        returns the exact markup for an example, and says which release first shipped a class.
+    </span>
+</div>
+
+<h2 id="reference">Everything else</h2>
+
+@foreach (var group in CataloguePages.Groups)
+{
+    var pages = CataloguePages.InGroup(group).Where(p => p.Route != "/").ToList();
+    if (pages.Count == 0) continue;
+
+    <h3>@group</h3>
+    <div class="cat-tiles">
+        @foreach (var item in pages)
+        {
+            <a class="card cat-tile" href="@item.Route">
+                <span class="cat-tile-ic"><i class="@item.Icon"></i></span>
+                <span class="cat-tile-text">
+                    <strong>@item.Label</strong>
+                    <span>@item.Blurb</span>
+                </span>
+                <i class="ri-arrow-right-line cat-tile-go"></i>
+            </a>
+        }
+    </div>
+}
+
+@code {
+    private Inventory? _inventory;
+
+    private sealed record Inventory(int Tokens, int Classes, int Icons);
+
+    // Derived, not typed: every assembly this one references that is neither the
+    // framework nor its own. PackageConfigTests reads the csproj and asserts the same
+    // thing from the other end.
+    private static int ThirdParty =>
+        typeof(ActiveLink).Assembly.GetReferencedAssemblies()
+            .Count(a => a.Name is { } n
+                        && !n.StartsWith("Microsoft.", StringComparison.Ordinal)
+                        && !n.StartsWith("System.", StringComparison.Ordinal)
+                        && n != "netstandard");
+
+    private static string Figure(int? value) =>
+        value is null ? "—" : value.Value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        _inventory = await Js.InvokeAsync<Inventory>("sednaUiCatalogue.readInventory");
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,144 @@
+/* ── Menu / dropdown panel ──────────────────────────────────────────────────
+   A short list of actions, opened from a control. This is the one dropdown panel
+   in the library: the user widget's menu is this class, anchored differently (see
+   15-frame-user-widget.css). Two near-identical panel styles is how a design
+   system starts to rot, so there is only one.
+
+   A menu is for *actions*. A list of values to pick one of is a <select> or a
+   .segmented; a list of places to go is the sidebar.
+
+   Deliberately NOT role="menu". That role promises arrow-key navigation and a
+   roving tabindex, and a menu that claims it without implementing it is worse for
+   a screen-reader user than one that claims nothing: the items stop being reachable
+   the way they appear to be. These are ordinary links and buttons that tab. Put
+   aria-expanded on the trigger and leave the panel unlabelled by role.
+
+   Dismissal is the app's: click the scrim, press Escape. There is deliberately no
+   JavaScript behind this — the frame must work with scripting blocked.
+   ─────────────────────────────────────────────────────────────────────────── */
+.menu {
+    min-width: 220px;
+    padding: var(--space-2);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+}
+
+/* Wrap trigger + panel in this to anchor the panel under the trigger. It is what
+   makes the panel's `position: absolute` resolve against the trigger rather than
+   against the page, so nothing has to be measured.
+
+   Deliberately NOT CSS anchor positioning, which the floor does have and which
+   `.popover` uses. Anchor positioning earns its keep where the alternative is a
+   measurement in script; here the alternative is one `position: relative`. */
+/* align-self: start alongside the inline display, because the display alone does not
+   hold. A flex or grid item is blockified and then stretched by the default
+   `align-items: stretch`, so an `inline-flex` anchor inside a flex column becomes
+   full-width — and the panel, which hangs off the anchor's inline-END edge, detaches
+   from its trigger and appears at the far side of the container. An app that genuinely
+   wants a full-width anchor sets `align-self: stretch` back. */
+.menu-anchor { position: relative; display: inline-flex; align-self: start; }
+.menu-anchor > .menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    inset-inline-end: 0;
+    z-index: 550;
+}
+
+/* The panel hangs off the anchor's inline-END edge, so a trigger narrower than the
+   panel's 220px overhangs on the leading side. That is right for a trigger at the
+   trailing end of a row — a table row's actions, a toolbar's overflow — and wrong for
+   one near the leading edge, where the overhang leaves the container. `--start` aligns
+   the panel to the anchor's inline-START edge instead. Put it on the panel, so the
+   choice sits with the panel that moves. */
+.menu-anchor > .menu--start { inset-inline-start: 0; inset-inline-end: auto; }
+
+/* ── Value trigger ──────────────────────────────────────────────────────────
+   A control that shows the CURRENT value of something and opens a menu to change it —
+   a status, an assignee, a queue, a time range. It sits inside a line of text or a
+   table cell, so it is quieter than a button: no border and no fill until hovered.
+
+   Use it where a <select> would be wrong because the options need icons, colour or a
+   description. Where a plain list of values would do, use a <select>: it is one
+   element and the platform gives you the keyboard.
+
+   The chevron is drawn by CSS, so the markup is the value and nothing else. Pair it
+   with data-menu-toggle and a sibling .menu. */
+.value-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: 100%;
+    padding: var(--space-1) var(--space-3);
+    margin-inline: calc(var(--space-3) * -1);   /* so the text still lines up with its column */
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-inner);
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+.value-trigger::after {
+    content: '';
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.5;
+}
+.value-trigger:hover { background: var(--bg-hover); border-color: var(--border); }
+.value-trigger:hover::after { opacity: 1; }
+.value-trigger:focus-visible { outline: none; border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.value-trigger[aria-expanded="true"] { background: var(--bg-hover); border-color: var(--border); }
+.value-trigger[aria-expanded="true"]::after { transform: rotate(180deg); }
+.value-trigger[aria-disabled="true"] { color: var(--muted); pointer-events: none; }
+.value-trigger[aria-disabled="true"]::after { display: none; }
+/* The value itself, so a long one truncates instead of pushing the chevron out. */
+.value-trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Works on an <a> or a <button>, so an item can navigate or act. */
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    width: 100%;
+    padding: var(--space-4) var(--space-5);
+    background: none;
+    border: none;
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: var(--text-4);
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+.menu-item i { font-size: var(--text-7); color: var(--muted); }
+.menu-item:hover { background: var(--bg-hover); text-decoration: none; }
+.menu-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.menu-item:disabled,
+.menu-item[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+.menu-item--danger,
+.menu-item--danger i { color: var(--danger-fg); }
+/* A trailing shortcut hint or count. */
+.menu-item-note { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); }
+
+.menu-label {
+    display: block;
+    padding: var(--space-4) var(--space-5) var(--space-2);
+    font-size: var(--text-1);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+.menu-sep { border: none; border-top: 1px solid var(--divider); margin: var(--space-2) var(--space-1); }
+
+/* Catches the click that dismisses the panel. Transparent and undecorated: this is
+   a menu, not a modal, so it must not dim the page. Put it immediately BEFORE the
+   panel in the markup — the panel then paints above it on source order, and the
+   scrim needs no z-index of its own. */
+.menu-scrim { position: fixed; inset: 0; cursor: default; }

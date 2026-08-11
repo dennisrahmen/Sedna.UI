@@ -1,0 +1,18 @@
+/* ── Spinner ────────────────────────────────────────────────────────────────
+   A ring with one coloured arc. Sized by font-size so it matches the text or
+   the button it sits in without a second class. */
+.spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid var(--border);
+    border-top-color: var(--brand-soft);
+    border-radius: 50%;
+    animation: sedna-spin var(--spin-duration) linear infinite;
+    /* Keeps the ring on the text baseline instead of riding above it. */
+    vertical-align: -0.125em;
+}
+.spinner-lg { width: 24px; height: 24px; border-width: 3px; }
+
+@keyframes sedna-spin { to { transform: rotate(360deg); } }
+

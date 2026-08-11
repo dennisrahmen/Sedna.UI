@@ -1,0 +1,42 @@
+# Normalise text in the repository, let each checkout use native endings.
+* text=auto
+
+# Shell scripts MUST be LF. A CRLF script reaching the Linux CI runner fails
+# with "bad interpreter: No such file or directory", which reads like a missing
+# file rather than a line-ending problem.
+*.sh text eol=lf
+
+# Web assets stay LF so the packed files are byte-identical regardless of which
+# machine built them.
+*.css  text eol=lf
+*.js   text eol=lf
+*.html text eol=lf
+*.svg  text eol=lf
+
+# JSON for the same reason, and one reason more: two of these files are GENERATED
+# and checked with `--check`, which compares the committed bytes against what the
+# generator emits. The generators write LF, so a CRLF checkout fails the check on
+# Windows while passing on Linux CI — a failure that reads as "the file is stale"
+# and is not. `Sedna.UI.tokens.json` also ships inside the package.
+*.json text eol=lf
+
+*.yml text eol=lf
+
+# The catalogue prints an example's own source as its code block, straight from the
+# embedded file. Without these two the snippet would carry CRLF on a Windows
+# checkout and LF on CI, so the same page would differ by build machine.
+*.razor text eol=lf
+*.txt   text eol=lf
+
+# Never mangle these. Declared rather than left to `text=auto` detection: a
+# favicon silently corrupted by CRLF conversion is a genuinely awful bug to
+# track down, and it would only appear on a machine configured differently.
+*.png binary
+*.ico binary
+*.woff  binary
+*.woff2 binary
+# `.ttf` was missing here while `.woff2` was declared, so the brand's variable font
+# rode on `text=auto` detection. The heuristic gets it right today; that is not the
+# same as being safe, and a font mangled by CRLF conversion on one machine is the
+# same awful bug as the favicon above.
+*.ttf   binary

@@ -1,0 +1,28 @@
+<div class="md-editor" data-md-view="write" id="demo-md">
+    <div class="md-toolbar">
+        <button class="md-tool" type="button" data-md-cmd="bold" aria-label="Bold" data-tip="Wrap the selection in ** **."><i class="ri-bold"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="italic" aria-label="Italic"><i class="ri-italic"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="code" aria-label="Code"><i class="ri-code-line"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="h2" aria-label="Heading"><i class="ri-h-2"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="ul" aria-label="Bullet list"><i class="ri-list-unordered"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="ol" aria-label="Numbered list"><i class="ri-list-ordered"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="quote" aria-label="Quote"><i class="ri-quote-text"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="link" aria-label="Link"><i class="ri-link"></i></button>
+        <div class="segmented" role="group" aria-label="Editor view">
+            <label class="segmented-option">
+                <input type="radio" data-md-tab="write" checked /> Write</label>
+            <label class="segmented-option">
+                <input type="radio" data-md-tab="preview" /> Preview</label>
+        </div>
+    </div>
+    <textarea class="form-input md-input" data-md-input rows="8" aria-label="Markdown source">## Escalation policy
+
+Raise to **P2** when _either_ condition holds:
+
+- More than 20 users are affected
+- A `VIP` flag is set on the caller
+
+> Never raise priority and reroute in the same decision.
+</textarea>
+    <div class="markdown-body md-preview" data-md-preview></div>
+</div>

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sedna-ui": {
+      "type": "http",
+      "url": "https://www.sedna-ui.com/mcp"
+    }
+  }
+}

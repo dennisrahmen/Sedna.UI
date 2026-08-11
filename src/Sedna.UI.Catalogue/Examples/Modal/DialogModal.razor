@@ -1,0 +1,21 @@
+<button class="btn btn-warn-solid" type="button"
+        onclick="document.getElementById('takeover').showModal()">
+    <i class="ri-user-shared-line"></i> Take over this order
+</button>
+
+<dialog class="modal" id="takeover" aria-labelledby="takeover-title">
+    <form method="dialog">
+        <div class="modal-header">
+            <h3 id="takeover-title">Take over this order?</h3>
+            <button class="modal-close" value="cancel" aria-label="Close"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="modal-body">
+            <p>Automation stops handling <strong>ORD-4209</strong> and you become the owner. Any pending reservation on it expires.</p>
+            <p class="form-hint">A note is written to the order's work log in your name.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" value="cancel">Cancel</button>
+            <button class="btn btn-warn-solid" value="accept"><i class="ri-user-shared-line"></i> Accept &amp; take over</button>
+        </div>
+    </form>
+</dialog>

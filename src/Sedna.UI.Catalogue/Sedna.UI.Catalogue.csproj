@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Set explicitly. It defaults to the project name, which is the same string
+         here — but the two are independently defaulted, and the embedded example
+         sources are found by RootNamespace + folder path, so a rename that split
+         them would produce blank code blocks rather than a build error. -->
+    <RootNamespace>Sedna.UI.Catalogue</RootNamespace>
+    <AssemblyName>Sedna.UI.Catalogue</AssemblyName>
+
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- One package ships from this repo, and it is the library. Asserted by
+         PackageConfigTests and again by build/verify-package.sh. -->
+    <IsPackable>false</IsPackable>
+    <!-- Not a library: nothing consumes this assembly's API, so there is no XML
+         doc burden. Every type here is internal for the same reason. -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The app's own types are internal — nothing consumes this assembly. Its
+         tests are the exception: they assert things about the page registry and
+         the example index, which are internal for the same reason. -->
+    <InternalsVisibleTo Include="Sedna.UI.Catalogue.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Every example is embedded as well as compiled, so the page can print the
+         file it just rendered. EmbeddedResource is a different item type from the
+         Razor SDK's Content glob, so this is an addition rather than a duplicate;
+         the default EmbeddedResource glob only claims **/*.resx.
+
+         WithCulture="false" stops AssignCulture probing the segment before the
+         extension as a culture name.
+
+         A code-only snippet must NEVER be named *.razor: the SDK's own
+         <Content Include="**\*.razor"> would sweep it into RazorComponent and fail
+         the build. It carries its content's extension instead — and never two
+         dots, which breaks default manifest naming. -->
+    <EmbeddedResource Include="Examples\**\*.razor" WithCulture="false" />
+    <EmbeddedResource Include="Examples\**\*.html;Examples\**\*.css;Examples\**\*.txt"
+                      WithCulture="false" />
+
+    <!-- The pages carry each example's title and prose, and the MCP server returns
+         both. Embedded because a .razor file is Content with
+         CopyToPublishDirectory="Never" — the source is not in the published output,
+         so there is nothing to read from disk in the container. -->
+    <EmbeddedResource Include="Components\Pages\**\*.razor" WithCulture="false" />
+
+    <!-- The docs the MCP server serves verbatim. Never retyped: a test asserts the
+         host-page block it returns is a substring of getting-started.md. -->
+    <EmbeddedResource Include="..\..\docs\*.md" LinkBase="Docs" WithCulture="false" />
+    <EmbeddedResource Include="Data\*.json" WithCulture="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The MCP server. There is no in-box ASP.NET Core MCP transport, and this is
+         the official SDK (modelcontextprotocol/csharp-sdk, Apache-2.0). Its whole
+         transitive tree is Microsoft.Extensions.* plus its own Core package — no
+         unrelated third-party graph.
+
+         The library takes no third-party dependency and a test enforces that. This
+         is a different project: it is not packaged, so nothing here reaches a
+         consuming app. -->
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- A project reference, not a package reference: a change to css-parts/ is
+         visible after rebuilding the library alone, with no pack and no restore.
+         Static web assets resolve at _content/Sedna.UI/… either way. -->
+    <ProjectReference Include="..\Sedna.UI\Sedna.UI.csproj" />
+  </ItemGroup>
+
+</Project>

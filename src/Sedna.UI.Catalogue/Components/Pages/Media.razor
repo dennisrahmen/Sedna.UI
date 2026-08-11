@@ -1,0 +1,66 @@
+@page "/media"
+
+<CatHead Title="Media and prose">
+    Content the app did not author: an attachment, an article body, or a value the reader is not
+    allowed to see.
+</CatHead>
+
+<CatExample TExample="Examples.Media.MediaFrame" Title="Media frame" Demo="ex-demo--block">
+    <p>
+        A bounded box for an image or embed whose size you do not control.
+        <code>aspect-ratio</code> plus <code>object-fit:contain</code> is what stops the page
+        reflowing as images arrive — the box has its height before the image loads.
+    </p>
+    <p>
+        <code>contain</code> rather than <code>cover</code>, because these are documents and
+        cropping a screenshot removes the part somebody needed.
+        <code>.media-frame--cover</code> is there for a decorative banner, where cropping is the
+        right answer. Use <code>&lt;figure&gt;</code> with <code>.media-figure</code> when there is
+        a caption — an image whose meaning is in its caption still needs a real
+        <code>alt</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Media.Prose" Title="Prose" Demo="ex-demo--block">
+    <p>
+        Long-form text rendered from a source the app does not control — a release note, a
+        knowledge-base article, an e-mail body.
+        <a href="/markdown"><code>.markdown-body</code></a> already covers rendered Markdown;
+        <code>.prose</code> is the same job when the HTML did not come from Markdown. They look
+        identical, so an app has one typographic voice rather than two.
+    </p>
+    <p>
+        The measure is capped at 72 characters. Past roughly that the eye loses the line it is
+        returning to, which no amount of line-height fixes. A table inside untrusted prose gets
+        <code>display:block; overflow-x:auto</code>, because its own content sets its minimum width
+        and it is the one thing that will otherwise break the page.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Media.RedactedValues" Title="Redacted values" Demo="ex-demo--block">
+    <p>
+        A value deliberately withheld — a secret, a masked identifier, a field the reader's role
+        cannot see.
+    </p>
+    <p>
+        <strong>It must not merely look hidden.</strong> A blur or a low opacity leaves the real
+        text in the DOM, where it is readable by view-source, by a screen reader, and by anyone who
+        selects it. This class marks a <em>placeholder the server sent in place of the value</em>.
+        The value never reaches the browser. If it is in the HTML, it is not redacted, whatever it
+        looks like.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Media.Gallery" Title="A gallery of attachments" Demo="ex-demo--block">
+    <p>
+        <code>.gallery</code> is a breakpoint-free grid of thumbnails. Each tile is a real
+        <code>&lt;button&gt;</code> or <code>&lt;a&gt;</code> directly inside it — never a
+        <code>&lt;div&gt;</code> with a click handler — and the stylesheet gives the tile's hover and
+        focus ring to the <code>.media-frame</code> inside it.
+    </p>
+    <p>
+        Inside the gallery every frame is square whatever aspect modifier it carries, so a row of
+        mixed attachments lines up. The file name is part of the tile, because an icon does not say
+        which document it is.
+    </p>
+</CatExample>

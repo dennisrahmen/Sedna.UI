@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>SednaUI app tile — dark</title>
+  <defs><linearGradient id="c" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FD7636"></stop><stop offset="1" stop-color="#F34238"></stop></linearGradient><clipPath id="front"><rect x="-4" y="64" width="120" height="34" transform="rotate(-24 56 64)"></rect></clipPath></defs>
+  <rect width="1024" height="1024" rx="225" fill="#0F172A"></rect>
+  <g transform="translate(153.6,153.6) scale(5.9733)"><g transform="translate(60,60) scale(1.05) translate(-60,-60) translate(5.06,-1.04)">
+    <ellipse cx="56" cy="64" rx="52" ry="18" transform="rotate(-24 56 64)" fill="none" stroke="#F8FAFC" stroke-width="2.5"></ellipse>
+    <circle cx="69" cy="56" r="26" fill="url(#c)"></circle>
+    <g clip-path="url(#front)"><ellipse cx="56" cy="64" rx="52" ry="18" transform="rotate(-24 56 64)" fill="none" stroke="#F8FAFC" stroke-width="2.5"></ellipse></g>
+    <circle cx="9" cy="85" r="4.5" fill="#59C3FF"></circle>
+  </g></g>
+</svg>

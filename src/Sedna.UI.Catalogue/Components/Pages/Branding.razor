@@ -1,0 +1,335 @@
+@page "/branding"
+@using Sedna.UI.Catalogue.Navigation
+@implements IDisposable
+@inject IJSRuntime Js
+@inject ISednaUi Ui
+@inject ThemeState Theme
+
+<CatHead Title="Branding" Tier="@CatHead.Site">
+    Sedna.UI is a rebrand, not a redesign: corner rounding, spacing, type and motion carry over
+    unchanged, and what moves is hue. The full manual is
+    <a href="@CatalogueLinks.BrandingDoc">docs/BRANDING.md</a> — this page is the fast way to check
+    a theme landed, not a replacement for it.
+</CatHead>
+
+<h2 id="mark">The mark, drawn three times</h2>
+
+<p class="cat-lede">
+    An elliptical orbit resolving into an <em>S</em>, with a coral focal body and a small blue
+    satellite. The orbit is a hairline, and a hairline fills in and reads as noise once it is
+    shrunk — so the mark is redrawn at each size rather than scaled, with the stroke thickening and
+    the satellite dropping as the mark gets smaller.
+</p>
+
+<div style="display:flex; gap:32px; align-items:flex-end; flex-wrap:wrap; margin:24px 0">
+    <figure style="margin:0; text-align:center">
+        <img src="brand/sedna-ui-icon-96.png" width="96" height="96"
+             alt="Full mark: a thin orbit, a coral focal body, and a blue satellite" />
+        <figcaption class="form-hint" style="margin-top:8px">Full — stroke 2.5, 96px and up</figcaption>
+    </figure>
+    <figure style="margin:0; text-align:center">
+        <img src="brand/sedna-ui-icon-64.png" width="64" height="64"
+             alt="Compact mark: a heavier orbit and a larger satellite" />
+        <figcaption class="form-hint" style="margin-top:8px">Compact — stroke 5.5, 32–64px</figcaption>
+    </figure>
+    <figure style="margin:0; text-align:center">
+        <img src="brand/sedna-ui-icon-16.png" width="16" height="16"
+             alt="Micro mark: only the orbit and the focal body, no satellite" />
+        <figcaption class="form-hint" style="margin-top:8px">Micro — stroke 8, 16px, satellite dropped</figcaption>
+    </figure>
+</div>
+
+<div class="cat-note">
+    <i class="ri-drop-line"></i>
+    <span>
+        <strong>Pick by size and the right drawing comes out.</strong> The PNG ladders in
+        <code>assets/brand/</code> already switch tier for you — <code>-16</code> is micro,
+        <code>-32</code> to <code>-64</code> are compact, <code>-96</code> and up are full. Never
+        scale one drawing to stand in for another.
+    </span>
+</div>
+
+<h2 id="ladders">Two ladders, and the tile</h2>
+
+<p class="cat-lede">
+    A transparent mark is invisible on the wrong surface, so there are two ladders: navy for light
+    backgrounds, Ice White for dark ones. Picking the wrong one is not a subtle mistake — it is
+    the difference between a mark and a blank corner, which the pair below reproduces on purpose.
+</p>
+
+<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:420px; margin:24px 0">
+    <div style="background:var(--slate-50); border-radius:var(--radius-surface); padding:24px; text-align:center">
+        <img src="brand/sedna-ui-icon-64.png" width="64" height="64" alt="Navy mark, clearly visible on a light surface" />
+    </div>
+    <div style="background:var(--slate-900); border-radius:var(--radius-surface); padding:24px; text-align:center">
+        <img src="brand/sedna-ui-icon-64.png" width="64" height="64" alt="The same navy mark on a dark surface, nearly invisible" />
+    </div>
+    <div style="background:var(--slate-50); border-radius:var(--radius-surface); padding:24px; text-align:center">
+        <img src="brand/sedna-ui-icon-on-dark-64.png" width="64" height="64" alt="The Ice White mark on a light surface, washed out" />
+    </div>
+    <div style="background:var(--slate-900); border-radius:var(--radius-surface); padding:24px; text-align:center">
+        <img src="brand/sedna-ui-icon-on-dark-64.png" width="64" height="64" alt="Ice White mark, clearly visible on a dark surface" />
+    </div>
+</div>
+<p class="cat-lede" style="margin-top:-8px">
+    Top row: <code>sedna-ui-icon-*</code>, the navy ladder. Bottom row:
+    <code>sedna-ui-icon-on-dark-*</code>, the Ice White ladder. Left column: a light surface. Right
+    column: a dark one. Only the diagonal reads.
+</p>
+
+<div style="text-align:center; margin:24px 0">
+    <img src="brand/sedna-ui-tile-128.png" width="96" height="96"
+         alt="The tile: the mark on its own Deep Space field, readable on any background" />
+    <p class="form-hint" style="margin-top:8px">
+        <code>sedna-ui-tile-*</code> — carries its own Deep Space field, so it reads on a background
+        you do not control. It is what the NuGet package icon and the catalogue's own favicon are
+        both derived from, at 128×128.
+    </p>
+</div>
+
+<h2 id="clear-space">Clear space, minimum sizes, misuse</h2>
+
+<div style="display:flex; gap:16px; flex-wrap:wrap; margin:24px 0">
+    <div style="background:var(--slate-50); border-radius:var(--radius-surface); padding:16px">
+        <img src="brand/sedna-ui-logo-light.png" width="191" height="56" alt="Horizontal lockup for light backgrounds" />
+    </div>
+    <div style="background:var(--slate-900); border-radius:var(--radius-surface); padding:16px">
+        <img src="brand/sedna-ui-logo-dark.png" width="191" height="56" alt="Horizontal lockup for dark backgrounds" />
+    </div>
+</div>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Rule</th><th>Value</th></tr></thead>
+        <tbody>
+            <tr><td>Clear space, all four sides</td><td>The radius of the focal body</td></tr>
+            <tr><td>Minimum size, standalone icon</td><td>20px — below that, the micro tier</td></tr>
+            <tr><td>Minimum width, horizontal lockup</td><td>96px</td></tr>
+            <tr><td>Misuse</td><td>Never rotate, recolour or add an effect. Never rebuild the wordmark in another face.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="cat-note">
+    <i class="ri-error-warning-line"></i>
+    <span>
+        <strong>The SVG trap: <code>sedna-ui-wordmark*.svg</code> and <code>sedna-ui-logo-*.svg</code>
+        set live <code>&lt;text&gt;</code> in Outfit.</strong> On a machine without that font
+        installed they fall back to a generic sans — which the rule above forbids — and nothing
+        errors; the wordmark is simply wrong. Mark and tile SVGs are pure geometry and safe
+        anywhere. For a wordmark or a lockup on the web, use the <strong>PNG</strong>, where the
+        type is already rasterised — the two lockups above are exactly that.
+    </span>
+</div>
+
+<h2 id="palette">The palette, read live</h2>
+
+<p class="cat-lede">
+    The seven core colours the rest of the palette is generated from. Read from the stylesheet the
+    browser actually loaded — never retyped — so they follow whichever theme is selected below.
+</p>
+
+<div class="cat-swatches">
+    @foreach (var anchor in CoreAnchors)
+    {
+        <div class="cat-swatch">
+            <span class="cat-chip" style="background: var(@anchor.Token)"></span>
+            <div class="cat-swatch-text">
+                <div class="cat-swatch-name">@anchor.Label</div>
+                <div class="cat-swatch-value">@anchor.Token — @Value(anchor.Token)</div>
+            </div>
+        </div>
+    }
+</div>
+
+<h2 id="decisions">Three decisions that shaped the system</h2>
+
+<p class="cat-lede">
+    Places the palette could not be applied literally. Each is encoded as a ramp relationship, not
+    a hard-coded value, so it holds for every theme — including the two below, not only Sedna's own.
+</p>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Decision</th><th>Why</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><strong>Sedna Red cannot be a button</strong></td>
+                <td>
+                    White on Sedna Red measures 2.82:1 — far short of the 4.5:1 a filled control's
+                    label needs. <code>--brand</code> takes ramp step 600 instead, solved for the
+                    contrast floor rather than "coral, darkened," which reaches 4.55:1.
+                </td>
+            </tr>
+            <tr>
+                <td><strong>The accent is Orbit Blue</strong></td>
+                <td>
+                    A second coral would make a link and a button the same colour. <code>--accent</code>
+                    takes Orbit Blue instead, so a link is never mistaken for a primary action.
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Danger cannot stay red</strong></td>
+                <td>
+                    The old danger red sat 7° from the brand in OKLCH — effectively one colour at a
+                    glance. Danger moves to crimson, 32° away, so a destructive action and the brand
+                    separate on hue as well as on fill.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="cat-note">
+    <i class="ri-focus-3-line"></i>
+    <span>
+        <strong>The rule this generalises to:</strong> a theme whose brand hue lands within ~15° of
+        a semantic family has to move that family. Green brands collide with <code>go</code>, blue
+        brands with <code>info</code> and <code>accent</code> — which is exactly why the two themes
+        below move a different family each.
+    </span>
+</div>
+
+<h2 id="switch">Switch it live</h2>
+
+<p class="cat-lede">
+    <strong>Sedna</strong>, <strong>Forest</strong> and <strong>Cobalt</strong> are three registered
+    themes — one hand-tuned, two generated from a single anchor colour. Forest's brand anchor
+    collides with the <code>go</code> family, so <code>go</code> moves; Cobalt's collides with
+    <code>accent</code> and <code>info</code>, so <code>orbit</code> moves. This is the same switch
+    the header's own dark/light toggle uses — a <code>data-theme</code> and <code>data-variant</code>
+    flip on <code>&lt;html&gt;</code>, applied for the rest of this site until you change it again.
+</p>
+
+<div style="display:flex; gap:24px; flex-wrap:wrap; margin:20px 0 8px">
+    <fieldset class="form-section" style="margin:0">
+        <legend>Theme</legend>
+        <div class="segmented">
+            <label class="segmented-option">
+                <input type="radio" name="branding-theme" checked="@IsSedna" @onchange="SelectSedna" /> Sedna
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="branding-theme" checked="@IsForest" @onchange="SelectForest" /> Forest
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="branding-theme" checked="@IsCobalt" @onchange="SelectCobalt" /> Cobalt
+            </label>
+        </div>
+    </fieldset>
+    <fieldset class="form-section" style="margin:0">
+        <legend>Variant</legend>
+        <div class="segmented">
+            <label class="segmented-option">
+                <input type="radio" name="branding-variant" checked="@IsDark" @onchange="SelectDark" />
+                <span><i class="ri-moon-line"></i> Dark</span>
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="branding-variant" checked="@IsLight" @onchange="SelectLight" />
+                <span><i class="ri-sun-line"></i> Light</span>
+            </label>
+        </div>
+    </fieldset>
+</div>
+
+<CatExample TExample="Examples.Branding.Showcase" Title="Recolours instantly" Demo="ex-demo--block">
+    <p>
+        A primary button, a <code>go</code> button, a <code>danger</code> button, a link, a badge
+        and a card — the same six things every page on this site is built from. Switch to Forest:
+        the primary button and the <code>go</code> button separate on hue exactly as far as they do
+        here, because <code>go</code> was regenerated to keep it that way.
+    </p>
+</CatExample>
+
+@code {
+    private string _theme = "sedna";
+    private string _variant = "dark";
+    private Dictionary<string, string>? _values;
+
+    private bool IsSedna => _theme == "sedna";
+    private bool IsForest => _theme == "forest";
+    private bool IsCobalt => _theme == "cobalt";
+    private bool IsDark => _variant == "dark";
+    private bool IsLight => _variant == "light";
+
+    /// <summary>The seven fixed points every ramp is generated from — docs/BRANDING.md §1.4.</summary>
+    private static readonly (string Label, string Token)[] CoreAnchors =
+    [
+        ("Sedna Red", "--coral-500"),
+        ("Orbit Blue", "--orbit-400"),
+        ("Sedna Navy", "--navy-900"),
+        ("Deep Space", "--slate-900"),
+        ("Navy Slate", "--slate-800"),
+        ("Ice White", "--slate-50"),
+        ("Dust Gray", "--slate-400"),
+    ];
+
+    // IReadOnlyList<string>, not string[]: InvokeAsync's second parameter is
+    // `params object?[] args`, and a bare string[] argument is spread across that
+    // params array by C#'s own array-covariance rule — readTokenValues then receives
+    // each token as a separate argument instead of one array, and "names" inside it
+    // becomes the first token string, indexed character by character. TokenGroups.AllTokens
+    // on the Tokens page avoids this the same way.
+    private static readonly IReadOnlyList<string> PaletteTokens = CoreAnchors.Select(a => a.Token).ToList();
+
+    protected override void OnInitialized() => Theme.Changed += Refresh;
+
+    public void Dispose() => Theme.Changed -= Refresh;
+
+    /// <summary>
+    /// Reads the stored theme and variant once the circuit is up — an interop call cannot run
+    /// during prerendering, so until this runs the segmented controls show the defaults while
+    /// <c>Sedna.UI.boot.js</c> has already applied the real settings to <c>&lt;html&gt;</c>. Same
+    /// shape as <c>CatalogueTopbar.OnAfterRenderAsync</c>.
+    /// </summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var settings = await Ui.LoadSettingsAsync();
+        _theme = settings.Theme;
+        _variant = settings.Variant == "light" ? "light" : "dark";
+        await Read();
+    }
+
+    private Task SelectSedna() => SetTheme("sedna");
+    private Task SelectForest() => SetTheme("forest");
+    private Task SelectCobalt() => SetTheme("cobalt");
+    private Task SelectDark() => SetVariant("dark");
+    private Task SelectLight() => SetVariant("light");
+
+    private Task SetTheme(string name)
+    {
+        _theme = name;
+        return Save("theme", name);
+    }
+
+    private Task SetVariant(string variant)
+    {
+        _variant = variant;
+        return Save("variant", variant);
+    }
+
+    /// <summary>
+    /// Writes through <c>sednaUi.settings.save</c> — the same path <c>CatalogueTopbar</c> uses —
+    /// which stamps <c>&lt;html&gt;</c> immediately. Nothing here sets <c>data-theme</c> or
+    /// <c>data-variant</c> directly, and <c>Theme.NotifyChanged()</c> is a C# event, not a DOM
+    /// write, so the catalogue's own script still never touches the document.
+    /// </summary>
+    private async Task Save(string key, string value)
+    {
+        await Ui.SaveSettingAsync(key, value);
+        Theme.NotifyChanged();
+    }
+
+    private void Refresh() => _ = InvokeAsync(Read);
+
+    private async Task Read()
+    {
+        _values = await Js.InvokeAsync<Dictionary<string, string>>(
+            "sednaUiCatalogue.readTokenValues", PaletteTokens);
+        StateHasChanged();
+    }
+
+    private string Value(string token) =>
+        _values is null ? "…" : _values.GetValueOrDefault(token, "not declared");
+}

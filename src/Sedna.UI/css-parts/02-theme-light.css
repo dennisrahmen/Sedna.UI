@@ -1,0 +1,108 @@
+/* ═══ Light theme ═══════════════════════════════════════════════════════════
+   Pure token remapping — no selector overrides. `data-variant` rides on <html>,
+   orthogonal to `data-theme` (which theme; this is which variant of it); apply it
+   before first paint (see README) so no dark flash occurs.
+
+   Canvas is Ice White with white cards (docs/BRANDING.md §5). The canvas-to-card
+   separation is deliberately quieter than the default theme's, because the guide
+   specifies Ice White as *the* light surface — cards must therefore keep their
+   border in light theme; it is doing the separation work that lightness alone no
+   longer does. */
+:root[data-variant="light"] {
+    --color-scheme:   light;
+    --picker-invert:  0;
+
+    --bg:             var(--slate-50);    /* Ice White */
+    /* No palette step is pure white — see --on-solid's comment in 01-tokens.css.
+       --bg-elevated, --card-bg and --sidebar-bg all need true white here, one
+       step brighter than Ice White's --bg, which the slate ramp has no step for. */
+    --bg-elevated:    var(--white);
+    --bg-hover:       var(--slate-100);
+    --fg:             var(--slate-900);   /* Deep Space */
+    --fg-soft:        var(--slate-700);
+    /* slate-600, not slate-500: the lighter step measures 3.94:1 on the light
+       --bg, which is under AA, and --muted is the single most-used text colour
+       after --fg. slate-600 reaches 6.28:1. */
+    --muted:          var(--slate-600);
+    --border:         var(--slate-300);
+    --border-strong:  var(--slate-400);
+    --divider:        rgba(15, 23, 42, 0.07);    /* slate-900 / Deep Space */
+    --card-bg:        var(--white);
+    --surface-soft:   rgba(15, 23, 42, 0.03);    /* slate-900 */
+    --surface-strong: rgba(15, 23, 42, 0.055);   /* slate-900 */
+    --redacted:       var(--crimson-700);
+
+    --brand-soft: var(--coral-600);
+    --brand-text: var(--coral-700);
+    --brand-tint: color-mix(in srgb, var(--brand) 10%, transparent);
+    --accent:     var(--orbit-700);
+
+    --sidebar-bg:     var(--white);
+    --sidebar-border: var(--slate-200);
+    --sidebar-fg:     var(--slate-700);
+
+    --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
+    --go-border: var(--green-300);
+    --go-fg:     var(--green-700);
+
+    --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
+    --warn-border: var(--amber-300);
+    --warn-fg:     var(--amber-700);
+
+    /* The hover and active tints and the strong border take the same steps as the
+       dark theme, scaled for a light surface. All four move together: a tint
+       remapped without its hover pair jumps between two unrelated reds. */
+    --danger-solid: var(--crimson-700);
+    --danger-bg:            rgba(199, 34, 104, 0.08);    /* crimson-700 */
+    --danger-bg-hover:      rgba(199, 34, 104, 0.14);    /* crimson-700 */
+    --danger-bg-active:     rgba(199, 34, 104, 0.2);     /* crimson-700 */
+    --danger-border:        var(--crimson-300);
+    --danger-border-strong: var(--crimson-700);
+    --danger-fg:            var(--crimson-700);
+    --danger-ring:          rgba(199, 34, 104, 0.35);    /* crimson-700 */
+
+    --info-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
+    --info-border: var(--orbit-300);
+    --info-fg:     var(--orbit-700);
+    --info-solid:  var(--orbit-700);
+    --info-ring:   rgba(89, 195, 255, 0.4);     /* orbit-400 */
+
+    --secret-bg:     color-mix(in srgb, var(--violet-600) 8%, transparent);
+    --secret-border: var(--violet-300);
+    --secret-fg:     var(--violet-700);
+
+    --badge-cyan-bg:     rgba(34, 211, 238, 0.08);    /* cyan-400 */
+    --badge-cyan-border: var(--cyan-300);
+    --badge-cyan-fg:     var(--cyan-700);
+    --badge-orange-bg:     rgba(245, 158, 75, 0.08);    /* orange-400 */
+    --badge-orange-border: var(--orange-300);
+    --badge-orange-fg:     var(--orange-700);
+    --badge-teal-bg:     rgba(20, 184, 166, 0.08);    /* teal-500 */
+    --badge-teal-border: var(--teal-300);
+    --badge-teal-fg:     var(--teal-700);
+
+    --badge-bg:      rgba(15, 23, 42, 0.04);    /* slate-900 */
+    --table-head-bg: rgba(15, 23, 42, 0.03);    /* slate-900 */
+
+    --skeleton-bg:    rgba(15, 23, 42, 0.06);    /* slate-900 */
+    --skeleton-sheen: rgba(15, 23, 42, 0.11);    /* slate-900 */
+    --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */
+    --btn-active-bg: var(--slate-300);
+    --code-fg:       var(--indigo-700);
+    --code-bg:       rgba(90, 97, 191, 0.08);    /* indigo-700 */
+    --backdrop:      rgba(15, 23, 42, 0.35);    /* slate-900 */
+    --overlay:       rgba(248, 250, 252, 0.66);   /* slate-50 / Ice White */
+    --spotlight-dim: rgba(15, 23, 42, 0.42);    /* slate-900 */
+    --tip-bg:        var(--slate-925);
+    --tip-border:    var(--slate-700);
+    --scrollbar:       var(--slate-300);
+    --scrollbar-hover: var(--slate-400);
+    --scroll-shade:    rgba(15, 23, 42, 0.16);    /* slate-900 */
+
+    --shadow-topbar:    0 3px 8px rgba(15, 23, 42, 0.1);      /* slate-900 */
+    --shadow-nav-tools: 0 -6px 12px 0 rgba(15, 23, 42, 0.06); /* slate-900 */
+    --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.25);   /* slate-900 */
+    --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.25);    /* slate-900 */
+    --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.22);   /* slate-900 */
+    --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.18);   /* slate-900 */
+}

@@ -1,0 +1,73 @@
+/* ── Tabs ───────────────────────────────────────────────────────────────────
+   Switching which view of one thing is shown, where the tabs belong to the page.
+   Not navigation: a tab that changes the URL is a link wearing a control's
+   clothes, and the sidebar is where going somewhere belongs.
+
+   Tabs vs .segmented: tabs swap a region of *content*, a segmented control changes
+   a *setting*. If the thing below it is a panel, use tabs.
+
+   The classes do not imply the ARIA and cannot. Write it:
+     .tabs        role="tablist"
+     .tab         role="tab" aria-selected id="…" aria-controls="panel-id"
+     .tab-panel   role="tabpanel" id="panel-id" aria-labelledby="tab-id"
+   Without it a screen reader hears a row of unrelated buttons, and arrow-key
+   movement between tabs does not exist.
+   ─────────────────────────────────────────────────────────────────────────── */
+.tabs {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-1);
+    border-bottom: 1px solid var(--border);
+    /* Overflow scrolls rather than wraps. A wrapped second row pushes the content
+       down and the underline stops reading as one continuous strip. The scrollbar
+       is hidden because the tabs themselves are the affordance. */
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-7);
+    background: none;
+    border: none;
+    /* The indicator is a transparent border that gains a colour, not a border that
+       appears — otherwise the label jumps 2px when it is selected. */
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;              /* sit the indicator on the container's line */
+    color: var(--muted);
+    font-family: inherit;
+    font-size: var(--text-4);
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color var(--motion-fast), border-color var(--motion-fast), background var(--motion-fast);
+}
+.tab i { font-size: var(--text-6); }
+.tab:hover { color: var(--fg); background: var(--surface-soft); text-decoration: none; }
+.tab:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.tab:disabled,
+.tab[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
+
+.tab--active,
+.tab[aria-selected="true"] { color: var(--brand-text); border-bottom-color: var(--brand); }
+.tab--active:hover,
+.tab[aria-selected="true"]:hover { color: var(--brand-text); background: none; }
+
+/* A count beside the label — how many rows the tab's panel holds. */
+.tab-count {
+    padding: 0 var(--space-3);
+    background: var(--badge-bg);
+    border-radius: var(--radius-pill);
+    color: var(--fg-soft);
+    font-size: var(--text-2);
+    font-weight: 600;
+}
+.tab--active .tab-count,
+.tab[aria-selected="true"] .tab-count { background: var(--brand-tint); color: var(--brand-text); }
+
+.tab-panel { padding-top: var(--space-7); }

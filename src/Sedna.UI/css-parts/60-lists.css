@@ -1,0 +1,197 @@
+/* ── List ───────────────────────────────────────────────────────────────────
+   Rows of records where a table would be wrong: when the fields differ per row, when
+   there is one dominant field and the rest is supporting, or when each row is
+   something you open rather than compare.
+
+   A real <ul>/<li>, so the count is announced and the rows are navigable as a list.
+   A row that navigates is an <a> filling the <li>, not a click handler on the <li>:
+   the whole row is then a real link, openable in a new tab and reachable by keyboard.
+   ─────────────────────────────────────────────────────────────────────────── */
+.list { list-style: none; margin: 0; padding: 0; }
+.list > li + li { border-top: 1px solid var(--divider); }
+
+.list-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-5) var(--space-6);
+    color: inherit;
+    text-decoration: none;
+}
+a.list-row:hover { background: var(--bg-hover); text-decoration: none; }
+a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.list-row[aria-current="true"],
+.list-row[aria-selected="true"] {
+    background: var(--brand-tint);
+    box-shadow: inset 3px 0 0 var(--brand);
+}
+
+/* The dominant field and its supporting line. min-width: 0 is what lets the
+   ellipsis work — a flex item defaults to min-content width and refuses to shrink. */
+.list-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.list-title { color: var(--fg); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-sub { color: var(--muted); font-size: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Trailing metadata — a timestamp, a badge, a chevron. */
+.list-meta { display: flex; align-items: center; gap: var(--space-4); flex-shrink: 0; color: var(--muted); font-size: var(--text-3); }
+
+/* Inside a card the rows meet the card's edges, so the divider spans the full
+   width instead of floating with a gap at each end. */
+.card > .list > li > .list-row { padding-inline: var(--space-7); }
+
+/* ── The row as a lockup ────────────────────────────────────────────────────
+   `.list-row` + `.list-main` + `.list-title` + `.list-sub` + `.list-meta` is a leading
+   visual, two stacked lines and a trailing slot. Put an `.avatar` first and it is a
+   person; put an icon there and it is a device, a file or a queue. Nothing in it names
+   what the thing is, which is why it serves for all of them.
+
+   `--flush` drops the row's own padding, for the places where the surrounding cell
+   already provides it: a table cell, a card header, a form row. */
+.list-row--flush { padding: 0; gap: var(--space-5); }
+
+/* ── Steps ──────────────────────────────────────────────────────────────────
+   Progress through a sequence that has an order — a wizard, an approval chain.
+
+   State is `data-state` on the <li> rather than a modifier class, because a step has
+   exactly one of three states and an attribute cannot accidentally carry two. The
+   number is drawn in CSS from a counter, so renumbering after inserting a step is
+   not a markup edit.
+
+   The connector is the <li>'s own ::after, so the last step has none without a
+   modifier. Colour alone does not say which steps are done: the done marker shows a
+   tick, not just a fill. */
+.steps { list-style: none; margin: 0 0 var(--space-7); padding: 0; display: flex; counter-reset: sedna-step; }
+.steps > li {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 0 var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-3);
+    text-align: center;
+    counter-increment: sedna-step;
+}
+.steps > li::before {
+    content: counter(sedna-step);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    background: var(--bg);
+    color: var(--muted);
+    font-weight: 600;
+    /* Above the connector, which runs behind it. Local stacking. */
+    position: relative;
+    z-index: 1;
+}
+/* The connector runs from this step's marker to the next one's. */
+.steps > li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 13px;
+    inset-inline-start: 50%;
+    width: 100%;
+    border-top: 1px solid var(--border);
+}
+/* Done is FILLED, pending is outlined. That difference survives a colour-blind
+   palette, a greyscale print and forced colours, which a green-vs-grey fill would
+   not — so no markup has to be added to carry a tick. */
+.steps > li[data-state="done"] { color: var(--fg-soft); }
+.steps > li[data-state="done"]::before {
+    background: var(--go-solid);
+    border-color: var(--go-solid);
+    color: var(--on-solid);
+}
+.steps > li[data-state="done"]:not(:last-child)::after { border-top-color: var(--go-solid); }
+.steps > li[data-state="current"] { color: var(--fg); font-weight: 600; }
+.steps > li[data-state="current"]::before {
+    border-color: var(--brand);
+    color: var(--brand-text);
+    box-shadow: 0 0 0 3px var(--brand-glow);
+}
+
+/* ── Timeline ───────────────────────────────────────────────────────────────
+   Things that happened, newest first or oldest first, with when. An audit trail, a
+   change history, a comment thread.
+
+   Differs from .steps in what it is for: steps have a fixed sequence with an end,
+   a timeline is an open-ended record. If the reader can be "on" one of them, it is
+   steps.
+
+   The rule runs down the markers as a border on the <li>, so it stops exactly at
+   the last entry rather than needing a length. */
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline > li {
+    position: relative;
+    padding: 0 0 var(--space-7) var(--space-9);
+    border-inline-start: 1px solid var(--border);
+    margin-inline-start: var(--space-2);
+}
+.timeline > li:last-child { border-inline-start-color: transparent; padding-bottom: 0; }
+.timeline > li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: -5px;
+    top: 4px;
+    width: 9px;
+    height: 9px;
+    background: var(--border-hover);
+    border: 2px solid var(--bg);
+    border-radius: 50%;
+}
+.timeline-when { display: block; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
+.timeline-what { color: var(--fg-soft); font-size: var(--text-4); }
+.timeline > li[data-kind="go"]::before     { background: var(--go-solid); }
+.timeline > li[data-kind="warn"]::before   { background: var(--warn-solid); }
+.timeline > li[data-kind="danger"]::before { background: var(--danger-solid); }
+
+/* ── Accordion ──────────────────────────────────────────────────────────────
+   Built on <details>/<summary>, which is the whole point: open and closed state,
+   keyboard operation, and the announcement all come from the platform, so there is
+   no ARIA to get wrong and nothing to wire.
+
+   Give every <details> the same `name` to make them mutually exclusive — that is a
+   platform feature too, and it needs no JavaScript.
+
+   The marker is drawn as a rotating caret. `list-style: none` plus
+   `::-webkit-details-marker` is needed because the two engines expose the default
+   triangle differently, and neither alone removes it everywhere. */
+.accordion { border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
+.accordion > details + details { border-top: 1px solid var(--border); }
+.accordion summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-7);
+    background: var(--surface-soft);
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-weight: 500;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+.accordion summary::-webkit-details-marker { display: none; }
+.accordion summary:hover { background: var(--bg-hover); }
+.accordion summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+/* The caret goes last so the label starts at the same place whatever the state. */
+.accordion summary::after {
+    content: '';
+    margin-inline-start: auto;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.5;
+    transition: transform var(--motion-fast) ease;
+}
+.accordion details[open] > summary::after { transform: rotate(-180deg); }
+.accordion details[open] > summary { background: var(--surface-strong); }
+.accordion-body { padding: var(--space-6) var(--space-7); font-size: var(--text-4); color: var(--fg-soft); }
+.accordion-body > :first-child { margin-top: 0; }
+.accordion-body > :last-child { margin-bottom: 0; }

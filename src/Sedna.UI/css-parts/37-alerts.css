@@ -1,0 +1,17 @@
+/* ── Inline alert banner ────────────────────────────────────────────────── */
+.alert {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-7);
+    border-radius: var(--radius-surface);
+    font-size: var(--text-4);
+    margin-bottom: var(--space-7);
+    border: 1px solid;
+}
+.alert i { font-size: var(--text-7); flex-shrink: 0; }
+.alert-go     { background: var(--go-bg);     border-color: var(--go-hover);     color: var(--go-fg); }
+.alert-warn   { background: var(--warn-bg);   border-color: var(--warn-hover);   color: var(--warn-fg); }
+.alert-danger { background: var(--danger-bg); border-color: var(--danger-border-strong); color: var(--danger-fg); }
+.alert-info   { background: var(--info-bg);   border-color: var(--info-border);   color: var(--info-fg); }
+

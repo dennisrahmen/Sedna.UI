@@ -1,0 +1,76 @@
+@page "/drawer"
+
+<CatHead Title="Drawers and sheets">
+    A panel that comes in from an edge, for a secondary flow that should not lose the page behind
+    it — a filter panel, a record's detail, a form on a phone.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-question-line"></i>
+    <strong>Drawer or modal?</strong> A <a href="/modal">modal</a> demands an answer before anything
+    else happens; a drawer is a place to work that can be left. If dismissing it loses nothing, it is
+    a drawer. The drawer sits <em>below</em> the modal backdrop in the z-order, so a modal opened
+    from inside a drawer still covers it.
+</div>
+
+<CatExample TExample="Examples.Drawer.Drawer" Title="From each edge" Demo="ex-demo--block">
+    <p>
+        <strong>Live — open one.</strong> Each is a <code>&lt;dialog class="drawer"&gt;</code> opened
+        with <code>showModal()</code>, so it slides in from its edge, <kbd>Escape</kbd> closes it,
+        focus stays inside it, and <code>::backdrop</code> dims the page with no
+        <code>.drawer-scrim</code> in the markup at all.
+    </p>
+    <p>
+        <code>.drawer--start</code> comes from the other edge. <code>.sheet</code> comes from the
+        bottom — the right shape on a phone, where a side panel has nowhere to come from.
+        <code>.sheet-handle</code> is decoration, not a control: dragging is a gesture an app
+        implements, and the close button is what makes the sheet dismissible for everybody else.
+    </p>
+    <p>
+        <code>.drawer-body</code> is the only scrolling part, so the header and footer stay put. The
+        slide survives <code>display: none</code> through
+        <code>transition-behavior: allow-discrete</code> and <code>@@starting-style</code>; without
+        them the panel appears rather than slides, which is abrupt rather than broken.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Drawer.RecordDetail" Title="A record's detail" Demo="ex-demo--block">
+    <p>
+        <strong>Live — open it.</strong> The commonest use: the row stays on screen behind the panel,
+        so the reader keeps their place in the list. The header carries the
+        <a href="/avatar"><code>.list-row</code></a> lockup with <code>--flush</code>, because the
+        header already supplies the padding.
+    </p>
+    <p>
+        Everything that scrolls goes in <code>.drawer-body</code>. Point
+        <code>aria-labelledby</code> at the title, not at the panel: the title is what a screen reader
+        announces when focus enters.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Drawer.ActionSheet" Title="A sheet of actions" Demo="ex-demo--block">
+    <p>
+        <strong>Live — open it.</strong> A sheet whose body is a <a href="/collections">list</a> of
+        actions, which is the phone form of a <a href="/menu">menu</a>. Each row is a real
+        <code>&lt;button&gt;</code> filling the <code>&lt;li&gt;</code>, so the whole row is the
+        target and the count is announced.
+    </p>
+    <p>
+        Use a sheet rather than a menu when the actions need a second line each, or when the reader is
+        on a touch screen where a 36px menu row is a small target.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Drawer/DrawerScrimForm.html" Title="A drawer that is not modal">
+    <p>
+        <code>.drawer-scrim</code> and <code>.drawer-scrim--open</code> are for a drawer the reader
+        can deliberately leave open while working on the page behind it. Closed state is
+        <code>visibility: hidden</code>, not just a translate off-screen: a panel that is merely moved
+        away is still tabbable, and <kbd>Tab</kbd> walks the reader into a panel they cannot see.
+    </p>
+    <p>
+        A drawer <em>with</em> a scrim is modal in behaviour, so make it a
+        <code>&lt;dialog&gt;</code> instead — the scrim becomes <code>::backdrop</code>, and the
+        dismissal, the focus trap and <kbd>Escape</kbd> stop being yours to write.
+    </p>
+</CatSnippet>

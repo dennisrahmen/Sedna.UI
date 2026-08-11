@@ -1,0 +1,179 @@
+/* ── Form layout and validation ──────────────────────────────────────────────
+   How fields are grouped, affixed and closed off, and how a rejected value is
+   shown. Numbered above 34 for the same reason as 45: these rules override
+   .form-input's own border and ring at equal specificity.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Validation ─────────────────────────────────────────────────────────────
+   Keyed off aria-invalid, not a class. The attribute is what a screen reader
+   announces, so if the styling hung off a separate class the two could disagree,
+   and the reader who most needs the message would be the one who does not get
+   it. Set aria-invalid and the border follows. */
+.form-input[aria-invalid="true"] { border-color: var(--danger-border-strong); }
+.form-input[aria-invalid="true"]:focus {
+    border-color: var(--danger-solid);
+    box-shadow: 0 0 0 2px var(--danger-ring);
+}
+
+/* The message itself. Put it after the control and point at it with
+   aria-describedby, so it is read as part of the field rather than found by
+   accident. */
+.form-error,
+.form-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: var(--text-3);
+}
+.form-error   { color: var(--danger-fg); }
+.form-warning { color: var(--warn-fg); }
+.form-error i,
+.form-warning i { font-size: var(--text-5); flex-shrink: 0; line-height: 1.35; }
+
+/* A required field's label. The marker is decoration — put `required` on the
+   control, which is what is actually announced and enforced, and aria-hidden on
+   any marker you write in the markup instead. */
+.form-label--required::after {
+    content: '*';
+    margin-inline-start: var(--space-2);
+    color: var(--danger-fg);
+}
+
+/* ── Input group ────────────────────────────────────────────────────────────
+   One border around a control and its affixes: a leading icon, a trailing unit,
+   a button that acts on the value.
+
+   The affixes are real siblings rather than padding plus a background trick, so a
+   button stays clickable and a unit stays selectable. The ring moves out to the
+   group with :focus-within and the inner control gives up its own border and
+   ring — otherwise the group draws two of each, nested. */
+/* The GROUP owns the height, and its children give theirs up. The group draws the
+   border, so a child still holding min-height: var(--control-height) makes the group
+   that height PLUS its own two border pixels. */
+.input-group {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: var(--control-height);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+/* The group carries the tier, because it is the group that draws the border. Its
+   children have already given up their own height.
+
+   A min-height is a floor, not a cap, so the small tier also has to bring its
+   children's block padding and text down — otherwise the field's own 6px + 18.2px line
+   box + the group's two borders comes to 32px and the 28px tier never binds. */
+.input-group--sm { min-height: var(--control-height-sm); }
+.input-group--sm .form-input,
+.input-group--sm .btn,
+.input-group--sm .input-affix { padding-block: var(--space-1); font-size: var(--text-3); }
+.input-group--lg { min-height: var(--control-height-lg); }
+.input-group--lg .form-input,
+.input-group--lg .btn,
+.input-group--lg .input-affix { font-size: var(--text-5); }
+.input-group:focus-within {
+    border-color: var(--brand-soft);
+    box-shadow: 0 0 0 2px var(--brand-glow);
+}
+.input-group .form-input {
+    flex: 1;
+    min-width: 0;              /* or a long value pushes the affixes out */
+    min-height: 0;             /* the group holds the height — see above */
+    border: none;
+    border-radius: 0;
+    background: none;
+}
+.input-group .form-input:focus { box-shadow: none; }
+/* --radius-inner, not --radius-control: the inner corner sits one border-width
+   inside the outer one. */
+.input-group > :first-child { border-start-start-radius: var(--radius-inner); border-end-start-radius: var(--radius-inner); }
+.input-group > :last-child  { border-start-end-radius: var(--radius-inner);   border-end-end-radius: var(--radius-inner); }
+
+/* A static affix — an icon, a unit, a currency symbol, a fixed prefix. */
+.input-affix {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+    padding: 0 var(--space-5);
+    color: var(--muted);
+    font-size: var(--text-4);
+    white-space: nowrap;
+}
+.input-affix i { font-size: var(--text-6); }
+/* The rule goes between the affix and the control, so it is drawn on whichever
+   side the control is on. */
+.input-affix:first-child { border-inline-end: 1px solid var(--border); }
+.input-affix:last-child  { border-inline-start: 1px solid var(--border); }
+
+/* A .btn inside the group gives up its outer edge and keeps its ring inside, so
+   focus on the button is still distinguishable from focus in the field. */
+.input-group .btn {
+    min-height: 0;             /* the group holds the height — see above */
+    border: none;
+    border-radius: 0;
+    background: var(--surface-strong);
+}
+.input-group .btn:hover { background: var(--bg-hover); }
+.input-group .btn:not(:first-child) { border-inline-start: 1px solid var(--border); }
+.input-group .btn:not(:last-child)  { border-inline-end:   1px solid var(--border); }
+.input-group .btn:focus-visible { box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+
+/* ── Form actions ───────────────────────────────────────────────────────────
+   The row a form ends with. Right-aligned, because that is where the button that
+   commits is looked for. Wraps instead of overflowing, so a three-button row on a
+   phone stacks rather than pushing the primary action off-screen. */
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-4);
+    margin-top: var(--space-7);
+}
+/* Two groups: something destructive or tangential on the far side from the
+   commit button, so they cannot be hit by accident. Expects exactly two
+   children — wrap each side in a <div> if either has more than one button. */
+.form-actions--split { justify-content: space-between; }
+.form-actions--start { justify-content: flex-start; }
+
+/* ── Form section ───────────────────────────────────────────────────────────
+   A titled group of fields. Use <fieldset> + <legend>: the legend is then
+   announced together with every control inside the group, which a heading above
+   a <div> is not.
+
+   The fieldset itself is left as a block and the fields go in .form-section-body.
+   A <legend> is laid out specially and is not a flex or grid item, so making the
+   fieldset the flex container puts the legend somewhere different in every
+   engine. min-width: 0 undoes the fieldset's intrinsic minimum width, which
+   otherwise refuses to shrink inside a flex or grid parent. */
+.form-section {
+    margin: 0 0 var(--space-8);
+    padding: 0;
+    border: none;
+    min-width: 0;
+}
+.form-section > legend,
+.form-section-title {
+    width: 100%;
+    padding: 0 0 var(--space-3);
+    margin-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-4);
+    font-weight: 600;
+    color: var(--fg);
+}
+.form-section-hint {
+    margin: -6px 0 var(--space-6);
+    font-size: var(--text-3);
+    color: var(--muted);
+}
+.form-section-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+}

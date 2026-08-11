@@ -1,0 +1,105 @@
+/* ── File input, dropzone and file list ─────────────────────────────────────
+   The native `<input type="file">` cannot be restyled: its button is a shadow-DOM
+   part with only `::file-selector-button` exposed, and its "No file chosen" text is
+   not addressable at all. So the input is hidden behind a label styled as a button,
+   which is the one approach that keeps the real control — a <label> for a file input
+   opens the picker on click and on Enter, with no JavaScript and no ARIA.
+
+   `::file-selector-button` is styled too, for anyone who uses the input bare.
+   ─────────────────────────────────────────────────────────────────────────── */
+.form-file { display: inline-flex; align-items: center; gap: var(--space-5); }
+/* Hidden, not display:none — the input must stay focusable and in the accessibility
+   tree, or the label becomes a button that a keyboard cannot reach. */
+.form-file input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    border: 0;
+}
+.form-file-name { color: var(--muted); font-size: var(--text-3); }
+/* The focus ring has to be drawn on the label, because the focused element is the
+   input the reader cannot see. */
+.form-file:has(input:focus-visible) .btn { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* Almost no block padding. A file input's content is the UA's own button, which is
+   taller than a line of text, so `.form-input`'s padding on top of it pushes a bare
+   file input past every other control in the row. The button supplies the height, and
+   --control-height binds as it does everywhere else. */
+.form-input[type="file"] { padding-block: var(--space-1); }
+
+.form-input::file-selector-button {
+    margin-inline-end: var(--space-5);
+    padding: var(--space-2) var(--space-5);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: var(--text-3);
+    cursor: pointer;
+}
+.form-input::file-selector-button:hover { background: var(--bg-hover); }
+
+/* ── Dropzone ───────────────────────────────────────────────────────────────
+   A drop target that is ALSO a click target. Drag and drop alone is unusable by
+   keyboard and awkward on touch, so the zone wraps a real file input and the drag
+   handling is an enhancement on top.
+
+   .dropzone--over says "something is being dragged over me", for which there is no
+   CSS pseudo-class. Add `data-dropzone` and Sedna.UI.js maintains it, and hands
+   a dropped file to the zone's own <input type="file"> as a `change` event; an app
+   that would rather own the drag handling leaves the attribute off and sets the
+   class itself. */
+.dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-9);
+    background: var(--surface-soft);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-surface);
+    color: var(--muted);
+    font-size: var(--text-4);
+    text-align: center;
+    cursor: pointer;
+    transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+.dropzone i { font-size: var(--text-10); color: var(--border-hover); }
+.dropzone:hover { border-color: var(--border-hover); }
+.dropzone--over {
+    background: var(--brand-tint);
+    border-color: var(--brand-soft);
+    border-style: solid;
+    color: var(--brand-text);
+}
+.dropzone--over i { color: var(--brand-soft); }
+/* :focus-within rather than :has(input:focus-visible): the zone IS the label, and
+   focus-within says exactly what is meant with less machinery. */
+.dropzone:focus-within { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* ── File list ──────────────────────────────────────────────────────────────
+   What was attached, and how to remove it. A real <ul>, so the count is announced.
+   The size is monospace so a column of them lines up. */
+.file-list { list-style: none; margin: var(--space-4) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+    font-size: var(--text-3);
+}
+.file-item > i { font-size: var(--text-7); color: var(--muted); flex-shrink: 0; }
+.file-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-item-size { color: var(--muted); font-family: var(--font-mono); flex-shrink: 0; }
+/* Failed upload or a rejected type. The icon carries it too, so it is not colour
+   alone. */
+.file-item--error { border-color: var(--danger-border); color: var(--danger-fg); }
+.file-item--error > i { color: var(--danger-fg); }

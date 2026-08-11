@@ -1,0 +1,22 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "src/Sedna.UI.Catalogue/Dockerfile",
+    "watchPatterns": [
+      "src/Sedna.UI/**",
+      "src/Sedna.UI.Catalogue/**",
+      "docs/**",
+      "global.json",
+      "railway.json"
+    ]
+  },
+  "deploy": {
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 120,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 5,
+    "numReplicas": 1,
+    "overlapSeconds": 20
+  }
+}

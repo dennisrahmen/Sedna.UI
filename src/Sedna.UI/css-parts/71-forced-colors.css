@@ -1,0 +1,119 @@
+/* ═══ Forced colours ════════════════════════════════════════════════════════
+   Windows high-contrast mode. The browser replaces every colour with a small
+   user-chosen palette, and it does so whatever this stylesheet says — so the job here
+   is not to restyle anything, it is to make sure nothing the library draws
+   *disappears* when it does.
+
+   Two failure modes, and both are silent:
+
+     1. Anything drawn with a background instead of a border vanishes. A tinted
+        surface becomes Canvas, so a brand-tinted active nav item, a selected table
+        row, a checked checkbox and a filled step marker all become indistinguishable
+        from their neighbours.
+     2. `box-shadow` is not painted at all in forced colours. Every focus ring in this
+        library is a box-shadow, so without the rules below the whole library becomes
+        unusable by keyboard — which is the exact population most likely to be in
+        forced-colors mode.
+
+   Everything below is a token remap on :root plus outline work, which is why it
+   passes `Appearance_media_queries_only_remap_tokens`: the only selector rules are
+   ones whose declarations are all `forced-color-adjust` or `outline`, the documented
+   exception.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (forced-colors: active) {
+    /* The system keywords are the palette the user chose; they are legal here and
+       nowhere else. Mapping the tokens means every class picks the palette up without
+       being touched. */
+    :root {
+        --bg:              Canvas;
+        --bg-elevated:     Canvas;
+        --bg-hover:        Highlight;
+        --fg:              CanvasText;
+        --fg-soft:         CanvasText;
+        --muted:           GrayText;
+        --border:          CanvasText;
+        --border-strong:   CanvasText;
+        --border-hover:    Highlight;
+        --divider:         CanvasText;
+        --card-bg:         Canvas;
+        --surface-soft:    Canvas;
+        --surface-strong:  Canvas;
+        --on-solid:        HighlightText;
+
+        --brand:           Highlight;
+        --brand-hover:     Highlight;
+        --brand-active:    Highlight;
+        --brand-soft:      Highlight;
+        --brand-text:      LinkText;
+        --brand-tint:      Canvas;
+        --accent:          LinkText;
+
+        --sidebar-bg:      Canvas;
+        --sidebar-border:   CanvasText;
+        --sidebar-fg:      CanvasText;
+        --sidebar-active:  Highlight;
+
+        /* The semantic families collapse: the user's palette has no green or amber,
+           and inventing one defeats the mode. What must survive is the *shape* — the
+           leading rules, the icons and the text, all of which are borders and glyphs. */
+        --go-solid: CanvasText;   --go-bg: Canvas;     --go-border: CanvasText;   --go-fg: CanvasText;
+        --warn-solid: CanvasText; --warn-bg: Canvas;   --warn-border: CanvasText; --warn-fg: CanvasText;
+        --danger-solid: CanvasText; --danger-bg: Canvas; --danger-fg: CanvasText;
+        --danger-border: CanvasText; --danger-border-strong: CanvasText;
+        --info-bg: Canvas;   --info-border: CanvasText;   --info-fg: CanvasText;
+        --secret-bg: Canvas; --secret-border: CanvasText; --secret-fg: CanvasText;
+
+        --badge-bg: Canvas;
+        --table-head-bg: Canvas;
+        --skeleton-bg: Canvas;
+        --skeleton-sheen: Canvas;
+        --progress-track: Canvas;
+        --code-bg: Canvas;
+        --code-fg: CanvasText;
+        --backdrop: Canvas;
+        --overlay: Canvas;
+        --tip-bg: Canvas;
+        --tip-border: CanvasText;
+        --tip-fg: CanvasText;
+    }
+
+    /* Focus rings. Every one in this library is a box-shadow, and box-shadow is not
+       painted in forced colours — so each of them is restated as an outline, which is.
+       An `outline` on top of the existing `outline: none` is why these rules are
+       permitted by the appearance-media-query guard. */
+    .btn:focus-visible,
+    .form-input:focus,
+    .form-check input:focus-visible,
+    .switch input[type="checkbox"]:focus-visible,
+    .form-range:focus-visible,
+    .input-group:focus-within,
+    .tab:focus-visible,
+    .menu-item:focus-visible,
+    .page-link:focus-visible,
+    .chip-dismiss:focus-visible,
+    .th-sort:focus-visible,
+    .accordion summary:focus-visible,
+    .tree summary:focus-visible,
+    .tree-leaf:focus-visible,
+    .skip-link:focus,
+    .fab:focus-visible,
+    a.list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+
+    /* Selected and current states are backgrounds, which are flattened away. An
+       outline is what is left that the mode still paints. */
+    .nav-link.active,
+    .tab[aria-selected="true"],
+    .page-link[aria-current="page"],
+    .palette-item[aria-selected="true"],
+    .tree-leaf[aria-current="true"],
+    .list-row[aria-selected="true"],
+    .segmented-option:has(input:checked) { outline: 1px solid Highlight; }
+
+    /* A status dot is the one thing whose actual colour IS the content — it is not
+       decoration on a label, it IS the label — so it opts out of the forced palette
+       entirely. */
+    .nav-status-dot,
+    .health-dot,
+    .chip-dot,
+    .timeline > li::before { forced-color-adjust: none; }
+}

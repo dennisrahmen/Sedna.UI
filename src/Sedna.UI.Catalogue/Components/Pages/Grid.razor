@@ -1,0 +1,56 @@
+@page "/grid"
+
+<CatHead Title="Grids">
+    Three layout primitives, all breakpoint-free: they respond to the space they are given rather
+    than to the viewport width, so they behave correctly inside a narrow column too.
+</CatHead>
+
+<div class="cat-note">
+        <strong>Page-specific grids stay in the app.</strong> Only reusable layout primitives live here.
+        A two-pane layout or a tile grid tuned to one page's card size belongs in that page.
+    </div>
+
+<CatExample TExample="Examples.Grid.CardMasonry" Title="`.card-masonry`" Demo="ex-demo--block">
+    <p>
+        Cards of similar height flow across as many balanced columns as the width allows, and
+        stack to fill each column instead of piling into one strip. Every child is kept whole.
+        <code>auto-fit</code> collapses empty tracks, so the cards that are present always
+        stretch to fill the row — remove one and nothing is left stranded. Resize this window to
+        watch it recolumn.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Grid.CardGrid" Title="`.card-grid`" Demo="ex-demo--block">
+    <p>
+        A set of peers in a plain wrapping grid. It differs from
+        <code>.card-masonry</code> in the one way that decides which to use:
+        <code>auto-fill</code> keeps the track count stable, so three cards stay three columns
+        wide instead of stretching to fill the row. Use this when the cards are equals of similar
+        height; use <code>.card-masonry</code> when their heights differ a lot.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Grid.FieldGrid" Title="`.field-grid`" Demo="ex-demo--block">
+    <p>
+        Form fields side by side, collapsing to one column below roughly 200px per field. Use it
+        for values that belong together — a from/to pair, a host and port.
+    </p>
+</CatExample>
+
+<div class="cat-note">
+        <strong>Page width needs no wrapper.</strong> <code>.page</code> holds content to
+        <code>--page-max</code> (1800px) and centres it by growing its horizontal padding rather than
+        capping its width, which keeps the scrollbar at the right edge of the screen.
+    </div>
+
+<CatExample TExample="Examples.Grid.StatsAndCards" Title="A dashboard row" Demo="ex-demo--block">
+    <p>
+        The composition a dashboard is actually made of: a <a href="/stat"><code>.stat-row</code></a>
+        of figures above a <code>.card-grid</code> of the things behind them. Both are breakpoint-free,
+        so the whole block behaves correctly inside a narrow column too.
+    </p>
+    <p>
+        Nothing here is a page-specific grid. If a layout needs a named area or a fixed column count,
+        it belongs in the app that owns the page rather than in this library.
+    </p>
+</CatExample>

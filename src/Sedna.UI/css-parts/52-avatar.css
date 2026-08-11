@@ -1,0 +1,94 @@
+/* ── Avatar ─────────────────────────────────────────────────────────────────
+   A person or a system actor, in page content. The header's own avatar is
+   `.user-avatar` and stays part of the frame; this is the one for tables, lists and
+   cards.
+
+   Takes an <img>, initials, or a Remix Icon — in that order of preference, and the
+   icon is the honest fallback rather than a generated colour block, which invents a
+   distinction that is not in the data.
+
+   An avatar is never the only carrier of a name. Put the name in text beside it, or
+   in an <img alt>, or in a .visually-hidden span: initials are not a name, and a
+   hover title is not reachable by keyboard or touch.
+   ─────────────────────────────────────────────────────────────────────────── */
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    /* One source for the diameter, because the group's overlap and its cut-out are
+       both derived from it. A size variant sets these two numbers and the geometry
+       below follows.
+
+       --avatar-cut-x is the centre of the hole the group masks out: the next
+       avatar's centre, measured from this one's own box. Past the right edge in
+       LTR; 70-rtl.css mirrors it, because a radial-gradient position is physical
+       and margin-inline-start is not. */
+    --avatar-size: 28px;
+    --avatar-overlap: 8px;
+    --avatar-gap: 2px;
+    --avatar-cut-x: calc(100% + var(--avatar-size) / 2 - var(--avatar-overlap));
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--brand-tint);
+    color: var(--brand-text);
+    font-size: var(--text-3);
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+    user-select: none;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar i { font-size: var(--text-6); }
+
+.avatar-sm { --avatar-size: 22px; --avatar-overlap: 6px; font-size: var(--text-1); }
+.avatar-sm i { font-size: var(--text-4); }
+.avatar-lg { --avatar-size: 40px; --avatar-overlap: 11px; font-size: var(--text-6); }
+.avatar-lg i { font-size: var(--text-9); }
+
+/* Neutral, for an actor with no brand meaning — a system account, an unknown
+   sender. Keeps the brand tint for people, so a page of rows does not read as
+   uniformly branded. */
+.avatar--muted { background: var(--surface-strong); color: var(--muted); }
+
+/* ── Avatar group ───────────────────────────────────────────────────────────
+   Overlapping avatars for "these several people".
+
+   The separating gap is a hole cut out of the avatar BEHIND, not a ring painted on the
+   one in front. A ring has to be drawn in the colour of whatever is underneath, and a
+   shared component cannot know what that is — `box-shadow: 0 0 0 2px var(--card-bg)`
+   is right inside a card and a grey halo on the page background, in a toast and over a
+   selected table row. Masking takes colour out of the problem, so the group is correct
+   on every surface and in every theme.
+
+   Paint order is plain source order: each avatar overlaps the one before it, the LAST
+   one sits on top, and the counter goes last and unoverlapped. Do not reverse it with
+   a negative z-index step or with `flex-direction: row-reverse` — the second fixes the
+   painting and breaks the reading order. */
+/* The default is declared on the group as well as on .avatar, so the counter — which
+   is not an .avatar and inherits from here — resolves it too. */
+.avatar-group { display: inline-flex; align-items: center; --avatar-overlap: 8px; }
+.avatar-group > * + * { margin-inline-start: calc(var(--avatar-overlap) * -1); }
+
+/* :has(+ .avatar), not :not(:last-child) — the last thing in a group is usually the
+   .avatar-more counter, which overlaps nothing, so the avatar before it must not be
+   cut either. Only an avatar with an avatar after it is. */
+.avatar-group > .avatar:has(+ .avatar) {
+    mask-image: radial-gradient(
+        circle calc(var(--avatar-size) / 2 + var(--avatar-gap))
+        at var(--avatar-cut-x) 50%,
+        transparent 100%, currentColor 100%);
+}
+
+/* The overflow counter. Not an .avatar: it is a number, not an actor, and giving it
+   the brand tint would make it look like one more person. */
+.avatar-more {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 var(--space-4);
+    margin-inline-start: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-3);
+}

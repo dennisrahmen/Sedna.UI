@@ -1,0 +1,40 @@
+@page "/alert"
+
+<CatHead Title="Alerts">
+    An inline banner that explains a state, in place, on the page. Four variants, same semantic
+    families as the buttons and badges.
+</CatHead>
+
+<div class="cat-note">
+        Use an alert for a condition that stays true while the page is open — degraded connection,
+        read-only mode, an empty filter result. Transient feedback about an action the user just took
+        belongs in a toast, which arrives with the tier-1 frame in <code>0.2.0</code>.
+    </div>
+
+<CatExample TExample="Examples.Alert.Variants" Title="Variants" Demo="ex-demo--block">
+    <p>Always pair the colour with an icon — colour alone is not an accessible signal.</p>
+</CatExample>
+
+<CatExample TExample="Examples.Alert.Action" Title="With an action" Demo="ex-demo--block">
+    <p>
+        <code>.alert</code> is a flex row, so <code>margin-left:auto</code> on a trailing button
+        pushes it to the end.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Alert.ReadOnlyMode" Title="Read-only mode" Demo="ex-demo--block">
+    <p>The pattern for telling a viewer-role user why every control is disabled.</p>
+</CatExample>
+
+<CatExample TExample="Examples.Alert.ValidationSummary" Title="A validation summary" Demo="ex-demo--block">
+    <p>
+        One alert at the top of the form saying nothing was saved, with a link to each field that
+        needs attention — so a keyboard or screen-reader user reaches the first problem in one
+        keystroke instead of tabbing the whole form to find it.
+    </p>
+    <p>
+        The summary does not replace the per-field messages. Each control keeps
+        <code>aria-invalid</code> and an <code>aria-describedby</code> pointing at its own
+        <a href="/form"><code>.form-error</code></a>, because that is what is read when focus arrives.
+    </p>
+</CatExample>

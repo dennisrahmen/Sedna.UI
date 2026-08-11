@@ -1,0 +1,172 @@
+/* ── Header search ──────────────────────────────────────────────────────────
+   The free-text box that sits at the start of the topbar, and the result panel
+   that drops out of it.
+
+     <div class="search">
+       <i class="ri-search-line search-icon"></i>
+       <input class="search-input" type="search" data-search placeholder="Search…">
+     </div>
+
+   The clear button and the whole panel are built by sednaUi.search — see
+   js-parts/25-search.js — so the classes below the input have no markup an app
+   writes. An app that wants to render the results itself (a Blazor component
+   over its own database, say) uses the same classes and skips data-search.
+
+   The panel is appended to <body> and positioned with inline top/left/width, not
+   nested in .search: .topbar creates a stacking context at z-index 60, so a panel
+   inside it can never rise above the modal backdrop however high its own z-index,
+   and Blazor owns the topbar's subtree while nothing but this library owns <body>'s
+   tail. 550 is the popover and dropdown rung on the documented scale.
+   ─────────────────────────────────────────────────────────────────────────── */
+.search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    /* Takes the space it is given up to 480px and gives it back first: the
+       status pills and the controls at the far end matter more than a wider
+       box. */
+    flex: 0 1 480px;
+    min-width: 130px;
+    /* Logical, so the box keeps its breathing room from the nav toggles on its
+       leading side under dir="rtl". A four-value `margin` shorthand would slip
+       past the RTL guard and still be wrong. */
+    margin-inline: var(--space-6) var(--space-7);
+}
+
+.search-icon {
+    position: absolute;
+    inset-inline-start: var(--space-6);
+    color: var(--muted);
+    font-size: var(--text-6);
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    /* The same height as every other control, from the same token, so a .btn beside
+       the box — an "advanced" toggle, a saved-search picker — lines up with it. */
+    height: var(--control-height);
+    /* Symmetric room for the icon at one end and the clear button at the other,
+       both of which are positioned over the input rather than beside it. */
+    padding: 0 var(--space-10);
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: var(--text-4);
+    outline: none;
+}
+.search-input::placeholder { color: var(--muted); }
+/* type="search" brings the platform's own ✕, which sits in the same place as
+   .search-clear and does not follow the theme. */
+.search-input::-webkit-search-cancel-button { display: none; }
+.search-input:focus { border-color: var(--brand); background: var(--card-bg); }
+
+.search-clear {
+    position: absolute;
+    inset-inline-end: var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    background: none;
+    border-radius: var(--radius-control);
+    color: var(--muted);
+    font-size: var(--text-6);
+    cursor: pointer;
+}
+.search-clear:hover { background: var(--bg-hover); color: var(--fg); }
+/* Shown only when there is something to clear, decided by CSS rather than by
+   script: the button is markup the app writes, so a rendered-and-hidden button
+   is the one form that also works with scripting blocked. It needs the input to
+   carry a placeholder — without one :placeholder-shown never matches and the
+   button simply stays visible, which is the harmless failure. */
+.search-input:placeholder-shown ~ .search-clear { display: none; }
+
+.search-panel {
+    position: fixed;
+    z-index: 550;
+    max-height: 360px;
+    overflow-y: auto;
+    padding: var(--space-2);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    --scroll-bg: var(--card-bg);
+}
+
+/* Searching, and nothing found. Both are a line of muted text rather than an
+   empty box: a panel that opens on nothing reads as broken. */
+.search-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+
+.search-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    width: 100%;
+    padding: var(--space-4) var(--space-5);
+    border: none;
+    background: none;
+    border-radius: var(--radius-surface);
+    color: inherit;
+    font-family: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+/* Where the keyboard is, which is a different thing from where the pointer is.
+   Both land on the same tint here because the two never disagree: the pointer
+   moving over a result also moves the selection. */
+.search-item--sel { background: var(--bg-hover); }
+.search-item:hover { background: var(--bg-hover); text-decoration: none; }
+
+.search-item-title {
+    overflow: hidden;
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-weight: 600;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.search-item-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    color: var(--muted);
+    font-size: var(--text-2);
+}
+
+/* A pill inside a result's meta line — "closed", "needs approval". Not a
+   .badge: that is a content-sized pill for a table cell, and at 11px inside a
+   dropdown row it is the wrong weight. */
+.search-tag {
+    padding: 0 var(--space-3);
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--muted);
+    font-size: var(--text-1);
+}
+.search-tag--warn { border-color: var(--warn-border); color: var(--warn-fg); }
+
+/* Below this the box would crowd the status pills and the controls beside it.
+   An app that hides the search here needs another way in — its own list page
+   usually already has one. */
+@media (max-width: 720px) {
+    .search { display: none; }
+}

@@ -1,0 +1,10 @@
+<div class="menu-anchor" @onkeydown="HandleKeyDown">
+    <button class="btn" type="button" aria-expanded="@_open" @onclick="Toggle">Actions</button>
+    @if (_open)
+    {
+        <div class="menu-scrim" @onclick="Close"></div>
+        <div class="menu">
+            <button class="menu-item" type="button">Reassign</button>
+        </div>
+    }
+</div>

@@ -1,0 +1,77 @@
+@page "/palette"
+
+<CatHead Title="Command palette">
+    The <kbd>Ctrl</kbd>+<kbd>K</kbd> box: type, see matching commands, run one. A
+    <code>&lt;dialog&gt;</code>, so the top layer, the focus trap and <kbd>Escape</kbd> are the
+    platform's.
+</CatHead>
+
+<CatExample TExample="Examples.Palette.CommandPalette" Title="Open it" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> This site registers one command per page with
+        <code>sednaUi.palette.register</code>. Until something is registered the library leaves
+        the browser's own <kbd>Ctrl</kbd>+<kbd>K</kbd> alone, so a site that documents the palette and
+        never calls <code>register</code> has one in the stylesheet and none in the browser.
+    </p>
+    <p>
+        Positioned near the top rather than centred: the list grows downwards, and a centred box moves
+        under the reader's eye as they type.
+    </p>
+    <p>
+        A command registered from C# carries an <code>Href</code> and navigates. A <code>run</code>
+        callback is JavaScript-only, because the library never calls back into .NET.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Palette/RegisterCommands.txt" Title="Registering commands">
+    <p>
+        <code>register()</code> replaces the whole list, so call it again whenever what is available
+        changes — after a permission check, or on navigation. <code>keywords</code> makes a command
+        findable by a word that is not in its label, and scores below the same word in the label so a
+        command is never outranked by one that merely mentions it.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.Palette.PaletteStates" Title="Matching, and nothing found" Demo="ex-demo--block">
+    <p>
+        The two states side by side, laid out statically here so both are visible at once.
+        <code>.palette-group</code> heads a run of commands from the same group; groups are shown in
+        registration order and dropped once a query has reordered the list, because a heading over
+        unrelated results is worse than no heading.
+    </p>
+    <p>
+        The group heading's <code>&lt;li&gt;</code> carries <code>role="presentation"</code>, and it is
+        load-bearing: a <code>listbox</code> may own only <code>option</code>s, so a bare
+        <code>&lt;li&gt;</code> here breaks <code>aria-required-children</code> — and stops being a
+        listitem at the same time, because the <code>&lt;ul&gt;</code> is then no longer a list.
+    </p>
+    <p>
+        <code>.palette-empty</code> names the query rather than saying &ldquo;no results&rdquo;, so the
+        reader can see the box holds what they think it does. <code>.palette-footer</code> carries the
+        keys; <code>.kbd</code> reuses the inline-code tint, because that is what it is — a literal the
+        reader types.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Palette/PaletteMarkup.html" Title="The markup">
+    <p>
+        What the library builds, for an app rendering its own command list. If you are calling
+        <code>register()</code> you write none of it.
+    </p>
+    <p>
+        The list is a real <code>role="listbox"</code> of <code>role="option"</code> items, with the
+        input as the combobox owning it through <code>aria-activedescendant</code>. That claim is made
+        only because the keyboard contract behind it is implemented in full: arrows,
+        <kbd>Home</kbd>/<kbd>End</kbd>, <kbd>Enter</kbd>, and the highlight moving while focus stays
+        in the input. <code>aria-selected</code> is the keyboard's position, which is a different
+        thing from <code>:hover</code> — moving the pointer must not move the keyboard.
+    </p>
+    <p>
+        <code>.palette-empty</code> is the no-matches state. Say what was searched, not just
+        &ldquo;no results&rdquo;.
+    </p>
+    <p>
+        There is no fuzzy-match library. The scorer is <code>sednaUi._.score</code>, shared with
+        the <a href="/frame">header search</a> so the two cannot rank the same query differently.
+    </p>
+</CatSnippet>

@@ -1,0 +1,48 @@
+@page "/card"
+
+<CatHead Title="Cards">
+    Three parts, all optional except the outer one: <code>.card</code> holds the border and
+    clips its children, <code>.card-head</code> is the title row, <code>.card-body</code> is
+    the padded content. Put the markup you want inside — that is the point.
+</CatHead>
+
+<div class="cat-note">
+        For a variant, write the markup you need and use a token for any colour. There is no card
+        component and no variant parameter.
+    </div>
+
+<CatExample TExample="Examples.Card.HeadBody" Title="Head and body" Demo="ex-demo--block">
+    <p>
+        <code>.card-head</code> is <code>space-between</code>, so the first child goes left and
+        the rest go right. Group multiple right-hand items in <code>.card-head-right</code> so
+        they share a gap.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Card.BodyOnly" Title="Body only" Demo="ex-demo--block">
+    <p>Drop the head when the content names itself.</p>
+</CatExample>
+
+<CatExample TExample="Examples.Card.TableCard" Title="A table in a card" Demo="ex-demo--block">
+    <p>
+        No <code>.card-body</code> — the table provides its own cell padding, and
+        <code>.card</code>'s <code>overflow:hidden</code> clips the first row's corners to the
+        border radius.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Card.KeyValueRows" Title="Key/value rows" Demo="ex-demo--block">
+    <p>
+        <code>.kv</code> pushes label and value apart; the value picks up the monospace token,
+        which keeps numbers and IDs aligned down the column.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Card.CaveatAboutCardSOwn" Title="A caveat about the card's own content" Demo="ex-demo--block">
+    <p>
+        <code>.card-warning</code> pins an amber strip to the card's bottom edge — a stale figure,
+        a degraded source, a partial result. It is part of the card, which is why it is not an
+        <code>.alert</code>: an alert is a statement about the page, and putting one inside a card
+        makes the reader look for what else on the page is affected.
+    </p>
+</CatExample>

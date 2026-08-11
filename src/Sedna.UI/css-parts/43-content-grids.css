@@ -1,0 +1,38 @@
+/* ── Content grids ──────────────────────────────────────────────────────────
+   Layout primitives. Page-specific grids belong in the app, not here.
+
+   Every track minimum is `min(Npx, 100%)` rather than a bare `Npx`. A bare track
+   minimum does not shrink, so a grid whose column floor exceeds the container
+   overflows it instead of dropping to one column — on a phone, and inside any narrow
+   card. `min()` keeps the floor above that width and lets the track collapse below it,
+   which is what makes these breakpoint-free rather than breakpoint-free above 340px. */
+
+/* Cards of similar height flow across as many balanced columns as the width
+   allows and stack to fill each column, instead of piling into one strip. Every
+   child is kept whole. auto-fit collapses empty tracks, so the cards that ARE
+   present always stretch to fill the row — no stranded empty column. */
+.card-masonry {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    gap: var(--space-7);
+    align-items: start;
+}
+
+/* Equal-height cards in a plain wrapping grid. Differs from .card-masonry in one
+   way that decides which to use: auto-FILL keeps the track count stable, so a
+   row of three cards stays three columns wide instead of stretching to fill the
+   row. Use this for a set of peers (a dashboard of tiles); use .card-masonry
+   when the cards have very different heights. */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+    gap: var(--space-7);
+}
+
+/* Two-up field rows that collapse to one column when there isn't room. */
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+    gap: var(--space-7);
+}
+

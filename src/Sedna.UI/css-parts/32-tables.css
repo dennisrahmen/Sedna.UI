@@ -1,0 +1,19 @@
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+    text-align: start;
+    padding: var(--cell-pad-y) var(--cell-pad-x);
+    border-bottom: 1px solid var(--border);
+}
+.table th {
+    background: var(--table-head-bg);
+    font-weight: 600;
+    color: var(--muted);
+    font-size: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tr-clickable { cursor: pointer; user-select: none; }
+.tr-clickable:hover > td { background: var(--bg-hover); }
+.col-muted { color: var(--muted); font-size: var(--text-3); white-space: nowrap; }
+

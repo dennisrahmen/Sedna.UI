@@ -1,0 +1,80 @@
+@page "/collections"
+
+<CatHead Title="Collections">
+    Four ways to show a set of things. Pick by what the reader does with it: compare values
+    (a <a href="/table">table</a>), open one at a time (<code>.list</code>), follow an order
+    (<code>.steps</code>), read a record (<code>.timeline</code>), or expand into detail
+    (<code>.accordion</code>, <code>.tree</code>).
+</CatHead>
+
+<CatExample TExample="Examples.Collections.List" Title="List" Demo="ex-demo--block">
+    <p>
+        For rows where a table would be wrong: when the fields differ per row, when one field
+        dominates and the rest supports it, or when each row is something you <em>open</em> rather
+        than compare down a column.
+    </p>
+    <p>
+        A row that navigates is an <code>&lt;a class="list-row"&gt;</code> filling the
+        <code>&lt;li&gt;</code>, never a click handler on the <code>&lt;li&gt;</code> — the whole
+        row is then a real link, openable in a new tab and reachable by keyboard.
+        <code>.list-main</code> carries <code>min-width:0</code>, which is what makes the ellipsis
+        work: a flex item otherwise refuses to shrink below its content, and truncation silently
+        never happens.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Collections.Steps" Title="Steps" Demo="ex-demo--block">
+    <p>
+        Progress through a sequence that has an order and an end — a wizard, an approval chain.
+        State is <code>data-state</code> on the <code>&lt;li&gt;</code> rather than a modifier class,
+        because a step has exactly one of three states and an attribute cannot accidentally carry
+        two. The number comes from a CSS counter, so inserting a step is not a renumbering edit.
+    </p>
+    <p>
+        Done is <strong>filled</strong> and pending is <strong>outlined</strong>. That difference
+        survives the colour-blind palette, a greyscale print and forced colours — which a
+        green-versus-grey fill would not — so no markup has to carry a tick.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Collections.Timeline" Title="Timeline" Demo="ex-demo--block">
+    <p>
+        Things that happened, with when — an audit trail, a change history. It differs from
+        <code>.steps</code> in what it is <em>for</em>: steps have a fixed sequence the reader can
+        be &ldquo;on&rdquo;, a timeline is an open-ended record. If the reader can be on one of
+        them, it is steps.
+    </p>
+    <p>
+        The rule runs down the markers as a border on the <code>&lt;li&gt;</code>, so it stops
+        exactly at the last entry without anyone having to give it a length.
+        <code>data-kind</code> tints a marker for an entry that mattered.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Collections.Accordion" Title="Accordion" Demo="ex-demo--block">
+    <p>
+        Built on <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code>, which is the point: the
+        open state, the keyboard operation and the announcement all come from the platform, so
+        there is no ARIA to get wrong and nothing to wire.
+    </p>
+    <p>
+        Give every <code>&lt;details&gt;</code> the same <code>name</code> to make them mutually
+        exclusive — that is a platform feature too, and it needs no JavaScript. Try it: opening one
+        below closes the others.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Collections.Tree" Title="Tree" Demo="ex-demo--block">
+    <p>
+        Nested structure the reader expands — a group hierarchy, a folder of files. Nested
+        <code>&lt;ul&gt;</code> inside <code>&lt;details&gt;</code>, for the same reason as the
+        accordion.
+    </p>
+    <p>
+        Do <strong>not</strong> declare <code>role="tree"</code>. A tree promises single-tab-stop
+        navigation with arrow keys through a flattened view, which this markup does not implement;
+        <code>&lt;details&gt;</code> announces a set of disclosures, which is what it is.
+        <code>.tree-leaf</code> is an item with nothing under it, indented to line up with its
+        siblings' labels.
+    </p>
+</CatExample>

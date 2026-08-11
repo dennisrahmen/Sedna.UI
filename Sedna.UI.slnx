@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/Sedna.UI/Sedna.UI.csproj" />
+  <Project Path="src/Sedna.UI.Tests/Sedna.UI.Tests.csproj" />
+  <Project Path="src/Sedna.UI.Catalogue/Sedna.UI.Catalogue.csproj" />
+  <Project Path="src/Sedna.UI.Catalogue.Tests/Sedna.UI.Catalogue.Tests.csproj" />
+</Solution>

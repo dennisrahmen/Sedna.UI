@@ -1,0 +1,135 @@
+/* ── Form controls — select, radio, switch ──────────────────────────────────
+   The rest of the family is in 34-forms.css. These three are here because each
+   one resets the browser's native control and redraws it, which is most of the
+   code in the family and none of the shape of it.
+
+   This file must stay numbered ABOVE 34: `.form-select` and `.form-input` have
+   equal specificity, so the caret's background-image survives .form-input's
+   `background` shorthand on source order alone. Renumber this below 34 and the
+   caret silently disappears.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Add beside .form-input — `class="form-input form-select"`. .form-input already
+   styles a <select>; this replaces the platform caret with one that matches the
+   theme.
+
+   The caret is two triangular gradients meeting at a point. Not an SVG: this
+   stylesheet loads and inlines nothing, so neither url() nor a data: URI is
+   available. Not a pseudo-element either — ::before / ::after do not render on a
+   <select> at all, in any browser. */
+.form-select {
+    appearance: none;
+    /* Room for the caret plus its 12px inset, so a long option label stops
+       before it rather than running underneath. */
+    padding-inline-end: var(--space-10);
+    background-image:
+        linear-gradient(45deg,  transparent 50%, var(--muted) 50%),
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position:
+        calc(100% - 17px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+/* A list box is not a dropdown: there is nothing to drop, and the caret would
+   sit over the first row. */
+.form-select[multiple],
+.form-select[size]:not([size="1"]) {
+    background-image: none;
+    padding-inline-end: var(--space-5);
+    cursor: auto;
+}
+
+/* ── Radio ──────────────────────────────────────────────────────────────────
+   Same .form-check label wrapper as the checkbox. Deliberately a brand DOT in an
+   unfilled circle rather than a filled disc: shape and fill then both differ from
+   the checkbox, so which one is exclusive is readable at a glance and without
+   colour. */
+.form-check input[type="radio"] {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    cursor: pointer;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    position: relative;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.form-check input[type="radio"]:hover { border-color: var(--border-hover); }
+.form-check input[type="radio"]:checked { border-color: var(--brand); }
+.form-check input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
+    left: 50%; top: 50%;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--brand);
+    transform: translate(-50%, -50%);
+}
+.form-check input[type="radio"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--brand-ring-check);
+}
+
+/* ── Switch ─────────────────────────────────────────────────────────────────
+   For a setting that takes effect immediately. A checkbox is for a value that is
+   saved with the rest of the form — the difference is when it applies, not how it
+   looks, and picking the wrong one misleads about whether Save is still needed.
+
+   Still an <input type="checkbox">, so it is keyboard- and screen-reader-correct
+   with no ARIA. */
+.switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-5);
+    font-size: var(--text-4);
+    cursor: pointer;
+    user-select: none;
+}
+.switch input[type="checkbox"] {
+    appearance: none;
+    position: relative;
+    flex-shrink: 0;
+    width: 34px;
+    height: 19px;
+    background: var(--border-strong);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.switch input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    /* Not on the spacing scale, deliberately: these two, the 34×19 track and the
+       13px knob are one interlocking geometry. Rescaling the spacing ramp must not
+       move the knob out of its track. */
+    top: 2px;
+    inset-inline-start: 2px;
+    width: 13px;
+    height: 13px;
+    background: var(--on-solid);
+    border-radius: 50%;
+    transition: transform var(--motion-fast) ease;
+}
+.switch input[type="checkbox"]:hover { border-color: var(--border-hover); }
+.switch input[type="checkbox"]:checked {
+    background: var(--brand);
+    border-color: var(--brand);
+}
+.switch input[type="checkbox"]:checked::after { transform: translateX(15px); }
+.switch input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--brand-ring-check);
+}
+.switch input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.45; }
+.switch:has(input:disabled) { cursor: not-allowed; color: var(--muted); }
+
+/* Room for a sentence explaining the consequence, under the label. */
+.switch-text  { display: flex; flex-direction: column; gap: var(--space-1); }
+.switch-hint  { font-size: var(--text-3); color: var(--muted); }

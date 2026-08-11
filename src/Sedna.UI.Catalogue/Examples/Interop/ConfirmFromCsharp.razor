@@ -1,0 +1,34 @@
+@inject ISednaUi Ui
+
+<div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center">
+    <button class="btn" type="button" @onclick="Apply">Confirm an action</button>
+    <button class="btn btn-danger" type="button" @onclick="Discard">Confirm something destructive</button>
+    <span class="badge">@_outcome</span>
+</div>
+
+@code {
+    private string _outcome = "nothing yet";
+
+    private async Task Apply()
+    {
+        var ok = await Ui.ConfirmAsync(
+            "Apply the reservation?",
+            "The order will be rerouted to EU-West.",
+            confirmLabel: "Apply");
+
+        _outcome = ok ? "applied" : "cancelled";
+    }
+
+    // danger reddens the confirm button and focuses Cancel, so a stray Enter does
+    // not delete anything.
+    private async Task Discard()
+    {
+        var ok = await Ui.ConfirmAsync(
+            "Discard the reservation?",
+            "This cannot be undone.",
+            confirmLabel: "Discard",
+            danger: true);
+
+        _outcome = ok ? "discarded" : "kept";
+    }
+}

@@ -1,0 +1,119 @@
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+.form-field { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.form-label {
+    font-size: var(--text-2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+
+/* min-height, not height: a <textarea> and a <select multiple> are taller by nature
+   and must stay so. It is the same token the button uses, which is what makes a
+   button beside a field line up with it.
+
+   The block padding matches the button's for the same reason, and has to stay small
+   enough that the natural height — padding + line box + borders — is UNDER
+   --control-height. A min-height is a floor: at 8px of block padding the field
+   measures 36.2px, the token never binds, and the field sits a couple of pixels
+   taller than everything beside it. */
+.form-input {
+    min-height: var(--control-height);
+    padding: var(--space-3) var(--space-5);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-family: inherit;
+    line-height: 1.4;
+    width: 100%;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.form-input:focus {
+    outline: none;
+    border-color: var(--brand-soft);
+    box-shadow: 0 0 0 2px var(--brand-glow);
+}
+.form-input::placeholder { color: var(--border-strong); }
+
+/* The same three tiers as the button, so a field and the button beside it agree at
+   every size. Padding stays under the tier so the tier is what sets the height. */
+.form-input-sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
+.form-input-lg { min-height: var(--control-height-lg); padding: var(--space-5) var(--space-7); font-size: var(--text-5); }
+
+/* A read-only value rendered in the shape of an input — so it takes the input's
+   height too, or a form of mixed editable and read-only rows steps up and down. */
+/* display:flex, so min-height applies and the text sits centred in the box. min-height
+   does nothing on an inline element, so a bare <span> here comes out several pixels
+   shorter than the field above it. */
+.form-value-display {
+    display: flex;
+    align-items: center;
+    min-height: var(--control-height);
+    padding: var(--space-3) var(--space-5);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    font-size: var(--text-4);
+}
+
+.form-check {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: var(--text-4);
+    cursor: pointer;
+    user-select: none;
+}
+.form-check input[type="checkbox"] {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    cursor: pointer;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+    position: relative;
+    transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.form-check input[type="checkbox"]:hover { border-color: var(--border-hover); }
+.form-check input[type="checkbox"]:checked {
+    background: var(--brand);
+    border-color: var(--brand);
+}
+.form-check input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
+    left: 50%; top: 50%;
+    width: 4px; height: 8px;
+    border-inline-end: 2px solid var(--on-solid);
+    border-bottom: 2px solid var(--on-solid);
+    transform: translate(-50%, -60%) rotate(45deg);
+}
+.form-check input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--brand-ring-check);
+}
+
+/* Disabled reads as disabled. It applies to the whole label, not just the box:
+   dimming the 15px control and leaving its sentence at full contrast makes the row
+   look enabled with a faint tick, which is worse than either state.
+
+   The `:has()` is what lets one rule cover the checkbox and the radio without either
+   knowing about the other. */
+.form-check:has(input:disabled) { color: var(--muted); cursor: not-allowed; }
+.form-check input:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.form-input:disabled,
+.form-input[readonly] { cursor: not-allowed; background: var(--surface-soft); color: var(--muted); }
+/* readonly is not disabled: the value is still selectable and copyable, and still
+   submitted, so it keeps the normal cursor and a full-contrast value. Only the
+   surface says it cannot be edited. */
+.form-input[readonly] { cursor: text; color: var(--fg); }
+
+.form-hint { font-size: var(--text-3); color: var(--muted); margin: 0; }
+
