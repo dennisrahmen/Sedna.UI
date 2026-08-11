@@ -1,6 +1,7 @@
 using System.Threading.RateLimiting;
 using Sedna.UI;
 using Sedna.UI.Catalogue.Components;
+using Sedna.UI.Catalogue.Health;
 using Sedna.UI.Catalogue.Mcp;
 using Sedna.UI.Catalogue.Navigation;
 using Microsoft.AspNetCore.RateLimiting;
@@ -107,8 +108,21 @@ app.UseCors();
 app.UseRateLimiter();
 app.UseAntiforgery();
 
-// Railway's healthcheck. Must return 200 or the deploy never goes live.
-app.MapGet("/health", () => Results.Ok("healthy"));
+// Railway's healthcheck. Must return 200 or the deploy never goes live, which is
+// what makes it the right place to assert the host page's own assets are being
+// served: a publish that drops one then never replaces a working deployment. The
+// endpoint used to answer 200 unconditionally, and a container shipped with no
+// _framework/blazor.web.js — every page 200, healthcheck green, nothing on the site
+// interactive.
+app.MapGet("/health", (IWebHostEnvironment environment) =>
+{
+    var missing = HostPageAssets.Missing(environment.WebRootFileProvider);
+
+    return missing.Count == 0
+        ? Results.Ok("healthy")
+        : Results.Json(new { status = "unhealthy", missing },
+            statusCode: StatusCodes.Status503ServiceUnavailable);
+});
 
 // DisableAntiforgery is belt and braces: UseAntiforgery only validates endpoints
 // carrying antiforgery metadata, so /mcp should be unaffected — but if POSTs here

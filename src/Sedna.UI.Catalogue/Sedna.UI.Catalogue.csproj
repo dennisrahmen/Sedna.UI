@@ -20,6 +20,16 @@
     <!-- Not a library: nothing consumes this assembly's API, so there is no XML
          doc burden. Every type here is internal for the same reason. -->
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!-- Set explicitly, because the SDK otherwise infers it from whether any
+         Content item carries a .razor extension, and restore is the step that
+         decides it. The Dockerfile restores from the .csproj files alone before
+         copying the sources, so no .razor file exists yet, the inference says
+         false, and Microsoft.AspNetCore.App.Internal.Assets never enters the
+         restore graph. The publish that follows then emits a wwwroot without
+         _framework/blazor.web.js and reports no error, so the site serves, the
+         healthcheck passes, and nothing on it is interactive. -->
+    <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,6 +61,10 @@
          CopyToPublishDirectory="Never" — the source is not in the published output,
          so there is nothing to read from disk in the container. -->
     <EmbeddedResource Include="Components\Pages\**\*.razor" WithCulture="false" />
+
+    <!-- The host page, for the same reason: /health reads the assets it loads out
+         of it rather than repeating them. -->
+    <EmbeddedResource Include="Components\App.razor" WithCulture="false" />
 
     <!-- The docs the MCP server serves verbatim. Never retyped: a test asserts the
          host-page block it returns is a substring of getting-started.md. -->

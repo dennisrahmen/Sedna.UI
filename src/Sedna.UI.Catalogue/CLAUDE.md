@@ -67,6 +67,9 @@ survives re-renders by construction.
   asserts the two agree, so the documented block is executed on every CI run.
 - **`wwwroot/catalogue.css` may only style `.cat-*` and `.ex-*`.** It is the docs' own chrome; styling
   anything else would make an example look better here than in the app that copies it.
+- **`/health` asserts the host page's assets, and is Railway's healthcheck**, so a publish that drops
+  one fails the deploy instead of replacing a working site with a dead one. It reads the paths out of
+  `Components/App.razor` — add an asset to the host page and it is covered; never write the list out.
 - **`z-index` comes from the documented scale** in `docs/architecture.md`, here too.
 - **Nothing is loaded from a remote host**, in a page or in an example.
 - **The examples are the documentation.** Prefer realistic content — a real-sounding queue, an actual

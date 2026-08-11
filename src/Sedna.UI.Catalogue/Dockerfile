@@ -30,6 +30,12 @@ ARG SOURCE_COMMIT=unknown
 RUN dotnet publish src/Sedna.UI.Catalogue/Sedna.UI.Catalogue.csproj \
         -c Release -o /app --no-restore -p:SourceRevisionId=$SOURCE_COMMIT
 
+# Blazor's script is a static web asset the restore step decides on, and the restore
+# above runs before the sources are copied. RequiresAspNetWebAssets in the csproj is
+# what makes it come out right; this asserts it did, because the failure is silent —
+# the site serves, the healthcheck passes, and no page is interactive.
+RUN test -f /app/wwwroot/_framework/blazor.web.js
+
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app .
