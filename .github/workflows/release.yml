@@ -1,6 +1,6 @@
 name: Release
 
-# The git tag IS the version. Tag v0.1.0 → package 0.1.0. Nothing in the repo
+# The git tag IS the version. Tag v0.2.0 → package 0.2.0. Nothing in the repo
 # needs editing to release, so a tag can never disagree with a published version.
 on:
   push:

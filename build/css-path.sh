@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Where did the shipped stylesheet live at a given git ref?
 #
-#     build/css-path.sh v0.1.0      -> src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css
 #     build/css-path.sh HEAD        -> src/Sedna.UI/wwwroot/css/Sedna.UI.css
+#     build/css-path.sh v0.2.0      -> the same, at that tag
 #
 # One implementation, because two scripts read the stylesheet out of a tag and both
 # once used the WORKING TREE's path to do it. That silently stops resolving the
@@ -18,9 +18,13 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Newest first. The pre-rename path was here until the history was squashed to a
+# single commit and v0.1.0 removed; with no ref older than the rename left in the
+# repository, an entry for it could never match. The list keeps its shape because
+# the NEXT rename needs it — add a line, never edit one, because an old tag still
+# has to be read at the path it used.
 PATHS=(
     "src/Sedna.UI/wwwroot/css/Sedna.UI.css"
-    "src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
 )
 
 REF="${1:-}"

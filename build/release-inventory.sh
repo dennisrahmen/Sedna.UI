@@ -14,8 +14,8 @@
 # the breaking part of the release.
 #
 # Usage:  build/release-inventory.sh                # against the latest tag
-#         build/release-inventory.sh v0.1.0         # against a specific ref
-#         build/release-inventory.sh v0.1.0 --notes # ready to paste into the notes
+#         build/release-inventory.sh v0.2.0         # against a specific ref
+#         build/release-inventory.sh v0.2.0 --notes # ready to paste into the notes
 #
 set -euo pipefail
 

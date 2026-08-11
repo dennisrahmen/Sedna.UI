@@ -15,9 +15,10 @@ dotnet add package Sedna.UI
 
 Pin the version. Do not use a floating version range.
 
-A `since: "0.1.0"` on a class, token or example — as reported by the catalogue or the MCP server —
-refers to the release published under the old package ID, `DR.Simple_UI`. `Sedna.UI`'s own first
-release is `0.2.0`.
+`Sedna.UI`'s first published release is **`0.2.0`**. There is no `Sedna.UI` `0.1.0` — that version
+number belongs to the retired `DR.Simple_UI` package, and pinning it here fails with
+package-not-found. Every `since` the catalogue and the MCP server report is therefore `0.2.0` or
+later; nothing in `Sedna.UI` claims to predate its own first release.
 
 ## 2. The host page
 
@@ -104,9 +105,10 @@ Grep your own stylesheets and markup for `dr-scroll`, `dr-tip` and `dr-tip--visi
 upgrading — an app that already defines one of those names sees no error, only a changed rule once
 the library's version wins the cascade.
 
-This table covers what shipped in the published `0.1.0`. The catalogue site is built from `main` and
-can be ahead of any release, so if you copied markup from it you may hold further `dr-*` utility
-classes than these three — all of them moved to `sedna-` by the same mechanical rule.
+These three are the only `dr-` classes that ever shipped in a published package. The catalogue site
+is built from `main` and can be ahead of any release, so if you copied markup from it rather than
+from a release you may hold further `dr-*` utilities — all of them moved to `sedna-` by the same
+mechanical rule.
 
 ## 5. Stored settings are lost — read this
 

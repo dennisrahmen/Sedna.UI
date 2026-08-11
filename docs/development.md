@@ -149,7 +149,7 @@ this stylesheet declare", and `build/release-inventory.sh` uses it to derive the
 release adds:
 
 ```bash
-build/release-inventory.sh v0.1.0 --notes
+build/release-inventory.sh v0.2.0 --notes
 ```
 
 Both extractions in `css-inventory.sh` are subtle — read its header before writing a third one.
