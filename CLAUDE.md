@@ -75,8 +75,7 @@ Permanently out of scope:
 
 - MudBlazor, Syncfusion, Radzen, Tailwind.
 - Wrapping tables, forms or page content in components.
-- Wrapping the frame in components. They existed on `main` between `0.1.0` and this release and were
-  removed before shipping; do not bring them back.
+- Wrapping the frame in components. The frame is markup, not a component tree; do not introduce one.
 
   This bans components that **hide markup**. It does not ban components outright — see the two-tier
   section above. A service or helper component that emits no UI is allowed.

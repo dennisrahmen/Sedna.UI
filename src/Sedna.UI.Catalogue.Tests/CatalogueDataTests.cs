@@ -16,10 +16,9 @@ namespace Sedna.UI.Catalogue.Tests;
 /// </para>
 /// <para>
 /// This asserts against the file's own <c>latestRelease</c> rather than a literal version number.
-/// An earlier draft hard-coded <c>"0.1.0"</c>, which was true only while that tag existed — the
-/// history was later squashed to a single commit and the tag removed, and a test pinned to a
-/// version is a test that has to be edited every time the release line moves. What actually needs
-/// guarding is the invariant: <b>if a release exists at all, something must be attributed to it.</b>
+/// A test pinned to a literal version is a test that has to be edited every time the release line
+/// moves. What actually needs guarding is the invariant: <b>if a release exists at all, something
+/// must be attributed to it.</b>
 /// </para>
 /// </remarks>
 public class CatalogueDataTests

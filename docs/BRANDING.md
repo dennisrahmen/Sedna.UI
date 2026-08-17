@@ -462,11 +462,8 @@ inherits this constraint — the generator has to hit the same boundary, not app
 token through the palette to the literal it ends at. It was proved able to fail by setting `--brand`
 to coral 500, which reports 2.82:1 — the exact figure §3.1 quotes for the mistake it warns against.
 
-**One figure in an earlier draft of this manual was wrong**, and it is recorded here because a
-document claiming measured values has to be checkable: white on `--danger-solid` was given as 4.61,
-which put it in this table. Measured against `#c72268` it is **5.44**, so it is not near the floor and
-has been replaced above by white on `--go-solid`. The other three white-on-solid figures — go 4.83,
-warn 5.31, info 5.02 — verify exactly.
+White on `--danger-solid` measures **5.44** against `#c72268`, which is why it is not in the table
+above. The other white-on-solid pairs verify at go 4.83, warn 5.31 and info 5.02.
 
 ### 7.2 Colour-vision deficiency
 

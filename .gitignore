@@ -7,10 +7,6 @@
 *.apikey
 nuget.config.local
 
-# Working checklist for the build-out. Deliberately not part of the published
-# repo — planning lives outside the tree, like the release notes do.
-IMPLEMENTATION-PLAN.md
-
 # Local preview config for the catalogue (build/verify needs no server).
 .claude/
 

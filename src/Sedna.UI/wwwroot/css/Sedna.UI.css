@@ -505,8 +505,7 @@
     /* ── Shadows (full box-shadow values — themes swap the colour) ─────────
        Geometry and alpha are carried over unchanged from before the rebrand;
        only the tinted tokens above (--overlay, --spotlight-dim) move from grey
-       to Deep Space. A shadow's own black has no palette step to trace to —
-       see the rebrand report. */
+       to Deep Space. A shadow's own black has no palette step to trace to. */
     --shadow-topbar:    0 3px 8px rgba(0, 0, 0, 0.28);
     --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.18);
     --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.6);
@@ -519,8 +518,7 @@
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
        Not covered by docs/BRANDING.md's per-token tables. Re-expressed as the
        nearest available step in the amber/crimson ramps at the same relative
-       position (dark solid bg, mid border, light fg) the old literals held —
-       see the rebrand report. */
+       position (dark solid bg, mid border, light fg) the old literals held. */
     --reconnect-warn-bg:     var(--amber-900);
     --reconnect-warn-border: var(--amber-600);
     --reconnect-warn-fg:     var(--amber-200);
@@ -799,8 +797,8 @@
    §6 do for the two themes — the neutral, status and badge values below are the
    nearest available palette step at the same relative position the pre-rebrand
    literals held (grey → slate, blue → coral/orbit by role, red → crimson). Several
-   support ramps have no step this dark or this light: see the rebrand report for the
-   full list of the gaps that forced a "nearest available" choice here.
+   support ramps have no step this dark or this light, which is what forces a
+   "nearest available" choice here.
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* Dark, high contrast. */

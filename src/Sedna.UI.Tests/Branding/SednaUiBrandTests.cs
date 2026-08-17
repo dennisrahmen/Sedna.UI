@@ -51,8 +51,7 @@ public class SednaUiBrandTests
     [Fact]
     public void Every_rule_declares_only_custom_properties()
     {
-        // The new guard docs/superpowers/specs/2026-08-10-sedna-theming-design.md §7 calls for:
-        // the emitted CSS parses into rules that are nothing but `--x: value;` declarations —
+        // The emitted CSS parses into rules that are nothing but `--x: value;` declarations —
         // no nested selector, no non-custom property, no stray text.
         var css = SednaUiBrand.ToCss(new SednaUiOptions
         {
