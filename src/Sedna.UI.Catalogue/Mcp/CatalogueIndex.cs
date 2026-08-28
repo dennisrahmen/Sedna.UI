@@ -49,14 +49,28 @@ internal sealed class CatalogueIndex
     private static readonly Regex ClassAttribute = new(
         @"class=""(?<value>[^""@]*)""", RegexOptions.Compiled);
 
+    /// <summary>A class name written in prose, e.g. <c>`.spotlight-lock` goes on body</c>.</summary>
+    /// <remarks>
+    /// The lookbehind is what keeps <c>sednaUi.spotlight</c> and <c>ids.Length</c> out
+    /// of it; the rest is kept out by matching against what the stylesheet declares.
+    /// </remarks>
+    private static readonly Regex MentionedClass = new(
+        @"(?<![\w-])\.(-?[a-zA-Z][a-zA-Z0-9-]*)", RegexOptions.Compiled);
+
     private static readonly Regex LayerBlock = new(
         @"@layer\s+(?<layer>[\w.]+)\s*\{", RegexOptions.Compiled);
 
     public CatalogueIndex(IWebHostEnvironment environment)
     {
         RawStylesheet = ReadStaticAsset(environment, "css/Sedna.UI.css");
-        Examples = BuildExamples();
-        Classes = BuildClasses(RawStylesheet, Examples);
+
+        // Classes first, without their usage: an example's class list is matched
+        // against what the sheet declares, and the usage is the same relation read
+        // the other way round. One extraction of "what does this stylesheet declare",
+        // not two.
+        var declared = BuildClasses(RawStylesheet);
+        Examples = BuildExamples(declared.Select(c => c.Name).ToHashSet(StringComparer.Ordinal));
+        Classes = WithUsage(declared, Examples);
         Tokens = ReadTokens(environment);
     }
 
@@ -81,7 +95,7 @@ internal sealed class CatalogueIndex
 
     // ── Examples ────────────────────────────────────────────────────────────
 
-    private static List<IndexedExample> BuildExamples()
+    private static List<IndexedExample> BuildExamples(IReadOnlySet<string> declared)
     {
         var metadata = PageMetadata();
         var examples = new List<IndexedExample>();
@@ -114,7 +128,7 @@ internal sealed class CatalogueIndex
                 Markup: markup,
                 Language: extension == "razor" ? "html" : extension,
                 Live: extension == "razor",
-                Classes: ClassesIn(markup)));
+                Classes: ClassesIn(markup, live: extension == "razor", declared)));
         }
 
         return examples.OrderBy(e => e.Id, StringComparer.Ordinal).ToList();
@@ -182,18 +196,39 @@ internal sealed class CatalogueIndex
         return Regex.Replace(text.Replace("@@", "@", StringComparison.Ordinal), @"\s+", " ").Trim();
     }
 
-    private static List<string> ClassesIn(string markup) =>
-        ClassAttribute.Matches(markup)
-            .SelectMany(m => m.Groups["value"].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+    /// <summary>The classes an example is about.</summary>
+    /// <remarks>
+    /// A live example applies every class it is about, so its <c>class</c>
+    /// attributes are the whole answer. A code-only snippet does not: the JS
+    /// snippets name the classes their API puts on the page in prose, and reading
+    /// only the attributes reported <c>Spotlight/SpotlightLock</c> as shipping in
+    /// the release its <c>.btn</c> markup came from rather than the one that added
+    /// <c>.spotlight-lock</c> — an understated <c>since</c>, which is the direction
+    /// that gets an agent to copy something its app does not have. A mention only
+    /// counts when the stylesheet declares it.
+    /// </remarks>
+    private static List<string> ClassesIn(string markup, bool live, IReadOnlySet<string> declared)
+    {
+        IEnumerable<string> found = ClassAttribute.Matches(markup)
+            .SelectMany(m => m.Groups["value"].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        if (!live)
+        {
+            found = found.Concat(MentionedClass.Matches(markup)
+                .Select(m => m.Groups[1].Value)
+                .Where(declared.Contains));
+        }
+
+        return found
             .Where(c => !c.StartsWith("ri-", StringComparison.Ordinal))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(c => c, StringComparer.Ordinal)
             .ToList();
+    }
 
     // ── Classes ─────────────────────────────────────────────────────────────
 
-    private static List<IndexedClass> BuildClasses(
-        string rawCss, IReadOnlyList<IndexedExample> examples)
+    private static List<IndexedClass> BuildClasses(string rawCss)
     {
         var declarations = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var layers = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -219,12 +254,6 @@ internal sealed class CatalogueIndex
             }
         }
 
-        var usage = examples
-            .SelectMany(e => e.Classes.Select(c => (Class: c, e.Id)))
-            .GroupBy(x => x.Class, StringComparer.Ordinal)
-            .ToDictionary(g => g.Key, g => (IReadOnlyList<string>)g.Select(x => x.Id).ToList(),
-                StringComparer.Ordinal);
-
         return declarations.Select(entry => new IndexedClass(
                 Name: entry.Key,
                 Layer: layers[entry.Key],
@@ -235,8 +264,23 @@ internal sealed class CatalogueIndex
                     .Where(other => other.StartsWith(entry.Key + "-", StringComparison.Ordinal)
                                     || other.StartsWith(entry.Key + "--", StringComparison.Ordinal))
                     .OrderBy(m => m, StringComparer.Ordinal).ToList(),
-                UsedByExamples: usage.GetValueOrDefault(entry.Key, [])))
+                UsedByExamples: []))
             .OrderBy(c => c.Name, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    /// <summary>The same relation as an example's class list, read the other way round.</summary>
+    private static List<IndexedClass> WithUsage(
+        List<IndexedClass> classes, IReadOnlyList<IndexedExample> examples)
+    {
+        var usage = examples
+            .SelectMany(e => e.Classes.Select(c => (Class: c, e.Id)))
+            .GroupBy(x => x.Class, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<string>)g.Select(x => x.Id).ToList(),
+                StringComparer.Ordinal);
+
+        return classes
+            .Select(c => c with { UsedByExamples = usage.GetValueOrDefault(c.Name, []) })
             .ToList();
     }
 

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using ModelContextProtocol;
 using ModelContextProtocol.Server;
 
 namespace Sedna.UI.Catalogue.Mcp;
@@ -43,6 +44,18 @@ internal sealed class CatalogueResources(CatalogueIndex index, VersionEnvelope v
         MimeType = "text/markdown")]
     [Description("A documentation file: getting-started, architecture, CLAUDE.consuming-app, releasing, " +
         "migrating-to-sedna-ui, accessibility, development.")]
-    public string Doc(string name) =>
-        Docs.Read(name.EndsWith(".md", StringComparison.Ordinal) ? name : name + ".md");
+    public string Doc(string name)
+    {
+        var file = name.EndsWith(".md", StringComparison.Ordinal) ? name : name + ".md";
+
+        // Named rather than left to Docs.Read, whose InvalidOperationException
+        // reaches the caller as a bare "An error occurred". A wrong name here is a
+        // caller's typo, not a broken deployment.
+        if (!Docs.Names.Contains(file, StringComparer.Ordinal))
+            throw new McpException(
+                $"There is no doc \"{name}\". Available: "
+                + string.Join(", ", Docs.Names.Select(n => n[..^3])) + ".");
+
+        return Docs.Read(file);
+    }
 }

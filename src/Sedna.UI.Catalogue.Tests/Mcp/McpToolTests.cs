@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
+using Sedna.UI.Catalogue.Mcp;
 using Sedna.UI.Catalogue.Tests.TestSupport;
 using Sedna.UI.Tests.TestSupport;
 
@@ -20,6 +21,17 @@ public class McpToolTests(CatalogueAppFixture app)
     private static readonly string[] Expected =
         ["search", "get_example", "describe_class", "get_page", "get_tokens",
          "get_integration_guide"];
+
+    /// <summary>One valid call per tool.</summary>
+    private static readonly (string Name, object Arguments)[] EveryTool =
+    [
+        ("search", new { query = "badge" }),
+        ("get_example", new { ids = new[] { "Badge/Semantic" } }),
+        ("describe_class", new { names = new[] { ".btn" } }),
+        ("get_page", new { }),
+        ("get_tokens", new { filter = "brand" }),
+        ("get_integration_guide", new { }),
+    ];
 
     [Fact]
     public async Task The_server_offers_exactly_the_documented_tools()
@@ -42,6 +54,70 @@ public class McpToolTests(CatalogueAppFixture app)
             Assert.True(hints.GetProperty("readOnlyHint").GetBoolean(),
                 $"{tool.GetProperty("name")} is not marked read-only.");
             Assert.False(hints.GetProperty("destructiveHint").GetBoolean());
+        }
+    }
+
+    [Fact]
+    public async Task No_schema_a_tool_publishes_uses_a_boolean_subschema()
+    {
+        // `{"properties":{"result":true}}` is legal JSON Schema and the Zod validator
+        // in the MCP TypeScript SDK rejects it, so a client that validates the tool
+        // list drops every tool in it — while the server stays connected and its
+        // instructions load. The whole surface disappears with no error anywhere,
+        // which is why this is a test and not a comment.
+        foreach (var tool in (await Rpc("tools/list")).GetProperty("tools").EnumerateArray())
+        {
+            var name = tool.GetProperty("name").GetString();
+
+            foreach (var key in new[] { "inputSchema", "outputSchema" })
+            {
+                if (tool.TryGetProperty(key, out var schema))
+                    AssertEverySubschemaIsAnObject(schema, $"{name}.{key}");
+            }
+        }
+    }
+
+    private static void AssertEverySubschemaIsAnObject(JsonElement schema, string path)
+    {
+        if (schema.ValueKind != JsonValueKind.Object) return;
+
+        foreach (var keyword in new[] { "properties", "patternProperties", "$defs", "definitions" })
+        {
+            if (!schema.TryGetProperty(keyword, out var map)
+                || map.ValueKind != JsonValueKind.Object) continue;
+
+            foreach (var member in map.EnumerateObject())
+            {
+                Assert.True(member.Value.ValueKind == JsonValueKind.Object,
+                    $"{path}.{keyword}.{member.Name} is {member.Value.ValueKind}, not a schema object.");
+                AssertEverySubschemaIsAnObject(member.Value, $"{path}.{keyword}.{member.Name}");
+            }
+        }
+
+        foreach (var keyword in new[] { "items", "additionalProperties" })
+        {
+            if (schema.TryGetProperty(keyword, out var nested))
+                AssertEverySubschemaIsAnObject(nested, $"{path}.{keyword}");
+        }
+    }
+
+    [Fact]
+    public async Task A_tool_returns_the_structured_content_it_advertises()
+    {
+        // A tool that declares an outputSchema MUST return structuredContent that
+        // conforms to it. Advertising one and returning text is a protocol
+        // violation, and a client is entitled to drop the tool for it — which is
+        // exactly what it looks like from the other side: the server connects, its
+        // instructions load, and not one tool registers.
+        var advertised = (await Rpc("tools/list")).GetProperty("tools").EnumerateArray()
+            .ToDictionary(t => t.GetProperty("name").GetString()!,
+                t => t.TryGetProperty("outputSchema", out _));
+
+        foreach (var (name, arguments) in EveryTool)
+        {
+            var result = await Rpc("tools/call", new { name, arguments });
+
+            Assert.Equal(advertised[name], result.TryGetProperty("structuredContent", out _));
         }
     }
 
@@ -115,15 +191,71 @@ public class McpToolTests(CatalogueAppFixture app)
     }
 
     [Fact]
-    public async Task Get_example_refuses_more_than_five_ids()
+    public async Task Get_example_refuses_more_than_five_ids_and_says_what_the_limit_is()
     {
-        var response = await Rpc("tools/call", new
-        {
-            name = "get_example",
-            arguments = new { ids = new[] { "a", "b", "c", "d", "e", "f" } },
-        });
+        var message = await Failure("get_example",
+            new { ids = new[] { "a", "b", "c", "d", "e", "f" } });
 
-        Assert.True(response.GetProperty("isError").GetBoolean());
+        // Every rejection is an McpException, whose message the SDK propagates. Any
+        // other exception type reaches the caller as the bare "An error occurred
+        // invoking 'get_example'.", which leaves a model guessing at the limit.
+        Assert.Contains("At most 5", message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task An_unknown_kind_names_the_kinds_instead_of_returning_nothing()
+    {
+        // Zero hits reads as "the catalogue has none of those" rather than "that is
+        // not a kind", and an agent retries the same wrong call.
+        var message = await Failure("search", new { query = "badge", kind = "component" });
+
+        foreach (var kind in new[] { "example", "class", "token", "page" })
+            Assert.Contains(kind, message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("Example")]
+    [InlineData("CLASS")]
+    public async Task A_kind_is_matched_whatever_its_case(string kind)
+    {
+        var result = await Tool("search", new { query = "badge", kind });
+
+        Assert.True(result.GetProperty("hits").GetArrayLength() > 0);
+    }
+
+    [Fact]
+    public async Task An_unknown_guide_section_names_the_sections()
+    {
+        var message = await Failure("get_integration_guide", new { section = "everything" });
+
+        foreach (var section in new[] { "host-page", "branding", "javascript", "rules" })
+            Assert.Contains(section, message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task An_installed_version_that_is_not_a_version_is_rejected()
+    {
+        // It would otherwise compare as 0.0.0 and produce a confident warning built
+        // from nonsense — ".btn is not in not-a-version" — and a typo would silently
+        // stop protecting the one thing the envelope exists to protect.
+        var message = await Failure("describe_class",
+            new { names = new[] { ".btn" }, installedVersion = "not-a-version" });
+
+        Assert.Contains("not a version", message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("0.3.0")]
+    [InlineData("v0.3.0")]
+    [InlineData("0.3")]
+    [InlineData("1.0.0-rc.1")]
+    public async Task A_version_a_project_file_could_hold_is_accepted(string installedVersion)
+    {
+        var result = await Tool("describe_class",
+            new { names = new[] { ".btn" }, installedVersion });
+
+        Assert.Equal(installedVersion,
+            result.GetProperty("meta").GetProperty("installedVersion").GetString());
     }
 
     [Fact]
@@ -179,15 +311,7 @@ public class McpToolTests(CatalogueAppFixture app)
     [Fact]
     public async Task Every_response_carries_the_version_envelope()
     {
-        foreach (var (name, arguments) in new (string, object)[]
-                 {
-                     ("search", new { query = "badge" }),
-                     ("get_example", new { ids = new[] { "Badge/Semantic" } }),
-                     ("describe_class", new { names = new[] { ".btn" } }),
-                     ("get_page", new { }),
-                     ("get_tokens", new { filter = "brand" }),
-                     ("get_integration_guide", new { }),
-                 })
+        foreach (var (name, arguments) in EveryTool)
         {
             var meta = (await Tool(name, arguments)).GetProperty("meta");
 
@@ -222,6 +346,44 @@ public class McpToolTests(CatalogueAppFixture app)
         Assert.True(roots > 1, "The token export should carry :root more than once.");
     }
 
+    [Fact]
+    public async Task A_snippet_is_dated_by_the_classes_its_prose_names()
+    {
+        // Spotlight/SpotlightLock applies .btn and .btn-group, and names
+        // .spotlight-lock in prose because its API is what puts the class on the
+        // page. Reading the class attributes alone dated the snippet to the release
+        // the buttons came from — understated, which is the direction that gets an
+        // agent to copy something its app does not have.
+        var example = (await Tool("get_example",
+                new { ids = new[] { "Spotlight/SpotlightLock" } }))
+            .GetProperty("examples").EnumerateArray().Single();
+
+        var classes = example.GetProperty("classes").EnumerateArray()
+            .Select(c => c.GetString()).ToList();
+        Assert.Contains("spotlight-lock", classes);
+
+        var declared = (await Tool("describe_class", new { names = new[] { ".spotlight-lock" } }))
+            .GetProperty("classes").EnumerateArray().Single().GetProperty("since").GetString()!;
+        var since = example.GetProperty("since").GetString()!;
+
+        Assert.True(since == "unreleased" || VersionEnvelope.Compare(since, declared) >= 0,
+            $"The snippet reports {since}, older than .spotlight-lock's {declared}.");
+    }
+
+    [Fact]
+    public void The_commit_falls_back_to_the_environment()
+    {
+        // Nothing passes SOURCE_COMMIT as a build argument on the host that runs
+        // this, so without the fallback meta.commit is permanently "unknown".
+        Assert.Equal("baked",
+            VersionEnvelope.ResolveCommit("1.0.0+baked", _ => "from-environment"));
+        Assert.Equal("from-build-arg",
+            VersionEnvelope.ResolveCommit("1.0.0", n => n == "SOURCE_COMMIT" ? "from-build-arg" : null));
+        Assert.Equal("from-railway",
+            VersionEnvelope.ResolveCommit(null, n => n == "RAILWAY_GIT_COMMIT_SHA" ? "from-railway" : null));
+        Assert.Equal("unknown", VersionEnvelope.ResolveCommit("1.0.0+", _ => null));
+    }
+
     // ── plumbing ────────────────────────────────────────────────────────────
 
     private static string Normalise(string s) => s.Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -241,6 +403,15 @@ public class McpToolTests(CatalogueAppFixture app)
         // guaranteed for an anonymous return type.
         var text = result.GetProperty("content")[0].GetProperty("text").GetString()!;
         return JsonDocument.Parse(text).RootElement.Clone();
+    }
+
+    /// <summary>A rejected call's message, which the SDK propagates from McpException.</summary>
+    private async Task<string> Failure(string name, object arguments)
+    {
+        var result = await Rpc("tools/call", new { name, arguments });
+
+        Assert.True(result.GetProperty("isError").GetBoolean(), $"{name} was expected to fail.");
+        return result.GetProperty("content")[0].GetProperty("text").GetString()!;
     }
 
     private async Task<JsonElement> Rpc(string method, object? parameters = null)

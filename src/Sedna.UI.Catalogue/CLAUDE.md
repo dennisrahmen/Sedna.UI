@@ -96,3 +96,14 @@ these without prompting.
 Nothing in the index is hand-listed: examples come from the same embedded resources the pages render,
 classes from the stylesheet the app serves, docs from the repository's own `docs/`. `since` comes from
 `build/class-history.sh`. The contract is in `docs/architecture.md`.
+
+**No tool declares an `outputSchema`.** They return anonymous objects the SDK cannot describe, so
+`UseStructuredContent` made each one advertise `{"type":"object","properties":{"result":true}}` — a
+boolean subschema, legal JSON Schema and rejected by the MCP TypeScript SDK's Zod validator, which
+dropped all six tools in every client that validates a tool list while the server stayed connected and
+its instructions loaded. A test fails on any boolean subschema a tool publishes.
+
+**Every rejection is an `McpException`.** Its message is the only one the SDK propagates; any other
+exception type reaches the caller as the bare `An error occurred invoking 'x'.` and leaves a model
+retrying the same call. A rejection names the limit it broke or lists the values the argument accepts —
+and an unknown enum value is a rejection, never an empty result.
