@@ -1,0 +1,130 @@
+@inject IJSRuntime Js
+@implements IAsyncDisposable
+
+<div class="sedna-col">
+    <div id="follow-stage" style="position:relative; height:420px; overflow:hidden;
+                                  border:1px solid var(--border); border-radius:var(--radius-surface)">
+        <div class="sedna-col" style="padding:16px">
+            <div class="toolbar">
+                <div class="toolbar-filters">
+                    <input class="form-input toolbar-input" type="search" placeholder="Search shipments…"
+                           data-live="@Live(0)" />
+                </div>
+                <button class="btn btn-warn" type="button" data-live="@Live(1)">Hold selected</button>
+            </div>
+
+            <!-- Step 1 unions the box with the results it produced, so the hole covers both. -->
+            <div class="menu" data-live-extra="@Live(0)" style="position:static; display:@(_step == 0 ? "block" : "none")">
+                <span class="menu-item">SHP-4471 — Rotterdam, held</span>
+            </div>
+
+            <div class="stat-row stat-row--divided" data-live="@Live(2)">
+                <span class="stat">
+                    <span class="stat-label">Held</span>
+                    <span class="stat-value">6</span>
+                </span>
+                <span class="stat">
+                    <span class="stat-label">Released today</span>
+                    <span class="stat-value">31</span>
+                </span>
+            </div>
+        </div>
+
+        <div id="follow-hole" class="spotlight-hole spotlight-ring"></div>
+        <div id="follow-tip" class="spotlight-tip">
+            <div class="spotlight-tip-head">
+                <span class="spotlight-tip-title">@Steps[_step].Title</span>
+                <button class="spotlight-tip-exit" type="button" @onclick="Restart">Start over</button>
+            </div>
+            <div class="spotlight-tip-body">@Steps[_step].Body</div>
+            <div class="spotlight-tip-actions">
+                <span class="spotlight-step">@(_step + 1) of @Steps.Length — @_side</span>
+                <span class="sedna-row sedna-gap-1">
+                    <button class="btn btn-sm" type="button" disabled="@(_step == 0)"
+                            @onclick="() => Go(-1)">Back</button>
+                    <button class="btn btn-sm btn-primary" type="button" disabled="@(_step == Steps.Length - 1)"
+                            @onclick="() => Go(1)">Next</button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private sealed record Step(string Title, string Body);
+
+    private static readonly Step[] Steps =
+    [
+        new("The box and what it found", "One step often has to reveal a control and the UI it produced. `include` widens the hole over the results without making them the anchor."),
+        new("Hold, do not cancel", "A hold keeps the shipment's slot for 24 hours. `placement: 'auto'` puts this bubble on whichever side has the most room, and the step counter reports which one it chose."),
+        new("Today against the target", "Both figures update as shipments move. A dash means the endpoint did not answer — never a zero."),
+    ];
+
+    private IJSObjectReference? _handle;
+    private int _step;
+    private string _side = "…";
+
+    // The anchor is named by selector, not held as an ElementReference: the attribute moves
+    // to the current step's element and follow() re-resolves it on every placement. That is
+    // also what survives a re-render replacing the node.
+    private string? Live(int step) => _step == step ? "yes" : null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _handle = await Js.InvokeAsync<IJSObjectReference>(
+                "sednaUi.spotlight.follow", "#follow-hole", "[data-live]",
+                new
+                {
+                    pad = 6,
+                    include = "[data-live-extra]",
+                    tip = "#follow-tip",
+                    placement = "auto",
+                    // This demo is a box on a page, so the box stands in for the viewport.
+                    // A tour that runs across the whole page leaves `boundary` off.
+                    boundary = "#follow-stage",
+                    root = "#follow-stage",
+                });
+        }
+
+        // After every render, because the bubble's own size decides which side it fits on
+        // and that is known only once this step's text has been laid out in it.
+        await Update();
+    }
+
+    private async Task Go(int by)
+    {
+        _step = Math.Clamp(_step + by, 0, Steps.Length - 1);
+        await Update();
+    }
+
+    private async Task Restart()
+    {
+        _step = 0;
+        await Update();
+    }
+
+    private async Task Update()
+    {
+        if (_handle is null) return;
+        var side = await _handle.InvokeAsync<string?>("update");
+        if (side is not null && side != _side)
+        {
+            _side = side;
+            StateHasChanged();
+        }
+    }
+
+    // stop() detaches the listeners and the observer, releases any lock, and hides the hole.
+    public async ValueTask DisposeAsync()
+    {
+        if (_handle is null) return;
+        try
+        {
+            await _handle.InvokeVoidAsync("stop");
+            await _handle.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { /* the circuit went first */ }
+    }
+}

@@ -5188,6 +5188,14 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     /* 100vmax spread: large enough to cover any viewport, so the "hole" is simply
        the un-shadowed box. */
     box-shadow: 0 0 0 100vmax var(--spotlight-dim);
+    /* The hole slides between steps rather than teleporting, so the reader's eye
+       carries from one target to the next. `follow()` re-places it on scroll, resize
+       and re-render, and this is what keeps that from reading as a stutter. */
+    transition:
+        top var(--motion-slow) ease,
+        left var(--motion-slow) ease,
+        width var(--motion-slow) ease,
+        height var(--motion-slow) ease;
 }
 .spotlight-ring { box-shadow: 0 0 0 100vmax var(--spotlight-dim), 0 0 0 2px var(--brand); }
 
@@ -5207,6 +5215,88 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 .spotlight-tip-title { display: block; color: var(--fg); font-weight: 600; margin-bottom: var(--space-2); }
 .spotlight-tip-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-top: var(--space-5); }
 .spotlight-step { color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
+
+/* ── The sectioned bubble ────────────────────────────────────────────────────
+   A hint is a title, a line of prose and two buttons, which the padded box above
+   holds on its own. A step in a real tour needs more: a way out that is not "Next",
+   a body that can run to a paragraph, and a footer that reads as a footer.
+
+   So the same bubble takes sections. The container drops its own padding when it
+   has a head, because each section then carries its own — one class to add, no
+   modifier to remember, and the simple case is untouched. */
+.spotlight-tip:has(.spotlight-tip-head) { padding: 0; }
+.spotlight-tip-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding: var(--space-6) var(--space-7) 0;
+}
+.spotlight-tip-body { padding: var(--space-4) var(--space-7) var(--space-6); line-height: 1.55; }
+.spotlight-tip-body strong { color: var(--fg); }
+.spotlight-tip:has(.spotlight-tip-head) .spotlight-tip-actions {
+    margin-top: 0;
+    padding: var(--space-5) var(--space-7);
+    border-top: 1px solid var(--border);
+}
+
+/* The way out of the tour. Quiet on purpose: it sits beside the title, where a
+   close button is expected, and must not compete with the step's own action. */
+.spotlight-tip-exit {
+    flex-shrink: 0;
+    padding: var(--space-1) var(--space-3);
+    background: none;
+    border: none;
+    border-radius: var(--radius-small);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: var(--text-2);
+    cursor: pointer;
+}
+.spotlight-tip-exit:hover { background: var(--bg-hover); color: var(--fg); }
+
+/* "Now do this on the page" — the marker for a step the reader advances themselves
+   rather than by pressing Next. It wears the control-change colours because that is
+   what it announces: the next thing to happen is the reader's doing. */
+.spotlight-tip-do {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-5);
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: var(--radius-pill);
+    color: var(--warn-fg);
+    font-size: var(--text-2);
+}
+.spotlight-tip-do i { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
+
+/* ── The interaction lock ────────────────────────────────────────────────────
+   `sednaUi.spotlight.lock()` puts `.spotlight-lock` on <body> while a step is live,
+   and the page stops accepting input except where the step needs it: the bubble, and
+   whatever the step marked `.spotlight-allowed`.
+
+   This layer kills the hover feedback; the capture-phase guards in the script are the
+   behavioural half, and neither is a security boundary. Scroll containers are plain
+   elements, so scrolling is untouched, and Blazor's reconnect UI stays usable — a
+   dropped circuit has to be recoverable mid-step. */
+body.spotlight-lock :is(button, a, input, select, textarea, label) { pointer-events: none; }
+body.spotlight-lock :is(.spotlight-tip, .spotlight-allowed),
+body.spotlight-lock :is(.spotlight-tip, .spotlight-allowed) :is(button, a, input, select, textarea, label) {
+    pointer-events: auto;
+}
+/* Held apart from the rule above rather than folded into its `:is()`: an `:is()` takes
+   the specificity of its most specific argument, so an id inside it would lift the
+   whole selector over the opt-out below. */
+body.spotlight-lock #components-reconnect-modal,
+body.spotlight-lock #components-reconnect-modal :is(button, a) { pointer-events: auto; }
+/* …but a control the step explicitly blocks stays dead even inside the live anchor —
+   the Cancel beside the button the step is about. The extra class in the selector is
+   what keeps this above the re-enable rule. */
+body.spotlight-lock .spotlight-allowed [data-spotlight-block],
+body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, input, select, textarea, label) {
+    pointer-events: none;
+}
 }
 
 /* ── 65-popover.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -5969,6 +6059,11 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     .health-badge--connecting .health-dot { animation: none; }
     .health-badge--healthy .health-dot { animation: none; }
     .segmented-option { transition: none; }   /* 51 */
+    /* 64 — the hole appears at the new target instead of sliding to it, and the
+       "do this now" marker stops pulsing. Neither carries information: the ring is
+       the highlight, and the marker's words already say what to do. */
+    .spotlight-hole   { transition: none; }
+    .spotlight-tip-do i { animation: none; }
     .code-block-copy  { transition: none; }   /* 56 */
     .code-block-expand { transition: none; }  /* 56 */
     .accordion summary::after { transition: none; }   /* 60 — the disclosure caret */

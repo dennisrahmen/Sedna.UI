@@ -1,0 +1,38 @@
+// While a step is live, the page stops accepting input except where the step
+// needs it. `.spotlight-lock` goes on <body>, and capture-phase guards back the
+// CSS up — neither is a security boundary, and neither should ever be treated as
+// one. A person is stopped; a script is not.
+sednaUi.spotlight.lock();
+sednaUi.spotlight.unlock();
+
+// Usually it is not called directly: follow() takes it, so one handle owns the
+// step's geometry and its input model, and stop() releases both.
+const step = sednaUi.spotlight.follow('#hole', '[data-live]', {
+    tip: '#tip',
+    lock: {
+        interactive: true,                   // the reader may act on the anchor itself
+        allow: '#components-reconnect-modal',// anything else that stays usable
+        block: '[data-spotlight-block]',     // the opt-out, this is the default
+    },
+});
+
+// What stays usable, always: the bubble, whatever carries `.spotlight-allowed`
+// (follow() puts it on the anchor when `interactive` is set, and re-applies it on
+// every placement because a re-render drops it), and Blazor's reconnect UI — a
+// dropped circuit has to be recoverable mid-step.
+
+// What stays free: scrolling, and typing. Only pointer input and Enter/Space
+// activation are taken away, so the space bar still writes a space in a text box.
+
+// The opt-out is for a control INSIDE the live anchor that the step must not let
+// the reader press — the Cancel beside the button the step is about.
+<div class="btn-group" data-live="yes">
+    <button class="btn btn-warn" type="button">Hold shipment</button>
+    <span data-spotlight-block>
+        <button class="btn" type="button">Cancel</button>
+    </span>
+</div>
+
+// Hover hints are gated by the lock itself: a control the reader cannot press
+// must not still explain itself. An app's own `sednaUi.tips.gate` is chained
+// rather than replaced, and handed back by unlock().

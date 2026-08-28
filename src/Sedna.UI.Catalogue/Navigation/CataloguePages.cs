@@ -149,7 +149,7 @@ internal static class CataloguePages
             "palette command ctrl-k cmdk combobox listbox spotlight-search"),
         new("/spotlight", Overlays, "Spotlight", "ri-focus-3-line",
             "Dims the page except one element, for a tour or a first-run hint.",
-            "spotlight tour onboarding hint highlight hole walkthrough"),
+            "spotlight tour onboarding hint highlight hole walkthrough follow lock placement coach mark"),
 
         new("/utility", Reference, "Utilities", "ri-scissors-cut-line",
             "The single-purpose classes: layout, gaps, text, state and print.",

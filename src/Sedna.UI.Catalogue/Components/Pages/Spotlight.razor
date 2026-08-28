@@ -4,25 +4,73 @@
     Dims the page except one element, for a guided tour or a first-run hint.
 </CatHead>
 
-<CatExample TExample="Examples.Interop.SpotlightTour" Title="A three-step tour" Demo="ex-demo--block">
+<CatExample TExample="Examples.Interop.SpotlightFollow" Title="A three-step tour" Demo="ex-demo--block">
     <p>
-        <strong>Live — step through it.</strong> The hole moves to each target, takes that target's
-        own border radius, and the bubble flips above when there is no room below.
+        <strong>Live — step through it.</strong> The hole slides to each target and takes that
+        target's own border radius; step one unions the search box with the results it produced;
+        the bubble picks whichever side has the most room and says which one it chose.
     </p>
     <p>
-        <code>sednaUi.spotlight.at(hole, target)</code> measures the target and writes the hole's
-        four values; <code>tipAt(tip, rect)</code> places the bubble. <strong>There is no tour
-        API.</strong> The steps, the copy, the order and what &ldquo;next&rdquo; means are the app's —
-        a library that owned them would also own whether a step can be skipped and where the bubble
-        goes, and those differ per app.
+        <code>sednaUi.spotlight.follow(hole, target, options)</code> keeps both attached while the
+        page moves under them — scroll, resize, and the case neither of those covers: a re-render
+        shifting the DOM with no event at all. It returns a handle with <code>update()</code> and
+        <code>stop()</code>.
+    </p>
+    <p>
+        <strong>There is still no tour API.</strong> The steps, the copy, the order and what
+        &ldquo;next&rdquo; means are the app's — a library that owned them would also own whether a
+        step can be skipped. What the library owns is the part that is the same in every tour and
+        is where the bugs live: the geometry and the input model.
     </p>
     <p>
         The hole is positioned against its offset parent, so give the stage
-        <code>position: relative</code>. Position it after every render, not only on a step change:
-        the bubble's own size decides where it fits, and that is known only once it has been laid out
-        with this step's text in it.
+        <code>position: relative</code>. Call <code>update()</code> after every render, not only on
+        a step change: the bubble's own size decides where it fits, and that is known only once it
+        has been laid out with this step's text in it.
     </p>
 </CatExample>
+
+<CatSnippet Name="Spotlight/SpotlightApi.txt" Title="Positioning it">
+    <p>
+        Every element may be given as a CSS selector instead of an element, and for anything that
+        outlives one render that is the form to prefer — a framework replaces the node, and a
+        reference captured once then points at a detached copy. It is also what lets a Blazor app
+        drive the whole thing from C# without threading an <code>ElementReference</code> through
+        every call.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.Spotlight.TourBubble" Title="The bubble, in sections" Demo="ex-demo--block">
+    <p>
+        A step in a real tour needs more than a hint does: a way out that is not &ldquo;Next&rdquo;,
+        a body that can run to a paragraph, and a footer that reads as one. Add
+        <code>.spotlight-tip-head</code> and the bubble drops its own padding — each section then
+        carries its own, and the plain bubble below is untouched.
+    </p>
+    <p>
+        <code>.spotlight-tip-do</code> marks a step the reader advances themselves rather than by
+        pressing Next. It wears the control-change colours because that is what it announces: the
+        next thing to happen is their doing.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Spotlight/SpotlightLock.txt" Title="Making the rest of the page inert">
+    <p>
+        A step that says &ldquo;press this&rdquo; is undone by a reader pressing something else.
+        <code>lock()</code> takes pointer input and Enter/Space activation away from everything
+        except the bubble and, when the step needs it, the anchor — and it gates hover hints too,
+        because a control the reader cannot press must not still explain itself.
+    </p>
+    <p>
+        <strong>Scrolling and typing stay free.</strong> A lock that swallowed every key would take
+        the space out of someone's typing, which is invisible until they try to write two words.
+    </p>
+    <p>
+        <strong>It is security-shaped and is not security.</strong> Capture-phase guards and
+        <code>pointer-events: none</code> stop a person, not a script. Never treat a live step as an
+        authorization boundary.
+    </p>
+</CatSnippet>
 
 <CatExample TExample="Examples.Spotlight.FirstRunHint" Title="A first-run hint" Demo="ex-demo--block">
     <p>
@@ -49,15 +97,6 @@
         stylesheet.
     </p>
 </CatExample>
-
-<CatSnippet Name="Spotlight/SpotlightApi.txt" Title="Positioning it">
-    <p>
-        <code>at()</code> returns the rectangle it used, so <code>tipAt()</code> places the bubble
-        without measuring the target twice. Call both after <em>every</em> render: the bubble's own
-        size decides where it fits, and that is known only once it has been laid out with this step's
-        text in it.
-    </p>
-</CatSnippet>
 
 <div class="cat-note">
     <i class="ri-stack-line"></i>

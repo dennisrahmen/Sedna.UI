@@ -59,6 +59,11 @@
     .health-badge--connecting .health-dot { animation: none; }
     .health-badge--healthy .health-dot { animation: none; }
     .segmented-option { transition: none; }   /* 51 */
+    /* 64 — the hole appears at the new target instead of sliding to it, and the
+       "do this now" marker stops pulsing. Neither carries information: the ring is
+       the highlight, and the marker's words already say what to do. */
+    .spotlight-hole   { transition: none; }
+    .spotlight-tip-do i { animation: none; }
     .code-block-copy  { transition: none; }   /* 56 */
     .code-block-expand { transition: none; }  /* 56 */
     .accordion summary::after { transition: none; }   /* 60 — the disclosure caret */
