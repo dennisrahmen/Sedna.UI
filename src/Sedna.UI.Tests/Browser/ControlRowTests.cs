@@ -178,7 +178,7 @@ public class ControlRowTests : ScriptTestBase
         // by construction rather than by two numbers that happen to agree.
         var (page, errors) = await OpenStyled(Row);
 
-        foreach (var id in (string[])["btn-icon", "sm-icon", "lg-icon"])
+        foreach (var id in new[] { "btn-icon", "sm-icon", "lg-icon" })
         {
             var box = await page.EvaluateAsync<double[]>(
                 $"() => {{ const r = document.getElementById('{id}').getBoundingClientRect(); "

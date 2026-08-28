@@ -22,7 +22,8 @@
 @code {
     [Parameter, EditorRequired] public string Text { get; set; } = default!;
 
-    /// The title with the backticks removed — for a slug, an aria-label, or an index.
+    /// <summary>The title with the backticks removed — for a slug, an aria-label,
+    /// or an index.</summary>
     public static string Plain(string text) =>
         text.Replace("`", string.Empty, StringComparison.Ordinal);
 

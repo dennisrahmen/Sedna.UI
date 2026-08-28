@@ -41,7 +41,8 @@ internal static class HostPageAssets
                 $"\"{Resource}\" is not embedded, so the health endpoint has nothing to check. "
                 + "Add Components/App.razor to the EmbeddedResource items in the csproj.");
 
-        var source = new StreamReader(stream).ReadToEnd();
+        using var reader = new StreamReader(stream);
+        var source = reader.ReadToEnd();
 
         return
         [

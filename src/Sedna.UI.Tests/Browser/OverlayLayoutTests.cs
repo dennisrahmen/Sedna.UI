@@ -153,7 +153,7 @@ public class OverlayLayoutTests : ScriptTestBase
         await page.ClickAsync("button:has-text('Filters')");
         await page.EvaluateAsync("() => document.getElementById('side').close()");
 
-        foreach (var id in (string[])["side", "start", "sheet", "p"])
+        foreach (var id in new[] { "side", "start", "sheet", "p" })
         {
             await page.WaitForFunctionAsync(
                 $"() => getComputedStyle(document.getElementById('{id}')).display === 'none'",
@@ -176,7 +176,7 @@ public class OverlayLayoutTests : ScriptTestBase
               <dialog class="modal" id="m"><div class="modal-body"><p>x</p></div></dialog>
               """);
 
-        foreach (var id in (string[])["side", "start", "sheet", "m"])
+        foreach (var id in new[] { "side", "start", "sheet", "m" })
         {
             var padding = await page.EvaluateAsync<double[]>(
                 $"() => {{ const s = getComputedStyle(document.getElementById('{id}')); "

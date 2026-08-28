@@ -202,7 +202,7 @@ public class PageLoadTests(CatalogueAppFixture app)
         var page = await app.OpenInteractiveAsync("/");
         var sidebar = page.Locator(".cat-drawer .sidebar");
 
-        foreach (var route in (string[])["/badge", "/card", "/table", "/"])
+        foreach (var route in new[] { "/badge", "/card", "/table", "/" })
         {
             await sidebar.Locator($".nav-link[href='{route}']").ClickAsync();
 

@@ -36,6 +36,7 @@ internal static class Docs
                 + $"EmbeddedResource glob has to cover it. Embedded: {string.Join(", ", Names)}");
 
         using var stream = Assembly.GetManifestResourceStream(resource)!;
-        return new StreamReader(stream).ReadToEnd();
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     });
 }

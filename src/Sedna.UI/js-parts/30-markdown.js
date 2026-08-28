@@ -129,10 +129,15 @@
         // fixed set of block/inline constructs is re-introduced, and link hrefs
         // are scheme-checked. Not a spec-complete parser — enough for authored
         // prose, and safe enough that its output can be injected.
+        //
+        // esc() escapes the double quote as well, so its output is safe in an
+        // attribute value and not only in a text node. Without it a link target of
+        // https://x"onmouseover=alert(1) closes the href and opens a handler.
         render: function (src) {
             if (!src) return '';
             var esc = function (s) {
-                return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
             };
             // Pull fenced code blocks out first so their contents are never formatted.
             var blocks = [];
@@ -145,9 +150,12 @@
                 t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
                 t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 t = t.replace(/_([^_]+)_/g, '<em>$1</em>');
+                // The whole line went through esc() above, so `url` is already escaped
+                // — escaping it a second time turned every & in a query string into
+                // &amp;amp; and the browser rendered the entity rather than the &.
                 t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, txt, url) {
                     var safe = /^(https?:|mailto:|\/)/i.test(url) ? url : '#';
-                    return '<a href="' + esc(safe) + '" target="_blank" rel="noopener">' + txt + '</a>';
+                    return '<a href="' + safe + '" target="_blank" rel="noopener">' + txt + '</a>';
                 });
                 return t;
             };

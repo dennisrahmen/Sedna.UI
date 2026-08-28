@@ -192,8 +192,8 @@ public class TokenTierTests
 
     private static (double R, double G, double B) Rgb(Dictionary<string, string> tokens, string name)
     {
-        Assert.True(tokens.ContainsKey(name), $"{name} is not declared at :root.");
-        var value = tokens[name];
+        Assert.True(tokens.TryGetValue(name, out var value),
+            $"{name} is not declared at :root.");
 
         var hex = HexLiteral.Match(value);
         Assert.True(hex.Success,
