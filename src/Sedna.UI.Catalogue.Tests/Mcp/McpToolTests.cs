@@ -382,6 +382,13 @@ public class McpToolTests(CatalogueAppFixture app)
         Assert.Equal("from-railway",
             VersionEnvelope.ResolveCommit(null, n => n == "RAILWAY_GIT_COMMIT_SHA" ? "from-railway" : null));
         Assert.Equal("unknown", VersionEnvelope.ResolveCommit("1.0.0+", _ => null));
+
+        // A Railway variable set to ${{RAILWAY_GIT_COMMIT_SHA}} renders empty when the
+        // platform has no git variable to resolve, and an empty commit reads as a
+        // field nobody populated rather than one that could not be.
+        Assert.Equal("unknown", VersionEnvelope.ResolveCommit("1.0.0", _ => ""));
+        Assert.Equal("from-railway",
+            VersionEnvelope.ResolveCommit("1.0.0", n => n == "SOURCE_COMMIT" ? "" : "from-railway"));
     }
 
     // ── plumbing ────────────────────────────────────────────────────────────

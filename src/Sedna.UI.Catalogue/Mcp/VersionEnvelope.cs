@@ -70,21 +70,26 @@ internal sealed class VersionEnvelope
     /// <remarks>
     /// Baked at image build time via <c>-p:SourceRevisionId</c>, never a runtime
     /// <c>git</c> call — <c>.git</c> is excluded from the Docker context on purpose.
-    /// The environment is the fallback because nothing passes that build argument on
-    /// the host that actually runs this: Railway builds the Dockerfile without it,
-    /// and puts <c>RAILWAY_GIT_COMMIT_SHA</c> in the deployment's environment anyway.
-    /// Reported as "unknown" only when there is genuinely nothing to report.
+    /// The environment is the fallback for the host that actually runs this. Every
+    /// candidate is treated as absent when it is empty: a Railway variable set to
+    /// <c>${{RAILWAY_GIT_COMMIT_SHA}}</c> renders to an empty string when the platform
+    /// has no git variables to resolve, and an empty commit is worse than "unknown"
+    /// because it looks like a field that was never populated rather than one that
+    /// could not be.
     /// </remarks>
     internal static string ResolveCommit(string? informationalVersion, Func<string, string?> environment)
     {
         var informational = informationalVersion ?? string.Empty;
         var plus = informational.IndexOf('+', StringComparison.Ordinal);
-        if (plus >= 0 && plus + 1 < informational.Length) return informational[(plus + 1)..];
+        if (plus >= 0) return Reported(informational[(plus + 1)..]);
 
-        return environment("SOURCE_COMMIT")
-               ?? environment("RAILWAY_GIT_COMMIT_SHA")
-               ?? "unknown";
+        return Reported(environment("SOURCE_COMMIT")) is var fromBuild and not "unknown"
+            ? fromBuild
+            : Reported(environment("RAILWAY_GIT_COMMIT_SHA"));
     }
+
+    private static string Reported(string? commit) =>
+        string.IsNullOrWhiteSpace(commit) ? "unknown" : commit.Trim();
 
     /// <summary>The release a class first shipped in, or null if it is unreleased.</summary>
     public string? SinceClass(string name) => _classes.GetValueOrDefault(name.TrimStart('.'));
