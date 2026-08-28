@@ -141,7 +141,8 @@ internal sealed class CatalogueIndex
         {
             using var stream = assembly.GetManifestResourceStream(resource);
             if (stream is null) continue;
-            var source = new StreamReader(stream).ReadToEnd();
+            using var reader = new StreamReader(stream);
+            var source = reader.ReadToEnd();
 
             foreach (var tag in ExampleTag.Matches(source).Cast<Match>())
             {

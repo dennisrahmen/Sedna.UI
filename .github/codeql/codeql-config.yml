@@ -1,0 +1,19 @@
+# CodeQL configuration for Sedna.UI.
+#
+# The query packs are named in codeql.yml, next to the comment explaining why
+# `extended` is the right trade for a public endpoint. This file exists for the
+# exclusions, because an exclusion has to be reviewable: a query dismissed in the
+# web UI leaves no trace in the repository, and the next person cannot tell a
+# considered decision from an unread alert.
+
+query-filters:
+  # `cs/path-combine` warns that Path.Combine silently drops its earlier
+  # arguments when a later one is an absolute path. Every call in this repository
+  # joins a discovered repository root to constant relative segments — "src",
+  # "wwwroot", a file name — so no argument can ever be absolute, and the query
+  # has no way to prove that. It reported 69 alerts, all of them in the guard
+  # tests that locate the shipped assets on disk.
+  #
+  # Reinstate this query the day a path segment comes from outside the repository.
+  - exclude:
+      id: cs/path-combine

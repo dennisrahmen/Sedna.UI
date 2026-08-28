@@ -99,7 +99,11 @@ jobs:
       # The key is requested immediately before the push on purpose: request it
       # too early in a long job and it can expire before the push runs.
       - name: Exchange OIDC token for a short-lived NuGet key
-        uses: NuGet/login@v1
+        # Pinned to a commit rather than a tag: this is the one third-party action
+        # in the repository and it is handed an OIDC token that mints a nuget.org
+        # publishing key. A tag can be moved; a commit cannot. Bump both the SHA
+        # and the version comment together.
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         id: nuget-login
         with:
           # The nuget.org profile name, not an e-mail address. Held as a secret

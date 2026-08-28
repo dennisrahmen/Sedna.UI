@@ -68,6 +68,9 @@ jobs:
           # security-and-quality over the default security-extended: this is a
           # library, and an API-shape problem here is a problem in four apps.
           queries: security-extended,security-and-quality
+          # Holds the query exclusions, so each one is reviewable in a pull
+          # request rather than dismissed invisibly in the web UI.
+          config-file: ./.github/codeql/codeql-config.yml
 
       # Manual rather than autobuild: the solution is a .slnx, and being explicit
       # means a build change here fails visibly instead of silently analysing nothing.
