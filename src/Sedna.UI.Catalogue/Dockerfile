@@ -26,9 +26,16 @@ COPY docs/ docs/
 
 # Baked in, not read from a runtime `git` call: .dockerignore excludes .git on
 # purpose. The MCP version envelope reports this.
-ARG SOURCE_COMMIT=unknown
+#
+# RAILWAY_GIT_COMMIT_SHA is declared because a builder only passes a variable it
+# already holds to an ARG the Dockerfile names; undeclared, it is not passed at
+# all. Both default to empty and `:-` skips an empty one, so a build that knows
+# neither still produces an image rather than an argument error.
+ARG SOURCE_COMMIT=
+ARG RAILWAY_GIT_COMMIT_SHA=
 RUN dotnet publish src/Sedna.UI.Catalogue/Sedna.UI.Catalogue.csproj \
-        -c Release -o /app --no-restore -p:SourceRevisionId=$SOURCE_COMMIT
+        -c Release -o /app --no-restore \
+        -p:SourceRevisionId=${SOURCE_COMMIT:-${RAILWAY_GIT_COMMIT_SHA:-unknown}}
 
 # Blazor's script is a static web asset the restore step decides on, and the restore
 # above runs before the sources are copied. RequiresAspNetWebAssets in the csproj is

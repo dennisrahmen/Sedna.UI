@@ -402,7 +402,11 @@ dated by its classes alone: there is no version history for the script's own sur
 
 `meta.commit` is baked at image build time from `-p:SourceRevisionId`, and falls back to `SOURCE_COMMIT`
 or `RAILWAY_GIT_COMMIT_SHA` in the environment. Never a runtime `git` call — `.git` is excluded from the
-Docker context.
+Docker context. Both build arguments are declared in the Dockerfile, because a builder only passes a
+variable it already holds to an `ARG` the Dockerfile names. An empty value counts as absent at every
+step: a Railway variable set to `${{RAILWAY_GIT_COMMIT_SHA}}` renders empty where the platform has no
+git variable to resolve, and an empty commit reads as a field nobody populated rather than one that
+could not be. `"unknown"` is what it says when there is genuinely nothing to report.
 
 ### Errors name the limit or the values
 
