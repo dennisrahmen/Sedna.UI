@@ -22,8 +22,8 @@ public class SurfaceTests : ScriptTestBase
         var missing = await page.EvaluateAsync<string[]>("""
             () => [
                 'configure', 'settings', 'tips', 'toast', 'confirm', 'menu', 'tabs',
-                'palette', 'search', 'md', 'copyText', 'openTab', 'viewportWidth',
-                'getItem', 'setItem', 'requestNotify', 'notify', 'ping'
+                'palette', 'search', 'md', 'spotlight', 'copyText', 'openTab',
+                'viewportWidth', 'getItem', 'setItem', 'requestNotify', 'notify', 'ping'
             ].filter(k => window.sednaUi[k] === undefined)
             """);
 
@@ -42,6 +42,7 @@ public class SurfaceTests : ScriptTestBase
                     palette: ['register', 'open', 'close', 'rank'],
                     search: ['register', 'rank', 'close'],
                     md: ['init', 'apply', 'render'],
+                    spotlight: ['at', 'tipAt', 'follow', 'lock', 'unlock'],
                 };
                 for (const k in need)
                     for (const fn of need[k])
