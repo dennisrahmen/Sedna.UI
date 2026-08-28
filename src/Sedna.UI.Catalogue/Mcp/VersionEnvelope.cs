@@ -1,6 +1,8 @@
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using ModelContextProtocol;
 
 namespace Sedna.UI.Catalogue.Mcp;
 
@@ -50,12 +52,10 @@ internal sealed class VersionEnvelope
         _classes = Map(root.GetProperty("classes"));
         _tokens = Map(root.GetProperty("tokens"));
 
-        // Baked at image build time via -p:SourceRevisionId. Not a runtime `git`
-        // call: .git is excluded from the Docker context on purpose.
-        var informational = assembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "";
-        var plus = informational.IndexOf('+', StringComparison.Ordinal);
-        Commit = plus >= 0 ? informational[(plus + 1)..] : "unknown";
+        Commit = ResolveCommit(
+            assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion,
+            Environment.GetEnvironmentVariable);
 
         BuiltUtc = File.GetLastWriteTimeUtc(assembly.Location).ToString("O");
     }
@@ -65,6 +65,26 @@ internal sealed class VersionEnvelope
     public string Commit { get; }
 
     public string BuiltUtc { get; }
+
+    /// <summary>The commit this site was built from.</summary>
+    /// <remarks>
+    /// Baked at image build time via <c>-p:SourceRevisionId</c>, never a runtime
+    /// <c>git</c> call — <c>.git</c> is excluded from the Docker context on purpose.
+    /// The environment is the fallback because nothing passes that build argument on
+    /// the host that actually runs this: Railway builds the Dockerfile without it,
+    /// and puts <c>RAILWAY_GIT_COMMIT_SHA</c> in the deployment's environment anyway.
+    /// Reported as "unknown" only when there is genuinely nothing to report.
+    /// </remarks>
+    internal static string ResolveCommit(string? informationalVersion, Func<string, string?> environment)
+    {
+        var informational = informationalVersion ?? string.Empty;
+        var plus = informational.IndexOf('+', StringComparison.Ordinal);
+        if (plus >= 0 && plus + 1 < informational.Length) return informational[(plus + 1)..];
+
+        return environment("SOURCE_COMMIT")
+               ?? environment("RAILWAY_GIT_COMMIT_SHA")
+               ?? "unknown";
+    }
 
     /// <summary>The release a class first shipped in, or null if it is unreleased.</summary>
     public string? SinceClass(string name) => _classes.GetValueOrDefault(name.TrimStart('.'));
@@ -93,6 +113,15 @@ internal sealed class VersionEnvelope
     /// </summary>
     public Meta For(string? installedVersion, IEnumerable<(string Name, string? Since)>? items = null)
     {
+        // Rejected rather than ignored. A version this cannot parse compares as
+        // 0.0.0, and the caller gets a confident warning built from nonsense —
+        // ".btn is not in not-a-version" — while a typo'd version would silently
+        // stop protecting the one thing this envelope exists to protect.
+        if (installedVersion is not null && !Versionish.IsMatch(installedVersion))
+            throw new McpException(
+                $"installedVersion \"{installedVersion}\" is not a version. Pass the "
+                + "Sedna.UI version your app has pinned, e.g. \"0.3.0\", or omit it.");
+
         string? warning = null;
 
         if (installedVersion is not null && items is not null)
@@ -133,9 +162,15 @@ internal sealed class VersionEnvelope
         return 0;
     }
 
+    /// <summary>What counts as a version: <c>1</c>, <c>1.2</c>, <c>1.2.3</c>, with an
+    /// optional <c>v</c>, pre-release or build metadata.</summary>
+    private static readonly Regex Versionish = new(
+        @"^v?\d+(\.\d+){0,2}(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static int[] Parse(string version)
     {
-        var core = version.Split('-')[0].Split('+')[0].Split('.');
+        var core = version.TrimStart('v', 'V').Split('-')[0].Split('+')[0].Split('.');
         var parts = new int[3];
         for (var i = 0; i < 3; i++)
             parts[i] = i < core.Length && int.TryParse(core[i], out var n) ? n : 0;

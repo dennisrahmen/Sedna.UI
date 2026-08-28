@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Text.Json;
 using Sedna.UI.Catalogue.Navigation;
+using ModelContextProtocol;
 using ModelContextProtocol.Server;
 
 namespace Sedna.UI.Catalogue.Mcp;
@@ -24,6 +25,23 @@ namespace Sedna.UI.Catalogue.Mcp;
 /// <c>search</c> returns references and never markup: a search that returned markup
 /// would spend the context window on the first call.
 /// </para>
+/// <para>
+/// <b>No tool declares an output schema.</b> Every one of them returns an anonymous
+/// object, which the SDK cannot describe, so <c>UseStructuredContent</c> made it
+/// advertise the placeholder <c>{"type":"object","properties":{"result":true}}</c> —
+/// a boolean subschema, legal JSON Schema and rejected by the Zod validator in the
+/// MCP TypeScript SDK. A client that validates a tool list therefore dropped all six
+/// tools while the server stayed connected and its instructions loaded, which is a
+/// failure with no error anywhere. The payload is the JSON text of the response, read
+/// from <c>content[0].text</c> as it always was.
+/// </para>
+/// <para>
+/// <b>Every rejection is an <see cref="McpException"/></b>, whose message the SDK
+/// propagates to the caller; any other exception type reaches it as the bare
+/// "An error occurred invoking 'x'.", which tells a model nothing and leaves it
+/// guessing at the limit or the spelling. So a rejection here always names the
+/// limit it broke or the values it may use.
+/// </para>
 /// </remarks>
 [McpServerToolType]
 internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versions)
@@ -33,8 +51,14 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     private const int MaxClasses = 10;
     private const int MaxMarkupBytes = 8 * 1024;
 
+    /// <summary>The values <c>kind</c> accepts. An unknown one is an error, not zero hits.</summary>
+    private static readonly string[] Kinds = ["example", "class", "token", "page"];
+
+    /// <summary>The sections <c>get_integration_guide</c> serves.</summary>
+    private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules"];
+
     [McpServerTool(Name = "search", ReadOnly = true, Destructive = false, Idempotent = true,
-        OpenWorld = false, UseStructuredContent = true)]
+        OpenWorld = false)]
     [Description("""
         Search the Sedna.UI catalogue for examples, CSS classes, design tokens and pages.
         Returns references only — call get_example for the markup. This is the first call for
@@ -51,6 +75,15 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                      + "Supplying it flags results your version does not have.")]
         string? installedVersion = null)
     {
+        // An unknown kind used to return zero hits, which reads as "the catalogue has
+        // none of those" rather than "that is not a kind".
+        if (kind is not null && !Kinds.Contains(kind, StringComparer.OrdinalIgnoreCase))
+            throw new McpException(
+                $"Unknown kind \"{kind}\". Use one of: {string.Join(", ", Kinds)} — "
+                + "or omit it to search everything.");
+
+        kind = kind?.ToLowerInvariant();
+
         var terms = CatalogueRanker.Terms(query).ToList();
         var hits = new List<Hit>();
 
@@ -131,7 +164,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     }
 
     [McpServerTool(Name = "get_example", ReadOnly = true, Destructive = false, Idempotent = true,
-        OpenWorld = false, UseStructuredContent = true)]
+        OpenWorld = false)]
     [Description("""
         The exact markup for one or more catalogue examples, byte-for-byte what the site renders.
         Paste it into a .razor page or an .html file — it is valid in both. Call after search.
@@ -142,10 +175,14 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         [Description("The Sedna.UI version your app has installed.")]
         string? installedVersion = null)
     {
-        ArgumentNullException.ThrowIfNull(ids);
+        if (ids is null || ids.Length == 0)
+            throw new McpException(
+                "ids is required: one or more example ids from search, e.g. [\"Badge/Semantic\"].");
+
         if (ids.Length > MaxExamples)
-            throw new ArgumentException(
-                $"At most {MaxExamples} ids per call; {ids.Length} were requested.", nameof(ids));
+            throw new McpException(
+                $"At most {MaxExamples} ids per call; {ids.Length} were requested. "
+                + "Split them across calls, or use get_page for every example on one page.");
 
         var found = ids.Select(index.Example).OfType<IndexedExample>().ToList();
         var missing = ids.Where(id => index.Example(id) is null).ToList();
@@ -172,7 +209,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     }
 
     [McpServerTool(Name = "describe_class", ReadOnly = true, Destructive = false, Idempotent = true,
-        OpenWorld = false, UseStructuredContent = true)]
+        OpenWorld = false)]
     [Description("""
         What a CSS class actually does: the rules the shipped stylesheet declares for it, its
         cascade layer, its modifiers, and which examples use it. Use it to choose between
@@ -184,10 +221,14 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         [Description("The Sedna.UI version your app has installed.")]
         string? installedVersion = null)
     {
-        ArgumentNullException.ThrowIfNull(names);
+        if (names is null || names.Length == 0)
+            throw new McpException(
+                "names is required: one or more class names, with or without the leading dot.");
+
         if (names.Length > MaxClasses)
-            throw new ArgumentException(
-                $"At most {MaxClasses} names per call; {names.Length} were requested.", nameof(names));
+            throw new McpException(
+                $"At most {MaxClasses} names per call; {names.Length} were requested. "
+                + "Split them across calls.");
 
         var found = names.Select(index.Class).OfType<IndexedClass>().ToList();
 
@@ -211,7 +252,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     }
 
     [McpServerTool(Name = "get_page", ReadOnly = true, Destructive = false, Idempotent = true,
-        OpenWorld = false, UseStructuredContent = true)]
+        OpenWorld = false)]
     [Description("""
         With an id, every example on one catalogue page — one call instead of five. Without one,
         the list of pages, which is the fastest way to see what the library covers.
@@ -261,7 +302,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     }
 
     [McpServerTool(Name = "get_tokens", ReadOnly = true, Destructive = false, Idempotent = true,
-        OpenWorld = false, UseStructuredContent = true)]
+        OpenWorld = false)]
     [Description("""
         The design tokens, as an ordered list of blocks. Every colour in the library resolves
         through one of these, and redefining them in your own brand.css rebrands the whole app.
@@ -312,7 +353,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     }
 
     [McpServerTool(Name = "get_integration_guide", ReadOnly = true, Destructive = false,
-        Idempotent = true, OpenWorld = false, UseStructuredContent = true)]
+        Idempotent = true, OpenWorld = false)]
     [Description("""
         How to wire Sedna.UI into an app: the host page with its load order, the branding
         recipe, the JavaScript and C# surface, and the rules a consuming app follows. Call once
@@ -322,16 +363,16 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         [Description("One of: host-page, branding, javascript, rules. Omit for host-page.")]
         string? section = null)
     {
-        var name = section ?? "host-page";
+        var name = section?.ToLowerInvariant() ?? "host-page";
         var markdown = name switch
         {
             "host-page" => Docs.Read("getting-started.md"),
             "branding" => Docs.Read("getting-started.md"),
             "javascript" => Docs.Read("architecture.md"),
             "rules" => Docs.Read("CLAUDE.consuming-app.md"),
-            _ => throw new ArgumentException(
-                $"Unknown section \"{name}\". Use host-page, branding, javascript or rules.",
-                nameof(section)),
+            _ => throw new McpException(
+                $"Unknown section \"{section}\". Use one of: {string.Join(", ", Sections)} — "
+                + "or omit it for host-page."),
         };
 
         return new { meta = versions.For(null), section = name, markdown };

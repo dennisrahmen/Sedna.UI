@@ -356,6 +356,77 @@ running Blazor Server needs.
 The icons remain under the Remix Icon License v1.0, not Apache-2.0. See
 [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md).
 
+## The MCP server
+
+`/mcp` on the catalogue application: Streamable HTTP, stateless, **public, unauthenticated and
+read-only**. Six tools, plus four resources — `sednaui://stylesheet`, `sednaui://tokens`,
+`sednaui://version` and `sednaui://docs/{name}`. There must never be a seventh tool that writes: a
+client honouring the read-only hint calls these without prompting.
+
+| Tool | Returns |
+| --- | --- |
+| `search` | References only, never markup, across examples, classes, tokens and pages. |
+| `get_example` | The bytes the site renders for an example, valid in a `.razor` page and an `.html` file alike. |
+| `describe_class` | What the shipped stylesheet declares for a class, its layer, its modifiers, and the examples using it. |
+| `get_page` | Every example on one catalogue page, or the list of pages. |
+| `get_tokens` | The token export, as an ordered array of blocks. |
+| `get_integration_guide` | This repository's own documentation, verbatim: `host-page`, `branding`, `javascript`, `rules`. |
+
+Nothing in the index is hand-listed. Examples come from the same embedded resources the pages render,
+classes from the stylesheet the app serves, docs from `docs/`.
+
+### No output schema
+
+A tool's payload is the JSON text of its response, read from `content[0].text`. **No tool declares an
+`outputSchema`**, and a test fails on any schema a tool publishes that uses a boolean subschema.
+
+The tools return anonymous objects, which the SDK cannot describe, so enabling structured content made
+every one of them advertise the placeholder `{"type":"object","properties":{"result":true}}`. That is
+legal JSON Schema and the Zod validator in the MCP TypeScript SDK rejects it, so a client validating the
+tool list dropped all six tools — while the server stayed connected and its instructions loaded. The
+whole surface vanished with no error anywhere.
+
+### The version envelope
+
+Every response carries `meta`: the branch, the commit and build time, the latest release, and — when
+the caller passed one — its `installedVersion` and a `warning` naming everything that version does not
+have. Every class, token and example also carries `since`, which is `build/class-history.sh` data and
+never a hand-kept list. `since` is the literal `"unreleased"` rather than a missing key, so
+"in no release yet" cannot be read as "not reported".
+
+An example's `since` is the newest release among the classes it is about. A live example applies every
+class it is about; a code-only snippet also names classes in prose, so those count too when the
+stylesheet declares them — a JS snippet whose API is what puts the class on the page would otherwise be
+dated by the buttons in its markup. A snippet demonstrating a JS member that touches no class is still
+dated by its classes alone: there is no version history for the script's own surface.
+
+`meta.commit` is baked at image build time from `-p:SourceRevisionId`, and falls back to `SOURCE_COMMIT`
+or `RAILWAY_GIT_COMMIT_SHA` in the environment. Never a runtime `git` call — `.git` is excluded from the
+Docker context.
+
+### Errors name the limit or the values
+
+**Every rejection is an `McpException`**, whose message the SDK propagates to the caller. Any other
+exception type arrives as the bare `An error occurred invoking 'x'.`, which tells a model nothing and
+leaves it retrying the same call. So a rejection states the limit it broke or lists the values the
+argument accepts: an unknown `kind`, an unknown guide section, an unknown doc name, too many ids, and an
+`installedVersion` that is not a version are all errors rather than empty results.
+
+An `installedVersion` this cannot parse is rejected rather than ignored, because it would otherwise
+compare as `0.0.0` and produce a confident warning built from nonsense.
+
+### Rate limiting
+
+On `/mcp` alone, never globally: a global limiter would also count Blazor's SignalR upgrades and every
+static asset, so one person browsing the site would trip a limit sized for MCP calls.
+
+A **concurrency limiter** is the actual control — not partitioned, so there is nothing to spoof your way
+around. The per-caller **token bucket** is fairness only: behind a proxy whose address range we do not
+control, per-IP limiting is not a security measure. A bucket rather than a fixed window because agent
+traffic is bursty, and a fixed window punishes exactly that. Kestrel's request-body limit closes the
+"POST a gigabyte at it" hole, and the stateless transport means a flood of `initialize` calls cannot
+grow the heap.
+
 ## Decisions with a measurement behind them
 
 Recorded so they are not re-opened from intuition.
