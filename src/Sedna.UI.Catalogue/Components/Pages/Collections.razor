@@ -51,6 +51,42 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Collections.TimelineMarks" Title="Icon markers" Demo="ex-demo--block">
+    <p>
+        The dot says “something happened here”. Sometimes the marker <strong>is</strong> the
+        information — a robot for “the agent worked it”, a lock for “it needs a person”, a tick for
+        “decided” — and a dot throws that away.
+    </p>
+    <p>
+        A <code>.timeline-mark</code> child replaces the dot when it is present; the connector and
+        its stopping at the last entry are untouched, because both live on the
+        <code>&lt;li&gt;</code>. A <code>data-kind</code> fills the tile rather than tinting it, the
+        way a done marker in <code>.steps</code> is filled: a translucent marker would let the
+        connector line show straight through it.
+    </p>
+    <p>
+        Do not reach for steps instead. A number implies the reader can be “on” one of them, which
+        steps reserves for a wizard.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Collections.StickyGroups" Title="Stacking group headers" Demo="ex-demo--block">
+    <p>
+        A grouped list in a scroll container where each header pins <strong>below</strong> the one
+        above it instead of replacing it, so the reader keeps the whole path to where they are.
+        Scroll the card.
+    </p>
+    <p>
+        The app supplies one number and nothing else:
+        <code>style="--group-head-index: 2"</code>. The offset is computed from it, so no app does
+        the arithmetic; the height is a variable so the two agree by construction; the background is
+        opaque because rows scroll under it; <code>flex-shrink: 0</code> stops a flex scroll
+        container squashing a pinned header to nothing; and the height in the multiplication is one
+        pixel short, which overlaps each header on the one above so no sub-pixel sliver of a
+        scrolling row shows between them. Every one of those was a bug first.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Collections.Accordion" Title="Accordion" Demo="ex-demo--block">
     <p>
         Built on <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code>, which is the point: the
@@ -61,6 +97,19 @@
         Give every <code>&lt;details&gt;</code> the same <code>name</code> to make them mutually
         exclusive — that is a platform feature too, and it needs no JavaScript. Try it: opening one
         below closes the others.
+    </p>
+    <p>
+        <strong>If code has to open one, bind <code>open</code> one way and never write it back.</strong>
+        <code>toggle</code> fires whenever the <code>open</code> attribute changes — including when
+        the framework's own diff sets it. So a handler that mirrors the state back into a field flips
+        the field the moment code opens the section, the next diff removes the attribute,
+        <code>toggle</code> fires again, and the two fight. It is not a race: it is deterministic, and
+        it shows up only once something other than a click opens the disclosure.
+    </p>
+    <p>
+        Keep the summary's label independent of the open state as well. A label that flips between
+        “Show” and “Hide” is what tempts you into reading the state back in the first place, and the
+        caret already says which way it is.
     </p>
 </CatExample>
 

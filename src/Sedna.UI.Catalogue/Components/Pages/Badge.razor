@@ -25,6 +25,28 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Badge.Severity" Title="Severity — an ordered scale" Demo="ex-demo--block">
+    <p>
+        For a scale whose steps <strong>rank</strong>: an incident priority P1–P5, a CVSS band, a
+        triage tier. The semantic set ranks nothing, and the categorical hues say out loud that they
+        do not — so neither can serve an ordering, which is why this is its own family.
+    </p>
+    <p>
+        <strong>The order is in the fill, not in the hue.</strong> Step 1 is an opaque pill and 2–5
+        are tints that weaken as the rank falls. That ladder is what survives the colour-blind
+        palette, a greyscale print and forced colours; a hue rotation cannot carry an order, which is
+        exactly why hue is identity here and never the ranking. Under
+        <code>data-cvd="1"</code> step 1 darkens away from the brand and step 2 leaves the warm band
+        for violet, because coral, crimson, orange and amber all converge under deuteranopia.
+    </p>
+    <p>
+        <strong>The label has to say the rank.</strong> “P2”, “High”, “3 of 5” — a bare coloured pill
+        is a colour, not a position, and nothing announces it as one. The bars on
+        <a href="/progress">Progress</a> take the same ramp through
+        <code>.progress-bar--sev-N</code>.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Badge.WithAnIcon" Title="With an icon" />
 
 <CatExample TExample="Examples.Badge.InContext" Title="In a card header and a table cell"

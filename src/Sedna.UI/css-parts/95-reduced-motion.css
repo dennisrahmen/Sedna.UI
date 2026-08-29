@@ -46,6 +46,11 @@
     .dropzone         { transition: none; }   /* 47 */
     dialog.modal      { animation: none; }    /* 36 */
     .modal-close      { transition: none; }   /* 36 */
+    /* 36 — the slide arrives instead of rising into place, and the dot marking
+       the current one changes width in one step. The dots still say where the
+       reader is; only the travel goes. */
+    .deck-step        { animation: none; }    /* 36 */
+    .deck-dot         { transition: none; }   /* 36 */
     .spinner          { animation: none; }    /* 39 */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
     .progress-bar     { transition: none; }   /* 41 */

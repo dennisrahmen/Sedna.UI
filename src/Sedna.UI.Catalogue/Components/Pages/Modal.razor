@@ -72,6 +72,29 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Modal.Deck" Title="A first-run deck" Demo="ex-demo--block">
+    <p>
+        A short sequence of slides in a modal, with progress dots and Back/Next. It is the other
+        half of first-run: <a href="/spotlight">spotlight</a> anchors to the page, and before a
+        reader has seen the page there is nothing to anchor to.
+    </p>
+    <p>
+        <strong>Sequencing stays yours</strong>, exactly as it does for spotlight — which step is
+        showing, what the buttons do, whether the deck has been seen before. Three things are here
+        because each is wrong once before it is right: <code>--deck-height</code> fixes the body's
+        height so the footer does not jump between slides; <code>margin: auto 0</code> centres a
+        short slide but lets a tall one start at the top and scroll; and the entrance animation
+        re-runs per step only if the step element is actually <em>replaced</em>, which in Blazor
+        means keying it on the step number. Without the key the framework reuses the node and the
+        deck goes still after slide one.
+    </p>
+    <p>
+        <code>.deck-dots</code> is decoration. Put the position in words as well — “3 of 5” in the
+        footer, or an <code>aria-label</code> on the dots' container — because a row of circles is
+        not announced as a position by anything.
+    </p>
+</CatExample>
+
 <CatSnippet Name="Modal/BackdropForm.html" Title="Without a dialog">
     <p>
         <code>.modal-backdrop</code> dims and centres a panel inside the page instead. It is the

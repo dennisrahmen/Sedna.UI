@@ -5,6 +5,14 @@
    The stack is the only fixed element; each toast is a normal block inside it,
    so an app can render the list with @foreach and never position anything.
 
+   THE STACK IS THE LIVE REGION. sednaUi.toast puts role="status" and
+   aria-live="polite" on the stack it creates (assertive while a danger toast is
+   showing). An app rendering its own stack has to write those itself — nothing
+   on this path creates one — or its toasts are never announced. Never
+   role="alert" on an individual toast: two regions over one message announce it
+   twice, and assertive on every routine confirmation cuts across whatever is
+   being read.
+
    Plain `column`, not `column-reverse`: because the bottom edge is pinned, the
    box grows upward on its own, so the newest toast is already nearest the corner
    without reversing anything — and the rendered order matches the source order,

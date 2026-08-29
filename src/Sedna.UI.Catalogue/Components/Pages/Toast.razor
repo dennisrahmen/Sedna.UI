@@ -35,8 +35,18 @@
         can be seen in place rather than pinned to the corner of the screen.
     </p>
     <p>
-        Do not put <code>role="alert"</code> on a toast. The library adds the live region when it
-        creates the stack; a second one announces the same text twice.
+        <strong>The stack carries the live region, and here that is yours to write.</strong>
+        <code>role="status"</code> plus <code>aria-live="polite"</code> go on
+        <code>.toast-stack</code> — exactly what <code>sednaUi.toast</code> puts on the stack it
+        creates. Without it a toast an app rendered is never announced at all, because there is no
+        library-created stack on this path to carry one.
+    </p>
+    <p>
+        Still do not put <code>role="alert"</code> on an individual toast. Two live regions over the
+        same text announce it twice, and <code>alert</code> is assertive, so every routine
+        confirmation would cut across whatever is being read. A failure that has to interrupt gets
+        <code>aria-live="assertive"</code> on the stack while it is showing, which is what the
+        library does for <code>danger</code>.
     </p>
 </CatExample>
 

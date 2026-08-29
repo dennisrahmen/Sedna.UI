@@ -81,6 +81,36 @@
     --badge-teal-border: var(--teal-300);
     --badge-teal-fg:     var(--teal-700);
 
+    /* The severity ramp, on a light canvas. The ladder is the same shape — an
+       opaque step 1, then tints weakening 0.22 → 0.18 → 0.14 → 0.10 — carried
+       at higher alphas because a tint has less room to read against white.
+       Step 1 takes crimson-700 for the same reason --danger-solid does: 4.61:1
+       for white in both variants. */
+    --sev-1-solid:  var(--crimson-700);
+    --sev-1-bg:     var(--crimson-700);
+    --sev-1-border: var(--crimson-700);
+    --sev-1-fg:     var(--on-solid);
+
+    --sev-2-solid:  var(--orange-700);
+    --sev-2-bg:     rgba(218, 133, 46, 0.22);   /* orange-500 */
+    --sev-2-border: var(--orange-300);
+    --sev-2-fg:     var(--orange-700);
+
+    --sev-3-solid:  var(--amber-600);
+    --sev-3-bg:     rgba(245, 158, 11, 0.18);   /* amber-500 */
+    --sev-3-border: var(--amber-300);
+    --sev-3-fg:     var(--amber-700);
+
+    --sev-4-solid:  var(--orbit-600);
+    --sev-4-bg:     rgba(89, 195, 255, 0.14);   /* orbit-400 */
+    --sev-4-border: var(--orbit-300);
+    --sev-4-fg:     var(--orbit-700);
+
+    --sev-5-solid:  var(--slate-500);
+    --sev-5-bg:     rgba(148, 163, 184, 0.1);   /* slate-400 */
+    --sev-5-border: var(--slate-300);
+    --sev-5-fg:     var(--slate-600);
+
     --badge-bg:      rgba(15, 23, 42, 0.04);    /* slate-900 */
     --table-head-bg: rgba(15, 23, 42, 0.03);    /* slate-900 */
 
@@ -105,4 +135,5 @@
     --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.25);    /* slate-900 */
     --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.22);   /* slate-900 */
     --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(15, 23, 42, 0.18);   /* slate-900 */
 }

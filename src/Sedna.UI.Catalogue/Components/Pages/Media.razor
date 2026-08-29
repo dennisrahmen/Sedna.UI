@@ -37,6 +37,27 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Media.ForeignProse" Title="HTML from somewhere else" Demo="ex-demo--block">
+    <p>
+        <code>.prose</code> sets the typography. <code>.prose--foreign</code> adds the
+        <strong>containment</strong>, and the two are a different job: styling text is about how it
+        reads, containing it is about what a 3000px-wide table, an unbroken 400-character URL or a
+        4000px image does to the card it landed in.
+    </p>
+    <p>
+        Add it to anything sanitized rather than authored — a ticketing system's journal entry, a
+        forwarded mail body, a CMS field. Getting it wrong is invisible until the one wide payload
+        ships, which is why this is a class rather than advice.
+    </p>
+    <p>
+        It contains; it does not sanitize. HTML from elsewhere still has to be cleaned server-side
+        before it reaches the browser — and that same pass is where two attributes belong that CSS
+        cannot add. A table that scrolls needs <code>tabindex="0"</code>, or a keyboard cannot reach
+        the columns that are off-screen; and <code>display: block</code> drops a table's own role, so
+        <code>role="table"</code> puts it back. Both are on the example above.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Media.RedactedValues" Title="Redacted values" Demo="ex-demo--block">
     <p>
         A value deliberately withheld — a secret, a masked identifier, a field the reader's role

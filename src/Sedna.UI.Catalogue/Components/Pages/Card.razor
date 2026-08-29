@@ -38,6 +38,28 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Card.Guarded" Title="A guarded card" Demo="ex-demo--block">
+    <p>
+        A card the reader can see but must claim, accept or unlock before acting on. It is none of
+        the three things it looks like: <a href="/empty-state">an empty state</a> is for when there
+        is nothing there, <a href="/modal">a modal</a> covers the page rather than one card, and
+        <code>disabled</code> greys content out — while the whole point here is that the content
+        reads, because the reader is deciding whether to take it on.
+    </p>
+    <p>
+        <code>.guard</code> is absolute, so the card needs <code>position: relative</code>. It blurs
+        rather than fading: the reader should see there <em>is</em> content and be unable to read it
+        word for word, which is the shape of the offer.
+    </p>
+    <p>
+        Two things the markup has to carry, because CSS cannot. Put <code>inert</code> on the
+        guarded content — legible is not the same as reachable, and without it the whole card stays
+        in the tab order behind a scrim nobody can type through. And say what claiming
+        <strong>does</strong>: “Claim” alone is a button; “Claim to reply on the team's behalf” is a
+        decision.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Card.CaveatAboutCardSOwn" Title="A caveat about the card's own content" Demo="ex-demo--block">
     <p>
         <code>.card-warning</code> pins an amber strip to the card's bottom edge — a stale figure,

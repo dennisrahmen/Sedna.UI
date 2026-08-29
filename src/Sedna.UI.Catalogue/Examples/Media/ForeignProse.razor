@@ -1,0 +1,24 @@
+<div class="card" style="max-width:420px">
+    <div class="card-body">
+        <div class="prose prose--foreign">
+            <p>
+                Reply received from the customer, forwarded from
+                https://helpdesk.example.gov/ticket/4182/comments?thread=a7f3c1e9b2&amp;expand=attachments&amp;from=notification
+            </p>
+            <!-- tabindex and role are on the table because the CONTAINMENT costs both:
+                 a scroll container needs keyboard access, and display: block drops a
+                 table's own role. Foreign HTML arrives without either, so the same
+                 sanitizer that cleans it adds them. -->
+            <table tabindex="0" role="table" aria-label="Mailbox quotas on EXCH-02">
+                <thead>
+                    <tr><th>Host</th><th>Mailbox</th><th>Database</th><th>Quota</th><th>Used</th><th>Last logon</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>EXCH-02</td><td>info-service-desk</td><td>DB-AHRWEILER-PRIMARY-01</td><td>50 GB</td><td>49.8 GB</td><td>2026-08-28 07:41</td></tr>
+                    <tr><td>EXCH-02</td><td>rechnungseingang</td><td>DB-AHRWEILER-PRIMARY-01</td><td>50 GB</td><td>31.2 GB</td><td>2026-08-28 06:12</td></tr>
+                </tbody>
+            </table>
+            <pre>Set-Mailbox -Identity info-service-desk -ProhibitSendQuota 75GB -ProhibitSendReceiveQuota 80GB -IssueWarningQuota 70GB</pre>
+        </div>
+    </div>
+</div>

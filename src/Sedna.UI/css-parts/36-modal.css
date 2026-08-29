@@ -98,3 +98,64 @@ dialog.modal::backdrop {
     border-top: 1px solid var(--border);
 }
 
+
+/* ── Deck ───────────────────────────────────────────────────────────────────
+   A short sequence of slides in a modal, with progress dots and Back/Next. The
+   first-run half that `sednaUi.spotlight` cannot do: spotlight anchors to the
+   page, and before a reader has seen the page there is nothing to anchor to.
+
+   Sequencing stays the app's, exactly as it does for spotlight — which step is
+   showing, what the buttons do, whether the deck has been seen before. What is
+   here is the chrome plus the three things that are fiddly enough to get wrong
+   once each:
+
+     · --deck-height fixes the body's height, so the footer does not jump as
+       slides of different lengths go past. Change it on `.deck` for a taller
+       deck; it is not on the spacing scale, because it is the size of a thing.
+     · `margin: auto 0` on the step centres a short slide vertically, and a tall
+       one still starts at the top and scrolls — flex auto margins collapse to 0
+       when there is no free space, which is exactly the behaviour wanted and
+       the reason this is not `align-items: center`.
+     · the entrance animation re-runs per step ONLY if the step element is
+       actually replaced. In Blazor that means `@key="_step"` on the
+       `.deck-step`; without it the framework reuses the node, the animation
+       never restarts, and the deck goes still after slide one.
+
+   `.deck-dots` is decoration. Put the position in words too — "3 of 5" in the
+   footer, or aria-label on the dots' container — because a row of circles is
+   not announced as a position by anything. */
+.deck { --deck-height: 320px; }
+.deck-body {
+    display: flex;
+    height: var(--deck-height);
+    overflow-y: auto;
+    padding: var(--space-8);
+}
+.deck-step {
+    width: 100%;
+    margin: auto 0;
+    animation: sedna-deck-in var(--motion-mid) ease;
+}
+@keyframes sedna-deck-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+.deck-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    padding: var(--space-7) var(--space-8);
+    border-top: 1px solid var(--border);
+}
+.deck-dots { display: flex; align-items: center; gap: var(--space-3); }
+.deck-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border-hover);
+    transition: background var(--motion-fast), width var(--motion-fast);
+}
+/* Wider as well as brand-coloured: the current slide has to be findable without
+   reading colour at all. */
+.deck-dot--active { width: 18px; border-radius: var(--radius-pill); background: var(--brand); }

@@ -1,0 +1,75 @@
+/* ── Guard ──────────────────────────────────────────────────────────────────
+   A card the reader can SEE but must claim, accept or unlock before acting on.
+   The content stays legible under a scrim; a prompt sits over it.
+
+   It is none of the three things it looks like. `.empty-state` is for when
+   there is nothing there, and here there is. `.modal` covers the page, and this
+   covers one card. `disabled` greys content out, and the whole point of this is
+   that the content reads — the reader is deciding whether to take it on.
+
+   Scoped to a positioned ancestor, which is the card:
+
+     <article class="card" style="position: relative">
+       …the content, readable…
+       <div class="guard">
+         <div class="guard-card">
+           <span class="guard-icon"><i class="ri-lock-line"></i></span>
+           <p>Claim this request to see the customer's reply and decide it.</p>
+           <button class="btn btn-brand">Claim</button>
+         </div>
+       </div>
+     </article>
+
+   Two things the markup has to carry, because CSS cannot:
+
+     · put `inert` on the guarded content. Legible is not the same as
+       reachable, and without it the whole card stays in the tab order behind a
+       scrim the reader cannot type through.
+     · the prompt says what claiming DOES. "Claim" alone is a button; "Claim to
+       reply on behalf of the team" is a decision.
+
+   z-index 1 is local stacking inside the card, not a rung on the documented
+   scale — a guard belongs to one card and never rises over the page.
+   ─────────────────────────────────────────────────────────────────────────── */
+.guard {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-7);
+    background: var(--overlay);
+    /* Blur, not opacity: the reader should see there IS content and be unable to
+       read it word for word, which is the shape of the offer. */
+    backdrop-filter: blur(2px);
+    /* Follows whatever it covers, so it does not square off a rounded card. */
+    border-radius: inherit;
+}
+.guard-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+    max-width: 280px;
+    padding: var(--space-8);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-float);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    text-align: center;
+}
+.guard-card > p { margin: 0; }
+.guard-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--surface-strong);
+    border-radius: 50%;
+    color: var(--muted);
+    font-size: var(--text-8);
+}

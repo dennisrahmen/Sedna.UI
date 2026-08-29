@@ -69,6 +69,14 @@ internal static class TokenGroups
             "--secret-bg", "--secret-border", "--secret-fg",
         ]),
 
+        new("Severity — an ordered five-step ramp", [
+            "--sev-1-solid", "--sev-1-bg", "--sev-1-border", "--sev-1-fg",
+            "--sev-2-solid", "--sev-2-bg", "--sev-2-border", "--sev-2-fg",
+            "--sev-3-solid", "--sev-3-bg", "--sev-3-border", "--sev-3-fg",
+            "--sev-4-solid", "--sev-4-bg", "--sev-4-border", "--sev-4-fg",
+            "--sev-5-solid", "--sev-5-bg", "--sev-5-border", "--sev-5-fg",
+        ]),
+
         new("Categorical badge hues", [
             "--badge-cyan-bg", "--badge-cyan-border", "--badge-cyan-fg",
             "--badge-orange-bg", "--badge-orange-border", "--badge-orange-fg",
@@ -85,6 +93,7 @@ internal static class TokenGroups
         new("Shadows", [
             "--shadow-topbar", "--shadow-nav-tools", "--shadow-modal", "--shadow-tip",
             "--shadow-flyout", "--shadow-dropdown", "--shadow-float", "--shadow-pop",
+            "--shadow-tile",
         ], Swatch: false),
 
         new("Reconnect banner", [

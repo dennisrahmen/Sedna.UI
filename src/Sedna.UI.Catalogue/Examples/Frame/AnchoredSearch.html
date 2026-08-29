@@ -1,0 +1,27 @@
+<!-- An app whose results come from a database renders the panel itself, INSIDE
+     .search, and adds .search-panel--anchored. .search is already
+     position: relative, so the modifier is the whole of the positioning: no
+     measuring, no inline top/left, nothing for a re-render to revert.
+
+     Leave data-search off the input. With it, sednaUi.search would adopt the box
+     and open its own panel over this one — and its index is registered up front,
+     which a database-backed search does not have. -->
+<div class="search">
+    <i class="ri-search-line search-icon"></i>
+    <input class="search-input" type="search" placeholder="Search orders…"
+           role="combobox" aria-expanded="true" aria-controls="order-results"
+           aria-autocomplete="list">
+    <button class="search-clear" type="button" aria-label="Clear"><i class="ri-close-line"></i></button>
+
+    <div id="order-results" class="search-panel search-panel--anchored sedna-scroll"
+         role="listbox" aria-label="Orders">
+        <a class="search-item search-item--sel" role="option" aria-selected="true" tabindex="-1" href="/order/4182">
+            <span class="search-item-title">Mailbox quota exceeded on EXCH-02</span>
+            <span class="search-item-meta">
+                <span class="text-mono">TPC-4182</span>
+                <span class="search-tag search-tag--warn">needs a human</span>
+            </span>
+        </a>
+        <div class="search-status">2 more matches. Keep typing to narrow it down.</div>
+    </div>
+</div>

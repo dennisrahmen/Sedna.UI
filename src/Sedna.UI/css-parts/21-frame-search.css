@@ -170,3 +170,28 @@
 @media (max-width: 720px) {
     .search { display: none; }
 }
+
+/* ── The panel, rendered by the app ─────────────────────────────────────────
+   An app whose results come from a database renders the panel itself — the
+   library's index is client-side and registered up front, so it has nothing to
+   position. `.search-panel` alone cannot serve that: it is `position: fixed`
+   with no top/left/width, because sednaUi.search sets those from the box it
+   measured. Nested inside `.search` without this modifier it lands wherever the
+   viewport's origin is.
+
+   This anchors it under the box instead. `.search` is already
+   `position: relative`, so nothing else is needed and no measuring happens at
+   all — which is also why there is no `sednaUi.search.place()` to call: a panel
+   the app rendered lives in the app's own subtree, and inline top/left written
+   there by this library would be reverted the next time the framework
+   re-rendered it.
+
+   The trade, which is worth knowing before you take it: a nested panel joins
+   `.topbar`'s stacking context at z-index 60, so it sits UNDER a modal backdrop
+   however high its own z-index. For a header search that is almost always
+   right — a modal opening should cover the results, not sit behind them. */
+.search-panel--anchored {
+    position: absolute;
+    top: calc(100% + 6px);
+    inset-inline: 0;
+}
