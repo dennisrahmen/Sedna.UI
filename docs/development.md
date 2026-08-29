@@ -141,7 +141,7 @@ mode, and CI runs all four before the build:
 build/bundle-css.sh          # wwwroot/css/Sedna.UI.css   from css-parts/
 build/bundle-js.sh           # wwwroot/js/Sedna.UI.js     from js-parts/
 build/export-tokens.sh       # wwwroot/tokens/…tokens.json    from the token parts
-build/class-history.sh       # which release first shipped each class and token
+build/class-history.sh       # which release first shipped each class, token, C# member and example
 ```
 
 Counts are calculated, never typed. `build/css-inventory.sh` is the single implementation of "what does
@@ -153,6 +153,12 @@ build/release-inventory.sh v0.2.0 --notes
 ```
 
 Both extractions in `css-inventory.sh` are subtle — read its header before writing a third one.
+
+`build/api-inventory.sh` is the same thing for the public C# surface — one `Type` or `Type.Member` per
+line — and `class-history.sh` runs it over every tag. It parses source rather than reflecting, because
+reflecting over an old tag means building that tag; `McpApiHistoryTests` pins the parse against
+reflection over the built assembly at HEAD, so a parser that drifts from the compiler's view is reported
+instead of quietly attributing a member to the wrong release.
 
 `build/css-path.sh` is the single implementation of "where did the stylesheet live at this git ref".
 `build/class-history.sh` and `build/release-inventory.sh` both call it rather than hard-coding the path

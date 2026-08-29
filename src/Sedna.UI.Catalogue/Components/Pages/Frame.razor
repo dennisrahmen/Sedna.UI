@@ -93,6 +93,29 @@
     </p>
 </CatSnippet>
 
+<CatSnippet Name="Frame/AnchoredSearch.html" Title="A panel the app renders">
+    <p>
+        Searching a database is the app's own job — a per-keystroke round trip needs a debounce
+        whose length depends on the backend, a cancellation story for superseded keystrokes and a
+        busy state, none of which a shared library can decide. So the app renders the panel with
+        these classes and leaves <code>data-search</code> off the input.
+    </p>
+    <p>
+        <code>.search-panel--anchored</code> is what positions it. The panel
+        <code>sednaUi.search</code> builds is <code>position: fixed</code> in
+        <code>&lt;body&gt;</code> with its top, left and width measured from the box; a panel the app
+        rendered lives in the app's own subtree, where inline coordinates written by this library
+        would be reverted on the next re-render. The modifier nests it under the box instead —
+        <code>.search</code> is already <code>position: relative</code>, so nothing is measured at
+        all.
+    </p>
+    <p>
+        <strong>The trade:</strong> a nested panel joins <code>.topbar</code>'s stacking context at
+        z-index 60, so it sits <em>under</em> a modal backdrop however high its own z-index. For a
+        header search that is almost always right — a modal opening should cover the results.
+    </p>
+</CatSnippet>
+
 <CatExample TExample="Examples.Frame.CollapsedRail" Title="Collapsed rail" Demo="ex-demo--block">
     <p>
         Add <code>.collapsed</code> to <code>.sidebar</code> — no other markup changes. Labels

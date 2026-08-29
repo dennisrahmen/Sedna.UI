@@ -101,3 +101,46 @@
     user-select: none;
 }
 .redacted i { font-size: var(--text-4); }
+
+/* ── Prose that arrived from somewhere else ─────────────────────────────────
+   `.prose` sets the typography. This adds the CONTAINMENT, and the two are a
+   different job: styling text is about how it reads, containing it is about
+   what a 3000px-wide table, an unbroken 400-character URL or a 4000px image
+   does to the card it landed in. A ticketing system's journal entry, a
+   forwarded mail body, a CMS field — anything sanitized rather than authored
+   — wants both.
+
+   Getting it wrong is invisible until the one wide payload ships, which is why
+   this is a modifier rather than advice.
+
+   It contains; it does not sanitize. HTML from elsewhere still has to be
+   cleaned server-side before it reaches the browser — and the same pass is where
+   two attributes belong that CSS cannot add. A table that scrolls needs
+   `tabindex="0"` so a keyboard can reach the part that is off-screen, and
+   `display: block` drops a table's own role, so `role="table"` puts it back.
+   Both are on the catalogue's example. */
+.prose--foreign { overflow-wrap: anywhere; }
+/* EXCEPT inside a table, which has to SCROLL rather than squash. `anywhere` makes a
+   cell's min-content width one character, so the browser shrinks every column to fit
+   the card instead of overflowing into the scroller `.prose table` already provides —
+   and a five-column table arrives as a stack of broken words. The long token that
+   needed breaking widens the table here, and the table scrolls, which is the whole
+   point of the scroller. */
+.prose--foreign th,
+.prose--foreign td { overflow-wrap: normal; }
+/* A <pre> arriving from elsewhere has lines nobody chose the length of, so it
+   wraps rather than pushing the card wide — and still scrolls, because a single
+   unbreakable token has nowhere to wrap. */
+.prose--foreign pre { white-space: pre-wrap; overflow-x: auto; }
+/* Everything that carries its own intrinsic size. `.prose` already caps <img>;
+   an embed, a video and an inline <svg> are the ones that get missed. */
+.prose--foreign img,
+.prose--foreign svg,
+.prose--foreign video,
+.prose--foreign canvas,
+.prose--foreign iframe,
+.prose--foreign embed,
+.prose--foreign object { max-width: 100%; }
+.prose--foreign svg,
+.prose--foreign video,
+.prose--foreign canvas { height: auto; }

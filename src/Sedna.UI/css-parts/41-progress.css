@@ -17,6 +17,22 @@
 .progress-bar--warn   { background: var(--warn-solid); }
 .progress-bar--danger { background: var(--danger-solid); }
 
+/* Neutral. The base bar is var(--brand), which reads as an alarm wherever the
+   brand is a red — and "nowhere near the threshold" is neither a warning nor a
+   failure. Any bar measuring progress TOWARDS a threshold rather than the
+   completion of a task wants this. */
+.progress-bar--muted  { background: var(--muted); }
+
+/* The ordered severity ramp, for a bar that measures a rank rather than a
+   fraction — a P1–P5 mix, a CVSS band. --sev-N-solid is a fill only: steps 4
+   and 5 do not carry --on-solid text at AA, and a bar has no label on it.
+   Where there is one, use `.badge-sev-N`. */
+.progress-bar--sev-1 { background: var(--sev-1-solid); }
+.progress-bar--sev-2 { background: var(--sev-2-solid); }
+.progress-bar--sev-3 { background: var(--sev-3-solid); }
+.progress-bar--sev-4 { background: var(--sev-4-solid); }
+.progress-bar--sev-5 { background: var(--sev-5-solid); }
+
 .progress--indeterminate .progress-bar {
     width: 35%;
     animation: sedna-progress var(--progress-duration) ease-in-out infinite;

@@ -20,10 +20,34 @@
     /* Added for SednaUI: separate danger from the coral brand by lightness. */
     --danger-solid: var(--crimson-800);
     --danger-fg:    var(--crimson-300);
+
+    /* The severity ramp needs no rescue for its ORDER — that is carried by the
+       fill strength, which no colour vision changes. Two of its five hues still
+       move, for identity:
+
+         step 1 darkens, the same trade --danger just made against the brand;
+         step 2 leaves the warm band entirely, because orange sits between the
+         coral brand and step 3's amber and under deuteranopia all three
+         converge on one brown. Violet is the only remaining hue that is neither
+         warm nor step 4's blue.
+
+       Steps 3, 4 and 5 are amber, blue and grey, which already separate. */
+    --sev-1-solid:  var(--crimson-900);
+    --sev-1-bg:     var(--crimson-900);
+    --sev-1-border: var(--crimson-800);
+
+    --sev-2-solid:  var(--violet-700);
+    --sev-2-bg:     rgba(162, 131, 255, 0.28);  /* violet-500 */
+    --sev-2-border: var(--violet-700);
+    --sev-2-fg:     var(--violet-300);
 }
 :root[data-variant="light"][data-cvd="1"] {
     --go-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
     --go-border: var(--orbit-300);
     --go-fg:     var(--orbit-700);
     --danger-fg: var(--crimson-800);
+
+    --sev-2-bg:     rgba(117, 75, 211, 0.22);   /* violet-700 */
+    --sev-2-border: var(--violet-300);
+    --sev-2-fg:     var(--violet-700);
 }

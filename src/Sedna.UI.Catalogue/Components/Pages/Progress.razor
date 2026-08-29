@@ -26,6 +26,31 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Progress.Threshold" Title="Measuring towards a threshold" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A bar that measures progress <em>towards</em> a threshold rather than the completion of a
+        task needs a fourth state the first three do not cover: <strong>neither</strong>. Well below
+        the line is not a warning and not a failure — it is a number that has not gone anywhere yet.
+    </p>
+    <p>
+        <code>.progress-bar--muted</code> is that state. The base bar is <code>var(--brand)</code>,
+        and wherever the brand is a red it reads as an alarm on a row where nothing is wrong;
+        <code>--warn</code> cries wolf and <code>--danger</code> is a lie.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Progress.Severity" Title="Ranked bars" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.progress-bar--sev-1</code> … <code>--sev-5</code> take the ordered ramp behind the
+        <a href="/badge">severity badges</a>, for a bar that measures a rank rather than a fraction.
+    </p>
+    <p>
+        The solids are a fill and nothing else: steps 4 and 5 do not carry white text at AA, which
+        does not matter on a bar because a bar has no label on it. Where there is one, use
+        <code>.badge-sev-N</code>.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Progress.Spinner" Title="Spinner">
     <p>
         Sized in <code>em</code>, so it matches whatever text or button it sits in without a second

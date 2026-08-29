@@ -35,3 +35,20 @@
 .badge-orange { background: var(--badge-orange-bg); border-color: var(--badge-orange-border); color: var(--badge-orange-fg); }
 .badge-teal   { background: var(--badge-teal-bg);   border-color: var(--badge-teal-border);   color: var(--badge-teal-fg); }
 
+/* ── Severity ───────────────────────────────────────────────────────────────
+   An ORDERED five-step scale — P1–P5, a CVSS band, a triage tier. The four
+   semantic families rank nothing and the three categorical hues say so out
+   loud, which is why neither can serve a ranking.
+
+   `.badge-sev-1` is a filled pill and 2–5 are tints that weaken as the rank
+   falls. That ladder is the ordering, and it is the part that survives the
+   colour-blind palette, a greyscale print and forced colours — see the token
+   block in 01-tokens.css.
+
+   THE LABEL MUST CARRY THE RANK. "P2", "High", "3 of 5" — not a bare pill.
+   Colour is the reinforcement here, never the only channel. */
+.badge-sev-1 { background: var(--sev-1-bg); border-color: var(--sev-1-border); color: var(--sev-1-fg); }
+.badge-sev-2 { background: var(--sev-2-bg); border-color: var(--sev-2-border); color: var(--sev-2-fg); }
+.badge-sev-3 { background: var(--sev-3-bg); border-color: var(--sev-3-border); color: var(--sev-3-fg); }
+.badge-sev-4 { background: var(--sev-4-bg); border-color: var(--sev-4-border); color: var(--sev-4-fg); }
+.badge-sev-5 { background: var(--sev-5-bg); border-color: var(--sev-5-border); color: var(--sev-5-fg); }

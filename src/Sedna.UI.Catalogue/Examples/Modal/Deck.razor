@@ -1,0 +1,32 @@
+<div class="modal deck">
+    <div class="modal-header">
+        <h3>Welcome to the approval console</h3>
+        <button class="modal-close" type="button" aria-label="Close"><i class="ri-close-line"></i></button>
+    </div>
+
+    <!-- One slide is rendered at a time. In Blazor this element carries a key
+         bound to the step number, so the framework replaces it rather than
+         patching it — which is what makes the entrance animation run again. -->
+    <div class="deck-body">
+        <div class="deck-step">
+            <h4 style="margin:0 0 8px">Two lanes, and they never meet</h4>
+            <p style="margin:0">
+                Everything the agent could decide on its own is already gone. What is left is
+                the work that asked for a person — and the work nobody has claimed yet.
+            </p>
+        </div>
+    </div>
+
+    <div class="deck-footer">
+        <div class="deck-dots" role="group" aria-label="Step 2 of 4">
+            <span class="deck-dot"></span>
+            <span class="deck-dot deck-dot--active"></span>
+            <span class="deck-dot"></span>
+            <span class="deck-dot"></span>
+        </div>
+        <div class="btn-group">
+            <button class="btn" type="button">Back</button>
+            <button class="btn btn-primary" type="button">Next</button>
+        </div>
+    </div>
+</div>

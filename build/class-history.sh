@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Which release first shipped each CSS class and each token.
+# Which release first shipped each CSS class, token, public C# member and example.
 #
 # The hosted catalogue is built from `main` and can be ahead of any released
 # version. An agent that copies markup for a class its app's pinned version does
@@ -19,7 +19,25 @@
 #
 # Sits on build/css-inventory.sh, which is the one implementation of "what does
 # this stylesheet declare". Both of its extractions are subtle — read its header
-# before writing a third one.
+# before writing a third one. build/api-inventory.sh is the same thing for the
+# public C# surface.
+#
+# FOUR MAPS, because a class floor is not the only floor an example has:
+#
+#   classes, tokens   the release that first declared each one.
+#   csharp            the release that first declared each public C# type and
+#                     member. An example demonstrating ISednaUi has no classes in
+#                     it at all, so without this it had no floor to report.
+#   examples          the release each example has looked EXACTLY like since —
+#                     the earliest tag in the unbroken run of byte-identical
+#                     copies ending at the working tree. Not "when the file first
+#                     appeared": a file rewritten in the newest release to show a
+#                     new API would otherwise claim the date of its first line.
+#
+# The server takes the newest of whichever floors apply to a result. Before this,
+# an example with no classes fell back to `latestRelease` — which reported every
+# JavaScript and C# snippet in the catalogue as brand new, and warned an agent
+# off a capability its pinned version already had.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -27,6 +45,12 @@ inventory="$root/build/css-inventory.sh"
 # The stylesheet's path is not constant across history — build/css-path.sh owns the
 # list. Reading a tag at the working tree's path silently attributed nothing.
 sheet="$("$root/build/css-path.sh" HEAD)"
+api="$root/build/api-inventory.sh"
+# Both have been at these paths for every tag that exists. If either moves, the
+# emitters below fail loudly rather than attributing nothing — the failure
+# css-path.sh was written for.
+library="src/Sedna.UI"
+examples="src/Sedna.UI.Catalogue/Examples"
 out="$root/src/Sedna.UI.Catalogue/Data/class-history.json"
 
 check=0
@@ -106,6 +130,102 @@ emit_first_seen() {
     done | sort
 }
 
+# The public C# surface, first release each name appeared in. Same shape as
+# emit_first_seen, but the inventory reads a DIRECTORY rather than one file, so each
+# tag's sources are unpacked into a scratch tree first. `git archive` is used rather
+# than a checkout: it touches no working tree and no index.
+emit_csharp_first_seen() {
+    local name tag version resolved=0
+    local -A first=()
+    local -A current=()
+
+    while IFS= read -r name; do
+        [[ -n "$name" ]] && current["$name"]=1
+    done < <("$api" "$root/$library")
+
+    if [[ ${#current[@]} -eq 0 ]]; then
+        echo "::error::$api produced nothing for $library. It did not run." >&2
+        echo "        Try: bash $api $root/$library" >&2
+        exit 1
+    fi
+
+    for tag in "${tags[@]}"; do
+        version="${tag#v}"
+        rm -rf "$tmp/api" && mkdir -p "$tmp/api"
+        git -C "$root" archive "$tag" "$library" 2>/dev/null | tar -x -C "$tmp/api" 2>/dev/null || continue
+        [[ -d "$tmp/api/$library" ]] || continue
+        resolved=$((resolved + 1))
+
+        while IFS= read -r name; do
+            [[ -z "$name" || -z "${current[$name]:-}" ]] && continue
+            [[ -n "${first[$name]:-}" ]] && continue
+            first["$name"]="$version"
+        done < <("$api" "$tmp/api/$library")
+    done
+
+    if [[ $resolved -eq 0 ]]; then
+        echo "::error::No tag yielded $library, so no release can be attributed." >&2
+        echo "        The library has moved; point the library path at its new home." >&2
+        exit 1
+    fi
+
+    for name in "${!current[@]}"; do
+        printf '%s\t%s\n' "$name" "${first[$name]:-}"
+    done | sort
+}
+
+# Which release each example has looked EXACTLY like since. Walking the tags oldest
+# first, a tag whose copy differs from the working tree's RESETS the run — so the
+# answer is the start of the unbroken identical run reaching HEAD, and an example
+# edited since the last release is correctly unreleased.
+#
+# "First appeared" would be wrong here, and quietly so: an example rewritten to
+# demonstrate a new API keeps the path it has always had.
+emit_example_first_seen() {
+    local path id tag version resolved=0
+    local -A since=()
+    local -A ids=()
+
+    while IFS= read -r path; do
+        [[ -n "$path" ]] || continue
+        # …/Examples/Badge/Semantic.razor -> Badge/Semantic, which is the id the
+        # server builds from the embedded resource name.
+        id="${path#"$examples"/}"
+        id="${id%.*}"
+        ids["$id"]="$path"
+    done < <(git -C "$root" ls-files "$examples")
+
+    if [[ ${#ids[@]} -eq 0 ]]; then
+        echo "::error::No tracked files under $examples. The examples have moved." >&2
+        exit 1
+    fi
+
+    for tag in "${tags[@]}"; do
+        version="${tag#v}"
+        git -C "$root" cat-file -e "$tag:$examples" 2>/dev/null || continue
+        resolved=$((resolved + 1))
+
+        for id in "${!ids[@]}"; do
+            path="${ids[$id]}"
+            if git -C "$root" show "$tag:$path" 2>/dev/null | cmp -s - "$root/$path"; then
+                [[ -n "${since[$id]:-}" ]] || since["$id"]="$version"
+            else
+                # Absent, or changed since: nothing before this tag can be the floor.
+                unset "since[$id]"
+            fi
+        done
+    done
+
+    if [[ $resolved -eq 0 ]]; then
+        echo "::error::No tag yielded $examples, so no release can be attributed." >&2
+        exit 1
+    fi
+
+    for id in "${!ids[@]}"; do
+        printf '%s\t%s\n' "$id" "${since[$id]:-}"
+    done | sort
+}
+
 json_map() {
     local first=1
     while IFS=$'\t' read -r name version; do
@@ -132,6 +252,12 @@ latest="${tags[-1]#v}"
     printf '  },\n'
     printf '  "tokens": {\n'
     emit_first_seen tokens | json_map
+    printf '  },\n'
+    printf '  "csharp": {\n'
+    emit_csharp_first_seen | json_map
+    printf '  },\n'
+    printf '  "examples": {\n'
+    emit_example_first_seen | json_map
     printf '  }\n'
     printf '}\n'
 } >"$tmp/class-history.json"

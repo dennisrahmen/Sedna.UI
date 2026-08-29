@@ -159,6 +159,7 @@ src/
     Dockerfile                        build context is the REPOSITORY ROOT
   Sedna.UI.Catalogue.Tests/       WebApplicationFactory + Kestrel + Playwright
 assets/brand/                         icon, logo, favicon, social preview
+build/api-inventory.sh                lists the public C# surface — the C# half of css-inventory.sh
 build/verify-package.sh               unpacks the .nupkg and asserts its contents
 docs/                                 long-form documentation
 railway.json                          deploy configuration, reviewable in a pull request
@@ -182,8 +183,11 @@ matters it is **calculated**, never typed:
 - `build/css-inventory.sh` is the one implementation of "what does this stylesheet declare". Both
   extractions in it are subtle — see the header before writing a third one.
 - `build/release-inventory.sh` derives the class and token lists a release adds, for the notes.
-- `build/class-history.sh` derives which release first shipped each class and token, which is what the
-  MCP server's `since` reports. `--check` in CI; regenerate and commit after cutting a tag.
+- `build/api-inventory.sh` is the same implementation for the public C# surface, and is the one place
+  that answers "what does this library export".
+- `build/class-history.sh` derives which release first shipped each class, token, public C# member and
+  example, which is what the MCP server's `since` reports. `--check` in CI; regenerate and commit after
+  cutting a tag.
 
 The landing page's figures are computed at runtime by the browser's own CSS parser
 (`sednaUiCatalogue.readInventory`), and a test compares them against a .NET regex over the same

@@ -150,6 +150,107 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 .timeline > li[data-kind="warn"]::before   { background: var(--warn-solid); }
 .timeline > li[data-kind="danger"]::before { background: var(--danger-solid); }
 
+/* ── A marker that is an icon ───────────────────────────────────────────────
+   The dot says "something happened here". Sometimes the marker IS the
+   information — a robot for "the agent worked it", a lock for "it needs a
+   person", a tick for "decided" — and a dot throws that away while a number
+   would imply the reader can be "on" a step, which `.steps` reserves for
+   wizards.
+
+   So a `.timeline-mark` child REPLACES the dot when it is present. The
+   connector, and its stopping at the last entry, are untouched: both live on
+   the <li>, not on the marker.
+
+     <li data-kind="go">
+       <span class="timeline-mark"><i class="ri-check-line"></i></span>
+       <span class="timeline-when">09:42</span>
+       <span class="timeline-what">Approved by Dennis</span>
+     </li>
+
+   A `data-kind` FILLS the tile rather than tinting it, which is what `.steps`
+   does with a done marker and for the same two reasons: the --*-bg tints are
+   translucent, and a translucent marker lets the connector line show straight
+   through it; and a filled marker still reads as itself in greyscale and under
+   forced colours, where a tint does not. */
+.timeline > li:has(> .timeline-mark)::before { content: none; }
+.timeline-mark {
+    position: absolute;
+    /* Half the tile, minus the border it straddles — the same centring the dot
+       gets from -5px against its own 9px. */
+    inset-inline-start: -13px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--muted);
+    font-size: var(--text-4);
+}
+/* The <li> gets the room the tile needs, only where there is one. */
+.timeline > li:has(> .timeline-mark) { padding-inline-start: var(--space-10); }
+.timeline > li[data-kind="go"] > .timeline-mark {
+    background: var(--go-solid);
+    border-color: var(--go-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="warn"] > .timeline-mark {
+    background: var(--warn-solid);
+    border-color: var(--warn-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="danger"] > .timeline-mark {
+    background: var(--danger-solid);
+    border-color: var(--danger-solid);
+    color: var(--on-solid);
+}
+
+/* ── Stacking group headers ─────────────────────────────────────────────────
+   A grouped list in a scroll container where each group's header pins BELOW the
+   one above it instead of replacing it, so the reader keeps the whole path to
+   where they are.
+
+   The app supplies one number — the header's rendered index — and nothing else:
+
+     <li class="sticky-group-head" style="--group-head-index: 2">Waiting on a person</li>
+
+   Everything that made this a bug four times over is here rather than in the
+   app. `top` is computed from the index so no app does the arithmetic. The
+   height is a variable so the two agree by construction. The background is
+   opaque, because rows scroll UNDER a header. `flex-shrink: 0` stops a flex
+   scroll container squashing a pinned header to nothing. And the height in the
+   `top` multiplication is one pixel short, which overlaps each header on the
+   one above by 1px — without it a sub-pixel sliver of a scrolling row shows
+   between two stacked headers on a fractional device pixel ratio.
+
+   z-index 1 is local stacking inside the list, not a rung on the scale. */
+.sticky-group-head {
+    --group-head-index: 0;
+    --group-head-height: 32px;
+    position: sticky;
+    top: calc(var(--group-head-index) * (var(--group-head-height) - 1px));
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-shrink: 0;
+    height: var(--group-head-height);
+    padding: 0 var(--space-6);
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+/* Inside a card the header meets the card's edges, like `.list-row` does. */
+.card > .list > .sticky-group-head,
+.card > .sticky-group-head { padding-inline: var(--space-7); }
+
 /* ── Accordion ──────────────────────────────────────────────────────────────
    Built on <details>/<summary>, which is the whole point: open and closed state,
    keyboard operation, and the announcement all come from the platform, so there is
@@ -157,6 +258,13 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 
    Give every <details> the same `name` to make them mutually exclusive — that is a
    platform feature too, and it needs no JavaScript.
+
+   The one thing to wire carefully is the opposite direction. If code has to OPEN a
+   section, bind `open` one way and never write it back: `toggle` fires whenever the
+   attribute changes, the framework's own diff included, so a handler mirroring the
+   state back flips it, the next diff removes the attribute, and the two fight. It is
+   deterministic, not a race, and it appears only once something other than a click
+   opens the disclosure.
 
    The marker is drawn as a rotating caret. `list-style: none` plus
    `::-webkit-details-marker` is needed because the two engines expose the default

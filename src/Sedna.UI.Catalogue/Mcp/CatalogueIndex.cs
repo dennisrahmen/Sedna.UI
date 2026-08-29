@@ -16,7 +16,8 @@ internal sealed record IndexedExample(
     string Markup,
     string Language,
     bool Live,
-    IReadOnlyList<string> Classes);
+    IReadOnlyList<string> Classes,
+    IReadOnlyList<string> Members);
 
 /// <summary>One CSS class, with what the stylesheet actually says about it.</summary>
 internal sealed record IndexedClass(
@@ -69,7 +70,9 @@ internal sealed class CatalogueIndex
         // the other way round. One extraction of "what does this stylesheet declare",
         // not two.
         var declared = BuildClasses(RawStylesheet);
-        Examples = BuildExamples(declared.Select(c => c.Name).ToHashSet(StringComparer.Ordinal));
+        PublicApi = ReadPublicApi();
+        Examples = BuildExamples(
+            declared.Select(c => c.Name).ToHashSet(StringComparer.Ordinal), PublicApi);
         Classes = WithUsage(declared, Examples);
         Tokens = ReadTokens(environment);
     }
@@ -84,6 +87,21 @@ internal sealed class CatalogueIndex
     /// <summary>The token export, verbatim — an ordered array of blocks.</summary>
     public JsonDocument Tokens { get; }
 
+    /// <summary>
+    /// Every public C# type and member the library exports, as <c>Type</c> and
+    /// <c>Type.Member</c>.
+    /// </summary>
+    /// <remarks>
+    /// Read by reflection from the assembly this app has actually referenced, which
+    /// makes it the truth about the surface — and it is deliberately a SECOND
+    /// implementation of the same question <c>build/api-inventory.sh</c> answers by
+    /// parsing source across every tag. Reflection cannot see an old tag and the parser
+    /// cannot see the compiler's view, so <c>McpVersionTests</c> holds the two against
+    /// each other at HEAD: a parse that ever drifts from the real surface is reported
+    /// rather than quietly attributing a member to the wrong release.
+    /// </remarks>
+    public IReadOnlySet<string> PublicApi { get; }
+
     public IndexedExample? Example(string id) =>
         Examples.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.OrdinalIgnoreCase));
 
@@ -95,7 +113,8 @@ internal sealed class CatalogueIndex
 
     // ── Examples ────────────────────────────────────────────────────────────
 
-    private static List<IndexedExample> BuildExamples(IReadOnlySet<string> declared)
+    private static List<IndexedExample> BuildExamples(
+        IReadOnlySet<string> declared, IReadOnlySet<string> api)
     {
         var metadata = PageMetadata();
         var examples = new List<IndexedExample>();
@@ -128,7 +147,8 @@ internal sealed class CatalogueIndex
                 Markup: markup,
                 Language: extension == "razor" ? "html" : extension,
                 Live: extension == "razor",
-                Classes: ClassesIn(markup, live: extension == "razor", declared)));
+                Classes: ClassesIn(markup, live: extension == "razor", declared),
+                Members: MembersIn(markup, api)));
         }
 
         return examples.OrderBy(e => e.Id, StringComparer.Ordinal).ToList();
@@ -195,6 +215,89 @@ internal sealed class CatalogueIndex
         var text = Regex.Replace(source[from..end], "<[^>]+>", " ");
         return Regex.Replace(text.Replace("@@", "@", StringComparison.Ordinal), @"\s+", " ").Trim();
     }
+
+    /// <summary>
+    /// The library's exported C# surface, by reflection over the referenced assembly.
+    /// </summary>
+    /// <remarks>
+    /// Only what somebody writes in their own code is listed. Everything the compiler
+    /// synthesises is skipped — property accessors, operators, records'
+    /// <c>Equals</c>/<c>GetHashCode</c>/<c>ToString</c>/<c>Deconstruct</c>/<c>&lt;Clone&gt;$</c>
+    /// and <c>EqualityContract</c>, and anything inherited rather than declared — because
+    /// none of it appears in an example and none of it is a capability an app waits for a
+    /// release to get.
+    /// </remarks>
+    internal static HashSet<string> ReadPublicApi()
+    {
+        var names = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var type in typeof(ISednaUi).Assembly.GetExportedTypes())
+        {
+            names.Add(type.Name);
+
+            foreach (var member in type.GetMembers(
+                         BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static
+                         | BindingFlags.DeclaredOnly))
+            {
+                if (member is MethodBase { IsSpecialName: true }) continue;
+                if (member is ConstructorInfo) continue;
+                if (Synthesised.Contains(member.Name)) continue;
+                if (member.Name.StartsWith('<')) continue;
+
+                names.Add($"{type.Name}.{member.Name}");
+            }
+        }
+
+        return names;
+    }
+
+    /// <summary>Members the compiler writes, which nobody types into an example.</summary>
+    private static readonly HashSet<string> Synthesised = new(StringComparer.Ordinal)
+    {
+        "Equals", "GetHashCode", "ToString", "Deconstruct", "PrintMembers", "EqualityContract",
+        "GetType", "Clone",
+        // An enum's backing field, which reflection reports as a public instance field
+        // of every enum and nobody has ever typed.
+        "value__",
+    };
+
+    /// <summary>The public C# surface an example writes.</summary>
+    /// <remarks>
+    /// The same shape as <see cref="ClassesIn"/>, and for the same reason: a
+    /// <c>.txt</c> snippet of <c>ISednaUi</c> calls declares no classes at all, so
+    /// without this it had no floor and reported itself as shipping in whatever the
+    /// newest release happened to be. A mention only counts when the library actually
+    /// exports that name, which is what keeps <c>Task</c>, <c>await</c> and an app's own
+    /// identifiers out.
+    /// </remarks>
+    private static List<string> MembersIn(string markup, IReadOnlySet<string> api)
+    {
+        var found = new SortedSet<string>(StringComparer.Ordinal);
+
+        foreach (var match in Identifier.Matches(markup).Cast<Match>())
+        {
+            var name = match.Groups[1].Value;
+            // A bare `Group` or `Title` is a word before it is a member, so a member
+            // name only counts qualified — `PaletteCommand.Group`, or the type itself.
+            if (api.Contains(name)) found.Add(name);
+        }
+
+        foreach (var match in QualifiedIdentifier.Matches(markup).Cast<Match>())
+        {
+            var name = match.Groups[1].Value;
+            if (api.Any(a => a.EndsWith("." + name, StringComparison.Ordinal))) found.Add(name);
+        }
+
+        return found.ToList();
+    }
+
+    /// <summary>A PascalCase identifier standing on its own — a type name.</summary>
+    private static readonly Regex Identifier = new(
+        @"(?<![\w.])([A-Z][A-Za-z0-9]*)(?![\w])", RegexOptions.Compiled);
+
+    /// <summary>An identifier reached through something — <c>Ui.ToastAsync</c>, <c>x.Href</c>.</summary>
+    private static readonly Regex QualifiedIdentifier = new(
+        @"[\w\]\)]\.([A-Z][A-Za-z0-9]*)", RegexOptions.Compiled);
 
     /// <summary>The classes an example is about.</summary>
     /// <remarks>

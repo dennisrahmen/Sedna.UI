@@ -62,6 +62,7 @@
      65-popover.css
      66-status-indicator.css
      67-output.css
+     68-guard.css
      70-rtl.css
      71-forced-colors.css
      72-print.css
@@ -479,6 +480,51 @@
     --badge-teal-border: var(--teal-800);
     --badge-teal-fg:     var(--teal-300);
 
+    /* ── Severity — an ORDERED five-step ramp ───────────────────────────────
+       For a scale whose steps rank: an incident priority P1–P5, a CVSS band, a
+       triage tier. Not a sixth semantic family and not a categorical hue — the point
+       of this one is that step 1 outranks step 2.
+
+       THE ORDER IS CARRIED BY THE FILL, NOT BY THE HUE. Step 1 is an opaque
+       fill; steps 2–5 are tints of decreasing strength (0.28 → 0.20 → 0.13 →
+       0.08). That ladder survives what a hue rotation cannot: the colour-blind
+       palette, a greyscale print, and a reader who simply does not read colour
+       as ordered. Hue is identity on top of it — crimson, orange, amber, blue,
+       grey — never the ranking itself. Same reasoning as `.steps`, where done
+       is FILLED rather than green.
+
+       Which means the label still has to say the rank. `.badge-sev-2` reading
+       "P2" is the contract; a bare coloured pill is a colour, not a position.
+
+       --sev-N-solid is a ramp of its own, stepping 800 → 700 → 600 → 500 → 400
+       so it is ordered by construction on the palette's shared lightness curve.
+       It is a fill for a bar or a dot, NOT a surface for --on-solid text: only
+       steps 1 and 2 clear AA for white. Where there is a label, use the badge. */
+    --sev-1-solid:  var(--crimson-800);
+    --sev-1-bg:     var(--crimson-800);
+    --sev-1-border: var(--crimson-700);
+    --sev-1-fg:     var(--on-solid);
+
+    --sev-2-solid:  var(--orange-700);
+    --sev-2-bg:     rgba(245, 158, 75, 0.28);   /* orange-400 */
+    --sev-2-border: var(--orange-700);
+    --sev-2-fg:     var(--orange-300);
+
+    --sev-3-solid:  var(--amber-600);
+    --sev-3-bg:     rgba(245, 158, 11, 0.2);    /* amber-500 */
+    --sev-3-border: var(--amber-800);
+    --sev-3-fg:     var(--amber-300);
+
+    --sev-4-solid:  var(--orbit-500);
+    --sev-4-bg:     rgba(89, 195, 255, 0.13);   /* orbit-400 */
+    --sev-4-border: var(--orbit-800);
+    --sev-4-fg:     var(--orbit-300);
+
+    --sev-5-solid:  var(--slate-400);
+    --sev-5-bg:     rgba(148, 163, 184, 0.08);  /* slate-400 */
+    --sev-5-border: var(--slate-700);
+    --sev-5-fg:     var(--slate-400);
+
     /* ── Component surfaces ─────────────────────────────────────────────── */
     --badge-bg:      rgba(255, 255, 255, 0.07);
     --table-head-bg: rgba(255, 255, 255, 0.04);
@@ -514,6 +560,12 @@
     --shadow-dropdown:  0 10px 30px rgba(0, 0, 0, 0.35);
     --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.4);
     --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.55);
+    /* A hairline ring plus a long drop, for a SMALL element that should read as
+       lifted clean off the page — a logo tile, an icon plate over a hero. Every
+       other shadow here is panel-sized: a 32px tile under --shadow-float shows a
+       soft smudge and no edge, because the edge is what sells the lift at that
+       size. The ring is inside the token so it cannot be forgotten. */
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.45);
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
        Not covered by docs/BRANDING.md's per-token tables. Re-expressed as the
@@ -701,6 +753,36 @@
     --badge-teal-border: var(--teal-300);
     --badge-teal-fg:     var(--teal-700);
 
+    /* The severity ramp, on a light canvas. The ladder is the same shape — an
+       opaque step 1, then tints weakening 0.22 → 0.18 → 0.14 → 0.10 — carried
+       at higher alphas because a tint has less room to read against white.
+       Step 1 takes crimson-700 for the same reason --danger-solid does: 4.61:1
+       for white in both variants. */
+    --sev-1-solid:  var(--crimson-700);
+    --sev-1-bg:     var(--crimson-700);
+    --sev-1-border: var(--crimson-700);
+    --sev-1-fg:     var(--on-solid);
+
+    --sev-2-solid:  var(--orange-700);
+    --sev-2-bg:     rgba(218, 133, 46, 0.22);   /* orange-500 */
+    --sev-2-border: var(--orange-300);
+    --sev-2-fg:     var(--orange-700);
+
+    --sev-3-solid:  var(--amber-600);
+    --sev-3-bg:     rgba(245, 158, 11, 0.18);   /* amber-500 */
+    --sev-3-border: var(--amber-300);
+    --sev-3-fg:     var(--amber-700);
+
+    --sev-4-solid:  var(--orbit-600);
+    --sev-4-bg:     rgba(89, 195, 255, 0.14);   /* orbit-400 */
+    --sev-4-border: var(--orbit-300);
+    --sev-4-fg:     var(--orbit-700);
+
+    --sev-5-solid:  var(--slate-500);
+    --sev-5-bg:     rgba(148, 163, 184, 0.1);   /* slate-400 */
+    --sev-5-border: var(--slate-300);
+    --sev-5-fg:     var(--slate-600);
+
     --badge-bg:      rgba(15, 23, 42, 0.04);    /* slate-900 */
     --table-head-bg: rgba(15, 23, 42, 0.03);    /* slate-900 */
 
@@ -725,6 +807,7 @@
     --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.25);    /* slate-900 */
     --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.22);   /* slate-900 */
     --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(15, 23, 42, 0.18);   /* slate-900 */
 }
 }
 
@@ -752,12 +835,36 @@
     /* Added for SednaUI: separate danger from the coral brand by lightness. */
     --danger-solid: var(--crimson-800);
     --danger-fg:    var(--crimson-300);
+
+    /* The severity ramp needs no rescue for its ORDER — that is carried by the
+       fill strength, which no colour vision changes. Two of its five hues still
+       move, for identity:
+
+         step 1 darkens, the same trade --danger just made against the brand;
+         step 2 leaves the warm band entirely, because orange sits between the
+         coral brand and step 3's amber and under deuteranopia all three
+         converge on one brown. Violet is the only remaining hue that is neither
+         warm nor step 4's blue.
+
+       Steps 3, 4 and 5 are amber, blue and grey, which already separate. */
+    --sev-1-solid:  var(--crimson-900);
+    --sev-1-bg:     var(--crimson-900);
+    --sev-1-border: var(--crimson-800);
+
+    --sev-2-solid:  var(--violet-700);
+    --sev-2-bg:     rgba(162, 131, 255, 0.28);  /* violet-500 */
+    --sev-2-border: var(--violet-700);
+    --sev-2-fg:     var(--violet-300);
 }
 :root[data-variant="light"][data-cvd="1"] {
     --go-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
     --go-border: var(--orbit-300);
     --go-fg:     var(--orbit-700);
     --danger-fg: var(--crimson-800);
+
+    --sev-2-bg:     rgba(117, 75, 211, 0.22);   /* violet-700 */
+    --sev-2-border: var(--violet-300);
+    --sev-2-fg:     var(--violet-700);
 }
 }
 
@@ -846,6 +953,34 @@
     --secret-border: var(--violet-300);
     --secret-fg:     var(--violet-200);
 
+    /* The severity ramp loses its ordering channel here, and that is the trade
+       this mode makes everywhere: a tint whose strength carried the order has an
+       unknown contrast over an unknown surface, which is the one thing high
+       contrast cannot ship. Step 1 stays a filled pill — the single ordering cue
+       that survives an opaque ramp — and 2–5 become opaque surfaces of their own
+       hue. The rank is then entirely on the label, which is why the ramp's docs
+       require one. */
+    --sev-1-solid:  var(--crimson-800);
+    --sev-1-bg:     var(--crimson-800);
+    --sev-1-border: var(--crimson-300);
+    --sev-1-fg:     var(--white);
+    --sev-2-solid:  var(--orange-300);
+    --sev-2-bg:     var(--orange-900);
+    --sev-2-border: var(--orange-300);
+    --sev-2-fg:     var(--orange-200);
+    --sev-3-solid:  var(--amber-300);
+    --sev-3-bg:     var(--amber-900);
+    --sev-3-border: var(--amber-400);
+    --sev-3-fg:     var(--amber-300);
+    --sev-4-solid:  var(--orbit-300);
+    --sev-4-bg:     var(--orbit-950);
+    --sev-4-border: var(--orbit-300);
+    --sev-4-fg:     var(--orbit-200);
+    --sev-5-solid:  var(--slate-300);
+    --sev-5-bg:     var(--slate-800);
+    --sev-5-border: var(--slate-300);
+    --sev-5-fg:     var(--slate-200);
+
     --badge-bg:      var(--slate-800);
     --table-head-bg: var(--slate-800);
     --badge-cyan-bg: var(--cyan-900);     --badge-cyan-border: var(--cyan-300);     --badge-cyan-fg: var(--cyan-200);
@@ -906,6 +1041,27 @@
     --secret-bg:     var(--violet-200);
     --secret-border: var(--violet-800);
     --secret-fg:     var(--violet-900);
+
+    --sev-1-solid:  var(--crimson-800);
+    --sev-1-bg:     var(--crimson-800);
+    --sev-1-border: var(--crimson-900);
+    --sev-1-fg:     var(--white);
+    --sev-2-solid:  var(--orange-900);
+    --sev-2-bg:     var(--orange-200);
+    --sev-2-border: var(--orange-800);
+    --sev-2-fg:     var(--orange-900);
+    --sev-3-solid:  var(--amber-900);
+    --sev-3-bg:     var(--amber-200);
+    --sev-3-border: var(--amber-800);
+    --sev-3-fg:     var(--amber-900);
+    --sev-4-solid:  var(--orbit-900);
+    --sev-4-bg:     var(--orbit-100);
+    --sev-4-border: var(--orbit-800);
+    --sev-4-fg:     var(--orbit-900);
+    --sev-5-solid:  var(--slate-700);
+    --sev-5-bg:     var(--slate-200);
+    --sev-5-border: var(--slate-600);
+    --sev-5-fg:     var(--slate-900);
 
     --badge-bg:      var(--slate-200);
     --table-head-bg: var(--slate-200);
@@ -1975,6 +2131,31 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 @media (max-width: 720px) {
     .search { display: none; }
 }
+
+/* ── The panel, rendered by the app ─────────────────────────────────────────
+   An app whose results come from a database renders the panel itself — the
+   library's index is client-side and registered up front, so it has nothing to
+   position. `.search-panel` alone cannot serve that: it is `position: fixed`
+   with no top/left/width, because sednaUi.search sets those from the box it
+   measured. Nested inside `.search` without this modifier it lands wherever the
+   viewport's origin is.
+
+   This anchors it under the box instead. `.search` is already
+   `position: relative`, so nothing else is needed and no measuring happens at
+   all — which is also why there is no `sednaUi.search.place()` to call: a panel
+   the app rendered lives in the app's own subtree, and inline top/left written
+   there by this library would be reverted the next time the framework
+   re-rendered it.
+
+   The trade, which is worth knowing before you take it: a nested panel joins
+   `.topbar`'s stacking context at z-index 60, so it sits UNDER a modal backdrop
+   however high its own z-index. For a header search that is almost always
+   right — a modal opening should cover the results, not sit behind them. */
+.search-panel--anchored {
+    position: absolute;
+    top: calc(100% + 6px);
+    inset-inline: 0;
+}
 }
 
 /* ── 30-cards.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -2063,6 +2244,23 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .badge-orange { background: var(--badge-orange-bg); border-color: var(--badge-orange-border); color: var(--badge-orange-fg); }
 .badge-teal   { background: var(--badge-teal-bg);   border-color: var(--badge-teal-border);   color: var(--badge-teal-fg); }
 
+/* ── Severity ───────────────────────────────────────────────────────────────
+   An ORDERED five-step scale — P1–P5, a CVSS band, a triage tier. The four
+   semantic families rank nothing and the three categorical hues say so out
+   loud, which is why neither can serve a ranking.
+
+   `.badge-sev-1` is a filled pill and 2–5 are tints that weaken as the rank
+   falls. That ladder is the ordering, and it is the part that survives the
+   colour-blind palette, a greyscale print and forced colours — see the token
+   block in 01-tokens.css.
+
+   THE LABEL MUST CARRY THE RANK. "P2", "High", "3 of 5" — not a bare pill.
+   Colour is the reinforcement here, never the only channel. */
+.badge-sev-1 { background: var(--sev-1-bg); border-color: var(--sev-1-border); color: var(--sev-1-fg); }
+.badge-sev-2 { background: var(--sev-2-bg); border-color: var(--sev-2-border); color: var(--sev-2-fg); }
+.badge-sev-3 { background: var(--sev-3-bg); border-color: var(--sev-3-border); color: var(--sev-3-fg); }
+.badge-sev-4 { background: var(--sev-4-bg); border-color: var(--sev-4-border); color: var(--sev-4-fg); }
+.badge-sev-5 { background: var(--sev-5-bg); border-color: var(--sev-5-border); color: var(--sev-5-fg); }
 }
 
 /* ── 32-tables.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -2407,6 +2605,67 @@ dialog.modal::backdrop {
     border-top: 1px solid var(--border);
 }
 
+
+/* ── Deck ───────────────────────────────────────────────────────────────────
+   A short sequence of slides in a modal, with progress dots and Back/Next. The
+   first-run half that `sednaUi.spotlight` cannot do: spotlight anchors to the
+   page, and before a reader has seen the page there is nothing to anchor to.
+
+   Sequencing stays the app's, exactly as it does for spotlight — which step is
+   showing, what the buttons do, whether the deck has been seen before. What is
+   here is the chrome plus the three things that are fiddly enough to get wrong
+   once each:
+
+     · --deck-height fixes the body's height, so the footer does not jump as
+       slides of different lengths go past. Change it on `.deck` for a taller
+       deck; it is not on the spacing scale, because it is the size of a thing.
+     · `margin: auto 0` on the step centres a short slide vertically, and a tall
+       one still starts at the top and scrolls — flex auto margins collapse to 0
+       when there is no free space, which is exactly the behaviour wanted and
+       the reason this is not `align-items: center`.
+     · the entrance animation re-runs per step ONLY if the step element is
+       actually replaced. In Blazor that means `@key="_step"` on the
+       `.deck-step`; without it the framework reuses the node, the animation
+       never restarts, and the deck goes still after slide one.
+
+   `.deck-dots` is decoration. Put the position in words too — "3 of 5" in the
+   footer, or aria-label on the dots' container — because a row of circles is
+   not announced as a position by anything. */
+.deck { --deck-height: 320px; }
+.deck-body {
+    display: flex;
+    height: var(--deck-height);
+    overflow-y: auto;
+    padding: var(--space-8);
+}
+.deck-step {
+    width: 100%;
+    margin: auto 0;
+    animation: sedna-deck-in var(--motion-mid) ease;
+}
+@keyframes sedna-deck-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+.deck-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    padding: var(--space-7) var(--space-8);
+    border-top: 1px solid var(--border);
+}
+.deck-dots { display: flex; align-items: center; gap: var(--space-3); }
+.deck-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border-hover);
+    transition: background var(--motion-fast), width var(--motion-fast);
+}
+/* Wider as well as brand-coloured: the current slide has to be findable without
+   reading colour at all. */
+.deck-dot--active { width: 18px; border-radius: var(--radius-pill); background: var(--brand); }
 }
 
 /* ── 37-alerts.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -2438,6 +2697,14 @@ dialog.modal::backdrop {
 
    The stack is the only fixed element; each toast is a normal block inside it,
    so an app can render the list with @foreach and never position anything.
+
+   THE STACK IS THE LIVE REGION. sednaUi.toast puts role="status" and
+   aria-live="polite" on the stack it creates (assertive while a danger toast is
+   showing). An app rendering its own stack has to write those itself — nothing
+   on this path creates one — or its toasts are never announced. Never
+   role="alert" on an individual toast: two regions over one message announce it
+   twice, and assertive on every routine confirmation cuts across whatever is
+   being read.
 
    Plain `column`, not `column-reverse`: because the bottom edge is pinned, the
    box grows upward on its own, so the newest toast is already nearest the corner
@@ -2569,6 +2836,22 @@ dialog.modal::backdrop {
 .progress-bar--go     { background: var(--go-solid); }
 .progress-bar--warn   { background: var(--warn-solid); }
 .progress-bar--danger { background: var(--danger-solid); }
+
+/* Neutral. The base bar is var(--brand), which reads as an alarm wherever the
+   brand is a red — and "nowhere near the threshold" is neither a warning nor a
+   failure. Any bar measuring progress TOWARDS a threshold rather than the
+   completion of a task wants this. */
+.progress-bar--muted  { background: var(--muted); }
+
+/* The ordered severity ramp, for a bar that measures a rank rather than a
+   fraction — a P1–P5 mix, a CVSS band. --sev-N-solid is a fill only: steps 4
+   and 5 do not carry --on-solid text at AA, and a bar has no label on it.
+   Where there is one, use `.badge-sev-N`. */
+.progress-bar--sev-1 { background: var(--sev-1-solid); }
+.progress-bar--sev-2 { background: var(--sev-2-solid); }
+.progress-bar--sev-3 { background: var(--sev-3-solid); }
+.progress-bar--sev-4 { background: var(--sev-4-solid); }
+.progress-bar--sev-5 { background: var(--sev-5-solid); }
 
 .progress--indeterminate .progress-bar {
     width: 35%;
@@ -4572,6 +4855,107 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 .timeline > li[data-kind="warn"]::before   { background: var(--warn-solid); }
 .timeline > li[data-kind="danger"]::before { background: var(--danger-solid); }
 
+/* ── A marker that is an icon ───────────────────────────────────────────────
+   The dot says "something happened here". Sometimes the marker IS the
+   information — a robot for "the agent worked it", a lock for "it needs a
+   person", a tick for "decided" — and a dot throws that away while a number
+   would imply the reader can be "on" a step, which `.steps` reserves for
+   wizards.
+
+   So a `.timeline-mark` child REPLACES the dot when it is present. The
+   connector, and its stopping at the last entry, are untouched: both live on
+   the <li>, not on the marker.
+
+     <li data-kind="go">
+       <span class="timeline-mark"><i class="ri-check-line"></i></span>
+       <span class="timeline-when">09:42</span>
+       <span class="timeline-what">Approved by Dennis</span>
+     </li>
+
+   A `data-kind` FILLS the tile rather than tinting it, which is what `.steps`
+   does with a done marker and for the same two reasons: the --*-bg tints are
+   translucent, and a translucent marker lets the connector line show straight
+   through it; and a filled marker still reads as itself in greyscale and under
+   forced colours, where a tint does not. */
+.timeline > li:has(> .timeline-mark)::before { content: none; }
+.timeline-mark {
+    position: absolute;
+    /* Half the tile, minus the border it straddles — the same centring the dot
+       gets from -5px against its own 9px. */
+    inset-inline-start: -13px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--muted);
+    font-size: var(--text-4);
+}
+/* The <li> gets the room the tile needs, only where there is one. */
+.timeline > li:has(> .timeline-mark) { padding-inline-start: var(--space-10); }
+.timeline > li[data-kind="go"] > .timeline-mark {
+    background: var(--go-solid);
+    border-color: var(--go-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="warn"] > .timeline-mark {
+    background: var(--warn-solid);
+    border-color: var(--warn-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="danger"] > .timeline-mark {
+    background: var(--danger-solid);
+    border-color: var(--danger-solid);
+    color: var(--on-solid);
+}
+
+/* ── Stacking group headers ─────────────────────────────────────────────────
+   A grouped list in a scroll container where each group's header pins BELOW the
+   one above it instead of replacing it, so the reader keeps the whole path to
+   where they are.
+
+   The app supplies one number — the header's rendered index — and nothing else:
+
+     <li class="sticky-group-head" style="--group-head-index: 2">Waiting on a person</li>
+
+   Everything that made this a bug four times over is here rather than in the
+   app. `top` is computed from the index so no app does the arithmetic. The
+   height is a variable so the two agree by construction. The background is
+   opaque, because rows scroll UNDER a header. `flex-shrink: 0` stops a flex
+   scroll container squashing a pinned header to nothing. And the height in the
+   `top` multiplication is one pixel short, which overlaps each header on the
+   one above by 1px — without it a sub-pixel sliver of a scrolling row shows
+   between two stacked headers on a fractional device pixel ratio.
+
+   z-index 1 is local stacking inside the list, not a rung on the scale. */
+.sticky-group-head {
+    --group-head-index: 0;
+    --group-head-height: 32px;
+    position: sticky;
+    top: calc(var(--group-head-index) * (var(--group-head-height) - 1px));
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-shrink: 0;
+    height: var(--group-head-height);
+    padding: 0 var(--space-6);
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+/* Inside a card the header meets the card's edges, like `.list-row` does. */
+.card > .list > .sticky-group-head,
+.card > .sticky-group-head { padding-inline: var(--space-7); }
+
 /* ── Accordion ──────────────────────────────────────────────────────────────
    Built on <details>/<summary>, which is the whole point: open and closed state,
    keyboard operation, and the announcement all come from the platform, so there is
@@ -4579,6 +4963,13 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 
    Give every <details> the same `name` to make them mutually exclusive — that is a
    platform feature too, and it needs no JavaScript.
+
+   The one thing to wire carefully is the opposite direction. If code has to OPEN a
+   section, bind `open` one way and never write it back: `toggle` fires whenever the
+   attribute changes, the framework's own diff included, so a handler mirroring the
+   state back flips it, the next diff removes the attribute, and the two fight. It is
+   deterministic, not a race, and it appears only once something other than a click
+   opens the disclosure.
 
    The marker is drawn as a rotating caret. `list-style: none` plus
    `::-webkit-details-marker` is needed because the two engines expose the default
@@ -4819,6 +5210,49 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     user-select: none;
 }
 .redacted i { font-size: var(--text-4); }
+
+/* ── Prose that arrived from somewhere else ─────────────────────────────────
+   `.prose` sets the typography. This adds the CONTAINMENT, and the two are a
+   different job: styling text is about how it reads, containing it is about
+   what a 3000px-wide table, an unbroken 400-character URL or a 4000px image
+   does to the card it landed in. A ticketing system's journal entry, a
+   forwarded mail body, a CMS field — anything sanitized rather than authored
+   — wants both.
+
+   Getting it wrong is invisible until the one wide payload ships, which is why
+   this is a modifier rather than advice.
+
+   It contains; it does not sanitize. HTML from elsewhere still has to be
+   cleaned server-side before it reaches the browser — and the same pass is where
+   two attributes belong that CSS cannot add. A table that scrolls needs
+   `tabindex="0"` so a keyboard can reach the part that is off-screen, and
+   `display: block` drops a table's own role, so `role="table"` puts it back.
+   Both are on the catalogue's example. */
+.prose--foreign { overflow-wrap: anywhere; }
+/* EXCEPT inside a table, which has to SCROLL rather than squash. `anywhere` makes a
+   cell's min-content width one character, so the browser shrinks every column to fit
+   the card instead of overflowing into the scroller `.prose table` already provides —
+   and a five-column table arrives as a stack of broken words. The long token that
+   needed breaking widens the table here, and the table scrolls, which is the whole
+   point of the scroller. */
+.prose--foreign th,
+.prose--foreign td { overflow-wrap: normal; }
+/* A <pre> arriving from elsewhere has lines nobody chose the length of, so it
+   wraps rather than pushing the card wide — and still scrolls, because a single
+   unbreakable token has nowhere to wrap. */
+.prose--foreign pre { white-space: pre-wrap; overflow-x: auto; }
+/* Everything that carries its own intrinsic size. `.prose` already caps <img>;
+   an embed, a video and an inline <svg> are the ones that get missed. */
+.prose--foreign img,
+.prose--foreign svg,
+.prose--foreign video,
+.prose--foreign canvas,
+.prose--foreign iframe,
+.prose--foreign embed,
+.prose--foreign object { max-width: 100%; }
+.prose--foreign svg,
+.prose--foreign video,
+.prose--foreign canvas { height: auto; }
 }
 
 /* ── 63-drawer.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -5527,6 +5961,85 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .output-line--note   { color: var(--muted); font-style: italic; }
 }
 
+/* ── 68-guard.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Guard ──────────────────────────────────────────────────────────────────
+   A card the reader can SEE but must claim, accept or unlock before acting on.
+   The content stays legible under a scrim; a prompt sits over it.
+
+   It is none of the three things it looks like. `.empty-state` is for when
+   there is nothing there, and here there is. `.modal` covers the page, and this
+   covers one card. `disabled` greys content out, and the whole point of this is
+   that the content reads — the reader is deciding whether to take it on.
+
+   Scoped to a positioned ancestor, which is the card:
+
+     <article class="card" style="position: relative">
+       …the content, readable…
+       <div class="guard">
+         <div class="guard-card">
+           <span class="guard-icon"><i class="ri-lock-line"></i></span>
+           <p>Claim this request to see the customer's reply and decide it.</p>
+           <button class="btn btn-brand">Claim</button>
+         </div>
+       </div>
+     </article>
+
+   Two things the markup has to carry, because CSS cannot:
+
+     · put `inert` on the guarded content. Legible is not the same as
+       reachable, and without it the whole card stays in the tab order behind a
+       scrim the reader cannot type through.
+     · the prompt says what claiming DOES. "Claim" alone is a button; "Claim to
+       reply on behalf of the team" is a decision.
+
+   z-index 1 is local stacking inside the card, not a rung on the documented
+   scale — a guard belongs to one card and never rises over the page.
+   ─────────────────────────────────────────────────────────────────────────── */
+.guard {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-7);
+    background: var(--overlay);
+    /* Blur, not opacity: the reader should see there IS content and be unable to
+       read it word for word, which is the shape of the offer. */
+    backdrop-filter: blur(2px);
+    /* Follows whatever it covers, so it does not square off a rounded card. */
+    border-radius: inherit;
+}
+.guard-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+    max-width: 280px;
+    padding: var(--space-8);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-float);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    text-align: center;
+}
+.guard-card > p { margin: 0; }
+.guard-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--surface-strong);
+    border-radius: 50%;
+    color: var(--muted);
+    font-size: var(--text-8);
+}
+}
+
 /* ── 70-rtl.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ═══ Right-to-left ═════════════════════════════════════════════════════════
@@ -6046,6 +6559,11 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .dropzone         { transition: none; }   /* 47 */
     dialog.modal      { animation: none; }    /* 36 */
     .modal-close      { transition: none; }   /* 36 */
+    /* 36 — the slide arrives instead of rising into place, and the dot marking
+       the current one changes width in one step. The dots still say where the
+       reader is; only the travel goes. */
+    .deck-step        { animation: none; }    /* 36 */
+    .deck-dot         { transition: none; }   /* 36 */
     .spinner          { animation: none; }    /* 39 */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
     .progress-bar     { transition: none; }   /* 41 */

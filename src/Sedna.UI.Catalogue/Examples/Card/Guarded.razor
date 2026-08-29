@@ -1,0 +1,25 @@
+<div class="card" style="position:relative; max-width:420px">
+    <!-- inert, because legible is not the same as reachable: without it the whole
+         card stays in the tab order behind a scrim nobody can type through. -->
+    <div inert>
+        <div class="card-head">
+            <strong>Mailbox quota exceeded on EXCH-02</strong>
+            <div class="card-head-right"><span class="badge badge-sev-2">P2</span></div>
+        </div>
+        <div class="card-body">
+            <p class="form-hint" style="margin-bottom:10px">
+                The shared mailbox has 200 MB left. The customer has replied twice.
+            </p>
+            <div class="kv"><span class="k">Raised</span><span class="v">2026-08-28 07:41</span></div>
+            <div class="kv"><span class="k">Customer</span><span class="v">Kreisverwaltung Ahrweiler</span></div>
+        </div>
+    </div>
+
+    <div class="guard">
+        <div class="guard-card">
+            <span class="guard-icon"><i class="ri-lock-line" aria-hidden="true"></i></span>
+            <p>Claim this order to read the customer's reply and answer on the team's behalf.</p>
+            <button class="btn btn-primary" type="button">Claim</button>
+        </div>
+    </div>
+</div>

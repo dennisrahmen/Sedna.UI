@@ -189,8 +189,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
 
         return new
         {
-            meta = versions.For(installedVersion,
-                found.SelectMany(e => e.Classes.Select(c => ("." + c, versions.SinceClass(c))))),
+            meta = versions.For(installedVersion, found.SelectMany(Reported)),
             examples = found.Select(e => new
             {
                 id = e.Id,
@@ -202,7 +201,8 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 markup = Cap(e.Markup, out var truncated),
                 truncated,
                 classes = e.Classes,
-                since = Since(versions.SinceAll(e.Classes)),
+                csharp = e.Members,
+                since = Since(SinceExample(e)),
             }),
             notFound = missing,
         };
@@ -296,7 +296,8 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 title = e.Title,
                 blurb = e.Blurb,
                 classes = e.Classes,
-                since = Since(versions.SinceAll(e.Classes)),
+                csharp = e.Members,
+                since = Since(SinceExample(e)),
             }),
         };
     }
@@ -398,9 +399,25 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     private string? Since(Hit hit) => hit.Kind switch
     {
         "class" => versions.SinceClass(hit.Ref),
-        "example" => versions.SinceAll(hit.Classes),
+        // From the example itself, never from hit.Classes: those are capped at eight
+        // for the result list, and a floor computed from a truncated list is an
+        // understated one — the direction that gets an agent to copy something its
+        // app does not have.
+        "example" => index.Example(hit.Ref) is { } example ? SinceExample(example) : null,
         _ => versions.LatestRelease,
     };
+
+    /// <summary>The release an example's content needs — its classes and its C# both.</summary>
+    private string? SinceExample(IndexedExample example) =>
+        versions.SinceExample(example.Id, example.Classes, example.Members);
+
+    /// <summary>
+    /// Everything one example uses, named the way a warning should name it, with the
+    /// release each first shipped in.
+    /// </summary>
+    private IEnumerable<(string Name, string? Since)> Reported(IndexedExample example) =>
+        example.Classes.Select(c => ("." + c, versions.SinceClass(c)))
+            .Concat(example.Members.Select(m => (m, versions.SinceMember(m))));
 
     private IEnumerable<string> TokenNames() =>
         index.Tokens.RootElement.GetProperty("blocks").EnumerateArray()

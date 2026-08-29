@@ -153,6 +153,51 @@
     --badge-teal-border: var(--teal-800);
     --badge-teal-fg:     var(--teal-300);
 
+    /* ── Severity — an ORDERED five-step ramp ───────────────────────────────
+       For a scale whose steps rank: an incident priority P1–P5, a CVSS band, a
+       triage tier. Not a sixth semantic family and not a categorical hue — the point
+       of this one is that step 1 outranks step 2.
+
+       THE ORDER IS CARRIED BY THE FILL, NOT BY THE HUE. Step 1 is an opaque
+       fill; steps 2–5 are tints of decreasing strength (0.28 → 0.20 → 0.13 →
+       0.08). That ladder survives what a hue rotation cannot: the colour-blind
+       palette, a greyscale print, and a reader who simply does not read colour
+       as ordered. Hue is identity on top of it — crimson, orange, amber, blue,
+       grey — never the ranking itself. Same reasoning as `.steps`, where done
+       is FILLED rather than green.
+
+       Which means the label still has to say the rank. `.badge-sev-2` reading
+       "P2" is the contract; a bare coloured pill is a colour, not a position.
+
+       --sev-N-solid is a ramp of its own, stepping 800 → 700 → 600 → 500 → 400
+       so it is ordered by construction on the palette's shared lightness curve.
+       It is a fill for a bar or a dot, NOT a surface for --on-solid text: only
+       steps 1 and 2 clear AA for white. Where there is a label, use the badge. */
+    --sev-1-solid:  var(--crimson-800);
+    --sev-1-bg:     var(--crimson-800);
+    --sev-1-border: var(--crimson-700);
+    --sev-1-fg:     var(--on-solid);
+
+    --sev-2-solid:  var(--orange-700);
+    --sev-2-bg:     rgba(245, 158, 75, 0.28);   /* orange-400 */
+    --sev-2-border: var(--orange-700);
+    --sev-2-fg:     var(--orange-300);
+
+    --sev-3-solid:  var(--amber-600);
+    --sev-3-bg:     rgba(245, 158, 11, 0.2);    /* amber-500 */
+    --sev-3-border: var(--amber-800);
+    --sev-3-fg:     var(--amber-300);
+
+    --sev-4-solid:  var(--orbit-500);
+    --sev-4-bg:     rgba(89, 195, 255, 0.13);   /* orbit-400 */
+    --sev-4-border: var(--orbit-800);
+    --sev-4-fg:     var(--orbit-300);
+
+    --sev-5-solid:  var(--slate-400);
+    --sev-5-bg:     rgba(148, 163, 184, 0.08);  /* slate-400 */
+    --sev-5-border: var(--slate-700);
+    --sev-5-fg:     var(--slate-400);
+
     /* ── Component surfaces ─────────────────────────────────────────────── */
     --badge-bg:      rgba(255, 255, 255, 0.07);
     --table-head-bg: rgba(255, 255, 255, 0.04);
@@ -188,6 +233,12 @@
     --shadow-dropdown:  0 10px 30px rgba(0, 0, 0, 0.35);
     --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.4);
     --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.55);
+    /* A hairline ring plus a long drop, for a SMALL element that should read as
+       lifted clean off the page — a logo tile, an icon plate over a hero. Every
+       other shadow here is panel-sized: a 32px tile under --shadow-float shows a
+       soft smudge and no edge, because the edge is what sells the lift at that
+       size. The ring is inside the token so it cannot be forgotten. */
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.45);
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
        Not covered by docs/BRANDING.md's per-token tables. Re-expressed as the

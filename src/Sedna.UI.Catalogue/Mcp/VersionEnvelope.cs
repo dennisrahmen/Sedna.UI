@@ -34,6 +34,9 @@ internal sealed class VersionEnvelope
 {
     private readonly Dictionary<string, string?> _classes;
     private readonly Dictionary<string, string?> _tokens;
+    private readonly Dictionary<string, string?> _csharp;
+    private readonly Dictionary<string, string?> _examples;
+    private readonly Dictionary<string, string?> _byMemberName;
 
     public VersionEnvelope()
     {
@@ -51,6 +54,28 @@ internal sealed class VersionEnvelope
         LatestRelease = root.GetProperty("latestRelease").GetString() ?? "0.0.0";
         _classes = Map(root.GetProperty("classes"));
         _tokens = Map(root.GetProperty("tokens"));
+        _csharp = Map(root.GetProperty("csharp"));
+        _examples = Map(root.GetProperty("examples"));
+
+        // An example mentions `RegisterCommandsAsync`, not `ISednaUi.RegisterCommandsAsync`,
+        // so the bare name has to resolve too. Where two types declare the same member —
+        // `Href` is on both PaletteCommand and SearchItem — the OLDEST wins: the question
+        // this answers is "can my version write this", and either type having had it since
+        // 0.2.0 makes the answer yes.
+        _byMemberName = new Dictionary<string, string?>(StringComparer.Ordinal);
+        foreach (var (key, since) in _csharp)
+        {
+            var dot = key.IndexOf('.', StringComparison.Ordinal);
+            var bare = dot < 0 ? key : key[(dot + 1)..];
+            if (!_byMemberName.TryGetValue(bare, out var held))
+            {
+                _byMemberName[bare] = since;
+                continue;
+            }
+
+            if (held is null || (since is not null && Compare(since, held) < 0))
+                _byMemberName[bare] = since;
+        }
 
         Commit = ResolveCommit(
             assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
@@ -97,19 +122,61 @@ internal sealed class VersionEnvelope
     /// <summary>The release a token first shipped in, or null if it is unreleased.</summary>
     public string? SinceToken(string name) => _tokens.GetValueOrDefault(name);
 
-    /// <summary>The newest release among a set of classes — an example's own floor.</summary>
-    public string? SinceAll(IEnumerable<string> classes)
+    /// <summary>The release a public C# type or member first shipped in.</summary>
+    /// <remarks>
+    /// Accepts either <c>ISednaUi.ToastAsync</c> or the bare <c>ToastAsync</c>. Returns
+    /// null for an unreleased member and, deliberately, also for a name the library does
+    /// not declare — the caller only ever asks about names the index matched.
+    /// </remarks>
+    public string? SinceMember(string name) =>
+        _csharp.TryGetValue(name, out var exact) ? exact : _byMemberName.GetValueOrDefault(name);
+
+    /// <summary>Whether a name is one the C# history knows.</summary>
+    public bool KnowsMember(string name) => _csharp.ContainsKey(name) || _byMemberName.ContainsKey(name);
+
+    /// <summary>
+    /// The floor for one example: the newest release among everything it uses.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// An example's floor is what its CONTENT needs, which is the newest of the classes
+    /// and the public C# members it writes. Either alone is not enough: a markup example
+    /// mentions no C# and a <c>.txt</c> snippet of <c>ISednaUi</c> calls mentions no
+    /// classes.
+    /// </para>
+    /// <para>
+    /// Falling back to <see cref="LatestRelease"/> when an example had neither is what
+    /// this replaces, and it was the bug: every JavaScript and C# snippet in the
+    /// catalogue reported itself as first shipping in the newest release, so an agent on
+    /// the previous one was warned off capabilities it already had. The fallback is now
+    /// the release the example has looked exactly like since, which
+    /// <c>build/class-history.sh</c> derives by comparing each tag's copy byte for byte.
+    /// </para>
+    /// </remarks>
+    public string? SinceExample(string id, IEnumerable<string> classes, IEnumerable<string> members)
     {
         string? newest = null;
+        var any = false;
+
         foreach (var name in classes)
         {
             if (!_classes.TryGetValue(name.TrimStart('.'), out var since)) continue;
+            any = true;
             // A single unreleased class makes the whole example unreleased.
             if (since is null) return null;
             if (newest is null || Compare(since, newest) > 0) newest = since;
         }
 
-        return newest ?? LatestRelease;
+        foreach (var name in members)
+        {
+            if (!KnowsMember(name)) continue;
+            var since = SinceMember(name);
+            any = true;
+            if (since is null) return null;
+            if (newest is null || Compare(since, newest) > 0) newest = since;
+        }
+
+        return any ? newest : _examples.GetValueOrDefault(id);
     }
 
     /// <summary>
