@@ -714,7 +714,32 @@ window.sednaUi = window.sednaUi || {};
         // `href` is what a command registered from C# uses. A callback cannot cross
         // that boundary — the library never calls back into .NET — so navigation is
         // the one action a serialisable command can carry.
-        else if (c.href) window.location.assign(c.href);
+        else if (c.href) go(c.href);
+    }
+
+    /* Navigates by CLICKING a real anchor, never by assigning window.location.
+
+       An assignment is always a full page load. In a Blazor Server app that tears
+       down the SignalR circuit and builds a new one, so every scoped service is
+       re-created — a demo mode, a guided tour, a queue selection, an unsaved form
+       all end silently, because a palette command is the last thing anyone suspects.
+       Blazor's router, and every other SPA router, intercepts a click on a
+       same-origin <a> and routes it client-side instead.
+
+       On a plain server-rendered page the two are indistinguishable: no router
+       listens, and the click navigates exactly as the assignment did. So this is
+       never worse and is sometimes the difference between a working app and a
+       mystery.
+
+       The anchor has to be IN the document for the click to navigate — a detached
+       one is inert — and it is removed immediately afterwards. It carries no text
+       and is never focused, so nothing sees it. */
+    function go(href) {
+        var a = document.createElement('a');
+        a.href = href;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
     }
 
     function build() {
