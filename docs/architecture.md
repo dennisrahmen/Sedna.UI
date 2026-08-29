@@ -394,11 +394,28 @@ have. Every class, token and example also carries `since`, which is `build/class
 never a hand-kept list. `since` is the literal `"unreleased"` rather than a missing key, so
 "in no release yet" cannot be read as "not reported".
 
-An example's `since` is the newest release among the classes it is about. A live example applies every
-class it is about; a code-only snippet also names classes in prose, so those count too when the
-stylesheet declares them — a JS snippet whose API is what puts the class on the page would otherwise be
-dated by the buttons in its markup. A snippet demonstrating a JS member that touches no class is still
-dated by its classes alone: there is no version history for the script's own surface.
+An example's `since` is the newest release among everything its content needs: the CSS classes it is
+about, and the public C# members it writes. A live example applies every class it is about; a code-only
+snippet also names classes in prose, so those count too when the stylesheet declares them — a JS snippet
+whose API is what puts the class on the page would otherwise be dated by the buttons in its markup.
+
+An example with neither — a configuration snippet, a JavaScript one touching no class — falls back to
+the release it has looked *exactly* like since, which `class-history.sh` derives by comparing each tag's
+copy of the file byte for byte. It is deliberately not "when the file first appeared": an example
+rewritten to demonstrate a new API keeps the path it has always had.
+
+That fallback used to be `latestRelease`, and it was wrong in the one direction that matters. Every
+JavaScript and C# snippet in the catalogue reported itself as first shipping in whatever the newest
+release happened to be, so an agent on the previous version — following the documented rule, do not copy
+anything whose `since` is newer than your pinned version — concluded the command palette was unavailable
+while it was fully available from C#.
+
+The C# history has two implementations on purpose. `build/api-inventory.sh` parses source, because
+reflecting over an old tag's surface would mean building that tag once per CI run for ever; the
+catalogue reflects over the assembly it actually references, which is exact but only for HEAD. Neither
+alone is trustworthy, so `McpApiHistoryTests` holds the two against each other — the same reason the
+landing page's figures are measured twice. There is still no version history for the *script's* own
+surface; a JavaScript snippet is dated by its classes and its file, and that is the gap.
 
 `meta.commit` is baked at image build time from `-p:SourceRevisionId`, and falls back to `SOURCE_COMMIT`
 or `RAILWAY_GIT_COMMIT_SHA` in the environment. Never a runtime `git` call — `.git` is excluded from the
