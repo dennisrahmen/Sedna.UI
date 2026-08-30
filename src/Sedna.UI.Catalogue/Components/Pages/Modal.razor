@@ -89,9 +89,17 @@
         deck goes still after slide one.
     </p>
     <p>
-        <code>.deck-dots</code> is decoration. Put the position in words as well — “3 of 5” in the
-        footer, or an <code>aria-label</code> on the dots' container — because a row of circles is
-        not announced as a position by anything.
+        <strong>Make each dot a <code>&lt;button&gt;</code> that jumps to its step.</strong> A reader
+        who has understood slide one should not have to press Next three times to get back to where
+        they were, and the dots are already the position indicator. A <code>&lt;span&gt;</code> is the
+        report-only form; the drawing is identical either way, and the button form gets a pointer, a
+        hover state, the library's focus ring and a 24&nbsp;×&nbsp;12&nbsp;px hit target around the
+        6&nbsp;px circle. Mark the current one with <code>aria-current="step"</code> — on a button that
+        replaces <code>.deck-dot--active</code>.
+    </p>
+    <p>
+        Put the position in words as well — “3 of 5” in the footer, or an <code>aria-label</code>
+        on the dots' container — because a row of circles is not announced as a position by anything.
     </p>
 </CatExample>
 

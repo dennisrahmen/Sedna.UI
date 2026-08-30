@@ -3,8 +3,8 @@
 <CatHead Title="Collections">
     Four ways to show a set of things. Pick by what the reader does with it: compare values
     (a <a href="/table">table</a>), open one at a time (<code>.list</code>), follow an order
-    (<code>.steps</code>), read a record (<code>.timeline</code>), or expand into detail
-    (<code>.accordion</code>, <code>.tree</code>).
+    (<code>.steps</code>), or expand into detail (<code>.accordion</code>, <code>.tree</code>).
+    A record of what happened, with when, is a <a href="/timeline">timeline</a>.
 </CatHead>
 
 <CatExample TExample="Examples.Collections.List" Title="List" Demo="ex-demo--block">
@@ -37,39 +37,6 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Collections.Timeline" Title="Timeline" Demo="ex-demo--block">
-    <p>
-        Things that happened, with when — an audit trail, a change history. It differs from
-        <code>.steps</code> in what it is <em>for</em>: steps have a fixed sequence the reader can
-        be &ldquo;on&rdquo;, a timeline is an open-ended record. If the reader can be on one of
-        them, it is steps.
-    </p>
-    <p>
-        The rule runs down the markers as a border on the <code>&lt;li&gt;</code>, so it stops
-        exactly at the last entry without anyone having to give it a length.
-        <code>data-kind</code> tints a marker for an entry that mattered.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Collections.TimelineMarks" Title="Icon markers" Demo="ex-demo--block">
-    <p>
-        The dot says “something happened here”. Sometimes the marker <strong>is</strong> the
-        information — a robot for “the agent worked it”, a lock for “it needs a person”, a tick for
-        “decided” — and a dot throws that away.
-    </p>
-    <p>
-        A <code>.timeline-mark</code> child replaces the dot when it is present; the connector and
-        its stopping at the last entry are untouched, because both live on the
-        <code>&lt;li&gt;</code>. A <code>data-kind</code> fills the tile rather than tinting it, the
-        way a done marker in <code>.steps</code> is filled: a translucent marker would let the
-        connector line show straight through it.
-    </p>
-    <p>
-        Do not reach for steps instead. A number implies the reader can be “on” one of them, which
-        steps reserves for a wizard.
-    </p>
-</CatExample>
-
 <CatExample TExample="Examples.Collections.StickyGroups" Title="Stacking group headers" Demo="ex-demo--block">
     <p>
         A grouped list in a scroll container where each header pins <strong>below</strong> the one
@@ -84,6 +51,33 @@
         container squashing a pinned header to nothing; and the height in the multiplication is one
         pixel short, which overlaps each header on the one above so no sub-pixel sliver of a
         scrolling row shows between them. Every one of those was a bug first.
+    </p>
+    <p>
+        <strong>An opaque header has to be the colour of what it is pinned over</strong>, so it is
+        <code>--group-head-bg</code>: the page by default, the card's own colour inside a card.
+        On any other surface set the variable on the list —
+        <code>style="--group-head-bg: var(--surface-strong)"</code> — rather than restating the
+        rule. <code>--group-head-fg</code> and <code>--group-head-height</code> are the same escape
+        hatch for the label colour and the pinned height.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Collections.StickyGroupsRule" Title="Group headers as a caption" Demo="ex-demo--block">
+    <p>
+        <code>--rule</code> trades the full-width bottom border for a hairline running from the
+        label to the end of the row, so the header reads as a caption over the rows rather than a
+        bar across them. Use it where the groups are a state the reader scans past, not a section
+        they land in. The pinning is identical.
+    </p>
+    <p>
+        The rule is the header's own <code>::after</code>, which is why a trailing count needs
+        <code>.sticky-group-count</code>: a pseudo-element is always the last child, and
+        <code>order</code> is what puts the rule between the label and the count. The count sits at
+        the end without the rule too.
+    </p>
+    <p>
+        This list is on the page rather than in a card, and its headers take the page colour with no
+        markup saying so.
     </p>
 </CatExample>
 

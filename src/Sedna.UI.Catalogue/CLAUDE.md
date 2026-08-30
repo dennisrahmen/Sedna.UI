@@ -67,6 +67,12 @@ survives re-renders by construction.
   asserts the two agree, so the documented block is executed on every CI run.
 - **`wwwroot/catalogue.css` may only style `.cat-*` and `.ex-*`.** It is the docs' own chrome; styling
   anything else would make an example look better here than in the app that copies it.
+- **Inside `.cat-main`, `.cat-ex` or `.ex-demo`, reach a bare element with `>` and never with a
+  descendant selector.** This file is **unlayered**, so it outranks every `@layer sedna.*` rule
+  whatever the two selectors weigh — `.cat-main h3` restyled the `h3` in every `.modal-header`,
+  `.drawer-header`, `.markdown-body` and `.prose` an example renders, and a modal header measured
+  111px here against 61px in an app. A page heading is always a direct child; an example's markup
+  never is.
 - **`/health` asserts the host page's assets, and is Railway's healthcheck**, so a publish that drops
   one fails the deploy instead of replacing a working site with a dead one. It reads the paths out of
   `Components/App.razor` — add an asset to the host page and it is covered; never write the list out.

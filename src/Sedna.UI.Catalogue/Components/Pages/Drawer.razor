@@ -23,8 +23,27 @@
     <p>
         <code>.drawer--start</code> comes from the other edge. <code>.sheet</code> comes from the
         bottom — the right shape on a phone, where a side panel has nowhere to come from.
-        <code>.sheet-handle</code> is decoration, not a control: dragging is a gesture an app
-        implements, and the close button is what makes the sheet dismissible for everybody else.
+        <code>.sheet-handle</code> sits inside the header's own top padding rather than above it,
+        so a sheet carries one band of chrome and not two.
+    </p>
+    <p>
+        <strong>Add <code>data-sheet</code> and the handle does what it looks like it does</strong> —
+        drag it or the header down and the sheet follows the pointer, past a quarter of its height
+        or with a flick and it closes, short of that it springs back. It is opt-in for the reason
+        <code>data-tabs</code> is: an app with its own gesture would otherwise have two things
+        closing one dialog. <code>&lt;dialog&gt;</code> only, because the
+        <code>div</code> form's open state is a class the app owns and Blazor would rewrite it back
+        on the next render.
+    </p>
+    <p>
+        The handle is still not a control — it takes no focus and carries no name, so the drag is
+        deliberately unreachable from the keyboard. <strong>The close button is what makes a sheet
+        dismissible</strong>; this is an addition on top of it and never the only way out.
+    </p>
+    <p>
+        <code>.sheet--dragging</code> is on the sheet while a drag is in flight. The script puts it
+        there and takes it away; nothing writes it by hand. It carries the grabbing cursor, and it is
+        a hook for an app that wants to do something else for the duration.
     </p>
     <p>
         <code>.drawer-body</code> is the only scrolling part, so the header and footer stay put. The

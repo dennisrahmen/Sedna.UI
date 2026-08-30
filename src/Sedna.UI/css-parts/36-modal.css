@@ -82,6 +82,11 @@ dialog.modal::backdrop {
     transition: background var(--motion-fast), color var(--motion-fast);
 }
 .modal-close:hover { background: var(--bg-hover); color: var(--fg); }
+/* showModal() moves focus to the first focusable thing in the dialog, which in this
+   markup is the close button — so its focus ring is the FIRST thing a keyboard reader
+   sees of a modal, and without this rule it was the UA's own outline: a hard square
+   against every other control in the library, which rings with a soft brand halo. */
+.modal-close:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .modal-body {
     padding: var(--space-8);
     display: flex;
@@ -121,9 +126,14 @@ dialog.modal::backdrop {
        `.deck-step`; without it the framework reuses the node, the animation
        never restarts, and the deck goes still after slide one.
 
-   `.deck-dots` is decoration. Put the position in words too — "3 of 5" in the
-   footer, or aria-label on the dots' container — because a row of circles is
-   not announced as a position by anything. */
+   A dot is a <span> when it only reports position, and a <button> when it also
+   jumps to its step — which is the form to reach for, because a reader who has
+   understood slide one should not have to press Next three times to get back to
+   where they were. Either way the drawing is the same, and either way the
+   position goes in words too — "3 of 5" in the footer, or aria-label on the
+   dots' container — because a row of circles is not announced as a position by
+   anything. Mark the current one with `aria-current="step"`; `.deck-dot--active`
+   is then redundant on a button and is not needed. */
 .deck { --deck-height: 320px; }
 .deck-body {
     display: flex;
@@ -158,4 +168,34 @@ dialog.modal::backdrop {
 }
 /* Wider as well as brand-coloured: the current slide has to be findable without
    reading colour at all. */
-.deck-dot--active { width: 18px; border-radius: var(--radius-pill); background: var(--brand); }
+.deck-dot--active,
+.deck-dot[aria-current] { width: 18px; border-radius: var(--radius-pill); background: var(--brand); }
+
+/* ── A dot that jumps ───────────────────────────────────────────────────────
+   `<button class="deck-dot">` is a control, so it needs the button reset, a
+   pointer, a hover state and the library's focus ring — the UA outline on a 6px
+   circle is a square nearly three times its size.
+
+   The hit target is the part that has to be got right: 6px is not one. It is
+   grown by an absolutely positioned ::before rather than by padding, so a row of
+   button dots occupies exactly the same space as a row of span dots and the two
+   forms stay interchangeable. The insets are deliberately asymmetric — 9px in the
+   block axis is free, while the inline axis may only take half of `.deck-dots`'
+   6px gap, because two overlapping hit areas mean a press lands on the wrong
+   step. */
+button.deck-dot {
+    position: relative;
+    padding: 0;
+    border: none;
+    appearance: none;
+    cursor: pointer;
+}
+button.deck-dot::before {
+    content: '';
+    position: absolute;
+    inset-block: -9px;
+    inset-inline: -3px;
+}
+button.deck-dot:hover { background: var(--muted); }
+button.deck-dot[aria-current]:hover { background: var(--brand); }
+button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring-soft); }

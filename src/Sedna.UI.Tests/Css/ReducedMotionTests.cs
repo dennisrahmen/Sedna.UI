@@ -113,8 +113,16 @@ public class ReducedMotionTests
             $"These switch off motion nothing declares any more: {string.Join(", ", stale)}");
     }
 
+    /// <remarks>
+    /// The lookahead sits INSIDE the whitespace, not after it. Written as
+    /// <c>:\s*(?!none)</c> the engine backtracks <c>\s*</c> to zero width and asks
+    /// whether a SPACE is "none" — which it is not, so `transition: none` read as
+    /// motion while `transition:none` read as no motion. Nothing hit it until a part
+    /// needed to turn a transition off outside 95-reduced-motion.css, and then the
+    /// guard demanded an off switch for a rule that was itself an off switch.
+    /// </remarks>
     private static bool DeclaresMotion(string body) =>
-        Regex.IsMatch(body, @"(?<![\w-])(transition|animation)(-[a-z]+)?\s*:\s*(?!none)",
+        Regex.IsMatch(body, @"(?<![\w-])(transition|animation)(-[a-z]+)?\s*:(?!\s*none)",
             RegexOptions.IgnoreCase);
 
     /// <summary>
