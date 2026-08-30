@@ -1212,6 +1212,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 /* ── Sidebar ────────────────────────────────────────────────────────────── */
 .sidebar {
     width: 220px;
+    --surface-here: var(--sidebar-bg);
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
     padding: 0;
@@ -1430,6 +1431,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     display: flex;
     align-items: stretch;
     height: 44px;
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
@@ -1571,9 +1573,14 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    content and hide the shadow at the very top/bottom; the two radial shadows
    (attachment: scroll) are pinned to the box and only show when there IS more
    content that way. --scroll-bg MUST match the surface the scroller sits on, or
-   the cover itself reads as a permanent dark band. */
+   the cover itself reads as a permanent dark band.
+
+   It reads --surface-here, which every surface the library paints declares once
+   (a card, a modal, a drawer, a menu, a popover, a toast). A scroller inside any
+   of them is therefore right without being named here, and the fallback is the
+   page. Only a scroller that can appear WITHOUT its surface names one below. */
 .page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list {
-    --scroll-bg: var(--bg);
+    --scroll-bg: var(--surface-here, var(--bg));
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
         linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
@@ -1583,13 +1590,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;
 }
-/* Scrollers on an elevated surface match that surface, or the cover gradient reads as
-   a permanent dark band across the top of the panel. */
-.modal .sedna-scroll,
+/* The command list and the nav scroller are the two that stand on a surface their
+   own markup need not contain — a palette rendered inline rather than as a
+   <dialog>, a <nav> outside a .sidebar. Both state the surface they belong to. */
 .drawer-body,
-.palette-list { --scroll-bg: var(--bg-elevated); }
-/* The nav scroller sits on the sidebar, which is its own surface. */
-.nav-scroll { --scroll-bg: var(--sidebar-bg); }
+.palette-list { --surface-here: var(--bg-elevated); }
+.nav-scroll { --surface-here: var(--sidebar-bg); }
 
 }
 
@@ -2059,7 +2065,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
-    --scroll-bg: var(--card-bg);
+    --surface-here: var(--card-bg);
 }
 
 /* Searching, and nothing found. Both are a line of muted text rather than an
@@ -2169,6 +2175,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {
+    --surface-here: var(--card-bg);
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -2518,6 +2525,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     backdrop-filter: blur(2px);
 }
 .modal {
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
@@ -2776,6 +2784,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     width: 320px;
     max-width: min(calc(100vw - 40px), 100%);
     padding: var(--space-5) var(--space-6);
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-inline-start: 3px solid var(--border-strong);
@@ -3005,6 +3014,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
     overflow: hidden;
+    --surface-here: var(--card-bg);
     background: var(--card-bg);
 }
 .md-toolbar {
@@ -4446,6 +4456,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .menu {
     min-width: 220px;
     padding: var(--space-2);
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -4896,9 +4907,11 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 
    BECAUSE the background is opaque it has to be the colour of the surface the
    list is pinned over, and a header that picks one surface is a lighter box
-   floating on every other one. So it is `--group-head-bg`, defaulting to the
-   page and switching to the card's own colour inside a card. On any other
-   surface the app sets the variable — it never restates the rule:
+   floating on every other one. So it is `--group-head-bg`, which reads
+   `--surface-here` — the colour every library surface declares for its own
+   contents — and falls back to the page. A list in a card, a modal, a drawer or
+   a popover is therefore right with no help. Only on a surface the app itself
+   paints does the app name it, and it never restates the rule:
 
      <ul class="list" style="--group-head-bg: var(--surface-strong)">
 
@@ -4907,7 +4920,7 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 .sticky-group-head {
     --group-head-index: 0;
     --group-head-height: 32px;
-    --group-head-bg: var(--bg);
+    --group-head-bg: var(--surface-here, var(--bg));
     --group-head-fg: var(--muted);
     position: sticky;
     top: calc(var(--group-head-index) * (var(--group-head-height) - 1px));
@@ -4926,7 +4939,6 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
-.card .sticky-group-head { --group-head-bg: var(--card-bg); }
 /* Inside a card the header meets the card's edges, like `.list-row` does. */
 .card > .list > .sticky-group-head,
 .card > .sticky-group-head { padding-inline: var(--space-7); }
@@ -5165,8 +5177,22 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    typographic voices in one app is worse than one shared rule set.
 
    The measure is capped at 72 characters. Beyond about that the eye loses the line
-   it is returning to, which no amount of line-height fixes. */
-.prose { color: var(--fg-soft); font-size: var(--text-5); line-height: 1.65; max-width: 72ch; }
+   it is returning to, which no amount of line-height fixes.
+
+   The cap sits on the same element as any border and background the page gives
+   `.prose`, so where the prose IS a panel the cap shrinks the PANEL rather than
+   the text. `--prose-measure` is the way out — set it on the box, and either
+   widen the measure or hand the job to an inner wrapper:
+
+     <div class="card-body prose" style="--prose-measure: none">
+   ─────────────────────────────────────────────────────────────────────────── */
+.prose {
+    --prose-measure: 72ch;
+    color: var(--fg-soft);
+    font-size: var(--text-5);
+    line-height: 1.65;
+    max-width: var(--prose-measure);
+}
 .prose > :first-child { margin-top: 0; }
 .prose > :last-child { margin-bottom: 0; }
 .prose h1, .prose h2, .prose h3, .prose h4 { color: var(--fg); line-height: 1.3; margin: 1.4em 0 0.4em; }
@@ -5295,6 +5321,7 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     display: flex;
     flex-direction: column;
     width: min(420px, 100vw);
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border-inline-start: 1px solid var(--border);
     box-shadow: var(--shadow-modal);
@@ -5565,6 +5592,7 @@ dialog.palette {
     margin: 12vh auto auto;
     padding: 0;
     overflow: hidden;
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
@@ -5686,6 +5714,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     z-index: 510;
     max-width: 300px;
     padding: var(--space-6) var(--space-7);
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -5831,6 +5860,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     width: max-content;
     max-width: min(320px, calc(100vw - 32px));
     padding: var(--space-6) var(--space-7);
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -6065,6 +6095,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     gap: var(--space-6);
     max-width: 280px;
     padding: var(--space-8);
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -6139,9 +6170,10 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    ── The surface behind a marker ─────────────────────────────────────────────
    A marker is opaque, because the connector runs behind it — so it has to be the
    colour of whatever the list is sitting on, and a marker that picks one surface is a
-   dark hole on every other. `--timeline-surface` is the page by default and the
-   card's own colour inside a card. Anywhere else the app sets it, and never restates
-   the rule:
+   dark hole on every other. `--timeline-surface` reads `--surface-here` — the colour
+   every library surface declares for its own contents — and falls back to the page,
+   so a timeline in a card, a modal, a drawer or a popover is right with no help. Only
+   on a surface the app itself paints does the app set it, and never restates the rule:
 
      <ul class="timeline" style="--timeline-surface: var(--surface-strong)">
    ─────────────────────────────────────────────────────────────────────────── */
@@ -6151,12 +6183,11 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     --timeline-marker: 27px;
     --timeline-lead: 17px;
     --timeline-gap: var(--space-7);
-    --timeline-surface: var(--bg);
+    --timeline-surface: var(--surface-here, var(--bg));
     list-style: none;
     margin: 0;
     padding: 0;
 }
-.card .timeline { --timeline-surface: var(--card-bg); }
 
 /* The marker hangs half outside the <li>, so the list is indented by exactly that
    much — otherwise a tile pokes through the card it is in. */

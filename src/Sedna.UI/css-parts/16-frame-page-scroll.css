@@ -48,9 +48,14 @@
    content and hide the shadow at the very top/bottom; the two radial shadows
    (attachment: scroll) are pinned to the box and only show when there IS more
    content that way. --scroll-bg MUST match the surface the scroller sits on, or
-   the cover itself reads as a permanent dark band. */
+   the cover itself reads as a permanent dark band.
+
+   It reads --surface-here, which every surface the library paints declares once
+   (a card, a modal, a drawer, a menu, a popover, a toast). A scroller inside any
+   of them is therefore right without being named here, and the fallback is the
+   page. Only a scroller that can appear WITHOUT its surface names one below. */
 .page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list {
-    --scroll-bg: var(--bg);
+    --scroll-bg: var(--surface-here, var(--bg));
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
         linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
@@ -60,11 +65,10 @@
     background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;
 }
-/* Scrollers on an elevated surface match that surface, or the cover gradient reads as
-   a permanent dark band across the top of the panel. */
-.modal .sedna-scroll,
+/* The command list and the nav scroller are the two that stand on a surface their
+   own markup need not contain — a palette rendered inline rather than as a
+   <dialog>, a <nav> outside a .sidebar. Both state the surface they belong to. */
 .drawer-body,
-.palette-list { --scroll-bg: var(--bg-elevated); }
-/* The nav scroller sits on the sidebar, which is its own surface. */
-.nav-scroll { --scroll-bg: var(--sidebar-bg); }
+.palette-list { --surface-here: var(--bg-elevated); }
+.nav-scroll { --surface-here: var(--sidebar-bg); }
 

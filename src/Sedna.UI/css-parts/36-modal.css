@@ -10,6 +10,7 @@
     backdrop-filter: blur(2px);
 }
 .modal {
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);

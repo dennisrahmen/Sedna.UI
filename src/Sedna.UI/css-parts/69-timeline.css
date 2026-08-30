@@ -48,9 +48,10 @@
    ── The surface behind a marker ─────────────────────────────────────────────
    A marker is opaque, because the connector runs behind it — so it has to be the
    colour of whatever the list is sitting on, and a marker that picks one surface is a
-   dark hole on every other. `--timeline-surface` is the page by default and the
-   card's own colour inside a card. Anywhere else the app sets it, and never restates
-   the rule:
+   dark hole on every other. `--timeline-surface` reads `--surface-here` — the colour
+   every library surface declares for its own contents — and falls back to the page,
+   so a timeline in a card, a modal, a drawer or a popover is right with no help. Only
+   on a surface the app itself paints does the app set it, and never restates the rule:
 
      <ul class="timeline" style="--timeline-surface: var(--surface-strong)">
    ─────────────────────────────────────────────────────────────────────────── */
@@ -60,12 +61,11 @@
     --timeline-marker: 27px;
     --timeline-lead: 17px;
     --timeline-gap: var(--space-7);
-    --timeline-surface: var(--bg);
+    --timeline-surface: var(--surface-here, var(--bg));
     list-style: none;
     margin: 0;
     padding: 0;
 }
-.card .timeline { --timeline-surface: var(--card-bg); }
 
 /* The marker hangs half outside the <li>, so the list is indented by exactly that
    much — otherwise a tile pokes through the card it is in. */

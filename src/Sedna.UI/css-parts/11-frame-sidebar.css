@@ -1,6 +1,7 @@
 /* ── Sidebar ────────────────────────────────────────────────────────────── */
 .sidebar {
     width: 220px;
+    --surface-here: var(--sidebar-bg);
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
     padding: 0;

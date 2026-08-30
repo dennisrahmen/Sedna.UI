@@ -29,6 +29,7 @@ dialog.palette {
     margin: 12vh auto auto;
     padding: 0;
     overflow: hidden;
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
@@ -150,6 +151,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     z-index: 510;
     max-width: 300px;
     padding: var(--space-6) var(--space-7);
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);

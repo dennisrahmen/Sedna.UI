@@ -54,8 +54,10 @@
     </p>
     <p>
         <strong>An opaque header has to be the colour of what it is pinned over</strong>, so it is
-        <code>--group-head-bg</code>: the page by default, the card's own colour inside a card.
-        On any other surface set the variable on the list —
+        <code>--group-head-bg</code>, which reads <code>--surface-here</code> — the colour
+        every library surface declares for its own contents — and falls back to the page. A
+        list in a card, a modal, a drawer or a popover is right with no help. On a surface
+        <em>your</em> app paints, set the variable on the list —
         <code>style="--group-head-bg: var(--surface-strong)"</code> — rather than restating the
         rule. <code>--group-head-fg</code> and <code>--group-head-height</code> are the same escape
         hatch for the label colour and the pinned height.
