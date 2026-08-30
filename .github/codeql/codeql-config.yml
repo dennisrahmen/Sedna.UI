@@ -17,3 +17,26 @@ query-filters:
   # Reinstate this query the day a path segment comes from outside the repository.
   - exclude:
       id: cs/path-combine
+
+  # `cs/linq/missed-where` fires on any foreach whose body opens with a guard that
+  # `continue`s. Most of them here guard on a `TryGetValue`/`TryGetProperty` that
+  # also produces the value the body needs, and a `.Where(...)` predicate cannot
+  # carry an `out` parameter out to the loop body — so the rewrite the query asks
+  # for looks the value up twice. The query has no way to see that: it reads the
+  # `continue` and stops.
+  #
+  # Reinstate this query the day the analyser can see through `out`.
+  - exclude:
+      id: cs/linq/missed-where
+
+  # `cs/linq/missed-select` fires on any foreach whose first statement assigns from
+  # the iteration variable. That assignment is what lets the rest of the body name
+  # the thing — in an assertion message, or in the comment explaining the predicate
+  # underneath it — and `.Select(...)` moves the name off the lines that explain it.
+  # In a guard test the failure message is the point of the guard.
+  #
+  # Both LINQ queries were already being dismissed site by site in the web UI, which
+  # is the practice the header of this file argues against. These two exclusions
+  # replace those dismissals.
+  - exclude:
+      id: cs/linq/missed-select
