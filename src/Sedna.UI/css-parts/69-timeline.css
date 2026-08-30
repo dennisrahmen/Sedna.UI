@@ -1,0 +1,287 @@
+/* ── Timeline ───────────────────────────────────────────────────────────────
+   Things that happened, newest first or oldest first, with when. An audit trail, a
+   change history, a comment thread.
+
+   Differs from .steps in what it is for: steps have a fixed sequence with an end, a
+   timeline is an open-ended record. If the reader can be "on" one of them, it is
+   steps.
+
+   The rule runs down the markers as a border on the <li>, so it stops exactly at the
+   last entry rather than needing a length.
+
+     <ul class="timeline">
+       <li data-kind="go">
+         <span class="timeline-when">03:15</span>
+         <span class="timeline-what">Approved and written to the warehouse</span>
+       </li>
+     </ul>
+
+   ── The geometry is arithmetic, not constants ───────────────────────────────
+   Five numbers describe the whole component, and no offset below is typed:
+
+     --timeline-line       the connector's width
+     --timeline-dot        the plain marker's diameter
+     --timeline-marker     the icon tile's diameter
+     --timeline-lead       the height of the row a marker is centred in
+     --timeline-gap        the space under an entry
+
+   A marker sits on the connector at `(line + size) / -2` and in its row at
+   `(lead - size) / 2`, and the list is indented by `(size - line) / 2` so that the
+   marker starts at the list's own edge rather than outside it.
+
+   The inline offset is NOT `(line - size) / 2`, which is the shape it looks like it
+   should be. An absolutely positioned box is placed against its ancestor's PADDING
+   box, and the connector is that ancestor's border — outside it. The line's own width
+   therefore comes out of the offset a second time.
+
+   Both offsets were constants before, and both were wrong: the dot sat 2px right of
+   the line it hangs off, the tile 1px. The 2px is worth knowing about, because the
+   same trap is set for every pseudo-element in this stylesheet — `*` in
+   `06-base-elements.css` matches elements and NOT pseudo-elements, so the dot was
+   still `content-box`, its 2px ring was added to the 9px width instead of taken out
+   of it, and an offset computed against 9 missed by 2. The `box-sizing: border-box`
+   below is load-bearing.
+
+   The diameters are odd against a 1px line on purpose. An even one centres on a half
+   pixel, and a hairline circle straddling one antialiases into a smudge.
+
+   ── The surface behind a marker ─────────────────────────────────────────────
+   A marker is opaque, because the connector runs behind it — so it has to be the
+   colour of whatever the list is sitting on, and a marker that picks one surface is a
+   dark hole on every other. `--timeline-surface` is the page by default and the
+   card's own colour inside a card. Anywhere else the app sets it, and never restates
+   the rule:
+
+     <ul class="timeline" style="--timeline-surface: var(--surface-strong)">
+   ─────────────────────────────────────────────────────────────────────────── */
+.timeline {
+    --timeline-line: 1px;
+    --timeline-dot: 13px;
+    --timeline-marker: 27px;
+    --timeline-lead: 17px;
+    --timeline-gap: var(--space-7);
+    --timeline-surface: var(--bg);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.card .timeline { --timeline-surface: var(--card-bg); }
+
+/* The marker hangs half outside the <li>, so the list is indented by exactly that
+   much — otherwise a tile pokes through the card it is in. */
+.timeline > li {
+    position: relative;
+    margin-inline-start: calc((var(--timeline-dot) - var(--timeline-line)) / 2);
+    padding-block: 0 var(--timeline-gap);
+    padding-inline: var(--space-9) 0;
+    border-inline-start: var(--timeline-line) solid var(--border);
+}
+.timeline > li:last-child { border-inline-start-color: transparent; padding-block-end: 0; }
+.timeline > li::before {
+    content: '';
+    position: absolute;
+    /* Not tidiness — see the header. Without it the ring is added to the width and
+       every offset computed from `--timeline-dot` is short by 4px. */
+    box-sizing: border-box;
+    inset-inline-start: calc((var(--timeline-line) + var(--timeline-dot)) / -2);
+    top: calc((var(--timeline-lead) - var(--timeline-dot)) / 2);
+    width: var(--timeline-dot);
+    height: var(--timeline-dot);
+    background: var(--border-hover);
+    border: 2px solid var(--timeline-surface);
+    border-radius: 50%;
+}
+
+/* The timestamp's line box IS the row the marker centres in, so the two agree by
+   construction rather than by a number typed in both places. */
+.timeline-when {
+    display: block;
+    color: var(--muted);
+    font-size: var(--text-2);
+    line-height: var(--timeline-lead);
+    font-variant-numeric: tabular-nums;
+}
+.timeline-what { color: var(--fg-soft); font-size: var(--text-4); }
+
+.timeline > li[data-kind="go"]::before     { background: var(--go-solid); }
+.timeline > li[data-kind="warn"]::before   { background: var(--warn-solid); }
+.timeline > li[data-kind="danger"]::before { background: var(--danger-solid); }
+.timeline > li[data-kind="info"]::before   { background: var(--info-solid); }
+
+/* ── The entry that is still happening ──────────────────────────────────────
+   The head of a live record — a job still running, a reply still being drafted.
+   `data-state` rather than a modifier class for the reason `.steps` uses one: an
+   entry has exactly one state and an attribute cannot accidentally carry two.
+
+   A ring, not an animation. A record that pulses is a record nobody can read, and a
+   ring survives greyscale, forced colours and the colour-blind palette, where a
+   colour change on its own does not. */
+.timeline > li[data-state="current"]::before {
+    background: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-glow);
+}
+.timeline > li[data-state="current"] > .timeline-mark {
+    border-color: var(--brand);
+    color: var(--brand-text);
+    box-shadow: 0 0 0 3px var(--brand-glow);
+}
+.timeline > li[data-state="current"] > .timeline-what { color: var(--fg); font-weight: 500; }
+
+/* ── An entry with more than a line in it ───────────────────────────────────
+   The supporting block under the headline — the error a retry returned, the fields
+   that changed, the chips for what it touched. A class rather than "whatever else is
+   in the <li>", so an entry can hold a marker, a headline and a body without the
+   three having to be told apart by position. */
+.timeline-body {
+    margin-top: var(--space-4);
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+}
+.timeline-body > :first-child { margin-top: 0; }
+.timeline-body > :last-child { margin-bottom: 0; }
+
+/* ── A marker that is an icon ───────────────────────────────────────────────
+   The dot says "something happened here". Sometimes the marker IS the information —
+   a robot for "the agent worked it", a lock for "it needs a person", a tick for
+   "decided" — and a dot throws that away, while a number would imply the reader can
+   be "on" a step, which `.steps` reserves for wizards.
+
+   So a `.timeline-mark` child REPLACES the dot. The connector, and its stopping at
+   the last entry, are untouched: both live on the <li>, not on the marker.
+
+     <li data-kind="go">
+       <span class="timeline-mark"><i class="ri-check-line" aria-hidden="true"></i></span>
+       <span class="timeline-when">09:42</span>
+       <span class="timeline-what">Approved by Dennis</span>
+     </li>
+
+   The gutter is set by the LIST, not by the entry that has the tile. One marked entry
+   widens every row, which is the point: a record where only some entries carry an
+   icon otherwise steps its connector in and out at each one.
+
+   A `data-kind` FILLS the tile rather than tinting it, which is what `.steps` does
+   with a done marker and for the same two reasons: the --*-bg tints are translucent
+   and would let the connector show straight through, and a filled marker still reads
+   as itself in greyscale and under forced colours. */
+.timeline:has(.timeline-mark) {
+    --timeline-lead: var(--timeline-marker);
+}
+.timeline:has(.timeline-mark) > li {
+    margin-inline-start: calc((var(--timeline-marker) - var(--timeline-line)) / 2);
+    padding-inline-start: var(--space-10);
+}
+.timeline > li:has(> .timeline-mark)::before { content: none; }
+.timeline-mark {
+    position: absolute;
+    inset-inline-start: calc((var(--timeline-line) + var(--timeline-marker)) / -2);
+    top: calc((var(--timeline-lead) - var(--timeline-marker)) / 2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--timeline-marker);
+    height: var(--timeline-marker);
+    background: var(--timeline-surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--muted);
+    font-size: var(--text-4);
+}
+.timeline > li[data-kind="go"] > .timeline-mark {
+    background: var(--go-solid);
+    border-color: var(--go-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="warn"] > .timeline-mark {
+    background: var(--warn-solid);
+    border-color: var(--warn-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="danger"] > .timeline-mark {
+    background: var(--danger-solid);
+    border-color: var(--danger-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="info"] > .timeline-mark {
+    background: var(--info-solid);
+    border-color: var(--info-solid);
+    color: var(--on-solid);
+}
+
+/* ── A marker that is a face ────────────────────────────────────────────────
+   In a comment thread the marker is who wrote it, and an avatar inside a bordered
+   tile reads as a face in a picture frame. `--bare` drops the tile's BORDER and hands
+   the avatar the marker's diameter, so the two cannot disagree about size.
+
+   It keeps the fill, and has to. `--brand-tint` and `--surface-strong` — what an
+   `.avatar` is painted in — are translucent, so an avatar over nothing is a window:
+   the connector runs straight through the face, and the tint is darkened by the line
+   behind it into a colour no token names. The disc underneath is exactly the avatar's
+   diameter and equally round, so it is invisible except for what it hides.
+
+   Do not put a `data-kind` on a bare entry. The fill would be painted over by
+   whatever is in the marker and only a coloured rim would survive. */
+.timeline-mark--bare { background: var(--timeline-surface); border: none; }
+.timeline-mark--bare .avatar { --avatar-size: var(--timeline-marker); }
+
+/* ── A break in the record ──────────────────────────────────────────────────
+   A day, a release, a shift — a caption the reader scans for while the connector runs
+   straight through it, unbroken.
+
+   It is an <li> in the same list rather than a heading between two lists, so the
+   record stays one list: the count announced is the number of rows on screen, and the
+   caption takes the entry's own margin and border without restating either. */
+.timeline-group {
+    padding-block: var(--space-7) var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.timeline > li.timeline-group::before { content: none; }
+.timeline > li.timeline-group:first-child { padding-block-start: 0; }
+
+/* ── The rest of the record ─────────────────────────────────────────────────
+   A record with no end needs a foot that says so. The hollow marker is the point: a
+   filled one reads as one more event, and this row is the absence of the ones not
+   drawn.
+
+   The outer shadow is the gap the ring would otherwise not have — the dot gets its
+   separation from the connector out of a border painted in the surface colour, and
+   this marker has spent that border on being hollow. */
+.timeline-more { color: var(--muted); font-size: var(--text-3); }
+.timeline > li.timeline-more::before {
+    background: var(--timeline-surface);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 2px var(--timeline-surface);
+}
+
+/* ── Timestamps in a gutter ─────────────────────────────────────────────────
+   `--aside` moves the "when" outside the line, right-aligned in a column of its own.
+   Reach for it when the reader scans by time — a shift log, a call record, a run
+   history — because a column of times can be read down and a time that merely starts
+   each entry cannot.
+
+   The clearance between the gutter and the marker is one expression written twice by
+   necessity: the list's padding makes the room, the timestamp's own margin sits in
+   it. It is measured off `--timeline-marker` rather than the dot so that a list gains
+   an icon without the gutter moving.
+
+   Not for a narrow column. The gutter costs horizontal space the entries then do not
+   have, and the entry text starts wrapping to three words a line. */
+.timeline--aside {
+    --timeline-aside: 68px;
+    --timeline-lead: 21px;
+    padding-inline-start: calc(var(--timeline-aside) + var(--timeline-marker) / 2 + var(--space-4));
+}
+.timeline--aside > li > .timeline-when {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 100%;
+    margin-inline-end: calc(var(--timeline-marker) / 2 + var(--space-4));
+    width: var(--timeline-aside);
+    text-align: end;
+}
+/* The headline is the entry's first line once the timestamp has left the flow, so it
+   is what the marker now has to line up with. */
+.timeline--aside > li > .timeline-what { display: block; line-height: var(--timeline-lead); }

@@ -58,6 +58,100 @@ public class CatalogueCssTests
             + $"{Environment.NewLine}{string.Join(Environment.NewLine, offenders)}");
     }
 
+    /// <summary>
+    /// Inside a container that holds a rendered example, a rule whose subject is a bare
+    /// element must reach it with the child combinator.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The test above checks the subject's CLASSES, so a subject with no class at all
+    /// walks straight past it — and <c>.cat-main h3</c> did, for as long as the file
+    /// existed. It set <c>margin: 26px 0 10px</c> and <c>font-size: 14px</c> on every
+    /// <c>h3</c> inside <c>.cat-main</c>, which includes the <c>.modal-header</c>,
+    /// <c>.drawer-header</c>, <c>.markdown-body</c> and <c>.prose</c> headings of every
+    /// example the page renders. A modal header measured 111px here against the 61px it
+    /// is in an app.
+    /// </para>
+    /// <para>
+    /// The reason it wins is not specificity: this file is UNLAYERED and the library is
+    /// entirely inside <c>@layer sedna.*</c>, so any rule here outranks any rule there
+    /// whatever the two selectors weigh. There is no way for the library to defend
+    /// itself, and nothing fails — the example simply renders wrong, only on this site.
+    /// </para>
+    /// <para>
+    /// A page heading is always a direct child of <c>.cat-main</c>; nothing an example
+    /// renders ever is. So the child combinator is exactly the line between the two, and
+    /// it is only required under the containers that actually hold example markup —
+    /// <c>.cat-note table</c> is fine, because a note never contains an example.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void A_bare_element_inside_an_example_container_is_reached_by_the_child_combinator()
+    {
+        var css = Assets.StripComments(File.ReadAllText(CatalogueAssets.CatalogueCssPath));
+
+        var offenders = new List<string>();
+
+        foreach (var selector in TopLevelSelectors(css))
+        {
+            var parts = Split(selector);
+
+            // Only the subject matters — it is the element the rule paints. Anything
+            // with a class of its own is the other test's business.
+            if (parts.Count == 0 || HasName(parts[^1])) continue;
+
+            // Walk back from the subject to the nearest container that holds example
+            // markup. Everything between the two has to be a child combinator; one
+            // descendant step anywhere on that path reaches into the example.
+            for (var i = parts.Count - 3; i >= 0; i -= 2)
+            {
+                if (!ExampleContainers.Contains(Compound(parts[i]))) continue;
+
+                if (parts.Where((p, j) => j > i && j < parts.Count && j % 2 == 1).Any(c => c != ">"))
+                    offenders.Add($"{selector}   (reaches into {Compound(parts[i])})");
+
+                break;
+            }
+        }
+
+        Assert.True(offenders.Count == 0,
+            "catalogue.css is unlayered, so a descendant selector here outranks the library "
+            + "inside every example this site renders. Use the child combinator — a page heading "
+            + $"is a direct child, an example's markup never is:{Environment.NewLine}"
+            + string.Join(Environment.NewLine, offenders));
+    }
+
+    /// <summary>The containers a rendered example lives inside.</summary>
+    private static readonly HashSet<string> ExampleContainers =
+        new(StringComparer.Ordinal) { ".cat-main", ".cat-ex", ".ex-demo" };
+
+    /// <summary>Compounds and combinators, alternating, starting with a compound.</summary>
+    private static List<string> Split(string selector)
+    {
+        var parts = System.Text.RegularExpressions.Regex
+            .Split(Assets.Squash(selector), @"\s*([>+~])\s*|\s+")
+            .Where(p => p is not null)
+            .Select(p => p.Trim())
+            .ToList();
+
+        // Regex.Split drops the descendant combinator (it has no character of its own),
+        // so it is put back to keep the alternation the loop above relies on.
+        var alternating = new List<string>();
+        foreach (var part in parts.Where(p => p.Length > 0))
+        {
+            if (alternating.Count % 2 == 1 && part is not (">" or "+" or "~")) alternating.Add(" ");
+            alternating.Add(part);
+        }
+        return alternating;
+    }
+
+    /// <summary>The compound without its pseudo-classes and pseudo-elements.</summary>
+    private static string Compound(string part) => part.Split(':')[0];
+
+    /// <summary>Whether a compound names something of its own — a class, an id or an attribute.</summary>
+    private static bool HasName(string part) =>
+        Compound(part).IndexOfAny(['.', '#', '[']) >= 0;
+
     [Fact]
     public void Every_colour_in_the_catalogue_stylesheet_is_a_library_token()
     {

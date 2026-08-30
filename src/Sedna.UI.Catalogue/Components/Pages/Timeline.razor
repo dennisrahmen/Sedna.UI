@@ -1,0 +1,138 @@
+@page "/timeline"
+
+<CatHead Title="Timeline">
+    A record of things that happened, with when — an audit trail, a run history, a comment
+    thread. It differs from <a href="/collections"><code>.steps</code></a> in what it is
+    <em>for</em>: steps have a fixed sequence the reader can be &ldquo;on&rdquo;, a timeline is
+    open-ended. If the reader can be on one of them, it is steps.
+</CatHead>
+
+<CatExample TExample="Examples.Timeline.Basic" Title="Timeline" Demo="ex-demo--block">
+    <p>
+        Two spans per entry: <code>.timeline-when</code> and <code>.timeline-what</code>. The rule
+        runs down the markers as a border on the <code>&lt;li&gt;</code>, so it stops exactly at
+        the last entry without anyone having to give it a length, and
+        <code>data-kind</code> — <code>go</code>, <code>warn</code>, <code>danger</code>,
+        <code>info</code> — colours a marker for an entry that mattered.
+    </p>
+    <p>
+        <strong>Every offset in this component is arithmetic.</strong> A marker is centred on the
+        connector at <code>(--timeline-line + size) / -2</code> and in its row at
+        <code>(--timeline-lead - size) / 2</code>, so nothing drifts when a size changes. That
+        matters because both offsets used to be typed in and both were wrong — the dot sat 2px to
+        the right of the line it hangs off, because <code>*&nbsp;{ box-sizing: border-box }</code>
+        matches elements and <em>not</em> pseudo-elements, so the ring was added to the dot's width
+        instead of taken out of it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Timeline.IconMarkers" Title="Icon markers" Demo="ex-demo--block">
+    <p>
+        The dot says “something happened here”. Sometimes the marker <strong>is</strong> the
+        information — a robot for “the agent worked it”, a lock for “it needs a person”, a tick for
+        “decided” — and a dot throws that away.
+    </p>
+    <p>
+        A <code>.timeline-mark</code> child replaces the dot; the connector and its stopping at the
+        last entry are untouched, because both live on the <code>&lt;li&gt;</code>. The gutter is
+        set by the <strong>list</strong>, not by the entry holding the tile: one marked entry
+        widens every row, so a record where only some entries carry an icon keeps one straight
+        connector instead of stepping in and out at each one.
+    </p>
+    <p>
+        A <code>data-kind</code> fills the tile rather than tinting it, the way a done marker in
+        <code>.steps</code> is filled. The <code>--*-bg</code> tints are translucent and would let
+        the connector show straight through, and a filled marker still reads as itself in
+        greyscale and under forced colours.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Timeline.Live" Title="The entry still happening" Demo="ex-demo--block">
+    <p>
+        <code>data-state="current"</code> marks the head of a live record — a job still running, a
+        reply still being drafted. It is an attribute rather than a modifier class for the reason
+        <code>.steps</code> uses one: an entry has exactly one state, and an attribute cannot
+        accidentally carry two.
+    </p>
+    <p>
+        <strong>It is a ring, not an animation.</strong> A record that pulses is a record nobody
+        can read, and the ring survives greyscale, forced colours and the colour-blind palette,
+        where a colour change on its own does not.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Timeline.Rich" Title="Entries with a body" Demo="ex-demo--block">
+    <p>
+        <code>.timeline-body</code> is the supporting block under the headline — the error a retry
+        returned, the fields that changed, the chips for what it touched. It is a class rather
+        than “whatever else is in the <code>&lt;li&gt;</code>”, so an entry can hold a marker, a
+        headline and a body without the three having to be told apart by position.
+    </p>
+    <p>
+        This one is in a card, and its markers pick up the card's colour with no markup saying so.
+        <strong>A marker is opaque, because the connector runs behind it</strong> — so it has to be
+        the colour of whatever the list sits on, or it is a dark hole punched in the surface.
+        <code>--timeline-surface</code> is the page by default and the card's own colour inside a
+        card; anywhere else, set it on the list rather than restating the rule.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Timeline.Aside" Title="Timestamps in a gutter" Demo="ex-demo--block">
+    <p>
+        <code>.timeline--aside</code> moves the “when” outside the line, right-aligned in a column
+        of its own. Reach for it when the reader scans <em>by time</em> — a shift log, a call
+        record, a run history — because a column of times can be read down, and a time that merely
+        starts each entry cannot.
+    </p>
+    <p>
+        The gutter is <code>--timeline-aside</code>, and the clearance it keeps from the marker is
+        measured off <code>--timeline-marker</code> rather than the dot, so a list that gains an
+        icon does not shift its times. <strong>Not for a narrow column:</strong> the gutter costs
+        horizontal space the entries then do not have, and the text starts wrapping to three words
+        a line.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Timeline.Grouped" Title="Breaks and a foot" Demo="ex-demo--block">
+    <p>
+        <code>.timeline-group</code> is a day, a release or a shift — a caption the reader scans
+        for while the connector runs straight through it, unbroken. It is an
+        <code>&lt;li&gt;</code> in the same list rather than a heading between two lists, so the
+        record stays one list: the count announced is the number of rows on screen, and the
+        caption takes the entry's own margin and border without restating either.
+    </p>
+    <p>
+        <code>.timeline-more</code> is the foot a record with no end needs. The hollow marker is
+        the point — a filled one reads as one more event, and this row is the <em>absence</em> of
+        the ones not drawn. Put a link or a <code>.btn-ghost</code> inside it; the
+        <code>&lt;li&gt;</code> is a row, not a control.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Timeline.Thread" Title="Avatar markers" Demo="ex-demo--block">
+    <p>
+        In a comment thread the marker is <em>who wrote it</em>, and an avatar inside a bordered
+        tile reads as a face in a picture frame. <code>.timeline-mark--bare</code> drops the tile's
+        chrome and hands the avatar the marker's diameter, so the two cannot disagree about size.
+    </p>
+    <p>
+        Do not put a <code>data-kind</code> on a bare entry: the fill would be painted over by
+        whatever is in the marker, and only a coloured rim would survive.
+        <code>.avatar--muted</code> is the honest marker for an actor that is not a person.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Timeline.Tuning" Title="Sizing it" Demo="ex-demo--block">
+    <p>
+        Five variables describe the component, and every offset is derived from them:
+        <code>--timeline-line</code> (the connector's width), <code>--timeline-dot</code> and
+        <code>--timeline-marker</code> (the two marker diameters), <code>--timeline-lead</code>
+        (the height of the row a marker centres in) and <code>--timeline-gap</code> (the space
+        under an entry). A dense log wants a smaller gap and nothing else.
+    </p>
+    <p>
+        <strong>Keep a diameter odd against a 1px line.</strong> An even one centres the marker on
+        a half pixel, and a hairline circle straddling one antialiases into a smudge — which is
+        what makes a timeline look slightly out of focus for no reason anyone can name.
+    </p>
+</CatExample>

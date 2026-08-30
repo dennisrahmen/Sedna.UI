@@ -18,11 +18,15 @@
     </div>
 
     <div class="deck-footer">
+        <!-- Each dot jumps to its step, so a reader who has understood slide one can go
+             back to it without pressing Back three times. aria-current marks the one
+             showing; the group's label carries the position in words, which a row of
+             circles cannot. -->
         <div class="deck-dots" role="group" aria-label="Step 2 of 4">
-            <span class="deck-dot"></span>
-            <span class="deck-dot deck-dot--active"></span>
-            <span class="deck-dot"></span>
-            <span class="deck-dot"></span>
+            <button class="deck-dot" type="button" aria-label="Go to step 1"></button>
+            <button class="deck-dot" type="button" aria-label="Go to step 2" aria-current="step"></button>
+            <button class="deck-dot" type="button" aria-label="Go to step 3"></button>
+            <button class="deck-dot" type="button" aria-label="Go to step 4"></button>
         </div>
         <div class="btn-group">
             <button class="btn" type="button">Back</button>

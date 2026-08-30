@@ -326,9 +326,16 @@ Two things the flat list does not say:
 
 `ui._` also exists and is **private** — shared closure state the parts need. It may change in a patch.
 
-Five behaviours are delegated from `document`, so content rendered after load is covered without
-re-wiring: hover hints, `data-menu-toggle`, `data-tabs`, `data-search`, and `data-copy` /
-`data-copy-target`. The last has no member on the global — the attribute is the whole API.
+Several behaviours are delegated from `document`, so content rendered after load is covered without
+re-wiring: hover hints, `data-menu-toggle`, `data-tabs`, `data-search`, `data-dropzone`,
+`data-sheet`, and `data-copy` / `data-copy-target`. The last two have no member on the global — the
+attribute is the whole API.
+
+`data-sheet` on a `<dialog class="sheet">` opts into dragging it down to dismiss: the sheet follows
+the pointer from the handle or the header, and closes past a quarter of its height or on a flick.
+It is `<dialog>`-only, because the `div` form's open state is a class the app owns. The handle stays
+unfocusable, so the drag is deliberately not a keyboard path — the close button is what makes a
+sheet dismissible.
 Elements inside `.sidebar` are skipped by the hover hints — the collapsed rail has a CSS flyout instead.
 
 `palette` and `search` rank with the same matcher, `ui._.score`. Two copies would drift, and the drift

@@ -60,16 +60,23 @@
    built from h2 + lede + a card or a note rather than from .cat-ex, so their spacing
    cannot come from the example wrapper. Only bare elements inside .cat-main are named
    here — this file may not set a margin on .card or .table, which are the reader's
-   classes and would then be spaced differently here than in their app. */
-.cat-main h2 {
+   classes and would then be spaced differently here than in their app.
+
+   The child combinator is load-bearing, not tidiness. A descendant selector here also
+   matches the headings INSIDE a rendered example — .modal-header h3, .drawer-header h3,
+   a .card-head h3 — and this file is unlayered, so it beats every layered library rule
+   whatever the specificity. That is how a modal header silently grew 36px of margin and
+   lost a point of type size. A page heading is always a direct child of .cat-main;
+   nothing an example renders ever is. */
+.cat-main > h2 {
     margin: 38px 0 10px;
     scroll-margin-top: 16px;
 }
 .cat-main > h2:first-child { margin-top: 8px; }
-.cat-main h3 { margin: 26px 0 10px; font-size: 14px; }
+.cat-main > h3 { margin: 26px 0 10px; font-size: 14px; }
 /* A note or a lede directly under a heading belongs to it, so it loses the extra step. */
-.cat-main h2 + .cat-note,
-.cat-main h3 + .cat-note { margin-top: 10px; }
+.cat-main > h2 + .cat-note,
+.cat-main > h3 + .cat-note { margin-top: 10px; }
 
 .cat-anchor {
     margin-left: 8px;
@@ -107,27 +114,6 @@
 /* Element selector, not the library's .table class — a note is chrome, never an
    example, so spacing it here cannot change how an example renders. */
 .cat-note table { margin-top: 6px; }
-
-/* ── Hosted-site bar ──────────────────────────────────────────────────────────
-   A slim strip directly under the header rather than a block inside the content
-   column, so it reads as chrome about the site rather than as page content. */
-.cat-hostedbar {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 7px 20px;
-    border-bottom: 1px solid var(--warn-border);
-    background: var(--warn-bg);
-    color: var(--fg-soft);
-    font-size: 12.5px;
-    line-height: 1.5;
-}
-.cat-hostedbar > i { flex-shrink: 0; font-size: 15px; color: var(--warn-fg); }
-.cat-hostedbar strong { color: var(--warn-fg); font-weight: 600; }
-.cat-hostedbar a { color: var(--warn-fg); text-decoration: underline; }
-.cat-hostedbar code { font-size: 11.5px; }
-.cat-hostedbar-long { color: var(--muted); }
 
 /* ── Hero (overview page) ─────────────────────────────────────────────────── */
 .cat-hero {
@@ -363,9 +349,6 @@
     .cat-tiles { grid-template-columns: 1fr; }
     .cat-main { padding-bottom: 48px; }
     .ex-demo { padding: 14px; }
-
-    .cat-hostedbar { padding: 7px 14px; }
-    .cat-hostedbar-long { display: none; }
 }
 
 @media (max-width: 560px) {

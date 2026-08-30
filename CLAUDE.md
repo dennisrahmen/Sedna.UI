@@ -105,8 +105,7 @@ Two rules, both test-enforced:
 
 The site is built from `main` and can be ahead of any released version. Every class, token and example
 carries `since` — the release it first shipped in, or `"unreleased"` — so an agent can check before
-copying, and the strip under the header says the same thing to a human. Keep the notice and the `since`
-data working.
+copying. Keep the `since` data working.
 
 **Write each example once, as a file under `Examples/`.** A live example is a `.razor` file the page
 renders *and* prints, from the same embedded bytes, so a demo and its snippet cannot drift. A code-only
@@ -186,8 +185,9 @@ matters it is **calculated**, never typed:
 - `build/api-inventory.sh` is the same implementation for the public C# surface, and is the one place
   that answers "what does this library export".
 - `build/class-history.sh` derives which release first shipped each class, token, public C# member and
-  example, which is what the MCP server's `since` reports. `--check` in CI; regenerate and commit after
-  cutting a tag.
+  example, which is what the MCP server's `since` reports. `--check` in CI. **The release PR runs
+  `--stamp <version>`**, which dates the unreleased entries as the version about to be tagged — the
+  only thing a tag does to this file, done before it exists so nothing has to be regenerated after.
 
 The landing page's figures are computed at runtime by the browser's own CSS parser
 (`sednaUiCatalogue.readInventory`), and a test compares them against a .NET regex over the same
@@ -393,7 +393,15 @@ version first.
    additions let a consuming app grep its own stylesheets for a collision before bumping — a class the
    app already styles changes its appearance silently otherwise. The removals are the breaking part of
    the release, and `build/release-inventory.sh` prints them first for that reason; list them just as
-   plainly. Confirm the notes too, then tag:
+   plainly. Confirm the notes too.
+6. Once the version is confirmed, stamp the class history with it **in the release PR**, so the tag
+   reproduces a file that is already committed and nothing has to be regenerated afterwards:
+
+   ```bash
+   build/class-history.sh --stamp 0.2.0
+   ```
+
+7. Merge, then tag **the commit the stamp is on**:
 
    ```bash
    git tag -a v0.2.0 -F notes.md

@@ -63,6 +63,7 @@
      66-status-indicator.css
      67-output.css
      68-guard.css
+     69-timeline.css
      70-rtl.css
      71-forced-colors.css
      72-print.css
@@ -2589,6 +2590,11 @@ dialog.modal::backdrop {
     transition: background var(--motion-fast), color var(--motion-fast);
 }
 .modal-close:hover { background: var(--bg-hover); color: var(--fg); }
+/* showModal() moves focus to the first focusable thing in the dialog, which in this
+   markup is the close button — so its focus ring is the FIRST thing a keyboard reader
+   sees of a modal, and without this rule it was the UA's own outline: a hard square
+   against every other control in the library, which rings with a soft brand halo. */
+.modal-close:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .modal-body {
     padding: var(--space-8);
     display: flex;
@@ -2628,9 +2634,14 @@ dialog.modal::backdrop {
        `.deck-step`; without it the framework reuses the node, the animation
        never restarts, and the deck goes still after slide one.
 
-   `.deck-dots` is decoration. Put the position in words too — "3 of 5" in the
-   footer, or aria-label on the dots' container — because a row of circles is
-   not announced as a position by anything. */
+   A dot is a <span> when it only reports position, and a <button> when it also
+   jumps to its step — which is the form to reach for, because a reader who has
+   understood slide one should not have to press Next three times to get back to
+   where they were. Either way the drawing is the same, and either way the
+   position goes in words too — "3 of 5" in the footer, or aria-label on the
+   dots' container — because a row of circles is not announced as a position by
+   anything. Mark the current one with `aria-current="step"`; `.deck-dot--active`
+   is then redundant on a button and is not needed. */
 .deck { --deck-height: 320px; }
 .deck-body {
     display: flex;
@@ -2665,7 +2676,37 @@ dialog.modal::backdrop {
 }
 /* Wider as well as brand-coloured: the current slide has to be findable without
    reading colour at all. */
-.deck-dot--active { width: 18px; border-radius: var(--radius-pill); background: var(--brand); }
+.deck-dot--active,
+.deck-dot[aria-current] { width: 18px; border-radius: var(--radius-pill); background: var(--brand); }
+
+/* ── A dot that jumps ───────────────────────────────────────────────────────
+   `<button class="deck-dot">` is a control, so it needs the button reset, a
+   pointer, a hover state and the library's focus ring — the UA outline on a 6px
+   circle is a square nearly three times its size.
+
+   The hit target is the part that has to be got right: 6px is not one. It is
+   grown by an absolutely positioned ::before rather than by padding, so a row of
+   button dots occupies exactly the same space as a row of span dots and the two
+   forms stay interchangeable. The insets are deliberately asymmetric — 9px in the
+   block axis is free, while the inline axis may only take half of `.deck-dots`'
+   6px gap, because two overlapping hit areas mean a press lands on the wrong
+   step. */
+button.deck-dot {
+    position: relative;
+    padding: 0;
+    border: none;
+    appearance: none;
+    cursor: pointer;
+}
+button.deck-dot::before {
+    content: '';
+    position: absolute;
+    inset-block: -9px;
+    inset-inline: -3px;
+}
+button.deck-dot:hover { background: var(--muted); }
+button.deck-dot[aria-current]:hover { background: var(--brand); }
+button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring-soft); }
 }
 
 /* ── 37-alerts.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -4764,7 +4805,19 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    The connector is the <li>'s own ::after, so the last step has none without a
    modifier. Colour alone does not say which steps are done: the done marker shows a
    tick, not just a fill. */
-.steps { list-style: none; margin: 0 0 var(--space-7); padding: 0; display: flex; counter-reset: sedna-step; }
+.steps {
+    /* One number for the marker's diameter, because the connector's own offset is
+       half of it. Typed separately they disagreed: the marker rendered 28px across
+       and the connector sat at 13px, because `* { box-sizing: border-box }` in the
+       base layer does not reach a pseudo-element and the 1px ring was added to the
+       26px width rather than taken out of it. */
+    --step-marker: 28px;
+    list-style: none;
+    margin: 0 0 var(--space-7);
+    padding: 0;
+    display: flex;
+    counter-reset: sedna-step;
+}
 .steps > li {
     position: relative;
     flex: 1;
@@ -4780,11 +4833,12 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 }
 .steps > li::before {
     content: counter(sedna-step);
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 26px;
-    height: 26px;
+    width: var(--step-marker);
+    height: var(--step-marker);
     border: 1px solid var(--border-strong);
     border-radius: 50%;
     background: var(--bg);
@@ -4798,7 +4852,7 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 .steps > li:not(:last-child)::after {
     content: '';
     position: absolute;
-    top: 13px;
+    top: calc(var(--step-marker) / 2);
     inset-inline-start: 50%;
     width: 100%;
     border-top: 1px solid var(--border);
@@ -4820,99 +4874,6 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     box-shadow: 0 0 0 3px var(--brand-glow);
 }
 
-/* ── Timeline ───────────────────────────────────────────────────────────────
-   Things that happened, newest first or oldest first, with when. An audit trail, a
-   change history, a comment thread.
-
-   Differs from .steps in what it is for: steps have a fixed sequence with an end,
-   a timeline is an open-ended record. If the reader can be "on" one of them, it is
-   steps.
-
-   The rule runs down the markers as a border on the <li>, so it stops exactly at
-   the last entry rather than needing a length. */
-.timeline { list-style: none; margin: 0; padding: 0; }
-.timeline > li {
-    position: relative;
-    padding: 0 0 var(--space-7) var(--space-9);
-    border-inline-start: 1px solid var(--border);
-    margin-inline-start: var(--space-2);
-}
-.timeline > li:last-child { border-inline-start-color: transparent; padding-bottom: 0; }
-.timeline > li::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: -5px;
-    top: 4px;
-    width: 9px;
-    height: 9px;
-    background: var(--border-hover);
-    border: 2px solid var(--bg);
-    border-radius: 50%;
-}
-.timeline-when { display: block; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
-.timeline-what { color: var(--fg-soft); font-size: var(--text-4); }
-.timeline > li[data-kind="go"]::before     { background: var(--go-solid); }
-.timeline > li[data-kind="warn"]::before   { background: var(--warn-solid); }
-.timeline > li[data-kind="danger"]::before { background: var(--danger-solid); }
-
-/* ── A marker that is an icon ───────────────────────────────────────────────
-   The dot says "something happened here". Sometimes the marker IS the
-   information — a robot for "the agent worked it", a lock for "it needs a
-   person", a tick for "decided" — and a dot throws that away while a number
-   would imply the reader can be "on" a step, which `.steps` reserves for
-   wizards.
-
-   So a `.timeline-mark` child REPLACES the dot when it is present. The
-   connector, and its stopping at the last entry, are untouched: both live on
-   the <li>, not on the marker.
-
-     <li data-kind="go">
-       <span class="timeline-mark"><i class="ri-check-line"></i></span>
-       <span class="timeline-when">09:42</span>
-       <span class="timeline-what">Approved by Dennis</span>
-     </li>
-
-   A `data-kind` FILLS the tile rather than tinting it, which is what `.steps`
-   does with a done marker and for the same two reasons: the --*-bg tints are
-   translucent, and a translucent marker lets the connector line show straight
-   through it; and a filled marker still reads as itself in greyscale and under
-   forced colours, where a tint does not. */
-.timeline > li:has(> .timeline-mark)::before { content: none; }
-.timeline-mark {
-    position: absolute;
-    /* Half the tile, minus the border it straddles — the same centring the dot
-       gets from -5px against its own 9px. */
-    inset-inline-start: -13px;
-    top: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    color: var(--muted);
-    font-size: var(--text-4);
-}
-/* The <li> gets the room the tile needs, only where there is one. */
-.timeline > li:has(> .timeline-mark) { padding-inline-start: var(--space-10); }
-.timeline > li[data-kind="go"] > .timeline-mark {
-    background: var(--go-solid);
-    border-color: var(--go-solid);
-    color: var(--on-solid);
-}
-.timeline > li[data-kind="warn"] > .timeline-mark {
-    background: var(--warn-solid);
-    border-color: var(--warn-solid);
-    color: var(--on-solid);
-}
-.timeline > li[data-kind="danger"] > .timeline-mark {
-    background: var(--danger-solid);
-    border-color: var(--danger-solid);
-    color: var(--on-solid);
-}
-
 /* ── Stacking group headers ─────────────────────────────────────────────────
    A grouped list in a scroll container where each group's header pins BELOW the
    one above it instead of replacing it, so the reader keeps the whole path to
@@ -4931,10 +4892,23 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    one above by 1px — without it a sub-pixel sliver of a scrolling row shows
    between two stacked headers on a fractional device pixel ratio.
 
-   z-index 1 is local stacking inside the list, not a rung on the scale. */
+   z-index 1 is local stacking inside the list, not a rung on the scale.
+
+   BECAUSE the background is opaque it has to be the colour of the surface the
+   list is pinned over, and a header that picks one surface is a lighter box
+   floating on every other one. So it is `--group-head-bg`, defaulting to the
+   page and switching to the card's own colour inside a card. On any other
+   surface the app sets the variable — it never restates the rule:
+
+     <ul class="list" style="--group-head-bg: var(--surface-strong)">
+
+   `--group-head-fg` and `--group-head-height` are the same escape hatch for the
+   label colour and the pinned height. */
 .sticky-group-head {
     --group-head-index: 0;
     --group-head-height: 32px;
+    --group-head-bg: var(--bg);
+    --group-head-fg: var(--muted);
     position: sticky;
     top: calc(var(--group-head-index) * (var(--group-head-height) - 1px));
     z-index: 1;
@@ -4944,17 +4918,45 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     flex-shrink: 0;
     height: var(--group-head-height);
     padding: 0 var(--space-6);
-    background: var(--bg-elevated);
+    background: var(--group-head-bg);
     border-bottom: 1px solid var(--border);
-    color: var(--muted);
+    color: var(--group-head-fg);
     font-size: var(--text-2);
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
+.card .sticky-group-head { --group-head-bg: var(--card-bg); }
 /* Inside a card the header meets the card's edges, like `.list-row` does. */
 .card > .list > .sticky-group-head,
 .card > .sticky-group-head { padding-inline: var(--space-7); }
+
+/* `--rule` trades the full-width bottom border for a hairline running from the
+   label to the end of the row. Same pinning, but the header reads as a caption
+   over the rows rather than a bar across them — which is what a list wants
+   where the groups are a state the reader scans past, not a section they land
+   in.
+
+   The rule is the header's own ::after, so the markup stays a label and, where
+   there is one, a count. Ordering is why the count needs a class at all: a
+   pseudo-element is always the last child, and `order` is what puts the rule
+   between the two. */
+.sticky-group-head--rule { border-bottom: none; }
+.sticky-group-head--rule::after {
+    content: '';
+    order: 1;
+    flex: 1;
+    border-top: 1px solid var(--border);
+}
+/* Auto margin for the plain header, absorbed by the rule's flex where there is
+   one, so the count sits at the end either way. */
+.sticky-group-count {
+    order: 2;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    color: var(--fg-soft);
+    font-variant-numeric: tabular-nums;
+}
 
 /* ── Accordion ──────────────────────────────────────────────────────────────
    Built on <details>/<summary>, which is the whole point: open and closed state,
@@ -5422,17 +5424,62 @@ dialog.drawer[open] { visibility: visible; transform: none; }
     border-top: 1px solid var(--border);
 }
 
-/* A grab handle at the top of a sheet. Decoration only — it is not a control, so it
-   is not focusable and carries no name. Dragging a sheet is a gesture the app
-   implements; the close button is what makes it dismissible for everyone else. */
+/* A grab handle at the top of a sheet.
+
+   Absolutely positioned INSIDE the header's own top padding rather than laid out
+   as a row above it. As a flex row it added its 4px plus an 8px margin to
+   everything below, which read as a separate lip stacked on a header that was
+   already 61px — two bands of chrome before the first word. Overlapping costs
+   nothing: the padding is empty space that exists anyway.
+
+   The sheet is `position: fixed`, in both its div and its dialog form, so it is
+   the containing block and no extra `position` is needed anywhere.
+
+   Decoration only — it is not focusable and carries no name, and the close button
+   is what makes a sheet dismissible for everyone. Dragging is an addition on top
+   of that, never the only way out. */
 .sheet-handle {
-    flex-shrink: 0;
+    position: absolute;
+    inset-block-start: var(--space-3);
+    inset-inline: 0;
     width: 36px;
     height: 4px;
-    margin: var(--space-4) auto 0;
+    margin-inline: auto;
     background: var(--border-strong);
     border-radius: var(--radius-pill);
 }
+/* A sheet without a header has nothing else to grab, and 36 × 4px is not a target.
+   The area is grown by a pseudo-element rather than by the box, so the handle stays
+   the same 4px band inside the header padding it has to fit in. */
+.sheet-handle::before {
+    content: '';
+    position: absolute;
+    inset: -10px -24px;
+}
+
+/* ── Drag to dismiss ────────────────────────────────────────────────────────
+   `data-sheet` on a `<dialog class="sheet">` opts into dragging it down to close —
+   the gesture the handle has always been drawn to promise. Opt-in for the same
+   reason `data-tabs` is: an app that drives its own gesture would otherwise have
+   two things closing the same dialog.
+
+   `touch-action: none` is what makes it work under a finger at all. Without it the
+   browser claims the vertical drag for scrolling before the first pointermove is
+   dispatched, and the sheet does not move. It is set only on the grips, so the body
+   below still scrolls.
+
+   `user-select: none` beside it, because a drag that starts on the title otherwise
+   sweeps a selection across the sheet as it goes. A grip is a grip; the text a reader
+   would want to copy is in the body.
+   ─────────────────────────────────────────────────────────────────────────── */
+dialog.sheet[data-sheet] > .sheet-handle,
+dialog.sheet[data-sheet] > .drawer-header { touch-action: none; user-select: none; }
+dialog.sheet[data-sheet] > .drawer-header { cursor: grab; }
+dialog.sheet[data-sheet].sheet--dragging > .drawer-header { cursor: grabbing; }
+/* The drag writes an inline transform each frame, so the transition has to be off
+   for the duration or every frame animates towards the last one and the sheet
+   lags the finger. */
+dialog.sheet.sheet--dragging { transition: none; }
 
 /* ── Tree ───────────────────────────────────────────────────────────────────
    Nested structure the reader expands — a group hierarchy, a folder of files, a
@@ -6038,6 +6085,297 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     color: var(--muted);
     font-size: var(--text-8);
 }
+}
+
+/* ── 69-timeline.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Timeline ───────────────────────────────────────────────────────────────
+   Things that happened, newest first or oldest first, with when. An audit trail, a
+   change history, a comment thread.
+
+   Differs from .steps in what it is for: steps have a fixed sequence with an end, a
+   timeline is an open-ended record. If the reader can be "on" one of them, it is
+   steps.
+
+   The rule runs down the markers as a border on the <li>, so it stops exactly at the
+   last entry rather than needing a length.
+
+     <ul class="timeline">
+       <li data-kind="go">
+         <span class="timeline-when">03:15</span>
+         <span class="timeline-what">Approved and written to the warehouse</span>
+       </li>
+     </ul>
+
+   ── The geometry is arithmetic, not constants ───────────────────────────────
+   Five numbers describe the whole component, and no offset below is typed:
+
+     --timeline-line       the connector's width
+     --timeline-dot        the plain marker's diameter
+     --timeline-marker     the icon tile's diameter
+     --timeline-lead       the height of the row a marker is centred in
+     --timeline-gap        the space under an entry
+
+   A marker sits on the connector at `(line + size) / -2` and in its row at
+   `(lead - size) / 2`, and the list is indented by `(size - line) / 2` so that the
+   marker starts at the list's own edge rather than outside it.
+
+   The inline offset is NOT `(line - size) / 2`, which is the shape it looks like it
+   should be. An absolutely positioned box is placed against its ancestor's PADDING
+   box, and the connector is that ancestor's border — outside it. The line's own width
+   therefore comes out of the offset a second time.
+
+   Both offsets were constants before, and both were wrong: the dot sat 2px right of
+   the line it hangs off, the tile 1px. The 2px is worth knowing about, because the
+   same trap is set for every pseudo-element in this stylesheet — `*` in
+   `06-base-elements.css` matches elements and NOT pseudo-elements, so the dot was
+   still `content-box`, its 2px ring was added to the 9px width instead of taken out
+   of it, and an offset computed against 9 missed by 2. The `box-sizing: border-box`
+   below is load-bearing.
+
+   The diameters are odd against a 1px line on purpose. An even one centres on a half
+   pixel, and a hairline circle straddling one antialiases into a smudge.
+
+   ── The surface behind a marker ─────────────────────────────────────────────
+   A marker is opaque, because the connector runs behind it — so it has to be the
+   colour of whatever the list is sitting on, and a marker that picks one surface is a
+   dark hole on every other. `--timeline-surface` is the page by default and the
+   card's own colour inside a card. Anywhere else the app sets it, and never restates
+   the rule:
+
+     <ul class="timeline" style="--timeline-surface: var(--surface-strong)">
+   ─────────────────────────────────────────────────────────────────────────── */
+.timeline {
+    --timeline-line: 1px;
+    --timeline-dot: 13px;
+    --timeline-marker: 27px;
+    --timeline-lead: 17px;
+    --timeline-gap: var(--space-7);
+    --timeline-surface: var(--bg);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.card .timeline { --timeline-surface: var(--card-bg); }
+
+/* The marker hangs half outside the <li>, so the list is indented by exactly that
+   much — otherwise a tile pokes through the card it is in. */
+.timeline > li {
+    position: relative;
+    margin-inline-start: calc((var(--timeline-dot) - var(--timeline-line)) / 2);
+    padding-block: 0 var(--timeline-gap);
+    padding-inline: var(--space-9) 0;
+    border-inline-start: var(--timeline-line) solid var(--border);
+}
+.timeline > li:last-child { border-inline-start-color: transparent; padding-block-end: 0; }
+.timeline > li::before {
+    content: '';
+    position: absolute;
+    /* Not tidiness — see the header. Without it the ring is added to the width and
+       every offset computed from `--timeline-dot` is short by 4px. */
+    box-sizing: border-box;
+    inset-inline-start: calc((var(--timeline-line) + var(--timeline-dot)) / -2);
+    top: calc((var(--timeline-lead) - var(--timeline-dot)) / 2);
+    width: var(--timeline-dot);
+    height: var(--timeline-dot);
+    background: var(--border-hover);
+    border: 2px solid var(--timeline-surface);
+    border-radius: 50%;
+}
+
+/* The timestamp's line box IS the row the marker centres in, so the two agree by
+   construction rather than by a number typed in both places. */
+.timeline-when {
+    display: block;
+    color: var(--muted);
+    font-size: var(--text-2);
+    line-height: var(--timeline-lead);
+    font-variant-numeric: tabular-nums;
+}
+.timeline-what { color: var(--fg-soft); font-size: var(--text-4); }
+
+.timeline > li[data-kind="go"]::before     { background: var(--go-solid); }
+.timeline > li[data-kind="warn"]::before   { background: var(--warn-solid); }
+.timeline > li[data-kind="danger"]::before { background: var(--danger-solid); }
+.timeline > li[data-kind="info"]::before   { background: var(--info-solid); }
+
+/* ── The entry that is still happening ──────────────────────────────────────
+   The head of a live record — a job still running, a reply still being drafted.
+   `data-state` rather than a modifier class for the reason `.steps` uses one: an
+   entry has exactly one state and an attribute cannot accidentally carry two.
+
+   A ring, not an animation. A record that pulses is a record nobody can read, and a
+   ring survives greyscale, forced colours and the colour-blind palette, where a
+   colour change on its own does not. */
+.timeline > li[data-state="current"]::before {
+    background: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-glow);
+}
+.timeline > li[data-state="current"] > .timeline-mark {
+    border-color: var(--brand);
+    color: var(--brand-text);
+    box-shadow: 0 0 0 3px var(--brand-glow);
+}
+.timeline > li[data-state="current"] > .timeline-what { color: var(--fg); font-weight: 500; }
+
+/* ── An entry with more than a line in it ───────────────────────────────────
+   The supporting block under the headline — the error a retry returned, the fields
+   that changed, the chips for what it touched. A class rather than "whatever else is
+   in the <li>", so an entry can hold a marker, a headline and a body without the
+   three having to be told apart by position. */
+.timeline-body {
+    margin-top: var(--space-4);
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+}
+.timeline-body > :first-child { margin-top: 0; }
+.timeline-body > :last-child { margin-bottom: 0; }
+
+/* ── A marker that is an icon ───────────────────────────────────────────────
+   The dot says "something happened here". Sometimes the marker IS the information —
+   a robot for "the agent worked it", a lock for "it needs a person", a tick for
+   "decided" — and a dot throws that away, while a number would imply the reader can
+   be "on" a step, which `.steps` reserves for wizards.
+
+   So a `.timeline-mark` child REPLACES the dot. The connector, and its stopping at
+   the last entry, are untouched: both live on the <li>, not on the marker.
+
+     <li data-kind="go">
+       <span class="timeline-mark"><i class="ri-check-line" aria-hidden="true"></i></span>
+       <span class="timeline-when">09:42</span>
+       <span class="timeline-what">Approved by Dennis</span>
+     </li>
+
+   The gutter is set by the LIST, not by the entry that has the tile. One marked entry
+   widens every row, which is the point: a record where only some entries carry an
+   icon otherwise steps its connector in and out at each one.
+
+   A `data-kind` FILLS the tile rather than tinting it, which is what `.steps` does
+   with a done marker and for the same two reasons: the --*-bg tints are translucent
+   and would let the connector show straight through, and a filled marker still reads
+   as itself in greyscale and under forced colours. */
+.timeline:has(.timeline-mark) {
+    --timeline-lead: var(--timeline-marker);
+}
+.timeline:has(.timeline-mark) > li {
+    margin-inline-start: calc((var(--timeline-marker) - var(--timeline-line)) / 2);
+    padding-inline-start: var(--space-10);
+}
+.timeline > li:has(> .timeline-mark)::before { content: none; }
+.timeline-mark {
+    position: absolute;
+    inset-inline-start: calc((var(--timeline-line) + var(--timeline-marker)) / -2);
+    top: calc((var(--timeline-lead) - var(--timeline-marker)) / 2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--timeline-marker);
+    height: var(--timeline-marker);
+    background: var(--timeline-surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--muted);
+    font-size: var(--text-4);
+}
+.timeline > li[data-kind="go"] > .timeline-mark {
+    background: var(--go-solid);
+    border-color: var(--go-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="warn"] > .timeline-mark {
+    background: var(--warn-solid);
+    border-color: var(--warn-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="danger"] > .timeline-mark {
+    background: var(--danger-solid);
+    border-color: var(--danger-solid);
+    color: var(--on-solid);
+}
+.timeline > li[data-kind="info"] > .timeline-mark {
+    background: var(--info-solid);
+    border-color: var(--info-solid);
+    color: var(--on-solid);
+}
+
+/* ── A marker that is a face ────────────────────────────────────────────────
+   In a comment thread the marker is who wrote it, and an avatar inside a bordered
+   tile reads as a face in a picture frame. `--bare` drops the tile's BORDER and hands
+   the avatar the marker's diameter, so the two cannot disagree about size.
+
+   It keeps the fill, and has to. `--brand-tint` and `--surface-strong` — what an
+   `.avatar` is painted in — are translucent, so an avatar over nothing is a window:
+   the connector runs straight through the face, and the tint is darkened by the line
+   behind it into a colour no token names. The disc underneath is exactly the avatar's
+   diameter and equally round, so it is invisible except for what it hides.
+
+   Do not put a `data-kind` on a bare entry. The fill would be painted over by
+   whatever is in the marker and only a coloured rim would survive. */
+.timeline-mark--bare { background: var(--timeline-surface); border: none; }
+.timeline-mark--bare .avatar { --avatar-size: var(--timeline-marker); }
+
+/* ── A break in the record ──────────────────────────────────────────────────
+   A day, a release, a shift — a caption the reader scans for while the connector runs
+   straight through it, unbroken.
+
+   It is an <li> in the same list rather than a heading between two lists, so the
+   record stays one list: the count announced is the number of rows on screen, and the
+   caption takes the entry's own margin and border without restating either. */
+.timeline-group {
+    padding-block: var(--space-7) var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.timeline > li.timeline-group::before { content: none; }
+.timeline > li.timeline-group:first-child { padding-block-start: 0; }
+
+/* ── The rest of the record ─────────────────────────────────────────────────
+   A record with no end needs a foot that says so. The hollow marker is the point: a
+   filled one reads as one more event, and this row is the absence of the ones not
+   drawn.
+
+   The outer shadow is the gap the ring would otherwise not have — the dot gets its
+   separation from the connector out of a border painted in the surface colour, and
+   this marker has spent that border on being hollow. */
+.timeline-more { color: var(--muted); font-size: var(--text-3); }
+.timeline > li.timeline-more::before {
+    background: var(--timeline-surface);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 2px var(--timeline-surface);
+}
+
+/* ── Timestamps in a gutter ─────────────────────────────────────────────────
+   `--aside` moves the "when" outside the line, right-aligned in a column of its own.
+   Reach for it when the reader scans by time — a shift log, a call record, a run
+   history — because a column of times can be read down and a time that merely starts
+   each entry cannot.
+
+   The clearance between the gutter and the marker is one expression written twice by
+   necessity: the list's padding makes the room, the timestamp's own margin sits in
+   it. It is measured off `--timeline-marker` rather than the dot so that a list gains
+   an icon without the gutter moving.
+
+   Not for a narrow column. The gutter costs horizontal space the entries then do not
+   have, and the entry text starts wrapping to three words a line. */
+.timeline--aside {
+    --timeline-aside: 68px;
+    --timeline-lead: 21px;
+    padding-inline-start: calc(var(--timeline-aside) + var(--timeline-marker) / 2 + var(--space-4));
+}
+.timeline--aside > li > .timeline-when {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 100%;
+    margin-inline-end: calc(var(--timeline-marker) / 2 + var(--space-4));
+    width: var(--timeline-aside);
+    text-align: end;
+}
+/* The headline is the entry's first line once the timestamp has left the flow, so it
+   is what the marker now has to line up with. */
+.timeline--aside > li > .timeline-what { display: block; line-height: var(--timeline-lead); }
 }
 
 /* ── 70-rtl.css → @layer sedna.paint ──────────────────────────────────────────────── */

@@ -163,17 +163,62 @@ dialog.drawer[open] { visibility: visible; transform: none; }
     border-top: 1px solid var(--border);
 }
 
-/* A grab handle at the top of a sheet. Decoration only — it is not a control, so it
-   is not focusable and carries no name. Dragging a sheet is a gesture the app
-   implements; the close button is what makes it dismissible for everyone else. */
+/* A grab handle at the top of a sheet.
+
+   Absolutely positioned INSIDE the header's own top padding rather than laid out
+   as a row above it. As a flex row it added its 4px plus an 8px margin to
+   everything below, which read as a separate lip stacked on a header that was
+   already 61px — two bands of chrome before the first word. Overlapping costs
+   nothing: the padding is empty space that exists anyway.
+
+   The sheet is `position: fixed`, in both its div and its dialog form, so it is
+   the containing block and no extra `position` is needed anywhere.
+
+   Decoration only — it is not focusable and carries no name, and the close button
+   is what makes a sheet dismissible for everyone. Dragging is an addition on top
+   of that, never the only way out. */
 .sheet-handle {
-    flex-shrink: 0;
+    position: absolute;
+    inset-block-start: var(--space-3);
+    inset-inline: 0;
     width: 36px;
     height: 4px;
-    margin: var(--space-4) auto 0;
+    margin-inline: auto;
     background: var(--border-strong);
     border-radius: var(--radius-pill);
 }
+/* A sheet without a header has nothing else to grab, and 36 × 4px is not a target.
+   The area is grown by a pseudo-element rather than by the box, so the handle stays
+   the same 4px band inside the header padding it has to fit in. */
+.sheet-handle::before {
+    content: '';
+    position: absolute;
+    inset: -10px -24px;
+}
+
+/* ── Drag to dismiss ────────────────────────────────────────────────────────
+   `data-sheet` on a `<dialog class="sheet">` opts into dragging it down to close —
+   the gesture the handle has always been drawn to promise. Opt-in for the same
+   reason `data-tabs` is: an app that drives its own gesture would otherwise have
+   two things closing the same dialog.
+
+   `touch-action: none` is what makes it work under a finger at all. Without it the
+   browser claims the vertical drag for scrolling before the first pointermove is
+   dispatched, and the sheet does not move. It is set only on the grips, so the body
+   below still scrolls.
+
+   `user-select: none` beside it, because a drag that starts on the title otherwise
+   sweeps a selection across the sheet as it goes. A grip is a grip; the text a reader
+   would want to copy is in the body.
+   ─────────────────────────────────────────────────────────────────────────── */
+dialog.sheet[data-sheet] > .sheet-handle,
+dialog.sheet[data-sheet] > .drawer-header { touch-action: none; user-select: none; }
+dialog.sheet[data-sheet] > .drawer-header { cursor: grab; }
+dialog.sheet[data-sheet].sheet--dragging > .drawer-header { cursor: grabbing; }
+/* The drag writes an inline transform each frame, so the transition has to be off
+   for the duration or every frame animates towards the last one and the sheet
+   lags the finger. */
+dialog.sheet.sheet--dragging { transition: none; }
 
 /* ── Tree ───────────────────────────────────────────────────────────────────
    Nested structure the reader expands — a group hierarchy, a folder of files, a

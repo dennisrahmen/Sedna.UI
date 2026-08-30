@@ -59,7 +59,19 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    The connector is the <li>'s own ::after, so the last step has none without a
    modifier. Colour alone does not say which steps are done: the done marker shows a
    tick, not just a fill. */
-.steps { list-style: none; margin: 0 0 var(--space-7); padding: 0; display: flex; counter-reset: sedna-step; }
+.steps {
+    /* One number for the marker's diameter, because the connector's own offset is
+       half of it. Typed separately they disagreed: the marker rendered 28px across
+       and the connector sat at 13px, because `* { box-sizing: border-box }` in the
+       base layer does not reach a pseudo-element and the 1px ring was added to the
+       26px width rather than taken out of it. */
+    --step-marker: 28px;
+    list-style: none;
+    margin: 0 0 var(--space-7);
+    padding: 0;
+    display: flex;
+    counter-reset: sedna-step;
+}
 .steps > li {
     position: relative;
     flex: 1;
@@ -75,11 +87,12 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 }
 .steps > li::before {
     content: counter(sedna-step);
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 26px;
-    height: 26px;
+    width: var(--step-marker);
+    height: var(--step-marker);
     border: 1px solid var(--border-strong);
     border-radius: 50%;
     background: var(--bg);
@@ -93,7 +106,7 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 .steps > li:not(:last-child)::after {
     content: '';
     position: absolute;
-    top: 13px;
+    top: calc(var(--step-marker) / 2);
     inset-inline-start: 50%;
     width: 100%;
     border-top: 1px solid var(--border);
@@ -115,99 +128,6 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     box-shadow: 0 0 0 3px var(--brand-glow);
 }
 
-/* ── Timeline ───────────────────────────────────────────────────────────────
-   Things that happened, newest first or oldest first, with when. An audit trail, a
-   change history, a comment thread.
-
-   Differs from .steps in what it is for: steps have a fixed sequence with an end,
-   a timeline is an open-ended record. If the reader can be "on" one of them, it is
-   steps.
-
-   The rule runs down the markers as a border on the <li>, so it stops exactly at
-   the last entry rather than needing a length. */
-.timeline { list-style: none; margin: 0; padding: 0; }
-.timeline > li {
-    position: relative;
-    padding: 0 0 var(--space-7) var(--space-9);
-    border-inline-start: 1px solid var(--border);
-    margin-inline-start: var(--space-2);
-}
-.timeline > li:last-child { border-inline-start-color: transparent; padding-bottom: 0; }
-.timeline > li::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: -5px;
-    top: 4px;
-    width: 9px;
-    height: 9px;
-    background: var(--border-hover);
-    border: 2px solid var(--bg);
-    border-radius: 50%;
-}
-.timeline-when { display: block; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
-.timeline-what { color: var(--fg-soft); font-size: var(--text-4); }
-.timeline > li[data-kind="go"]::before     { background: var(--go-solid); }
-.timeline > li[data-kind="warn"]::before   { background: var(--warn-solid); }
-.timeline > li[data-kind="danger"]::before { background: var(--danger-solid); }
-
-/* ── A marker that is an icon ───────────────────────────────────────────────
-   The dot says "something happened here". Sometimes the marker IS the
-   information — a robot for "the agent worked it", a lock for "it needs a
-   person", a tick for "decided" — and a dot throws that away while a number
-   would imply the reader can be "on" a step, which `.steps` reserves for
-   wizards.
-
-   So a `.timeline-mark` child REPLACES the dot when it is present. The
-   connector, and its stopping at the last entry, are untouched: both live on
-   the <li>, not on the marker.
-
-     <li data-kind="go">
-       <span class="timeline-mark"><i class="ri-check-line"></i></span>
-       <span class="timeline-when">09:42</span>
-       <span class="timeline-what">Approved by Dennis</span>
-     </li>
-
-   A `data-kind` FILLS the tile rather than tinting it, which is what `.steps`
-   does with a done marker and for the same two reasons: the --*-bg tints are
-   translucent, and a translucent marker lets the connector line show straight
-   through it; and a filled marker still reads as itself in greyscale and under
-   forced colours, where a tint does not. */
-.timeline > li:has(> .timeline-mark)::before { content: none; }
-.timeline-mark {
-    position: absolute;
-    /* Half the tile, minus the border it straddles — the same centring the dot
-       gets from -5px against its own 9px. */
-    inset-inline-start: -13px;
-    top: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    color: var(--muted);
-    font-size: var(--text-4);
-}
-/* The <li> gets the room the tile needs, only where there is one. */
-.timeline > li:has(> .timeline-mark) { padding-inline-start: var(--space-10); }
-.timeline > li[data-kind="go"] > .timeline-mark {
-    background: var(--go-solid);
-    border-color: var(--go-solid);
-    color: var(--on-solid);
-}
-.timeline > li[data-kind="warn"] > .timeline-mark {
-    background: var(--warn-solid);
-    border-color: var(--warn-solid);
-    color: var(--on-solid);
-}
-.timeline > li[data-kind="danger"] > .timeline-mark {
-    background: var(--danger-solid);
-    border-color: var(--danger-solid);
-    color: var(--on-solid);
-}
-
 /* ── Stacking group headers ─────────────────────────────────────────────────
    A grouped list in a scroll container where each group's header pins BELOW the
    one above it instead of replacing it, so the reader keeps the whole path to
@@ -226,10 +146,23 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    one above by 1px — without it a sub-pixel sliver of a scrolling row shows
    between two stacked headers on a fractional device pixel ratio.
 
-   z-index 1 is local stacking inside the list, not a rung on the scale. */
+   z-index 1 is local stacking inside the list, not a rung on the scale.
+
+   BECAUSE the background is opaque it has to be the colour of the surface the
+   list is pinned over, and a header that picks one surface is a lighter box
+   floating on every other one. So it is `--group-head-bg`, defaulting to the
+   page and switching to the card's own colour inside a card. On any other
+   surface the app sets the variable — it never restates the rule:
+
+     <ul class="list" style="--group-head-bg: var(--surface-strong)">
+
+   `--group-head-fg` and `--group-head-height` are the same escape hatch for the
+   label colour and the pinned height. */
 .sticky-group-head {
     --group-head-index: 0;
     --group-head-height: 32px;
+    --group-head-bg: var(--bg);
+    --group-head-fg: var(--muted);
     position: sticky;
     top: calc(var(--group-head-index) * (var(--group-head-height) - 1px));
     z-index: 1;
@@ -239,17 +172,45 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     flex-shrink: 0;
     height: var(--group-head-height);
     padding: 0 var(--space-6);
-    background: var(--bg-elevated);
+    background: var(--group-head-bg);
     border-bottom: 1px solid var(--border);
-    color: var(--muted);
+    color: var(--group-head-fg);
     font-size: var(--text-2);
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
+.card .sticky-group-head { --group-head-bg: var(--card-bg); }
 /* Inside a card the header meets the card's edges, like `.list-row` does. */
 .card > .list > .sticky-group-head,
 .card > .sticky-group-head { padding-inline: var(--space-7); }
+
+/* `--rule` trades the full-width bottom border for a hairline running from the
+   label to the end of the row. Same pinning, but the header reads as a caption
+   over the rows rather than a bar across them — which is what a list wants
+   where the groups are a state the reader scans past, not a section they land
+   in.
+
+   The rule is the header's own ::after, so the markup stays a label and, where
+   there is one, a count. Ordering is why the count needs a class at all: a
+   pseudo-element is always the last child, and `order` is what puts the rule
+   between the two. */
+.sticky-group-head--rule { border-bottom: none; }
+.sticky-group-head--rule::after {
+    content: '';
+    order: 1;
+    flex: 1;
+    border-top: 1px solid var(--border);
+}
+/* Auto margin for the plain header, absorbed by the rule's flex where there is
+   one, so the count sits at the end either way. */
+.sticky-group-count {
+    order: 2;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    color: var(--fg-soft);
+    font-variant-numeric: tabular-nums;
+}
 
 /* ── Accordion ──────────────────────────────────────────────────────────────
    Built on <details>/<summary>, which is the whole point: open and closed state,

@@ -6,13 +6,25 @@
 # not have gets a page that renders unstyled, with no error anywhere — so every
 # class and token the MCP server returns carries the release it first appeared in.
 #
-#     build/class-history.sh            regenerate the data file
-#     build/class-history.sh --check    fail if it is out of date (CI-friendly)
+#     build/class-history.sh              regenerate the data file
+#     build/class-history.sh --check      fail if it is out of date (CI-friendly)
+#     build/class-history.sh --stamp X.Y.Z    date the unreleased entries ahead of the tag
 #
 # `null` means "in the working tree, in no release yet". That is the signal the
-# server actually needs, and it is correct without regenerating after a tag —
-# only *complete* after one. Cutting a release is therefore followed by running
-# this and committing; see docs/releasing.md.
+# server actually needs.
+#
+# --stamp IS WHAT KEEPS THIS OFF THE POST-RELEASE TODO LIST. A tag turns every
+# `null` into that tag's version and moves `latestRelease` onto it, and nothing
+# else — a rewrite that is entirely determined the moment the version is decided,
+# and therefore one that does not have to wait for the tag to exist. So it is
+# done in the release PR instead:
+#
+#     build/class-history.sh --stamp 0.5.0    # then commit, merge, and tag that commit
+#
+# The tag then produces exactly the file that is already committed, so --check
+# passes on main from the first run after the release and there is no follow-up
+# commit to forget. --check accepts a stamped file for a version that sorts after
+# the newest tag and has no tag of its own — one release ahead, and only one.
 #
 # Deliberately NOT written under src/Sedna.UI/wwwroot/, where it would ship
 # inside the package. It is the catalogue app's data.
@@ -54,7 +66,22 @@ examples="src/Sedna.UI.Catalogue/Examples"
 out="$root/src/Sedna.UI.Catalogue/Data/class-history.json"
 
 check=0
-[[ "${1:-}" == "--check" ]] && check=1
+stamp=""
+case "${1:-}" in
+    "") ;;
+    --check) check=1 ;;
+    --stamp)
+        stamp="${2:-}"
+        if [[ ! "$stamp" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::--stamp needs the version about to be tagged, e.g. --stamp 0.5.0" >&2
+            exit 1
+        fi
+        ;;
+    *)
+        echo "::error::Unknown argument '$1'. Usage: class-history.sh [--check | --stamp X.Y.Z]" >&2
+        exit 1
+        ;;
+esac
 
 # Version order, not tag order: v0.10.0 sorts after v0.9.0 only under -V.
 mapfile -t tags < <(git -C "$root" tag -l 'v*' | sort -V)
@@ -262,14 +289,53 @@ latest="${tags[-1]#v}"
     printf '}\n'
 } >"$tmp/class-history.json"
 
-if [[ $check -eq 1 ]]; then
-    if [[ ! -f "$out" ]] || ! cmp -s "$tmp/class-history.json" "$out"; then
-        echo "::error::class-history.json is out of date. Run build/class-history.sh."
-        diff -u "$out" "$tmp/class-history.json" 2>/dev/null | head -40 || true
+# What tagging a release does to this file, and nothing else: every null becomes
+# that version, and latestRelease moves onto it. `null` is only ever a whole value
+# at the end of a line, so it cannot be hit inside the $comment string above.
+stamp_json() {
+    sed -e "s/^  \"latestRelease\": \".*\",$/  \"latestRelease\": \"$1\",/" \
+        -e "s/: null\(,\{0,1\}\)$/: \"$1\"\1/" "$2"
+}
+
+# A version that sorts after the newest tag and has no tag of its own — the one
+# release a file may legitimately be stamped for while its tag does not exist yet.
+is_pending() {
+    [[ -n "$1" && "$1" != "$latest" ]] || return 1
+    [[ -z "$(git -C "$root" tag -l "v$1")" ]] || return 1
+    [[ "$(printf '%s\n%s\n' "$latest" "$1" | sort -V | tail -1)" == "$1" ]]
+}
+
+if [[ -n "$stamp" ]]; then
+    if ! is_pending "$stamp"; then
+        echo "::error::$stamp is not a pending release. The newest tag is v$latest, and --stamp" >&2
+        echo "        takes the version about to be tagged — one that sorts after it and has no tag." >&2
         exit 1
     fi
-    echo "ok      class history is up to date (latest release $latest)"
+    mkdir -p "$(dirname "$out")"
+    stamp_json "$stamp" "$tmp/class-history.json" >"$out"
+    echo "wrote   class-history.json stamped for $stamp (tag v$stamp next)"
     exit 0
+fi
+
+if [[ $check -eq 1 ]]; then
+    if [[ -f "$out" ]] && cmp -s "$tmp/class-history.json" "$out"; then
+        echo "ok      class history is up to date (latest release $latest)"
+        exit 0
+    fi
+
+    # A release PR stamps the file for the version it is about to tag, so on that
+    # branch the file is legitimately one release ahead of what the tags can prove.
+    # Accepted only when it is EXACTLY the stamped rendering of this same run: a
+    # stamp is a rewrite with no freedom in it, so nothing else can hide inside one.
+    pending="$(sed -n 's/^  "latestRelease": "\(.*\)",$/\1/p' "$out" 2>/dev/null || true)"
+    if is_pending "$pending" && stamp_json "$pending" "$tmp/class-history.json" | cmp -s - "$out"; then
+        echo "ok      class history is stamped for $pending, which has no tag yet"
+        exit 0
+    fi
+
+    echo "::error::class-history.json is out of date. Run build/class-history.sh."
+    diff -u "$out" "$tmp/class-history.json" 2>/dev/null | head -40 || true
+    exit 1
 fi
 
 mkdir -p "$(dirname "$out")"
