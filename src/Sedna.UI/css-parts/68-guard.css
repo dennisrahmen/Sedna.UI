@@ -53,6 +53,7 @@
     gap: var(--space-6);
     max-width: 280px;
     padding: var(--space-8);
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);

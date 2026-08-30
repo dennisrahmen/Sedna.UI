@@ -58,8 +58,8 @@
         Cap the body with <code>max-height</code> and <code>overflow-y:auto</code>, then add
         <code>.sedna-scroll</code> to theme the scrollbar and add the fading scroll edges.
         <code>.sedna-scroll</code> styles a scroll container; it does not create one. Inside a
-        <code>.modal</code> the library already re-points <code>--scroll-bg</code> at the elevated
-        surface, so the fade matches the panel instead of showing as a dark band.
+        <code>.modal</code> the fade matches the panel instead of showing as a dark band, because
+        <code>--scroll-bg</code> reads <code>--surface-here</code> and the modal declares it.
     </p>
 </CatExample>
 

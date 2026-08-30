@@ -29,6 +29,11 @@ internal sealed record Meta(
 /// Results are still returned when they are too new. Filtering them out silently
 /// would hide that an upgrade is the fix, which is usually the right answer.
 /// </para>
+/// <para>
+/// Usually, not always: something with no <c>since</c> at all is in no release, so
+/// there is nothing to upgrade to and "upgrade Sedna.UI" is advice the caller
+/// cannot take. The warning says the two separately for that reason.
+/// </para>
 /// </remarks>
 internal sealed class VersionEnvelope
 {
@@ -198,25 +203,48 @@ internal sealed class VersionEnvelope
 
         if (installedVersion is not null && items is not null)
         {
-            var missing = items
+            // Two different answers, and conflating them sends the caller nowhere.
+            // "Not in your version" has an upgrade behind it. "In no release" does
+            // not — nothing published ships it, so telling that caller to upgrade is
+            // advice they cannot take.
+            var named = items
                 .Where(i => i.Since is null || Compare(i.Since, installedVersion) > 0)
-                .Select(i => i.Name)
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(n => n, StringComparer.Ordinal)
+                .GroupBy(i => i.Name, StringComparer.Ordinal)
+                .Select(g => (Name: g.Key, Unreleased: g.All(i => i.Since is null)))
+                .OrderBy(i => i.Name, StringComparer.Ordinal)
                 .ToList();
 
-            if (missing.Count > 0)
+            var newer = named.Where(i => !i.Unreleased).Select(i => i.Name).ToList();
+            var unreleased = named.Where(i => i.Unreleased).Select(i => i.Name).ToList();
+
+            var parts = new List<string>(2);
+
+            if (newer.Count > 0)
             {
-                warning =
-                    $"{missing.Count} of these are not in {installedVersion}: "
-                    + string.Join(", ", missing.Take(12))
-                    + (missing.Count > 12 ? ", …" : string.Empty)
-                    + ". Upgrade Sedna.UI, or use something else.";
+                parts.Add(
+                    $"{newer.Count} of these are not in {installedVersion}: "
+                    + Name(newer)
+                    + ". Upgrade Sedna.UI, or use something else.");
             }
+
+            if (unreleased.Count > 0)
+            {
+                parts.Add(
+                    $"{unreleased.Count} of these are in no release at all — no "
+                    + "published version ships them: "
+                    + Name(unreleased)
+                    + ". There is nothing to upgrade to; use something else until they ship.");
+            }
+
+            if (parts.Count > 0) warning = string.Join(" ", parts);
         }
 
         return new Meta("main", Commit, BuiltUtc, LatestRelease, installedVersion, warning);
     }
+
+    /// <summary>Names the first twelve and says there are more.</summary>
+    private static string Name(IReadOnlyList<string> names) =>
+        string.Join(", ", names.Take(12)) + (names.Count > 12 ? ", …" : string.Empty);
 
     /// <summary>Compares two SemVer-ish versions numerically, not as text.</summary>
     /// <remarks><c>0.10.0</c> is newer than <c>0.9.0</c>; a string compare says otherwise.</remarks>

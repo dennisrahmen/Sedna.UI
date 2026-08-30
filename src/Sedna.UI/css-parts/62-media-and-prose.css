@@ -54,8 +54,22 @@
    typographic voices in one app is worse than one shared rule set.
 
    The measure is capped at 72 characters. Beyond about that the eye loses the line
-   it is returning to, which no amount of line-height fixes. */
-.prose { color: var(--fg-soft); font-size: var(--text-5); line-height: 1.65; max-width: 72ch; }
+   it is returning to, which no amount of line-height fixes.
+
+   The cap sits on the same element as any border and background the page gives
+   `.prose`, so where the prose IS a panel the cap shrinks the PANEL rather than
+   the text. `--prose-measure` is the way out — set it on the box, and either
+   widen the measure or hand the job to an inner wrapper:
+
+     <div class="card-body prose" style="--prose-measure: none">
+   ─────────────────────────────────────────────────────────────────────────── */
+.prose {
+    --prose-measure: 72ch;
+    color: var(--fg-soft);
+    font-size: var(--text-5);
+    line-height: 1.65;
+    max-width: var(--prose-measure);
+}
 .prose > :first-child { margin-top: 0; }
 .prose > :last-child { margin-bottom: 0; }
 .prose h1, .prose h2, .prose h3, .prose h4 { color: var(--fg); line-height: 1.3; margin: 1.4em 0 0.4em; }

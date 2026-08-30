@@ -5,6 +5,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
     overflow: hidden;
+    --surface-here: var(--card-bg);
     background: var(--card-bg);
 }
 .md-toolbar {

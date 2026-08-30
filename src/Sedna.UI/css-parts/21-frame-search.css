@@ -97,7 +97,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
-    --scroll-bg: var(--card-bg);
+    --surface-here: var(--card-bg);
 }
 
 /* Searching, and nothing found. Both are a line of muted text rather than an

@@ -35,6 +35,13 @@
         <code>display:block; overflow-x:auto</code>, because its own content sets its minimum width
         and it is the one thing that will otherwise break the page.
     </p>
+    <p>
+        <strong>The cap sits on the element carrying the class</strong>, so where the prose
+        <em>is</em> a panel &mdash; <code>class="card-body prose"</code> &mdash; it caps the panel
+        and not the text. <code>--prose-measure</code> is the way out: set
+        <code>--prose-measure: none</code> on the box and put the class on an inner wrapper, or
+        widen the measure where the layout wants a wider column.
+    </p>
 </CatExample>
 
 <CatExample TExample="Examples.Media.ForeignProse" Title="HTML from somewhere else" Demo="ex-demo--block">

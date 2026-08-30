@@ -150,9 +150,11 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 
    BECAUSE the background is opaque it has to be the colour of the surface the
    list is pinned over, and a header that picks one surface is a lighter box
-   floating on every other one. So it is `--group-head-bg`, defaulting to the
-   page and switching to the card's own colour inside a card. On any other
-   surface the app sets the variable — it never restates the rule:
+   floating on every other one. So it is `--group-head-bg`, which reads
+   `--surface-here` — the colour every library surface declares for its own
+   contents — and falls back to the page. A list in a card, a modal, a drawer or
+   a popover is therefore right with no help. Only on a surface the app itself
+   paints does the app name it, and it never restates the rule:
 
      <ul class="list" style="--group-head-bg: var(--surface-strong)">
 
@@ -161,7 +163,7 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 .sticky-group-head {
     --group-head-index: 0;
     --group-head-height: 32px;
-    --group-head-bg: var(--bg);
+    --group-head-bg: var(--surface-here, var(--bg));
     --group-head-fg: var(--muted);
     position: sticky;
     top: calc(var(--group-head-index) * (var(--group-head-height) - 1px));
@@ -180,7 +182,6 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
-.card .sticky-group-head { --group-head-bg: var(--card-bg); }
 /* Inside a card the header meets the card's edges, like `.list-row` does. */
 .card > .list > .sticky-group-head,
 .card > .sticky-group-head { padding-inline: var(--space-7); }

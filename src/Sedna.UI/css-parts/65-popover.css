@@ -47,6 +47,7 @@
     width: max-content;
     max-width: min(320px, calc(100vw - 32px));
     padding: var(--space-6) var(--space-7);
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);

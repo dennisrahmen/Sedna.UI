@@ -6,6 +6,7 @@
     display: flex;
     align-items: stretch;
     height: 44px;
+    --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;

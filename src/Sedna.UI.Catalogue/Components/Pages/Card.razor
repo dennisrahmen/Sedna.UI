@@ -11,6 +11,21 @@
         component and no variant parameter.
     </div>
 
+<div class="cat-note">
+    <i class="ri-stack-line"></i>
+    <span>
+        <strong>A card declares <code>--surface-here</code>, and so does every other surface the
+        library paints</strong> — the modal, the drawer and sheet, the menu, the popover, the
+        toast, the command palette, the topbar and the sidebar. It carries one fact: the colour
+        of the thing this content is sitting on. Anything that has to be opaque reads it and is
+        right without naming a surface — a timeline marker
+        (<code>--timeline-surface</code>), a pinned group header
+        (<code>--group-head-bg</code>), the fade at a scroll edge (<code>--scroll-bg</code>).
+        On a surface <em>your</em> app paints, declare it once on that element and everything
+        inside follows.
+    </span>
+</div>
+
 <CatExample TExample="Examples.Card.HeadBody" Title="Head and body" Demo="ex-demo--block">
     <p>
         <code>.card-head</code> is <code>space-between</code>, so the first child goes left and

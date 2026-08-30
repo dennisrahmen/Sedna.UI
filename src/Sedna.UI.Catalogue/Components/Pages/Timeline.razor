@@ -72,8 +72,10 @@
         This one is in a card, and its markers pick up the card's colour with no markup saying so.
         <strong>A marker is opaque, because the connector runs behind it</strong> — so it has to be
         the colour of whatever the list sits on, or it is a dark hole punched in the surface.
-        <code>--timeline-surface</code> is the page by default and the card's own colour inside a
-        card; anywhere else, set it on the list rather than restating the rule.
+        <code>--timeline-surface</code> reads <code>--surface-here</code>, which every surface
+        the library paints declares once — a card, a modal, a drawer, a menu, a popover, a toast —
+        and falls back to the page. On a surface <em>your</em> app paints, set it on the list
+        rather than restating the rule.
     </p>
 </CatExample>
 
