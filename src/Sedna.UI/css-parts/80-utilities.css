@@ -134,8 +134,28 @@
 .sedna-divider-bottom { border-bottom: 1px solid var(--divider); }
 
 /* A scroll container on the inline axis — a table too wide for its column, a row of
-   cards. `.sedna-scroll` styles a scroller; this one creates it. */
+   cards. */
 .sedna-scroll-x { overflow-x: auto; }
+
+/* And the block axis. `.sedna-scroll` supplied the scrollbar and the edge fade (in
+   16-frame-page-scroll.css) but neither of the two declarations that make it a
+   scroller at all, so every use of it was the class plus
+   `style="max-height:22rem; overflow-y:auto"` — a number in the markup because a
+   consuming app may not declare a rule for a library class.
+
+   `--scroll-max` defaults to `none`, so adding these changes nothing for markup that
+   already states its own max-height inline: an inline style beats every rule here.
+   The three steps are the sizes a scroller is actually asked for — a short list, a
+   panel, most of a page — and `--scroll-max` covers the rest, including `70vh` and
+   friends, which are viewport-relative and cannot be a step. */
+.sedna-scroll {
+    --scroll-max: none;
+    max-height: var(--scroll-max);
+    overflow-y: auto;
+}
+.sedna-scroll--sm { --scroll-max: 12rem; }
+.sedna-scroll--md { --scroll-max: 20rem; }
+.sedna-scroll--lg { --scroll-max: 32rem; }
 
 /* ── State ──────────────────────────────────────────────────────────────────
    Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also

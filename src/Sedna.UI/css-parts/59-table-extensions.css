@@ -107,6 +107,156 @@
     box-shadow: inset 3px 0 0 var(--brand);
 }
 
+/* ── Pinned columns ─────────────────────────────────────────────────────────
+   `.table--sticky` pins the header for a reader scrolling DOWN. This is the same
+   problem on the other axis: a table too wide for its column scrolls sideways in
+   a `.sedna-scroll-x`, and a few columns in the reader can no longer tell which
+   record a row belongs to. `--pin-start` holds the identifying column still;
+   `--pin-end` holds the last one, which is where the row's actions are.
+
+   Three things beyond `position: sticky`, each of which fails silently on its own:
+
+     1. `border-collapse: separate`. A collapsed table's borders belong to the
+        table, so a sticky cell does not stick at all in Chromium. Same reason
+        `.table--sticky` sets it.
+     2. An OPAQUE background. A transparent sticky cell shows the columns sliding
+        underneath it — `10020266` followed by the `.com` of an e-mail four columns
+        away, reading as one value. Two layers are needed, because every state a
+        row can be in paints a TRANSLUCENT tint: `--pin-bg` is the opaque surface
+        underneath (`--surface-here`, the colour every library surface declares for
+        its own children), and `--pin-tint` is the row's own state, inherited from
+        the <tr> and laid over the base as a gradient. Each tint rule below mirrors
+        one background rule above it, selector for selector, so the two cannot
+        disagree about which state wins.
+     3. The edge. `--shadow-edge-start` / `--shadow-edge-end` are the token pair for
+        a horizontally scrolled edge; 70-rtl.css swaps which one is used, because
+        box-shadow has no logical form.
+
+   z-index stays local to the table — 0, 1 and 2, the local-stacking band rather
+   than a rung of the overlay scale, and a sticky pinned table is what makes that
+   band three wide. Each level is load-bearing:
+
+     · 0  the pinned body cells, above the static cells they slide across.
+     · 1  `.table--sticky`'s header row, above those — unchanged, so nothing about
+          an existing sticky table moves.
+     · 2  the corner cell, which is sticky on BOTH axes. It has to beat the other
+          header cells as well as the column beneath it, and it is first in DOM
+          order, so at an equal z-index every other header cell paints over it — the
+          symptom being a header cell sliding across the pinned identity column.
+
+   A cell with `colspan` is never the pinned column — a detail row's body cell
+   spans the table — so it is excluded rather than dragged sideways.
+
+   Not for `.table--stack`: below 640px the rows become blocks and there is no
+   sideways scroll to pin against. */
+.table--pin-start,
+.table--pin-end { border-collapse: separate; border-spacing: 0; --pin-bg: var(--surface-here, var(--bg)); }
+.table--pin-start { --pin-shadow: var(--shadow-edge-start); }
+.table--pin-end   { --pin-shadow: var(--shadow-edge-end); }
+
+.table--pin-start tbody tr > td:first-child:not([colspan]),
+.table--pin-start tfoot tr > td:first-child:not([colspan]) {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 0;
+    background-color: var(--pin-bg);
+    background-image: linear-gradient(var(--pin-tint, transparent), var(--pin-tint, transparent));
+    box-shadow: var(--pin-shadow);
+}
+.table--pin-end tbody tr > td:last-child:not([colspan]),
+.table--pin-end tfoot tr > td:last-child:not([colspan]) {
+    position: sticky;
+    inset-inline-end: 0;
+    z-index: 0;
+    background-color: var(--pin-bg);
+    background-image: linear-gradient(var(--pin-tint, transparent), var(--pin-tint, transparent));
+    box-shadow: var(--pin-shadow);
+}
+/* The header cell of a pinned column, sticky on the inline axis whether or not the
+   header is also sticky vertically. It carries the head tint over the same opaque
+   base as the body cells. */
+.table--pin-start thead th:first-child:not([colspan]) {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 2;
+    background-color: var(--pin-bg);
+    background-image: linear-gradient(var(--table-head-bg), var(--table-head-bg));
+    box-shadow: var(--pin-shadow);
+}
+.table--pin-end thead th:last-child:not([colspan]) {
+    position: sticky;
+    inset-inline-end: 0;
+    z-index: 2;
+    background-color: var(--pin-bg);
+    background-image: linear-gradient(var(--table-head-bg), var(--table-head-bg));
+    box-shadow: var(--pin-shadow);
+}
+/* The corner cell. A sticky header is opaque `--bg-elevated` rather than tinted, so
+   the corner matches the rest of the header row instead of being the one cell in it
+   with a different surface — and it keeps the header's bottom hairline, which is a
+   box-shadow here and would otherwise be replaced by the edge shadow. */
+.table--sticky.table--pin-start thead th:first-child:not([colspan]),
+.table--sticky.table--pin-end thead th:last-child:not([colspan]) {
+    background-color: var(--bg-elevated);
+    background-image: none;
+    box-shadow: inset 0 -1px 0 var(--border), var(--pin-shadow);
+}
+
+/* The row states, mirroring the background rules above one for one. Set on the
+   <tr> so a custom property carries them into the pinned cell by inheritance;
+   ordering between them is the ordering the `> td` rules already have. */
+.table--zebra tbody tr:nth-child(even) { --pin-tint: var(--surface-soft); }
+.table tbody tr[aria-selected="true"] { --pin-tint: var(--brand-tint); }
+.tr-clickable:hover { --pin-tint: var(--bg-hover); }
+.table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
+.table tfoot tr { --pin-tint: var(--surface-soft); }
+/* The selection marker is an inset shadow, and the pinned cell's box-shadow would
+   replace it — on the very column where it is most visible. Both, in one list. */
+.table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
+    box-shadow: inset 3px 0 0 var(--brand), var(--pin-shadow);
+}
+
+/* ── Column width ───────────────────────────────────────────────────────────
+   `.table` leaves column widths to the browser, which is right nearly always. It
+   goes wrong when the cells in one row are not all short values, because the
+   browser gives an unbounded column the room it asks for and squeezes the rest to
+   their padding. Three shapes cover it, each with its own knob:
+
+     · `.col-control` — a cell holding an <input> or a <select>. Squeezed to its
+       padding a select renders as a caret and two clipped characters, so the
+       column has a floor sized from the longest value the control can hold, and
+       the control fills the column so the two agree on an edge. A legible table
+       with unusable controls in it is the failure this avoids.
+     · `.col-prose` — a sentence, a description, a distinguished name. Gives way
+       instead of taking the table, and breaks inside a word because an identifier
+       has nowhere else to break.
+     · `.col-fit` — the opposite: an icon, a status dot, a row of buttons. Takes the
+       width of its content and no more. `width: 1%` is the idiom — a table at
+       `width: 100%` distributes the slack to the columns that asked for room, so a
+       column asking for almost none keeps almost none.
+
+   Put the class on the th AND the td, the way `.col-num` is used. Each is scoped
+   to `.table` for the reason `.col-num` is: a bare single-purpose class is (0,1,0)
+   and `.table th, .table td` is (0,1,1), so the bare form would lose its padding
+   and width to the cell rule, silently. */
+.table .col-control {
+    --col-control-min: 14rem;
+    --col-control-max: none;
+    min-width: var(--col-control-min);
+    max-width: var(--col-control-max);
+}
+.table .col-control > .form-input,
+.table .col-control > .form-select { width: 100%; }
+.table .col-prose {
+    --col-prose-min: 12rem;
+    --col-prose-max: 30rem;
+    min-width: var(--col-prose-min);
+    max-width: var(--col-prose-max);
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.table .col-fit { width: 1%; white-space: nowrap; }
+
 /* ── Expandable and nested rows ─────────────────────────────────────────────
    The detail row is a real <tr> after its parent, so it moves with it when the
    table is sorted and is read after it. Its cell spans every column.

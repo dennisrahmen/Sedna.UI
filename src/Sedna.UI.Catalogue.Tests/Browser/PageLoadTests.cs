@@ -132,6 +132,22 @@ public class PageLoadTests(CatalogueAppFixture app)
 
                     if (style.position !== 'absolute' && style.position !== 'sticky') return false;
 
+                    // A sticky cell inside a scroller the EXAMPLE created — a wide
+                    // table in a .sedna-scroll-x — takes the same escape the note
+                    // above grants tables: scrolling the region to reach it is the
+                    // intended interaction and moves nothing out from under
+                    // anything. A pinned column exists precisely to sit outside the
+                    // visible box while the rest scrolls past it.
+                    //
+                    // The scroller has to be one of the example's own, strictly
+                    // between the element and .ex-demo. Exempting .ex-demo itself
+                    // would exempt every dropdown too, which is the case this
+                    // measurement is for.
+                    for (let a = el.parentElement; a && a !== demo; a = a.parentElement) {
+                        const ox = getComputedStyle(a).overflowX;
+                        if (ox === 'auto' || ox === 'scroll') return false;
+                    }
+
                     const r = el.getBoundingClientRect();
                     if (r.width === 0 && r.height === 0) return false;
 

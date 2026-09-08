@@ -36,6 +36,29 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.ShowModalFromCsharp" Title="Opening one from C#" Demo="ex-demo--block">
+    <p>
+        <strong>Live — open it.</strong> <code>ISednaUi.ShowModalAsync(id)</code> is the one line of
+        script the example above says is needed, without the inline
+        <code>onclick</code> and without injecting <code>IJSRuntime</code>. That matters more than
+        it sounds: an app that would not inject <code>IJSRuntime</code> had no way to reach
+        <code>showModal()</code>, so it fell back to a <code>.modal-backdrop</code> div behind an
+        <code>@@if</code> — and lost the top layer, the focus trap, <kbd>Escape</kbd> and the inert
+        background, all four at once.
+    </p>
+    <p>
+        <code>CloseModalAsync(id, returnValue)</code> is for the routes out that are <em>not</em> a
+        <code>method="dialog"</code> submit; the platform handles those and <kbd>Escape</kbd>
+        itself. An id that is not a <code>&lt;dialog&gt;</code>, or one already open, warns in the
+        console and does nothing — an exception crossing the interop boundary from a Blazor handler
+        tears down the circuit.
+    </p>
+    <p>
+        Use <a href="/script"><code>ConfirmAsync</code></a> for a question with two answers. This
+        is for a dialog holding a form.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Modal.ConfirmDialog" Title="The panel" Demo="ex-demo--block">
     <p>
         The three rows on their own, so they can be read without opening anything. This is the same
@@ -55,11 +78,34 @@
 
 <CatExample TExample="Examples.Modal.ScrollingBody" Title="Scrolling body" Demo="ex-demo--block">
     <p>
-        Cap the body with <code>max-height</code> and <code>overflow-y:auto</code>, then add
-        <code>.sedna-scroll</code> to theme the scrollbar and add the fading scroll edges.
-        <code>.sedna-scroll</code> styles a scroll container; it does not create one. Inside a
-        <code>.modal</code> the fade matches the panel instead of showing as a dark band, because
-        <code>--scroll-bg</code> reads <code>--surface-here</code> and the modal declares it.
+        <strong>The body scrolls on its own; there is nothing to add.</strong> The panel is capped
+        at the viewport, the header and the footer keep their height, and
+        <code>.modal-body</code> is the part that gives way — with the fading scroll edges, so a
+        body carrying more below says so.
+    </p>
+    <p>
+        This is not a nicety. A backdrop centres its panel, so a panel taller than the window grows
+        past <em>both</em> edges: the header off the top and the footer — which is where the primary
+        action is — off the bottom. A fourteen-field form was not submittable on a 900px window, and
+        nothing on screen said why, because no element had a scrollbar.
+    </p>
+    <p>
+        The cap is <code>--modal-max-height</code>, <code>calc(100dvh - 2 * var(--space-8))</code>
+        by default and set to 240px here so the demo fits the page. <code>dvh</code> rather than
+        <code>vh</code>: on a phone <code>vh</code> is measured with the address bar retracted, so a
+        <code>vh</code> cap is taller than what is visible exactly where room is tightest.
+    </p>
+    <p>
+        Wrapping header, body and footer in a <code>&lt;form&gt;</code> changes nothing — the form's
+        box is removed with <code>display: contents</code> so the panel's flex column reaches
+        through it. Without that the panel has one flex item and the body never becomes the part
+        that scrolls.
+    </p>
+    <p>
+        <strong>One thing is still markup:</strong> a body that scrolls and holds nothing focusable
+        needs <code>tabindex="0"</code> with a <code>role</code> and a name, as this one has, so a
+        keyboard reader can scroll it. A body of form fields already has focusable children and
+        needs none of that.
     </p>
 </CatExample>
 

@@ -24,7 +24,7 @@
    like. `Layout_media_queries_only_change_geometry` enforces it.
    ─────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
-    .layout--responsive .sidebar { width: 56px; }
+    .layout--responsive .sidebar { width: var(--sidebar-width-collapsed); }
     .layout--responsive .sidebar .brand { justify-content: center; padding: 0; gap: 0; }
     .layout--responsive .sidebar .brand-text {
         position: absolute;

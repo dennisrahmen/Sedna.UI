@@ -62,8 +62,23 @@
     <p>
         <code>.sedna-mt-*</code> and <code>.sedna-mb-*</code> are block margins only, in the same four
         steps. There is no inline pair: horizontal placement belongs to the layout, not to a utility
-        on the child. <code>.sedna-scroll-x</code> creates a horizontal scroller —
-        <code>.sedna-scroll</code> styles one, which is a different job.
+        on the child. <code>.sedna-scroll-x</code> creates a horizontal scroller.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Utility.Scrollers" Title="Scrollers" Demo="ex-demo--block">
+    <p>
+        <code>.sedna-scroll</code> is a vertical scroll container: the themed scrollbar, the fading
+        edges, and <code>overflow-y: auto</code>. The cap is <code>--scroll-max</code>, which is
+        <code>none</code> until something sets it — three steps do:
+        <code>.sedna-scroll--sm</code> is 12rem, <code>.sedna-scroll--md</code> 20rem and
+        <code>.sedna-scroll--lg</code> 32rem. The knob covers everything else, including the
+        viewport-relative heights a step cannot express.
+    </p>
+    <p>
+        The edge fade reads <code>--surface-here</code>, so a scroller inside a card, a modal or a
+        drawer fades to that surface rather than showing as a dark band. A scroller on a surface its
+        own markup does not contain has to say which one it is on.
     </p>
 </CatExample>
 

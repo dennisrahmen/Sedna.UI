@@ -1,0 +1,51 @@
+@implements IDisposable
+@inject NavigationManager Nav
+
+<aside class="sidebar" style="height:260px">
+    <nav class="nav">
+        <div class="nav-scroll">
+            <details class="nav-group" open="@AnyActive(FramePages)">
+                <summary><i class="ri-side-bar-line"></i><span>Frame</span></summary>
+                @foreach (var (href, label) in FramePages)
+                {
+                    <a class="@Nav.CssClass(href, match: NavLinkMatch.All)"
+                       aria-current="@Nav.AriaCurrent(href, NavLinkMatch.All)"
+                       href="@href"><span>@label</span></a>
+                }
+            </details>
+            <details class="nav-group" open="@AnyActive(DataPages)">
+                <summary><i class="ri-table-line"></i><span>Data</span></summary>
+                @foreach (var (href, label) in DataPages)
+                {
+                    <a class="@Nav.CssClass(href, match: NavLinkMatch.All)"
+                       aria-current="@Nav.AriaCurrent(href, NavLinkMatch.All)"
+                       href="@href"><span>@label</span></a>
+                }
+            </details>
+        </div>
+    </nav>
+</aside>
+
+@code {
+    private static readonly (string Href, string Label)[] FramePages =
+        [("/frame", "Shell and nav"), ("/layouts", "Layouts")];
+
+    private static readonly (string Href, string Label)[] DataPages =
+        [("/table", "Tables"), ("/stat", "Stats")];
+
+    // CSS cannot express this. `:has(.active)` selects the group, but `open` is an
+    // ATTRIBUTE and no selector can set one — so which group is open is a value the
+    // app computes, from the same ActiveLink the links themselves use.
+    private bool AnyActive((string Href, string Label)[] pages) =>
+        pages.Any(p => Nav.IsActive(p.Href, NavLinkMatch.All));
+
+    // The subscription belongs to the component that RENDERS the group, not to the
+    // layout around it: Blazor skips re-rendering a child whose parameters have not
+    // changed, so a LocationChanged handler one level up leaves the group showing the
+    // previous page's state.
+    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => StateHasChanged();
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

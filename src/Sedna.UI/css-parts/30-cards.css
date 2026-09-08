@@ -21,6 +21,12 @@
 }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
 .card-body { padding: var(--space-6) var(--space-7); }
+/* Drops the padding, for content that is drawn edge to edge inside the card — a
+   canvas, a chart, a map, a table that already has its own cell padding. The
+   sibling of `.list-row--flush`, and the same reason: the gutter is a gap the
+   content then paints over. How tall the content is stays the content's decision;
+   this only takes the padding away. */
+.card-body--flush { padding: 0; }
 
 /* A caveat about the card's own content, pinned to its bottom edge — a stale
    figure, a degraded source, a partial result. It is part of the card, so it is

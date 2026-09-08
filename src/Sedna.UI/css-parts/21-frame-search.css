@@ -22,10 +22,15 @@
     position: relative;
     display: flex;
     align-items: center;
-    /* Takes the space it is given up to 480px and gives it back first: the
-       status pills and the controls at the far end matter more than a wider
-       box. */
-    flex: 0 1 480px;
+    /* Takes the space it is given up to --search-max and gives it back first: the
+       status pills and the controls at the far end matter more than a wider box.
+
+       480px is the ceiling for a topbar carrying little else. In one that also has
+       a spacer and the user widget it reads as a second sidebar, so the ceiling is
+       a knob — `style="--search-max: 340px"` on the `.search` box, which is what a
+       consuming app was overriding `max-width` inline to get. */
+    --search-max: 480px;
+    flex: 0 1 var(--search-max);
     min-width: 130px;
     /* Logical, so the box keeps its breathing room from the nav toggles on its
        leading side under dir="rtl". A four-value `margin` shorthand would slip

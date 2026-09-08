@@ -36,3 +36,25 @@
     gap: var(--space-7);
 }
 
+/* ── A child that takes the whole row ───────────────────────────────────────
+   One child of any grid above spanning it end to end — a chart over a row of tiles,
+   a summary card above the detail cards, or the odd card in a wrapping set that
+   would otherwise sit alone at one track wide with the rest of the last row empty
+   beside it.
+
+   `1 / -1` rather than a `span` count, because a count cannot be made safe here:
+   the track COUNT of an `auto-fit` / `auto-fill` grid depends on the container
+   width, so `span 2` in a grid that is one track wide creates an implicit second
+   column and overflows it. `1 / -1` needs to know nothing — it is the whole row
+   whatever the count, down to a single-column phone.
+
+   Which child is the odd one out stays the app's knowledge; nothing in CSS can
+   count the children against the tracks. A grid that needs several different spans
+   per width band is a page-specific grid, and the note at the top of this file
+   applies: it belongs in the app.
+
+   `min-width: 0` comes with it for the reason `.sedna-fill` carries it — a grid
+   item's automatic minimum size is its content, so a spanning card holding a wide
+   table would force the whole grid wider instead of scrolling inside itself. */
+.card-span-full { grid-column: 1 / -1; min-width: 0; }
+

@@ -1,5 +1,5 @@
 <div class="layout" style="height:420px; border:1px solid var(--border); border-radius:var(--radius-panel); overflow:hidden">
-    <aside class="sidebar" style="width:190px">
+    <aside class="sidebar" style="--sidebar-width: 190px">
         <a class="brand" href="#">
             <span class="brand-logo" style="background:var(--brand)"></span>
             <span class="brand-text"><strong>Acme Ops</strong><span class="brand-sub">orders</span></span>
@@ -38,16 +38,16 @@
             </div>
         </header>
 
-        <div class="page" style="padding:16px">
+        <div class="page" style="padding: var(--space-7)">
             <div class="page-head">
-                <h1 style="font-size:18px">Orders</h1>
+                <h2>Orders</h2>
                 <div class="page-head-actions">
                     <button class="btn btn-sm"><i class="ri-download-2-line"></i> Export</button>
                     <button class="btn btn-sm btn-primary"><i class="ri-add-line"></i> New order</button>
                 </div>
             </div>
 
-            <div class="stat-row stat-row--divided" style="margin-bottom:14px">
+            <div class="stat-row stat-row--divided">
                 <span class="stat">
                     <span class="stat-label">Dispatched</span>
                     <span class="stat-value">248</span>
@@ -67,13 +67,17 @@
 
             <div class="toolbar">
                 <div class="toolbar-filters">
-                    <i class="ri-search-line"></i>
-                    <input class="form-input form-input-sm" type="search" placeholder="Filter" aria-label="Filter orders" />
+                    <div class="input-group input-group--sm toolbar-input">
+                        <span class="input-affix"><i class="ri-search-line" aria-hidden="true"></i></span>
+                        <input class="form-input" type="search" placeholder="Filter" aria-label="Filter orders" />
+                    </div>
+                    <span class="chip"><span class="chip-label">EU-West</span>
+                        <button class="chip-dismiss" type="button" aria-label="Remove the region filter"><i class="ri-close-line"></i></button>
+                    </span>
                 </div>
-                <span class="chip"><span class="chip-label">EU-West</span>
-                    <button class="chip-dismiss" type="button" aria-label="Remove the region filter"><i class="ri-close-line"></i></button>
-                </span>
-                <span class="sedna-push toolbar-count">12 of 1,204</span>
+                <div class="toolbar-actions">
+                    <span class="toolbar-count">12 of 1,204</span>
+                </div>
             </div>
 
             <table class="table">

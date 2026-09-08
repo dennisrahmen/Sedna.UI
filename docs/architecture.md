@@ -177,6 +177,14 @@ Two consequences for a rule that sets a control's height:
 - `sednaUi.settings.save('variant', 'light')` (or `'theme'`, `'cvd'`, `'density'`) updates them at
   runtime.
 
+`boot.js` also writes two **cookies**, both opt-in and neither read by the library — they exist so a
+server-rendered app can get right on its first render what only the browser knows.
+`data-lang-cookie="true"` writes the stored language to `<prefix>lang`; `data-tz-cookie="<name>"`
+writes `Intl.DateTimeFormat().resolvedOptions().timeZone` to the cookie named, and only when it
+differs from the one already there. Both are written before first paint. The first request of a session
+carries neither, so an app needs a configured fallback and must **not** reload to obtain one: the next
+navigation already carries it.
+
 `dir` and `lang` are the two that are written **only from a stored choice**. Both are attributes the host
 page declares about itself, so with nothing stored they are left exactly as the document wrote them — the
 library never infers a document's direction or language from the browser's. Never derive `lang` from
@@ -272,7 +280,7 @@ A panel's primary action is a filled button in its semantic colour.
 
 | Layer | z-index | What sits there |
 |---|---|---|
-| Local stacking inside a component | 0, 1 | **not the overlay scale** — a sticky table header above its own rows |
+| Local stacking inside a component | 0, 1, 2 | **not the overlay scale** — see the note below |
 | Topbar | 60 | `.topbar`, `.fab` |
 | User widget | 200 | `.user-widget` |
 | Collapsed-rail flyout | 400 | `.sidebar.collapsed [data-tip]:hover::after` |
@@ -286,6 +294,13 @@ A panel's primary action is a filled button in its semantic colour.
 
 A new overlay uses one of these values. `Every_z_index_comes_from_the_documented_scale` fails on any
 other, so adding a layer means adding it to this table first.
+
+**The three local values are a scale of their own, and a sticky table uses all three.** They order
+cells inside one table and never anything else: `0` is a pinned column's body cells, above the static
+cells they slide across; `1` is `.table--sticky`'s header row, above those; `2` is the corner cell of a
+pinned column, which is sticky on both axes and has to beat the other header cells as well — it is
+first in DOM order, so at an equal z-index every one of them paints over it. That is the whole reason
+the band is three wide rather than two.
 
 Two things the flat list does not say:
 
@@ -311,6 +326,7 @@ Two things the flat list does not say:
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally |
 | `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
 | `confirm(options)` | A `<dialog>.showModal()` confirmation. Returns a promise; `danger: true` reddens confirm and focuses cancel |
+| `modal` | The platform dialog for an app's own markup: `show(id)` → `showModal()`, `close(id, value)` → `close(value)`. An id that is not a `<dialog>`, or one already open, warns in the console and does nothing — an exception crossing the interop boundary from a Blazor handler tears down the circuit |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |
 | `palette` | Command palette, opened by Ctrl/⌘-K once commands exist: `register(list)`, `open()`, `close()`, `rank(query)` |

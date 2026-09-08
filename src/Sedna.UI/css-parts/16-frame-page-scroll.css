@@ -14,6 +14,7 @@
    and reveals empty space below it. `position: relative` with `z-index: auto`
    creates no stacking context, so nothing in the z-order changes. */
 .page {
+    --page-gap: var(--space-7);
     padding: var(--space-9);
     padding-inline: max(var(--space-9), calc((100% - var(--page-max)) / 2));
     flex: 1;
@@ -21,6 +22,40 @@
     min-height: 0;
     position: relative;
 }
+
+/* ── The rhythm between page sections ───────────────────────────────────────
+   A card, then another card. A toolbar, then the list it controls. This is the
+   commonest arrangement on a page and the library had no answer for it, so every
+   such seam in a consuming app was an inline `style="margin-top:1rem"` — and 1rem
+   is --space-7 written by hand.
+
+   The library had already TAKEN this decision; it had implemented it four times
+   instead of once. `.page-head`, `.toolbar` and `.alert` each carry
+   `margin-bottom: var(--space-7)`, which spaces the seam when a library component
+   is the first of the pair and does nothing when the app's own card is. This is
+   the same --space-7, stated once, for every pair.
+
+   Adjacent siblings collapse their margins, so those three rules stay and are
+   unaffected: max(16px, 16px) is 16px. `.breadcrumb` and `.back-link` carry
+   --space-6, so their seam grows by 4px, which is the whole visible change to a
+   page built out of library components.
+
+   `gap` would be the better mechanism — it adds space BETWEEN without touching
+   either element's margins — but it needs flex or grid, and `.page` is a block on
+   purpose: it is the frame's scroll container, and blockifying its children
+   stretches an inline-flex `.back-link` across the page and stops the collapsing
+   the rule above depends on.
+
+   Headings are excluded because they set a LARGER rhythm of their own on purpose
+   (`h2` is --space-9), and this rule is in a later layer, so it would quietly
+   shrink them. `.lede` is excluded because its `margin-top: 0` is deliberate: it
+   sits tight under the heading it belongs to. An app's own deliberate zero needs
+   no exclusion here — an app's stylesheet is unlayered and wins outright — and
+   `.sedna-mt-0` is the per-element escape.
+
+   `--page-gap: 0` on `.page` turns the whole thing off for a page that manages its
+   own vertical rhythm. */
+.page > * + *:not(h1, h2, h3, h4, h5, h6, .lede) { margin-block-start: var(--page-gap); }
 
 .back-link {
     display: inline-flex; align-items: center; gap: var(--space-2);
@@ -54,7 +89,8 @@
    (a card, a modal, a drawer, a menu, a popover, a toast). A scroller inside any
    of them is therefore right without being named here, and the fallback is the
    page. Only a scroller that can appear WITHOUT its surface names one below. */
-.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list {
+.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list,
+.modal-body, .deck-body {
     --scroll-bg: var(--surface-here, var(--bg));
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
@@ -67,7 +103,10 @@
 }
 /* The command list and the nav scroller are the two that stand on a surface their
    own markup need not contain — a palette rendered inline rather than as a
-   <dialog>, a <nav> outside a .sidebar. Both state the surface they belong to. */
+   <dialog>, a <nav> outside a .sidebar. Both state the surface they belong to.
+   A modal body and a deck body are named above rather than left to `.sedna-scroll`
+   because both scroll by construction: the panel is capped at the viewport, so the
+   body is the part that gives way and it must say so at its edge. */
 .drawer-body,
 .palette-list { --surface-here: var(--bg-elevated); }
 .nav-scroll { --surface-here: var(--sidebar-bg); }

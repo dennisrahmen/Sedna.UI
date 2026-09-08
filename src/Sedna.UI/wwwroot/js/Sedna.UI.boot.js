@@ -39,12 +39,25 @@
    data-lang-cookie    "true" to also write a "<prefix>lang" cookie, so a
                        server-rendered app can prerender in the chosen language
                        instead of flashing the default one.
+   data-tz-cookie      A cookie NAME. Writes the browser's IANA time zone to it
+                       before first paint, so a server-rendered app can render UTC
+                       instants on the reader's own clock. Only the browser knows
+                       the zone, and in Blazor Server with prerendering off the last
+                       component that can read a cookie is App.razor — so an app
+                       without this ships an inline script of its own, which is the
+                       one thing the consuming rules say it should not have.
+
+                       It is a name rather than "true" because this cookie is read
+                       by the app's own code, not by the library, and the app names
+                       what it reads. Unlike the language cookie it takes no prefix
+                       for the same reason.
    data-variant-default  "dark" (the default), "light", or "system" to follow
                        prefers-color-scheme until the user chooses. */
 (function () {
     var el = document.currentScript;
     var prefix = (el && el.dataset.prefix) || 'sedna.';
     var wantCookie = !!(el && el.dataset.langCookie === 'true');
+    var tzCookie = (el && el.dataset.tzCookie) || '';
     var fallback = (el && el.dataset.variantDefault) || 'dark';
 
     try {
@@ -92,5 +105,34 @@
         }
     } catch (e) {
         /* storage blocked — first paint falls back to the dark default */
+    }
+
+    /* The browser's time zone, in its own try so a blocked localStorage above does
+       not take it down with it — the zone comes from Intl, not from storage.
+
+       Written only when it differs from the cookie already there. A cookie write is
+       cheap, but rewriting an unchanged value on every load puts a Set-Cookie-sized
+       header on every request for no reason, and a value that changes on every load
+       is one an app cannot cache a formatter against.
+
+       No reload, no event, no C# surface: an app decides what to do with the value.
+       Note that a FIRST request carries no cookie yet — the app needs a configured
+       fallback zone for that one render, and must not reload to get the cookie,
+       because the next navigation already carries it. */
+    if (tzCookie) {
+        try {
+            var zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (zone) {
+                // The leading "; " anchors the name, so a cookie whose name merely
+                // ends with this one's does not match. A cookie VALUE cannot contain
+                // a semicolon, so nothing else can forge the probe either.
+                var probe = '; ' + tzCookie + '=' + zone;
+                if (('; ' + document.cookie).indexOf(probe) === -1) {
+                    document.cookie = tzCookie + '=' + zone + ';path=/;max-age=31536000;SameSite=Lax';
+                }
+            }
+        } catch (e) {
+            /* no Intl, or cookies blocked — the app's fallback zone stands */
+        }
     }
 })();

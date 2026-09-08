@@ -309,8 +309,9 @@ Markdown editor. App-specific interop stays in the app's own script. The member 
 
 topbar 60 < user widget 200 < collapsed-rail flyout 400 < drawer scrim 480 < drawer panel 490 < modal
 backdrop 500 < spotlight 510 < popover and dropdown 550 < toast 600 < hover hints and reconnect banner
-1000. Use one of these values for a new overlay; 0 and 1 are for local stacking inside a component and
-are not part of the scale. Every rung is in use. A test fails on any value not on the scale, so a new
+1000. Use one of these values for a new overlay; 0, 1 and 2 are for local stacking inside a component
+and are not part of the scale — a sticky table uses all three, and `docs/architecture.md` says which is
+which. Every rung is in use. A test fails on any value not on the scale, so a new
 layer is added to the table in `docs/architecture.md` first.
 
 550 carries the dropdown panels: `.menu`, `.search-panel`, `.popover` and the user widget's own. A real

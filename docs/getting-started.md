@@ -79,6 +79,24 @@ and the default prefix is fine.
 
 A stored choice always wins over this default; it only ever governs a first-time visitor.
 
+### The browser's time zone
+
+`data-tz-cookie` names a cookie, and the boot script writes the browser's IANA zone to it before first
+paint — `path=/`, `SameSite=Lax`, a year's `max-age`, and only when the value differs from the cookie
+already there:
+
+```html
+<script src="_content/Sedna.UI/js/Sedna.UI.boot.js" data-tz-cookie="tz"></script>
+```
+
+For an app that stores instants as UTC and renders them on the reader's clock. Only the browser knows
+the zone, and in Blazor Server with prerendering off `App.razor` is the last component with an
+`HttpContext` to read a cookie from — so without this an app ships an inline script of its own.
+
+The library does nothing else with it: no reload, no event, no C# surface. **The first request of a
+session carries no cookie yet**, so configure a fallback zone for that one render and let it stand. Do
+not reload the page to get the cookie; the next navigation already carries it.
+
 `sedna.dir` and `sedna.lang` are the two that are only applied **once stored**. Both are attributes the
 host page declares about itself, so with nothing stored `<html dir>` and `<html lang>` are left exactly
 as written — the library never infers a document's direction or language from the browser's.

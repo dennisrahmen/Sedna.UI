@@ -93,7 +93,7 @@ internal static class TokenGroups
         new("Shadows", [
             "--shadow-topbar", "--shadow-nav-tools", "--shadow-modal", "--shadow-tip",
             "--shadow-flyout", "--shadow-dropdown", "--shadow-float", "--shadow-pop",
-            "--shadow-tile",
+            "--shadow-tile", "--shadow-edge-start", "--shadow-edge-end",
         ], Swatch: false),
 
         new("Reconnect banner", [

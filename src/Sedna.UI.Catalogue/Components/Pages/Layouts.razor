@@ -25,9 +25,15 @@
         child.
     </p>
     <p>
-        Used <em>instead of</em> <code>.page</code>, not alongside it —
-        <code>&lt;AppShell PageClass="…"&gt;</code> cannot remove <code>.page</code>'s own padding,
-        so this one case writes the shell markup by hand.
+        Used <em>instead of</em> <code>.page</code>, never alongside it: the two are the same slot,
+        and nesting one in the other gives you <code>.page</code>'s padding back.
+    </p>
+    <p>
+        <code>.full-layout-fill</code> is the child that takes whatever height is left, with a
+        toolbar above it. <code>flex: 1</code> alone looks right and does nothing — a flex child
+        will not shrink below its content, so a tall canvas pushes the layout past the viewport
+        instead of scrolling inside itself. The <code>min-height: 0</code> that fixes it is inside
+        the class, which is the same trap <a href="/modal"><code>.modal-body</code></a> carries.
     </p>
 </CatSnippet>
 
@@ -42,6 +48,28 @@
         Put <code>open</code> on the group containing the current page, so a reader never lands on a
         page whose own nav entry is hidden. Sub-items indent to sit under the parent's
         <em>label</em>, not its icon. In the collapsed rail the whole group flattens to icons.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.NavGroupOpen" Title="Which group is open" Demo="ex-demo--block">
+    <p>
+        <strong>Live — click a link and watch the groups.</strong> That
+        <code>open</code> is the app's to compute, and CSS cannot do it for you:
+        <code>:has(.active)</code> selects the group, but <code>open</code> is an
+        <em>attribute</em> and no selector can set one.
+    </p>
+    <p>
+        So the group asks <code>ActiveLink.IsActive</code> over its own children — the same call the
+        links themselves use, so the highlighted link and the open group cannot disagree. Five
+        lines, and a sidebar's first version ships without them because nothing says it is the app's
+        job.
+    </p>
+    <p>
+        <strong>The <code>LocationChanged</code> subscription belongs to the component that renders
+        the group</strong>, not to the layout around it. Blazor skips re-rendering a child whose
+        parameters have not changed, so a handler one level up leaves the group showing the previous
+        page's state — and the symptom is a group that opens correctly on a full reload and never
+        again.
     </p>
 </CatExample>
 

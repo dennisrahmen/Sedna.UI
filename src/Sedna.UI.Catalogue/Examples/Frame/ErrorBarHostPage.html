@@ -1,0 +1,15 @@
+<!-- Blazor's own element. The framework shows it by setting `display: block` inline
+     on an unhandled circuit error, and the library styles the id, its link and its
+     button — so the template's `.reload` and `.dismiss` classes are not needed and
+     are not library classes.
+
+     Both controls are plain `onclick` handlers, for the same reason the reconnect
+     banner's are: the circuit is gone by the time this bar is visible, so a Blazor
+     handler cannot run. The dismiss is a <button>, not the template's <span>: it is
+     a control, and it should be focusable and announced as one. -->
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href=".">Reload</a>
+    <button type="button" aria-label="Dismiss"
+            onclick="this.parentElement.style.display='none'">&#128473;</button>
+</div>
