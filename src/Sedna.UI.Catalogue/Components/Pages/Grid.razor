@@ -37,6 +37,27 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Grid.CardSpanFull" Title="`.card-span-full`" Demo="ex-demo--block">
+    <p>
+        One child of any grid above taking the whole row — a chart over a row of tiles, or the odd
+        card in a wrapping set that would otherwise sit alone at one track wide with the rest of the
+        last row empty beside it. Any card count that is not a multiple of the track count hits
+        that, and the track count changes with the width, so every set of three or more meets it at
+        some size.
+    </p>
+    <p>
+        <code>grid-column: 1 / -1</code> rather than a <code>span</code> count, because a count
+        cannot be made safe here: the track count of an <code>auto-fit</code> grid depends on the
+        container, so <code>span 2</code> in a grid one track wide invents a second column and
+        overflows it. <code>1 / -1</code> needs to know nothing.
+    </p>
+    <p>
+        <strong>Which child is the odd one out is still yours.</strong> Nothing in CSS can count the
+        children against the tracks. A grid that needs several different spans per width band is a
+        page-specific grid, and the note at the top of this page applies.
+    </p>
+</CatExample>
+
 <div class="cat-note">
         <strong>Page width needs no wrapper.</strong> <code>.page</code> holds content to
         <code>--page-max</code> (1800px) and centres it by growing its horizontal padding rather than

@@ -11,11 +11,28 @@
 }
 .modal {
     --surface-here: var(--bg-elevated);
+    /* The panel never grows past the window, and the body is what gives way. A
+       backdrop centres with align-items: center, so a panel taller than the
+       viewport grows past BOTH edges — the header off the top and the footer off
+       the bottom, which is where the primary action is. A tall dialog was
+       therefore not submittable, with nothing on screen saying why, because no
+       element had a scrollbar.
+
+       dvh, not vh: on a phone vh is measured against the viewport with the
+       address bar retracted, so a vh-capped panel is taller than what is visible
+       exactly where the room is tightest.
+
+       --modal-max-height is a knob rather than a fixed value because a panel
+       that must not shrink at all sets it to `none`. */
+    --modal-max-height: calc(100dvh - 2 * var(--space-8));
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
     width: 100%;
     max-width: 480px;
+    max-height: var(--modal-max-height);
+    display: flex;
+    flex-direction: column;
     box-shadow: var(--shadow-modal);
 }
 /* Width only. A confirmation needs less room than a form, and a diff or a table
@@ -55,15 +72,30 @@ dialog.modal::backdrop {
     background: var(--dialog-backdrop);
     backdrop-filter: blur(2px);
 }
+/* The usual modal markup wraps header, body and footer in a <form> — a
+   `method="dialog"` one on a <dialog>, an ordinary one in a backdrop div — so the
+   panel's flex column has to reach THROUGH the form, or it has exactly one flex
+   item and the body never becomes the part that scrolls. `display: contents`
+   removes the form's box without touching its semantics: submission, validation
+   and `method="dialog"` all still work.
+
+   Written for `.modal` rather than `dialog.modal` because both markup forms need
+   it, and because a closed <dialog> is `display: none` — its subtree does not
+   render whatever this says about the form. */
+.modal > form { display: contents; }
 
 @keyframes sedna-modal-in {
     from { opacity: 0; transform: translateY(-10px) scale(0.97); }
     to   { opacity: 1; transform: none; }
 }
+/* The header and the footer keep their height whatever happens; only the body
+   between them gives way. Without this a flex column shrinks all three, and the
+   footer's padding is the first thing to go. */
 .modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
     padding: var(--space-7) var(--space-8);
     border-bottom: 1px solid var(--border);
 }
@@ -88,17 +120,28 @@ dialog.modal::backdrop {
    sees of a modal, and without this rule it was the UA's own outline: a hard square
    against every other control in the library, which rings with a soft brand halo. */
 .modal-close:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+/* The part that scrolls. `min-height: 0` is stated even though `overflow-y: auto`
+   already suppresses a flex item's automatic minimum size, because it is the
+   declaration that makes the intent survive: the obvious pair — max-height on the
+   panel and a flex column — looks right and does nothing on its own, since a flex
+   child refuses by default to shrink below its content height.
+
+   The scroll-edge fade comes with it, from 16-frame-page-scroll.css, so a body
+   with more content below says so. */
 .modal-body {
     padding: var(--space-8);
     display: flex;
     flex-direction: column;
     gap: var(--space-7);
+    overflow-y: auto;
+    min-height: 0;
 }
 .modal-body p { margin: 0; }
 .modal-footer {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    flex-shrink: 0;
     gap: var(--space-4);
     padding: var(--space-7) var(--space-8);
     border-top: 1px solid var(--border);
@@ -155,6 +198,7 @@ dialog.modal::backdrop {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
     gap: var(--space-6);
     padding: var(--space-7) var(--space-8);
     border-top: 1px solid var(--border);

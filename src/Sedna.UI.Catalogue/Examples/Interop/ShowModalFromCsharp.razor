@@ -1,0 +1,47 @@
+@inject ISednaUi Ui
+
+<button class="btn btn-primary" type="button" @onclick="Open">New API key</button>
+<span class="badge">@_outcome</span>
+
+<dialog id="new-api-key" class="modal">
+    <form method="dialog" @onsubmit="Save">
+        <div class="modal-header">
+            <h3>New API key</h3>
+            <button class="modal-close" type="button" aria-label="Close" @onclick="Cancel">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-field">
+                <label class="form-label" for="key-name">Name</label>
+                <input class="form-input" id="key-name" @bind="_name" />
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="key-expiry">Expires</label>
+                <input class="form-input" id="key-expiry" type="date" />
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" type="button" @onclick="Cancel">Cancel</button>
+            <button class="btn btn-primary" type="submit" value="save">Create</button>
+        </div>
+    </form>
+</dialog>
+
+@code {
+    private string _name = "ci-publisher";
+    private string _outcome = "nothing yet";
+
+    private Task Open() => Ui.ShowModalAsync("new-api-key");
+
+    // The submit button is inside <form method="dialog">, so the platform closes the
+    // dialog itself — this only records what happened. CloseModalAsync is for the
+    // routes that are not a dialog-method submit.
+    private void Save() => _outcome = $"created \"{_name}\"";
+
+    private async Task Cancel()
+    {
+        await Ui.CloseModalAsync("new-api-key", "cancel");
+        _outcome = "cancelled";
+    }
+}

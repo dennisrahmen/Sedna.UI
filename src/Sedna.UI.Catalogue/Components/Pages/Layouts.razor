@@ -45,6 +45,28 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.NavGroupOpen" Title="Which group is open" Demo="ex-demo--block">
+    <p>
+        <strong>Live — click a link and watch the groups.</strong> That
+        <code>open</code> is the app's to compute, and CSS cannot do it for you:
+        <code>:has(.active)</code> selects the group, but <code>open</code> is an
+        <em>attribute</em> and no selector can set one.
+    </p>
+    <p>
+        So the group asks <code>ActiveLink.IsActive</code> over its own children — the same call the
+        links themselves use, so the highlighted link and the open group cannot disagree. Five
+        lines, and a sidebar's first version ships without them because nothing says it is the app's
+        job.
+    </p>
+    <p>
+        <strong>The <code>LocationChanged</code> subscription belongs to the component that renders
+        the group</strong>, not to the layout around it. Blazor skips re-rendering a child whose
+        parameters have not changed, so a handler one level up leaves the group showing the previous
+        page's state — and the symptom is a group that opens correctly on a full reload and never
+        again.
+    </p>
+</CatExample>
+
 <CatSnippet Name="Layouts/SkipLink.html" Title="Skip link">
     <p>
         The first focusable thing on the page, jumping past the navigation to the content. Without

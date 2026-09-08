@@ -74,6 +74,22 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Progress.SkeletonBlock" Title="Skeleton block" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        The three modifiers above are line-scale — the shape of a paragraph that has not arrived.
+        This is the shape of a <em>surface</em> that has not: a card of settings, a table of rows, a
+        graph. Every list and detail page has that loading state, and an app with no class for it
+        writes <code>style="height:8rem"</code> once per page.
+    </p>
+    <p>
+        <code>.skeleton-block</code> is 8rem, with <code>.skeleton-block--sm</code> at 4rem for a
+        field or a row and <code>.skeleton-block--lg</code> at 12rem for a document or a table. Between the steps, set
+        <code>--skeleton-height</code>, as the third card does — a placeholder that merely
+        approximates the real height reflows the page when the content lands, which is the one thing
+        a skeleton exists to prevent.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Progress.RunningJobs" Title="A list of running work" Demo="ex-demo--block">
     <p>
         Where these three end up in practice: one row per job, with the shape that matches what is

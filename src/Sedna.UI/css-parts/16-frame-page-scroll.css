@@ -54,7 +54,8 @@
    (a card, a modal, a drawer, a menu, a popover, a toast). A scroller inside any
    of them is therefore right without being named here, and the fallback is the
    page. Only a scroller that can appear WITHOUT its surface names one below. */
-.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list {
+.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list,
+.modal-body, .deck-body {
     --scroll-bg: var(--surface-here, var(--bg));
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
@@ -67,7 +68,10 @@
 }
 /* The command list and the nav scroller are the two that stand on a surface their
    own markup need not contain — a palette rendered inline rather than as a
-   <dialog>, a <nav> outside a .sidebar. Both state the surface they belong to. */
+   <dialog>, a <nav> outside a .sidebar. Both state the surface they belong to.
+   A modal body and a deck body are named above rather than left to `.sedna-scroll`
+   because both scroll by construction: the panel is capped at the viewport, so the
+   body is the part that gives way and it must say so at its edge. */
 .drawer-body,
 .palette-list { --surface-here: var(--bg-elevated); }
 .nav-scroll { --surface-here: var(--sidebar-bg); }

@@ -59,6 +59,14 @@
 [dir="rtl"] .tree summary::before { transform: rotate(180deg); }
 [dir="rtl"] .tree details[open] > summary::before { transform: rotate(90deg); }
 
+/* A third kind of gap, and the only member of it: `box-shadow` has no logical form
+   either, so the offset of a pinned column's edge shadow is physical. The two rules
+   are one line each because the direction is held in a custom property rather than
+   in the box-shadow declaration — the alternative was restating both long pinned-cell
+   selector lists here. */
+[dir="rtl"] .table--pin-start { --pin-shadow: var(--shadow-edge-end); }
+[dir="rtl"] .table--pin-end   { --pin-shadow: var(--shadow-edge-start); }
+
 /* The collapsed rail's flyout needs nothing here, and neither does anything else in
    the rail. `position-area: inline-end` and `align-self: anchor-center` are both
    logical and resolve against the writing mode, and the offset is a

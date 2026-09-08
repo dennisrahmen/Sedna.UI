@@ -239,6 +239,17 @@
        soft smudge and no edge, because the edge is what sells the lift at that
        size. The ring is inside the token so it cannot be forgotten. */
     --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.45);
+    /* The edge of a horizontally scrolled region — a pinned table column, a
+       sticky first cell. Every shadow above casts downwards; this pair casts
+       sideways, which is the axis a sideways scroller needs and the only one the
+       set had no answer for. Spread is negative so the shadow starts at the edge
+       and does not bleed back over the pinned cell itself.
+
+       start and end are the two PHYSICAL directions, named for the logical edge
+       they belong to under dir="ltr"; 70-rtl.css swaps which one a pinned column
+       reaches for, because box-shadow has no logical form. */
+    --shadow-edge-start:  6px 0 8px -6px rgba(0, 0, 0, 0.55);
+    --shadow-edge-end:   -6px 0 8px -6px rgba(0, 0, 0, 0.55);
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
        Not covered by docs/BRANDING.md's per-token tables. Re-expressed as the

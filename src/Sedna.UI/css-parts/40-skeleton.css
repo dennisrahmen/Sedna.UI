@@ -16,6 +16,23 @@
 .skeleton-text   { height: 12px; margin: var(--space-3) 0; }
 .skeleton-title  { height: 18px; margin: var(--space-4) 0; border-radius: var(--radius-control); }
 .skeleton-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; }
+/* A SURFACE that has not arrived — a card of settings, a table of rows, a note's
+   body — rather than a line of text. The three line-scale modifiers above are the
+   shape of a paragraph, and every loading state on a list or a detail page is the
+   shape of a block, which is why an app with no answer here writes
+   `style="height:8rem"` once per loading state.
+
+   The middle step is the bare class, as it is for `.modal`. --skeleton-height is a
+   knob for the heights between the steps, so a placeholder can match the real thing
+   it stands in for exactly — which is the point of a skeleton, since a height that
+   is merely close reflows the page when the content lands. */
+.skeleton-block {
+    --skeleton-height: 8rem;
+    height: var(--skeleton-height);
+    border-radius: var(--radius-surface);
+}
+.skeleton-block--sm { --skeleton-height: 4rem; }
+.skeleton-block--lg { --skeleton-height: 12rem; }
 
 @keyframes sedna-skeleton {
     from { background-position: 200% 0; }

@@ -75,6 +75,53 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Table.PinnedColumn" Title="Pinned column" Demo="ex-demo--block">
+    <p>
+        <code>.table--pin-start</code> is the sideways half of <code>.table--sticky</code>: it holds
+        the first column still while the rest of a wide table scrolls under it. Use it for the
+        column a row is <em>identified</em> by — four columns in, a reader who cannot see the staff
+        ID cannot tell whose row they are reading. <code>.table--pin-end</code> does the same at the
+        other edge, which is where a row's actions are.
+    </p>
+    <p>
+        It needs a horizontal scroll container — <code>.sedna-scroll-x</code> — and it sets
+        <code>border-collapse: separate</code> for itself, because a collapsed table's cells cannot
+        stick at all. Everything else is handled: the pinned cell paints on an opaque surface
+        rather than letting columns slide under it, it keeps the zebra stripe, the hover fill and
+        the selection marker, and the corner cell paints over the sticky header rather than under
+        the column beneath it.
+    </p>
+    <p>
+        <strong>Scroll this table both ways.</strong> Not for
+        <code>.table--stack</code>: below 640px the rows become blocks and there is no sideways
+        scroll to pin against.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Table.ColumnWidths" Title="Column widths" Demo="ex-demo--block">
+    <p>
+        <code>.table</code> leaves column widths to the browser, which is right until the cells in
+        a row are not all short values. Then the browser gives an unbounded column the room it asks
+        for and squeezes the rest to their padding — a legible table with a
+        <code>&lt;select&gt;</code> in it rendered as a caret and two clipped characters.
+    </p>
+    <p>
+        <code>.col-control</code> gives a cell holding an input or a select a floor and makes the
+        control fill it, so the column and the control agree on an edge.
+        <code>.col-prose</code> lets a sentence or a distinguished name give way instead of taking
+        the table, and breaks inside a word because an identifier has nowhere else to break.
+        <code>.col-fit</code> is the opposite — an icon, a status mark, a row of buttons — taking
+        the width of its content and no more.
+    </p>
+    <p>
+        Put each on the <code>th</code> <em>and</em> the <code>td</code>, the way
+        <code>.col-num</code> is used. The numbers are knobs:
+        <code>--col-control-min</code>, <code>--col-control-max</code>,
+        <code>--col-prose-min</code> and <code>--col-prose-max</code>, set on the cell where a
+        column needs a different one.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Table.ExpandableRows" Title="Expandable rows" Demo="ex-demo--block">
     <p>
         The detail row is a real <code>&lt;tr class="tr-detail"&gt;</code> after its parent, so it

@@ -8,6 +8,19 @@
     flex-wrap: wrap;
 }
 .toolbar-filters { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
-.toolbar-input { width: 160px; }
+/* 160px is right for a filter dropdown and short for a search box, so the width is
+   a knob on the element rather than a value baked into the class — the same shape
+   of fix as `--prose-measure` and `--deck-height`. Set it per instance
+   (`style="--toolbar-input-width: 22rem"`) or reach for one of the two steps, which
+   is what a search box wants: an app should not have to state a number to get the
+   common case, and overriding `width` on a library class per instance is the thing
+   the override rules ask an app not to do.
+
+   `--grow` rather than a third fixed step, because a search box that is the only
+   thing in the bar wants the room that is there, and a fixed width cannot know how
+   much that is. It keeps a floor, so it still reads as a box on a narrow window. */
+.toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); }
+.toolbar-input--wide { --toolbar-input-width: 280px; }
+.toolbar-input--grow { --toolbar-input-width: auto; flex: 1 1 12rem; min-width: 12rem; }
 .toolbar-count { font-size: var(--text-3); color: var(--muted); white-space: nowrap; }
 

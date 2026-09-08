@@ -567,6 +567,17 @@
        soft smudge and no edge, because the edge is what sells the lift at that
        size. The ring is inside the token so it cannot be forgotten. */
     --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.45);
+    /* The edge of a horizontally scrolled region — a pinned table column, a
+       sticky first cell. Every shadow above casts downwards; this pair casts
+       sideways, which is the axis a sideways scroller needs and the only one the
+       set had no answer for. Spread is negative so the shadow starts at the edge
+       and does not bleed back over the pinned cell itself.
+
+       start and end are the two PHYSICAL directions, named for the logical edge
+       they belong to under dir="ltr"; 70-rtl.css swaps which one a pinned column
+       reaches for, because box-shadow has no logical form. */
+    --shadow-edge-start:  6px 0 8px -6px rgba(0, 0, 0, 0.55);
+    --shadow-edge-end:   -6px 0 8px -6px rgba(0, 0, 0, 0.55);
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
        Not covered by docs/BRANDING.md's per-token tables. Re-expressed as the
@@ -809,6 +820,8 @@
     --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.22);   /* slate-900 */
     --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.18);   /* slate-900 */
     --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-edge-start:  6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-edge-end:   -6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
 }
 }
 
@@ -1579,7 +1592,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    (a card, a modal, a drawer, a menu, a popover, a toast). A scroller inside any
    of them is therefore right without being named here, and the fallback is the
    page. Only a scroller that can appear WITHOUT its surface names one below. */
-.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list {
+.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list,
+.modal-body, .deck-body {
     --scroll-bg: var(--surface-here, var(--bg));
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
@@ -1592,7 +1606,10 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 /* The command list and the nav scroller are the two that stand on a surface their
    own markup need not contain — a palette rendered inline rather than as a
-   <dialog>, a <nav> outside a .sidebar. Both state the surface they belong to. */
+   <dialog>, a <nav> outside a .sidebar. Both state the surface they belong to.
+   A modal body and a deck body are named above rather than left to `.sedna-scroll`
+   because both scroll by construction: the panel is capped at the viewport, so the
+   body is the part that gives way and it must say so at its edge. */
 .drawer-body,
 .palette-list { --surface-here: var(--bg-elevated); }
 .nav-scroll { --surface-here: var(--sidebar-bg); }
@@ -1724,6 +1741,63 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     border-top: 1px solid var(--reconnect-fail-border);
     color: var(--reconnect-fail-fg);
 }
+
+/* ── Blazor's unhandled-error bar ───────────────────────────────────────────
+   `<div id="blazor-error-ui">` is in every Blazor host page, the framework shows it
+   by setting `display: block` inline on an unhandled circuit error, and no library
+   styled it — so every consuming app wrote the same twenty lines with a hard-coded
+   white and a hard-coded shadow, which then followed neither the light variant nor
+   the colour-blind block.
+
+   It is the same severity as a failed reconnect and reads from the same three
+   tokens, so the two bars cannot drift apart. `display: none` here is what the
+   framework's inline `display: block` overrides; an inline style beats every rule
+   in every layer, so there is nothing to fight.
+
+   The two controls are reached by element rather than by Blazor's `.reload` and
+   `.dismiss` class names, deliberately. Selecting on those would enter two very
+   generic names into this library's class inventory and into a release's list of
+   added classes — where an app that has its own `.reload` button would grep, find
+   a match, and conclude wrongly that its appearance was about to change. The id
+   already scopes both rules to markup the framework owns, and it means an app that
+   drops the template's classes is styled just the same.
+
+   Both controls run plain `onclick`, because the circuit is gone by the time this
+   bar is visible. The dismiss is styled as a <button> rather than the template's
+   <span>: it is a control, so it should be focusable and announced as one, and a
+   span is neither. */
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0; inset-inline: 0;
+    z-index: 1000;
+    padding: var(--space-5) var(--space-8);
+    background: var(--reconnect-fail-bg);
+    border-top: 1px solid var(--reconnect-fail-border);
+    color: var(--reconnect-fail-fg);
+    font-size: var(--text-4);
+    font-weight: 500;
+    box-shadow: var(--shadow-topbar);
+}
+#blazor-error-ui a {
+    color: inherit;
+    text-decoration: underline;
+    margin-inline-start: var(--space-5);
+    cursor: pointer;
+}
+#blazor-error-ui button {
+    float: inline-end;
+    padding: 0 0 0 var(--space-5);
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+#blazor-error-ui button:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--reconnect-fail-fg); }
+/* An app that pasted the template's <span> unchanged still gets it placed, so the
+   glyph is not left sitting in the middle of the sentence. */
+#blazor-error-ui > span { float: inline-end; padding-inline-start: var(--space-5); }
 }
 
 /* ── 19-frame-responsive.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -1990,10 +2064,15 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     position: relative;
     display: flex;
     align-items: center;
-    /* Takes the space it is given up to 480px and gives it back first: the
-       status pills and the controls at the far end matter more than a wider
-       box. */
-    flex: 0 1 480px;
+    /* Takes the space it is given up to --search-max and gives it back first: the
+       status pills and the controls at the far end matter more than a wider box.
+
+       480px is the ceiling for a topbar carrying little else. In one that also has
+       a spacer and the user widget it reads as a second sidebar, so the ceiling is
+       a knob — `style="--search-max: 340px"` on the `.search` box, which is what a
+       consuming app was overriding `max-width` inline to get. */
+    --search-max: 480px;
+    flex: 0 1 var(--search-max);
     min-width: 130px;
     /* Logical, so the box keeps its breathing room from the nav toggles on its
        leading side under dir="rtl". A four-value `margin` shorthand would slip
@@ -2190,6 +2269,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
 .card-body { padding: var(--space-6) var(--space-7); }
+/* Drops the padding, for content that is drawn edge to edge inside the card — a
+   canvas, a chart, a map, a table that already has its own cell padding. The
+   sibling of `.list-row--flush`, and the same reason: the gutter is a gap the
+   content then paints over. How tall the content is stays the content's decision;
+   this only takes the padding away. */
+.card-body--flush { padding: 0; }
 
 /* A caveat about the card's own content, pinned to its bottom edge — a stale
    figure, a degraded source, a partial result. It is part of the card, so it is
@@ -2506,7 +2591,20 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     flex-wrap: wrap;
 }
 .toolbar-filters { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
-.toolbar-input { width: 160px; }
+/* 160px is right for a filter dropdown and short for a search box, so the width is
+   a knob on the element rather than a value baked into the class — the same shape
+   of fix as `--prose-measure` and `--deck-height`. Set it per instance
+   (`style="--toolbar-input-width: 22rem"`) or reach for one of the two steps, which
+   is what a search box wants: an app should not have to state a number to get the
+   common case, and overriding `width` on a library class per instance is the thing
+   the override rules ask an app not to do.
+
+   `--grow` rather than a third fixed step, because a search box that is the only
+   thing in the bar wants the room that is there, and a fixed width cannot know how
+   much that is. It keeps a floor, so it still reads as a box on a narrow window. */
+.toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); }
+.toolbar-input--wide { --toolbar-input-width: 280px; }
+.toolbar-input--grow { --toolbar-input-width: auto; flex: 1 1 12rem; min-width: 12rem; }
 .toolbar-count { font-size: var(--text-3); color: var(--muted); white-space: nowrap; }
 
 }
@@ -2526,11 +2624,28 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 .modal {
     --surface-here: var(--bg-elevated);
+    /* The panel never grows past the window, and the body is what gives way. A
+       backdrop centres with align-items: center, so a panel taller than the
+       viewport grows past BOTH edges — the header off the top and the footer off
+       the bottom, which is where the primary action is. A tall dialog was
+       therefore not submittable, with nothing on screen saying why, because no
+       element had a scrollbar.
+
+       dvh, not vh: on a phone vh is measured against the viewport with the
+       address bar retracted, so a vh-capped panel is taller than what is visible
+       exactly where the room is tightest.
+
+       --modal-max-height is a knob rather than a fixed value because a panel
+       that must not shrink at all sets it to `none`. */
+    --modal-max-height: calc(100dvh - 2 * var(--space-8));
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
     width: 100%;
     max-width: 480px;
+    max-height: var(--modal-max-height);
+    display: flex;
+    flex-direction: column;
     box-shadow: var(--shadow-modal);
 }
 /* Width only. A confirmation needs less room than a form, and a diff or a table
@@ -2570,15 +2685,30 @@ dialog.modal::backdrop {
     background: var(--dialog-backdrop);
     backdrop-filter: blur(2px);
 }
+/* The usual modal markup wraps header, body and footer in a <form> — a
+   `method="dialog"` one on a <dialog>, an ordinary one in a backdrop div — so the
+   panel's flex column has to reach THROUGH the form, or it has exactly one flex
+   item and the body never becomes the part that scrolls. `display: contents`
+   removes the form's box without touching its semantics: submission, validation
+   and `method="dialog"` all still work.
+
+   Written for `.modal` rather than `dialog.modal` because both markup forms need
+   it, and because a closed <dialog> is `display: none` — its subtree does not
+   render whatever this says about the form. */
+.modal > form { display: contents; }
 
 @keyframes sedna-modal-in {
     from { opacity: 0; transform: translateY(-10px) scale(0.97); }
     to   { opacity: 1; transform: none; }
 }
+/* The header and the footer keep their height whatever happens; only the body
+   between them gives way. Without this a flex column shrinks all three, and the
+   footer's padding is the first thing to go. */
 .modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
     padding: var(--space-7) var(--space-8);
     border-bottom: 1px solid var(--border);
 }
@@ -2603,17 +2733,28 @@ dialog.modal::backdrop {
    sees of a modal, and without this rule it was the UA's own outline: a hard square
    against every other control in the library, which rings with a soft brand halo. */
 .modal-close:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+/* The part that scrolls. `min-height: 0` is stated even though `overflow-y: auto`
+   already suppresses a flex item's automatic minimum size, because it is the
+   declaration that makes the intent survive: the obvious pair — max-height on the
+   panel and a flex column — looks right and does nothing on its own, since a flex
+   child refuses by default to shrink below its content height.
+
+   The scroll-edge fade comes with it, from 16-frame-page-scroll.css, so a body
+   with more content below says so. */
 .modal-body {
     padding: var(--space-8);
     display: flex;
     flex-direction: column;
     gap: var(--space-7);
+    overflow-y: auto;
+    min-height: 0;
 }
 .modal-body p { margin: 0; }
 .modal-footer {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    flex-shrink: 0;
     gap: var(--space-4);
     padding: var(--space-7) var(--space-8);
     border-top: 1px solid var(--border);
@@ -2670,6 +2811,7 @@ dialog.modal::backdrop {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
     gap: var(--space-6);
     padding: var(--space-7) var(--space-8);
     border-top: 1px solid var(--border);
@@ -2858,6 +3000,23 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .skeleton-text   { height: 12px; margin: var(--space-3) 0; }
 .skeleton-title  { height: 18px; margin: var(--space-4) 0; border-radius: var(--radius-control); }
 .skeleton-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; }
+/* A SURFACE that has not arrived — a card of settings, a table of rows, a note's
+   body — rather than a line of text. The three line-scale modifiers above are the
+   shape of a paragraph, and every loading state on a list or a detail page is the
+   shape of a block, which is why an app with no answer here writes
+   `style="height:8rem"` once per loading state.
+
+   The middle step is the bare class, as it is for `.modal`. --skeleton-height is a
+   knob for the heights between the steps, so a placeholder can match the real thing
+   it stands in for exactly — which is the point of a skeleton, since a height that
+   is merely close reflows the page when the content lands. */
+.skeleton-block {
+    --skeleton-height: 8rem;
+    height: var(--skeleton-height);
+    border-radius: var(--radius-surface);
+}
+.skeleton-block--sm { --skeleton-height: 4rem; }
+.skeleton-block--lg { --skeleton-height: 12rem; }
 
 @keyframes sedna-skeleton {
     from { background-position: 200% 0; }
@@ -3002,6 +3161,28 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
     gap: var(--space-7);
 }
+
+/* ── A child that takes the whole row ───────────────────────────────────────
+   One child of any grid above spanning it end to end — a chart over a row of tiles,
+   a summary card above the detail cards, or the odd card in a wrapping set that
+   would otherwise sit alone at one track wide with the rest of the last row empty
+   beside it.
+
+   `1 / -1` rather than a `span` count, because a count cannot be made safe here:
+   the track COUNT of an `auto-fit` / `auto-fill` grid depends on the container
+   width, so `span 2` in a grid that is one track wide creates an implicit second
+   column and overflows it. `1 / -1` needs to know nothing — it is the whole row
+   whatever the count, down to a single-column phone.
+
+   Which child is the odd one out stays the app's knowledge; nothing in CSS can
+   count the children against the tracks. A grid that needs several different spans
+   per width band is a page-specific grid, and the note at the top of this file
+   applies: it belongs in the app.
+
+   `min-width: 0` comes with it for the reason `.sedna-fill` carries it — a grid
+   item's automatic minimum size is its content, so a spanning card holding a wide
+   table would force the whole grid wider instead of scrolling inside itself. */
+.card-span-full { grid-column: 1 / -1; min-width: 0; }
 
 }
 
@@ -4692,6 +4873,156 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     background: var(--brand-tint);
     box-shadow: inset 3px 0 0 var(--brand);
 }
+
+/* ── Pinned columns ─────────────────────────────────────────────────────────
+   `.table--sticky` pins the header for a reader scrolling DOWN. This is the same
+   problem on the other axis: a table too wide for its column scrolls sideways in
+   a `.sedna-scroll-x`, and a few columns in the reader can no longer tell which
+   record a row belongs to. `--pin-start` holds the identifying column still;
+   `--pin-end` holds the last one, which is where the row's actions are.
+
+   Three things beyond `position: sticky`, each of which fails silently on its own:
+
+     1. `border-collapse: separate`. A collapsed table's borders belong to the
+        table, so a sticky cell does not stick at all in Chromium. Same reason
+        `.table--sticky` sets it.
+     2. An OPAQUE background. A transparent sticky cell shows the columns sliding
+        underneath it — `10020266` followed by the `.com` of an e-mail four columns
+        away, reading as one value. Two layers are needed, because every state a
+        row can be in paints a TRANSLUCENT tint: `--pin-bg` is the opaque surface
+        underneath (`--surface-here`, the colour every library surface declares for
+        its own children), and `--pin-tint` is the row's own state, inherited from
+        the <tr> and laid over the base as a gradient. Each tint rule below mirrors
+        one background rule above it, selector for selector, so the two cannot
+        disagree about which state wins.
+     3. The edge. `--shadow-edge-start` / `--shadow-edge-end` are the token pair for
+        a horizontally scrolled edge; 70-rtl.css swaps which one is used, because
+        box-shadow has no logical form.
+
+   z-index stays local to the table — 0, 1 and 2, the local-stacking band rather
+   than a rung of the overlay scale, and a sticky pinned table is what makes that
+   band three wide. Each level is load-bearing:
+
+     · 0  the pinned body cells, above the static cells they slide across.
+     · 1  `.table--sticky`'s header row, above those — unchanged, so nothing about
+          an existing sticky table moves.
+     · 2  the corner cell, which is sticky on BOTH axes. It has to beat the other
+          header cells as well as the column beneath it, and it is first in DOM
+          order, so at an equal z-index every other header cell paints over it — the
+          symptom being a header cell sliding across the pinned identity column.
+
+   A cell with `colspan` is never the pinned column — a detail row's body cell
+   spans the table — so it is excluded rather than dragged sideways.
+
+   Not for `.table--stack`: below 640px the rows become blocks and there is no
+   sideways scroll to pin against. */
+.table--pin-start,
+.table--pin-end { border-collapse: separate; border-spacing: 0; --pin-bg: var(--surface-here, var(--bg)); }
+.table--pin-start { --pin-shadow: var(--shadow-edge-start); }
+.table--pin-end   { --pin-shadow: var(--shadow-edge-end); }
+
+.table--pin-start tbody tr > td:first-child:not([colspan]),
+.table--pin-start tfoot tr > td:first-child:not([colspan]) {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 0;
+    background-color: var(--pin-bg);
+    background-image: linear-gradient(var(--pin-tint, transparent), var(--pin-tint, transparent));
+    box-shadow: var(--pin-shadow);
+}
+.table--pin-end tbody tr > td:last-child:not([colspan]),
+.table--pin-end tfoot tr > td:last-child:not([colspan]) {
+    position: sticky;
+    inset-inline-end: 0;
+    z-index: 0;
+    background-color: var(--pin-bg);
+    background-image: linear-gradient(var(--pin-tint, transparent), var(--pin-tint, transparent));
+    box-shadow: var(--pin-shadow);
+}
+/* The header cell of a pinned column, sticky on the inline axis whether or not the
+   header is also sticky vertically. It carries the head tint over the same opaque
+   base as the body cells. */
+.table--pin-start thead th:first-child:not([colspan]) {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 2;
+    background-color: var(--pin-bg);
+    background-image: linear-gradient(var(--table-head-bg), var(--table-head-bg));
+    box-shadow: var(--pin-shadow);
+}
+.table--pin-end thead th:last-child:not([colspan]) {
+    position: sticky;
+    inset-inline-end: 0;
+    z-index: 2;
+    background-color: var(--pin-bg);
+    background-image: linear-gradient(var(--table-head-bg), var(--table-head-bg));
+    box-shadow: var(--pin-shadow);
+}
+/* The corner cell. A sticky header is opaque `--bg-elevated` rather than tinted, so
+   the corner matches the rest of the header row instead of being the one cell in it
+   with a different surface — and it keeps the header's bottom hairline, which is a
+   box-shadow here and would otherwise be replaced by the edge shadow. */
+.table--sticky.table--pin-start thead th:first-child:not([colspan]),
+.table--sticky.table--pin-end thead th:last-child:not([colspan]) {
+    background-color: var(--bg-elevated);
+    background-image: none;
+    box-shadow: inset 0 -1px 0 var(--border), var(--pin-shadow);
+}
+
+/* The row states, mirroring the background rules above one for one. Set on the
+   <tr> so a custom property carries them into the pinned cell by inheritance;
+   ordering between them is the ordering the `> td` rules already have. */
+.table--zebra tbody tr:nth-child(even) { --pin-tint: var(--surface-soft); }
+.table tbody tr[aria-selected="true"] { --pin-tint: var(--brand-tint); }
+.tr-clickable:hover { --pin-tint: var(--bg-hover); }
+.table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
+.table tfoot tr { --pin-tint: var(--surface-soft); }
+/* The selection marker is an inset shadow, and the pinned cell's box-shadow would
+   replace it — on the very column where it is most visible. Both, in one list. */
+.table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
+    box-shadow: inset 3px 0 0 var(--brand), var(--pin-shadow);
+}
+
+/* ── Column width ───────────────────────────────────────────────────────────
+   `.table` leaves column widths to the browser, which is right nearly always. It
+   goes wrong when the cells in one row are not all short values, because the
+   browser gives an unbounded column the room it asks for and squeezes the rest to
+   their padding. Three shapes cover it, each with its own knob:
+
+     · `.col-control` — a cell holding an <input> or a <select>. Squeezed to its
+       padding a select renders as a caret and two clipped characters, so the
+       column has a floor sized from the longest value the control can hold, and
+       the control fills the column so the two agree on an edge. A legible table
+       with unusable controls in it is the failure this avoids.
+     · `.col-prose` — a sentence, a description, a distinguished name. Gives way
+       instead of taking the table, and breaks inside a word because an identifier
+       has nowhere else to break.
+     · `.col-fit` — the opposite: an icon, a status dot, a row of buttons. Takes the
+       width of its content and no more. `width: 1%` is the idiom — a table at
+       `width: 100%` distributes the slack to the columns that asked for room, so a
+       column asking for almost none keeps almost none.
+
+   Put the class on the th AND the td, the way `.col-num` is used. Each is scoped
+   to `.table` for the reason `.col-num` is: a bare single-purpose class is (0,1,0)
+   and `.table th, .table td` is (0,1,1), so the bare form would lose its padding
+   and width to the cell rule, silently. */
+.table .col-control {
+    --col-control-min: 14rem;
+    --col-control-max: none;
+    min-width: var(--col-control-min);
+    max-width: var(--col-control-max);
+}
+.table .col-control > .form-input,
+.table .col-control > .form-select { width: 100%; }
+.table .col-prose {
+    --col-prose-min: 12rem;
+    --col-prose-max: 30rem;
+    min-width: var(--col-prose-min);
+    max-width: var(--col-prose-max);
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.table .col-fit { width: 1%; white-space: nowrap; }
 
 /* ── Expandable and nested rows ─────────────────────────────────────────────
    The detail row is a real <tr> after its parent, so it moves with it when the
@@ -6472,6 +6803,14 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 [dir="rtl"] .tree summary::before { transform: rotate(180deg); }
 [dir="rtl"] .tree details[open] > summary::before { transform: rotate(90deg); }
 
+/* A third kind of gap, and the only member of it: `box-shadow` has no logical form
+   either, so the offset of a pinned column's edge shadow is physical. The two rules
+   are one line each because the direction is held in a custom property rather than
+   in the box-shadow declaration — the alternative was restating both long pinned-cell
+   selector lists here. */
+[dir="rtl"] .table--pin-start { --pin-shadow: var(--shadow-edge-end); }
+[dir="rtl"] .table--pin-end   { --pin-shadow: var(--shadow-edge-start); }
+
 /* The collapsed rail's flyout needs nothing here, and neither does anything else in
    the rail. `position-area: inline-end` and `align-self: anchor-center` are both
    logical and resolve against the writing mode, and the offset is a
@@ -6823,8 +7162,28 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .sedna-divider-bottom { border-bottom: 1px solid var(--divider); }
 
 /* A scroll container on the inline axis — a table too wide for its column, a row of
-   cards. `.sedna-scroll` styles a scroller; this one creates it. */
+   cards. */
 .sedna-scroll-x { overflow-x: auto; }
+
+/* And the block axis. `.sedna-scroll` supplied the scrollbar and the edge fade (in
+   16-frame-page-scroll.css) but neither of the two declarations that make it a
+   scroller at all, so every use of it was the class plus
+   `style="max-height:22rem; overflow-y:auto"` — a number in the markup because a
+   consuming app may not declare a rule for a library class.
+
+   `--scroll-max` defaults to `none`, so adding these changes nothing for markup that
+   already states its own max-height inline: an inline style beats every rule here.
+   The three steps are the sizes a scroller is actually asked for — a short list, a
+   panel, most of a page — and `--scroll-max` covers the rest, including `70vh` and
+   friends, which are viewport-relative and cannot be a step. */
+.sedna-scroll {
+    --scroll-max: none;
+    max-height: var(--scroll-max);
+    overflow-y: auto;
+}
+.sedna-scroll--sm { --scroll-max: 12rem; }
+.sedna-scroll--md { --scroll-max: 20rem; }
+.sedna-scroll--lg { --scroll-max: 32rem; }
 
 /* ── State ──────────────────────────────────────────────────────────────────
    Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also

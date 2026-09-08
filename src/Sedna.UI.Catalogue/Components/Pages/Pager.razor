@@ -19,6 +19,27 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Pager.PaginationViewState" Title="When the page is view state" Demo="ex-demo--block">
+    <p>
+        The rule above holds wherever a page of results <em>is</em> an address. It does not hold
+        when the page number is view state rather than a location — a Blazor Server table whose
+        page, sort and filters live in the circuit. <code>/employees/all</code> is one address;
+        page 4 of a 27-column table sorted by cost centre is not an address the app has, and
+        inventing query-string routing for it means re-reading and re-validating four parameters on
+        every navigation to gain a link nobody sends.
+    </p>
+    <p>
+        So: <code>&lt;button class="page-link" type="button"&gt;</code> throughout, and
+        <code>disabled</code> on the ends rather than <code>aria-disabled</code> — a real
+        <code>&lt;button&gt;</code> has the attribute, which is announced and removes it from the
+        tab order. The stylesheet already styles both forms; nothing changes but the element.
+    </p>
+    <p>
+        Judge it by whether the page has an address, not by which is easier to write. If a reader
+        could reasonably send someone a link to page 4, use the anchors above.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Pager.Breadcrumbs" Title="Breadcrumbs" Demo="ex-demo--block">
     <p>
         For where a page sits when the sidebar cannot show it — a record three levels inside a

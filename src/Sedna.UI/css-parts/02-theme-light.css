@@ -136,4 +136,6 @@
     --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.22);   /* slate-900 */
     --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.18);   /* slate-900 */
     --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-edge-start:  6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-edge-end:   -6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
 }

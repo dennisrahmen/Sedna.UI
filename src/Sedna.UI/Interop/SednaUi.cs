@@ -123,6 +123,14 @@ public sealed class SednaUi : ISednaUi
     public Task OpenTabAsync(string url) => _js.InvokeVoidAsync("sednaUi.openTab", url).AsTask();
 
     /// <inheritdoc />
+    public Task ShowModalAsync(string elementId)
+        => _js.InvokeVoidAsync("sednaUi.modal.show", elementId).AsTask();
+
+    /// <inheritdoc />
+    public Task CloseModalAsync(string elementId, string? returnValue = null)
+        => _js.InvokeVoidAsync("sednaUi.modal.close", elementId, returnValue).AsTask();
+
+    /// <inheritdoc />
     public Task<int> ViewportWidthAsync()
         => _js.InvokeAsync<int>("sednaUi.viewportWidth").AsTask();
 

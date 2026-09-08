@@ -1,0 +1,54 @@
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="col-fit"></th>
+                <th class="col-control">AD attribute</th>
+                <th class="col-control">HR field</th>
+                <th class="col-prose">Last result</th>
+                <th class="col-fit">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="col-fit"><i class="ri-checkbox-circle-line"></i><span class="visually-hidden">Mapped</span></td>
+                <td class="col-control">
+                    <select class="form-select" aria-label="AD attribute for Location">
+                        <option>physicalDeliveryOfficeName</option>
+                        <option>givenName</option>
+                        <option>department</option>
+                    </select>
+                </td>
+                <td class="col-control">
+                    <select class="form-select" aria-label="HR field for physicalDeliveryOfficeName">
+                        <option>Location</option>
+                        <option>FirstName</option>
+                        <option>Department</option>
+                    </select>
+                </td>
+                <td class="col-prose">Written for 1 204 of 1 211 accounts.</td>
+                <td class="col-fit"><button class="btn btn-sm" type="button">Edit</button></td>
+            </tr>
+            <tr>
+                <td class="col-fit"><i class="ri-error-warning-line"></i><span class="visually-hidden">Failed</span></td>
+                <td class="col-control">
+                    <select class="form-select" aria-label="AD attribute for CostCentre">
+                        <option>extensionAttribute7</option>
+                        <option>employeeNumber</option>
+                    </select>
+                </td>
+                <td class="col-control">
+                    <select class="form-select" aria-label="HR field for extensionAttribute7">
+                        <option>CostCentre</option>
+                        <option>StaffId</option>
+                    </select>
+                </td>
+                <td class="col-prose">
+                    Declined by CN=svc-hr-sync,OU=Service Accounts,OU=Managed,DC=corp,DC=example,DC=com —
+                    insufficient access rights on the target container.
+                </td>
+                <td class="col-fit"><button class="btn btn-sm" type="button">Edit</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

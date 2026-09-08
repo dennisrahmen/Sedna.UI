@@ -35,9 +35,14 @@ public class OverrideTests
         // The documented overlay scale in docs/architecture.md and CLAUDE.md. A new
         // overlay picks one of these; it does not invent a value, because the only
         // way to reason about six overlay families is for the list to be closed.
-        // 0 and 1 are allowed for local stacking inside a component (a sticky table
-        // header above its own rows), which is not part of the overlay scale.
-        int[] documented = [0, 1, 60, 200, 400, 480, 490, 500, 510, 550, 600, 1000];
+        // 0, 1 and 2 are allowed for local stacking inside a component, which is not
+        // part of the overlay scale. A sticky table uses all three and is the reason
+        // the band is three wide: a pinned column's body cells (0) paint over the
+        // static cells they slide across, the sticky header row (1) paints over those,
+        // and the corner cell of a pinned column (2) has to beat the OTHER header
+        // cells too — it is first in DOM order, so at an equal z-index every one of
+        // them paints over it.
+        int[] documented = [0, 1, 2, 60, 200, 400, 480, 490, 500, 510, 550, 600, 1000];
 
         // The catalogue app's own stylesheet is included: it draws on the same scale,
         // and its drawer once sat on the spotlight rung with its scrim on the

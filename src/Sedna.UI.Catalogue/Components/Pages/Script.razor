@@ -55,6 +55,28 @@
     </p>
 </CatSnippet>
 
+<CatSnippet Name="Script/TimeZoneCookie.html" Title="The browser's time zone">
+    <p>
+        <code>data-tz-cookie</code> names a cookie, and <code>boot.js</code> writes
+        <code>Intl.DateTimeFormat().resolvedOptions().timeZone</code> to it before first paint, with
+        <code>path=/</code>, <code>SameSite=Lax</code> and a year's <code>max-age</code>. Only when
+        the value differs from the cookie already there; no reload, no event, no C# surface. What
+        the app does with it is the app's business.
+    </p>
+    <p>
+        It exists because the server cannot ask. Instants are stored UTC, only the browser knows
+        which clock to render them on, and with prerendering off <code>App.razor</code> is the last
+        component with an <code>HttpContext</code> to read a cookie from — so an app without this
+        ships an inline script of its own, which is the one thing the consuming rules say it should
+        not have.
+    </p>
+    <p>
+        <strong>A first request carries no cookie yet.</strong> Configure a fallback zone for that
+        one render and let it stand — do <em>not</em> reload the page to get the cookie, because the
+        next navigation already carries it.
+    </p>
+</CatSnippet>
+
 <CatExample TExample="Examples.Script.Toasts" Title="Toasts" Demo="ex-demo--block">
     <p>
         <code>sednaUi.toast(message, opts)</code> creates the stack on first use, so the app

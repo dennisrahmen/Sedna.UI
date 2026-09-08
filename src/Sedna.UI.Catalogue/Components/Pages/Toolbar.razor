@@ -13,6 +13,21 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Toolbar.SearchWidth" Title="A wider search box" Demo="ex-demo--block">
+    <p>
+        160px is right for a filter dropdown and short for a search box: a search that matches
+        across ten fields cannot fit its own placeholder, and the reader cannot see what they
+        typed. <code>.toolbar-input--wide</code> is 280px, which is the case worth having a class
+        for.
+    </p>
+    <p>
+        The width is a knob, <code>--toolbar-input-width</code>, so a control between the two sizes
+        sets it on the element — as the department select does here — rather than overriding
+        <code>width</code> on a library class. <code>.toolbar-input--grow</code> takes whatever
+        room is left instead, for a search box that is the only thing in the bar.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Toolbar.FiltersActions" Title="Filters and actions" Demo="ex-demo--block">
     <p>Put the buttons on the right; the primary action goes last.</p>
 </CatExample>

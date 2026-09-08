@@ -67,6 +67,47 @@ public interface ISednaUi
         string cancelLabel = "Cancel",
         bool danger = false);
 
+    /// <summary>
+    /// Opens a <c>&lt;dialog class="modal"&gt;</c> with the platform's own
+    /// <c>showModal()</c>.
+    /// </summary>
+    /// <param name="elementId">The <c>id</c> of the <c>&lt;dialog&gt;</c>.</param>
+    /// <returns>A task that completes once it is open.</returns>
+    /// <remarks>
+    /// <para>
+    /// This is what makes a dialog a dialog: the top layer, a focus trap,
+    /// Escape-to-close and inert content behind it, all four from the browser. A
+    /// <c>.modal-backdrop</c> div behind an <c>@if</c> has none of them.
+    /// </para>
+    /// <para>
+    /// The markup, the classes and the styling are already the app's — this only
+    /// opens it. Use <see cref="ConfirmAsync"/> instead for a question with two
+    /// answers; this is for a dialog holding a form.
+    /// </para>
+    /// <para>
+    /// An id that is not a <c>&lt;dialog&gt;</c>, or an already-open one, is a no-op
+    /// with a console warning rather than an exception, because an exception crossing
+    /// the interop boundary from a Blazor handler tears down the circuit.
+    /// </para>
+    /// </remarks>
+    Task ShowModalAsync(string elementId);
+
+    /// <summary>Closes a <c>&lt;dialog&gt;</c> opened with <see cref="ShowModalAsync"/>.</summary>
+    /// <param name="elementId">The <c>id</c> of the <c>&lt;dialog&gt;</c>.</param>
+    /// <param name="returnValue">
+    /// Optional value to set as the dialog's <c>returnValue</c>, which its own
+    /// <c>close</c> event carries — the same place a <c>&lt;form method="dialog"&gt;</c>
+    /// puts its submitter's value.
+    /// </param>
+    /// <returns>A task that completes once it is closed.</returns>
+    /// <remarks>
+    /// Not needed for Escape or for a <c>&lt;form method="dialog"&gt;</c> submit: the
+    /// platform closes the dialog itself in both cases. This is for a Close button
+    /// that is not a dialog-method submitter, and for closing from C# after work
+    /// completes.
+    /// </remarks>
+    Task CloseModalAsync(string elementId, string? returnValue = null);
+
     /// <summary>Copies text to the clipboard.</summary>
     /// <param name="text">The text to copy.</param>
     /// <returns><see langword="true"/> if the browser allowed it.</returns>

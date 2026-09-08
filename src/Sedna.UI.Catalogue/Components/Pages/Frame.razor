@@ -57,6 +57,13 @@
         another way in on a phone.
     </p>
     <p>
+        It takes the room it is given up to <code>--search-max</code> (480px) and gives it back
+        first, because the pills and controls at the far end matter more than a wider box. In a
+        topbar that also carries a spacer and the user widget, 480px reads as a second sidebar —
+        narrow it with <code>style="--search-max: 340px"</code> on the <code>.search</code> box
+        rather than by overriding <code>max-width</code>.
+    </p>
+    <p>
         <code>data-search</code> hands the box to <code>sednaUi.search</code>, which builds the
         result panel, ranks against the index the app registered, and implements the keyboard —
         arrows, <code>Home</code>/<code>End</code>, <code>Enter</code> to open,
@@ -225,6 +232,21 @@
     <p>
         The reload buttons are plain <code>onclick</code> handlers: the circuit is gone in those
         states, so a Blazor handler cannot run.
+    </p>
+</CatSnippet>
+
+<CatSnippet Name="Frame/ErrorBarHostPage.html" Title="The unhandled-error bar">
+    <p>
+        Blazor's own <code>#blazor-error-ui</code>, unchanged from the project template. The
+        framework shows it by setting <code>display: block</code> inline on an unhandled circuit
+        error; the library styles it from the same three tokens as the failed reconnect row above,
+        so the two cannot drift apart and both follow the light variant and the colour-blind
+        palette.
+    </p>
+    <p>
+        Paste it as it is and delete the twenty lines every consuming app had written for it.
+        Nothing here is a library class: <code>.reload</code> and <code>.dismiss</code> are
+        Blazor's names, and the id is what the framework looks for.
     </p>
 </CatSnippet>
 
