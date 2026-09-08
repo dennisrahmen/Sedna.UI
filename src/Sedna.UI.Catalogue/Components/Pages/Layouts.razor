@@ -49,6 +49,12 @@
         page whose own nav entry is hidden. Sub-items indent to sit under the parent's
         <em>label</em>, not its icon. In the collapsed rail the whole group flattens to icons.
     </p>
+    <p>
+        A group sits at whatever depth it is nested to. Inside a <code>.nav-section</code> it takes the
+        section's indent and its sub-items follow, so a group lines up with the plain links either
+        side of it. The depth is one knob, <code>--nav-indent</code>, which every row in the nav
+        reads — a link, a group's summary, and a group's sub-items, which derive theirs from it.
+    </p>
 </CatExample>
 
 <CatExample TExample="Examples.Interop.NavGroupOpen" Title="Which group is open" Demo="ex-demo--block">

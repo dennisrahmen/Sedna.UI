@@ -11,7 +11,6 @@
 .sidebar.collapsed .nav-section-label { display: none; }
 .sidebar.collapsed .nav-section { margin-bottom: var(--space-4); }
 .sidebar.collapsed .nav-link { justify-content: center; padding: var(--space-4) 0; gap: 0; position: relative; }
-.sidebar.collapsed .nav-section .nav-link { padding-inline-start: 0; }
 .sidebar.collapsed .nav-link > span:not(.nav-count) {
     position: absolute;
     width: 1px;

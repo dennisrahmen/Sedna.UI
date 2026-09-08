@@ -137,9 +137,86 @@ public class FrameLayoutTests : ScriptTestBase
 
         Assert.Equal(0, gap);
 
-        // The first item has not moved: it carries its own top padding.
+        // The first item still carries its own top padding, and that padding is inside
+        // its background — so the row itself starts 4px down instead of putting an
+        // active link's tint hard against the divider.
         Assert.Equal("8px", await page.EvalOnSelectorAsync<string>(
             ".nav-scroll .nav-link", "el => getComputedStyle(el).paddingTop"));
+
+        var rowGap = await page.EvaluateAsync<double>("""
+            () => Math.round(document.querySelector('.nav-scroll .nav-link').getBoundingClientRect().top
+                           - document.querySelector('.brand').getBoundingClientRect().bottom)
+            """);
+
+        Assert.Equal(4, rowGap);
+
+        Assert.Empty(errors);
+    }
+
+    /// <summary>A nav-group at the top of the nav and a nav-group inside a section.</summary>
+    private const string Groups =
+        """
+        <div class="layout" style="height:460px">
+          <aside class="sidebar">
+            <a class="brand" href="#"><span class="brand-logo"></span>
+              <span class="brand-text"><strong>Console</strong></span></a>
+            <nav class="nav">
+              <div class="nav-scroll">
+                <a class="nav-link" id="outer-flat" href="#"><i class="ri-inbox-line"></i><span>Orders</span></a>
+                <details class="nav-group" open>
+                  <summary id="outer-summary"><i class="ri-building-line"></i><span>Fulfilment</span></summary>
+                  <a class="nav-link" id="outer-sub" href="#"><span>On hold</span></a>
+                </details>
+                <div class="nav-section">
+                  <span class="nav-section-label">Administration</span>
+                  <a class="nav-link" id="section-flat" href="#"><i class="ri-key-2-line"></i><span>API keys</span></a>
+                  <details class="nav-group" open>
+                    <summary id="section-summary"><i class="ri-refresh-line"></i><span>Directory sync</span></summary>
+                    <a class="nav-link" id="section-sub" href="#"><span>Field mapping</span></a>
+                  </details>
+                </div>
+              </div>
+            </nav>
+          </aside>
+          <div class="content"><div class="page"><p>page</p></div></div>
+        </div>
+        """;
+
+    [Fact]
+    public async Task A_nav_group_indents_with_its_siblings_at_whatever_depth_it_sits()
+    {
+        if (NoBrowser) return;
+        // `.nav-section .nav-link` set the depth on links alone, so a .nav-group inside
+        // a section sat 8px to the left of the links either side of it, and its
+        // sub-items indented off the outer depth rather than the section's. Both halves
+        // parse fine and are invisible to a source scan. --nav-indent is the one knob
+        // every row reads, and this measures that they all read it.
+        var (page, errors) = await OpenStyled(Groups);
+
+        // The inline depth of each row, which is what --nav-indent sets. Measured off
+        // computed padding rather than off the label's position: the label's x depends
+        // on the icon's advance width, and the icon font is not loaded here.
+        // [outerFlat, outerSummary, outerSub, sectionFlat, sectionSummary, sectionSub]
+        var pad = await page.EvaluateAsync<int[]>("""
+            () => ['outer-flat', 'outer-summary', 'outer-sub',
+                   'section-flat', 'section-summary', 'section-sub']
+                .map(id => parseFloat(
+                    getComputedStyle(document.getElementById(id)).paddingInlineStart))
+            """);
+
+        // A group's own row sits at exactly its siblings' depth.
+        Assert.Equal(pad[0], pad[1]);
+        Assert.Equal(pad[3], pad[4]);
+
+        // A section is one rung deeper than the top of the nav — for the group too.
+        Assert.Equal(16, pad[0]);
+        Assert.Equal(24, pad[3]);
+        Assert.Equal(24, pad[4]);
+
+        // A sub-item clears its own parent's icon and the gap after it, off its own
+        // depth: 16 + 16 + 8 at the top of the nav, 24 + 16 + 8 inside a section.
+        Assert.Equal(40, pad[2]);
+        Assert.Equal(48, pad[5]);
 
         Assert.Empty(errors);
     }
