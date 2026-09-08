@@ -25,9 +25,15 @@
         child.
     </p>
     <p>
-        Used <em>instead of</em> <code>.page</code>, not alongside it —
-        <code>&lt;AppShell PageClass="…"&gt;</code> cannot remove <code>.page</code>'s own padding,
-        so this one case writes the shell markup by hand.
+        Used <em>instead of</em> <code>.page</code>, never alongside it: the two are the same slot,
+        and nesting one in the other gives you <code>.page</code>'s padding back.
+    </p>
+    <p>
+        <code>.full-layout-fill</code> is the child that takes whatever height is left, with a
+        toolbar above it. <code>flex: 1</code> alone looks right and does nothing — a flex child
+        will not shrink below its content, so a tall canvas pushes the layout past the viewport
+        instead of scrolling inside itself. The <code>min-height: 0</code> that fixes it is inside
+        the class, which is the same trap <a href="/modal"><code>.modal-body</code></a> carries.
     </p>
 </CatSnippet>
 

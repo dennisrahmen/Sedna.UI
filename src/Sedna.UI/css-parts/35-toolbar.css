@@ -8,6 +8,17 @@
     flex-wrap: wrap;
 }
 .toolbar-filters { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+/* The TRAILING group — the actions, the count, the pager. Same box as
+   `.toolbar-filters`, and it exists because `.toolbar` is `space-between`: with two
+   children that puts one group at each end, and with three it spreads all three and
+   the middle one floats. `.sedna-push` does not rescue it either, because an auto
+   margin and `space-between` are two answers to the same question.
+
+   Its absence was not theoretical. This library's own examples had invented it three
+   different ways — a second `.toolbar-filters` (those are not filters), a
+   `.sedna-row sedna-gap-2`, and a `.sedna-push` on a bare span, which is the one
+   that was visibly broken on the landing page. */
+.toolbar-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
 /* 160px is right for a filter dropdown and short for a search box, so the width is
    a knob on the element rather than a value baked into the class — the same shape
    of fix as `--prose-measure` and `--deck-height`. Set it per instance
@@ -22,5 +33,10 @@
 .toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); }
 .toolbar-input--wide { --toolbar-input-width: 280px; }
 .toolbar-input--grow { --toolbar-input-width: auto; flex: 1 1 12rem; min-width: 12rem; }
+/* A filter that carries a leading icon is an `.input-group`, which is `width: 100%`
+   for a form row — and 46-form-layout.css is a later part, so at equal specificity
+   `.toolbar-input` lost its width silently and the group filled the bar. Stated as
+   the collision it resolves, so it is order-independent. */
+.input-group.toolbar-input { width: var(--toolbar-input-width); }
 .toolbar-count { font-size: var(--text-3); color: var(--muted); white-space: nowrap; }
 

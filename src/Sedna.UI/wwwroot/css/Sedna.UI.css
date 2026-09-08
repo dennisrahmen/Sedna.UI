@@ -1223,8 +1223,15 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 /* ── 11-frame-sidebar.css → @layer sedna.frame ──────────────────────────────────────────────── */
 @layer sedna.frame {
 /* ── Sidebar ────────────────────────────────────────────────────────────── */
+/* The width is a knob, not a value baked into the class. The frame must look the
+   same in every app, but how much room a nav needs depends on the labels in it —
+   and the alternative was an app overriding `width` on a tier-1 class, which the
+   override rules ask it not to do and which the library's own examples were doing.
+   Both rungs are here so a rail that has to hold a wider icon moves with it. */
 .sidebar {
-    width: 220px;
+    --sidebar-width: 220px;
+    --sidebar-width-collapsed: 56px;
+    width: var(--sidebar-width);
     --surface-here: var(--sidebar-bg);
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
@@ -1363,7 +1370,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 /* ── 12-frame-collapsed-rail.css → @layer sedna.frame ──────────────────────────────────────────────── */
 @layer sedna.frame {
 /* ── Collapsed sidebar rail ─────────────────────────────────────────────── */
-.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed { width: var(--sidebar-width-collapsed); }
 .sidebar.collapsed .brand { justify-content: center; padding: 0; gap: 0; }
 .sidebar.collapsed .brand-text {
     position: absolute;
@@ -1552,6 +1559,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    and reveals empty space below it. `position: relative` with `z-index: auto`
    creates no stacking context, so nothing in the z-order changes. */
 .page {
+    --page-gap: var(--space-7);
     padding: var(--space-9);
     padding-inline: max(var(--space-9), calc((100% - var(--page-max)) / 2));
     flex: 1;
@@ -1559,6 +1567,40 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     min-height: 0;
     position: relative;
 }
+
+/* ── The rhythm between page sections ───────────────────────────────────────
+   A card, then another card. A toolbar, then the list it controls. This is the
+   commonest arrangement on a page and the library had no answer for it, so every
+   such seam in a consuming app was an inline `style="margin-top:1rem"` — and 1rem
+   is --space-7 written by hand.
+
+   The library had already TAKEN this decision; it had implemented it four times
+   instead of once. `.page-head`, `.toolbar` and `.alert` each carry
+   `margin-bottom: var(--space-7)`, which spaces the seam when a library component
+   is the first of the pair and does nothing when the app's own card is. This is
+   the same --space-7, stated once, for every pair.
+
+   Adjacent siblings collapse their margins, so those three rules stay and are
+   unaffected: max(16px, 16px) is 16px. `.breadcrumb` and `.back-link` carry
+   --space-6, so their seam grows by 4px, which is the whole visible change to a
+   page built out of library components.
+
+   `gap` would be the better mechanism — it adds space BETWEEN without touching
+   either element's margins — but it needs flex or grid, and `.page` is a block on
+   purpose: it is the frame's scroll container, and blockifying its children
+   stretches an inline-flex `.back-link` across the page and stops the collapsing
+   the rule above depends on.
+
+   Headings are excluded because they set a LARGER rhythm of their own on purpose
+   (`h2` is --space-9), and this rule is in a later layer, so it would quietly
+   shrink them. `.lede` is excluded because its `margin-top: 0` is deliberate: it
+   sits tight under the heading it belongs to. An app's own deliberate zero needs
+   no exclusion here — an app's stylesheet is unlayered and wins outright — and
+   `.sedna-mt-0` is the per-element escape.
+
+   `--page-gap: 0` on `.page` turns the whole thing off for a page that manages its
+   own vertical rhythm. */
+.page > * + *:not(h1, h2, h3, h4, h5, h6, .lede) { margin-block-start: var(--page-gap); }
 
 .back-link {
     display: inline-flex; align-items: center; gap: var(--space-2);
@@ -1828,7 +1870,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    like. `Layout_media_queries_only_change_geometry` enforces it.
    ─────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
-    .layout--responsive .sidebar { width: 56px; }
+    .layout--responsive .sidebar { width: var(--sidebar-width-collapsed); }
     .layout--responsive .sidebar .brand { justify-content: center; padding: 0; gap: 0; }
     .layout--responsive .sidebar .brand-text {
         position: absolute;
@@ -1946,6 +1988,16 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     overflow: hidden;
     padding: 0;
 }
+/* The child that takes whatever height is left — the map, the board, the canvas,
+   with a toolbar above it. `min-height: 0` is the half worth having written down
+   rather than rediscovered: `flex: 1` alone looks right and does nothing, because a
+   flex child will not shrink below its content, so a tall canvas pushes the layout
+   past the viewport instead of scrolling inside itself. Same trap as `.modal-body`.
+
+   The library's own full-bleed snippet said `style="flex:1; min-height:0"`, which is
+   the sign a class was missing rather than a number being app-specific — there is
+   no other value either half could take. */
+.full-layout-fill { flex: 1; min-height: 0; }
 
 /* ── Nav sub-items ──────────────────────────────────────────────────────────
    A collapsible group inside the sidebar, for a section with more children than fits
@@ -2591,6 +2643,17 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     flex-wrap: wrap;
 }
 .toolbar-filters { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+/* The TRAILING group — the actions, the count, the pager. Same box as
+   `.toolbar-filters`, and it exists because `.toolbar` is `space-between`: with two
+   children that puts one group at each end, and with three it spreads all three and
+   the middle one floats. `.sedna-push` does not rescue it either, because an auto
+   margin and `space-between` are two answers to the same question.
+
+   Its absence was not theoretical. This library's own examples had invented it three
+   different ways — a second `.toolbar-filters` (those are not filters), a
+   `.sedna-row sedna-gap-2`, and a `.sedna-push` on a bare span, which is the one
+   that was visibly broken on the landing page. */
+.toolbar-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
 /* 160px is right for a filter dropdown and short for a search box, so the width is
    a knob on the element rather than a value baked into the class — the same shape
    of fix as `--prose-measure` and `--deck-height`. Set it per instance
@@ -2605,6 +2668,11 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); }
 .toolbar-input--wide { --toolbar-input-width: 280px; }
 .toolbar-input--grow { --toolbar-input-width: auto; flex: 1 1 12rem; min-width: 12rem; }
+/* A filter that carries a leading icon is an `.input-group`, which is `width: 100%`
+   for a form row — and 46-form-layout.css is a later part, so at equal specificity
+   `.toolbar-input` lost its width silently and the group filled the bar. Stated as
+   the collision it resolves, so it is order-independent. */
+.input-group.toolbar-input { width: var(--toolbar-input-width); }
 .toolbar-count { font-size: var(--text-3); color: var(--muted); white-space: nowrap; }
 
 }

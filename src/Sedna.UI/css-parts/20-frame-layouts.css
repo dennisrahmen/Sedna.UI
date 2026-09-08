@@ -36,6 +36,16 @@
     overflow: hidden;
     padding: 0;
 }
+/* The child that takes whatever height is left — the map, the board, the canvas,
+   with a toolbar above it. `min-height: 0` is the half worth having written down
+   rather than rediscovered: `flex: 1` alone looks right and does nothing, because a
+   flex child will not shrink below its content, so a tall canvas pushes the layout
+   past the viewport instead of scrolling inside itself. Same trap as `.modal-body`.
+
+   The library's own full-bleed snippet said `style="flex:1; min-height:0"`, which is
+   the sign a class was missing rather than a number being app-specific — there is
+   no other value either half could take. */
+.full-layout-fill { flex: 1; min-height: 0; }
 
 /* ── Nav sub-items ──────────────────────────────────────────────────────────
    A collapsible group inside the sidebar, for a section with more children than fits

@@ -19,6 +19,45 @@
         the column beside the sidebar; <code>.page</code> is the only scroll container. Shown
         here at a fixed height — in an app the layout fills the window.
     </p>
+    <p>
+        The sidebar is 220px, and 56px as the collapsed rail. Both are knobs —
+        <code>--sidebar-width</code> and <code>--sidebar-width-collapsed</code> — because how much
+        room a nav needs depends on the labels in it, and the alternative was an app overriding
+        <code>width</code> on a tier-1 class. Set them on <code>.sidebar</code>; nothing else about
+        the frame changes with them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Frame.PageRhythm" Title="The rhythm between page sections" Demo="ex-demo--block">
+    <p>
+        A card, then another card. A toolbar, then the list it controls. Every direct child of
+        <code>.page</code> after the first gets <code>--page-gap</code> above it, so the
+        commonest arrangement on a page needs no class and no
+        <code>style="margin-top:1rem"</code> — which is what an app wrote, once per seam, when
+        the library had no answer for it.
+    </p>
+    <p>
+        <strong>A page built out of library components does not move.</strong>
+        <code>.page-head</code>, <code>.toolbar</code> and <code>.alert</code> each already carry
+        <code>margin-bottom: var(--space-7)</code>, adjacent margins collapse, and 16px against
+        16px is 16px. The library had taken this decision already and implemented it three times;
+        this states it once, for every pair. Only <code>.breadcrumb</code> and
+        <code>.back-link</code> change, from 12px to 16px.
+    </p>
+    <p>
+        Headings keep their own, larger rhythm and <code>.lede</code> keeps its
+        <code>margin-top: 0</code> so it stays tight under the heading it belongs to. Set
+        <code>--page-gap: 0</code> on <code>.page</code> for a page that manages its own vertical
+        rhythm, or <code>.sedna-mt-0</code> on the one child that should sit flush.
+    </p>
+    <p>
+        <strong>There is no equivalent inside <code>.card-body</code></strong>, and that is
+        deliberate rather than unfinished: its commonest content is a stack of
+        <a href="/card"><code>.kv</code></a> rows, which are tight on purpose — 4px of padding and
+        no margin. The same rule there makes a three-row stack 24% taller. Use
+        <a href="/utility"><code>.sedna-col</code></a> with a gap step, which says what the spacing
+        is for.
+    </p>
 </CatExample>
 
 <CatExample TExample="Examples.Interop.ActiveNavLink" Title="The active link" Demo="ex-demo--block">

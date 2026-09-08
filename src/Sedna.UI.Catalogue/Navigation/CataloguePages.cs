@@ -55,7 +55,7 @@ internal static class CataloguePages
 
         new("/frame", Frame, "Shell and nav", "ri-side-bar-line",
             "Layout, sidebar, topbar and user widget — the chrome this site is built from.",
-            "layout sidebar topbar nav user-widget collapsed rail reconnect active link blazor-error-ui error bar search-max"),
+            "layout sidebar topbar nav user-widget collapsed rail reconnect active link blazor-error-ui error bar search-max page-gap rhythm spacing margin stack owl"),
         new("/layouts", Frame, "Layouts", "ri-layout-3-line",
             "Auth and full-bleed shells, collapsible nav groups, and the skip link.",
             "auth sign-in full-bleed nav-group skip-link landmark open details active group"),

@@ -71,11 +71,23 @@ The panel caps itself at the viewport and the body is what scrolls, so a tall fo
 `max-height` of its own. A scrolling body holding nothing focusable does need `tabindex="0"` with a
 `role` and a name, so a keyboard reader can scroll it.
 
+### Vertical rhythm between page sections is the frame's, not yours
+
+Every direct child of `.page` after the first gets `--page-gap` (`--space-7`) above it, so a card
+followed by a card, or a toolbar followed by the list it controls, needs no margin of its own. Do not
+write `style="margin-top:1rem"` for a seam between page sections. Headings keep their own larger
+rhythm and `.lede` stays tight under its heading; `--page-gap: 0` on `.page` turns the whole thing off,
+and `.sedna-mt-0` flushes one child.
+
+Inside a `.card-body` the rhythm is yours, because its content is: a `.kv` stack is tight on purpose
+and a form is not. Reach for `.sedna-col` with a gap step rather than a margin per child.
+
 ### A number in a `style` attribute is usually a knob you have not found
 
 Where a library class has one value an app reasonably wants to change, that value is a custom property
 on the element, not a class to override. `--toolbar-input-width`, `--search-max`, `--modal-max-height`,
-`--scroll-max`, `--skeleton-height`, `--prose-measure`, `--deck-height`,
+`--scroll-max`, `--skeleton-height`, `--page-gap`, `--sidebar-width`, `--prose-measure`,
+`--deck-height`,
 `--col-control-min` / `--col-control-max`, `--col-prose-min` / `--col-prose-max`. Set one inline —
 `style="--search-max: 340px"` — rather than declaring `max-width` for a library class, which the
 section below is about. If the number you need has no knob, that is a request for the library.
