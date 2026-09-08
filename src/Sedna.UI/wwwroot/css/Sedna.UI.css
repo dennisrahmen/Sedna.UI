@@ -1269,12 +1269,28 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 /* No margin above the nav. It would put the scroll container's top edge below
    the brand's divider, which reads as a gap the first time the nav is scrolled:
    the content slides under a strip of empty sidebar instead of under the
-   divider, and the scrollbar and the scroll shadow both start late. Nothing is
-   lost: every element that can be first in the nav (.nav-section-label, .nav-link,
-   .nav-status-card) carries its own top padding. */
-.nav { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+   divider, and the scrollbar and the scroll shadow both start late.
+
+   --nav-indent is the inline depth every row in the nav reads, so one declaration
+   sets the depth and everything at it follows: a link, a group's summary, and a
+   group's sub-items, which derive their own indent from it. A .nav-section
+   redefines it once.
+
+   It replaces `.nav-section .nav-link`, which set the depth on links alone — so a
+   .nav-group inside a section sat 8px to the left of its own siblings, and that
+   group's sub-items indented from the outer depth rather than the section's. */
+.nav { --nav-indent: var(--space-7); display: flex; flex-direction: column; flex: 1; overflow: hidden; }
 .nav-scroll { flex: 1; overflow-y: auto; min-height: 0; }
-.nav-section { margin-bottom: var(--space-2); }
+/* Every element that can be first in the nav carries its own top padding, but that
+   padding is INSIDE its background — so an active first link puts its tint hard
+   against the brand's divider with nothing between them. A margin on whatever is
+   first supplies the gap, scrolls away with the content, and leaves the scroll
+   shadow's background box alone. Padding on .nav-scroll would not: `background-
+   origin` is the padding box, so the cover gradient's origin would move off the
+   top edge and content would show through the strip above it. 4px is the gap
+   .nav-tools already leaves under its own border. */
+.nav-scroll > :first-child { margin-block-start: var(--space-2); }
+.nav-section { --nav-indent: var(--space-9); margin-bottom: var(--space-2); }
 .nav-section-label {
     display: block;
     padding: var(--space-4) var(--space-7) var(--space-2);
@@ -1290,10 +1306,10 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     align-items: center;
     gap: var(--space-4);
     padding: var(--space-4) var(--space-7);
+    padding-inline-start: var(--nav-indent);
     color: var(--sidebar-fg);
     font-size: var(--text-4);
 }
-.nav-section .nav-link { padding-inline-start: var(--space-9); }
 .nav-link i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
 .nav-link:hover { background: var(--bg-elevated); text-decoration: none; }
 .nav-link:hover i { opacity: 1; }
@@ -1382,7 +1398,6 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .sidebar.collapsed .nav-section-label { display: none; }
 .sidebar.collapsed .nav-section { margin-bottom: var(--space-4); }
 .sidebar.collapsed .nav-link { justify-content: center; padding: var(--space-4) 0; gap: 0; position: relative; }
-.sidebar.collapsed .nav-section .nav-link { padding-inline-start: 0; }
 .sidebar.collapsed .nav-link > span:not(.nav-count) {
     position: absolute;
     width: 1px;
@@ -1882,7 +1897,6 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     .layout--responsive .sidebar .nav-section-label { display: none; }
     .layout--responsive .sidebar .nav-section { margin-bottom: var(--space-4); }
     .layout--responsive .sidebar .nav-link { justify-content: center; padding: var(--space-4) 0; gap: 0; position: relative; }
-    .layout--responsive .sidebar .nav-section .nav-link { padding-inline-start: 0; }
     .layout--responsive .sidebar .nav-link > span:not(.nav-count) {
         position: absolute;
         width: 1px;
@@ -2015,6 +2029,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     align-items: center;
     gap: var(--space-4);
     padding: var(--space-4) var(--space-7);
+    padding-inline-start: var(--nav-indent);
     color: var(--sidebar-fg);
     font-size: var(--text-4);
     cursor: pointer;
@@ -2036,11 +2051,13 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     transition: transform var(--motion-fast) ease;
 }
 .nav-group[open] > summary::after { transform: rotate(-180deg); }
-/* Sub-items indent to sit under the parent's label rather than its icon. */
-/* The indent is the parent's own padding plus the width of its icon and the gap after
-   it. Written as that sum so it stays aligned when the spacing scale is redefined. */
+/* Sub-items indent to sit under the parent's label rather than its icon: the
+   group's own depth plus the width of its icon and the gap after it. Written as that
+   sum, off --nav-indent rather than off a literal rung, so the group stays aligned
+   with its siblings at whatever depth it sits — inside a .nav-section as well as at
+   the top of the nav — and when the spacing scale is redefined. */
 .nav-group .nav-link {
-    padding-inline-start: calc(var(--space-7) + var(--text-7) + var(--space-4));
+    padding-inline-start: calc(var(--nav-indent) + var(--text-7) + var(--space-4));
     font-size: var(--text-3);
 }
 .sidebar.collapsed .nav-group > summary { justify-content: center; padding: var(--space-4) 0; gap: 0; }

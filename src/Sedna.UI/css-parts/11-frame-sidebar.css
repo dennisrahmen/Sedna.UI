@@ -45,12 +45,28 @@
 /* No margin above the nav. It would put the scroll container's top edge below
    the brand's divider, which reads as a gap the first time the nav is scrolled:
    the content slides under a strip of empty sidebar instead of under the
-   divider, and the scrollbar and the scroll shadow both start late. Nothing is
-   lost: every element that can be first in the nav (.nav-section-label, .nav-link,
-   .nav-status-card) carries its own top padding. */
-.nav { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+   divider, and the scrollbar and the scroll shadow both start late.
+
+   --nav-indent is the inline depth every row in the nav reads, so one declaration
+   sets the depth and everything at it follows: a link, a group's summary, and a
+   group's sub-items, which derive their own indent from it. A .nav-section
+   redefines it once.
+
+   It replaces `.nav-section .nav-link`, which set the depth on links alone — so a
+   .nav-group inside a section sat 8px to the left of its own siblings, and that
+   group's sub-items indented from the outer depth rather than the section's. */
+.nav { --nav-indent: var(--space-7); display: flex; flex-direction: column; flex: 1; overflow: hidden; }
 .nav-scroll { flex: 1; overflow-y: auto; min-height: 0; }
-.nav-section { margin-bottom: var(--space-2); }
+/* Every element that can be first in the nav carries its own top padding, but that
+   padding is INSIDE its background — so an active first link puts its tint hard
+   against the brand's divider with nothing between them. A margin on whatever is
+   first supplies the gap, scrolls away with the content, and leaves the scroll
+   shadow's background box alone. Padding on .nav-scroll would not: `background-
+   origin` is the padding box, so the cover gradient's origin would move off the
+   top edge and content would show through the strip above it. 4px is the gap
+   .nav-tools already leaves under its own border. */
+.nav-scroll > :first-child { margin-block-start: var(--space-2); }
+.nav-section { --nav-indent: var(--space-9); margin-bottom: var(--space-2); }
 .nav-section-label {
     display: block;
     padding: var(--space-4) var(--space-7) var(--space-2);
@@ -66,10 +82,10 @@
     align-items: center;
     gap: var(--space-4);
     padding: var(--space-4) var(--space-7);
+    padding-inline-start: var(--nav-indent);
     color: var(--sidebar-fg);
     font-size: var(--text-4);
 }
-.nav-section .nav-link { padding-inline-start: var(--space-9); }
 .nav-link i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
 .nav-link:hover { background: var(--bg-elevated); text-decoration: none; }
 .nav-link:hover i { opacity: 1; }

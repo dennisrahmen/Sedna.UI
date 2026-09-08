@@ -1,4 +1,4 @@
-<aside class="sidebar" style="height:320px">
+<aside class="sidebar" style="height:460px">
     <nav class="nav">
         <div class="nav-scroll">
             <a class="nav-link" href="#"><i class="ri-inbox-line"></i><span>Orders</span></a>
@@ -7,11 +7,16 @@
                 <a class="nav-link active" href="#"><span>Ready to pick</span><span class="nav-count">41</span></a>
                 <a class="nav-link" href="#"><span>On hold</span></a>
             </details>
-            <details class="nav-group">
-                <summary><i class="ri-settings-3-line"></i><span>Administration</span></summary>
-                <a class="nav-link" href="#"><span>Warehouses</span></a>
-                <a class="nav-link" href="#"><span>Audit log</span></a>
-            </details>
+            <div class="nav-section">
+                <span class="nav-section-label">Administration</span>
+                <a class="nav-link" href="#"><i class="ri-key-2-line"></i><span>API keys</span></a>
+                <details class="nav-group" open>
+                    <summary><i class="ri-refresh-line"></i><span>Directory sync</span></summary>
+                    <a class="nav-link" href="#"><span>Field mapping</span></a>
+                    <a class="nav-link" href="#"><span>Change log</span></a>
+                </details>
+                <a class="nav-link" href="#"><i class="ri-file-list-line"></i><span>Audit log</span></a>
+            </div>
         </div>
         <div class="nav-tools">
             <a class="nav-link nav-link-tool" href="#"><i class="ri-question-line"></i><span>Support</span></a>
