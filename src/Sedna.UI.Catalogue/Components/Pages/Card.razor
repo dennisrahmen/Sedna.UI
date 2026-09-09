@@ -51,6 +51,24 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Card.Elevation" Title="A card in a card in a card" Demo="ex-demo--block">
+    <p>
+        Three surfaces, three colours, and nothing in the markup saying which level it is —
+        <code>.card</code> takes <code>--surface-raised-1</code>, a card inside one takes
+        <code>-2</code> and a card inside that takes <code>-3</code>. Move a card into another
+        card and it is right without being edited; a fourth level stays at the third.
+    </p>
+    <p>
+        The third level also lifts <code>--muted</code> to <code>--fg-soft</code>, because Dust
+        Gray on that surface measures 3.97:1 — under the AA floor. That is the reason the ladder
+        has three steps and not five: it runs out of readable contrast before it runs out of ramp.
+    </p>
+    <p>
+        The levels resolve through the theme's own base ramp, so they follow it. Switch to
+        <a href="/branding#switch">Graphite</a> and all three go neutral grey.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Card.Foot" Title="Head, body and foot" Demo="ex-demo--block">
     <p>
         <code>.card-foot</code> is the row a card ends with — the actions that decide what happens to

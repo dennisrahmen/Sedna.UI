@@ -202,6 +202,55 @@ public sealed class SednaTheme
         return new SednaTheme("cobalt", palette);
     }
 
+    /// <summary>
+    /// A demo theme that moves the <b>base</b> rather than the brand: a neutral graphite canvas
+    /// under Sedna's own Sedna Red.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Forest and Cobalt both keep <c>slate</c> — Sedna's blue-tinted greys — so until this
+    /// existed every theme, and therefore every app, had the same faintly blue background. The
+    /// base is a ramp like any other and was always themeable in principle; what was missing was
+    /// a way to generate one, because <see cref="SednaRamp.FromAnchor"/>'s curve is fit to brand
+    /// hues and puts step 900 at more than half lightness. <see cref="SednaRamp.Surface"/> is
+    /// that way, and this theme is the proof it works end to end.
+    /// </para>
+    /// <para>
+    /// Declared after <see cref="Sedna"/> on purpose: <see cref="SednaRamp.Surface"/> measures
+    /// its profile from Sedna's slate ramp, and static field initialisers run in declaration
+    /// order.
+    /// </para>
+    /// <para>
+    /// The elevation ladder follows automatically. <c>--surface-raised-1/-2/-3</c> resolve
+    /// through <c>--card-bg</c>, <c>--slate-750</c> and <c>--slate-700</c>, so a card inside a
+    /// card inside a card is graphite here and Deep Space in Sedna, with no rule to change.
+    /// </para>
+    /// </remarks>
+    public static SednaTheme Graphite { get; } = BuildGraphite();
+
+    private static SednaTheme BuildGraphite()
+    {
+        var sedna = Sedna.Palette;
+        var palette = new SednaPalette(
+            // The canvas an app wants, at step 900. Near-neutral: what little chroma it carries
+            // scales the whole ramp, so this is a grey that stays grey at every step rather
+            // than a blue that fades.
+            slate: SednaRamp.Surface("#18181b"),
+            coral: sedna.Coral,
+            orbit: sedna.Orbit,
+            navy: sedna.Navy,
+            green: sedna.Green,
+            amber: sedna.Amber,
+            crimson: sedna.Crimson,
+            violet: sedna.Violet,
+            cyan: sedna.Cyan,
+            orange: sedna.Orange,
+            teal: sedna.Teal,
+            indigo: sedna.Indigo);
+
+        return new SednaTheme("graphite", palette);
+    }
+
     /// <summary>The eight steps a support ramp (green, amber, … ) covers — see <c>docs/BRANDING.md</c> §2.6.</summary>
     private static readonly IReadOnlyList<int> SupportSteps = [200, 300, 400, 500, 600, 700, 800, 900];
 

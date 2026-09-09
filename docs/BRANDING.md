@@ -116,9 +116,17 @@ Four of the seven core colours are steps on one navy-tinted neutral ramp. Core c
 | 500 | `#707E93` | 3.94 | 4.33 |
 | 600 | `#515E72` | 6.28 | 2.72 |
 | 700 | `#354255` | 9.73 | 1.75 |
+| 750 | `#2A3649` | 11.65 | 1.46 |
 | 800 | **`#1E293B`** | 13.98 | 1.22 |
+| 850 | `#162033` | 15.58 | 1.10 |
 | 900 | **`#0F172A`** | 17.06 | — |
+| 925 | `#0A1225` | 17.82 | 1.04 |
 | 950 | `#04071B` | 19.09 | 1.12 |
+
+Fourteen steps, not the eleven the coloured ramps use. The dark end is where surfaces live and the
+standard spacing is too coarse there: 750 is the hover fill between 700 and 800, 850 the topbar
+between 800 and 900, 925 a canvas below 900. `SednaRamp.SurfaceSteps` is that list, and
+`SednaRamp.Surface(anchor)` generates all fourteen — see §4.5.
 
 ### 2.3 Coral — the brand ramp
 
@@ -328,6 +336,35 @@ variants, because the tint, ring and glow tokens are `color-mix`ed from `--brand
 unless you mean to break that relationship.
 
 If a theme's brand hue lands near a semantic family, §3.3's rule applies — move the family.
+
+### 4.5 Changing the base
+
+The base — canvas, chrome, cards, borders, muted text — is the `slate` ramp. A theme replaces it
+like any other ramp, and one call generates it from the colour the canvas should be:
+
+```csharp
+var palette = new SednaPalette(
+    slate: SednaRamp.Surface("#18181b"),   // step 900: the dark variant's canvas
+    coral: sedna.Coral,                     // brand unchanged
+    …);
+```
+
+`SednaTheme.Graphite` is exactly this, and is registered on the catalogue so the switch can be seen.
+
+Three things to know:
+
+- **`Surface` is not `FromAnchor`.** `FromAnchor`'s lightness curve is fit to brand hues and puts
+  step 900 at more than half lightness, which renders a mid grey where a canvas belongs. `Surface`
+  uses Sedna's own slate lightness, chroma and hue drift, measured, and moves them to the anchor's
+  hue while scaling chroma by the anchor's own. A grey anchor gives a grey ramp.
+- **The anchor is step 900 by default**, i.e. `--bg` in the dark variant. The light variant is
+  derived from the same ramp by `02-theme-light.css`, so choosing a dark canvas also settles the
+  light one.
+- **The elevation ladder follows.** `--surface-raised-1/-2/-3` resolve through `--card-bg`,
+  `--slate-750` and `--slate-700`, so a card inside a card inside a card is graphite under Graphite
+  and Deep Space under Sedna, with no rule changed. The ladder stops at three because the third
+  level is where `--muted` stops clearing AA — `30-cards.css` lifts it to `--fg-soft` there, and
+  `SurfaceTokenTests` measures both variants on every build.
 
 ---
 

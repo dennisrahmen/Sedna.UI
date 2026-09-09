@@ -144,6 +144,14 @@ That makes discipline the only thing left protecting the shared design:
   **Delete copied library rules.**
 - **Never use `!important` against the library.** Layer order inverts for important declarations, so it
   is not needed and makes the result harder to reason about, not easier.
+- **To change this app's background, register a theme — do not override `--bg`.**
+  `SednaRamp.Surface("#18181b")` generates the whole base ramp from the colour the canvas should be,
+  which moves the canvas, the chrome, the cards, the borders and all three elevation levels together
+  and in both variants. Overriding `--bg` alone moves one of those and leaves the rest blue.
+- **Nested surfaces are automatic.** A `.card` inside a `.card` takes `--surface-raised-2` and one
+  inside that takes `-3`; do not paint a nested card by hand. The named surfaces —
+  `--surface-app`, `--surface-chrome`, `--surface-content` — are what to read when this app paints a
+  surface of its own, so it lands on the same colours as the frame.
 
 ### Requesting a library change
 

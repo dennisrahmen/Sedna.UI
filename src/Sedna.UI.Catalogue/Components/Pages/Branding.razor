@@ -193,10 +193,14 @@
 <h2 id="switch">Switch it live</h2>
 
 <p class="cat-lede">
-    <strong>Sedna</strong>, <strong>Forest</strong> and <strong>Cobalt</strong> are three registered
-    themes — one hand-tuned, two generated from a single anchor colour. Forest's brand anchor
-    collides with the <code>go</code> family, so <code>go</code> moves; Cobalt's collides with
-    <code>accent</code> and <code>info</code>, so <code>orbit</code> moves. This is the same switch
+    <strong>Sedna</strong>, <strong>Forest</strong>, <strong>Cobalt</strong> and
+    <strong>Graphite</strong> are four registered themes — one hand-tuned, three generated from a
+    single anchor colour. Forest's brand anchor collides with the <code>go</code> family, so
+    <code>go</code> moves; Cobalt's collides with <code>accent</code> and <code>info</code>, so
+    <code>orbit</code> moves. <strong>Graphite moves the base instead of the brand</strong>: its
+    <code>slate</code> ramp comes from <code>SednaRamp.Surface("#18181b")</code>, so the canvas,
+    the chrome and all three elevation levels are neutral grey while Sedna Red stays exactly where
+    it is. This is the same switch
     the header's own dark/light toggle uses — a <code>data-theme</code> and <code>data-variant</code>
     flip on <code>&lt;html&gt;</code>, applied for the rest of this site until you change it again.
 </p>
@@ -213,6 +217,9 @@
             </label>
             <label class="segmented-option">
                 <input type="radio" name="branding-theme" checked="@IsCobalt" @onchange="SelectCobalt" /> Cobalt
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="branding-theme" checked="@IsGraphite" @onchange="SelectGraphite" /> Graphite
             </label>
         </div>
     </fieldset>
@@ -248,6 +255,7 @@
     private bool IsSedna => _theme == "sedna";
     private bool IsForest => _theme == "forest";
     private bool IsCobalt => _theme == "cobalt";
+    private bool IsGraphite => _theme == "graphite";
     private bool IsDark => _variant == "dark";
     private bool IsLight => _variant == "light";
 
@@ -294,6 +302,7 @@
     private Task SelectSedna() => SetTheme("sedna");
     private Task SelectForest() => SetTheme("forest");
     private Task SelectCobalt() => SetTheme("cobalt");
+    private Task SelectGraphite() => SetTheme("graphite");
     private Task SelectDark() => SetVariant("dark");
     private Task SelectLight() => SetVariant("light");
 

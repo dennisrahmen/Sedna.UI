@@ -106,11 +106,8 @@ public class TokenTierTests
     [InlineData("--muted", "--bg", 4.5)]
     public void A_near_floor_pair_still_clears_AA(string foreground, string background, double floor)
     {
-        var tokens = ResolvedRootTokens();
-
-        var fg = Rgb(tokens, foreground);
-        var bg = Rgb(tokens, background);
-        var ratio = Contrast(fg, bg);
+        var tokens = Tokens.Resolved();
+        var ratio = Tokens.Contrast(tokens, foreground, background);
 
         Assert.True(ratio >= floor,
             $"{foreground} on {background} is {ratio:0.00}:1, below the {floor:0.0}:1 floor. "
@@ -122,106 +119,4 @@ public class TokenTierTests
 
     private static IEnumerable<(string Name, string Value)> Declarations(string css) =>
         Declaration.Matches(css).Select(m => (m.Groups["name"].Value, m.Groups["value"].Value.Trim()));
-
-    /// <summary>
-    /// Every token declared at bare <c>:root</c>, with <c>var()</c> chains followed
-    /// to the literal they end at. That is the default (dark) state; the variants are
-    /// remaps of it.
-    /// </summary>
-    private static Dictionary<string, string> ResolvedRootTokens()
-    {
-        var raw = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        // Media blocks are excised first. `@media (forced-colors: active)` and
-        // `prefers-contrast` both carry their own `:root` remap, and forced colours
-        // hands the palette to the OS — `--fg` becomes `CanvasText`, which has no
-        // measurable value here. Those are conditional states; the default is what
-        // the bare `:root` outside any media query says.
-        foreach (var (selector, body) in Assets.TokenBlocks(WithoutMediaBlocks(Assets.StripComments(Assets.Css))))
-        {
-            if (Assets.Squash(selector) != ":root") continue;
-            foreach (var (name, value) in Declarations(body)) raw[name] = value;
-        }
-
-        var resolved = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var name in raw.Keys) resolved[name] = Resolve(name, raw, depth: 0);
-        return resolved;
-    }
-
-    /// <summary>
-    /// The stylesheet with every <c>@media</c> block removed, matched by counting
-    /// braces rather than by regex so a nested rule cannot truncate one.
-    /// </summary>
-    private static string WithoutMediaBlocks(string css)
-    {
-        var result = new System.Text.StringBuilder(css.Length);
-        var i = 0;
-
-        while (i < css.Length)
-        {
-            var at = css.IndexOf("@media", i, StringComparison.Ordinal);
-            if (at < 0) { result.Append(css, i, css.Length - i); break; }
-
-            result.Append(css, i, at - i);
-
-            var open = css.IndexOf('{', at);
-            if (open < 0) break;
-
-            var depth = 1;
-            var j = open + 1;
-            while (j < css.Length && depth > 0)
-            {
-                if (css[j] == '{') depth++;
-                else if (css[j] == '}') depth--;
-                j++;
-            }
-
-            i = j;
-        }
-
-        return result.ToString();
-    }
-
-    private static string Resolve(string name, Dictionary<string, string> raw, int depth)
-    {
-        if (depth > 8 || !raw.TryGetValue(name, out var value)) return string.Empty;
-
-        var reference = Regex.Match(value, @"^var\(\s*(--[a-z0-9-]+)\s*\)$");
-        return reference.Success ? Resolve(reference.Groups[1].Value, raw, depth + 1) : value;
-    }
-
-    private static (double R, double G, double B) Rgb(Dictionary<string, string> tokens, string name)
-    {
-        Assert.True(tokens.TryGetValue(name, out var value),
-            $"{name} is not declared at :root.");
-
-        var hex = HexLiteral.Match(value);
-        Assert.True(hex.Success,
-            $"{name} resolves to \"{value}\", which is not a plain colour — this test can only "
-            + "measure a token that ends at a hex literal.");
-
-        var text = hex.Value[1..];
-        if (text.Length == 3)
-            text = string.Concat(text.Select(c => new string(c, 2)));
-
-        return (Channel(text[..2]), Channel(text[2..4]), Channel(text[4..6]));
-
-        static double Channel(string pair) =>
-            int.Parse(pair, NumberStyles.HexNumber, CultureInfo.InvariantCulture) / 255.0;
-    }
-
-    /// <summary>WCAG 2.1 relative-luminance contrast ratio.</summary>
-    private static double Contrast((double R, double G, double B) a, (double R, double G, double B) b)
-    {
-        var la = Luminance(a);
-        var lb = Luminance(b);
-        var (hi, lo) = la > lb ? (la, lb) : (lb, la);
-        return (hi + 0.05) / (lo + 0.05);
-
-        static double Luminance((double R, double G, double B) c) =>
-            0.2126 * Linear(c.R) + 0.7152 * Linear(c.G) + 0.0722 * Linear(c.B);
-
-        static double Linear(double channel) =>
-            channel <= 0.03928 ? channel / 12.92 : Math.Pow((channel + 0.055) / 1.055, 2.4);
-    }
 }

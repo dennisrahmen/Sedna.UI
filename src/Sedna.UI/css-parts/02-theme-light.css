@@ -30,6 +30,12 @@
     --card-bg:        var(--white);
     --surface-soft:   rgba(15, 23, 42, 0.03);    /* slate-900 */
     --surface-strong: rgba(15, 23, 42, 0.055);   /* slate-900 */
+    /* Elevation runs the other way here: level 1 is white, so a raised surface
+       gets darker rather than lighter. --surface-app, --surface-chrome,
+       --surface-content and --surface-raised-1 are aliases and follow --bg,
+       --sidebar-bg and --card-bg above without a remap of their own. */
+    --surface-raised-2: var(--slate-100);
+    --surface-raised-3: var(--slate-200);
     --redacted:       var(--crimson-700);
 
     --brand-soft: var(--coral-600);

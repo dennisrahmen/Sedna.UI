@@ -183,9 +183,20 @@ var ramp = SednaRamp.FromAnchor("#2f6fed", anchorStep: 500);
 See [architecture](architecture.md#branding) for what `FromAnchor` follows and what
 `SednaUiBrand.ToCss` emits.
 
-The catalogue's own `App.razor` registers `SednaTheme.Sedna`, `.Forest` and `.Cobalt` exactly this
-way, so the [Branding](https://www.sedna-ui.com/branding) page's live switch has three palettes to
-move between.
+The catalogue's own `App.razor` registers `SednaTheme.Sedna`, `.Forest`, `.Cobalt` and `.Graphite`
+exactly this way, so the [Branding](https://www.sedna-ui.com/branding) page's live switch has
+several palettes to move between.
+
+To change the **background** rather than the brand, generate the base ramp from the colour the
+canvas should be:
+
+```csharp
+var palette = new SednaPalette(slate: SednaRamp.Surface("#18181b"), coral: sedna.Coral, …);
+```
+
+That moves the canvas, the chrome, the cards and all three elevation levels together — see
+[branding §4.5](BRANDING.md#45-changing-the-base). `SednaRamp.FromAnchor` is for brand hues and is
+the wrong tool here: its curve puts step 900 at more than half lightness.
 
 ## Icons
 

@@ -367,6 +367,36 @@
     --card-bg:         var(--slate-800);
     --surface-soft:    rgba(255, 255, 255, 0.03);
     --surface-strong:  rgba(255, 255, 255, 0.05);
+    /* ── Named surfaces ─────────────────────────────────────────────────
+       Which surface a thing IS, rather than which colour it happens to take.
+       An app asking "what colour is the navigation?" had to know that the
+       answer was --sidebar-bg and that the topbar used the same value.
+
+       These three are aliases on purpose: the value lives once, in the role
+       the frame already paints with, so a light or colour-blind remap of that
+       role carries here without a second remap to keep in step. */
+    --surface-app:     var(--bg);
+    --surface-chrome:  var(--sidebar-bg);
+    --surface-content: var(--bg);
+    /* ── Elevation ──────────────────────────────────────────────────────
+       Three steps, so a surface inside a surface inside a surface is still
+       three distinguishable surfaces. Level 1 is the card's own colour, which
+       is why it is an alias and not a fourth value: a top-level card must not
+       change appearance because a ladder exists above it.
+
+       Levels 2 and 3 are ramp steps rather than a color-mix of level 1, for
+       the reason docs/BRANDING.md gives for every other colour here — take
+       the next step, do not adjust by eye. The consequence to know: an app
+       that overrides --card-bg moves level 1 only, and should override these
+       two as well.
+
+       Why the ladder stops at three: on --surface-raised-3 the muted role is
+       measurably too close to the surface (3.97:1 in dark), so 30-cards.css
+       lifts --muted to --fg-soft at that level. A fourth step would need a
+       second lift and would run out of ramp. */
+    --surface-raised-1: var(--card-bg);
+    --surface-raised-2: var(--slate-750);
+    --surface-raised-3: var(--slate-700);
     /* Pure white, deliberately, and not the slate ramp's lightest step — that
        is Ice White (#f8fafc), which is measurably darker. This token is the
        "white" in "white on --brand" (4.55:1), one of the six pairs sitting
@@ -714,6 +744,12 @@
     --card-bg:        var(--white);
     --surface-soft:   rgba(15, 23, 42, 0.03);    /* slate-900 */
     --surface-strong: rgba(15, 23, 42, 0.055);   /* slate-900 */
+    /* Elevation runs the other way here: level 1 is white, so a raised surface
+       gets darker rather than lighter. --surface-app, --surface-chrome,
+       --surface-content and --surface-raised-1 are aliases and follow --bg,
+       --sidebar-bg and --card-bg above without a remap of their own. */
+    --surface-raised-2: var(--slate-100);
+    --surface-raised-3: var(--slate-200);
     --redacted:       var(--crimson-700);
 
     --brand-soft: var(--coral-600);
@@ -2323,11 +2359,34 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {
-    --surface-here: var(--card-bg);
-    background: var(--card-bg);
+    --surface-here: var(--surface-raised-1);
+    background: var(--surface-raised-1);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     overflow: hidden;
+}
+/* A card inside a card takes the next step up the ladder, and the one inside
+   that takes the third. Nothing in the markup says which level it is — the
+   depth is the selector, so a card that gets moved into another card is right
+   without being edited.
+
+   Descendant selectors rather than a chain of custom properties: a chain has
+   to be re-declared on every surface the library paints to stay in step, and
+   the case this exists for is a card in a card. Four levels deep keeps level 3
+   rather than inventing a fourth.
+
+   The third level lifts --muted to --fg-soft, and that is not decoration:
+   Dust Gray on --surface-raised-3 measures 3.97:1, under the AA floor, while
+   --fg-soft measures 6.84:1. Both variants are measured in
+   `SurfaceTokenTests.Muted_text_clears_AA_on_every_surface_level`. */
+.card .card {
+    --surface-here: var(--surface-raised-2);
+    background: var(--surface-raised-2);
+}
+.card .card .card {
+    --surface-here: var(--surface-raised-3);
+    background: var(--surface-raised-3);
+    --muted: var(--fg-soft);
 }
 .card-head {
     display: flex;
