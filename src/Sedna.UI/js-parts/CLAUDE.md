@@ -68,8 +68,23 @@ may change in a patch release. Everything an app may touch is a named member on 
 - **The public API is a contract.** `sednaUi` is a pinned global and four apps call into it.
   Removing or renaming a member, or changing a signature, is a **major** version change. Adding one is
   minor.
-- **Never call back into .NET.** Parts manipulate the DOM and dispatch events that Blazor's bindings
-  pick up — the Markdown editor is the reference for this. No `DotNet.invokeMethod`.
+- **Do not reach into .NET.** Parts manipulate the DOM and dispatch events that Blazor's bindings
+  pick up — the Markdown editor is the reference for this. Never `DotNet.invokeMethod`, and never go
+  looking for a .NET object a part was not handed.
+
+  **The one exception is a reference the caller hands in**, and `watchSettings` /
+  `unwatchSettings` in `40-interop.js` is it: `ISednaSettings` passes a `DotNetObjectReference` and
+  the part invokes `SettingsChanged` on that object and nothing else. Everything the rule protects
+  still holds — a part nobody calls touches no .NET, the script works with no .NET on the page at
+  all (`settings.onChange` takes a plain function, and that is what the notification actually runs),
+  and the coupling is visible in the calling C# rather than hidden in the script.
+
+  It exists because the alternative has no answer. A scoped C# service cannot hear a DOM event, so
+  the only other route to "tell the app the reader changed their OS theme" is making the app put an
+  element with a handler in its layout — markup, to carry a notification.
+
+  If another part needs the same thing: keep the behaviour part framework-agnostic with a
+  plain-function listener, as `10-settings.js` is, and put the bridge in `4x`.
 - **Fail soft.** Wrap anything a browser may refuse (`localStorage`, clipboard, `Notification`,
   `AudioContext`) in `try`/`catch` and degrade. A blocked API must not break the page.
 - **Delegate from `document`, do not wire per element.** Blazor re-renders, and re-wiring on every
