@@ -17,6 +17,7 @@ internal sealed record IndexedExample(
     string Language,
     bool Live,
     IReadOnlyList<string> Classes,
+    IReadOnlyList<string> Ids,
     IReadOnlyList<string> Members);
 
 /// <summary>One CSS class, with what the stylesheet actually says about it.</summary>
@@ -69,11 +70,12 @@ internal sealed class CatalogueIndex
         // against what the sheet declares, and the usage is the same relation read
         // the other way round. One extraction of "what does this stylesheet declare",
         // not two.
-        var declared = BuildClasses(RawStylesheet);
+        var (declaredClasses, declaredIds) = BuildSelectors(RawStylesheet);
         PublicApi = ReadPublicApi();
         Examples = BuildExamples(
-            declared.Select(c => c.Name).ToHashSet(StringComparer.Ordinal), PublicApi);
-        Classes = WithUsage(declared, Examples);
+            declaredClasses.Select(c => c.Name).ToHashSet(StringComparer.Ordinal), PublicApi);
+        Classes = WithUsage(declaredClasses, Examples, e => e.Classes);
+        Ids = WithUsage(declaredIds, Examples, e => e.Ids);
         Tokens = ReadTokens(environment);
     }
 
@@ -83,6 +85,19 @@ internal sealed class CatalogueIndex
     public IReadOnlyList<IndexedExample> Examples { get; }
 
     public IReadOnlyList<IndexedClass> Classes { get; }
+
+    /// <summary>
+    /// The <c>#id</c> selectors the stylesheet declares — today only Blazor's own
+    /// <c>#blazor-error-ui</c>, which every host page carries.
+    /// </summary>
+    /// <remarks>
+    /// Indexed for one reason: <c>describe_class</c> answering <c>notFound</c> to
+    /// <c>#blazor-error-ui</c> read as "the library does not style that" rather than
+    /// "this tool indexes classes", and an agent then wrote its own twenty lines for a
+    /// rule the sheet already ships. A tool that cannot see something must say so
+    /// rather than report nothing.
+    /// </remarks>
+    public IReadOnlyList<IndexedClass> Ids { get; }
 
     /// <summary>The token export, verbatim — an ordered array of blocks.</summary>
     public JsonDocument Tokens { get; }
@@ -107,8 +122,20 @@ internal sealed class CatalogueIndex
 
     public IndexedClass? Class(string name)
     {
+        // A leading '#' is never a class, however the rest of it reads: without this,
+        // `#card` would answer with `.card`'s rules for a selector that matches
+        // nothing of the sort.
+        if (name.StartsWith('#')) return null;
+
         var bare = name.TrimStart('.');
         return Classes.FirstOrDefault(c => string.Equals(c.Name, bare, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>The rules the stylesheet declares for an <c>#id</c>, if it declares any.</summary>
+    public IndexedClass? IdSelector(string name)
+    {
+        var bare = name.TrimStart('#');
+        return Ids.FirstOrDefault(c => string.Equals(c.Name, bare, StringComparison.OrdinalIgnoreCase));
     }
 
     // ── Examples ────────────────────────────────────────────────────────────
@@ -148,6 +175,7 @@ internal sealed class CatalogueIndex
                 Language: extension == "razor" ? "html" : extension,
                 Live: extension == "razor",
                 Classes: ClassesIn(markup, live: extension == "razor", declared),
+                Ids: IdsIn(markup),
                 Members: MembersIn(markup, api)));
         }
 
@@ -291,6 +319,25 @@ internal sealed class CatalogueIndex
         return found.ToList();
     }
 
+    /// <summary>The ids an example's markup carries.</summary>
+    /// <remarks>
+    /// So that an example is findable by the thing it is about. The error-bar snippet
+    /// is about <c>#blazor-error-ui</c> and named it nowhere a search could see, so a
+    /// search for that id returned the reconnect banner — a different mechanism, on
+    /// the strength of the word "Blazor" in its blurb — and the agent that copied it
+    /// styled the wrong element.
+    /// </remarks>
+    private static List<string> IdsIn(string markup) =>
+        IdAttribute.Matches(markup)
+            .Select(m => m.Groups["value"].Value)
+            .Where(id => id.Length > 0 && !id.Contains('@', StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToList();
+
+    private static readonly Regex IdAttribute = new(
+        @"\bid=""(?<value>[^""]*)""", RegexOptions.Compiled);
+
     /// <summary>A PascalCase identifier standing on its own — a type name.</summary>
     private static readonly Regex Identifier = new(
         @"(?<![\w.])([A-Z][A-Za-z0-9]*)(?![\w])", RegexOptions.Compiled);
@@ -331,10 +378,20 @@ internal sealed class CatalogueIndex
 
     // ── Classes ─────────────────────────────────────────────────────────────
 
-    private static List<IndexedClass> BuildClasses(string rawCss)
+    /// <summary>
+    /// What the stylesheet declares, in one pass: the classes, and the <c>#id</c>
+    /// selectors beside them.
+    /// </summary>
+    /// <remarks>
+    /// One walk, two outputs — an id is found by the same rule walker that finds a
+    /// class, so the two answers cannot disagree about what the sheet contains.
+    /// </remarks>
+    private static (List<IndexedClass> Classes, List<IndexedClass> Ids) BuildSelectors(string rawCss)
     {
         var declarations = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var layers = new Dictionary<string, string>(StringComparer.Ordinal);
+        var idDeclarations = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        var idLayers = new Dictionary<string, string>(StringComparer.Ordinal);
 
         // Comments out first. The walker takes everything between one rule's closing
         // brace and the next opening brace as the selector, and this stylesheet
@@ -355,34 +412,63 @@ internal sealed class CatalogueIndex
 
                 list.Add($"{Squash(selector)} {{ {Squash(body)} }}");
             }
+
+            foreach (var name in Regex.Matches(selector, @"#(-?[a-zA-Z][a-zA-Z0-9-]*)")
+                         .Select(m => m.Groups[1].Value).Distinct(StringComparer.Ordinal))
+            {
+                if (!idDeclarations.TryGetValue(name, out var list))
+                {
+                    idDeclarations[name] = list = [];
+                    idLayers[name] = layer;
+                }
+
+                list.Add($"{Squash(selector)} {{ {Squash(body)} }}");
+            }
         }
 
-        return declarations.Select(entry => new IndexedClass(
+        return (Selectors(declarations, layers, "."), Selectors(idDeclarations, idLayers, "#"));
+    }
+
+    /// <summary>One selector family, as the index reports it.</summary>
+    /// <remarks>
+    /// <paramref name="sigil"/> decides what a modifier is: <c>.card-head</c> is a
+    /// modifier of <c>.card</c>, while an id has no such family — nothing is a
+    /// modifier of <c>#blazor-error-ui</c>, and reporting one would invent a
+    /// relationship the sheet does not have.
+    /// </remarks>
+    private static List<IndexedClass> Selectors(
+        Dictionary<string, List<string>> declarations,
+        Dictionary<string, string> layers,
+        string sigil) =>
+        declarations.Select(entry => new IndexedClass(
                 Name: entry.Key,
                 Layer: layers[entry.Key],
                 // Capped: .btn appears in dozens of rules and an agent needs the
                 // shape, not the whole cascade.
                 Declarations: string.Join("\n", entry.Value.Take(12)),
-                Modifiers: declarations.Keys
-                    .Where(other => other.StartsWith(entry.Key + "-", StringComparison.Ordinal)
-                                    || other.StartsWith(entry.Key + "--", StringComparison.Ordinal))
-                    .OrderBy(m => m, StringComparer.Ordinal).ToList(),
+                Modifiers: sigil == "."
+                    ? declarations.Keys
+                        .Where(other => other.StartsWith(entry.Key + "-", StringComparison.Ordinal)
+                                        || other.StartsWith(entry.Key + "--", StringComparison.Ordinal))
+                        .OrderBy(m => m, StringComparer.Ordinal).ToList()
+                    : [],
                 UsedByExamples: []))
             .OrderBy(c => c.Name, StringComparer.Ordinal)
             .ToList();
-    }
 
     /// <summary>The same relation as an example's class list, read the other way round.</summary>
     private static List<IndexedClass> WithUsage(
-        List<IndexedClass> classes, IReadOnlyList<IndexedExample> examples)
+        List<IndexedClass> selectors,
+        IReadOnlyList<IndexedExample> examples,
+        Func<IndexedExample, IReadOnlyList<string>> namesIn)
     {
         var usage = examples
-            .SelectMany(e => e.Classes.Select(c => (Class: c, e.Id)))
-            .GroupBy(x => x.Class, StringComparer.Ordinal)
+            .SelectMany(e => namesIn(e).Select(c => (Name: c, e.Id)))
+            .GroupBy(x => x.Name, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<string>)g.Select(x => x.Id).ToList(),
                 StringComparer.Ordinal);
 
-        return classes
+        return selectors
             .Select(c => c with { UsedByExamples = usage.GetValueOrDefault(c.Name, []) })
             .ToList();
     }
@@ -427,7 +513,12 @@ internal sealed class CatalogueIndex
                 {
                     var body = css[start..i];
                     var selector = css[LastBoundary(css, start)..(start - 1)];
-                    if (selector.Contains('.', StringComparison.Ordinal))
+                    // A dot or a hash: bare element rules carry no name to index, and an
+                    // id-only rule is exactly the one that was invisible — every
+                    // #blazor-error-ui rule was dropped here before it reached the walker's
+                    // caller, which is why the tool could only answer notFound.
+                    if (selector.Contains('.', StringComparison.Ordinal)
+                        || selector.Contains('#', StringComparison.Ordinal))
                         yield return (selector.Trim(), body, layer);
                 }
 

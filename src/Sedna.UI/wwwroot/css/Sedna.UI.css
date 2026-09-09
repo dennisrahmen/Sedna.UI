@@ -2345,6 +2345,30 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    this only takes the padding away. */
 .card-body--flush { padding: 0; }
 
+/* The row a card ends with: the actions that decide what happens to the content
+   above them. .card-head's mirror — same padding, the divider on top instead of
+   underneath — with one difference that is deliberate. It is right-aligned rather
+   than space-between, for the reason .form-actions is: that is where the button
+   that commits is looked for, and a foot holding nothing but buttons would
+   otherwise push them to the far side.
+
+   Inside a card, use this rather than .card-body + .form-actions. That pair works,
+   but it reads as two decisions instead of one and gives the row the body's
+   padding rather than a foot's. */
+.card-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-4);
+    padding: var(--space-6) var(--space-7);
+    border-top: 1px solid var(--border);
+}
+/* Something on the far side from the commit button — a note about what the action
+   does, a timestamp, a destructive action kept away from the primary one. Expects
+   exactly two children; wrap a side in a <div> if it has more than one. */
+.card-foot--split { justify-content: space-between; }
+
 /* A caveat about the card's own content, pinned to its bottom edge — a stale
    figure, a degraded source, a partial result. It is part of the card, so it is
    not an .alert: an alert is about the page. */
@@ -3417,6 +3441,24 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     background-image: none;
     padding-inline-end: var(--space-5);
     cursor: auto;
+}
+
+/* The same three tiers as .form-input, so a small filter field and the small
+   dropdown beside it agree on height. Longhands rather than the `padding`
+   shorthand .form-input-sm uses: the shorthand would reset the caret's room
+   above, which is the one thing a select cannot give up. --space-10 therefore
+   stays where .form-select set it, at every tier. */
+.form-select-sm {
+    min-height: var(--control-height-sm);
+    padding-block: var(--space-2);
+    padding-inline-start: var(--space-4);
+    font-size: var(--text-3);
+}
+.form-select-lg {
+    min-height: var(--control-height-lg);
+    padding-block: var(--space-5);
+    padding-inline-start: var(--space-7);
+    font-size: var(--text-5);
 }
 
 /* ── Radio ──────────────────────────────────────────────────────────────────

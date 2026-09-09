@@ -64,6 +64,11 @@
         the tier on the group with <code>.input-group--sm</code> or <code>--lg</code>, because the
         group is what draws the border.
     </p>
+    <p>
+        A select takes <code>.form-select-sm</code> or <code>.form-select-lg</code> — its own tier,
+        not the input's, because the caret needs its room back at every size. A small text filter and
+        a small dropdown beside it then agree on height, which is the row a toolbar is made of.
+    </p>
 </CatExample>
 
 <CatExample TExample="Examples.Form.Validation" Title="Validation" Demo="ex-demo--block">

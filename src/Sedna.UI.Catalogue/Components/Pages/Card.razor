@@ -51,6 +51,21 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Card.Foot" Title="Head, body and foot" Demo="ex-demo--block">
+    <p>
+        <code>.card-foot</code> is the row a card ends with — the actions that decide what happens to
+        the content above them. It mirrors <code>.card-head</code>: same padding, divider on top
+        instead of underneath. It is right-aligned rather than <code>space-between</code>, for the
+        reason <a href="/form"><code>.form-actions</code></a> is; put a note or a destructive action
+        on the far side with <code>.card-foot--split</code>.
+    </p>
+    <p>
+        Use it instead of a <code>.card-body</code> holding a <code>.form-actions</code>. That pair
+        works, but it reads as two decisions rather than one and gives the row the body's padding
+        rather than a foot's.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Card.TableCard" Title="A table in a card" Demo="ex-demo--block">
     <p>
         No <code>.card-body</code> — the table provides its own cell padding, and

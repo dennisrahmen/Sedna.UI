@@ -141,14 +141,25 @@ internal static class CatalogueRanker
         return (tier, where);
     }
 
+    /// <summary>
+    /// The term standing as a whole word — bounded by anything that is not a letter or
+    /// a digit, not by a space alone.
+    /// </summary>
+    /// <remarks>
+    /// A space-only boundary made every term adjacent to punctuation unfindable, and the
+    /// field this matters most in is a class's own declarations: <c>checkbox</c> lives
+    /// there only as <c>input[type="checkbox"]</c>, so a search for it reported
+    /// <c>total: 0</c> while the stylesheet styled checkboxes on two classes. Zero hits
+    /// reads as "the library has none", and the app that believed it wrote its own.
+    /// </remarks>
     private static bool IsWord(string haystack, string term)
     {
         for (var at = haystack.IndexOf(term, StringComparison.Ordinal); at >= 0;
              at = haystack.IndexOf(term, at + 1, StringComparison.Ordinal))
         {
-            var before = at == 0 || haystack[at - 1] == ' ';
+            var before = at == 0 || !char.IsLetterOrDigit(haystack[at - 1]);
             var afterAt = at + term.Length;
-            var after = afterAt == haystack.Length || haystack[afterAt] == ' ';
+            var after = afterAt == haystack.Length || !char.IsLetterOrDigit(haystack[afterAt]);
             if (before && after) return true;
         }
 
