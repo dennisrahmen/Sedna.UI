@@ -1,0 +1,139 @@
+@page "/common-pages"
+
+<CatHead Title="Common pages" Tier="@CatHead.Tier1">
+    The pages every app has and nobody designs: access denied, not found, the thing that threw,
+    an expired session, a maintenance window. Each is a shell from
+    <a href="/frame">Shell</a> with one <code>.empty-state--page</code> block in it.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-information-line"></i>
+    <strong>These are compositions, not new classes.</strong> A page-level state is the same block
+    an empty panel uses, given the page instead of a card — so an app that has styled its empty
+    states has already styled these. Copy the markup; do not restyle it per project.
+</div>
+
+<CatExample TExample="Examples.CommonPages.AccessDenied" Title="Access denied" Demo="ex-demo--block">
+    <p>
+        <code>.auth-layout</code>, because there is no navigation to offer somebody who cannot get
+        in — a sidebar behind a 403 is a list of links that will all do this again.
+    </p>
+    <p>
+        <strong>Say who can grant it.</strong> &ldquo;You do not have permission&rdquo; on its own
+        leaves the reader with nowhere to go, and the next thing they do is open a ticket against
+        the wrong team. Name the role and the person who holds it, and make asking for it the
+        primary action.
+    </p>
+    <p>
+        The account line belongs in <code>.auth-foot</code>. A 403 is often the wrong account
+        rather than a missing role, and the reader cannot tell without being told which one they
+        are signed in as.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.CommonPages.NotFound" Title="Not found" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        The one that keeps the frame. The reader is signed in and the nav still works, so
+        <code>.layout</code> stays and the block goes in <code>.page</code> — dropping to
+        <code>.auth-layout</code> here would take away the way out.
+    </p>
+    <p>
+        In <code>.page</code> the block sits at the top rather than centring, because
+        <code>.page</code> is a block and <code>flex: 1</code> is inert in one. That is the right
+        result: a message centred in a scroll container lands below the fold on a laptop.
+    </p>
+    <p>
+        <strong>Name the thing that was not found.</strong> The reference is what the reader will
+        paste into a search or quote to a colleague, and it is the only part of a 404 that is worth
+        anything.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.CommonPages.ServerError" Title="Something went wrong" Demo="ex-demo--block">
+    <p>
+        <code>.empty-state--failed</code> colours the disc and nothing else. A whole red page reads
+        as destructive — as though something was lost — when what happened is that a request did not
+        arrive.
+    </p>
+    <p>
+        <strong>Two things make this page useful, and neither is the apology.</strong> Say whether
+        retrying is safe, because the reader cannot know whether the write went through. And give
+        them the reference in <code>.empty-state-detail</code>, with a
+        <code>data-copy</code> button beside it — that string is what turns a support call into a
+        log lookup.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.CommonPages.SessionExpired" Title="Session expired" Demo="ex-demo--block">
+    <p>
+        For the hard redirect. Where the app is still running and only the circuit dropped, this is
+        the <a href="/status-bar"><code>.status-bar</code></a>'s job instead — a whole page for a
+        reconnect that will succeed in two seconds throws away the state the reader had.
+    </p>
+    <p>
+        Say what happened to the work in progress. An expired session reads as lost work until told
+        otherwise, and the reader will redo something they did not need to.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.CommonPages.Maintenance" Title="Maintenance" Demo="ex-demo--block">
+    <p>
+        <strong>The title is the time it comes back</strong>, not the word
+        &ldquo;maintenance&rdquo;. That is the one fact the reader came for, and every minute they
+        do not have it is a minute they spend refreshing.
+    </p>
+    <p>
+        Give a window and a way to check, and keep the same page for the planned and unplanned
+        cases. A separate &ldquo;unexpected outage&rdquo; design is a page that gets written once
+        and looked at during the worst hour of the quarter.
+    </p>
+</CatExample>
+
+<h2 id="which-shell">Which shell, which drawing</h2>
+
+<p>
+    Each of these has its own drawing in the state sprite, and the drawing is chosen by what the page
+    is. Reusing one across two of them makes them look like the same page to somebody scanning a
+    screenshot in a ticket — which is the whole reason there are thirteen and not one ornament.
+    <a href="/empty-state#state-art">The full set is on Empty and live states</a>.
+</p>
+
+<table class="table">
+    <thead>
+        <tr><th>Page</th><th>Shell</th><th>Drawing</th><th>Primary action</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Access denied</td><td><code>.auth-layout</code></td><td><code>#no-access</code></td><td>Request the role</td></tr>
+        <tr><td>Not found</td><td><code>.layout</code> &rarr; <code>.page</code></td><td><code>#not-found</code></td><td>Search for the reference</td></tr>
+        <tr><td>Server error</td><td><code>.auth-layout</code></td><td><code>#server-error</code></td><td>Try again</td></tr>
+        <tr><td>Session expired</td><td><code>.auth-layout</code></td><td><code>#session-expired</code></td><td>Sign in</td></tr>
+        <tr><td>Maintenance</td><td><code>.auth-layout</code></td><td><code>#maintenance</code></td><td>Check again</td></tr>
+    </tbody>
+</table>
+
+<p>
+    Sign-in itself is not on this list because it is not a state — it is a form, and it belongs in an
+    <a href="/frame"><code>.auth-card</code></a>.
+</p>
+
+<h2 id="writing-one">Writing one</h2>
+
+<p>
+    Three lines, in this order: what would normally be here, why it is not, and the one action that
+    changes that. <code>.empty-state-code</code> carries the status code above the title — small and
+    quotable, because what the reader needs it for is telling somebody else which page broke.
+</p>
+
+<p>
+    <strong>One primary action, and at most two beside it.</strong>
+    <code>.empty-state-actions</code> wraps and centres them and takes the top margin off the
+    buttons, so a second action does not stagger against the first on a narrow screen. A page with
+    three equal buttons is a page that does not know what the reader should do.
+</p>
+
+<p>
+    <strong>The drawing is <code>.state-art--lg</code> here</strong>, the largest of the three sizes.
+    The same symbol at <code>.state-art</code> is the card size and <code>.state-art--sm</code> the
+    table size, so a state looks like itself wherever it appears — the 403 in a panel is the 403 on
+    this page, smaller.
+</p>

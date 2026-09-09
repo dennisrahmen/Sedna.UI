@@ -21,25 +21,33 @@
    position is already logical; only the journey needs mirroring. */
 [dir="rtl"] .switch input[type="checkbox"]:checked::after { transform: translateX(-15px); }
 
-/* The select's caret is two gradients positioned from 100%, which is the physical
-   right edge whatever the direction. Mirrored by measuring from 0% instead, and the
-   reserved padding swaps sides with it. */
-[dir="rtl"] .form-select {
-    padding-inline-end: var(--space-5);
-    padding-inline-start: var(--space-10);
-    background-position:
-        calc(0% + 12px) calc(50% - 2px),
-        calc(0% + 17px) calc(50% - 2px);
+/* The select's FALLBACK caret is two gradients positioned from 100%, which is the
+   physical right edge whatever the direction. Mirrored by measuring from 0%
+   instead, and the reserved padding swaps sides with it.
+
+   Behind the same `@supports not` gate as the caret itself in 45-form-controls.css,
+   and for the same reason: where base appearance is available the caret is a real
+   `::picker-icon` box held at the trailing edge by an auto margin, so it mirrors on
+   its own. Without the gate these rules would paint a second, sideways caret over
+   it and put 32px of reserved room back on the wrong side. */
+@supports not (appearance: base-select) {
+    [dir="rtl"] .form-select {
+        padding-inline-end: var(--space-5);
+        padding-inline-start: var(--space-10);
+        background-position:
+            calc(0% + 12px) calc(50% - 2px),
+            calc(0% + 17px) calc(50% - 2px);
+    }
+    /* The two triangles also swap, or the caret points sideways: the left-hand box has
+       to be the one filled towards the top-left. */
+    [dir="rtl"] .form-select {
+        background-image:
+            linear-gradient(135deg, var(--muted) 50%, transparent 50%),
+            linear-gradient(45deg,  transparent 50%, var(--muted) 50%);
+    }
+    [dir="rtl"] .form-select[multiple],
+    [dir="rtl"] .form-select[size]:not([size="1"]) { padding-inline-start: var(--space-5); }
 }
-/* The two triangles also swap, or the caret points sideways: the left-hand box has
-   to be the one filled towards the top-left. */
-[dir="rtl"] .form-select {
-    background-image:
-        linear-gradient(135deg, var(--muted) 50%, transparent 50%),
-        linear-gradient(45deg,  transparent 50%, var(--muted) 50%);
-}
-[dir="rtl"] .form-select[multiple],
-[dir="rtl"] .form-select[size]:not([size="1"]) { padding-inline-start: var(--space-5); }
 
 /* The drawer slides in from an inline edge; `inset-inline-end` already puts it on
    the correct side, so only the direction of travel is wrong. */
@@ -85,9 +93,15 @@
    either, so the offset of a pinned column's edge shadow is physical. The two rules
    are one line each because the direction is held in a custom property rather than
    in the box-shadow declaration — the alternative was restating both long pinned-cell
-   selector lists here. */
-[dir="rtl"] .table--pin-start { --pin-shadow: var(--shadow-edge-end); }
-[dir="rtl"] .table--pin-end   { --pin-shadow: var(--shadow-edge-start); }
+   selector lists here.
+
+   `--pin-edge-*` and not `--pin-shadow`: the shadow a side USES is the one a
+   scroll-state query switches off while there is nothing hidden behind the column,
+   and these rules are the more specific of the two. Which direction the edge faces
+   and whether it is painted at all are different questions, so they are different
+   properties. */
+[dir="rtl"] .table--pin-start { --pin-edge-start: var(--shadow-edge-end); }
+[dir="rtl"] .table--pin-end   { --pin-edge-end:   var(--shadow-edge-start); }
 
 /* The collapsed rail's flyout needs nothing here, and neither does anything else in
    the rail. `position-area: inline-end` and `align-self: anchor-center` are both

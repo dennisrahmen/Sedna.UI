@@ -88,8 +88,16 @@
         <code>border-collapse: separate</code> for itself, because a collapsed table's cells cannot
         stick at all. Everything else is handled: the pinned cell paints on an opaque surface
         rather than letting columns slide under it, it keeps the zebra stripe, the hover fill and
-        the selection marker, and the corner cell paints over the sticky header rather than under
-        the column beneath it.
+        the selection marker, the corner cell paints over the sticky header rather than under
+        the column beneath it, and nothing a scrolling column carries — a segmented control, a
+        switch, a menu trigger — paints over the pinned cell on its way past.
+    </p>
+    <p>
+        The edge shadow appears only while a column is actually hidden behind the pinned one — a
+        table that fits its container, and one sitting at the start of its scroll, show none. That
+        answer comes from <code>.sedna-scroll-x</code>, which is a
+        <code>container-type: scroll-state</code> container; a table scrolled inside a wrapper of
+        an app's own keeps the shadow painted throughout.
     </p>
     <p>
         <strong>Scroll this table both ways.</strong> Not for

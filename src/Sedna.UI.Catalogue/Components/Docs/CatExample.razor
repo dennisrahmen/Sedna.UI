@@ -19,8 +19,9 @@
     [Parameter, EditorRequired] public string Title { get; set; } = default!;
 
     /// "ex-demo--block" lays the demo out as a block instead of a centred row;
-    /// add "ex-demo--pad" for something that needs room around it. Omit for small
-    /// inline things like a badge or a button.
+    /// add "ex-demo--pad" for something that needs room around it, or
+    /// "ex-demo--flush" for a demo that brings its own edge, like a whole frame.
+    /// Omit for small inline things like a badge or a button.
     [Parameter] public string? Demo { get; set; }
 
     /// One or two sentences: when to use this, and what the reader would otherwise

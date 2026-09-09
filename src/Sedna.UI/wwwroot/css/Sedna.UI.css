@@ -38,12 +38,14 @@
      40-skeleton.css
      41-progress.css
      42-empty-state.css
+     42-state-art.css
      43-content-grids.css
      44-markdown.css
      45-form-controls.css
      46-form-layout.css
      47-form-file.css
      48-form-numeric.css
+     49-form-select-base.css
      50-tabs.css
      51-segmented.css
      52-avatar.css
@@ -335,8 +337,10 @@
        cannot be declared here as `color-scheme: dark` — a token block holds
        custom properties only, and a test enforces that.
        This is what makes the parts of a control the page cannot reach match the
-       theme: the native scrollbar, a <select>'s option list, the date picker,
-       and the default canvas before any rule applies. */
+       theme: the native scrollbar, the date picker, a bare <select>'s option list,
+       and the default canvas before any rule applies. A `.form-select`'s list is
+       no longer one of them — base appearance puts it in reach of the stylesheet,
+       and 49-form-select-base.css styles it. */
     --color-scheme: dark;
 
     /* The UA's date-picker glyph is drawn in a fixed dark colour we cannot reach.
@@ -432,6 +436,11 @@
        rather than `rgba(37, 99, 235, 0.14)` — the painted pixel is the same, only the
        string differs. A computed-style differ that compares strings therefore reports
        every brand-tinted surface as changed. */
+    /* The one accent in a state illustration. A role rather than a literal use of
+       --brand, because the block the drawing sits in re-points it — .empty-state--failed
+       moves it into the danger ramp — and the sprite reads it through the <use> shadow
+       tree without knowing which state it is drawing. */
+    --state-accent:     var(--brand);
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
     --brand-ring:       color-mix(in srgb, var(--brand) 50%, transparent);  /* filled primary focus ring */
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
@@ -672,7 +681,7 @@
     --text-8:  18px;
     --text-9:  22px;
     --text-10: 26px;
-    --text-11: 40px;   /* display only — the empty-state glyph */
+    --text-11: 40px;   /* display only — the page-level empty-state glyph */
 
     /* ── Motion ─────────────────────────────────────────────────────────────
        Three durations for interaction, and one per looping animation. Set them all
@@ -3591,16 +3600,15 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     padding: var(--space-11) var(--space-9);
     color: var(--muted);
 }
-/* `> i`, not `i`. The glyph is always a direct child — the spinner that replaces it in
-   --pending is too — and the descendant selector reached the icon inside the action
-   button as well: `.empty-state i` and `.btn i` weigh the same and this is the later
-   part, so a 13px button icon rendered at 40px and dragged the button's height up with
-   it. That is what made the actions here look oversized. */
-.empty-state > i {
-    font-size: var(--text-11);
-    color: var(--border-strong);
-    line-height: 1;
-}
+/* The drawing sits above the sentence with room of its own: an illustration and a
+   13px line touching read as one object, and they are two. But only a little: the
+   drawing is already 96px of air, so the gap that a 40px glyph needed reads as a hole
+   under this one. The sprite, the ids and the three sizes are in 42-state-art.css.
+
+   There is no rule here for a bare `<i>`. Every state names its own drawing, because a
+   single glyph shared by four states is the thing this replaced. */
+.state-art { margin-bottom: var(--space-5); }
+
 .empty-state-title { font-size: var(--text-5); font-weight: 600; color: var(--fg); }
 .empty-state p     { margin: 0; font-size: var(--text-4); max-width: 44ch; }
 /* The action is a separate decision from the sentence above it, so it gets more air
@@ -3616,14 +3624,29 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    fine.
 
    `--pending` is for a wait with no progress to report — the first event of a stream,
-   a long request. Put a `.spinner-lg` where the icon goes. Where there IS progress,
-   use `.progress`; where the shape of what is coming is known, use `.skeleton`.
+   a long request. Where there IS progress, use `.progress`; where the shape of what is
+   coming is known, use `.skeleton`. */
 
-   `--failed` keeps the error's own colour on the icon only. A whole red panel reads as
-   destructive rather than as unavailable. */
-.empty-state--pending .spinner,
-.empty-state--pending .spinner-lg { color: var(--muted); }
-.empty-state--failed > i { color: var(--danger-fg); }
+/* A spinner, not the `waiting` drawing. That drawing is for a queue the reader can be
+   told about and then leave; this is a wait with nothing to report, and the one thing
+   it has to say is that something is still happening — which a still picture cannot. */
+.empty-state--pending > .spinner,
+.empty-state--pending > .spinner-lg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: var(--space-5);
+    border-width: 3px;
+    color: var(--muted);
+}
+
+/* Failed moves the accent into the danger ramp and leaves the line work grey. A whole
+   red panel reads as destructive — as though something was lost — rather than as
+   unavailable, and what happened is that a request did not arrive.
+
+   One declaration, inherited by the drawing through the `<use>` shadow tree. There is
+   no second sprite for the error states and there must not be one. */
+.empty-state--failed { --state-accent: var(--danger-fg); }
+
 /* The line under the title, for the detail that makes a failure actionable: the code,
    the endpoint, when it was last tried. It takes the paragraph's measure, and breaks
    anywhere, because what goes in it is the kind of string that has no spaces to break
@@ -3637,6 +3660,121 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     overflow-wrap: anywhere;
 }
 
+/* ── The whole page is the state ────────────────────────────────────────────
+   Access denied, not found, the thing that threw, an expired session, a maintenance
+   window. The same block, handed the page instead of a card.
+
+   It is the page-level sibling of `.empty-state`, not a second idea: a 403 is a view
+   with nothing in it for this reader, and the drawing, the sentence and the one action
+   are the same three parts.
+
+   Where it goes decides how it sits, and both are correct:
+
+     · in `.auth-layout`, which is a flex column, it takes the free space and centres.
+       That is the page for somebody who is not signed in or cannot get in — there is
+       no navigation to offer them.
+     · in `.page`, which is a block, `flex` is inert and it sits at the top under the
+       sidebar. That is the page for a 404 inside the app, where the nav is still the
+       way out and centring the message would push it below the fold on a laptop. */
+.empty-state--page {
+    flex: 1;
+    min-height: 0;
+    justify-content: center;
+    gap: var(--space-5);
+    padding-block: var(--space-11);
+}
+.empty-state--page .state-art { margin-bottom: var(--space-6); }
+.empty-state--page .empty-state-title { font-size: var(--text-9); }
+/* The measure grows with the type. 44ch of 13px is a comfortable column; 44ch of the
+   same sentence under a 22px heading reads as a narrow strip. */
+.empty-state--page p { font-size: var(--text-5); max-width: 52ch; }
+.empty-state--page.empty-state--pending > .spinner,
+.empty-state--page.empty-state--pending > .spinner-lg { width: 56px; height: 56px; border-width: 4px; }
+
+/* The status code, above the title. What the reader needs it for is telling somebody
+   else which page broke, so it is sized to be read once and repeated — not to be the
+   picture. A 200px "404" is consumer-web decoration, and in a tool it competes with
+   the sentence that says what to do next. */
+.empty-state-code {
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* More than one way out — "Back to the dashboard" beside "Request access". Wraps,
+   because two full labels do not fit a phone on one line.
+
+   It also takes the top margin off the buttons and carries it once. `.empty-state
+   .btn` gives every button --space-3 above it, which is right for the single action
+   an empty panel has and stacks up into a stagger the moment there are two in a row
+   that wraps. */
+.empty-state-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-5);
+    margin-top: var(--space-3);
+}
+.empty-state-actions .btn { margin-top: 0; }
+}
+
+/* ── 42-state-art.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── State art ──────────────────────────────────────────────────────────────
+   The drawing that says which state a view is in. One per state, from the sprite
+   shipped at `wwwroot/img/Sedna.UI.states.svg`:
+
+     <svg class="state-art state-art--lg" aria-hidden="true">
+       <use href="_content/Sedna.UI/img/Sedna.UI.states.svg#no-access" />
+     </svg>
+
+   Thirteen symbols: nothing-yet, no-results, filtered-out, no-access, failed,
+   waiting, not-found, server-error, session-expired, maintenance, all-done,
+   first-run, offline.
+
+   ── Why a sprite and not an icon, and not markup ──
+   One generic ornament on every empty state says only "this block is styled"; the
+   reader still has to read the sentence to learn whether there is no data, no
+   permission, or no connection. A drawing per state is the part that can be read
+   before the text.
+
+   It is a shipped asset rather than inline markup because a fix has to land once.
+   Thirteen drawings copied into every consuming app is thirteen drawings to chase
+   when one of them is wrong, and this library exists so that a UI fix is made here.
+   It is not a second icon set either: an icon set is a vocabulary an app draws from,
+   and this is thirteen fixed pictures of thirteen fixed states.
+
+   ── Colour ──
+   The sprite writes no colour at all. Its line work is `currentColor`, which lands on
+   whatever `color` the host sets — `--muted` here — and its single accent is
+   `var(--state-accent)`, declared in the token block and re-pointed by whatever the
+   art sits in: `.empty-state--failed` swaps it for the danger colour and the drawing
+   follows, with no second file to keep in step. Inherited custom properties cross into
+   a `<use>` shadow tree, which is the whole reason this works.
+
+   ── Sizes ──
+   Three, because the same state has to appear in three places. `--sm` is for a row
+   inside a table or a narrow panel, where anything larger pushes the message out of
+   view. The default is the card. `--lg` is the full page, where the block IS the page.
+   Below 56px the 3-unit stroke fills in and the drawing reads as a smudge, which is
+   why there is no smaller step — use the sentence alone.
+
+   The block reserves its own space with `flex-shrink: 0`: dropped into a flex row it
+   would otherwise be squeezed to nothing by the text beside it, silently.
+   ─────────────────────────────────────────────────────────────────────────── */
+.state-art {
+    display: block;
+    flex-shrink: 0;
+    width: 96px;
+    height: 96px;
+    color: var(--muted);
+}
+.state-art--sm { width: 56px; height: 56px; }
+.state-art--lg { width: 152px; height: 152px; }
 }
 
 /* ── 43-content-grids.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -3820,52 +3958,71 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    equal specificity, so the caret's background-image survives the `background`
    shorthand in the shared field rule on source order alone. Renumber this below
    34 and the caret silently disappears.
+
+   The select this file draws is the FALLBACK one — the control a browser without
+   `appearance: base-select` renders, where the option list belongs to the platform
+   and the only part CSS can reach is the closed box. 49-form-select-base.css draws
+   the other one, and the two do not overlap: everything particular to the fallback
+   sits inside the `@supports not` block below, so nothing there has to be undone
+   later.
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* `class="form-select"` is the whole class list a dropdown needs. The field shape
    — height, padding, surface, border, radius, type and focus ring — comes from
    the shared `.form-input, .form-select` rule in 34-forms.css, and this file adds
-   only what is particular to a select: the platform caret replaced by one that
-   matches the theme.
+   only what is particular to a select.
 
    `class="form-input form-select"` stays correct and renders identically, because
    the two names resolve to the same declarations rather than to two copies of
-   them. Prefer the single class in new markup.
+   them. Prefer the single class in new markup. */
+.form-select { cursor: pointer; }
 
-   The caret is two triangular gradients meeting at a point. Not an SVG: this
-   stylesheet loads and inlines nothing, so neither url() nor a data: URI is
-   available. Not a pseudo-element either — ::before / ::after do not render on a
-   <select> at all, in any browser. */
-.form-select {
-    appearance: none;
-    /* Room for the caret plus its 12px inset, so a long option label stops
-       before it rather than running underneath. */
-    padding-inline-end: var(--space-10);
-    background-image:
-        linear-gradient(45deg,  transparent 50%, var(--muted) 50%),
-        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-    background-position:
-        calc(100% - 17px) calc(50% - 2px),
-        calc(100% - 12px) calc(50% - 2px);
-    background-size: 5px 5px;
-    background-repeat: no-repeat;
-    cursor: pointer;
-}
-
-/* A list box is not a dropdown: there is nothing to drop, and the caret would
-   sit over the first row. */
+/* A list box is not a dropdown: there is nothing to drop, so a click on it picks
+   a row rather than opening anything. */
 .form-select[multiple],
-.form-select[size]:not([size="1"]) {
-    background-image: none;
-    padding-inline-end: var(--space-5);
-    cursor: auto;
+.form-select[size]:not([size="1"]) { cursor: auto; }
+
+/* ── The fallback caret ─────────────────────────────────────────────────────
+   Only for a browser that cannot do base appearance. Where it can, the caret is
+   the real `::picker-icon` pseudo-element in 49-form-select-base.css, and drawing
+   both would put two arrows in the box.
+
+   Two triangular gradients meeting at a point. Not an SVG: this stylesheet loads
+   and inlines nothing, so neither url() nor a data: URI is available. Not a
+   pseudo-element either — without base appearance, ::before / ::after do not
+   render on a <select> at all, in any browser, which is the whole reason this is
+   painted onto the background. */
+@supports not (appearance: base-select) {
+    .form-select {
+        appearance: none;
+        /* Room for the caret plus its 12px inset, so a long option label stops
+           before it rather than running underneath. */
+        padding-inline-end: var(--space-10);
+        background-image:
+            linear-gradient(45deg,  transparent 50%, var(--muted) 50%),
+            linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+        background-position:
+            calc(100% - 17px) calc(50% - 2px),
+            calc(100% - 12px) calc(50% - 2px);
+        background-size: 5px 5px;
+        background-repeat: no-repeat;
+    }
+
+    /* The caret would sit over the first row of a list box. */
+    .form-select[multiple],
+    .form-select[size]:not([size="1"]) {
+        background-image: none;
+        padding-inline-end: var(--space-5);
+    }
 }
 
 /* The same three tiers as .form-input, so a small filter field and the small
    dropdown beside it agree on height. Longhands rather than the `padding`
-   shorthand .form-input-sm uses: the shorthand would reset the caret's room
-   above, which is the one thing a select cannot give up. --space-10 therefore
-   stays where .form-select set it, at every tier. */
+   shorthand .form-input-sm uses: the shorthand would reset the fallback caret's
+   room above, which is the one thing that select cannot give up. --space-10
+   therefore stays where the fallback set it, at every tier — and where base
+   appearance is available there is no reserved room to protect, so
+   49-form-select-base.css gives the trailing side back at each tier. */
 .form-select-sm {
     min-height: var(--control-height-sm);
     padding-block: var(--space-2);
@@ -4372,6 +4529,322 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     filter: invert(var(--picker-invert));
 }
 .form-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+}
+
+/* ── 49-form-select-base.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── The customizable select ────────────────────────────────────────────────
+   `appearance: base-select` takes the whole control out of the platform's hands:
+   the closed box, the drop-down and every row in it become real CSS boxes in this
+   document, so the option list finally answers to the theme like everything else
+   the library paints. Before it, `--color-scheme` was the only thing that reached
+   an option list at all, and it could say no more than "dark".
+
+   Opting in is `.form-select`'s own doing, not a modifier. An app that already
+   writes `<select class="form-select">` gets the themed drop-down by upgrading,
+   which is the point — a class nobody knows to add would leave every existing
+   select looking like the operating system.
+
+   ── What the markup may now be ──
+   Nothing has to change. A bare `<select class="form-select">` keeps working and
+   the browser draws the closed box for it.
+
+   Where the options need more than a word, they may hold real markup, and the
+   closed box shows the chosen one through `<selectedcontent>`:
+
+       <select class="form-select">
+         <button><selectedcontent></selectedcontent></button>
+         <option value="prod">
+           <i class="ri-server-line" aria-hidden="true"></i>
+           <span class="option-text">Production<span class="option-hint">eu-west-1</span></span>
+         </option>
+       </select>
+
+   The leading `<button>` is what makes `<selectedcontent>` available; without one
+   the browser supplies its own and the closed box shows the option's text — every
+   text node in it, run together, so an `.option-hint` lands there unseparated.
+
+   **`<selectedcontent>` needs the script.** Blazor's render does not trigger the
+   copy the browser is supposed to make, so the closed box comes out blank with
+   nothing in the console. `20-select.js` repairs it, on load and after every
+   render. Nothing in THIS file depends on that: with scripting blocked a select
+   still has its theme, its drop-down and its caret, and only the copy is missing.
+
+   ── Why almost none of this is inside @supports ──
+   `::picker(select)`, `::picker-icon` and `::checkmark` are unknown selectors to a
+   browser that cannot do base appearance, and an unknown pseudo-element drops the
+   whole rule. So those rules gate themselves, and only the two `appearance`
+   declarations — which are valid property/value pairs either way — need asking.
+   Keeping the transitions outside the block matters for a second reason: an
+   `@supports` body is opaque to the reduced-motion guard, so motion declared in
+   one could ship with no off switch.
+
+   The fallback caret lives in 45-form-controls.css behind `@supports not`, so
+   nothing here has to undo it.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Both halves, or neither. A picker only takes base appearance when its select
+   already has it, so opting the select in alone gets a themed box above a
+   platform-drawn list — which is worse than not opting in at all. */
+@supports (appearance: base-select) {
+    .form-select { appearance: base-select; }
+    .form-select::picker(select) { appearance: base-select; }
+}
+
+/* ── The closed box ─────────────────────────────────────────────────────────
+   The field shape is already right: height, surface, border, radius, type and the
+   focus ring all come from the `.form-input, .form-select` rule in 34-forms.css,
+   and this control is the same field it has always been. What base appearance
+   changes is what is INSIDE the box — the select becomes a flex container holding
+   the value and the caret, so it needs the layout the platform used to do.
+
+   `white-space: nowrap` with `overflow: hidden` is not a nicety. The base
+   appearance box wraps by default, so one long option label makes a 36px field
+   50px tall and every control in the row stops lining up. It is set on the select
+   rather than on `<selectedcontent>` because a select with no `<button>` of its
+   own has no `<selectedcontent>` to reach — the browser's is out of the document.
+
+   `padding-inline-end` goes back to the leading side's value: the caret is a real
+   child here, so the 32px the fallback reserves for a painted one would be 32px of
+   empty space beyond it. */
+@supports (appearance: base-select) {
+    .form-select {
+        align-items: center;
+        gap: var(--space-4);
+        padding-inline-end: var(--space-5);
+        white-space: nowrap;
+        overflow: hidden;
+        text-align: start;
+    }
+
+    /* The tiers give the trailing side back too, or a small select keeps the
+       normal one's inline-end padding and comes out lopsided. */
+    .form-select-sm { padding-inline-end: var(--space-4); }
+    .form-select-lg { padding-inline-end: var(--space-7); }
+}
+
+/* The value, when the markup supplies its own button. A clone of the chosen
+   option, so it is laid out the same way an option is — and the min-inline-size
+   is what lets a long one shrink instead of pushing the caret out of the box. */
+.form-select selectedcontent {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-inline-size: 0;
+    overflow: hidden;
+}
+
+/* A hint is an aside about an option, and the closed box is one line tall. The
+   clone drops it rather than being allowed to grow. */
+.form-select selectedcontent .option-hint { display: none; }
+
+/* ── The caret ──────────────────────────────────────────────────────────────
+   The same arrow the fallback paints, drawn once as a box instead of twice as a
+   background: two 5px triangles side by side. `margin-inline-start: auto` is what
+   holds it at the trailing edge — the flex layout is logical, so this is the whole
+   of the RTL story for the base-appearance select.
+
+   It turns over when the list is open, which the painted caret could never do. */
+.form-select::picker-icon {
+    content: '';
+    width: 10px;
+    height: 5px;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    background-image:
+        linear-gradient(45deg,  transparent 50%, var(--muted) 50%),
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    /* The two halves of one 10px glyph, measured inside the caret's own box. The
+       box itself is placed logically by the auto margin above, so there is nothing
+       to mirror and 70-rtl.css has no rule for this. */
+    background-position: 0 0, 5px 0;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+    transition: rotate var(--motion-fast);
+}
+.form-select:open::picker-icon { rotate: 180deg; }
+
+/* The box says it is open, the same way it says it is focused. */
+.form-select:open { border-color: var(--brand-soft); }
+
+/* ── The drop-down ──────────────────────────────────────────────────────────
+   Deliberately the `.menu` panel, to the token: an app that opens a menu from one
+   toolbar button and a select from the next must not get two different panels.
+   58-menu.css owns that look; this is the second place it appears and there is not
+   going to be a third.
+
+   Nothing here positions it. The picker is in the top layer with an implicit
+   anchor on its own select and a full set of position-try fallbacks, so it needs
+   neither a z-index off the scale nor a rule in 70-rtl.css.
+
+   `--surface-here` is the colour a scrollbar inside the panel paints itself
+   against — a long option list scrolls, and 16-frame-page-scroll.css reads this. */
+.form-select::picker(select) {
+    padding: var(--space-2);
+    --surface-here: var(--bg-elevated);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    color: var(--fg);
+    font-size: var(--text-4);
+    /* Both block edges, not just the start one. The picker's fallbacks are
+       explicit `position-area` values rather than `flip-block` tactics, and only a
+       try TACTIC carries the margin over with it — so a panel that flipped above
+       its select sat flush against it. */
+    margin-block: var(--space-2);
+    opacity: 0;
+    /* `display` and `overlay` are discrete, and without allow-discrete the panel
+       is simply gone before the fade has anywhere to run. */
+    transition:
+        opacity var(--motion-fast),
+        display var(--motion-fast) allow-discrete,
+        overlay var(--motion-fast) allow-discrete;
+}
+.form-select:open::picker(select) { opacity: 1; }
+@starting-style {
+    .form-select:open::picker(select) { opacity: 0; }
+}
+
+/* ── A row in it ────────────────────────────────────────────────────────────
+   `.menu-item`'s box, for the reason above. An option is a real element, so it
+   takes hover and disabled from the platform and needs no ARIA and no script. */
+.form-select option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    font-size: var(--text-4);
+    cursor: pointer;
+}
+/* A hairline of panel between rows, so the rounded hover and selected fills read as
+   separate rows rather than as one block.
+
+   A margin between adjacent rows, and NOT `display: flex` with a `gap` on the picker,
+   which is the obvious way to write it: forcing a display on `::picker(select)`
+   CRASHES the renderer in Chromium 141 — the whole tab, not the control. Fixed by
+   152, but 141 is a version consuming apps are still on. The margin needs no display
+   change and reaches the rows inside an `<optgroup>` for free, which the picker's own
+   gap would not have done anyway. */
+.form-select option + option { margin-block-start: var(--space-1); }
+
+/* :focus is the option the keyboard is on, which is a different thing from the one
+   already chosen — arrowing down a list moves it without selecting anything. */
+.form-select option:hover,
+.form-select option:focus { background: var(--bg-hover); }
+.form-select option:checked { color: var(--brand-text); }
+.form-select option:disabled { color: var(--muted); cursor: not-allowed; }
+/* The clone in the closed box is not inside the <option> any more, so it has to be
+   named again or the same icon comes out two sizes in the two places it appears. */
+.form-select option i,
+.form-select selectedcontent i { font-size: var(--text-7); color: var(--muted); flex-shrink: 0; }
+
+/* The tick on the chosen row. Moved to the trailing edge rather than left where
+   the browser puts it: a leading tick exists only on the chosen option, so every
+   other label in the list is indented past nothing and the column of text is
+   ragged. At the end it lines up with `.menu-item-note` instead.
+
+   The glyph is the browser's own — it is not in the accessibility tree, which is
+   correct, because `option:checked` already carries that meaning. */
+.form-select option::checkmark {
+    order: 2;
+    margin-inline-start: auto;
+    color: var(--brand-text);
+}
+
+/* ── Rich option content ────────────────────────────────────────────────────
+   Two classes, and both are scoped to `.form-select` so an app that already owns
+   a `.option-hint` somewhere else keeps it.
+
+   `.option-hint` reads its own position: a direct child of the option is a
+   trailing note, like a shortcut beside a menu item; inside `.option-text` it is a
+   second line under the label. One name, because it is one idea — the quiet half
+   of the row — and the markup already says which shape it is in. */
+.form-select .option-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-inline-size: 0;
+    overflow: hidden;
+}
+.form-select .option-hint {
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+/* The trailing form. It takes the free space, so the tick that would otherwise
+   have taken it gets a fixed gap instead — two `auto` margins on one line split
+   the space between them and leave the note stranded in the middle. */
+.form-select option > .option-hint { order: 1; margin-inline-start: auto; }
+.form-select option:has(> .option-hint)::checkmark { margin-inline-start: var(--space-5); }
+
+/* ── Groups and separators ──────────────────────────────────────────────────
+   Use a `<legend>` for a group heading, not the `label` attribute on its own. The
+   attribute's heading is drawn by the browser outside this document and cannot be
+   themed — the two lines below would do nothing to it. Keep the attribute as well:
+   it is what a browser without base appearance shows.
+
+       <optgroup label="Regions"><legend>Regions</legend> … </optgroup>
+
+   `<hr>` between groups is a separator the picker renders like any other box. */
+.form-select optgroup > legend {
+    padding: var(--space-4) var(--space-5) var(--space-2);
+    font-size: var(--text-1);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+.form-select hr {
+    margin: var(--space-2) 0;
+    border: 0;
+    border-block-start: 1px solid var(--divider);
+}
+
+/* ── The list box ───────────────────────────────────────────────────────────
+   `multiple`, or `size` above 1. Base appearance reaches this one too, and it is
+   the simpler half: the rows are already styled by the rules above, there is no
+   picker to place and no caret to draw. What it needs is `border-box` — base
+   appearance hands a list box `content-box`, so a width set on it comes out wider
+   than everything beside it — and the row arithmetic below. */
+@supports (appearance: base-select) {
+    .form-select[multiple],
+    .form-select[size]:not([size="1"]) {
+        box-sizing: border-box;
+        --surface-here: var(--bg);
+        white-space: normal;
+        overflow: auto;
+        /* ── Why `size` needs arithmetic here ──
+           A list box is exactly `size` times its own LINE-HEIGHT tall, and the
+           browser decides that before it knows anything about the rows inside. So
+           the row has to be built to fit that budget rather than the other way
+           round: the options give up their block padding, and their line box — this
+           `2.4`, which lands them on the height a `.menu-item` has — becomes the row
+           height instead. Left at the field's own padding, `size="4"` drew two and a
+           half of the four rows it had asked for, above a scrollbar it should not
+           have had.
+
+           The panel keeps no padding of its own for the same reason: every pixel
+           spent on the box comes out of the rows' budget, and the rows already carry
+           their own inset. */
+        padding: 0;
+        line-height: 2.4;
+    }
+    /* One pixel per row shorter than the budget, which is where the box's two
+       border pixels come from. A list box has at least two rows by definition, so
+       one pixel each is always enough — and the slack lands as a sliver of panel
+       under the last row rather than as a scrollbar over it. */
+    .form-select[multiple] option,
+    .form-select[size]:not([size="1"]) option {
+        padding-block: 0;
+        line-height: calc(2.4em - 1px);
+    }
+    /* No gap here: every pixel between rows comes out of the `size` budget above,
+       and a list box's rows are meant to read as one column anyway. */
+    .form-select[multiple] option + option,
+    .form-select[size]:not([size="1"]) option + option { margin-block-start: 0; }
+}
 }
 
 /* ── 50-tabs.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -5451,12 +5924,13 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
         table, not the cell, so the header's bottom border scrolls away and leaves
         the rows running into the header text. That is why the border is drawn with
         a box-shadow here rather than a border.
-   z-index 1 is local stacking inside the table, not a rung on the documented scale. */
+   z-index 2 is local stacking inside the table, not a rung on the documented scale;
+   the band is described where the pinned column sets the rest of it. */
 .table--sticky { border-collapse: separate; border-spacing: 0; }
 .table--sticky th {
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
     /* Opaque, not the translucent --table-head-bg: rows scrolling underneath would
        show through it. */
     background: var(--bg-elevated);
@@ -5565,21 +6039,45 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
         the <tr> and laid over the base as a gradient. Each tint rule below mirrors
         one background rule above it, selector for selector, so the two cannot
         disagree about which state wins.
-     3. The edge. `--shadow-edge-start` / `--shadow-edge-end` are the token pair for
-        a horizontally scrolled edge; 70-rtl.css swaps which one is used, because
-        box-shadow has no logical form.
+     3. The edge, and only while there is something behind the pinned column. The
+        shadow says "columns are hidden this way"; painted on a table that fits, or
+        on one sitting at the start of its scroll, it says it about nothing. A
+        scroll-state container query answers exactly that question —
+        `scrollable: inline-start` is true only while the scroller CAN be scrolled
+        that way — so `--pin-shadow` is switched to a transparent no-op rather than
+        to `none`, which would be invalid inside the two rules that compose it with
+        an inset hairline and take the whole declaration down with them.
 
-   z-index stays local to the table — 0, 1 and 2, the local-stacking band rather
+        The container is `.sedna-scroll-x`. An app scrolling the table in a wrapper
+        of its own is not one, and a container query with no container never
+        matches: the shadow then stays painted, which is what it did before. There
+        is nothing to undo and nothing that fails silently — the app opts in by
+        using the library's scroller.
+
+        `--shadow-edge-start` / `--shadow-edge-end` are the token pair for a
+        horizontally scrolled edge, held in `--pin-edge-start` / `--pin-edge-end` so
+        that 70-rtl.css can swap which one a side uses — box-shadow has no logical
+        form — without touching the `--pin-shadow` the container query sets.
+
+   z-index stays local to the table — 1, 2 and 3, the local-stacking band rather
    than a rung of the overlay scale, and a sticky pinned table is what makes that
-   band three wide. Each level is load-bearing:
+   band this wide. Each level is load-bearing:
 
-     · 0  the pinned body cells, above the static cells they slide across.
-     · 1  `.table--sticky`'s header row, above those — unchanged, so nothing about
-          an existing sticky table moves.
-     · 2  the corner cell, which is sticky on BOTH axes. It has to beat the other
+     · 1  the pinned body cells, above the static cells they slide across.
+     · 2  `.table--sticky`'s header row, above those.
+     · 3  the corner cell, which is sticky on BOTH axes. It has to beat the other
           header cells as well as the column beneath it, and it is first in DOM
           order, so at an equal z-index every other header cell paints over it — the
           symptom being a header cell sliding across the pinned identity column.
+
+   The pinned body cells start at 1 and not at 0, which is what they were, because
+   0 is not above `auto`: a POSITIONED child of an ordinary cell — a
+   `.segmented-option`, a `.switch`, a `.menu-anchor` — paints in the same step of
+   the stacking order as a z-index: 0 stacking context, and the tie is broken by
+   tree order. Every such control in a column to the right of the pinned one
+   therefore slid over the top of it while the table scrolled, which reads as the
+   pinned cell being transparent. Anything a cell contains is unpositioned or
+   `auto`, so 1 clears the lot.
 
    A cell with `colspan` is never the pinned column — a detail row's body cell
    spans the table — so it is excluded rather than dragged sideways.
@@ -5588,23 +6086,25 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    sideways scroll to pin against. */
 .table--pin-start,
 .table--pin-end { border-collapse: separate; border-spacing: 0; --pin-bg: var(--surface-here, var(--bg)); }
-.table--pin-start { --pin-shadow: var(--shadow-edge-start); }
-.table--pin-end   { --pin-shadow: var(--shadow-edge-end); }
+.table--pin-start { --pin-edge-start: var(--shadow-edge-start); }
+.table--pin-end   { --pin-edge-end:   var(--shadow-edge-end); }
 
 .table--pin-start tbody tr > td:first-child:not([colspan]),
 .table--pin-start tfoot tr > td:first-child:not([colspan]) {
+    --pin-shadow: var(--pin-edge-start);
     position: sticky;
     inset-inline-start: 0;
-    z-index: 0;
+    z-index: 1;
     background-color: var(--pin-bg);
     background-image: linear-gradient(var(--pin-tint, transparent), var(--pin-tint, transparent));
     box-shadow: var(--pin-shadow);
 }
 .table--pin-end tbody tr > td:last-child:not([colspan]),
 .table--pin-end tfoot tr > td:last-child:not([colspan]) {
+    --pin-shadow: var(--pin-edge-end);
     position: sticky;
     inset-inline-end: 0;
-    z-index: 0;
+    z-index: 1;
     background-color: var(--pin-bg);
     background-image: linear-gradient(var(--pin-tint, transparent), var(--pin-tint, transparent));
     box-shadow: var(--pin-shadow);
@@ -5613,17 +6113,19 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    header is also sticky vertically. It carries the head tint over the same opaque
    base as the body cells. */
 .table--pin-start thead th:first-child:not([colspan]) {
+    --pin-shadow: var(--pin-edge-start);
     position: sticky;
     inset-inline-start: 0;
-    z-index: 2;
+    z-index: 3;
     background-color: var(--pin-bg);
     background-image: linear-gradient(var(--table-head-bg), var(--table-head-bg));
     box-shadow: var(--pin-shadow);
 }
 .table--pin-end thead th:last-child:not([colspan]) {
+    --pin-shadow: var(--pin-edge-end);
     position: sticky;
     inset-inline-end: 0;
-    z-index: 2;
+    z-index: 3;
     background-color: var(--pin-bg);
     background-image: linear-gradient(var(--table-head-bg), var(--table-head-bg));
     box-shadow: var(--pin-shadow);
@@ -5637,6 +6139,23 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     background-color: var(--bg-elevated);
     background-image: none;
     box-shadow: inset 0 -1px 0 var(--border), var(--pin-shadow);
+}
+
+/* The edge, off until there is a column behind it. `.sedna-scroll-x` is the
+   scroll-state container; the query is true only while the scroller can still be
+   scrolled that way, so a table that fits and a table sitting at the start of its
+   scroll both paint nothing. Same specificity as the rules above and later in the
+   file, and set on the CELL rather than the table, so neither source order nor
+   70-rtl.css's `[dir="rtl"] .table--pin-start` can outrank it. */
+@container not scroll-state(scrollable: inline-start) {
+    .table--pin-start thead th:first-child:not([colspan]),
+    .table--pin-start tbody tr > td:first-child:not([colspan]),
+    .table--pin-start tfoot tr > td:first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+}
+@container not scroll-state(scrollable: inline-end) {
+    .table--pin-end thead th:last-child:not([colspan]),
+    .table--pin-end tbody tr > td:last-child:not([colspan]),
+    .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 
 /* The row states, mirroring the background rules above one for one. Set on the
@@ -7560,25 +8079,33 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    position is already logical; only the journey needs mirroring. */
 [dir="rtl"] .switch input[type="checkbox"]:checked::after { transform: translateX(-15px); }
 
-/* The select's caret is two gradients positioned from 100%, which is the physical
-   right edge whatever the direction. Mirrored by measuring from 0% instead, and the
-   reserved padding swaps sides with it. */
-[dir="rtl"] .form-select {
-    padding-inline-end: var(--space-5);
-    padding-inline-start: var(--space-10);
-    background-position:
-        calc(0% + 12px) calc(50% - 2px),
-        calc(0% + 17px) calc(50% - 2px);
+/* The select's FALLBACK caret is two gradients positioned from 100%, which is the
+   physical right edge whatever the direction. Mirrored by measuring from 0%
+   instead, and the reserved padding swaps sides with it.
+
+   Behind the same `@supports not` gate as the caret itself in 45-form-controls.css,
+   and for the same reason: where base appearance is available the caret is a real
+   `::picker-icon` box held at the trailing edge by an auto margin, so it mirrors on
+   its own. Without the gate these rules would paint a second, sideways caret over
+   it and put 32px of reserved room back on the wrong side. */
+@supports not (appearance: base-select) {
+    [dir="rtl"] .form-select {
+        padding-inline-end: var(--space-5);
+        padding-inline-start: var(--space-10);
+        background-position:
+            calc(0% + 12px) calc(50% - 2px),
+            calc(0% + 17px) calc(50% - 2px);
+    }
+    /* The two triangles also swap, or the caret points sideways: the left-hand box has
+       to be the one filled towards the top-left. */
+    [dir="rtl"] .form-select {
+        background-image:
+            linear-gradient(135deg, var(--muted) 50%, transparent 50%),
+            linear-gradient(45deg,  transparent 50%, var(--muted) 50%);
+    }
+    [dir="rtl"] .form-select[multiple],
+    [dir="rtl"] .form-select[size]:not([size="1"]) { padding-inline-start: var(--space-5); }
 }
-/* The two triangles also swap, or the caret points sideways: the left-hand box has
-   to be the one filled towards the top-left. */
-[dir="rtl"] .form-select {
-    background-image:
-        linear-gradient(135deg, var(--muted) 50%, transparent 50%),
-        linear-gradient(45deg,  transparent 50%, var(--muted) 50%);
-}
-[dir="rtl"] .form-select[multiple],
-[dir="rtl"] .form-select[size]:not([size="1"]) { padding-inline-start: var(--space-5); }
 
 /* The drawer slides in from an inline edge; `inset-inline-end` already puts it on
    the correct side, so only the direction of travel is wrong. */
@@ -7624,9 +8151,15 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    either, so the offset of a pinned column's edge shadow is physical. The two rules
    are one line each because the direction is held in a custom property rather than
    in the box-shadow declaration — the alternative was restating both long pinned-cell
-   selector lists here. */
-[dir="rtl"] .table--pin-start { --pin-shadow: var(--shadow-edge-end); }
-[dir="rtl"] .table--pin-end   { --pin-shadow: var(--shadow-edge-start); }
+   selector lists here.
+
+   `--pin-edge-*` and not `--pin-shadow`: the shadow a side USES is the one a
+   scroll-state query switches off while there is nothing hidden behind the column,
+   and these rules are the more specific of the two. Which direction the edge faces
+   and whether it is painted at all are different questions, so they are different
+   properties. */
+[dir="rtl"] .table--pin-start { --pin-edge-start: var(--shadow-edge-end); }
+[dir="rtl"] .table--pin-end   { --pin-edge-end:   var(--shadow-edge-start); }
 
 /* The collapsed rail's flyout needs nothing here, and neither does anything else in
    the rail. `position-area: inline-end` and `align-self: anchor-center` are both
@@ -7721,6 +8254,10 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
        permitted by the appearance-media-query guard. */
     .btn:focus-visible,
     .form-input:focus,
+    /* The select declares its ring in the same rule .form-input does, so it needs
+       the same restatement here — it was missing, and a focused dropdown in this
+       mode had nothing on it at all. */
+    .form-select:focus,
     .form-check input:focus-visible,
     .switch input[type="checkbox"]:focus-visible,
     .form-range:focus-visible,
@@ -7979,8 +8516,14 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .sedna-divider-bottom { border-bottom: 1px solid var(--divider); }
 
 /* A scroll container on the inline axis — a table too wide for its column, a row of
-   cards. */
-.sedna-scroll-x { overflow-x: auto; }
+   cards.
+
+   `container-type: scroll-state` applies no containment of any kind, so it changes
+   nothing about layout or about what is a containing block for what. It is what
+   lets a descendant ask whether this scroller can still be scrolled: a pinned table
+   column asks, so that its edge shadow is painted only while a column is actually
+   hidden behind it. */
+.sedna-scroll-x { overflow-x: auto; container-type: scroll-state; }
 
 /* And the block axis. `.sedna-scroll` supplied the scrollbar and the edge fade (in
    16-frame-page-scroll.css) but neither of the two declarations that make it a
@@ -8121,6 +8664,11 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .form-input,
     .form-select      { transition: none; }   /* 34 */
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
+    /* 49 — the caret is drawn in its open position instead of turning over, and the
+       drop-down is simply there. Neither carries information: `:open` already
+       changes the border, and a panel that appears is a panel. */
+    .form-select::picker-icon      { transition: none; }
+    .form-select::picker(select)   { transition: none; }
     .form-check input[type="radio"]    { transition: none; }   /* 45 */
     .switch input[type="checkbox"]     { transition: none; }   /* 45 */
     .switch input[type="checkbox"]::after { transition: none; }

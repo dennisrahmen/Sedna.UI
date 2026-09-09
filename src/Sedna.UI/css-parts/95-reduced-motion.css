@@ -40,6 +40,11 @@
     .form-input,
     .form-select      { transition: none; }   /* 34 */
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
+    /* 49 — the caret is drawn in its open position instead of turning over, and the
+       drop-down is simply there. Neither carries information: `:open` already
+       changes the border, and a panel that appears is a panel. */
+    .form-select::picker-icon      { transition: none; }
+    .form-select::picker(select)   { transition: none; }
     .form-check input[type="radio"]    { transition: none; }   /* 45 */
     .switch input[type="checkbox"]     { transition: none; }   /* 45 */
     .switch input[type="checkbox"]::after { transition: none; }

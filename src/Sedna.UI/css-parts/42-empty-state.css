@@ -10,16 +10,15 @@
     padding: var(--space-11) var(--space-9);
     color: var(--muted);
 }
-/* `> i`, not `i`. The glyph is always a direct child — the spinner that replaces it in
-   --pending is too — and the descendant selector reached the icon inside the action
-   button as well: `.empty-state i` and `.btn i` weigh the same and this is the later
-   part, so a 13px button icon rendered at 40px and dragged the button's height up with
-   it. That is what made the actions here look oversized. */
-.empty-state > i {
-    font-size: var(--text-11);
-    color: var(--border-strong);
-    line-height: 1;
-}
+/* The drawing sits above the sentence with room of its own: an illustration and a
+   13px line touching read as one object, and they are two. But only a little: the
+   drawing is already 96px of air, so the gap that a 40px glyph needed reads as a hole
+   under this one. The sprite, the ids and the three sizes are in 42-state-art.css.
+
+   There is no rule here for a bare `<i>`. Every state names its own drawing, because a
+   single glyph shared by four states is the thing this replaced. */
+.state-art { margin-bottom: var(--space-5); }
+
 .empty-state-title { font-size: var(--text-5); font-weight: 600; color: var(--fg); }
 .empty-state p     { margin: 0; font-size: var(--text-4); max-width: 44ch; }
 /* The action is a separate decision from the sentence above it, so it gets more air
@@ -35,14 +34,29 @@
    fine.
 
    `--pending` is for a wait with no progress to report — the first event of a stream,
-   a long request. Put a `.spinner-lg` where the icon goes. Where there IS progress,
-   use `.progress`; where the shape of what is coming is known, use `.skeleton`.
+   a long request. Where there IS progress, use `.progress`; where the shape of what is
+   coming is known, use `.skeleton`. */
 
-   `--failed` keeps the error's own colour on the icon only. A whole red panel reads as
-   destructive rather than as unavailable. */
-.empty-state--pending .spinner,
-.empty-state--pending .spinner-lg { color: var(--muted); }
-.empty-state--failed > i { color: var(--danger-fg); }
+/* A spinner, not the `waiting` drawing. That drawing is for a queue the reader can be
+   told about and then leave; this is a wait with nothing to report, and the one thing
+   it has to say is that something is still happening — which a still picture cannot. */
+.empty-state--pending > .spinner,
+.empty-state--pending > .spinner-lg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: var(--space-5);
+    border-width: 3px;
+    color: var(--muted);
+}
+
+/* Failed moves the accent into the danger ramp and leaves the line work grey. A whole
+   red panel reads as destructive — as though something was lost — rather than as
+   unavailable, and what happened is that a request did not arrive.
+
+   One declaration, inherited by the drawing through the `<use>` shadow tree. There is
+   no second sprite for the error states and there must not be one. */
+.empty-state--failed { --state-accent: var(--danger-fg); }
+
 /* The line under the title, for the detail that makes a failure actionable: the code,
    the endpoint, when it was last tried. It takes the paragraph's measure, and breaks
    anywhere, because what goes in it is the kind of string that has no spaces to break
@@ -56,3 +70,63 @@
     overflow-wrap: anywhere;
 }
 
+/* ── The whole page is the state ────────────────────────────────────────────
+   Access denied, not found, the thing that threw, an expired session, a maintenance
+   window. The same block, handed the page instead of a card.
+
+   It is the page-level sibling of `.empty-state`, not a second idea: a 403 is a view
+   with nothing in it for this reader, and the drawing, the sentence and the one action
+   are the same three parts.
+
+   Where it goes decides how it sits, and both are correct:
+
+     · in `.auth-layout`, which is a flex column, it takes the free space and centres.
+       That is the page for somebody who is not signed in or cannot get in — there is
+       no navigation to offer them.
+     · in `.page`, which is a block, `flex` is inert and it sits at the top under the
+       sidebar. That is the page for a 404 inside the app, where the nav is still the
+       way out and centring the message would push it below the fold on a laptop. */
+.empty-state--page {
+    flex: 1;
+    min-height: 0;
+    justify-content: center;
+    gap: var(--space-5);
+    padding-block: var(--space-11);
+}
+.empty-state--page .state-art { margin-bottom: var(--space-6); }
+.empty-state--page .empty-state-title { font-size: var(--text-9); }
+/* The measure grows with the type. 44ch of 13px is a comfortable column; 44ch of the
+   same sentence under a 22px heading reads as a narrow strip. */
+.empty-state--page p { font-size: var(--text-5); max-width: 52ch; }
+.empty-state--page.empty-state--pending > .spinner,
+.empty-state--page.empty-state--pending > .spinner-lg { width: 56px; height: 56px; border-width: 4px; }
+
+/* The status code, above the title. What the reader needs it for is telling somebody
+   else which page broke, so it is sized to be read once and repeated — not to be the
+   picture. A 200px "404" is consumer-web decoration, and in a tool it competes with
+   the sentence that says what to do next. */
+.empty-state-code {
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* More than one way out — "Back to the dashboard" beside "Request access". Wraps,
+   because two full labels do not fit a phone on one line.
+
+   It also takes the top margin off the buttons and carries it once. `.empty-state
+   .btn` gives every button --space-3 above it, which is right for the single action
+   an empty panel has and stacks up into a stagger the moment there are two in a row
+   that wraps. */
+.empty-state-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-5);
+    margin-top: var(--space-3);
+}
+.empty-state-actions .btn { margin-top: 0; }

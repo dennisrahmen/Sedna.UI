@@ -14,12 +14,13 @@
         table, not the cell, so the header's bottom border scrolls away and leaves
         the rows running into the header text. That is why the border is drawn with
         a box-shadow here rather than a border.
-   z-index 1 is local stacking inside the table, not a rung on the documented scale. */
+   z-index 2 is local stacking inside the table, not a rung on the documented scale;
+   the band is described where the pinned column sets the rest of it. */
 .table--sticky { border-collapse: separate; border-spacing: 0; }
 .table--sticky th {
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
     /* Opaque, not the translucent --table-head-bg: rows scrolling underneath would
        show through it. */
     background: var(--bg-elevated);
@@ -128,21 +129,45 @@
         the <tr> and laid over the base as a gradient. Each tint rule below mirrors
         one background rule above it, selector for selector, so the two cannot
         disagree about which state wins.
-     3. The edge. `--shadow-edge-start` / `--shadow-edge-end` are the token pair for
-        a horizontally scrolled edge; 70-rtl.css swaps which one is used, because
-        box-shadow has no logical form.
+     3. The edge, and only while there is something behind the pinned column. The
+        shadow says "columns are hidden this way"; painted on a table that fits, or
+        on one sitting at the start of its scroll, it says it about nothing. A
+        scroll-state container query answers exactly that question —
+        `scrollable: inline-start` is true only while the scroller CAN be scrolled
+        that way — so `--pin-shadow` is switched to a transparent no-op rather than
+        to `none`, which would be invalid inside the two rules that compose it with
+        an inset hairline and take the whole declaration down with them.
 
-   z-index stays local to the table — 0, 1 and 2, the local-stacking band rather
+        The container is `.sedna-scroll-x`. An app scrolling the table in a wrapper
+        of its own is not one, and a container query with no container never
+        matches: the shadow then stays painted, which is what it did before. There
+        is nothing to undo and nothing that fails silently — the app opts in by
+        using the library's scroller.
+
+        `--shadow-edge-start` / `--shadow-edge-end` are the token pair for a
+        horizontally scrolled edge, held in `--pin-edge-start` / `--pin-edge-end` so
+        that 70-rtl.css can swap which one a side uses — box-shadow has no logical
+        form — without touching the `--pin-shadow` the container query sets.
+
+   z-index stays local to the table — 1, 2 and 3, the local-stacking band rather
    than a rung of the overlay scale, and a sticky pinned table is what makes that
-   band three wide. Each level is load-bearing:
+   band this wide. Each level is load-bearing:
 
-     · 0  the pinned body cells, above the static cells they slide across.
-     · 1  `.table--sticky`'s header row, above those — unchanged, so nothing about
-          an existing sticky table moves.
-     · 2  the corner cell, which is sticky on BOTH axes. It has to beat the other
+     · 1  the pinned body cells, above the static cells they slide across.
+     · 2  `.table--sticky`'s header row, above those.
+     · 3  the corner cell, which is sticky on BOTH axes. It has to beat the other
           header cells as well as the column beneath it, and it is first in DOM
           order, so at an equal z-index every other header cell paints over it — the
           symptom being a header cell sliding across the pinned identity column.
+
+   The pinned body cells start at 1 and not at 0, which is what they were, because
+   0 is not above `auto`: a POSITIONED child of an ordinary cell — a
+   `.segmented-option`, a `.switch`, a `.menu-anchor` — paints in the same step of
+   the stacking order as a z-index: 0 stacking context, and the tie is broken by
+   tree order. Every such control in a column to the right of the pinned one
+   therefore slid over the top of it while the table scrolled, which reads as the
+   pinned cell being transparent. Anything a cell contains is unpositioned or
+   `auto`, so 1 clears the lot.
 
    A cell with `colspan` is never the pinned column — a detail row's body cell
    spans the table — so it is excluded rather than dragged sideways.
@@ -151,23 +176,25 @@
    sideways scroll to pin against. */
 .table--pin-start,
 .table--pin-end { border-collapse: separate; border-spacing: 0; --pin-bg: var(--surface-here, var(--bg)); }
-.table--pin-start { --pin-shadow: var(--shadow-edge-start); }
-.table--pin-end   { --pin-shadow: var(--shadow-edge-end); }
+.table--pin-start { --pin-edge-start: var(--shadow-edge-start); }
+.table--pin-end   { --pin-edge-end:   var(--shadow-edge-end); }
 
 .table--pin-start tbody tr > td:first-child:not([colspan]),
 .table--pin-start tfoot tr > td:first-child:not([colspan]) {
+    --pin-shadow: var(--pin-edge-start);
     position: sticky;
     inset-inline-start: 0;
-    z-index: 0;
+    z-index: 1;
     background-color: var(--pin-bg);
     background-image: linear-gradient(var(--pin-tint, transparent), var(--pin-tint, transparent));
     box-shadow: var(--pin-shadow);
 }
 .table--pin-end tbody tr > td:last-child:not([colspan]),
 .table--pin-end tfoot tr > td:last-child:not([colspan]) {
+    --pin-shadow: var(--pin-edge-end);
     position: sticky;
     inset-inline-end: 0;
-    z-index: 0;
+    z-index: 1;
     background-color: var(--pin-bg);
     background-image: linear-gradient(var(--pin-tint, transparent), var(--pin-tint, transparent));
     box-shadow: var(--pin-shadow);
@@ -176,17 +203,19 @@
    header is also sticky vertically. It carries the head tint over the same opaque
    base as the body cells. */
 .table--pin-start thead th:first-child:not([colspan]) {
+    --pin-shadow: var(--pin-edge-start);
     position: sticky;
     inset-inline-start: 0;
-    z-index: 2;
+    z-index: 3;
     background-color: var(--pin-bg);
     background-image: linear-gradient(var(--table-head-bg), var(--table-head-bg));
     box-shadow: var(--pin-shadow);
 }
 .table--pin-end thead th:last-child:not([colspan]) {
+    --pin-shadow: var(--pin-edge-end);
     position: sticky;
     inset-inline-end: 0;
-    z-index: 2;
+    z-index: 3;
     background-color: var(--pin-bg);
     background-image: linear-gradient(var(--table-head-bg), var(--table-head-bg));
     box-shadow: var(--pin-shadow);
@@ -200,6 +229,23 @@
     background-color: var(--bg-elevated);
     background-image: none;
     box-shadow: inset 0 -1px 0 var(--border), var(--pin-shadow);
+}
+
+/* The edge, off until there is a column behind it. `.sedna-scroll-x` is the
+   scroll-state container; the query is true only while the scroller can still be
+   scrolled that way, so a table that fits and a table sitting at the start of its
+   scroll both paint nothing. Same specificity as the rules above and later in the
+   file, and set on the CELL rather than the table, so neither source order nor
+   70-rtl.css's `[dir="rtl"] .table--pin-start` can outrank it. */
+@container not scroll-state(scrollable: inline-start) {
+    .table--pin-start thead th:first-child:not([colspan]),
+    .table--pin-start tbody tr > td:first-child:not([colspan]),
+    .table--pin-start tfoot tr > td:first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+}
+@container not scroll-state(scrollable: inline-end) {
+    .table--pin-end thead th:last-child:not([colspan]),
+    .table--pin-end tbody tr > td:last-child:not([colspan]),
+    .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 
 /* The row states, mirroring the background rules above one for one. Set on the

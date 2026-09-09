@@ -189,6 +189,21 @@
     </p>
 </CatExample>
 
+<CatSnippet Name="Script/SelectRefresh.txt" Title="Repairing a customizable select">
+    <p>
+        A <code>.form-select</code> that writes its own
+        <code>&lt;button&gt;&lt;selectedcontent&gt;</code> shows a copy of the chosen option in its
+        closed box. The browser makes that copy, and <strong>Blazor's render does not trigger it</strong>
+        — so without this the box is blank, with nothing in the console. The script repairs it for you;
+        <code>sednaUi.select.refresh()</code> is here for the case the observer cannot see.
+    </p>
+    <p>
+        It is the one place the script backs up the stylesheet rather than adding behaviour of its own.
+        With scripting blocked a select keeps its theme, its drop-down and its caret — only the copy in
+        the closed box is missing, and only for markup that asked for a button.
+    </p>
+</CatSnippet>
+
 <CatSnippet Name="Script/TipGate.txt" Title="Suppressing hints">
     <p>
         Assign a predicate to <code>sednaUi.tips.gate</code> and it is asked before every hint. It

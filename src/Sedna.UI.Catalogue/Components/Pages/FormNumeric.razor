@@ -47,8 +47,10 @@
     </p>
     <p>
         The picker <em>panel</em> is dark because <code>color-scheme</code> is set on
-        <code>&lt;html&gt;</code> from <code>--color-scheme</code>. That is also what makes a
-        <code>&lt;select&gt;</code>'s option list and the native scrollbars match the theme.
+        <code>&lt;html&gt;</code> from <code>--color-scheme</code>. That is also what makes the native
+        scrollbars and a bare <code>&lt;select&gt;</code>'s option list match the theme — a
+        <code>.form-select</code> no longer needs it, because base appearance makes its drop-down a
+        panel the stylesheet reaches directly.
     </p>
 </CatExample>
 

@@ -66,6 +66,9 @@ internal static class CataloguePages
         new("/status-bar", Frame, "Status bar", "ri-signal-wifi-error-line",
             "The strip that says the circuit dropped, the session expired, or something threw.",
             "status-bar reconnect reconnecting paused failed expired error blazor-error-ui unhandled circuit disconnect banner"),
+        new("/common-pages", Frame, "Common pages", "ri-signpost-line",
+            "Access denied, not found, the error, the expired session, the maintenance window.",
+            "403 404 500 503 401 access denied forbidden unauthorized permission role not found missing error crash session expired signed out timeout maintenance outage unavailable downtime status code reference trace correlation"),
 
         new("/structure", Structure, "Page structure", "ri-layout-top-line",
             "Title rows, dividers, callouts and code blocks.",

@@ -15,11 +15,19 @@
 
 <CatExample TExample="Examples.Form.Selects" Title="Selects" Demo="ex-demo--block">
     <p>
-        <code>.form-select</code> replaces the platform caret with one that follows the theme.
-        The caret is drawn from two gradients — this stylesheet loads and inlines nothing, and a
-        pseudo-element does not render on a <code>&lt;select&gt;</code> in any browser. A list box
-        (<code>multiple</code>, or <code>size</code> above 1) drops the caret on its own, since
-        there is nothing to drop.
+        <strong><code>.form-select</code> styles the drop-down as well as the box.</strong> It sets
+        <code>appearance: base-select</code>, which takes the option list out of the platform's hands
+        and makes it a real panel in the page — so it takes the theme, the tokens and the
+        <code>.menu</code> panel's own surface, border and shadow. Nothing has to be added to the
+        markup: a plain <code>&lt;select class="form-select"&gt;</code> gets it.
+    </p>
+    <p>
+        A browser without base appearance keeps the platform's list and gets a caret painted from two
+        gradients instead — the stylesheet loads and inlines nothing, and without base appearance a
+        pseudo-element does not render on a <code>&lt;select&gt;</code> at all. Neither half is a
+        script or a shim; the two are exclusive, behind <code>@@supports</code>. A list box
+        (<code>multiple</code>, or <code>size</code> above 1) has no caret either way, since there is
+        nothing to drop.
     </p>
     <p>
         <strong><code>.form-select</code> is the whole class list a dropdown needs.</strong> It
@@ -28,6 +36,46 @@
         select never has to be told twice what a field looks like.
         <code>class="form-input form-select"</code> resolves to those same declarations and stays
         correct; it is simply longer.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.SelectOptions" Title="Options with content" Demo="ex-demo--block">
+    <p>
+        An <code>&lt;option&gt;</code> may now hold real markup — an icon, a second line, a trailing
+        code. Add a <code>&lt;button&gt;</code> holding
+        <code>&lt;selectedcontent&gt;&lt;/selectedcontent&gt;</code> as the select's first child and the
+        closed box shows a clone of whichever option is chosen.
+    </p>
+    <p>
+        <strong>Write the button.</strong> Leave it out and the browser supplies its own, which shows
+        every text node in the option run together — an option carrying an
+        <code>.option-hint</code> then reads <code>Frankfurteu-central-1</code> in the closed box, and
+        the icon does not travel into it at all.
+    </p>
+    <p>
+        The clone is the browser's to make, and <strong>Blazor's render does not trigger it</strong>:
+        left alone the closed box is blank, with nothing in the console to say why.
+        <code>Sedna.UI.js</code> repairs that on load and after every render, so this only matters if
+        the script is not on the page — see <code>sednaUi.select.refresh()</code> on the
+        <a href="/script">script page</a>. The rest of the control needs no JavaScript.
+    </p>
+    <p>
+        <code>.option-hint</code> is the quiet half of a row, and it reads its own position: a direct
+        child of the <code>&lt;option&gt;</code> is a trailing note, like a shortcut beside a menu
+        item; inside <code>.option-text</code> it is a second line under the label. The clone in the
+        closed box drops it either way, because the field is one row tall.
+    </p>
+    <p>
+        Give a group a <code>&lt;legend&gt;</code> as well as its <code>label</code>. The attribute's
+        heading is drawn by the browser outside this document and cannot be themed — it is what a
+        browser without base appearance shows, and the <code>&lt;legend&gt;</code> is what this one
+        does. An <code>&lt;hr&gt;</code> between groups is a separator like any other box.
+    </p>
+    <p>
+        Keyboard, typeahead and the accessible name are the platform's, unchanged — this is still one
+        <code>&lt;select&gt;</code> with no ARIA on it. Mark a decorative icon
+        <code>aria-hidden="true"</code> so it is not announced twice, and remember that the submitted
+        value is the option's text run together and trimmed: keep <code>value</code> explicit.
     </p>
 </CatExample>
 
@@ -74,8 +122,9 @@
     </p>
     <p>
         A select takes <code>.form-select-sm</code> or <code>.form-select-lg</code> — its own tier,
-        not the input's, because the caret needs its room back at every size. A small text filter and
-        a small dropdown beside it then agree on height, which is the row a toolbar is made of.
+        not the input's, because a painted caret needs its room back at every size. A small text
+        filter and a small dropdown beside it then agree on height, which is the row a toolbar is
+        made of.
     </p>
 </CatExample>
 

@@ -1,0 +1,5 @@
+// Nothing to call in the normal case: the repair runs on load and after every render
+// that adds nodes. Call it for a select the observer cannot have seen change — one
+// moved into place by something other than a DOM insertion.
+sednaUi.select.refresh();              // the whole document, returns how many it fixed
+sednaUi.select.refresh(panelElement);  // or just one subtree

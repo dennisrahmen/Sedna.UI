@@ -38,7 +38,8 @@ bytes, so a demo and its snippet cannot drift.
   `ActiveLink`, where the thing being shown *is* C#. A test asserts from both directions that it is used
   for nothing else, so it cannot become a home for examples that failed the scan.
 - `Demo="ex-demo--block"` lays the demo out as a block instead of a centred row; add `ex-demo--pad` for
-  something that needs room. Omit it for small inline things like a badge.
+  something that needs room, or `ex-demo--flush` for a demo that brings its own edge, like a whole
+  frame. Omit it for small inline things like a badge.
 - A backtick in a `Title` renders as `<code>`. `Title` stays a plain string because it is also the
   anchor slug, the accessible name, and what the MCP server returns.
 

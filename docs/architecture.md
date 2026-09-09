@@ -320,7 +320,7 @@ A panel's primary action is a filled button in its semantic colour.
 
 | Layer | z-index | What sits there |
 |---|---|---|
-| Local stacking inside a component | 0, 1, 2 | **not the overlay scale** — see the note below |
+| Local stacking inside a component | 0, 1, 2, 3 | **not the overlay scale** — see the note below |
 | Topbar | 60 | `.topbar`, `.fab` |
 | User widget | 200 | `.user-widget` |
 | Collapsed-rail flyout | 400 | `.sidebar.collapsed [data-tip]:hover::after` |
@@ -335,12 +335,19 @@ A panel's primary action is a filled button in its semantic colour.
 A new overlay uses one of these values. `Every_z_index_comes_from_the_documented_scale` fails on any
 other, so adding a layer means adding it to this table first.
 
-**The three local values are a scale of their own, and a sticky table uses all three.** They order
-cells inside one table and never anything else: `0` is a pinned column's body cells, above the static
-cells they slide across; `1` is `.table--sticky`'s header row, above those; `2` is the corner cell of a
+**The local values are a scale of their own, and a sticky table uses three of them.** They order
+cells inside one table and never anything else: `1` is a pinned column's body cells, above the static
+cells they slide across; `2` is `.table--sticky`'s header row, above those; `3` is the corner cell of a
 pinned column, which is sticky on both axes and has to beat the other header cells as well — it is
 first in DOM order, so at an equal z-index every one of them paints over it. That is the whole reason
 the band is three wide rather than two.
+
+**The pinned column starts at `1` and not at `0`, and the difference is not cosmetic.** `0` is not
+above `auto`: a positioned child of an ordinary cell — a `.segmented-option`, a `.switch`, a
+`.menu-anchor` — paints in the same step of the stacking order as a `z-index: 0` stacking context, and
+the tie is broken by tree order, so every such control in a column to the right of the pinned one slid
+over the top of it as the table scrolled. It read as the pinned cell being transparent. `0` stays on
+the scale for a component that wants a floor of its own.
 
 Two things the flat list does not say:
 
@@ -376,6 +383,7 @@ Two things the flat list does not say:
 | `modal` | The platform dialog for an app's own markup: `show(id)` → `showModal()`, `close(id, value)` → `close(value)`. An id that is not a `<dialog>`, or one already open, warns in the console and does nothing — an exception crossing the interop boundary from a Blazor handler tears down the circuit |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |
+| `select` | `refresh(root?)` → how many it fixed. Fills in the `<selectedcontent>` clone a customizable `<select>` should have made and Blazor's render prevents, leaving the closed box blank. Runs on load and after any render that adds nodes; an app calls it only for a select it moved into place some other way |
 | `palette` | Command palette, opened by Ctrl/⌘-K once commands exist: `register(list)`, `open()`, `close()`, `rank(query)` |
 | `search` | Header search behind a `data-search` input: `register(items)`, `rank(query)`, `close()` |
 | `dropzone` | Delegated drag-and-drop for a `data-dropzone` zone: maintains `.dropzone--over`, hands a dropped file to the zone's own `input[type=file]` as a `change` event. `reset()` clears the highlight |
@@ -426,6 +434,34 @@ running Blazor Server needs.
 
 The icons remain under the Remix Icon License v1.0, not Apache-2.0. See
 [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md).
+
+## State illustrations
+
+`_content/Sedna.UI/img/Sedna.UI.states.svg` holds thirteen `<symbol>` drawings, one per state:
+`nothing-yet`, `no-results`, `filtered-out`, `no-access`, `failed`, `waiting`, `not-found`,
+`server-error`, `session-expired`, `maintenance`, `all-done`, `first-run`, `offline`. A page
+references one by id:
+
+```html
+<svg class="state-art state-art--lg" aria-hidden="true">
+    <use href="_content/Sedna.UI/img/Sedna.UI.states.svg#no-access" />
+</svg>
+```
+
+Three sizes — `--sm` 56px, the bare class 96px, `--lg` 152px. There is no smaller step: below 56px the
+3-unit stroke fills in.
+
+This is not a second icon set. An icon set is a vocabulary a page draws from; this is a fixed drawing
+per fixed state, and adding one an app chooses between is what the rule in `CLAUDE.md` bans.
+
+The file writes no colour. Line work is `currentColor`, which `.state-art` points at `--muted`; the one
+accent per drawing is `var(--state-accent)`, which the containing block re-points — `.empty-state--failed`
+moves it into the danger ramp. Inherited custom properties cross into a `<use>` shadow tree, which is
+what lets one file follow four themes.
+
+`StateSpriteTests` guards it: well-formed XML, no `--` in a comment (which breaks the whole file, not one
+drawing), no literal colour, one shared `viewBox`, and the id list in `42-state-art.css` matching the
+symbols. `ShippedPathTests` and `build/verify-package.sh` pin the path.
 
 ## The MCP server
 

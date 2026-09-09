@@ -7,52 +7,71 @@
    equal specificity, so the caret's background-image survives the `background`
    shorthand in the shared field rule on source order alone. Renumber this below
    34 and the caret silently disappears.
+
+   The select this file draws is the FALLBACK one — the control a browser without
+   `appearance: base-select` renders, where the option list belongs to the platform
+   and the only part CSS can reach is the closed box. 49-form-select-base.css draws
+   the other one, and the two do not overlap: everything particular to the fallback
+   sits inside the `@supports not` block below, so nothing there has to be undone
+   later.
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* `class="form-select"` is the whole class list a dropdown needs. The field shape
    — height, padding, surface, border, radius, type and focus ring — comes from
    the shared `.form-input, .form-select` rule in 34-forms.css, and this file adds
-   only what is particular to a select: the platform caret replaced by one that
-   matches the theme.
+   only what is particular to a select.
 
    `class="form-input form-select"` stays correct and renders identically, because
    the two names resolve to the same declarations rather than to two copies of
-   them. Prefer the single class in new markup.
+   them. Prefer the single class in new markup. */
+.form-select { cursor: pointer; }
 
-   The caret is two triangular gradients meeting at a point. Not an SVG: this
-   stylesheet loads and inlines nothing, so neither url() nor a data: URI is
-   available. Not a pseudo-element either — ::before / ::after do not render on a
-   <select> at all, in any browser. */
-.form-select {
-    appearance: none;
-    /* Room for the caret plus its 12px inset, so a long option label stops
-       before it rather than running underneath. */
-    padding-inline-end: var(--space-10);
-    background-image:
-        linear-gradient(45deg,  transparent 50%, var(--muted) 50%),
-        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-    background-position:
-        calc(100% - 17px) calc(50% - 2px),
-        calc(100% - 12px) calc(50% - 2px);
-    background-size: 5px 5px;
-    background-repeat: no-repeat;
-    cursor: pointer;
-}
-
-/* A list box is not a dropdown: there is nothing to drop, and the caret would
-   sit over the first row. */
+/* A list box is not a dropdown: there is nothing to drop, so a click on it picks
+   a row rather than opening anything. */
 .form-select[multiple],
-.form-select[size]:not([size="1"]) {
-    background-image: none;
-    padding-inline-end: var(--space-5);
-    cursor: auto;
+.form-select[size]:not([size="1"]) { cursor: auto; }
+
+/* ── The fallback caret ─────────────────────────────────────────────────────
+   Only for a browser that cannot do base appearance. Where it can, the caret is
+   the real `::picker-icon` pseudo-element in 49-form-select-base.css, and drawing
+   both would put two arrows in the box.
+
+   Two triangular gradients meeting at a point. Not an SVG: this stylesheet loads
+   and inlines nothing, so neither url() nor a data: URI is available. Not a
+   pseudo-element either — without base appearance, ::before / ::after do not
+   render on a <select> at all, in any browser, which is the whole reason this is
+   painted onto the background. */
+@supports not (appearance: base-select) {
+    .form-select {
+        appearance: none;
+        /* Room for the caret plus its 12px inset, so a long option label stops
+           before it rather than running underneath. */
+        padding-inline-end: var(--space-10);
+        background-image:
+            linear-gradient(45deg,  transparent 50%, var(--muted) 50%),
+            linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+        background-position:
+            calc(100% - 17px) calc(50% - 2px),
+            calc(100% - 12px) calc(50% - 2px);
+        background-size: 5px 5px;
+        background-repeat: no-repeat;
+    }
+
+    /* The caret would sit over the first row of a list box. */
+    .form-select[multiple],
+    .form-select[size]:not([size="1"]) {
+        background-image: none;
+        padding-inline-end: var(--space-5);
+    }
 }
 
 /* The same three tiers as .form-input, so a small filter field and the small
    dropdown beside it agree on height. Longhands rather than the `padding`
-   shorthand .form-input-sm uses: the shorthand would reset the caret's room
-   above, which is the one thing a select cannot give up. --space-10 therefore
-   stays where .form-select set it, at every tier. */
+   shorthand .form-input-sm uses: the shorthand would reset the fallback caret's
+   room above, which is the one thing that select cannot give up. --space-10
+   therefore stays where the fallback set it, at every tier — and where base
+   appearance is available there is no reserved room to protect, so
+   49-form-select-base.css gives the trailing side back at each tier. */
 .form-select-sm {
     min-height: var(--control-height-sm);
     padding-block: var(--space-2);

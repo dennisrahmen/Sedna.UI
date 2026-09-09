@@ -1,0 +1,51 @@
+/* ── State art ──────────────────────────────────────────────────────────────
+   The drawing that says which state a view is in. One per state, from the sprite
+   shipped at `wwwroot/img/Sedna.UI.states.svg`:
+
+     <svg class="state-art state-art--lg" aria-hidden="true">
+       <use href="_content/Sedna.UI/img/Sedna.UI.states.svg#no-access" />
+     </svg>
+
+   Thirteen symbols: nothing-yet, no-results, filtered-out, no-access, failed,
+   waiting, not-found, server-error, session-expired, maintenance, all-done,
+   first-run, offline.
+
+   ── Why a sprite and not an icon, and not markup ──
+   One generic ornament on every empty state says only "this block is styled"; the
+   reader still has to read the sentence to learn whether there is no data, no
+   permission, or no connection. A drawing per state is the part that can be read
+   before the text.
+
+   It is a shipped asset rather than inline markup because a fix has to land once.
+   Thirteen drawings copied into every consuming app is thirteen drawings to chase
+   when one of them is wrong, and this library exists so that a UI fix is made here.
+   It is not a second icon set either: an icon set is a vocabulary an app draws from,
+   and this is thirteen fixed pictures of thirteen fixed states.
+
+   ── Colour ──
+   The sprite writes no colour at all. Its line work is `currentColor`, which lands on
+   whatever `color` the host sets — `--muted` here — and its single accent is
+   `var(--state-accent)`, declared in the token block and re-pointed by whatever the
+   art sits in: `.empty-state--failed` swaps it for the danger colour and the drawing
+   follows, with no second file to keep in step. Inherited custom properties cross into
+   a `<use>` shadow tree, which is the whole reason this works.
+
+   ── Sizes ──
+   Three, because the same state has to appear in three places. `--sm` is for a row
+   inside a table or a narrow panel, where anything larger pushes the message out of
+   view. The default is the card. `--lg` is the full page, where the block IS the page.
+   Below 56px the 3-unit stroke fills in and the drawing reads as a smudge, which is
+   why there is no smaller step — use the sentence alone.
+
+   The block reserves its own space with `flex-shrink: 0`: dropped into a flex row it
+   would otherwise be squeezed to nothing by the text beside it, silently.
+   ─────────────────────────────────────────────────────────────────────────── */
+.state-art {
+    display: block;
+    flex-shrink: 0;
+    width: 96px;
+    height: 96px;
+    color: var(--muted);
+}
+.state-art--sm { width: 56px; height: 56px; }
+.state-art--lg { width: 152px; height: 152px; }
