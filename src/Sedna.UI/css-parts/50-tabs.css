@@ -71,3 +71,8 @@
 .tab[aria-selected="true"] .tab-count { background: var(--brand-tint); color: var(--brand-text); }
 
 .tab-panel { padding-top: var(--space-7); }
+
+/* A strip inside a card head is `.card-head--tabs`, declared beside `.card-head` in
+   30-cards.css because it is that head's modifier. It drops this padding, the strip's
+   own bottom border and the head's block padding, so the indicator meets the body
+   edge. Do not write a second answer here. */

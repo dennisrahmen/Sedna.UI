@@ -41,7 +41,7 @@
 }
 
 .cat-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 6px; }
-.cat-head h1 { flex: 1; min-width: 0; }
+.cat-head > h1 { flex: 1; min-width: 0; }
 
 .cat-tier {
     flex-shrink: 0;

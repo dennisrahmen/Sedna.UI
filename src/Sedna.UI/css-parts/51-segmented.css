@@ -22,14 +22,31 @@
    has a `transition`, and getComputedStyle immediately after the change returns the
    value at t=0, which is the one being transitioned away from.
    ─────────────────────────────────────────────────────────────────────────── */
+/* The TRACK owns the height, the way `.input-group` does, and for the same reason: it
+   is the track that draws the border, so an option carrying its own min-height would
+   make the track that height PLUS its two borders and its own padding. The options
+   stretch to fill the tier — `align-items` is stated rather than left to the flex
+   default because it is load-bearing here.
+
+   --control-height is the token the button, the text input, the select and the search
+   box take, and it is what makes a segmented control in a toolbar the same height as
+   the field and the button beside it. Without it the track measured 32px next to a
+   36px field, and 35px when its options carried icons — so two segmented controls in
+   one bar did not even agree with each other. */
 .segmented {
     display: inline-flex;
+    align-items: stretch;
+    min-height: var(--control-height);
     padding: var(--space-1);
     background: var(--surface-strong);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
 }
 
+/* line-height pins the option's box, so an option with an icon in it is the same
+   height as one without. The icon takes `line-height: 1` for the reason `.btn i`
+   does: an icon nested in a <span> beside the label shares a line box with it, and at
+   the inherited 1.5 its taller box is what set the option's height. */
 .segmented-option {
     position: relative;
     display: inline-flex;
@@ -40,12 +57,13 @@
     color: var(--muted);
     font-size: var(--text-3);
     font-weight: 500;
+    line-height: 1.4;
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
     transition: background var(--motion-fast), color var(--motion-fast);
 }
-.segmented-option i { font-size: var(--text-5); }
+.segmented-option i { font-size: var(--text-5); line-height: 1; }
 .segmented-option input {
     position: absolute;
     inset: 0;
@@ -66,3 +84,17 @@
 .segmented-option:has(input:checked) { background: var(--bg-elevated); color: var(--fg); }
 .segmented-option:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .segmented-option:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
+
+/* The same three tiers as the button and the text input, off the same tokens, so a
+   toolbar row agrees at every size.
+
+   min-height is a floor, so a tier also has to bring the option's block padding and
+   text UNDER it — exactly what `.input-group--sm` does. At the base padding an option
+   is 25px, which clears the 28px tier's 22px of room and would leave the small track
+   measuring 31px. */
+.segmented--sm { min-height: var(--control-height-sm); }
+.segmented--sm .segmented-option   { padding-block: var(--space-1); font-size: var(--text-2); }
+.segmented--sm .segmented-option i { font-size: var(--text-4); }
+.segmented--lg { min-height: var(--control-height-lg); }
+.segmented--lg .segmented-option   { padding-block: var(--space-4); font-size: var(--text-4); }
+.segmented--lg .segmented-option i { font-size: var(--text-6); }

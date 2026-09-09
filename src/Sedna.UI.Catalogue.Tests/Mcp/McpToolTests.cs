@@ -286,9 +286,13 @@ public class McpToolTests(CatalogueAppFixture app)
 
         var other = result.GetProperty("otherSelectors").EnumerateArray().Single();
         Assert.Equal("#blazor-error-ui", other.GetProperty("name").GetString());
-        Assert.Contains("--reconnect-fail-bg", other.GetProperty("declarations").GetString()!,
-            StringComparison.Ordinal);
-        Assert.Contains("Frame/ErrorBarHostPage",
+        // The id is the MOUNT — fixed to the bottom edge, hidden until the framework
+        // reveals it — and nothing else. The severity moved onto `.status-bar--error`
+        // when the reconnect rows and this bar became one family, which is the whole
+        // point of that rename: the id is the framework's, the strip inside it is ours.
+        var declarations = other.GetProperty("declarations").GetString()!;
+        Assert.Contains("position: fixed", declarations, StringComparison.Ordinal);
+        Assert.Contains("StatusBar/ErrorBarHostPage",
             other.GetProperty("usedByExamples").EnumerateArray().Select(e => e.GetString()));
 
         var note = result.GetProperty("notes").EnumerateArray().Single();
@@ -336,7 +340,7 @@ public class McpToolTests(CatalogueAppFixture app)
             .Where(h => h.GetProperty("kind").GetString() == "example")
             .Select(h => h.GetProperty("ref").GetString()).ToList();
 
-        Assert.Contains("Frame/ErrorBarHostPage", refs);
+        Assert.Contains("StatusBar/ErrorBarHostPage", refs);
     }
 
     [Fact]

@@ -1,0 +1,56 @@
+<aside class="sidebar" style="height:560px; border:1px solid var(--border); border-radius:var(--radius-panel); overflow:hidden">
+    <a class="brand" href="#">
+        <span class="brand-logo" style="background:var(--brand)"></span>
+        <span class="brand-text"><strong>Acme Ops</strong><span class="brand-sub">fulfilment</span></span>
+    </a>
+    <nav class="nav">
+        <div class="nav-scroll">
+            <a class="nav-link" href="#"><i class="ri-dashboard-line"></i><span>Overview</span></a>
+            <a class="nav-link active" aria-current="page" href="#">
+                <i class="ri-inbox-line"></i><span>Orders</span><span class="nav-count">12</span>
+            </a>
+            <a class="nav-link" href="#"><i class="ri-truck-line"></i><span>Shipments</span></a>
+
+            <details class="nav-group" open>
+                <summary><i class="ri-building-line"></i><span>Warehouses</span></summary>
+                <a class="nav-link" href="#"><span>Rotterdam</span><span class="nav-count">4</span></a>
+                <a class="nav-link" href="#"><span>Duisburg</span></a>
+                <a class="nav-link" href="#"><span>Lyon</span></a>
+            </details>
+
+            <div class="nav-section">
+                <span class="nav-section-label">Administration</span>
+                <a class="nav-link" href="#"><i class="ri-key-2-line"></i><span>API keys</span></a>
+                <a class="nav-link" href="#"><i class="ri-team-line"></i><span>Members</span></a>
+                <details class="nav-group">
+                    <summary><i class="ri-refresh-line"></i><span>Directory sync</span></summary>
+                    <a class="nav-link" href="#"><span>Field mapping</span></a>
+                    <a class="nav-link" href="#"><span>Change log</span></a>
+                </details>
+            </div>
+
+            <a class="nav-status-card nav-status-card--ok" href="#">
+                <span class="nav-status-label">Carrier API</span>
+                <span class="nav-status-row">
+                    <span class="nav-status-dot"></span>
+                    <span class="nav-status-state">Connected</span>
+                </span>
+            </a>
+            <a class="nav-status-card nav-status-card--fail" href="#">
+                <span class="nav-status-label">Label printer</span>
+                <span class="nav-status-row">
+                    <span class="nav-status-dot"></span>
+                    <span class="nav-status-state">Offline</span>
+                </span>
+            </a>
+        </div>
+
+        <div class="nav-tools">
+            <a class="nav-link nav-link-tool" href="#"><i class="ri-question-line"></i><span>Support</span></a>
+            <hr class="nav-tools-sep" />
+            <a class="nav-link nav-link-tool" href="#">
+                <i class="ri-book-2-line"></i><span>Documentation</span><i class="ri-external-link-line nav-link-ext"></i>
+            </a>
+        </div>
+    </nav>
+</aside>

@@ -194,15 +194,19 @@
 
 <p class="cat-lede">
     <strong>Sedna</strong>, <strong>Forest</strong>, <strong>Cobalt</strong> and
-    <strong>Graphite</strong> are four registered themes — one hand-tuned, three generated from a
-    single anchor colour. Forest's brand anchor collides with the <code>go</code> family, so
-    <code>go</code> moves; Cobalt's collides with <code>accent</code> and <code>info</code>, so
-    <code>orbit</code> moves. <strong>Graphite moves the base instead of the brand</strong>: its
-    <code>slate</code> ramp comes from <code>SednaRamp.Surface("#18181b")</code>, so the canvas,
-    the chrome and all three elevation levels are neutral grey while Sedna Red stays exactly where
-    it is. This is the same switch
-    the header's own dark/light toggle uses — a <code>data-theme</code> and <code>data-variant</code>
-    flip on <code>&lt;html&gt;</code>, applied for the rest of this site until you change it again.
+    <strong>Graphite</strong> are four registered themes — one hand-tuned, three generated from
+    anchor colours — and between them they cover the shapes a rebrand takes.
+    <strong>Forest moves both halves</strong>: a green brand over a base generated from
+    <code>SednaRamp.Surface("#101b0d")</code>, so the canvas, the chrome, the cards, the borders,
+    the muted text and all three elevation levels are forest floor instead of Deep Space — and
+    because that brand anchor collides with the <code>go</code> family, <code>go</code> moves off
+    it as well. <strong>Cobalt moves the brand only</strong>; its anchor collides with
+    <code>accent</code> and <code>info</code>, so <code>orbit</code> moves.
+    <strong>Graphite moves the base only</strong>, from
+    <code>SednaRamp.Surface("#18181b")</code>, leaving Sedna Red exactly where it is. This is the
+    same switch the header's own dark/light toggle uses — a <code>data-theme</code> and
+    <code>data-variant</code> flip on <code>&lt;html&gt;</code>, applied for the rest of this site
+    until you change it again.
 </p>
 
 <div style="display:flex; gap:24px; flex-wrap:wrap; margin:20px 0 8px">
@@ -243,7 +247,9 @@
         A primary button, a <code>go</code> button, a <code>danger</code> button, a link, a badge
         and a card — the same six things every page on this site is built from. Switch to Forest:
         the primary button and the <code>go</code> button separate on hue exactly as far as they do
-        here, because <code>go</code> was regenerated to keep it that way.
+        here, because <code>go</code> was regenerated to keep it that way. Watch the card too —
+        under Forest and Graphite its fill, its border and the page behind it all come from the
+        theme's own base ramp, which is the half of a rebrand a recoloured button does not show.
     </p>
 </CatExample>
 

@@ -12,9 +12,10 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 // Forest, Cobalt and Graphite exist so the Branding page's live switcher has more
 // than one palette to move between — proof the architecture generates a theme from
-// one anchor colour rather than hand-tuning a second stylesheet. Forest and Cobalt
-// move the brand; Graphite moves the BASE, which is the half that used to be
-// impossible to generate and is why every app looked faintly blue. SednaBrandStyle
+// one anchor colour rather than hand-tuning a second stylesheet. Cobalt moves the
+// brand, Graphite moves the BASE, and Forest moves both — the base being the half
+// that used to be impossible to generate and is why every app looked faintly blue.
+// SednaBrandStyle
 // in App.razor's <head> is what actually emits their [data-theme="…"] blocks; every
 // other page keeps rendering Sedna's own palette, since nothing outside that
 // page's switch ever sets the attribute.

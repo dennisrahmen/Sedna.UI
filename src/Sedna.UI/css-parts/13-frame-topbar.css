@@ -35,3 +35,77 @@
 .topbar-btn:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
 .topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
 
+/* ── Version tag ────────────────────────────────────────────────────────────
+   The running version or build of the app, in the header's trailing cluster
+   beside the status indicator and the user widget. `v0.9.0`, `build 1482`,
+   `2026.09.1`.
+
+   Quiet by construction: it is an identifier somebody reads once, when they file
+   a bug or check whether a deploy landed. It is not a control and not a status,
+   so it takes --muted and the smallest label size rather than competing with the
+   pills next to it.
+
+   Monospace and tabular, because a rolling build number that changes width as it
+   counts up drags the whole cluster sideways on every deploy.
+
+   `align-self: center` is not decoration. .topbar is `align-items: stretch`, so a
+   loose child fills all 44px of the header — which nothing noticed while the only
+   loose children were pills with no background, and which would have drawn this
+   one as a 44px-tall capsule. */
+.topbar-version {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    flex-shrink: 0;
+    padding: var(--space-1) var(--space-4);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+    white-space: nowrap;
+    text-decoration: none;
+}
+/* The <a> form — pointing at the release notes, the commit or a status page —
+   keeps the same weight and only firms up under the pointer. */
+a.topbar-version:hover {
+    background: var(--surface-strong);
+    border-color: var(--border-strong);
+    color: var(--fg);
+    text-decoration: none;
+}
+
+/* A build that is not the release: a preview deployment, a staging slot, a local
+   run against production data. The reader has to know they are not looking at
+   what they think they are looking at.
+
+   The modifier colours it and does not name it — write the word as well
+   (`v0.10.0-rc.2`, `staging 1482`), for the same reason the status indicator's
+   dot is never alone. */
+.topbar-version--pre {
+    background: var(--warn-bg);
+    border-color: var(--warn-border);
+    color: var(--warn-fg);
+}
+a.topbar-version--pre:hover {
+    background: var(--warn-bg-hover);
+    border-color: var(--warn-fg);
+    color: var(--warn-fg);
+}
+
+/* ── Loose items in the header ──────────────────────────────────────────────
+   .topbar is a flex row with NO gap, because every child that belongs to it
+   carries its own edges: .topbar-btn is a 44px box with a divider, and
+   .topbar-section supplies its own padding and gap. Something dropped straight
+   into the header instead of into a .topbar-section therefore has nothing at all
+   between it and whatever comes next — a status pill sat hard against the user
+   widget's avatar, with the two reading as one object.
+
+   Margin rather than `gap` on .topbar: a gap would also prise the icon buttons
+   apart, and their dividers are meant to touch. */
+.topbar > .health-badge,
+.topbar > .stale,
+.topbar > .topbar-version { align-self: center; margin-inline: var(--space-6); }

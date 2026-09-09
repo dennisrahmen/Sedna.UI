@@ -10,13 +10,21 @@
     padding: var(--space-11) var(--space-9);
     color: var(--muted);
 }
-.empty-state i {
+/* `> i`, not `i`. The glyph is always a direct child — the spinner that replaces it in
+   --pending is too — and the descendant selector reached the icon inside the action
+   button as well: `.empty-state i` and `.btn i` weigh the same and this is the later
+   part, so a 13px button icon rendered at 40px and dragged the button's height up with
+   it. That is what made the actions here look oversized. */
+.empty-state > i {
     font-size: var(--text-11);
     color: var(--border-strong);
     line-height: 1;
 }
 .empty-state-title { font-size: var(--text-5); font-weight: 600; color: var(--fg); }
 .empty-state p     { margin: 0; font-size: var(--text-4); max-width: 44ch; }
+/* The action is a separate decision from the sentence above it, so it gets more air
+   than the lines of text get between themselves. */
+.empty-state .btn  { margin-top: var(--space-3); }
 /* Sits directly on the page rather than inside a card. */
 .empty-state--bare { padding: var(--space-9) 0; }
 
@@ -34,12 +42,17 @@
    destructive rather than as unavailable. */
 .empty-state--pending .spinner,
 .empty-state--pending .spinner-lg { color: var(--muted); }
-.empty-state--failed i { color: var(--danger-fg); }
+.empty-state--failed > i { color: var(--danger-fg); }
 /* The line under the title, for the detail that makes a failure actionable: the code,
-   the endpoint, when it was last tried. */
+   the endpoint, when it was last tried. It takes the paragraph's measure, and breaks
+   anywhere, because what goes in it is the kind of string that has no spaces to break
+   at — a path or a query — and without both it stretches the block wider than the
+   text above it. */
 .empty-state-detail {
+    max-width: 44ch;
     font-family: var(--font-mono);
     font-size: var(--text-2);
     color: var(--muted);
+    overflow-wrap: anywhere;
 }
 

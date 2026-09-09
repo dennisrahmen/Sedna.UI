@@ -17,6 +17,12 @@
     --page-gap: var(--space-7);
     padding: var(--space-9);
     padding-inline: max(var(--space-9), calc((100% - var(--page-max)) / 2));
+    /* The shell holds the top and the sides clear of the device; the bottom edge is
+       every scroller's own, because the shell cannot know which of its descendants
+       reaches it. Added to the gutter rather than replacing it, or the last row of a
+       table would sit against the home indicator with no gutter at all on a phone and
+       lose its 24px on a desktop. */
+    padding-block-end: calc(var(--space-9) + var(--safe-block-end));
     flex: 1;
     overflow-y: auto;
     min-height: 0;

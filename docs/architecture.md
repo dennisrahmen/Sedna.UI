@@ -111,6 +111,33 @@ copied rule.
 declarations, so an `!important` inside `sedna.paint` is harder for you to override than an ordinary
 declaration. The library uses none, and a test enforces it.
 
+## Focus rings
+
+Every focus ring in the library is a `box-shadow` in a brand ring token, never an `outline`.
+`71-forced-colors.css` restates each one as an `outline`, because `box-shadow` is not painted in
+forced colours.
+
+Two rules in `06-base-elements.css` decide when a ring appears at all:
+
+- `:focus:not(:focus-visible)` drops the outline for pointer focus and for focus restored on reload.
+- `[tabindex="-1"]:not(a, area, button, input, select, textarea, summary, [contenteditable], [role])`
+  drops it for `:focus-visible` too. `tabindex="-1"` takes an element out of the tab order, so nothing
+  carrying it is reachable by Tab and nothing carrying it needs a ring to say where the keyboard is.
+
+The second rule exists for `FocusOnNavigate`, the Blazor Web App template's own component: it puts
+`tabindex="-1"` on the page's `<h1>` and focuses it after every route change, and Chromium's
+`:focus-visible` heuristic reads that as keyboard focus, so the heading arrives wearing the UA outline.
+Keep `FocusOnNavigate` — it is what announces a client-side navigation to a screen reader.
+
+A **roving-tabindex** widget is the exception the exclusions carve out: a `.tab`, a menu item or a
+listbox option sits at `tabindex="-1"` and *is* reached, by arrow key. Every one of those is a control,
+so an interactive tag or any ARIA role keeps its ring.
+
+A **skip-link target** — `<main id="main" tabindex="-1">` — loses its ring, deliberately: it is a
+viewport-sized box that says nothing, `<main>` is not keyboard-operable, and the skip link itself keeps
+its ring while it is the focused control. To put it back, write `main:focus-visible { outline: … }` in
+your own stylesheet; it is unlayered and beats the library.
+
 ## The token contract
 
 - Tokens are declared in the library's `:root`, plus the light and colour-blind blocks.
@@ -327,6 +354,13 @@ Two things the flat list does not say:
 - **The collapsed rail's flyout is `position: fixed`**, not absolute, because `.nav-scroll` scrolls and
   would otherwise clip it. It is still on rung 400: fixed positioning escapes an ancestor's `overflow`,
   not the z-order.
+- **`.menu-anchor > .menu` is fixed and anchor-positioned, for the same reason.** An absolutely
+  positioned panel is laid out inside the nearest scroll container and counts towards its scrollable
+  overflow, so a menu opened from a toolbar, from a `.sedna-scroll-x` around a table or from any app
+  container with an `overflow` of its own both grew that container a scrollbar and was clipped at its
+  edge. It stays on rung 550, and `position-visibility: anchors-visible` hides it when its trigger
+  scrolls out — a fixed panel does not travel with its anchor's scroller. `.user-widget > .menu` keeps
+  its own `position: absolute` anchoring: the widget is not a scroll container.
 
 ## JavaScript
 

@@ -33,6 +33,7 @@ internal static class CataloguePages
     public const string Media = "Text and media";
     public const string Feedback = "Feedback";
     public const string Overlays = "Overlays";
+    public const string Utilities = "Utilities";
     public const string Reference = "Reference";
 
     public static IReadOnlyList<CataloguePage> All { get; } =
@@ -53,12 +54,18 @@ internal static class CataloguePages
             "The mark, its detail tiers, the palette read live, and the decisions behind it.",
             "logo mark tile wordmark lockup clear space misuse svg outfit theme forest cobalt switch"),
 
-        new("/frame", Frame, "Shell and nav", "ri-side-bar-line",
-            "Layout, sidebar, topbar and user widget — the chrome this site is built from.",
-            "layout sidebar topbar nav user-widget collapsed rail reconnect active link blazor-error-ui error bar search-max page-gap rhythm spacing margin stack owl"),
-        new("/layouts", Frame, "Layouts", "ri-layout-3-line",
-            "Auth and full-bleed shells, collapsible nav groups, and the skip link.",
-            "auth sign-in full-bleed nav-group skip-link landmark open details active group"),
+        new("/frame", Frame, "Shell", "ri-layout-3-line",
+            "The three page shells, the rhythm inside them, and the skip link.",
+            "layout shell bare auth sign-in full-bleed page-gap rhythm spacing margin stack owl skip-link landmark narrow responsive drawer"),
+        new("/nav", Frame, "Sidebar and nav", "ri-side-bar-line",
+            "Links, the current one, collapsible groups, and the icon rail.",
+            "sidebar nav nav-link nav-group active link collapsed rail flyout icon badge count external open details group ActiveLink"),
+        new("/topbar", Frame, "Topbar and user", "ri-layout-top-2-line",
+            "Header search, the status and version chips, and the user widget.",
+            "topbar header search search-max user-widget user-menu avatar version build tag status health tip hover hint"),
+        new("/status-bar", Frame, "Status bar", "ri-signal-wifi-error-line",
+            "The strip that says the circuit dropped, the session expired, or something threw.",
+            "status-bar reconnect reconnecting paused failed expired error blazor-error-ui unhandled circuit disconnect banner"),
 
         new("/structure", Structure, "Page structure", "ri-layout-top-line",
             "Title rows, dividers, callouts and code blocks.",
@@ -154,9 +161,24 @@ internal static class CataloguePages
             "Dims the page except one element, for a tour or a first-run hint.",
             "spotlight tour onboarding hint highlight hole walkthrough follow lock placement coach mark"),
 
-        new("/utility", Reference, "Utilities", "ri-scissors-cut-line",
-            "The single-purpose classes: layout, gaps, text, state and print.",
-            "text-end truncate clamp visually-hidden sr-only sedna-row sedna-col sedna-fill gap margin print scroll max-height sedna-scroll"),
+        new("/utility-layout", Utilities, "Layout", "ri-align-item-vertical-center-line",
+            "Rows, columns, alignment, sizing and the hairline between them.",
+            "sedna-row sedna-row-wrap sedna-col sedna-push flex align baseline between wrap fill shrink w-full divider hairline min-width"),
+        new("/utility-spacing", Utilities, "Spacing", "ri-space",
+            "The gap inside a row or column, and a top or bottom margin on one element.",
+            "sedna-gap sedna-mt sedna-mb margin gap space rhythm zero reset"),
+        new("/utility-text", Utilities, "Text", "ri-text",
+            "Where a line sits, how loud it is, and what happens when it is too long.",
+            "text-start text-center text-end text-muted text-mono text-nums tabular text-nowrap text-sm text-lg text-break text-clamp text-truncate ellipsis overflow"),
+        new("/utility-visibility", Utilities, "Visibility", "ri-eye-off-line",
+            "Screen-reader-only text, unavailable state, and what reaches the printer.",
+            "visually-hidden sr-only screen reader focusable skip sedna-invisible sedna-busy sedna-disabled aria-busy aria-disabled sedna-no-print sedna-print-only paper"),
+        new("/utility-scroll", Utilities, "Scrolling", "ri-scroll-to-bottom-line",
+            "A region that scrolls on its own, with the library's scroll shadows.",
+            "sedna-scroll sedna-scroll-x scroll-max overflow max-height shadow fade sm md lg horizontal wide table"),
+        new("/utility-safe-area", Utilities, "Safe area", "ri-smartphone-line",
+            "Holding your own bar clear of a home indicator, a notch or a rounded corner.",
+            "sedna-safe-top sedna-safe-bottom sedna-safe-inline env safe-area-inset viewport-fit cover notch home indicator iphone island phone landscape"),
         new("/script", Reference, "The script", "ri-code-s-slash-line",
             "Toasts, confirmations, clipboard, hover hints, and the delegated behaviours.",
             "sednaUi toast confirm copy clipboard tips hover menu tabs dropzone follow interop javascript time zone cookie tz boot showModal"),
@@ -168,7 +190,7 @@ internal static class CataloguePages
 
     /// <summary>The group names, in the order the sidebar shows them.</summary>
     public static IReadOnlyList<string> Groups { get; } =
-        [Start, Frame, Structure, Actions, Forms, Data, Media, Feedback, Overlays, Reference];
+        [Start, Frame, Structure, Actions, Forms, Data, Media, Feedback, Overlays, Utilities, Reference];
 
     /// <summary>
     /// Routes that used to exist, and where they went. The site is public and linked
@@ -179,6 +201,12 @@ internal static class CataloguePages
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["/feedback"] = "/toast",
+            // One page carrying nine families, split into the Utilities group. It is
+            // linked from the README and from apps' own CLAUDE.md blocks.
+            ["/utility"] = "/utility-layout",
+            // The Frame group was two pages carrying fourteen examples between them, with
+            // the nav documented on one and most of its examples on the other. Four now.
+            ["/layouts"] = "/frame",
             ["/overlay"] = "/drawer",
             ["/everything"] = "/",
         };

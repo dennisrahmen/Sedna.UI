@@ -92,10 +92,16 @@
 
 /* Under ~560px the name goes too, leaving the avatar. The sign-out button and any
    header controls keep their full hit area, which is what actually matters on a
-   touch screen. */
+   touch screen.
+
+   The version tag goes with it, and for the same reason: it is read once, when
+   somebody files a bug, and a phone header has no room to carry a string nobody
+   is looking for. Anything the reader has to act on stays. */
 @media (max-width: 560px) {
     .layout--responsive .user-info,
     .topbar--responsive .user-info { display: none; }
     .layout--responsive .user-trigger,
     .topbar--responsive .user-trigger { padding: 0 var(--space-6); }
+    .layout--responsive .topbar-version,
+    .topbar--responsive .topbar-version { display: none; }
 }

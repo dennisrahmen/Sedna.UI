@@ -58,6 +58,37 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    reload) does not — otherwise an auto-selected block shows a stray outline. */
 :focus:not(:focus-visible) { outline: none; }
 
+/* The case the rule above cannot reach: focus moved BY SCRIPT onto something that is
+   not a control.
+
+   `FocusOnNavigate` — the Blazor Web App template's own component, and what announces
+   a client-side navigation to a screen reader — puts `tabindex="-1"` on the page's
+   <h1> and calls focus() on it after every route change. Chromium then treats that as
+   keyboard focus and paints its own square outline round the heading: its
+   :focus-visible heuristic falls back to "keyboard" whenever the last interaction was
+   a keypress OR the element that previously held focus is gone, and a route change
+   re-renders the link that was clicked, so the fallback is the normal case rather than
+   the edge one. `:focus:not(:focus-visible)` is no help, because :focus-visible
+   matches.
+
+   The seam is `tabindex="-1"` itself: it takes an element out of the tab order, so
+   nothing carrying it can be reached by Tab, and nothing carrying it needs a ring to
+   say where the keyboard is. The one exception is a roving-tabindex widget — a `.tab`,
+   a menu item, a listbox option — which IS reached, by arrow key. Every one of those
+   is a control, which is what the exclusions separate: an interactive tag or any ARIA
+   role keeps its ring, while a heading, landmark or wrapper that only script can focus
+   does not get one.
+
+   This also silences the ring on a skip-link target (`<main id="main" tabindex="-1">`),
+   deliberately: it is a viewport-sized box that tells the reader nothing, <main> is not
+   keyboard-operable so WCAG 2.4.7 does not ask for one, and the skip link itself keeps
+   its own ring while it is the focused control. An app that wants it back writes
+   `main:focus-visible { outline: … }` in its own stylesheet, which is unlayered and
+   beats this without a fight. */
+[tabindex="-1"]:not(a, area, button, input, select, textarea, summary, [contenteditable], [role]):focus-visible {
+    outline: none;
+}
+
 /* sedna-spin is NOT here: it is declared beside its only consumer in
    39-spinner.css. Two identical @keyframes of the same name is a silent-drift
    hazard — the later one wins for the whole document, so editing the earlier

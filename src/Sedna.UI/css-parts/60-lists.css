@@ -6,6 +6,8 @@
    A real <ul>/<li>, so the count is announced and the rows are navigable as a list.
    A row that navigates is an <a> filling the <li>, not a click handler on the <li>:
    the whole row is then a real link, openable in a new tab and reachable by keyboard.
+   A row that acts is a <button> filling it the same way, and `.list-row` resets the
+   platform's button chrome so the two rows look alike.
    ─────────────────────────────────────────────────────────────────────────── */
 .list { list-style: none; margin: 0; padding: 0; }
 .list > li + li { border-top: 1px solid var(--divider); }
@@ -18,8 +20,52 @@
     color: inherit;
     text-decoration: none;
 }
-a.list-row:hover { background: var(--bg-hover); text-decoration: none; }
-a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+/* A row that ACTS rather than navigates is a <button>, and a <button> arrives
+   carrying the platform's own chrome: a `ButtonFace` fill, a system border, centred
+   text and the UA's ~13px Arial. `.list-row` declares none of background, border or
+   font — it was written for an <li>, a <div> or an <a> — so a button row rendered as
+   a grey slab with its label centred, and `.list-title`, which sets only
+   `font-weight`, inherited the UA font size while `.list-sub` kept `var(--text-3)`:
+   the two lines came out the same size and the hierarchy was gone. The drawer's
+   action sheet was three of those.
+
+   The reset is scoped to `button.list-row` rather than declared on `.list-row`
+   itself, because `width: 100%` and `text-align: start` are INHERITED CONTEXT on a
+   <span> or a <div>. Put them on the bare class and a centred cell or a right-aligned
+   column silently re-aligns every row inside it. On a <button> both are the UA's own
+   values, so the scoped rule reproduces exactly what the other elements already do
+   and changes none of them.
+
+   `font: inherit` for the same reason: the row takes the surrounding list's font, as
+   a <span> row does, rather than pinning a size of its own. */
+button.list-row {
+    width: 100%;
+    background: none;
+    border: none;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+/* Hover and focus were scoped to `a.list-row`, so a button row had no affordance and
+   no focus ring at all. Both interactive elements, one rule — and a <span> row has to
+   keep getting neither, which is why the element scope stays rather than going away.
+   The forced-colours outline in 71-forced-colors.css is scoped the same way. */
+:is(a, button).list-row:hover { background: var(--bg-hover); text-decoration: none; }
+:is(a, button).list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+/* Pressed, which on a touch screen is the only feedback there is — a hover state a
+   finger never enters says nothing. The same `--bg-hover` / `--btn-active-bg` pair
+   `.btn-ghost` uses, so a quiet control being held reads the same everywhere and a
+   theme remaps both at once.
+
+   Pressed and disabled stay on `button.` rather than joining the `:is(a, button)`
+   above, so that everything this fix adds lands only on the element that was broken
+   and no shipped <a> row changes appearance. Giving a link row a press state is a
+   separate decision; do not fold it in here on the way past. */
+button.list-row:active { background: var(--btn-active-bg); }
+/* The treatment `.menu-item` and `.btn` use. `pointer-events: none` is what stops a
+   disabled row still taking the hover fill. */
+button.list-row:disabled,
+button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 .list-row[aria-current="true"],
 .list-row[aria-selected="true"] {
     background: var(--brand-tint);

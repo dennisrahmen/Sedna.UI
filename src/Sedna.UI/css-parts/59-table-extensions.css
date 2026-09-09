@@ -222,11 +222,13 @@
    browser gives an unbounded column the room it asks for and squeezes the rest to
    their padding. Three shapes cover it, each with its own knob:
 
-     · `.col-control` — a cell holding an <input> or a <select>. Squeezed to its
-       padding a select renders as a caret and two clipped characters, so the
-       column has a floor sized from the longest value the control can hold, and
-       the control fills the column so the two agree on an edge. A legible table
-       with unusable controls in it is the failure this avoids.
+     · `.col-control` — a cell holding an <input>, a <select> or a
+       `.value-trigger`. Squeezed to its padding a select renders as a caret and
+       two clipped characters, so the column has a floor sized from the longest
+       value the control can hold, and the control fills the column so the two
+       agree on an edge. A legible table with unusable controls in it is the
+       failure this avoids. A `.value-trigger` is reached through its
+       `.menu-anchor` wrapper, which is the direct child of the cell.
      · `.col-prose` — a sentence, a description, a distinguished name. Gives way
        instead of taking the table, and breaks inside a word because an identifier
        has nowhere else to break.
@@ -246,7 +248,12 @@
     max-width: var(--col-control-max);
 }
 .table .col-control > .form-input,
-.table .col-control > .form-select { width: 100%; }
+.table .col-control > .form-select,
+.table .col-control > .menu-anchor { width: 100%; }
+/* The anchor is inline-flex, so the trigger inside it has to be told to fill it as
+   well — otherwise the control is its content width inside a full-width wrapper and
+   the cell's trailing edge is empty. */
+.table .col-control > .menu-anchor > .value-trigger { width: 100%; }
 .table .col-prose {
     --col-prose-min: 12rem;
     --col-prose-max: 30rem;

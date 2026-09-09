@@ -379,4 +379,42 @@
 
     /* ── Metrics ────────────────────────────────────────────────────────── */
     --page-max: 1800px;    /* content column cap on ultra-wide screens */
+
+    /* ── Safe area ──────────────────────────────────────────────────────────
+       How much of each viewport edge is covered by the device rather than by the
+       page — a home indicator, a notch, a rounded corner. `env()` IS the device
+       detection: it resolves to 0px wherever there is nothing in the way, so a
+       rule that adds one of these serves a phone and a desktop unchanged and
+       nothing has to ask what it is running on.
+
+       They are 0px everywhere until the host page's viewport meta carries
+       `viewport-fit=cover`, which is what tells the browser to lay the page out
+       across the whole display in the first place. The block in
+       docs/getting-started.md has it; an app that has not copied that block yet
+       sees no change from any of these.
+
+       A TOKEN rather than `env()` at each use site, for three reasons. The
+       fallback is stated once instead of at every call. The inline pair can be
+       mirrored for RTL, which `env()` cannot do on its own. And a value the
+       browser synthesises from hardware is otherwise untestable — a headless
+       Chromium reports 0 for all four and always will, whereas a token can be set
+       to 34px and the rule that reads it measured.
+
+       The block pair passes straight through: `dir` does not touch the block
+       axis, and this library does not ship a vertical writing mode. */
+    --safe-block-start:  env(safe-area-inset-top, 0px);
+    --safe-block-end:    env(safe-area-inset-bottom, 0px);
+    --safe-inline-start: env(safe-area-inset-left, 0px);
+    --safe-inline-end:   env(safe-area-inset-right, 0px);
+}
+
+/* The inline pair is the one thing `env()` cannot express: its four values are
+   physical, and the whole library is written in logical properties so that the
+   layout mirrors from `dir="rtl"` with no rules at all. Swapping the two tokens
+   here is what keeps every use site logical — `padding-inline-end:
+   var(--safe-inline-end)` is then correct in both directions, and 70-rtl.css needs
+   nothing. */
+:root[dir="rtl"] {
+    --safe-inline-start: env(safe-area-inset-right, 0px);
+    --safe-inline-end:   env(safe-area-inset-left, 0px);
 }

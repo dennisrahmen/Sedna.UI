@@ -34,6 +34,13 @@
     display: flex;
     flex-direction: column;
     width: min(420px, 100vw);
+    /* The panel reaches the bottom edge in both forms — a side drawer spans the
+       block axis, a sheet sits on it — so the home indicator would cross the footer's
+       buttons on a phone. Padding rather than an offset, so the inset is filled with
+       the panel's OWN elevated surface: a margin would leave the page showing through
+       under a dark sheet, in a strip the eye reads as the panel not quite landing.
+       0px on anything without an indicator, so a desktop drawer is unchanged. */
+    padding-block-end: var(--safe-block-end);
     --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border-inline-start: 1px solid var(--border);
@@ -51,14 +58,32 @@
 }
 
 /* A sheet comes from the bottom edge instead — the right shape on a phone, where a
-   side panel has nowhere to come from. */
+   side panel has nowhere to come from.
+
+   CAPPED AND CENTRED, the same way `.drawer` is capped at 420px rather than filling
+   the inline axis. A sheet that spans a 1440px window puts its rounded top corners
+   at the far edges of the screen and its actions in a narrow column on the left,
+   which reads as a bar across the bottom rather than a panel. `min()` is what makes
+   one rule serve both: on a phone the viewport is the smaller value and the sheet is
+   edge to edge with the corners where they belong, on a desktop it is 480px and the
+   auto margins centre it.
+
+   480 rather than the drawer's 420 because a sheet is the landscape shape of the
+   same panel — the row lockup inside it wants the width the drawer's stacked content
+   does not.
+
+   Three borders rather than only a top one, now that the inline edges no longer sit
+   off-screen. `.drawer` draws the edge that faces the page and leaves the ones lying
+   against the viewport bare; for a capped sheet that is three edges facing the page
+   and one below the viewport, so the block-end edge is the one taken away. */
 .sheet {
     inset-block: auto 0;
     inset-inline: 0;
-    width: auto;
+    width: min(480px, 100vw);
+    margin-inline: auto;
     max-height: 85vh;
-    border-inline-start: none;
-    border-top: 1px solid var(--border);
+    border: 1px solid var(--border);
+    border-bottom: none;
     border-start-start-radius: var(--radius-panel);
     border-start-end-radius: var(--radius-panel);
     transform: translateY(100%);
@@ -99,7 +124,10 @@ dialog.drawer {
     inset-inline-end: 0;
     max-width: none;
     max-height: none;
-    padding: 0;
+    /* Not `padding: 0`: this rule is (0,1,1) against `.drawer`'s (0,1,0), so the
+       shorthand would drop the safe-area inset the class above sets. The UA's own
+       dialog padding is what has to go; the bottom inset has to stay. */
+    padding: 0 0 var(--safe-block-end);
     /* And the UA gives a dialog `border: solid`, which is 3px of currentColor — a
        near-white frame against the viewport edges. All four edges are restated here
        rather than left to `.drawer`, whose class selector this rule outranks. */
@@ -122,14 +150,23 @@ dialog.drawer.drawer--start {
     border-inline-start: none;
     border-inline-end: 1px solid var(--border);
 }
-/* A sheet spans the inline axis, is content-sized in the block axis and capped, and
-   carries its edge on top. */
+/* A sheet is content-sized in the block axis and capped. The width and the auto
+   margins come from `.sheet`, but the border has to be restated: `dialog.drawer`
+   above sets `border: none` at (0,2,1) to shed the UA's 3px of currentColor, and
+   that outranks `.sheet`'s own (0,1,0) edges. */
 dialog.sheet {
     inset-inline: 0;
     height: fit-content;
     max-height: 85vh;
-    border: none;
-    border-top: 1px solid var(--border);
+    /* `dialog.drawer` above sets `margin: 0`, which it has to — auto margins would
+       fight the edge anchoring. A capped sheet needs them back, and this is the rule
+       that outranks it. Without them `inset-inline: 0` plus a definite width is
+       over-constrained, and the inset the spec drops is the END one: the sheet ends
+       up flush against the inline START edge, at its capped width, on the wrong side
+       of the screen in RTL. */
+    margin-inline: auto;
+    border: 1px solid var(--border);
+    border-bottom: none;
 }
 dialog.drawer::backdrop { background: var(--dialog-backdrop); }
 /* The div form hides itself when closed; a dialog is already display:none, so `open`
@@ -154,6 +191,19 @@ dialog.drawer[open] { visibility: visible; transform: none; }
 .drawer-header h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
 /* The only scrolling part, so the header and footer stay put. */
 .drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-7) var(--space-8); }
+/* Drops the padding, for content drawn edge to edge inside the panel — a list of
+   actions, a table that already has its own cell padding. `.card-body--flush`'s
+   sibling, and the same reason: the gutter is a gap the content then paints over.
+
+   A row inside one takes the header's own inline inset instead of its usual smaller
+   one. Two things go right at once: the icon column lines up under the header's
+   title, and a row's hover fill runs the full width of the panel rather than
+   floating inside a gutter, which is what made the fill look clipped at its start
+   edge — 12px of row padding is not enough of a gap when the fill's own edge is
+   20px further out. */
+.drawer-body--flush { padding: 0; }
+.drawer-body--flush > .list > li > .list-row,
+.drawer-body--flush > .list > .sticky-group-head { padding-inline: var(--space-8); }
 .drawer-footer {
     display: flex;
     align-items: center;
@@ -220,6 +270,24 @@ dialog.sheet[data-sheet].sheet--dragging > .drawer-header { cursor: grabbing; }
    for the duration or every frame animates towards the last one and the sheet
    lags the finger. */
 dialog.sheet.sheet--dragging { transition: none; }
+
+/* ── A sheet of actions ─────────────────────────────────────────────────────
+   The phone form of a menu: one action per row, with room for a second line saying
+   what it will do, and a target big enough for a thumb.
+
+   NO CLASS OF ITS OWN. It is a real <ul class="list"> so the count is announced, one
+   `<button class="list-row">` filling each <li>, and the divider comes from
+   `.list > li + li`. `.list-row` resets the platform's button chrome and carries the
+   hover, pressed, focus and disabled states, so there is one row class in the library
+   rather than a second one that differs only in where it is used. The button reset
+   and the three states live in 60-lists.css.
+
+   The body is `.drawer-body--flush`, so the rows meet the sheet's edges and the sheet
+   is the surface they sit on rather than a card inside a padded one.
+
+   No fill of its own either. The sheet is already an elevated surface and a tint per
+   row would be a second surface inside it; separation is the divider `.list` draws
+   between its items, and the states are what say the row is live. */
 
 /* ── Tree ───────────────────────────────────────────────────────────────────
    Nested structure the reader expands — a group hierarchy, a folder of files, a

@@ -65,8 +65,12 @@
    below every overlay so a modal covers it. */
 .fab {
     position: fixed;
-    inset-block-end: var(--space-8);
-    inset-inline-end: var(--space-8);
+    /* The toast stack's corner and the same arithmetic — see 38-toasts.css. A FAB
+       lands on a phone by definition, so this is the one control in the library
+       that would be under a thumb-height home indicator on every device that has
+       one. */
+    inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
     z-index: 60;
     display: inline-flex;
     align-items: center;

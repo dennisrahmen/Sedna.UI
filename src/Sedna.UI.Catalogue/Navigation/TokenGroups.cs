@@ -134,6 +134,15 @@ internal static class TokenGroups
             "--page-max", "--cell-pad-x", "--cell-pad-y", "--code-clamp",
         ], Swatch: false),
 
+        // How much of each viewport edge the device has taken — a home indicator, a
+        // notch, a rounded corner. Every one reads 0px in this browser and on every
+        // desktop, which is the whole design: `env()` is the device detection, so a
+        // rule that adds one is correct everywhere without asking what it is running
+        // on. They stay 0px until the host page carries `viewport-fit=cover`.
+        new("Safe area", [
+            "--safe-block-start", "--safe-block-end", "--safe-inline-start", "--safe-inline-end",
+        ], Swatch: false),
+
         // Not colours and not sizes: two values the library needs because the browser
         // draws something we cannot reach. `--color-scheme` goes on <html> and is what
         // makes native scrollbars, a <select>'s option list and the date picker's panel

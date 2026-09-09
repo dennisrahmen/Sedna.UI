@@ -10,7 +10,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <script src="_content/Sedna.UI/js/Sedna.UI.boot.js"></script>
 
@@ -28,37 +28,54 @@
     <HeadOutlet />
 </head>
 <body>
-    @* Blazor's reconnect UI, in the library's own classes. Supply it or the framework
-       injects its default one — a white box with inline styles, in an app that has a
-       theme. This block is Examples/Frame/ReconnectHostPage.html verbatim, and
-       HostPageTests compares the two, so the markup on the Shell & nav page is the
+    @* Blazor's reconnect UI, in the library's own status-bar classes. Supply it or the
+       framework injects its default one — a white box with inline styles, in an app
+       that has a theme. This block is Examples/StatusBar/HostPage.html verbatim,
+       and HostPageTests compares the two, so the markup on the Shell & nav page is the
        markup this site actually runs. *@
     <div id="components-reconnect-modal">
-        <div class="reconnect-banner reconnect-attempting">
+        <div class="status-bar status-bar--reconnecting">
             <i class="ri-wifi-off-line"></i>
             <span>
                 Connection lost. Reconnecting…
                 @* Blazor fills these two by id, if they are there. *@
-                <span class="reconnect-attempt">
+                <span class="status-bar-attempt">
                     attempt <span id="components-reconnect-current-attempt">1</span>
                     of <span id="components-reconnect-max-retries">8</span>
                 </span>
             </span>
         </div>
-        <div class="reconnect-banner reconnect-paused">
+        <div class="status-bar status-bar--paused">
             <i class="ri-pause-circle-line"></i>
             <span>Paused. Your work is held on the server.</span>
         </div>
-        <div class="reconnect-banner reconnect-failed">
+        <div class="status-bar status-bar--failed">
             <i class="ri-close-circle-line"></i><span>Could not reconnect.</span>
-            <button class="btn btn-sm btn-danger" onclick="location.reload()">
+            <button class="status-bar-action" type="button" onclick="location.reload()">
                 <i class="ri-refresh-line"></i> Retry
             </button>
         </div>
-        <div class="reconnect-banner reconnect-rejected">
+        <div class="status-bar status-bar--expired">
             <i class="ri-error-warning-line"></i><span>This session has expired on the server.</span>
-            <button class="btn btn-sm btn-danger" onclick="location.reload()">
+            <button class="status-bar-action" type="button" onclick="location.reload()">
                 <i class="ri-refresh-line"></i> Reload
+            </button>
+        </div>
+    </div>
+
+    @* The same family's other mount: Blazor's unhandled-error bar, which the framework
+       reveals with an inline `display: block`. The id is the container and the strip is
+       the child — see Examples/StatusBar/ErrorBarHostPage.html, which this block is. *@
+    <div id="blazor-error-ui">
+        <div class="status-bar status-bar--error">
+            <i class="ri-alert-line"></i>
+            <span>An unhandled error has occurred.</span>
+            <button class="status-bar-action" type="button" onclick="location.reload()">
+                <i class="ri-refresh-line"></i> Reload
+            </button>
+            <button class="status-bar-dismiss" type="button" aria-label="Dismiss this message"
+                    onclick="this.closest('#blazor-error-ui').style.display='none'">
+                <i class="ri-close-line"></i>
             </button>
         </div>
     </div>

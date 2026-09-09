@@ -21,7 +21,7 @@
      15-frame-user-widget.css
      16-frame-page-scroll.css
      17-frame-hover-hints.css
-     18-frame-reconnect-banner.css
+     18-frame-status-bar.css
      19-frame-responsive.css
      20-frame-layouts.css
      21-frame-search.css
@@ -707,6 +707,44 @@
 
     /* ── Metrics ────────────────────────────────────────────────────────── */
     --page-max: 1800px;    /* content column cap on ultra-wide screens */
+
+    /* ── Safe area ──────────────────────────────────────────────────────────
+       How much of each viewport edge is covered by the device rather than by the
+       page — a home indicator, a notch, a rounded corner. `env()` IS the device
+       detection: it resolves to 0px wherever there is nothing in the way, so a
+       rule that adds one of these serves a phone and a desktop unchanged and
+       nothing has to ask what it is running on.
+
+       They are 0px everywhere until the host page's viewport meta carries
+       `viewport-fit=cover`, which is what tells the browser to lay the page out
+       across the whole display in the first place. The block in
+       docs/getting-started.md has it; an app that has not copied that block yet
+       sees no change from any of these.
+
+       A TOKEN rather than `env()` at each use site, for three reasons. The
+       fallback is stated once instead of at every call. The inline pair can be
+       mirrored for RTL, which `env()` cannot do on its own. And a value the
+       browser synthesises from hardware is otherwise untestable — a headless
+       Chromium reports 0 for all four and always will, whereas a token can be set
+       to 34px and the rule that reads it measured.
+
+       The block pair passes straight through: `dir` does not touch the block
+       axis, and this library does not ship a vertical writing mode. */
+    --safe-block-start:  env(safe-area-inset-top, 0px);
+    --safe-block-end:    env(safe-area-inset-bottom, 0px);
+    --safe-inline-start: env(safe-area-inset-left, 0px);
+    --safe-inline-end:   env(safe-area-inset-right, 0px);
+}
+
+/* The inline pair is the one thing `env()` cannot express: its four values are
+   physical, and the whole library is written in logical properties so that the
+   layout mirrors from `dir="rtl"` with no rules at all. Swapping the two tokens
+   here is what keeps every use site logical — `padding-inline-end:
+   var(--safe-inline-end)` is then correct in both directions, and 70-rtl.css needs
+   nothing. */
+:root[dir="rtl"] {
+    --safe-inline-start: env(safe-area-inset-right, 0px);
+    --safe-inline-end:   env(safe-area-inset-left, 0px);
 }
 }
 
@@ -1218,6 +1256,37 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    reload) does not — otherwise an auto-selected block shows a stray outline. */
 :focus:not(:focus-visible) { outline: none; }
 
+/* The case the rule above cannot reach: focus moved BY SCRIPT onto something that is
+   not a control.
+
+   `FocusOnNavigate` — the Blazor Web App template's own component, and what announces
+   a client-side navigation to a screen reader — puts `tabindex="-1"` on the page's
+   <h1> and calls focus() on it after every route change. Chromium then treats that as
+   keyboard focus and paints its own square outline round the heading: its
+   :focus-visible heuristic falls back to "keyboard" whenever the last interaction was
+   a keypress OR the element that previously held focus is gone, and a route change
+   re-renders the link that was clicked, so the fallback is the normal case rather than
+   the edge one. `:focus:not(:focus-visible)` is no help, because :focus-visible
+   matches.
+
+   The seam is `tabindex="-1"` itself: it takes an element out of the tab order, so
+   nothing carrying it can be reached by Tab, and nothing carrying it needs a ring to
+   say where the keyboard is. The one exception is a roving-tabindex widget — a `.tab`,
+   a menu item, a listbox option — which IS reached, by arrow key. Every one of those
+   is a control, which is what the exclusions separate: an interactive tag or any ARIA
+   role keeps its ring, while a heading, landmark or wrapper that only script can focus
+   does not get one.
+
+   This also silences the ring on a skip-link target (`<main id="main" tabindex="-1">`),
+   deliberately: it is a viewport-sized box that tells the reader nothing, <main> is not
+   keyboard-operable so WCAG 2.4.7 does not ask for one, and the skip link itself keeps
+   its own ring while it is the focused control. An app that wants it back writes
+   `main:focus-visible { outline: … }` in its own stylesheet, which is unlayered and
+   beats this without a fight. */
+[tabindex="-1"]:not(a, area, button, input, select, textarea, summary, [contenteditable], [role]):focus-visible {
+    outline: none;
+}
+
 /* sedna-spin is NOT here: it is declared beside its only consumer in
    39-spinner.css. Two identical @keyframes of the same name is a silent-drift
    hazard — the later one wins for the whole document, so editing the earlier
@@ -1236,10 +1305,32 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 /* ── Shell ──────────────────────────────────────────────────────────────── */
 /* 100dvh, not 100vh: dvh excludes the mobile browser's own chrome, so the shell is
    never partly hidden behind it. No 100vh fallback — dvh predates the supported
-   browser floor, so the fallback would be a line that never runs. */
+   browser floor, so the fallback would be a line that never runs.
+
+   ── Safe area: the shell takes the top and the two sides ──
+   Once the host page says `viewport-fit=cover`, the viewport reaches under the
+   notch, the rounded corners and the home indicator, and something has to hold the
+   content clear of them. The split is by construction rather than by taste: the
+   shell's own children — the sidebar, the topbar, the page — are IN its flow, so one
+   padding on the shell moves every one of them at once.
+
+   Anything `position: fixed` is outside that padding and has to take the inset
+   itself, which is also what lets each paint its OWN surface into the strip — shell
+   padding there would leave a band of page background under a dark sheet, which is
+   the artefact this is meant to prevent. Six of them: the sheet and the drawer, the
+   toast stack, the FAB, the reconnect bar and the skip link, plus the modal, whose
+   cap is what holds its footer off the edge. Each says so where it is declared. A
+   NEW fixed overlay on any edge is the author's to handle; nothing here can.
+
+   `height: 100dvh` with `box-sizing: border-box` means the padding eats into the
+   shell rather than adding to it, so nothing overflows and no scrollbar appears.
+   Every one of these resolves to 0px on a device with no inset, so this is the same
+   rule it was on a desktop. */
 .layout {
     display: flex;
     height: 100dvh;
+    padding-block-start: var(--safe-block-start);
+    padding-inline: var(--safe-inline-start) var(--safe-inline-end);
     overflow: hidden;
 }
 .content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
@@ -1249,6 +1340,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     display: flex;
     flex-direction: column;
     height: 100dvh;
+    padding-block-start: var(--safe-block-start);
+    padding-inline: var(--safe-inline-start) var(--safe-inline-end);
     overflow: hidden;
 }
 .bare-brand  { display: flex; align-items: center; gap: var(--space-5); padding: 0 var(--space-7); font-size: var(--text-6); }
@@ -1531,6 +1624,80 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .topbar-btn:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
 .topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
 
+/* ── Version tag ────────────────────────────────────────────────────────────
+   The running version or build of the app, in the header's trailing cluster
+   beside the status indicator and the user widget. `v0.9.0`, `build 1482`,
+   `2026.09.1`.
+
+   Quiet by construction: it is an identifier somebody reads once, when they file
+   a bug or check whether a deploy landed. It is not a control and not a status,
+   so it takes --muted and the smallest label size rather than competing with the
+   pills next to it.
+
+   Monospace and tabular, because a rolling build number that changes width as it
+   counts up drags the whole cluster sideways on every deploy.
+
+   `align-self: center` is not decoration. .topbar is `align-items: stretch`, so a
+   loose child fills all 44px of the header — which nothing noticed while the only
+   loose children were pills with no background, and which would have drawn this
+   one as a 44px-tall capsule. */
+.topbar-version {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    flex-shrink: 0;
+    padding: var(--space-1) var(--space-4);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+    white-space: nowrap;
+    text-decoration: none;
+}
+/* The <a> form — pointing at the release notes, the commit or a status page —
+   keeps the same weight and only firms up under the pointer. */
+a.topbar-version:hover {
+    background: var(--surface-strong);
+    border-color: var(--border-strong);
+    color: var(--fg);
+    text-decoration: none;
+}
+
+/* A build that is not the release: a preview deployment, a staging slot, a local
+   run against production data. The reader has to know they are not looking at
+   what they think they are looking at.
+
+   The modifier colours it and does not name it — write the word as well
+   (`v0.10.0-rc.2`, `staging 1482`), for the same reason the status indicator's
+   dot is never alone. */
+.topbar-version--pre {
+    background: var(--warn-bg);
+    border-color: var(--warn-border);
+    color: var(--warn-fg);
+}
+a.topbar-version--pre:hover {
+    background: var(--warn-bg-hover);
+    border-color: var(--warn-fg);
+    color: var(--warn-fg);
+}
+
+/* ── Loose items in the header ──────────────────────────────────────────────
+   .topbar is a flex row with NO gap, because every child that belongs to it
+   carries its own edges: .topbar-btn is a 44px box with a divider, and
+   .topbar-section supplies its own padding and gap. Something dropped straight
+   into the header instead of into a .topbar-section therefore has nothing at all
+   between it and whatever comes next — a status pill sat hard against the user
+   widget's avatar, with the two reading as one object.
+
+   Margin rather than `gap` on .topbar: a gap would also prise the icon buttons
+   apart, and their dividers are meant to touch. */
+.topbar > .health-badge,
+.topbar > .stale,
+.topbar > .topbar-version { align-self: center; margin-inline: var(--space-6); }
 }
 
 /* ── 15-frame-user-widget.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -1573,9 +1740,10 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 /* ── The widget's dropdown ──────────────────────────────────────────────────
    The panel itself is the tier-2 `.menu` (58-menu.css) — there is one dropdown
    style in this library, not one per place that needs one. Only the anchoring is
-   the frame's business, and it differs from `.menu-anchor` in one way that matters:
-   no 4px gap, because the panel hangs off the header's bottom edge rather than
-   floating below a button.
+   the frame's business, and it uses the same 4px gap as `.menu-anchor`. Flush
+   against `top: 100%` the panel reads as welded to the topbar's bottom edge rather
+   than floating below the trigger — the header's own border and the panel's top
+   border land on the same line, so neither is legible as an edge.
 
    .user-widget is already position: relative, so this needs nothing measured.
 
@@ -1585,7 +1753,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    opened from inside it. */
 .user-widget > .menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + var(--space-2));
     inset-inline-end: 0;
     z-index: 550;
 }
@@ -1613,6 +1781,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     --page-gap: var(--space-7);
     padding: var(--space-9);
     padding-inline: max(var(--space-9), calc((100% - var(--page-max)) / 2));
+    /* The shell holds the top and the sides clear of the device; the bottom edge is
+       every scroller's own, because the shell cannot know which of its descendants
+       reaches it. Added to the gutter rather than replacing it, or the last row of a
+       table would sit against the home indicator with no gutter at all on a phone and
+       lose its 24px on a desktop. */
+    padding-block-end: calc(var(--space-9) + var(--safe-block-end));
     flex: 1;
     overflow-y: auto;
     min-height: 0;
@@ -1741,31 +1915,65 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 18-frame-reconnect-banner.css → @layer sedna.frame ──────────────────────────────────────────────── */
+/* ── 18-frame-status-bar.css → @layer sedna.frame ──────────────────────────────────────────────── */
 @layer sedna.frame {
-/* ── Blazor reconnect banner ──────────────────────────────────────────────────
-   Two things, deliberately separated: `.reconnect-banner` is a strip that says the
-   connection is in trouble, and `#components-reconnect-modal` is the state machine
-   Blazor drives. The strip is visible on its own and goes dark only inside the modal,
-   so a row can be shown outside it — which is how the catalogue demonstrates all of
-   them at once.
+/* ── Status bar ─────────────────────────────────────────────────────────────
+   One strip across the bottom of the window that says the app is not working
+   normally, and ONE class family for every case of it. Five modifiers:
 
-   Blazor sets six state classes on the modal. They map onto four rows:
+     --reconnecting   the circuit dropped and is being re-established   pulses
+     --paused         the server released the circuit and kept the state
+     --failed         reconnecting is over — only a reload helps
+     --expired        the session is gone from the server
+     --error          an unhandled error reached the browser
 
-   | Blazor sets                          | The row that shows                        |
-   |--------------------------------------|-------------------------------------------|
-   | `components-reconnect-show`          | `.reconnect-attempting`                   |
-   | `components-reconnect-retrying`      | `.reconnect-attempting`, plus its counter |
-   | `components-reconnect-paused`        | `.reconnect-paused`, or attempting if absent |
-   | `components-reconnect-failed`        | `.reconnect-failed`                       |
-   | `components-reconnect-resume-failed` | `.reconnect-failed`                       |
-   | `components-reconnect-rejected`      | `.reconnect-rejected`                     |
-   | `components-reconnect-hide`          | nothing — this is the connected state     |
+   This was two mechanisms: `.reconnect-*` rows for Blazor's connection UI, and a
+   separate block of rules on `#blazor-error-ui` for the framework's error bar.
+   Same strip, same position, same two severities, two vocabularies — and a reader
+   had to know both to style one bar. There is one family now.
+
+   WHERE IT MOUNTS. Two framework-owned ids carry it. Neither is a library class:
+   the app writes the id because the framework looks for that id.
+
+     #components-reconnect-modal   holds one .status-bar per state. Blazor sets a
+                                   state class on the id and the rules below show
+                                   the matching row.
+     #blazor-error-ui              holds exactly one .status-bar--error. The
+                                   framework reveals it by setting
+                                   `display: block` inline.
+
+   THE BAR IS A CHILD OF THE ID, never the id itself. The framework's inline
+   `display: block` beats every rule in every layer, so putting `.status-bar` on
+   `#blazor-error-ui` would lay that one bar out as inline text while the
+   reconnect rows stayed flex rows — the exact drift this family exists to end.
+   The id is the container; the strip inside it is a flex row in both cases.
+
+   A `.status-bar` outside either id is visible on its own, which is how the
+   catalogue shows all five at once.
+
+   Blazor sets six state classes on the modal. They map onto four of the five
+   rows — `--error` is not a connection state and belongs to the other id:
+
+   | Blazor sets                          | The row that shows                          |
+   |--------------------------------------|---------------------------------------------|
+   | `components-reconnect-show`          | `.status-bar--reconnecting`                 |
+   | `components-reconnect-retrying`      | `.status-bar--reconnecting`, plus its counter |
+   | `components-reconnect-paused`        | `.status-bar--paused`, or reconnecting if absent |
+   | `components-reconnect-failed`        | `.status-bar--failed`                       |
+   | `components-reconnect-resume-failed` | `.status-bar--failed`                       |
+   | `components-reconnect-rejected`      | `.status-bar--expired`                      |
+   | `components-reconnect-hide`          | nothing — this is the connected state       |
 
    `retrying` is added alongside `show`; every other state replaces the last.
-   `.reconnect-paused` is optional, so a host page written against the three original
-   rows keeps working and only misses the softer wording. */
-#components-reconnect-modal {
+   `.status-bar--paused` is optional and falls back to the reconnecting row, so a
+   host page written without it only misses the softer wording.
+
+   The palette tokens are still named `--reconnect-*`. They are the two
+   severities this bar has, and a token rename is its own break in its own
+   release.
+   ─────────────────────────────────────────────────────────────────────────── */
+#components-reconnect-modal,
+#blazor-error-ui {
     display: none;
     position: fixed;
     bottom: 0; inset-inline: 0;
@@ -1778,119 +1986,145 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 #components-reconnect-modal.components-reconnect-resume-failed,
 #components-reconnect-modal.components-reconnect-rejected { display: block; }
 
-.reconnect-banner {
+/* No shadow. Every shadow in the set casts downwards and this strip sits on the
+   bottom edge, so one would fall off the screen and paint nothing. */
+.status-bar {
     display: flex;
     align-items: center;
     gap: var(--space-5);
     padding: var(--space-5) var(--space-8);
+    /* The bar sits ON the bottom edge, so the home indicator would otherwise cross
+       its text. Padding rather than an offset: the inset has to be filled by the
+       bar's own amber or crimson, or the strip below it shows the page through and
+       the bar reads as floating. */
+    padding-block-end: calc(var(--space-5) + var(--safe-block-end));
     font-size: var(--text-4);
     font-weight: 500;
 }
-.reconnect-banner i { font-size: var(--text-7); flex-shrink: 0; }
-.reconnect-banner .btn { margin-inline-start: auto; }
+/* The bar's own leading glyph, reached with `>` so it does not also resize the
+   icons inside the action and the dismiss. */
+.status-bar > i { font-size: var(--text-7); flex-shrink: 0; }
 
-/* The counter. Hidden until Blazor has put a number in it, which it does from the
-   second attempt on — before that the markup's placeholder would read as a real count. */
-.reconnect-attempt { opacity: 0.75; font-weight: 400; }
-#components-reconnect-modal .reconnect-attempt { display: none; }
-#components-reconnect-modal.components-reconnect-retrying .reconnect-attempt { display: inline; }
-
-/* Inside the modal, one row at a time. The id carries the specificity, so no
-   !important and nothing for an app to fight. */
-#components-reconnect-modal .reconnect-banner { display: none; }
-/* Blazor adds `retrying` alongside `show`, but it is keyed separately so the row still
-   appears if it ever arrives on its own. */
-#components-reconnect-modal.components-reconnect-show     .reconnect-attempting { display: flex; }
-#components-reconnect-modal.components-reconnect-retrying .reconnect-attempting { display: flex; }
-#components-reconnect-modal.components-reconnect-paused  .reconnect-paused     { display: flex; }
-#components-reconnect-modal.components-reconnect-failed  .reconnect-failed     { display: flex; }
-#components-reconnect-modal.components-reconnect-rejected .reconnect-rejected  { display: flex; }
-/* A failed resume reads as a failed reconnect. */
-#components-reconnect-modal.components-reconnect-resume-failed .reconnect-failed { display: flex; }
-/* Paused with no row of its own falls back to attempting, rather than to an empty bar. */
-#components-reconnect-modal.components-reconnect-paused:not(:has(.reconnect-paused))
-    .reconnect-attempting { display: flex; }
-
-/* Working on it. */
-.reconnect-attempting {
+/* Amber: something is in progress or held, and nothing has been lost. */
+.status-bar--reconnecting,
+.status-bar--paused {
     background: var(--reconnect-warn-bg);
     border-top: 1px solid var(--reconnect-warn-border);
     color: var(--reconnect-warn-fg);
 }
-.reconnect-attempting i { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
+/* Only the reconnecting bar pulses. The other four are settled states, and a
+   pulsing glyph on one of them promises work that is not happening. */
+.status-bar--reconnecting > i { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
 
-/* Paused is not a lost connection: the server released the circuit and kept the state,
-   and the next interaction resumes it. Same amber, no pulse — nothing is in progress. */
-.reconnect-paused {
-    background: var(--reconnect-warn-bg);
-    border-top: 1px solid var(--reconnect-warn-border);
-    color: var(--reconnect-warn-fg);
-}
-
-/* Over. Only a reload helps. */
-.reconnect-failed,
-.reconnect-rejected {
+/* Crimson: over. A reload is the only way forward. */
+.status-bar--failed,
+.status-bar--expired,
+.status-bar--error {
     background: var(--reconnect-fail-bg);
     border-top: 1px solid var(--reconnect-fail-border);
     color: var(--reconnect-fail-fg);
 }
 
-/* ── Blazor's unhandled-error bar ───────────────────────────────────────────
-   `<div id="blazor-error-ui">` is in every Blazor host page, the framework shows it
-   by setting `display: block` inline on an unhandled circuit error, and no library
-   styled it — so every consuming app wrote the same twenty lines with a hard-coded
-   white and a hard-coded shadow, which then followed neither the light variant nor
-   the colour-blind block.
+/* The attempt counter, hidden until Blazor has put a number in it — which it does
+   from the second attempt on. Before that the markup's placeholder would read as
+   a real count. Give one span the id `components-reconnect-current-attempt` and
+   another `components-reconnect-max-retries` and the framework fills both in. */
+.status-bar-attempt { opacity: 0.75; font-weight: 400; }
+#components-reconnect-modal .status-bar-attempt { display: none; }
+#components-reconnect-modal.components-reconnect-retrying .status-bar-attempt { display: inline; }
 
-   It is the same severity as a failed reconnect and reads from the same three
-   tokens, so the two bars cannot drift apart. `display: none` here is what the
-   framework's inline `display: block` overrides; an inline style beats every rule
-   in every layer, so there is nothing to fight.
+/* ── The bar's action ───────────────────────────────────────────────────────
+   Reload, retry, sign in again. It is FILLED, and it is the bar's own control
+   rather than a `.btn`.
 
-   The two controls are reached by element rather than by Blazor's `.reload` and
-   `.dismiss` class names, deliberately. Selecting on those would enter two very
-   generic names into this library's class inventory and into a release's list of
-   added classes — where an app that has its own `.reload` button would grep, find
-   a match, and conclude wrongly that its appearance was about to change. The id
-   already scopes both rules to markup the framework owns, and it means an app that
-   drops the template's classes is styled just the same.
+   Both halves of that are the same finding. The markup carried
+   `.btn.btn-sm.btn-danger`, and `.btn-danger` is a TINT — 15% crimson over the
+   page surface — so on a bar that is already crimson-900 the fill vanished and
+   the label landed on `--reconnect-fail-fg`, the bar's own text colour. The
+   control read as an empty rectangle with a hairline around it. The bar's colour
+   is not the problem: crimson-900 under crimson-400 text is a strong pair and
+   both themes keep it. The tinted button on top of it was.
 
-   Both controls run plain `onclick`, because the circuit is gone by the time this
-   bar is visible. The dismiss is styled as a <button> rather than the template's
-   <span>: it is a control, so it should be focusable and announced as one, and a
-   span is neither. */
-#blazor-error-ui {
-    display: none;
-    position: fixed;
-    bottom: 0; inset-inline: 0;
-    z-index: 1000;
-    padding: var(--space-5) var(--space-8);
-    background: var(--reconnect-fail-bg);
-    border-top: 1px solid var(--reconnect-fail-border);
-    color: var(--reconnect-fail-fg);
-    font-size: var(--text-4);
-    font-weight: 500;
-    box-shadow: var(--shadow-topbar);
-}
-#blazor-error-ui a {
-    color: inherit;
-    text-decoration: underline;
-    margin-inline-start: var(--space-5);
+   And the frame cannot fix a `.btn`: `@layer sedna.paint` comes after
+   `@layer sedna.frame`, so `.btn-danger` outranks anything written here whatever
+   the selectors weigh. A control that belongs to the frame is a frame class —
+   `.topbar-btn` and `.user-signout` already are.
+
+   The fill is the semantic solid, which carries `--on-solid` at AA in every
+   theme (white on warn 5.31, on danger 4.61 — docs/BRANDING.md §6). Hover is a
+   ring in `currentColor` rather than a darker fill: the token set has no
+   `--danger-hover`, because `.btn-danger` hovers on its tint, and a ring works
+   on both palettes and in every theme without one. */
+.status-bar-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    min-height: var(--control-height-sm);
+    padding: var(--space-2) var(--space-5);
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    color: var(--on-solid);
+    font: inherit;
+    font-size: var(--text-3);
+    white-space: nowrap;
+    text-decoration: none;
     cursor: pointer;
 }
-#blazor-error-ui button {
-    float: inline-end;
-    padding: 0 0 0 var(--space-5);
+.status-bar-action i { font-size: var(--text-4); }
+.status-bar-action:hover { border-color: currentColor; text-decoration: none; }
+.status-bar-action:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--on-solid); }
+.status-bar--reconnecting .status-bar-action,
+.status-bar--paused .status-bar-action { background: var(--warn-solid); }
+.status-bar--failed .status-bar-action,
+.status-bar--expired .status-bar-action,
+.status-bar--error .status-bar-action { background: var(--danger-solid); }
+
+/* The dismiss, on the error bar. A <button> rather than the project template's
+   <span>: it is a control, so it has to be focusable and announced as one, and a
+   span is neither.
+
+   `auto` when it is alone, a fixed gap when it follows an action — two autos
+   would split the free space between them and leave the pair straddling the
+   bar. */
+.status-bar-dismiss {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    padding: 0;
     background: none;
     border: none;
     color: inherit;
     font: inherit;
+    font-size: var(--text-7);
+    line-height: 1;
+    opacity: 0.75;
     cursor: pointer;
 }
-#blazor-error-ui button:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--reconnect-fail-fg); }
-/* An app that pasted the template's <span> unchanged still gets it placed, so the
-   glyph is not left sitting in the middle of the sentence. */
-#blazor-error-ui > span { float: inline-end; padding-inline-start: var(--space-5); }
+.status-bar-action ~ .status-bar-dismiss { margin-inline-start: var(--space-3); }
+.status-bar-dismiss:hover { opacity: 1; }
+.status-bar-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--on-solid); }
+
+/* Inside the reconnect modal, one row at a time. The id carries the specificity,
+   so there is no !important here and nothing for an app to fight. */
+#components-reconnect-modal .status-bar { display: none; }
+/* Blazor adds `retrying` alongside `show`, but the two are keyed separately so
+   the row still appears if `retrying` ever arrives on its own. */
+#components-reconnect-modal.components-reconnect-show     .status-bar--reconnecting { display: flex; }
+#components-reconnect-modal.components-reconnect-retrying .status-bar--reconnecting { display: flex; }
+#components-reconnect-modal.components-reconnect-paused   .status-bar--paused       { display: flex; }
+#components-reconnect-modal.components-reconnect-failed   .status-bar--failed       { display: flex; }
+#components-reconnect-modal.components-reconnect-rejected .status-bar--expired      { display: flex; }
+/* A failed resume reads as a failed reconnect. */
+#components-reconnect-modal.components-reconnect-resume-failed .status-bar--failed { display: flex; }
+/* Paused with no row of its own falls back to reconnecting, rather than to an
+   empty bar. */
+#components-reconnect-modal.components-reconnect-paused:not(:has(.status-bar--paused))
+    .status-bar--reconnecting { display: flex; }
 }
 
 /* ── 19-frame-responsive.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -1989,12 +2223,18 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 /* Under ~560px the name goes too, leaving the avatar. The sign-out button and any
    header controls keep their full hit area, which is what actually matters on a
-   touch screen. */
+   touch screen.
+
+   The version tag goes with it, and for the same reason: it is read once, when
+   somebody files a bug, and a phone header has no room to carry a string nobody
+   is looking for. Anything the reader has to act on stays. */
 @media (max-width: 560px) {
     .layout--responsive .user-info,
     .topbar--responsive .user-info { display: none; }
     .layout--responsive .user-trigger,
     .topbar--responsive .user-trigger { padding: 0 var(--space-6); }
+    .layout--responsive .topbar-version,
+    .topbar--responsive .topbar-version { display: none; }
 }
 }
 
@@ -2124,6 +2364,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     inset-inline-start: 0;
     z-index: 1000;
     padding: var(--space-5) var(--space-7);
+    /* Fixed to the corner, so the shell's safe-area padding does not reach it and it
+       would land under the notch in a standalone window. Grown rather than offset, so
+       the brand fill still meets both edges — a skip link that floats away from the
+       corner reads as a stray button. */
+    padding-block-start: calc(var(--space-5) + var(--safe-block-start));
+    padding-inline-start: calc(var(--space-7) + var(--safe-inline-start));
     background: var(--brand);
     border-end-end-radius: var(--radius-surface);
     color: var(--on-solid);
@@ -2395,7 +2641,49 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     padding: var(--space-6) var(--space-7);
     border-bottom: 1px solid var(--border);
 }
+/* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
+   same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
+   margin and 1.17em size, so the head measures half again as tall as one holding a
+   <strong> and the heading is bigger than the card it titles. */
+.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
+
+/* ── A card head that holds a tab strip ─────────────────────────────────────
+   `.card-head` pads all four sides and centres its children, which leaves a `.tabs`
+   floating in it: the strip's own bottom border sits 12px above the head's, so the
+   card draws two lines and the active tab's indicator lands nowhere near the content
+   it selects.
+
+   The modifier hands the head's padding to the strip. The block padding goes because
+   the tab already carries its own, and the head's border becomes the strip's line — so
+   the indicator, which is the tab's border pulled up 1px, meets the body edge. The
+   inline padding goes because the tab carries 16px of its own, which is the body's
+   gutter, so the first tab's label lines up with the body text.
+
+   A modifier rather than a change to `.card-head`: a head holding a title and a badge
+   wants its padding, and an app would not have asked for it to go.
+
+   It reaches forward into 50-tabs.css, which is safe because every rule that does is
+   two classes deep and wins on specificity rather than on order. The one rule that
+   does depend on order is the padding reset — and it is in this file, below the
+   `.card-head` it overrides, rather than in another part where the order is a
+   filename. */
+.card-head--tabs {
+    align-items: stretch;
+    padding: 0;
+}
+.card-head--tabs .tabs {
+    flex: 1;
+    min-width: 0;            /* or a long strip widens the card instead of scrolling */
+    border-bottom: none;     /* the head draws the line the indicator sits on */
+}
+/* Whatever sits beside the strip keeps the gutter the head gave up. */
+.card-head--tabs .card-head-right { padding-inline-end: var(--space-7); }
+/* The body's own padding is the gap under the strip; the panel's is a second one.
+   Every panel, not the first — the selected tab is not always the first one, and
+   scoping this to :first-child moves the content when a later tab is chosen. */
+.card-head--tabs + .card-body > .tab-panel { padding-top: 0; }
+
 .card-body { padding: var(--space-6) var(--space-7); }
 /* Drops the padding, for content that is drawn edge to edge inside the card — a
    canvas, a chart, a map, a table that already has its own cell padding. The
@@ -2629,8 +2917,20 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    enough that the natural height — padding + line box + borders — is UNDER
    --control-height. A min-height is a floor: at 8px of block padding the field
    measures 36.2px, the token never binds, and the field sits a couple of pixels
-   taller than everything beside it. */
-.form-input {
+   taller than everything beside it.
+
+   `.form-select` IS IN THIS SELECTOR ON PURPOSE, and removing it is a regression
+   that reaches consuming apps. The shape used to be `.form-input`'s alone, and
+   45-form-controls.css only replaced the platform caret — so `.form-select` was a
+   modifier that did nothing legible without `.form-input` beside it. A select
+   carrying `.form-select` alone got `appearance: none` and a caret drawn over the
+   UA's own `Field` background and `ButtonBorder` frame: a light, boxy, native
+   control sitting next to a correctly themed input, with no error anywhere. The
+   library's own examples and at least one app had copied exactly that. Declaring
+   the shape once, for both selectors, is what makes either class list correct
+   rather than making one of them a trap. */
+.form-input,
+.form-select {
     min-height: var(--control-height);
     padding: var(--space-3) var(--space-5);
     background: var(--bg);
@@ -2643,7 +2943,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     width: 100%;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.form-input:focus {
+.form-input:focus,
+.form-select:focus {
     outline: none;
     border-color: var(--brand-soft);
     box-shadow: 0 0 0 2px var(--brand-glow);
@@ -2721,6 +3022,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .form-check input:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .form-input:disabled,
+.form-select:disabled,
 .form-input[readonly] { cursor: not-allowed; background: var(--surface-soft); color: var(--muted); }
 /* readonly is not disabled: the value is still selectable and copyable, and still
    submitted, so it keeps the normal cursor and a full-contrast value. Only the
@@ -2803,9 +3105,15 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
        address bar retracted, so a vh-capped panel is taller than what is visible
        exactly where the room is tightest.
 
+       The safe-area insets come off the same cap. A modal is centred, so the
+       shorter panel is what lifts its footer clear of the home indicator — and the
+       footer is where the primary action is, which is the same reason the cap exists
+       at all. Padding would be wrong here: the gap belongs OUTSIDE the panel, or the
+       elevated surface is drawn across a strip the device owns.
+
        --modal-max-height is a knob rather than a fixed value because a panel
        that must not shrink at all sets it to `none`. */
-    --modal-max-height: calc(100dvh - 2 * var(--space-8));
+    --modal-max-height: calc(100dvh - 2 * var(--space-8) - var(--safe-block-start) - var(--safe-block-end));
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
@@ -2849,6 +3157,19 @@ dialog.modal {
     --dialog-backdrop: var(--backdrop);
     animation: sedna-modal-in var(--motion-fast) ease;
 }
+/* `.modal`'s own `display: flex` is gated on nothing, so on a <dialog> it applies
+   while the dialog is CLOSED as well — and an author rule outranks the UA's
+   `dialog:not([open]) { display: none }` whatever the layer. The panel then sits in
+   the page before its button has ever been pressed, absolutely positioned at inset 0
+   with the UA's `margin: auto`, so it lands over the content and behind whatever
+   follows it in the source: a half-visible ghost with no backdrop, in the closed
+   state both before the first open and after every close.
+
+   Written as its own rule rather than by gating `.modal { display: flex }` on
+   `[open]`, because the backdrop-div form has no `[open]` to gate on and needs the
+   flex column unconditionally. `.drawer` and `.palette` each answer this on their own
+   class; this is the modal's. */
+dialog.modal:not([open]) { display: none; }
 dialog.modal::backdrop {
     background: var(--dialog-backdrop);
     backdrop-filter: blur(2px);
@@ -3071,8 +3392,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    which a reader comparing the demo to the snippet depends on. */
 .toast-stack {
     position: fixed;
-    inset-block-end: var(--space-8);
-    inset-inline-end: var(--space-8);
+    /* Pinned to a corner, so it is outside the shell's own safe-area padding and
+       takes both insets itself. ADDED to the offset rather than replacing it: the
+       20px is the gap the design wants from the edge, and the inset is how much of
+       that edge the device has already taken. */
+    inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
     z-index: 600;
     display: flex;
     flex-direction: column;
@@ -3103,6 +3428,17 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     font-size: var(--text-4);
     color: var(--fg-soft);
 }
+/* A toast normally carries a title and a short description under it, and `flex-start`
+   is right for that: the icon belongs beside the FIRST line, not beside the middle of
+   two. A toast of one line is the exception, and there `flex-start` leaves the icon,
+   the line and the close button on three different tops, because all three have
+   different box heights.
+
+   No extra class for it. The title IS a <strong> — that is what the markup says and
+   what sednaUi.toast emits — so its absence is the condition, and a one-line toast
+   centres whether an app rendered it or the library did. */
+.toast:not(:has(strong)) { align-items: center; }
+
 .toast i        { font-size: var(--text-7); flex-shrink: 0; color: var(--muted); }
 .toast strong   { display: block; color: var(--fg); font-weight: 600; }
 .toast-body     { flex: 1; min-width: 0; }
@@ -3255,13 +3591,21 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     padding: var(--space-11) var(--space-9);
     color: var(--muted);
 }
-.empty-state i {
+/* `> i`, not `i`. The glyph is always a direct child — the spinner that replaces it in
+   --pending is too — and the descendant selector reached the icon inside the action
+   button as well: `.empty-state i` and `.btn i` weigh the same and this is the later
+   part, so a 13px button icon rendered at 40px and dragged the button's height up with
+   it. That is what made the actions here look oversized. */
+.empty-state > i {
     font-size: var(--text-11);
     color: var(--border-strong);
     line-height: 1;
 }
 .empty-state-title { font-size: var(--text-5); font-weight: 600; color: var(--fg); }
 .empty-state p     { margin: 0; font-size: var(--text-4); max-width: 44ch; }
+/* The action is a separate decision from the sentence above it, so it gets more air
+   than the lines of text get between themselves. */
+.empty-state .btn  { margin-top: var(--space-3); }
 /* Sits directly on the page rather than inside a card. */
 .empty-state--bare { padding: var(--space-9) 0; }
 
@@ -3279,13 +3623,18 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    destructive rather than as unavailable. */
 .empty-state--pending .spinner,
 .empty-state--pending .spinner-lg { color: var(--muted); }
-.empty-state--failed i { color: var(--danger-fg); }
+.empty-state--failed > i { color: var(--danger-fg); }
 /* The line under the title, for the detail that makes a failure actionable: the code,
-   the endpoint, when it was last tried. */
+   the endpoint, when it was last tried. It takes the paragraph's measure, and breaks
+   anywhere, because what goes in it is the kind of string that has no spaces to break
+   at — a path or a query — and without both it stretches the block wider than the
+   text above it. */
 .empty-state-detail {
+    max-width: 44ch;
     font-family: var(--font-mono);
     font-size: var(--text-2);
     color: var(--muted);
+    overflow-wrap: anywhere;
 }
 
 }
@@ -3385,7 +3734,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    radio group's keyboard behaviour and announcement for free instead of a pair of
    buttons with a toggled class. Only its position in the toolbar is the editor's
    business. */
-.md-toolbar .segmented { margin-inline-start: auto; }
+/* The small tier, because `.md-tool` is 28px and the segmented control's default is
+   now the standard 36px control height. Without this the switch stands 8px taller
+   than every button beside it in the same row. */
+.md-toolbar .segmented { margin-inline-start: auto; min-height: var(--control-height-sm); }
+.md-toolbar .segmented-option { padding-block: var(--space-1); font-size: var(--text-3); }
 .md-editor .md-input {
     border: none; border-radius: 0; background: transparent;
     width: 100%; display: block;
@@ -3464,14 +3817,20 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    code in the family and none of the shape of it.
 
    This file must stay numbered ABOVE 34: `.form-select` and `.form-input` have
-   equal specificity, so the caret's background-image survives .form-input's
-   `background` shorthand on source order alone. Renumber this below 34 and the
-   caret silently disappears.
+   equal specificity, so the caret's background-image survives the `background`
+   shorthand in the shared field rule on source order alone. Renumber this below
+   34 and the caret silently disappears.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* Add beside .form-input — `class="form-input form-select"`. .form-input already
-   styles a <select>; this replaces the platform caret with one that matches the
-   theme.
+/* `class="form-select"` is the whole class list a dropdown needs. The field shape
+   — height, padding, surface, border, radius, type and focus ring — comes from
+   the shared `.form-input, .form-select` rule in 34-forms.css, and this file adds
+   only what is particular to a select: the platform caret replaced by one that
+   matches the theme.
+
+   `class="form-input form-select"` stays correct and renders identically, because
+   the two names resolve to the same declarations rather than to two copies of
+   them. Prefer the single class in new markup.
 
    The caret is two triangular gradients meeting at a point. Not an SVG: this
    stylesheet loads and inlines nothing, so neither url() nor a data: URI is
@@ -4090,6 +4449,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .tab[aria-selected="true"] .tab-count { background: var(--brand-tint); color: var(--brand-text); }
 
 .tab-panel { padding-top: var(--space-7); }
+
+/* A strip inside a card head is `.card-head--tabs`, declared beside `.card-head` in
+   30-cards.css because it is that head's modifier. It drops this padding, the strip's
+   own bottom border and the head's block padding, so the indicator meets the body
+   edge. Do not write a second answer here. */
 }
 
 /* ── 51-segmented.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -4118,14 +4482,31 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    has a `transition`, and getComputedStyle immediately after the change returns the
    value at t=0, which is the one being transitioned away from.
    ─────────────────────────────────────────────────────────────────────────── */
+/* The TRACK owns the height, the way `.input-group` does, and for the same reason: it
+   is the track that draws the border, so an option carrying its own min-height would
+   make the track that height PLUS its two borders and its own padding. The options
+   stretch to fill the tier — `align-items` is stated rather than left to the flex
+   default because it is load-bearing here.
+
+   --control-height is the token the button, the text input, the select and the search
+   box take, and it is what makes a segmented control in a toolbar the same height as
+   the field and the button beside it. Without it the track measured 32px next to a
+   36px field, and 35px when its options carried icons — so two segmented controls in
+   one bar did not even agree with each other. */
 .segmented {
     display: inline-flex;
+    align-items: stretch;
+    min-height: var(--control-height);
     padding: var(--space-1);
     background: var(--surface-strong);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
 }
 
+/* line-height pins the option's box, so an option with an icon in it is the same
+   height as one without. The icon takes `line-height: 1` for the reason `.btn i`
+   does: an icon nested in a <span> beside the label shares a line box with it, and at
+   the inherited 1.5 its taller box is what set the option's height. */
 .segmented-option {
     position: relative;
     display: inline-flex;
@@ -4136,12 +4517,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     color: var(--muted);
     font-size: var(--text-3);
     font-weight: 500;
+    line-height: 1.4;
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
     transition: background var(--motion-fast), color var(--motion-fast);
 }
-.segmented-option i { font-size: var(--text-5); }
+.segmented-option i { font-size: var(--text-5); line-height: 1; }
 .segmented-option input {
     position: absolute;
     inset: 0;
@@ -4162,6 +4544,20 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .segmented-option:has(input:checked) { background: var(--bg-elevated); color: var(--fg); }
 .segmented-option:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .segmented-option:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
+
+/* The same three tiers as the button and the text input, off the same tokens, so a
+   toolbar row agrees at every size.
+
+   min-height is a floor, so a tier also has to bring the option's block padding and
+   text UNDER it — exactly what `.input-group--sm` does. At the base padding an option
+   is 25px, which clears the 28px tier's 22px of room and would leave the small track
+   measuring 31px. */
+.segmented--sm { min-height: var(--control-height-sm); }
+.segmented--sm .segmented-option   { padding-block: var(--space-1); font-size: var(--text-2); }
+.segmented--sm .segmented-option i { font-size: var(--text-4); }
+.segmented--lg { min-height: var(--control-height-lg); }
+.segmented--lg .segmented-option   { padding-block: var(--space-4); font-size: var(--text-4); }
+.segmented--lg .segmented-option i { font-size: var(--text-6); }
 }
 
 /* ── 52-avatar.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -4470,7 +4866,13 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
     margin-bottom: var(--space-7);
 }
 .page-head-text { min-width: 0; }
-.page-head-text h1 { margin: 0; }
+/* Zero the heading's own margins. 06-base-elements gives h1 and h2 a margin, and margins
+   do not collapse inside a flex container: with align-items: flex-start the actions sit at
+   the top of the line while the heading's text is pushed down by its own top margin, which
+   reads as the actions being on a line above the title. Matched on the head rather than on
+   .page-head-text, and for every level a page head can carry: a sub-page opening on an h2
+   is as ordinary as a top-level page opening on an h1. */
+.page-head :is(h1, h2, h3) { margin: 0; }
 .page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
 .page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
 
@@ -4820,8 +5222,19 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    Dismissal is the app's: click the scrim, press Escape. There is deliberately no
    JavaScript behind this — the frame must work with scripting blocked.
    ─────────────────────────────────────────────────────────────────────────── */
+/* `width: max-content` is what makes the panel as wide as its widest row, and the
+   220px is a floor rather than the width. Shrink-to-fit was the width before, and
+   for an out-of-flow box that is measured against the CONTAINING BLOCK, not the
+   content: anchored inside a narrow table cell the available width was the cell,
+   so the panel came out at the floor with its rows wrapped or clipped inside it.
+   A dropdown sizes to what is in it.
+
+   The cap keeps a long item from drawing a panel wider than the viewport; past it
+   the rows wrap, which is the right failure for a label nobody can shorten. */
 .menu {
+    width: max-content;
     min-width: 220px;
+    max-width: min(20rem, calc(100vw - 32px));
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
@@ -4830,34 +5243,85 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     box-shadow: var(--shadow-dropdown);
 }
 
-/* Wrap trigger + panel in this to anchor the panel under the trigger. It is what
-   makes the panel's `position: absolute` resolve against the trigger rather than
-   against the page, so nothing has to be measured.
+/* Wrap trigger + panel in this to anchor the panel under the trigger.
+   ─── Why this is anchor positioning and no longer `position: absolute` ─────
+   An absolutely positioned panel is laid out INSIDE the nearest scroll container
+   and counts towards its scrollable overflow. So a menu opened from a toolbar, a
+   `.sedna-scroll-x` around a table or any app container with an `overflow` other
+   than `visible` did two wrong things at once: it grew that container a scrollbar,
+   and it was clipped at the container's edge — the last item of a three-item menu
+   simply was not there. Three separate reports, one cause, and it reproduced in a
+   consuming app.
 
-   Deliberately NOT CSS anchor positioning, which the floor does have and which
-   `.popover` uses. Anchor positioning earns its keep where the alternative is a
-   measurement in script; here the alternative is one `position: relative`. */
+   `position: fixed` takes the viewport as its containing block, so no ancestor's
+   `overflow` clips it and none of them can be made to scroll by it. That is the
+   same reason the collapsed rail's flyout is fixed (12-frame-collapsed-rail.css).
+   Fixed positioning then needs somewhere to go, and the alternative to anchor
+   positioning here is measuring the trigger in JavaScript on every open, scroll
+   and resize — which is exactly the case the repo rules name as earning it.
+
+   `position-area` places the panel with no measurement and no anchor-name in the
+   markup: `block-end` is the row below the trigger, and the inline span plus the
+   explicit `justify-self` set which of the trigger's edges the panel lines up
+   with. Both axes are logical, so this mirrors under dir="rtl" with no rule in
+   70-rtl.css — which is why 70-rtl.css has none.
+
+   The name has to be scoped. Every anchor on the page declares the SAME
+   anchor-name, and without `anchor-scope` the last one in tree order would win for
+   all of them: every menu on a page would open under the bottom-most trigger.
+   `anchor-scope` confines each name to its own element's subtree, which is where
+   its panel lives.
+
+   `position-visibility: anchors-visible` is the price of being fixed. A fixed
+   panel does not scroll away with its trigger, so without this a menu left open
+   while the reader scrolls a table detaches and floats over unrelated chrome.
+   With it, the panel goes when its trigger goes.
+
+   `position: relative` stays on the anchor. It is no longer what positions the
+   panel, but it is the containing block an app's own absolutely positioned
+   children inside a trigger already rely on. */
 /* align-self: start alongside the inline display, because the display alone does not
    hold. A flex or grid item is blockified and then stretched by the default
    `align-items: stretch`, so an `inline-flex` anchor inside a flex column becomes
    full-width — and the panel, which hangs off the anchor's inline-END edge, detaches
    from its trigger and appears at the far side of the container. An app that genuinely
    wants a full-width anchor sets `align-self: stretch` back. */
-.menu-anchor { position: relative; display: inline-flex; align-self: start; }
+.menu-anchor {
+    position: relative;
+    display: inline-flex;
+    align-self: start;
+    anchor-name: --sedna-menu-anchor;
+    anchor-scope: --sedna-menu-anchor;
+}
 .menu-anchor > .menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    inset-inline-end: 0;
+    position: fixed;
+    position-anchor: --sedna-menu-anchor;
+    /* The row below the trigger, spanning back towards the inline start — so the
+       region ends at the trigger's inline-END edge, which `justify-self: end` then
+       lines the panel up with. */
+    position-area: block-end span-inline-start;
+    justify-self: end;
+    align-self: start;
+    /* Flips above the trigger when there is no room below, and to the trigger's
+       other edge when there is none beside it. A try tactic takes the margin and
+       the self-alignment with it, so the gap stays on the side facing the trigger
+       and the panel stays flush with one of its edges. */
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    position-visibility: anchors-visible;
+    margin-block-start: var(--space-2);
     z-index: 550;
 }
 
-/* The panel hangs off the anchor's inline-END edge, so a trigger narrower than the
-   panel's 220px overhangs on the leading side. That is right for a trigger at the
+/* The panel lines up with the anchor's inline-END edge, so a trigger narrower than
+   the panel's 220px overhangs on the leading side. That is right for a trigger at the
    trailing end of a row — a table row's actions, a toolbar's overflow — and wrong for
    one near the leading edge, where the overhang leaves the container. `--start` aligns
    the panel to the anchor's inline-START edge instead. Put it on the panel, so the
    choice sits with the panel that moves. */
-.menu-anchor > .menu--start { inset-inline-start: 0; inset-inline-end: auto; }
+.menu-anchor > .menu--start {
+    position-area: block-end span-inline-end;
+    justify-self: start;
+}
 
 /* ── Value trigger ──────────────────────────────────────────────────────────
    A control that shows the CURRENT value of something and opens a menu to change it —
@@ -4869,8 +5333,15 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    element and the platform gives you the keyboard.
 
    The chevron is drawn by CSS, so the markup is the value and nothing else. Pair it
-   with data-menu-toggle and a sibling .menu. */
+   with data-menu-toggle and a sibling .menu.
+
+   `--value-trigger-measure` is how much of the value the control keeps room for —
+   a knob on the element, the same shape as `--toolbar-input-width` and
+   `--col-control-min`. Set it per instance for a column whose values are longer
+   (`style="--value-trigger-measure: 16ch"`). See the note on the value span below
+   for what it is holding open. */
 .value-trigger {
+    --value-trigger-measure: 10ch;
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -4901,8 +5372,21 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .value-trigger[aria-expanded="true"]::after { transform: rotate(180deg); }
 .value-trigger[aria-disabled="true"] { color: var(--muted); pointer-events: none; }
 .value-trigger[aria-disabled="true"]::after { display: none; }
-/* The value itself, so a long one truncates instead of pushing the chevron out. */
-.value-trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The value itself, so a long one truncates instead of pushing the chevron out.
+
+   `min-width` is what stops it truncating ALWAYS. `overflow: hidden` on a flex item
+   sets its automatic minimum size to zero — that is what makes the ellipsis
+   possible in the first place — and in a table cell that zero is also the column's
+   minimum contribution, so auto table layout squeezes the column down to the
+   padding and the chevron and every value in it renders as two characters and an
+   ellipsis. A floor gives the column something to ask for, and the value still
+   gives way past it. */
+.value-trigger > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: var(--value-trigger-measure);
+}
 
 /* Works on an <a> or a <button>, so an item can navigate or act. */
 .menu-item {
@@ -5175,11 +5659,13 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    browser gives an unbounded column the room it asks for and squeezes the rest to
    their padding. Three shapes cover it, each with its own knob:
 
-     · `.col-control` — a cell holding an <input> or a <select>. Squeezed to its
-       padding a select renders as a caret and two clipped characters, so the
-       column has a floor sized from the longest value the control can hold, and
-       the control fills the column so the two agree on an edge. A legible table
-       with unusable controls in it is the failure this avoids.
+     · `.col-control` — a cell holding an <input>, a <select> or a
+       `.value-trigger`. Squeezed to its padding a select renders as a caret and
+       two clipped characters, so the column has a floor sized from the longest
+       value the control can hold, and the control fills the column so the two
+       agree on an edge. A legible table with unusable controls in it is the
+       failure this avoids. A `.value-trigger` is reached through its
+       `.menu-anchor` wrapper, which is the direct child of the cell.
      · `.col-prose` — a sentence, a description, a distinguished name. Gives way
        instead of taking the table, and breaks inside a word because an identifier
        has nowhere else to break.
@@ -5199,7 +5685,12 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     max-width: var(--col-control-max);
 }
 .table .col-control > .form-input,
-.table .col-control > .form-select { width: 100%; }
+.table .col-control > .form-select,
+.table .col-control > .menu-anchor { width: 100%; }
+/* The anchor is inline-flex, so the trigger inside it has to be told to fill it as
+   well — otherwise the control is its content width inside a full-width wrapper and
+   the cell's trailing edge is empty. */
+.table .col-control > .menu-anchor > .value-trigger { width: 100%; }
 .table .col-prose {
     --col-prose-min: 12rem;
     --col-prose-max: 30rem;
@@ -5280,6 +5771,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    A real <ul>/<li>, so the count is announced and the rows are navigable as a list.
    A row that navigates is an <a> filling the <li>, not a click handler on the <li>:
    the whole row is then a real link, openable in a new tab and reachable by keyboard.
+   A row that acts is a <button> filling it the same way, and `.list-row` resets the
+   platform's button chrome so the two rows look alike.
    ─────────────────────────────────────────────────────────────────────────── */
 .list { list-style: none; margin: 0; padding: 0; }
 .list > li + li { border-top: 1px solid var(--divider); }
@@ -5292,8 +5785,52 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     color: inherit;
     text-decoration: none;
 }
-a.list-row:hover { background: var(--bg-hover); text-decoration: none; }
-a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+/* A row that ACTS rather than navigates is a <button>, and a <button> arrives
+   carrying the platform's own chrome: a `ButtonFace` fill, a system border, centred
+   text and the UA's ~13px Arial. `.list-row` declares none of background, border or
+   font — it was written for an <li>, a <div> or an <a> — so a button row rendered as
+   a grey slab with its label centred, and `.list-title`, which sets only
+   `font-weight`, inherited the UA font size while `.list-sub` kept `var(--text-3)`:
+   the two lines came out the same size and the hierarchy was gone. The drawer's
+   action sheet was three of those.
+
+   The reset is scoped to `button.list-row` rather than declared on `.list-row`
+   itself, because `width: 100%` and `text-align: start` are INHERITED CONTEXT on a
+   <span> or a <div>. Put them on the bare class and a centred cell or a right-aligned
+   column silently re-aligns every row inside it. On a <button> both are the UA's own
+   values, so the scoped rule reproduces exactly what the other elements already do
+   and changes none of them.
+
+   `font: inherit` for the same reason: the row takes the surrounding list's font, as
+   a <span> row does, rather than pinning a size of its own. */
+button.list-row {
+    width: 100%;
+    background: none;
+    border: none;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+/* Hover and focus were scoped to `a.list-row`, so a button row had no affordance and
+   no focus ring at all. Both interactive elements, one rule — and a <span> row has to
+   keep getting neither, which is why the element scope stays rather than going away.
+   The forced-colours outline in 71-forced-colors.css is scoped the same way. */
+:is(a, button).list-row:hover { background: var(--bg-hover); text-decoration: none; }
+:is(a, button).list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+/* Pressed, which on a touch screen is the only feedback there is — a hover state a
+   finger never enters says nothing. The same `--bg-hover` / `--btn-active-bg` pair
+   `.btn-ghost` uses, so a quiet control being held reads the same everywhere and a
+   theme remaps both at once.
+
+   Pressed and disabled stay on `button.` rather than joining the `:is(a, button)`
+   above, so that everything this fix adds lands only on the element that was broken
+   and no shipped <a> row changes appearance. Giving a link row a press state is a
+   separate decision; do not fold it in here on the way past. */
+button.list-row:active { background: var(--btn-active-bg); }
+/* The treatment `.menu-item` and `.btn` use. `pointer-events: none` is what stops a
+   disabled row still taking the hover fill. */
+button.list-row:disabled,
+button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 .list-row[aria-current="true"],
 .list-row[aria-selected="true"] {
     background: var(--brand-tint);
@@ -5610,8 +6147,12 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    below every overlay so a modal covers it. */
 .fab {
     position: fixed;
-    inset-block-end: var(--space-8);
-    inset-inline-end: var(--space-8);
+    /* The toast stack's corner and the same arithmetic — see 38-toasts.css. A FAB
+       lands on a phone by definition, so this is the one control in the library
+       that would be under a thumb-height home indicator on every device that has
+       one. */
+    inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
     z-index: 60;
     display: inline-flex;
     align-items: center;
@@ -5838,6 +6379,13 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     display: flex;
     flex-direction: column;
     width: min(420px, 100vw);
+    /* The panel reaches the bottom edge in both forms — a side drawer spans the
+       block axis, a sheet sits on it — so the home indicator would cross the footer's
+       buttons on a phone. Padding rather than an offset, so the inset is filled with
+       the panel's OWN elevated surface: a margin would leave the page showing through
+       under a dark sheet, in a strip the eye reads as the panel not quite landing.
+       0px on anything without an indicator, so a desktop drawer is unchanged. */
+    padding-block-end: var(--safe-block-end);
     --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
     border-inline-start: 1px solid var(--border);
@@ -5855,14 +6403,32 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 }
 
 /* A sheet comes from the bottom edge instead — the right shape on a phone, where a
-   side panel has nowhere to come from. */
+   side panel has nowhere to come from.
+
+   CAPPED AND CENTRED, the same way `.drawer` is capped at 420px rather than filling
+   the inline axis. A sheet that spans a 1440px window puts its rounded top corners
+   at the far edges of the screen and its actions in a narrow column on the left,
+   which reads as a bar across the bottom rather than a panel. `min()` is what makes
+   one rule serve both: on a phone the viewport is the smaller value and the sheet is
+   edge to edge with the corners where they belong, on a desktop it is 480px and the
+   auto margins centre it.
+
+   480 rather than the drawer's 420 because a sheet is the landscape shape of the
+   same panel — the row lockup inside it wants the width the drawer's stacked content
+   does not.
+
+   Three borders rather than only a top one, now that the inline edges no longer sit
+   off-screen. `.drawer` draws the edge that faces the page and leaves the ones lying
+   against the viewport bare; for a capped sheet that is three edges facing the page
+   and one below the viewport, so the block-end edge is the one taken away. */
 .sheet {
     inset-block: auto 0;
     inset-inline: 0;
-    width: auto;
+    width: min(480px, 100vw);
+    margin-inline: auto;
     max-height: 85vh;
-    border-inline-start: none;
-    border-top: 1px solid var(--border);
+    border: 1px solid var(--border);
+    border-bottom: none;
     border-start-start-radius: var(--radius-panel);
     border-start-end-radius: var(--radius-panel);
     transform: translateY(100%);
@@ -5903,7 +6469,10 @@ dialog.drawer {
     inset-inline-end: 0;
     max-width: none;
     max-height: none;
-    padding: 0;
+    /* Not `padding: 0`: this rule is (0,1,1) against `.drawer`'s (0,1,0), so the
+       shorthand would drop the safe-area inset the class above sets. The UA's own
+       dialog padding is what has to go; the bottom inset has to stay. */
+    padding: 0 0 var(--safe-block-end);
     /* And the UA gives a dialog `border: solid`, which is 3px of currentColor — a
        near-white frame against the viewport edges. All four edges are restated here
        rather than left to `.drawer`, whose class selector this rule outranks. */
@@ -5926,14 +6495,23 @@ dialog.drawer.drawer--start {
     border-inline-start: none;
     border-inline-end: 1px solid var(--border);
 }
-/* A sheet spans the inline axis, is content-sized in the block axis and capped, and
-   carries its edge on top. */
+/* A sheet is content-sized in the block axis and capped. The width and the auto
+   margins come from `.sheet`, but the border has to be restated: `dialog.drawer`
+   above sets `border: none` at (0,2,1) to shed the UA's 3px of currentColor, and
+   that outranks `.sheet`'s own (0,1,0) edges. */
 dialog.sheet {
     inset-inline: 0;
     height: fit-content;
     max-height: 85vh;
-    border: none;
-    border-top: 1px solid var(--border);
+    /* `dialog.drawer` above sets `margin: 0`, which it has to — auto margins would
+       fight the edge anchoring. A capped sheet needs them back, and this is the rule
+       that outranks it. Without them `inset-inline: 0` plus a definite width is
+       over-constrained, and the inset the spec drops is the END one: the sheet ends
+       up flush against the inline START edge, at its capped width, on the wrong side
+       of the screen in RTL. */
+    margin-inline: auto;
+    border: 1px solid var(--border);
+    border-bottom: none;
 }
 dialog.drawer::backdrop { background: var(--dialog-backdrop); }
 /* The div form hides itself when closed; a dialog is already display:none, so `open`
@@ -5958,6 +6536,19 @@ dialog.drawer[open] { visibility: visible; transform: none; }
 .drawer-header h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
 /* The only scrolling part, so the header and footer stay put. */
 .drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-7) var(--space-8); }
+/* Drops the padding, for content drawn edge to edge inside the panel — a list of
+   actions, a table that already has its own cell padding. `.card-body--flush`'s
+   sibling, and the same reason: the gutter is a gap the content then paints over.
+
+   A row inside one takes the header's own inline inset instead of its usual smaller
+   one. Two things go right at once: the icon column lines up under the header's
+   title, and a row's hover fill runs the full width of the panel rather than
+   floating inside a gutter, which is what made the fill look clipped at its start
+   edge — 12px of row padding is not enough of a gap when the fill's own edge is
+   20px further out. */
+.drawer-body--flush { padding: 0; }
+.drawer-body--flush > .list > li > .list-row,
+.drawer-body--flush > .list > .sticky-group-head { padding-inline: var(--space-8); }
 .drawer-footer {
     display: flex;
     align-items: center;
@@ -6024,6 +6615,24 @@ dialog.sheet[data-sheet].sheet--dragging > .drawer-header { cursor: grabbing; }
    for the duration or every frame animates towards the last one and the sheet
    lags the finger. */
 dialog.sheet.sheet--dragging { transition: none; }
+
+/* ── A sheet of actions ─────────────────────────────────────────────────────
+   The phone form of a menu: one action per row, with room for a second line saying
+   what it will do, and a target big enough for a thumb.
+
+   NO CLASS OF ITS OWN. It is a real <ul class="list"> so the count is announced, one
+   `<button class="list-row">` filling each <li>, and the divider comes from
+   `.list > li + li`. `.list-row` resets the platform's button chrome and carries the
+   hover, pressed, focus and disabled states, so there is one row class in the library
+   rather than a second one that differs only in where it is used. The button reset
+   and the three states live in 60-lists.css.
+
+   The body is `.drawer-body--flush`, so the rows meet the sheet's edges and the sheet
+   is the surface they sit on rather than a card inside a padded one.
+
+   No fill of its own either. The sheet is already an elevated surface and a tint per
+   row would be a second surface inside it; separation is the divider `.list` draws
+   between its items, and the states are what say the row is live. */
 
 /* ── Tree ───────────────────────────────────────────────────────────────────
    Nested structure the reader expands — a group hierarchy, a folder of files, a
@@ -6975,7 +7584,29 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    the correct side, so only the direction of travel is wrong. */
 [dir="rtl"] .drawer { transform: translateX(-100%); }
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
+
+/* A sheet is one of those too — `<div class="drawer sheet">` — but it travels along
+   the BLOCK axis, which does not flip. The rule above is (0,2,0) against `.sheet`'s
+   own (0,1,0) translate in 63-drawer.css, so without this line a bottom sheet slid
+   in from the inline start edge in RTL and nothing errored.
+
+   Restated here rather than narrowed to `.drawer:not(.sheet)` up there: a negation
+   silently stops covering the next class that composes with `.drawer`, and this way
+   each rule says what it is for.
+
+   THE THREE LINES ARE ORDER-DEPENDENT and all three are (0,2,0), so the cascade is
+   settled by source position alone. `.sheet` has to sit after `.drawer` to beat it,
+   and before `.drawer--open` to lose to it — an open sheet takes `transform: none`
+   like every other panel. Move this line below the next one and an RTL sheet opens
+   to a position 100% below the viewport, which is a panel that never appears. */
+[dir="rtl"] .sheet { transform: translateY(100%); }
 [dir="rtl"] .drawer--open { transform: none; }
+/* The <dialog> form's closed state lives in a @starting-style block, where the same
+   two selectors are (0,3,1) apiece and source order decides again — this file is
+   later than 63-drawer.css, which is the whole reason its rules land. */
+@starting-style {
+    [dir="rtl"] dialog.sheet[open] { transform: translateY(100%); }
+}
 
 /* Kind 2 again. An avatar group's separating gap is a hole masked out of the avatar
    behind, centred on where the next one lands — and a radial-gradient position is
@@ -7104,7 +7735,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .tree-leaf:focus-visible,
     .skip-link:focus,
     .fab:focus-visible,
-    a.list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+    :is(a, button).list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
 
     /* Selected and current states are backgrounds, which are flattened away. An
        outline is what is left that the mode still paints. */
@@ -7163,7 +7794,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .drawer-scrim,
     .spotlight-hole,
     .spotlight-tip,
-    .reconnect-banner,
+    .status-bar,
     .modal-backdrop,
     .page-head-actions,
     .form-actions,
@@ -7390,6 +8021,29 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     cursor: not-allowed;
 }
 
+/* ── Safe area ──────────────────────────────────────────────────────────────
+   For an app's OWN element on a viewport edge, once the host page carries
+   `viewport-fit=cover` — a sticky action bar under a form, a footer, a bottom
+   navigation, a banner. The library's frame already holds itself clear (the shell
+   takes the top and the sides, and each bottom-pinned overlay takes its own inset);
+   these are the escape for the ones the library cannot see.
+
+   PADDING, not margin, and that is the whole point of them. The element's own
+   background then paints into the strip the device has taken, instead of leaving a
+   transparent band that shows the page through — under a dark bar on a light page
+   that band is the artefact people file bugs about. Put the class on the element
+   that carries the background, not on a wrapper around it.
+
+   Each resolves to 0px wherever there is no inset, so one class is correct on a
+   phone, a tablet and a desktop and nothing has to detect a device.
+
+   No `--safe-inline-start`-only utility. An element wide enough to reach one inline
+   edge reaches both, and a single-edge class is a landscape bug waiting for the
+   phone to be turned round. */
+.sedna-safe-top    { padding-block-start: var(--safe-block-start); }
+.sedna-safe-bottom { padding-block-end: var(--safe-block-end); }
+.sedna-safe-inline { padding-inline: var(--safe-inline-start) var(--safe-inline-end); }
+
 /* ── Print ──────────────────────────────────────────────────────────────────
    The two every printed page needs: keep the chrome off the paper, and let a sheet
    carry something the screen does not. 72-print.css handles the frame; these are for
@@ -7456,7 +8110,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     /* 17 — the hint appears at its final position instead of sliding in. Opacity
        is kept as a step, not a fade, by removing the transition entirely. */
     .sedna-tip           { transition: none; transform: none; }
-    .reconnect-attempting i { animation: none; }   /* 18 */
+    .status-bar--reconnecting > i { animation: none; }   /* 18 */
     .nav-group > summary::after { transition: none; }   /* 20 — the group caret */
     /* 20 — the skip link jumps into view rather than sliding down. It has to still
        become visible, so only the transition goes. */
@@ -7464,7 +8118,8 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 
     /* ── Tier 2 — the paint ─────────────────────────────────────────────── */
     .btn              { transition: none; }   /* 33 */
-    .form-input       { transition: none; }   /* 34 */
+    .form-input,
+    .form-select      { transition: none; }   /* 34 */
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
     .form-check input[type="radio"]    { transition: none; }   /* 45 */
     .switch input[type="checkbox"]     { transition: none; }   /* 45 */

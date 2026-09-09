@@ -22,9 +22,15 @@
        address bar retracted, so a vh-capped panel is taller than what is visible
        exactly where the room is tightest.
 
+       The safe-area insets come off the same cap. A modal is centred, so the
+       shorter panel is what lifts its footer clear of the home indicator — and the
+       footer is where the primary action is, which is the same reason the cap exists
+       at all. Padding would be wrong here: the gap belongs OUTSIDE the panel, or the
+       elevated surface is drawn across a strip the device owns.
+
        --modal-max-height is a knob rather than a fixed value because a panel
        that must not shrink at all sets it to `none`. */
-    --modal-max-height: calc(100dvh - 2 * var(--space-8));
+    --modal-max-height: calc(100dvh - 2 * var(--space-8) - var(--safe-block-start) - var(--safe-block-end));
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
@@ -68,6 +74,19 @@ dialog.modal {
     --dialog-backdrop: var(--backdrop);
     animation: sedna-modal-in var(--motion-fast) ease;
 }
+/* `.modal`'s own `display: flex` is gated on nothing, so on a <dialog> it applies
+   while the dialog is CLOSED as well — and an author rule outranks the UA's
+   `dialog:not([open]) { display: none }` whatever the layer. The panel then sits in
+   the page before its button has ever been pressed, absolutely positioned at inset 0
+   with the UA's `margin: auto`, so it lands over the content and behind whatever
+   follows it in the source: a half-visible ghost with no backdrop, in the closed
+   state both before the first open and after every close.
+
+   Written as its own rule rather than by gating `.modal { display: flex }` on
+   `[open]`, because the backdrop-div form has no `[open]` to gate on and needs the
+   flex column unconditionally. `.drawer` and `.palette` each answer this on their own
+   class; this is the modal's. */
+dialog.modal:not([open]) { display: none; }
 dialog.modal::backdrop {
     background: var(--dialog-backdrop);
     backdrop-filter: blur(2px);

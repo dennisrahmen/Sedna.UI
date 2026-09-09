@@ -29,6 +29,13 @@
         the stack itself, from server state or as part of a page's own model.
     </p>
     <p>
+        <strong>A title and a short description under it is the shape to write.</strong> The title
+        is the <code>&lt;strong&gt;</code> — say what happened; the line under it says what it
+        happened to. A toast of one line is fine and needs no extra class: with no
+        <code>&lt;strong&gt;</code> in it the row centres itself against the icon and the close
+        button instead of aligning to a first line that is also the only one.
+    </p>
+    <p>
         <code>.toast-stack</code> is the only positioned element: <code>fixed</code> to the
         bottom-inline-end corner at z-index 600. Each toast is a plain block inside it, so an app
         renders a list and positions nothing. The stack here is <code>position:static</code> so it

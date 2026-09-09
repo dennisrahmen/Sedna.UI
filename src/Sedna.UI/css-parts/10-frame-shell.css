@@ -5,10 +5,32 @@
 /* ── Shell ──────────────────────────────────────────────────────────────── */
 /* 100dvh, not 100vh: dvh excludes the mobile browser's own chrome, so the shell is
    never partly hidden behind it. No 100vh fallback — dvh predates the supported
-   browser floor, so the fallback would be a line that never runs. */
+   browser floor, so the fallback would be a line that never runs.
+
+   ── Safe area: the shell takes the top and the two sides ──
+   Once the host page says `viewport-fit=cover`, the viewport reaches under the
+   notch, the rounded corners and the home indicator, and something has to hold the
+   content clear of them. The split is by construction rather than by taste: the
+   shell's own children — the sidebar, the topbar, the page — are IN its flow, so one
+   padding on the shell moves every one of them at once.
+
+   Anything `position: fixed` is outside that padding and has to take the inset
+   itself, which is also what lets each paint its OWN surface into the strip — shell
+   padding there would leave a band of page background under a dark sheet, which is
+   the artefact this is meant to prevent. Six of them: the sheet and the drawer, the
+   toast stack, the FAB, the reconnect bar and the skip link, plus the modal, whose
+   cap is what holds its footer off the edge. Each says so where it is declared. A
+   NEW fixed overlay on any edge is the author's to handle; nothing here can.
+
+   `height: 100dvh` with `box-sizing: border-box` means the padding eats into the
+   shell rather than adding to it, so nothing overflows and no scrollbar appears.
+   Every one of these resolves to 0px on a device with no inset, so this is the same
+   rule it was on a desktop. */
 .layout {
     display: flex;
     height: 100dvh;
+    padding-block-start: var(--safe-block-start);
+    padding-inline: var(--safe-inline-start) var(--safe-inline-end);
     overflow: hidden;
 }
 .content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
@@ -18,6 +40,8 @@
     display: flex;
     flex-direction: column;
     height: 100dvh;
+    padding-block-start: var(--safe-block-start);
+    padding-inline: var(--safe-inline-start) var(--safe-inline-end);
     overflow: hidden;
 }
 .bare-brand  { display: flex; align-items: center; gap: var(--space-5); padding: 0 var(--space-7); font-size: var(--text-6); }

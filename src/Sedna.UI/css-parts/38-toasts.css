@@ -19,8 +19,12 @@
    which a reader comparing the demo to the snippet depends on. */
 .toast-stack {
     position: fixed;
-    inset-block-end: var(--space-8);
-    inset-inline-end: var(--space-8);
+    /* Pinned to a corner, so it is outside the shell's own safe-area padding and
+       takes both insets itself. ADDED to the offset rather than replacing it: the
+       20px is the gap the design wants from the edge, and the inset is how much of
+       that edge the device has already taken. */
+    inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
     z-index: 600;
     display: flex;
     flex-direction: column;
@@ -51,6 +55,17 @@
     font-size: var(--text-4);
     color: var(--fg-soft);
 }
+/* A toast normally carries a title and a short description under it, and `flex-start`
+   is right for that: the icon belongs beside the FIRST line, not beside the middle of
+   two. A toast of one line is the exception, and there `flex-start` leaves the icon,
+   the line and the close button on three different tops, because all three have
+   different box heights.
+
+   No extra class for it. The title IS a <strong> — that is what the markup says and
+   what sednaUi.toast emits — so its absence is the condition, and a one-line toast
+   centres whether an app rendered it or the library did. */
+.toast:not(:has(strong)) { align-items: center; }
+
 .toast i        { font-size: var(--text-7); flex-shrink: 0; color: var(--muted); }
 .toast strong   { display: block; color: var(--fg); font-weight: 600; }
 .toast-body     { flex: 1; min-width: 0; }

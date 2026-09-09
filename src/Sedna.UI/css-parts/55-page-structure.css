@@ -15,7 +15,13 @@
     margin-bottom: var(--space-7);
 }
 .page-head-text { min-width: 0; }
-.page-head-text h1 { margin: 0; }
+/* Zero the heading's own margins. 06-base-elements gives h1 and h2 a margin, and margins
+   do not collapse inside a flex container: with align-items: flex-start the actions sit at
+   the top of the line while the heading's text is pushed down by its own top margin, which
+   reads as the actions being on a line above the title. Matched on the head rather than on
+   .page-head-text, and for every level a page head can carry: a sub-page opening on an h2
+   is as ordinary as a top-level page opening on an h1. */
+.page-head :is(h1, h2, h3) { margin: 0; }
 .page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
 .page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
 
