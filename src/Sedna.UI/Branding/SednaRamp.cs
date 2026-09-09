@@ -162,6 +162,95 @@ public sealed class SednaRamp
     /// <summary>The eleven steps coral, orbit and navy use, and the default for <see cref="FromAnchor"/>.</summary>
     public static IReadOnlyList<int> StandardSteps { get; } = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
+    /// <summary>
+    /// The fourteen steps the surface ramp uses: <see cref="StandardSteps"/> plus 750, 850 and
+    /// 925.
+    /// </summary>
+    /// <remarks>
+    /// The dark end is where surfaces live, and the eleven standard steps are too far apart
+    /// there — the stylesheet needs a hover fill between 700 and 800, a topbar between 800 and
+    /// 900, and a canvas below 900. <see cref="Surface"/> generates all fourteen;
+    /// <c>SurfaceRampTests</c> asserts this list covers every <c>--slate-*</c> step the shipped
+    /// stylesheet references, so a generated base cannot leave one undefined.
+    /// </remarks>
+    public static IReadOnlyList<int> SurfaceSteps { get; } =
+        [50, 100, 200, 300, 400, 500, 600, 700, 750, 800, 850, 900, 925, 950];
+
+    /// <summary>
+    /// Generates the surface ramp — the greys an app's chrome, canvas and cards are painted
+    /// from — from one anchor colour.
+    /// </summary>
+    /// <param name="anchorHex">
+    /// The colour the canvas should be, i.e. what <c>--bg</c> resolves to in the dark variant.
+    /// A neutral grey gives a neutral base; a tinted one tints the whole ramp proportionally.
+    /// </param>
+    /// <param name="anchorStep">Which step <paramref name="anchorHex"/> IS. 900 — the canvas — by default.</param>
+    /// <remarks>
+    /// <para>
+    /// <b>Why this is not <see cref="FromAnchor"/>.</b> That method exists for brand hues: its
+    /// lightness curve was fit across the coloured ramps and its chroma bell peaks at the anchor
+    /// and falls away on both sides. A surface ramp wants neither. Its lightness has to land
+    /// where Sedna's own slate lands — 900 is a canvas, not a mid grey, and the shared curve puts
+    /// step 900 at more than half lightness — and its chroma has to stay a whisper across the
+    /// whole ramp, rising slightly into the dark end, or a "grey" background reads as coloured.
+    /// Generating a base with <see cref="FromAnchor"/> produced a washed-out mid-grey canvas,
+    /// which is what made a per-theme background impractical before this existed.
+    /// </para>
+    /// <para>
+    /// <b>The profile is measured, not typed.</b> Both curves are read at first use from
+    /// <see cref="SednaTheme.Sedna"/>'s own slate ramp through <see cref="Oklch.FromHex"/>, so
+    /// they cannot drift from the ramp they describe and no fourteen numbers are retyped here.
+    /// Chroma is scaled by the anchor's own chroma at its step, so a pure grey anchor produces a
+    /// pure grey ramp and Sedna's own canvas colour reproduces Sedna's slate — which
+    /// <c>SurfaceRampTests</c> asserts step by step.
+    /// </para>
+    /// <para>
+    /// The one ordering constraint: this reads <see cref="SednaTheme.Sedna"/>, so a theme whose
+    /// own static initialiser calls it must be declared after that property. Lazy, so nothing
+    /// pays for it until a theme generates a base.
+    /// </para>
+    /// </remarks>
+    public static SednaRamp Surface(string anchorHex, int anchorStep = 900)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(anchorHex);
+
+        var profile = SurfaceProfile.Value;
+        if (!profile.TryGetValue(anchorStep, out var at))
+            throw new ArgumentOutOfRangeException(nameof(anchorStep), anchorStep,
+                $"The anchor step must be one of: {string.Join(", ", SurfaceSteps)}.");
+
+        var (_, anchorC, anchorH) = Oklch.FromHex(anchorHex);
+
+        // A grey anchor means a grey ramp, not a division by zero.
+        var chromaScale = at.C <= 1e-6 ? 0 : anchorC / at.C;
+        // The whole profile rotates by however far the anchor sits from the step it stands for,
+        // so the base's own hue drift — 248° at the light end to 271° at the dark, which is what
+        // keeps light surfaces from reading cold — survives the move to another hue.
+        var hueShift = anchorH - at.H;
+
+        var result = new Dictionary<int, string>(SurfaceSteps.Count);
+        foreach (var step in SurfaceSteps)
+        {
+            var (l, c, h) = profile[step];
+            result[step] = Oklch.ToHex(l, c * chromaScale, (h + hueShift + 360) % 360);
+        }
+
+        return new SednaRamp(result);
+    }
+
+    /// <summary>Sedna's slate ramp, measured: the lightness, chroma and hue of each surface step.</summary>
+    private static readonly Lazy<IReadOnlyDictionary<int, (double L, double C, double H)>> SurfaceProfile =
+        new(() =>
+        {
+            var slate = SednaTheme.Sedna.Palette.Slate;
+            var profile = new Dictionary<int, (double L, double C, double H)>(SurfaceSteps.Count);
+
+            foreach (var step in SurfaceSteps)
+                profile[step] = Oklch.FromHex(slate[step]);
+
+            return profile;
+        });
+
     private static int IndexOf(int step)
     {
         for (var i = 0; i < StandardSteps.Count; i++)

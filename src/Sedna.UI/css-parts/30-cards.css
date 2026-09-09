@@ -6,11 +6,34 @@
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {
-    --surface-here: var(--card-bg);
-    background: var(--card-bg);
+    --surface-here: var(--surface-raised-1);
+    background: var(--surface-raised-1);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     overflow: hidden;
+}
+/* A card inside a card takes the next step up the ladder, and the one inside
+   that takes the third. Nothing in the markup says which level it is — the
+   depth is the selector, so a card that gets moved into another card is right
+   without being edited.
+
+   Descendant selectors rather than a chain of custom properties: a chain has
+   to be re-declared on every surface the library paints to stay in step, and
+   the case this exists for is a card in a card. Four levels deep keeps level 3
+   rather than inventing a fourth.
+
+   The third level lifts --muted to --fg-soft, and that is not decoration:
+   Dust Gray on --surface-raised-3 measures 3.97:1, under the AA floor, while
+   --fg-soft measures 6.84:1. Both variants are measured in
+   `SurfaceTokenTests.Muted_text_clears_AA_on_every_surface_level`. */
+.card .card {
+    --surface-here: var(--surface-raised-2);
+    background: var(--surface-raised-2);
+}
+.card .card .card {
+    --surface-here: var(--surface-raised-3);
+    background: var(--surface-raised-3);
+    --muted: var(--fg-soft);
 }
 .card-head {
     display: flex;

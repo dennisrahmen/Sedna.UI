@@ -23,7 +23,8 @@ public class SurfaceTests : ScriptTestBase
             () => [
                 'configure', 'settings', 'tips', 'toast', 'confirm', 'menu', 'tabs',
                 'palette', 'search', 'md', 'spotlight', 'copyText', 'openTab',
-                'viewportWidth', 'getItem', 'setItem', 'requestNotify', 'notify', 'ping'
+                'viewportWidth', 'getItem', 'setItem', 'requestNotify', 'notify', 'ping',
+                'watchSettings', 'unwatchSettings'
             ].filter(k => window.sednaUi[k] === undefined)
             """);
 
@@ -36,7 +37,7 @@ public class SurfaceTests : ScriptTestBase
             () => {
                 const u = window.sednaUi, bad = [];
                 const need = {
-                    settings: ['load', 'save', 'apply'],
+                    settings: ['load', 'save', 'apply', 'onChange'],
                     menu: ['closeAll'],
                     tabs: ['select'],
                     palette: ['register', 'open', 'close', 'rank'],

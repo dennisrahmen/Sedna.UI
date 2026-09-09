@@ -37,6 +37,30 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.SettingsFromCsharp" Title="Appearance settings from C#"
+            Demo="ex-demo--block">
+    <p>
+        <code>ISednaSettings</code> is the applied settings as state, with a <code>Changed</code>
+        event. <code>ISednaUi.LoadSettingsAsync</code> answers what they are now; this answers that
+        and tells you when it stops being true — which matters for one case nothing else covers:
+        <strong>pick “System”, then change your OS between light and dark.</strong> The library
+        follows that without a reload, so an app that read the settings once at start-up is holding
+        a stale answer and does not know it.
+    </p>
+    <p>
+        The setters store a preference and stop there. Writing the attributes on
+        <code>&lt;html&gt;</code> stays <code>sednaUi.settings.apply()</code>'s job, and this
+        state is filled from the notification that follows — one writer for the document, one path
+        into the state, and a setter that fails in the browser cannot leave C# believing it worked.
+    </p>
+    <p>
+        <code>StartAsync</code> belongs in <code>OnAfterRenderAsync(firstRender)</code>, because
+        interop cannot run while prerendering. Until it has, <code>Current</code> holds the
+        library's defaults and <code>IsLive</code> is <code>false</code> — check it before drawing a
+        toggle, or a reader who chose light sees “dark” selected for one frame.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Interop.ConfirmFromCsharp" Title="Confirmation from C#"
             Demo="ex-demo--block">
     <p>

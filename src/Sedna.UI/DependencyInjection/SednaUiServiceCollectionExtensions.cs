@@ -14,7 +14,8 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class SednaUiServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds <see cref="ISednaUi"/>, the typed wrapper over the browser API.
+    /// Adds <see cref="ISednaUi"/>, the typed wrapper over the browser API, and
+    /// <see cref="ISednaSettings"/>, the applied appearance settings as bindable state.
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configure">Optional: the options to push with <see cref="ISednaUi.ConfigureAsync"/>.</param>
@@ -43,6 +44,7 @@ public static class SednaUiServiceCollectionExtensions
 
         services.TryAddSingleton(options);
         services.TryAddScoped<ISednaUi, SednaUi>();
+        services.TryAddScoped<ISednaSettings, SednaSettings>();
 
         return services;
     }

@@ -41,6 +41,11 @@ internal static class TokenGroups
             "--surface-soft", "--surface-strong", "--on-solid", "--redacted",
         ]),
 
+        new("Named surfaces and elevation", [
+            "--surface-app", "--surface-chrome", "--surface-content",
+            "--surface-raised-1", "--surface-raised-2", "--surface-raised-3",
+        ]),
+
         new("Brand — the app override point", [
             "--brand", "--brand-hover", "--brand-active", "--brand-soft", "--brand-text",
             "--brand-tint", "--brand-ring", "--brand-ring-soft", "--brand-ring-check",

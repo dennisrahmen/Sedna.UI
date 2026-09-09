@@ -176,6 +176,19 @@ Two consequences for a rule that sets a control's height:
 - `Sedna.UI.boot.js` applies them from `localStorage` before first paint.
 - `sednaUi.settings.save('variant', 'light')` (or `'theme'`, `'cvd'`, `'density'`) updates them at
   runtime.
+- **`ISednaSettings` is the C# view of the same state** — `Current`, setters, and a `Changed` event.
+  `StartAsync()` in `OnAfterRenderAsync(firstRender)` reads the browser and subscribes; the service
+  never writes the attributes itself, so `sednaUi.settings.apply()` stays the only writer. The case
+  it exists for: a stored preference of `"system"` follows the OS while the page is open, and an app
+  that only called `LoadSettingsAsync` once never hears about it.
+
+The **base** — canvas, chrome, cards, borders, muted text — is the `slate` ramp, so a theme changes
+it like any other ramp. `SednaRamp.Surface(anchor)` generates all fourteen surface steps from the
+colour the canvas should be, because `FromAnchor`'s curve is fit to brand hues and puts step 900 at
+more than half lightness. `SednaTheme.Graphite` is the shipped example. The named surface roles
+(`--surface-app`, `--surface-chrome`, `--surface-content`) and the elevation ladder
+(`--surface-raised-1/-2/-3`, applied automatically to a card inside a card) resolve through that
+ramp, so they follow a themed base with no rule changed.
 
 `boot.js` also writes two **cookies**, both opt-in and neither read by the library — they exist so a
 server-rendered app can get right on its first render what only the browser knows.
@@ -322,7 +335,7 @@ Two things the flat list does not say:
 | Member | Purpose |
 |---|---|
 | `configure(options)` | Storage prefix, notification icon, language cookie |
-| `settings` | `load()`, `save(key, value)`, `apply()`. Keys: `theme`, `variant`, `cvd`, `density`, `dir`, `lang` |
+| `settings` | `load()`, `save(key, value)`, `apply()`, `onChange(fn)` → unsubscribe. Keys: `theme`, `variant`, `cvd`, `density`, `dir`, `lang` |
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally |
 | `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
 | `confirm(options)` | A `<dialog>.showModal()` confirmation. Returns a promise; `danger: true` reddens confirm and focuses cancel |
@@ -338,6 +351,7 @@ Two things the flat list does not say:
 | `md` | Markdown editor: `init(root?)` wires every `.md-editor` in `root` (the document by default) and is idempotent per editor; `apply(textarea, cmd)`, `render(src)` |
 | `copyText`, `openTab`, `viewportWidth`, `scrollPageTop` | Interop helpers. `scrollPageTop` resets `.page`, which is the only scroll container the frame has and therefore the one navigation leaves where it was |
 | `getItem`, `setItem` | `localStorage` access |
+| `watchSettings`, `unwatchSettings` | The Blazor bridge for `settings.onChange`: takes a `DotNetObjectReference` and returns an id to unwatch with. `ISednaSettings` is the C# side; nothing else should call these |
 | `requestNotify`, `notify`, `ping` | Desktop notifications and an audio ping |
 
 `ui._` also exists and is **private** — shared closure state the parts need. It may change in a patch.
