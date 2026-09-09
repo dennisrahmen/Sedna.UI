@@ -15,11 +15,19 @@
 
 <CatExample TExample="Examples.Form.Selects" Title="Selects" Demo="ex-demo--block">
     <p>
-        Add <code>.form-select</code> beside <code>.form-input</code> to replace the platform
-        caret with one that follows the theme. The caret is drawn from two gradients — this
-        stylesheet loads and inlines nothing, and a pseudo-element does not render on a
-        <code>&lt;select&gt;</code> in any browser. A list box (<code>multiple</code>, or
-        <code>size</code> above 1) drops the caret on its own, since there is nothing to drop.
+        <code>.form-select</code> replaces the platform caret with one that follows the theme.
+        The caret is drawn from two gradients — this stylesheet loads and inlines nothing, and a
+        pseudo-element does not render on a <code>&lt;select&gt;</code> in any browser. A list box
+        (<code>multiple</code>, or <code>size</code> above 1) drops the caret on its own, since
+        there is nothing to drop.
+    </p>
+    <p>
+        <strong><code>.form-select</code> is the whole class list a dropdown needs.</strong> It
+        carries the same field shape <code>.form-input</code> does — height, padding, surface,
+        border, radius, type and focus ring all come from one rule the two names share — so a
+        select never has to be told twice what a field looks like.
+        <code>class="form-input form-select"</code> resolves to those same declarations and stays
+        correct; it is simply longer.
     </p>
 </CatExample>
 

@@ -1,0 +1,48 @@
+@page "/utility-spacing"
+
+<CatHead Title="Spacing utilities">
+    Two families, and deliberately only two: the gap inside a row or column, and a top or bottom
+    margin on one element. Everything else is a token.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-stack-line"></i>
+    <strong>The cascade layer is what makes these work.</strong> A utility is <code>(0,1,0)</code>
+    and a component rule like <code>.table th, .table td</code> is <code>(0,1,1)</code>, so a utility
+    loses on specificity alone. <code>sedna.utilities</code> sits after <code>sedna.paint</code>, so
+    <code>.text-end</code> on a table cell wins regardless of it.
+</div>
+
+<div class="cat-note">
+    <i class="ri-forbid-line"></i>
+    <strong>There is no numeric spacing scale here, and there will not be.</strong> A page assembled
+    out of <code>.p-4</code> and <code>.mx-2</code> has moved its design decisions into the markup
+    where nobody reviews them. The vertical rhythm between page sections is already the frame's job
+    — see <a href="/frame">Shell and nav</a> — and the sizes themselves are
+    <a href="/tokens"><code>--space-*</code></a>.
+</div>
+
+<CatExample TExample="Examples.UtilitySpacing.Gaps" Title="Gaps" Demo="ex-demo--block">
+    <p>
+        <code>.sedna-row</code> and <code>.sedna-col</code> carry one gap. These four override it:
+        <code>.sedna-gap-0</code> removes it, <code>.sedna-gap-1</code> is the default 8px restated,
+        and <code>-2</code> and <code>-3</code> are 12px and 20px.
+    </p>
+    <p>
+        Four steps rather than the whole <code>--space-*</code> ramp, because a gap that needs a
+        fifth value is usually a layout that wants <a href="/grid">a grid</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.UtilitySpacing.Margins" Title="Margins" Demo="ex-demo--block">
+    <p>
+        <code>.sedna-mt-0</code> to <code>-3</code> and <code>.sedna-mb-0</code> to <code>-3</code>,
+        on the same 0 / 8 / 12 / 20px steps. The zeros do most of the work: they are the escape from a
+        margin a library component sets, without overriding that component's class.
+    </p>
+    <p>
+        Top and bottom only. An inline margin is nearly always the wrong tool — it does not
+        collapse, it does not mirror unless it is logical, and the thing being reached for is usually
+        a gap or a grid.
+    </p>
+</CatExample>

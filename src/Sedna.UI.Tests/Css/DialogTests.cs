@@ -75,4 +75,50 @@ public class DialogTests
             + $"Gate it on [open]:{Environment.NewLine}{string.Join(Environment.NewLine, ungated)}");
     }
 
+    [Theory]
+    [MemberData(nameof(DialogClasses))]
+    public void A_dialog_class_hides_itself_while_closed(string name)
+    {
+        // The theory above only sees selectors that NAME the element — `dialog.modal`.
+        // A BARE class rule is the same bug and was invisible to it: `.modal { display:
+        // flex }` applies to a <dialog> just as well, outranks the UA's
+        // `dialog:not([open]) { display: none }` by being an author rule, and leaves the
+        // panel in the page before its trigger is ever clicked and again after it closes.
+        // That shipped, and the guard passed the whole time.
+        //
+        // So this asks the question from the other side: whatever gave the class a
+        // display, is the closed state answered somewhere? One companion rule does it for
+        // every form the display can be written in, which is why it is required rather
+        // than merely allowed.
+        var css = Assets.StripComments(Assets.Css);
+
+        var display = Regex.Matches(css, @"(?<selector>[^{}@;]*)\{(?<body>[^{}]*)\}")
+            .Where(m => Regex.IsMatch(
+                m.Groups["selector"].Value,
+                $@"(?<![\w-])\.{Regex.Escape(name)}(?![\w-])"))
+            .Where(m => Regex.IsMatch(m.Groups["body"].Value, @"(?<![\w-])display\s*:\s*(?!none)"))
+            .Where(m => !m.Groups["selector"].Value.Contains("[open]", StringComparison.Ordinal))
+            .Select(m => Assets.Squash(m.Groups["selector"].Value))
+            .ToList();
+
+        if (display.Count == 0) return;
+
+        // `dialog.<name>:not([open]) { display: none }`. The element is named on purpose:
+        // the same class is also worn by non-dialog markup — `.modal` sits on a
+        // `.modal-backdrop` div in the fallback form, and hiding that unconditionally
+        // would break it.
+        var hidden = Regex.Matches(css, @"(?<selector>[^{}@;]*)\{(?<body>[^{}]*)\}")
+            .Where(m => Regex.IsMatch(
+                m.Groups["selector"].Value,
+                $@"(?<![\w-])dialog\.{Regex.Escape(name)}:not\(\[open\]\)"))
+            .Any(m => Regex.IsMatch(m.Groups["body"].Value, @"(?<![\w-])display\s*:\s*none"));
+
+        Assert.True(hidden,
+            $"`.{name}` is given a display by {display.Count} rule(s) that do not mention "
+            + $"[open], so it also applies to a CLOSED <dialog> and the panel sits in the "
+            + $"page for the rest of the session. Add "
+            + $"`dialog.{name}:not([open]) {{ display: none; }}`. The rules:"
+            + $"{Environment.NewLine}{string.Join(Environment.NewLine, display)}");
+    }
+
 }

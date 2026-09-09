@@ -50,11 +50,32 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Tabs.SegmentedSizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        <code>.segmented--sm</code> and <code>.segmented--lg</code> take the same
+        <code>--control-height</code> tiers as <a href="/button"><code>.btn-sm</code></a> and
+        <a href="/form"><code>.form-input-sm</code></a>, so a segmented control in a bar is the
+        same height as the field and the button beside it. The bare class is the middle step.
+    </p>
+    <p>
+        The <em>track</em> carries the tier, not the options — it is the track that draws the
+        border, so an option holding its own height would make the track that height plus the
+        border and the padding.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Tabs.TabsInACard" Title="Tabs in a card" Demo="ex-demo--block">
     <p>
         <strong>Live — switch between them.</strong> The tablist goes in
         <a href="/card"><code>.card-head</code></a> and the panels in the body, so the card head reads
         as the card's own switch rather than as a row of buttons above it.
+    </p>
+    <p>
+        <strong>Add <code>.card-head--tabs</code> to the head.</strong> It hands the head's padding
+        to the strip, so the head's own border becomes the strip's line and the active tab's
+        indicator meets the body edge — and the first tab's label lines up with the body text. A
+        plain <code>.card-head</code> leaves the strip floating in 12px of padding with its own
+        border above the head's, which draws two lines and anchors the indicator to nothing.
     </p>
     <p>
         Only the selected tab is a tab stop; <kbd>Tab</kbd> moves past the whole list and the arrow

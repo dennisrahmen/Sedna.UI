@@ -1,0 +1,128 @@
+@page "/topbar"
+
+<CatHead Title="Topbar and user" Tier="@CatHead.Tier1">
+    The header strip: the search, the status and version chips on the right, and the user widget
+    with its menu.
+</CatHead>
+
+<CatExample TExample="Examples.Topbar.VersionTag" Title="Version tag" Demo="ex-demo--block">
+    <p>
+        <code>.topbar-version</code> — which build the reader is looking at, in the topbar's right
+        cluster beside the status indicator. Small, quiet and monospaced, because it is a value to
+        be read back in a bug report rather than something to act on.
+    </p>
+    <p>
+        Put the version an app already knows in it — an assembly informational version, a CI build
+        number, a short commit sha. It is a <code>&lt;span&gt;</code>, not a control: if yours links
+        to a release page, that is an app decision and an <code>&lt;a&gt;</code> carries the class
+        just as well.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Topbar.HeaderSearch" Title="Header search" Demo="ex-demo--block">
+    <p>
+        <code>.search</code> goes at the start of the topbar, after the nav toggles and before
+        <code>.topbar-spacer</code>. The markup above is the whole of what an app writes: the
+        icon, the input and the clear button. Below 720px the box is hidden, so an app needs
+        another way in on a phone.
+    </p>
+    <p>
+        It takes the room it is given up to <code>--search-max</code> (480px) and gives it back
+        first, because the pills and controls at the far end matter more than a wider box. In a
+        topbar that also carries a spacer and the user widget, 480px reads as a second sidebar —
+        narrow it with <code>style="--search-max: 340px"</code> on the <code>.search</code> box
+        rather than by overriding <code>max-width</code>.
+    </p>
+    <p>
+        <code>data-search</code> hands the box to <code>sednaUi.search</code>, which builds the
+        result panel, ranks against the index the app registered, and implements the keyboard —
+        arrows, <code>Home</code>/<code>End</code>, <code>Enter</code> to open,
+        <code>Escape</code> to close and then to clear. <strong>The index is client-side</strong>:
+        register a fixed, known set once and results appear with no round trip. Searching a
+        database is the app's own job — render the panel below with these classes and leave
+        <code>data-search</code> off.
+    </p>
+    <p>
+        The clear button is shown by CSS on <code>:placeholder-shown</code>, so it needs no state
+        and works with scripting blocked. It does need the input to carry a placeholder.
+        <strong>The demo above is live</strong> and shares this site's own index — type in it.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Topbar/SearchResults.html" Title="Result panel">
+    <p>
+        One <code>.search-item</code> per result: a <code>.search-item-title</code>, and a
+        <code>.search-item-meta</code> line carrying a <code>.text-mono</code> identifier, a
+        line of context and an optional <code>.search-tag</code> (<code>--warn</code> for
+        something that needs attention). <code>.search-item--sel</code> is where the keyboard is;
+        <code>.search-status</code> is the busy and empty line.
+    </p>
+    <p>
+        <code>.sedna-scroll</code> belongs on the panel: it scrolls past eight rows, and the OS
+        default bar is the one thing on it that would not follow the theme.
+    </p>
+    <p>
+        An <code>&lt;a&gt;</code> rather than a button, so middle-click and “open in a new tab”
+        work and a router can intercept the click. <code>role="option"</code> inside
+        <code>role="listbox"</code> is what makes <code>aria-selected</code> legal, and the box
+        keeps focus while the highlight moves — which is what
+        <code>aria-activedescendant</code> is for.
+    </p>
+</CatSnippet>
+
+<CatSnippet Name="Topbar/AnchoredSearch.html" Title="A panel the app renders">
+    <p>
+        Searching a database is the app's own job — a per-keystroke round trip needs a debounce
+        whose length depends on the backend, a cancellation story for superseded keystrokes and a
+        busy state, none of which a shared library can decide. So the app renders the panel with
+        these classes and leaves <code>data-search</code> off the input.
+    </p>
+    <p>
+        <code>.search-panel--anchored</code> is what positions it. The panel
+        <code>sednaUi.search</code> builds is <code>position: fixed</code> in
+        <code>&lt;body&gt;</code> with its top, left and width measured from the box; a panel the app
+        rendered lives in the app's own subtree, where inline coordinates written by this library
+        would be reverted on the next re-render. The modifier nests it under the box instead —
+        <code>.search</code> is already <code>position: relative</code>, so nothing is measured at
+        all.
+    </p>
+    <p>
+        <strong>The trade:</strong> a nested panel joins <code>.topbar</code>'s stacking context at
+        z-index 60, so it sits <em>under</em> a modal backdrop however high its own z-index. For a
+        header search that is almost always right — a modal opening should cover the results.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.Topbar.UserMenu" Title="User menu" Demo="ex-demo--block">
+    <p>
+        The panel is the library's one dropdown style, <code>.menu</code> — see
+        <a href="/menu">Menus</a> for its items, labels and separators. There is no second panel
+        style for the header. Only the <em>anchoring</em> belongs to the frame:
+        <code>.user-widget</code> is <code>position: relative</code>, so the panel hangs off the
+        header's bottom edge with nothing measured.
+    </p>
+    <p>
+        Opening it, the outside click and <kbd>Escape</kbd> are your app's state — a
+        <code>bool</code> and an <code>@@onkeydown</code>, with no JavaScript.
+    </p>
+    <p>
+        It is a <em>disclosure</em>, not an ARIA menu: the items are ordinary links and buttons that
+        tab normally. Do not declare <code>role="menu"</code> — it promises arrow-key navigation and a
+        roving tabindex that this markup does not implement.
+    </p>
+    <p>
+        Render <code>.menu-scrim</code> immediately before the panel: a transparent full-viewport
+        element that catches the click dismissing the menu. It carries no z-index — coming first in
+        the markup is what puts the panel above it. The demo omits it, because a fixed element
+        covering the viewport would swallow every click on this page.
+    </p>
+</CatExample>
+
+<div class="cat-note">
+        <strong>Hover hints.</strong> Add <code>data-tip="what it does and its consequence"</code> to
+        actionable controls, plus <code>aria-label</code> on icon-only buttons.
+        <code>Sedna.UI.js</code> renders one bubble for the whole page through event delegation, so
+        content rendered later needs no wiring. Use
+        <code>data-tip-pos="left|right|top|bottom"</code> to set a side.
+        Elements inside <code>.sidebar</code> are skipped; the collapsed rail uses a CSS flyout instead.
+    </div>

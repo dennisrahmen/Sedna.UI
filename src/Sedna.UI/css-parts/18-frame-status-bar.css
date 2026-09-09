@@ -1,0 +1,208 @@
+/* ── Status bar ─────────────────────────────────────────────────────────────
+   One strip across the bottom of the window that says the app is not working
+   normally, and ONE class family for every case of it. Five modifiers:
+
+     --reconnecting   the circuit dropped and is being re-established   pulses
+     --paused         the server released the circuit and kept the state
+     --failed         reconnecting is over — only a reload helps
+     --expired        the session is gone from the server
+     --error          an unhandled error reached the browser
+
+   This was two mechanisms: `.reconnect-*` rows for Blazor's connection UI, and a
+   separate block of rules on `#blazor-error-ui` for the framework's error bar.
+   Same strip, same position, same two severities, two vocabularies — and a reader
+   had to know both to style one bar. There is one family now.
+
+   WHERE IT MOUNTS. Two framework-owned ids carry it. Neither is a library class:
+   the app writes the id because the framework looks for that id.
+
+     #components-reconnect-modal   holds one .status-bar per state. Blazor sets a
+                                   state class on the id and the rules below show
+                                   the matching row.
+     #blazor-error-ui              holds exactly one .status-bar--error. The
+                                   framework reveals it by setting
+                                   `display: block` inline.
+
+   THE BAR IS A CHILD OF THE ID, never the id itself. The framework's inline
+   `display: block` beats every rule in every layer, so putting `.status-bar` on
+   `#blazor-error-ui` would lay that one bar out as inline text while the
+   reconnect rows stayed flex rows — the exact drift this family exists to end.
+   The id is the container; the strip inside it is a flex row in both cases.
+
+   A `.status-bar` outside either id is visible on its own, which is how the
+   catalogue shows all five at once.
+
+   Blazor sets six state classes on the modal. They map onto four of the five
+   rows — `--error` is not a connection state and belongs to the other id:
+
+   | Blazor sets                          | The row that shows                          |
+   |--------------------------------------|---------------------------------------------|
+   | `components-reconnect-show`          | `.status-bar--reconnecting`                 |
+   | `components-reconnect-retrying`      | `.status-bar--reconnecting`, plus its counter |
+   | `components-reconnect-paused`        | `.status-bar--paused`, or reconnecting if absent |
+   | `components-reconnect-failed`        | `.status-bar--failed`                       |
+   | `components-reconnect-resume-failed` | `.status-bar--failed`                       |
+   | `components-reconnect-rejected`      | `.status-bar--expired`                      |
+   | `components-reconnect-hide`          | nothing — this is the connected state       |
+
+   `retrying` is added alongside `show`; every other state replaces the last.
+   `.status-bar--paused` is optional and falls back to the reconnecting row, so a
+   host page written without it only misses the softer wording.
+
+   The palette tokens are still named `--reconnect-*`. They are the two
+   severities this bar has, and a token rename is its own break in its own
+   release.
+   ─────────────────────────────────────────────────────────────────────────── */
+#components-reconnect-modal,
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0; inset-inline: 0;
+    z-index: 1000;
+}
+#components-reconnect-modal.components-reconnect-show,
+#components-reconnect-modal.components-reconnect-retrying,
+#components-reconnect-modal.components-reconnect-paused,
+#components-reconnect-modal.components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-resume-failed,
+#components-reconnect-modal.components-reconnect-rejected { display: block; }
+
+/* No shadow. Every shadow in the set casts downwards and this strip sits on the
+   bottom edge, so one would fall off the screen and paint nothing. */
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-8);
+    /* The bar sits ON the bottom edge, so the home indicator would otherwise cross
+       its text. Padding rather than an offset: the inset has to be filled by the
+       bar's own amber or crimson, or the strip below it shows the page through and
+       the bar reads as floating. */
+    padding-block-end: calc(var(--space-5) + var(--safe-block-end));
+    font-size: var(--text-4);
+    font-weight: 500;
+}
+/* The bar's own leading glyph, reached with `>` so it does not also resize the
+   icons inside the action and the dismiss. */
+.status-bar > i { font-size: var(--text-7); flex-shrink: 0; }
+
+/* Amber: something is in progress or held, and nothing has been lost. */
+.status-bar--reconnecting,
+.status-bar--paused {
+    background: var(--reconnect-warn-bg);
+    border-top: 1px solid var(--reconnect-warn-border);
+    color: var(--reconnect-warn-fg);
+}
+/* Only the reconnecting bar pulses. The other four are settled states, and a
+   pulsing glyph on one of them promises work that is not happening. */
+.status-bar--reconnecting > i { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
+
+/* Crimson: over. A reload is the only way forward. */
+.status-bar--failed,
+.status-bar--expired,
+.status-bar--error {
+    background: var(--reconnect-fail-bg);
+    border-top: 1px solid var(--reconnect-fail-border);
+    color: var(--reconnect-fail-fg);
+}
+
+/* The attempt counter, hidden until Blazor has put a number in it — which it does
+   from the second attempt on. Before that the markup's placeholder would read as
+   a real count. Give one span the id `components-reconnect-current-attempt` and
+   another `components-reconnect-max-retries` and the framework fills both in. */
+.status-bar-attempt { opacity: 0.75; font-weight: 400; }
+#components-reconnect-modal .status-bar-attempt { display: none; }
+#components-reconnect-modal.components-reconnect-retrying .status-bar-attempt { display: inline; }
+
+/* ── The bar's action ───────────────────────────────────────────────────────
+   Reload, retry, sign in again. It is FILLED, and it is the bar's own control
+   rather than a `.btn`.
+
+   Both halves of that are the same finding. The markup carried
+   `.btn.btn-sm.btn-danger`, and `.btn-danger` is a TINT — 15% crimson over the
+   page surface — so on a bar that is already crimson-900 the fill vanished and
+   the label landed on `--reconnect-fail-fg`, the bar's own text colour. The
+   control read as an empty rectangle with a hairline around it. The bar's colour
+   is not the problem: crimson-900 under crimson-400 text is a strong pair and
+   both themes keep it. The tinted button on top of it was.
+
+   And the frame cannot fix a `.btn`: `@layer sedna.paint` comes after
+   `@layer sedna.frame`, so `.btn-danger` outranks anything written here whatever
+   the selectors weigh. A control that belongs to the frame is a frame class —
+   `.topbar-btn` and `.user-signout` already are.
+
+   The fill is the semantic solid, which carries `--on-solid` at AA in every
+   theme (white on warn 5.31, on danger 4.61 — docs/BRANDING.md §6). Hover is a
+   ring in `currentColor` rather than a darker fill: the token set has no
+   `--danger-hover`, because `.btn-danger` hovers on its tint, and a ring works
+   on both palettes and in every theme without one. */
+.status-bar-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    min-height: var(--control-height-sm);
+    padding: var(--space-2) var(--space-5);
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    color: var(--on-solid);
+    font: inherit;
+    font-size: var(--text-3);
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+}
+.status-bar-action i { font-size: var(--text-4); }
+.status-bar-action:hover { border-color: currentColor; text-decoration: none; }
+.status-bar-action:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--on-solid); }
+.status-bar--reconnecting .status-bar-action,
+.status-bar--paused .status-bar-action { background: var(--warn-solid); }
+.status-bar--failed .status-bar-action,
+.status-bar--expired .status-bar-action,
+.status-bar--error .status-bar-action { background: var(--danger-solid); }
+
+/* The dismiss, on the error bar. A <button> rather than the project template's
+   <span>: it is a control, so it has to be focusable and announced as one, and a
+   span is neither.
+
+   `auto` when it is alone, a fixed gap when it follows an action — two autos
+   would split the free space between them and leave the pair straddling the
+   bar. */
+.status-bar-dismiss {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    padding: 0;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    font-size: var(--text-7);
+    line-height: 1;
+    opacity: 0.75;
+    cursor: pointer;
+}
+.status-bar-action ~ .status-bar-dismiss { margin-inline-start: var(--space-3); }
+.status-bar-dismiss:hover { opacity: 1; }
+.status-bar-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--on-solid); }
+
+/* Inside the reconnect modal, one row at a time. The id carries the specificity,
+   so there is no !important here and nothing for an app to fight. */
+#components-reconnect-modal .status-bar { display: none; }
+/* Blazor adds `retrying` alongside `show`, but the two are keyed separately so
+   the row still appears if `retrying` ever arrives on its own. */
+#components-reconnect-modal.components-reconnect-show     .status-bar--reconnecting { display: flex; }
+#components-reconnect-modal.components-reconnect-retrying .status-bar--reconnecting { display: flex; }
+#components-reconnect-modal.components-reconnect-paused   .status-bar--paused       { display: flex; }
+#components-reconnect-modal.components-reconnect-failed   .status-bar--failed       { display: flex; }
+#components-reconnect-modal.components-reconnect-rejected .status-bar--expired      { display: flex; }
+/* A failed resume reads as a failed reconnect. */
+#components-reconnect-modal.components-reconnect-resume-failed .status-bar--failed { display: flex; }
+/* Paused with no row of its own falls back to reconnecting, rather than to an
+   empty bar. */
+#components-reconnect-modal.components-reconnect-paused:not(:has(.status-bar--paused))
+    .status-bar--reconnecting { display: flex; }

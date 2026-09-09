@@ -176,6 +176,29 @@
     cursor: not-allowed;
 }
 
+/* ── Safe area ──────────────────────────────────────────────────────────────
+   For an app's OWN element on a viewport edge, once the host page carries
+   `viewport-fit=cover` — a sticky action bar under a form, a footer, a bottom
+   navigation, a banner. The library's frame already holds itself clear (the shell
+   takes the top and the sides, and each bottom-pinned overlay takes its own inset);
+   these are the escape for the ones the library cannot see.
+
+   PADDING, not margin, and that is the whole point of them. The element's own
+   background then paints into the strip the device has taken, instead of leaving a
+   transparent band that shows the page through — under a dark bar on a light page
+   that band is the artefact people file bugs about. Put the class on the element
+   that carries the background, not on a wrapper around it.
+
+   Each resolves to 0px wherever there is no inset, so one class is correct on a
+   phone, a tablet and a desktop and nothing has to detect a device.
+
+   No `--safe-inline-start`-only utility. An element wide enough to reach one inline
+   edge reaches both, and a single-edge class is a landscape bug waiting for the
+   phone to be turned round. */
+.sedna-safe-top    { padding-block-start: var(--safe-block-start); }
+.sedna-safe-bottom { padding-block-end: var(--safe-block-end); }
+.sedna-safe-inline { padding-inline: var(--safe-inline-start) var(--safe-inline-end); }
+
 /* ── Print ──────────────────────────────────────────────────────────────────
    The two every printed page needs: keep the chrome off the paper, and let a sheet
    carry something the screen does not. 72-print.css handles the frame; these are for

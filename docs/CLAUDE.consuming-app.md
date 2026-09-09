@@ -127,6 +127,24 @@ If a value you need is genuinely missing from the library:
 Do not restyle a library class to work around a missing value. Overriding `.btn` or `.card` in this app
 means the next library upgrade fights you, which is the drift the shared library exists to prevent.
 
+### Safe area — do not write `env()` yourself
+
+The host page carries `viewport-fit=cover`, so the viewport reaches the physical edges of the display
+and `env(safe-area-inset-*)` reports real values on a notched phone. The library's frame already holds
+itself clear: the shell pads the top and both sides, and everything pinned to the bottom edge — a
+sheet, the toast stack, the FAB, the reconnect bar — pads itself.
+
+For **this app's own** element on a viewport edge (a sticky action bar, a footer, a bottom nav, a
+cookie banner), use `.sedna-safe-bottom`, `.sedna-safe-top` or `.sedna-safe-inline`, or read
+`--safe-block-start`, `--safe-block-end`, `--safe-inline-start` and `--safe-inline-end`.
+
+Two reasons not to reach for `env()` directly: the inline pair is mirrored for `dir="rtl"`, which
+`env()` cannot do, and a token can be set to a value in a test where `env()` reports `0px` in every
+browser a test can drive.
+
+Put the class on the element that carries the background, not a wrapper — the utilities add
+**padding**, so the element's own colour fills the strip instead of leaving a transparent band.
+
 ### Overriding is now trivially easy, which is the reason not to
 
 The library's stylesheet is entirely inside cascade layers. **This app's CSS is unlayered, so any rule

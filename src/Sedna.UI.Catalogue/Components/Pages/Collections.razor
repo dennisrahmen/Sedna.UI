@@ -21,6 +21,15 @@
         work: a flex item otherwise refuses to shrink below its content, and truncation silently
         never happens.
     </p>
+    <p>
+        <strong>A row that acts rather than navigates is a
+        <code>&lt;button class="list-row"&gt;</code></strong>, filling the <code>&lt;li&gt;</code>
+        the same way. The class resets the platform's button chrome — the system fill, the system
+        border, the centred text and the UA's own font, none of which a <code>&lt;span&gt;</code>
+        row brings — so the two rows look alike, and hover, pressed, focus and disabled apply to
+        both. A non-interactive row stays a <code>&lt;span&gt;</code> and gets none of those
+        states. The <a href="/drawer">action sheet</a> is a list of button rows.
+    </p>
 </CatExample>
 
 <CatExample TExample="Examples.Collections.Steps" Title="Steps" Demo="ex-demo--block">

@@ -107,7 +107,8 @@ public sealed class SednaTheme
         new(entries.ToDictionary(e => e.Step, e => e.Hex));
 
     /// <summary>
-    /// A demo theme with a green brand — proof that a theme is data, not a re-derivation.
+    /// A demo theme with a green brand over a forest-floor base — proof that a theme is data,
+    /// not a re-derivation, and that the brand and the base move together.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -122,8 +123,20 @@ public sealed class SednaTheme
     /// <c>green</c> ramp (the <c>go</c> family) measure 0.53° apart at their closest referenced
     /// steps — the same colour twice over — so <c>go</c> is regenerated from a teal-cyan anchor
     /// instead, 44.88° from the brand at its closest referenced step and no closer than 36.94°
-    /// to any other family. Every other slot is Sedna's own ramp, unchanged.
+    /// to any other family. Every slot other than <c>coral</c>, <c>green</c> and <c>slate</c>
+    /// is Sedna's own ramp, unchanged.
     /// See <c>SednaThemeCollisionTests</c> for the measurement this asserts on every build.
+    /// </para>
+    /// <para>
+    /// <b>The base moves with it.</b> <c>slate</c> is a generated forest floor, not Sedna's
+    /// blue-tinted greys, so every surface role follows: <c>--bg</c>, <c>--bg-elevated</c>,
+    /// <c>--bg-hover</c>, <c>--card-bg</c>, <c>--sidebar-bg</c>, <c>--surface-app</c>,
+    /// <c>--surface-chrome</c>, <c>--surface-content</c>, all three
+    /// <c>--surface-raised-*</c> levels, the three border roles and the three text roles.
+    /// A theme that recoloured its buttons and kept Deep Space behind them was showing a
+    /// reader the smaller half of what theming reaches. Declared after
+    /// <see cref="Sedna"/> for the reason <see cref="Graphite"/> gives:
+    /// <see cref="SednaRamp.Surface"/> measures its profile from Sedna's own slate ramp.
     /// </para>
     /// </remarks>
     public static SednaTheme Forest { get; } = BuildForest();
@@ -132,7 +145,13 @@ public sealed class SednaTheme
     {
         var sedna = Sedna.Palette;
         var palette = new SednaPalette(
-            slate: sedna.Slate,
+            // the base: a forest floor. Step 900 is --bg in the dark variant, and the light
+            // variant is derived from the same ramp by 02-theme-light.css, so one call settles
+            // both. Deliberately a tinted neutral rather than a grey: the chroma an anchor
+            // carries scales the whole ramp, so this is a green that stays green from the
+            // canvas up to the off-white at the light end, warming toward yellow-green as it
+            // lightens — bark and lichen rather than Sedna's blue-tinted greys.
+            slate: SednaRamp.Surface("#101b0d"),
             // the brand: a forest green. Its 600 step — what --brand resolves to — is
             // contrast-solved against white rather than read off the shared lightness curve;
             // see BrandTextContrastFloor for why and by how much.
@@ -208,12 +227,14 @@ public sealed class SednaTheme
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Forest and Cobalt both keep <c>slate</c> — Sedna's blue-tinted greys — so until this
-    /// existed every theme, and therefore every app, had the same faintly blue background. The
-    /// base is a ramp like any other and was always themeable in principle; what was missing was
-    /// a way to generate one, because <see cref="SednaRamp.FromAnchor"/>'s curve is fit to brand
-    /// hues and puts step 900 at more than half lightness. <see cref="SednaRamp.Surface"/> is
-    /// that way, and this theme is the proof it works end to end.
+    /// <see cref="Forest"/> moves its brand and its base together; this one moves the base
+    /// alone, so the switch shows what a base change is on its own — Sedna Red exactly where it
+    /// is, over a neutral graphite canvas. <see cref="Cobalt"/> is the remaining case, a brand
+    /// move with Sedna's own base. The base is a ramp like any other and was always themeable in
+    /// principle; what was missing was a way to generate one, because
+    /// <see cref="SednaRamp.FromAnchor"/>'s curve is fit to brand hues and puts step 900 at more
+    /// than half lightness. <see cref="SednaRamp.Surface"/> is that way, and these two themes are
+    /// the proof it works end to end.
     /// </para>
     /// <para>
     /// Declared after <see cref="Sedna"/> on purpose: <see cref="SednaRamp.Surface"/> measures

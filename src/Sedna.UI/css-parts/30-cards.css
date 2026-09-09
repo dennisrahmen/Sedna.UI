@@ -42,7 +42,49 @@
     padding: var(--space-6) var(--space-7);
     border-bottom: 1px solid var(--border);
 }
+/* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
+   same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
+   margin and 1.17em size, so the head measures half again as tall as one holding a
+   <strong> and the heading is bigger than the card it titles. */
+.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
+
+/* ── A card head that holds a tab strip ─────────────────────────────────────
+   `.card-head` pads all four sides and centres its children, which leaves a `.tabs`
+   floating in it: the strip's own bottom border sits 12px above the head's, so the
+   card draws two lines and the active tab's indicator lands nowhere near the content
+   it selects.
+
+   The modifier hands the head's padding to the strip. The block padding goes because
+   the tab already carries its own, and the head's border becomes the strip's line — so
+   the indicator, which is the tab's border pulled up 1px, meets the body edge. The
+   inline padding goes because the tab carries 16px of its own, which is the body's
+   gutter, so the first tab's label lines up with the body text.
+
+   A modifier rather than a change to `.card-head`: a head holding a title and a badge
+   wants its padding, and an app would not have asked for it to go.
+
+   It reaches forward into 50-tabs.css, which is safe because every rule that does is
+   two classes deep and wins on specificity rather than on order. The one rule that
+   does depend on order is the padding reset — and it is in this file, below the
+   `.card-head` it overrides, rather than in another part where the order is a
+   filename. */
+.card-head--tabs {
+    align-items: stretch;
+    padding: 0;
+}
+.card-head--tabs .tabs {
+    flex: 1;
+    min-width: 0;            /* or a long strip widens the card instead of scrolling */
+    border-bottom: none;     /* the head draws the line the indicator sits on */
+}
+/* Whatever sits beside the strip keeps the gutter the head gave up. */
+.card-head--tabs .card-head-right { padding-inline-end: var(--space-7); }
+/* The body's own padding is the gap under the strip; the panel's is a second one.
+   Every panel, not the first — the selected tab is not always the first one, and
+   scoping this to :first-child moves the content when a later tab is chosen. */
+.card-head--tabs + .card-body > .tab-panel { padding-top: 0; }
+
 .card-body { padding: var(--space-6) var(--space-7); }
 /* Drops the padding, for content that is drawn edge to edge inside the card — a
    canvas, a chart, a map, a table that already has its own cell padding. The

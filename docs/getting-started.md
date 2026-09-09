@@ -18,7 +18,7 @@ Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your o
 
 ```html
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <script src="_content/Sedna.UI/js/Sedna.UI.boot.js"></script>
 
@@ -34,6 +34,31 @@ Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your o
 
 `Sedna.UI.boot.js` applies the stored theme name and variant before first paint. Load it in
 `<head>`.
+
+### `viewport-fit=cover`
+
+Required. Without it a browser lays the page out inside the display's safe area and
+`env(safe-area-inset-*)` reports `0px` on every device, so the library's safe-area handling never
+runs and a phone's home indicator crosses the bottom of a sheet, a toast and the reconnect bar.
+
+With it, the viewport reaches the physical edges of the display and the library holds the content
+clear: the shell pads the top and the two sides, and each element pinned to the bottom edge pads
+itself so its own surface fills the strip.
+
+**Migrating an app that already has the old meta tag**, in order:
+
+1. Add `viewport-fit=cover` to the viewport meta. Nothing changes on a desktop, a tablet without a
+   notch, or any Android device without a gesture bar — all four insets stay `0px` there.
+2. Find every element of your own that is `position: fixed` or `sticky` against a viewport edge — a
+   bottom action bar, a footer, a cookie banner, a bottom nav — and add `.sedna-safe-bottom`,
+   `.sedna-safe-top` or `.sedna-safe-inline`. Put the class on the element that carries the
+   background, not on a wrapper: the classes add **padding**, so the element's own colour fills the
+   inset instead of leaving a transparent band.
+3. Anything of your own that uses `100vh` against the bottom edge wants `100dvh`.
+
+The four tokens are readable directly where a utility does not fit — `--safe-block-start`,
+`--safe-block-end`, `--safe-inline-start` and `--safe-inline-end`. Use these rather than `env()`:
+the inline pair is mirrored for `dir="rtl"`, which `env()` cannot do on its own.
 
 ### The reconnect banner
 

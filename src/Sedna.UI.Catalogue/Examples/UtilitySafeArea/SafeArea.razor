@@ -1,0 +1,24 @@
+<div class="sedna-col" style="max-width:460px">
+    <p class="text-muted text-sm">
+        On this desktop all four insets are 0px, so the bar below is exactly the bar you would
+        write anyway. The frame beneath it sets --safe-block-end to 34px by hand — an iPhone's
+        home indicator — to show what the class then does.
+    </p>
+
+    <div class="card">
+        <div class="card-body sedna-row">
+            <span class="sedna-fill">Your own action bar</span>
+            <button class="btn btn-sm btn-go">Save</button>
+        </div>
+    </div>
+
+    <div style="--safe-block-end:34px; border:1px dashed var(--border-strong); border-radius:var(--radius-surface); padding:12px">
+        <div class="text-muted text-sm" style="margin-bottom:8px">Simulating a 34px home indicator</div>
+        <div class="card">
+            <div class="card-body sedna-row sedna-safe-bottom">
+                <span class="sedna-fill">The same bar, with .sedna-safe-bottom</span>
+                <button class="btn btn-sm btn-go">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

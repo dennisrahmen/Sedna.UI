@@ -32,6 +32,31 @@ public class HostPageTests(CatalogueAppFixture app)
     public void The_host_page_links_the_shipped_stylesheet() =>
         Assert.Contains(ShippedCss, AppRazor, StringComparison.Ordinal);
 
+    /// <summary>
+    /// The viewport meta is the gate on the whole safe-area layer.
+    /// </summary>
+    /// <remarks>
+    /// Without <c>viewport-fit=cover</c> the browser lays the page out inside the
+    /// display's safe area and reports <c>0px</c> for all four
+    /// <c>env(safe-area-inset-*)</c> values on every device — so every rule in the
+    /// library that reads one is dead, silently, and a phone's home indicator crosses
+    /// the bottom of a sheet. Nothing else in the stylesheet fails when this is
+    /// missing, which is exactly why it is asserted here rather than left to a reader
+    /// noticing.
+    ///
+    /// Both copies, because the documented block is what a consuming app pastes and
+    /// this app's own host page is what proves the block runs.
+    /// </remarks>
+    [Fact]
+    public void The_host_page_opts_into_the_display_edges()
+    {
+        var documented = File.ReadAllText(
+            Path.Combine(Assets.RepoRoot, "docs", "getting-started.md"));
+
+        Assert.Contains("viewport-fit=cover", AppRazor, StringComparison.Ordinal);
+        Assert.Contains("viewport-fit=cover", documented, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void The_host_page_links_no_copy_of_the_design_system()
     {
@@ -82,7 +107,7 @@ public class HostPageTests(CatalogueAppFixture app)
         // would ever see a connection failure looked nothing like the documentation of
         // it. Comparing against the snippet keeps the page and the app the same markup.
         var documented = File.ReadAllText(Path.Combine(
-            CatalogueAssets.ExamplesDir, "Frame", "ReconnectHostPage.html"));
+            CatalogueAssets.ExamplesDir, "StatusBar", "HostPage.html"));
 
         // Comments are stripped from both sides: the snippet is HTML and carries
         // <!-- … -->, the host page is Razor and carries @* … *@, and the same note

@@ -6,6 +6,9 @@
    never touched the library's settings path at all, so nothing exercised it.
 
    Each carries a data-tip, which also puts the hover-hint engine on every page. *@
+@using Sedna.UI.Catalogue.Mcp
+@inject VersionEnvelope Versions
+
 <header class="topbar">
     <button class="topbar-btn topbar-btn--start cat-burger" type="button"
             aria-label="Open navigation" aria-expanded="@NavOpen.ToString().ToLowerInvariant()"
@@ -43,6 +46,18 @@
     </div>
 
     <div class="topbar-spacer"></div>
+
+    @* The library's .topbar-version, in the place the frame puts it: the head of the
+       trailing cluster, before the controls and the user widget.
+
+       --pre because it is true here. This site is built from main and can be ahead of
+       the release it names, which is exactly the case the modifier is for — and the
+       release number is read out of class-history.json rather than typed. *@
+    <CatLink Class="topbar-version topbar-version--pre" Href="@CatalogueLinks.Releases"
+             Label="Releases on GitHub"
+             data-tip="Built from main, which can be ahead of the released version.">
+        v@(Versions.LatestRelease) · main
+    </CatLink>
 
     <button class="topbar-btn cat-toggle" type="button"
             aria-label="Light theme" aria-pressed="@Pressed(_light)"

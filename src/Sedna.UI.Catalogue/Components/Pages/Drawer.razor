@@ -27,6 +27,14 @@
         so a sheet carries one band of chrome and not two.
     </p>
     <p>
+        <strong>A sheet is capped and centred</strong> at <code>min(480px, 100vw)</code>, the way a
+        drawer is capped at 420px. One rule serves both ends: on a phone the viewport is the smaller
+        value and the sheet is edge to edge with its rounded corners where they belong, on a desktop
+        it is 480px with auto margins. A sheet spanning a 1440px window puts those corners at the
+        far edges of the screen and its content in a column on the left, which reads as a bar across
+        the bottom rather than a panel.
+    </p>
+    <p>
         <strong>Add <code>data-sheet</code> and the handle does what it looks like it does</strong> —
         drag it or the header down and the sheet follows the pointer, past a quarter of its height
         or with a flick and it closes, short of that it springs back. It is opt-in for the reason
@@ -70,9 +78,25 @@
 <CatExample TExample="Examples.Drawer.ActionSheet" Title="A sheet of actions" Demo="ex-demo--block">
     <p>
         <strong>Live — open it.</strong> A sheet whose body is a <a href="/collections">list</a> of
-        actions, which is the phone form of a <a href="/menu">menu</a>. Each row is a real
-        <code>&lt;button&gt;</code> filling the <code>&lt;li&gt;</code>, so the whole row is the
-        target and the count is announced.
+        actions, which is the phone form of a <a href="/menu">menu</a>. Each row is a
+        <code>&lt;button class="list-row"&gt;</code> filling the <code>&lt;li&gt;</code>, so the
+        whole row is the target and the count is announced. The divider between rows is
+        <code>.list</code>'s own.
+    </p>
+    <p>
+        <strong>There is no separate class for a sheet row.</strong>
+        <a href="/collections"><code>.list-row</code></a> resets the platform's button chrome and
+        carries hover, pressed, focus and disabled, so an action row and a navigating row are the
+        same class on a different element. The pressed state matters more than the hover one here:
+        a finger never enters a hover.
+    </p>
+    <p>
+        The body is <code>.drawer-body--flush</code>, the sibling of
+        <a href="/card"><code>.card-body--flush</code></a>: the rows meet the sheet's edges, so
+        the sheet is the surface they sit on rather than a card inside a padded one. A row in a
+        flush body takes the header's own inline inset, which lines the icon column up under the
+        title and runs each row's hover fill the full width of the sheet — inside the padding it
+        looked clipped at its start edge.
     </p>
     <p>
         Use a sheet rather than a menu when the actions need a second line each, or when the reader is

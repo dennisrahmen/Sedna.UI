@@ -45,7 +45,29 @@
    the correct side, so only the direction of travel is wrong. */
 [dir="rtl"] .drawer { transform: translateX(-100%); }
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
+
+/* A sheet is one of those too — `<div class="drawer sheet">` — but it travels along
+   the BLOCK axis, which does not flip. The rule above is (0,2,0) against `.sheet`'s
+   own (0,1,0) translate in 63-drawer.css, so without this line a bottom sheet slid
+   in from the inline start edge in RTL and nothing errored.
+
+   Restated here rather than narrowed to `.drawer:not(.sheet)` up there: a negation
+   silently stops covering the next class that composes with `.drawer`, and this way
+   each rule says what it is for.
+
+   THE THREE LINES ARE ORDER-DEPENDENT and all three are (0,2,0), so the cascade is
+   settled by source position alone. `.sheet` has to sit after `.drawer` to beat it,
+   and before `.drawer--open` to lose to it — an open sheet takes `transform: none`
+   like every other panel. Move this line below the next one and an RTL sheet opens
+   to a position 100% below the viewport, which is a panel that never appears. */
+[dir="rtl"] .sheet { transform: translateY(100%); }
 [dir="rtl"] .drawer--open { transform: none; }
+/* The <dialog> form's closed state lives in a @starting-style block, where the same
+   two selectors are (0,3,1) apiece and source order decides again — this file is
+   later than 63-drawer.css, which is the whole reason its rules land. */
+@starting-style {
+    [dir="rtl"] dialog.sheet[open] { transform: translateY(100%); }
+}
 
 /* Kind 2 again. An avatar group's separating gap is a hole masked out of the avatar
    behind, centred on where the next one lands — and a radial-gradient position is

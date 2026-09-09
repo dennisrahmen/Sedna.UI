@@ -27,7 +27,11 @@
    radio group's keyboard behaviour and announcement for free instead of a pair of
    buttons with a toggled class. Only its position in the toolbar is the editor's
    business. */
-.md-toolbar .segmented { margin-inline-start: auto; }
+/* The small tier, because `.md-tool` is 28px and the segmented control's default is
+   now the standard 36px control height. Without this the switch stands 8px taller
+   than every button beside it in the same row. */
+.md-toolbar .segmented { margin-inline-start: auto; min-height: var(--control-height-sm); }
+.md-toolbar .segmented-option { padding-block: var(--space-1); font-size: var(--text-3); }
 .md-editor .md-input {
     border: none; border-radius: 0; background: transparent;
     width: 100%; display: block;

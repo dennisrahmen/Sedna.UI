@@ -12,10 +12,15 @@
         @* Mounted only once the reader has actually navigated. FocusOnNavigate
            focuses its selector on its first render as well as on every route
            change, so rendering it unconditionally puts focus on the <h1> of the
-           page somebody just arrived at: the heading paints a focus ring nobody
-           asked for, and Tab from there skips the skip link, the sidebar and the
-           topbar. Landing on a fresh page belongs to the reader; moving focus is
-           only right when something moved them. *@
+           page somebody just arrived at, and Tab from there skips the skip link,
+           the sidebar and the topbar. Landing on a fresh page belongs to the
+           reader; moving focus is only right when something moved them.
+
+           The focus RING this used to paint on the heading is not dealt with here.
+           The library drops the UA outline for a script-focused `tabindex="-1"`
+           element that is not a control — see 06-base-elements.css — so every
+           consuming app gets that fix and not only this one. Do not add a
+           catalogue-local rule for it. *@
         @if (_navigated)
         {
             <FocusOnNavigate RouteData="routeData" Selector="h1" />

@@ -318,10 +318,12 @@ layer is added to the table in `docs/architecture.md` first.
 `.popover` is in the top layer and ignores the scale entirely; the rung is its fallback.
 
 **The browser floor is Chromium — current Chrome and Edge.** CSS anchor positioning is therefore
-available and two things use it: `.popover`, and the collapsed rail's hover flyout, which has no other
-option because `.nav-scroll` scrolls and a scroll container clips both axes. `.menu` stays on
-`position: relative` and must: use anchor positioning where the alternative is measuring in JavaScript,
-not as a default.
+available, and three things use it: `.popover`; the collapsed rail's hover flyout, which has no other
+option because `.nav-scroll` scrolls and a scroll container clips both axes; and `.menu`, for the same
+reason — an absolutely positioned panel is laid out inside the nearest scroll container and counts
+towards its scrollable overflow, so a menu opened in a toolbar or a scrolling table both grew that
+container a scrollbar and got clipped at its edge. Use anchor positioning where the alternative is
+measuring in JavaScript, not as a default.
 
 The drawer sits **below** the modal backdrop on purpose, so a modal opened from inside a drawer still
 covers it.

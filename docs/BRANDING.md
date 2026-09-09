@@ -349,7 +349,9 @@ var palette = new SednaPalette(
     …);
 ```
 
-`SednaTheme.Graphite` is exactly this, and is registered on the catalogue so the switch can be seen.
+`SednaTheme.Graphite` is exactly this — a neutral base under Sedna's own brand — and
+`SednaTheme.Forest` moves its base and its brand together, from `SednaRamp.Surface("#101b0d")`.
+Both are registered on the catalogue so the switch can be seen.
 
 Three things to know:
 

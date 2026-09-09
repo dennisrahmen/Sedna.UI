@@ -122,6 +122,12 @@
     inset-inline-start: 0;
     z-index: 1000;
     padding: var(--space-5) var(--space-7);
+    /* Fixed to the corner, so the shell's safe-area padding does not reach it and it
+       would land under the notch in a standalone window. Grown rather than offset, so
+       the brand fill still meets both edges — a skip link that floats away from the
+       corner reads as a stray button. */
+    padding-block-start: calc(var(--space-5) + var(--safe-block-start));
+    padding-inline-start: calc(var(--space-7) + var(--safe-inline-start));
     background: var(--brand);
     border-end-end-radius: var(--radius-surface);
     color: var(--on-solid);

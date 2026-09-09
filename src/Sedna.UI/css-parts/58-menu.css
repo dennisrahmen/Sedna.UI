@@ -16,8 +16,19 @@
    Dismissal is the app's: click the scrim, press Escape. There is deliberately no
    JavaScript behind this — the frame must work with scripting blocked.
    ─────────────────────────────────────────────────────────────────────────── */
+/* `width: max-content` is what makes the panel as wide as its widest row, and the
+   220px is a floor rather than the width. Shrink-to-fit was the width before, and
+   for an out-of-flow box that is measured against the CONTAINING BLOCK, not the
+   content: anchored inside a narrow table cell the available width was the cell,
+   so the panel came out at the floor with its rows wrapped or clipped inside it.
+   A dropdown sizes to what is in it.
+
+   The cap keeps a long item from drawing a panel wider than the viewport; past it
+   the rows wrap, which is the right failure for a label nobody can shorten. */
 .menu {
+    width: max-content;
     min-width: 220px;
+    max-width: min(20rem, calc(100vw - 32px));
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
@@ -26,34 +37,85 @@
     box-shadow: var(--shadow-dropdown);
 }
 
-/* Wrap trigger + panel in this to anchor the panel under the trigger. It is what
-   makes the panel's `position: absolute` resolve against the trigger rather than
-   against the page, so nothing has to be measured.
+/* Wrap trigger + panel in this to anchor the panel under the trigger.
+   ─── Why this is anchor positioning and no longer `position: absolute` ─────
+   An absolutely positioned panel is laid out INSIDE the nearest scroll container
+   and counts towards its scrollable overflow. So a menu opened from a toolbar, a
+   `.sedna-scroll-x` around a table or any app container with an `overflow` other
+   than `visible` did two wrong things at once: it grew that container a scrollbar,
+   and it was clipped at the container's edge — the last item of a three-item menu
+   simply was not there. Three separate reports, one cause, and it reproduced in a
+   consuming app.
 
-   Deliberately NOT CSS anchor positioning, which the floor does have and which
-   `.popover` uses. Anchor positioning earns its keep where the alternative is a
-   measurement in script; here the alternative is one `position: relative`. */
+   `position: fixed` takes the viewport as its containing block, so no ancestor's
+   `overflow` clips it and none of them can be made to scroll by it. That is the
+   same reason the collapsed rail's flyout is fixed (12-frame-collapsed-rail.css).
+   Fixed positioning then needs somewhere to go, and the alternative to anchor
+   positioning here is measuring the trigger in JavaScript on every open, scroll
+   and resize — which is exactly the case the repo rules name as earning it.
+
+   `position-area` places the panel with no measurement and no anchor-name in the
+   markup: `block-end` is the row below the trigger, and the inline span plus the
+   explicit `justify-self` set which of the trigger's edges the panel lines up
+   with. Both axes are logical, so this mirrors under dir="rtl" with no rule in
+   70-rtl.css — which is why 70-rtl.css has none.
+
+   The name has to be scoped. Every anchor on the page declares the SAME
+   anchor-name, and without `anchor-scope` the last one in tree order would win for
+   all of them: every menu on a page would open under the bottom-most trigger.
+   `anchor-scope` confines each name to its own element's subtree, which is where
+   its panel lives.
+
+   `position-visibility: anchors-visible` is the price of being fixed. A fixed
+   panel does not scroll away with its trigger, so without this a menu left open
+   while the reader scrolls a table detaches and floats over unrelated chrome.
+   With it, the panel goes when its trigger goes.
+
+   `position: relative` stays on the anchor. It is no longer what positions the
+   panel, but it is the containing block an app's own absolutely positioned
+   children inside a trigger already rely on. */
 /* align-self: start alongside the inline display, because the display alone does not
    hold. A flex or grid item is blockified and then stretched by the default
    `align-items: stretch`, so an `inline-flex` anchor inside a flex column becomes
    full-width — and the panel, which hangs off the anchor's inline-END edge, detaches
    from its trigger and appears at the far side of the container. An app that genuinely
    wants a full-width anchor sets `align-self: stretch` back. */
-.menu-anchor { position: relative; display: inline-flex; align-self: start; }
+.menu-anchor {
+    position: relative;
+    display: inline-flex;
+    align-self: start;
+    anchor-name: --sedna-menu-anchor;
+    anchor-scope: --sedna-menu-anchor;
+}
 .menu-anchor > .menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    inset-inline-end: 0;
+    position: fixed;
+    position-anchor: --sedna-menu-anchor;
+    /* The row below the trigger, spanning back towards the inline start — so the
+       region ends at the trigger's inline-END edge, which `justify-self: end` then
+       lines the panel up with. */
+    position-area: block-end span-inline-start;
+    justify-self: end;
+    align-self: start;
+    /* Flips above the trigger when there is no room below, and to the trigger's
+       other edge when there is none beside it. A try tactic takes the margin and
+       the self-alignment with it, so the gap stays on the side facing the trigger
+       and the panel stays flush with one of its edges. */
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    position-visibility: anchors-visible;
+    margin-block-start: var(--space-2);
     z-index: 550;
 }
 
-/* The panel hangs off the anchor's inline-END edge, so a trigger narrower than the
-   panel's 220px overhangs on the leading side. That is right for a trigger at the
+/* The panel lines up with the anchor's inline-END edge, so a trigger narrower than
+   the panel's 220px overhangs on the leading side. That is right for a trigger at the
    trailing end of a row — a table row's actions, a toolbar's overflow — and wrong for
    one near the leading edge, where the overhang leaves the container. `--start` aligns
    the panel to the anchor's inline-START edge instead. Put it on the panel, so the
    choice sits with the panel that moves. */
-.menu-anchor > .menu--start { inset-inline-start: 0; inset-inline-end: auto; }
+.menu-anchor > .menu--start {
+    position-area: block-end span-inline-end;
+    justify-self: start;
+}
 
 /* ── Value trigger ──────────────────────────────────────────────────────────
    A control that shows the CURRENT value of something and opens a menu to change it —
@@ -65,8 +127,15 @@
    element and the platform gives you the keyboard.
 
    The chevron is drawn by CSS, so the markup is the value and nothing else. Pair it
-   with data-menu-toggle and a sibling .menu. */
+   with data-menu-toggle and a sibling .menu.
+
+   `--value-trigger-measure` is how much of the value the control keeps room for —
+   a knob on the element, the same shape as `--toolbar-input-width` and
+   `--col-control-min`. Set it per instance for a column whose values are longer
+   (`style="--value-trigger-measure: 16ch"`). See the note on the value span below
+   for what it is holding open. */
 .value-trigger {
+    --value-trigger-measure: 10ch;
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -97,8 +166,21 @@
 .value-trigger[aria-expanded="true"]::after { transform: rotate(180deg); }
 .value-trigger[aria-disabled="true"] { color: var(--muted); pointer-events: none; }
 .value-trigger[aria-disabled="true"]::after { display: none; }
-/* The value itself, so a long one truncates instead of pushing the chevron out. */
-.value-trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The value itself, so a long one truncates instead of pushing the chevron out.
+
+   `min-width` is what stops it truncating ALWAYS. `overflow: hidden` on a flex item
+   sets its automatic minimum size to zero — that is what makes the ellipsis
+   possible in the first place — and in a table cell that zero is also the column's
+   minimum contribution, so auto table layout squeezes the column down to the
+   padding and the chevron and every value in it renders as two characters and an
+   ellipsis. A floor gives the column something to ask for, and the value still
+   gives way past it. */
+.value-trigger > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: var(--value-trigger-measure);
+}
 
 /* Works on an <a> or a <button>, so an item can navigate or act. */
 .menu-item {

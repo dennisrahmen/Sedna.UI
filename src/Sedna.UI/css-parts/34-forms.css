@@ -17,8 +17,20 @@
    enough that the natural height — padding + line box + borders — is UNDER
    --control-height. A min-height is a floor: at 8px of block padding the field
    measures 36.2px, the token never binds, and the field sits a couple of pixels
-   taller than everything beside it. */
-.form-input {
+   taller than everything beside it.
+
+   `.form-select` IS IN THIS SELECTOR ON PURPOSE, and removing it is a regression
+   that reaches consuming apps. The shape used to be `.form-input`'s alone, and
+   45-form-controls.css only replaced the platform caret — so `.form-select` was a
+   modifier that did nothing legible without `.form-input` beside it. A select
+   carrying `.form-select` alone got `appearance: none` and a caret drawn over the
+   UA's own `Field` background and `ButtonBorder` frame: a light, boxy, native
+   control sitting next to a correctly themed input, with no error anywhere. The
+   library's own examples and at least one app had copied exactly that. Declaring
+   the shape once, for both selectors, is what makes either class list correct
+   rather than making one of them a trap. */
+.form-input,
+.form-select {
     min-height: var(--control-height);
     padding: var(--space-3) var(--space-5);
     background: var(--bg);
@@ -31,7 +43,8 @@
     width: 100%;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.form-input:focus {
+.form-input:focus,
+.form-select:focus {
     outline: none;
     border-color: var(--brand-soft);
     box-shadow: 0 0 0 2px var(--brand-glow);
@@ -109,6 +122,7 @@
 .form-check input:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .form-input:disabled,
+.form-select:disabled,
 .form-input[readonly] { cursor: not-allowed; background: var(--surface-soft); color: var(--muted); }
 /* readonly is not disabled: the value is still selectable and copyable, and still
    submitted, so it keeps the normal cursor and a full-contrast value. Only the

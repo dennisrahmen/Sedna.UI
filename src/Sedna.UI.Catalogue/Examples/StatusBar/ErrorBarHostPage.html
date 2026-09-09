@@ -1,0 +1,25 @@
+<!-- Blazor's own element, and the second place the status bar mounts. The framework
+     reveals it by setting `display: block` inline on an unhandled circuit error.
+
+     The id is the CONTAINER and `.status-bar` is the strip inside it. An inline
+     `display: block` beats every rule in every layer, so a `.status-bar` on the id
+     itself would lay this one bar out as inline text while the reconnect rows stayed
+     flex rows.
+
+     Both controls are plain `onclick` handlers, for the same reason the reconnect
+     rows' are: the circuit is gone by the time this bar is visible, so a Blazor
+     handler cannot run. The dismiss is a <button>, not the project template's <span>:
+     it is a control, and it should be focusable and announced as one. -->
+<div id="blazor-error-ui">
+    <div class="status-bar status-bar--error">
+        <i class="ri-alert-line"></i>
+        <span>An unhandled error has occurred.</span>
+        <button class="status-bar-action" type="button" onclick="location.reload()">
+            <i class="ri-refresh-line"></i> Reload
+        </button>
+        <button class="status-bar-dismiss" type="button" aria-label="Dismiss this message"
+                onclick="this.closest('#blazor-error-ui').style.display='none'">
+            <i class="ri-close-line"></i>
+        </button>
+    </div>
+</div>

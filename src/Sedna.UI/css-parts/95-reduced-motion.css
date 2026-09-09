@@ -29,7 +29,7 @@
     /* 17 — the hint appears at its final position instead of sliding in. Opacity
        is kept as a step, not a fade, by removing the transition entirely. */
     .sedna-tip           { transition: none; transform: none; }
-    .reconnect-attempting i { animation: none; }   /* 18 */
+    .status-bar--reconnecting > i { animation: none; }   /* 18 */
     .nav-group > summary::after { transition: none; }   /* 20 — the group caret */
     /* 20 — the skip link jumps into view rather than sliding down. It has to still
        become visible, so only the transition goes. */
@@ -37,7 +37,8 @@
 
     /* ── Tier 2 — the paint ─────────────────────────────────────────────── */
     .btn              { transition: none; }   /* 33 */
-    .form-input       { transition: none; }   /* 34 */
+    .form-input,
+    .form-select      { transition: none; }   /* 34 */
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
     .form-check input[type="radio"]    { transition: none; }   /* 45 */
     .switch input[type="checkbox"]     { transition: none; }   /* 45 */

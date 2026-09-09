@@ -97,7 +97,7 @@
     .tree-leaf:focus-visible,
     .skip-link:focus,
     .fab:focus-visible,
-    a.list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+    :is(a, button).list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
 
     /* Selected and current states are backgrounds, which are flattened away. An
        outline is what is left that the mode still paints. */
