@@ -1,0 +1,24 @@
+<div class="auth-layout" style="min-height:0; height:600px; padding: var(--space-9)">
+    <div class="auth-brand">
+        <span class="brand-logo" style="width:32px; height:32px; background:var(--brand)"></span>
+        Approval Console
+    </div>
+
+    <div class="empty-state empty-state--page empty-state--failed">
+        <svg class="state-art state-art--lg" aria-hidden="true"><use href="_content/Sedna.UI/img/Sedna.UI.states.svg#server-error" /></svg>
+        <span class="empty-state-code">500 Server error</span>
+        <span class="empty-state-title">Something went wrong loading the queue</span>
+        <p>
+            The request failed before it reached the workflow API. Nothing was decided and nothing
+            was lost — trying again is safe.
+        </p>
+        <p class="empty-state-detail">Reference 8f3c2a71-4d90-4f0e-9c2b-1a77e5b0c344 &middot; 09:41 CEST</p>
+        <div class="empty-state-actions">
+            <button class="btn btn-sm btn-primary"><i class="ri-refresh-line"></i> Try again</button>
+            <button class="btn btn-sm" data-copy="8f3c2a71-4d90-4f0e-9c2b-1a77e5b0c344"><i class="ri-file-copy-line"></i> Copy reference</button>
+            <a class="btn btn-sm btn-ghost" href="#"><i class="ri-customer-service-2-line"></i> Service desk</a>
+        </div>
+    </div>
+
+    <p class="auth-foot">Quote the reference and the service desk can find the request in the log.</p>
+</div>

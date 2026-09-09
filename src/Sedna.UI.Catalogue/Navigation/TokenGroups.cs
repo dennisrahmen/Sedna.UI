@@ -50,6 +50,10 @@ internal static class TokenGroups
             "--brand", "--brand-hover", "--brand-active", "--brand-soft", "--brand-text",
             "--brand-tint", "--brand-ring", "--brand-ring-soft", "--brand-ring-check",
             "--brand-glow", "--accent",
+            // The accent inside a state illustration. It lives with the brand tokens
+            // because that is what it points at by default; .empty-state--failed moves
+            // it into the danger ramp for its own subtree.
+            "--state-accent",
         ]),
 
         new("Sidebar", ["--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-active"]),

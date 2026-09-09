@@ -7,11 +7,28 @@
         </div>
     </div>
     <div class="card">
+        <div class="empty-state">
+            <svg class="state-art" aria-hidden="true"><use href="_content/Sedna.UI/img/Sedna.UI.states.svg#waiting" /></svg>
+            <span class="empty-state-title">Queued behind two other exports</span>
+            <p>This report starts once the exports ahead of it finish, at about 12:20. You can
+            leave the page.</p>
+        </div>
+    </div>
+    <div class="card">
         <div class="empty-state empty-state--failed">
-            <i class="ri-cloud-off-line"></i>
+            <svg class="state-art" aria-hidden="true"><use href="_content/Sedna.UI/img/Sedna.UI.states.svg#failed" /></svg>
             <span class="empty-state-title">Could not load the orders</span>
             <p>The request did not complete. Nothing has been changed.</p>
             <span class="empty-state-detail">GET /api/orders &middot; 504 &middot; 12:04:31</span>
+            <button class="btn btn-sm"><i class="ri-refresh-line"></i> Try again</button>
+        </div>
+    </div>
+    <div class="card">
+        <div class="empty-state empty-state--failed">
+            <svg class="state-art" aria-hidden="true"><use href="_content/Sedna.UI/img/Sedna.UI.states.svg#offline" /></svg>
+            <span class="empty-state-title">You are offline</span>
+            <p>The request never left this device. What you have already decided is saved and
+            will be sent when the connection is back.</p>
             <button class="btn btn-sm"><i class="ri-refresh-line"></i> Try again</button>
         </div>
     </div>

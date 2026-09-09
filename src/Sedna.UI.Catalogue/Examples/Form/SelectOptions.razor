@@ -1,0 +1,48 @@
+<div class="field-grid" style="max-width:680px">
+    <div class="form-field">
+        <label class="form-label" for="f-region">Deployment region</label>
+        <select class="form-select" id="f-region">
+            <button>
+                <selectedcontent></selectedcontent>
+            </button>
+            <optgroup label="Europe">
+                <legend>Europe</legend>
+                <option value="eu-west-1">
+                    <i class="ri-global-line" aria-hidden="true"></i>Ireland<span class="option-hint">eu-west-1</span>
+                </option>
+                <option value="eu-central-1" selected>
+                    <i class="ri-global-line" aria-hidden="true"></i>Frankfurt<span class="option-hint">eu-central-1</span>
+                </option>
+            </optgroup>
+            <hr>
+            <optgroup label="North America">
+                <legend>North America</legend>
+                <option value="us-east-1">
+                    <i class="ri-global-line" aria-hidden="true"></i>N. Virginia<span class="option-hint">us-east-1</span>
+                </option>
+            </optgroup>
+        </select>
+        <p class="form-hint">The hint is the region code, so the row reads the way the console does.</p>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="f-rollout">Rollout strategy</label>
+        <select class="form-select" id="f-rollout">
+            <button>
+                <selectedcontent></selectedcontent>
+            </button>
+            <option value="canary" selected>
+                <i class="ri-flight-takeoff-line" aria-hidden="true"></i>
+                <span class="option-text">Canary<span class="option-hint">5% of traffic for 30 minutes, then the rest</span></span>
+            </option>
+            <option value="blue-green">
+                <i class="ri-swap-box-line" aria-hidden="true"></i>
+                <span class="option-text">Blue / green<span class="option-hint">Switch the whole fleet in one step</span></span>
+            </option>
+            <option value="rolling" disabled>
+                <i class="ri-loop-right-line" aria-hidden="true"></i>
+                <span class="option-text">Rolling<span class="option-hint">Unavailable while the queue is draining</span></span>
+            </option>
+        </select>
+        <p class="form-hint">The closed box drops the second line, so the field stays one row tall.</p>
+    </div>
+</div>

@@ -5,11 +5,16 @@
    stamps <html>. The static catalogue set the data-* attributes directly and
    never touched the library's settings path at all, so nothing exercised it.
 
-   Each carries a data-tip, which also puts the hover-hint engine on every page. *@
+   Each carries a data-tip, which also puts the hover-hint engine on every page.
+
+   .topbar--responsive is the library's narrow-header opt-in, and this header needs it
+   without a .layout--responsive around it: the sidebar here becomes the .cat-drawer
+   rather than the library's rail. Without it the version tag stayed at every width, and
+   the trailing buttons were clipped off the edge under ~490px with nothing to scroll. *@
 @using Sedna.UI.Catalogue.Mcp
 @inject VersionEnvelope Versions
 
-<header class="topbar">
+<header class="topbar topbar--responsive">
     <button class="topbar-btn topbar-btn--start cat-burger" type="button"
             aria-label="Open navigation" aria-expanded="@NavOpen.ToString().ToLowerInvariant()"
             @onclick="() => NavOpenChanged.InvokeAsync(true)">

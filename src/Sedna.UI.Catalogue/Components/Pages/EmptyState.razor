@@ -6,12 +6,69 @@
     wrong one is how a broken page looks fine.
 </CatHead>
 
+<h2 id="state-art">The drawing says which state it is</h2>
+
+<CatExample TExample="Examples.EmptyState.StateArt" Title="State art" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Thirteen drawings, one per state, in a sprite that ships with the package. A drawing is
+        referenced by its id and nothing else &mdash; see the snippet below.
+    </p>
+    <p>
+        <strong>One ornament repeated on every empty state says only that the block is styled.</strong>
+        The reader still has to read the sentence to learn whether there is no data, no permission or
+        no connection — and those need different actions. The drawing is the part that can be read
+        first, so it has to differ.
+    </p>
+    <p>
+        Pick by what happened, not by what looks right. <code>#nothing-yet</code> and
+        <code>#all-done</code> are both an empty list and are opposites; <code>#failed</code> came
+        back wrong and <code>#offline</code> never left; <code>#no-results</code> searched everything
+        and <code>#filtered-out</code> excluded it.
+    </p>
+    <p>
+        The sprite writes no colour. Its line work is <code>currentColor</code> and its one accent is
+        <code>--state-accent</code>, so <code>.empty-state--failed</code> moves the accent into the
+        danger ramp with one declaration and the drawing follows. Inherited custom properties cross
+        into the <code>&lt;use&gt;</code> shadow tree, which is what makes that work with no second
+        file to keep in step.
+    </p>
+    <p>
+        <strong>It is not a second icon set.</strong> An icon set is a vocabulary a page draws from;
+        this is thirteen fixed pictures of thirteen fixed states, and
+        <a href="/concepts">Remix Icon stays the only icon set</a>.
+    </p>
+</CatExample>
+
+<CatSnippet Name="EmptyState/StateArtUse.html" Title="Referencing a drawing">
+    <p>
+        The path is the package's own static web asset, so it resolves the same in every app and
+        nothing is fetched from a remote host. <code>aria-hidden</code> because the drawing repeats
+        what the title says: a screen reader announcing it twice is worse than not at all.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.EmptyState.StateArtSizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        The same state appears in three places and has to fit all of them.
+        <code>.state-art--sm</code> is 56px, for a row inside a table or a narrow panel where
+        anything larger pushes the message out of view. The bare <code>.state-art</code> is 96px, the
+        card size. <code>.state-art--lg</code> is 152px, for a page that is nothing but this — see
+        <a href="/common-pages">Common pages</a>.
+    </p>
+    <p>
+        <strong>There is no step below 56px.</strong> The stroke fills in and the drawing reads as a
+        smudge, which is the same reason the brand mark is drawn three times rather than scaled. Where
+        there is less room than that, use the sentence on its own.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.EmptyState.EmptyState" Title="Empty" Demo="ex-demo--block">
     <p>
-        Four kinds of empty, and they are not interchangeable. Nothing yet is an invitation.
+        Five kinds of empty, and they are not interchangeable. Nothing yet is an invitation.
         Nothing found needs the query echoed back so the reader can see what was searched. Filtered
         to nothing needs the filters named and a way to clear them. No access needs to say who can
-        see it and how to ask.
+        see it and how to ask. And a cleared queue has to look like success, because a finished
+        list and a broken one are the same empty box until the drawing says otherwise.
     </p>
     <p>
         Give the one action that resolves it, and no others. Inside a <code>.card</code> for a panel,
@@ -27,15 +84,24 @@
 <CatExample TExample="Examples.EmptyState.Pending" Title="Waiting, and failed" Demo="ex-demo--block">
     <p>
         <code>.empty-state--pending</code> is a wait with nothing to report: the first event of a
-        stream, a long request. Put a <code>.spinner-lg</code> where the icon goes. Where there is
+        stream, a long request. Put a <code>.spinner-lg</code> where the drawing goes — it is the one
+        state a still picture cannot carry, because the thing being said is that something is still
+        happening. Where the wait is a queue the reader can be told about and then leave, that is
+        <code>#waiting</code> and it is a drawing. Where there is
         progress use a <a href="/progress"><code>.progress</code></a> bar; where the shape of what is
         coming is known, use a <code>.skeleton</code>.
     </p>
     <p>
-        <code>.empty-state--failed</code> colours the icon only. A whole red panel reads as
-        destructive rather than as unavailable. <code>.empty-state-detail</code> is the line that
-        makes a failure actionable — the endpoint, the code, the time it was tried — and it belongs
-        there rather than in a console nobody has open.
+        <code>.empty-state--failed</code> moves <code>--state-accent</code> into the danger ramp and
+        leaves the line work grey. A whole red panel reads as destructive — as though something was
+        lost — rather than as unavailable. <code>.empty-state-detail</code> is the line that makes a
+        failure actionable: the endpoint, the code, the time it was tried, where somebody can read
+        it, rather than in a console nobody has open.
+    </p>
+    <p>
+        <code>#failed</code> and <code>#offline</code> are two states, not one.
+        <strong>A request that came back wrong and a request that never left need different
+        actions</strong>, and only the second one is worth retrying immediately.
     </p>
 </CatExample>
 
@@ -92,3 +158,28 @@
         labelled &ldquo;Cancel&rdquo; is a page where cancelling is a guess.
     </p>
 </CatExample>
+
+<h2 id="page-level">When the whole page is the state</h2>
+
+<p>
+    <code>.empty-state--page</code> is the same block at page scale: a bigger disc, a heading
+    instead of a strong line, and a wider measure. It is the page-level sibling, not a second
+    component &mdash; an access-denied page is a view with nothing in it for this reader, and the
+    icon, the sentence and the one action are the same three parts.
+</p>
+
+<p>
+    Three classes come with it. <code>.empty-state-code</code> is the status code above the title,
+    small and monospace, because what the reader needs it for is telling somebody else which page
+    broke &mdash; not a numeral the height of the viewport.
+    <code>.empty-state-actions</code> is the wrapped, centred row for one primary action and the
+    one or two beside it; it also takes the top margin off the buttons, which is right for a single
+    action and staggers the moment there are two. The drawing goes up to
+    <code>.state-art--lg</code>.
+</p>
+
+<p>
+    <a href="/common-pages">Common pages</a> has the five finished ones &mdash; access denied, not
+    found, the error, the expired session, the maintenance window &mdash; with the shell each
+    belongs in.
+</p>

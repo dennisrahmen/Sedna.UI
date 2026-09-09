@@ -134,8 +134,14 @@
 .sedna-divider-bottom { border-bottom: 1px solid var(--divider); }
 
 /* A scroll container on the inline axis — a table too wide for its column, a row of
-   cards. */
-.sedna-scroll-x { overflow-x: auto; }
+   cards.
+
+   `container-type: scroll-state` applies no containment of any kind, so it changes
+   nothing about layout or about what is a containing block for what. It is what
+   lets a descendant ask whether this scroller can still be scrolled: a pinned table
+   column asks, so that its edge shadow is painted only while a column is actually
+   hidden behind it. */
+.sedna-scroll-x { overflow-x: auto; container-type: scroll-state; }
 
 /* And the block axis. `.sedna-scroll` supplied the scrollbar and the edge fade (in
    16-frame-page-scroll.css) but neither of the two declarations that make it a

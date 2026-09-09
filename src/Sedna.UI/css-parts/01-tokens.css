@@ -7,8 +7,10 @@
        cannot be declared here as `color-scheme: dark` — a token block holds
        custom properties only, and a test enforces that.
        This is what makes the parts of a control the page cannot reach match the
-       theme: the native scrollbar, a <select>'s option list, the date picker,
-       and the default canvas before any rule applies. */
+       theme: the native scrollbar, the date picker, a bare <select>'s option list,
+       and the default canvas before any rule applies. A `.form-select`'s list is
+       no longer one of them — base appearance puts it in reach of the stylesheet,
+       and 49-form-select-base.css styles it. */
     --color-scheme: dark;
 
     /* The UA's date-picker glyph is drawn in a fixed dark colour we cannot reach.
@@ -104,6 +106,11 @@
        rather than `rgba(37, 99, 235, 0.14)` — the painted pixel is the same, only the
        string differs. A computed-style differ that compares strings therefore reports
        every brand-tinted surface as changed. */
+    /* The one accent in a state illustration. A role rather than a literal use of
+       --brand, because the block the drawing sits in re-points it — .empty-state--failed
+       moves it into the danger ramp — and the sprite reads it through the <use> shadow
+       tree without knowing which state it is drawing. */
+    --state-accent:     var(--brand);
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
     --brand-ring:       color-mix(in srgb, var(--brand) 50%, transparent);  /* filled primary focus ring */
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
@@ -344,7 +351,7 @@
     --text-8:  18px;
     --text-9:  22px;
     --text-10: 26px;
-    --text-11: 40px;   /* display only — the empty-state glyph */
+    --text-11: 40px;   /* display only — the page-level empty-state glyph */
 
     /* ── Motion ─────────────────────────────────────────────────────────────
        Three durations for interaction, and one per looping animation. Set them all

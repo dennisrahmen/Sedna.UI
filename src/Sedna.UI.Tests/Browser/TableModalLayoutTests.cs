@@ -143,7 +143,7 @@ public class TableModalLayoutTests : ScriptTestBase
         // reaches for, and the observable consequence is that the shadow falls away
         // from the pinned cell rather than back across it.
         var (page, _) = await OpenStyled("""
-            <div class="sedna-scroll-x" style="width:320px">
+            <div class="sedna-scroll-x" id="scroller" style="width:320px">
                 <table class="table table--pin-start">
                     <thead><tr><th>Staff ID</th><th>Surname</th><th>E-mail</th><th>Location</th></tr></thead>
                     <tbody><tr><td id="pinned">10020266</td><td>Aebischer</td><td>a@example.com</td><td>Zürich</td></tr></tbody>
@@ -155,6 +155,16 @@ public class TableModalLayoutTests : ScriptTestBase
         foreach (var dir in new[] { "ltr", "rtl" })
         {
             await page.EvaluateAsync("d => document.documentElement.setAttribute('dir', d)", dir);
+            // Scrolled away from the inline start, or there is no shadow to measure —
+            // see the test below, which is the other half of this one.
+            await page.EvaluateAsync(
+                "() => { const s = document.getElementById('scroller'); "
+                + "s.scrollLeft = s.scrollWidth * (getComputedStyle(s).direction === 'rtl' ? -1 : 1); }");
+            // A scroll-state query is re-evaluated after scroll processing, at a frame
+            // boundary, so a getComputedStyle straight after the assignment can still
+            // read the previous frame's answer.
+            await page.EvaluateAsync(
+                "() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))");
             var shadow = await page.EvaluateAsync<string>(
                 "() => getComputedStyle(document.getElementById('pinned')).boxShadow");
             // The x offset is the first length in the resolved value, after the colour.
@@ -166,5 +176,95 @@ public class TableModalLayoutTests : ScriptTestBase
 
         Assert.True(offsets["ltr"] > 0, $"ltr: the edge shadow should fall towards the end, got {offsets["ltr"]}px.");
         Assert.True(offsets["rtl"] < 0, $"rtl: the edge shadow should mirror, got {offsets["rtl"]}px.");
+    }
+
+    [Theory]
+    [InlineData(320, 0, false)]
+    [InlineData(320, 200, true)]
+    [InlineData(2000, 0, false)]
+    public async Task A_pinned_columns_edge_shadow_is_painted_only_while_a_column_is_behind_it(
+        int width, int scrollLeft, bool expected)
+    {
+        if (NoBrowser) return;
+
+        // The shadow means "columns are hidden this way". It was painted whenever the
+        // table carried the class — on a table that fits its container, and on one
+        // sitting at the start of its scroll, where it says that about nothing. The
+        // three cases are the three a reader meets: too narrow and unscrolled, too
+        // narrow and scrolled, and wide enough that there is nothing to scroll.
+        var (page, _) = await OpenStyled($$"""
+            <div class="sedna-scroll-x" id="scroller" style="width:{{width}}px">
+                <table class="table table--pin-start">
+                    <thead><tr><th>Staff ID</th><th>Surname</th><th>E-mail</th><th>Location</th></tr></thead>
+                    <tbody><tr><td id="pinned">10020266</td><td>Aebischer</td><td>a@example.com</td><td>Zürich</td></tr></tbody>
+                </table>
+            </div>
+            """);
+        await page.EvaluateAsync(
+            $"() => {{ document.getElementById('scroller').scrollLeft = {scrollLeft}; }}");
+        // A scroll-state query is re-evaluated after scroll processing, at a frame
+        // boundary, so a getComputedStyle straight after the assignment can still read
+        // the previous frame's answer.
+        await page.EvaluateAsync(
+            "() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))");
+
+        // A transparent shadow is still a box-shadow, so the test is whether it PAINTS,
+        // not whether the property is `none`: an alpha of 0 and an offset of 0 are what
+        // switching it off looks like.
+        var painted = await page.EvaluateAsync<bool>("""
+            () => {
+                const s = getComputedStyle(document.getElementById('pinned')).boxShadow;
+                if (s === 'none') return false;
+                return s.split(/,(?![^(]*\))/).some(part => {
+                    const alpha = part.match(/rgba\([^)]*,\s*([\d.]+)\s*\)/);
+                    if (alpha && parseFloat(alpha[1]) === 0) return false;
+                    return /[1-9]/.test(part.replace(/rgba?\([^)]*\)/g, ''));
+                });
+            }
+            """);
+
+        Assert.Equal(expected, painted);
+    }
+
+    [Fact]
+    public async Task Nothing_in_a_scrolling_column_paints_over_the_pinned_one()
+    {
+        if (NoBrowser) return;
+
+        // The pinned cell was at z-index 0, which is not above `auto`: a POSITIONED
+        // child of an ordinary cell paints in the same step of the stacking order as a
+        // z-index: 0 stacking context, and the tie goes to tree order. So every
+        // library control that positions itself — `.segmented-option` here, and
+        // `.switch` and `.menu-anchor` alike — slid over the top of the pinned column
+        // as the table scrolled, which reads as the pinned cell being transparent.
+        // A narrow container, because the defect needs the last column to reach the
+        // pinned one.
+        var (page, _) = await OpenStyled("""
+            <div class="sedna-scroll-x" id="scroller" style="width:200px">
+              <table class="table table--sticky table--zebra table--pin-start">
+                <thead><tr><th>Capability</th><th>Description</th><th>Offered</th></tr></thead>
+                <tbody>
+                  <tr><td id="pinned">github_add_comment</td>
+                      <td>Add a review comment to the requester's latest pending review</td>
+                      <td><span class="segmented"><label class="segmented-option">On</label><label class="segmented-option">Off</label></span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            """);
+
+        var topmost = await page.EvaluateAsync<string>("""
+            () => {
+                const s = document.getElementById('scroller');
+                s.scrollLeft = s.scrollWidth;
+                const c = document.getElementById('pinned').getBoundingClientRect();
+                // Just inside the trailing edge, which is the part a scrolled column
+                // reaches first and the last part it leaves.
+                const el = document.elementFromPoint(c.right - 4, c.top + c.height / 2);
+                const cell = el ? el.closest('th, td') : null;
+                return cell ? (cell.id || cell.tagName) : (el ? el.tagName : 'none');
+            }
+            """);
+
+        Assert.Equal("pinned", topmost);
     }
 }

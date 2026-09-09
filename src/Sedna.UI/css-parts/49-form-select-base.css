@@ -1,0 +1,312 @@
+/* ── The customizable select ────────────────────────────────────────────────
+   `appearance: base-select` takes the whole control out of the platform's hands:
+   the closed box, the drop-down and every row in it become real CSS boxes in this
+   document, so the option list finally answers to the theme like everything else
+   the library paints. Before it, `--color-scheme` was the only thing that reached
+   an option list at all, and it could say no more than "dark".
+
+   Opting in is `.form-select`'s own doing, not a modifier. An app that already
+   writes `<select class="form-select">` gets the themed drop-down by upgrading,
+   which is the point — a class nobody knows to add would leave every existing
+   select looking like the operating system.
+
+   ── What the markup may now be ──
+   Nothing has to change. A bare `<select class="form-select">` keeps working and
+   the browser draws the closed box for it.
+
+   Where the options need more than a word, they may hold real markup, and the
+   closed box shows the chosen one through `<selectedcontent>`:
+
+       <select class="form-select">
+         <button><selectedcontent></selectedcontent></button>
+         <option value="prod">
+           <i class="ri-server-line" aria-hidden="true"></i>
+           <span class="option-text">Production<span class="option-hint">eu-west-1</span></span>
+         </option>
+       </select>
+
+   The leading `<button>` is what makes `<selectedcontent>` available; without one
+   the browser supplies its own and the closed box shows the option's text — every
+   text node in it, run together, so an `.option-hint` lands there unseparated.
+
+   **`<selectedcontent>` needs the script.** Blazor's render does not trigger the
+   copy the browser is supposed to make, so the closed box comes out blank with
+   nothing in the console. `20-select.js` repairs it, on load and after every
+   render. Nothing in THIS file depends on that: with scripting blocked a select
+   still has its theme, its drop-down and its caret, and only the copy is missing.
+
+   ── Why almost none of this is inside @supports ──
+   `::picker(select)`, `::picker-icon` and `::checkmark` are unknown selectors to a
+   browser that cannot do base appearance, and an unknown pseudo-element drops the
+   whole rule. So those rules gate themselves, and only the two `appearance`
+   declarations — which are valid property/value pairs either way — need asking.
+   Keeping the transitions outside the block matters for a second reason: an
+   `@supports` body is opaque to the reduced-motion guard, so motion declared in
+   one could ship with no off switch.
+
+   The fallback caret lives in 45-form-controls.css behind `@supports not`, so
+   nothing here has to undo it.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Both halves, or neither. A picker only takes base appearance when its select
+   already has it, so opting the select in alone gets a themed box above a
+   platform-drawn list — which is worse than not opting in at all. */
+@supports (appearance: base-select) {
+    .form-select { appearance: base-select; }
+    .form-select::picker(select) { appearance: base-select; }
+}
+
+/* ── The closed box ─────────────────────────────────────────────────────────
+   The field shape is already right: height, surface, border, radius, type and the
+   focus ring all come from the `.form-input, .form-select` rule in 34-forms.css,
+   and this control is the same field it has always been. What base appearance
+   changes is what is INSIDE the box — the select becomes a flex container holding
+   the value and the caret, so it needs the layout the platform used to do.
+
+   `white-space: nowrap` with `overflow: hidden` is not a nicety. The base
+   appearance box wraps by default, so one long option label makes a 36px field
+   50px tall and every control in the row stops lining up. It is set on the select
+   rather than on `<selectedcontent>` because a select with no `<button>` of its
+   own has no `<selectedcontent>` to reach — the browser's is out of the document.
+
+   `padding-inline-end` goes back to the leading side's value: the caret is a real
+   child here, so the 32px the fallback reserves for a painted one would be 32px of
+   empty space beyond it. */
+@supports (appearance: base-select) {
+    .form-select {
+        align-items: center;
+        gap: var(--space-4);
+        padding-inline-end: var(--space-5);
+        white-space: nowrap;
+        overflow: hidden;
+        text-align: start;
+    }
+
+    /* The tiers give the trailing side back too, or a small select keeps the
+       normal one's inline-end padding and comes out lopsided. */
+    .form-select-sm { padding-inline-end: var(--space-4); }
+    .form-select-lg { padding-inline-end: var(--space-7); }
+}
+
+/* The value, when the markup supplies its own button. A clone of the chosen
+   option, so it is laid out the same way an option is — and the min-inline-size
+   is what lets a long one shrink instead of pushing the caret out of the box. */
+.form-select selectedcontent {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-inline-size: 0;
+    overflow: hidden;
+}
+
+/* A hint is an aside about an option, and the closed box is one line tall. The
+   clone drops it rather than being allowed to grow. */
+.form-select selectedcontent .option-hint { display: none; }
+
+/* ── The caret ──────────────────────────────────────────────────────────────
+   The same arrow the fallback paints, drawn once as a box instead of twice as a
+   background: two 5px triangles side by side. `margin-inline-start: auto` is what
+   holds it at the trailing edge — the flex layout is logical, so this is the whole
+   of the RTL story for the base-appearance select.
+
+   It turns over when the list is open, which the painted caret could never do. */
+.form-select::picker-icon {
+    content: '';
+    width: 10px;
+    height: 5px;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    background-image:
+        linear-gradient(45deg,  transparent 50%, var(--muted) 50%),
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    /* The two halves of one 10px glyph, measured inside the caret's own box. The
+       box itself is placed logically by the auto margin above, so there is nothing
+       to mirror and 70-rtl.css has no rule for this. */
+    background-position: 0 0, 5px 0;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+    transition: rotate var(--motion-fast);
+}
+.form-select:open::picker-icon { rotate: 180deg; }
+
+/* The box says it is open, the same way it says it is focused. */
+.form-select:open { border-color: var(--brand-soft); }
+
+/* ── The drop-down ──────────────────────────────────────────────────────────
+   Deliberately the `.menu` panel, to the token: an app that opens a menu from one
+   toolbar button and a select from the next must not get two different panels.
+   58-menu.css owns that look; this is the second place it appears and there is not
+   going to be a third.
+
+   Nothing here positions it. The picker is in the top layer with an implicit
+   anchor on its own select and a full set of position-try fallbacks, so it needs
+   neither a z-index off the scale nor a rule in 70-rtl.css.
+
+   `--surface-here` is the colour a scrollbar inside the panel paints itself
+   against — a long option list scrolls, and 16-frame-page-scroll.css reads this. */
+.form-select::picker(select) {
+    padding: var(--space-2);
+    --surface-here: var(--bg-elevated);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    color: var(--fg);
+    font-size: var(--text-4);
+    /* Both block edges, not just the start one. The picker's fallbacks are
+       explicit `position-area` values rather than `flip-block` tactics, and only a
+       try TACTIC carries the margin over with it — so a panel that flipped above
+       its select sat flush against it. */
+    margin-block: var(--space-2);
+    opacity: 0;
+    /* `display` and `overlay` are discrete, and without allow-discrete the panel
+       is simply gone before the fade has anywhere to run. */
+    transition:
+        opacity var(--motion-fast),
+        display var(--motion-fast) allow-discrete,
+        overlay var(--motion-fast) allow-discrete;
+}
+.form-select:open::picker(select) { opacity: 1; }
+@starting-style {
+    .form-select:open::picker(select) { opacity: 0; }
+}
+
+/* ── A row in it ────────────────────────────────────────────────────────────
+   `.menu-item`'s box, for the reason above. An option is a real element, so it
+   takes hover and disabled from the platform and needs no ARIA and no script. */
+.form-select option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    font-size: var(--text-4);
+    cursor: pointer;
+}
+/* A hairline of panel between rows, so the rounded hover and selected fills read as
+   separate rows rather than as one block.
+
+   A margin between adjacent rows, and NOT `display: flex` with a `gap` on the picker,
+   which is the obvious way to write it: forcing a display on `::picker(select)`
+   CRASHES the renderer in Chromium 141 — the whole tab, not the control. Fixed by
+   152, but 141 is a version consuming apps are still on. The margin needs no display
+   change and reaches the rows inside an `<optgroup>` for free, which the picker's own
+   gap would not have done anyway. */
+.form-select option + option { margin-block-start: var(--space-1); }
+
+/* :focus is the option the keyboard is on, which is a different thing from the one
+   already chosen — arrowing down a list moves it without selecting anything. */
+.form-select option:hover,
+.form-select option:focus { background: var(--bg-hover); }
+.form-select option:checked { color: var(--brand-text); }
+.form-select option:disabled { color: var(--muted); cursor: not-allowed; }
+/* The clone in the closed box is not inside the <option> any more, so it has to be
+   named again or the same icon comes out two sizes in the two places it appears. */
+.form-select option i,
+.form-select selectedcontent i { font-size: var(--text-7); color: var(--muted); flex-shrink: 0; }
+
+/* The tick on the chosen row. Moved to the trailing edge rather than left where
+   the browser puts it: a leading tick exists only on the chosen option, so every
+   other label in the list is indented past nothing and the column of text is
+   ragged. At the end it lines up with `.menu-item-note` instead.
+
+   The glyph is the browser's own — it is not in the accessibility tree, which is
+   correct, because `option:checked` already carries that meaning. */
+.form-select option::checkmark {
+    order: 2;
+    margin-inline-start: auto;
+    color: var(--brand-text);
+}
+
+/* ── Rich option content ────────────────────────────────────────────────────
+   Two classes, and both are scoped to `.form-select` so an app that already owns
+   a `.option-hint` somewhere else keeps it.
+
+   `.option-hint` reads its own position: a direct child of the option is a
+   trailing note, like a shortcut beside a menu item; inside `.option-text` it is a
+   second line under the label. One name, because it is one idea — the quiet half
+   of the row — and the markup already says which shape it is in. */
+.form-select .option-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-inline-size: 0;
+    overflow: hidden;
+}
+.form-select .option-hint {
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+/* The trailing form. It takes the free space, so the tick that would otherwise
+   have taken it gets a fixed gap instead — two `auto` margins on one line split
+   the space between them and leave the note stranded in the middle. */
+.form-select option > .option-hint { order: 1; margin-inline-start: auto; }
+.form-select option:has(> .option-hint)::checkmark { margin-inline-start: var(--space-5); }
+
+/* ── Groups and separators ──────────────────────────────────────────────────
+   Use a `<legend>` for a group heading, not the `label` attribute on its own. The
+   attribute's heading is drawn by the browser outside this document and cannot be
+   themed — the two lines below would do nothing to it. Keep the attribute as well:
+   it is what a browser without base appearance shows.
+
+       <optgroup label="Regions"><legend>Regions</legend> … </optgroup>
+
+   `<hr>` between groups is a separator the picker renders like any other box. */
+.form-select optgroup > legend {
+    padding: var(--space-4) var(--space-5) var(--space-2);
+    font-size: var(--text-1);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+.form-select hr {
+    margin: var(--space-2) 0;
+    border: 0;
+    border-block-start: 1px solid var(--divider);
+}
+
+/* ── The list box ───────────────────────────────────────────────────────────
+   `multiple`, or `size` above 1. Base appearance reaches this one too, and it is
+   the simpler half: the rows are already styled by the rules above, there is no
+   picker to place and no caret to draw. What it needs is `border-box` — base
+   appearance hands a list box `content-box`, so a width set on it comes out wider
+   than everything beside it — and the row arithmetic below. */
+@supports (appearance: base-select) {
+    .form-select[multiple],
+    .form-select[size]:not([size="1"]) {
+        box-sizing: border-box;
+        --surface-here: var(--bg);
+        white-space: normal;
+        overflow: auto;
+        /* ── Why `size` needs arithmetic here ──
+           A list box is exactly `size` times its own LINE-HEIGHT tall, and the
+           browser decides that before it knows anything about the rows inside. So
+           the row has to be built to fit that budget rather than the other way
+           round: the options give up their block padding, and their line box — this
+           `2.4`, which lands them on the height a `.menu-item` has — becomes the row
+           height instead. Left at the field's own padding, `size="4"` drew two and a
+           half of the four rows it had asked for, above a scrollbar it should not
+           have had.
+
+           The panel keeps no padding of its own for the same reason: every pixel
+           spent on the box comes out of the rows' budget, and the rows already carry
+           their own inset. */
+        padding: 0;
+        line-height: 2.4;
+    }
+    /* One pixel per row shorter than the budget, which is where the box's two
+       border pixels come from. A list box has at least two rows by definition, so
+       one pixel each is always enough — and the slack lands as a sliver of panel
+       under the last row rather than as a scrollbar over it. */
+    .form-select[multiple] option,
+    .form-select[size]:not([size="1"]) option {
+        padding-block: 0;
+        line-height: calc(2.4em - 1px);
+    }
+    /* No gap here: every pixel between rows comes out of the `size` budget above,
+       and a list box's rows are meant to read as one column anyway. */
+    .form-select[multiple] option + option,
+    .form-select[size]:not([size="1"]) option + option { margin-block-start: 0; }
+}

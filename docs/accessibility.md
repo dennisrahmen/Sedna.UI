@@ -100,6 +100,11 @@ Two consequences visible in the CSS:
   `.popover` both depend on it. In an engine without it they do not degrade — the flyout lands at its
   static position and the popover centres itself in the viewport. `.menu` is deliberately *not*
   anchored this way: `.menu-anchor` uses `position: relative` and works anywhere.
+- **The select is a customizable select.** `.form-select` sets `appearance: base-select`, so the
+  drop-down is a panel in the page rather than a platform widget, and an `<option>` may hold markup.
+  In an engine without it the control is the platform's own select with a painted caret — the two
+  paths are exclusive, behind `@supports`, and neither is a script. The accessible name, the
+  keyboard and typeahead are the browser's in both, because it is the same `<select>` either way.
 - **No scroll-driven animations** — they fail *incorrectly*: a browser that drops `animation-timeline`
   leaves the rest of the `animation` shorthand running, so the animation plays on a timer instead of
   not at all. That is a different kind of failure from the one above, which is why it stays out.

@@ -83,6 +83,10 @@
        permitted by the appearance-media-query guard. */
     .btn:focus-visible,
     .form-input:focus,
+    /* The select declares its ring in the same rule .form-input does, so it needs
+       the same restatement here — it was missing, and a focused dropdown in this
+       mode had nothing on it at all. */
+    .form-select:focus,
     .form-check input:focus-visible,
     .switch input[type="checkbox"]:focus-visible,
     .form-range:focus-visible,

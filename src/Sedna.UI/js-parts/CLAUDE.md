@@ -54,6 +54,11 @@ A `2x` part may call a helper from `4x` even though it loads earlier: the call h
 inside an event handler, long after every part has run. Do not read a later part's
 member at load time.
 
+**The `2x` band is full**, so it holds two parts numbered `20`: `20-select.js` then `20-tips.js`.
+Ordering still works — the generator sorts by filename, and `s` precedes `t` — and nothing in the band
+depends on load order anyway. Renumbering to make room would move every part after it, which is a
+change to nine files to avoid a duplicate digit.
+
 ## `ui._` is private
 
 `00-core.js` puts `config`, `key()` and `readRaw()` on `ui._`. The underscore means exactly one thing:

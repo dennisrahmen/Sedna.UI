@@ -54,7 +54,7 @@
     white-space: nowrap;
 }
 
-.cat-lede { color: var(--muted); margin: 0 0 12px; max-width: 80ch; line-height: 1.65; }
+.cat-lede { color: var(--muted); margin: 0 0 12px; line-height: 1.65; }
 
 /* One vertical rhythm for a prose page. Getting started, Concepts and the MCP server are
    built from h2 + lede + a card or a note rather than from .cat-ex, so their spacing
@@ -222,11 +222,14 @@
 /* ── Examples ─────────────────────────────────────────────────────────────── */
 .cat-ex { margin: 0 0 32px; }
 .cat-ex > h2 { margin: 0 0 4px; font-size: 16px; }
+/* No measure cap. A `ch` cap looks like a reading measure and is not one here: the
+   prose is 13px, so 84ch resolved to under 600px inside an 1100px column and every
+   paragraph stopped half way across while the demo, the code block and the note beside
+   it ran the full width. The content column is the measure. */
 .cat-ex > p {
     margin: 0 0 12px;
     font-size: 13px;
     color: var(--muted);
-    max-width: 84ch;
     line-height: 1.65;
 }
 
@@ -253,6 +256,10 @@
 }
 .ex-demo--block { display: block; }
 .ex-demo--pad { padding: 32px; }
+/* A demo that is a whole frame: its own chrome is the edge, so the box's padding
+   only doubles the border. Doubled class because the narrow-width rule below
+   sets `.ex-demo` padding again and would otherwise win on order. */
+.ex-demo.ex-demo--flush { padding: 0; }
 
 /* ── Token swatches ──────────────────────────────────────────────────────── */
 .cat-swatches {
