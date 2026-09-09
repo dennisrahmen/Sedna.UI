@@ -61,4 +61,44 @@
         try { localStorage.setItem(k, value); } catch (e) { /* ignore */ }
     };
 
+    /* ── The settings bridge ─────────────────────────────────────────────────
+       sednaUi.settings.onChange takes a function, and a .NET object reference is
+       not one — so the id/handle plumbing lives here rather than making
+       10-settings.js know what Blazor is.
+
+       An id rather than the reference itself, because the reference cannot be
+       compared across calls: two InvokeAsync calls carrying "the same" object
+       arrive as two different objects, so an unwatch keyed on it would never
+       match.
+
+       A disposed reference throws on invoke. That is the normal end of a circuit,
+       not an error, so the watcher removes itself — otherwise every navigation
+       away leaves a dead listener behind for the life of the page. */
+    var watchers = {};
+    var nextWatcher = 1;
+
+    ui.watchSettings = function (ref) {
+        var id = nextWatcher++;
+
+        watchers[id] = ui.settings.onChange(function (settings) {
+            try {
+                var call = ref.invokeMethodAsync('SettingsChanged', settings);
+                if (call && call.catch) call.catch(function () { ui.unwatchSettings(id); });
+            } catch (e) {
+                ui.unwatchSettings(id);
+            }
+        });
+
+        return id;
+    };
+
+    ui.unwatchSettings = function (id) {
+        var off = watchers[id];
+        if (!off) return false;
+
+        off();
+        delete watchers[id];
+        return true;
+    };
+
 })(window.sednaUi);

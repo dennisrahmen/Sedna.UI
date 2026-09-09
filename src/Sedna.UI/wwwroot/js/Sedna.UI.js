@@ -159,6 +159,19 @@ window.sednaUi = window.sednaUi || {};
         return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
     }
 
+    // Who wants to know when the applied settings change. Plain functions, so this
+    // part stays framework-agnostic; the Blazor bridge is in 40-interop.js.
+    var listeners = [];
+
+    function notify() {
+        var current = ui.settings.load();
+        // A copy of the list: a listener that unsubscribes inside its own callback
+        // would otherwise shorten the array being walked and skip the next one.
+        listeners.slice().forEach(function (fn) {
+            try { fn(current); } catch (e) { /* a bad listener is not the theme's problem */ }
+        });
+    }
+
     ui.settings = {
         load: function () {
             var g = function (k) { return readRaw(key(k)); };
@@ -215,6 +228,20 @@ window.sednaUi = window.sednaUi || {};
             // says so in its own markup and this leaves it alone.
             var dir = g('dir');
             if (dir === 'rtl' || dir === 'ltr') root.dir = dir;
+
+            // Last, so a listener that reads the document sees the attributes this
+            // call has already written rather than the ones it is replacing.
+            notify();
+        },
+        // Returns its own unsubscribe function, so a caller never has to keep an id
+        // or hand the same function back.
+        onChange: function (fn) {
+            if (typeof fn !== 'function') return function () { };
+            listeners.push(fn);
+            return function () {
+                var at = listeners.indexOf(fn);
+                if (at >= 0) listeners.splice(at, 1);
+            };
         }
     };
 
@@ -1891,6 +1918,46 @@ window.sednaUi = window.sednaUi || {};
 
     ui.setItem = function (k, value) {
         try { localStorage.setItem(k, value); } catch (e) { /* ignore */ }
+    };
+
+    /* ── The settings bridge ─────────────────────────────────────────────────
+       sednaUi.settings.onChange takes a function, and a .NET object reference is
+       not one — so the id/handle plumbing lives here rather than making
+       10-settings.js know what Blazor is.
+
+       An id rather than the reference itself, because the reference cannot be
+       compared across calls: two InvokeAsync calls carrying "the same" object
+       arrive as two different objects, so an unwatch keyed on it would never
+       match.
+
+       A disposed reference throws on invoke. That is the normal end of a circuit,
+       not an error, so the watcher removes itself — otherwise every navigation
+       away leaves a dead listener behind for the life of the page. */
+    var watchers = {};
+    var nextWatcher = 1;
+
+    ui.watchSettings = function (ref) {
+        var id = nextWatcher++;
+
+        watchers[id] = ui.settings.onChange(function (settings) {
+            try {
+                var call = ref.invokeMethodAsync('SettingsChanged', settings);
+                if (call && call.catch) call.catch(function () { ui.unwatchSettings(id); });
+            } catch (e) {
+                ui.unwatchSettings(id);
+            }
+        });
+
+        return id;
+    };
+
+    ui.unwatchSettings = function (id) {
+        var off = watchers[id];
+        if (!off) return false;
+
+        off();
+        delete watchers[id];
+        return true;
     };
 
 })(window.sednaUi);

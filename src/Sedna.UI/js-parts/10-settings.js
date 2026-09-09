@@ -23,6 +23,19 @@
         return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
     }
 
+    // Who wants to know when the applied settings change. Plain functions, so this
+    // part stays framework-agnostic; the Blazor bridge is in 40-interop.js.
+    var listeners = [];
+
+    function notify() {
+        var current = ui.settings.load();
+        // A copy of the list: a listener that unsubscribes inside its own callback
+        // would otherwise shorten the array being walked and skip the next one.
+        listeners.slice().forEach(function (fn) {
+            try { fn(current); } catch (e) { /* a bad listener is not the theme's problem */ }
+        });
+    }
+
     ui.settings = {
         load: function () {
             var g = function (k) { return readRaw(key(k)); };
@@ -79,6 +92,20 @@
             // says so in its own markup and this leaves it alone.
             var dir = g('dir');
             if (dir === 'rtl' || dir === 'ltr') root.dir = dir;
+
+            // Last, so a listener that reads the document sees the attributes this
+            // call has already written rather than the ones it is replacing.
+            notify();
+        },
+        // Returns its own unsubscribe function, so a caller never has to keep an id
+        // or hand the same function back.
+        onChange: function (fn) {
+            if (typeof fn !== 'function') return function () { };
+            listeners.push(fn);
+            return function () {
+                var at = listeners.indexOf(fn);
+                if (at >= 0) listeners.splice(at, 1);
+            };
         }
     };
 

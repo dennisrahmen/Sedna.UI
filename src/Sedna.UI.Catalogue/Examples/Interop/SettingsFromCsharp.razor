@@ -1,0 +1,48 @@
+@inject ISednaSettings Settings
+@implements IDisposable
+
+<div class="sedna-col sedna-gap-2">
+    <div class="segmented">
+        <label class="segmented-option">
+            <input type="radio" name="ex-variant" checked="@(Settings.Current.Variant == "dark")"
+                   @onchange="@(() => Settings.SetVariantAsync("dark"))" />
+            <span><i class="ri-moon-line"></i> Dark</span>
+        </label>
+        <label class="segmented-option">
+            <input type="radio" name="ex-variant" checked="@(Settings.Current.Variant == "light")"
+                   @onchange="@(() => Settings.SetVariantAsync("light"))" />
+            <span><i class="ri-sun-line"></i> Light</span>
+        </label>
+        <label class="segmented-option">
+            <input type="radio" name="ex-variant" checked="@(Settings.Current.Variant == "system")"
+                   @onchange="@(() => Settings.SetVariantAsync("system"))" />
+            <span><i class="ri-computer-line"></i> System</span>
+        </label>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="kv"><span class="k">Variant</span><span class="v">@Settings.Current.Variant</span></div>
+            <div class="kv"><span class="k">Theme</span><span class="v">@Settings.Current.Theme</span></div>
+            <div class="kv"><span class="k">Compact</span><span class="v">@Settings.Current.Compact</span></div>
+            <div class="kv"><span class="k">Read from the browser</span><span class="v">@Settings.IsLive</span></div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Subscribe before StartAsync, so the initial value arrives as a change like any other and
+    // this component has one code path instead of two.
+    protected override void OnInitialized() => Settings.Changed += Refresh;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Settings.StartAsync();
+    }
+
+    // Raised from a JavaScript callback, so the render has to be marshalled onto the circuit's
+    // thread. Calling StateHasChanged directly here throws.
+    private void Refresh(SednaUiSettings settings) => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Settings.Changed -= Refresh;
+}
