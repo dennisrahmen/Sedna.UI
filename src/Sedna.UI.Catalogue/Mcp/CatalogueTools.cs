@@ -51,6 +51,9 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     private const int MaxClasses = 10;
     private const int MaxMarkupBytes = 8 * 1024;
 
+    /// <summary>What makes a name a selector rather than a class name.</summary>
+    private static readonly char[] SelectorPunctuation = [' ', '[', ':', '>', ',', '+', '~'];
+
     /// <summary>The values <c>kind</c> accepts. An unknown one is an error, not zero hits.</summary>
     private static readonly string[] Kinds = ["example", "class", "token", "page"];
 
@@ -91,8 +94,12 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         {
             foreach (var example in index.Examples)
             {
+                // The ids sit in the short fields beside the classes: an example is
+                // asked for by the thing it is about, and for a host-page snippet that
+                // thing is an id rather than a class.
                 var score = CatalogueRanker.Score(terms, example.Id,
-                    [example.Title, example.Page, string.Join(' ', example.Classes)],
+                    [example.Title, example.Page, string.Join(' ', example.Classes),
+                     string.Join(' ', example.Ids)],
                     [example.Blurb, example.Markup]);
                 if (score is null) continue;
 
@@ -231,6 +238,16 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 + "Split them across calls.");
 
         var found = names.Select(index.Class).OfType<IndexedClass>().ToList();
+        var missing = names.Where(n => index.Class(n) is null).ToList();
+
+        // An id the stylesheet declares, asked of a tool that indexes classes. Answering
+        // `notFound` read as "the library does not style that" and cost an app twenty
+        // lines of its own CSS for a rule the sheet already ships, so the rules come
+        // back — under their own key, because they are not classes.
+        var others = missing
+            .Select(index.IdSelector).OfType<IndexedClass>()
+            .DistinctBy(c => c.Name, StringComparer.Ordinal)
+            .ToList();
 
         return new
         {
@@ -247,8 +264,39 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 usedByExamples = c.UsedByExamples,
                 since = Since(versions.SinceClass(c.Name)),
             }),
-            notFound = names.Where(n => index.Class(n) is null),
+            otherSelectors = others.Select(c => new
+            {
+                name = "#" + c.Name,
+                layer = c.Layer,
+                declarations = c.Declarations,
+                usedByExamples = c.UsedByExamples,
+            }),
+            notFound = missing,
+            notes = missing.Select(n => new { name = n, note = WhyNotAClass(n) }),
         };
+    }
+
+    /// <summary>Why a name came back in <c>notFound</c>, in one sentence.</summary>
+    /// <remarks>
+    /// Silence is the expensive answer here. An empty result reads as a statement about
+    /// the library — "there is no such thing" — when it is a statement about the tool,
+    /// and an agent acting on the first writes markup that does nothing.
+    /// </remarks>
+    private string WhyNotAClass(string name)
+    {
+        if (name.StartsWith('#'))
+            return index.IdSelector(name) is not null
+                ? "An id, not a class — this tool indexes classes. The stylesheet does declare it: "
+                  + "its rules are under otherSelectors."
+                : "An id, not a class — this tool indexes classes, and the stylesheet declares no "
+                  + "rule for this id either.";
+
+        if (name.IndexOfAny(SelectorPunctuation) >= 0)
+            return "A selector, not a class name — pass one class at a time, without the dot or "
+                   + "anything around it.";
+
+        return "No class of that name is declared. Try search, which also matches a class by what "
+               + "its rules say.";
     }
 
     [McpServerTool(Name = "get_page", ReadOnly = true, Destructive = false, Idempotent = true,

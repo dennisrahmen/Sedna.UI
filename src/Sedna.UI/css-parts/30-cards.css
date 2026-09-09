@@ -28,6 +28,30 @@
    this only takes the padding away. */
 .card-body--flush { padding: 0; }
 
+/* The row a card ends with: the actions that decide what happens to the content
+   above them. .card-head's mirror — same padding, the divider on top instead of
+   underneath — with one difference that is deliberate. It is right-aligned rather
+   than space-between, for the reason .form-actions is: that is where the button
+   that commits is looked for, and a foot holding nothing but buttons would
+   otherwise push them to the far side.
+
+   Inside a card, use this rather than .card-body + .form-actions. That pair works,
+   but it reads as two decisions instead of one and gives the row the body's
+   padding rather than a foot's. */
+.card-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-4);
+    padding: var(--space-6) var(--space-7);
+    border-top: 1px solid var(--border);
+}
+/* Something on the far side from the commit button — a note about what the action
+   does, a timestamp, a destructive action kept away from the primary one. Expects
+   exactly two children; wrap a side in a <div> if it has more than one. */
+.card-foot--split { justify-content: space-between; }
+
 /* A caveat about the card's own content, pinned to its bottom edge — a stale
    figure, a degraded source, a partial result. It is part of the card, so it is
    not an .alert: an alert is about the page. */

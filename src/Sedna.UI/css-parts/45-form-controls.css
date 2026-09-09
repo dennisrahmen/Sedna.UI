@@ -42,6 +42,24 @@
     cursor: auto;
 }
 
+/* The same three tiers as .form-input, so a small filter field and the small
+   dropdown beside it agree on height. Longhands rather than the `padding`
+   shorthand .form-input-sm uses: the shorthand would reset the caret's room
+   above, which is the one thing a select cannot give up. --space-10 therefore
+   stays where .form-select set it, at every tier. */
+.form-select-sm {
+    min-height: var(--control-height-sm);
+    padding-block: var(--space-2);
+    padding-inline-start: var(--space-4);
+    font-size: var(--text-3);
+}
+.form-select-lg {
+    min-height: var(--control-height-lg);
+    padding-block: var(--space-5);
+    padding-inline-start: var(--space-7);
+    font-size: var(--text-5);
+}
+
 /* ── Radio ──────────────────────────────────────────────────────────────────
    Same .form-check label wrapper as the checkbox. Deliberately a brand DOT in an
    unfilled circle rather than a filled disc: shape and fill then both differ from

@@ -274,6 +274,72 @@ public class McpToolTests(CatalogueAppFixture app)
     }
 
     [Fact]
+    public async Task An_id_the_stylesheet_declares_is_reported_rather_than_missed()
+    {
+        // The expensive answer was silence: `notFound` for #blazor-error-ui read as
+        // "the library does not style that", and the app wrote its own twenty lines
+        // for a rule the sheet already ships.
+        var result = await Tool("describe_class", new { names = new[] { "#blazor-error-ui" } });
+
+        // Not a class, so not among the classes — the tool does not pretend otherwise.
+        Assert.Empty(result.GetProperty("classes").EnumerateArray());
+
+        var other = result.GetProperty("otherSelectors").EnumerateArray().Single();
+        Assert.Equal("#blazor-error-ui", other.GetProperty("name").GetString());
+        Assert.Contains("--reconnect-fail-bg", other.GetProperty("declarations").GetString()!,
+            StringComparison.Ordinal);
+        Assert.Contains("Frame/ErrorBarHostPage",
+            other.GetProperty("usedByExamples").EnumerateArray().Select(e => e.GetString()));
+
+        var note = result.GetProperty("notes").EnumerateArray().Single();
+        Assert.Contains("indexes classes", note.GetProperty("note").GetString()!,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task A_name_that_is_not_a_class_is_told_why()
+    {
+        var notes = (await Tool("describe_class", new
+            {
+                names = new[] { "#no-such-id", ".table th", ".no-such-class" },
+            }))
+            .GetProperty("notes").EnumerateArray()
+            .ToDictionary(n => n.GetProperty("name").GetString()!,
+                n => n.GetProperty("note").GetString()!);
+
+        Assert.Contains("declares no", notes["#no-such-id"], StringComparison.Ordinal);
+        Assert.Contains("selector", notes[".table th"], StringComparison.Ordinal);
+        Assert.Contains("search", notes[".no-such-class"], StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task A_class_is_findable_by_what_its_rules_say()
+    {
+        // "checkbox" is a word in no class NAME — the sheet reaches the control as
+        // input[type="checkbox"] on two classes. This query answered total: 0, which
+        // reads as "the library has no checkbox" and cost an app a hand-written one.
+        var refs = (await Tool("search", new { query = "checkbox", kind = "class" }))
+            .GetProperty("hits").EnumerateArray()
+            .Select(h => h.GetProperty("ref").GetString()).ToList();
+
+        Assert.Contains(".form-check", refs);
+    }
+
+    [Fact]
+    public async Task An_example_is_findable_by_the_id_it_is_about()
+    {
+        // Searching this id returned the reconnect banner — a different mechanism —
+        // while the snippet that IS about it went unlisted, because ids were indexed
+        // nowhere.
+        var refs = (await Tool("search", new { query = "blazor-error-ui" }))
+            .GetProperty("hits").EnumerateArray()
+            .Where(h => h.GetProperty("kind").GetString() == "example")
+            .Select(h => h.GetProperty("ref").GetString()).ToList();
+
+        Assert.Contains("Frame/ErrorBarHostPage", refs);
+    }
+
+    [Fact]
     public async Task Since_is_always_a_word_never_a_missing_key()
     {
         // The SDK serialises with WhenWritingNull, so a null `since` would vanish
