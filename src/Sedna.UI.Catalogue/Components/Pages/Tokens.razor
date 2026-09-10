@@ -26,6 +26,10 @@
     <h2 id="@Slug.From(group.Name)">
         <CatTitle Text="@group.Name" /><a class="cat-anchor" href="#@Slug.From(group.Name)" aria-label="Link to this section"><i class="ri-links-line"></i></a>
     </h2>
+    @if (group.Note is not null)
+    {
+        <p class="cat-lede">@group.Note</p>
+    }
     <div class="cat-swatches">
         @foreach (var token in group.Tokens)
         {

@@ -68,6 +68,9 @@ internal static class CataloguePages
         new("/status-bar", Frame, "Status bar", "ri-signal-wifi-error-line",
             "The strip that says the circuit dropped, the session expired, or something threw.",
             "status-bar reconnect reconnecting paused failed expired error blazor-error-ui unhandled circuit disconnect banner"),
+        new("/hover-hints", Frame, "Hover hints", "ri-cursor-line",
+            "One line of what-it-does on any control, and which side it opens.",
+            "tip tooltip hover hint data-tip data-tip-pos sedna-tip gate title bubble delegated explain consequence"),
         new("/common-pages", Frame, "Common pages", "ri-signpost-line",
             "Access denied, not found, the error, the expired session, the maintenance window.",
             "403 404 500 503 401 access denied forbidden unauthorized permission role not found missing error crash session expired signed out timeout maintenance outage unavailable downtime status code reference trace correlation"),
@@ -202,7 +205,7 @@ internal static class CataloguePages
             "sedna-safe-top sedna-safe-bottom sedna-safe-inline env safe-area-inset viewport-fit cover notch home indicator iphone island phone landscape"),
         new("/script", Reference, "The script", "ri-code-s-slash-line",
             "Toasts, confirmations, clipboard, hover hints, and the delegated behaviours.",
-            "sednaUi toast confirm copy clipboard tips hover menu tabs dropzone follow interop javascript time zone cookie tz boot showModal"),
+            "sednaUi toast confirm copy clipboard menu tabs dropzone follow interop javascript time zone cookie tz boot showModal select refresh selectedcontent"),
         // Not "/mcp": that route is the MCP endpoint itself, mapped in Program.cs.
         new("/mcp-server", Reference, "MCP server", "ri-robot-2-line",
             "The read-only endpoint an agent points at, its six tools and four resources.",

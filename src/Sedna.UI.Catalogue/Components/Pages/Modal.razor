@@ -29,10 +29,19 @@
     <p>
         <strong>Live — open it.</strong> <code>ISednaUi.ShowModalAsync(id)</code> is the one line of
         script the example above needs, without an inline <code>onclick</code> and without injecting
-        <code>IJSRuntime</code>; <code>CloseModalAsync(id, returnValue)</code> is for the routes out
-        that are <em>not</em> a <code>method="dialog"</code> submit. Use
+        <code>IJSRuntime</code>, and <code>CloseModalAsync(id, returnValue)</code> closes it again
+        with the value its <code>close</code> event carries. Use
         <a href="/script"><code>ConfirmAsync</code></a> for a question with two answers — this is for
         a dialog holding a form.
+    </p>
+    <p>
+        <strong>Both</strong> routes out call <code>CloseModalAsync</code>, and the form is a plain
+        <code>&lt;form&gt;</code> rather than <code>&lt;form method="dialog"&gt;</code>: closing the
+        dialog is that attribute's <em>default action</em>, and Blazor's event delegator
+        preventDefaults every <code>submit</code> so an <code>@@onsubmit</code> form does not
+        navigate. Submit and it is cancelled with it, so the dialog stays open and nothing is
+        logged. Handling it in C# is the honest shape here anyway — the work can fail, and a dialog
+        that has already closed cannot show why.
     </p>
 </CatExample>
 

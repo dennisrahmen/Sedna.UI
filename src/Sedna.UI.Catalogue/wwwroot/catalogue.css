@@ -214,7 +214,24 @@
     background-image: url("brand/sedna-ui-icon-64.png");
 }
 .cat-mark--topbar { width: 24px; height: 24px; }
-.cat-mark--hero { width: 76px; height: 76px; }
+
+/* The hero is 76px, and the 64px rung it used to share with the topbar was both
+   upscaled and the wrong drawing. The mark is drawn three times rather than scaled
+   three ways — the orbit is a hairline that fills in and reads as noise when shrunk,
+   so stroke thickens and detail drops as size falls (assets/brand/README.md). 64px
+   is the COMPACT drawing, meant for 32-64px; at 76px, and again at every device
+   pixel ratio above 1, it was a heavier drawing stretched. 192px is the full one,
+   which is what this size wants, and it downscales sharply on a 2x display.
+   The topbar and sidebar marks stay on 64px for the same reason in reverse: the
+   full drawing's hairline orbit at 24px is the noise the tiers exist to avoid. */
+.cat-mark--hero {
+    width: 76px;
+    height: 76px;
+    background-image: url("brand/sedna-ui-icon-on-dark-192.png");
+}
+:root[data-variant="light"] .cat-mark--hero {
+    background-image: url("brand/sedna-ui-icon-192.png");
+}
 
 /* ── Examples ─────────────────────────────────────────────────────────────── */
 /* An example is a specimen, and a page of them should scan as a list of specimens
