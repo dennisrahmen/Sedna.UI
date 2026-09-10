@@ -104,15 +104,23 @@
 }
 .form-check input[type="radio"]:hover { border-color: var(--border-hover); }
 .form-check input[type="radio"]:checked { border-color: var(--brand); }
+/* Centred by `inset: 0` and auto margins, not by `left: 50%` + a translate.
+   Percentage inset and transform are resolved and rounded independently of each
+   other, so at a fractional page zoom the two roundings can both land the same
+   way and the dot sits visibly off-centre — measurably so at 110% and 125%.
+   Auto margins are one layout computation that splits the leftover space, so the
+   two sides are equal by construction at every zoom.
+
+   rtl-ok: `inset` and auto margins are symmetrical, so there is no direction to
+   flip. */
 .form-check input[type="radio"]:checked::after {
     content: '';
     position: absolute;
-    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
-    left: 50%; top: 50%;
+    inset: 0;
+    margin: auto;
     width: 7px; height: 7px;
     border-radius: 50%;
     background: var(--brand);
-    transform: translate(-50%, -50%);
 }
 .form-check input[type="radio"]:focus-visible {
     outline: none;

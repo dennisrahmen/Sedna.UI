@@ -51,6 +51,9 @@
     --sidebar-bg:     var(--white);
     --sidebar-border: var(--slate-200);
     --sidebar-fg:     var(--slate-700);
+    /* One step off white, matching --bg-hover. The sidebar is white here, so the
+       hover has to go darker; the dark theme's value goes lighter. */
+    --sidebar-hover:  var(--slate-100);
 
     --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
     --go-border: var(--green-300);
@@ -134,8 +137,15 @@
     --backdrop:      rgba(15, 23, 42, 0.35);    /* slate-900 */
     --overlay:       rgba(248, 250, 252, 0.66);   /* slate-50 / Ice White */
     --spotlight-dim: rgba(15, 23, 42, 0.42);    /* slate-900 */
-    --tip-bg:        var(--slate-925);
-    --tip-border:    var(--slate-700);
+    /* A light surface, not an inverted dark bubble. All three move together: a
+       hint that kept the dark background and took the light theme's foreground
+       would be unreadable, so --tip-fg is remapped here rather than left to
+       01-tokens.css. Separation from a white card comes from the border and
+       --shadow-tip, the same two things .menu and .popover rely on in this
+       variant. */
+    --tip-bg:        var(--white);
+    --tip-border:    var(--slate-300);
+    --tip-fg:        var(--slate-900);
     --scrollbar:       var(--slate-300);
     --scrollbar-hover: var(--slate-400);
     --scroll-shade:    rgba(15, 23, 42, 0.16);    /* slate-900 */

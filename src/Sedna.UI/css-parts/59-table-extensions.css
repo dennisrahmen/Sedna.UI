@@ -103,8 +103,13 @@
    above, which then loses on source order. Without it selection is (0,2,2) and an
    even striped row would show the stripe instead of the selection — the more
    important of the two signals, silently dropped. */
-.table tbody tr[aria-selected="true"] > td {
-    background: var(--brand-tint);
+.table tbody tr[aria-selected="true"] > td { background: var(--brand-tint); }
+
+/* The marker goes on the FIRST cell, not on every one. An inset shadow is drawn
+   per box, so `> td` gave each cell its own 3px rule and the row read as a set of
+   vertical dividers rather than one leading edge. It cannot go on the <tr>: a
+   row's box is not painted when the table's borders are collapsed. */
+.table tbody tr[aria-selected="true"] > td:first-child {
     box-shadow: inset 3px 0 0 var(--brand);
 }
 

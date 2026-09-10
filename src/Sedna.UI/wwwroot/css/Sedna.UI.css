@@ -453,6 +453,12 @@
     --sidebar-border:  var(--slate-800);
     --sidebar-fg:      var(--slate-200);
     --sidebar-active:  var(--coral-600);
+    /* The nav's hover surface has to be its own token rather than --bg-elevated,
+       which is what it used to be. Elevation runs the other way in the light
+       theme: there --sidebar-bg and --bg-elevated are both true white, so the
+       hover resolved to the colour already underneath it and nothing happened.
+       Same value as before in this theme, so nothing dark changes. */
+    --sidebar-hover:   var(--slate-800);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -583,7 +589,7 @@
     --spotlight-dim: rgba(4, 7, 27, 0.62);      /* slate-950 — guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);
     --tip-border:    var(--slate-600);
-    --tip-fg:        var(--slate-50);                   /* the tip stays dark in both themes */
+    --tip-fg:        var(--slate-50);
     --scrollbar:       var(--slate-700);
     --scrollbar-hover: var(--slate-600);
     --scroll-shade:    rgba(0, 0, 0, 0.3);      /* scroll-edge fade */
@@ -824,6 +830,9 @@
     --sidebar-bg:     var(--white);
     --sidebar-border: var(--slate-200);
     --sidebar-fg:     var(--slate-700);
+    /* One step off white, matching --bg-hover. The sidebar is white here, so the
+       hover has to go darker; the dark theme's value goes lighter. */
+    --sidebar-hover:  var(--slate-100);
 
     --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
     --go-border: var(--green-300);
@@ -907,8 +916,15 @@
     --backdrop:      rgba(15, 23, 42, 0.35);    /* slate-900 */
     --overlay:       rgba(248, 250, 252, 0.66);   /* slate-50 / Ice White */
     --spotlight-dim: rgba(15, 23, 42, 0.42);    /* slate-900 */
-    --tip-bg:        var(--slate-925);
-    --tip-border:    var(--slate-700);
+    /* A light surface, not an inverted dark bubble. All three move together: a
+       hint that kept the dark background and took the light theme's foreground
+       would be unreadable, so --tip-fg is remapped here rather than left to
+       01-tokens.css. Separation from a white card comes from the border and
+       --shadow-tip, the same two things .menu and .popover rely on in this
+       variant. */
+    --tip-bg:        var(--white);
+    --tip-border:    var(--slate-300);
+    --tip-fg:        var(--slate-900);
     --scrollbar:       var(--slate-300);
     --scrollbar-hover: var(--slate-400);
     --scroll-shade:    rgba(15, 23, 42, 0.16);    /* slate-900 */
@@ -1050,6 +1066,10 @@
     --sidebar-bg:      var(--black);
     --sidebar-border:  var(--slate-400);
     --sidebar-fg:      var(--white);
+    /* A step stronger than the default theme's, for the same reason every border
+       in this block is: the sidebar is pure black here, so the hover has further
+       to travel before it registers as a hover at all. */
+    --sidebar-hover:   var(--slate-700);
 
     --go-bg:      var(--green-900);
     --go-border:  var(--green-400);
@@ -1139,6 +1159,7 @@
     --sidebar-bg:      var(--white);
     --sidebar-border:  var(--slate-600);
     --sidebar-fg:      var(--black);
+    --sidebar-hover:   var(--slate-200);
 
     --go-bg:      var(--green-200);
     --go-border:  var(--green-800);
@@ -1193,6 +1214,13 @@
     --code-bg:        var(--indigo-200);
     --backdrop:       rgba(0, 0, 0, 0.6);
     --overlay:        rgba(255, 255, 255, 0.9);
+    /* Follows the light variant's hint rather than inheriting the dark bubble
+       from 01-tokens.css, which would leave this the one light surface in the
+       library still painted dark. The border goes to full strength, as every
+       border in this block does. */
+    --tip-bg:          var(--white);
+    --tip-border:      var(--slate-800);
+    --tip-fg:          var(--black);
     --scrollbar:       var(--slate-500);
     --scrollbar-hover: var(--slate-700);
     --redacted:        var(--crimson-900);
@@ -1468,7 +1496,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     font-size: var(--text-4);
 }
 .nav-link i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
-.nav-link:hover { background: var(--bg-elevated); text-decoration: none; }
+.nav-link:hover { background: var(--sidebar-hover); text-decoration: none; }
 .nav-link:hover i { opacity: 1; }
 /* Tinted rather than a solid brand pill, so the count badge on the same row stays
    readable and any brand hue works underneath. */
@@ -2341,7 +2369,7 @@ a.topbar-version--pre:hover {
     user-select: none;
 }
 .nav-group > summary::-webkit-details-marker { display: none; }
-.nav-group > summary:hover { background: var(--bg-elevated); }
+.nav-group > summary:hover { background: var(--sidebar-hover); }
 .nav-group > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
 .nav-group > summary > i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
 .nav-group > summary::after {
@@ -4107,15 +4135,23 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 }
 .form-check input[type="radio"]:hover { border-color: var(--border-hover); }
 .form-check input[type="radio"]:checked { border-color: var(--brand); }
+/* Centred by `inset: 0` and auto margins, not by `left: 50%` + a translate.
+   Percentage inset and transform are resolved and rounded independently of each
+   other, so at a fractional page zoom the two roundings can both land the same
+   way and the dot sits visibly off-centre — measurably so at 110% and 125%.
+   Auto margins are one layout computation that splits the leftover space, so the
+   two sides are equal by construction at every zoom.
+
+   rtl-ok: `inset` and auto margins are symmetrical, so there is no direction to
+   flip. */
 .form-check input[type="radio"]:checked::after {
     content: '';
     position: absolute;
-    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
-    left: 50%; top: 50%;
+    inset: 0;
+    margin: auto;
     width: 7px; height: 7px;
     border-radius: 50%;
     background: var(--brand);
-    transform: translate(-50%, -50%);
 }
 .form-check input[type="radio"]:focus-visible {
     outline: none;
@@ -6128,8 +6164,13 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    above, which then loses on source order. Without it selection is (0,2,2) and an
    even striped row would show the stripe instead of the selection — the more
    important of the two signals, silently dropped. */
-.table tbody tr[aria-selected="true"] > td {
-    background: var(--brand-tint);
+.table tbody tr[aria-selected="true"] > td { background: var(--brand-tint); }
+
+/* The marker goes on the FIRST cell, not on every one. An inset shadow is drawn
+   per box, so `> td` gave each cell its own 3px rule and the row read as a set of
+   vertical dividers rather than one leading edge. It cannot go on the <tr>: a
+   row's box is not painted when the table's borders are collapsed. */
+.table tbody tr[aria-selected="true"] > td:first-child {
     box-shadow: inset 3px 0 0 var(--brand);
 }
 

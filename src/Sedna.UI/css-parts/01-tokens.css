@@ -123,6 +123,12 @@
     --sidebar-border:  var(--slate-800);
     --sidebar-fg:      var(--slate-200);
     --sidebar-active:  var(--coral-600);
+    /* The nav's hover surface has to be its own token rather than --bg-elevated,
+       which is what it used to be. Elevation runs the other way in the light
+       theme: there --sidebar-bg and --bg-elevated are both true white, so the
+       hover resolved to the colour already underneath it and nothing happened.
+       Same value as before in this theme, so nothing dark changes. */
+    --sidebar-hover:   var(--slate-800);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -253,7 +259,7 @@
     --spotlight-dim: rgba(4, 7, 27, 0.62);      /* slate-950 — guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);
     --tip-border:    var(--slate-600);
-    --tip-fg:        var(--slate-50);                   /* the tip stays dark in both themes */
+    --tip-fg:        var(--slate-50);
     --scrollbar:       var(--slate-700);
     --scrollbar-hover: var(--slate-600);
     --scroll-shade:    rgba(0, 0, 0, 0.3);      /* scroll-edge fade */
