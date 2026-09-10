@@ -145,11 +145,24 @@ public class ExampleSourceTests
         string[] forbidden =
         [
             "athene", "netpoint", "servicenow", "SD-Network", "gsearch", "n8n",
-            "rahmen", "np-console",
+            "rahmen", "dennis", "np-console",
         ];
         string[] forbiddenPatterns =
         [
             @"INC\d{4,}", @"\bCHG\d{4,}", @"\bREQ\d{4,}",
+            // The separated forms of the same shapes. `INC-204471` sat in an example
+            // for months because the bare pattern above wants the digits to touch the
+            // prefix.
+            @"\b(?:INC|CHG|REQ|SR|PRB|TASK)[-_ ]\d{3,}",
+            // A German public body or a company's legal form. A shape rather than a
+            // name, which is the only way to guard this class without publishing a
+            // customer's: three real authorities were in the examples, and each was
+            // recognisable by the word in front of the place.
+            @"\b(?:Kreisverwaltung|Verbandsgemeinde|Landratsamt|Bezirksamt|Stadtwerke)\b",
+            @"\b(?:GmbH|gGmbH|mbH|KGaA|OHG)\b",
+            // An internal DNS label, including one hiding under a reserved domain —
+            // `exch-02.corp.example` is RFC 2606 on the right and internal on the left.
+            @"\.(?:internal|intern|corp|local|lan)\b",
             // Private and link-local ranges. A real-looking internal address in a
             // copy-pasteable field reads as a real system's address.
             @"\b10\.\d{1,3}\.\d{1,3}\.\d{1,3}\b",

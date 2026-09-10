@@ -56,7 +56,10 @@ internal static class TokenGroups
             "--state-accent",
         ]),
 
-        new("Sidebar", ["--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-active"]),
+        new("Sidebar", [
+            "--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-active",
+            "--sidebar-hover",
+        ]),
 
         new("Status — go (sends outward)", [
             "--go-solid", "--go-hover", "--go-active", "--go-bg", "--go-border", "--go-fg",

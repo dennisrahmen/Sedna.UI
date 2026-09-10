@@ -16,12 +16,12 @@ public class CopyTests : ScriptTestBase
         // Two rapid clicks must not restore "Copied" as if it were the original, which
         // is why the original is stashed on the element rather than in a closure.
         var page = await Open(
-            """<button type="button" id="c" data-copy="INC0031209"><span>Copy</span></button>""");
+            """<button type="button" id="c" data-copy="TCK0031209"><span>Copy</span></button>""");
 
         await page.Locator("#c").ClickAsync();
         await page.Locator("#c").ClickAsync();
 
-        Assert.Equal("INC0031209", await page.EvaluateAsync<string>(
+        Assert.Equal("TCK0031209", await page.EvaluateAsync<string>(
             "() => navigator.clipboard.readText()"));
         Assert.Contains("Copied", await page.Locator("#c").InnerTextAsync(), StringComparison.Ordinal);
 

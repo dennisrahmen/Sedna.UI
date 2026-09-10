@@ -32,6 +32,32 @@ public class HygieneTests
             $"that owns them: {string.Join(", ", found)}");
     }
 
+    /// <summary>
+    /// The markup snippets in the parts' comments are demo content, and they ship.
+    /// </summary>
+    /// <remarks>
+    /// The guard above strips comments on purpose — saying which app a rule came from
+    /// is allowed. But a comment in a part is copied verbatim into
+    /// <c>wwwroot/css/Sedna.UI.css</c>, which every installing app serves publicly, so
+    /// a snippet written into one is published exactly as an example file is. A first
+    /// name used as demo content sat in <c>69-timeline.css</c> that way. This is the
+    /// same list of real things, matched against the text with its comments intact.
+    /// </remarks>
+    [Fact]
+    public void No_real_name_is_used_as_demo_content_in_a_comment()
+    {
+        string[] forbidden = ["dennis", "rahmen", "netpoint", "servicenow"];
+
+        var found = forbidden
+            .Where(f => Assets.Css.Contains(f, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        Assert.True(found.Count == 0,
+            "A comment in a part is served by every app that installs the package, so a "
+            + "name in one is as published as a name in an example. Use the demo identity "
+            + $"or a role instead: {string.Join(", ", found)}");
+    }
+
     [Fact]
     public void Fonts_ride_tokens_so_an_app_can_change_typeface()
     {
