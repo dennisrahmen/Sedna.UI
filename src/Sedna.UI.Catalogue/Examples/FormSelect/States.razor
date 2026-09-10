@@ -1,0 +1,28 @@
+<div class="sedna-col" style="max-width:420px; gap:16px">
+    <div class="form-field">
+        <label class="form-label" for="ss-plan">Plan</label>
+        <select class="form-input form-select" id="ss-plan" disabled>
+            <option selected>Enterprise</option>
+            <option>Team</option>
+        </select>
+        <p class="form-hint">The whole control is disabled — nothing to change here.</p>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="ss-strategy">Rollout</label>
+        <select class="form-input form-select" id="ss-strategy">
+            <option selected>Canary</option>
+            <option>Blue / green</option>
+            <option disabled>Rolling — unavailable while the queue drains</option>
+        </select>
+        <p class="form-hint">One <code>option</code> disabled. Say why in the option, or it reads as a bug.</p>
+    </div>
+    <div class="form-field">
+        <label class="form-label form-label--required" for="ss-team">Escalation team</label>
+        <select class="form-input form-select" id="ss-team" required>
+            <option value="" selected>Choose a team…</option>
+            <option value="fulfilment">Fulfilment</option>
+            <option value="network">Network</option>
+        </select>
+        <p class="form-hint">An empty first option is what makes <code>required</code> bite on a select.</p>
+    </div>
+</div>

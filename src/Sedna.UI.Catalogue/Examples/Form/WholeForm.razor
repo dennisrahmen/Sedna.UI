@@ -1,0 +1,52 @@
+<form style="max-width:640px">
+    <fieldset class="form-section">
+        <legend>Reservation</legend>
+        <p class="form-section-hint">What is being held, and for whom.</p>
+        <div class="form-section-body">
+            <div class="field-grid">
+                <div class="form-field">
+                    <label class="form-label form-label--required" for="wf-order">Order</label>
+                    <input class="form-input" id="wf-order" type="text" value="ORD-4182" required />
+                </div>
+                <div class="form-field">
+                    <label class="form-label form-label--required" for="wf-cust">Customer</label>
+                    <input class="form-input" id="wf-cust" type="text" value="Priya Nair" required />
+                </div>
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="wf-note">Note on the hold</label>
+                <textarea class="form-input" id="wf-note" rows="3"
+                          placeholder="What the warehouse should know before releasing it"></textarea>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="form-section">
+        <legend>When it expires</legend>
+        <div class="form-section-body">
+            <div class="form-field">
+                <label class="form-label" for="wf-hold">Hold for</label>
+                <div class="input-group sedna-w sedna-w--sm">
+                    <input class="form-input" id="wf-hold" type="number" value="24" />
+                    <span class="input-affix">hours</span>
+                </div>
+                <p class="form-hint">After this the slot returns to the pool without asking.</p>
+            </div>
+            <label class="switch">
+                <input type="checkbox" checked />
+                <span class="switch-text">
+                    <span>Warn me before it expires</span>
+                    <span class="switch-hint">One notification, an hour ahead.</span>
+                </span>
+            </label>
+        </div>
+    </fieldset>
+
+    <div class="form-actions form-actions--split">
+        <button class="btn btn-danger" type="button"><i class="ri-close-circle-line"></i> Release now</button>
+        <span style="display:flex; gap:8px">
+            <button class="btn" type="button">Cancel</button>
+            <button class="btn btn-primary" type="submit">Hold order</button>
+        </span>
+    </div>
+</form>

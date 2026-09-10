@@ -29,6 +29,8 @@ internal static class CataloguePages
     public const string Structure = "Structure";
     public const string Actions = "Actions";
     public const string Forms = "Forms";
+    /// <summary>The controls themselves. Forms is the layout around them.</summary>
+    public const string Inputs = "Inputs";
     public const string Data = "Data";
     public const string Media = "Text and media";
     public const string Feedback = "Feedback";
@@ -102,15 +104,31 @@ internal static class CataloguePages
             "A dropdown of actions, an anchored panel of content, and the value trigger.",
             "dropdown actions anchor scrim disclosure popover popovertarget value-trigger picker"),
 
-        new("/form", Forms, "Forms", "ri-edit-box-line",
-            "Fields, selects, checkboxes, radios, switches, validation and input groups.",
-            "input label select select-sm select-lg size checkbox radio switch toggle validation aria-invalid input-group fieldset legend actions"),
-        new("/form-file", Forms, "File inputs", "ri-attachment-2",
+        new("/form", Forms, "Form layout", "ri-edit-box-line",
+            "The anatomy of a field, two-up rows, sections and the actions row.",
+            "form-field form-label form-hint field-grid two-up fieldset legend section actions split start required settings card assemble submit whole"),
+        new("/form-validation", Forms, "Validation", "ri-shield-check-line",
+            "How a rejected value is shown, and what a screen reader is told.",
+            "form-error form-warning aria-invalid aria-describedby required label marker invalid message reject"),
+
+        new("/form-text", Inputs, "Text fields", "ri-input-field",
+            "The text input in three sizes, its states, and the input group around it.",
+            "input text email search password url placeholder disabled readonly form-input-sm form-input-lg value-display input-group input-affix unit prefix affix width narrow"),
+        new("/form-textarea", Inputs, "Text areas", "ri-text-block",
+            "Multi-line input, and locking which way it can be dragged.",
+            "textarea rows resize resize-none resize-both vertical lock multiline comment note maxlength counter"),
+        new("/form-select", Inputs, "Selects", "ri-dropdown-list",
+            "The themed drop-down, options with content, and the list box.",
+            "select form-select select-sm select-lg option optgroup legend selectedcontent picker caret multiple size listbox multiselect base-select"),
+        new("/form-choice", Inputs, "Checkboxes and switches", "ri-checkbox-line",
+            "Checkboxes, radios and the switch — and which of the three to reach for.",
+            "checkbox radio switch toggle form-check fieldset exclusive setting immediate saved disabled policy"),
+        new("/form-file", Inputs, "File inputs", "ri-attachment-2",
             "File pickers and a dropzone that takes a real drop.",
             "file dropzone upload attachment drag drop file-list"),
-        new("/form-numeric", Forms, "Ranges and steppers", "ri-number-1",
+        new("/form-numeric", Inputs, "Ranges and steppers", "ri-number-1",
             "Ranges, steppers and date inputs — the controls whose internals are per-engine.",
-            "range slider stepper number date time picker spinner appearance"),
+            "range slider stepper number date time picker spinner appearance disabled"),
 
         new("/table", Data, "Tables", "ri-table-line",
             "One class on the table, plus sticky headers, sorting and a stacked layout.",
@@ -193,7 +211,7 @@ internal static class CataloguePages
 
     /// <summary>The group names, in the order the sidebar shows them.</summary>
     public static IReadOnlyList<string> Groups { get; } =
-        [Start, Frame, Structure, Actions, Forms, Data, Media, Feedback, Overlays, Utilities, Reference];
+        [Start, Frame, Structure, Actions, Forms, Inputs, Data, Media, Feedback, Overlays, Utilities, Reference];
 
     /// <summary>
     /// Routes that used to exist, and where they went. The site is public and linked

@@ -1,0 +1,74 @@
+@page "/form-select"
+
+<CatHead Title="Selects">
+    <code>.form-select</code> is the whole class list a dropdown needs &mdash; it carries the same field
+    shape <code>.form-input</code> does, from one rule the two names share. It styles the
+    <em>panel</em> as well as the box, so the option list takes the theme.
+</CatHead>
+
+<div class="cat-note">
+    <i class="ri-information-line"></i>
+    <code>appearance: base-select</code> takes the option list out of the platform's hands and makes it
+    a real panel in the page. A browser without it keeps the platform list and gets a caret painted
+    from two gradients instead &mdash; the two halves are exclusive, behind <code>@@supports</code>,
+    and neither is a script or a shim. A list box has no caret either way, since there is nothing to
+    drop.
+</div>
+
+<CatExample TExample="Examples.FormSelect.Dropdown" Title="The drop-down" Demo="ex-demo--block">
+    <p>A plain <code>&lt;select class="form-select"&gt;</code>. Nothing has to be added to the markup.</p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSelect.OptionContent" Title="Options with content" Demo="ex-demo--block">
+    <p>
+        An <code>&lt;option&gt;</code> may hold real markup &mdash; an icon, a second line, a trailing
+        code. <strong>Add a <code>&lt;button&gt;</code> holding
+        <code>&lt;selectedcontent&gt;&lt;/selectedcontent&gt;</code> as the select's first child</strong>
+        and the closed box shows a clone of whichever option is chosen. Leave it out and the browser
+        supplies its own, which runs every text node together: an option with an
+        <code>.option-hint</code> then reads <code>Frankfurteu-central-1</code>.
+    </p>
+    <p>
+        The clone is the browser's to make and Blazor's render does not trigger it, so
+        <code>Sedna.UI.js</code> repairs it on load and after every render &mdash;
+        <code>sednaUi.select.refresh()</code> on the <a href="/script">script page</a>. The submitted
+        value is the option's text run together and trimmed, so keep <code>value</code> explicit.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSelect.Groups" Title="Groups and separators" Demo="ex-demo--block">
+    <p>
+        Give a group a <code>&lt;legend&gt;</code> as well as its <code>label</code>. The attribute's
+        heading is drawn by the browser outside this document and cannot be themed &mdash; it is what a
+        fallback browser shows, and the <code>&lt;legend&gt;</code> is what this one does.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSelect.ListBox" Title="List box and multiple" Demo="ex-demo--block">
+    <p>
+        Two different controls the CSS treats alike: <code>multiple</code> takes several answers,
+        <code>size</code> on its own still takes one and merely shows the options without opening.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSelect.States" Title="Disabled and required" Demo="ex-demo--block">
+    <p>
+        A disabled <code>&lt;option&gt;</code> should say why in its own text, or it reads as a bug. A
+        <code>required</code> select needs an empty first option, or the first real one counts as an
+        answer the reader never gave.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSelect.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        <code>.form-select-sm</code> and <code>-lg</code> &mdash; the select's own tier, not the
+        input's, because a painted caret needs its room back at every size.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSelect.InAToolbar" Title="Beside a filter field" Demo="ex-demo--block">
+    <p>
+        <code>.sedna-w-fit</code> is what keeps a filter dropdown the width of its value instead of the
+        width of the bar. The heights agree because the tiers do.
+    </p>
+</CatExample>

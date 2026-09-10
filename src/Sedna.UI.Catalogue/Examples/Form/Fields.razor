@@ -5,15 +5,11 @@
     </div>
     <div class="form-field">
         <label class="form-label" for="f-poll">Poll interval</label>
-        <select class="form-input form-select" id="f-poll">
-            <option>10 seconds</option>
-            <option selected>30 seconds</option>
-            <option>2 minutes</option>
-        </select>
+        <input class="form-input" id="f-poll" type="text" value="30 seconds" />
         <p class="form-hint">How often the queue refreshes. Shorter means more database load.</p>
     </div>
     <div class="form-field">
-        <label class="form-label" for="f-reason">Reason</label>
-        <textarea class="form-input" id="f-reason" rows="3" placeholder="Why are you overriding the reservation?"></textarea>
+        <label class="form-label form-label--required" for="f-owner">Owner</label>
+        <input class="form-input" id="f-owner" type="text" value="Fulfilment" required />
     </div>
 </div>
