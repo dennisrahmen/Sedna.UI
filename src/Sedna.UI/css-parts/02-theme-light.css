@@ -135,9 +135,9 @@
     --btn-active-bg: var(--slate-300);
     --code-fg:       var(--indigo-700);
     --code-bg:       rgba(90, 97, 191, 0.08);    /* indigo-700 */
-    --backdrop:      rgba(15, 23, 42, 0.35);    /* slate-900 */
-    --overlay:       rgba(248, 250, 252, 0.66);   /* slate-50 / Ice White */
-    --spotlight-dim: rgba(15, 23, 42, 0.42);    /* slate-900 */
+    --backdrop:      color-mix(in srgb, var(--slate-900) 35%, transparent);
+    --overlay:       color-mix(in srgb, var(--slate-50) 66%, transparent);
+    --spotlight-dim: color-mix(in srgb, var(--slate-900) 42%, transparent);
     /* A light surface, not an inverted dark bubble. All three move together: a
        hint that kept the dark background and took the light theme's foreground
        would be unreadable, so --tip-fg is remapped here rather than left to

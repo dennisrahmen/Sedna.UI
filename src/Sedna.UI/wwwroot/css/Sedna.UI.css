@@ -589,9 +589,15 @@
     --btn-active-bg: var(--slate-850);
     --code-fg:       var(--indigo-300);
     --code-bg:       rgba(133, 144, 253, 0.1);    /* indigo-500 */
+    /* The three scrims. Each is a ramp step at an alpha, written as a color-mix
+       rather than as the literal the step happens to be, because a theme replaces
+       the ramp and a literal cannot follow it: the spotlight's dim stayed Sedna's
+       own near-black navy under Graphite, over a canvas that had gone neutral grey.
+       --backdrop is the exception that proves it — pure black belongs to no ramp,
+       has no hue to drift, and is what a modal backdrop should be in every theme. */
     --backdrop:      rgba(0, 0, 0, 0.65);       /* modal backdrop */
-    --overlay:       rgba(15, 23, 42, 0.66);    /* slate-900 / Deep Space — in-card blocking overlay */
-    --spotlight-dim: rgba(4, 7, 27, 0.62);      /* slate-950 — guided-tour / spotlight dim */
+    --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
+    --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);
     --tip-border:    var(--slate-600);
     --tip-fg:        var(--slate-50);
@@ -919,9 +925,9 @@
     --btn-active-bg: var(--slate-300);
     --code-fg:       var(--indigo-700);
     --code-bg:       rgba(90, 97, 191, 0.08);    /* indigo-700 */
-    --backdrop:      rgba(15, 23, 42, 0.35);    /* slate-900 */
-    --overlay:       rgba(248, 250, 252, 0.66);   /* slate-50 / Ice White */
-    --spotlight-dim: rgba(15, 23, 42, 0.42);    /* slate-900 */
+    --backdrop:      color-mix(in srgb, var(--slate-900) 35%, transparent);
+    --overlay:       color-mix(in srgb, var(--slate-50) 66%, transparent);
+    --spotlight-dim: color-mix(in srgb, var(--slate-900) 42%, transparent);
     /* A light surface, not an inverted dark bubble. All three move together: a
        hint that kept the dark background and took the light theme's foreground
        would be unreadable, so --tip-fg is remapped here rather than left to
@@ -5013,33 +5019,47 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
         --surface-here: var(--bg);
         white-space: normal;
         overflow: auto;
-        /* ── Why `size` needs arithmetic here ──
-           A list box is exactly `size` times its own LINE-HEIGHT tall, and the
-           browser decides that before it knows anything about the rows inside. So
-           the row has to be built to fit that budget rather than the other way
-           round: the options give up their block padding, and their line box — this
-           `2.4`, which lands them on the height a `.menu-item` has — becomes the row
-           height instead. Left at the field's own padding, `size="4"` drew two and a
-           half of the four rows it had asked for, above a scrollbar it should not
-           have had.
+        /* ── The box is measured here, not left to `size` ──
+           A list box the browser sizes is exactly `size` times its own LINE-HEIGHT
+           tall — border and padding included, because everything here is
+           `border-box` — and it decides that before it knows anything about the rows
+           inside. So any block padding came straight out of the rows: `size="4"` drew
+           two and a half of the four rows it had asked for, above a scrollbar it
+           should not have had, and the panel therefore had to keep none. Which is
+           what left every list box's first row flush against its own top border,
+           alone among the panels in this library.
 
-           The BLOCK padding is what costs rows, so the panel keeps none of it.
-           Inline padding costs nothing from a `size` budget, and without it every
-           option's rounded hover and `:checked` fill ran flush into the box's own
-           border on both sides — the one place in the library where a panel's rows
-           touched its edge. 4px here puts them at the same inset as a
-           ::picker(select) row. */
-        padding: 0 var(--space-2);
+           `attr()` is what breaks that: the height is declared as the row budget PLUS
+           the padding, so the padding no longer competes with the rows. The row is
+           still built to fit — `2.4`, which lands it on the height a `.menu-item` has
+           — and the arithmetic below is exact rather than approximate.
+
+           `max(2, …)` is a floor, not a preference: `size="0"` is legal to write and
+           would otherwise compute a box with no height at all. The fallback `4` is for
+           `multiple` with no `size`, which is the number the browser uses too.
+
+           A browser without typed `attr()` drops the declaration and gets `auto`,
+           which is the browser-sized box above — the rows lose the padding again and
+           the box scrolls one row early. Nothing else changes, and the floor is
+           current Chromium, which has had it since 133. */
+        block-size: calc(max(2, attr(size type(<number>), 4)) * 2.4em + var(--space-2) * 2);
+        /* Both axes now, so a row's rounded hover and `:checked` fill sit at the same
+           inset from the box's border as a `::picker(select)` row does from the
+           panel's. */
+        padding: var(--space-2);
+        /* Only the fallback path reads this — `block-size` above has already decided
+           the height. It is the same 2.4, so the two cannot disagree. */
         line-height: 2.4;
     }
-    /* Three pixels per row out of the budget: two for the gap below, one for the
-       box's own border, which is two pixels over the whole box and a list box has at
-       least two rows by definition. The slack lands as a sliver of panel under the
-       last row rather than as a scrollbar over it. */
+    /* Two pixels per row out of the budget, for the gap below it. The box is `size`
+       rows plus the padding, so what has to come out of the rows is exactly the gaps
+       between them — and there is one fewer of those than there are rows, which is
+       what pays for the box's own 2px border. `size` rows in a `size` box therefore
+       fit exactly, with no scrollbar and no sliver of panel under the last one. */
     .form-select[multiple] option,
     .form-select[size]:not([size="1"]) option {
         padding-block: 0;
-        line-height: calc(2.4em - 3px);
+        line-height: calc(2.4em - 2px);
     }
     /* The same gap a `::picker(select)` row gets, and for the same reason now that a
        chosen row is filled: without it two chosen rows next to each other merged
@@ -6110,6 +6130,12 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .value-trigger::after {
     content: '';
     flex-shrink: 0;
+    /* Held at the trailing edge, like `.accordion summary::after` and the nav group's.
+       The trigger has a min-width that reserves the measure, so without this the
+       chevron sat against the end of the VALUE with the reserved room stranded
+       after it — two triggers in a column drew their chevrons at two different
+       places, and neither was the edge of the control the hover fill draws. */
+    margin-inline-start: auto;
     width: 0;
     height: 0;
     border-inline: 4px solid transparent;

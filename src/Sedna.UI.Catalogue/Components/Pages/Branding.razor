@@ -21,7 +21,7 @@
     Cobalt moves <code>orbit</code>.
 </p>
 
-<div style="display:flex; gap:24px; flex-wrap:wrap; margin:20px 0 8px">
+<div style="display:flex; gap:24px; flex-wrap:wrap; margin:20px 0 34px">
     <fieldset class="form-section" style="margin:0">
         <legend>Theme</legend>
         <div class="segmented">
@@ -49,6 +49,48 @@
             <label class="segmented-option">
                 <input type="radio" name="branding-variant" checked="@IsLight" @onchange="SelectLight" />
                 <span><i class="ri-sun-line"></i> Light</span>
+            </label>
+        </div>
+    </fieldset>
+    @* The other three appearance settings the header carries, on the page that is about
+       appearance. They are the same ISednaSettings the header writes, so flipping one here
+       moves the header's own toggle and the reverse, and neither has to know about the other. *@
+    <fieldset class="form-section" style="margin:0">
+        <legend>Palette</legend>
+        <div class="segmented">
+            <label class="segmented-option">
+                <input type="radio" name="branding-palette" checked="@(!IsColourBlind)" @onchange="SelectFullColour" />
+                <span><i class="ri-palette-line"></i> Full colour</span>
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="branding-palette" checked="@IsColourBlind" @onchange="SelectColourBlind" />
+                <span><i class="ri-contrast-2-line"></i> Colour-blind</span>
+            </label>
+        </div>
+    </fieldset>
+    <fieldset class="form-section" style="margin:0">
+        <legend>Density</legend>
+        <div class="segmented">
+            <label class="segmented-option">
+                <input type="radio" name="branding-density" checked="@(!IsCompact)" @onchange="SelectComfortable" />
+                <span><i class="ri-menu-line"></i> Comfortable</span>
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="branding-density" checked="@IsCompact" @onchange="SelectCompact" />
+                <span><i class="ri-list-check-2"></i> Compact</span>
+            </label>
+        </div>
+    </fieldset>
+    <fieldset class="form-section" style="margin:0">
+        <legend>Direction</legend>
+        <div class="segmented">
+            <label class="segmented-option">
+                <input type="radio" name="branding-direction" checked="@(!IsRtl)" @onchange="SelectLtr" />
+                <span><i class="ri-text-direction-r"></i> Left to right</span>
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="branding-direction" checked="@IsRtl" @onchange="SelectRtl" />
+                <span><i class="ri-text-direction-l"></i> Right to left</span>
             </label>
         </div>
     </fieldset>
@@ -230,6 +272,9 @@
     // actually looking at rather than an empty selection.
     private bool IsLight => Settings.Current.Variant == "light";
     private bool IsDark => !IsLight;
+    private bool IsColourBlind => Settings.Current.ColourBlind;
+    private bool IsCompact => Settings.Current.Compact;
+    private bool IsRtl => Settings.Current.Direction == "rtl";
 
     /// <summary>The seven fixed points every ramp is generated from — docs/BRANDING.md §1.4.</summary>
     private static readonly (string Label, string Token)[] CoreAnchors =
@@ -275,6 +320,12 @@
     private Task SelectGraphite() => Settings.SetThemeAsync("graphite");
     private Task SelectDark() => Settings.SetVariantAsync("dark");
     private Task SelectLight() => Settings.SetVariantAsync("light");
+    private Task SelectFullColour() => Settings.SetColourBlindAsync(false);
+    private Task SelectColourBlind() => Settings.SetColourBlindAsync(true);
+    private Task SelectComfortable() => Settings.SetCompactAsync(false);
+    private Task SelectCompact() => Settings.SetCompactAsync(true);
+    private Task SelectLtr() => Settings.SetDirectionAsync("ltr");
+    private Task SelectRtl() => Settings.SetDirectionAsync("rtl");
 
     /// <summary>
     /// Every change arrives here, whichever control made it — this page's own segmented
