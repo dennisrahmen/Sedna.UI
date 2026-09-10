@@ -102,7 +102,6 @@ if (!app.Environment.IsDevelopment())
 // variable ASPNETCORE_FORWARDEDHEADERS_ENABLED=true handles the headers; it also
 // clears KnownProxies, which is why the rate limiter above does not rest on the
 // remote address.
-app.UseStaticFiles();
 // Before the endpoint middleware, or an endpoint carrying CORS metadata throws at
 // request time rather than at startup — the 500 reads as a broken tool, not a
 // missing middleware.
@@ -158,6 +157,19 @@ foreach (var (from, to) in CataloguePages.Moved)
     var target = to;
     app.MapGet(from, () => Results.Redirect(target, permanent: true));
 }
+
+// MapStaticAssets, not UseStaticFiles, and the difference is measured rather than
+// stylistic. The publish already writes a `.br` and a `.gz` beside every compressible
+// asset — 466KB of stylesheet becomes 40KB of brotli — and UseStaticFiles cannot serve
+// one, so every visitor downloaded the raw bytes and the proxy in front re-gzipped
+// them on the fly to a worse ratio. It also sets no `Cache-Control` at all, only an
+// ETag, which is a freshness lifetime of zero: every full page load revalidated all
+// thirteen requests before anything could render.
+//
+// This serves the precompressed variant the build already made and gives each asset a
+// real lifetime, from the same manifest the SDK emits. It is an endpoint rather than
+// middleware, which is why it sits here and not where UseStaticFiles used to.
+app.MapStaticAssets();
 
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 

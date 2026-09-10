@@ -566,6 +566,28 @@ bytes**, about **2% of first load**. The .NET SDK already serves the stylesheet 
 bytes. The cost would be a build step, a second artefact to keep in step with the parts, and a
 stylesheet nobody can read in DevTools or in the restored package. Not worth 2%.
 
+**`MapStaticAssets`, not `UseStaticFiles`.** The publish writes a `.br` and a `.gz` beside every
+compressible asset; `UseStaticFiles` can serve neither, so the 466KB stylesheet went out raw for the
+proxy in front to re-gzip on the fly at 125KB, while the 97KB brotli sat unread in the same
+directory. Across the four compressible assets that is about **48KB a cold visit did not need to
+carry**, and a re-compression the edge repeated on every miss. It also sets a freshness lifetime,
+where `UseStaticFiles` sent only an ETag.
+
+The two large assets get `Cache-Control: no-cache`, which is correct rather than a shortfall: their
+URLs are not fingerprinted — the host page is the block `docs/getting-started.md` says to paste, and
+a fingerprinted URL would make the documented page differ from the pasteable one — so a deploy
+changes the bytes behind an unchanged URL. `no-cache` still stores the response and still answers a
+revalidation with a bodyless 304; a long `max-age` here would serve last week's stylesheet.
+`StaticAssetDeliveryTests` pins the decision at the source, because the compressed variants exist
+only after a publish and an in-process test would assert nothing.
+
+**No `PublishReadyToRun`.** The obvious answer to a ~1.4s cold start, and measured at no gain:
+1385ms and 1411ms with it against 1064ms and 1409ms without, for **47% more image** (10MB against
+6.8MB). Almost all of that start is framework code, which the shared runtime already ships
+precompiled; R2R only reaches this app's own small assembly. The cold start is real, and it is paid
+once per deploy by Railway's own healthcheck rather than by a reader, because `overlapSeconds` keeps
+the previous container serving until `/health` answers.
+
 **No pixel baselines for visual regression.** Screenshot comparison is the obvious tool and the wrong
 one here: baselines rendered on Windows do not match the Linux CI runner (font rasterisation and
 scrollbar metrics differ), so the suite either fails constantly or gets a tolerance wide enough to
