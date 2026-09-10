@@ -62,14 +62,15 @@ The guards in `src/Sedna.UI.Tests/Css/` also enforce that:
 - the light and colour-blind blocks only remap tokens and never override a selector, which is what keeps
   CSS load order irrelevant;
 - `font-family` rides `var(--font-sans)` / `var(--font-mono)`;
-- no app-specific naming (`athene`, `zbx`, `gsearch`, `guide-`, …) appears.
+- nothing in the file names a real ticket, host, address or company — see **No real names** below.
 
 Adding a token is a minor version. Renaming or removing one is major.
 
 ## Out of scope
 
-App-specific business UI stays in the app that owns it: approval panels, SLA badges, tour overlays, demo
-choosers, first-run guides, claim overlays, ServiceNow journal styling, page-specific grids.
+App-specific business UI stays in the app that owns it: its own workflow panels, its own overlays and
+guided tours, styling for a particular integration's output, page-specific grids. If a class knows
+what the app is *for*, it belongs to the app.
 
 Permanently out of scope:
 
@@ -118,15 +119,26 @@ What to write instead:
 - **Companies** — `Northwind Retail`, the well-known fictional sample, or nothing at all.
 - **Third-party technology is not covered by this.** Naming Remix Icon, Railway, nuget.org or
   Chromium is describing a dependency, and the notices file has to.
+- **An attribution is not covered by this either.** A photographer credited beside their own
+  photograph is the opposite of a disclosure — it is the credit the licence asks for, and leaving it
+  off to satisfy this rule would be the actual wrong. Credit them where the work is; do not use a
+  real person's name for anything else.
 
-`ExampleSourceTests.No_example_names_a_real_organisation_person_or_host`,
-`HygieneTests.No_app_specific_naming` and `ScriptContractTests` hold the line for examples, the
-stylesheet and the script. **They are literal deny-lists, so the one place a banned name may appear
-is inside them** — a guard cannot match a string it does not hold. Keep that list as short as the
-job allows, and prefer a shape (a ticket prefix, an address range) over a literal wherever a shape
-would catch it.
+**The tests match shapes, never names, and there is deliberately no deny-list.** There used to be
+one, and a literal list of forbidden names is itself a published list of those names — the exact
+disclosure it exists to prevent. So the example guard and the two in
+`ScriptContractTests` match the *form* of a real thing: an
+ITSM record number, a German public body or company legal form, an internal DNS label, a private
+address range. Three real authorities were in the examples and each was recognisable by the word in
+front of the place, so that word is what is matched.
 
-Nothing enforces this in page prose, doc comments or documentation, so it is a review item there.
+The script and stylesheet are scanned **with their comments intact**. A markup snippet in a comment
+is copied verbatim into the shipped file, so it is as published as a line of code — which is how a
+first name used as demo content reached every installing app while a comment-stripping guard
+watched.
+
+**A name that fits no shape is caught by review and nothing else**, here and in page prose, doc
+comments and documentation. That is the trade: no test can hold the list without publishing it.
 
 ## The catalogue
 

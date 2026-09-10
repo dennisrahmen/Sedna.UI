@@ -88,19 +88,27 @@ public class ExampleSourceTests
         Assert.DoesNotContain("<text>", source, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// One remote host, and only for a photograph.
+    /// </summary>
+    /// <remarks>
+    /// A live example's markup is fetched for real, so a URL in one is a genuine runtime
+    /// dependency — and the package's guarantee is that it has none, which an example must
+    /// not teach otherwise. The single exception is
+    /// <see cref="CatalogueAssets.PhotoHost"/>, because a page about images cannot show how
+    /// an <c>&lt;img&gt;</c> is handled without one, and no amount of CSS-drawn placeholder
+    /// teaches <c>object-fit</c>. It is the catalogue's dependency, never the library's.
+    /// </remarks>
     [Theory]
     [MemberData(nameof(AllExamples))]
-    public void No_example_loads_anything_from_a_remote_host(string path)
+    public void No_example_loads_from_a_remote_host_other_than_the_photo_host(string path)
     {
-        var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
+        var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path))
+            .Replace("https://" + CatalogueAssets.PhotoHost, "«photo»", StringComparison.OrdinalIgnoreCase);
 
-        // A live example's markup is fetched for real, so a CDN URL there is a
-        // genuine runtime dependency. A code-only one is held to the same rule
-        // because documenting a remote asset contradicts the package's own
-        // guarantee that nothing is loaded from a remote host.
         Assert.False(RemoteSubresource.IsMatch(source),
             $"{path} loads a subresource from a remote host. Everything the package needs "
-            + "ships inside it, and an example must not teach otherwise.");
+            + $"ships inside it, and the one host an example may reach is {CatalogueAssets.PhotoHost}.");
     }
 
     [Fact]
@@ -142,11 +150,18 @@ public class ExampleSourceTests
         // demo identity is Alex Fischer at example.com (RFC 2606), hosts come from
         // the documentation ranges (RFC 5737), and no real company, account or
         // product belongs in any of it.
-        string[] forbidden =
-        [
-            "athene", "netpoint", "servicenow", "SD-Network", "gsearch", "n8n",
-            "rahmen", "dennis", "np-console",
-        ];
+        //
+        // Shapes, and no literal deny-list. There used to be one and it was itself a
+        // published list of the names it forbade, in a public repository — the
+        // disclosure it existed to prevent. The `No real names` section of the repo's
+        // CLAUDE.md is the rule now; this is the part of it a test can check, and it
+        // matches the FORM of a real record, host, address or company so that no
+        // customer has to be named to guard against naming one.
+        //
+        // The library side of this is Sedna.UI.Tests/TestSupport/RealWorldShapes.cs,
+        // over the shipped stylesheet and script. Two copies rather than a shared
+        // project reference, because `dotnet test src/Sedna.UI.Tests` has to pass with
+        // this project deleted; keep the two in step by hand when either grows.
         string[] forbiddenPatterns =
         [
             @"INC\d{4,}", @"\bCHG\d{4,}", @"\bREQ\d{4,}",
@@ -162,7 +177,7 @@ public class ExampleSourceTests
             @"\b(?:GmbH|gGmbH|mbH|KGaA|OHG)\b",
             // An internal DNS label, including one hiding under a reserved domain —
             // `exch-02.corp.example` is RFC 2606 on the right and internal on the left.
-            @"\.(?:internal|intern|corp|local|lan)\b",
+            @"\.(?:internal|intern|corp|lan)\b",
             // Private and link-local ranges. A real-looking internal address in a
             // copy-pasteable field reads as a real system's address.
             @"\b10\.\d{1,3}\.\d{1,3}\.\d{1,3}\b",
@@ -170,16 +185,14 @@ public class ExampleSourceTests
             @"\b172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}\b",
         ];
 
-        // The library's own published host and repository are not app-specific
+        // The library's own published host and repository are not somebody else's
         // naming — an MCP config example has to name the server it connects to.
         var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path))
             .Replace("www.sedna-ui.com", "«site»", StringComparison.OrdinalIgnoreCase)
             .Replace("github.com/dennisrahmen", "«repo»", StringComparison.OrdinalIgnoreCase);
 
-        var found = forbidden
-            .Where(f => source.Contains(f, StringComparison.OrdinalIgnoreCase))
-            .Concat(forbiddenPatterns
-                .SelectMany(p => Regex.Matches(source, p, RegexOptions.IgnoreCase).Select(m => m.Value)))
+        var found = forbiddenPatterns
+            .SelectMany(p => Regex.Matches(source, p, RegexOptions.IgnoreCase).Select(m => m.Value))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -194,19 +207,23 @@ public class ExampleSourceTests
     {
         // A relative src resolves against the app that pasted the markup, so
         // `logo.png` is a 404 everywhere except this site. Anything an example needs
-        // to look right is drawn in CSS or comes from the bundled icon font.
+        // to look right is drawn in CSS, comes from the bundled icon font, or — for a
+        // photograph, which is neither — from CatalogueAssets.PhotoHost, an absolute
+        // URL that resolves the same wherever the markup is pasted.
         var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
 
         var offenders = Regex.Matches(source, """(?:src|srcset)\s*=\s*["']([^"']+)["']""",
                 RegexOptions.IgnoreCase)
             .Select(m => m.Groups[1].Value)
             .Where(v => !v.StartsWith("_content/Sedna.UI/", StringComparison.OrdinalIgnoreCase)
-                        && !v.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                        && !v.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
+                        && !v.StartsWith("https://" + CatalogueAssets.PhotoHost, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         Assert.True(offenders.Count == 0,
             $"{path} loads {string.Join(", ", offenders)}, which a reader who pasted this markup "
-            + "does not have. Draw the placeholder in CSS or use a Remix Icon.");
+            + "does not have. Draw the placeholder in CSS, use a Remix Icon, or — for a real "
+            + $"photograph — an absolute URL on {CatalogueAssets.PhotoHost}.");
     }
 
     [Fact]

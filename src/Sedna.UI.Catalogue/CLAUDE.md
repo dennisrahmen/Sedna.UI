@@ -78,7 +78,15 @@ survives re-renders by construction.
   one fails the deploy instead of replacing a working site with a dead one. It reads the paths out of
   `Components/App.razor` — add an asset to the host page and it is covered; never write the list out.
 - **`z-index` comes from the documented scale** in `docs/architecture.md`, here too.
-- **Nothing is loaded from a remote host**, in a page or in an example.
+- **One remote host, and only for a photograph.** `images.unsplash.com`, named once in
+  `CatalogueAssets.PhotoHost` and allowed in a page and in an example. Nothing else, and nothing at
+  all in the library: the package's guarantee is that no host's outage can affect a customer's site.
+  The catalogue is a web server we operate whose job is to teach, and `/media` cannot teach how an
+  `<img>` is handled with no image in it — no CSS-drawn placeholder demonstrates `object-fit`.
+  Three tests know about it: the two example guards in `ExampleSourceTests` and the console-error
+  check in `PageLoadTests`, which ignores a failure from that host rather than failing the suite on
+  somebody else's uptime. **Credit the photographer where the photograph is**, which is what
+  Unsplash asks for and what a `figcaption` is.
 - **The examples are the documentation.** Prefer realistic content — a real-sounding queue, an actual
   error message — over `Foo` and `Lorem ipsum`. Say what a class is *for* and which mistake it avoids;
   do not narrate the CSS, which the reader can read.

@@ -19,6 +19,26 @@ internal static class CatalogueAssets
     public static string CatalogueCssPath => Path.Combine(AppDir, "wwwroot", "catalogue.css");
 
     /// <summary>
+    /// The one remote host the catalogue may load from.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The <b>package</b> loads nothing remote and that is not negotiable: everything it
+    /// needs ships inside it, so no host's outage can affect a customer's site. The
+    /// catalogue is a different thing — a web server we operate, whose job is to teach —
+    /// and a page about images cannot teach how an <c>&lt;img&gt;</c> is handled with no
+    /// image in it. So this one host is allowed, here and in an example, and nowhere near
+    /// the library.
+    /// </para>
+    /// <para>
+    /// One host, named in one place, so the three tests that care cannot drift: the two
+    /// example guards below and the console-error check in <c>PageLoadTests</c>, which has
+    /// to tolerate a runner with no egress rather than fail on one.
+    /// </para>
+    /// </remarks>
+    public const string PhotoHost = "images.unsplash.com";
+
+    /// <summary>
     /// Every file the catalogue's content is written in: the example sources, the
     /// pages, the components and the registry.
     /// </summary>
