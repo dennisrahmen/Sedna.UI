@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Tags, not just history: class-history.sh derives which release first
           # shipped each class from `git tag`, and the default shallow checkout
@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
@@ -82,7 +82,7 @@ jobs:
         run: docker build -f src/Sedna.UI.Catalogue/Dockerfile -t sedna-ui-catalogue:ci .
 
       - name: Upload package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nupkg
           path: |
