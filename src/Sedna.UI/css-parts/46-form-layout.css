@@ -192,3 +192,39 @@
     flex-direction: column;
     gap: var(--space-7);
 }
+
+/* ── Transfer ───────────────────────────────────────────────────────────────
+   Two list boxes with the buttons that move rows between them: pick on the left,
+   the row appears on the right. For choosing a SET out of a long list, where a
+   column of checkboxes would be unreadable and a `multiple` select alone gives no
+   answer to "what have I chosen so far" — which is the whole reason this shape
+   exists, and why the right-hand box is not decoration.
+
+   Layout only. `sednaUi.transfer` does the moving, delegated from `document`, and
+   nothing here depends on it: with scripting blocked the two lists are still two
+   list boxes a form can post.
+
+   The middle column is `auto`, so it is exactly as wide as its buttons and the two
+   lists split what is left evenly. `align-self` on the actions rather than
+   `align-items` on the grid: the fields have to stretch, or a label above one list
+   pushes that list out of line with the other. */
+.transfer {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: var(--space-6);
+}
+.transfer-actions {
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+/* Under the two-list width the buttons go between the lists as a row, and the
+   arrows then point the wrong way — which is why the markup uses up/down glyphs at
+   this width and not rotated chevrons: a rotation is a lie about what the button
+   does. */
+@media (max-width: 640px) {
+    .transfer { grid-template-columns: 1fr; }
+    .transfer-actions { flex-direction: row; justify-content: center; }
+}

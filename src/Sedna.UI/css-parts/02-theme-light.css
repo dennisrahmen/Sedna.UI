@@ -46,6 +46,7 @@
     --brand-soft: var(--coral-600);
     --brand-text: var(--coral-700);
     --brand-tint: color-mix(in srgb, var(--brand) 10%, transparent);
+    --brand-tint-strong: color-mix(in srgb, var(--brand) 20%, transparent);
     --accent:     var(--orbit-700);
 
     --sidebar-bg:     var(--white);

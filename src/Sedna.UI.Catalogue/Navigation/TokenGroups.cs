@@ -56,7 +56,8 @@ internal static class TokenGroups
 
         new("Brand — the app override point", [
             "--brand", "--brand-hover", "--brand-active", "--brand-soft", "--brand-text",
-            "--brand-tint", "--brand-ring", "--brand-ring-soft", "--brand-ring-check",
+            "--brand-tint", "--brand-tint-strong",
+            "--brand-ring", "--brand-ring-soft", "--brand-ring-check",
             "--brand-glow", "--accent",
             // The accent inside a state illustration. It lives with the brand tokens
             // because that is what it points at by default; .empty-state--failed moves

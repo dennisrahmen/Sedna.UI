@@ -384,6 +384,7 @@ Two things the flat list does not say:
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | — | `22-anchored.js` adds no member. It closes an open `.menu` or `.popover` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |
+| `transfer` | Moves rows between a `.transfer`'s two list boxes: `add(host)`, `remove(host)`, each returning how many moved. Delegated from `[data-transfer-add]` / `[data-transfer-remove]` and from a double-click on a row. Both lists get a bubbling `change` afterwards, so an app's existing handler sees it; it appends in alphabetical order only where the destination was already sorted, because re-sorting a list whose order is meaningful would destroy it silently |
 | `select` | `refresh(root?)` → how many it fixed. Fills in the `<selectedcontent>` clone a customizable `<select>` should have made and Blazor's render prevents, leaving the closed box blank. Runs on load and after any render that adds nodes; an app calls it only for a select it moved into place some other way |
 | `palette` | Command palette, opened by Ctrl/⌘-K once commands exist: `register(list)`, `open()`, `close()`, `rank(query)` |
 | `search` | Header search behind a `data-search` input: `register(items)`, `rank(query)`, `close()` |

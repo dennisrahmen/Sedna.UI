@@ -57,6 +57,7 @@
     --brand-soft:      var(--coral-400);
     --brand-text:      var(--coral-300);
     --brand-tint:      var(--coral-950);
+    --brand-tint-strong: var(--coral-900);
     --accent:          var(--orbit-300);
 
     --sidebar-bg:      var(--black);
@@ -150,6 +151,7 @@
     --brand-soft:      var(--coral-700);
     --brand-text:      var(--coral-800);
     --brand-tint:      var(--coral-200);
+    --brand-tint-strong: var(--coral-300);
     --accent:          var(--orbit-800);
 
     --sidebar-bg:      var(--white);

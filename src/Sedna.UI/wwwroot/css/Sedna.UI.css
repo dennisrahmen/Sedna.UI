@@ -442,6 +442,11 @@
        tree without knowing which state it is drawing. */
     --state-accent:     var(--brand);
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
+    /* One step up from --brand-tint, for hovering something already tinted by it.
+       Pointing at a chosen row must not replace its tint with the neutral hover:
+       that erases the state under the pointer. Both move together — a tint remapped
+       without its pair jumps between two unrelated strengths. */
+    --brand-tint-strong: color-mix(in srgb, var(--brand) 24%, transparent);
     --brand-ring:       color-mix(in srgb, var(--brand) 50%, transparent);  /* filled primary focus ring */
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
     --brand-ring-check: color-mix(in srgb, var(--brand) 35%, transparent);  /* checkbox focus */
@@ -825,6 +830,7 @@
     --brand-soft: var(--coral-600);
     --brand-text: var(--coral-700);
     --brand-tint: color-mix(in srgb, var(--brand) 10%, transparent);
+    --brand-tint-strong: color-mix(in srgb, var(--brand) 20%, transparent);
     --accent:     var(--orbit-700);
 
     --sidebar-bg:     var(--white);
@@ -1061,6 +1067,7 @@
     --brand-soft:      var(--coral-400);
     --brand-text:      var(--coral-300);
     --brand-tint:      var(--coral-950);
+    --brand-tint-strong: var(--coral-900);
     --accent:          var(--orbit-300);
 
     --sidebar-bg:      var(--black);
@@ -1154,6 +1161,7 @@
     --brand-soft:      var(--coral-700);
     --brand-text:      var(--coral-800);
     --brand-tint:      var(--coral-200);
+    --brand-tint-strong: var(--coral-300);
     --accent:          var(--orbit-800);
 
     --sidebar-bg:      var(--white);
@@ -4418,6 +4426,42 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     flex-direction: column;
     gap: var(--space-7);
 }
+
+/* ── Transfer ───────────────────────────────────────────────────────────────
+   Two list boxes with the buttons that move rows between them: pick on the left,
+   the row appears on the right. For choosing a SET out of a long list, where a
+   column of checkboxes would be unreadable and a `multiple` select alone gives no
+   answer to "what have I chosen so far" — which is the whole reason this shape
+   exists, and why the right-hand box is not decoration.
+
+   Layout only. `sednaUi.transfer` does the moving, delegated from `document`, and
+   nothing here depends on it: with scripting blocked the two lists are still two
+   list boxes a form can post.
+
+   The middle column is `auto`, so it is exactly as wide as its buttons and the two
+   lists split what is left evenly. `align-self` on the actions rather than
+   `align-items` on the grid: the fields have to stretch, or a label above one list
+   pushes that list out of line with the other. */
+.transfer {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: var(--space-6);
+}
+.transfer-actions {
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+/* Under the two-list width the buttons go between the lists as a row, and the
+   arrows then point the wrong way — which is why the markup uses up/down glyphs at
+   this width and not rotated chevrons: a rotation is a lie about what the button
+   does. */
+@media (max-width: 640px) {
+    .transfer { grid-template-columns: 1fr; }
+    .transfer-actions { flex-direction: row; justify-content: center; }
+}
 }
 
 /* ── 47-form-file.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -4879,7 +4923,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    already chosen — arrowing down a list moves it without selecting anything. */
 .form-select option:hover,
 .form-select option:focus { background: var(--bg-hover); }
-.form-select option:checked { color: var(--brand-text); }
+/* Chosen is a TINT and a colour, not a colour alone. Brand text on the field's own
+   background is the shape of an error rather than of a selection, it carries nothing
+   at all for a reader going by lightness, and in a list box — where several rows are
+   chosen at once — there was no way to see the set of them. Same construction as
+   `.nav-link.active` and `.palette-item[aria-selected]`, so the three read alike. */
+.form-select option:checked { background: var(--brand-tint); color: var(--brand-text); }
+/* Pointing at a chosen row deepens it instead of replacing the tint with the neutral
+   hover, which erased the very thing being pointed at. */
+.form-select option:checked:hover,
+.form-select option:checked:focus { background: var(--brand-tint-strong); }
 .form-select option:disabled { color: var(--muted); cursor: not-allowed; }
 /* The clone in the closed box is not inside the <option> any more, so it has to be
    named again or the same icon comes out two sizes in the two places it appears. */
@@ -4992,6 +5045,21 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
        and a list box's rows are meant to read as one column anyway. */
     .form-select[multiple] option + option,
     .form-select[size]:not([size="1"]) option + option { margin-block-start: 0; }
+
+    /* A row carrying `.option-text` is two lines and cannot live inside the
+       single-line budget above — squeezed into it, the second line was clipped by
+       the row below. It gets its block padding back and measures itself.
+
+       The cost is that `size` stops being the number of rows on show: the box is
+       still `size` times the box's own line-height, and these rows are taller than
+       that. Which is the honest outcome — a list of two-line rows has no single row
+       height to divide by — and the box scrolls, as it already does for a list
+       longer than `size`. Set `size` to about half the rows you want visible. */
+    .form-select[multiple] option:has(.option-text),
+    .form-select[size]:not([size="1"]) option:has(.option-text) {
+        padding-block: var(--space-3);
+        line-height: 1.4;
+    }
 }
 }
 

@@ -1,0 +1,34 @@
+<div class="transfer" data-transfer style="max-width:640px">
+    <div class="form-field">
+        <label class="form-label" for="tr-available">Available groups</label>
+        <select class="form-input form-select" id="tr-available" multiple size="7" data-transfer-from>
+            <option>Facilities</option>
+            <option>Finance</option>
+            <option>Network</option>
+            <option>Procurement</option>
+            <option>Security</option>
+            <option>Warehouse</option>
+        </select>
+        <p class="form-hint">Pick one or more, then Add. A double-click moves a single row.</p>
+    </div>
+
+    <div class="transfer-actions">
+        <button class="btn btn-icon" type="button" data-transfer-add aria-label="Add to notified"
+                data-tip="Moves everything selected on the left over to the right.">
+            <i class="ri-arrow-right-line"></i>
+        </button>
+        <button class="btn btn-icon" type="button" data-transfer-remove aria-label="Remove from notified"
+                data-tip="Moves everything selected on the right back to the left.">
+            <i class="ri-arrow-left-line"></i>
+        </button>
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="tr-notified">Notified on escalation</label>
+        <select class="form-input form-select" id="tr-notified" multiple size="7" data-transfer-to>
+            <option>Fulfilment</option>
+            <option>On call</option>
+        </select>
+        <p class="form-hint">This is the answer the form posts. The left list posts nothing.</p>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+<div class="form-field" style="max-width:340px">
+    <label class="form-label" for="lb-sections">Escalate to</label>
+    <select class="form-input form-select" id="lb-sections" multiple size="7">
+        <optgroup label="On call">
+            <legend>On call</legend>
+            <option selected>Duty engineer</option>
+            <option>Duty lead</option>
+        </optgroup>
+        <optgroup label="Teams">
+            <legend>Teams</legend>
+            <option>Fulfilment</option>
+            <option selected>Network</option>
+            <option>Warehouse</option>
+        </optgroup>
+        <optgroup label="Off rota">
+            <legend>Off rota</legend>
+            <option disabled>Finance &mdash; no rota this week</option>
+            <option>Facilities</option>
+        </optgroup>
+    </select>
+    <p class="form-hint">
+        <code>size</code> counts rows, and a <code>&lt;legend&gt;</code> is a row. Seven here shows
+        three headings and four options; ask for the headings as well as the options you want on
+        screen.
+    </p>
+</div>

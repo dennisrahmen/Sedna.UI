@@ -228,7 +228,16 @@
    already chosen — arrowing down a list moves it without selecting anything. */
 .form-select option:hover,
 .form-select option:focus { background: var(--bg-hover); }
-.form-select option:checked { color: var(--brand-text); }
+/* Chosen is a TINT and a colour, not a colour alone. Brand text on the field's own
+   background is the shape of an error rather than of a selection, it carries nothing
+   at all for a reader going by lightness, and in a list box — where several rows are
+   chosen at once — there was no way to see the set of them. Same construction as
+   `.nav-link.active` and `.palette-item[aria-selected]`, so the three read alike. */
+.form-select option:checked { background: var(--brand-tint); color: var(--brand-text); }
+/* Pointing at a chosen row deepens it instead of replacing the tint with the neutral
+   hover, which erased the very thing being pointed at. */
+.form-select option:checked:hover,
+.form-select option:checked:focus { background: var(--brand-tint-strong); }
 .form-select option:disabled { color: var(--muted); cursor: not-allowed; }
 /* The clone in the closed box is not inside the <option> any more, so it has to be
    named again or the same icon comes out two sizes in the two places it appears. */
@@ -341,4 +350,19 @@
        and a list box's rows are meant to read as one column anyway. */
     .form-select[multiple] option + option,
     .form-select[size]:not([size="1"]) option + option { margin-block-start: 0; }
+
+    /* A row carrying `.option-text` is two lines and cannot live inside the
+       single-line budget above — squeezed into it, the second line was clipped by
+       the row below. It gets its block padding back and measures itself.
+
+       The cost is that `size` stops being the number of rows on show: the box is
+       still `size` times the box's own line-height, and these rows are taller than
+       that. Which is the honest outcome — a list of two-line rows has no single row
+       height to divide by — and the box scrolls, as it already does for a list
+       longer than `size`. Set `size` to about half the rows you want visible. */
+    .form-select[multiple] option:has(.option-text),
+    .form-select[size]:not([size="1"]) option:has(.option-text) {
+        padding-block: var(--space-3);
+        line-height: 1.4;
+    }
 }

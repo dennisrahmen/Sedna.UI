@@ -122,7 +122,7 @@ internal static class CataloguePages
             "textarea rows resize resize-none resize-both vertical lock multiline comment note maxlength counter"),
         new("/form-select", Inputs, "Selects", "ri-dropdown-list",
             "The themed drop-down, options with content, and the list box.",
-            "select form-select select-sm select-lg option optgroup legend selectedcontent picker caret multiple size listbox multiselect base-select"),
+            "select form-select select-sm select-lg option optgroup legend selectedcontent picker caret multiple size listbox multiselect base-select transfer picklist dual list move"),
         new("/form-choice", Inputs, "Checkboxes and switches", "ri-checkbox-line",
             "Checkboxes, radios and the switch — and which of the three to reach for.",
             "checkbox radio switch toggle form-check fieldset exclusive setting immediate saved disabled policy"),

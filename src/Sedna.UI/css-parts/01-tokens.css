@@ -112,6 +112,11 @@
        tree without knowing which state it is drawing. */
     --state-accent:     var(--brand);
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
+    /* One step up from --brand-tint, for hovering something already tinted by it.
+       Pointing at a chosen row must not replace its tint with the neutral hover:
+       that erases the state under the pointer. Both move together — a tint remapped
+       without its pair jumps between two unrelated strengths. */
+    --brand-tint-strong: color-mix(in srgb, var(--brand) 24%, transparent);
     --brand-ring:       color-mix(in srgb, var(--brand) 50%, transparent);  /* filled primary focus ring */
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
     --brand-ring-check: color-mix(in srgb, var(--brand) 35%, transparent);  /* checkbox focus */
