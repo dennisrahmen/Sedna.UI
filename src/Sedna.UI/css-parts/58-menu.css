@@ -105,6 +105,10 @@
     margin-block-start: var(--space-2);
     z-index: 550;
 }
+/* This offset is computed when the panel becomes visible and Chromium does not
+   recompute it while the anchor scrolls, so an open panel goes stale rather than
+   merely moving — 22-anchored.js closes it on a scroll that moved the trigger. The
+   panel is correct every time it opens, which is why the fix is not in this file. */
 
 /* The panel lines up with the anchor's inline-END edge, so a trigger narrower than
    the panel's 220px overhangs on the leading side. That is right for a trigger at the

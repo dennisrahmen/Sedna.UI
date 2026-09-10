@@ -19,7 +19,11 @@
    `popovertarget` control. The platform then supplies everything this file would
    otherwise need JavaScript for — the top layer, light dismiss, Escape, focus
    handling, and `:popover-open`. There is no sednaUi.popover and there does
-   not need to be one.
+   not need to be one — with one exception the platform does not cover:
+   22-anchored.js closes an open popover when a scroll moves its invoker, because
+   an anchored panel's offset is computed at reveal and never recomputed while the
+   anchor scrolls. It finds the invoker through `popovertarget`, which is why that
+   attribute being required below is load-bearing twice over.
 
    `popovertarget` also makes the invoker the popover's IMPLICIT ANCHOR, which is
    what lets `position-area` place this with no `anchor-name` anywhere. That

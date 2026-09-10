@@ -382,6 +382,7 @@ Two things the flat list does not say:
 | `confirm(options)` | A `<dialog>.showModal()` confirmation. Returns a promise; `danger: true` reddens confirm and focuses cancel |
 | `modal` | The platform dialog for an app's own markup: `show(id)` → `showModal()`, `close(id, value)` → `close(value)`. An id that is not a `<dialog>`, or one already open, warns in the console and does nothing — an exception crossing the interop boundary from a Blazor handler tears down the circuit |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
+| — | `22-anchored.js` adds no member. It closes an open `.menu` or `.popover` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |
 | `select` | `refresh(root?)` → how many it fixed. Fills in the `<selectedcontent>` clone a customizable `<select>` should have made and Blazor's render prevents, leaving the closed box blank. Runs on load and after any render that adds nodes; an app calls it only for a select it moved into place some other way |
 | `palette` | Command palette, opened by Ctrl/⌘-K once commands exist: `register(list)`, `open()`, `close()`, `rank(query)` |
@@ -573,7 +574,7 @@ that loses a property to a more specific rule and silently does nothing. Those a
 
 **CSS anchor positioning, deliberately.** The floor is Chromium — current Chrome and Edge — so
 `anchor-name`, `anchor-scope`, `position-area` and `align-self: anchor-center` are all available and
-two things depend on them: the collapsed rail's hover flyout and `.popover`.
+three things depend on them: the collapsed rail's hover flyout, `.popover` and `.menu`.
 
 The rail is the one that could not be done any other way. It scrolls, and **a scroll container clips
 both axes** — there is no combination of `overflow` values that scrolls vertically and lets a child out
@@ -581,9 +582,31 @@ sideways, so a flyout inside `.nav-scroll` is either clipped or the rail cannot 
 takes the viewport as its containing block and escapes the clip; anchor positioning is then what tells
 it where to go without measuring anything in JavaScript.
 
-`.menu` is **not** anchored this way and should stay that way: `.menu-anchor` uses `position: relative`,
-needs no measurement, and works in any engine. Use anchor positioning where the alternative is a
-measurement, not as a default.
+`.menu` came to need it for the same reason. An absolutely positioned panel is laid out inside the
+nearest scroll container and counts towards its scrollable overflow, so a menu opened in a toolbar or a
+scrolling table both grew that container a scrollbar and got clipped at its edge. `.menu-anchor` still
+carries `position: relative`, which is what the panel's own `--start` variant and the fallback rung
+resolve against. Use anchor positioning where the alternative is a measurement, not as a default.
+
+**It does not survive a scroll.** Chromium computes an anchored `position: fixed` panel's offset when
+the panel becomes visible and does not recompute it while the anchor scrolls: the panel stays pinned to
+the viewport, the trigger travels out from under it, and the gap grows by exactly the scroll distance.
+Measured on `/menu` — 4px under the trigger at rest, 154px after a 150px scroll, and −146px after
+scrolling back, with the panel's own viewport `top` never changing. Hiding and re-showing it puts it
+right, which is what identifies the cause as a snapshot at reveal rather than a positioning error.
+
+So `22-anchored.js` closes an open `.menu` or `.popover` when a scroll moves its trigger. A dropdown
+whose trigger has scrolled away is stale rather than misplaced, and closing it is what a platform menu
+does — which is why this is the fix rather than repositioning in JavaScript. The handler measures
+nothing and writes no coordinate; it reads `[data-menu-toggle][aria-expanded="true"]` and
+`.popover:popover-open`, ignores a scroll that came from inside the panel, and ignores one that did not
+move the trigger at all. It listens in the **capture** phase, because `scroll` does not bubble and the
+frame's own `.page` is a scroll container.
+
+The rail's flyout has the same fault and no fix: it is a CSS hover state with no open/closed to toggle.
+It is also the mildest case — the pointer has to stay on the rail item for the flyout to exist, and
+leaving closes it. `AnchoredPanelTests` pins the menu and popover behaviour, including the two cases
+that must NOT close.
 
 **Scroll-driven animations are avoided** for a sharper reason: they fail *incorrectly*. A browser that
 drops `animation-timeline` leaves the rest of the `animation` shorthand running, so the animation plays

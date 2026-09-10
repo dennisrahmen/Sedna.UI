@@ -5895,6 +5895,10 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     margin-block-start: var(--space-2);
     z-index: 550;
 }
+/* This offset is computed when the panel becomes visible and Chromium does not
+   recompute it while the anchor scrolls, so an open panel goes stale rather than
+   merely moving — 22-anchored.js closes it on a scroll that moved the trigger. The
+   panel is correct every time it opens, which is why the fix is not in this file. */
 
 /* The panel lines up with the anchor's inline-END edge, so a trigger narrower than
    the panel's 220px overhangs on the leading side. That is right for a trigger at the
@@ -7595,7 +7599,11 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    `popovertarget` control. The platform then supplies everything this file would
    otherwise need JavaScript for — the top layer, light dismiss, Escape, focus
    handling, and `:popover-open`. There is no sednaUi.popover and there does
-   not need to be one.
+   not need to be one — with one exception the platform does not cover:
+   22-anchored.js closes an open popover when a scroll moves its invoker, because
+   an anchored panel's offset is computed at reveal and never recomputed while the
+   anchor scrolls. It finds the invoker through `popovertarget`, which is why that
+   attribute being required below is load-bearing twice over.
 
    `popovertarget` also makes the invoker the popover's IMPLICIT ANCHOR, which is
    what lets `position-area` place this with no `anchor-name` anywhere. That
