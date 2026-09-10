@@ -1,7 +1,7 @@
 @page "/collections"
 
 <CatHead Title="Collections">
-    Four ways to show a set of things. Pick by what the reader does with it: compare values
+    Ways to show a set of things. Pick by what the reader does with it: compare values
     (a <a href="/table">table</a>), open one at a time (<code>.list</code>), follow an order
     (<code>.steps</code>), or expand into detail (<code>.accordion</code>, <code>.tree</code>).
     A record of what happened, with when, is a <a href="/timeline">timeline</a>.
@@ -9,67 +9,35 @@
 
 <CatExample TExample="Examples.Collections.List" Title="List" Demo="ex-demo--block">
     <p>
-        For rows where a table would be wrong: when the fields differ per row, when one field
-        dominates and the rest supports it, or when each row is something you <em>open</em> rather
-        than compare down a column.
-    </p>
-    <p>
-        A row that navigates is an <code>&lt;a class="list-row"&gt;</code> filling the
-        <code>&lt;li&gt;</code>, never a click handler on the <code>&lt;li&gt;</code> — the whole
-        row is then a real link, openable in a new tab and reachable by keyboard.
-        <code>.list-main</code> carries <code>min-width:0</code>, which is what makes the ellipsis
-        work: a flex item otherwise refuses to shrink below its content, and truncation silently
-        never happens.
-    </p>
-    <p>
-        <strong>A row that acts rather than navigates is a
-        <code>&lt;button class="list-row"&gt;</code></strong>, filling the <code>&lt;li&gt;</code>
-        the same way. The class resets the platform's button chrome — the system fill, the system
-        border, the centred text and the UA's own font, none of which a <code>&lt;span&gt;</code>
-        row brings — so the two rows look alike, and hover, pressed, focus and disabled apply to
-        both. A non-interactive row stays a <code>&lt;span&gt;</code> and gets none of those
-        states. The <a href="/drawer">action sheet</a> is a list of button rows.
+        For rows where a table would be wrong: the fields differ per row, one field dominates and
+        the rest supports it, or each row is something you <em>open</em> rather than compare down a
+        column. <strong>A row that navigates is an <code>&lt;a class="list-row"&gt;</code> filling
+        the <code>&lt;li&gt;</code> and a row that acts is a
+        <code>&lt;button class="list-row"&gt;</code></strong> &mdash; never a click handler on the
+        <code>&lt;li&gt;</code> &mdash; while a non-interactive row stays a
+        <code>&lt;span&gt;</code> and gets no hover, pressed or focus state. The
+        <a href="/drawer">action sheet</a> is a list of button rows.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Collections.Steps" Title="Steps" Demo="ex-demo--block">
     <p>
         Progress through a sequence that has an order and an end — a wizard, an approval chain.
-        State is <code>data-state</code> on the <code>&lt;li&gt;</code> rather than a modifier class,
-        because a step has exactly one of three states and an attribute cannot accidentally carry
-        two. The number comes from a CSS counter, so inserting a step is not a renumbering edit.
-    </p>
-    <p>
-        Done is <strong>filled</strong> and pending is <strong>outlined</strong>. That difference
-        survives the colour-blind palette, a greyscale print and forced colours — which a
-        green-versus-grey fill would not — so no markup has to carry a tick.
+        State is <code>data-state</code> on the <code>&lt;li&gt;</code> rather than a modifier
+        class, and the number comes from a CSS counter, so inserting a step is not a renumbering
+        edit.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Collections.StickyGroups" Title="Stacking group headers" Demo="ex-demo--block">
     <p>
         A grouped list in a scroll container where each header pins <strong>below</strong> the one
-        above it instead of replacing it, so the reader keeps the whole path to where they are.
-        Scroll the card.
-    </p>
-    <p>
-        The app supplies one number and nothing else:
-        <code>style="--group-head-index: 2"</code>. The offset is computed from it, so no app does
-        the arithmetic; the height is a variable so the two agree by construction; the background is
-        opaque because rows scroll under it; <code>flex-shrink: 0</code> stops a flex scroll
-        container squashing a pinned header to nothing; and the height in the multiplication is one
-        pixel short, which overlaps each header on the one above so no sub-pixel sliver of a
-        scrolling row shows between them. Every one of those was a bug first.
-    </p>
-    <p>
-        <strong>An opaque header has to be the colour of what it is pinned over</strong>, so it is
-        <code>--group-head-bg</code>, which reads <code>--surface-here</code> — the colour
-        every library surface declares for its own contents — and falls back to the page. A
-        list in a card, a modal, a drawer or a popover is right with no help. On a surface
-        <em>your</em> app paints, set the variable on the list —
-        <code>style="--group-head-bg: var(--surface-strong)"</code> — rather than restating the
-        rule. <code>--group-head-fg</code> and <code>--group-head-height</code> are the same escape
-        hatch for the label colour and the pinned height.
+        above it instead of replacing it, so the reader keeps the whole path to where they are —
+        scroll the card. <strong>The app supplies one number and nothing else:</strong>
+        <code>style="--group-head-index: 2"</code>. On a surface your own app paints, set
+        <code>style="--group-head-bg: var(--surface-strong)"</code> on the list;
+        <code>--group-head-fg</code> and <code>--group-head-height</code> are the same escape hatch
+        for the label colour and the pinned height.
     </p>
 </CatExample>
 
@@ -77,58 +45,29 @@
     <p>
         <code>--rule</code> trades the full-width bottom border for a hairline running from the
         label to the end of the row, so the header reads as a caption over the rows rather than a
-        bar across them. Use it where the groups are a state the reader scans past, not a section
-        they land in. The pinning is identical.
-    </p>
-    <p>
-        The rule is the header's own <code>::after</code>, which is why a trailing count needs
-        <code>.sticky-group-count</code>: a pseudo-element is always the last child, and
-        <code>order</code> is what puts the rule between the label and the count. The count sits at
-        the end without the rule too.
-    </p>
-    <p>
-        This list is on the page rather than in a card, and its headers take the page colour with no
-        markup saying so.
+        bar across them; use it where the groups are a state the reader scans past, not a section
+        they land in. A trailing count needs <code>.sticky-group-count</code>, because the rule is
+        the header's own <code>::after</code> and a pseudo-element is always the last child.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Collections.Accordion" Title="Accordion" Demo="ex-demo--block">
     <p>
-        Built on <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code>, which is the point: the
-        open state, the keyboard operation and the announcement all come from the platform, so
-        there is no ARIA to get wrong and nothing to wire.
-    </p>
-    <p>
-        Give every <code>&lt;details&gt;</code> the same <code>name</code> to make them mutually
-        exclusive — that is a platform feature too, and it needs no JavaScript. Try it: opening one
-        below closes the others.
-    </p>
-    <p>
-        <strong>If code has to open one, bind <code>open</code> one way and never write it back.</strong>
-        <code>toggle</code> fires whenever the <code>open</code> attribute changes — including when
-        the framework's own diff sets it. So a handler that mirrors the state back into a field flips
-        the field the moment code opens the section, the next diff removes the attribute,
-        <code>toggle</code> fires again, and the two fight. It is not a race: it is deterministic, and
-        it shows up only once something other than a click opens the disclosure.
-    </p>
-    <p>
-        Keep the summary's label independent of the open state as well. A label that flips between
-        “Show” and “Hide” is what tempts you into reading the state back in the first place, and the
-        caret already says which way it is.
+        Built on <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code>, so the open state, the
+        keyboard operation and the announcement all come from the platform, and giving every
+        <code>&lt;details&gt;</code> the same <code>name</code> makes them mutually exclusive.
+        <strong>If code has to open one, bind <code>open</code> one way and never write it
+        back</strong> — <code>toggle</code> fires when the framework's own diff sets the attribute,
+        so a handler that mirrors the state back into a field will fight it.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Collections.Tree" Title="Tree" Demo="ex-demo--block">
     <p>
-        Nested structure the reader expands — a group hierarchy, a folder of files. Nested
+        Nested structure the reader expands — a group hierarchy, a folder of files: nested
         <code>&lt;ul&gt;</code> inside <code>&lt;details&gt;</code>, for the same reason as the
-        accordion.
-    </p>
-    <p>
-        Do <strong>not</strong> declare <code>role="tree"</code>. A tree promises single-tab-stop
-        navigation with arrow keys through a flattened view, which this markup does not implement;
-        <code>&lt;details&gt;</code> announces a set of disclosures, which is what it is.
-        <code>.tree-leaf</code> is an item with nothing under it, indented to line up with its
-        siblings' labels.
+        accordion. Do <strong>not</strong> declare <code>role="tree"</code>, which promises
+        single-tab-stop arrow-key navigation through a flattened view that this markup does not
+        implement; <code>.tree-leaf</code> is an item with nothing under it.
     </p>
 </CatExample>

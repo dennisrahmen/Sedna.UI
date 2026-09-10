@@ -7,55 +7,42 @@
 
 <div class="cat-note">
     <i class="ri-question-line"></i>
-    <strong>Chip or badge?</strong> Ask whether the user can remove it. If they put it there and can
-    take it away, it is a chip. If it reflects data, it is a <a href="/badge">badge</a>. Getting this
-    the wrong way round gives a page of pills where nobody can tell which are interactive.
+    <strong>Chip or badge?</strong> Ask whether the user can remove it: if they put it there and
+    can take it away it is a chip, and if it reflects data it is a <a href="/badge">badge</a>.
 </div>
 
 <CatExample TExample="Examples.Chip.Chips" Title="A set of filters" Demo="ex-demo--block">
     <p>
-        <code>.chip-set</code> wraps a row of them onto a second line. The remove button is a real
-        <code>&lt;button&gt;</code> and needs a real name: <code>&times;</code> alone is announced as
-        &ldquo;times&rdquo; and says nothing about what it removes, so write
-        <code>aria-label="Remove the region filter"</code>.
-    </p>
-    <p>
-        <code>.chip--active</code> is a filter that is on rather than one offered.
-        <code>.chip-dot</code> carries a state inside the chip; colour it from a semantic token in
-        the markup, because the class alone says nothing. A chip with no dismiss button drops the
-        trailing room for one.
+        <code>.chip-set</code> wraps a row of them onto a second line, and the remove button is a
+        real <code>&lt;button&gt;</code> that needs a real name &mdash;
+        <code>aria-label="Remove the region filter"</code>, never a bare <code>&times;</code>.
+        <code>.chip--active</code> is a filter that is on rather than one offered, and
+        <code>.chip-dot</code> has to be coloured from a semantic token in the markup.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Chip.AppliedFilters" Title="What is applied, under the toolbar" Demo="ex-demo--block">
     <p>
-        A chip's home. The <a href="/toolbar">toolbar</a> holds the controls that change the filter;
-        the chip row below it says what is currently applied and gives each one a way off. Both are
-        needed — a filter only a control remembers is one the reader forgets is on.
-    </p>
-    <p>
-        Every chip here is <code>.chip--active</code>, because each one is a filter that is on rather
-        than one being offered. Name the remove button after the value it removes.
+        A chip's home: the <a href="/toolbar">toolbar</a> changes the filter, and the chip row
+        below says what is currently applied and gives each one a way off. Name every remove
+        button after the value it removes.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Chip.Recipients" Title="Chosen people, in a field" Demo="ex-demo--block">
     <p>
-        A chip can hold an <a href="/avatar"><code>.avatar</code></a> as well as a label, which is
-        what makes a recipient field readable at a glance. <code>.avatar-sm</code> is the size that
-        fits inside the small tier; <code>.avatar--muted</code> marks an actor that is not a person.
-    </p>
-    <p>
-        The input goes after the chips, not inside them. A field whose value is a set of chips still
-        needs one real labelled control for adding to it.
+        A chip can hold an <a href="/avatar"><code>.avatar</code></a> as well as a label;
+        <code>.avatar-sm</code> is the size that fits inside the small tier, and
+        <code>.avatar--muted</code> marks an actor that is not a person. The input goes after the
+        chips, not inside them &mdash; a field whose value is a set of chips still needs one real
+        labelled control for adding to it.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Chip.Sizes" Title="Two sizes" Demo="ex-demo--block">
     <p>
         A chip is interactive, so it takes the <a href="/concepts">control heights</a> rather than a
-        type scale. The default is the small tier, because a chip's home is a filter bar beside a
-        <code>.btn-sm</code>. <code>.chip-lg</code> is the normal tier, for a chip beside a full-size
-        button.
+        type scale. The default is the small tier, for a filter bar beside a <code>.btn-sm</code>;
+        <code>.chip-lg</code> is the normal tier.
     </p>
 </CatExample>

@@ -1,32 +1,33 @@
 @page "/grid"
 
 <CatHead Title="Grids">
-    Three layout primitives, all breakpoint-free: they respond to the space they are given rather
-    than to the viewport width, so they behave correctly inside a narrow column too.
+    Layout primitives, all breakpoint-free: they respond to the space they are given rather than to
+    the viewport width, so they behave correctly inside a narrow column too.
 </CatHead>
 
 <div class="cat-note">
-        <strong>Page-specific grids stay in the app.</strong> Only reusable layout primitives live here.
-        A two-pane layout or a tile grid tuned to one page's card size belongs in that page.
-    </div>
+    <i class="ri-layout-grid-line"></i>
+    <strong>Page-specific grids stay in the app.</strong> Only reusable layout primitives live
+    here; a two-pane layout or a tile grid tuned to one page's card size belongs in that page. Page
+    width needs no wrapper — <code>.page</code> holds content to <code>--page-max</code> and
+    centres it by growing its horizontal padding.
+</div>
 
 <CatExample TExample="Examples.Grid.CardMasonry" Title="`.card-masonry`" Demo="ex-demo--block">
     <p>
-        Cards of similar height flow across as many balanced columns as the width allows, and
-        stack to fill each column instead of piling into one strip. Every child is kept whole.
-        <code>auto-fit</code> collapses empty tracks, so the cards that are present always
-        stretch to fill the row — remove one and nothing is left stranded. Resize this window to
-        watch it recolumn.
+        Cards of similar height flow across as many balanced columns as the width allows and stack
+        to fill each column instead of piling into one strip, every child kept whole.
+        <code>auto-fit</code> collapses empty tracks, so the cards that are present always stretch
+        to fill the row. Resize this window to watch it recolumn.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Grid.CardGrid" Title="`.card-grid`" Demo="ex-demo--block">
     <p>
-        A set of peers in a plain wrapping grid. It differs from
-        <code>.card-masonry</code> in the one way that decides which to use:
-        <code>auto-fill</code> keeps the track count stable, so three cards stay three columns
-        wide instead of stretching to fill the row. Use this when the cards are equals of similar
-        height; use <code>.card-masonry</code> when their heights differ a lot.
+        A set of peers in a plain wrapping grid: <code>auto-fill</code> keeps the track count
+        stable, so three cards stay three columns wide instead of stretching to fill the row. Use
+        this when the cards are equals of similar height, and <code>.card-masonry</code> when their
+        heights differ a lot.
     </p>
 </CatExample>
 
@@ -40,38 +41,16 @@
 <CatExample TExample="Examples.Grid.CardSpanFull" Title="`.card-span-full`" Demo="ex-demo--block">
     <p>
         One child of any grid above taking the whole row — a chart over a row of tiles, or the odd
-        card in a wrapping set that would otherwise sit alone at one track wide with the rest of the
-        last row empty beside it. Any card count that is not a multiple of the track count hits
-        that, and the track count changes with the width, so every set of three or more meets it at
-        some size.
-    </p>
-    <p>
-        <code>grid-column: 1 / -1</code> rather than a <code>span</code> count, because a count
-        cannot be made safe here: the track count of an <code>auto-fit</code> grid depends on the
-        container, so <code>span 2</code> in a grid one track wide invents a second column and
-        overflows it. <code>1 / -1</code> needs to know nothing.
-    </p>
-    <p>
-        <strong>Which child is the odd one out is still yours.</strong> Nothing in CSS can count the
-        children against the tracks. A grid that needs several different spans per width band is a
-        page-specific grid, and the note at the top of this page applies.
+        card in a wrapping set that would otherwise sit alone at one track wide.
+        <strong>Which child that is stays yours:</strong> nothing in CSS can count the children
+        against the tracks, and a grid needing several different spans per width band is a
+        page-specific grid.
     </p>
 </CatExample>
-
-<div class="cat-note">
-        <strong>Page width needs no wrapper.</strong> <code>.page</code> holds content to
-        <code>--page-max</code> (1800px) and centres it by growing its horizontal padding rather than
-        capping its width, which keeps the scrollbar at the right edge of the screen.
-    </div>
 
 <CatExample TExample="Examples.Grid.StatsAndCards" Title="A dashboard row" Demo="ex-demo--block">
     <p>
         The composition a dashboard is actually made of: a <a href="/stat"><code>.stat-row</code></a>
-        of figures above a <code>.card-grid</code> of the things behind them. Both are breakpoint-free,
-        so the whole block behaves correctly inside a narrow column too.
-    </p>
-    <p>
-        Nothing here is a page-specific grid. If a layout needs a named area or a fixed column count,
-        it belongs in the app that owns the page rather than in this library.
+        of figures above a <code>.card-grid</code> of the things behind them, both breakpoint-free.
     </p>
 </CatExample>

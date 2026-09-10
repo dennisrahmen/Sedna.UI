@@ -4,29 +4,16 @@
     Dims the page except one element, for a guided tour or a first-run hint.
 </CatHead>
 
-<CatExample TExample="Examples.Interop.SpotlightFollow" Title="A three-step tour" Demo="ex-demo--block">
+<CatExample TExample="Examples.Interop.SpotlightFollow" Title="A three-step tour" Demo="ex-demo--block ex-demo--flush">
     <p>
-        <strong>Live — step through it.</strong> The hole slides to each target and takes that
-        target's own border radius; step one unions the search box with the results it produced;
-        the bubble picks whichever side has the most room and says which one it chose.
-    </p>
-    <p>
-        <code>sednaUi.spotlight.follow(hole, target, options)</code> keeps both attached while the
-        page moves under them — scroll, resize, and the case neither of those covers: a re-render
-        shifting the DOM with no event at all. It returns a handle with <code>update()</code> and
-        <code>stop()</code>.
-    </p>
-    <p>
-        <strong>There is still no tour API.</strong> The steps, the copy, the order and what
-        &ldquo;next&rdquo; means are the app's — a library that owned them would also own whether a
-        step can be skipped. What the library owns is the part that is the same in every tour and
-        is where the bugs live: the geometry and the input model.
-    </p>
-    <p>
-        The hole is positioned against its offset parent, so give the stage
-        <code>position: relative</code>. Call <code>update()</code> after every render, not only on
-        a step change: the bubble's own size decides where it fits, and that is known only once it
-        has been laid out with this step's text in it.
+        <strong>Live — step through it.</strong>
+        <code>sednaUi.spotlight.follow(hole, target, options)</code> keeps the hole and the bubble
+        attached while the page moves under them — scroll, resize, and the case neither of those
+        covers: a re-render shifting the DOM with no event at all — and returns a handle with
+        <code>update()</code> and <code>stop()</code>. The hole is positioned against its offset
+        parent, so give the stage <code>position: relative</code>, and call <code>update()</code>
+        after every render rather than only on a step change: the bubble's own size decides which
+        side it fits on.
     </p>
 </CatExample>
 
@@ -35,76 +22,48 @@
         Every element may be given as a CSS selector instead of an element, and for anything that
         outlives one render that is the form to prefer — a framework replaces the node, and a
         reference captured once then points at a detached copy. It is also what lets a Blazor app
-        drive the whole thing from C# without threading an <code>ElementReference</code> through
-        every call.
+        drive it from C# without threading an <code>ElementReference</code> through every call.
     </p>
 </CatSnippet>
 
-<CatExample TExample="Examples.Spotlight.TourBubble" Title="The bubble, in sections" Demo="ex-demo--block">
+<CatExample TExample="Examples.Spotlight.TourBubble" Title="The bubble, in sections" Demo="ex-demo--block ex-demo--flush">
     <p>
-        A step in a real tour needs more than a hint does: a way out that is not &ldquo;Next&rdquo;,
-        a body that can run to a paragraph, and a footer that reads as one. Add
-        <code>.spotlight-tip-head</code> and the bubble drops its own padding — each section then
-        carries its own, and the plain bubble below is untouched.
-    </p>
-    <p>
-        <code>.spotlight-tip-do</code> marks a step the reader advances themselves rather than by
-        pressing Next. It wears the control-change colours because that is what it announces: the
-        next thing to happen is their doing.
+        A step in a real tour needs more than a hint does: a way out that is not
+        &ldquo;Next&rdquo;, a body that can run to a paragraph, and a footer that reads as one. Add
+        <code>.spotlight-tip-head</code> and the bubble drops its own padding so each section
+        carries its own; <code>.spotlight-tip-do</code> marks a step the reader advances themselves
+        rather than by pressing Next.
     </p>
 </CatExample>
 
 <CatSnippet Name="Spotlight/SpotlightLock.txt" Title="Making the rest of the page inert">
     <p>
-        A step that says &ldquo;press this&rdquo; is undone by a reader pressing something else.
         <code>lock()</code> takes pointer input and Enter/Space activation away from everything
-        except the bubble and, when the step needs it, the anchor — and it gates hover hints too,
-        because a control the reader cannot press must not still explain itself.
-    </p>
-    <p>
-        <strong>Scrolling and typing stay free.</strong> A lock that swallowed every key would take
-        the space out of someone's typing, which is invisible until they try to write two words.
-    </p>
-    <p>
-        <strong>It is security-shaped and is not security.</strong> Capture-phase guards and
-        <code>pointer-events: none</code> stop a person, not a script. Never treat a live step as an
-        authorization boundary.
+        except the bubble and, when the step needs it, the anchor, and it gates hover hints too;
+        scrolling and typing stay free. <strong>It is security-shaped and is not
+        security:</strong> capture-phase guards and
+        <code>pointer-events: none</code> stop a person, not a script, so never treat a live step
+        as an authorization boundary.
     </p>
 </CatSnippet>
 
-<CatExample TExample="Examples.Spotlight.FirstRunHint" Title="A first-run hint" Demo="ex-demo--block">
+<CatExample TExample="Examples.Spotlight.FirstRunHint" Title="A first-run hint" Demo="ex-demo--block ex-demo--flush">
     <p>
-        One element, one bubble, no step counter — the case a tour is too much for. Everything here is
-        static markup with the hole placed by hand, so it renders without scripting; an app that knows
-        the target only at runtime calls <code>at()</code> instead.
-    </p>
-    <p>
-        Drop <code>.spotlight-step</code> when there is only one step: a counter reading
-        &ldquo;1 of 1&rdquo; promises more.
+        One element, one bubble, no step counter — the case a tour is too much for. Everything here
+        is static markup with the hole placed by hand, so it renders without scripting; an app that
+        knows the target only at runtime calls <code>at()</code> instead, and drops
+        <code>.spotlight-step</code>, because a counter reading &ldquo;1 of 1&rdquo; promises more.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Spotlight.Spotlight" Title="The markup" Demo="ex-demo--block">
+<CatExample TExample="Examples.Spotlight.Spotlight" Title="The markup" Demo="ex-demo--block ex-demo--flush">
     <p>
-        <code>.spotlight-hole</code> is the dim with the un-shadowed box in it, and
-        <code>.spotlight-ring</code> outlines that box. <code>.spotlight-tip</code> is the bubble;
-        <code>.spotlight-tip-actions</code> is its footer, and <code>.spotlight-step</code> the
-        position within the sequence.
-    </p>
-    <p>
-        The rectangle on the hole, its radius &mdash; the target's own, so a pill is not highlighted
-        with a rounded box &mdash; and the two values on the tip are the only things an app sets, and
-        they are what <code>at()</code> and <code>tipAt()</code> write. Everything else is in the
-        stylesheet.
+        <code>.spotlight-hole</code> is the dim with the un-shadowed box in it, and it carries
+        <code>pointer-events: none</code> so the highlighted control stays operable;
+        <code>.spotlight-ring</code> outlines that box, <code>.spotlight-tip</code> is the bubble,
+        <code>.spotlight-tip-actions</code> its footer and <code>.spotlight-step</code> the
+        position within the sequence. The rectangle on the hole, its radius — the target's own, so
+        a pill is not highlighted with a rounded box — and the two values on the tip are the only
+        things an app sets, and they are what <code>at()</code> and <code>tipAt()</code> write.
     </p>
 </CatExample>
-
-<div class="cat-note">
-    <i class="ri-stack-line"></i>
-    The dim is a <code>box-shadow</code> with a <code>100vmax</code> spread rather than a clip-path or
-    four strips: one element, no arithmetic, and the ring follows the highlighted element's own
-    corners. <code>pointer-events: none</code> on it, so the highlighted control stays operable — a
-    tour that blocks the thing it is pointing at teaches nothing. z-index 510 is the rung between the
-    modal backdrop and the dropdown band, so a spotlight can explain a modal and still be covered by
-    a menu opened inside what it highlights.
-</div>

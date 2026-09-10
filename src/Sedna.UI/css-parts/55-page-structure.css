@@ -82,6 +82,20 @@
 .callout-body > :last-child { margin-bottom: 0; }
 .callout-title { display: block; font-weight: 600; color: var(--fg); margin-bottom: var(--space-1); }
 
+/* The icon is --text-8 against --text-4 prose, so its line box is the taller of the
+   two and it — not the text — sets the row's height. A callout with no title came
+   out icon-tall with its single line parked against the top edge and a gap beneath.
+   Centre the row in that case, which is what .alert does with the same shape.
+
+   A title is what makes centring wrong: then the callout is two blocks, and the
+   icon belongs against the first line rather than floating to the middle of both. */
+.callout:not(:has(.callout-title)) { align-items: center; }
+
+/* A title with nothing under it IS the content, so it is the one-line case again
+   and its gap has nothing left to separate. */
+.callout-title:only-child { margin-bottom: 0; }
+.callout:has(.callout-title:only-child) { align-items: center; }
+
 /* The same semantic families as buttons, badges and alerts. Tinted more lightly
    than an .alert: a callout is read as part of the prose, not scanned as a state. */
 .callout-info   { background: var(--info-bg);   border-inline-start-color: var(--info-border); }

@@ -1,8 +1,8 @@
 @page "/concepts"
 
 <CatHead Title="Concepts" Tier="@CatHead.Site">
-    Six things that decide how an app writes CSS against this library. Everything else on this site is
-    markup to copy.
+    What decides how an app writes CSS against this library. Everything else on this site is markup
+    to copy.
 </CatHead>
 
 <h2 id="two-tiers">The two tiers</h2>
@@ -36,7 +36,8 @@
 <h2 id="layers">Cascade layers</h2>
 
 <p class="cat-lede">
-    The whole stylesheet is inside six layers, in this order.
+    The whole stylesheet is inside these layers, in this order. A later layer beats an earlier one
+    regardless of specificity, which is why the reduced-motion block sits last.
 </p>
 
 <div class="card">
@@ -56,23 +57,11 @@
 <div class="cat-note">
     <i class="ri-stack-line"></i>
     <strong>Your stylesheet is unlayered, so it beats every rule here whatever the
-    specificity.</strong> You never have to out-specify the library, and you should not try:
-    <code>.card { padding: 12px }</code> in your own file wins against anything, with no
-    <code>!important</code> and no compound selector. If a rule here has to be overridden to make
-    something work, that is a design problem worth reporting rather than a specificity puzzle.
-</div>
-
-<p class="cat-lede">
-    A later layer beats an earlier one regardless of specificity. That is what makes
-    <code>.text-end</code> at (0,1,0) win against <code>.table td</code> at (0,1,1), and it is why the
-    reduced-motion block sits in the last layer — motion has to be switchable off whatever declared it.
-</p>
-
-<div class="cat-note">
-    <i class="ri-error-warning-line"></i>
-    <strong>The library uses no <code>!important</code>, and you should not use one against it.</strong>
-    Inside a layer an <code>!important</code> declaration becomes <em>harder</em> to override rather
-    than easier, because layer order inverts for important declarations.
+    specificity.</strong> <code>.card { padding: 12px }</code> in your own file wins with no
+    <code>!important</code> and no compound selector — and use no <code>!important</code> against
+    the library either, because layer order inverts for important declarations and would make the
+    rule <em>harder</em> to override. If a rule here has to be overridden to make something work,
+    report it rather than out-specify it.
 </div>
 
 <h2 id="control-height">One control height</h2>
@@ -86,10 +75,10 @@
 
 <div class="cat-note">
     <i class="ri-ruler-line"></i>
-    Two rules follow if you size a control yourself. Keep its own padding and line box
-    <strong>under</strong> the tier, or the tier stops deciding anything and the control grows past it.
-    And if a wrapper draws the border — an input group does — the wrapper takes the height and the
-    children give theirs up, or the wrapper ends up two border-pixels taller than a bare control.
+    <strong>Sizing a control yourself takes two rules.</strong> Keep its own padding and line box
+    <strong>under</strong> the tier, or the tier stops deciding anything and the control grows past
+    it. And where a wrapper draws the border — an input group does — the wrapper takes the height
+    and the children give theirs up.
 </div>
 
 <h2 id="tokens">The token contract</h2>
@@ -131,14 +120,14 @@
 <div class="cat-note">
     <i class="ri-price-tag-3-line"></i>
     <strong>A plain name is a claim on the shared namespace.</strong> An app that already styles
-    <code>.list</code> or <code>.menu</code> silently gets both rule sets merged on upgrade — no error,
-    just a changed appearance. Every release lists the class names it adds, so a consuming app can grep
-    its own CSS before bumping.
+    <code>.list</code> or <code>.menu</code> silently gets both rule sets merged on upgrade — no
+    error, just a changed appearance. Every release lists the class names it adds, so grep your own
+    CSS before bumping.
 </div>
 
 <h2 id="z-order">Z-order</h2>
 <p class="cat-lede">
-    Shared by every app. Use one of these values for a new overlay — a test fails on any other. 0 and 1
+    Shared by every app. Use one of these values for a new overlay — a test fails on any other. 0 to 3
     are for local stacking inside a component and are not part of the scale.
 </p>
 
@@ -153,7 +142,7 @@
             <tr><td>Drawer panel</td><td class="col-num">490</td></tr>
             <tr><td>Modal backdrop</td><td class="col-num">500</td></tr>
             <tr><td>Spotlight</td><td class="col-num">510</td></tr>
-            <tr><td>Dropdown menu, palette, popover</td><td class="col-num">550</td></tr>
+            <tr><td>Popover, dropdown menu, search panel</td><td class="col-num">550</td></tr>
             <tr><td>Toast</td><td class="col-num">600</td></tr>
             <tr><td>Hover hints, reconnect banner</td><td class="col-num">1000</td></tr>
         </tbody>
@@ -162,21 +151,12 @@
 
 <div class="cat-note">
     <i class="ri-information-line"></i>
-    <strong>Two things the numbers do not say.</strong> <code>.topbar</code> and
+    <strong>What the numbers do not say.</strong> <code>.topbar</code> and
     <code>.user-widget</code> establish stacking contexts, so a panel nested in either is ordered
-    <em>within</em> it and cannot be lifted above the modal backdrop by z-index alone. And the top
+    <em>within</em> it and cannot be lifted above the modal backdrop by z-index alone. The top
     layer — anything promoted by <code>popover</code> or <code>dialog.showModal()</code> — ignores
-    z-index entirely and orders by promotion, which is why the palette and the confirmation dialog
-    carry no rung of their own.
-</div>
-
-<div class="cat-note">
-    <i class="ri-layout-bottom-line"></i>
-    <span>
-        <strong>The drawer sits below the modal backdrop on purpose.</strong> A modal opened from
-        inside a drawer has to cover it — the case a single shared &ldquo;overlay&rdquo; value gets
-        wrong.
-    </span>
+    z-index entirely and orders by promotion. And the drawer sits below the modal backdrop on
+    purpose, because a modal opened from inside a drawer has to cover it.
 </div>
 
 <h2 id="rtl">Direction and density</h2>
@@ -189,13 +169,9 @@
 
 <div class="cat-note">
     <i class="ri-text-direction-r"></i>
-    <span>
-        Two things logical properties cannot express, and both are handled for you:
-        <code>transform: translateX()</code> has no logical form, and a
-        <code>background-position</code> percentage is always measured from the physical left edge.
-        Anything else you write with <code>margin-inline-start</code>,
-        <code>border-inline-end</code>, <code>inset-inline</code> and <code>text-align: start</code>
-        mirrors for free. <code>data-density="compact"</code> tightens table and cell padding; tighten
-        your own page-specific components alongside it.
-    </span>
+    Write <code>margin-inline-start</code>, <code>border-inline-end</code>,
+    <code>inset-inline</code> and <code>text-align: start</code> and your own pages mirror for free;
+    only <code>transform: translateX()</code> and a <code>background-position</code> percentage have
+    no logical form, and both are handled here. <code>data-density="compact"</code> tightens table
+    and cell padding — tighten your own page-specific components alongside it.
 </div>

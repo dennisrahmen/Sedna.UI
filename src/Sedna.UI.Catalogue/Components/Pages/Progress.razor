@@ -1,8 +1,7 @@
 @page "/progress"
 
 <CatHead Title="Progress and spinners">
-    Four ways to say &ldquo;working&rdquo;. Which one depends on whether you know how far along it
-    is, and whether you know the shape of what is coming.
+    Four ways to say &ldquo;working&rdquo;, picked by how much you know about what is coming.
 </CatHead>
 
 <div class="cat-note">
@@ -15,27 +14,19 @@
 
 <CatExample TExample="Examples.Progress.Progress" Title="Progress bar" Demo="ex-demo--block ex-demo--pad">
     <p>
-        Determinate: set the inline <code>width</code> on <code>.progress-bar</code> — the one value
-        only your app knows. Indeterminate: leave the width off and add
-        <code>.progress--indeterminate</code> to the track.
-    </p>
-    <p>
-        Put the number in text as well. A bar is a shape, and a reader who wants to know whether to
-        wait needs the figure. Under <code>prefers-reduced-motion</code> the indeterminate bar is
-        filled rather than blanked, so it still says &ldquo;in progress, no estimate&rdquo;.
+        Determinate: set the inline <code>width</code> on <code>.progress-bar</code>.
+        Indeterminate: leave the width off and add <code>.progress--indeterminate</code> to the
+        track. Put the number in text as well — a bar is a shape, and a reader deciding whether to
+        wait needs the figure.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Progress.Threshold" Title="Measuring towards a threshold" Demo="ex-demo--block ex-demo--pad">
     <p>
-        A bar that measures progress <em>towards</em> a threshold rather than the completion of a
-        task needs a fourth state the first three do not cover: <strong>neither</strong>. Well below
-        the line is not a warning and not a failure — it is a number that has not gone anywhere yet.
-    </p>
-    <p>
-        <code>.progress-bar--muted</code> is that state. The base bar is <code>var(--brand)</code>,
-        and wherever the brand is a red it reads as an alarm on a row where nothing is wrong;
-        <code>--warn</code> cries wolf and <code>--danger</code> is a lie.
+        <code>.progress-bar--muted</code> is for a bar measuring progress <em>towards</em> a
+        threshold rather than the completion of a task, where well below the line is neither a
+        warning nor a failure. The base bar is <code>var(--brand)</code>, which reads as an alarm
+        wherever the brand is a red.
     </p>
 </CatExample>
 
@@ -43,11 +34,7 @@
     <p>
         <code>.progress-bar--sev-1</code> … <code>--sev-5</code> take the ordered ramp behind the
         <a href="/badge">severity badges</a>, for a bar that measures a rank rather than a fraction.
-    </p>
-    <p>
-        The solids are a fill and nothing else: steps 4 and 5 do not carry white text at AA, which
-        does not matter on a bar because a bar has no label on it. Where there is one, use
-        <code>.badge-sev-N</code>.
+        They are a fill and carry no label — where there is one, use <code>.badge-sev-N</code>.
     </p>
 </CatExample>
 
@@ -56,49 +43,33 @@
         Sized in <code>em</code>, so it matches whatever text or button it sits in without a second
         class. <code>.spinner-lg</code> is the standalone size for a panel that is still loading.
     </p>
-    <p>
-        A spinner says only that something is happening. It stays visible under
-        <code>prefers-reduced-motion</code> — static, but still reading as busy.
-    </p>
 </CatExample>
 
 <CatExample TExample="Examples.Progress.Skeleton" Title="Skeleton" Demo="ex-demo--block ex-demo--pad">
     <p>
-        Give each placeholder the height and width of the content that is coming, so nothing reflows
-        when it arrives. Vary the line widths: identical bars read as a table rather than a
-        paragraph.
-    </p>
-    <p>
-        Mark the container <code>aria-busy="true"</code>. The bars themselves are decoration and
-        should not be announced one by one.
+        Give each placeholder the height and width of the content that is coming, and vary the line
+        widths — identical bars read as a table rather than a paragraph. Mark the container
+        <code>aria-busy="true"</code>; the bars are decoration and should not be announced one by
+        one.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Progress.SkeletonBlock" Title="Skeleton block" Demo="ex-demo--block ex-demo--pad">
     <p>
-        The three modifiers above are line-scale — the shape of a paragraph that has not arrived.
-        This is the shape of a <em>surface</em> that has not: a card of settings, a table of rows, a
-        graph. Every list and detail page has that loading state, and an app with no class for it
-        writes <code>style="height:8rem"</code> once per page.
-    </p>
-    <p>
-        <code>.skeleton-block</code> is 8rem, with <code>.skeleton-block--sm</code> at 4rem for a
-        field or a row and <code>.skeleton-block--lg</code> at 12rem for a document or a table. Between the steps, set
-        <code>--skeleton-height</code>, as the third card does — a placeholder that merely
-        approximates the real height reflows the page when the content lands, which is the one thing
-        a skeleton exists to prevent.
+        <code>.skeleton-block</code> is the shape of a <em>surface</em> that has not arrived — a card
+        of settings, a table of rows, a graph. It is 8rem, with
+        <code>.skeleton-block--sm</code> at 4rem for a field or a row and
+        <code>.skeleton-block--lg</code> at 12rem for a document or a table; between the steps, set
+        <code>--skeleton-height</code>, as the third card does.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Progress.RunningJobs" Title="A list of running work" Demo="ex-demo--block">
     <p>
-        Where these three end up in practice: one row per job, with the shape that matches what is
-        known. A percentage gets a determinate bar, a wait with no total gets the indeterminate one
-        and a <code>.spinner</code>, and anything finished gets a <a href="/badge">badge</a> instead —
-        a bar at 100% for good says &ldquo;still working&rdquo;.
-    </p>
-    <p>
-        Add <code>aria-busy="true"</code> to the row while it is running, and put the figure in text
-        as well as in the bar. A bar's width is not a number to anybody who cannot see it.
+        Where these end up in practice: one row per job, with the shape that matches what is known —
+        a percentage gets a determinate bar, a wait with no total gets the indeterminate one and a
+        <code>.spinner</code>, and anything finished gets a <a href="/badge">badge</a> instead. Add
+        <code>aria-busy="true"</code> to the row while it is running, and put the figure in text as
+        well as in the bar.
     </p>
 </CatExample>

@@ -5,11 +5,6 @@
     in the page.
 </CatHead>
 
-<div class="cat-note">
-        There is no <code>&lt;DataTable&gt;</code> component and there will not be one. Tables are written
-        as markup in the page.
-    </div>
-
 <CatExample TExample="Examples.Table.Basic" Title="Basic" Demo="ex-demo--block">
     <p>
         Headers are uppercased and muted by the class. <code>.col-muted</code> is for secondary
@@ -19,9 +14,8 @@
 
 <CatExample TExample="Examples.Table.ClickableRows" Title="Clickable rows" Demo="ex-demo--block">
     <p>
-        <code>.tr-clickable</code> adds the pointer, the hover fill and
-        <code>user-select:none</code> so a double click does not select the text. Keep a real
-        focusable control in the row for keyboard users — a whole row cannot be tabbed to.
+        <code>.tr-clickable</code> adds the pointer and the hover fill. Keep a real focusable
+        control in the row for keyboard users — a whole row cannot be tabbed to.
     </p>
 </CatExample>
 
@@ -30,130 +24,67 @@
 </CatExample>
 
 <div class="cat-note">
-        <strong>Wide tables:</strong> put the table in a container with
-        <code>overflow-x:auto</code> and add <code>.sedna-scroll</code> to it, so the horizontal
-        scrollbar is themed and the page body never scrolls sideways.
-    </div>
+    <strong>Wide tables:</strong> wrap the table in a <code>.sedna-scroll-x</code> container, so the
+    page body never scrolls sideways.
+</div>
 
-    <h2>Extensions</h2>
-    <p class="lede">
-        Each of these is opt-in, because each costs something. A sticky header needs a scroll
-        container, zebra stripes fight with row selection, and the stacked layout throws away column
-        alignment.
-    </p>
+<h2>Extensions</h2>
 
 <CatExample TExample="Examples.Table.SortableNumericSelected" Title="Sortable, numeric and selected" Demo="ex-demo--block">
     <p>
-        The sort arrow is keyed off <code>aria-sort</code>, which is what a screen reader
-        announces, so the arrow and the announcement cannot disagree. Put a
-        <code>&lt;button class="th-sort"&gt;</code> inside the header cell filling it — a target
-        that is only the label text is smaller than it looks. The arrow reserves its 8px even when
-        unsorted, so the header does not shift as the reader sorts one column after another.
-    </p>
-    <p>
-        <code>.col-num</code> goes on the <code>th</code> <em>and</em> the <code>td</code>: right
-        aligned and tabular, so digits line up by place value and two numbers can be compared by
-        shape. Row selection is <code>aria-selected</code> on the <code>&lt;tr&gt;</code>, and the
-        leading rule is what survives a colour-blind palette and a greyscale print.
-    </p>
-    <p>
-        <strong>The header buttons here do nothing, and that is the whole design.</strong> The
-        library draws the affordance and announces the state; <em>which</em> column is sorted and in
-        what order is your query, and reordering rows is what a Blazor page does natively. Set
-        <code>aria-sort</code> from that state and the arrow follows.
+        Put a <code>&lt;button class="th-sort"&gt;</code> inside the header cell filling it, and set
+        <code>aria-sort</code> — the arrow is keyed off the attribute a screen reader announces, so
+        the two cannot disagree. <code>.col-num</code> goes on the <code>th</code> <em>and</em> the
+        <code>td</code>; row selection is <code>aria-selected</code> on the
+        <code>&lt;tr&gt;</code>. <strong>The header buttons here do nothing</strong> — which column
+        is sorted is your query, and the arrow follows <code>aria-sort</code>.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Table.StickyHeader" Title="Sticky header" Demo="ex-demo--block">
     <p>
-        <code>.table--sticky</code> needs two things from the markup and silently does nothing
-        without them: a scroll container around the table with a <code>max-height</code>, because
-        the header sticks to the nearest scrolling ancestor and with none it sticks to the page
-        where the topbar already is; and <code>border-collapse: separate</code>, which the class
-        sets, because a collapsed table's borders belong to the table rather than the cell and its
-        header border would scroll away.
+        <code>.table--sticky</code> needs a scroll container around the table with a
+        <code>max-height</code>, and silently does nothing without one: the header sticks to the
+        nearest scrolling ancestor, and with none that is the page, where the topbar already is.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Table.PinnedColumn" Title="Pinned column" Demo="ex-demo--block">
     <p>
-        <code>.table--pin-start</code> is the sideways half of <code>.table--sticky</code>: it holds
-        the first column still while the rest of a wide table scrolls under it. Use it for the
-        column a row is <em>identified</em> by — four columns in, a reader who cannot see the staff
-        ID cannot tell whose row they are reading. <code>.table--pin-end</code> does the same at the
-        other edge, which is where a row's actions are.
-    </p>
-    <p>
-        It needs a horizontal scroll container — <code>.sedna-scroll-x</code> — and it sets
-        <code>border-collapse: separate</code> for itself, because a collapsed table's cells cannot
-        stick at all. Everything else is handled: the pinned cell paints on an opaque surface
-        rather than letting columns slide under it, it keeps the zebra stripe, the hover fill and
-        the selection marker, the corner cell paints over the sticky header rather than under
-        the column beneath it, and nothing a scrolling column carries — a segmented control, a
-        switch, a menu trigger — paints over the pinned cell on its way past.
-    </p>
-    <p>
-        The edge shadow appears only while a column is actually hidden behind the pinned one — a
-        table that fits its container, and one sitting at the start of its scroll, show none. That
-        answer comes from <code>.sedna-scroll-x</code>, which is a
-        <code>container-type: scroll-state</code> container; a table scrolled inside a wrapper of
-        an app's own keeps the shadow painted throughout.
-    </p>
-    <p>
-        <strong>Scroll this table both ways.</strong> Not for
-        <code>.table--stack</code>: below 640px the rows become blocks and there is no sideways
-        scroll to pin against.
+        <code>.table--pin-start</code> holds the first column still while the rest of a wide table
+        scrolls under it — use it for the column a row is <em>identified</em> by;
+        <code>.table--pin-end</code> does the same at the other edge, where a row's actions are.
+        Both need a horizontal scroll container, <code>.sedna-scroll-x</code>, and neither combines
+        with <code>.table--stack</code>, which has no sideways scroll to pin against.
+        <strong>Scroll this table both ways.</strong>
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Table.ColumnWidths" Title="Column widths" Demo="ex-demo--block">
     <p>
-        <code>.table</code> leaves column widths to the browser, which is right until the cells in
-        a row are not all short values. Then the browser gives an unbounded column the room it asks
-        for and squeezes the rest to their padding — a legible table with a
-        <code>&lt;select&gt;</code> in it rendered as a caret and two clipped characters.
-    </p>
-    <p>
-        <code>.col-control</code> gives a cell holding an input or a select a floor and makes the
-        control fill it, so the column and the control agree on an edge.
+        <code>.col-control</code> gives a cell holding an input, a select or a
+        <code>.value-trigger</code> a floor and makes the control fill it;
         <code>.col-prose</code> lets a sentence or a distinguished name give way instead of taking
-        the table, and breaks inside a word because an identifier has nowhere else to break.
-        <code>.col-fit</code> is the opposite — an icon, a status mark, a row of buttons — taking
-        the width of its content and no more.
-    </p>
-    <p>
-        Put each on the <code>th</code> <em>and</em> the <code>td</code>, the way
-        <code>.col-num</code> is used. The numbers are knobs:
-        <code>--col-control-min</code>, <code>--col-control-max</code>,
-        <code>--col-prose-min</code> and <code>--col-prose-max</code>, set on the cell where a
-        column needs a different one.
+        the table; <code>.col-fit</code> takes the width of its content and no more. Put each on the
+        <code>th</code> <em>and</em> the <code>td</code>, and set <code>--col-control-min</code>,
+        <code>--col-control-max</code>, <code>--col-prose-min</code> or
+        <code>--col-prose-max</code> on the cell where a column needs a different number.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Table.ExpandableRows" Title="Expandable rows" Demo="ex-demo--block">
     <p>
-        The detail row is a real <code>&lt;tr class="tr-detail"&gt;</code> after its parent, so it
-        moves with it when the table is sorted and is read after it. Its cell spans every column.
-        The inset rule on the left is the only thing saying it belongs to the row above — a plain
-        indent reads as an unrelated row that happens to start further in.
-    </p>
-    <p>
-        <strong>Shown expanded, and there is nothing here to collapse it.</strong> Which row is open
-        is your app's state — a <code>bool</code> per row, and <code>aria-expanded</code> on the
-        control that toggles it. There is no <code>sednaUi.table</code>: rendering rows is the
-        one thing a Blazor app already does better than a script could.
+        The detail row is a real <code>&lt;tr class="tr-detail"&gt;</code> immediately after its
+        parent, and its cell spans every column. <strong>Shown expanded</strong> — which row is open
+        is your app's state, with <code>aria-expanded</code> on the control that toggles it.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Table.StackedNarrowScreen" Title="Stacked on a narrow screen" Demo="ex-demo--block">
     <p>
         <code>.table--stack</code> turns each row into a card below 640px, taking each cell's label
-        from <code>data-label</code>. <strong>Understand the trade first:</strong> it throws away
-        column alignment, so comparing one value across rows stops being possible. It is right for
-        a list of records read one at a time, and wrong for anything scanned down a column.
-    </p>
-    <p>
-        Narrow this window to see it. A cell with no <code>data-label</code> — an actions cell —
-        keeps the full width instead of leaving an empty gutter.
+        from <code>data-label</code>; a cell without one — an actions cell — keeps the full width.
+        <strong>It throws away column alignment</strong>, so it is right for records read one at a
+        time and wrong for anything scanned down a column. Narrow this window to see it.
     </p>
 </CatExample>

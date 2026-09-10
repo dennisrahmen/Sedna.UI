@@ -589,23 +589,26 @@
     --scroll-shade:    rgba(0, 0, 0, 0.3);      /* scroll-edge fade */
 
     /* ── Shadows (full box-shadow values — themes swap the colour) ─────────
-       Geometry and alpha are carried over unchanged from before the rebrand;
-       only the tinted tokens above (--overlay, --spotlight-dim) move from grey
-       to Deep Space. A shadow's own black has no palette step to trace to. */
+       A shadow's own black has no palette step to trace to, so these carry
+       literal alpha rather than a ramp step. 02-theme-light.css must remap
+       EVERY ONE of them: an unremapped shadow silently keeps its dark alpha
+       on a white surface, which is how .menu, the select panel and the
+       search panel came to cast near-black in light mode. ShadowTokenTests
+       asserts the two blocks list the same names. */
     --shadow-topbar:    0 3px 8px rgba(0, 0, 0, 0.28);
     --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.18);
-    --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.6);
-    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.5);
-    --shadow-flyout:    0 6px 18px rgba(0, 0, 0, 0.45);
-    --shadow-dropdown:  0 10px 30px rgba(0, 0, 0, 0.35);
-    --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.4);
-    --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.55);
+    --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.5);
+    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.42);
+    --shadow-flyout:    0 6px 18px rgba(0, 0, 0, 0.38);
+    --shadow-dropdown:  0 10px 30px rgba(0, 0, 0, 0.3);
+    --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.34);
+    --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.45);
     /* A hairline ring plus a long drop, for a SMALL element that should read as
        lifted clean off the page — a logo tile, an icon plate over a hero. Every
        other shadow here is panel-sized: a 32px tile under --shadow-float shows a
        soft smudge and no edge, because the edge is what sells the lift at that
        size. The ring is inside the token so it cannot be forgotten. */
-    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.45);
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.38);
     /* The edge of a horizontally scrolled region — a pinned table column, a
        sticky first cell. Every shadow above casts downwards; this pair casts
        sideways, which is the axis a sideways scroller needs and the only one the
@@ -615,17 +618,26 @@
        start and end are the two PHYSICAL directions, named for the logical edge
        they belong to under dir="ltr"; 70-rtl.css swaps which one a pinned column
        reaches for, because box-shadow has no logical form. */
-    --shadow-edge-start:  6px 0 8px -6px rgba(0, 0, 0, 0.55);
-    --shadow-edge-end:   -6px 0 8px -6px rgba(0, 0, 0, 0.55);
+    --shadow-edge-start:  6px 0 8px -6px rgba(0, 0, 0, 0.45);
+    --shadow-edge-end:   -6px 0 8px -6px rgba(0, 0, 0, 0.45);
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
-       Not covered by docs/BRANDING.md's per-token tables. Re-expressed as the
-       nearest available step in the amber/crimson ramps at the same relative
-       position (dark solid bg, mid border, light fg) the old literals held. */
-    --reconnect-warn-bg:     var(--amber-900);
+       Not covered by docs/BRANDING.md's per-token tables. The border and the
+       text are the nearest available step in the amber/crimson ramps at the
+       relative position (mid border, light fg) the old literals held.
+
+       The FIELD is a mix rather than a step, because the bar spans the whole
+       viewport at the top of the z scale and the darkest step in either ramp
+       still read as a hot band across the page. The semantic ramps stop at 900
+       by design (docs/BRANDING.md section 2), so a darker field cannot be a
+       step without extending eight ramps and re-measuring every theme. Mixing
+       the last step toward the base ramp's floor gets a darker field of the
+       same hue out of tokens the theme already defines, so it follows a
+       rebrand for free. Both pairs stay well clear of AA: 6.1:1 and 9.9:1. */
+    --reconnect-warn-bg:     color-mix(in srgb, var(--amber-900) 72%, var(--slate-950));
     --reconnect-warn-border: var(--amber-600);
     --reconnect-warn-fg:     var(--amber-200);
-    --reconnect-fail-bg:     var(--crimson-900);
+    --reconnect-fail-bg:     color-mix(in srgb, var(--crimson-900) 72%, var(--slate-950));
     --reconnect-fail-border: var(--crimson-700);
     --reconnect-fail-fg:     var(--crimson-400);
 
@@ -787,6 +799,11 @@
     --muted:          var(--slate-600);
     --border:         var(--slate-300);
     --border-strong:  var(--slate-400);
+    /* The ladder's top step. Declared here even though the dark value happens to be
+       the right one in this direction too — slate-500 is darker than light's
+       --border-strong, so the three still ascend — because inheriting it was an
+       accident, not a decision, and the next ramp edit would not know that. */
+    --border-hover:   var(--slate-500);
     --divider:        rgba(15, 23, 42, 0.07);    /* slate-900 / Deep Space */
     --card-bg:        var(--white);
     --surface-soft:   rgba(15, 23, 42, 0.03);    /* slate-900 */
@@ -898,10 +915,12 @@
 
     --shadow-topbar:    0 3px 8px rgba(15, 23, 42, 0.1);      /* slate-900 */
     --shadow-nav-tools: 0 -6px 12px 0 rgba(15, 23, 42, 0.06); /* slate-900 */
-    --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.25);   /* slate-900 */
-    --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.25);    /* slate-900 */
-    --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.22);   /* slate-900 */
-    --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.22);   /* slate-900 */
+    --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.22);    /* slate-900 */
+    --shadow-flyout:    0 6px 18px rgba(15, 23, 42, 0.16);    /* slate-900 */
+    --shadow-dropdown:  0 10px 30px rgba(15, 23, 42, 0.14);   /* slate-900 */
+    --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.2);    /* slate-900 */
+    --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.16);   /* slate-900 */
     --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(15, 23, 42, 0.18);   /* slate-900 */
     --shadow-edge-start:  6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
     --shadow-edge-end:   -6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
@@ -2050,9 +2069,9 @@ a.topbar-version--pre:hover {
    `.btn.btn-sm.btn-danger`, and `.btn-danger` is a TINT — 15% crimson over the
    page surface — so on a bar that is already crimson-900 the fill vanished and
    the label landed on `--reconnect-fail-fg`, the bar's own text colour. The
-   control read as an empty rectangle with a hairline around it. The bar's colour
-   is not the problem: crimson-900 under crimson-400 text is a strong pair and
-   both themes keep it. The tinted button on top of it was.
+   control read as an empty rectangle with a hairline around it. The tinted button
+   was the fault, not the pairing — which is why the fix was a filled control here
+   rather than a change to `--reconnect-fail-*`.
 
    And the frame cannot fix a `.btn`: `@layer sedna.paint` comes after
    `@layer sedna.frame`, so `.btn-danger` outranks anything written here whatever
@@ -2960,6 +2979,27 @@ a.topbar-version--pre:hover {
 }
 .form-input::placeholder { color: var(--border-strong); }
 
+/* ── A text area's resize grip ────────────────────────────────────
+   Vertical is the DEFAULT rather than a class, because the failure is horizontal:
+   the UA default is `resize: both`, and a textarea dragged wider than its
+   .field-grid track breaks the row it sits in and every row below it. Taller is
+   never the problem, so the safe axis is the one you get for free and only the two
+   departures need a name.
+
+   There is deliberately no --resize-y: it would be a second name for the default. */
+textarea.form-input { resize: vertical; }
+.form-input--resize-none { resize: none; }
+.form-input--resize-both { resize: both; }
+
+/* The grip itself. Chromium paints an unthemed white corner over a dark field
+   otherwise — which was fixed for the Markdown editor and nowhere else, so every
+   other textarea in the library had it. Same value as the .md-preview rule in
+   44-markdown.css, which cannot share this selector: that pane is a div. */
+textarea.form-input::-webkit-resizer {
+    background: linear-gradient(-45deg, transparent 0 4px, var(--scrollbar) 4px 5px,
+                transparent 5px 7px, var(--scrollbar) 7px 8px, transparent 8px);
+}
+
 /* The same three tiers as the button, so a field and the button beside it agree at
    every size. Padding stays under the tier so the tier is what sets the height. */
 .form-input-sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
@@ -3601,13 +3641,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     color: var(--muted);
 }
 /* The drawing sits above the sentence with room of its own: an illustration and a
-   13px line touching read as one object, and they are two. But only a little: the
-   drawing is already 96px of air, so the gap that a 40px glyph needed reads as a hole
-   under this one. The sprite, the ids and the three sizes are in 42-state-art.css.
+   13px line touching read as one object, and they are two. But only a little — and
+   less than it was. `.empty-state` is a flex column, so this margin ADDS to the
+   column's gap rather than collapsing into it, and 8px + 10px under a drawing that
+   is already 96px of mostly air read as a hole between the picture and its own
+   caption. 8px + 8px is the pair that reads as one block.
+   The sprite, the ids and the three sizes are in 42-state-art.css.
 
    There is no rule here for a bare `<i>`. Every state names its own drawing, because a
    single glyph shared by four states is the thing this replaced. */
-.state-art { margin-bottom: var(--space-5); }
+.state-art { margin-bottom: var(--space-4); }
 
 .empty-state-title { font-size: var(--text-5); font-weight: 600; color: var(--fg); }
 .empty-state p     { margin: 0; font-size: var(--text-4); max-width: 44ch; }
@@ -3631,10 +3674,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    told about and then leave; this is a wait with nothing to report, and the one thing
    it has to say is that something is still happening — which a still picture cannot. */
 .empty-state--pending > .spinner,
+/* The spinner stands in for the drawing in the waiting state, so its margin tracks
+   .state-art's. Left behind, the waiting state sits differently from every other. */
 .empty-state--pending > .spinner-lg {
     width: 40px;
     height: 40px;
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-4);
     border-width: 3px;
     color: var(--muted);
 }
@@ -3683,7 +3728,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     gap: var(--space-5);
     padding-block: var(--space-11);
 }
-.empty-state--page .state-art { margin-bottom: var(--space-6); }
+/* One step more than the card block, because the page block's own gap is a step
+   larger and the title is --text-9 rather than --text-5. Same reduction. */
+.empty-state--page .state-art { margin-bottom: var(--space-5); }
 .empty-state--page .empty-state-title { font-size: var(--text-9); }
 /* The measure grows with the type. 44ch of 13px is a comfortable column; 44ch of the
    same sentence under a 22px heading reads as a narrow strip. */
@@ -4141,9 +4188,17 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    Keyed off aria-invalid, not a class. The attribute is what a screen reader
    announces, so if the styling hung off a separate class the two could disagree,
    and the reader who most needs the message would be the one who does not get
-   it. Set aria-invalid and the border follows. */
-.form-input[aria-invalid="true"] { border-color: var(--danger-border-strong); }
-.form-input[aria-invalid="true"]:focus {
+   it. Set aria-invalid and the border follows.
+
+   `.form-select` is in the selector for the same reason it is in the shared shape
+   rule in 34-forms.css: a select carrying `.form-select` alone is a complete,
+   correct class list, so a rule that names only `.form-input` leaves the one
+   control a form most often rejects — an empty required dropdown — reporting
+   nothing at all, while the screen reader announces it as invalid. */
+.form-input[aria-invalid="true"],
+.form-select[aria-invalid="true"] { border-color: var(--danger-border-strong); }
+.form-input[aria-invalid="true"]:focus,
+.form-select[aria-invalid="true"]:focus {
     border-color: var(--danger-solid);
     box-shadow: 0 0 0 2px var(--danger-ring);
 }
@@ -4825,10 +4880,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
            half of the four rows it had asked for, above a scrollbar it should not
            have had.
 
-           The panel keeps no padding of its own for the same reason: every pixel
-           spent on the box comes out of the rows' budget, and the rows already carry
-           their own inset. */
-        padding: 0;
+           The BLOCK padding is what costs rows, so the panel keeps none of it.
+           Inline padding costs nothing from a `size` budget, and without it every
+           option's rounded hover and `:checked` fill ran flush into the box's own
+           border on both sides — the one place in the library where a panel's rows
+           touched its edge. 4px here puts them at the same inset as a
+           ::picker(select) row. */
+        padding: 0 var(--space-2);
         line-height: 2.4;
     }
     /* One pixel per row shorter than the budget, which is where the box's two
@@ -5106,7 +5164,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    painting and breaks the reading order. */
 /* The default is declared on the group as well as on .avatar, so the counter — which
    is not an .avatar and inherits from here — resolves it too. */
-.avatar-group { display: inline-flex; align-items: center; --avatar-overlap: 8px; }
+.avatar-group { display: inline-flex; align-items: center; --avatar-overlap: 8px; --avatar-gap: 2px; }
 .avatar-group > * + * { margin-inline-start: calc(var(--avatar-overlap) * -1); }
 
 /* :has(+ .avatar), not :not(:last-child) — the last thing in a group is usually the
@@ -5121,11 +5179,24 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
 /* The overflow counter. Not an .avatar: it is a number, not an actor, and giving it
    the brand tint would make it look like one more person. */
+/* The gap is the group's OWN rhythm, not a step off the spacing scale. The counter is
+   a child of .avatar-group, so it already carries the negative overlap margin from the
+   rule above — and `margin-inline-start: var(--space-2)` overrode it at identical
+   specificity, later in the file. That left the ink 12px past the last avatar's edge
+   where its neighbours sit 2px apart, so the number read as separate content rather
+   than as the tail of the stack. 2px + 4px puts it 6px out.
+
+   --avatar-gap has to be on .avatar-group for this to resolve at all: it is declared
+   on .avatar, and the counter is deliberately not one. That is the same reason
+   --avatar-overlap is declared in both places, and the same blind spot as the shadow
+   tokens — TokenDeclarationTests sees a declared name, not whether it is in scope
+   HERE, so an out-of-scope var() is guaranteed-invalid and the margin quietly
+   computes to 0 with nothing failing. */
 .avatar-more {
     display: inline-flex;
     align-items: center;
-    padding: 0 var(--space-4);
-    margin-inline-start: var(--space-2);
+    margin-inline-start: var(--avatar-gap);
+    padding-inline: var(--space-2) var(--space-4);
     color: var(--muted);
     font-size: var(--text-3);
 }
@@ -5166,8 +5237,22 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .chip-lg .chip-dismiss { width: 22px; height: 22px; }
 /* A chip with no dismiss button does not need the trailing room for one. */
 .chip:not(:has(.chip-dismiss)) { padding-inline-end: var(--space-5); }
-.chip i { font-size: var(--text-5); color: var(--muted); }
+/* Child, not descendant. `.chip i` weighs the same as `.avatar i` in 52-avatar.css
+   and is the later file, so an icon avatar inside a chip silently took the chip's
+   14px and --muted instead of its own 15px — and .chip--active then recoloured it. */
+.chip > i { font-size: var(--text-5); color: var(--muted); }
 .chip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A 22px .avatar-sm in a 28px chip leaves EXACTLY 3px of clearance — the chip's
+   min-height is the small control tier, its block padding is 2px and its border 1px,
+   and 22 + 4 + 2 is 28 with nothing over. 3 CSS px on a 1.5x display is 4.5 device
+   pixels, which cannot split evenly, so the top and the bottom differ by a device
+   pixel and which one is larger flips with the scroll offset. That is the "bottom is
+   more, it feels like" — it is real and it is not a measurable asymmetry.
+
+   20px makes the clearance 4px, which does split. Scoped off .chip-lg, whose 36px box
+   already has 7px and needs nothing. */
+.chip:not(.chip-lg) > .avatar { --avatar-size: 20px; }
 
 /* A status dot inside a chip, for a filter whose value carries a state. Colour it
    with a semantic token from the markup, or it says nothing. */
@@ -5405,6 +5490,20 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
 .callout-body > :first-child { margin-top: 0; }
 .callout-body > :last-child { margin-bottom: 0; }
 .callout-title { display: block; font-weight: 600; color: var(--fg); margin-bottom: var(--space-1); }
+
+/* The icon is --text-8 against --text-4 prose, so its line box is the taller of the
+   two and it — not the text — sets the row's height. A callout with no title came
+   out icon-tall with its single line parked against the top edge and a gap beneath.
+   Centre the row in that case, which is what .alert does with the same shape.
+
+   A title is what makes centring wrong: then the callout is two blocks, and the
+   icon belongs against the first line rather than floating to the middle of both. */
+.callout:not(:has(.callout-title)) { align-items: center; }
+
+/* A title with nothing under it IS the content, so it is the one-line case again
+   and its gap has nothing left to separate. */
+.callout-title:only-child { margin-bottom: 0; }
+.callout:has(.callout-title:only-child) { align-items: center; }
 
 /* The same semantic families as buttons, badges and alerts. Tinted more lightly
    than an .alert: a callout is read as part of the prose, not scanned as a state. */
@@ -6203,13 +6302,20 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     min-width: var(--col-control-min);
     max-width: var(--col-control-max);
 }
+/* A field fills the column, because a field's box IS the affordance and a short one
+   in a wide cell reads as broken. A `.value-trigger` is the opposite — it is
+   deliberately quieter than a field, and its whole shape is "as wide as the value" —
+   so it is NOT in this list and neither is its `.menu-anchor`.
+
+   Stretching the anchor was doubly wrong. `.menu-anchor > .menu` hangs off the
+   anchor's inline-END edge, so a full-width anchor put the panel at the far side of
+   the cell rather than under the trigger — which is the exact detachment
+   58-menu.css warns about. Both rules went together.
+
+   A field that should also be content-width takes `.sedna-w-fit`, which is in the
+   utilities layer and so beats this rule without a specificity race. */
 .table .col-control > .form-input,
-.table .col-control > .form-select,
-.table .col-control > .menu-anchor { width: 100%; }
-/* The anchor is inline-flex, so the trigger inside it has to be told to fill it as
-   well — otherwise the control is its content width inside a full-width wrapper and
-   the cell's trailing edge is empty. */
-.table .col-control > .menu-anchor > .value-trigger { width: 100%; }
+.table .col-control > .form-select { width: 100%; }
 .table .col-prose {
     --col-prose-min: 12rem;
     --col-prose-max: 30rem;
@@ -8499,6 +8605,36 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .sedna-fill { flex: 1; min-width: 0; }
 .sedna-shrink-0 { flex-shrink: 0; }
 .sedna-w-full { width: 100%; }
+
+/* ── Control width ───────────────────────────────────────────────
+   `.form-input`, `.form-select` and `.input-group` are `width: 100%`, because a
+   field in a form row is the common case and filling the row is right there. There
+   was no way out of it, so a control that should be as wide as its value — a status
+   in a table cell, a page-number box, a short filter — either filled its column or
+   got an inline `width` in the markup, and apps ended up styling library classes in
+   their own stylesheets to escape it.
+
+   These live in `@layer sedna.utilities`, which is the point: it comes after
+   `sedna.paint`, so `.sedna-w-fit` at (0,1,0) beats
+   `.table .col-control > .menu-anchor > .value-trigger` at (0,3,0) without
+   `!important` and without a specificity race. A `--fit` modifier on each control
+   could not — it would sit in the same layer as the rule it has to overrule, and
+   it would be the same idea under five names, one per control class.
+
+   There is no `--grow` here. `.sedna-fill` above already takes the remaining room
+   in a flex row, and a second name for it is a second thing to keep in step.
+
+   `max-width: 100%` rides the knob so a fixed width still gives way on a narrow
+   window rather than pushing its container sideways. */
+.sedna-w-fit { width: fit-content; }
+.sedna-w {
+    --sedna-w: 12rem;
+    width: var(--sedna-w);
+    max-width: 100%;
+}
+.sedna-w--sm { --sedna-w: 8rem; }
+.sedna-w--md { --sedna-w: 12rem; }
+.sedna-w--lg { --sedna-w: 18rem; }
 
 /* Block margins only, and only for removing or adding a step. There is no inline
    pair: horizontal placement belongs to the layout, not to a utility on the child. */

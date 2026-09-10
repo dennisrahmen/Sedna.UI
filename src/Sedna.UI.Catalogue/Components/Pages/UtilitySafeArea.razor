@@ -6,49 +6,28 @@
 </CatHead>
 
 <div class="cat-note">
-    <i class="ri-stack-line"></i>
-    <strong>The cascade layer is what makes these work.</strong> A utility is <code>(0,1,0)</code>
-    and a component rule like <code>.table th, .table td</code> is <code>(0,1,1)</code>, so a utility
-    loses on specificity alone. <code>sedna.utilities</code> sits after <code>sedna.paint</code>, so
-    <code>.text-end</code> on a table cell wins regardless of it.
-</div>
-
-<div class="cat-note">
     <i class="ri-smartphone-line"></i>
     <strong>The host page has to opt in.</strong> Until its viewport meta carries
     <code>viewport-fit=cover</code>, a browser lays the page out inside the display's safe area and
-    every inset reports <code>0px</code> on every device. See
-    <a href="/getting-started">Getting started</a>, which also carries the three-step migration for an
-    app that already has the old tag.
+    every inset reports <code>0px</code> on every device — see
+    <a href="/getting-started">Getting started</a>. With it, nothing has to detect a device:
+    <code>env()</code> is the detection, and every inset is <code>0px</code> where there is nothing
+    in the way.
 </div>
 
 <CatExample TExample="Examples.UtilitySafeArea.SafeArea" Title="Holding an element clear" Demo="ex-demo--block">
     <p>
         <code>.sedna-safe-top</code>, <code>.sedna-safe-bottom</code> and
-        <code>.sedna-safe-inline</code> are for an element the library cannot see: a sticky action bar,
-        a footer, a bottom nav, a cookie banner. The frame already holds itself clear — the shell
-        pads the top and both sides, and everything pinned to the bottom edge (the sheet, the toast
-        stack, the FAB, the reconnect bar) pads itself.
+        <code>.sedna-safe-inline</code> are for an element the library cannot see — a sticky action
+        bar, a footer, a bottom nav, a cookie banner. The frame already holds itself clear.
     </p>
     <p>
-        <strong>They add padding, not margin, and that is the point.</strong> The element's own
-        background then paints into the strip the device has taken. A margin leaves a transparent band
-        there instead, and under a dark bar on a light page that band is what people file bugs about.
-        Put the class on the element carrying the background, not on a wrapper around it.
-    </p>
-    <p>
-        Nothing has to detect a device. <code>env()</code> is the detection — every inset is
-        <code>0px</code> where there is nothing in the way, so one class is right on a phone, a tablet
-        and a desktop.
+        <strong>They add padding, not margin</strong>, so put the class on the element carrying the
+        background rather than on a wrapper: a margin leaves a transparent band in the strip the
+        device has taken. Where a class does not fit, read <code>--safe-block-start</code>,
+        <code>--safe-block-end</code>, <code>--safe-inline-start</code> and
+        <code>--safe-inline-end</code> from the <a href="/tokens">Tokens</a> page rather than
+        <code>env()</code> — the inline pair is mirrored for <code>dir="rtl"</code>, which
+        <code>env()</code> cannot do on its own.
     </p>
 </CatExample>
-
-<div class="cat-note">
-    <i class="ri-code-line"></i>
-    <strong>Where a utility does not fit, read the tokens.</strong>
-    <code>--safe-block-start</code>, <code>--safe-block-end</code>, <code>--safe-inline-start</code>
-    and <code>--safe-inline-end</code> are on the <a href="/tokens">Tokens</a> page. Use those rather
-    than <code>env()</code> directly: the inline pair is mirrored for <code>dir="rtl"</code>, which
-    <code>env()</code> cannot do on its own, and a token can be set to a value in a test where
-    <code>env()</code> reports <code>0px</code> in every browser a test can drive.
-</div>

@@ -26,6 +26,11 @@
     --muted:          var(--slate-600);
     --border:         var(--slate-300);
     --border-strong:  var(--slate-400);
+    /* The ladder's top step. Declared here even though the dark value happens to be
+       the right one in this direction too — slate-500 is darker than light's
+       --border-strong, so the three still ascend — because inheriting it was an
+       accident, not a decision, and the next ramp edit would not know that. */
+    --border-hover:   var(--slate-500);
     --divider:        rgba(15, 23, 42, 0.07);    /* slate-900 / Deep Space */
     --card-bg:        var(--white);
     --surface-soft:   rgba(15, 23, 42, 0.03);    /* slate-900 */
@@ -137,10 +142,12 @@
 
     --shadow-topbar:    0 3px 8px rgba(15, 23, 42, 0.1);      /* slate-900 */
     --shadow-nav-tools: 0 -6px 12px 0 rgba(15, 23, 42, 0.06); /* slate-900 */
-    --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.25);   /* slate-900 */
-    --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.25);    /* slate-900 */
-    --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.22);   /* slate-900 */
-    --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.22);   /* slate-900 */
+    --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.22);    /* slate-900 */
+    --shadow-flyout:    0 6px 18px rgba(15, 23, 42, 0.16);    /* slate-900 */
+    --shadow-dropdown:  0 10px 30px rgba(15, 23, 42, 0.14);   /* slate-900 */
+    --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.2);    /* slate-900 */
+    --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.16);   /* slate-900 */
     --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(15, 23, 42, 0.18);   /* slate-900 */
     --shadow-edge-start:  6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
     --shadow-edge-end:   -6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */

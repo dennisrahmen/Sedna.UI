@@ -12,9 +12,8 @@
 <div class="cat-note">
     <i class="ri-shield-check-line"></i>
     <strong>Public, unauthenticated and read-only.</strong> Every tool is annotated
-    <code>readOnlyHint</code>, so a client that honours the hint calls them without prompting.
-    <strong>There will never be a seventh tool that writes</strong> — that is what makes calling
-    these unprompted safe, and it is enforced by a test rather than by intention.
+    <code>readOnlyHint</code>, so a client that honours the hint calls them without prompting, and
+    <strong>there will never be a seventh tool that writes</strong> — enforced by a test.
 </div>
 
 <h2 id="add-it">Add it</h2>
@@ -23,7 +22,7 @@
 <CatSnippet Name="Mcp/Config.txt" Title="Any MCP client">
     <p>
         The endpoint is <code>@CatalogueLinks.Mcp</code>. It is stateless, so a client may reconnect
-        or fan out across processes without leaving sessions behind on the server.
+        or fan out across processes without leaving sessions behind.
     </p>
 </CatSnippet>
 
@@ -33,9 +32,8 @@
 
 <h2 id="tools">The six tools</h2>
 <p class="cat-lede">
-    Six verbs, no overlap. They are shaped around one workflow — an agent writing a page in a
-    consuming app, knowing roughly what it wants and needing the exact markup plus enough semantics
-    to pick the right variant.
+    Six verbs, no overlap, shaped around one workflow: an agent writing a page in a consuming app and
+    needing the exact markup plus enough semantics to pick the right variant.
 </p>
 
 <div class="card">
@@ -47,8 +45,7 @@
                 <td>
                     “What is there for a sortable table with status badges?” Ranks examples,
                     classes, tokens and pages together. <strong>Returns references, never
-                    markup</strong> — a search that returned markup would spend the context window
-                    on the first call.
+                    markup</strong>.
                 </td>
             </tr>
             <tr>
@@ -95,11 +92,19 @@
     </p>
 </CatSnippet>
 
+<CatSnippet Name="Mcp/DescribeClassCall.txt" Title="`describe_class`">
+    <p>
+        Up to ten class names per call. The declarations come from the stylesheet the running app
+        serves, and <code>usedByExamples</code> points at the pages that show the class in context.
+    </p>
+</CatSnippet>
+
 <h2 id="resources">The four resources</h2>
 <p class="cat-lede">
-    Whole artefacts, addressable by URI. A resource is attached by the person, not pulled by the
-    model — which is the right party to decide whether 200&nbsp;KB of stylesheet belongs in a
-    context window.
+    Whole artefacts, addressable by URI. A resource is attached by the person rather than pulled by
+    the model. Nothing is resource-only: <code>get_tokens</code> and
+    <code>get_integration_guide</code> duplicate two of these, because clients vary widely in
+    resource support.
 </p>
 
 <div class="card">
@@ -133,34 +138,20 @@
     </table>
 </div>
 
-<div class="cat-note">
-    <i class="ri-information-line"></i>
-    <strong>Nothing is resource-only.</strong> Clients vary widely in resource support and several
-    ignore them entirely, so <code>get_tokens</code> and <code>get_integration_guide</code>
-    duplicate two of these on purpose: the tool is the guaranteed path, the resource the ergonomic
-    one.
-</div>
-
 <h2 id="versions">Say which version you have</h2>
 <p class="cat-lede">
-    This site is built from <code>main</code> and can be ahead of any release. Every tool takes
-    <code>installedVersion</code>.
+    This site is built from <code>main</code> and can be ahead of any release, so every tool takes
+    <code>installedVersion</code>. Pass it and the <code>meta.warning</code> block names everything
+    in the answer your version does not have — including anything with no <code>since</code> at all,
+    which is in <em>no</em> release yet. The results still come back.
 </p>
 
-<div class="cat-note">
-    <i class="ri-git-branch-line"></i>
-    <span>
-        Pass it and the <code>meta</code> block names anything your version does not have —
-        “3 of these are not in 0.2.0: <code>.popover</code>, <code>.search-panel</code>,
-        <code>--brand-glow</code>. Upgrade Sedna.UI, or use something else.” The results still
-        come back: filtering them out silently would hide that an upgrade is the fix, which is
-        usually the right answer. Something with no <code>since</code> at all is said separately,
-        because it is in <em>no</em> release and there is nothing to upgrade to. Every class and
-        token also carries its own <code>since</code>.
-    </span>
-</div>
-
 <h2 id="limits">Limits</h2>
+<p class="cat-lede">
+    They apply to <code>/mcp</code> alone, never globally — a global limiter would also count this
+    site's own SignalR upgrades. A rejected call answers <code>429</code> with
+    <code>Retry-After: 60</code>.
+</p>
 
 <div class="card">
     <table class="table">
@@ -173,9 +164,8 @@
             <tr>
                 <td>Per caller</td><td class="col-num">60 burst, 30/min</td>
                 <td>
-                    Fairness, not security: behind a proxy whose addresses we do not control,
-                    per-IP limiting is not a security measure. A token bucket because real agent
-                    traffic is bursty — six <code>get_example</code> calls, then nothing.
+                    Fairness, not security: behind a proxy whose addresses we do not control, per-IP
+                    limiting is not a security measure.
                 </td>
             </tr>
             <tr>
@@ -195,42 +185,12 @@
     </table>
 </div>
 
-<div class="cat-note">
-    <i class="ri-speed-up-line"></i>
-    <strong>The limits apply to <code>/mcp</code> alone, never globally.</strong> A global limiter
-    would also count this site's own SignalR upgrades and every static asset, so one person
-    browsing would trip a ceiling sized for tool calls. A rejected call answers
-    <code>429</code> with <code>Retry-After: 60</code>.
-</div>
-
 <h2 id="agent-rules">Then give the agent the rules</h2>
 <p class="cat-lede">
     The server answers questions. It does not stop an agent inventing a class name or wrapping a
-    table in a component.
+    table in a component — so copy
+    <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md">
+    <code>docs/CLAUDE.consuming-app.md</code></CatLink> into your app's own
+    <code>CLAUDE.md</code>, or fetch it through
+    <code>get_integration_guide { "section": "rules" }</code>.
 </p>
-
-<div class="cat-note">
-    <i class="ri-file-text-line"></i>
-    <span>
-        Copy
-        <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md">
-        <code>docs/CLAUDE.consuming-app.md</code></CatLink> into your app's own
-        <code>CLAUDE.md</code>, or fetch it through
-        <code>get_integration_guide { "section": "rules" }</code>. It is the short list of things
-        that go wrong: inventing token names, restyling the frame, and reaching for a component
-        where a class exists.
-    </span>
-</div>
-
-<CatSnippet Name="Mcp/DescribeClassCall.txt" Title="`describe_class`">
-    <p>
-        Up to ten class names per call. The declarations come from the stylesheet the running app
-        serves, so they are what ships rather than a transcription of it, and
-        <code>usedByExamples</code> points at the pages that show the class in context.
-    </p>
-    <p>
-        Pass <code>installedVersion</code> and <code>meta.warning</code> names everything in the
-        answer that your version does not have. That is the whole reason <code>since</code> exists:
-        this site is built from <code>main</code> and can be ahead of the package you installed.
-    </p>
-</CatSnippet>

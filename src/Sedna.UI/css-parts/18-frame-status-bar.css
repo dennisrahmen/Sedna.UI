@@ -122,9 +122,9 @@
    `.btn.btn-sm.btn-danger`, and `.btn-danger` is a TINT — 15% crimson over the
    page surface — so on a bar that is already crimson-900 the fill vanished and
    the label landed on `--reconnect-fail-fg`, the bar's own text colour. The
-   control read as an empty rectangle with a hairline around it. The bar's colour
-   is not the problem: crimson-900 under crimson-400 text is a strong pair and
-   both themes keep it. The tinted button on top of it was.
+   control read as an empty rectangle with a hairline around it. The tinted button
+   was the fault, not the pairing — which is why the fix was a filled control here
+   rather than a change to `--reconnect-fail-*`.
 
    And the frame cannot fix a `.btn`: `@layer sedna.paint` comes after
    `@layer sedna.frame`, so `.btn-danger` outranks anything written here whatever

@@ -7,134 +7,68 @@
 </CatHead>
 
 <div class="cat-note">
-        <strong>Deliberately not <code>role="menu"</code>.</strong> That role promises arrow-key
-        navigation and a roving tabindex. A panel that claims it without implementing it is worse for
-        a screen-reader user than one that claims nothing, because the items stop being reachable the
-        way they appear to be. These are ordinary links and buttons that tab. Put
-        <code>aria-expanded</code> on the trigger and leave the panel unlabelled by role.
-    </div>
+    <strong>Do not add <code>role="menu"</code>.</strong> That role promises arrow-key navigation
+    and a roving tabindex this does not implement; the items are ordinary links and buttons that
+    tab. Put <code>aria-expanded</code> on the trigger and leave the panel unlabelled by role.
+</div>
 
 <CatExample TExample="Examples.Menu.AnchoredUnderTrigger" Title="Anchored under a trigger" Demo="ex-demo--block">
     <p>
-        <code>.menu-anchor</code> wraps the trigger and the panel, and declares the
-        <code>anchor-name</code> the panel positions against — so the panel lands under the trigger
-        with nothing measured. <strong>Open it — the demo is live.</strong>
-    </p>
-    <p>
-        <strong>The panel is <code>position: fixed</code>, not absolute, and that is what lets it
-        open inside a scroll container.</strong> An absolutely positioned panel is laid out inside
-        the nearest scrolling ancestor and counts towards its overflow, so a menu opened from a
-        toolbar, from a <code>.sedna-scroll-x</code> around a table, or from any app container with
-        an <code>overflow</code> of its own grew that container a scrollbar <em>and</em> was clipped
-        at its edge — the last item of a three-item menu was simply not there. Fixed positioning
-        takes the viewport as its containing block, so no ancestor can clip it or be made to scroll
-        by it, and <code>position-area</code> is what puts it in the right place without a
-        measurement. <code>position-visibility: anchors-visible</code> is the other half: a fixed
-        panel does not scroll away with its trigger, so it is hidden when its trigger leaves.
-    </p>
-    <p>
-        <code>data-menu-toggle</code> on the trigger hands it to <code>sednaUi.menu</code>:
-        opening and closing, one panel open at a time, a click outside or on an item closing it, and
-        <kbd>Escape</kbd> closing it and returning focus to the trigger. The closed state is the
-        <code>hidden</code> attribute rather than a class, which is what takes the panel out of the
-        tab order and the accessibility tree as well as out of the layout. An app holding the state
-        in C# leaves the attribute off and renders <code>hidden</code> itself.
-    </p>
-    <p>
-        The panel lines up with the anchor's <em>trailing</em> edge and is 220px at its narrowest, so
-        a trigger narrower than that overhangs on the leading side. That is right at the trailing end
-        of a row — a table row's actions, a toolbar's overflow. For a trigger near the leading edge,
-        add <code>.menu--start</code> to the panel and it aligns to the anchor's leading edge
-        instead. Either way it flips — above the trigger when there is no room below, to the other
-        edge when there is none beside it.
-    </p>
-    <p>
-        The panel is as wide as its widest row, floored at 220px and capped at 20rem. It sizes to its
-        content rather than to the trigger: a menu anchored in a narrow table cell used to be
-        measured against the cell, so its rows wrapped inside a panel that had room to be wider.
-    </p>
-    <p>
-        A menu is for actions. A list of <em>values</em> to pick one of is a
-        <code>&lt;select&gt;</code> or a <a href="/tabs">segmented control</a>; a list of
-        <em>places</em> is the sidebar.
+        <strong>Open it — the demo is live.</strong> <code>.menu-anchor</code> wraps the trigger and
+        the panel and declares the <code>anchor-name</code> the panel positions against, so the
+        panel lands under the trigger with nothing measured. <code>data-menu-toggle</code> on the
+        trigger hands it to <code>sednaUi.menu</code> — one panel open at a time, a click outside or
+        on an item closing it, <kbd>Escape</kbd> closing it and returning focus to the trigger — and
+        the closed state is the <code>hidden</code> <strong>attribute</strong> rather than a class,
+        which is what takes the panel out of the tab order as well as out of the layout; an app
+        holding the state in C# leaves the attribute off and renders <code>hidden</code> itself. The
+        panel lines up with the anchor's <em>trailing</em> edge and sizes to its widest row, floored
+        at 220px — add <code>.menu--start</code> to the panel for a trigger near the leading edge.
+        A menu is for actions: a list of <em>values</em> is a <code>&lt;select&gt;</code> or a
+        <a href="/tabs">segmented control</a>, a list of <em>places</em> is the sidebar.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Menu.ValueTriggerInATable" Title="A value trigger in a table cell" Demo="ex-demo--block">
     <p>
         <strong>Live — open one, then scroll the table sideways.</strong>
-        <code>.value-trigger</code> is a control that shows the <em>current value</em> of something
-        and opens a menu to change it — a status, an assignee, a queue, an access level. It is
-        quieter than a button and does not pretend to be a field: no border and no fill until
-        hovered. Use it where a <code>&lt;select&gt;</code> would be wrong because the options need
-        icons or a description; where a plain list of values would do, use a
-        <code>&lt;select&gt;</code>.
-    </p>
-    <p>
-        This is the case that used to break. The table scrolls sideways, so it is a scroll container,
-        and an absolutely positioned panel inside one is laid out <em>in</em> it: opening this menu
-        made the table scroll internally and clipped the panel at the table's edge. The panel is
-        fixed and anchored now, so it floats over the table instead.
-    </p>
-    <p>
+        <code>.value-trigger</code> shows the <em>current value</em> of something and opens a menu to
+        change it — a status, an assignee, an access level. Reach for it where a
+        <code>&lt;select&gt;</code> would be wrong because the options need icons or a description;
+        where a plain list of values would do, use a <code>&lt;select&gt;</code>.
         <code>--value-trigger-measure</code> is how much of the value the control keeps room for,
-        10ch by default. It is holding the column open: the value truncates with an ellipsis, and
-        <code>overflow: hidden</code> on a flex item sets its minimum size to zero — which in a
-        table cell is also the <em>column's</em> minimum, so auto layout squeezed the column to the
-        chevron and every access level rendered as <code>Mainta…</code>. Set the knob per instance
-        for a column of longer values.
-    </p>
-    <p>
-        <code>.col-control</code> on the <code>th</code> and the <code>td</code> gives the column its
-        floor and makes the control fill it, so the cell and the control agree on an edge. It is the
-        same class a cell holding an <code>&lt;input&gt;</code> or a <code>&lt;select&gt;</code>
-        takes — see <a href="/table">Tables</a>.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Menu.PopoverShapes" Title="Four shapes" Demo="ex-demo--block">
-    <p>
-        A definition, a key/value detail block, a small table, and one with an action in it. The line
-        to watch: a popover holds <em>content</em>. One trailing action that acts on what it is
-        explaining is fine; a list of actions is a <code>.menu</code>.
-    </p>
-    <p>
-        <code>popovertargetaction="hide"</code> closes it from inside with no script at all.
+        10ch by default, and <code>.col-control</code> on the <code>th</code> and the
+        <code>td</code> gives the column its floor — see <a href="/table">Tables</a>.
     </p>
 </CatExample>
 
 <CatSnippet Name="Menu/Dismissing.txt" Title="Dismissing it">
     <p>
         There is no JavaScript behind this. Put <code>.menu-scrim</code> immediately
-        <strong>before</strong> the panel: a transparent full-viewport element that catches the
-        click which closes the menu. It needs no z-index of its own — coming first in the markup
-        is what puts the panel above it. Handle <kbd>Escape</kbd> on the wrapper as well, or the
-        menu can only be closed with a pointer.
-    </p>
-    <p>
-        The demo above omits it: a fixed element covering the viewport would swallow every click on
-        this page.
+        <strong>before</strong> the panel — a transparent full-viewport element that catches the
+        click which closes the menu, and coming first in the markup is what puts the panel above it.
+        Handle <kbd>Escape</kbd> on the wrapper as well, or the menu can only be closed with a
+        pointer.
     </p>
 </CatSnippet>
 
 <CatExample TExample="Examples.Menu.Popover" Title="Popover" Demo="ex-demo--pad">
     <p>
         <code>.popover</code> is the other panel: a small amount of <em>content</em> anchored to the
-        control that opened it — why a row is pending, what a number means. A menu's items are
-        links and buttons; if what you are showing is prose, it belongs here. Click a button above.
+        control that opened it — why a row is pending, what a number means. <strong>The
+        <code>popover</code> attribute is required</strong>, and so is opening it from a
+        <code>popovertarget</code> control, which also makes that button the popover's implicit
+        anchor, so nothing here declares an <code>anchor-name</code>. The platform then supplies the
+        top layer, light dismiss, <kbd>Escape</kbd> and focus handling, so unlike <code>.menu</code>
+        this needs no scrim and no key handler.
     </p>
+</CatExample>
+
+<CatExample TExample="Examples.Menu.PopoverShapes" Title="Four shapes" Demo="ex-demo--block">
     <p>
-        <strong>The <code>popover</code> attribute is required</strong>, and so is opening it from a
-        <code>popovertarget</code> control. The platform then supplies the top layer, light dismiss,
-        <kbd>Escape</kbd> and focus handling, so unlike <code>.menu</code> this needs no scrim and
-        no key handler. There is no <code>sednaUi.popover</code> and there does not need to be.
-    </p>
-    <p>
-        <code>popovertarget</code> also makes the button the popover's <strong>implicit
-        anchor</strong>, so nothing here declares an <code>anchor-name</code>. Declaring one means a
-        unique <code>--dashed-ident</code> per instance, which in practice is an inline style on every
-        popover in the app. <code>position-try-fallbacks: flip-block</code>
-        moves the panel above the trigger when there is no room below — scroll this page until one
-        is near the bottom and open it.
+        A definition, a key/value detail block, a small table, and one with an action in it. One
+        trailing action that acts on what the panel is explaining is fine; a list of actions is a
+        <code>.menu</code>. <code>popovertargetaction="hide"</code> closes it from inside with no
+        script at all.
     </p>
 </CatExample>

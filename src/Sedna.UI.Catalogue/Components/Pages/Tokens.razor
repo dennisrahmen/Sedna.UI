@@ -6,18 +6,16 @@
 
 <CatHead Title="Tokens">
     Every colour, size, radius and duration in the stylesheet resolves through one of these, and all
-    of them are below — a test compares this page against the token export in both directions. The
-    chips are painted by the token itself, and the values are read from the stylesheet the browser
-    actually loaded, so they follow the theme, the colour-blind palette and any override an app has
-    applied.
+    of them are below. The values are read from the stylesheet the browser actually loaded, so they
+    follow the theme, the colour-blind palette and any override an app has applied.
 </CatHead>
 
 <div class="cat-note">
     <i class="ri-brush-line"></i>
     <strong>Redefine these in your own <code>brand.css</code>, loaded after the library sheet.</strong>
     Never declare a <code>--</code> name the library does not already define: a future version may
-    introduce that name with a different meaning, and your app breaks on upgrade. The
-    <a href="/">Overview</a> page shows the block to copy.
+    introduce that name with a different meaning, and your app breaks on upgrade.
+    <a href="/getting-started">Getting started</a> has the block to copy.
 </div>
 
 @foreach (var group in TokenGroups.All)

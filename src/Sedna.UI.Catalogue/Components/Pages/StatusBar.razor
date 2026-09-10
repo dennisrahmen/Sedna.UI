@@ -5,16 +5,13 @@
     circuit dropped, the session expired, something threw. One class family for every case.
 </CatHead>
 
-<CatExample TExample="Examples.StatusBar.StatusBar" Title="Status bar" Demo="ex-demo--block">
+<CatExample TExample="Examples.StatusBar.StatusBar" Title="Status bar" Demo="ex-demo--block ex-demo--flush">
     <p>
-        One strip across the bottom of the window that says the app is not working normally, and
-        <strong>one class family for every case of it</strong>. All five modifiers are shown together
-        here; in an app one shows at a time.
-    </p>
-    <p>
-        This was two mechanisms — <code>.reconnect-*</code> rows for Blazor's connection UI, and a
-        separate block of rules on <code>#blazor-error-ui</code> for the framework's error bar. Same
-        strip, same position, same two severities, two vocabularies. There is one family now.
+        All five modifiers are shown together here; in an app one shows at a time. The bar's own
+        controls are <code>.status-bar-action</code> — filled, and never a <code>.btn</code>, whose
+        tint disappears on a crimson bar — <code>.status-bar-dismiss</code> for the error bar's
+        close button, and <code>.status-bar-attempt</code> for the retry counter, hidden until
+        Blazor has put a number in it.
     </p>
 
     <table class="table">
@@ -27,39 +24,15 @@
             <tr><td><code>.status-bar--error</code></td><td>an unhandled error reached the browser</td></tr>
         </tbody>
     </table>
-
-    <p>
-        The first two are amber &mdash; something is in progress or held, and nothing has been lost.
-        The last three are crimson: a reload is the only way forward. The bar keeps its own palette in
-        the light theme.
-    </p>
-    <p>
-        <code>.status-bar-action</code> is the bar's own control and it is <strong>filled</strong>, not
-        a <code>.btn</code>. Two reasons, and they are the same reason: <code>.btn-danger</code> is a
-        tint, so on a crimson bar its fill vanishes and the label lands on the bar's own text colour
-        &mdash; an empty rectangle with a hairline round it. And the frame cannot correct a
-        <code>.btn</code> anyway, because <code>@@layer sedna.paint</code> comes after
-        <code>@@layer sedna.frame</code>. A control that belongs to the frame is a frame class, as
-        <code>.topbar-btn</code> and <code>.user-signout</code> already are.
-    </p>
-    <p>
-        <code>.status-bar-dismiss</code> is the error bar's close button, and
-        <code>.status-bar-attempt</code> is the retry counter &mdash; hidden until Blazor has put a
-        number in it, which it does from the second attempt on.
-    </p>
 </CatExample>
 
 <CatSnippet Name="StatusBar/HostPage.html" Title="The status bar in the host page">
     <p>
         Paste this into <code>App.razor</code>, inside <code>&lt;body&gt;</code> and before the
-        component that carries the render mode. Supply it, or Blazor injects an unstyled box of its
-        own. This is the block this site runs, and a test compares the two.
-    </p>
-    <p>
-        <strong>The bar is a child of the id, never the id itself.</strong>
-        <code>#components-reconnect-modal</code> is the container Blazor sets a state class on; the
-        rules show the matching row and hide the rest. You write the rows and never the state
-        classes &mdash; the framework sets those. Six of them map onto four rows:
+        component that carries the render mode; supply it, or Blazor injects an unstyled box of its
+        own. <strong>The bar is a child of the id, never the id itself</strong> —
+        <code>#components-reconnect-modal</code> is the container Blazor sets a state class on, and
+        you write the rows while the framework sets those classes:
     </p>
 
     <table class="table">
@@ -77,29 +50,19 @@
 
     <p>
         <code>retrying</code> is added <em>alongside</em> <code>show</code> and only reveals the
-        counter; every other state replaces the last.
-    </p>
-    <p>
-        <code>.status-bar--paused</code> is optional; without it a paused circuit falls back to the
-        reconnecting row rather than to an empty bar. The other three are not optional: omit one and
-        that state renders as an empty strip.
-    </p>
-    <p>
-        The reload buttons are plain <code>onclick</code> handlers: the circuit is gone in those
+        counter; <code>.status-bar--paused</code> is optional and falls back to the reconnecting
+        row, but the other three are not — omit one and that state renders as an empty strip. The
+        reload buttons are plain <code>onclick</code> handlers: the circuit is gone in those
         states, so a Blazor handler cannot run.
     </p>
 </CatSnippet>
 
 <CatSnippet Name="StatusBar/ErrorBarHostPage.html" Title="The unhandled-error bar">
     <p>
-        <code>#blazor-error-ui</code> is the second place the status bar mounts, and the framework
-        reveals it by setting <code>display: block</code> inline on an unhandled circuit error. That
-        inline declaration beats every rule in every layer &mdash; which is why the id is the
-        container and <code>.status-bar--error</code> is the strip inside it. Put the class on the id
-        and this one bar lays out as inline text while the reconnect rows stay flex rows.
-    </p>
-    <p>
-        Paste it as it is and delete the twenty lines every consuming app had written for it. The id
-        is what the framework looks for; everything inside it is the library's.
+        <code>#blazor-error-ui</code> is the second place the bar mounts, and the framework reveals
+        it by setting <code>display: block</code> inline. Put <code>.status-bar--error</code> on
+        the strip <em>inside</em> the id and never on the id itself: that inline declaration beats
+        every rule in every layer, so this one bar would lay out as inline text while the reconnect
+        rows stayed flex rows.
     </p>
 </CatSnippet>

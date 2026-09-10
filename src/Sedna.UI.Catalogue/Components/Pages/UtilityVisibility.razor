@@ -1,18 +1,9 @@
 @page "/utility-visibility"
 
 <CatHead Title="Visibility utilities">
-    What is shown, and to whom. Three separate questions live here: something drawn for a screen
-    reader and not the screen, something present but not usable, and something for paper rather than
-    the display.
+    What is shown, and to whom. Three separate questions: something drawn for a screen reader and not
+    the screen, something present but not usable, and something for paper rather than the display.
 </CatHead>
-
-<div class="cat-note">
-    <i class="ri-stack-line"></i>
-    <strong>The cascade layer is what makes these work.</strong> A utility is <code>(0,1,0)</code>
-    and a component rule like <code>.table th, .table td</code> is <code>(0,1,1)</code>, so a utility
-    loses on specificity alone. <code>sedna.utilities</code> sits after <code>sedna.paint</code>, so
-    <code>.text-end</code> on a table cell wins regardless of it.
-</div>
 
 <div class="cat-note">
     <i class="ri-alert-line"></i>
@@ -26,23 +17,17 @@
     <p>
         <code>.visually-hidden</code> takes an element out of the visual rendering and keeps it in the
         accessibility tree — the name of an icon-only button, a table caption, the target of an
-        <code>aria-describedby</code>. Not <code>display: none</code> and not <code>width: 0</code>:
-        both remove it from the tree as well, which is the opposite of the point.
-    </p>
-    <p>
-        <code>.visually-hidden--focusable</code> brings it back when it is reached by keyboard. A skip
-        link is the usual case; the demo above has one, so press Tab.
+        <code>aria-describedby</code> — where <code>display: none</code> and <code>width: 0</code>
+        remove it from the tree as well. <code>.visually-hidden--focusable</code> brings it back when
+        it is reached by keyboard, as a skip link does; the demo above has one, so press Tab.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.UtilityVisibility.State" Title="State" Demo="ex-demo--block">
     <p>
-        <code>.sedna-busy</code> dims a block and stops interaction while it reloads. Pair it with
+        <code>.sedna-busy</code> dims a block and stops interaction while it reloads — pair it with
         <code>aria-busy="true"</code>, which is the part that is announced.
-    </p>
-    <p>
-        <code>.sedna-invisible</code> hides something that must keep its space — it is
-        <em>not</em> a replacement for the <code>hidden</code> attribute.
+        <code>.sedna-invisible</code> hides something that must keep its space, and
         <code>.sedna-disabled</code> is for something unavailable that is <strong>not</strong> a
         <code>&lt;button&gt;</code>, <code>&lt;input&gt;</code> or <code>&lt;a&gt;</code>; add
         <code>aria-disabled="true"</code> alongside.
@@ -52,11 +37,8 @@
 <CatExample TExample="Examples.UtilityVisibility.Print" Title="Print" Demo="ex-demo--block">
     <p>
         <code>.sedna-no-print</code> keeps an app's own chrome off the paper and
-        <code>.sedna-print-only</code> lets a sheet carry something the screen does not — a
-        signature line, a reference number, the URL a link points at.
-    </p>
-    <p>
-        The frame handles itself: the sidebar, the topbar and every overlay are already dropped from a
-        printed page. These two are for content the library cannot see.
+        <code>.sedna-print-only</code> lets a sheet carry something the screen does not — a signature
+        line, a reference number, the URL a link points at. The frame already drops itself, so these
+        two are for content the library cannot see.
     </p>
 </CatExample>

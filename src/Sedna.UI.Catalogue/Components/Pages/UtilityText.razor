@@ -3,27 +3,14 @@
 <CatHead Title="Text utilities">
     How one line reads: where it sits, how loud it is, and what happens when it is longer than the box
     it is in. These are the utilities without the <code>sedna-</code> prefix, because
-    <code>.text-end</code> means the same thing everywhere and an app that already has it means the
-    same thing by it.
+    <code>.text-end</code> means the same thing everywhere.
 </CatHead>
-
-<div class="cat-note">
-    <i class="ri-stack-line"></i>
-    <strong>The cascade layer is what makes these work.</strong> A utility is <code>(0,1,0)</code>
-    and a component rule like <code>.table th, .table td</code> is <code>(0,1,1)</code>, so a utility
-    loses on specificity alone. <code>sedna.utilities</code> sits after <code>sedna.paint</code>, so
-    <code>.text-end</code> on a table cell wins regardless of it.
-</div>
 
 <CatExample TExample="Examples.UtilityText.Alignment" Title="Alignment and numbers" Demo="ex-demo--block">
     <p>
         <code>.text-start</code>, <code>.text-center</code> and <code>.text-end</code> are logical, so
-        they mirror with the document direction. <code>.text-end</code> on a table cell is the common
-        case, and the reason the cascade layer exists.
-    </p>
-    <p>
-        <code>.text-nums</code> is tabular figures: every digit the same width, so a column of numbers
-        lines up and a counter does not jitter as it changes. Put it on anything a reader compares.
+        they mirror with the document direction. <code>.text-nums</code> is tabular figures — every
+        digit the same width, so a column lines up and a counter does not jitter — and
         <code>.text-nowrap</code> keeps a label on one line.
     </p>
 </CatExample>
@@ -31,24 +18,18 @@
 <CatExample TExample="Examples.UtilityText.Tone" Title="Size and tone" Demo="ex-demo--block">
     <p>
         <code>.text-sm</code> and <code>.text-lg</code> are two type steps either side of the body
-        size, for a line that has to be quieter or louder than its surroundings without becoming a
-        heading.
-    </p>
-    <p>
-        <code>.text-muted</code> is the secondary foreground, <code>.text-mono</code> the monospace
-        stack — an id, a key, a path. Both resolve through a token, so they follow the theme.
+        size, for a line that has to be quieter or louder without becoming a heading.
+        <code>.text-muted</code> is the secondary foreground and <code>.text-mono</code> the monospace
+        stack — an id, a key, a path.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.UtilityText.Overflow" Title="Overflow" Demo="ex-demo--block">
     <p>
-        <code>.text-truncate</code> is one line cut with an ellipsis. It includes
-        <code>min-width: 0</code>, because the usual parent is a flex item that otherwise refuses to
-        shrink below its content — the single most common reason truncation "does not work".
-    </p>
-    <p>
-        <code>.text-clamp-2</code> and <code>.text-clamp-3</code> cut after two or three lines.
-        <code>.text-break</code> breaks inside a word when there is nowhere else to break, and shrinks
-        the min-content width with it, so the element stops forcing its container wide.
+        <code>.text-truncate</code> is one line cut with an ellipsis, and it includes
+        <code>min-width: 0</code> because the usual parent is a flex item that otherwise refuses to
+        shrink below its content — the most common reason truncation “does not work”.
+        <code>.text-clamp-2</code> and <code>.text-clamp-3</code> cut after two or three lines, and
+        <code>.text-break</code> breaks inside a word when there is nowhere else to break.
     </p>
 </CatExample>

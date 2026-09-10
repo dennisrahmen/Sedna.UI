@@ -1,4 +1,8 @@
-<!-- In <head> — applies the stored theme before first paint: -->
+<!-- In <head>. viewport-fit=cover is required: without it env(safe-area-inset-*)
+     reports 0px on every device and the safe-area handling never runs. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- Applies the stored theme before first paint: -->
 <script src="_content/Sedna.UI/js/Sedna.UI.boot.js"></script>
 
 <link rel="stylesheet" href="_content/Sedna.UI/lib/remixicon/remixicon.css" />
