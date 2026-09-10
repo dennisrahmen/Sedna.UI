@@ -1,0 +1,33 @@
+<div class="sedna-col" style="max-width:520px; gap:16px">
+    <div class="form-field">
+        <label class="form-label form-label--required" for="av-mail">Notification address</label>
+        <input class="form-input" id="av-mail" type="email" required
+               aria-invalid="true" aria-describedby="av-mail-err" value="ops.example" />
+        <p class="form-error" id="av-mail-err">
+            <i class="ri-error-warning-line"></i>
+            <span>Not a complete address — nothing would be delivered.</span>
+        </p>
+    </div>
+    <div class="form-field">
+        <label class="form-label form-label--required" for="av-team">Escalation team</label>
+        <select class="form-input form-select" id="av-team" required
+                aria-invalid="true" aria-describedby="av-team-err">
+            <option value="" selected>Choose a team…</option>
+            <option value="fulfilment">Fulfilment</option>
+            <option value="network">Network</option>
+        </select>
+        <p class="form-error" id="av-team-err">
+            <i class="ri-error-warning-line"></i>
+            <span>Pick a team, or nobody is paged.</span>
+        </p>
+    </div>
+    <div class="form-field">
+        <label class="form-label form-label--required" for="av-reason">Reason</label>
+        <textarea class="form-input" id="av-reason" rows="2" required
+                  aria-invalid="true" aria-describedby="av-reason-err"></textarea>
+        <p class="form-error" id="av-reason-err">
+            <i class="ri-error-warning-line"></i>
+            <span>An override is recorded against your name, so it needs a reason.</span>
+        </p>
+    </div>
+</div>

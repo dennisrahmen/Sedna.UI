@@ -1,0 +1,45 @@
+@page "/form-textarea"
+
+<CatHead Title="Text areas">
+    The same <code>.form-input</code>, on a <code>&lt;textarea&gt;</code>. <code>rows</code> sets the
+    starting height and the class does the rest; the one thing worth deciding is which way the reader
+    may drag it.
+</CatHead>
+
+<CatExample TExample="Examples.FormTextarea.Textarea" Title="The text area" Demo="ex-demo--block">
+    <p>Label, control, hint, exactly as a single-line field.</p>
+</CatExample>
+
+<CatExample TExample="Examples.FormTextarea.Resize" Title="Locking the resize" Demo="ex-demo--block">
+    <p>
+        <strong>Vertical is the default, not a class.</strong> The browser ships
+        <code>resize: both</code>, and a text area dragged wider than its column breaks the row it is
+        in and every row below it &mdash; taller never breaks anything.
+        <code>.form-input--resize-none</code> and <code>--resize-both</code> are the two departures.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormTextarea.InAGrid" Title="Inside a two-up grid" Demo="ex-demo--block">
+    <p>Why the default is the safe axis, with something beside it to break.</p>
+</CatExample>
+
+<CatExample TExample="Examples.FormTextarea.Counter" Title="With a character budget" Demo="ex-demo--block">
+    <p>
+        <code>maxlength</code> stops the typing. The count itself is the app's to render &mdash; there
+        is no class for it, because where the number comes from is the app's state.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormTextarea.Invalid" Title="Rejected" Demo="ex-demo--block">
+    <p>
+        <code>aria-invalid</code> and <code>.form-error</code> reach a text area unchanged &mdash; see
+        <a href="/form-validation">validation</a> for the rule.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormTextarea.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        The tier moves the type; <code>rows</code> moves the height. They are independent, so a small
+        text area can still be six rows tall.
+    </p>
+</CatExample>

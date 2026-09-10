@@ -1,0 +1,19 @@
+<div class="sedna-col" style="max-width:420px; gap:16px">
+    <div class="form-field">
+        <label class="form-label" for="ds-conf">Confidence threshold</label>
+        <div class="sedna-row">
+            <input class="form-range" id="ds-conf" type="range" min="0" max="100" value="85" disabled />
+            <span class="form-range-value">85%</span>
+        </div>
+        <p class="form-hint">Set by policy. The value still reads, which is the point of disabling rather than hiding.</p>
+    </div>
+    <div class="form-field" style="max-width:220px">
+        <label class="form-label" for="ds-retry">Retry attempts</label>
+        <div class="stepper">
+            <button class="btn" type="button" aria-label="One fewer retry" disabled>&minus;</button>
+            <input class="form-input" id="ds-retry" type="number" value="3" min="0" max="9" disabled />
+            <button class="btn" type="button" aria-label="One more retry" disabled>+</button>
+        </div>
+        <p class="form-hint">Disable all three, or the buttons stay live against a field that cannot change.</p>
+    </div>
+</div>

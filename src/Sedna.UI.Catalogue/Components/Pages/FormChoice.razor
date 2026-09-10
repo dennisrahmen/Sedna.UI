@@ -1,0 +1,45 @@
+@page "/form-choice"
+
+<CatHead Title="Checkboxes and switches">
+    <code>.form-check</code> wraps a checkbox or a radio, <code>.switch</code> is the flip that applies
+    at once. All three are a native <code>&lt;input&gt;</code> with a class on the label, so none of
+    them needs ARIA.
+</CatHead>
+
+<CatExample TExample="Examples.FormChoice.Checkboxes" Title="Checkboxes" Demo="ex-demo--block">
+    <p>
+        The whole label toggles the box. The check mark is drawn in CSS, so it picks up the brand
+        token.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormChoice.RadioButtons" Title="Radio buttons" Demo="ex-demo--block">
+    <p>
+        The same wrapper &mdash; the <code>type</code> decides the shape. A radio is an unfilled circle
+        with a brand dot rather than a filled disc, so which one is exclusive reads without colour.
+        Give every radio in a set the same <code>name</code> and wrap the set in a
+        <code>&lt;fieldset&gt;</code>, so its legend is announced with each option.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormChoice.Switches" Title="Switches" Demo="ex-demo--block">
+    <p>
+        <code>.switch</code> is for a setting that takes effect the moment it is flipped, so there is
+        no <strong>Save</strong> to wait for.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormChoice.CheckboxOrSwitch" Title="Which of the two" Demo="ex-demo--block">
+    <p>
+        <strong>The difference is when it applies, not how it looks.</strong> Pick the wrong one and
+        the reader is misled about whether <strong>Save</strong> is still needed &mdash; the same
+        setting, drawn both ways.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormChoice.RadioCards" Title="Options that need explaining" Demo="ex-demo--block">
+    <p>
+        A hint under each option, indented past the control so the text lines up with the label rather
+        than the circle.
+    </p>
+</CatExample>

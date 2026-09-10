@@ -1,0 +1,68 @@
+@page "/form-text"
+
+<CatHead Title="Text fields">
+    <code>.form-input</code> on any text-like <code>&lt;input&gt;</code>. It is
+    <code>width: 100%</code>, because a field in a form row is the common case &mdash; the last example
+    is the way out of that.
+</CatHead>
+
+<CatExample TExample="Examples.FormText.TextInput" Title="The text input" Demo="ex-demo--block">
+    <p>
+        One class over every text-like type. Pick the type for the keyboard and the validation a phone
+        gives you for free, not for the appearance.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormText.States" Title="Not editable, three ways" Demo="ex-demo--block">
+    <p>
+        The distinction that gets got wrong: <code>readonly</code> is still submitted and still
+        selectable, <code>disabled</code> is neither, and a value that was never editable should not
+        be a control at all.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormText.ReadOnlyValues" Title="Read-only values" Demo="ex-demo--block">
+    <p>
+        <code>.form-value-display</code> is the shape of an input without being one. It takes the
+        input's height, so a form of mixed editable and read-only rows does not step up and down.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormText.MixedRow" Title="Editable beside read-only" Demo="ex-demo--block">
+    <p>That height agreement, in a <code>.field-grid</code> where it is visible.</p>
+</CatExample>
+
+<CatExample TExample="Examples.FormText.InputGroups" Title="Input groups" Demo="ex-demo--block">
+    <p>
+        One border around a control and its affixes. The affixes are real siblings rather than padding
+        plus a background image, so a button stays clickable and a unit stays selectable. The focus
+        ring moves out to the group and the inner control gives up its own, or the group draws two
+        rings nested inside each other.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormText.AffixKinds" Title="What an affix can be" Demo="ex-demo--block">
+    <p>
+        A unit, a currency, a button &mdash; on either side, and more than one. The order in the markup
+        is the order on screen.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormText.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        <code>.form-input-sm</code>, the default and <code>.form-input-lg</code>, matching
+        <code>.btn-sm</code>, <code>.btn</code> and <code>.btn-lg</code> exactly. An input group takes
+        the tier on the <em>group</em> &mdash; <code>.input-group--sm</code> or <code>--lg</code> &mdash;
+        because the group is what draws the border.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormText.Widths" Title="Making one narrower" Demo="ex-demo--block">
+    <p>
+        <code>.sedna-w-fit</code> sizes to the content, <code>.sedna-w</code> takes a width from
+        <code>--sedna-w</code> with <code>--sm</code>, <code>--md</code> and <code>--lg</code> as
+        8/12/18rem. They sit in the utilities layer, so they win over the field's own rule without
+        <code>!important</code> &mdash; and an app never has to style a library class in its own
+        stylesheet to get a short search box.
+    </p>
+</CatExample>

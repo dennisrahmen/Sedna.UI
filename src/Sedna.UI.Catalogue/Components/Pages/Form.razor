@@ -1,188 +1,51 @@
 @page "/form"
 
-<CatHead Title="Forms">
-    <code>.form-field</code> stacks a label, a control and a hint with the right gaps.
-    <code>.form-input</code> works on <code>input</code>, <code>select</code> and
-    <code>textarea</code> alike — it is width-100%, so the parent controls the size.
-    Every control here is a native element with a class on it: no wrappers, no
-    <code>@@bind</code> to work around, and <code>required</code> /
-    <code>aria-invalid</code> keep doing what they already do.
+<CatHead Title="Form layout">
+    <code>.form-field</code> stacks a label, a control and a hint; <code>.field-grid</code> puts two
+    side by side; <code>.form-section</code> groups them and <code>.form-actions</code> closes the
+    form. The controls themselves each have their own page under <strong>Inputs</strong>.
 </CatHead>
 
 <CatExample TExample="Examples.Form.Fields" Title="Fields" Demo="ex-demo--block">
     <p>Label, control, hint. The hint explains the consequence, not the control.</p>
-    <p>
-        A <code>textarea</code> resizes vertically only, because one dragged wider than its
-        <code>.field-grid</code> track breaks every row below it. <code>.form-input--resize-none</code>
-        locks it and <code>.form-input--resize-both</code> gives the axis back.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Form.Selects" Title="Selects" Demo="ex-demo--block">
-    <p>
-        <strong><code>.form-select</code> styles the drop-down as well as the box.</strong> It sets
-        <code>appearance: base-select</code>, which takes the option list out of the platform's hands
-        and makes it a real panel in the page — so it takes the theme, the tokens and the
-        <code>.menu</code> panel's own surface, border and shadow. Nothing has to be added to the
-        markup: a plain <code>&lt;select class="form-select"&gt;</code> gets it.
-    </p>
-    <p>
-        A browser without base appearance keeps the platform's list and gets a caret painted from two
-        gradients instead — the stylesheet loads and inlines nothing, and without base appearance a
-        pseudo-element does not render on a <code>&lt;select&gt;</code> at all. Neither half is a
-        script or a shim; the two are exclusive, behind <code>@@supports</code>. A list box
-        (<code>multiple</code>, or <code>size</code> above 1) has no caret either way, since there is
-        nothing to drop.
-    </p>
-    <p>
-        <strong><code>.form-select</code> is the whole class list a dropdown needs.</strong> It
-        carries the same field shape <code>.form-input</code> does — height, padding, surface,
-        border, radius, type and focus ring all come from one rule the two names share — so a
-        select never has to be told twice what a field looks like.
-        <code>class="form-input form-select"</code> resolves to those same declarations and stays
-        correct; it is simply longer.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Form.SelectOptions" Title="Options with content" Demo="ex-demo--block">
-    <p>
-        An <code>&lt;option&gt;</code> may now hold real markup — an icon, a second line, a trailing
-        code. Add a <code>&lt;button&gt;</code> holding
-        <code>&lt;selectedcontent&gt;&lt;/selectedcontent&gt;</code> as the select's first child and the
-        closed box shows a clone of whichever option is chosen.
-    </p>
-    <p>
-        <strong>Write the button.</strong> Leave it out and the browser supplies its own, which shows
-        every text node in the option run together — an option carrying an
-        <code>.option-hint</code> then reads <code>Frankfurteu-central-1</code> in the closed box, and
-        the icon does not travel into it at all.
-    </p>
-    <p>
-        The clone is the browser's to make, and <strong>Blazor's render does not trigger it</strong>:
-        left alone the closed box is blank, with nothing in the console to say why.
-        <code>Sedna.UI.js</code> repairs that on load and after every render, so this only matters if
-        the script is not on the page — see <code>sednaUi.select.refresh()</code> on the
-        <a href="/script">script page</a>. The rest of the control needs no JavaScript.
-    </p>
-    <p>
-        <code>.option-hint</code> is the quiet half of a row, and it reads its own position: a direct
-        child of the <code>&lt;option&gt;</code> is a trailing note, like a shortcut beside a menu
-        item; inside <code>.option-text</code> it is a second line under the label. The clone in the
-        closed box drops it either way, because the field is one row tall.
-    </p>
-    <p>
-        Give a group a <code>&lt;legend&gt;</code> as well as its <code>label</code>. The attribute's
-        heading is drawn by the browser outside this document and cannot be themed — it is what a
-        browser without base appearance shows, and the <code>&lt;legend&gt;</code> is what this one
-        does. An <code>&lt;hr&gt;</code> between groups is a separator like any other box.
-    </p>
-    <p>
-        Keyboard, typeahead and the accessible name are the platform's, unchanged — this is still one
-        <code>&lt;select&gt;</code> with no ARIA on it. Mark a decorative icon
-        <code>aria-hidden="true"</code> so it is not announced twice, and remember that the submitted
-        value is the option's text run together and trimmed: keep <code>value</code> explicit.
-    </p>
 </CatExample>
 
 <CatExample TExample="Examples.Form.TwoUpRows" Title="Two-up rows" Demo="ex-demo--block">
     <p>
-        <code>.field-grid</code> lays fields out side by side and collapses to one column when
-        there is not room for two — no breakpoint to pick.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Form.Checkboxes" Title="Checkboxes" Demo="ex-demo--block">
-    <p>
-        <code>.form-check</code> is the clickable label wrapper — the whole label toggles the
-        box. The check mark is drawn in CSS, so it picks up the brand token.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Form.RadioButtons" Title="Radio buttons" Demo="ex-demo--block">
-    <p>
-        The same <code>.form-check</code> wrapper — the type attribute decides the shape. A radio
-        is an unfilled circle with a brand dot rather than a filled disc, so shape
-        <em>and</em> fill differ from a checkbox and which one is exclusive reads without
-        colour. Give every radio in a set the same <code>name</code>, and wrap the set in a
-        <code>&lt;fieldset&gt;</code> so its label is announced with each option.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Form.Switches" Title="Switches" Demo="ex-demo--block">
-    <p>
-        <code>.switch</code> is for a setting that takes effect the moment it is flipped. A
-        checkbox is for a value saved with the rest of the form. The difference is when it
-        applies, not how it looks — picking the wrong one misleads the reader about whether
-        <strong>Save</strong> is still needed. It is still an
-        <code>&lt;input type="checkbox"&gt;</code>, so it needs no ARIA.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Form.Sizes" Title="Three sizes" Demo="ex-demo--block">
-    <p>
-        <code>.form-input-sm</code>, the default, and <code>.form-input-lg</code>, matching
-        <code>.btn-sm</code>, <code>.btn</code> and <code>.btn-lg</code> exactly. An input group takes
-        the tier on the group with <code>.input-group--sm</code> or <code>--lg</code>, because the
-        group is what draws the border.
-    </p>
-    <p>
-        A select takes <code>.form-select-sm</code> or <code>.form-select-lg</code> — its own tier,
-        not the input's, because a painted caret needs its room back at every size. A small text
-        filter and a small dropdown beside it then agree on height, which is the row a toolbar is
-        made of.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Form.Validation" Title="Validation" Demo="ex-demo--block">
-    <p>
-        The error border keys off <code>aria-invalid</code>, not a class. The attribute is what a
-        screen reader announces, so styling a separate class would let the two disagree — and the
-        reader who most needs the message is the one who would not get it. Point
-        <code>aria-describedby</code> at the message so it is read as part of the field.
-        <code>.form-warning</code> is for a value that is accepted but unwise.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Form.InputGroups" Title="Input groups" Demo="ex-demo--block">
-    <p>
-        One border around a control and its affixes. The affixes are real siblings rather than
-        padding plus a background image, so a button stays clickable and a unit stays selectable.
-        The focus ring moves out to the group and the inner control gives up its own, or the group
-        draws two rings nested inside each other.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Form.ReadOnlyValues" Title="Read-only values" Demo="ex-demo--block">
-    <p>
-        <code>.form-value-display</code> is the shape of an input without being one — for
-        values the user can read but not change. Do not use a disabled input for this; it reads
-        as broken rather than as informational.
+        <code>.field-grid</code> lays fields out side by side and collapses to one column when there
+        is not room for two &mdash; no breakpoint to pick.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Form.SectionsActions" Title="Sections and actions" Demo="ex-demo--block">
     <p>
-        <code>.form-section</code> is a <code>&lt;fieldset&gt;</code> with the browser's border
-        and inset legend removed. Use the real element: the legend is then announced with every
-        control in the group, which a heading above a <code>&lt;div&gt;</code> is not. The fields
-        go in <code>.form-section-body</code> rather than in the fieldset directly, because a
-        <code>&lt;legend&gt;</code> is not a flex item and lands somewhere different in every
-        engine if you make the fieldset the flex container.
+        <code>.form-section</code> is a <code>&lt;fieldset&gt;</code> with the browser's border and
+        inset legend removed. Use the real element &mdash; the legend is announced with every control
+        in the group, which a heading above a <code>&lt;div&gt;</code> is not &mdash; and put the
+        fields in <code>.form-section-body</code>, because a <code>&lt;legend&gt;</code> is not a flex
+        item and lands somewhere different in every engine if the fieldset is the flex container.
     </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.ActionsAlignment" Title="Where the actions sit" Demo="ex-demo--block">
     <p>
-        <code>.form-actions</code> closes the form. It wraps instead of overflowing, so three
-        buttons on a phone stack rather than pushing the commit button off-screen.
-        <code>.form-actions--split</code> puts a destructive action on the far side, where it
-        cannot be hit by aiming for <strong>Save</strong>, and
-        <code>.form-actions--start</code> aligns the row to the leading edge — for a form embedded
-        in a page rather than closing a dialog, where the far corner is nowhere in particular.
+        <code>.form-actions</code> wraps instead of overflowing, so three buttons on a phone stack
+        rather than pushing the commit button off-screen. <code>--split</code> puts a destructive
+        action where it cannot be hit by aiming for <strong>Save</strong>; <code>--start</code> aligns
+        the row to the leading edge, for a form embedded in a page rather than closing a dialog.
     </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.SectionTitle" Title="A group that is not a fieldset" Demo="ex-demo--block">
     <p>
-        Where the group genuinely is not a set of related controls — a heading over a region rather
-        than over fields — use <code>.form-section-title</code> on a plain element instead of a
-        <code>&lt;legend&gt;</code>. It is the same rule, without claiming a grouping that is not
-        there.
+        <code>.form-section-title</code> on a plain heading, for a region rather than a set of related
+        controls. Same rule, without claiming a grouping that is not there &mdash; a
+        <code>&lt;legend&gt;</code> tells a screen reader these answers belong together.
     </p>
+</CatExample>
+
+<CatExample TExample="Examples.Form.WholeForm" Title="A whole form" Demo="ex-demo--block">
+    <p>Every piece on this page at once, as a starting point to paste and cut down.</p>
 </CatExample>
 
 <CatExample TExample="Examples.Form.SettingsCard" Title="A settings card" Demo="ex-demo--block">

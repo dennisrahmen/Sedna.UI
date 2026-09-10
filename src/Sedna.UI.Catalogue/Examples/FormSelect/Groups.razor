@@ -1,0 +1,22 @@
+<div style="max-width:420px">
+    <div class="form-field">
+        <label class="form-label" for="gr-region">Deployment region</label>
+        <select class="form-select" id="gr-region">
+            <button>
+                <selectedcontent></selectedcontent>
+            </button>
+            <optgroup label="Europe">
+                <legend>Europe</legend>
+                <option value="eu-west-1">Ireland</option>
+                <option value="eu-central-1" selected>Frankfurt</option>
+            </optgroup>
+            <hr>
+            <optgroup label="North America">
+                <legend>North America</legend>
+                <option value="us-east-1">N. Virginia</option>
+                <option value="us-west-2">Oregon</option>
+            </optgroup>
+        </select>
+        <p class="form-hint">The <code>legend</code> is what the panel draws; the <code>label</code> is what a fallback browser draws. Write both.</p>
+    </div>
+</div>

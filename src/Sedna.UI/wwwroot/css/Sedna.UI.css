@@ -2988,8 +2988,13 @@ a.topbar-version--pre:hover {
 
    There is deliberately no --resize-y: it would be a second name for the default. */
 textarea.form-input { resize: vertical; }
-.form-input--resize-none { resize: none; }
-.form-input--resize-both { resize: both; }
+/* The element is in the modifier selectors too, and it is load-bearing: the rule above
+   weighs (0,1,1) because only a textarea is resizable, so a bare `.form-input--resize-none`
+   at (0,1,0) LOST to it and the two classes did nothing at all. Matching the weight and
+   coming later is what makes them win — raising specificity rather than reaching for
+   !important, which inside a cascade layer would make an app unable to override them. */
+textarea.form-input--resize-none { resize: none; }
+textarea.form-input--resize-both { resize: both; }
 
 /* The grip itself. Chromium paints an unthemed white corner over a dark field
    otherwise — which was fixed for the Markdown editor and nowhere else, so every
@@ -4267,7 +4272,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     border-color: var(--brand-soft);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
-.input-group .form-input {
+/* `.form-select` is named alongside `.form-input` for the reason 34-forms.css gives
+   for naming both in the shared shape rule: `.form-select` alone is a complete class
+   list. Without it here, a select inside a group kept its own border and radius over
+   the group's, and drew a second focus ring inside the group's — two frames and two
+   rings around one control. */
+.input-group .form-input,
+.input-group .form-select {
     flex: 1;
     min-width: 0;              /* or a long value pushes the affixes out */
     min-height: 0;             /* the group holds the height — see above */
@@ -4275,7 +4286,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     border-radius: 0;
     background: none;
 }
-.input-group .form-input:focus { box-shadow: none; }
+.input-group .form-input:focus,
+.input-group .form-select:focus { box-shadow: none; }
 /* --radius-inner, not --radius-control: the inner corner sits one border-width
    inside the outer one. */
 .input-group > :first-child { border-start-start-radius: var(--radius-inner); border-end-start-radius: var(--radius-inner); }

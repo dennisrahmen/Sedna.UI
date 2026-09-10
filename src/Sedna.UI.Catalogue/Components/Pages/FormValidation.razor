@@ -1,0 +1,30 @@
+@page "/form-validation"
+
+<CatHead Title="Validation">
+    The error border keys off <code>aria-invalid</code>, never a class, so the styling and what a
+    screen reader announces cannot disagree. Point <code>aria-describedby</code> at the message and it
+    is read as part of the field.
+</CatHead>
+
+<CatExample TExample="Examples.FormValidation.Messages" Title="Error and warning" Demo="ex-demo--block">
+    <p>
+        <code>.form-error</code> is a rejected value. <code>.form-warning</code> is one that is
+        accepted but unwise &mdash; it carries no <code>aria-invalid</code>, because the field is
+        valid.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormValidation.AcrossControls" Title="Across every control" Demo="ex-demo--block">
+    <p>
+        One attribute, the same result on an input, a select and a text area. The select is the case
+        worth knowing: it needs an empty first option for <code>required</code> to bite at all.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormValidation.Required" Title="Marking a field required" Demo="ex-demo--block">
+    <p>
+        <code>.form-label--required</code> draws the marker and <code>required</code> on the control
+        does the enforcing. Write both: the marker is decoration, and a screen reader is told by the
+        attribute.
+    </p>
+</CatExample>

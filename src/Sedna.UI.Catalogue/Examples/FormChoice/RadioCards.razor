@@ -1,0 +1,17 @@
+<fieldset class="form-section" style="max-width:520px">
+    <legend>On failure</legend>
+    <div class="form-section-body">
+        <div class="form-field">
+            <label class="form-check"><input type="radio" name="rc-fail" checked /> Retry three times, then alert</label>
+            <p class="form-hint" style="margin-inline-start:24px">Roughly 90 seconds before anyone is paged.</p>
+        </div>
+        <div class="form-field">
+            <label class="form-check"><input type="radio" name="rc-fail" /> Alert immediately</label>
+            <p class="form-hint" style="margin-inline-start:24px">For a queue where a single failure already means data loss.</p>
+        </div>
+        <div class="form-field">
+            <label class="form-check"><input type="radio" name="rc-fail" /> Log only</label>
+            <p class="form-hint" style="margin-inline-start:24px">Nobody is paged. The run still appears in the history.</p>
+        </div>
+    </div>
+</fieldset>

@@ -60,8 +60,13 @@
 
    There is deliberately no --resize-y: it would be a second name for the default. */
 textarea.form-input { resize: vertical; }
-.form-input--resize-none { resize: none; }
-.form-input--resize-both { resize: both; }
+/* The element is in the modifier selectors too, and it is load-bearing: the rule above
+   weighs (0,1,1) because only a textarea is resizable, so a bare `.form-input--resize-none`
+   at (0,1,0) LOST to it and the two classes did nothing at all. Matching the weight and
+   coming later is what makes them win — raising specificity rather than reaching for
+   !important, which inside a cascade layer would make an app unable to override them. */
+textarea.form-input--resize-none { resize: none; }
+textarea.form-input--resize-both { resize: both; }
 
 /* The grip itself. Chromium paints an unthemed white corner over a dark field
    otherwise — which was fixed for the Markdown editor and nowhere else, so every

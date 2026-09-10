@@ -227,6 +227,25 @@ emit_example_first_seen() {
         exit 1
     fi
 
+    # `git ls-files` sees TRACKED files only, and that is deliberate: an id's `since`
+    # is derived by reading the same path out of every tag, which an untracked file has
+    # no history in.
+    #
+    # But it makes running this before `git add` quietly wrong, and --check then agrees
+    # with the file it just failed to notice. That is the failure this repo keeps
+    # finding: one implementation agreeing with itself. So say so out loud, and fail in
+    # --check so CI is not the thing that catches it.
+    local untracked
+    untracked=$(git -C "$root" ls-files --others --exclude-standard "$examples")
+    if [[ -n "$untracked" ]]; then
+        {
+            echo "::error::These example files are not tracked, so they are invisible here"
+            echo "           and would be missing from class-history.json. git add them first:"
+            echo "$untracked" | sed 's/^/             /'
+        } >&2
+        exit 1
+    fi
+
     for tag in "${tags[@]}"; do
         version="${tag#v}"
         git -C "$root" cat-file -e "$tag:$examples" 2>/dev/null || continue
