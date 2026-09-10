@@ -42,6 +42,57 @@ public class PageLoadTests(CatalogueAppFixture app)
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
     }
 
+    /// <summary>
+    /// A sub-route hit directly loads every asset, whatever the path depth.
+    /// </summary>
+    /// <remarks>
+    /// The host page's asset paths are relative, so what they mean depends on the
+    /// document's base URL. This is the case that has no base of its own: a trailing
+    /// slash makes the browser resolve them one level deeper, and every one 404s
+    /// unless <c>&lt;base href="/"&gt;</c> is there to say otherwise. The document
+    /// still returns 200 — routing ignores the trailing slash — so the page renders
+    /// unstyled and never becomes interactive, with nothing logged and no failing
+    /// status to notice.
+    ///
+    /// It is asserted through a browser rather than over the markup because the
+    /// markup is identical either way: the resolution is the browser's, and only a
+    /// browser can be asked what it actually requested.
+    /// </remarks>
+    [Fact]
+    public async Task A_sub_route_hit_directly_resolves_its_assets_against_the_root()
+    {
+        if (app.NoBrowser) return;
+
+        var route = RoutedPages.All.First(r => r != "/");
+        var page = await app.Browser!.NewPageAsync();
+        var failures = new List<string>();
+
+        page.Response += (_, response) =>
+        {
+            if (response.Status >= 400) failures.Add($"{response.Status} {response.Url}");
+        };
+
+        // Both forms of the same page. The bare one passed before the <base> existed,
+        // because these routes are one segment deep and "/x" already resolves a
+        // relative path against the root — so on its own it proves nothing, and it is
+        // here to show that the fix did not move the problem.
+        foreach (var url in new[] { app.Url(route.TrimStart('/')), app.Url(route.TrimStart('/') + "/") })
+        {
+            var response = await page.GotoAsync(url,
+                new() { WaitUntil = WaitUntilState.NetworkIdle });
+
+            Assert.NotNull(response);
+            Assert.True(response!.Ok, $"{url} returned {response.Status}.");
+        }
+
+        await page.CloseAsync();
+
+        Assert.True(failures.Count == 0,
+            "A direct hit asked for assets that do not exist, so the host page has no "
+            + "<base href=\"/\"> — or it is declared after them:"
+            + Environment.NewLine + string.Join(Environment.NewLine, failures));
+    }
+
     [Fact]
     public async Task Every_page_renders_its_examples_and_its_navigation()
     {

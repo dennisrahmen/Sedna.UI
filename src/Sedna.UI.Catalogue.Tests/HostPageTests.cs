@@ -57,6 +57,42 @@ public class HostPageTests(CatalogueAppFixture app)
         Assert.Contains("viewport-fit=cover", documented, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The five asset paths are relative, so a <c>&lt;base&gt;</c> is what makes them
+    /// mean the same thing on every route.
+    /// </summary>
+    /// <remarks>
+    /// Without it a browser resolves them against the current path, so a direct hit
+    /// on a sub-route asks for each one under that route and gets a 404. The page
+    /// renders unstyled and never becomes interactive, nothing is logged, and it
+    /// happens only on the direct hit — reaching the same page by clicking a link
+    /// looks correct, because the router never re-resolved the assets. That is why
+    /// this is asserted rather than left to a reader noticing.
+    ///
+    /// All three copies: this app's own host page, the block a consuming app pastes,
+    /// and the snippet the catalogue prints beside it.
+    /// </remarks>
+    [Fact]
+    public void The_host_page_resolves_its_assets_against_the_root_on_every_route()
+    {
+        var documented = File.ReadAllText(
+            Path.Combine(Assets.RepoRoot, "docs", "getting-started.md"));
+        var snippet = File.ReadAllText(
+            Path.Combine(CatalogueAssets.ExamplesDir, "Index", "HostPage.html"));
+
+        foreach (var (name, source) in
+                 new[] { ("App.razor", AppRazor), ("getting-started.md", documented),
+                         ("Index/HostPage.html", snippet) })
+        {
+            var at = source.IndexOf(@"<base href=""/""", StringComparison.Ordinal);
+            Assert.True(at >= 0, $"{name} declares no <base href=\"/\">.");
+
+            // A <base> applies only to URLs after it, so being present is not enough.
+            Assert.True(at < source.IndexOf(BootJs, StringComparison.Ordinal),
+                $"{name} declares <base> after an asset it has to apply to.");
+        }
+    }
+
     [Fact]
     public void The_host_page_links_no_copy_of_the_design_system()
     {
@@ -127,7 +163,12 @@ public class HostPageTests(CatalogueAppFixture app)
         // reading of the embedded copy. Two extractions of one truth, for the
         // reason build/css-inventory.sh has two: a single implementation agrees
         // with itself whatever it got wrong.
-        var referenced = Regex.Matches(AppRazor, @"(?:src|href)=""(?<path>[^""@#]+)""")
+        // <base> carries an href and is not an asset, so it is removed before the
+        // scan rather than filtered out of the results: the scan stays a plain
+        // attribute sweep, independent of how HostPageAssets picks its tags.
+        var markup = Regex.Replace(AppRazor, @"<base\b[^>]*>", " ");
+
+        var referenced = Regex.Matches(markup, @"(?:src|href)=""(?<path>[^""@#]+)""")
             .Select(m => m.Groups["path"].Value)
             .Where(p => !p.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             .Distinct(StringComparer.Ordinal)

@@ -329,6 +329,16 @@ towards its scrollable overflow, so a menu opened in a toolbar or a scrolling ta
 container a scrollbar and got clipped at its edge. Use anchor positioning where the alternative is
 measuring in JavaScript, not as a default.
 
+**It does not survive a scroll, and that is why `.menu` and `.popover` close on one.** Chromium
+computes an anchored `position: fixed` panel's offset when the panel becomes visible and never
+recomputes it while the anchor scrolls, so the gap grows by exactly the scroll distance and stays
+wrong — measured at 4px → 154px after a 150px scroll, overshooting to −146px on the way back.
+`22-anchored.js` closes an open panel when a scroll moves its trigger, which is what a platform menu
+does anyway; nothing there measures or writes a coordinate, so the CSS is still the whole positioning
+model. The collapsed rail's flyout has the same fault and no fix, being a hover state with nothing to
+close — the pointer has to stay on the item for it to exist, which is what makes it the mild case.
+`AnchoredPanelTests` pins all of it.
+
 The drawer sits **below** the modal backdrop on purpose, so a modal opened from inside a drawer still
 covers it.
 

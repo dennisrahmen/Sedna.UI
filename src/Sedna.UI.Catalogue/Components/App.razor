@@ -12,6 +12,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
+    @* Before every relative URL below, or it does not apply to them. Without it a
+       browser resolves them against the current path rather than the root, so a
+       direct hit on a sub-route asks for its assets under that route and gets a 404
+       — the page renders unstyled and never becomes interactive, and only on a
+       direct hit, never when the router navigated there. *@
+    <base href="/" />
+
     <script src="_content/Sedna.UI/js/Sedna.UI.boot.js"></script>
 
     <link rel="stylesheet" href="_content/Sedna.UI/lib/remixicon/remixicon.css" />

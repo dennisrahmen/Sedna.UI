@@ -13,12 +13,14 @@ of this page.
 
 ## Host page
 
-Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your override file must come
-**after** the library stylesheet.
+Copy this block into `App.razor` (or `_Host.cshtml`). Your override file must come **after** the
+library stylesheet, and the `<base>` must come before all of them.
 
 ```html
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <base href="/" />
 
     <script src="_content/Sedna.UI/js/Sedna.UI.boot.js"></script>
 
@@ -34,6 +36,18 @@ Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your o
 
 `Sedna.UI.boot.js` applies the stored theme name and variant before first paint. Load it in
 `<head>`.
+
+### `<base href="/">`
+
+Required, and it must come before the asset lines — a `<base>` applies only to URLs after it.
+
+The five asset paths are relative. Without a `<base>`, a browser resolves them against the current
+path instead of the root, so a **direct hit on a sub-route** — a pasted link, a bookmark, a refresh —
+asks for them under that route and gets a 404 for each. The page renders unstyled and never becomes
+interactive, no error is logged, and it only happens on the direct hit: the same page reached by
+clicking a link inside the app looks correct, because the router never re-resolved the assets.
+
+An app served from a sub-path uses that path instead, with both slashes — `<base href="/admin/" />`.
 
 ### `viewport-fit=cover`
 
