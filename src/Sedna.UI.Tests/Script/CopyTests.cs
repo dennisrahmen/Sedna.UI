@@ -25,9 +25,12 @@ public class CopyTests : ScriptTestBase
             "() => navigator.clipboard.readText()"));
         Assert.Contains("Copied", await page.Locator("#c").InnerTextAsync(), StringComparison.Ordinal);
 
-        // 1400ms restore window, plus room for the second click's timer.
-        await page.WaitForTimeoutAsync(1800);
-        Assert.Equal("Copy", (await page.Locator("#c").InnerTextAsync()).Trim());
+        // Polled, not slept. The restore is a 1400ms timer in the script, and a fixed
+        // wait a little longer than it fails whenever the machine is loaded enough to
+        // run the timer late — which is every full-suite run alongside the browser
+        // tests, and passes in isolation, so it read as a real regression each time.
+        await Assertions.Expect(page.Locator("#c")).ToHaveTextAsync(
+            "Copy", new() { Timeout = 6000 });
     }
 
     [Fact]

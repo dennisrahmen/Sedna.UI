@@ -5032,19 +5032,24 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
         padding: 0 var(--space-2);
         line-height: 2.4;
     }
-    /* One pixel per row shorter than the budget, which is where the box's two
-       border pixels come from. A list box has at least two rows by definition, so
-       one pixel each is always enough — and the slack lands as a sliver of panel
-       under the last row rather than as a scrollbar over it. */
+    /* Three pixels per row out of the budget: two for the gap below, one for the
+       box's own border, which is two pixels over the whole box and a list box has at
+       least two rows by definition. The slack lands as a sliver of panel under the
+       last row rather than as a scrollbar over it. */
     .form-select[multiple] option,
     .form-select[size]:not([size="1"]) option {
         padding-block: 0;
-        line-height: calc(2.4em - 1px);
+        line-height: calc(2.4em - 3px);
     }
-    /* No gap here: every pixel between rows comes out of the `size` budget above,
-       and a list box's rows are meant to read as one column anyway. */
+    /* The same gap a `::picker(select)` row gets, and for the same reason now that a
+       chosen row is filled: without it two chosen rows next to each other merged
+       into one tinted block. It has to be paid for out of the `size` budget, which
+       is what the three pixels above are — this is the one measurement in the file
+       where the row height and the gap are a single sum. */
     .form-select[multiple] option + option,
-    .form-select[size]:not([size="1"]) option + option { margin-block-start: 0; }
+    .form-select[size]:not([size="1"]) option + option {
+        margin-block-start: var(--space-1);
+    }
 
     /* A row carrying `.option-text` is two lines and cannot live inside the
        single-line budget above — squeezed into it, the second line was clipped by

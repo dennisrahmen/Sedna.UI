@@ -581,6 +581,12 @@ window.sednaUi = window.sednaUi || {};
 
    A double-click on a row moves it on its own, which is what people try first.
 
+   Selection is left entirely to the platform, which already has the right contract
+   for this: a plain click selects ONE row and drops the previous one, and Ctrl or
+   Shift extends. That is what a staging selection wants — nothing accumulates
+   between moves, and neither list ends up holding a highlight the reader does not
+   remember making.
+
    Both lists get a `change` event after every move, bubbling and composed, so an
    app's existing handler — Blazor's `@onchange` included — sees it exactly as it
    sees a click on an option. That is the whole integration: the right-hand list is
@@ -624,11 +630,21 @@ window.sednaUi = window.sednaUi || {};
 
         var inOrder = sorted(to);
         for (var i = 0; i < options.length; i++) {
-            // Selected on arrival, so the rows just moved are the ones highlighted —
-            // otherwise a move of six rows lands them somewhere in a list of forty
-            // with nothing to say which they were.
-            options[i].selected = true;
+            options[i].selected = false;
             if (inOrder) place(to, options[i]); else to.appendChild(options[i]);
+        }
+
+        /* Nothing arrives selected, and the destination's own selection is cleared.
+           Selection in a transfer is a STAGING act — "these are the ones I am about
+           to move" — not an answer, and the answer is which list a row is in. Rows
+           that landed selected accumulated: after three moves the right-hand list
+           had eight rows highlighted, which reads as a multi-select the reader made
+           and cannot remember making, and it made the next Remove act on all of
+           them. The first row moved is scrolled into view instead, which is the part
+           that was actually worth having. */
+        to.selectedIndex = -1;
+        if (options.length && options[0].scrollIntoView) {
+            options[0].scrollIntoView({ block: 'nearest' });
         }
 
         notify(from);

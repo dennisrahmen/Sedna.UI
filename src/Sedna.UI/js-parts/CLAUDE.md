@@ -70,7 +70,7 @@ may change in a patch release. Everything an app may touch is a named member on 
 
 - **Generic UI behaviour only.** App-specific interop stays in the app's own script. If it knows about
   incidents, approvals or tours, it does not belong here.
-- **The public API is a contract.** `sednaUi` is a pinned global and four apps call into it.
+- **The public API is a contract.** `sednaUi` is a pinned global that consuming apps call into.
   Removing or renaming a member, or changing a signature, is a **major** version change. Adding one is
   minor.
 - **Do not reach into .NET.** Parts manipulate the DOM and dispatch events that Blazor's bindings

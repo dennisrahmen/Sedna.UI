@@ -90,11 +90,19 @@
         <code>.transfer</code> is the three-column grid and <code>.transfer-actions</code> the column
         of buttons; <code>data-transfer</code> plus <code>data-transfer-from</code> /
         <code>-to</code> / <code>-add</code> / <code>-remove</code> is what
-        <code><a href="/script">sednaUi.transfer</a></code> reads. Rows land selected, so a move of
-        six is visible in a list of forty, and both selects get a bubbling
-        <code>change</code> &mdash; which is all a Blazor <code>@@onchange</code> needs. Insertion is
-        alphabetical only where the destination was already sorted: re-ordering a list whose order
-        means something would destroy it silently.
+        <code><a href="/script">sednaUi.transfer</a></code> reads. Both selects get a bubbling
+        <code>change</code> after every move &mdash; which is all a Blazor
+        <code>@@onchange</code> needs &mdash; and insertion is alphabetical only where the
+        destination was already sorted: re-ordering a list whose order means something would
+        destroy it silently.
+    </p>
+    <p>
+        Selection is left to the platform, and that is the point: a plain click takes one row and
+        drops the previous, Ctrl or Shift extends. Here selection is a <em>staging</em> act &mdash;
+        these are the ones I am about to move &mdash; and the answer is which list a row ends up in.
+        So nothing arrives selected and the destination's own selection is cleared: rows that landed
+        selected accumulated into a highlight the reader never made, and the next Remove acted on
+        all of it. The first row moved is scrolled into view instead.
     </p>
 </CatExample>
 
