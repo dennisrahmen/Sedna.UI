@@ -6,13 +6,16 @@
     applies with scripting blocked — the script adds behaviour, never appearance.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-code-s-slash-line"></i>
-    <strong>From C#, inject <code>ISednaUi</code>.</strong> Register it once with
-    <code>builder.Services.AddSednaUi()</code>. Every member is a JavaScript call, so
-    <strong>none of them can run during prerendering</strong> — call them from an event handler, or
-    from <code>OnAfterRenderAsync(firstRender: true)</code>. The wrappers do not swallow that
-    exception.
+    <div class="callout-body">
+        <span class="callout-title">From C#, inject <code>ISednaUi</code></span>
+        Register it once with
+        <code>builder.Services.AddSednaUi()</code>. Every member is a JavaScript call, so
+        <strong>none of them can run during prerendering</strong> — call them from an event handler, or
+        from <code>OnAfterRenderAsync(firstRender: true)</code>. The wrappers do not swallow that
+        exception.
+    </div>
 </div>
 
 <CatExample TExample="Examples.Interop.ToastsFromCsharp" Title="Toasts from C#"

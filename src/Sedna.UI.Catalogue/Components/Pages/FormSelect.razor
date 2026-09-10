@@ -6,13 +6,16 @@
     <em>panel</em> as well as the box, so the option list takes the theme.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-information-line"></i>
-    <code>appearance: base-select</code> takes the option list out of the platform's hands and makes it
-    a real panel in the page. A browser without it keeps the platform list and gets a caret painted
-    from two gradients instead &mdash; the two halves are exclusive, behind <code>@@supports</code>,
-    and neither is a script or a shim. A list box has no caret either way, since there is nothing to
-    drop.
+    <div class="callout-body">
+        <span class="callout-title">Two selects behind one class</span>
+        <code>appearance: base-select</code> takes the option list out of the platform's hands and makes it
+        a real panel in the page. A browser without it keeps the platform list and gets a caret painted
+        from two gradients instead &mdash; the two halves are exclusive, behind <code>@@supports</code>,
+        and neither is a script or a shim. A list box has no caret either way, since there is nothing to
+        drop.
+    </div>
 </div>
 
 <CatExample TExample="Examples.FormSelect.Dropdown" Title="The drop-down" Demo="ex-demo--block">

@@ -5,11 +5,14 @@
     design in several vendor pseudo-elements.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-warn">
     <i class="ri-information-line"></i>
-    The two engines expose different pseudo-elements and <strong>cannot be combined into one selector
-    list</strong>: an unknown pseudo-element invalidates the whole rule, so a shared
-    <code>::-webkit-…, ::-moz-…</code> list applies in neither browser. Write one rule per engine.
+    <div class="callout-body">
+        <span class="callout-title">One rule per engine, never a shared list</span>
+        The two engines expose different pseudo-elements and cannot be combined into one selector
+        list: an unknown pseudo-element invalidates the whole rule, so a shared
+        <code>::-webkit-…, ::-moz-…</code> list applies in neither browser. Write one rule per engine.
+    </div>
 </div>
 
 <CatExample TExample="Examples.FormNumeric.Range" Title="Range" Demo="ex-demo--block">

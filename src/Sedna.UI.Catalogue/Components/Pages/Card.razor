@@ -7,13 +7,16 @@
     write the markup you need and take any colour from a token.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-stack-line"></i>
-    <strong>A card declares <code>--surface-here</code></strong> &mdash; the colour of the surface
-    its content is sitting on. Anything that has to be opaque reads it and is right without naming
-    a surface (<code>--timeline-surface</code>, <code>--group-head-bg</code>,
-    <code>--scroll-bg</code>); on a surface <em>your</em> app paints, declare it once on that
-    element and everything inside follows.
+    <div class="callout-body">
+        <span class="callout-title">A card declares <code>--surface-here</code></span>
+        &mdash; the colour of the surface
+        its content is sitting on. Anything that has to be opaque reads it and is right without naming
+        a surface (<code>--timeline-surface</code>, <code>--group-head-bg</code>,
+        <code>--scroll-bg</code>); on a surface <em>your</em> app paints, declare it once on that
+        element and everything inside follows.
+    </div>
 </div>
 
 <CatExample TExample="Examples.Card.HeadBody" Title="Head and body" Demo="ex-demo--block">

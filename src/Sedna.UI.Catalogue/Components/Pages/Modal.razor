@@ -5,12 +5,14 @@
     panel; header, body and footer are three optional rows.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-window-2-line"></i>
-    <strong>Put it on a <code>&lt;dialog&gt;</code> and open it with <code>showModal()</code>.</strong>
-    The top layer, the focus trap, <kbd>Escape</kbd>, inert content behind and returning focus on
-    close all come from the platform. Write no <code>.modal-backdrop</code> either:
-    <code>::backdrop</code> is the platform's own.
+    <div class="callout-body">
+        <span class="callout-title">Put it on a <code>&lt;dialog&gt;</code> and open it with <code>showModal()</code></span>
+        The top layer, the focus trap, <kbd>Escape</kbd>, inert content behind and returning focus on
+        close all come from the platform. Write no <code>.modal-backdrop</code> either:
+        <code>::backdrop</code> is the platform's own.
+    </div>
 </div>
 
 <CatExample TExample="Examples.Modal.DialogModal" Title="A real modal" Demo="ex-demo--block">

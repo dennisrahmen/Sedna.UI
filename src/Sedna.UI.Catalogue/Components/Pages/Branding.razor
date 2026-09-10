@@ -2,8 +2,7 @@
 @using Sedna.UI.Catalogue.Navigation
 @implements IDisposable
 @inject IJSRuntime Js
-@inject ISednaUi Ui
-@inject ThemeState Theme
+@inject ISednaSettings Settings
 
 <CatHead Title="Branding" Tier="@CatHead.Site">
     A rebrand, not a redesign: corner rounding, spacing, type and motion carry over unchanged, and
@@ -146,15 +145,16 @@
     </table>
 </div>
 
-<div class="cat-note">
+<div class="callout callout-warn">
     <i class="ri-error-warning-line"></i>
-    <span>
-        <strong>The SVG trap.</strong> <code>sedna-ui-wordmark*.svg</code> and
+    <div class="callout-body">
+        <span class="callout-title">The SVG trap</span>
+        <code>sedna-ui-wordmark*.svg</code> and
         <code>sedna-ui-logo-*.svg</code> set live <code>&lt;text&gt;</code> in Outfit, so on a machine
         without that font they silently fall back to a generic sans. For a wordmark or a lockup on the
         web use the <strong>PNG</strong>, as the two lockups above do. Mark and tile SVGs are pure
         geometry and safe anywhere.
-    </span>
+    </div>
 </div>
 
 <h2 id="palette">The palette, read live</h2>
@@ -215,16 +215,21 @@
 </div>
 
 @code {
-    private string _theme = "sedna";
-    private string _variant = "dark";
     private Dictionary<string, string>? _values;
 
-    private bool IsSedna => _theme == "sedna";
-    private bool IsForest => _theme == "forest";
-    private bool IsCobalt => _theme == "cobalt";
-    private bool IsGraphite => _theme == "graphite";
-    private bool IsDark => _variant == "dark";
-    private bool IsLight => _variant == "light";
+    // Read from ISednaSettings rather than kept here, so this page and the header's
+    // own toggle cannot disagree about what is applied. They did: each held its own
+    // copy, and changing the theme in one left the other showing the old choice
+    // until a reload.
+    private bool IsSedna => Settings.Current.Theme == "sedna";
+    private bool IsForest => Settings.Current.Theme == "forest";
+    private bool IsCobalt => Settings.Current.Theme == "cobalt";
+    private bool IsGraphite => Settings.Current.Theme == "graphite";
+    // "system" is stored as itself and resolves in the document. These two controls
+    // have no third state, so a reader on "system" sees the variant they are
+    // actually looking at rather than an empty selection.
+    private bool IsLight => Settings.Current.Variant == "light";
+    private bool IsDark => !IsLight;
 
     /// <summary>The seven fixed points every ramp is generated from — docs/BRANDING.md §1.4.</summary>
     private static readonly (string Label, string Token)[] CoreAnchors =
@@ -246,58 +251,38 @@
     // on the Tokens page avoids this the same way.
     private static readonly IReadOnlyList<string> PaletteTokens = CoreAnchors.Select(a => a.Token).ToList();
 
-    protected override void OnInitialized() => Theme.Changed += Refresh;
+    protected override void OnInitialized() => Settings.Changed += Refresh;
 
-    public void Dispose() => Theme.Changed -= Refresh;
+    public void Dispose() => Settings.Changed -= Refresh;
 
     /// <summary>
-    /// Reads the stored theme and variant once the circuit is up — an interop call cannot run
-    /// during prerendering, so until this runs the segmented controls show the defaults while
-    /// <c>Sedna.UI.boot.js</c> has already applied the real settings to <c>&lt;html&gt;</c>. Same
-    /// shape as <c>CatalogueTopbar.OnAfterRenderAsync</c>.
+    /// Starts the settings feed once the circuit is up — an interop call cannot run during
+    /// prerendering, so until this runs the segmented controls show the library's defaults
+    /// while <c>Sedna.UI.boot.js</c> has already applied the real settings to
+    /// <c>&lt;html&gt;</c>. Same shape as <c>CatalogueTopbar.OnAfterRenderAsync</c>.
     /// </summary>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
 
-        var settings = await Ui.LoadSettingsAsync();
-        _theme = settings.Theme;
-        _variant = settings.Variant == "light" ? "light" : "dark";
+        await Settings.StartAsync();
         await Read();
     }
 
-    private Task SelectSedna() => SetTheme("sedna");
-    private Task SelectForest() => SetTheme("forest");
-    private Task SelectCobalt() => SetTheme("cobalt");
-    private Task SelectGraphite() => SetTheme("graphite");
-    private Task SelectDark() => SetVariant("dark");
-    private Task SelectLight() => SetVariant("light");
-
-    private Task SetTheme(string name)
-    {
-        _theme = name;
-        return Save("theme", name);
-    }
-
-    private Task SetVariant(string variant)
-    {
-        _variant = variant;
-        return Save("variant", variant);
-    }
+    private Task SelectSedna() => Settings.SetThemeAsync("sedna");
+    private Task SelectForest() => Settings.SetThemeAsync("forest");
+    private Task SelectCobalt() => Settings.SetThemeAsync("cobalt");
+    private Task SelectGraphite() => Settings.SetThemeAsync("graphite");
+    private Task SelectDark() => Settings.SetVariantAsync("dark");
+    private Task SelectLight() => Settings.SetVariantAsync("light");
 
     /// <summary>
-    /// Writes through <c>sednaUi.settings.save</c> — the same path <c>CatalogueTopbar</c> uses —
-    /// which stamps <c>&lt;html&gt;</c> immediately. Nothing here sets <c>data-theme</c> or
-    /// <c>data-variant</c> directly, and <c>Theme.NotifyChanged()</c> is a C# event, not a DOM
-    /// write, so the catalogue's own script still never touches the document.
+    /// Every change arrives here, whichever control made it — this page's own segmented
+    /// controls, the header's toggle, or the reader switching their OS while a stored
+    /// <c>"system"</c> choice is live. The swatch values below are computed, so they are
+    /// re-read; the controls redraw from <c>Settings.Current</c> on their own.
     /// </summary>
-    private async Task Save(string key, string value)
-    {
-        await Ui.SaveSettingAsync(key, value);
-        Theme.NotifyChanged();
-    }
-
-    private void Refresh() => _ = InvokeAsync(Read);
+    private void Refresh(SednaUiSettings applied) => InvokeAsync(Read);
 
     private async Task Read()
     {

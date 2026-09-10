@@ -5,14 +5,17 @@
     taken — a home indicator, a notch, a rounded corner.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-warn">
     <i class="ri-smartphone-line"></i>
-    <strong>The host page has to opt in.</strong> Until its viewport meta carries
-    <code>viewport-fit=cover</code>, a browser lays the page out inside the display's safe area and
-    every inset reports <code>0px</code> on every device — see
-    <a href="/getting-started">Getting started</a>. With it, nothing has to detect a device:
-    <code>env()</code> is the detection, and every inset is <code>0px</code> where there is nothing
-    in the way.
+    <div class="callout-body">
+        <span class="callout-title">The host page has to opt in</span>
+        Until its viewport meta carries
+        <code>viewport-fit=cover</code>, a browser lays the page out inside the display's safe area and
+        every inset reports <code>0px</code> on every device — see
+        <a href="/getting-started">Getting started</a>. With it, nothing has to detect a device:
+        <code>env()</code> is the detection, and every inset is <code>0px</code> where there is nothing
+        in the way.
+    </div>
 </div>
 
 <CatExample TExample="Examples.UtilitySafeArea.SafeArea" Title="Holding an element clear" Demo="ex-demo--block">

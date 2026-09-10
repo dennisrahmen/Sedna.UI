@@ -5,12 +5,15 @@
     the viewport width, so they behave correctly inside a narrow column too.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-layout-grid-line"></i>
-    <strong>Page-specific grids stay in the app.</strong> Only reusable layout primitives live
-    here; a two-pane layout or a tile grid tuned to one page's card size belongs in that page. Page
-    width needs no wrapper — <code>.page</code> holds content to <code>--page-max</code> and
-    centres it by growing its horizontal padding.
+    <div class="callout-body">
+        <span class="callout-title">Page-specific grids stay in the app</span>
+        Only reusable layout primitives live
+        here; a two-pane layout or a tile grid tuned to one page's card size belongs in that page. Page
+        width needs no wrapper — <code>.page</code> holds content to <code>--page-max</code> and
+        centres it by growing its horizontal padding.
+    </div>
 </div>
 
 <CatExample TExample="Examples.Grid.CardMasonry" Title="`.card-masonry`" Demo="ex-demo--block">
