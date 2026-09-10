@@ -92,6 +92,42 @@ Permanently out of scope:
   and that file is thirteen fixed pictures of thirteen fixed states. Adding a fourteenth state
   is a minor version; adding a drawing an app picks between is the thing this bans.
 
+## No real names
+
+This repository is public and the catalogue is a public website. **Nothing in either may name a real
+organisation, customer, employer, internal application, internal host, internal ticket or real
+person.** Not in an example, not in page prose, not in a class name, not in a test fixture, not in a
+comment, not in a commit message, and not in a pull request.
+
+The reason is that the boundary is invisible from inside. A hostname or a product name lifted from a
+real system reads as ordinary demo content to whoever wrote it and as a disclosure to everybody else,
+and it is being published the moment it lands on `main` — a later edit removes it from the working
+tree and not from the history or from anyone's clone. So the rule is that it never gets committed,
+rather than that it gets cleaned up.
+
+What to write instead:
+
+- **People** — the demo identity is Alex Fischer, `alex.fischer@example.com`. Other fictional names
+  already in the examples may be reused; do not invent one that could belong to a colleague.
+- **Domains and e-mail** — `example.com`, `example.org`, `example.net`, `example.gov` (RFC 2606).
+- **Addresses** — the documentation ranges, `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24`
+  (RFC 5737). Never a private or link-local address: a real-looking internal address in a
+  copy-pasteable field reads as a real system's.
+- **Hosts and systems** — a generic role plus a number, `orders-console-01`, `src-db-14`,
+  `build-runner-04`. No site code, no company prefix.
+- **Companies** — `Northwind Retail`, the well-known fictional sample, or nothing at all.
+- **Third-party technology is not covered by this.** Naming Remix Icon, Railway, nuget.org or
+  Chromium is describing a dependency, and the notices file has to.
+
+`ExampleSourceTests.No_example_names_a_real_organisation_person_or_host`,
+`HygieneTests.No_app_specific_naming` and `ScriptContractTests` hold the line for examples, the
+stylesheet and the script. **They are literal deny-lists, so the one place a banned name may appear
+is inside them** — a guard cannot match a string it does not hold. Keep that list as short as the
+job allows, and prefer a shape (a ticket prefix, an address range) over a literal wherever a shape
+would catch it.
+
+Nothing enforces this in page prose, doc comments or documentation, so it is a review item there.
+
 ## The catalogue
 
 `src/Sedna.UI.Catalogue/` — a Blazor Web App with interactive server rendering, deployed to
