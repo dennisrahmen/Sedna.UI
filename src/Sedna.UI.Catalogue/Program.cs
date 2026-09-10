@@ -26,7 +26,6 @@ builder.Services.AddSednaUi(o =>
 });
 
 // Scoped: one circuit is one browser, and the toggles are per-browser state.
-builder.Services.AddScoped<ThemeState>();
 
 // Built once from the embedded examples, the embedded pages and the stylesheet the
 // app serves — so the MCP server and the site cannot describe different bytes.
