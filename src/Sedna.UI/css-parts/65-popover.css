@@ -70,3 +70,15 @@
     font-size: var(--text-4);
     font-weight: 600;
 }
+
+/* For content that brings its own edge — a table, a list. The panel's padding then
+   draws a frame inside a frame, and a table in it cannot reach the corners it is
+   rounded to. The title keeps its own inset, because a heading pressed against the
+   edge is a different mistake, and the last row gives up its rule: the panel's own
+   border is already there. */
+.popover--flush { padding: 0; overflow: hidden; }
+.popover--flush > .popover-title {
+    margin-bottom: 0;
+    padding: var(--space-6) var(--space-7) var(--space-3);
+}
+.popover--flush > .table tr:last-child > td { border-bottom: none; }

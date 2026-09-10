@@ -2,7 +2,7 @@
 @using Sedna.UI.Catalogue.Navigation
 @implements IDisposable
 @inject IJSRuntime Js
-@inject ThemeState Theme
+@inject ISednaSettings Settings
 
 <CatHead Title="Tokens">
     Every colour, size, radius and duration in the stylesheet resolves through one of these, and all
@@ -10,12 +10,15 @@
     follow the theme, the colour-blind palette and any override an app has applied.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-warn">
     <i class="ri-brush-line"></i>
-    <strong>Redefine these in your own <code>brand.css</code>, loaded after the library sheet.</strong>
-    Never declare a <code>--</code> name the library does not already define: a future version may
-    introduce that name with a different meaning, and your app breaks on upgrade.
-    <a href="/getting-started">Getting started</a> has the block to copy.
+    <div class="callout-body">
+        <span class="callout-title">Redefine these in your own <code>brand.css</code></span>
+        Load it after the library sheet.
+        Never declare a <code>--</code> name the library does not already define: a future version may
+        introduce that name with a different meaning, and your app breaks on upgrade.
+        <a href="/getting-started">Getting started</a> has the block to copy.
+    </div>
 </div>
 
 @foreach (var group in TokenGroups.All)
@@ -23,6 +26,10 @@
     <h2 id="@Slug.From(group.Name)">
         <CatTitle Text="@group.Name" /><a class="cat-anchor" href="#@Slug.From(group.Name)" aria-label="Link to this section"><i class="ri-links-line"></i></a>
     </h2>
+    @if (group.Note is not null)
+    {
+        <p class="cat-lede">@group.Note</p>
+    }
     <div class="cat-swatches">
         @foreach (var token in group.Tokens)
         {
@@ -52,13 +59,22 @@
 @code {
     private Dictionary<string, string>? _values;
 
-    protected override void OnInitialized() => Theme.Changed += Refresh;
+    protected override void OnInitialized() => Settings.Changed += Refresh;
 
-    public void Dispose() => Theme.Changed -= Refresh;
+    public void Dispose() => Settings.Changed -= Refresh;
 
+    /// <summary>
+    /// The values below are computed, so every applied change invalidates them — a theme
+    /// or variant switch from any control on the page, and the reader switching their OS
+    /// while a stored <c>"system"</c> choice is live. <c>StartAsync</c> is what makes the
+    /// second one arrive; nothing polling after first render would ever hear about it.
+    /// </summary>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender) await Read();
+        if (!firstRender) return;
+
+        await Settings.StartAsync();
+        await Read();
     }
 
     private string Value(string token) =>
@@ -71,5 +87,5 @@
         StateHasChanged();
     }
 
-    private void Refresh() => _ = InvokeAsync(Read);
+    private void Refresh(SednaUiSettings applied) => InvokeAsync(Read);
 }

@@ -65,21 +65,21 @@
     </CatLink>
 
     <button class="topbar-btn cat-toggle" type="button"
-            aria-label="Light theme" aria-pressed="@Pressed(_light)"
+            aria-label="Light theme" aria-pressed="@Pressed(Light)"
             data-tip="Switch between the light and dark theme."
             @onclick="ToggleTheme">
-        <i class="@(_light ? "ri-moon-line" : "ri-sun-line")"></i>
+        <i class="@(Light ? "ri-moon-line" : "ri-sun-line")"></i>
     </button>
 
     <button class="topbar-btn cat-toggle" type="button"
-            aria-label="Colour-blind palette" aria-pressed="@Pressed(_colourBlind)"
+            aria-label="Colour-blind palette" aria-pressed="@Pressed(ColourBlind)"
             data-tip="Deuteranopia-safe palette: the go family turns blue."
             @onclick="ToggleColourBlind">
         <i class="ri-contrast-2-line"></i>
     </button>
 
     <button class="topbar-btn cat-toggle" type="button"
-            aria-label="Compact density" aria-pressed="@Pressed(_compact)"
+            aria-label="Compact density" aria-pressed="@Pressed(Compact)"
             data-tip="Tighten table rows."
             @onclick="ToggleDensity">
         <i class="ri-list-check-2"></i>
@@ -90,10 +90,10 @@
        page about RTL because the interesting question is whether the frame and the
        example you are looking at survive it. *@
     <button class="topbar-btn cat-toggle" type="button"
-            aria-label="Right-to-left" aria-pressed="@Pressed(_rtl)"
+            aria-label="Right-to-left" aria-pressed="@Pressed(Rtl)"
             data-tip="Mirror the document, as an RTL language would."
             @onclick="ToggleDirection">
-        <i class="@(_rtl ? "ri-text-direction-l" : "ri-text-direction-r")"></i>
+        <i class="@(Rtl ? "ri-text-direction-l" : "ri-text-direction-r")"></i>
     </button>
 
     <CatLink Class="topbar-btn cat-ext" Href="@CatalogueLinks.Repo"

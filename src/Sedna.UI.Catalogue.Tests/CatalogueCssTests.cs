@@ -36,9 +36,9 @@ public class CatalogueCssTests
             // Two conditions, and both matter. The selector has to be anchored in
             // chrome at all — a bare `h2 { }` here would restyle every heading in every
             // example. And its SUBJECT, the last compound, is the element the rule
-            // actually paints: `.cat-note code` styling a <code> inside a note is fine
-            // and can never reach an example, while `.ex-demo .modal` would paint a
-            // .modal, which is precisely the markup a reader copies.
+            // actually paints: `.cat-tile-text strong` styling a <strong> inside a
+            // tile is fine and can never reach an example, while `.ex-demo .modal`
+            // would paint a .modal, which is precisely the markup a reader copies.
             if (!Classes(selector).Any(IsChrome))
             {
                 offenders.Add($"{selector}   (not scoped to .cat-* / .ex-*)");
@@ -82,7 +82,7 @@ public class CatalogueCssTests
     /// A page heading is always a direct child of <c>.cat-main</c>; nothing an example
     /// renders ever is. So the child combinator is exactly the line between the two, and
     /// it is only required under the containers that actually hold example markup —
-    /// <c>.cat-note table</c> is fine, because a note never contains an example.
+    /// <c>.cat-tiles a</c> is fine, because a tile never contains an example.
     /// </para>
     /// </remarks>
     [Fact]

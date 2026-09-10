@@ -16,18 +16,41 @@ public class CopyTests : ScriptTestBase
         // Two rapid clicks must not restore "Copied" as if it were the original, which
         // is why the original is stashed on the element rather than in a closure.
         var page = await Open(
-            """<button type="button" id="c" data-copy="INC0031209"><span>Copy</span></button>""");
+            """<button type="button" id="c" data-copy="TCK0031209"><span>Copy</span></button>""");
+
+        // The confirmation is a 1400ms window, so it cannot be SAMPLED: on a machine
+        // loaded enough — every full-suite run beside the browser tests — the whole
+        // window opens and closes between the click and the assertion, and the test
+        // failed for having looked too late rather than for anything being wrong.
+        // Both directions of the same race: a fixed sleep afterwards was also too
+        // short whenever the timer ran late.
+        //
+        // So the label is watched instead of read. The observer is installed before
+        // the click and records every text the button ever had, which is what the
+        // claim actually is — it said "Copied", and then it said "Copy" again — and
+        // is true whenever those happened.
+        await page.EvaluateAsync("""
+            () => {
+                const btn = document.getElementById('c');
+                window.seen = [btn.innerText.trim()];
+                new MutationObserver(() => {
+                    const now = btn.innerText.trim();
+                    if (now !== window.seen[window.seen.length - 1]) window.seen.push(now);
+                }).observe(btn, { childList: true, subtree: true, characterData: true });
+            }
+            """);
 
         await page.Locator("#c").ClickAsync();
         await page.Locator("#c").ClickAsync();
 
-        Assert.Equal("INC0031209", await page.EvaluateAsync<string>(
+        Assert.Equal("TCK0031209", await page.EvaluateAsync<string>(
             "() => navigator.clipboard.readText()"));
-        Assert.Contains("Copied", await page.Locator("#c").InnerTextAsync(), StringComparison.Ordinal);
 
-        // 1400ms restore window, plus room for the second click's timer.
-        await page.WaitForTimeoutAsync(1800);
-        Assert.Equal("Copy", (await page.Locator("#c").InnerTextAsync()).Trim());
+        await Assertions.Expect(page.Locator("#c")).ToHaveTextAsync(
+            "Copy", new() { Timeout = 6000 });
+
+        var seen = await page.EvaluateAsync<string[]>("() => window.seen");
+        Assert.Equal(["Copy", "Copied", "Copy"], seen);
     }
 
     [Fact]

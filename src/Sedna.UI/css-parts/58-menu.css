@@ -140,6 +140,18 @@
    for what it is holding open. */
 .value-trigger {
     --value-trigger-measure: 10ch;
+    /* The measure PLUS the chevron's own room, on the TRIGGER rather than on the
+       value inside it. The chevron is an ::after, and `.menu-anchor`'s shrink-to-fit
+       does not count a pseudo-element's contribution — measured: an anchor 12px
+       narrower than its own trigger's max-content, exactly the gap plus the
+       chevron — so a floor on the value alone sized the trigger to the value and the
+       chevron was drawn outside it and clipped. A min-width here is a definite
+       length, which the parent does count.
+
+       The four terms are the gap, the chevron's 8px of border, the inline padding
+       and the border, so the value still gets its full measure inside them. */
+    min-width: calc(var(--value-trigger-measure) + var(--space-2) + 8px
+                    + var(--space-3) * 2 + 2px);
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -172,18 +184,19 @@
 .value-trigger[aria-disabled="true"]::after { display: none; }
 /* The value itself, so a long one truncates instead of pushing the chevron out.
 
-   `min-width` is what stops it truncating ALWAYS. `overflow: hidden` on a flex item
-   sets its automatic minimum size to zero — that is what makes the ellipsis
-   possible in the first place — and in a table cell that zero is also the column's
-   minimum contribution, so auto table layout squeezes the column down to the
-   padding and the chevron and every value in it renders as two characters and an
-   ellipsis. A floor gives the column something to ask for, and the value still
-   gives way past it. */
+   `min-width: 0` rather than the measure. `overflow: hidden` on a flex item already
+   sets its automatic minimum size to zero — that is what makes the ellipsis possible
+   — and the floor that stops it truncating ALWAYS is the trigger's own min-width
+   above. It has to be there and not here: in a table cell a zero minimum is also the
+   column's minimum contribution, so auto table layout squeezes the column down to
+   the padding and every value in it renders as two characters and an ellipsis. The
+   trigger's min-width is what the column now asks for, and it reserves the chevron's
+   room in the same number. */
 .value-trigger > span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    min-width: var(--value-trigger-measure);
+    min-width: 0;
 }
 
 /* Works on an <a> or a <button>, so an item can navigate or act. */

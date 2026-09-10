@@ -62,46 +62,37 @@ public class ScriptContractTests
     }
 
     [Fact]
-    public void The_scripts_carry_no_application_specific_naming()
+    public void The_scripts_name_nothing_real()
     {
-        // Names AND the identifiers a consuming app's data looks like. The shipped script
-        // is served publicly by every app that installs the package, and its comments are
-        // part of what ships — an example ticket number in one of them is a customer's
-        // record number in somebody else's browser.
-        string[] forbidden = ["atheneConsole", "athene.", "netpoint", "servicenow", "SD-Network"];
-        string[] forbiddenPatterns = [@"INC\d{4,}", @"\bCHG\d{4,}", @"\bREQ\d{4,}"];
-
+        // Shapes, not names. The shipped script is served publicly by every app that
+        // installs the package and its comments are part of what ships, so an example
+        // ticket number in one of them is a customer's record number in somebody else's
+        // browser. A literal deny-list would be a published list of the very names it
+        // forbids, so what is matched is the FORM of a real record, host or company —
+        // see the `No real names` section of the repo's CLAUDE.md for the rest.
+        //
+        // Read with comments intact, deliberately: a snippet inside one is as published
+        // as a line of code.
         foreach (var path in new[] { Assets.JsPath, Assets.BootJsPath })
         {
             var js = File.ReadAllText(path);
-            var found = forbidden
-                .Where(f => js.Contains(f, StringComparison.OrdinalIgnoreCase))
-                .Concat(forbiddenPatterns
-                    .SelectMany(p => Regex.Matches(js, p, RegexOptions.IgnoreCase).Select(m => m.Value)))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            var found = RealWorldShapes.FoundIn(js);
 
             Assert.True(found.Count == 0,
-                $"{Path.GetFileName(path)} carries app-specific naming: {string.Join(", ", found)}");
+                $"{Path.GetFileName(path)} names something real: {string.Join(", ", found)}");
         }
     }
 
     [Fact]
-    public void The_stylesheet_carries_no_application_specific_naming()
+    public void The_stylesheet_names_nothing_real()
     {
-        // The same rule for the sheet, which ships and is served publicly too. The class
-        // guard in ColourTests covers app-prefixed CLASSES; this covers prose in comments.
-        string[] forbidden = ["athene", "netpoint", "servicenow", "SD-Network", "gsearch"];
-        var css = File.ReadAllText(Assets.CssPath);
-
-        var found = forbidden
-            .Where(f => css.Contains(f, StringComparison.OrdinalIgnoreCase))
-            .Concat(Regex.Matches(css, @"INC\d{4,}", RegexOptions.IgnoreCase).Select(m => m.Value))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        // The same shapes for the sheet, which ships and is served publicly too, and
+        // whose comments carry markup snippets — a first name used as demo content sat
+        // in one of them and reached every installing app.
+        var found = RealWorldShapes.FoundIn(File.ReadAllText(Assets.CssPath));
 
         Assert.True(found.Count == 0,
-            $"The stylesheet carries app-specific naming: {string.Join(", ", found)}");
+            $"The stylesheet names something real: {string.Join(", ", found)}");
     }
 
     [Fact]

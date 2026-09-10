@@ -49,12 +49,15 @@
     </p>
 </CatExample>
 
-<div class="cat-note">
+<div class="callout callout-danger">
     <i class="ri-shield-check-line"></i>
-    <code>sednaUi.md.render()</code> escapes all HTML <em>first</em> and only re-introduces a fixed
-    set of constructs, with link hrefs restricted to <code>http:</code>, <code>https:</code>,
-    <code>mailto:</code> and root-relative paths. It is not a spec-complete parser: for untrusted
-    input rendered to other users, sanitise server-side as well.
+    <div class="callout-body">
+        <span class="callout-title">Sanitise server-side as well</span>
+        <code>sednaUi.md.render()</code> escapes all HTML <em>first</em> and only re-introduces a fixed
+        set of constructs, with link hrefs restricted to <code>http:</code>, <code>https:</code>,
+        <code>mailto:</code> and root-relative paths. It is not a spec-complete parser: for untrusted
+        input rendered to other users, sanitise server-side as well.
+    </div>
 </div>
 
 @code {

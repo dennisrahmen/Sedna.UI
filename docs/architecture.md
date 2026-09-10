@@ -384,6 +384,7 @@ Two things the flat list does not say:
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | — | `22-anchored.js` adds no member. It closes an open `.menu` or `.popover` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |
+| `transfer` | Moves rows between a `.transfer`'s two list boxes: `add(host)`, `remove(host)`, each returning how many moved. Delegated from `[data-transfer-add]` / `[data-transfer-remove]` and from a double-click on a row. Selection is left to the platform, which already has the contract this wants — a plain click takes one row, Ctrl or Shift extends — and nothing arrives selected: selection here is a staging act, not an answer, and rows that landed selected accumulated into a highlight nobody made. The first row moved is scrolled into view instead. Both lists get a bubbling `change` afterwards, so an app's existing handler sees it; it appends in alphabetical order only where the destination was already sorted, because re-sorting a list whose order is meaningful would destroy it silently |
 | `select` | `refresh(root?)` → how many it fixed. Fills in the `<selectedcontent>` clone a customizable `<select>` should have made and Blazor's render prevents, leaving the closed box blank. Runs on load and after any render that adds nodes; an app calls it only for a select it moved into place some other way |
 | `palette` | Command palette, opened by Ctrl/⌘-K once commands exist: `register(list)`, `open()`, `close()`, `rank(query)` |
 | `search` | Header search behind a `data-search` input: `register(items)`, `rank(query)`, `close()` |
@@ -574,7 +575,8 @@ that loses a property to a more specific rule and silently does nothing. Those a
 
 **CSS anchor positioning, deliberately.** The floor is Chromium — current Chrome and Edge — so
 `anchor-name`, `anchor-scope`, `position-area` and `align-self: anchor-center` are all available and
-three things depend on them: the collapsed rail's hover flyout, `.popover` and `.menu`.
+four things depend on them: the collapsed rail's hover flyout, `.popover`, `.menu` and a
+`.form-select`'s own `::picker(select)`.
 
 The rail is the one that could not be done any other way. It scrolls, and **a scroll container clips
 both axes** — there is no combination of `overflow` values that scrolls vertically and lets a child out
@@ -587,6 +589,15 @@ nearest scroll container and counts towards its scrollable overflow, so a menu o
 scrolling table both grew that container a scrollbar and got clipped at its edge. `.menu-anchor` still
 carries `position: relative`, which is what the panel's own `--start` variant and the fallback rung
 resolve against. Use anchor positioning where the alternative is a measurement, not as a default.
+
+**A `::picker(select)` needs `position-try-fallbacks: none`.** The panel is anchored by the UA to its
+own select, and the UA also declares a fallback list whose first entry is *above* it — which is why a
+select past the middle of the viewport opened upwards over itself with the space below it empty.
+Declaring `position-area` does not remove that list; only `none` does. `flip-block`, which is what
+`.menu` and `.popover` use, is not a substitute: on a picker it flips unconditionally, measured with
+314px free below a panel 80px tall at every `max-height` from 100px through `none`. Nothing is clipped
+without a fallback, because the UA's `max-height: stretch` caps the panel to the room below and it
+scrolls inside itself.
 
 **It does not survive a scroll.** Chromium computes an anchored `position: fixed` panel's offset when
 the panel becomes visible and does not recompute it while the anchor scrolls: the panel stays pinned to

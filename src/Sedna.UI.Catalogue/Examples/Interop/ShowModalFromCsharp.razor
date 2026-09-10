@@ -1,10 +1,26 @@
 @inject ISednaUi Ui
 
-<button class="btn btn-primary" type="button" @onclick="Open">New API key</button>
-<span class="badge">@_outcome</span>
+<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+    <button class="btn btn-primary" type="button" @onclick="Open">New API key</button>
+
+    @if (_result is null)
+    {
+        <span class="form-hint">No key created yet.</span>
+    }
+    else
+    {
+        <span class="badge @(_result.Saved ? "badge-go" : "")">
+            <i class="@(_result.Saved ? "ri-key-2-line" : "ri-close-circle-line")"></i>
+            @_result.Label
+        </span>
+        <span class="form-hint">
+            <code>returnValue</code> was <code>@_result.ReturnValue</code>
+        </span>
+    }
+</div>
 
 <dialog id="new-api-key" class="modal">
-    <form method="dialog" @onsubmit="Save">
+    <form @onsubmit="Save">
         <div class="modal-header">
             <h3>New API key</h3>
             <button class="modal-close" type="button" aria-label="Close" @onclick="Cancel">
@@ -18,30 +34,53 @@
             </div>
             <div class="form-field">
                 <label class="form-label" for="key-expiry">Expires</label>
-                <input class="form-input" id="key-expiry" type="date" />
+                <input class="form-input" id="key-expiry" type="date" @bind="_expires" />
             </div>
         </div>
         <div class="modal-footer">
             <button class="btn" type="button" @onclick="Cancel">Cancel</button>
-            <button class="btn btn-primary" type="submit" value="save">Create</button>
+            <button class="btn btn-primary" type="submit">Create</button>
         </div>
     </form>
 </dialog>
 
 @code {
+    private const string Id = "new-api-key";
+
     private string _name = "ci-publisher";
-    private string _outcome = "nothing yet";
+    private DateOnly _expires = new(2027, 3, 31);
+    private Outcome? _result;
 
-    private Task Open() => Ui.ShowModalAsync("new-api-key");
+    private sealed record Outcome(bool Saved, string Label, string ReturnValue);
 
-    // The submit button is inside <form method="dialog">, so the platform closes the
-    // dialog itself — this only records what happened. CloseModalAsync is for the
-    // routes that are not a dialog-method submit.
-    private void Save() => _outcome = $"created \"{_name}\"";
+    private Task Open()
+    {
+        _result = null;
+        return Ui.ShowModalAsync(Id);
+    }
+
+    // Both routes out close the dialog through CloseModalAsync, and the form is a
+    // plain <form> rather than <form method="dialog">.
+    //
+    // The platform's own dialog-method submit does not survive a Blazor handler:
+    // closing the dialog and setting returnValue is the DEFAULT ACTION of the submit
+    // event, and Blazor's event delegator preventDefaults every submit so that a
+    // plain @onsubmit form does not navigate. So Create ran its handler and the
+    // dialog stayed open, with nothing logged — while Cancel, a type="button",
+    // worked, because it never needed a default action.
+    //
+    // Handling it in C# is also the honest shape for a dialog holding a form: the
+    // work can fail, and a dialog that has already closed cannot show why.
+    private async Task Save()
+    {
+        var expires = _expires.ToString("yyyy-MM-dd");
+        await Ui.CloseModalAsync(Id, "save");
+        _result = new Outcome(true, $"{_name} · expires {expires}", "save");
+    }
 
     private async Task Cancel()
     {
-        await Ui.CloseModalAsync("new-api-key", "cancel");
-        _outcome = "cancelled";
+        await Ui.CloseModalAsync(Id, "cancel");
+        _result = new Outcome(false, "Cancelled", "cancel");
     }
 }

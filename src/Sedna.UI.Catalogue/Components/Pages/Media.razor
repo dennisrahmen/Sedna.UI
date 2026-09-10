@@ -5,13 +5,37 @@
     allowed to see.
 </CatHead>
 
+<div class="callout callout-info">
+    <i class="ri-image-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">These are real photographs, from a remote host</span>
+        The one place on this site that loads anything external, and the only one that has a reason
+        to: no CSS-drawn placeholder teaches <code>object-fit</code>. <strong>The package still
+        loads nothing remote</strong> — that guarantee is what stops another host's outage reaching
+        a customer's site, and it is untouched. Photographs from
+        <a href="https://unsplash.com">Unsplash</a>, credited in each caption.
+    </div>
+</div>
+
 <CatExample TExample="Examples.Media.MediaFrame" Title="Media frame" Demo="ex-demo--block">
     <p>
-        A bounded box for an image or embed whose size you do not control: it has its height before
-        the image loads, and it contains rather than crops, because cropping a screenshot removes
-        the part somebody needed. <code>.media-frame--cover</code> is for a decorative banner, where
-        cropping is the right answer; use <code>&lt;figure class="media-figure"&gt;</code> when
-        there is a caption, and give the image a real <code>alt</code> either way.
+        A bounded box for an image whose size you do not control. The <code>aspect-ratio</code> is
+        what stops the page reflowing as images arrive — the box has its height before the first
+        byte — and <code>width</code>/<code>height</code> on the <code>&lt;img&gt;</code> is worth
+        writing anyway, because it tells the browser the ratio of the file rather than of the frame.
+        <code>loading="lazy"</code> on anything below the fold; a real <code>alt</code> always, and
+        <code>&lt;figure class="media-figure"&gt;</code> when there is a caption.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Media.Fit" Title="Contain or cover" Demo="ex-demo--block">
+    <p>
+        The same photograph in the same square frame, and the whole decision in one pair. The
+        default <strong>contains</strong>: the image is letterboxed and all of it is there, which is
+        what a screenshot, a scanned document or a label needs, because cropping one removes the
+        part somebody needed. <code>.media-frame--cover</code> <strong>fills and crops</strong>,
+        which is what a thumbnail or a banner needs. Picking the wrong one is silent — the image
+        still appears, just without the corner that mattered.
     </p>
 </CatExample>
 
@@ -54,6 +78,8 @@
         <code>.gallery</code> is a breakpoint-free grid of thumbnails. Each tile is a real
         <code>&lt;button&gt;</code> or <code>&lt;a&gt;</code> directly inside it — never a
         <code>&lt;div&gt;</code> with a click handler — and every frame is square whatever aspect
-        modifier it carries, so a row of mixed attachments lines up.
+        modifier it carries, so a row of mixed attachments lines up. Which is the point of the mix
+        here: two photographs somebody took at the dock and two files, in one grid, squared by the
+        same rule.
     </p>
 </CatExample>

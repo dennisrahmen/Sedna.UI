@@ -54,14 +54,17 @@
     </table>
 </div>
 
-<div class="cat-note">
+<div class="callout callout-warn">
     <i class="ri-stack-line"></i>
-    <strong>Your stylesheet is unlayered, so it beats every rule here whatever the
-    specificity.</strong> <code>.card { padding: 12px }</code> in your own file wins with no
-    <code>!important</code> and no compound selector — and use no <code>!important</code> against
-    the library either, because layer order inverts for important declarations and would make the
-    rule <em>harder</em> to override. If a rule here has to be overridden to make something work,
-    report it rather than out-specify it.
+    <div class="callout-body">
+        <span class="callout-title">Your stylesheet is unlayered, so it always wins</span>
+        Whatever the specificity.
+        <code>.card { padding: 12px }</code> in your own file wins with no
+        <code>!important</code> and no compound selector — and use no <code>!important</code> against
+        the library either, because layer order inverts for important declarations and would make the
+        rule <em>harder</em> to override. If a rule here has to be overridden to make something work,
+        report it rather than out-specify it.
+    </div>
 </div>
 
 <h2 id="control-height">One control height</h2>
@@ -73,12 +76,15 @@
     stepper, the search box and the chip.
 </p>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-ruler-line"></i>
-    <strong>Sizing a control yourself takes two rules.</strong> Keep its own padding and line box
-    <strong>under</strong> the tier, or the tier stops deciding anything and the control grows past
-    it. And where a wrapper draws the border — an input group does — the wrapper takes the height
-    and the children give theirs up.
+    <div class="callout-body">
+        <span class="callout-title">Sizing a control yourself takes two rules</span>
+        Keep its own padding and line box
+        <strong>under</strong> the tier, or the tier stops deciding anything and the control grows past
+        it. And where a wrapper draws the border — an input group does — the wrapper takes the height
+        and the children give theirs up.
+    </div>
 </div>
 
 <h2 id="tokens">The token contract</h2>
@@ -117,12 +123,15 @@
     </table>
 </div>
 
-<div class="cat-note">
+<div class="callout callout-warn">
     <i class="ri-price-tag-3-line"></i>
-    <strong>A plain name is a claim on the shared namespace.</strong> An app that already styles
-    <code>.list</code> or <code>.menu</code> silently gets both rule sets merged on upgrade — no
-    error, just a changed appearance. Every release lists the class names it adds, so grep your own
-    CSS before bumping.
+    <div class="callout-body">
+        <span class="callout-title">A plain name is a claim on the shared namespace</span>
+        An app that already styles
+        <code>.list</code> or <code>.menu</code> silently gets both rule sets merged on upgrade — no
+        error, just a changed appearance. Every release lists the class names it adds, so grep your own
+        CSS before bumping.
+    </div>
 </div>
 
 <h2 id="z-order">Z-order</h2>
@@ -149,14 +158,17 @@
     </table>
 </div>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-information-line"></i>
-    <strong>What the numbers do not say.</strong> <code>.topbar</code> and
-    <code>.user-widget</code> establish stacking contexts, so a panel nested in either is ordered
-    <em>within</em> it and cannot be lifted above the modal backdrop by z-index alone. The top
-    layer — anything promoted by <code>popover</code> or <code>dialog.showModal()</code> — ignores
-    z-index entirely and orders by promotion. And the drawer sits below the modal backdrop on
-    purpose, because a modal opened from inside a drawer has to cover it.
+    <div class="callout-body">
+        <span class="callout-title">What the numbers do not say</span>
+        <code>.topbar</code> and
+        <code>.user-widget</code> establish stacking contexts, so a panel nested in either is ordered
+        <em>within</em> it and cannot be lifted above the modal backdrop by z-index alone. The top
+        layer — anything promoted by <code>popover</code> or <code>dialog.showModal()</code> — ignores
+        z-index entirely and orders by promotion. And the drawer sits below the modal backdrop on
+        purpose, because a modal opened from inside a drawer has to cover it.
+    </div>
 </div>
 
 <h2 id="rtl">Direction and density</h2>
@@ -167,11 +179,14 @@
     on this site.
 </p>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-text-direction-r"></i>
-    Write <code>margin-inline-start</code>, <code>border-inline-end</code>,
-    <code>inset-inline</code> and <code>text-align: start</code> and your own pages mirror for free;
-    only <code>transform: translateX()</code> and a <code>background-position</code> percentage have
-    no logical form, and both are handled here. <code>data-density="compact"</code> tightens table
-    and cell padding — tighten your own page-specific components alongside it.
+    <div class="callout-body">
+        <span class="callout-title">Write the logical property and it mirrors for free</span>
+        Write <code>margin-inline-start</code>, <code>border-inline-end</code>,
+        <code>inset-inline</code> and <code>text-align: start</code> and your own pages mirror for free;
+        only <code>transform: translateX()</code> and a <code>background-position</code> percentage have
+        no logical form, and both are handled here. <code>data-density="compact"</code> tightens table
+        and cell padding — tighten your own page-specific components alongside it.
+    </div>
 </div>

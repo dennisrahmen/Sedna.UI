@@ -62,14 +62,15 @@ The guards in `src/Sedna.UI.Tests/Css/` also enforce that:
 - the light and colour-blind blocks only remap tokens and never override a selector, which is what keeps
   CSS load order irrelevant;
 - `font-family` rides `var(--font-sans)` / `var(--font-mono)`;
-- no app-specific naming (`athene`, `zbx`, `gsearch`, `guide-`, …) appears.
+- nothing in the file names a real ticket, host, address or company — see **No real names** below.
 
 Adding a token is a minor version. Renaming or removing one is major.
 
 ## Out of scope
 
-App-specific business UI stays in the app that owns it: approval panels, SLA badges, tour overlays, demo
-choosers, first-run guides, claim overlays, ServiceNow journal styling, page-specific grids.
+App-specific business UI stays in the app that owns it: its own workflow panels, its own overlays and
+guided tours, styling for a particular integration's output, page-specific grids. If a class knows
+what the app is *for*, it belongs to the app.
 
 Permanently out of scope:
 
@@ -91,6 +92,53 @@ Permanently out of scope:
   `wwwroot/img/Sedna.UI.states.svg` are not one: an icon set is a vocabulary a page draws from,
   and that file is thirteen fixed pictures of thirteen fixed states. Adding a fourteenth state
   is a minor version; adding a drawing an app picks between is the thing this bans.
+
+## No real names
+
+This repository is public and the catalogue is a public website. **Nothing in either may name a real
+organisation, customer, employer, internal application, internal host, internal ticket or real
+person.** Not in an example, not in page prose, not in a class name, not in a test fixture, not in a
+comment, not in a commit message, and not in a pull request.
+
+The reason is that the boundary is invisible from inside. A hostname or a product name lifted from a
+real system reads as ordinary demo content to whoever wrote it and as a disclosure to everybody else,
+and it is being published the moment it lands on `main` — a later edit removes it from the working
+tree and not from the history or from anyone's clone. So the rule is that it never gets committed,
+rather than that it gets cleaned up.
+
+What to write instead:
+
+- **People** — the demo identity is Alex Fischer, `alex.fischer@example.com`. Other fictional names
+  already in the examples may be reused; do not invent one that could belong to a colleague.
+- **Domains and e-mail** — `example.com`, `example.org`, `example.net`, `example.gov` (RFC 2606).
+- **Addresses** — the documentation ranges, `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24`
+  (RFC 5737). Never a private or link-local address: a real-looking internal address in a
+  copy-pasteable field reads as a real system's.
+- **Hosts and systems** — a generic role plus a number, `orders-console-01`, `src-db-14`,
+  `build-runner-04`. No site code, no company prefix.
+- **Companies** — `Northwind Retail`, the well-known fictional sample, or nothing at all.
+- **Third-party technology is not covered by this.** Naming Remix Icon, Railway, nuget.org or
+  Chromium is describing a dependency, and the notices file has to.
+- **An attribution is not covered by this either.** A photographer credited beside their own
+  photograph is the opposite of a disclosure — it is the credit the licence asks for, and leaving it
+  off to satisfy this rule would be the actual wrong. Credit them where the work is; do not use a
+  real person's name for anything else.
+
+**The tests match shapes, never names, and there is deliberately no deny-list.** There used to be
+one, and a literal list of forbidden names is itself a published list of those names — the exact
+disclosure it exists to prevent. So the example guard and the two in
+`ScriptContractTests` match the *form* of a real thing: an
+ITSM record number, a German public body or company legal form, an internal DNS label, a private
+address range. Three real authorities were in the examples and each was recognisable by the word in
+front of the place, so that word is what is matched.
+
+The script and stylesheet are scanned **with their comments intact**. A markup snippet in a comment
+is copied verbatim into the shipped file, so it is as published as a line of code — which is how a
+first name used as demo content reached every installing app while a comment-stripping guard
+watched.
+
+**A name that fits no shape is caught by review and nothing else**, here and in page prose, doc
+comments and documentation. That is the trade: no test can hold the list without publishing it.
 
 ## The catalogue
 

@@ -87,7 +87,7 @@
     font-size: var(--text-4);
 }
 .nav-link i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
-.nav-link:hover { background: var(--bg-elevated); text-decoration: none; }
+.nav-link:hover { background: var(--sidebar-hover); text-decoration: none; }
 .nav-link:hover i { opacity: 1; }
 /* Tinted rather than a solid brand pill, so the count badge on the same row stays
    readable and any brand hue works underneath. */

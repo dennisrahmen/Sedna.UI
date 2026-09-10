@@ -57,11 +57,16 @@
     --brand-soft:      var(--coral-400);
     --brand-text:      var(--coral-300);
     --brand-tint:      var(--coral-950);
+    --brand-tint-strong: var(--coral-900);
     --accent:          var(--orbit-300);
 
     --sidebar-bg:      var(--black);
     --sidebar-border:  var(--slate-400);
     --sidebar-fg:      var(--white);
+    /* A step stronger than the default theme's, for the same reason every border
+       in this block is: the sidebar is pure black here, so the hover has further
+       to travel before it registers as a hover at all. */
+    --sidebar-hover:   var(--slate-700);
 
     --go-bg:      var(--green-900);
     --go-border:  var(--green-400);
@@ -146,11 +151,13 @@
     --brand-soft:      var(--coral-700);
     --brand-text:      var(--coral-800);
     --brand-tint:      var(--coral-200);
+    --brand-tint-strong: var(--coral-300);
     --accent:          var(--orbit-800);
 
     --sidebar-bg:      var(--white);
     --sidebar-border:  var(--slate-600);
     --sidebar-fg:      var(--black);
+    --sidebar-hover:   var(--slate-200);
 
     --go-bg:      var(--green-200);
     --go-border:  var(--green-800);
@@ -205,6 +212,13 @@
     --code-bg:        var(--indigo-200);
     --backdrop:       rgba(0, 0, 0, 0.6);
     --overlay:        rgba(255, 255, 255, 0.9);
+    /* Follows the light variant's hint rather than inheriting the dark bubble
+       from 01-tokens.css, which would leave this the one light surface in the
+       library still painted dark. The border goes to full strength, as every
+       border in this block does. */
+    --tip-bg:          var(--white);
+    --tip-border:      var(--slate-800);
+    --tip-fg:          var(--black);
     --scrollbar:       var(--slate-500);
     --scrollbar-hover: var(--slate-700);
     --redacted:        var(--crimson-900);

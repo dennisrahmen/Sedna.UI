@@ -29,7 +29,15 @@
    taller than a line of text, so `.form-input`'s padding on top of it pushes a bare
    file input past every other control in the row. The button supplies the height, and
    --control-height binds as it does everywhere else. */
-.form-input[type="file"] { padding-block: var(--space-1); }
+/* `align-content` centres a BLOCK container's in-flow content, which is what this
+   box is — the engine lays a file input out around its own button, so there is no
+   flex line to centre and `align-items` reaches nothing. Without it the button's
+   line box sits at the top of the 36px the control tier reserves and the whole
+   control looks lifted: measurably 2px more space above the button than below. */
+.form-input[type="file"] {
+    padding-block: var(--space-1);
+    align-content: center;
+}
 
 .form-input::file-selector-button {
     margin-inline-end: var(--space-5);

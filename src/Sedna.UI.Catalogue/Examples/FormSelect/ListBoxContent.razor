@@ -1,0 +1,26 @@
+<div class="form-field" style="max-width:420px">
+    <label class="form-label" for="lb-rich">Escalation policy</label>
+    <select class="form-input form-select" id="lb-rich" multiple size="6">
+        <option selected>
+            <i class="ri-phone-line" aria-hidden="true"></i>
+            <span class="option-text">Call the duty engineer<span class="option-hint">Rings the rota phone, then the lead after 5 minutes</span></span>
+        </option>
+        <option>
+            <i class="ri-mail-send-line" aria-hidden="true"></i>
+            <span class="option-text">E-mail the team<span class="option-hint">One message to the group address, no acknowledgement</span></span>
+        </option>
+        <option selected>
+            <i class="ri-notification-3-line" aria-hidden="true"></i>
+            <span class="option-text">Push to the on-call app<span class="option-hint">Repeats every 2 minutes until someone accepts</span></span>
+        </option>
+        <option disabled>
+            <i class="ri-chat-3-line" aria-hidden="true"></i>
+            <span class="option-text">Post to the channel<span class="option-hint">Unavailable &mdash; no channel is connected</span></span>
+        </option>
+    </select>
+    <p class="form-hint">
+        The same <code>.option-text</code> and <code>.option-hint</code> a dropdown uses. A two-line
+        row is taller than the row height <code>size</code> divides by, so set <code>size</code> to
+        roughly half the rows you want on screen &mdash; here six shows three.
+    </p>
+</div>

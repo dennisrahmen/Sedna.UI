@@ -1,18 +1,22 @@
 @page "/script"
 
 <CatHead Title="The script">
-    <code>sednaUi</code> holds generic UI behaviour only: hover hints, theme settings, clipboard,
-    toasts, confirmations, and delegated wiring for menus and tabs. Every class on these pages
-    applies with scripting blocked — the script adds behaviour, never appearance.
+    <code>sednaUi</code> holds generic UI behaviour only: theme settings, clipboard, toasts,
+    confirmations, and delegated wiring for menus and tabs. Every class on these pages applies
+    with scripting blocked — the script adds behaviour, never appearance.
+    <a href="/hover-hints">Hover hints</a> have a page of their own.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-code-s-slash-line"></i>
-    <strong>From C#, inject <code>ISednaUi</code>.</strong> Register it once with
-    <code>builder.Services.AddSednaUi()</code>. Every member is a JavaScript call, so
-    <strong>none of them can run during prerendering</strong> — call them from an event handler, or
-    from <code>OnAfterRenderAsync(firstRender: true)</code>. The wrappers do not swallow that
-    exception.
+    <div class="callout-body">
+        <span class="callout-title">From C#, inject <code>ISednaUi</code></span>
+        Register it once with
+        <code>builder.Services.AddSednaUi()</code>. Every member is a JavaScript call, so
+        <strong>none of them can run during prerendering</strong> — call them from an event handler, or
+        from <code>OnAfterRenderAsync(firstRender: true)</code>. The wrappers do not swallow that
+        exception.
+    </div>
 </div>
 
 <CatExample TExample="Examples.Interop.ToastsFromCsharp" Title="Toasts from C#"
@@ -114,18 +118,6 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Script.HoverHints" Title="Hover hints" Demo="ex-demo--block">
-    <p>
-        <code>data-tip</code> on any control renders one bubble for the whole page through event
-        delegation, so content rendered later needs no wiring, and
-        <code>data-tip-pos="left|right|top|bottom"</code> pins a side. Elements inside
-        <code>.sidebar</code> are skipped — the collapsed rail has its own CSS flyout, and both
-        firing draws two tooltips — while <code>sednaUi.tips.gate</code> suppresses the rest; the
-        bubble is a single <code>.sedna-tip</code> on <code>&lt;body&gt;</code> faded in by
-        <code>.sedna-tip--visible</code>, neither of which you write.
-    </p>
-</CatExample>
-
 <CatSnippet Name="Script/SelectRefresh.txt" Title="Repairing a customizable select">
     <p>
         A <code>.form-select</code> that writes its own
@@ -133,12 +125,5 @@
         option in its closed box, and <strong>Blazor's render does not trigger that copy</strong> —
         so without this the box is blank, with nothing in the console. The script repairs it for you;
         <code>sednaUi.select.refresh()</code> is here for the case the observer cannot see.
-    </p>
-</CatSnippet>
-
-<CatSnippet Name="Script/TipGate.txt" Title="Suppressing hints">
-    <p>
-        Assign a predicate to <code>sednaUi.tips.gate</code> and it is asked before every hint. It
-        stays JavaScript-only, because a predicate cannot cross the interop boundary.
     </p>
 </CatSnippet>

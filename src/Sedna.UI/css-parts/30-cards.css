@@ -133,7 +133,12 @@
 .card-warning i { font-size: var(--text-5); flex-shrink: 0; }
 
 /* Key/value row inside a card body. */
-.kv { display: flex; justify-content: space-between; padding: var(--space-2) 0; }
+/* The gap is a MINIMUM separation, not the layout. `space-between` is what puts the
+   value at the trailing edge in a card, where the row is full width and the gap never
+   shows. It shows in a shrink-to-fit container — a `.popover`, which is
+   `width: max-content` — where `space-between` has no free space to distribute and
+   the key ran straight into the value with nothing between them. */
+.kv { display: flex; justify-content: space-between; gap: var(--space-7); padding: var(--space-2) 0; }
 .kv .k { color: var(--muted); }
 .kv .v { font-family: var(--font-mono); }
 

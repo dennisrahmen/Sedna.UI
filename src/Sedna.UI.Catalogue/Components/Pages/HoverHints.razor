@@ -1,0 +1,80 @@
+@page "/hover-hints"
+
+<CatHead Title="Hover hints">
+    A one-line explanation of what a control does and what happens if you press it, attached with
+    <code>data-tip</code> and nothing else. Part of the frame rather than of the script's API: one
+    bubble serves the whole document, and no page writes a class for it.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-cursor-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">A hint explains a consequence, not a label</span>
+        <code>data-tip="Export"</code> on a button that already says Export is noise, and the engine
+        drops it — a hint whose text is already in the trigger's own visible text is not shown at
+        all. Write the thing the label had no room for: what it acts on, and what changes.
+    </div>
+</div>
+
+<CatExample TExample="Examples.HoverHints.Controls" Title="On any control" Demo="ex-demo--block">
+    <p>
+        <code>data-tip</code> works on anything — a button, an icon button, a badge, a status chip.
+        It is delegated from <code>document</code>, so content rendered later needs no wiring and a
+        Blazor re-render cannot break it. The bubble is a single <code>.sedna-tip</code> appended to
+        <code>&lt;body&gt;</code> and faded in with <code>.sedna-tip--visible</code>; you write
+        neither. It is <code>position: fixed</code> for one reason — a
+        <code>::after</code> tooltip is clipped by the first card or table that scrolls.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.HoverHints.Positions" Title="Which side" Demo="ex-demo--block">
+    <p>
+        <code>data-tip-pos</code> takes <code>top</code> (the default), <code>bottom</code>,
+        <code>left</code> or <code>right</code>. The vertical pair auto-flips when the preferred
+        side has no room, and the bubble is then clamped so the whole of it stays inside the
+        viewport — so a hint on a control at the very top of the page opens downwards without being
+        told to.
+    </p>
+</CatExample>
+
+<h2 id="theme">Both themes</h2>
+
+<p class="cat-lede">
+    The bubble resolves through <code>--tip-bg</code>, <code>--tip-border</code>,
+    <code>--tip-fg</code> and <code>--shadow-tip</code>, so it follows the variant like every other
+    surface: a dark bubble on the dark theme and a light one on the light theme. Flip the theme in
+    the header and hover any control above.
+</p>
+
+<div class="callout callout-warn">
+    <i class="ri-side-bar-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Nothing inside <code>.sidebar</code> gets one</span>
+        The collapsed rail already has a CSS flyout for the same job, and both firing draws two
+        tooltips over each other. The engine skips the whole subtree, so a
+        <code>data-tip</code> on a nav link is silently inert — which is the intended answer, not a
+        bug to work around.
+    </div>
+</div>
+
+<CatSnippet Name="HoverHints/TipGate.txt" Title="Suppressing them">
+    <p>
+        Assign a predicate to <code>sednaUi.tips.gate</code> and it is asked before every hint,
+        with the trigger element. Use it while something else owns the reader's attention — a
+        guided tour, a drag in progress. The library has no knowledge of what is suppressing them,
+        which is why this is a predicate and not a setting. It stays JavaScript-only: a predicate
+        cannot cross the interop boundary.
+    </p>
+</CatSnippet>
+
+<h2 id="accessibility">What it is not</h2>
+
+<p class="cat-lede">
+    A hint is <strong>supplementary</strong>. The bubble carries
+    <code>role="tooltip"</code> and appears on hover and focus, but it is not reachable by touch and
+    it is not an accessible name — so a control whose only label is a
+    <code>data-tip</code> has no label. Give an icon button an
+    <code>aria-label</code> and let the hint add the consequence on top of it, the way the icon
+    button in the first example does. Anything a reader must have in order to act belongs in the
+    page, in a <code>.form-hint</code> or a <a href="/structure#callout">callout</a>.
+</p>

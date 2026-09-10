@@ -4,34 +4,18 @@ using Sedna.UI.Tests.TestSupport;
 namespace Sedna.UI.Tests;
 
 /// <summary>
-/// The library ships nothing app-specific, fetches nothing, and lets an app change typeface.
+/// The library fetches nothing and lets an app change typeface.
 /// </summary>
+/// <remarks>
+/// There used to be a deny-list of application and organisation names here, and there is
+/// deliberately no longer one: a literal list is itself a published list of the names it
+/// forbids, in a public repository. What replaces it is the <c>No real names</c> section of
+/// the repo's <c>CLAUDE.md</c> as a review rule, and the SHAPE guards in
+/// <c>ScriptContractTests</c>, which match a ticket format, a company's legal form or an
+/// internal DNS label without naming anybody to do it.
+/// </remarks>
 public class HygieneTests
 {
-    [Fact]
-    public void No_application_specific_naming_leaked_into_the_library()
-    {
-        // The library was extracted from one app's stylesheet. These names are
-        // that app's; if one reappears in a selector, something app-specific came
-        // along with it. Comments are stripped first — describing where a rule
-        // came from is fine, shipping the app's classes is not.
-        string[] forbidden =
-        [
-            "athene", "zbx", "sn-journal", "queue-grid", "topics-grid", "calls-grid",
-            "queue-group-header", "guide-", "chooser-", "tour-pop", "tour-spot", "claim-overlay",
-            "gsearch"
-        ];
-
-        var css = Assets.StripComments(Assets.Css);
-        var found = forbidden
-            .Where(f => css.Contains(f, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        Assert.True(found.Count == 0,
-            "App-specific naming does not belong in the shared library — these stay in the app " +
-            $"that owns them: {string.Join(", ", found)}");
-    }
-
     [Fact]
     public void Fonts_ride_tokens_so_an_app_can_change_typeface()
     {

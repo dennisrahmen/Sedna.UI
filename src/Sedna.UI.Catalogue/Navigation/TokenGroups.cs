@@ -9,7 +9,15 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// Whether a colour chip is meaningful. False for the typography and metric
 /// groups, where a background swatch would just be an empty box.
 /// </param>
-internal sealed record TokenGroup(string Name, IReadOnlyList<string> Tokens, bool Swatch = true);
+/// <param name="Note">
+/// One sentence under the heading, for a group whose printed values would otherwise
+/// read as broken. Only the safe-area group needs one.
+/// </param>
+internal sealed record TokenGroup(
+    string Name,
+    IReadOnlyList<string> Tokens,
+    bool Swatch = true,
+    string? Note = null);
 
 /// <summary>
 /// The token page's grouping.
@@ -48,7 +56,8 @@ internal static class TokenGroups
 
         new("Brand — the app override point", [
             "--brand", "--brand-hover", "--brand-active", "--brand-soft", "--brand-text",
-            "--brand-tint", "--brand-ring", "--brand-ring-soft", "--brand-ring-check",
+            "--brand-tint", "--brand-tint-strong",
+            "--brand-ring", "--brand-ring-soft", "--brand-ring-check",
             "--brand-glow", "--accent",
             // The accent inside a state illustration. It lives with the brand tokens
             // because that is what it points at by default; .empty-state--failed moves
@@ -56,7 +65,10 @@ internal static class TokenGroups
             "--state-accent",
         ]),
 
-        new("Sidebar", ["--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-active"]),
+        new("Sidebar", [
+            "--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-active",
+            "--sidebar-hover",
+        ]),
 
         new("Status — go (sends outward)", [
             "--go-solid", "--go-hover", "--go-active", "--go-bg", "--go-border", "--go-fg",
@@ -143,9 +155,19 @@ internal static class TokenGroups
         // desktop, which is the whole design: `env()` is the device detection, so a
         // rule that adds one is correct everywhere without asking what it is running
         // on. They stay 0px until the host page carries `viewport-fit=cover`.
+        //
+        // The Note exists because that reads as a broken page rather than as a
+        // correct answer — four zeros in a list where every other group shows a real
+        // value. It is the one group whose printed value needs a sentence.
         new("Safe area", [
             "--safe-block-start", "--safe-block-end", "--safe-inline-start", "--safe-inline-end",
-        ], Swatch: false),
+        ], Swatch: false,
+            Note: "0px is the right answer on a desktop, and on a phone with nothing at that "
+                + "edge. A value appears where the device actually reserves the edge — a notch, "
+                + "a home indicator, a rounded corner — and only once the host page carries "
+                + "viewport-fit=cover. Reading env() yourself gives the same zeros; the point "
+                + "of the token is that a rule can add the inset without asking what it is "
+                + "running on."),
 
         // Not colours and not sizes: two values the library needs because the browser
         // draws something we cannot reach. `--color-scheme` goes on <html> and is what

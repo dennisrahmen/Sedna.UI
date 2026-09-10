@@ -5,11 +5,15 @@
     <em>setting</em>. If there is a panel below it, it is tabs.
 </CatHead>
 
-<div class="cat-note">
-    <strong>The classes cannot supply the ARIA.</strong> Tabs need <code>role="tablist"</code>,
-    <code>role="tab"</code>, <code>aria-selected</code> and <code>aria-controls</code>, plus
-    arrow-key movement between them. The segmented control needs none of it, because it is built
-    from radios.
+<div class="callout callout-warn">
+    <i class="ri-error-warning-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">The classes cannot supply the ARIA</span>
+        Tabs need <code>role="tablist"</code>,
+        <code>role="tab"</code>, <code>aria-selected</code> and <code>aria-controls</code>, plus
+        arrow-key movement between them. The segmented control needs none of it, because it is built
+        from radios.
+    </div>
 </div>
 
 <CatExample TExample="Examples.Tabs.Tabs" Title="Tabs" Demo="ex-demo--block">

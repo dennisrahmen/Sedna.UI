@@ -92,7 +92,7 @@ The guards, and what each is for:
 | Nothing is loaded or inlined | No runtime fetch, and no `data:` URI smuggling a colour past the colour guard |
 | Every `z-index` is on the documented scale | Overlay ordering stays reviewable |
 | `font-family` rides a token | Apps can change typeface |
-| No app-specific naming | An app's own vocabulary stays out of the library |
+| Nothing real is named | No real ticket, host, address or company, in code or in a comment — matched by shape, never by a deny-list |
 | Every catalogue page links the shipped stylesheet | Examples match the shipped CSS |
 | Every catalogue page is reachable from the nav | No orphaned pages |
 | `catalogue.css` only styles `.cat-*` / `.ex-*` | Examples render as an app would get them |

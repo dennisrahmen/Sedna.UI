@@ -6,13 +6,16 @@
     <em>panel</em> as well as the box, so the option list takes the theme.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-information-line"></i>
-    <code>appearance: base-select</code> takes the option list out of the platform's hands and makes it
-    a real panel in the page. A browser without it keeps the platform list and gets a caret painted
-    from two gradients instead &mdash; the two halves are exclusive, behind <code>@@supports</code>,
-    and neither is a script or a shim. A list box has no caret either way, since there is nothing to
-    drop.
+    <div class="callout-body">
+        <span class="callout-title">Two selects behind one class</span>
+        <code>appearance: base-select</code> takes the option list out of the platform's hands and makes it
+        a real panel in the page. A browser without it keeps the platform list and gets a caret painted
+        from two gradients instead &mdash; the two halves are exclusive, behind <code>@@supports</code>,
+        and neither is a script or a shim. A list box has no caret either way, since there is nothing to
+        drop.
+    </div>
 </div>
 
 <CatExample TExample="Examples.FormSelect.Dropdown" Title="The drop-down" Demo="ex-demo--block">
@@ -48,6 +51,58 @@
     <p>
         Two different controls the CSS treats alike: <code>multiple</code> takes several answers,
         <code>size</code> on its own still takes one and merely shows the options without opening.
+    </p>
+    <p>
+        A chosen row is a brand <strong>tint</strong> as well as brand text, and the tick is on the
+        trailing edge. All three matter more here than in a dropdown: several rows are chosen at
+        once, so the set of them has to be visible as a set — and colour alone carries nothing for a
+        reader going by lightness. Pointing at a chosen row deepens the tint instead of replacing it
+        with the neutral hover, which used to erase the state under the pointer.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSelect.ListBoxGroups" Title="Sections in a list box" Demo="ex-demo--block">
+    <p>
+        The same <code>&lt;optgroup&gt;</code> plus <code>&lt;legend&gt;</code> as a dropdown, which
+        is worth more in a list box: the whole list is on screen, so the headings are what stop forty
+        rows reading as one column. Mind the arithmetic — <code>size</code> counts rows and a heading
+        is a row.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSelect.ListBoxContent" Title="Rows with content" Demo="ex-demo--block">
+    <p>
+        <code>.option-text</code> and <code>.option-hint</code>, exactly as in the dropdown above.
+        A list box keeps the second line where the closed box drops it, because there is no closed
+        box &mdash; which is the case for choosing a list box over a dropdown when each option needs
+        a sentence to tell it from its neighbour.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSelect.Transfer" Title="Moving rows between two lists" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; pick a group and press the arrow.</strong> For choosing a set out of a
+        long list, where a column of checkboxes is unreadable and a <code>multiple</code> select
+        alone never answers <em>what have I chosen so far</em>. The right-hand list is that answer,
+        and it is an ordinary <code>multiple</code> select, so a form posts it with no help.
+    </p>
+    <p>
+        <code>.transfer</code> is the three-column grid and <code>.transfer-actions</code> the column
+        of buttons; <code>data-transfer</code> plus <code>data-transfer-from</code> /
+        <code>-to</code> / <code>-add</code> / <code>-remove</code> is what
+        <code><a href="/script">sednaUi.transfer</a></code> reads. Both selects get a bubbling
+        <code>change</code> after every move &mdash; which is all a Blazor
+        <code>@@onchange</code> needs &mdash; and insertion is alphabetical only where the
+        destination was already sorted: re-ordering a list whose order means something would
+        destroy it silently.
+    </p>
+    <p>
+        Selection is left to the platform, and that is the point: a plain click takes one row and
+        drops the previous, Ctrl or Shift extends. Here selection is a <em>staging</em> act &mdash;
+        these are the ones I am about to move &mdash; and the answer is which list a row ends up in.
+        So nothing arrives selected and the destination's own selection is cleared: rows that landed
+        selected accumulated into a highlight the reader never made, and the next Remove acted on
+        all of it. The first row moved is scrolled into view instead.
     </p>
 </CatExample>
 

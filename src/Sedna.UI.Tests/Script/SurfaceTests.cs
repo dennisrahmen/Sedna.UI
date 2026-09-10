@@ -13,7 +13,7 @@ public class SurfaceTests : ScriptTestBase
     public async Task The_public_surface_is_exactly_what_is_documented()
     {
         if (NoBrowser) return;
-        // Removing or renaming any of these is a Major change, and four apps call in.
+        // Removing or renaming any of these is a Major change: consuming apps call in.
         // A new member is minor, so an addition must NOT fail here — only a
         // disappearance does. `_` is deliberately excluded: it is documented as
         // private and may change in a patch.

@@ -14,11 +14,11 @@
                     <tr><th>Host</th><th>Mailbox</th><th>Database</th><th>Quota</th><th>Used</th><th>Last logon</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>EXCH-02</td><td>info-service-desk</td><td>DB-AHRWEILER-PRIMARY-01</td><td>50 GB</td><td>49.8 GB</td><td>2026-08-28 07:41</td></tr>
-                    <tr><td>EXCH-02</td><td>rechnungseingang</td><td>DB-AHRWEILER-PRIMARY-01</td><td>50 GB</td><td>31.2 GB</td><td>2026-08-28 06:12</td></tr>
+                    <tr><td>EXCH-02</td><td>service-desk</td><td>DB-PRIMARY-01</td><td>50 GB</td><td>49.8 GB</td><td>2026-08-28 07:41</td></tr>
+                    <tr><td>EXCH-02</td><td>invoices</td><td>DB-PRIMARY-01</td><td>50 GB</td><td>31.2 GB</td><td>2026-08-28 06:12</td></tr>
                 </tbody>
             </table>
-            <pre>Set-Mailbox -Identity info-service-desk -ProhibitSendQuota 75GB -ProhibitSendReceiveQuota 80GB -IssueWarningQuota 70GB</pre>
+            <pre>Set-Mailbox -Identity service-desk -ProhibitSendQuota 75GB -ProhibitSendReceiveQuota 80GB -IssueWarningQuota 70GB</pre>
         </div>
     </div>
 </div>

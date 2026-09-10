@@ -26,7 +26,17 @@ public class PageLoadTests(CatalogueAppFixture app)
             var page = await app.Browser!.NewPageAsync();
             page.Console += (_, message) =>
             {
-                if (message.Type == "error") problems.Add($"{route}: {message.Text}");
+                // A photograph that did not arrive is not this page's fault. /media
+                // loads from CatalogueAssets.PhotoHost, and a runner with no egress —
+                // or a third party having a bad afternoon — logs one "failed to load
+                // resource" per image. Failing the whole suite on somebody else's
+                // uptime is the wrong trade for the one page that has an external
+                // dependency at all, and the assets that actually matter are asserted
+                // by /health.
+                if (message.Type != "error") return;
+                if (message.Text.Contains(CatalogueAssets.PhotoHost, StringComparison.OrdinalIgnoreCase)) return;
+
+                problems.Add($"{route}: {message.Text}");
             };
             page.PageError += (_, error) => problems.Add($"{route}: {error}");
 

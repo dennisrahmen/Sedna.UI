@@ -6,10 +6,13 @@
     <a href="/frame">Shell</a> with one <code>.empty-state--page</code> block in it.
 </CatHead>
 
-<div class="cat-note">
+<div class="callout callout-info">
     <i class="ri-information-line"></i>
-    <strong>These are compositions, not new classes.</strong> Copy the markup and do not restyle it
-    per project &mdash; an app that has styled its empty states has already styled these.
+    <div class="callout-body">
+        <span class="callout-title">These are compositions, not new classes</span>
+        Copy the markup and do not restyle it
+        per project &mdash; an app that has styled its empty states has already styled these.
+    </div>
 </div>
 
 <CatExample TExample="Examples.CommonPages.AccessDenied" Title="Access denied" Demo="ex-demo--block">
@@ -36,6 +39,13 @@
         retrying is safe, because the reader cannot know whether the write went through, and give
         them the reference in <code>.empty-state-detail</code> with a <code>data-copy</code> button
         beside it.
+    </p>
+    <p>
+        This is the one drawing on the page that does <em>not</em> change when you switch theme in
+        the header, and that is the modifier working: it re-points
+        <code>--state-accent</code> at <code>--danger-fg</code>, and the danger ramp is deliberately
+        outside the brand's — a failure must not turn green because the brand did. The other four
+        pages are not failures, so they keep the brand accent and move with it.
     </p>
 </CatExample>
 
