@@ -253,6 +253,12 @@
     color: var(--muted);
     line-height: 1.65;
 }
+/* A reference table written into the prose above a demo, which is a plain <table>
+   the page authors and never markup a reader copies out of the demo — the demo's
+   own tables are inside .ex-demo, which the child combinator does not reach. It has
+   no margin of its own, so without this the demo, the code block or the paragraph
+   after it started against the table's last border. Same 12px the prose uses. */
+.cat-ex > table { margin: 0 0 12px; }
 
 /* The demo surface is genuinely docs chrome — it is the frame around an example,
    not part of it. The code block below it is NOT: it is the library's own

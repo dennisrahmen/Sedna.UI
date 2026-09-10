@@ -169,6 +169,12 @@
 .value-trigger::after {
     content: '';
     flex-shrink: 0;
+    /* Held at the trailing edge, like `.accordion summary::after` and the nav group's.
+       The trigger has a min-width that reserves the measure, so without this the
+       chevron sat against the end of the VALUE with the reserved room stranded
+       after it — two triggers in a column drew their chevrons at two different
+       places, and neither was the edge of the control the hover fill draws. */
+    margin-inline-start: auto;
     width: 0;
     height: 0;
     border-inline: 4px solid transparent;

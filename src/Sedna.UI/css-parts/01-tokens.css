@@ -259,9 +259,15 @@
     --btn-active-bg: var(--slate-850);
     --code-fg:       var(--indigo-300);
     --code-bg:       rgba(133, 144, 253, 0.1);    /* indigo-500 */
+    /* The three scrims. Each is a ramp step at an alpha, written as a color-mix
+       rather than as the literal the step happens to be, because a theme replaces
+       the ramp and a literal cannot follow it: the spotlight's dim stayed Sedna's
+       own near-black navy under Graphite, over a canvas that had gone neutral grey.
+       --backdrop is the exception that proves it — pure black belongs to no ramp,
+       has no hue to drift, and is what a modal backdrop should be in every theme. */
     --backdrop:      rgba(0, 0, 0, 0.65);       /* modal backdrop */
-    --overlay:       rgba(15, 23, 42, 0.66);    /* slate-900 / Deep Space — in-card blocking overlay */
-    --spotlight-dim: rgba(4, 7, 27, 0.62);      /* slate-950 — guided-tour / spotlight dim */
+    --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
+    --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);
     --tip-border:    var(--slate-600);
     --tip-fg:        var(--slate-50);
