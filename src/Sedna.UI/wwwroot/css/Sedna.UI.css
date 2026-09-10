@@ -2788,7 +2788,12 @@ a.topbar-version--pre:hover {
 .card-warning i { font-size: var(--text-5); flex-shrink: 0; }
 
 /* Key/value row inside a card body. */
-.kv { display: flex; justify-content: space-between; padding: var(--space-2) 0; }
+/* The gap is a MINIMUM separation, not the layout. `space-between` is what puts the
+   value at the trailing edge in a card, where the row is full width and the gap never
+   shows. It shows in a shrink-to-fit container — a `.popover`, which is
+   `width: max-content` — where `space-between` has no free space to distribute and
+   the key ran straight into the value with nothing between them. */
+.kv { display: flex; justify-content: space-between; gap: var(--space-7); padding: var(--space-2) 0; }
 .kv .k { color: var(--muted); }
 .kv .v { font-family: var(--font-mono); }
 
@@ -4448,7 +4453,15 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    taller than a line of text, so `.form-input`'s padding on top of it pushes a bare
    file input past every other control in the row. The button supplies the height, and
    --control-height binds as it does everywhere else. */
-.form-input[type="file"] { padding-block: var(--space-1); }
+/* `align-content` centres a BLOCK container's in-flow content, which is what this
+   box is — the engine lays a file input out around its own button, so there is no
+   flex line to centre and `align-items` reaches nothing. Without it the button's
+   line box sits at the top of the 36px the control tier reserves and the whole
+   control looks lifted: measurably 2px more space above the button than below. */
+.form-input[type="file"] {
+    padding-block: var(--space-1);
+    align-content: center;
+}
 
 .form-input::file-selector-button {
     margin-inline-end: var(--space-5);
@@ -4776,13 +4789,43 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    58-menu.css owns that look; this is the second place it appears and there is not
    going to be a third.
 
-   Nothing here positions it. The picker is in the top layer with an implicit
-   anchor on its own select and a full set of position-try fallbacks, so it needs
-   neither a z-index off the scale nor a rule in 70-rtl.css.
+   It IS positioned here, and it did not used to be. Left to the UA the picker opens
+   above the select as soon as the select passes the middle of the viewport, whether
+   or not there was room below it — so a select two thirds down a page covered itself
+   with its own list while 300px sat empty underneath. That is a reasonable default
+   for a platform list and wrong for a panel the page draws.
+
+   `position-area: block-end span-inline-end` is the row below the select, starting
+   at its inline-start edge — the same construction as `.menu`, logical on both axes,
+   which is why 70-rtl.css still has no rule for this. The picker is in the top layer
+   with an implicit anchor on its own select, so it needs neither an anchor-name in
+   the markup nor a z-index off the scale.
+
+   ── `position-try-fallbacks: none`, and it has to be said out loud ──
+   The UA declares its own list — `self-start span-self-end, self-end
+   span-self-start, self-start span-self-start` — whose FIRST entry is above the
+   select. Declaring `position-area` alone does not remove it, so the panel still
+   flipped: that list is the midpoint behaviour, and `none` is what suppresses it.
+
+   `flip-block` is not the answer either, although it is what `.menu` and
+   `.popover` use and what this appears to want. On a `::picker(select)` it flips
+   UNCONDITIONALLY — measured opening upwards with 314px free below a panel 80px
+   tall, at every `max-height` from 100px through `none`, on a freshly loaded page.
+   The UA's `max-height: stretch` is the likely cause, a stretched box being exactly
+   the size of its position area so that "does it overflow" has no answer, but
+   `max-height: none` flips too, so that is not the whole story. Re-test it when
+   Chromium changes.
+
+   Nothing is clipped by having no fallback, because `max-height: stretch` stays:
+   the panel is capped to the room below and scrolls inside itself. The trade is a
+   short scrolling panel for a select very near the viewport's bottom edge, which is
+   the lesser fault — it is still under its select, and still shows every option.
 
    `--surface-here` is the colour a scrollbar inside the panel paints itself
    against — a long option list scrolls, and 16-frame-page-scroll.css reads this. */
 .form-select::picker(select) {
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: none;
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
@@ -4791,11 +4834,10 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     box-shadow: var(--shadow-dropdown);
     color: var(--fg);
     font-size: var(--text-4);
-    /* Both block edges, not just the start one. The picker's fallbacks are
-       explicit `position-area` values rather than `flip-block` tactics, and only a
-       try TACTIC carries the margin over with it — so a panel that flipped above
-       its select sat flush against it. */
-    margin-block: var(--space-2);
+    /* One edge, because there is only one placement now. `margin-block` on both was
+       the workaround for the UA's fallback list, which flipped the panel above the
+       select without carrying the margin with it and left it sitting flush. */
+    margin-block-start: var(--space-2);
     opacity: 0;
     /* `display` and `overlay` are discrete, and without allow-discrete the panel
        is simply gone before the fade has anywhere to run. */
@@ -5966,6 +6008,18 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    for what it is holding open. */
 .value-trigger {
     --value-trigger-measure: 10ch;
+    /* The measure PLUS the chevron's own room, on the TRIGGER rather than on the
+       value inside it. The chevron is an ::after, and `.menu-anchor`'s shrink-to-fit
+       does not count a pseudo-element's contribution — measured: an anchor 12px
+       narrower than its own trigger's max-content, exactly the gap plus the
+       chevron — so a floor on the value alone sized the trigger to the value and the
+       chevron was drawn outside it and clipped. A min-width here is a definite
+       length, which the parent does count.
+
+       The four terms are the gap, the chevron's 8px of border, the inline padding
+       and the border, so the value still gets its full measure inside them. */
+    min-width: calc(var(--value-trigger-measure) + var(--space-2) + 8px
+                    + var(--space-3) * 2 + 2px);
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -5998,18 +6052,19 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .value-trigger[aria-disabled="true"]::after { display: none; }
 /* The value itself, so a long one truncates instead of pushing the chevron out.
 
-   `min-width` is what stops it truncating ALWAYS. `overflow: hidden` on a flex item
-   sets its automatic minimum size to zero — that is what makes the ellipsis
-   possible in the first place — and in a table cell that zero is also the column's
-   minimum contribution, so auto table layout squeezes the column down to the
-   padding and the chevron and every value in it renders as two characters and an
-   ellipsis. A floor gives the column something to ask for, and the value still
-   gives way past it. */
+   `min-width: 0` rather than the measure. `overflow: hidden` on a flex item already
+   sets its automatic minimum size to zero — that is what makes the ellipsis possible
+   — and the floor that stops it truncating ALWAYS is the trigger's own min-width
+   above. It has to be there and not here: in a table cell a zero minimum is also the
+   column's minimum contribution, so auto table layout squeezes the column down to
+   the padding and every value in it renders as two characters and an ellipsis. The
+   trigger's min-width is what the column now asks for, and it reserves the chevron's
+   room in the same number. */
 .value-trigger > span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    min-width: var(--value-trigger-measure);
+    min-width: 0;
 }
 
 /* Works on an <a> or a <button>, so an item can navigate or act. */
@@ -7691,6 +7746,18 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     font-size: var(--text-4);
     font-weight: 600;
 }
+
+/* For content that brings its own edge — a table, a list. The panel's padding then
+   draws a frame inside a frame, and a table in it cannot reach the corners it is
+   rounded to. The title keeps its own inset, because a heading pressed against the
+   edge is a different mistake, and the last row gives up its rule: the panel's own
+   border is already there. */
+.popover--flush { padding: 0; overflow: hidden; }
+.popover--flush > .popover-title {
+    margin-bottom: 0;
+    padding: var(--space-6) var(--space-7) var(--space-3);
+}
+.popover--flush > .table tr:last-child > td { border-bottom: none; }
 }
 
 /* ── 66-status-indicator.css → @layer sedna.paint ──────────────────────────────────────────────── */

@@ -138,13 +138,43 @@
    58-menu.css owns that look; this is the second place it appears and there is not
    going to be a third.
 
-   Nothing here positions it. The picker is in the top layer with an implicit
-   anchor on its own select and a full set of position-try fallbacks, so it needs
-   neither a z-index off the scale nor a rule in 70-rtl.css.
+   It IS positioned here, and it did not used to be. Left to the UA the picker opens
+   above the select as soon as the select passes the middle of the viewport, whether
+   or not there was room below it — so a select two thirds down a page covered itself
+   with its own list while 300px sat empty underneath. That is a reasonable default
+   for a platform list and wrong for a panel the page draws.
+
+   `position-area: block-end span-inline-end` is the row below the select, starting
+   at its inline-start edge — the same construction as `.menu`, logical on both axes,
+   which is why 70-rtl.css still has no rule for this. The picker is in the top layer
+   with an implicit anchor on its own select, so it needs neither an anchor-name in
+   the markup nor a z-index off the scale.
+
+   ── `position-try-fallbacks: none`, and it has to be said out loud ──
+   The UA declares its own list — `self-start span-self-end, self-end
+   span-self-start, self-start span-self-start` — whose FIRST entry is above the
+   select. Declaring `position-area` alone does not remove it, so the panel still
+   flipped: that list is the midpoint behaviour, and `none` is what suppresses it.
+
+   `flip-block` is not the answer either, although it is what `.menu` and
+   `.popover` use and what this appears to want. On a `::picker(select)` it flips
+   UNCONDITIONALLY — measured opening upwards with 314px free below a panel 80px
+   tall, at every `max-height` from 100px through `none`, on a freshly loaded page.
+   The UA's `max-height: stretch` is the likely cause, a stretched box being exactly
+   the size of its position area so that "does it overflow" has no answer, but
+   `max-height: none` flips too, so that is not the whole story. Re-test it when
+   Chromium changes.
+
+   Nothing is clipped by having no fallback, because `max-height: stretch` stays:
+   the panel is capped to the room below and scrolls inside itself. The trade is a
+   short scrolling panel for a select very near the viewport's bottom edge, which is
+   the lesser fault — it is still under its select, and still shows every option.
 
    `--surface-here` is the colour a scrollbar inside the panel paints itself
    against — a long option list scrolls, and 16-frame-page-scroll.css reads this. */
 .form-select::picker(select) {
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: none;
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
     background: var(--bg-elevated);
@@ -153,11 +183,10 @@
     box-shadow: var(--shadow-dropdown);
     color: var(--fg);
     font-size: var(--text-4);
-    /* Both block edges, not just the start one. The picker's fallbacks are
-       explicit `position-area` values rather than `flip-block` tactics, and only a
-       try TACTIC carries the margin over with it — so a panel that flipped above
-       its select sat flush against it. */
-    margin-block: var(--space-2);
+    /* One edge, because there is only one placement now. `margin-block` on both was
+       the workaround for the UA's fallback list, which flipped the panel above the
+       select without carrying the margin with it and left it sitting flush. */
+    margin-block-start: var(--space-2);
     opacity: 0;
     /* `display` and `overlay` are discrete, and without allow-discrete the panel
        is simply gone before the fade has anywhere to run. */

@@ -574,7 +574,8 @@ that loses a property to a more specific rule and silently does nothing. Those a
 
 **CSS anchor positioning, deliberately.** The floor is Chromium — current Chrome and Edge — so
 `anchor-name`, `anchor-scope`, `position-area` and `align-self: anchor-center` are all available and
-three things depend on them: the collapsed rail's hover flyout, `.popover` and `.menu`.
+four things depend on them: the collapsed rail's hover flyout, `.popover`, `.menu` and a
+`.form-select`'s own `::picker(select)`.
 
 The rail is the one that could not be done any other way. It scrolls, and **a scroll container clips
 both axes** — there is no combination of `overflow` values that scrolls vertically and lets a child out
@@ -587,6 +588,15 @@ nearest scroll container and counts towards its scrollable overflow, so a menu o
 scrolling table both grew that container a scrollbar and got clipped at its edge. `.menu-anchor` still
 carries `position: relative`, which is what the panel's own `--start` variant and the fallback rung
 resolve against. Use anchor positioning where the alternative is a measurement, not as a default.
+
+**A `::picker(select)` needs `position-try-fallbacks: none`.** The panel is anchored by the UA to its
+own select, and the UA also declares a fallback list whose first entry is *above* it — which is why a
+select past the middle of the viewport opened upwards over itself with the space below it empty.
+Declaring `position-area` does not remove that list; only `none` does. `flip-block`, which is what
+`.menu` and `.popover` use, is not a substitute: on a picker it flips unconditionally, measured with
+314px free below a panel 80px tall at every `max-height` from 100px through `none`. Nothing is clipped
+without a fallback, because the UA's `max-height: stretch` caps the panel to the room below and it
+scrolls inside itself.
 
 **It does not survive a scroll.** Chromium computes an anchored `position: fixed` panel's offset when
 the panel becomes visible and does not recompute it while the anchor scrolls: the panel stays pinned to

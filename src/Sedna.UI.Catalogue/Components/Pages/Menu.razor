@@ -75,4 +75,13 @@
         <code>.menu</code>. <code>popovertargetaction="hide"</code> closes it from inside with no
         script at all.
     </p>
+    <p>
+        The panel is <code>width: max-content</code>, so each of these is as wide as what is in it
+        and no wider. That is what makes <code>.kv</code>'s gap load-bearing here and nowhere else:
+        <code>space-between</code> has no free space to distribute in a shrink-to-fit box, so
+        without the gap the key would run straight into the value. The table takes
+        <code>.popover--flush</code>, which drops the panel's padding so the table reaches the
+        rounded corners instead of sitting in a frame inside a frame — the title keeps its own
+        inset, and the last row gives up its rule to the panel's border.
+    </p>
 </CatExample>

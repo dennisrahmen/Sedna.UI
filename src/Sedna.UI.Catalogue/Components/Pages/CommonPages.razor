@@ -40,6 +40,13 @@
         them the reference in <code>.empty-state-detail</code> with a <code>data-copy</code> button
         beside it.
     </p>
+    <p>
+        This is the one drawing on the page that does <em>not</em> change when you switch theme in
+        the header, and that is the modifier working: it re-points
+        <code>--state-accent</code> at <code>--danger-fg</code>, and the danger ramp is deliberately
+        outside the brand's — a failure must not turn green because the brand did. The other four
+        pages are not failures, so they keep the brand accent and move with it.
+    </p>
 </CatExample>
 
 <CatExample TExample="Examples.CommonPages.SessionExpired" Title="Session expired" Demo="ex-demo--block">
