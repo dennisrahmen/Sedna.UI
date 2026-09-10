@@ -69,7 +69,7 @@
    painting and breaks the reading order. */
 /* The default is declared on the group as well as on .avatar, so the counter — which
    is not an .avatar and inherits from here — resolves it too. */
-.avatar-group { display: inline-flex; align-items: center; --avatar-overlap: 8px; }
+.avatar-group { display: inline-flex; align-items: center; --avatar-overlap: 8px; --avatar-gap: 2px; }
 .avatar-group > * + * { margin-inline-start: calc(var(--avatar-overlap) * -1); }
 
 /* :has(+ .avatar), not :not(:last-child) — the last thing in a group is usually the
@@ -84,20 +84,24 @@
 
 /* The overflow counter. Not an .avatar: it is a number, not an actor, and giving it
    the brand tint would make it look like one more person. */
-/* The gap here is the group's OWN rhythm, not a step off the spacing scale. The
-   counter is a child of .avatar-group, so it already carries the negative overlap
-   margin from the rule above — and `margin-inline-start: var(--space-2)` overrode it
-   at identical specificity, later in the file. That left the ink 12px past the last
-   avatar's edge where its neighbours sit 2px apart, so the number read as separate
-   content rather than as the tail of the stack.
-   Padding rather than margin, so the overlap rule stays the only thing setting a
-   margin on a group child. The trailing side keeps the counter's own breathing room
-   inside its box. */
+/* The gap is the group's OWN rhythm, not a step off the spacing scale. The counter is
+   a child of .avatar-group, so it already carries the negative overlap margin from the
+   rule above — and `margin-inline-start: var(--space-2)` overrode it at identical
+   specificity, later in the file. That left the ink 12px past the last avatar's edge
+   where its neighbours sit 2px apart, so the number read as separate content rather
+   than as the tail of the stack. 2px + 4px puts it 6px out.
+
+   --avatar-gap has to be on .avatar-group for this to resolve at all: it is declared
+   on .avatar, and the counter is deliberately not one. That is the same reason
+   --avatar-overlap is declared in both places, and the same blind spot as the shadow
+   tokens — TokenDeclarationTests sees a declared name, not whether it is in scope
+   HERE, so an out-of-scope var() is guaranteed-invalid and the margin quietly
+   computes to 0 with nothing failing. */
 .avatar-more {
     display: inline-flex;
     align-items: center;
     margin-inline-start: var(--avatar-gap);
-    padding-inline: var(--space-3) var(--space-4);
+    padding-inline: var(--space-2) var(--space-4);
     color: var(--muted);
     font-size: var(--text-3);
 }

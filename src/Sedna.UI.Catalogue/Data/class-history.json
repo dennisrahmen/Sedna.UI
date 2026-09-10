@@ -1004,6 +1004,7 @@
     "Card/Elevation": "0.9.0",
     "Card/Foot": "0.9.0",
     "Card/Guarded": "0.4.0",
+    "Card/GuardedTall": null,
     "Card/HeadBody": "0.2.0",
     "Card/KeyValueRows": "0.2.0",
     "Card/TableCard": "0.2.0",

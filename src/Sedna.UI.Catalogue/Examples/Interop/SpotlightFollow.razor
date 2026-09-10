@@ -27,7 +27,9 @@
                 <button class="btn btn-warn" type="button" data-live="@Live(1)">Hold selected</button>
             </div>
 
-            <div class="stat-row stat-row--divided" data-live="@Live(2)">
+            @* Clear of the results panel above, which is fixed and overlays rather than
+               pushing — without the room, step 1's panel half-covers this row. *@
+            <div class="stat-row stat-row--divided" data-live="@Live(2)" style="margin-top:36px">
                 <span class="stat">
                     <span class="stat-label">Held</span>
                     <span class="stat-value">6</span>
