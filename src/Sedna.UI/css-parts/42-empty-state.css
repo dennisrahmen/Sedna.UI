@@ -11,13 +11,16 @@
     color: var(--muted);
 }
 /* The drawing sits above the sentence with room of its own: an illustration and a
-   13px line touching read as one object, and they are two. But only a little: the
-   drawing is already 96px of air, so the gap that a 40px glyph needed reads as a hole
-   under this one. The sprite, the ids and the three sizes are in 42-state-art.css.
+   13px line touching read as one object, and they are two. But only a little — and
+   less than it was. `.empty-state` is a flex column, so this margin ADDS to the
+   column's gap rather than collapsing into it, and 8px + 10px under a drawing that
+   is already 96px of mostly air read as a hole between the picture and its own
+   caption. 8px + 8px is the pair that reads as one block.
+   The sprite, the ids and the three sizes are in 42-state-art.css.
 
    There is no rule here for a bare `<i>`. Every state names its own drawing, because a
    single glyph shared by four states is the thing this replaced. */
-.state-art { margin-bottom: var(--space-5); }
+.state-art { margin-bottom: var(--space-4); }
 
 .empty-state-title { font-size: var(--text-5); font-weight: 600; color: var(--fg); }
 .empty-state p     { margin: 0; font-size: var(--text-4); max-width: 44ch; }
@@ -41,10 +44,12 @@
    told about and then leave; this is a wait with nothing to report, and the one thing
    it has to say is that something is still happening — which a still picture cannot. */
 .empty-state--pending > .spinner,
+/* The spinner stands in for the drawing in the waiting state, so its margin tracks
+   .state-art's. Left behind, the waiting state sits differently from every other. */
 .empty-state--pending > .spinner-lg {
     width: 40px;
     height: 40px;
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-4);
     border-width: 3px;
     color: var(--muted);
 }
@@ -93,7 +98,9 @@
     gap: var(--space-5);
     padding-block: var(--space-11);
 }
-.empty-state--page .state-art { margin-bottom: var(--space-6); }
+/* One step more than the card block, because the page block's own gap is a step
+   larger and the title is --text-9 rather than --text-5. Same reduction. */
+.empty-state--page .state-art { margin-bottom: var(--space-5); }
 .empty-state--page .empty-state-title { font-size: var(--text-9); }
 /* The measure grows with the type. 44ch of 13px is a comfortable column; 44ch of the
    same sentence under a 22px heading reads as a narrow strip. */

@@ -118,6 +118,36 @@
 .sedna-shrink-0 { flex-shrink: 0; }
 .sedna-w-full { width: 100%; }
 
+/* ── Control width ───────────────────────────────────────────────
+   `.form-input`, `.form-select` and `.input-group` are `width: 100%`, because a
+   field in a form row is the common case and filling the row is right there. There
+   was no way out of it, so a control that should be as wide as its value — a status
+   in a table cell, a page-number box, a short filter — either filled its column or
+   got an inline `width` in the markup, and apps ended up styling library classes in
+   their own stylesheets to escape it.
+
+   These live in `@layer sedna.utilities`, which is the point: it comes after
+   `sedna.paint`, so `.sedna-w-fit` at (0,1,0) beats
+   `.table .col-control > .menu-anchor > .value-trigger` at (0,3,0) without
+   `!important` and without a specificity race. A `--fit` modifier on each control
+   could not — it would sit in the same layer as the rule it has to overrule, and
+   it would be the same idea under five names, one per control class.
+
+   There is no `--grow` here. `.sedna-fill` above already takes the remaining room
+   in a flex row, and a second name for it is a second thing to keep in step.
+
+   `max-width: 100%` rides the knob so a fixed width still gives way on a narrow
+   window rather than pushing its container sideways. */
+.sedna-w-fit { width: fit-content; }
+.sedna-w {
+    --sedna-w: 12rem;
+    width: var(--sedna-w);
+    max-width: 100%;
+}
+.sedna-w--sm { --sedna-w: 8rem; }
+.sedna-w--md { --sedna-w: 12rem; }
+.sedna-w--lg { --sedna-w: 18rem; }
+
 /* Block margins only, and only for removing or adding a step. There is no inline
    pair: horizontal placement belongs to the layout, not to a utility on the child. */
 .sedna-mt-0 { margin-top: 0; }

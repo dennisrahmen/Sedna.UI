@@ -225,8 +225,9 @@ the wrong tool here: its curve puts step 900 at more than half lightness.
 
 ## Icons
 
-[Remix Icon](https://remixicon.com) 4.9.1 is bundled in the package — 3,245 icons, no CDN and nothing
-extra to install. Add the stylesheet:
+[Remix Icon](https://remixicon.com) 4.9.1 is bundled in the package — no CDN and nothing extra to
+install. The landing page counts what the stylesheet actually declares; a figure typed here would go
+stale in silence. Add the stylesheet:
 
 ```html
 <link rel="stylesheet" href="_content/Sedna.UI/lib/remixicon/remixicon.css" />

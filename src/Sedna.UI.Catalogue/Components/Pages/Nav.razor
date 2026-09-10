@@ -5,34 +5,14 @@
     the groups that collapse, and the icon rail the whole thing shrinks to.
 </CatHead>
 
-<CatExample TExample="Examples.Nav.NavItems" Title="Nav items" Demo="ex-demo--block">
+<CatExample TExample="Examples.Nav.NavItems" Title="Nav items" Demo="ex-demo--block ex-demo--flush">
     <p>
-        Every kind of row a sidebar nav can hold, in one nav: a plain link, the active link, a
-        <code>.nav-count</code> pill, a <code>.nav-section</code> with its label, a collapsible
-        <code>.nav-group</code>, the <code>.nav-status-card</code> pair, and the
-        <code>.nav-tools</code> foot with a separator and an external link. Copy the rows you need
-        and delete the rest.
-    </p>
-    <p>
-        <strong>Every link carries an icon.</strong> Not decoration — the collapsed rail and the
-        narrow-screen rail both drop the label and leave the icon as the only thing identifying the
-        row, so a link without one becomes a blank 56px box. The exception is a
-        <code>.nav-group</code>'s children: the group's own icon stands for all of them, and its
-        sub-items indent to sit under the label rather than under the icon.
-    </p>
-    <p>
-        <code>.nav-count</code> and <code>.nav-link-ext</code> both take
-        <code>margin-inline-start: auto</code>, so a row carries one or the other, never both.
-        <code>.nav-status-card</code> is for a monitored dependency the reader can click through
-        to — <code>--ok</code> and <code>--fail</code> are usually composed from live state.
-    </p>
-    <p>
-        There is <strong>no disabled nav link</strong> and there will not be one: a route the reader
-        may not use is a route that should not be in their nav. Leave it out, or link it and let the
-        page say why. <code>.nav-group</code> is documented in full on
-        <a href="/layouts">Layouts</a> — it is built on
-        <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code>, so its open state and keyboard
-        come from the platform and it works with scripting blocked.
+        Every kind of row a sidebar nav can hold, in one nav — copy the rows you need and delete
+        the rest. <strong>Every link carries an icon</strong>, because the collapsed rail drops the
+        label and leaves a link without one as a blank 56px box (a <code>.nav-group</code>'s
+        children excepted — the group's own icon stands for them); <code>.nav-count</code> and
+        <code>.nav-link-ext</code> both take <code>margin-inline-start: auto</code>, so a row
+        carries one or the other and never both.
     </p>
 </CatExample>
 
@@ -41,76 +21,36 @@
         Which link is the current page is the one thing this markup cannot express, so the package
         ships <code>ActiveLink</code>: <code>Nav.CssClass(href)</code> appends <code>active</code>
         and <code>Nav.AriaCurrent(href)</code> returns <code>"page"</code> or null, which Blazor
-        omits. The class colours the item; <code>aria-current</code> is what is announced.
-    </p>
-    <p>
-        Matching drops the query string and the fragment and ignores a trailing slash, and a prefix
-        match must end on a path segment — so <code>/queue</code> does not light up on
-        <code>/queue-archive</code>. <strong>The link to the root needs
-        <code>NavLinkMatch.All</code></strong>, or it is active everywhere.
-    </p>
-    <p>
-        The helpers are pure and do not subscribe to <code>LocationChanged</code>. A page
-        re-rendered by navigation picks up the new state for free; a sidebar that survives
-        navigation subscribes and calls <code>StateHasChanged</code> — this site's own sidebar is
-        the worked example.
-    </p>
-    <p>
-        <strong>Subscribe in the component that renders the links</strong>, not in the layout around
-        it. When a parent re-renders, Blazor only hands new parameters to a child whose parameters
-        actually differ, so a sidebar whose parameters are unchanged is skipped and goes on
-        rendering the previous address. A subscription one level too high compiles and runs and does nothing:
-        the active link then updates on the next unrelated click rather than on navigation.
+        omits. <strong>The link to the root needs <code>NavLinkMatch.All</code></strong> or it is
+        active everywhere, and a sidebar that survives navigation subscribes to
+        <code>LocationChanged</code> <strong>in the component that renders the links</strong>, not
+        in the layout around it — Blazor skips a child whose parameters have not changed.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Nav.CollapsibleNavGroup" Title="Collapsible nav group" Demo="ex-demo--block">
+<CatExample TExample="Examples.Nav.CollapsibleNavGroup" Title="Collapsible nav group" Demo="ex-demo--block ex-demo--flush">
     <p>
-        For a section with more children than fits as a flat list. Built on
-        <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code>, so the open state, the keyboard
-        operation and the announcement come from the platform — and the group stays usable with
-        scripting blocked, which the frame must be.
-    </p>
-    <p>
-        Put <code>open</code> on the group containing the current page, so a reader never lands on a
-        page whose own nav entry is hidden. Sub-items indent to sit under the parent's
-        <em>label</em>, not its icon. In the collapsed rail the whole group flattens to icons.
-    </p>
-    <p>
-        A group sits at whatever depth it is nested to. Inside a <code>.nav-section</code> it takes the
-        section's indent and its sub-items follow, so a group lines up with the plain links either
-        side of it. The depth is one knob, <code>--nav-indent</code>, which every row in the nav
-        reads — a link, a group's summary, and a group's sub-items, which derive theirs from it.
+        A <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code> pair, so the open state, the
+        keyboard operation and the announcement come from the platform and the group survives
+        scripting being blocked. Put <code>open</code> on the group containing the current page, or
+        a reader lands on a page whose own nav entry is hidden; the depth every row in the nav
+        reads is one knob, <code>--nav-indent</code>.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Interop.NavGroupOpen" Title="Which group is open" Demo="ex-demo--block">
     <p>
-        <strong>Live — click a link and watch the groups.</strong> That
-        <code>open</code> is the app's to compute, and CSS cannot do it for you:
-        <code>:has(.active)</code> selects the group, but <code>open</code> is an
-        <em>attribute</em> and no selector can set one.
-    </p>
-    <p>
-        So the group asks <code>ActiveLink.IsActive</code> over its own children — the same call the
-        links themselves use, so the highlighted link and the open group cannot disagree. Five
-        lines, and a sidebar's first version ships without them because nothing says it is the app's
-        job.
-    </p>
-    <p>
-        <strong>The <code>LocationChanged</code> subscription belongs to the component that renders
-        the group</strong>, not to the layout around it. Blazor skips re-rendering a child whose
-        parameters have not changed, so a handler one level up leaves the group showing the previous
-        page's state — and the symptom is a group that opens correctly on a full reload and never
-        again.
+        <strong>Live — click a link and watch the groups.</strong> <code>open</code> is an
+        attribute and no selector can set one, so the group asks <code>ActiveLink.IsActive</code>
+        over its own children — the same call the links themselves use, so the highlighted link and
+        the open group cannot disagree.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Nav.CollapsedRail" Title="Collapsed rail" Demo="ex-demo--block">
+<CatExample TExample="Examples.Nav.CollapsedRail" Title="Collapsed rail" Demo="ex-demo--block ex-demo--flush">
     <p>
-        Add <code>.collapsed</code> to <code>.sidebar</code> — no other markup changes. Labels
-        and status text drop out, the count pill moves onto the icon, and each item's
-        <code>data-tip</code> becomes a CSS flyout that escapes the 56px rail. Hover an icon to
-        see it.
+        Add <code>.collapsed</code> to <code>.sidebar</code> — no other markup changes. Labels and
+        status text drop out, the count pill moves onto the icon, and each item's
+        <code>data-tip</code> becomes a CSS flyout that escapes the rail; hover an icon to see it.
     </p>
 </CatExample>

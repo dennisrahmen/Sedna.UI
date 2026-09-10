@@ -293,13 +293,20 @@
     min-width: var(--col-control-min);
     max-width: var(--col-control-max);
 }
+/* A field fills the column, because a field's box IS the affordance and a short one
+   in a wide cell reads as broken. A `.value-trigger` is the opposite — it is
+   deliberately quieter than a field, and its whole shape is "as wide as the value" —
+   so it is NOT in this list and neither is its `.menu-anchor`.
+
+   Stretching the anchor was doubly wrong. `.menu-anchor > .menu` hangs off the
+   anchor's inline-END edge, so a full-width anchor put the panel at the far side of
+   the cell rather than under the trigger — which is the exact detachment
+   58-menu.css warns about. Both rules went together.
+
+   A field that should also be content-width takes `.sedna-w-fit`, which is in the
+   utilities layer and so beats this rule without a specificity race. */
 .table .col-control > .form-input,
-.table .col-control > .form-select,
-.table .col-control > .menu-anchor { width: 100%; }
-/* The anchor is inline-flex, so the trigger inside it has to be told to fill it as
-   well — otherwise the control is its content width inside a full-width wrapper and
-   the cell's trailing edge is empty. */
-.table .col-control > .menu-anchor > .value-trigger { width: 100%; }
+.table .col-control > .form-select { width: 100%; }
 .table .col-prose {
     --col-prose-min: 12rem;
     --col-prose-max: 30rem;

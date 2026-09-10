@@ -7,15 +7,24 @@
         <div class="sedna-col" style="padding:16px">
             <div class="toolbar">
                 <div class="toolbar-filters">
-                    <input class="form-input toolbar-input" type="search" placeholder="Search shipments…"
-                           data-live="@Live(0)" />
+                    @* .menu-anchor is what attaches the results to the box. Without it a bare
+                       .menu keeps a dropdown's whole appearance and none of its attachment:
+                       it lands wherever the flow puts it, which is below the toolbar's own
+                       margin and 60px wider than the field. --start aligns it to the leading
+                       edge, because this box is at the leading end of the row. *@
+                    <span class="menu-anchor">
+                        <input class="form-input toolbar-input toolbar-input--wide" type="search"
+                               placeholder="Search shipments…" data-live="@Live(0)" />
+
+                        @* Step 1 unions the box with the results it produced, so the hole
+                           covers both. *@
+                        <div class="menu menu--start" data-live-extra="@Live(0)"
+                             style="display:@(_step == 0 ? "block" : "none")">
+                            <span class="menu-item">SHP-4471 — Rotterdam, held</span>
+                        </div>
+                    </span>
                 </div>
                 <button class="btn btn-warn" type="button" data-live="@Live(1)">Hold selected</button>
-            </div>
-
-            <!-- Step 1 unions the box with the results it produced, so the hole covers both. -->
-            <div class="menu" data-live-extra="@Live(0)" style="position:static; display:@(_step == 0 ? "block" : "none")">
-                <span class="menu-item">SHP-4471 — Rotterdam, held</span>
             </div>
 
             <div class="stat-row stat-row--divided" data-live="@Live(2)">

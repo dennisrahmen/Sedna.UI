@@ -51,6 +51,27 @@
 }
 .form-input::placeholder { color: var(--border-strong); }
 
+/* ── A text area's resize grip ────────────────────────────────────
+   Vertical is the DEFAULT rather than a class, because the failure is horizontal:
+   the UA default is `resize: both`, and a textarea dragged wider than its
+   .field-grid track breaks the row it sits in and every row below it. Taller is
+   never the problem, so the safe axis is the one you get for free and only the two
+   departures need a name.
+
+   There is deliberately no --resize-y: it would be a second name for the default. */
+textarea.form-input { resize: vertical; }
+.form-input--resize-none { resize: none; }
+.form-input--resize-both { resize: both; }
+
+/* The grip itself. Chromium paints an unthemed white corner over a dark field
+   otherwise — which was fixed for the Markdown editor and nowhere else, so every
+   other textarea in the library had it. Same value as the .md-preview rule in
+   44-markdown.css, which cannot share this selector: that pane is a div. */
+textarea.form-input::-webkit-resizer {
+    background: linear-gradient(-45deg, transparent 0 4px, var(--scrollbar) 4px 5px,
+                transparent 5px 7px, var(--scrollbar) 7px 8px, transparent 8px);
+}
+
 /* The same three tiers as the button, so a field and the button beside it agree at
    every size. Padding stays under the tier so the tier is what sets the height. */
 .form-input-sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }

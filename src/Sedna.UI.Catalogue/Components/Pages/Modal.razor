@@ -1,173 +1,93 @@
 @page "/modal"
 
 <CatHead Title="Modal">
-    A question that has to be answered before anything else happens.
-    <code>.modal</code> is the panel; header, body and footer are three optional rows. You own the
-    content and what the answer means.
+    A question that has to be answered before anything else happens. <code>.modal</code> is the
+    panel; header, body and footer are three optional rows.
 </CatHead>
 
 <div class="cat-note">
     <i class="ri-window-2-line"></i>
     <strong>Put it on a <code>&lt;dialog&gt;</code> and open it with <code>showModal()</code>.</strong>
     The top layer, the focus trap, <kbd>Escape</kbd>, inert content behind and returning focus on
-    close all come from the platform, and none of them are things a <code>div</code> overlay does
-    without a lot of code that is usually subtly wrong. There is no
-    <code>.modal-backdrop</code> involved: <code>::backdrop</code> is the platform's own, so the
-    dimming is a pseudo-element rather than an element in the page.
-    <code>sednaUi.confirm()</code> is built exactly this way.
+    close all come from the platform. Write no <code>.modal-backdrop</code> either:
+    <code>::backdrop</code> is the platform's own.
 </div>
 
 <CatExample TExample="Examples.Modal.DialogModal" Title="A real modal" Demo="ex-demo--block">
     <p>
-        <strong>Live — open it.</strong> <kbd>Escape</kbd> closes it, focus is trapped inside while
-        it is open and returns to the button afterwards, and the page behind is inert. None of that
-        is written here.
-    </p>
-    <p>
-        The whole panel is wrapped in <code>&lt;form method="dialog"&gt;</code>, which is what makes
-        every button in it close the dialog with <strong>no JavaScript at all</strong> —
-        <code>value</code> becomes <code>dialog.returnValue</code>, so “which button” is answered
-        without a handler. Only opening needs a line of script.
-    </p>
-    <p>
-        <code>aria-labelledby</code> pointing at the heading is worth the two attributes: a modal
-        dialog is announced by its accessible name, and without one a screen reader says “dialog”
-        and stops.
+        <strong>Live — open it.</strong> The whole panel is wrapped in
+        <code>&lt;form method="dialog"&gt;</code>, which is what makes every button in it close the
+        dialog with no JavaScript at all — <code>value</code> becomes
+        <code>dialog.returnValue</code>. Point <code>aria-labelledby</code> at the heading, or a
+        screen reader announces &ldquo;dialog&rdquo; and stops.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Interop.ShowModalFromCsharp" Title="Opening one from C#" Demo="ex-demo--block">
     <p>
         <strong>Live — open it.</strong> <code>ISednaUi.ShowModalAsync(id)</code> is the one line of
-        script the example above says is needed, without the inline
-        <code>onclick</code> and without injecting <code>IJSRuntime</code>. That matters more than
-        it sounds: an app that would not inject <code>IJSRuntime</code> had no way to reach
-        <code>showModal()</code>, so it fell back to a <code>.modal-backdrop</code> div behind an
-        <code>@@if</code> — and lost the top layer, the focus trap, <kbd>Escape</kbd> and the inert
-        background, all four at once.
-    </p>
-    <p>
-        <code>CloseModalAsync(id, returnValue)</code> is for the routes out that are <em>not</em> a
-        <code>method="dialog"</code> submit; the platform handles those and <kbd>Escape</kbd>
-        itself. An id that is not a <code>&lt;dialog&gt;</code>, or one already open, warns in the
-        console and does nothing — an exception crossing the interop boundary from a Blazor handler
-        tears down the circuit.
-    </p>
-    <p>
-        Use <a href="/script"><code>ConfirmAsync</code></a> for a question with two answers. This
-        is for a dialog holding a form.
+        script the example above needs, without an inline <code>onclick</code> and without injecting
+        <code>IJSRuntime</code>; <code>CloseModalAsync(id, returnValue)</code> is for the routes out
+        that are <em>not</em> a <code>method="dialog"</code> submit. Use
+        <a href="/script"><code>ConfirmAsync</code></a> for a question with two answers — this is for
+        a dialog holding a form.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Modal.ConfirmDialog" Title="The panel" Demo="ex-demo--block">
     <p>
-        The three rows on their own, so they can be read without opening anything. This is the same
-        markup as above with the <code>&lt;dialog&gt;</code> and the form taken off — a
-        <code>.modal</code> is an ordinary bordered panel until something puts it in the top layer.
+        The three rows on their own: a <code>.modal</code> is an ordinary bordered panel until
+        something puts it in the top layer.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Modal.DestructiveConfirm" Title="Destructive confirm" Demo="ex-demo--block">
     <p>
-        Name the consequence in the body, and make the confirming button the destructive one. Focus
-        the <em>safe</em> choice when it opens: <code>showModal()</code> focuses the first focusable
-        element, which is Cancel by source order here, and for a destructive action that ordering is
-        the point rather than an accident.
+        Name the consequence in the body, and make the confirming button the destructive one. Put
+        Cancel first in source order — <code>showModal()</code> focuses the first focusable element,
+        so the safe choice is the one that takes focus.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Modal.ScrollingBody" Title="Scrolling body" Demo="ex-demo--block">
     <p>
-        <strong>The body scrolls on its own; there is nothing to add.</strong> The panel is capped
-        at the viewport, the header and the footer keep their height, and
-        <code>.modal-body</code> is the part that gives way — with the fading scroll edges, so a
-        body carrying more below says so.
-    </p>
-    <p>
-        This is not a nicety. A backdrop centres its panel, so a panel taller than the window grows
-        past <em>both</em> edges: the header off the top and the footer — which is where the primary
-        action is — off the bottom. A fourteen-field form was not submittable on a 900px window, and
-        nothing on screen said why, because no element had a scrollbar.
-    </p>
-    <p>
-        The cap is <code>--modal-max-height</code>, <code>calc(100dvh - 2 * var(--space-8))</code>
-        by default and set to 240px here so the demo fits the page. <code>dvh</code> rather than
-        <code>vh</code>: on a phone <code>vh</code> is measured with the address bar retracted, so a
-        <code>vh</code> cap is taller than what is visible exactly where room is tightest.
-    </p>
-    <p>
-        Wrapping header, body and footer in a <code>&lt;form&gt;</code> changes nothing — the form's
-        box is removed with <code>display: contents</code> so the panel's flex column reaches
-        through it. Without that the panel has one flex item and the body never becomes the part
-        that scrolls.
-    </p>
-    <p>
-        <strong>One thing is still markup:</strong> a body that scrolls and holds nothing focusable
-        needs <code>tabindex="0"</code> with a <code>role</code> and a name, as this one has, so a
-        keyboard reader can scroll it. A body of form fields already has focusable children and
-        needs none of that.
+        <strong>The body scrolls on its own; there is nothing to add.</strong> The cap is
+        <code>--modal-max-height</code>, <code>calc(100dvh - 2 * var(--space-8))</code> by default
+        and 240px here so the demo fits the page. <strong>One thing is still markup:</strong> a body
+        that scrolls and holds nothing focusable needs <code>tabindex="0"</code> with a
+        <code>role</code> and a name, as this one has, so a keyboard reader can scroll it.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Modal.Widths" Title="Widths" Demo="ex-demo--block">
     <p>
         <code>.modal-sm</code> is 360px and <code>.modal-lg</code> is 760px, against the default
-        480px. Width is the only thing they change — a yes/no question does not need the room a
-        form does, and a diff or a table needs more. Pick by how wide the content has to be, not
-        by how important the dialog is.
+        480px. Pick by how wide the content has to be, not by how important the dialog is.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Modal.Deck" Title="A first-run deck" Demo="ex-demo--block">
     <p>
-        A short sequence of slides in a modal, with progress dots and Back/Next. It is the other
-        half of first-run: <a href="/spotlight">spotlight</a> anchors to the page, and before a
-        reader has seen the page there is nothing to anchor to.
-    </p>
-    <p>
-        <strong>Sequencing stays yours</strong>, exactly as it does for spotlight — which step is
-        showing, what the buttons do, whether the deck has been seen before. Three things are here
-        because each is wrong once before it is right: <code>--deck-height</code> fixes the body's
-        height so the footer does not jump between slides; <code>margin: auto 0</code> centres a
-        short slide but lets a tall one start at the top and scroll; and the entrance animation
-        re-runs per step only if the step element is actually <em>replaced</em>, which in Blazor
-        means keying it on the step number. Without the key the framework reuses the node and the
-        deck goes still after slide one.
-    </p>
-    <p>
-        <strong>Make each dot a <code>&lt;button&gt;</code> that jumps to its step.</strong> A reader
-        who has understood slide one should not have to press Next three times to get back to where
-        they were, and the dots are already the position indicator. A <code>&lt;span&gt;</code> is the
-        report-only form; the drawing is identical either way, and the button form gets a pointer, a
-        hover state, the library's focus ring and a 24&nbsp;×&nbsp;12&nbsp;px hit target around the
-        6&nbsp;px circle. Mark the current one with <code>aria-current="step"</code> — on a button that
-        replaces <code>.deck-dot--active</code>.
-    </p>
-    <p>
-        Put the position in words as well — “3 of 5” in the footer, or an <code>aria-label</code>
-        on the dots' container — because a row of circles is not announced as a position by anything.
+        A short sequence of slides in a modal, with progress dots and Back/Next — the other half of
+        first-run beside <a href="/spotlight">spotlight</a>, which needs a page the reader has
+        already seen. Sequencing stays yours, and the step element has to be <strong>keyed on the
+        step number</strong>, or Blazor reuses the node and the entrance animation stops after slide
+        one; <code>--deck-height</code> fixes the body's height so the footer does not jump between
+        slides. Make each dot a <code>&lt;button&gt;</code> that jumps to its step, mark the current
+        one with <code>aria-current="step"</code>, which is what
+        <code>.deck-dot--active</code> follows, and put the position in words as well — a row of
+        circles is not announced as one.
     </p>
 </CatExample>
 
 <CatSnippet Name="Modal/BackdropForm.html" Title="Without a dialog">
     <p>
-        <code>.modal-backdrop</code> dims and centres a panel inside the page instead. It is the
-        fallback, for markup that cannot be a <code>&lt;dialog&gt;</code> — you are already inside a
-        form and cannot nest another, or the panel has to stay in the page's own stacking context.
-    </p>
-    <p>
-        Then <code>role="dialog"</code> and <code>aria-modal="true"</code> are on you, and so is
-        everything the platform was doing: <kbd>Escape</kbd>, keeping <kbd>Tab</kbd> inside the
-        panel, making the rest of the page unreachable, and putting focus back where it came from.
+        <code>.modal-backdrop</code> dims and centres a panel inside the page instead, at z-index
+        500, for markup that cannot be a <code>&lt;dialog&gt;</code> — you are already inside a form
+        and cannot nest another, or the panel has to stay in the page's own stacking context. Then
+        <code>role="dialog"</code>, <code>aria-modal="true"</code>, <kbd>Escape</kbd>, keeping
+        <kbd>Tab</kbd> inside the panel, making the rest of the page unreachable and putting focus
+        back where it came from are all on you. A <a href="/drawer">drawer</a> sits below at
+        480/490, so a modal opened from inside one still covers it.
     </p>
 </CatSnippet>
-
-<div class="cat-note">
-    <i class="ri-stack-line"></i>
-    <strong>Z-order:</strong> the backdrop sits at 500, and a top-layer <code>&lt;dialog&gt;</code>
-    ignores the scale entirely — the platform orders it by promotion. Anything you layer above a
-    modal respects the shared chain: spotlight 510 &lt; popover and dropdown 550 &lt; toast 600 &lt;
-    tips and the reconnect banner 1000. A <a href="/drawer">drawer</a> sits below at 480/490, so a
-    modal opened from inside one still covers it. Do not invent a value; pick the rung you belong
-    on — a test fails on anything else.
-</div>

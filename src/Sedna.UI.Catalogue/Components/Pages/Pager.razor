@@ -5,10 +5,11 @@
 </CatHead>
 
 <div class="cat-note">
-        <strong>Pages are addresses.</strong> Use <code>&lt;a href&gt;</code> for every page that
-        exists, not <code>&lt;button&gt;</code> — a page of results should be linkable, openable in a
-        new tab and reachable with the back button. Only the disabled ends are buttons or spans.
-    </div>
+    <i class="ri-link"></i>
+    <strong>Pages are addresses.</strong> Use <code>&lt;a href&gt;</code> for every page that
+    exists, not <code>&lt;button&gt;</code> — a page of results should be linkable, openable in a
+    new tab and reachable with the back button. Only the disabled ends are buttons or spans.
+</div>
 
 <CatExample TExample="Examples.Pager.Pagination" Title="Pagination" Demo="ex-demo--block">
     <p>
@@ -21,37 +22,21 @@
 
 <CatExample TExample="Examples.Pager.PaginationViewState" Title="When the page is view state" Demo="ex-demo--block">
     <p>
-        The rule above holds wherever a page of results <em>is</em> an address. It does not hold
-        when the page number is view state rather than a location — a Blazor Server table whose
-        page, sort and filters live in the circuit. <code>/employees/all</code> is one address;
-        page 4 of a 27-column table sorted by cost centre is not an address the app has, and
-        inventing query-string routing for it means re-reading and re-validating four parameters on
-        every navigation to gain a link nobody sends.
-    </p>
-    <p>
-        So: <code>&lt;button class="page-link" type="button"&gt;</code> throughout, and
-        <code>disabled</code> on the ends rather than <code>aria-disabled</code> — a real
-        <code>&lt;button&gt;</code> has the attribute, which is announced and removes it from the
-        tab order. The stylesheet already styles both forms; nothing changes but the element.
-    </p>
-    <p>
-        Judge it by whether the page has an address, not by which is easier to write. If a reader
-        could reasonably send someone a link to page 4, use the anchors above.
+        Where the page number is view state rather than a location — a Blazor Server table whose
+        page, sort and filters live in the circuit — use
+        <code>&lt;button class="page-link" type="button"&gt;</code> throughout, with
+        <code>disabled</code> on the ends rather than <code>aria-disabled</code>. Judge it by
+        whether the page has an address: if a reader could reasonably send someone a link to page 4,
+        use the anchors above.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Pager.Breadcrumbs" Title="Breadcrumbs" Demo="ex-demo--block">
     <p>
         For where a page sits when the sidebar cannot show it — a record three levels inside a
-        section. If the sidebar already highlights the page, a breadcrumb repeats it and earns
-        nothing.
-    </p>
-    <p>
-        The separator is a pseudo-element, so it is never selected when the trail is copied and
-        never read out. The last item is the current page: mark it
-        <code>aria-current="page"</code> and leave it a <code>&lt;span&gt;</code>, not a link to
-        where you already are. Long trails scroll, and it is the leading edge that gets cut,
-        because the levels nearest the current page are the useful ones.
+        section; if the sidebar already highlights the page, a breadcrumb earns nothing. The last
+        item is the current page: mark it <code>aria-current="page"</code> and leave it a
+        <code>&lt;span&gt;</code>, not a link to where you already are.
     </p>
 </CatExample>
 
@@ -59,22 +44,16 @@
     <p>
         Enough for a short list, and for a pager that has to live inside a
         <a href="/toolbar">toolbar</a> row. <code>.page-count</code> is what makes it usable without
-        numbers: &ldquo;Next&rdquo; alone does not say how much is left.
-    </p>
-    <p>
-        The disabled ends are <code>&lt;span aria-disabled="true"&gt;</code>, not links to nowhere. A
-        page that does not exist has no address, so there is nothing to link to.
+        numbers, and the disabled ends are <code>&lt;span aria-disabled="true"&gt;</code>, not links
+        to nowhere.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Pager.BreadcrumbAbovePageHead" Title="Above the page head" Demo="ex-demo--block">
     <p>
         Where a breadcrumb belongs: above the heading, so the trail is read before the title it leads
-        to. <a href="/structure"><code>.page-head</code></a> then carries the title, the supporting
-        line and the actions that apply to the whole page.
-    </p>
-    <p>
-        One <code>&lt;h1&gt;</code> per page, and it is this one. The breadcrumb is navigation, not a
-        heading level.
+        to, with <a href="/structure"><code>.page-head</code></a> carrying the title, the supporting
+        line and the actions that apply to the whole page. One <code>&lt;h1&gt;</code> per page and
+        it is this one — the breadcrumb is navigation, not a heading level.
     </p>
 </CatExample>

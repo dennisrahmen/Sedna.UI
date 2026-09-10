@@ -1,143 +1,76 @@
 @page "/frame"
 
 <CatHead Title="Shell" Tier="@CatHead.Tier1">
-    The page shells: the full three-part layout, the two reduced ones, and the rhythm and
-    landmarks inside them. This must look identical in every app, and nobody — human or AI —
-    should restyle it per project.
+    The page shells: the full three-part layout, the two reduced ones, and the rhythm inside them.
+    This looks identical in every app and is never restyled per project.
 </CatHead>
 
 <div class="cat-note">
     <i class="ri-information-line"></i>
     <strong>The frame is markup, not components.</strong> There is no
-    <code>&lt;AppShell&gt;</code> and there will not be one — copy the markup below. This site is
-    built from exactly these classes, so a regression in the frame shows up here first. Do not add
-    local overrides for the frame: report frame problems against the library.
+    <code>&lt;AppShell&gt;</code> and there will not be one — copy the markup below, and report a
+    frame problem against the library rather than overriding it locally.
 </div>
 
-<CatExample TExample="Examples.Frame.FullShell" Title="Full shell" Demo="ex-demo--block">
+<CatExample TExample="Examples.Frame.FullShell" Title="Full shell" Demo="ex-demo--block ex-demo--flush">
     <p>
-        <code>.layout</code> is the flex row that fills the viewport; <code>.content</code> is
-        the column beside the sidebar; <code>.page</code> is the only scroll container. Shown
-        here at a fixed height — in an app the layout fills the window.
-    </p>
-    <p>
-        The sidebar is 220px, and 56px as the collapsed rail. Both are knobs —
-        <code>--sidebar-width</code> and <code>--sidebar-width-collapsed</code> — because how much
-        room a nav needs depends on the labels in it, and the alternative was an app overriding
-        <code>width</code> on a tier-1 class. Set them on <code>.sidebar</code>; nothing else about
-        the frame changes with them.
+        <code>.layout</code> is the flex row that fills the viewport — shown here at a fixed
+        height — <code>.content</code> is the column beside the sidebar, and <code>.page</code> is
+        the only scroll container. Width is two knobs on <code>.sidebar</code>,
+        <code>--sidebar-width</code> (220px) and <code>--sidebar-width-collapsed</code> (56px);
+        nothing else about the frame changes with them.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Frame.BareShell" Title="Bare shell" Demo="ex-demo--block">
+<CatExample TExample="Examples.Frame.BareShell" Title="Bare shell" Demo="ex-demo--block ex-demo--flush">
     <p>
-        <code>.bare-layout</code> — topbar and body, no sidebar. For the page that comes before
-        there is a workspace to navigate: choosing one, accepting an invitation, finishing a
-        first-run step. The header stays because the brand and the account still belong there.
-    </p>
-    <p>
-        Where there is nothing to offer at all — not signed in, or signed in and refused —
-        <code>.auth-layout</code> below is the one to use, and
+        <code>.bare-layout</code> — topbar and body, no sidebar, for the page that comes before
+        there is a workspace to navigate: choosing one, accepting an invitation, a first-run step.
+        Where there is nothing to offer at all use <code>.auth-layout</code> below;
         <a href="/common-pages">Common pages</a> has the finished pages.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Frame.AuthLayout" Title="Auth layout" Demo="ex-demo--block">
+<CatExample TExample="Examples.Frame.AuthLayout" Title="Auth layout" Demo="ex-demo--block ex-demo--flush">
     <p>
-        Sign-in, sign-out, &ldquo;check your e-mail&rdquo;, an invitation. One centred card and
-        nothing else: there is no navigation to offer somebody who is not signed in, and a
-        half-populated sidebar behind a sign-in form invites them to try it.
-    </p>
-    <p>
-        <code>.auth-card</code> is capped rather than stretched. A sign-in form the width of a
-        desktop screen has inputs nobody can aim at, and reads as an unfinished page.
+        Sign-in, sign-out, &ldquo;check your e-mail&rdquo;, an invitation — one centred card and no
+        navigation. <code>.auth-card</code> is capped rather than stretched.
     </p>
 </CatExample>
 
 <CatSnippet Name="Frame/FullBleedLayout.html" Title="Full-bleed layout">
     <p>
         For content that owns the whole area below the header — a map, a board, a diagram editor.
-        <code>.page</code> is the frame's scroll container and pads its content;
-        <code>.full-layout</code> replaces it, taking the padding off and handing scrolling to the
-        child.
-    </p>
-    <p>
-        Used <em>instead of</em> <code>.page</code>, never alongside it: the two are the same slot,
-        and nesting one in the other gives you <code>.page</code>'s padding back.
-    </p>
-    <p>
-        <code>.full-layout-fill</code> is the child that takes whatever height is left, with a
-        toolbar above it. <code>flex: 1</code> alone looks right and does nothing — a flex child
-        will not shrink below its content, so a tall canvas pushes the layout past the viewport
-        instead of scrolling inside itself. The <code>min-height: 0</code> that fixes it is inside
-        the class, which is the same trap <a href="/modal"><code>.modal-body</code></a> carries.
+        Use it <em>instead of</em> <code>.page</code> and never nested inside it, and put
+        <code>.full-layout-fill</code> on the child that takes the height that is left.
     </p>
 </CatSnippet>
 
-<CatExample TExample="Examples.Frame.PageRhythm" Title="The rhythm between page sections" Demo="ex-demo--block">
+<CatExample TExample="Examples.Frame.PageRhythm" Title="The rhythm between page sections" Demo="ex-demo--block ex-demo--flush">
     <p>
-        A card, then another card. A toolbar, then the list it controls. Every direct child of
-        <code>.page</code> after the first gets <code>--page-gap</code> above it, so the
-        commonest arrangement on a page needs no class and no
-        <code>style="margin-top:1rem"</code> — which is what an app wrote, once per seam, when
-        the library had no answer for it.
-    </p>
-    <p>
-        <strong>A page built out of library components does not move.</strong>
-        <code>.page-head</code>, <code>.toolbar</code> and <code>.alert</code> each already carry
-        <code>margin-bottom: var(--space-7)</code>, adjacent margins collapse, and 16px against
-        16px is 16px. The library had taken this decision already and implemented it three times;
-        this states it once, for every pair. Only <code>.breadcrumb</code> and
-        <code>.back-link</code> change, from 12px to 16px.
-    </p>
-    <p>
-        Headings keep their own, larger rhythm and <code>.lede</code> keeps its
-        <code>margin-top: 0</code> so it stays tight under the heading it belongs to. Set
-        <code>--page-gap: 0</code> on <code>.page</code> for a page that manages its own vertical
-        rhythm, or <code>.sedna-mt-0</code> on the one child that should sit flush.
-    </p>
-    <p>
-        <strong>There is no equivalent inside <code>.card-body</code></strong>, and that is
-        deliberate rather than unfinished: its commonest content is a stack of
-        <a href="/card"><code>.kv</code></a> rows, which are tight on purpose — 4px of padding and
-        no margin. The same rule there makes a three-row stack 24% taller. Use
-        <a href="/utility-layout"><code>.sedna-col</code></a> with a gap step, which says what the spacing
-        is for.
+        Every direct child of <code>.page</code> after the first gets <code>--page-gap</code> above
+        it, so a card after a card needs no class and no <code>style="margin-top"</code>. Set
+        <code>--page-gap: 0</code> on <code>.page</code> to manage the rhythm yourself, or
+        <code>.sedna-mt-0</code> on the one child that should sit flush; inside
+        <code>.card-body</code> there is no equivalent — reach for
+        <a href="/utility-layout"><code>.sedna-col</code></a> with a gap step.
     </p>
 </CatExample>
 
 <CatSnippet Name="Frame/NarrowScreens.html" Title="Narrow screens">
     <p>
         Add <code>.layout--responsive</code> to <code>.layout</code> and the sidebar becomes the
-        rail below 900px, whether or not <code>.collapsed</code> is set. The user widget drops its
-        second line at 900px and its whole text block at 560px, leaving the avatar.
-    </p>
-    <p>
-        <strong>It is opt-in.</strong> An app gets the narrow-screen rail only by adding the modifier.
-        The modifier also outranks an app that sets <code>.sidebar { width: 260px }</code>
-        unconditionally, which a bare <code>@@media</code> rule would not.
-    </p>
-    <p>
-        Below 900px the rail is forced, so a collapse toggle does nothing. Hide the toggle at that
-        width, or leave it and accept the no-op.
-    </p>
-    <p>
-        A header that is not inside a <code>.layout</code> — in <code>.bare-layout</code>, in
-        <code>.auth-layout</code>, or on its own — opts in with <code>.topbar--responsive</code> on
-        the <code>.topbar</code> instead, which reaches the same user-widget rules. A topbar's own
-        narrow behaviour does not depend on which shell it is in.
+        rail below 900px, where it is forced — so hide a collapse toggle at that width or accept
+        the no-op. A topbar outside a <code>.layout</code> opts in with
+        <code>.topbar--responsive</code> on the <code>.topbar</code> instead.
     </p>
 </CatSnippet>
 
 <CatSnippet Name="Frame/SkipLink.html" Title="Skip link">
     <p>
-        The first focusable thing on the page, jumping past the navigation to the content. Without
-        it a keyboard user tabs through every nav item on <em>every</em> page — which is the single
-        most common reason a shell like this is exhausting to use without a mouse.
-    </p>
-    <p>
-        It is off-screen rather than hidden, so it stays focusable, and it appears above everything
-        when focused. <code>tabindex="-1"</code> on <code>&lt;main&gt;</code> is not optional: without
-        it the jump only scrolls, and focus stays back in the navigation where it was.
+        The first focusable thing on the page, jumping past the navigation to the content —
+        off-screen rather than hidden, so it stays focusable. <code>tabindex="-1"</code> on
+        <code>&lt;main&gt;</code> is not optional: without it the jump only scrolls and focus stays
+        back in the navigation.
     </p>
 </CatSnippet>

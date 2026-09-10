@@ -3,35 +3,21 @@
 <CatHead Title="Cards">
     Three parts, all optional except the outer one: <code>.card</code> holds the border and
     clips its children, <code>.card-head</code> is the title row, <code>.card-body</code> is
-    the padded content. Put the markup you want inside — that is the point.
+    the padded content. There is no card component and no variant parameter &mdash; for a variant,
+    write the markup you need and take any colour from a token.
 </CatHead>
 
 <div class="cat-note">
-        For a variant, write the markup you need and use a token for any colour. There is no card
-        component and no variant parameter.
-    </div>
-
-<div class="cat-note">
     <i class="ri-stack-line"></i>
-    <span>
-        <strong>A card declares <code>--surface-here</code>, and so does every other surface the
-        library paints</strong> — the modal, the drawer and sheet, the menu, the popover, the
-        toast, the command palette, the topbar and the sidebar. It carries one fact: the colour
-        of the thing this content is sitting on. Anything that has to be opaque reads it and is
-        right without naming a surface — a timeline marker
-        (<code>--timeline-surface</code>), a pinned group header
-        (<code>--group-head-bg</code>), the fade at a scroll edge (<code>--scroll-bg</code>).
-        On a surface <em>your</em> app paints, declare it once on that element and everything
-        inside follows.
-    </span>
+    <strong>A card declares <code>--surface-here</code></strong> &mdash; the colour of the surface
+    its content is sitting on. Anything that has to be opaque reads it and is right without naming
+    a surface (<code>--timeline-surface</code>, <code>--group-head-bg</code>,
+    <code>--scroll-bg</code>); on a surface <em>your</em> app paints, declare it once on that
+    element and everything inside follows.
 </div>
 
 <CatExample TExample="Examples.Card.HeadBody" Title="Head and body" Demo="ex-demo--block">
-    <p>
-        <code>.card-head</code> is <code>space-between</code>, so the first child goes left and
-        the rest go right. Group multiple right-hand items in <code>.card-head-right</code> so
-        they share a gap.
-    </p>
+    <p>Group multiple right-hand items in <code>.card-head-right</code> so they share a gap.</p>
 </CatExample>
 
 <CatExample TExample="Examples.Card.BodyOnly" Title="Body only" Demo="ex-demo--block">
@@ -41,91 +27,58 @@
 <CatExample TExample="Examples.Card.BodyFlush" Title="Body without padding" Demo="ex-demo--block">
     <p>
         <code>.card-body--flush</code> drops the padding, for content drawn edge to edge inside the
-        card — a canvas, a chart, a map. The gutter is otherwise a gap the content paints over. It
-        is the sibling of <a href="/collections"><code>.list-row--flush</code></a>, and for the same
-        reason.
-    </p>
-    <p>
-        How tall the content is stays the content's decision, so there is no height here. A card can
-        carry a flush body and an ordinary one, as this one does.
+        card &mdash; a canvas, a chart, a map. It is the sibling of
+        <a href="/collections"><code>.list-row--flush</code></a>.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Card.Elevation" Title="A card in a card in a card" Demo="ex-demo--block">
     <p>
-        Three surfaces, three colours, and nothing in the markup saying which level it is —
         <code>.card</code> takes <code>--surface-raised-1</code>, a card inside one takes
-        <code>-2</code> and a card inside that takes <code>-3</code>. Move a card into another
-        card and it is right without being edited; a fourth level stays at the third.
-    </p>
-    <p>
-        The third level also lifts <code>--muted</code> to <code>--fg-soft</code>, because Dust
-        Gray on that surface measures 3.97:1 — under the AA floor. That is the reason the ladder
-        has three steps and not five: it runs out of readable contrast before it runs out of ramp.
-    </p>
-    <p>
-        The levels resolve through the theme's own base ramp, so they follow it. Switch to
-        <a href="/branding#switch">Graphite</a> and all three go neutral grey.
+        <code>-2</code> and a card inside that takes <code>-3</code>, with nothing in the markup
+        saying which level it is; a fourth level stays at the third. The levels resolve through the
+        theme's own base ramp, so <a href="/branding#switch">Graphite</a> takes all three neutral.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Card.Foot" Title="Head, body and foot" Demo="ex-demo--block">
     <p>
-        <code>.card-foot</code> is the row a card ends with — the actions that decide what happens to
-        the content above them. It mirrors <code>.card-head</code>: same padding, divider on top
-        instead of underneath. It is right-aligned rather than <code>space-between</code>, for the
-        reason <a href="/form"><code>.form-actions</code></a> is; put a note or a destructive action
-        on the far side with <code>.card-foot--split</code>.
-    </p>
-    <p>
-        Use it instead of a <code>.card-body</code> holding a <code>.form-actions</code>. That pair
-        works, but it reads as two decisions rather than one and gives the row the body's padding
-        rather than a foot's.
+        <code>.card-foot</code> is the row a card ends with &mdash; the actions that decide what
+        happens to the content above them. Use it instead of a <code>.card-body</code> holding
+        <a href="/form"><code>.form-actions</code></a>, and put a note or a destructive action on
+        the far side with <code>.card-foot--split</code>.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Card.TableCard" Title="A table in a card" Demo="ex-demo--block">
-    <p>
-        No <code>.card-body</code> — the table provides its own cell padding, and
-        <code>.card</code>'s <code>overflow:hidden</code> clips the first row's corners to the
-        border radius.
-    </p>
+    <p>No <code>.card-body</code> &mdash; the table brings its own cell padding.</p>
 </CatExample>
 
 <CatExample TExample="Examples.Card.KeyValueRows" Title="Key/value rows" Demo="ex-demo--block">
     <p>
-        <code>.kv</code> pushes label and value apart; the value picks up the monospace token,
-        which keeps numbers and IDs aligned down the column.
+        <code>.kv</code> pushes label and value apart; the value takes the monospace token, so
+        numbers and IDs align down the column.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Card.Guarded" Title="A guarded card" Demo="ex-demo--block">
     <p>
-        A card the reader can see but must claim, accept or unlock before acting on. It is none of
-        the three things it looks like: <a href="/empty-state">an empty state</a> is for when there
-        is nothing there, <a href="/modal">a modal</a> covers the page rather than one card, and
-        <code>disabled</code> greys content out — while the whole point here is that the content
-        reads, because the reader is deciding whether to take it on.
+        A card the reader can read but must claim, accept or unlock before acting on.
+        <code>.guard</code> is absolute, so the card needs <code>position: relative</code>; put
+        <code>inert</code> on the guarded content, or it stays in the tab order behind the scrim.
     </p>
+</CatExample>
+
+<CatExample TExample="Examples.Card.GuardedTall" Title="A guarded card over taller content" Demo="ex-demo--block">
     <p>
-        <code>.guard</code> is absolute, so the card needs <code>position: relative</code>. It blurs
-        rather than fading: the reader should see there <em>is</em> content and be unable to read it
-        word for word, which is the shape of the offer.
-    </p>
-    <p>
-        Two things the markup has to carry, because CSS cannot. Put <code>inert</code> on the
-        guarded content — legible is not the same as reachable, and without it the whole card stays
-        in the tab order behind a scrim nobody can type through. And say what claiming
-        <strong>does</strong>: “Claim” alone is a button; “Claim to reply on the team's behalf” is a
-        decision.
+        The prompt is centred, not stretched: over a card taller than it, the guard card
+        hovers in the middle and the blurred content stays visible above and below it.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Card.CaveatAboutCardSOwn" Title="A caveat about the card's own content" Demo="ex-demo--block">
     <p>
-        <code>.card-warning</code> pins an amber strip to the card's bottom edge — a stale figure,
-        a degraded source, a partial result. It is part of the card, which is why it is not an
-        <code>.alert</code>: an alert is a statement about the page, and putting one inside a card
-        makes the reader look for what else on the page is affected.
+        <code>.card-warning</code> pins an amber strip to the card's bottom edge &mdash; a stale
+        figure, a degraded source, a partial result.
     </p>
 </CatExample>

@@ -31,8 +31,22 @@
 .chip-lg .chip-dismiss { width: 22px; height: 22px; }
 /* A chip with no dismiss button does not need the trailing room for one. */
 .chip:not(:has(.chip-dismiss)) { padding-inline-end: var(--space-5); }
-.chip i { font-size: var(--text-5); color: var(--muted); }
+/* Child, not descendant. `.chip i` weighs the same as `.avatar i` in 52-avatar.css
+   and is the later file, so an icon avatar inside a chip silently took the chip's
+   14px and --muted instead of its own 15px — and .chip--active then recoloured it. */
+.chip > i { font-size: var(--text-5); color: var(--muted); }
 .chip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A 22px .avatar-sm in a 28px chip leaves EXACTLY 3px of clearance — the chip's
+   min-height is the small control tier, its block padding is 2px and its border 1px,
+   and 22 + 4 + 2 is 28 with nothing over. 3 CSS px on a 1.5x display is 4.5 device
+   pixels, which cannot split evenly, so the top and the bottom differ by a device
+   pixel and which one is larger flips with the scroll offset. That is the "bottom is
+   more, it feels like" — it is real and it is not a measurable asymmetry.
+
+   20px makes the clearance 4px, which does split. Scoped off .chip-lg, whose 36px box
+   already has 7px and needs nothing. */
+.chip:not(.chip-lg) > .avatar { --avatar-size: 20px; }
 
 /* A status dot inside a chip, for a filter whose value carries a state. Colour it
    with a semantic token from the markup, or it says nothing. */

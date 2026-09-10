@@ -6,41 +6,28 @@
 </CatHead>
 
 <div class="cat-note">
-    <i class="ri-stack-line"></i>
-    <strong>The cascade layer is what makes these work.</strong> A utility is <code>(0,1,0)</code>
-    and a component rule like <code>.table th, .table td</code> is <code>(0,1,1)</code>, so a utility
-    loses on specificity alone. <code>sedna.utilities</code> sits after <code>sedna.paint</code>, so
-    <code>.text-end</code> on a table cell wins regardless of it.
-</div>
-
-<div class="cat-note">
     <i class="ri-keyboard-line"></i>
     <strong>A scroll container needs to be reachable.</strong> Give it <code>tabindex="0"</code> and a
-    name — <code>role="group"</code> with an <code>aria-label</code> — or a keyboard user
-    cannot scroll it and a screen reader cannot say what it holds. Every demo below does.
+    name — <code>role="group"</code> with an <code>aria-label</code> — or a keyboard user cannot
+    scroll it and a screen reader cannot say what it holds. Every demo below does.
 </div>
 
 <CatExample TExample="Examples.UtilityScroll.Vertical" Title="Vertical" Demo="ex-demo--block">
     <p>
         <code>.sedna-scroll</code> caps a block's height and scrolls the overflow.
         <code>--sm</code>, <code>--md</code> and <code>--lg</code> are 12rem, 20rem and 32rem; for
-        anything else set <code>--scroll-max</code> yourself, which is what the log block above does.
-    </p>
-    <p>
-        The shadows read <code>--surface-here</code>, which every surface the library paints declares
-        once, so a scroller inside a card, a modal, a drawer or a popover is already correct without
-        being named.
+        anything else set <code>--scroll-max</code> yourself, as the log block above does. The shadows
+        read <code>--surface-here</code>, so a scroller inside a card, a modal, a drawer or a popover
+        is already correct without being named.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.UtilityScroll.Horizontal" Title="Horizontal" Demo="ex-demo--block">
     <p>
         <code>.sedna-scroll-x</code> is the wrapper a wide table goes in, so the table scrolls sideways
-        inside the page instead of the page scrolling sideways under the frame. Combine it with
-        <code>.sedna-scroll</code> for both axes and the shadows on both edges.
-    </p>
-    <p>
-        A table that is wide because it has too many columns is the other problem, and this does not
-        solve it — see <a href="/table">Tables</a> for pinned columns and the stacked layout.
+        inside the page instead of the page scrolling sideways under the frame; combine it with
+        <code>.sedna-scroll</code> for both axes. A table that is wide because it has too many columns
+        is a different problem — see <a href="/table">Tables</a> for pinned columns and the stacked
+        layout.
     </p>
 </CatExample>

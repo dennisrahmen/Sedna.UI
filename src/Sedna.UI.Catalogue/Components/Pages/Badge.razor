@@ -12,37 +12,24 @@
 <CatExample TExample="Examples.Badge.Sizes" Title="Three sizes" Demo="ex-demo--block">
     <p>
         A badge is a label, not a target, so its sizes are a <strong>type</strong> scale rather than
-        the <a href="/concepts">control heights</a>. It has to sit inside a line of text, a table cell
-        and a card title without setting the line height, which is why <code>.badge-lg</code> is 12px
-        text and not a 36px pill.
+        the <a href="/concepts">control heights</a> &mdash; <code>.badge-lg</code> is 12px text, not
+        a 36px pill.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Badge.Categorical" Title="Categorical">
     <p>
-        For distinguishing categories that have no ranking — a type, a queue, a source. Reach
+        For distinguishing categories that have no ranking &mdash; a type, a queue, a source. Reach
         for these only after the semantic set, and never to imply good or bad.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Badge.Severity" Title="Severity — an ordered scale" Demo="ex-demo--block">
     <p>
-        For a scale whose steps <strong>rank</strong>: an incident priority P1–P5, a CVSS band, a
-        triage tier. The semantic set ranks nothing, and the categorical hues say out loud that they
-        do not — so neither can serve an ordering, which is why this is its own family.
-    </p>
-    <p>
-        <strong>The order is in the fill, not in the hue.</strong> Step 1 is an opaque pill and 2–5
-        are tints that weaken as the rank falls. That ladder is what survives the colour-blind
-        palette, a greyscale print and forced colours; a hue rotation cannot carry an order, which is
-        exactly why hue is identity here and never the ranking. Under
-        <code>data-cvd="1"</code> step 1 darkens away from the brand and step 2 leaves the warm band
-        for violet, because coral, crimson, orange and amber all converge under deuteranopia.
-    </p>
-    <p>
-        <strong>The label has to say the rank.</strong> “P2”, “High”, “3 of 5” — a bare coloured pill
-        is a colour, not a position, and nothing announces it as one. The bars on
-        <a href="/progress">Progress</a> take the same ramp through
+        For a scale whose steps <strong>rank</strong>: an incident priority P1&ndash;P5, a CVSS band,
+        a triage tier. <strong>The label has to say the rank</strong> &mdash; &ldquo;P2&rdquo;,
+        &ldquo;High&rdquo;, &ldquo;3 of 5&rdquo; &mdash; because a bare coloured pill is a colour,
+        not a position; <a href="/progress">Progress</a> takes the same ramp through
         <code>.progress-bar--sev-N</code>.
     </p>
 </CatExample>

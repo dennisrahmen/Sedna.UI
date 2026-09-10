@@ -1,24 +1,14 @@
 @page "/utility-layout"
 
 <CatHead Title="Layout utilities">
-    The flex arrangements that would otherwise be an inline <code>style="display:flex; gap:8px"</code>
-    — which is most of them. Everything on this page puts children in a line or a stack and
-    decides how they share the space.
+    The flex arrangements that would otherwise be an inline <code>style="display:flex; gap:8px"</code>.
+    Everything here puts children in a line or a stack and decides how they share the space.
 </CatHead>
 
 <div class="cat-note">
-    <i class="ri-stack-line"></i>
-    <strong>The cascade layer is what makes these work.</strong> A utility is <code>(0,1,0)</code>
-    and a component rule like <code>.table th, .table td</code> is <code>(0,1,1)</code>, so a utility
-    loses on specificity alone. <code>sedna.utilities</code> sits after <code>sedna.paint</code>, so
-    <code>.text-end</code> on a table cell wins regardless of it.
-</div>
-
-<div class="cat-note">
     <i class="ri-forbid-line"></i>
-    <strong>Not a grid system.</strong> There are no breakpoint prefixes and no column classes,
-    because the library has no breakpoint vocabulary and should not gain one. For a real page layout
-    reach for <a href="/grid">Grids</a>, whose three primitives are breakpoint-free by construction.
+    <strong>Not a grid system.</strong> There are no breakpoint prefixes and no column classes. For a
+    real page layout reach for <a href="/grid">Grids</a>, whose three primitives are breakpoint-free.
 </div>
 
 <CatExample TExample="Examples.UtilityLayout.Rows" Title="Rows and columns" Demo="ex-demo--block">
@@ -27,36 +17,32 @@
         arrangements, each with the same 8px gap. <code>.sedna-push</code> is an empty span that eats
         the remaining space, so everything after it sits at the far end.
     </p>
-    <p>
-        These carry the <code>sedna-</code> prefix because they are library-owned utilities in a shared
-        namespace, where <code>.row</code> and <code>.col</code> are names an app is very likely to
-        have already.
-    </p>
 </CatExample>
 
 <CatExample TExample="Examples.UtilityLayout.Alignment" Title="Alignment" Demo="ex-demo--block">
     <p>
         <code>.sedna-start</code>, <code>.sedna-center</code>, <code>.sedna-end</code> and
-        <code>.sedna-baseline</code> set the cross axis; <code>.sedna-between</code> sets the main one.
-        <code>.sedna-wrap</code> lets a <code>.sedna-row</code> break without turning it into a
-        <code>.sedna-row-wrap</code>.
-    </p>
-    <p>
-        <code>.sedna-baseline</code> is the one worth knowing: it is what lines two different type
-        sizes up on the line they are written on, rather than on the middle of their boxes.
+        <code>.sedna-baseline</code> — which lines two different type sizes up on the line they are
+        written on rather than the middle of their boxes — set the cross axis;
+        <code>.sedna-between</code> sets the main one. <code>.sedna-wrap</code> lets a
+        <code>.sedna-row</code> break without turning it into a <code>.sedna-row-wrap</code>.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.UtilityLayout.Sizing" Title="Sizing" Demo="ex-demo--block">
     <p>
         <code>.sedna-fill</code> takes the remaining space <em>and</em> sets <code>min-width: 0</code>,
-        which is the half people forget: a flex item refuses to shrink below its content by default, so
-        <code>.text-truncate</code> inside one never shows its ellipsis without it.
+        without which <code>.text-truncate</code> inside one never shows its ellipsis.
+        <code>.sedna-shrink-0</code> is its opposite, for the avatar and the badge that must keep their
+        size, and <code>.sedna-w-full</code> is a full-width block.
     </p>
     <p>
-        <code>.sedna-shrink-0</code> is its opposite, for the avatar and the badge that must keep
-        their size. <code>.sedna-w-full</code> is a full-width block, usually a button in a narrow
-        panel.
+        <strong>Form controls are <code>width: 100%</code>, and these are the way out.</strong>
+        <code>.sedna-w-fit</code> makes a control as wide as its value — a status in a table cell,
+        a page-number box. <code>.sedna-w</code> takes a width from <code>--sedna-w</code>, with
+        <code>.sedna-w--sm</code>, <code>.sedna-w--md</code> and <code>.sedna-w--lg</code> as
+        8/12/18rem, so a short filter needs no inline <code>width</code>. They are in the utilities
+        layer, which is why they win over a component rule without <code>!important</code>.
     </p>
 </CatExample>
 

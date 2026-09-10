@@ -7,73 +7,38 @@
 
 <CatExample TExample="Examples.Toast.ToastTriggers" Title="Raising one">
     <p>
-        <strong>Live.</strong> <code>sednaUi.toast(message, options)</code> renders the stack and
-        the toast, stacks a second under the first, and removes it after its timeout.
+        <strong>Live.</strong> <code>sednaUi.toast(message, options)</code> renders the stack and the
+        toast, stacks a second under the first, and removes it after its timeout;
         <code>timeout: 0</code> keeps it until dismissed, which is what a failure wants. From C# it
-        is <code>ToastAsync</code>.
-    </p>
-    <p>
-        The return value is a function that removes that toast early. It stays JavaScript-only,
-        because a function cannot cross the interop boundary.
-    </p>
-    <p>
-        <code>kind</code> is <code>go</code>, <code>warn</code>, <code>danger</code> or
-        <code>info</code>, and <code>info</code> is the default. Pick by what the reader should do
-        next, not by how the message feels.
+        is <code>ToastAsync</code>. <code>kind</code> is <code>go</code>, <code>warn</code>,
+        <code>danger</code> or <code>info</code>, and <code>info</code> is the default.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Toast.Toast" Title="The markup" Demo="ex-demo--block ex-demo--pad">
     <p>
-        You do not write this for <code>sednaUi.toast</code> — it is here for an app that renders
-        the stack itself, from server state or as part of a page's own model.
-    </p>
-    <p>
-        <strong>A title and a short description under it is the shape to write.</strong> The title
-        is the <code>&lt;strong&gt;</code> — say what happened; the line under it says what it
-        happened to. A toast of one line is fine and needs no extra class: with no
-        <code>&lt;strong&gt;</code> in it the row centres itself against the icon and the close
-        button instead of aligning to a first line that is also the only one.
-    </p>
-    <p>
-        <code>.toast-stack</code> is the only positioned element: <code>fixed</code> to the
-        bottom-inline-end corner at z-index 600. Each toast is a plain block inside it, so an app
-        renders a list and positions nothing. The stack here is <code>position:static</code> so it
-        can be seen in place rather than pinned to the corner of the screen.
-    </p>
-    <p>
-        <strong>The stack carries the live region, and here that is yours to write.</strong>
-        <code>role="status"</code> plus <code>aria-live="polite"</code> go on
-        <code>.toast-stack</code> — exactly what <code>sednaUi.toast</code> puts on the stack it
-        creates. Without it a toast an app rendered is never announced at all, because there is no
-        library-created stack on this path to carry one.
-    </p>
-    <p>
-        Still do not put <code>role="alert"</code> on an individual toast. Two live regions over the
-        same text announce it twice, and <code>alert</code> is assertive, so every routine
-        confirmation would cut across whatever is being read. A failure that has to interrupt gets
-        <code>aria-live="assertive"</code> on the stack while it is showing, which is what the
-        library does for <code>danger</code>.
+        You do not write this for <code>sednaUi.toast</code> — it is here for an app that renders the
+        stack itself. <strong>The stack carries the live region, and on this path it is yours to
+        write:</strong> <code>role="status"</code> plus <code>aria-live="polite"</code> on
+        <code>.toast-stack</code>, or a toast an app rendered is never announced at all. Do not put
+        <code>role="alert"</code> on an individual toast — two live regions announce the same text
+        twice, and a failure that has to interrupt gets <code>aria-live="assertive"</code> on the
+        stack while it is showing.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Toast.ToastOrAlert" Title="Toast or alert" Demo="ex-demo--block">
     <p>
         The same event, told both ways. A toast is a receipt for something that already happened and
-        needs nothing from the reader. An <a href="/alert">alert</a> stays until the state changes,
+        needs nothing from the reader; an <a href="/alert">alert</a> stays until the state changes,
         and is the only one of the two that may carry an action.
-    </p>
-    <p>
-        A toast with a button in it is an action nobody performs: it is gone in four seconds, and it
-        is announced politely to anybody who cannot see it.
     </p>
 </CatExample>
 
 <CatSnippet Name="Toast/ToastApi.txt" Title="Raising one">
     <p>
-        <code>timeout: 0</code> keeps a toast until it is dismissed, which is what a failure the
-        reader has to read needs. The JavaScript call returns a function that removes that toast
-        early; the C# wrapper cannot, because a callback does not cross the interop boundary — keep a
-        withdrawable toast in JavaScript.
+        The JavaScript call returns a function that removes that toast early; the C# wrapper cannot,
+        because a callback does not cross the interop boundary — keep a withdrawable toast in
+        JavaScript.
     </p>
 </CatSnippet>

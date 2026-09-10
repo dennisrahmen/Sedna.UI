@@ -123,12 +123,10 @@
     padding: 8px 0 4px;
     flex-wrap: wrap;
 }
-.cat-hero-logo {
-    width: 76px; height: 76px;
-    border-radius: 18px;
-    flex-shrink: 0;
-    box-shadow: var(--shadow-float);
-}
+/* No radius and no shadow: both belonged to the tile that used to sit here, which
+   had a field of its own to round and to lift. A transparent mark has neither, and a
+   drop shadow on one casts off the artwork's bounding box rather than off the mark. */
+.cat-hero-logo { width: 76px; height: 76px; flex-shrink: 0; }
 .cat-hero-text { flex: 1; min-width: 260px; }
 .cat-hero-text h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -0.01em; }
 .cat-hero-text p {
@@ -219,9 +217,45 @@
 }
 .cat-tile:hover .cat-tile-go { transform: translateX(3px); color: var(--brand-text); }
 
+/* ── The brand mark ─────────────────────────────────────────── */
+/* The mark is transparent artwork, so it has to change with the theme — and only
+   CSS can do that here. The variant is chosen in the browser after prerender, so
+   C# cannot resolve a src, and this app's own script may not write to the DOM.
+   Hence a background-image on a span rather than an <img>.
+
+   `logo.png` used to sit in all three places: the TILE, which carries its own
+   Deep Space field and therefore read as a lighter rounded square against the
+   sidebar, the topbar and the hero. Two transparent marks and a swap is the fix
+   the brand assets were drawn for — navy for light grounds, Ice White for dark.
+
+   The default is the on-dark mark because dark is the default theme, so the
+   pre-paint state is right and there is no flash. */
+.cat-mark {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    background: center / contain no-repeat url("brand/sedna-ui-icon-on-dark-64.png");
+    /* .brand-logo rounds its corners, which is right for a tile with a field and
+       wrong for a transparent mark — the radius clips the orbit ring. */
+    border-radius: 0;
+}
+:root[data-variant="light"] .cat-mark {
+    background-image: url("brand/sedna-ui-icon-64.png");
+}
+.cat-mark--topbar { width: 24px; height: 24px; }
+.cat-mark--hero { width: 76px; height: 76px; }
+
 /* ── Examples ─────────────────────────────────────────────────────────────── */
-.cat-ex { margin: 0 0 32px; }
-.cat-ex > h2 { margin: 0 0 4px; font-size: 16px; }
+/* An example is a specimen, and a page of them should scan as a list of specimens
+   rather than as continuous prose. 32px of margin was not enough to separate one
+   example's code block from the next example's heading, so a long page read as
+   one slab. The rule is what does the separating; the extra margin gives it room.
+
+   :last-of-type keeps a page from ending in a rule with nothing under it. */
+.cat-ex { margin: 0 0 44px; padding-bottom: 44px; border-bottom: 1px solid var(--border); }
+.cat-ex:last-of-type { margin-bottom: 16px; padding-bottom: 0; border-bottom: 0; }
+.cat-ex > h2 { margin: 0 0 6px; font-size: 16px; }
 /* No measure cap. A `ch` cap looks like a reading measure and is not one here: the
    prose is 13px, so 84ch resolved to under 600px inside an 1100px column and every
    paragraph stopped half way across while the demo, the code block and the note beside
@@ -350,7 +384,7 @@
         cursor: pointer;
     }
 
-    .cat-hero-logo { width: 60px; height: 60px; border-radius: 14px; }
+    .cat-hero-logo, .cat-mark--hero { width: 60px; height: 60px; }
     .cat-hero-text h1 { font-size: 24px; }
     .cat-hero-text { min-width: 0; }
     .cat-tiles { grid-template-columns: 1fr; }

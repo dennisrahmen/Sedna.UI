@@ -7,75 +7,45 @@
 
 <CatExample TExample="Examples.Media.MediaFrame" Title="Media frame" Demo="ex-demo--block">
     <p>
-        A bounded box for an image or embed whose size you do not control.
-        <code>aspect-ratio</code> plus <code>object-fit:contain</code> is what stops the page
-        reflowing as images arrive — the box has its height before the image loads.
-    </p>
-    <p>
-        <code>contain</code> rather than <code>cover</code>, because these are documents and
-        cropping a screenshot removes the part somebody needed.
-        <code>.media-frame--cover</code> is there for a decorative banner, where cropping is the
-        right answer. Use <code>&lt;figure&gt;</code> with <code>.media-figure</code> when there is
-        a caption — an image whose meaning is in its caption still needs a real
-        <code>alt</code>.
+        A bounded box for an image or embed whose size you do not control: it has its height before
+        the image loads, and it contains rather than crops, because cropping a screenshot removes
+        the part somebody needed. <code>.media-frame--cover</code> is for a decorative banner, where
+        cropping is the right answer; use <code>&lt;figure class="media-figure"&gt;</code> when
+        there is a caption, and give the image a real <code>alt</code> either way.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Media.Prose" Title="Prose" Demo="ex-demo--block">
     <p>
         Long-form text rendered from a source the app does not control — a release note, a
-        knowledge-base article, an e-mail body.
-        <a href="/markdown"><code>.markdown-body</code></a> already covers rendered Markdown;
-        <code>.prose</code> is the same job when the HTML did not come from Markdown. They look
-        identical, so an app has one typographic voice rather than two.
-    </p>
-    <p>
-        The measure is capped at 72 characters. Past roughly that the eye loses the line it is
-        returning to, which no amount of line-height fixes. A table inside untrusted prose gets
-        <code>display:block; overflow-x:auto</code>, because its own content sets its minimum width
-        and it is the one thing that will otherwise break the page.
-    </p>
-    <p>
-        <strong>The cap sits on the element carrying the class</strong>, so where the prose
-        <em>is</em> a panel &mdash; <code>class="card-body prose"</code> &mdash; it caps the panel
-        and not the text. <code>--prose-measure</code> is the way out: set
-        <code>--prose-measure: none</code> on the box and put the class on an inner wrapper, or
-        widen the measure where the layout wants a wider column.
+        knowledge-base article, an e-mail body. <a href="/markdown"><code>.markdown-body</code></a>
+        covers rendered Markdown and looks identical; <code>.prose</code> is the same job when the
+        HTML did not come from Markdown. <strong>The 72-character measure sits on the element
+        carrying the class</strong>, so where the prose <em>is</em> a panel &mdash;
+        <code>class="card-body prose"</code> &mdash; set <code>--prose-measure: none</code> on the
+        box and put the class on an inner wrapper.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Media.ForeignProse" Title="HTML from somewhere else" Demo="ex-demo--block">
     <p>
-        <code>.prose</code> sets the typography. <code>.prose--foreign</code> adds the
-        <strong>containment</strong>, and the two are a different job: styling text is about how it
-        reads, containing it is about what a 3000px-wide table, an unbroken 400-character URL or a
-        4000px image does to the card it landed in.
-    </p>
-    <p>
-        Add it to anything sanitized rather than authored — a ticketing system's journal entry, a
-        forwarded mail body, a CMS field. Getting it wrong is invisible until the one wide payload
-        ships, which is why this is a class rather than advice.
-    </p>
-    <p>
-        It contains; it does not sanitize. HTML from elsewhere still has to be cleaned server-side
-        before it reaches the browser — and that same pass is where two attributes belong that CSS
-        cannot add. A table that scrolls needs <code>tabindex="0"</code>, or a keyboard cannot reach
-        the columns that are off-screen; and <code>display: block</code> drops a table's own role, so
-        <code>role="table"</code> puts it back. Both are on the example above.
+        <code>.prose--foreign</code> adds <strong>containment</strong> on top of
+        <code>.prose</code>'s typography: what a 3000px-wide table, an unbroken 400-character URL or
+        a 4000px image does to the card it landed in. Add it to anything sanitized rather than
+        authored — a ticketing system's journal entry, a forwarded mail body, a CMS field — and note
+        that it contains but does not sanitize: the same server-side pass has to add
+        <code>tabindex="0"</code> to a table that scrolls, or a keyboard cannot reach the off-screen
+        columns, and <code>role="table"</code> to put back the role
+        <code>display: block</code> drops.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Media.RedactedValues" Title="Redacted values" Demo="ex-demo--block">
     <p>
         A value deliberately withheld — a secret, a masked identifier, a field the reader's role
-        cannot see.
-    </p>
-    <p>
-        <strong>It must not merely look hidden.</strong> A blur or a low opacity leaves the real
-        text in the DOM, where it is readable by view-source, by a screen reader, and by anyone who
-        selects it. This class marks a <em>placeholder the server sent in place of the value</em>.
-        The value never reaches the browser. If it is in the HTML, it is not redacted, whatever it
-        looks like.
+        cannot see. <strong>It must not merely look hidden:</strong> this class marks a placeholder
+        the server sent <em>in place of</em> the value, so if the real text is in the HTML it is not
+        redacted, whatever it looks like.
     </p>
 </CatExample>
 
@@ -83,12 +53,7 @@
     <p>
         <code>.gallery</code> is a breakpoint-free grid of thumbnails. Each tile is a real
         <code>&lt;button&gt;</code> or <code>&lt;a&gt;</code> directly inside it — never a
-        <code>&lt;div&gt;</code> with a click handler — and the stylesheet gives the tile's hover and
-        focus ring to the <code>.media-frame</code> inside it.
-    </p>
-    <p>
-        Inside the gallery every frame is square whatever aspect modifier it carries, so a row of
-        mixed attachments lines up. The file name is part of the tile, because an icon does not say
-        which document it is.
+        <code>&lt;div&gt;</code> with a click handler — and every frame is square whatever aspect
+        modifier it carries, so a row of mixed attachments lines up.
     </p>
 </CatExample>

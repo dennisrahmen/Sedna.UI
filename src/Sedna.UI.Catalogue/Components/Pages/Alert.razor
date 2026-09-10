@@ -6,10 +6,11 @@
 </CatHead>
 
 <div class="cat-note">
-        Use an alert for a condition that stays true while the page is open — degraded connection,
-        read-only mode, an empty filter result. Transient feedback about an action the user just took
-        belongs in a toast, which arrives with the tier-1 frame in <code>0.2.0</code>.
-    </div>
+    <i class="ri-error-warning-line"></i>
+    Use an alert for a condition that stays true while the page is open &mdash; degraded
+    connection, read-only mode, an empty filter result. Transient feedback about an action the user
+    just took belongs in a <a href="/toast">toast</a>.
+</div>
 
 <CatExample TExample="Examples.Alert.Variants" Title="Variants" Demo="ex-demo--block">
     <p>Always pair the colour with an icon — colour alone is not an accessible signal.</p>
@@ -29,12 +30,9 @@
 <CatExample TExample="Examples.Alert.ValidationSummary" Title="A validation summary" Demo="ex-demo--block">
     <p>
         One alert at the top of the form saying nothing was saved, with a link to each field that
-        needs attention — so a keyboard or screen-reader user reaches the first problem in one
-        keystroke instead of tabbing the whole form to find it.
-    </p>
-    <p>
-        The summary does not replace the per-field messages. Each control keeps
+        needs attention. It does not replace the per-field messages: each control keeps
         <code>aria-invalid</code> and an <code>aria-describedby</code> pointing at its own
-        <a href="/form"><code>.form-error</code></a>, because that is what is read when focus arrives.
+        <a href="/form"><code>.form-error</code></a>, because that is what is read when focus
+        arrives.
     </p>
 </CatExample>

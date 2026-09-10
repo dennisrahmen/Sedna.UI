@@ -84,11 +84,20 @@
 
 /* The overflow counter. Not an .avatar: it is a number, not an actor, and giving it
    the brand tint would make it look like one more person. */
+/* The gap here is the group's OWN rhythm, not a step off the spacing scale. The
+   counter is a child of .avatar-group, so it already carries the negative overlap
+   margin from the rule above — and `margin-inline-start: var(--space-2)` overrode it
+   at identical specificity, later in the file. That left the ink 12px past the last
+   avatar's edge where its neighbours sit 2px apart, so the number read as separate
+   content rather than as the tail of the stack.
+   Padding rather than margin, so the overlap rule stays the only thing setting a
+   margin on a group child. The trailing side keeps the counter's own breathing room
+   inside its box. */
 .avatar-more {
     display: inline-flex;
     align-items: center;
-    padding: 0 var(--space-4);
-    margin-inline-start: var(--space-2);
+    margin-inline-start: var(--avatar-gap);
+    padding-inline: var(--space-3) var(--space-4);
     color: var(--muted);
     font-size: var(--text-3);
 }

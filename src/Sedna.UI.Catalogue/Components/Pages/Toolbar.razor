@@ -1,10 +1,10 @@
 @page "/toolbar"
 
 <CatHead Title="Toolbar">
-    The filter bar that sits above a table or list. <code>.toolbar</code> is
-    <code>space-between</code> and wraps; <code>.toolbar-filters</code> groups the controls on
-    the leading side and <code>.toolbar-actions</code> the trailing one. Give it those two
-    children and nothing else — a third floats in the middle.
+    The filter bar that sits above a table or list. <code>.toolbar-filters</code> groups the
+    controls on the leading side and <code>.toolbar-actions</code> the trailing one — give it those
+    two children and nothing else, because <code>.toolbar</code> is <code>space-between</code> and a
+    third floats in the middle.
 </CatHead>
 
 <CatExample TExample="Examples.Toolbar.FiltersCount" Title="Filters and a count" Demo="ex-demo--block">
@@ -17,36 +17,21 @@
 
 <CatExample TExample="Examples.Toolbar.SearchWidth" Title="A wider search box" Demo="ex-demo--block">
     <p>
-        160px is right for a filter dropdown and short for a search box: a search that matches
-        across ten fields cannot fit its own placeholder, and the reader cannot see what they
-        typed. <code>.toolbar-input--wide</code> is 280px, which is the case worth having a class
-        for.
-    </p>
-    <p>
-        The width is a knob, <code>--toolbar-input-width</code>, so a control between the two sizes
-        sets it on the element — as the department select does here — rather than overriding
-        <code>width</code> on a library class. <code>.toolbar-input--grow</code> takes whatever
-        room is left instead, for a search box that is the only thing in the bar.
-    </p>
-    <p>
-        A filter that carries a leading icon is an
-        <a href="/form"><code>.input-group</code></a>, and
-        <code>.toolbar-input</code> goes on the <em>group</em>: it is the group that has the width,
-        because the <code>.form-input</code> inside it is <code>flex: 1</code>. A bare
-        <code>&lt;i&gt;</code> beside the input is not the way — it is a flex item of its own and
-        wraps away from the box it belongs to.
+        <code>.toolbar-input--wide</code> is 280px, for a search box that cannot fit its own
+        placeholder at 160px. The width is a knob, <code>--toolbar-input-width</code>, for a control
+        between the two sizes — as the department select does here — and
+        <code>.toolbar-input--grow</code> takes whatever room is left instead. A filter carrying a
+        leading icon is an <a href="/form"><code>.input-group</code></a>, and
+        <code>.toolbar-input</code> goes on the <strong>group</strong>, not on the input inside it.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Toolbar.FiltersActions" Title="Filters and actions" Demo="ex-demo--block">
     <p>
-        <code>.toolbar-filters</code> and <code>.toolbar-actions</code> are the two groups, and
-        <strong>a toolbar should have exactly these two children</strong>. <code>.toolbar</code> is
-        <code>space-between</code>, so two children put one group at each end; a third floats in
-        the middle, and <code>.sedna-push</code> does not rescue it because an auto margin and
+        Put the buttons on the trailing side, with the primary action last.
+        <code>.sedna-push</code> does not rescue a third child, because an auto margin and
         <code>space-between</code> are two answers to the same question.
     </p>
-    <p>Put the buttons on the right; the primary action goes last.</p>
 </CatExample>
 
 <CatExample TExample="Examples.Toolbar.HeadingAbove" Title="With a heading above it" Demo="ex-demo--block">
@@ -55,14 +40,11 @@
 
 <CatExample TExample="Examples.Toolbar.BulkSelection" Title="With a selection" Demo="ex-demo--block">
     <p>
-        <strong>Live — open the overflow menu.</strong> The same bar in its selected state: the count
-        and the two ways out of it on the leading side, the actions that apply to the selection on the
-        trailing side. Say how many are selected in text, and offer &ldquo;select all 128&rdquo;
-        separately — selecting a page is not selecting a result set.
-    </p>
-    <p>
-        The overflow is a <a href="/menu"><code>.menu-anchor</code></a> with
-        <code>data-menu-toggle</code>. Anything destructive goes in there behind
-        <code>.menu-item--danger</code>, and names the count it will act on.
+        <strong>Live — open the overflow menu.</strong> The count and the two ways out of it on the
+        leading side, the actions that apply to the selection on the trailing side. Say how many are
+        selected in text, and offer &ldquo;select all 128&rdquo; separately — selecting a page is not
+        selecting a result set. The overflow is a <a href="/menu"><code>.menu-anchor</code></a> with
+        <code>data-menu-toggle</code>, and anything destructive goes in there behind
+        <code>.menu-item--danger</code>, naming the count it will act on.
     </p>
 </CatExample>

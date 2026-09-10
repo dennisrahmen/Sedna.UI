@@ -259,23 +259,26 @@
     --scroll-shade:    rgba(0, 0, 0, 0.3);      /* scroll-edge fade */
 
     /* ── Shadows (full box-shadow values — themes swap the colour) ─────────
-       Geometry and alpha are carried over unchanged from before the rebrand;
-       only the tinted tokens above (--overlay, --spotlight-dim) move from grey
-       to Deep Space. A shadow's own black has no palette step to trace to. */
+       A shadow's own black has no palette step to trace to, so these carry
+       literal alpha rather than a ramp step. 02-theme-light.css must remap
+       EVERY ONE of them: an unremapped shadow silently keeps its dark alpha
+       on a white surface, which is how .menu, the select panel and the
+       search panel came to cast near-black in light mode. ShadowTokenTests
+       asserts the two blocks list the same names. */
     --shadow-topbar:    0 3px 8px rgba(0, 0, 0, 0.28);
     --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.18);
-    --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.6);
-    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.5);
-    --shadow-flyout:    0 6px 18px rgba(0, 0, 0, 0.45);
-    --shadow-dropdown:  0 10px 30px rgba(0, 0, 0, 0.35);
-    --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.4);
-    --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.55);
+    --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.5);
+    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.42);
+    --shadow-flyout:    0 6px 18px rgba(0, 0, 0, 0.38);
+    --shadow-dropdown:  0 10px 30px rgba(0, 0, 0, 0.3);
+    --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.34);
+    --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.45);
     /* A hairline ring plus a long drop, for a SMALL element that should read as
        lifted clean off the page — a logo tile, an icon plate over a hero. Every
        other shadow here is panel-sized: a 32px tile under --shadow-float shows a
        soft smudge and no edge, because the edge is what sells the lift at that
        size. The ring is inside the token so it cannot be forgotten. */
-    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.45);
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.38);
     /* The edge of a horizontally scrolled region — a pinned table column, a
        sticky first cell. Every shadow above casts downwards; this pair casts
        sideways, which is the axis a sideways scroller needs and the only one the
@@ -285,17 +288,26 @@
        start and end are the two PHYSICAL directions, named for the logical edge
        they belong to under dir="ltr"; 70-rtl.css swaps which one a pinned column
        reaches for, because box-shadow has no logical form. */
-    --shadow-edge-start:  6px 0 8px -6px rgba(0, 0, 0, 0.55);
-    --shadow-edge-end:   -6px 0 8px -6px rgba(0, 0, 0, 0.55);
+    --shadow-edge-start:  6px 0 8px -6px rgba(0, 0, 0, 0.45);
+    --shadow-edge-end:   -6px 0 8px -6px rgba(0, 0, 0, 0.45);
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
-       Not covered by docs/BRANDING.md's per-token tables. Re-expressed as the
-       nearest available step in the amber/crimson ramps at the same relative
-       position (dark solid bg, mid border, light fg) the old literals held. */
-    --reconnect-warn-bg:     var(--amber-900);
+       Not covered by docs/BRANDING.md's per-token tables. The border and the
+       text are the nearest available step in the amber/crimson ramps at the
+       relative position (mid border, light fg) the old literals held.
+
+       The FIELD is a mix rather than a step, because the bar spans the whole
+       viewport at the top of the z scale and the darkest step in either ramp
+       still read as a hot band across the page. The semantic ramps stop at 900
+       by design (docs/BRANDING.md section 2), so a darker field cannot be a
+       step without extending eight ramps and re-measuring every theme. Mixing
+       the last step toward the base ramp's floor gets a darker field of the
+       same hue out of tokens the theme already defines, so it follows a
+       rebrand for free. Both pairs stay well clear of AA: 6.1:1 and 9.9:1. */
+    --reconnect-warn-bg:     color-mix(in srgb, var(--amber-900) 72%, var(--slate-950));
     --reconnect-warn-border: var(--amber-600);
     --reconnect-warn-fg:     var(--amber-200);
-    --reconnect-fail-bg:     var(--crimson-900);
+    --reconnect-fail-bg:     color-mix(in srgb, var(--crimson-900) 72%, var(--slate-950));
     --reconnect-fail-border: var(--crimson-700);
     --reconnect-fail-fg:     var(--crimson-400);
 

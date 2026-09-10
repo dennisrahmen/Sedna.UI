@@ -1,52 +1,37 @@
 @page "/tabs"
 
 <CatHead Title="Tabs and segmented">
-    Two ways to offer a small set of choices. <code>.tabs</code> swaps a region of
-    <em>content</em>; <code>.segmented</code> changes a <em>setting</em>. If there is a panel
-    below it, it is tabs.
+    <code>.tabs</code> swaps a region of <em>content</em>; <code>.segmented</code> changes a
+    <em>setting</em>. If there is a panel below it, it is tabs.
 </CatHead>
 
 <div class="cat-note">
-        <strong>The classes cannot supply the ARIA.</strong> Tabs need
-        <code>role="tablist"</code>, <code>role="tab"</code>, <code>aria-selected</code> and
-        <code>aria-controls</code>, plus arrow-key movement between them. Without that a screen
-        reader hears a row of unrelated buttons. The segmented control needs none of it, because it
-        is built from radios.
-    </div>
+    <strong>The classes cannot supply the ARIA.</strong> Tabs need <code>role="tablist"</code>,
+    <code>role="tab"</code>, <code>aria-selected</code> and <code>aria-controls</code>, plus
+    arrow-key movement between them. The segmented control needs none of it, because it is built
+    from radios.
+</div>
 
 <CatExample TExample="Examples.Tabs.Tabs" Title="Tabs" Demo="ex-demo--block">
     <p>
-        The indicator is a transparent border that gains a colour, so the label does not jump
-        when it is selected. A long row scrolls sideways rather than wrapping — a wrapped second
-        row pushes the content down and the underline stops reading as one strip.
-    </p>
-    <p>
-        The selected tab can be marked either way: <code>aria-selected="true"</code>, which is what
-        a screen reader announces, or <code>.tab--active</code> for a tab strip that is genuinely
-        not a tablist. Prefer the attribute — with the class alone the styling and the announcement
-        can disagree.
-    </p>
-    <p>
         <strong>The demo is live.</strong> <code>data-tabs</code> on the container hands the strip
-        to <code>sednaUi.tabs</code>, which is where the behaviour the CSS cannot express lives:
-        clicking, arrow keys, <kbd>Home</kbd>/<kbd>End</kbd>, showing the matching
-        <code>aria-controls</code> panel, and the roving <code>tabindex</code> that makes
-        <kbd>Tab</kbd> step over the whole tablist instead of through every tab in it. An app that
-        drives its tabs from C# leaves <code>data-tabs</code> off — otherwise two things set
-        <code>aria-selected</code> — and wires the arrow keys in the component.
+        to <code>sednaUi.tabs</code> — clicking, arrow keys, <kbd>Home</kbd>/<kbd>End</kbd>, showing
+        the matching <code>aria-controls</code> panel, and the roving <code>tabindex</code> that
+        makes <kbd>Tab</kbd> step over the whole tablist. Mark the selected tab with
+        <code>aria-selected="true"</code> rather than <code>.tab--active</code>, which is for a
+        strip that is genuinely not a tablist. An app driving its tabs from C# leaves
+        <code>data-tabs</code> off — otherwise two things set <code>aria-selected</code> — and wires
+        the arrow keys in the component.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Tabs.SegmentedControl" Title="Segmented control" Demo="ex-demo--block">
     <p>
         Radios under the hood, so arrow keys move between the options and the chosen one is
-        announced as chosen — with no ARIA at all. Give every input the same <code>name</code>,
-        and give the group a name with a <code>&lt;fieldset&gt;</code> or
-        <code>aria-labelledby</code>, or a screen reader announces three loose radios.
-    </p>
-    <p>
-        Reach for it instead of a <code>&lt;select&gt;</code> when the options are few and short:
-        a select costs one click before the reader even learns what the choices are.
+        announced as chosen, with no ARIA at all. Give every input the same <code>name</code>, and
+        give the group a name with a <code>&lt;fieldset&gt;</code> or
+        <code>aria-labelledby</code>, or a screen reader announces three loose radios. Reach for it
+        instead of a <code>&lt;select&gt;</code> when the options are few and short.
     </p>
 </CatExample>
 
@@ -54,45 +39,29 @@
     <p>
         <code>.segmented--sm</code> and <code>.segmented--lg</code> take the same
         <code>--control-height</code> tiers as <a href="/button"><code>.btn-sm</code></a> and
-        <a href="/form"><code>.form-input-sm</code></a>, so a segmented control in a bar is the
-        same height as the field and the button beside it. The bare class is the middle step.
-    </p>
-    <p>
-        The <em>track</em> carries the tier, not the options — it is the track that draws the
-        border, so an option holding its own height would make the track that height plus the
-        border and the padding.
+        <a href="/form"><code>.form-input-sm</code></a>, so a segmented control in a bar is the same
+        height as the field and the button beside it; the bare class is the middle step. The tier
+        goes on the <em>track</em>, not on the options.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Tabs.TabsInACard" Title="Tabs in a card" Demo="ex-demo--block">
     <p>
         <strong>Live — switch between them.</strong> The tablist goes in
-        <a href="/card"><code>.card-head</code></a> and the panels in the body, so the card head reads
-        as the card's own switch rather than as a row of buttons above it.
-    </p>
-    <p>
-        <strong>Add <code>.card-head--tabs</code> to the head.</strong> It hands the head's padding
+        <a href="/card"><code>.card-head</code></a> and the panels in the body.
+        <strong>Add <code>.card-head--tabs</code> to the head:</strong> it hands the head's padding
         to the strip, so the head's own border becomes the strip's line and the active tab's
-        indicator meets the body edge — and the first tab's label lines up with the body text. A
-        plain <code>.card-head</code> leaves the strip floating in 12px of padding with its own
-        border above the head's, which draws two lines and anchors the indicator to nothing.
-    </p>
-    <p>
-        Only the selected tab is a tab stop; <kbd>Tab</kbd> moves past the whole list and the arrow
-        keys move within it. <code>data-tabs</code> maintains that roving <code>tabindex</code>, so
-        write it in the markup for the initial state and leave the rest alone.
+        indicator meets the body edge — a plain <code>.card-head</code> draws two lines and anchors
+        the indicator to nothing.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Tabs.SegmentedInAToolbar" Title="Segmented in a toolbar" Demo="ex-demo--block">
     <p>
-        Two of them in one bar: a range inside <code>.toolbar-filters</code>, because it narrows what
-        is listed, and a layout switch at the far end, because it changes how the same list is drawn.
-        Which side a control sits on is what says whether it filters or presents.
-    </p>
-    <p>
-        A segmented control inside a toolbar still needs a group name. <code>aria-label</code> on the
-        <code>.segmented</code> is enough here; a <code>&lt;fieldset&gt;</code> would add a border and
-        a legend the bar has no room for.
+        Two of them in one bar: a range inside <code>.toolbar-filters</code>, because it narrows
+        what is listed, and a layout switch at the far end, because it changes how the same list is
+        drawn. It still needs a group name — <code>aria-label</code> on the
+        <code>.segmented</code> is enough here, where a <code>&lt;fieldset&gt;</code> would add a
+        border and a legend the bar has no room for.
     </p>
 </CatExample>

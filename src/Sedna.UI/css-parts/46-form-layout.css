@@ -8,9 +8,17 @@
    Keyed off aria-invalid, not a class. The attribute is what a screen reader
    announces, so if the styling hung off a separate class the two could disagree,
    and the reader who most needs the message would be the one who does not get
-   it. Set aria-invalid and the border follows. */
-.form-input[aria-invalid="true"] { border-color: var(--danger-border-strong); }
-.form-input[aria-invalid="true"]:focus {
+   it. Set aria-invalid and the border follows.
+
+   `.form-select` is in the selector for the same reason it is in the shared shape
+   rule in 34-forms.css: a select carrying `.form-select` alone is a complete,
+   correct class list, so a rule that names only `.form-input` leaves the one
+   control a form most often rejects — an empty required dropdown — reporting
+   nothing at all, while the screen reader announces it as invalid. */
+.form-input[aria-invalid="true"],
+.form-select[aria-invalid="true"] { border-color: var(--danger-border-strong); }
+.form-input[aria-invalid="true"]:focus,
+.form-select[aria-invalid="true"]:focus {
     border-color: var(--danger-solid);
     box-shadow: 0 0 0 2px var(--danger-ring);
 }
