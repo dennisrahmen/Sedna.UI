@@ -81,17 +81,22 @@ The four tokens are readable directly where a utility does not fit — `--safe-b
 `--safe-block-end`, `--safe-inline-start` and `--safe-inline-end`. Use these rather than `env()`:
 the inline pair is mirrored for `dir="rtl"`, which `env()` cannot do on its own.
 
-### The reconnect banner
+### The status bar
 
 Blazor Server injects its own reconnect UI — unstyled, with inline styles — unless the host page
-supplies one. Add the block from the catalogue's
-[Shell and nav](https://www.sedna-ui.com/frame) page inside `<body>`, before the component that
-carries the render mode.
+supplies one. Add both blocks from the catalogue's
+[Status bar](https://www.sedna-ui.com/status-bar) page inside `<body>`, before the component that
+carries the render mode:
 
-Supply `.reconnect-attempting`, `.reconnect-failed` and `.reconnect-rejected`; `.reconnect-paused` is
-optional and falls back to the attempting row. Blazor puts the state classes on
-`#components-reconnect-modal` itself and the stylesheet shows one row at a time — omit a required row
-and that state renders as an empty bar.
+- **`#components-reconnect-modal`**, holding one `.status-bar` row per state. Supply
+  `.status-bar--reconnecting`, `.status-bar--failed` and `.status-bar--expired`; `.status-bar--paused`
+  is optional and falls back to the reconnecting row. Blazor puts its state classes on the id and the
+  stylesheet shows one row at a time — omit a required row and that state renders as an empty strip.
+- **`#blazor-error-ui`**, the unhandled-error bar: `.status-bar--error` on a strip *inside* the id.
+  Blazor reveals the id with an inline `display: block`, which beats every rule, so a bar on the id
+  itself lays out as inline text.
+
+In both, the bar is a child of the id, never the id itself.
 
 No configuration is required. `sednaUi.configure()` is only needed for the options below.
 
@@ -102,6 +107,10 @@ No configuration is required. `sednaUi.configure()` is only needed for the optio
 | `notifyIcon` | `null` | Icon for desktop notifications. |
 | `langCookie` | `false` | Mirror the language into a cookie for server-side prerendering. |
 | `storagePrefix` | `sedna.` | See below. Rarely needed. |
+| `themeDefault` | `sedna` | Which theme name applies with nothing stored. See [The default theme](#the-default-theme). |
+
+`ISednaUi.ConfigureAsync()` pushes these from `SednaUiOptions`, so an app registering the services
+does not call `configure()` by hand.
 
 ### Storage keys
 
@@ -111,7 +120,7 @@ and the default prefix is fine.
 
 `sedna.theme` and `sedna.variant` are two orthogonal choices, both always applied:
 
-- **`sedna.theme`** — *which* theme, by name; `sedna` with nothing stored.
+- **`sedna.theme`** — *which* theme, by name; the default theme with nothing stored.
 - **`sedna.variant`** — `dark`, `light`, or `system` to follow `prefers-color-scheme` live. `<html>`
   always carries the *resolved* `data-variant="dark"` or `data-variant="light"`; `system` only ever
   appears in the stored preference, for a settings UI that wants to show it as selected.
@@ -124,6 +133,27 @@ and the default prefix is fine.
 ```
 
 A stored choice always wins over this default; it only ever governs a first-time visitor.
+
+### The default theme
+
+An app that registers a theme of its own as `Default` sets the same name on the boot script, and
+renders it from the options rather than retyping it:
+
+```razor
+@inject SednaUiOptions SednaOptions
+
+<script src="_content/Sedna.UI/js/Sedna.UI.boot.js"
+        data-theme-default="@SednaOptions.Default"></script>
+```
+
+`SednaUiBrand.ToCss` emits `Default`'s palette at bare `:root` and every other registered theme at
+`[data-theme="<name>"]`, so the name the browser stamps decides which palette a first visit gets.
+Left at `sedna` while the app's default is its own theme, a visitor with nothing stored is stamped
+`data-theme="sedna"` — which selects the built-in palette if Sedna is also registered, and otherwise
+names a theme no block answers to.
+
+`ISednaUi.ConfigureAsync()` pushes the same value to `Sedna.UI.js`, so the two agree once the circuit
+is up. An app calling neither keeps today's behaviour: `sedna` in both scripts.
 
 ### The browser's time zone
 
@@ -235,6 +265,14 @@ step, or generated from a single anchor colour:
 
 ```csharp
 var ramp = SednaRamp.FromAnchor("#2f6fed", anchorStep: 500);
+```
+
+The anchor gives the ramp its hue and chroma; every step's lightness, including the anchor's own,
+comes from the shared curve — so `ramp[500]` is **not** `#2f6fed`. When a brand colour is mandated
+exactly, keep it and let the rest generate around it:
+
+```csharp
+var ramp = SednaRamp.FromAnchor("#D62828", anchorStep: 600, exactAnchor: true);
 ```
 
 See [architecture](architecture.md#branding) for what `FromAnchor` follows and what

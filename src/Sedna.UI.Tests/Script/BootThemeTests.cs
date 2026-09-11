@@ -88,6 +88,66 @@ public class BootThemeTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task Boot_stamps_the_apps_own_default_theme_when_nothing_is_stored()
+    {
+        if (NoBrowser) return;
+        // SednaUiBrand.ToCss emits SednaUiOptions.Default at bare :root and every other
+        // registered theme at [data-theme="<name>"], so a first visit stamped with the
+        // built-in name selects a palette the app did not choose — or none at all.
+        const string tag =
+            """<script src="/js/Sedna.UI.boot.js" data-theme-default="northwind"></script>""";
+
+        var page = await Open("<p>x</p>", head: tag, withMainScript: false);
+        Assert.Equal("northwind",
+            await page.EvaluateAsync<string>("() => document.documentElement.dataset.theme"));
+
+        // A stored name is still a choice, and still wins.
+        var stored = await Open("<p>x</p>", head: tag, withMainScript: false,
+            storage: new Dictionary<string, string> { ["sedna.theme"] = "forest" });
+        Assert.Equal("forest",
+            await stored.EvaluateAsync<string>("() => document.documentElement.dataset.theme"));
+    }
+
+    [Fact]
+    public async Task The_main_script_falls_back_to_the_configured_default_theme()
+    {
+        if (NoBrowser) return;
+        // The other half: configure() carries the same name, because the boot script's
+        // attribute cannot reach settings.load() and an app reading it back would be
+        // told a theme is active that is not the one on <html>.
+        var page = await Open("<p>x</p>");
+
+        var before = await page.EvaluateAsync<string>("() => sednaUi.settings.load().theme");
+        Assert.Equal("sedna", before);
+
+        await page.EvaluateAsync("() => sednaUi.configure({ themeDefault: 'northwind' })");
+
+        Assert.Equal("northwind",
+            await page.EvaluateAsync<string>("() => sednaUi.settings.load().theme"));
+        // configure() applies, so the document says the same thing the load does.
+        Assert.Equal("northwind",
+            await page.EvaluateAsync<string>("() => document.documentElement.dataset.theme"));
+    }
+
+    [Fact]
+    public async Task A_stored_theme_beats_the_configured_default_in_both_scripts()
+    {
+        if (NoBrowser) return;
+        const string tag =
+            """<script src="/js/Sedna.UI.boot.js" data-theme-default="northwind"></script>""";
+
+        var page = await Open("<p>x</p>", head: tag,
+            storage: new Dictionary<string, string> { ["sedna.theme"] = "forest" });
+
+        await page.EvaluateAsync("() => sednaUi.configure({ themeDefault: 'northwind' })");
+
+        Assert.Equal("forest",
+            await page.EvaluateAsync<string>("() => document.documentElement.dataset.theme"));
+        Assert.Equal("forest",
+            await page.EvaluateAsync<string>("() => sednaUi.settings.load().theme"));
+    }
+
+    [Fact]
     public async Task Boot_stamps_the_other_stored_settings_and_the_language()
     {
         if (NoBrowser) return;

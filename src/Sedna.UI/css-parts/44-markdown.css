@@ -81,8 +81,14 @@
 .markdown-body ul, .markdown-body ol { margin: 0.5em 0; padding-inline-start: 1.5em; }
 .markdown-body li { margin: 0.15em 0; }
 /* Underlined, not colour alone: a link inside a block of text must be
-   distinguishable without seeing the hue (WCAG 1.4.1). .prose does the same. */
-.markdown-body a  { color: var(--brand-soft); text-decoration: underline; }
+   distinguishable without seeing the hue (WCAG 1.4.1). .prose does the same.
+
+   --brand-text, not --brand-soft. The soft role is the brand at display strength for
+   icons and spinners on a tinted surface; it is solved against white, not against the
+   canvas, so as body text on --bg it measured under AA in the light variant — 4.35:1
+   for this library's own brand, and no better for a generated one. --brand-text is the
+   role that IS measured against the canvas, in both variants. */
+.markdown-body a  { color: var(--brand-text); text-decoration: underline; }
 .markdown-body code {
     font-family: var(--font-mono); font-size: 0.9em;
     background: var(--bg-elevated); border: 1px solid var(--border);

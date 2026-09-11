@@ -58,6 +58,22 @@
     </p>
 </CatSnippet>
 
+<CatSnippet Name="Script/ThemeDefault.html" Title="The default theme">
+    <p>
+        <code>data-theme-default</code> is the theme name stamped on
+        <code>&lt;html data-theme&gt;</code> when nothing is stored, and it has to be the same name
+        as <code>SednaUiOptions.Default</code> — the theme whose palette
+        <code>SednaBrandStyle</code> writes at bare <code>:root</code>. Every other registered theme
+        sits behind <code>[data-theme="&lt;name&gt;"]</code>, so a first visit stamped with the wrong
+        name gets the wrong palette, and an app that registers the built-in theme beside its own
+        default hands every first visit Sedna's colours.
+    </p>
+    <p>
+        <code>ISednaUi.ConfigureAsync()</code> pushes the same value to the main script, so the two
+        agree once the circuit is up. An app that leaves <code>Default</code> alone needs neither.
+    </p>
+</CatSnippet>
+
 <CatSnippet Name="Script/TimeZoneCookie.html" Title="The browser's time zone">
     <p>
         <code>data-tz-cookie</code> names a cookie, and <code>boot.js</code> writes

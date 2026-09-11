@@ -4,7 +4,10 @@
     Three parts, all optional except the outer one: <code>.card</code> holds the border and
     clips its children, <code>.card-head</code> is the title row, <code>.card-body</code> is
     the padded content. There is no card component and no variant parameter &mdash; for a variant,
-    write the markup you need and take any colour from a token.
+    write the markup you need and take any colour from a token. All three share one gutter,
+    <code>--card-pad-block</code> / <code>--card-pad-inline</code>, which
+    <code>data-density="compact"</code> tightens &mdash; so a dense card list needs no rules of its
+    own.
 </CatHead>
 
 <div class="callout callout-info">
@@ -50,6 +53,26 @@
         happens to the content above them. Use it instead of a <code>.card-body</code> holding
         <a href="/form"><code>.form-actions</code></a>, and put a note or a destructive action on
         the far side with <code>.card-foot--split</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Card.FootStart" Title="A foot read left to right" Demo="ex-demo--block">
+    <p>
+        <code>.card-foot--start</code> aligns the row to the leading edge, for a work card rather
+        than a form: the primary action first and its secondaries after it, with one trailing control
+        pushed to the far end by <code>.sedna-push</code>. It is also what a status line in place of
+        the actions needs — right-aligned text reads as a mistake. Use <code>--split</code> only for
+        two groups, because it spreads whatever it holds across the whole card.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Card.Sections" Title="Sections inside one body" Demo="ex-demo--block">
+    <p>
+        <code>.card-section</code> divides sub-sections of one body with a hairline and the card's
+        own spacing. The rule is drawn only above a section that has something before it, so a
+        section you do not render takes its divider with it. Prefer it to a second
+        <code>.card-body</code>, which ends the first body's layout at the seam, and to a
+        <a href="/structure"><code>.divider</code></a>, whose margins are sized for a page.
     </p>
 </CatExample>
 

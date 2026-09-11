@@ -56,6 +56,47 @@
 .btn-ghost:hover { background: var(--bg-hover); border-color: transparent; color: var(--fg); }
 .btn-ghost:active { background: var(--btn-active-bg); }
 
+/* ── A button with no chrome ────────────────────────────────────────────────
+   For an identifier in running text that DOES something: a record number that opens
+   the record, a key with a copy icon beside it, a chevron that folds a section away.
+   It acts, so it is a <button> and not a link — and every other button here carries
+   padding, a height and a hover fill, which is chrome a sentence has no room for.
+
+   Used WITHOUT `.btn`. It is the absence of the button's chrome rather than a variant
+   of it, so writing both brings the fill and the height back: `.btn:hover` and
+   `.btn:focus-visible` win on specificity.
+
+   `font: inherit` rather than a type token, because the point is to match whatever
+   text it is sitting in. Inline-flex with a small gap so a trailing icon rides along,
+   and the container's baseline is still the label's, so the line of text is not
+   disturbed.
+
+   The focus ring is the library's own, and it is the declaration an inline reset
+   always forgets: `border: none` on a <button> takes the browser's own focus outline
+   box with it, and a keyboard reader is then left with nothing at all. */
+.btn-bare {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-small);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    cursor: pointer;
+}
+/* No size of its own: the glyph rides the surrounding text. line-height: 1 keeps it
+   from growing the line box it is in. */
+.btn-bare i { line-height: 1; }
+.btn-bare:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.btn-bare:disabled { opacity: 0.4; cursor: not-allowed; }
+/* Link-coloured, for an identifier that goes somewhere. It underlines on hover
+   because that is where a reader looks for the affordance an <a> would have. */
+.btn-bare--link { color: var(--accent); }
+.btn-bare--link:hover { text-decoration: underline; }
+
 /* ── Floating action button ─────────────────────────────────────────────────
    One page-level action, pinned to a corner on a screen too small to show a toolbar.
    Deliberately not a general pattern: a second FAB has no obvious place, and the

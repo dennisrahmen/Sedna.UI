@@ -28,7 +28,14 @@ window.sednaUi = window.sednaUi || {};
         notifyIcon: null,
         // Also mirror the language into a "<prefix>lang" cookie, so a server-
         // rendered app can prerender in the chosen language.
-        langCookie: false
+        langCookie: false,
+        // Which theme name applies with nothing stored. It is the theme emitted at
+        // bare :root — SednaUiOptions.Default in C# — and every other registered
+        // theme sits behind its own [data-theme="<name>"] block. An app whose
+        // default is not the built-in one sets this and the matching
+        // data-theme-default on the boot script, or a first visit is stamped with a
+        // name that selects somebody else's palette.
+        themeDefault: 'sedna'
     };
 
     function key(k) { return config.storagePrefix + k; }

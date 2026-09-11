@@ -79,7 +79,7 @@ Judged by what a consuming app sees. Take the highest applicable level.
   miss, because nothing in this repo breaks and the app's own CSS is what changes appearance. Two ways
   it happens: lowering a library rule's specificity, and moving a rule into a cascade layer — an
   unlayered app rule beats every layered one. Compact density is the worked example in
-  [`architecture.md`](architecture.md#three-consequences-worth-knowing-before-upgrading).
+  [`architecture.md`](architecture.md#three-things-it-means-for-your-own-stylesheet).
 - moving a part into a different cascade layer, or reordering the layers
 
 **Minor** — additive and backwards compatible:
@@ -137,6 +137,10 @@ silently wrong in the other direction. What makes it safe is the `since` field o
 Railway builds the image itself from the GitHub source, gated by its **Wait for CI** switch, so no
 Railway credential exists in this repository and there is no deploy workflow to maintain. CI builds the
 image too, but never pushes it — a broken Dockerfile should fail the pull request that broke it.
+
+CI runs on pull requests only. The `main` ruleset requires its `build` check on a branch that is up to
+date with `main`, so a merge lands exactly the tree that was tested. On `main` itself only CodeQL runs,
+and that is what Railway's **Wait for CI** waits for.
 
 The custom domain needs **both** a CNAME and the TXT record Railway shows. A missing TXT record makes
 the domain 404 even once the CNAME resolves, which reads as a broken deploy.

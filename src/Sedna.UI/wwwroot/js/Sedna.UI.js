@@ -63,7 +63,14 @@ window.sednaUi = window.sednaUi || {};
         notifyIcon: null,
         // Also mirror the language into a "<prefix>lang" cookie, so a server-
         // rendered app can prerender in the chosen language.
-        langCookie: false
+        langCookie: false,
+        // Which theme name applies with nothing stored. It is the theme emitted at
+        // bare :root — SednaUiOptions.Default in C# — and every other registered
+        // theme sits behind its own [data-theme="<name>"] block. An app whose
+        // default is not the built-in one sets this and the matching
+        // data-theme-default on the boot script, or a first visit is stamped with a
+        // name that selects somebody else's palette.
+        themeDefault: 'sedna'
     };
 
     function key(k) { return config.storagePrefix + k; }
@@ -146,7 +153,9 @@ window.sednaUi = window.sednaUi || {};
    data-theme and data-variant are ALWAYS written, never absent — consuming apps
    brand the light palette with `:root[data-variant="light"]`, so that selector has
    to match whenever the light palette is in use. data-theme accepts any theme
-   name; "sedna" is the fallback with nothing stored.
+   name; with nothing stored it falls back to config.themeDefault, which is
+   'sedna' until configure() says otherwise and must match the boot script's own
+   data-theme-default.
 
    "system" is a real, storable variant preference — not collapsed to dark/light on
    load — so a settings UI can show "follow system" as selected rather than
@@ -187,7 +196,7 @@ window.sednaUi = window.sednaUi || {};
                 // something different from what the page is actually marked as.
                 lang:    g('lang') || document.documentElement.lang
                              || (navigator.language || 'en').slice(0, 2).toLowerCase(),
-                theme:   g('theme') || 'sedna',
+                theme:   g('theme') || config.themeDefault,
                 variant: (v === 'light' || v === 'dark' || v === 'system') ? v : 'dark',
                 cvd:     g('cvd') === '1',
                 compact: g('density') === 'compact',
@@ -213,7 +222,7 @@ window.sednaUi = window.sednaUi || {};
         apply: function () {
             var g = function (k) { return readRaw(key(k)); };
             var root = document.documentElement;
-            root.setAttribute('data-theme', g('theme') || 'sedna');
+            root.setAttribute('data-theme', g('theme') || config.themeDefault);
 
             var v = g('variant');
             var variant;

@@ -219,6 +219,37 @@
     }
 </div>
 
+<h2 id="exact-brand">Keeping an exact brand colour</h2>
+
+<p class="cat-lede">
+    <code>SednaRamp.FromAnchor</code> takes the anchor's hue and chroma and reads its
+    <em>lightness</em> off the curve every family shares, so the step you anchored comes back a
+    different colour — close, deliberate, and wrong for a corporate design that mandates a hex.
+    <code>exactAnchor: true</code> keeps that one step verbatim and still generates the rest around
+    it.
+</p>
+
+<div class="cat-swatches">
+    @foreach (var step in PinnedSteps)
+    {
+        <div class="cat-swatch">
+            <span class="cat-chip" style="background: @Pinned[step]"></span>
+            <div class="cat-swatch-text">
+                <div class="cat-swatch-name">Step @step</div>
+                <div class="cat-swatch-value">@Pinned[step] — from the curve: @Curve[step]</div>
+            </div>
+        </div>
+    }
+</div>
+
+<CatSnippet Name="Branding/ExactAnchor.txt" Title="`exactAnchor`">
+    <p>
+        Step 600 above is the anchor itself; its neighbours are the ordinary generated steps. Use it
+        for the one colour a brand guide names, not for a whole ramp — pinning every step by hand is
+        what the dictionary constructor is for.
+    </p>
+</CatSnippet>
+
 <h2 id="decisions">Three decisions that shaped the system</h2>
 
 <p class="cat-lede">
@@ -275,6 +306,16 @@
     private bool IsColourBlind => Settings.Current.ColourBlind;
     private bool IsCompact => Settings.Current.Compact;
     private bool IsRtl => Settings.Current.Direction == "rtl";
+
+    /// <summary>
+    /// A neutral red standing in for a mandated corporate brand colour, generated both ways so the
+    /// difference at the anchor step is visible rather than described.
+    /// </summary>
+    private const string MandatedBrand = "#D62828";
+
+    private static readonly int[] PinnedSteps = [500, 600, 700];
+    private static readonly SednaRamp Curve = SednaRamp.FromAnchor(MandatedBrand, 600);
+    private static readonly SednaRamp Pinned = SednaRamp.FromAnchor(MandatedBrand, 600, exactAnchor: true);
 
     /// <summary>The seven fixed points every ramp is generated from — docs/BRANDING.md §1.4.</summary>
     private static readonly (string Label, string Token)[] CoreAnchors =

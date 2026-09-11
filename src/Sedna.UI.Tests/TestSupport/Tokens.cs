@@ -38,7 +38,19 @@ internal static class Tokens
     /// <c>prefers-contrast</c> is a preference, not a variant. Both are conditional
     /// states on top of what this returns.
     /// </remarks>
-    public static Dictionary<string, string> Resolved(string variant = Dark)
+    public static Dictionary<string, string> Resolved(string variant = Dark) =>
+        Resolved(variant, palette: null);
+
+    /// <summary>
+    /// The same, with tier 1 replaced by <paramref name="palette"/> — what a registered
+    /// theme's <c>[data-theme="…"]</c> block does to the shipped <c>:root</c> palette.
+    /// </summary>
+    /// <remarks>
+    /// The semantic tier is the stylesheet's either way: a theme supplies ramps, never roles
+    /// (<c>SednaUiBrand.ToCss</c> emits palette tokens only), so measuring a theme means
+    /// resolving the shipped roles through its ramps.
+    /// </remarks>
+    public static Dictionary<string, string> Resolved(string variant, SednaPalette? palette)
     {
         var raw = new Dictionary<string, string>(StringComparer.Ordinal);
         var css = WithoutMediaBlocks(Assets.StripComments(Assets.Css));
@@ -54,9 +66,61 @@ internal static class Tokens
                     raw[match.Groups["name"].Value] = match.Groups["value"].Value.Trim();
             }
 
+        if (palette is not null)
+            foreach (var (family, ramp) in palette.Ramps())
+                foreach (var step in ramp.Steps)
+                    raw[$"--{family}-{step}"] = ramp[step];
+
         var resolved = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var name in raw.Keys) resolved[name] = Resolve(name, raw, depth: 0);
         return resolved;
+    }
+
+    /// <summary>
+    /// The colour actually painted when <paramref name="overlayToken"/> — a translucent tint —
+    /// sits on <paramref name="canvasToken"/>, as an RGB triple.
+    /// </summary>
+    /// <remarks>
+    /// A tint has no contrast of its own: <c>--brand-tint</c> is a <c>color-mix</c> with
+    /// <c>transparent</c>, so what a reader sees depends on the surface under it. Measuring the
+    /// token alone answers a question nobody is asking. Handles the two forms the sheet uses —
+    /// <c>color-mix(in srgb, var(--x) N%, transparent)</c> and <c>rgba(r, g, b, a)</c>.
+    /// </remarks>
+    public static (double R, double G, double B) Over(
+        Dictionary<string, string> tokens, string overlayToken, string canvasToken)
+    {
+        var canvas = Rgb(tokens, canvasToken);
+
+        Assert.True(tokens.TryGetValue(overlayToken, out var value), $"{overlayToken} is not declared.");
+
+        var mix = Regex.Match(value!,
+            @"color-mix\(\s*in\s+srgb\s*,\s*var\(\s*(?<name>--[a-z0-9-]+)\s*\)\s*(?<pct>[\d.]+)%\s*,\s*transparent\s*\)");
+        if (mix.Success)
+            return Blend(Rgb(tokens, mix.Groups["name"].Value), canvas,
+                double.Parse(mix.Groups["pct"].Value, CultureInfo.InvariantCulture) / 100);
+
+        var rgba = Regex.Match(value!,
+            @"rgba?\(\s*(?<r>\d+)\s*,\s*(?<g>\d+)\s*,\s*(?<b>\d+)\s*(?:,\s*(?<a>[\d.]+)\s*)?\)");
+        if (rgba.Success)
+        {
+            var colour = (Channel("r"), Channel("g"), Channel("b"));
+            var alpha = rgba.Groups["a"].Success
+                ? double.Parse(rgba.Groups["a"].Value, CultureInfo.InvariantCulture)
+                : 1;
+            return Blend(colour, canvas, alpha);
+
+            double Channel(string group) =>
+                int.Parse(rgba.Groups[group].Value, CultureInfo.InvariantCulture) / 255.0;
+        }
+
+        // Opaque: whatever is under it makes no difference.
+        return Rgb(tokens, overlayToken);
+
+        static (double R, double G, double B) Blend(
+            (double R, double G, double B) over, (double R, double G, double B) under, double alpha) =>
+            (over.R * alpha + under.R * (1 - alpha),
+             over.G * alpha + under.G * (1 - alpha),
+             over.B * alpha + under.B * (1 - alpha));
     }
 
     private static IEnumerable<string> Selectors(string variant) =>
@@ -115,7 +179,7 @@ internal static class Tokens
     /// The stylesheet with every <c>@media</c> block removed, matched by counting
     /// braces rather than by regex so a nested rule cannot truncate one.
     /// </summary>
-    private static string WithoutMediaBlocks(string css)
+    public static string WithoutMediaBlocks(string css)
     {
         var result = new StringBuilder(css.Length);
         var i = 0;

@@ -402,6 +402,7 @@ The palette shifted; the transparency did not.
 | Skeleton base / sheen | 6% / 11% | 6% / 11% |
 | Progress track | 8% | 8% |
 | Brand tint | 14% | 10% |
+| Brand tint, strong | 24% | 20% |
 | Focus ring — filled / neutral / checkbox | 50% / 40% / 35% | 50% / 40% / 35% |
 | Input focus glow | 18% | 18% |
 | Status tint — base / hover / active | 12% / 20% / 28% | 8–10% / 14% / 20% |
@@ -497,6 +498,23 @@ These six sit closest to the floor. **Do not lighten any of them without re-meas
 headroom, take the next darker ramp step rather than adjusting by eye. A theme generated from anchors
 inherits this constraint — the generator has to hit the same boundary, not approximate it.
 
+**Brand text takes `--brand-text`, and nothing else.** `--brand-soft` is the display strength — icon,
+spinner arc, focus border, where 3:1 applies — and in the light variant it is the step solved for
+*white text on it*, which says nothing about reading it *as* text on the canvas. Used as body text it
+measures 4.35:1 on the light canvas, and a generated theme inherits that by construction rather than
+by accident. `--brand-text` is the role measured against the surface it renders on.
+
+**In the light variant that role is step 800, not 700.** Text in a brand colour is read on the canvas
+and, at its dimmest, on a brand tint over it. Step 700 clears AA there for this library's own coral,
+whose steps were solved by hand; it does not for a ramp the generator produced, because the shared
+lightness curve puts step 700 at one lightness for every hue while WCAG luminance weights hues
+differently — a green brand measures 4.03:1 on the tint and a blue one 4.47:1. Step 800 clears it for
+both and for Sedna. The tint is part of the measurement, so the strong tint's alpha is bounded by the
+text sitting on it, in whichever variant.
+
+`BrandTextContrastTests` measures every rule in the sheet that paints in a brand colour, against each
+surface the library paints, in both variants, for the built-in themes and for a generated one.
+
 `TokenTierTests.A_near_floor_pair_still_clears_AA` re-measures these on every build, resolving each
 token through the palette to the literal it ends at. It was proved able to fail by setting `--brand`
 to coral 500, which reports 2.82:1 — the exact figure §3.1 quotes for the mistake it warns against.
@@ -520,8 +538,9 @@ same treatment.
 tints opaque, and lift muted text to body colour. Shadows are deliberately kept — once every surface
 is the same lightness, they are the only remaining depth cue.
 
-Brand text goes to ramp step 300 on dark and 800 on light, and `--brand-tint` becomes opaque. A 14%
-tint over an unknown surface has an unknown contrast, which is the one thing this mode cannot have.
+Brand text goes to ramp step 300 on dark and 900 on light — one step past each variant's own
+`--brand-text` — and `--brand-tint` becomes opaque. A 14% tint over an unknown surface has an unknown
+contrast, which is the one thing this mode cannot have.
 
 ### 7.4 Motion
 

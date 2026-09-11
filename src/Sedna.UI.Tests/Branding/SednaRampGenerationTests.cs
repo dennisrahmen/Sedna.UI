@@ -55,6 +55,108 @@ public class SednaRampGenerationTests
             string.Join("\n", report));
     }
 
+    /// <summary>
+    /// A neutral red standing in for a brand colour a corporate design mandates. Not any real
+    /// organisation's — the point is only that it is a hex somebody is not allowed to move.
+    /// </summary>
+    private const string Mandated = "#d62828";
+
+    [Fact]
+    public void The_anchor_step_is_not_the_anchor_colour_by_default()
+    {
+        // The behaviour exactAnchor exists for, asserted so the XML doc cannot quietly go back
+        // to calling anchorHex "the exact colour at this step". Lightness comes from the shared
+        // curve, so the anchor contributes hue and chroma and the step is a different colour.
+        var ramp = SednaRamp.FromAnchor(Mandated, 600);
+
+        Assert.NotEqual(Mandated, ramp[600], StringComparer.OrdinalIgnoreCase);
+    }
+
+    // 600 and 700, the two steps this colour's own lightness fits between. Pinning it at
+    // 500 is rejected instead, by An_exact_anchor_that_does_not_fit_its_step_is_rejected —
+    // a mid-dark red is not a step-500 colour, and the ramp would reverse direction there.
+    [Theory]
+    [InlineData(600)]
+    [InlineData(700)]
+    public void An_exact_anchor_is_kept_verbatim_at_its_step(int anchorStep)
+    {
+        var ramp = SednaRamp.FromAnchor(Mandated, anchorStep, exactAnchor: true);
+
+        Assert.Equal(Mandated, ramp[anchorStep], StringComparer.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void An_exact_anchor_leaves_the_rest_of_the_ramp_generated()
+    {
+        // "The neighbouring steps are still generated around it": only the anchor step moves,
+        // so the ramp keeps the per-step visual weight that makes two families comparable.
+        var curve = SednaRamp.FromAnchor(Mandated, 600);
+        var pinned = SednaRamp.FromAnchor(Mandated, 600, exactAnchor: true);
+
+        foreach (var step in curve.Steps)
+        {
+            if (step == 600) continue;
+            Assert.Equal(curve[step], pinned[step], StringComparer.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void An_exact_anchor_still_descends_in_lightness()
+    {
+        // The property the whole ramp rests on: --brand-hover is the step after --brand and
+        // --brand-active the one after that, so a pinned colour must not reverse the direction.
+        var ramp = SednaRamp.FromAnchor(Mandated, 600, exactAnchor: true);
+
+        var lightness = ramp.Steps.Select(s => Oklch.FromHex(ramp[s]).L).ToList();
+        for (var i = 1; i < lightness.Count; i++)
+            Assert.True(lightness[i] < lightness[i - 1],
+                $"step {ramp.Steps[i]} is lighter than step {ramp.Steps[i - 1]}.");
+    }
+
+    [Fact]
+    public void An_exact_anchor_that_does_not_fit_its_step_is_rejected()
+    {
+        // A near-white pinned at 900 would sit lighter than every step above it. Rejected with
+        // the step it does fit, rather than emitting a ramp whose hover state is the lighter one.
+        var error = Assert.Throws<ArgumentException>(
+            () => SednaRamp.FromAnchor("#ffe9e3", 900, exactAnchor: true));
+
+        Assert.Contains("non-monotonic", error.Message, StringComparison.Ordinal);
+        Assert.Contains("fits step", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void An_exact_anchor_and_a_contrast_solve_cannot_claim_the_same_step()
+    {
+        // Both decide one step's lightness, by opposite rules. Silently letting one win would
+        // give a theme either a brand that is not its brand or one that fails its own floor.
+        var error = Assert.Throws<ArgumentException>(() => SednaRamp.FromAnchor(
+            Mandated, 600, exactAnchor: true,
+            contrastSolvedStep: new ContrastSolvedStep(600, "#ffffff", 4.6)));
+
+        Assert.Contains("both claim step 600", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void An_exact_anchor_needs_its_step_to_be_generated()
+    {
+        Assert.Throws<ArgumentException>(() => SednaRamp.FromAnchor(
+            Mandated, 600, steps: [200, 300, 400, 500], exactAnchor: true));
+    }
+
+    [Fact]
+    public void An_exact_anchor_can_sit_beside_a_contrast_solve_on_another_step()
+    {
+        // The combination a theme actually wants: the mandated colour at 600, and 700 solved
+        // for a floor of its own.
+        var ramp = SednaRamp.FromAnchor(
+            Mandated, 600, exactAnchor: true,
+            contrastSolvedStep: new ContrastSolvedStep(700, "#ffffff", 5.5));
+
+        Assert.Equal(Mandated, ramp[600], StringComparer.OrdinalIgnoreCase);
+        Assert.True(Oklch.Contrast("#ffffff", ramp[700]) >= 5.5);
+    }
+
     /// <summary>Euclidean distance in OKLab-ish space (L, and C/H read back to a/b) between two hex colours.</summary>
     private static double PerceptualDelta(string generatedHex, string actualHex)
     {

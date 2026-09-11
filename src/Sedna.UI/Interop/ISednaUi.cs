@@ -142,7 +142,8 @@ public interface ISednaUi
     /// </summary>
     /// <param name="key">One of <c>theme</c>, <c>variant</c>, <c>cvd</c>, <c>density</c>, <c>lang</c>.</param>
     /// <param name="value">
-    /// <c>theme</c> takes a theme name (nothing stored falls back to <c>sedna</c>);
+    /// <c>theme</c> takes a theme name (nothing stored falls back to
+    /// <see cref="SednaUiOptions.Default"/>);
     /// <c>variant</c> takes <c>dark</c>, <c>light</c>, or <c>system</c> to follow
     /// <c>prefers-color-scheme</c> live; <c>cvd</c> takes <c>1</c> or anything else
     /// for off; <c>density</c> takes <c>compact</c> or anything else for the
@@ -153,6 +154,12 @@ public interface ISednaUi
 
     /// <summary>Pushes the configured options to the browser.</summary>
     /// <returns>A task that completes once the options are applied.</returns>
+    /// <remarks>
+    /// One of them is <see cref="SednaUiOptions.Default"/>, the theme that applies with nothing
+    /// stored. The boot script runs long before this and reads its own copy from
+    /// <c>data-theme-default</c>, so an app whose default is not <c>sedna</c> sets that attribute
+    /// too — otherwise the first paint of a first visit carries the wrong theme name.
+    /// </remarks>
     Task ConfigureAsync();
 
     /// <summary>Replaces the command palette's whole command list.</summary>

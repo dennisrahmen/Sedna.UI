@@ -21,8 +21,8 @@ public sealed record SednaUiSettings
     public string Language { get; init; } = "en";
 
     /// <summary>
-    /// Which theme is active, by name — falling back to <c>"sedna"</c> with nothing
-    /// stored. Never absent.
+    /// Which theme is active, by name — falling back to
+    /// <see cref="SednaUiOptions.Default"/> with nothing stored. Never absent.
     /// </summary>
     /// <remarks>
     /// This used to be <c>"dark"</c> or <c>"light"</c>; that concept moved to
@@ -55,7 +55,7 @@ public sealed record SednaUiSettings
     [JsonPropertyName("cvd")]
     public bool ColourBlind { get; init; }
 
-    /// <summary>Whether compact density is on, which tightens table and cell padding.</summary>
+    /// <summary>Whether compact density is on, which tightens table cell and card padding.</summary>
     [JsonPropertyName("compact")]
     public bool Compact { get; init; }
 

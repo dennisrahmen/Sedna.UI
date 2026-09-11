@@ -103,9 +103,10 @@ without being in the ordering statement, since an undeclared layer sorts after e
 blocks, as the rebrand recipe shows.
 
 **An unconditional rule of yours beats a library rule at any specificity.** The case to check is
-compact density: an app carrying its own `.table th, .table td { padding: 8px 12px }` wins over
-`:root[data-density="compact"] .table td`, so compact density stops tightening its tables. Delete the
-copied rule.
+compact density: an app carrying its own `.table th, .table td { padding: 8px 12px }` or
+`.card-body { padding: … }` wins over the padding compact density remaps, so those tables and cards
+stop tightening. Delete the copied rule. The same goes for a `:root[data-density="compact"] .card-body`
+rule written before cards compacted on their own: it still wins, and now fights the library's value.
 
 **`!important` is actively harmful here, not merely unnecessary.** Layer order *inverts* for important
 declarations, so an `!important` inside `sedna.paint` is harder for you to override than an ordinary
@@ -238,8 +239,13 @@ library never infers a document's direction or language from the browser's. Neve
 
 **`data-theme` and `data-variant` are two orthogonal attributes**, both always present, never absent:
 
-- **`data-theme`** — *which* theme, by name; `sedna` with nothing stored.
+- **`data-theme`** — *which* theme, by name; with nothing stored, the default theme.
 - **`data-variant`** — `dark` or `light` — *which variant* of it, what a reader toggles.
+
+The theme name with nothing stored is `SednaUiOptions.Default` — the theme `SednaUiBrand.ToCss`
+emits at bare `:root`. It reaches the browser twice, because the boot script runs before any interop
+can: `data-theme-default` on the boot script tag, and `themeDefault` from `ISednaUi.ConfigureAsync()`.
+Both fall back to `sedna`, so an app that changes neither behaves as before.
 
 Consuming apps select on `:root[data-variant="light"]` to brand the light palette, so that selector has
 to match whenever the light palette is in use. The two used to be one attribute (`data-theme` took
@@ -257,7 +263,9 @@ tag's own `data-variant-default`.
 The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, so go and danger read as
 blue against red. Amber and the brand colour are unchanged.
 
-`data-density="compact"` tightens `.table` padding. Apps tighten their own page-specific components.
+`data-density="compact"` is a token remap. It tightens table cells through `--cell-pad-y` /
+`--cell-pad-x`, and every card part — `.card-head`, `.card-body`, `.card-foot` — through `--card-pad-block` / `--card-pad-inline`. An app's own component tightens with them by reading
+the same tokens; page-specific components with other spacing are the app's to tighten.
 
 ## Branding
 
@@ -281,6 +289,20 @@ var ramp = SednaRamp.FromAnchor("#2f6fed", anchorStep: 500);
 ramp, and a chroma bell that peaks at the anchor step. It is implemented over a direct sRGB ⇄
 OKLCH conversion, not a package: the library takes no third-party dependency (see
 [the token contract](#the-token-contract) above).
+
+**The anchor step is not the anchor colour.** The anchor supplies hue and chroma; its lightness
+comes from the shared curve like every other step's. For a brand colour that is mandated rather
+than chosen, pin it:
+
+```csharp
+var ramp = SednaRamp.FromAnchor("#D62828", anchorStep: 600, exactAnchor: true);
+```
+
+Only that step is pinned — the rest are still generated around it. The anchor has to fit where it is
+pinned, lighter than the step below and darker than the step above, or it is rejected naming the step
+it does fit: the semantic tier reads neighbouring steps as hover and active states of one another,
+and a reversed ramp ships a hover state lighter than its resting state. `exactAnchor` and
+`contrastSolvedStep` cannot claim the same step, because they decide it by opposite rules.
 
 Register themes and emit the palette CSS:
 
@@ -386,7 +408,7 @@ Two things the flat list does not say:
 
 | Member | Purpose |
 |---|---|
-| `configure(options)` | Storage prefix, notification icon, language cookie |
+| `configure(options)` | Storage prefix, notification icon, language cookie, default theme name |
 | `settings` | `load()`, `save(key, value)`, `apply()`, `onChange(fn)` → unsubscribe. Keys: `theme`, `variant`, `cvd`, `density`, `dir`, `lang` |
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally |
 | `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |

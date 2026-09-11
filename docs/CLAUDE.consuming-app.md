@@ -80,7 +80,10 @@ rhythm and `.lede` stays tight under its heading; `--page-gap: 0` on `.page` tur
 and `.sedna-mt-0` flushes one child.
 
 Inside a `.card-body` the rhythm is yours, because its content is: a `.kv` stack is tight on purpose
-and a form is not. Reach for `.sedna-col` with a gap step rather than a margin per child.
+and a form is not. Reach for `.sedna-col` with a gap step rather than a margin per child. Sub-sections
+of one body — details, then attachments, then history — are `.card-section`, which draws the hairline
+between them and spaces them with the card's own gutter; a second `.card-body` ends the first body's
+layout at the seam instead.
 
 ### A number in a `style` attribute is usually a knob you have not found
 
@@ -158,8 +161,9 @@ That makes discipline the only thing left protecting the shared design:
 - **Two things the layering means for this app's own CSS:** a token set at bare `:root` here also beats
   the library's `[data-variant="light"]` value for it, so set both blocks; and any unconditional rule
   here beats a library rule at any specificity. The case to check is a copied
-  `.table th, .table td { padding: … }`, which stops compact density from tightening this app's tables.
-  **Delete copied library rules.**
+  `.table th, .table td { padding: … }` or `.card-body { padding: … }`, which stops compact density
+  from tightening this app's tables and cards. **Delete copied library rules** — including a
+  `:root[data-density="compact"] .card-body` rule written before cards compacted on their own.
 - **Never use `!important` against the library.** Layer order inverts for important declarations, so it
   is not needed and makes the result harder to reason about, not easier.
 - **To change this app's background, register a theme — do not override `--bg`.**
@@ -202,6 +206,10 @@ At the end of `<body>`:
 
 Settings are stored under the default `sedna.` prefix. Do not set `data-prefix` / `storagePrefix` unless
 this app shares an origin with another app; if you do set one, both values must be identical.
+
+If this app registers a theme of its own as `SednaUiOptions.Default`, put that name on the boot script
+as `data-theme-default` — render it from the options, do not retype it. It is what `<html data-theme>`
+carries on a first visit, and the built-in `sedna` there selects the wrong palette.
 
 ### Upgrading
 
