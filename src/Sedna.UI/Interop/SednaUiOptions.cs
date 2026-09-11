@@ -50,5 +50,14 @@ public sealed class SednaUiOptions
     /// Which registered theme's palette is emitted at bare <c>:root</c>, so it applies with no
     /// <c>data-theme</c> attribute present. Must name a theme in <see cref="Themes"/>.
     /// </summary>
+    /// <remarks>
+    /// This is also the name the browser stamps on <c>&lt;html data-theme&gt;</c> when nothing is
+    /// stored, so it has to reach the two scripts as well:
+    /// <see cref="ISednaUi.ConfigureAsync"/> pushes it to <c>Sedna.UI.js</c>, and the boot
+    /// script takes it from <c>data-theme-default</c> on its own tag — render that from here
+    /// rather than retyping it. Left at <c>sedna</c> while this is an app's own theme, the
+    /// first visit — the one with nothing stored — is stamped with a name that selects a
+    /// different registered palette, or one no theme answers to.
+    /// </remarks>
     public string Default { get; set; } = "sedna";
 }

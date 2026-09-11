@@ -77,6 +77,12 @@ public sealed class SednaUi : ISednaUi
                 storagePrefix = _options.StoragePrefix,
                 notifyIcon = _options.NotifyIcon,
                 langCookie = _options.LangCookie,
+                // The theme that applies with nothing stored. It is SednaUiOptions.Default
+                // rather than a literal because that is the theme SednaUiBrand.ToCss emits at
+                // bare :root; the script would otherwise stamp data-theme="sedna" over an app
+                // whose default is its own theme, and select a registered Sedna palette — or
+                // name a theme nobody registered — on every first visit.
+                themeDefault = _options.Default,
             }).AsTask();
 
     /// <inheritdoc />

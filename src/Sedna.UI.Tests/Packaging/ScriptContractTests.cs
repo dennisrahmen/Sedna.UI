@@ -37,6 +37,26 @@ public class ScriptContractTests
     }
 
     [Fact]
+    public void The_two_scripts_and_the_options_agree_on_the_default_theme_name()
+    {
+        // Three copies of one fact: the boot script's data-theme-default fallback, the main
+        // script's config.themeDefault, and SednaUiOptions.Default — which is the theme
+        // SednaUiBrand.ToCss emits at bare :root. If they disagree, an app that configures
+        // none of them is stamped with a theme name whose palette is not the one at :root,
+        // and it happens on the first visit only, where nothing is stored yet.
+        var boot = StripJsComments(File.ReadAllText(Assets.BootJsPath));
+        var main = StripJsComments(File.ReadAllText(Assets.JsPath));
+
+        var bootTheme = Regex.Match(boot, @"dataset\.themeDefault\)\s*\|\|\s*'(?<t>[^']+)'").Groups["t"].Value;
+        var mainTheme = Regex.Match(main, @"themeDefault:\s*'(?<t>[^']+)'").Groups["t"].Value;
+
+        Assert.False(string.IsNullOrEmpty(bootTheme), "Could not find the boot script's default theme name.");
+        Assert.Equal(bootTheme, mainTheme);
+        Assert.Equal(new SednaUiOptions().Default, bootTheme);
+        Assert.Equal(SednaTheme.Sedna.Name, bootTheme);
+    }
+
+    [Fact]
     public void The_boot_script_and_the_main_script_both_read_the_variant_key()
     {
         // data-variant is a second stored setting the two scripts must agree about,

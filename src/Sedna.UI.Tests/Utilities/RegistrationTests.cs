@@ -57,6 +57,27 @@ public class RegistrationTests
         Assert.Equal("sedna.", options.StoragePrefix);
         Assert.Null(options.NotifyIcon);
         Assert.False(options.LangCookie);
+        // And the theme both scripts fall back to with nothing stored.
+        Assert.Equal("sedna", options.Default);
+    }
+
+    [Fact]
+    public void The_settings_service_starts_with_the_apps_own_default_theme()
+    {
+        var services = WithJsRuntime();
+        services.AddSednaUi(o =>
+        {
+            o.Themes = [new SednaTheme("northwind", SednaTheme.Sedna.Palette)];
+            o.Default = "northwind";
+        });
+
+        using var provider = services.BuildServiceProvider();
+        var settings = provider.CreateScope().ServiceProvider.GetRequiredService<ISednaSettings>();
+
+        // Before StartAsync there is nothing but the options to go on, and the theme with
+        // nothing stored is the one emitted at bare :root — not the built-in name. Reporting
+        // "sedna" here showed the wrong option selected in a settings UI until interop ran.
+        Assert.Equal("northwind", settings.Current.Theme);
     }
 
     [Fact]

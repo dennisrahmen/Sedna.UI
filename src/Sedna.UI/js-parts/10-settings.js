@@ -6,7 +6,9 @@
    data-theme and data-variant are ALWAYS written, never absent — consuming apps
    brand the light palette with `:root[data-variant="light"]`, so that selector has
    to match whenever the light palette is in use. data-theme accepts any theme
-   name; "sedna" is the fallback with nothing stored.
+   name; with nothing stored it falls back to config.themeDefault, which is
+   'sedna' until configure() says otherwise and must match the boot script's own
+   data-theme-default.
 
    "system" is a real, storable variant preference — not collapsed to dark/light on
    load — so a settings UI can show "follow system" as selected rather than
@@ -47,7 +49,7 @@
                 // something different from what the page is actually marked as.
                 lang:    g('lang') || document.documentElement.lang
                              || (navigator.language || 'en').slice(0, 2).toLowerCase(),
-                theme:   g('theme') || 'sedna',
+                theme:   g('theme') || config.themeDefault,
                 variant: (v === 'light' || v === 'dark' || v === 'system') ? v : 'dark',
                 cvd:     g('cvd') === '1',
                 compact: g('density') === 'compact',
@@ -73,7 +75,7 @@
         apply: function () {
             var g = function (k) { return readRaw(key(k)); };
             var root = document.documentElement;
-            root.setAttribute('data-theme', g('theme') || 'sedna');
+            root.setAttribute('data-theme', g('theme') || config.themeDefault);
 
             var v = g('variant');
             var variant;

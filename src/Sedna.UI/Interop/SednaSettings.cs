@@ -21,13 +21,19 @@ internal sealed class SednaSettings : ISednaSettings, IAsyncDisposable
     private int _watcher;
     private bool _starting;
 
-    public SednaSettings(ISednaUi ui, IJSRuntime jsRuntime)
+    public SednaSettings(ISednaUi ui, IJSRuntime jsRuntime, SednaUiOptions options)
     {
         _ui = ui ?? throw new ArgumentNullException(nameof(ui));
         _js = jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime));
+        ArgumentNullException.ThrowIfNull(options);
+
+        // The theme with nothing stored is the app's default, not the built-in name: until
+        // StartAsync this is what a settings UI draws from, and reporting "sedna" to an app
+        // whose default is its own theme shows the wrong option selected for one frame.
+        Current = new SednaUiSettings { Theme = options.Default };
     }
 
-    public SednaUiSettings Current { get; private set; } = new();
+    public SednaUiSettings Current { get; private set; }
 
     public bool IsLive { get; private set; }
 
