@@ -39,7 +39,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-6) var(--space-7);
+    padding: var(--card-pad-block) var(--card-pad-inline);
     border-bottom: 1px solid var(--border);
 }
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
@@ -78,20 +78,50 @@
     min-width: 0;            /* or a long strip widens the card instead of scrolling */
     border-bottom: none;     /* the head draws the line the indicator sits on */
 }
+/* The tab's inline padding IS the body's gutter, and has to stay it under compact
+   density too, or the first label drifts off the body text when the gutter narrows.
+   Two classes deep, so it beats `.tab` on specificity rather than on file order. */
+.card-head--tabs .tab { padding-inline: var(--card-pad-inline); }
 /* Whatever sits beside the strip keeps the gutter the head gave up. */
-.card-head--tabs .card-head-right { padding-inline-end: var(--space-7); }
+.card-head--tabs .card-head-right { padding-inline-end: var(--card-pad-inline); }
 /* The body's own padding is the gap under the strip; the panel's is a second one.
    Every panel, not the first — the selected tab is not always the first one, and
    scoping this to :first-child moves the content when a later tab is chosen. */
 .card-head--tabs + .card-body > .tab-panel { padding-top: 0; }
 
-.card-body { padding: var(--space-6) var(--space-7); }
+/* The gutter is --card-pad-block / --card-pad-inline, which [data-density="compact"]
+   remaps — so every card part tightens together and stays aligned. */
+.card-body { padding: var(--card-pad-block) var(--card-pad-inline); }
 /* Drops the padding, for content that is drawn edge to edge inside the card — a
    canvas, a chart, a map, a table that already has its own cell padding. The
    sibling of `.list-row--flush`, and the same reason: the gutter is a gap the
    content then paints over. How tall the content is stays the content's decision;
    this only takes the padding away. */
 .card-body--flush { padding: 0; }
+
+/* ── A section inside a card body ───────────────────────────────────────────
+   Sub-sections stacked in ONE body — details, then attachments, then history —
+   divided by a hairline with the card's own block gutter either side of it.
+
+   The three things that were reached for instead, and why none of them is this:
+   `.divider` is an <hr> with a page-sized margin, far too loose inside a card and an
+   extra element per section; `.form-section` is a <fieldset> with a legend and no
+   rule at all; and `.card-body + .card-body` splits the card into two bodies, which
+   ends the first body's own layout — a gap, a column — at the seam.
+
+   The rule is drawn only on a section with something before it, so a section that is
+   not rendered takes its divider with it and the first one never doubles the line the
+   `.card-head` above it already draws. `* + `, not `.card-section + `, so an intro
+   paragraph before the first section is divided from it too.
+
+   It reads the same --card-pad-block the body does, so sections tighten with
+   [data-density="compact"] along with everything else in the card. */
+.card-section { min-width: 0; }
+* + .card-section {
+    margin-block-start: var(--card-pad-block);
+    padding-block-start: var(--card-pad-block);
+    border-top: 1px solid var(--border);
+}
 
 /* The row a card ends with: the actions that decide what happens to the content
    above them. .card-head's mirror — same padding, the divider on top instead of
@@ -109,13 +139,21 @@
     align-items: center;
     justify-content: flex-end;
     gap: var(--space-4);
-    padding: var(--space-6) var(--space-7);
+    padding: var(--card-pad-block) var(--card-pad-inline);
     border-top: 1px solid var(--border);
 }
 /* Something on the far side from the commit button — a note about what the action
    does, a timestamp, a destructive action kept away from the primary one. Expects
    exactly two children; wrap a side in a <div> if it has more than one. */
 .card-foot--split { justify-content: space-between; }
+/* Read left to right instead of committed at the end: the primary action first and
+   its secondaries after it, or a status line in place of the actions — "Claimed by
+   …", "View only" — which is text, and right-aligned text reads as a mistake.
+   One trailing control goes to the far end with `.sedna-push`.
+
+   Not `--split`, which distributes the free space between every child: four buttons
+   in a split foot are spread across the card rather than kept as a row. */
+.card-foot--start { justify-content: flex-start; }
 
 /* A caveat about the card's own content, pinned to its bottom edge — a stale
    figure, a degraded source, a partial result. It is part of the card, so it is
@@ -124,7 +162,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-4) var(--space-7);
+    padding: var(--space-4) var(--card-pad-inline);
     border-top: 1px solid var(--warn-border);
     background: var(--warn-bg);
     color: var(--warn-fg);

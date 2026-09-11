@@ -2,15 +2,19 @@
    [data-density="compact"] on <html>. A pure token remap, like every other theme
    block, so it composes with the themes and CSS load order stays irrelevant.
 
-   Anything that should tighten with the tables uses var(--cell-pad-y) /
-   var(--cell-pad-x) and gets it for free — an app's own dense card, for instance.
+   Two families tighten: table cells (--cell-pad-*) and card parts (--card-pad-*).
+   Anything else that should tighten with them reads the same tokens and gets it for
+   free — an app's own card part written with `.card-body`, or its own component
+   padded with var(--card-pad-inline).
 
    There is deliberately no selector override alongside this. An app's own stylesheet is
    unlayered and wins whatever this file declares, so an app holding its own
-   `.table th, .table td { padding: … }` does not go compact until that rule is deleted.
-   No specificity here can substitute for deleting it.
+   `.table th, .table td { padding: … }` or `.card-body { padding: … }` does not go
+   compact until that rule is deleted. No specificity here can substitute for deleting it.
    ─────────────────────────────────────────────────────────────────────────── */
 :root[data-density="compact"] {
     --cell-pad-y: var(--space-2);
     --cell-pad-x: var(--space-5);
+    --card-pad-block: var(--space-4);
+    --card-pad-inline: var(--space-6);
 }
