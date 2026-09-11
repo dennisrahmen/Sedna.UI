@@ -102,6 +102,10 @@ No configuration is required. `sednaUi.configure()` is only needed for the optio
 | `notifyIcon` | `null` | Icon for desktop notifications. |
 | `langCookie` | `false` | Mirror the language into a cookie for server-side prerendering. |
 | `storagePrefix` | `sedna.` | See below. Rarely needed. |
+| `themeDefault` | `sedna` | Which theme name applies with nothing stored. See [The default theme](#the-default-theme). |
+
+`ISednaUi.ConfigureAsync()` pushes these from `SednaUiOptions`, so an app registering the services
+does not call `configure()` by hand.
 
 ### Storage keys
 
@@ -111,7 +115,7 @@ and the default prefix is fine.
 
 `sedna.theme` and `sedna.variant` are two orthogonal choices, both always applied:
 
-- **`sedna.theme`** — *which* theme, by name; `sedna` with nothing stored.
+- **`sedna.theme`** — *which* theme, by name; the default theme with nothing stored.
 - **`sedna.variant`** — `dark`, `light`, or `system` to follow `prefers-color-scheme` live. `<html>`
   always carries the *resolved* `data-variant="dark"` or `data-variant="light"`; `system` only ever
   appears in the stored preference, for a settings UI that wants to show it as selected.
@@ -124,6 +128,27 @@ and the default prefix is fine.
 ```
 
 A stored choice always wins over this default; it only ever governs a first-time visitor.
+
+### The default theme
+
+An app that registers a theme of its own as `Default` sets the same name on the boot script, and
+renders it from the options rather than retyping it:
+
+```razor
+@inject SednaUiOptions SednaOptions
+
+<script src="_content/Sedna.UI/js/Sedna.UI.boot.js"
+        data-theme-default="@SednaOptions.Default"></script>
+```
+
+`SednaUiBrand.ToCss` emits `Default`'s palette at bare `:root` and every other registered theme at
+`[data-theme="<name>"]`, so the name the browser stamps decides which palette a first visit gets.
+Left at `sedna` while the app's default is its own theme, a visitor with nothing stored is stamped
+`data-theme="sedna"` — which selects the built-in palette if Sedna is also registered, and otherwise
+names a theme no block answers to.
+
+`ISednaUi.ConfigureAsync()` pushes the same value to `Sedna.UI.js`, so the two agree once the circuit
+is up. An app calling neither keeps today's behaviour: `sedna` in both scripts.
 
 ### The browser's time zone
 
@@ -224,6 +249,14 @@ step, or generated from a single anchor colour:
 
 ```csharp
 var ramp = SednaRamp.FromAnchor("#2f6fed", anchorStep: 500);
+```
+
+The anchor gives the ramp its hue and chroma; every step's lightness, including the anchor's own,
+comes from the shared curve — so `ramp[500]` is **not** `#2f6fed`. When a brand colour is mandated
+exactly, keep it and let the rest generate around it:
+
+```csharp
+var ramp = SednaRamp.FromAnchor("#D62828", anchorStep: 600, exactAnchor: true);
 ```
 
 See [architecture](architecture.md#branding) for what `FromAnchor` follows and what
