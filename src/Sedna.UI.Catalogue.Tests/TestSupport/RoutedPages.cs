@@ -1,5 +1,6 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Components;
+using Sedna.UI.Catalogue.Navigation;
 
 namespace Sedna.UI.Catalogue.Tests.TestSupport;
 
@@ -20,6 +21,9 @@ internal static class RoutedPages
             .Where(t => typeof(IComponent).IsAssignableFrom(t))
             .SelectMany(t => t.GetCustomAttributes<RouteAttribute>())
             .Select(a => a.Template)
+            // The not-found page is routed so the status-code middleware can reach it,
+            // and is no catalogue page — NotFoundTests is what covers it.
+            .Where(t => t != CataloguePages.NotFoundRoute)
             .OrderBy(t => t, StringComparer.Ordinal)
             .ToList();
 

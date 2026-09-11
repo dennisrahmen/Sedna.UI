@@ -5,7 +5,7 @@
 @implements IDisposable
 @inject NavigationManager Nav
 
-<Router AppAssembly="typeof(Program).Assembly">
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(CatalogueLayout)" />
 

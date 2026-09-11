@@ -96,6 +96,26 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/error", createScopeForErrors: true);
 }
 
+// An address with no endpoint renders the catalogue's own page, in the layout, and
+// keeps its 404. Without it the response is the server's empty 404 and the browser
+// shows its own error page.
+//
+// Never under /mcp, where a JSON-RPC client must not be answered with HTML. Switched
+// off per request by path: a GET there matches no endpoint, so metadata on the MCP
+// endpoint never reaches it, and a UseWhen branch loses the route builder the
+// re-execution needs to find the not-found page at all.
+app.UseStatusCodePagesWithReExecute(CataloguePages.NotFoundRoute, createScopeForStatusCodePages: true);
+app.Use((context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/mcp", StringComparison.OrdinalIgnoreCase)
+        && context.Features.Get<Microsoft.AspNetCore.Diagnostics.IStatusCodePagesFeature>() is { } statusPages)
+    {
+        statusPages.Enabled = false;
+    }
+
+    return next(context);
+});
+
 // No UseHttpsRedirection. Railway terminates TLS and always sends
 // X-Forwarded-Proto: https, so the app sees plain HTTP — with redirection on and
 // forwarded headers off, every request becomes an infinite redirect. The service
