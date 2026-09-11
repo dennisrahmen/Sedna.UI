@@ -710,7 +710,7 @@
     --text-8:  18px;
     --text-9:  22px;
     --text-10: 26px;
-    --text-11: 40px;   /* display only — the page-level empty-state glyph */
+    --text-11: 40px;   /* display only — the empty-state glyph, .state-icon */
 
     /* ── Motion ─────────────────────────────────────────────────────────────
        Three durations for interaction, and one per looping animation. Set them all
@@ -3698,11 +3698,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    column's gap rather than collapsing into it, and 8px + 10px under a drawing that
    is already 96px of mostly air read as a hole between the picture and its own
    caption. 8px + 8px is the pair that reads as one block.
-   The sprite, the ids and the three sizes are in 42-state-art.css.
+   The sprite, the ids and the three sizes are in 42-state-art.css, and so is
+   `.state-icon`, the glyph that can stand in for the drawing. It takes the same room.
 
-   There is no rule here for a bare `<i>`. Every state names its own drawing, because a
-   single glyph shared by four states is the thing this replaced. */
-.state-art { margin-bottom: var(--space-4); }
+   Still no rule for a bare `<i>`: the glyph is opted in by its class. `.empty-state i`
+   once reached the icon inside the action button too and rendered it at 40px. */
+.state-art,
+.state-icon { margin-bottom: var(--space-4); }
 
 .empty-state-title { font-size: var(--text-5); font-weight: 600; color: var(--fg); }
 .empty-state p     { margin: 0; font-size: var(--text-4); max-width: 44ch; }
@@ -3743,6 +3745,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    One declaration, inherited by the drawing through the `<use>` shadow tree. There is
    no second sprite for the error states and there must not be one. */
 .empty-state--failed { --state-accent: var(--danger-fg); }
+/* A glyph has no line work to leave grey, so the whole of it takes the accent. */
+.empty-state--failed .state-icon { color: var(--danger-fg); }
 
 /* The line under the title, for the detail that makes a failure actionable: the code,
    the endpoint, when it was last tried. It takes the paragraph's measure, and breaks
@@ -3782,7 +3786,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 }
 /* One step more than the card block, because the page block's own gap is a step
    larger and the title is --text-9 rather than --text-5. Same reduction. */
-.empty-state--page .state-art { margin-bottom: var(--space-5); }
+.empty-state--page .state-art,
+.empty-state--page .state-icon { margin-bottom: var(--space-5); }
 .empty-state--page .empty-state-title { font-size: var(--text-9); }
 /* The measure grows with the type. 44ch of 13px is a comfortable column; 44ch of the
    same sentence under a 22px heading reads as a narrow strip. */
@@ -3847,6 +3852,10 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    It is not a second icon set either: an icon set is a vocabulary an app draws from,
    and this is thirteen fixed pictures of thirteen fixed states.
 
+   The icon is still available, as `.state-icon` below, for what the sprite cannot
+   say: which kind of thing is missing — invoices, attachments, members. Pick the glyph
+   for that thing. One glyph on every empty panel is the ornament described above.
+
    ── Colour ──
    The sprite writes no colour at all. Its line work is `currentColor`, which lands on
    whatever `color` the host sets — `--muted` here — and its single accent is
@@ -3874,6 +3883,30 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 }
 .state-art--sm { width: 56px; height: 56px; }
 .state-art--lg { width: 152px; height: 152px; }
+
+/* ── State icon ───────────────────────────────────────────────────────────────
+   A Remix Icon glyph in the drawing's place, with the same title, sentence and
+   actions under it:
+
+     <i class="ri-file-list-3-line state-icon" aria-hidden="true"></i>
+
+   The same three places as the drawing, so the same three steps — `--sm` for a table
+   row or a narrow panel, the bare class for a card, `--lg` for the page. They are
+   font sizes because the glyph is type, and `line-height: 1` keeps the inherited
+   leading out of its box, which would otherwise push the title down.
+
+   `--border-strong`, a step lighter than the drawing's `--muted`: a line glyph this
+   size has a heavier stroke than the drawing, and at the same colour it is the
+   darkest thing in the panel. `.empty-state--failed` turns it to the danger colour. */
+.state-icon {
+    display: block;
+    flex-shrink: 0;
+    font-size: var(--text-11);
+    line-height: 1;
+    color: var(--border-strong);
+}
+.state-icon--sm { font-size: var(--text-10); }
+.state-icon--lg { font-size: calc(var(--text-11) * 1.6); }
 }
 
 /* ── 43-content-grids.css → @layer sedna.paint ──────────────────────────────────────────────── */

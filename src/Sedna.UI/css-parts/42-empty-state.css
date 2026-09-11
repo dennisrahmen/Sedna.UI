@@ -16,11 +16,13 @@
    column's gap rather than collapsing into it, and 8px + 10px under a drawing that
    is already 96px of mostly air read as a hole between the picture and its own
    caption. 8px + 8px is the pair that reads as one block.
-   The sprite, the ids and the three sizes are in 42-state-art.css.
+   The sprite, the ids and the three sizes are in 42-state-art.css, and so is
+   `.state-icon`, the glyph that can stand in for the drawing. It takes the same room.
 
-   There is no rule here for a bare `<i>`. Every state names its own drawing, because a
-   single glyph shared by four states is the thing this replaced. */
-.state-art { margin-bottom: var(--space-4); }
+   Still no rule for a bare `<i>`: the glyph is opted in by its class. `.empty-state i`
+   once reached the icon inside the action button too and rendered it at 40px. */
+.state-art,
+.state-icon { margin-bottom: var(--space-4); }
 
 .empty-state-title { font-size: var(--text-5); font-weight: 600; color: var(--fg); }
 .empty-state p     { margin: 0; font-size: var(--text-4); max-width: 44ch; }
@@ -61,6 +63,8 @@
    One declaration, inherited by the drawing through the `<use>` shadow tree. There is
    no second sprite for the error states and there must not be one. */
 .empty-state--failed { --state-accent: var(--danger-fg); }
+/* A glyph has no line work to leave grey, so the whole of it takes the accent. */
+.empty-state--failed .state-icon { color: var(--danger-fg); }
 
 /* The line under the title, for the detail that makes a failure actionable: the code,
    the endpoint, when it was last tried. It takes the paragraph's measure, and breaks
@@ -100,7 +104,8 @@
 }
 /* One step more than the card block, because the page block's own gap is a step
    larger and the title is --text-9 rather than --text-5. Same reduction. */
-.empty-state--page .state-art { margin-bottom: var(--space-5); }
+.empty-state--page .state-art,
+.empty-state--page .state-icon { margin-bottom: var(--space-5); }
 .empty-state--page .empty-state-title { font-size: var(--text-9); }
 /* The measure grows with the type. 44ch of 13px is a comfortable column; 44ch of the
    same sentence under a 22px heading reads as a narrow strip. */

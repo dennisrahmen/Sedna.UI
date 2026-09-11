@@ -22,6 +22,10 @@
    It is not a second icon set either: an icon set is a vocabulary an app draws from,
    and this is thirteen fixed pictures of thirteen fixed states.
 
+   The icon is still available, as `.state-icon` below, for what the sprite cannot
+   say: which kind of thing is missing — invoices, attachments, members. Pick the glyph
+   for that thing. One glyph on every empty panel is the ornament described above.
+
    ── Colour ──
    The sprite writes no colour at all. Its line work is `currentColor`, which lands on
    whatever `color` the host sets — `--muted` here — and its single accent is
@@ -49,3 +53,27 @@
 }
 .state-art--sm { width: 56px; height: 56px; }
 .state-art--lg { width: 152px; height: 152px; }
+
+/* ── State icon ───────────────────────────────────────────────────────────────
+   A Remix Icon glyph in the drawing's place, with the same title, sentence and
+   actions under it:
+
+     <i class="ri-file-list-3-line state-icon" aria-hidden="true"></i>
+
+   The same three places as the drawing, so the same three steps — `--sm` for a table
+   row or a narrow panel, the bare class for a card, `--lg` for the page. They are
+   font sizes because the glyph is type, and `line-height: 1` keeps the inherited
+   leading out of its box, which would otherwise push the title down.
+
+   `--border-strong`, a step lighter than the drawing's `--muted`: a line glyph this
+   size has a heavier stroke than the drawing, and at the same colour it is the
+   darkest thing in the panel. `.empty-state--failed` turns it to the danger colour. */
+.state-icon {
+    display: block;
+    flex-shrink: 0;
+    font-size: var(--text-11);
+    line-height: 1;
+    color: var(--border-strong);
+}
+.state-icon--sm { font-size: var(--text-10); }
+.state-icon--lg { font-size: calc(var(--text-11) * 1.6); }

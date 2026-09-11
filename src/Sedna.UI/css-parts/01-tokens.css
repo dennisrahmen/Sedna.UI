@@ -380,7 +380,7 @@
     --text-8:  18px;
     --text-9:  22px;
     --text-10: 26px;
-    --text-11: 40px;   /* display only — the page-level empty-state glyph */
+    --text-11: 40px;   /* display only — the empty-state glyph, .state-icon */
 
     /* ── Motion ─────────────────────────────────────────────────────────────
        Three durations for interaction, and one per looping animation. Set them all
