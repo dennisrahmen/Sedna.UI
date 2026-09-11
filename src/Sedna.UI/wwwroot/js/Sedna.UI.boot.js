@@ -133,10 +133,12 @@
        header on every request for no reason, and a value that changes on every load
        is one an app cannot cache a formatter against.
 
-       No reload, no event, no C# surface: an app decides what to do with the value.
-       Note that a FIRST request carries no cookie yet — the app needs a configured
-       fallback zone for that one render, and must not reload to get the cookie,
-       because the next navigation already carries it. */
+       No reload and no event: an app decides what to do with the value. Note that a
+       FIRST request carries no cookie yet — the app needs a configured fallback zone
+       for that one render, and must not reload to get the cookie, because the next
+       navigation already carries it. Once a circuit is up, sednaUi.timeZone() (and
+       ISednaUi.GetTimeZoneAsync) answers the same question without a cookie at all,
+       which is what covers that first session. */
     if (tzCookie) {
         try {
             var zone = Intl.DateTimeFormat().resolvedOptions().timeZone;

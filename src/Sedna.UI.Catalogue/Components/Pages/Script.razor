@@ -79,7 +79,7 @@
         <code>data-tz-cookie</code> names a cookie, and <code>boot.js</code> writes
         <code>Intl.DateTimeFormat().resolvedOptions().timeZone</code> to it before first paint, with
         <code>path=/</code>, <code>SameSite=Lax</code> and a year's <code>max-age</code> — only when
-        the value differs from the cookie already there. No reload, no event, no C# surface.
+        the value differs from the cookie already there. No reload and no event.
     </p>
     <p>
         <strong>A first request carries no cookie yet.</strong> Configure a fallback zone for that
@@ -87,6 +87,18 @@
         navigation already carries it.
     </p>
 </CatSnippet>
+
+<CatExample TExample="Examples.Interop.TimeZoneFromCsharp" Title="The time zone from C#" Demo="ex-demo--block">
+    <p>
+        <strong>Live — this is your own zone.</strong> <code>ISednaUi.GetTimeZoneAsync()</code> reads
+        <code>Intl</code> through the circuit and returns the IANA id, so a Blazor Server app gets the
+        zone on the <em>first</em> session in a new browser — where the cookie above is still absent
+        and a navigation is not an HTTP request. The two are the same answer at two moments: the
+        cookie serves the first server render, this serves the circuit. It is interop, so call it from
+        <code>OnAfterRenderAsync(firstRender: true)</code>, and keep the configured fallback for the
+        render before it answers.
+    </p>
+</CatExample>
 
 <CatExample TExample="Examples.Script.Toasts" Title="Toasts" Demo="ex-demo--block">
     <p>

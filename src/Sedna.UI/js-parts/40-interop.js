@@ -55,6 +55,22 @@
         try { window.scrollTo(0, 0); } catch (e) { /* ignore */ }
     };
 
+    /* The browser's own IANA time zone — "Europe/Lisbon", never an offset, because an
+       offset is only true until the next transition.
+
+       Read from Intl on every call rather than stored: it is not a preference, so it
+       has no key under the storage prefix and nothing to invalidate when a reader
+       travels. The boot script's data-tz-cookie is the other half of the same
+       question — the cookie is what a server-rendered app's FIRST render reads,
+       before there is a circuit to call this from.
+
+       null where Intl is missing or refuses, so a caller falls back to its own
+       configured zone instead of to a wrong one. */
+    ui.timeZone = function () {
+        try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; }
+        catch (e) { return null; }
+    };
+
     ui.getItem = function (k) { return readRaw(k); };
 
     ui.setItem = function (k, value) {

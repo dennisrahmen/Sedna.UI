@@ -1489,7 +1489,13 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     text-decoration: none;
 }
 .brand:hover { text-decoration: none; }
-.brand-logo { width: 30px; height: 30px; border-radius: var(--radius-surface); flex-shrink: 0; }
+/* The tile takes a colour, a mark drawn in CSS, or an <img> — and an app's real logo
+   is the third one, which nothing fitted: an image keeps its intrinsic size and its
+   square corners, so every consuming app wrote the same four declarations for itself.
+   The pair here is the one `.avatar` already uses. An image that is not square is
+   cropped rather than squashed, so supply a square asset. */
+.brand-logo { width: 30px; height: 30px; border-radius: var(--radius-surface); flex-shrink: 0; overflow: hidden; }
+.brand-logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-sub {
     display: block; font-size: var(--text-1); color: var(--muted);
@@ -7898,6 +7904,31 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     font-size: var(--text-2);
 }
 .spotlight-tip-do i { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
+
+/* ── Over an open modal <dialog> ─────────────────────────────────────────────
+   A dialog opened with showModal() is in the top layer, which no z-index reaches, so
+   the 510 above cannot put a spotlight over one. `sednaUi.spotlight` raises the hole
+   and the bubble into the top layer after the dialog instead — as manual popovers —
+   and moves the bubble into the dialog, which is what keeps its buttons usable: the
+   platform makes everything outside an open modal dialog inert, and inertness follows
+   the DOM rather than the paint order.
+
+   These rules undo the UA's popover box, which is centred by `inset: 0` with
+   `margin: auto` and drawn as a bordered, padded panel in the system colours. Fixed,
+   because a top-layer element's containing block is the viewport whatever its
+   ancestors are — and that is the coordinate space the script writes while a step is
+   raised. A raised spotlight is the same spotlight; nothing here is a second look. */
+.spotlight-hole:popover-open,
+.spotlight-tip:popover-open {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    overflow: visible;
+}
+/* The hole draws nothing of its own — the dim is a shadow around an empty box — so
+   the UA's border, padding and background have to go, or the highlighted control is
+   covered by a panel instead of revealed. */
+.spotlight-hole:popover-open { padding: 0; border: 0; background: none; }
 
 /* ── The interaction lock ────────────────────────────────────────────────────
    `sednaUi.spotlight.lock()` puts `.spotlight-lock` on <body> while a step is live,

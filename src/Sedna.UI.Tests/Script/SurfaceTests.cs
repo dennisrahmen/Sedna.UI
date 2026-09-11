@@ -23,7 +23,7 @@ public class SurfaceTests : ScriptTestBase
             () => [
                 'configure', 'settings', 'tips', 'toast', 'confirm', 'menu', 'tabs',
                 'palette', 'search', 'md', 'spotlight', 'copyText', 'openTab',
-                'viewportWidth', 'getItem', 'setItem', 'requestNotify', 'notify', 'ping',
+                'viewportWidth', 'timeZone', 'getItem', 'setItem', 'requestNotify', 'notify', 'ping',
                 'watchSettings', 'unwatchSettings'
             ].filter(k => window.sednaUi[k] === undefined)
             """);

@@ -268,6 +268,70 @@ public class FrameLayoutTests : ScriptTestBase
         Assert.Empty(errors);
     }
 
+    [Theory]
+    [InlineData("sidebar-logo", 30)]
+    [InlineData("bare-logo", 28)]
+    public async Task The_brand_tile_sizes_and_clips_a_logo_image(string id, int size)
+    {
+        if (NoBrowser) return;
+        // A tile filled with a colour is what every example showed, and an app puts its
+        // actual logo in it — an image whose intrinsic size is its own and whose corners
+        // are square. So the tile has to clip and the image has to fill it, or every
+        // consuming app writes the same four declarations. Both tiles are measured
+        // because they are two different sizes set by two different parts.
+        var (page, errors) = await OpenStyled(
+            """
+            <div class="layout" style="height:200px">
+              <aside class="sidebar">
+                <a class="brand" href="#">
+                  <span class="brand-logo"><img id="sidebar-logo" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%231E293B'/%3E%3C/svg%3E"></span>
+                  <span class="brand-text"><strong>Northwind Retail</strong></span>
+                </a>
+              </aside>
+              <div class="content"><div class="page">
+                <div class="bare-brand">
+                  <span class="brand-logo"><img id="bare-logo" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%231E293B'/%3E%3C/svg%3E"></span>
+                  <span>Northwind Retail</span>
+                </div>
+              </div></div>
+            </div>
+            """);
+
+        // [image width, image height, tile width, tile height, tile left - image left]
+        var box = await page.EvaluateAsync<double[]>($$"""
+            () => {
+                const img = document.getElementById('{{id}}');
+                const tile = img.parentElement;
+                const i = img.getBoundingClientRect(), t = tile.getBoundingClientRect();
+                return [i.width, i.height, t.width, t.height, t.left - i.left];
+            }
+            """);
+
+        // The image is the tile, not its own 120×80.
+        Assert.Equal(size, box[0], 1);
+        Assert.Equal(size, box[1], 1);
+        Assert.Equal(size, box[2], 1);
+        Assert.Equal(size, box[3], 1);
+        Assert.Equal(0, box[4], 1);
+
+        var style = await page.EvaluateAsync<string[]>($$"""
+            () => {
+                const img = document.getElementById('{{id}}');
+                const i = getComputedStyle(img), t = getComputedStyle(img.parentElement);
+                return [i.objectFit, i.display, t.overflow, t.borderTopLeftRadius];
+            }
+            """);
+
+        // Cropped rather than squashed, no inline baseline gap under it, and clipped to
+        // the tile's own corners — the radius is what makes the clip necessary at all.
+        Assert.Equal("cover", style[0]);
+        Assert.Equal("block", style[1]);
+        Assert.Equal("hidden", style[2]);
+        Assert.NotEqual("0px", style[3]);
+
+        Assert.Empty(errors);
+    }
+
     private static double Pixels(string value) =>
         double.Parse(value.Replace("px", "", StringComparison.Ordinal),
             System.Globalization.CultureInfo.InvariantCulture);

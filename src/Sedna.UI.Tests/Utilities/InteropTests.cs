@@ -168,6 +168,20 @@ public class InteropTests : BunitContext
         Assert.Equal("/badge", item.Href);
     }
 
+    [Fact]
+    public async Task The_time_zone_is_read_through_the_script_and_stored_nowhere()
+    {
+        JSInterop.Setup<string?>("sednaUi.timeZone").SetResult("Pacific/Auckland");
+
+        var zone = await Wrapper().GetTimeZoneAsync();
+
+        Assert.Equal("Pacific/Auckland", zone);
+        // No arguments, and not a settings key: the zone is read from Intl on every
+        // call, so there is no stored value to go stale when a reader travels — and
+        // nothing for an app to have to invalidate.
+        Assert.Empty(Only("sednaUi.timeZone").Arguments);
+    }
+
     // The wrappers build anonymous objects, which is what the JSON serialiser sees.
     private static object? Read(object bag, string property) =>
         bag.GetType().GetProperty(property)?.GetValue(bag);

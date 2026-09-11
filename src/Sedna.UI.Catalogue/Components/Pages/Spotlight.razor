@@ -47,6 +47,23 @@
     </p>
 </CatSnippet>
 
+<CatSnippet Name="Spotlight/SpotlightDialog.txt" Title="Over an open modal dialog">
+    <p>
+        A step can point at a control inside a <code>&lt;dialog&gt;</code> opened with
+        <code>showModal()</code>, and nothing extra is called: the hole and the bubble are raised
+        into the top layer after the dialog, and the bubble is moved into it for as long as the step
+        is there. <strong>Both halves are needed</strong> — an open modal dialog is in the top layer,
+        which no z-index reaches, and it makes everything outside it inert, so a bubble left in the
+        page paints underneath it <em>and</em> stops answering clicks.
+    </p>
+    <p>
+        <kbd>Escape</kbd>, the focus trap and the inert background are untouched, and both are put
+        back exactly where they were when the step moves on or the dialog closes. The one thing that
+        cannot be done is allowing something <em>outside</em> the dialog: the platform has made it
+        inert, and <code>lock()</code> cannot undo that.
+    </p>
+</CatSnippet>
+
 <CatExample TExample="Examples.Spotlight.FirstRunHint" Title="A first-run hint" Demo="ex-demo--block ex-demo--flush">
     <p>
         One element, one bubble, no step counter — the case a tour is too much for. Everything here

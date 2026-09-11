@@ -169,9 +169,20 @@ For an app that stores instants as UTC and renders them on the reader's clock. O
 the zone, and in Blazor Server with prerendering off `App.razor` is the last component with an
 `HttpContext` to read a cookie from — so without this an app ships an inline script of its own.
 
-The library does nothing else with it: no reload, no event, no C# surface. **The first request of a
-session carries no cookie yet**, so configure a fallback zone for that one render and let it stand. Do
-not reload the page to get the cookie; the next navigation already carries it.
+The library does nothing else with it: no reload and no event. **The first request of a session
+carries no cookie yet**, so configure a fallback zone for that one render and let it stand. Do not
+reload the page to get the cookie; the next navigation already carries it.
+
+From a circuit, ask for the zone directly:
+
+```csharp
+var zone = await Ui.GetTimeZoneAsync();          // "Europe/Lisbon", or null
+if (zone is not null && TimeZoneInfo.TryFindSystemTimeZoneById(zone, out var tz)) _zone = tz;
+```
+
+Call it from `OnAfterRenderAsync(firstRender: true)` — it is interop, so it cannot run while
+prerendering. The cookie is what the first server render reads; this is what the first session reads,
+and it is an IANA id rather than an offset, which is only true until that zone's next transition.
 
 `sedna.dir` and `sedna.lang` are the two that are only applied **once stored**. Both are attributes the
 host page declares about itself, so with nothing stored `<html dir>` and `<html lang>` are left exactly
