@@ -1,0 +1,47 @@
+// A step can point INSIDE a <dialog> opened with showModal(), and there is nothing
+// extra to call: at() and follow() see that the target is in one, raise the hole and
+// the bubble into the top layer after the dialog, and move the bubble into it. Both
+// go back exactly where they were when the step moves on or the dialog closes.
+sednaUi.modal.show('new-api-key');          // or await Ui.ShowModalAsync("new-api-key")
+
+const step = sednaUi.spotlight.follow('#hole', '#key-name', {
+    tip: '#tip',
+    lock: { interactive: true },
+});
+
+// Why it has to be done at all: an open modal dialog is in the top layer, which no
+// z-index reaches, AND the platform makes everything outside it inert. A bubble left
+// in the page therefore paints under the dialog and stops answering — a real click on
+// Next lands on the dialog, and the keyboard cannot reach it either.
+
+// What follows from that:
+//
+//   · Only what is INSIDE the dialog can be allowed. lock({ allow: '#help' }) naming
+//     something on the page behind cannot bring it back; the platform made it inert.
+//   · A .menu or a .popover opened inside the dialog sits UNDER the dim, where on the
+//     page it would sit above it. Widen the hole over it with `include`.
+//   · Escape still closes the dialog and Tab still cycles inside it. The bubble joins
+//     that cycle, because it is in the dialog while the step is live.
+//   · The bubble is a node your framework owns, so keep it last among its siblings:
+//     one inserted immediately before it while it is away lands in the dialog. A
+//     bubble you render inside the dialog yourself is raised and never moved.
+
+<dialog class="modal" id="new-api-key">
+    <div class="modal-header"><h3>New API key</h3></div>
+    <div class="modal-body">
+        <div class="form-field">
+            <label class="form-label" for="key-name">Name</label>
+            <input class="form-input" id="key-name" />
+        </div>
+    </div>
+</dialog>
+
+<div id="hole" class="spotlight-hole spotlight-ring"></div>
+<div id="tip" class="spotlight-tip">
+    <span class="spotlight-tip-title">Name it after the job</span>
+    A key named for what uses it is a key somebody can revoke without asking around.
+    <div class="spotlight-tip-actions">
+        <span class="spotlight-step">3 of 5</span>
+        <button class="btn btn-sm btn-primary" type="button">Next</button>
+    </div>
+</div>

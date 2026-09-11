@@ -390,6 +390,10 @@ close — the pointer has to stay on the item for it to exist, which is what mak
 The drawer sits **below** the modal backdrop on purpose, so a modal opened from inside a drawer still
 covers it.
 
+A spotlight over an open modal `<dialog>` leaves the scale entirely: `sednaUi.spotlight` raises the
+hole and the bubble into the top layer after the dialog and moves the bubble into it, because
+everything outside an open modal dialog is inert and inertness follows the DOM, not the paint order.
+
 `.topbar` and `.user-widget` create stacking contexts, so a panel nested in either is ordered within it
 and cannot be lifted above the modal backdrop by z-index alone. The top layer (`popover`,
 `dialog.showModal()`) ignores z-index altogether and orders by promotion.

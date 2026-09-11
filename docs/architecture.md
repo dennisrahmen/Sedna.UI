@@ -225,6 +225,12 @@ differs from the one already there. Both are written before first paint. The fir
 carries neither, so an app needs a configured fallback and must **not** reload to obtain one: the next
 navigation already carries it.
 
+**`ISednaUi.GetTimeZoneAsync()` is the same zone from a circuit**, read from `Intl` at call time and
+stored nowhere. The cookie answers the first *server render*; this answers the first *session*, where
+there is no cookie yet and a Blazor Server navigation is not an HTTP request that could collect one.
+An app rendering UTC instants on the reader's clock wants both, and keeps its configured fallback for
+the render before either answers.
+
 `dir` and `lang` are the two that are written **only from a stored choice**. Both are attributes the host
 page declares about itself, so with nothing stored they are left exactly as the document wrote them — the
 library never infers a document's direction or language from the browser's. Never derive `lang` from
@@ -358,6 +364,11 @@ Two things the flat list does not say:
   paints above every non-top-layer element regardless of this scale, and among top-layer elements the
   order is promotion order, not z-index. Once a family moves to the top layer, its row here describes
   the fallback path only. `.popover` and the command palette are both already there.
+- **A spotlight over an open modal `<dialog>` leaves the scale too.** `sednaUi.spotlight` raises
+  `.spotlight-hole` and `.spotlight-tip` into the top layer after the dialog, as manual popovers, and
+  moves the bubble into the dialog — everything outside an open modal dialog is inert, and inertness
+  follows the DOM rather than the paint order, so raising alone leaves the bubble visible and dead.
+  Rung 510 is what applies to every other step, including one over a `.modal-backdrop` div at 500.
 - **The collapsed rail's flyout is `position: fixed`**, not absolute, because `.nav-scroll` scrolls and
   would otherwise clip it. It is still on rung 400: fixed positioning escapes an ancestor's `overflow`,
   not the z-order.
@@ -392,9 +403,9 @@ Two things the flat list does not say:
 | `output` | Follow-tail for a `data-follow` output pane: sticks to the newest line, releases when the reader scrolls up, re-attaches when they scroll back down. `follow(pane)`, `isFollowing(pane)` |
 | `codeBlock` | `toggle(block, expanded?)` — expands or collapses a `.code-block--clamped`. Delegated from `[data-code-expand]` |
 | — | `29-fragment.js` adds no member. A click on a link written as a bare fragment (`href="#main"`) whose target is on the page is cancelled, and the target is scrolled to and focused — under `<base href="/">` the link would otherwise open the start page, and Blazor's own same-page jump never moves focus. A modified click, a click another handler already cancelled, and a fragment naming no element are left alone. The address does not change |
-| `spotlight` | Tour geometry and the input model, not the sequence. `at(hole, target, { pad, include })` positions `.spotlight-hole` over an element, a list of them or a selector, and returns the rectangle — `null` when nothing visible is left; `tipAt(tip, rect, { placement, gap, margin, boundary })` places the bubble on any of the four sides, flips it when the side does not fit, clamps it into the viewport — or into `boundary` — and reports the side used; `follow(hole, target, opts)` keeps both attached across scroll, resize and re-render, returning `{ update, stop, side }`; `lock(opts)` / `unlock()` make the rest of the page inert and gate hover hints. The steps, the copy and the order stay the app's |
+| `spotlight` | Tour geometry and the input model, not the sequence. `at(hole, target, { pad, include })` positions `.spotlight-hole` over an element, a list of them or a selector, and returns the rectangle — `null` when nothing visible is left; `tipAt(tip, rect, { placement, gap, margin, boundary })` places the bubble on any of the four sides, flips it when the side does not fit, clamps it into the viewport — or into `boundary` — and reports the side used; `follow(hole, target, opts)` keeps both attached across scroll, resize, re-render and a dialog opening or closing, returning `{ update, stop, side }`; `lock(opts)` / `unlock()` make the rest of the page inert and gate hover hints. A step whose target is inside an open modal `<dialog>` raises the hole and the bubble into the top layer after it and moves the bubble inside, and puts both back when the step leaves or the dialog closes. The steps, the copy and the order stay the app's |
 | `md` | Markdown editor: `init(root?)` wires every `.md-editor` in `root` (the document by default) and is idempotent per editor; `apply(textarea, cmd)`, `render(src)` |
-| `copyText`, `openTab`, `viewportWidth`, `scrollPageTop` | Interop helpers. `scrollPageTop` resets `.page`, which is the only scroll container the frame has and therefore the one navigation leaves where it was |
+| `copyText`, `openTab`, `viewportWidth`, `scrollPageTop`, `timeZone` | Interop helpers. `scrollPageTop` resets `.page`, which is the only scroll container the frame has and therefore the one navigation leaves where it was. `timeZone()` reads the browser's IANA zone from `Intl` at call time — an id, never an offset, and null where the browser refuses |
 | `getItem`, `setItem` | `localStorage` access |
 | `watchSettings`, `unwatchSettings` | The Blazor bridge for `settings.onChange`: takes a `DotNetObjectReference` and returns an id to unwatch with. `ISednaSettings` is the C# side; nothing else should call these |
 | `requestNotify`, `notify`, `ping` | Desktop notifications and an audio ping |
