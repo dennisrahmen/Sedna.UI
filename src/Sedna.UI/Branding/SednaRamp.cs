@@ -52,10 +52,16 @@ public sealed class SednaRamp
     /// Generates a full ramp from one anchor colour, per <c>docs/BRANDING.md</c> §2.1: a
     /// lightness curve shared by every hue, and a chroma bell that peaks at the anchor.
     /// </summary>
-    /// <param name="anchorHex">The exact, unrounded anchor colour, e.g. Sedna Red <c>#FF6B4A</c>.</param>
+    /// <param name="anchorHex">
+    /// The colour the ramp is built from, e.g. Sedna Red <c>#FF6B4A</c>. Its hue and chroma are
+    /// what the ramp carries; its <b>lightness is not</b>, unless <paramref name="exactAnchor"/>
+    /// says so — see <paramref name="anchorStep"/>.
+    /// </param>
     /// <param name="anchorStep">
     /// Which step the anchor sits at — 500 for coral, 400 for orbit. The anchor's own hue and
-    /// chroma are carried through unchanged at this step; every other step is generated.
+    /// chroma are carried through unchanged at this step, and its lightness is read off the
+    /// shared curve like every other step's, so <b>the colour emitted at this step is not
+    /// <paramref name="anchorHex"/></b>. Pass <paramref name="exactAnchor"/> to keep it verbatim.
     /// </param>
     /// <param name="steps">
     /// Which steps to generate. Defaults to the eleven standard steps (50…950) that coral,
@@ -66,6 +72,13 @@ public sealed class SednaRamp
     /// the shared curve — see <see cref="ContrastSolvedStep"/> for why this is a parameter here
     /// rather than special-cased for any particular step number. <see langword="null"/> (the
     /// default) generates every requested step from the curve, as before.
+    /// </param>
+    /// <param name="exactAnchor">
+    /// Emit <paramref name="anchorHex"/> verbatim at <paramref name="anchorStep"/> instead of
+    /// taking that step's lightness from the shared curve — for a brand colour a corporate design
+    /// mandates rather than chooses. The neighbouring steps are still generated around it, so the
+    /// ramp is the usual one with the anchor pinned into it. <see langword="false"/> (the default)
+    /// generates the anchor step like any other, as before.
     /// </param>
     /// <remarks>
     /// <para>
@@ -98,17 +111,32 @@ public sealed class SednaRamp
     /// <c>docs/BRANDING.md</c> §3.1 for why a shared curve cannot do this and a per-hue solve is
     /// required.
     /// </para>
+    /// <para>
+    /// <b><paramref name="exactAnchor"/></b> pins one colour rather than deriving it, which is
+    /// the one case the shared curve cannot serve: a brand whose hex is mandated. Only the anchor
+    /// step moves — every other step still comes from the curve and the bell, so the ramp keeps
+    /// the visual weight per step that makes families comparable. The anchor has to <i>fit</i>
+    /// where it is pinned: a colour lighter than the step above it, or darker than the step
+    /// below, would make the ramp non-monotonic, and the semantic tier reads neighbouring steps
+    /// as hover and active states of one another. That is rejected rather than emitted.
+    /// </para>
     /// </remarks>
     /// <exception cref="InvalidOperationException">
     /// <paramref name="contrastSolvedStep"/> names a floor this hue cannot reach at any
     /// lightness. Thrown rather than silently emitting a step that fails its own contrast
     /// requirement.
     /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="contrastSolvedStep"/> names a step outside <paramref name="steps"/>, or
+    /// <paramref name="exactAnchor"/> is set and the anchor is not one of the generated steps,
+    /// is also the contrast-solved step, or does not fit its own step's place in the ramp.
+    /// </exception>
     public static SednaRamp FromAnchor(
         string anchorHex,
         int anchorStep,
         IReadOnlyList<int>? steps = null,
-        ContrastSolvedStep? contrastSolvedStep = null)
+        ContrastSolvedStep? contrastSolvedStep = null,
+        bool exactAnchor = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(anchorHex);
         steps ??= StandardSteps;
@@ -123,6 +151,20 @@ public sealed class SednaRamp
                 $"contrastSolvedStep names step {floor.Step}, which is not in steps ({string.Join(", ", steps)}).",
                 nameof(contrastSolvedStep));
 
+        if (exactAnchor && !steps.Contains(anchorStep))
+            throw new ArgumentException(
+                $"exactAnchor keeps the anchor at step {anchorStep}, which is not in steps "
+                + $"({string.Join(", ", steps)}) — so there is no step for it to be kept at.",
+                nameof(exactAnchor));
+
+        if (exactAnchor && contrastSolvedStep is { } solved && solved.Step == anchorStep)
+            throw new ArgumentException(
+                $"exactAnchor and contrastSolvedStep both claim step {anchorStep}: one keeps "
+                + $"{anchorHex} verbatim, the other solves that step for "
+                + $"{solved.MinimumRatio:0.00}:1 against {solved.AgainstHex}. Solve a different "
+                + "step, or drop exactAnchor and let the solver have this one.",
+                nameof(exactAnchor));
+
         var (_, anchorC, anchorH) = Oklch.FromHex(anchorHex);
 
         var result = new Dictionary<int, string>(steps.Count);
@@ -132,6 +174,13 @@ public sealed class SednaRamp
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(steps), step,
                     $"Every generated step must be one of: {string.Join(", ", StandardSteps)}.");
+
+            if (exactAnchor && step == anchorStep)
+            {
+                // The one colour in the ramp that is chosen rather than derived.
+                result[step] = NormaliseHex(anchorHex);
+                continue;
+            }
 
             if (contrastSolvedStep is { } solve && solve.Step == step)
             {
@@ -156,7 +205,51 @@ public sealed class SednaRamp
             result[step] = Oklch.ToHex(l, c, anchorH);
         }
 
+        if (exactAnchor) AssertAnchorFitsItsStep(result, anchorStep, anchorHex);
+
         return new SednaRamp(result);
+    }
+
+    /// <summary>
+    /// Fails when a verbatim anchor is lighter than the step above it or darker than the step
+    /// below — i.e. when pinning it would make the ramp non-monotonic in lightness.
+    /// </summary>
+    /// <remarks>
+    /// The semantic tier reads neighbouring steps as states of one another:
+    /// <c>--brand-hover</c> is the step after <c>--brand</c>, <c>--brand-active</c> the one after
+    /// that. A ramp that reverses direction mid-way therefore ships a hover state lighter than
+    /// its resting state, with nothing to report it — so the mistake is named here, where the
+    /// caller can still move the anchor to the step its lightness actually belongs at.
+    /// </remarks>
+    private static void AssertAnchorFitsItsStep(
+        IReadOnlyDictionary<int, string> ramp, int anchorStep, string anchorHex)
+    {
+        var ordered = ramp.Keys.OrderBy(s => s).ToList();
+        var at = ordered.IndexOf(anchorStep);
+        var anchorL = Oklch.FromHex(ramp[anchorStep]).L;
+
+        // Lighter steps come first, so lightness has to fall as the step number rises.
+        var lighter = at > 0 ? (int?)ordered[at - 1] : null;
+        var darker = at < ordered.Count - 1 ? (int?)ordered[at + 1] : null;
+
+        var above = lighter is { } l && Oklch.FromHex(ramp[l]).L <= anchorL ? lighter : null;
+        var below = darker is { } d && Oklch.FromHex(ramp[d]).L >= anchorL ? darker : null;
+        if (above is null && below is null) return;
+
+        // Which step it would have fitted at: the one whose curve lightness is closest.
+        var fits = ordered
+            .Where(s => LightnessCurve.ContainsKey(s))
+            .OrderBy(s => Math.Abs(LightnessCurve[s] - anchorL))
+            .First();
+
+        var clash = above ?? below;
+        throw new ArgumentException(
+            $"exactAnchor cannot keep {anchorHex} at step {anchorStep}: its lightness "
+            + $"({anchorL:0.000}) is on the wrong side of step {clash} "
+            + $"({Oklch.FromHex(ramp[clash!.Value]).L:0.000}), which would leave the ramp "
+            + $"non-monotonic — the semantic tier reads neighbouring steps as hover and active "
+            + $"states of one another. This colour fits step {fits}.",
+            "exactAnchor");
     }
 
     /// <summary>The eleven steps coral, orbit and navy use, and the default for <see cref="FromAnchor"/>.</summary>

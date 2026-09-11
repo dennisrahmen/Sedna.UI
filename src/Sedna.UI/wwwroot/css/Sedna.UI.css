@@ -426,7 +426,13 @@
     --brand:            var(--coral-600);
     --brand-hover:      var(--coral-700);
     --brand-active:     var(--coral-800);
-    --brand-soft:       var(--coral-500);         /* icons/spinners on tinted surfaces — Sedna Red at full strength */
+    /* --brand-soft is a DISPLAY role, never a text one: icons, spinners and focus
+       borders, where 3:1 is the requirement. Its light value is the step solved for
+       white text on it, which says nothing about reading it as text on the canvas —
+       so text in brand colour takes --brand-text, the role measured against the
+       surface it renders on. BrandTextContrastTests measures every brand-coloured
+       rule in the sheet, in both variants, for every built-in and generated theme. */
+    --brand-soft:       var(--coral-500);         /* icons/spinners/focus borders — Sedna Red at full strength */
     --brand-text:       var(--coral-400);         /* readable brand text on the theme bg */
     /* Mixed from --brand rather than restated as literals, so redefining --brand
        alone carries the tint and every focus ring with it. An app may still pin any
@@ -843,8 +849,21 @@
     --redacted:       var(--crimson-700);
 
     --brand-soft: var(--coral-600);
-    --brand-text: var(--coral-700);
+    /* Step 800, not 700. Brand text in this variant is read on the canvas — and on a
+       brand tint over it, which is where it is dimmest — so the step has to clear AA
+       there rather than against white. 700 does that for Sedna's own coral, whose
+       steps were solved by hand, and for a GENERATED ramp it does not: the shared
+       lightness curve puts step 700 at one lightness for every hue, and WCAG luminance
+       weights hues differently, so a green brand measured 4.03:1 and a blue one 4.47:1
+       on the tint. 800 clears it for both, and for the library's own brand. The same
+       reasoning as --brand taking step 600 against white (docs/BRANDING.md §3.1), one
+       step further along because the surface underneath is a tinted canvas rather
+       than plain white. */
+    --brand-text: var(--coral-800);
     --brand-tint: color-mix(in srgb, var(--brand) 10%, transparent);
+    /* Lower than the dark variant's 24%: a tint darkens a light canvas, so the text on
+       it — --brand-text — loses contrast as this rises. The strong tint is bounded by
+       that pairing in either variant; BrandTextContrastTests is the measurement. */
     --brand-tint-strong: color-mix(in srgb, var(--brand) 20%, transparent);
     --accent:     var(--orbit-700);
 
@@ -1174,7 +1193,10 @@
     --surface-strong:  var(--slate-200);
 
     --brand-soft:      var(--coral-700);
-    --brand-text:      var(--coral-800);
+    /* One step past the light variant's own --brand-text, which is 800. This mode has
+       to be more contrast than the variant it composes with, not the same value
+       restated — and a token that stopped moving here would look deliberate. */
+    --brand-text:      var(--coral-900);
     --brand-tint:      var(--coral-200);
     --brand-tint-strong: var(--coral-300);
     --accent:          var(--orbit-800);
@@ -4112,8 +4134,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .markdown-body ul, .markdown-body ol { margin: 0.5em 0; padding-inline-start: 1.5em; }
 .markdown-body li { margin: 0.15em 0; }
 /* Underlined, not colour alone: a link inside a block of text must be
-   distinguishable without seeing the hue (WCAG 1.4.1). .prose does the same. */
-.markdown-body a  { color: var(--brand-soft); text-decoration: underline; }
+   distinguishable without seeing the hue (WCAG 1.4.1). .prose does the same.
+
+   --brand-text, not --brand-soft. The soft role is the brand at display strength for
+   icons and spinners on a tinted surface; it is solved against white, not against the
+   canvas, so as body text on --bg it measured under AA in the light variant — 4.35:1
+   for this library's own brand, and no better for a generated one. --brand-text is the
+   role that IS measured against the canvas, in both variants. */
+.markdown-body a  { color: var(--brand-text); text-decoration: underline; }
 .markdown-body code {
     font-family: var(--font-mono); font-size: 0.9em;
     background: var(--bg-elevated); border: 1px solid var(--border);

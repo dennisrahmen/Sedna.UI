@@ -88,17 +88,24 @@ public class InteropTests : BunitContext
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
 
+        var northwind = new SednaTheme("northwind", SednaTheme.Sedna.Palette);
+
         await Wrapper(new SednaUiOptions
         {
             StoragePrefix = "app-a.",
             NotifyIcon = "/logo.png",
             LangCookie = true,
+            Themes = [northwind],
+            Default = "northwind",
         }).ConfigureAsync();
 
         var options = Only("sednaUi.configure").Arguments[0]!;
         Assert.Equal("app-a.", Read(options, "storagePrefix"));
         Assert.Equal("/logo.png", Read(options, "notifyIcon"));
         Assert.Equal(true, Read(options, "langCookie"));
+        // The default theme travels too: the script stamps data-theme from it with nothing
+        // stored, and SednaUiBrand.ToCss emits this theme — not "sedna" — at bare :root.
+        Assert.Equal("northwind", Read(options, "themeDefault"));
     }
 
     [Fact]

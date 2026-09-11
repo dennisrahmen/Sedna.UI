@@ -8,11 +8,12 @@
    All the attributes below are optional.
 
    Two orthogonal attributes carry the theme: data-theme is WHICH theme (any name;
-   "sedna" absent anything stored) and data-variant is dark or light — what a
-   reader toggles. It also stamps data-cvd / data-density / dir / lang on <html>
-   from localStorage. The main Sedna.UI.js (end of <body>) keeps them current
-   afterwards, and both default to the same prefix, so neither needs configuring
-   unless two apps share one origin.
+   data-theme-default absent anything stored) and data-variant is dark or light —
+   what a reader toggles. It also stamps data-cvd / data-density / dir / lang on
+   <html> from localStorage. The main Sedna.UI.js (end of <body>) keeps them current
+   afterwards, and both default to the same prefix and the same theme name, so
+   neither needs configuring unless two apps share one origin or the app's own
+   default theme is not the built-in one.
 
    dir and lang are stamped from a STORED choice only. Both are attributes the host
    page declares for itself, and deriving either from the browser would overwrite
@@ -52,19 +53,36 @@
                        what it reads. Unlike the language cookie it takes no prefix
                        for the same reason.
    data-variant-default  "dark" (the default), "light", or "system" to follow
-                       prefers-color-scheme until the user chooses. */
+                       prefers-color-scheme until the user chooses.
+   data-theme-default  Which theme name to stamp when nothing is stored. Default
+                       "sedna". It must be SednaUiOptions.Default, which is the
+                       theme SednaUiBrand.ToCss emits at bare :root — every other
+                       registered theme gets a [data-theme="<name>"] block instead.
+                       Leaving it at "sedna" while the app's default is its own
+                       theme stamps a name that either selects a different
+                       registered palette or names a theme nobody registered, and
+                       it is the FIRST visit — the one with nothing stored — that
+                       gets it. Render it from the options rather than retyping it:
+
+                         @inject SednaUiOptions SednaOptions
+                         <script src="…/Sedna.UI.boot.js"
+                                 data-theme-default="@SednaOptions.Default"></script>
+
+                       ISednaUi.ConfigureAsync() pushes the same value to the main
+                       script, so the two agree once the circuit is up. */
 (function () {
     var el = document.currentScript;
     var prefix = (el && el.dataset.prefix) || 'sedna.';
     var wantCookie = !!(el && el.dataset.langCookie === 'true');
     var tzCookie = (el && el.dataset.tzCookie) || '';
     var fallback = (el && el.dataset.variantDefault) || 'dark';
+    var themeFallback = (el && el.dataset.themeDefault) || 'sedna';
 
     try {
         var get = function (k) { return localStorage.getItem(prefix + k); };
         var root = document.documentElement;
 
-        root.setAttribute('data-theme', get('theme') || 'sedna');
+        root.setAttribute('data-theme', get('theme') || themeFallback);
 
         var storedVariant = get('variant');
         // A recognised stored MODE (including "system") always wins over the

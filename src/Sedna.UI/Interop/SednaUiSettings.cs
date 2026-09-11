@@ -21,8 +21,8 @@ public sealed record SednaUiSettings
     public string Language { get; init; } = "en";
 
     /// <summary>
-    /// Which theme is active, by name — falling back to <c>"sedna"</c> with nothing
-    /// stored. Never absent.
+    /// Which theme is active, by name — falling back to
+    /// <see cref="SednaUiOptions.Default"/> with nothing stored. Never absent.
     /// </summary>
     /// <remarks>
     /// This used to be <c>"dark"</c> or <c>"light"</c>; that concept moved to

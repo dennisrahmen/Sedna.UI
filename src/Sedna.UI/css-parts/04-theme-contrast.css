@@ -149,7 +149,10 @@
     --surface-strong:  var(--slate-200);
 
     --brand-soft:      var(--coral-700);
-    --brand-text:      var(--coral-800);
+    /* One step past the light variant's own --brand-text, which is 800. This mode has
+       to be more contrast than the variant it composes with, not the same value
+       restated — and a token that stopped moving here would look deliberate. */
+    --brand-text:      var(--coral-900);
     --brand-tint:      var(--coral-200);
     --brand-tint-strong: var(--coral-300);
     --accent:          var(--orbit-800);

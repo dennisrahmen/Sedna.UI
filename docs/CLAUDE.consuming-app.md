@@ -207,6 +207,10 @@ At the end of `<body>`:
 Settings are stored under the default `sedna.` prefix. Do not set `data-prefix` / `storagePrefix` unless
 this app shares an origin with another app; if you do set one, both values must be identical.
 
+If this app registers a theme of its own as `SednaUiOptions.Default`, put that name on the boot script
+as `data-theme-default` — render it from the options, do not retype it. It is what `<html data-theme>`
+carries on a first visit, and the built-in `sedna` there selects the wrong palette.
+
 ### Upgrading
 
 The version is pinned and does not float. Before bumping it:

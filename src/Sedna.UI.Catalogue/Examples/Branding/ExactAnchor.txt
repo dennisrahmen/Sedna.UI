@@ -1,0 +1,12 @@
+// A brand whose hex is mandated. exactAnchor keeps it at its step, unrounded and
+// unmoved; every other step is still generated from the shared curve around it.
+var brand = SednaRamp.FromAnchor("#D62828", anchorStep: 600, exactAnchor: true);
+
+// brand[600] is "#d62828" exactly — what --brand resolves to.
+// Without exactAnchor, step 600 takes the curve's lightness instead, so the anchor
+// contributes its hue and chroma and the ramp comes back a different colour.
+
+// The anchor has to fit where it is pinned: lighter than the step below it and
+// darker than the step above. One that does not is rejected, naming the step it
+// does fit, rather than shipping a ramp whose hover state is lighter than its
+// resting state.
