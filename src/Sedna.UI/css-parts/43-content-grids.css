@@ -37,10 +37,17 @@
 }
 
 /* ── A child that takes the whole row ───────────────────────────────────────
-   One child of any grid above spanning it end to end — a chart over a row of tiles,
-   a summary card above the detail cards, or the odd card in a wrapping set that
-   would otherwise sit alone at one track wide with the rest of the last row empty
-   beside it.
+   One child of any grid — the three above, `.stat-row`, or a grid of an app's own —
+   spanning it end to end. A chart over a row of tiles, the odd card in a wrapping set
+   that would otherwise sit alone at one track wide, and the long field in a
+   `.field-grid` of two-up fields: a description, a Markdown editor, a checkbox line,
+   a hint that belongs to the row rather than to one field.
+
+   It was `.card-span-full`, and a form field wearing a card's class was off-label
+   every time a form used it — which is most of them. Renamed rather than aliased:
+   the same idea under two names is two things to keep in step, and the second name
+   is the one that goes stale. `.sedna-` because the generic form of this name is one
+   an app's own stylesheet is likely to have already.
 
    `1 / -1` rather than a `span` count, because a count cannot be made safe here:
    the track COUNT of an `auto-fit` / `auto-fill` grid depends on the container
@@ -56,5 +63,5 @@
    `min-width: 0` comes with it for the reason `.sedna-fill` carries it — a grid
    item's automatic minimum size is its content, so a spanning card holding a wide
    table would force the whole grid wider instead of scrolling inside itself. */
-.card-span-full { grid-column: 1 / -1; min-width: 0; }
+.sedna-span-full { grid-column: 1 / -1; min-width: 0; }
 
