@@ -79,7 +79,7 @@ Judged by what a consuming app sees. Take the highest applicable level.
   miss, because nothing in this repo breaks and the app's own CSS is what changes appearance. Two ways
   it happens: lowering a library rule's specificity, and moving a rule into a cascade layer — an
   unlayered app rule beats every layered one. Compact density is the worked example in
-  [`architecture.md`](architecture.md#three-consequences-worth-knowing-before-upgrading).
+  [`architecture.md`](architecture.md#three-things-it-means-for-your-own-stylesheet).
 - moving a part into a different cascade layer, or reordering the layers
 
 **Minor** — additive and backwards compatible:

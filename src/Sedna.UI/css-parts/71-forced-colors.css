@@ -82,6 +82,9 @@
        An `outline` on top of the existing `outline: none` is why these rules are
        permitted by the appearance-media-query guard. */
     .btn:focus-visible,
+    /* The chromeless one especially: it has no border, no fill and no padding, so a
+       ring that is not painted leaves nothing whatsoever to say where the keyboard is. */
+    .btn-bare:focus-visible,
     .form-input:focus,
     /* The select declares its ring in the same rule .form-input does, so it needs
        the same restatement here — it was missing, and a focused dropdown in this

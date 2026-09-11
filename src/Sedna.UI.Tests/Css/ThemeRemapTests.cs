@@ -14,8 +14,10 @@ public class ThemeRemapTests
         var css = Assets.StripComments(Assets.Css);
 
         // A rule scoped to an appearance attribute that also targets a descendant
-        // means a value escaped the token layer. Density is exempt: it changes
-        // geometry (table padding), which is not a colour and not a token.
+        // means a value escaped the token layer. Density is on the list too: it
+        // changes geometry rather than colour, but through --cell-pad-* and
+        // --card-pad-*, and a `[data-density="compact"] .card-body` rule is exactly
+        // the specificity fight an app used to write for itself.
         //
         // The attribute list is an allowlist rather than `data-[a-z-]+`, so that
         // ordinary attribute selectors (`[data-tip]`) are not swept up. ADD ANY NEW
@@ -24,7 +26,7 @@ public class ThemeRemapTests
         // `[data-variant="light"] .btn { }` is the same mistake written shorter.
         var offenders = Regex.Matches(
                 css,
-                @"(?::root)?(?:\[[^\]]*\])*\[data-(?:theme|variant|cvd|contrast)=[^\]]*\](?:\[[^\]]*\])*\s+[^{,]+\{",
+                @"(?::root)?(?:\[[^\]]*\])*\[data-(?:theme|variant|cvd|contrast|density)=[^\]]*\](?:\[[^\]]*\])*\s+[^{,]+\{",
                 RegexOptions.Compiled)
             .Select(m => m.Value.Trim())
             .ToList();

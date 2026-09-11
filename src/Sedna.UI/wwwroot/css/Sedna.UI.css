@@ -749,6 +749,15 @@
     --cell-pad-y: 8px;
     --cell-pad-x: 12px;
 
+    /* ── Card padding ───────────────────────────────────────────────────────
+       The gutter of `.card-head`, `.card-body` and `.card-foot`, remapped by [data-density="compact"] like the cell padding above. Everything
+       that has to line up with a card's text reads the inline one — a list row or a
+       group head meeting the card's edges, the first tab in a `.card-head--tabs` — so
+       compact density moves them together. An app's own card part opts in the same
+       way. */
+    --card-pad-block:  var(--space-6);
+    --card-pad-inline: var(--space-7);
+
     /* ── Metrics ────────────────────────────────────────────────────────── */
     --page-max: 1800px;    /* content column cap on ultra-wide screens */
 
@@ -2730,7 +2739,7 @@ a.topbar-version--pre:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-6) var(--space-7);
+    padding: var(--card-pad-block) var(--card-pad-inline);
     border-bottom: 1px solid var(--border);
 }
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
@@ -2769,20 +2778,50 @@ a.topbar-version--pre:hover {
     min-width: 0;            /* or a long strip widens the card instead of scrolling */
     border-bottom: none;     /* the head draws the line the indicator sits on */
 }
+/* The tab's inline padding IS the body's gutter, and has to stay it under compact
+   density too, or the first label drifts off the body text when the gutter narrows.
+   Two classes deep, so it beats `.tab` on specificity rather than on file order. */
+.card-head--tabs .tab { padding-inline: var(--card-pad-inline); }
 /* Whatever sits beside the strip keeps the gutter the head gave up. */
-.card-head--tabs .card-head-right { padding-inline-end: var(--space-7); }
+.card-head--tabs .card-head-right { padding-inline-end: var(--card-pad-inline); }
 /* The body's own padding is the gap under the strip; the panel's is a second one.
    Every panel, not the first — the selected tab is not always the first one, and
    scoping this to :first-child moves the content when a later tab is chosen. */
 .card-head--tabs + .card-body > .tab-panel { padding-top: 0; }
 
-.card-body { padding: var(--space-6) var(--space-7); }
+/* The gutter is --card-pad-block / --card-pad-inline, which [data-density="compact"]
+   remaps — so every card part tightens together and stays aligned. */
+.card-body { padding: var(--card-pad-block) var(--card-pad-inline); }
 /* Drops the padding, for content that is drawn edge to edge inside the card — a
    canvas, a chart, a map, a table that already has its own cell padding. The
    sibling of `.list-row--flush`, and the same reason: the gutter is a gap the
    content then paints over. How tall the content is stays the content's decision;
    this only takes the padding away. */
 .card-body--flush { padding: 0; }
+
+/* ── A section inside a card body ───────────────────────────────────────────
+   Sub-sections stacked in ONE body — details, then attachments, then history —
+   divided by a hairline with the card's own block gutter either side of it.
+
+   The three things that were reached for instead, and why none of them is this:
+   `.divider` is an <hr> with a page-sized margin, far too loose inside a card and an
+   extra element per section; `.form-section` is a <fieldset> with a legend and no
+   rule at all; and `.card-body + .card-body` splits the card into two bodies, which
+   ends the first body's own layout — a gap, a column — at the seam.
+
+   The rule is drawn only on a section with something before it, so a section that is
+   not rendered takes its divider with it and the first one never doubles the line the
+   `.card-head` above it already draws. `* + `, not `.card-section + `, so an intro
+   paragraph before the first section is divided from it too.
+
+   It reads the same --card-pad-block the body does, so sections tighten with
+   [data-density="compact"] along with everything else in the card. */
+.card-section { min-width: 0; }
+* + .card-section {
+    margin-block-start: var(--card-pad-block);
+    padding-block-start: var(--card-pad-block);
+    border-top: 1px solid var(--border);
+}
 
 /* The row a card ends with: the actions that decide what happens to the content
    above them. .card-head's mirror — same padding, the divider on top instead of
@@ -2800,13 +2839,21 @@ a.topbar-version--pre:hover {
     align-items: center;
     justify-content: flex-end;
     gap: var(--space-4);
-    padding: var(--space-6) var(--space-7);
+    padding: var(--card-pad-block) var(--card-pad-inline);
     border-top: 1px solid var(--border);
 }
 /* Something on the far side from the commit button — a note about what the action
    does, a timestamp, a destructive action kept away from the primary one. Expects
    exactly two children; wrap a side in a <div> if it has more than one. */
 .card-foot--split { justify-content: space-between; }
+/* Read left to right instead of committed at the end: the primary action first and
+   its secondaries after it, or a status line in place of the actions — "Claimed by
+   …", "View only" — which is text, and right-aligned text reads as a mistake.
+   One trailing control goes to the far end with `.sedna-push`.
+
+   Not `--split`, which distributes the free space between every child: four buttons
+   in a split foot are spread across the card rather than kept as a row. */
+.card-foot--start { justify-content: flex-start; }
 
 /* A caveat about the card's own content, pinned to its bottom edge — a stale
    figure, a degraded source, a partial result. It is part of the card, so it is
@@ -2815,7 +2862,7 @@ a.topbar-version--pre:hover {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-4) var(--space-7);
+    padding: var(--space-4) var(--card-pad-inline);
     border-top: 1px solid var(--warn-border);
     background: var(--warn-bg);
     color: var(--warn-fg);
@@ -3972,10 +4019,17 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 }
 
 /* ── A child that takes the whole row ───────────────────────────────────────
-   One child of any grid above spanning it end to end — a chart over a row of tiles,
-   a summary card above the detail cards, or the odd card in a wrapping set that
-   would otherwise sit alone at one track wide with the rest of the last row empty
-   beside it.
+   One child of any grid — the three above, `.stat-row`, or a grid of an app's own —
+   spanning it end to end. A chart over a row of tiles, the odd card in a wrapping set
+   that would otherwise sit alone at one track wide, and the long field in a
+   `.field-grid` of two-up fields: a description, a Markdown editor, a checkbox line,
+   a hint that belongs to the row rather than to one field.
+
+   It was `.card-span-full`, and a form field wearing a card's class was off-label
+   every time a form used it — which is most of them. Renamed rather than aliased:
+   the same idea under two names is two things to keep in step, and the second name
+   is the one that goes stale. `.sedna-` because the generic form of this name is one
+   an app's own stylesheet is likely to have already.
 
    `1 / -1` rather than a `span` count, because a count cannot be made safe here:
    the track COUNT of an `auto-fit` / `auto-fill` grid depends on the container
@@ -3991,7 +4045,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    `min-width: 0` comes with it for the reason `.sedna-fill` carries it — a grid
    item's automatic minimum size is its content, so a spanning card holding a wide
    table would force the whole grid wider instead of scrolling inside itself. */
-.card-span-full { grid-column: 1 / -1; min-width: 0; }
+.sedna-span-full { grid-column: 1 / -1; min-width: 0; }
 
 }
 
@@ -6744,7 +6798,7 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 
 /* Inside a card the rows meet the card's edges, so the divider spans the full
    width instead of floating with a gap at each end. */
-.card > .list > li > .list-row { padding-inline: var(--space-7); }
+.card > .list > li > .list-row { padding-inline: var(--card-pad-inline); }
 
 /* ── The row as a lockup ────────────────────────────────────────────────────
    `.list-row` + `.list-main` + `.list-title` + `.list-sub` + `.list-meta` is a leading
@@ -6892,7 +6946,7 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 }
 /* Inside a card the header meets the card's edges, like `.list-row` does. */
 .card > .list > .sticky-group-head,
-.card > .sticky-group-head { padding-inline: var(--space-7); }
+.card > .sticky-group-head { padding-inline: var(--card-pad-inline); }
 
 /* `--rule` trades the full-width bottom border for a hairline running from the
    label to the end of the row. Same pinning, but the header reads as a caption
@@ -7034,6 +7088,47 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 .btn-ghost { background: none; border-color: transparent; color: var(--muted); }
 .btn-ghost:hover { background: var(--bg-hover); border-color: transparent; color: var(--fg); }
 .btn-ghost:active { background: var(--btn-active-bg); }
+
+/* ── A button with no chrome ────────────────────────────────────────────────
+   For an identifier in running text that DOES something: a record number that opens
+   the record, a key with a copy icon beside it, a chevron that folds a section away.
+   It acts, so it is a <button> and not a link — and every other button here carries
+   padding, a height and a hover fill, which is chrome a sentence has no room for.
+
+   Used WITHOUT `.btn`. It is the absence of the button's chrome rather than a variant
+   of it, so writing both brings the fill and the height back: `.btn:hover` and
+   `.btn:focus-visible` win on specificity.
+
+   `font: inherit` rather than a type token, because the point is to match whatever
+   text it is sitting in. Inline-flex with a small gap so a trailing icon rides along,
+   and the container's baseline is still the label's, so the line of text is not
+   disturbed.
+
+   The focus ring is the library's own, and it is the declaration an inline reset
+   always forgets: `border: none` on a <button> takes the browser's own focus outline
+   box with it, and a keyboard reader is then left with nothing at all. */
+.btn-bare {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-small);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    cursor: pointer;
+}
+/* No size of its own: the glyph rides the surrounding text. line-height: 1 keeps it
+   from growing the line box it is in. */
+.btn-bare i { line-height: 1; }
+.btn-bare:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.btn-bare:disabled { opacity: 0.4; cursor: not-allowed; }
+/* Link-coloured, for an identifier that goes somewhere. It underlines on hover
+   because that is where a reader looks for the affordance an <a> would have. */
+.btn-bare--link { color: var(--accent); }
+.btn-bare--link:hover { text-decoration: underline; }
 
 /* ── Floating action button ─────────────────────────────────────────────────
    One page-level action, pinned to a corner on a screen too small to show a toolbar.
@@ -8647,6 +8742,9 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
        An `outline` on top of the existing `outline: none` is why these rules are
        permitted by the appearance-media-query guard. */
     .btn:focus-visible,
+    /* The chromeless one especially: it has no border, no fill and no padding, so a
+       ring that is not painted leaves nothing whatsoever to say where the keyboard is. */
+    .btn-bare:focus-visible,
     .form-input:focus,
     /* The select declares its ring in the same rule .form-input does, so it needs
        the same restatement here — it was missing, and a focused dropdown in this
@@ -9030,17 +9128,21 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    [data-density="compact"] on <html>. A pure token remap, like every other theme
    block, so it composes with the themes and CSS load order stays irrelevant.
 
-   Anything that should tighten with the tables uses var(--cell-pad-y) /
-   var(--cell-pad-x) and gets it for free — an app's own dense card, for instance.
+   Two families tighten: table cells (--cell-pad-*) and card parts (--card-pad-*).
+   Anything else that should tighten with them reads the same tokens and gets it for
+   free — an app's own card part written with `.card-body`, or its own component
+   padded with var(--card-pad-inline).
 
    There is deliberately no selector override alongside this. An app's own stylesheet is
    unlayered and wins whatever this file declares, so an app holding its own
-   `.table th, .table td { padding: … }` does not go compact until that rule is deleted.
-   No specificity here can substitute for deleting it.
+   `.table th, .table td { padding: … }` or `.card-body { padding: … }` does not go
+   compact until that rule is deleted. No specificity here can substitute for deleting it.
    ─────────────────────────────────────────────────────────────────────────── */
 :root[data-density="compact"] {
     --cell-pad-y: var(--space-2);
     --cell-pad-x: var(--space-5);
+    --card-pad-block: var(--space-4);
+    --card-pad-inline: var(--space-6);
 }
 }
 

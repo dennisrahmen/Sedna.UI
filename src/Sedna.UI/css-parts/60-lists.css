@@ -82,7 +82,7 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 
 /* Inside a card the rows meet the card's edges, so the divider spans the full
    width instead of floating with a gap at each end. */
-.card > .list > li > .list-row { padding-inline: var(--space-7); }
+.card > .list > li > .list-row { padding-inline: var(--card-pad-inline); }
 
 /* ── The row as a lockup ────────────────────────────────────────────────────
    `.list-row` + `.list-main` + `.list-title` + `.list-sub` + `.list-meta` is a leading
@@ -230,7 +230,7 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 }
 /* Inside a card the header meets the card's edges, like `.list-row` does. */
 .card > .list > .sticky-group-head,
-.card > .sticky-group-head { padding-inline: var(--space-7); }
+.card > .sticky-group-head { padding-inline: var(--card-pad-inline); }
 
 /* `--rule` trades the full-width bottom border for a hairline running from the
    label to the end of the row. Same pinning, but the header reads as a caption

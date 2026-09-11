@@ -419,6 +419,15 @@
     --cell-pad-y: 8px;
     --cell-pad-x: 12px;
 
+    /* ── Card padding ───────────────────────────────────────────────────────
+       The gutter of `.card-head`, `.card-body` and `.card-foot`, remapped by [data-density="compact"] like the cell padding above. Everything
+       that has to line up with a card's text reads the inline one — a list row or a
+       group head meeting the card's edges, the first tab in a `.card-head--tabs` — so
+       compact density moves them together. An app's own card part opts in the same
+       way. */
+    --card-pad-block:  var(--space-6);
+    --card-pad-inline: var(--space-7);
+
     /* ── Metrics ────────────────────────────────────────────────────────── */
     --page-max: 1800px;    /* content column cap on ultra-wide screens */
 

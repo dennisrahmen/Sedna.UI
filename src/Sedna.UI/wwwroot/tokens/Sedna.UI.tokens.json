@@ -300,6 +300,8 @@
         "--radius-pill": "999px",
         "--cell-pad-y": "8px",
         "--cell-pad-x": "12px",
+        "--card-pad-block": "var(--space-6)",
+        "--card-pad-inline": "var(--space-7)",
         "--page-max": "1800px",
         "--safe-block-start": "env(safe-area-inset-top, 0px)",
         "--safe-block-end": "env(safe-area-inset-bottom, 0px)",
@@ -731,7 +733,9 @@
       "selector": ":root[data-density=\"compact\"]",
       "tokens": {
         "--cell-pad-y": "var(--space-2)",
-        "--cell-pad-x": "var(--space-5)"
+        "--cell-pad-x": "var(--space-5)",
+        "--card-pad-block": "var(--space-4)",
+        "--card-pad-inline": "var(--space-6)"
       }
     }
   ]
