@@ -1,0 +1,25 @@
+@* The link icon beside a section heading.
+
+   The href carries the page's own path, never a bare "#id": the host page's
+   <base href="/"> resolves a bare fragment against the root, so "#sizes" on
+   /button meant /#sizes, and Blazor routed that to the landing page. *@
+@inject NavigationManager Nav
+
+<a class="cat-anchor" href="@Href" aria-label="Link to this section"><i class="ri-links-line"></i></a>
+
+@code {
+    /// The id of the heading this links to.
+    [Parameter, EditorRequired] public string Id { get; set; } = default!;
+
+    // Relative to the base rather than rooted, so it holds under a sub-path base
+    // too. The query and any fragment already on the address are dropped.
+    private string Href
+    {
+        get
+        {
+            var path = Nav.ToBaseRelativePath(Nav.Uri);
+            var end = path.IndexOfAny(['?', '#']);
+            return $"{(end < 0 ? path : path[..end])}#{Id}";
+        }
+    }
+}

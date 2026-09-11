@@ -38,6 +38,12 @@ internal static class CataloguePages
     public const string Utilities = "Utilities";
     public const string Reference = "Reference";
 
+    /// <summary>
+    /// The page every unknown address renders. Deliberately not in <see cref="All"/>:
+    /// it is no catalogue page, so it belongs in no group, index or search.
+    /// </summary>
+    public const string NotFoundRoute = "/not-found";
+
     public static IReadOnlyList<CataloguePage> All { get; } =
     [
         new("/", Start, "Overview", "ri-home-4-line",
@@ -170,7 +176,7 @@ internal static class CataloguePages
             "progress bar spinner skeleton loading busy indeterminate placeholder block height surface"),
         new("/empty-state", Feedback, "Empty and live states", "ri-inbox-line",
             "Nothing to show, waiting for something, and the state of a live connection.",
-            "empty-state nothing found access failed retry pending connection streaming health status stale output log"),
+            "empty-state nothing found access failed retry pending connection streaming health status stale output log illustration drawing icon"),
 
         new("/modal", Overlays, "Modal", "ri-window-2-line",
             "A question that has to be answered before anything else happens.",

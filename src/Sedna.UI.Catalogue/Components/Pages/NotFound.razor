@@ -1,0 +1,22 @@
+@attribute [Route(CataloguePages.NotFoundRoute)]
+@layout CatalogueLayout
+
+@* Every address the catalogue has no page for: the router's NotFoundPage for a link
+   followed inside the app, and UseStatusCodePagesWithReExecute for one typed into
+   the address bar, which keeps the 404 status. Not in CataloguePages.All, so it is in
+   no navigation group, no search index and no MCP answer. *@
+<PageTitle>Not found — Sedna.UI catalogue</PageTitle>
+
+<div class="empty-state empty-state--page">
+    <svg class="state-art state-art--lg" aria-hidden="true"><use href="_content/Sedna.UI/img/Sedna.UI.states.svg#not-found" /></svg>
+    <span class="empty-state-code">404 Not found</span>
+    <h1 class="empty-state-title">There is no page at this address</h1>
+    <p>
+        The address may be mistyped, or the page may have moved. Every page is in the
+        sidebar, and <kbd>/</kbd> searches them.
+    </p>
+    <div class="empty-state-actions">
+        <a class="btn btn-sm btn-primary" href="/"><i class="ri-home-4-line"></i> Back to the overview</a>
+        <a class="btn btn-sm" href="/getting-started"><i class="ri-rocket-line"></i> Getting started</a>
+    </div>
+</div>

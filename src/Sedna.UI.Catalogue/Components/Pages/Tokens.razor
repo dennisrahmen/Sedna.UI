@@ -24,7 +24,7 @@
 @foreach (var group in TokenGroups.All)
 {
     <h2 id="@Slug.From(group.Name)">
-        <CatTitle Text="@group.Name" /><a class="cat-anchor" href="#@Slug.From(group.Name)" aria-label="Link to this section"><i class="ri-links-line"></i></a>
+        <CatTitle Text="@group.Name" /><CatAnchor Id="@Slug.From(group.Name)" />
     </h2>
     @if (group.Note is not null)
     {

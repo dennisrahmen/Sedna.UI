@@ -391,6 +391,7 @@ Two things the flat list does not say:
 | `dropzone` | Delegated drag-and-drop for a `data-dropzone` zone: maintains `.dropzone--over`, hands a dropped file to the zone's own `input[type=file]` as a `change` event. `reset()` clears the highlight |
 | `output` | Follow-tail for a `data-follow` output pane: sticks to the newest line, releases when the reader scrolls up, re-attaches when they scroll back down. `follow(pane)`, `isFollowing(pane)` |
 | `codeBlock` | `toggle(block, expanded?)` — expands or collapses a `.code-block--clamped`. Delegated from `[data-code-expand]` |
+| — | `29-fragment.js` adds no member. A click on a link written as a bare fragment (`href="#main"`) whose target is on the page is cancelled, and the target is scrolled to and focused — under `<base href="/">` the link would otherwise open the start page, and Blazor's own same-page jump never moves focus. A modified click, a click another handler already cancelled, and a fragment naming no element are left alone. The address does not change |
 | `spotlight` | Tour geometry and the input model, not the sequence. `at(hole, target, { pad, include })` positions `.spotlight-hole` over an element, a list of them or a selector, and returns the rectangle — `null` when nothing visible is left; `tipAt(tip, rect, { placement, gap, margin, boundary })` places the bubble on any of the four sides, flips it when the side does not fit, clamps it into the viewport — or into `boundary` — and reports the side used; `follow(hole, target, opts)` keeps both attached across scroll, resize and re-render, returning `{ update, stop, side }`; `lock(opts)` / `unlock()` make the rest of the page inert and gate hover hints. The steps, the copy and the order stay the app's |
 | `md` | Markdown editor: `init(root?)` wires every `.md-editor` in `root` (the document by default) and is idempotent per editor; `apply(textarea, cmd)`, `render(src)` |
 | `copyText`, `openTab`, `viewportWidth`, `scrollPageTop` | Interop helpers. `scrollPageTop` resets `.page`, which is the only scroll container the frame has and therefore the one navigation leaves where it was |
@@ -402,8 +403,8 @@ Two things the flat list does not say:
 
 Several behaviours are delegated from `document`, so content rendered after load is covered without
 re-wiring: hover hints, `data-menu-toggle`, `data-tabs`, `data-search`, `data-dropzone`,
-`data-sheet`, and `data-copy` / `data-copy-target`. The last two have no member on the global — the
-attribute is the whole API.
+`data-sheet`, same-page fragment links, and `data-copy` / `data-copy-target`. The last two have no
+member on the global — the attribute is the whole API.
 
 `data-sheet` on a `<dialog class="sheet">` opts into dragging it down to dismiss: the sheet follows
 the pointer from the handle or the header, and closes past a quarter of its height or on a flick.
@@ -460,6 +461,16 @@ The file writes no colour. Line work is `currentColor`, which `.state-art` point
 accent per drawing is `var(--state-accent)`, which the containing block re-points — `.empty-state--failed`
 moves it into the danger ramp. Inherited custom properties cross into a `<use>` shadow tree, which is
 what lets one file follow four themes.
+
+`.state-icon` puts a Remix Icon glyph in the drawing's place, for an empty state where the thing that is
+missing has a glyph of its own:
+
+```html
+<i class="ri-file-list-3-line state-icon" aria-hidden="true"></i>
+```
+
+The same three steps, as font sizes — `--sm` at `--text-10`, the bare class at `--text-11`, `--lg` at
+1.6 × `--text-11`. It is `--border-strong`, and `.empty-state--failed` turns it to `--danger-fg`.
 
 `StateSpriteTests` guards it: well-formed XML, no `--` in a comment (which breaks the whole file, not one
 drawing), no literal colour, one shared `viewBox`, and the id list in `42-state-art.css` matching the

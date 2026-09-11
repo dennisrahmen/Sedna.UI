@@ -53,7 +53,8 @@ the same reason.
 
 Blazor owns the document under global interactivity. Anything `catalogue.js` mutated would be reverted
 the next time that subtree re-rendered — silently, and only sometimes. So every function there returns
-data, C# renders it, and the one exception moves focus, which is not DOM state.
+data, C# renders it, and the two handlers are the exceptions: one moves focus, and one cancels the
+click on a demo's `href="#"` placeholder. Neither is DOM state.
 
 The library's own script is exempt and always was: it delegates every handler from `document`, so it
 survives re-renders by construction.
@@ -77,6 +78,17 @@ survives re-renders by construction.
 - **`/health` asserts the host page's assets, and is Railway's healthcheck**, so a publish that drops
   one fails the deploy instead of replacing a working site with a dead one. It reads the paths out of
   `Components/App.razor` — add an asset to the host page and it is covered; never write the list out.
+- **Same-page links, under `<base href="/">`.** A bare `href="#id"` resolves against the root and opens
+  the landing page, unless `Sedna.UI.js` handles it — which it does for a target on the page, moving
+  focus. So:
+  - a heading's link icon, which is meant to be copied, carries the page's path: `<CatAnchor Id="…" />`,
+    checked by `SectionAnchorTests`;
+  - a jump — the skip link, a validation summary — is a bare fragment, checked by `SamePageLinkTests`;
+  - in an example, a fragment names an id the same example declares, or is the placeholder `#`, which
+    `catalogue.js` cancels inside a demo. `ExampleSourceTests` fails on any other.
+- **An unknown address renders `Components/Pages/NotFound.razor`** with a 404, through the router's
+  `NotFoundPage` and `UseStatusCodePagesWithReExecute`. Its route is `CataloguePages.NotFoundRoute` and
+  it is not in `All`; `NotFoundTests` covers it.
 - **`z-index` comes from the documented scale** in `docs/architecture.md`, here too.
 - **One remote host, and only for a photograph.** `images.unsplash.com`, named once in
   `CatalogueAssets.PhotoHost` and allowed in a page and in an example. Nothing else, and nothing at

@@ -47,7 +47,7 @@ something, it is listed below and repeated in the class's own comment.
 | `.table` sorting | `aria-sort` on the `<th>` — the arrow is drawn from it, so they cannot disagree |
 | `.table` selection | `aria-selected` on the `<tr>` |
 | `.stat-delta` | an arrow icon. The colour is not the direction. |
-| `.skip-link` | `href="#main"`, and `tabindex="-1"` on `<main id="main">` so the jump moves focus rather than only scrolling |
+| `.skip-link` | `href="#main"`, and `tabindex="-1"` on `<main id="main">` so the jump moves focus rather than only scrolling. Under `<base href="/">` the jump needs `Sedna.UI.js` — see [getting started](getting-started.md#base-href) |
 | any icon-only button | `aria-label`, plus `data-tip` when the purpose is not obvious — and `.btn-icon`, which squares it to the shared control height instead of leaving a wide box around one glyph |
 | `.dropzone` | a real `<input type="file">` inside it. Drag and drop alone is unreachable by keyboard; `data-dropzone` adds the drag handling on top of the input, never instead of it. |
 

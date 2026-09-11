@@ -13,6 +13,11 @@
 @inject ISednaUi Ui
 @inject CatalogueSearch Search
 
+@* Examples/Frame/SkipLink.html, as written: a bare fragment. Under <base href="/">
+   that would open the landing page, and Sedna.UI.js is what keeps it here and moves
+   focus — which is what the Shell & nav page tells an app to rely on. *@
+<a class="skip-link" href="#main">Skip to content</a>
+
 <div class="layout @(_navOpen ? "cat-nav-open" : null)"
      data-interactive="@(RendererInfo.IsInteractive ? "true" : null)">
 
@@ -27,7 +32,7 @@
         <CatalogueTopbar @bind-NavOpen="_navOpen" @bind-Collapsed="_collapsed" />
 
         <div class="page">
-            <main class="cat-main">
+            <main class="cat-main" id="main" tabindex="-1">
                 @Body
                 <CatalogueFooter />
             </main>

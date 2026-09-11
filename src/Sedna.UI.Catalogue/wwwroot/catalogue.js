@@ -3,8 +3,8 @@
    This file NEVER writes to the DOM. Blazor owns the document under global
    interactivity, and anything this mutated would be reverted the next time the
    subtree re-rendered — silently, and only sometimes. So every function here
-   returns data, C# renders it, and the one exception below moves focus, which is
-   not DOM state.
+   returns data, C# renders it, and the two handlers below are the exceptions: one
+   moves focus and one cancels a click, and neither is DOM state.
 
    The catalogue's shell, examples, code blocks and toggles are all Blazor, and the
    topbar search is the library's own script. What is left is the handful of things
@@ -128,4 +128,13 @@ document.addEventListener('keydown', function (e) {
     if (!box) return;
     e.preventDefault();
     box.focus();
+});
+
+/* A placeholder link in a demo goes nowhere. `href="#"` is how an example says
+   "some link", and under the host page's <base href="/"> it means the landing page,
+   so clicking a demo's nav item or breadcrumb left the page being read. Blazor
+   ignores a click something has already cancelled, and this file loads before it. */
+document.addEventListener('click', function (e) {
+    if (!(e.target instanceof Element)) return;
+    if (e.target.closest('.ex-demo a[href="#"]')) e.preventDefault();
 });
