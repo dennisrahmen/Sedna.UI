@@ -241,6 +241,30 @@ public interface ISednaUi
     /// </remarks>
     Task<int> ViewportWidthAsync();
 
+    /// <summary>Reads the browser's time zone as an IANA id, such as <c>Europe/Lisbon</c>.</summary>
+    /// <returns>The id, or <see langword="null"/> where the browser does not report one.</returns>
+    /// <remarks>
+    /// <para>
+    /// An id, never an offset: an offset is only true until that zone's next
+    /// transition. Turn it into a <see cref="TimeZoneInfo"/> with
+    /// <c>TimeZoneInfo.TryFindSystemTimeZoneById</c>, which takes IANA ids on every
+    /// platform, and render stored UTC instants through it.
+    /// </para>
+    /// <para>
+    /// This and <c>data-tz-cookie</c> on the boot script answer the same question at
+    /// two different moments, and an app that renders instants wants both: the cookie
+    /// is what the <b>first server render</b> reads, and this is what a <b>circuit</b>
+    /// reads. A first visit carries no cookie at all, and a navigation in Blazor
+    /// Server is not an HTTP request — so without this a new browser stays on the
+    /// fallback zone until the reader reloads.
+    /// </para>
+    /// <para>
+    /// It is read from <c>Intl</c> at call time and stored nowhere, so a reader who
+    /// travels is answered correctly on the next call.
+    /// </para>
+    /// </remarks>
+    Task<string?> GetTimeZoneAsync();
+
     /// <summary>Reads a <c>localStorage</c> value.</summary>
     /// <param name="key">The raw key. The library's storage prefix is <b>not</b> applied.</param>
     /// <returns>The value, or null when absent or when storage is blocked.</returns>

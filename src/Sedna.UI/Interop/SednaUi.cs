@@ -135,6 +135,10 @@ public sealed class SednaUi : ISednaUi
         => _js.InvokeAsync<int>("sednaUi.viewportWidth").AsTask();
 
     /// <inheritdoc />
+    public Task<string?> GetTimeZoneAsync()
+        => _js.InvokeAsync<string?>("sednaUi.timeZone").AsTask();
+
+    /// <inheritdoc />
     public Task<string?> GetItemAsync(string key)
         => _js.InvokeAsync<string?>("sednaUi.getItem", key).AsTask();
 

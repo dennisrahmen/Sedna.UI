@@ -41,16 +41,22 @@ public abstract class ScriptTestBase : BrowserTestBase
     /// </param>
     /// <param name="colorScheme">The OS preference to emulate.</param>
     /// <param name="storage">localStorage seeded before any script runs.</param>
+    /// <param name="timeZone">
+    /// An IANA zone to emulate, for the two places the library reads one. Null leaves
+    /// the runner's own, which is what a zone test must not assert against.
+    /// </param>
     protected async Task<IPage> Open(
         string body,
         string head = "",
         bool withMainScript = true,
         ColorScheme colorScheme = ColorScheme.Light,
-        IDictionary<string, string>? storage = null)
+        IDictionary<string, string>? storage = null,
+        string? timeZone = null)
     {
         var context = await Browser!.NewContextAsync(new()
         {
             ColorScheme = colorScheme,
+            TimezoneId = timeZone,
             // The copy tests need the clipboard without a permission prompt.
             Permissions = new[] { "clipboard-read", "clipboard-write" },
         });

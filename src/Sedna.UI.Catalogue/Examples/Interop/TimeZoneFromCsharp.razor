@@ -1,0 +1,43 @@
+@inject ISednaUi Ui
+
+<div class="card">
+    <div class="card-body">
+        <div class="kv"><span class="k">Browser time zone</span><span class="v">@(_zone ?? "not read yet")</span></div>
+        <div class="kv"><span class="k">Stored instant</span><span class="v">@Stored</span></div>
+        <div class="kv"><span class="k">On this reader's clock</span><span class="v">@Local</span></div>
+    </div>
+</div>
+
+@code {
+    // What an app stores: an instant in UTC. The zone is the one part of rendering it
+    // that only the browser knows. This one is half an hour before Europe's spring
+    // transition, which is why an offset would not do — it is true until it is not.
+    private static readonly DateTime Instant = new(2027, 3, 28, 0, 30, 0, DateTimeKind.Utc);
+
+    // The configured fallback: what the first server render has to use, because it has
+    // no browser to ask and no cookie on a first visit.
+    private TimeZoneInfo _zoneInfo = TimeZoneInfo.Utc;
+    private string? _zone;
+
+    private string Stored => Instant.ToString("yyyy-MM-dd HH:mm") + " UTC";
+
+    private string Local =>
+        TimeZoneInfo.ConvertTimeFromUtc(Instant, _zoneInfo).ToString("yyyy-MM-dd HH:mm")
+        + " (" + _zoneInfo.Id + ")";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        // Interop, so never during prerendering. An IANA id — TryFindSystemTimeZoneById
+        // takes those on every platform, and a browser that reports nothing leaves the
+        // fallback standing rather than guessing.
+        _zone = await Ui.GetTimeZoneAsync();
+        if (_zone is not null && TimeZoneInfo.TryFindSystemTimeZoneById(_zone, out var found))
+        {
+            _zoneInfo = found;
+        }
+
+        StateHasChanged();
+    }
+}
