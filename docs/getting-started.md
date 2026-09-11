@@ -81,17 +81,22 @@ The four tokens are readable directly where a utility does not fit — `--safe-b
 `--safe-block-end`, `--safe-inline-start` and `--safe-inline-end`. Use these rather than `env()`:
 the inline pair is mirrored for `dir="rtl"`, which `env()` cannot do on its own.
 
-### The reconnect banner
+### The status bar
 
 Blazor Server injects its own reconnect UI — unstyled, with inline styles — unless the host page
-supplies one. Add the block from the catalogue's
-[Shell and nav](https://www.sedna-ui.com/frame) page inside `<body>`, before the component that
-carries the render mode.
+supplies one. Add both blocks from the catalogue's
+[Status bar](https://www.sedna-ui.com/status-bar) page inside `<body>`, before the component that
+carries the render mode:
 
-Supply `.reconnect-attempting`, `.reconnect-failed` and `.reconnect-rejected`; `.reconnect-paused` is
-optional and falls back to the attempting row. Blazor puts the state classes on
-`#components-reconnect-modal` itself and the stylesheet shows one row at a time — omit a required row
-and that state renders as an empty bar.
+- **`#components-reconnect-modal`**, holding one `.status-bar` row per state. Supply
+  `.status-bar--reconnecting`, `.status-bar--failed` and `.status-bar--expired`; `.status-bar--paused`
+  is optional and falls back to the reconnecting row. Blazor puts its state classes on the id and the
+  stylesheet shows one row at a time — omit a required row and that state renders as an empty strip.
+- **`#blazor-error-ui`**, the unhandled-error bar: `.status-bar--error` on a strip *inside* the id.
+  Blazor reveals the id with an inline `display: block`, which beats every rule, so a bar on the id
+  itself lays out as inline text.
+
+In both, the bar is a child of the id, never the id itself.
 
 No configuration is required. `sednaUi.configure()` is only needed for the options below.
 

@@ -138,5 +138,9 @@ Railway builds the image itself from the GitHub source, gated by its **Wait for 
 Railway credential exists in this repository and there is no deploy workflow to maintain. CI builds the
 image too, but never pushes it — a broken Dockerfile should fail the pull request that broke it.
 
+CI runs on pull requests only. The `main` ruleset requires its `build` check on a branch that is up to
+date with `main`, so a merge lands exactly the tree that was tested. On `main` itself only CodeQL runs,
+and that is what Railway's **Wait for CI** waits for.
+
 The custom domain needs **both** a CNAME and the TXT record Railway shows. A missing TXT record makes
 the domain 404 even once the CNAME resolves, which reads as a broken deploy.
