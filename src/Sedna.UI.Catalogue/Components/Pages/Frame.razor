@@ -74,6 +74,8 @@
         The first focusable thing on the page, jumping past the navigation to the content —
         off-screen rather than hidden, so it stays focusable. <code>tabindex="-1"</code> on
         <code>&lt;main&gt;</code> is not optional: without it the jump only scrolls and focus stays
-        back in the navigation.
+        back in the navigation. Neither is <code>Sedna.UI.js</code>: under the host page's
+        <code>&lt;base href="/"&gt;</code> a bare <code>#main</code> means the start page, and the
+        script is what keeps the jump here. This site has one &mdash; press Tab on any page.
     </p>
 </CatSnippet>

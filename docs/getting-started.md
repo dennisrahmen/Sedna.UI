@@ -49,6 +49,13 @@ clicking a link inside the app looks correct, because the router never re-resolv
 
 An app served from a sub-path uses that path instead, with both slashes — `<base href="/admin/" />`.
 
+A bare fragment resolves against the base too: `href="#main"` on `/orders` means `/#main`, the start
+page, and Blazor's router goes there. `Sedna.UI.js` handles a click on a link written as a bare
+fragment whose target is on the page: it scrolls to the target and focuses it, without navigating.
+Write a same-page jump — the skip link, a validation summary's links — as a bare fragment and keep
+the script loaded. The address does not change, so a link meant to be copied carries the page's path
+(`orders#totals`) and is the router's to handle; that jump scrolls but does not move focus.
+
 ### `viewport-fit=cover`
 
 Required. Without it a browser lays the page out inside the display's safe area and

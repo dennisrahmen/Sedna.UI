@@ -226,6 +226,32 @@ public class ExampleSourceTests
             + $"photograph — an absolute URL on {CatalogueAssets.PhotoHost}.");
     }
 
+    [Theory]
+    [MemberData(nameof(AllExamples))]
+    public void A_fragment_link_in_an_example_names_an_id_in_that_example(string path)
+    {
+        // A bare fragment works wherever the markup is pasted only when its target is
+        // pasted with it: `#vs-email` beside `id="vs-email"`. One naming a heading of
+        // the catalogue page — `#sizes` — points at nothing in the reader's app, and
+        // pointed at nothing here either, so a click opened the landing page. `#`
+        // alone is the placeholder.
+        var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
+
+        var ids = Regex.Matches(source, """\bid\s*=\s*"([^"]+)""")
+            .Select(m => m.Groups[1].Value)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var dangling = Regex.Matches(source, """href\s*=\s*"#([^"]+)""")
+            .Select(m => m.Groups[1].Value)
+            .Where(id => !ids.Contains(id))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        Assert.True(dangling.Count == 0,
+            $"{path} links to #{string.Join(", #", dangling)}, which no element in the example "
+            + "carries. Link to an id the example declares, or use href=\"#\" as a placeholder.");
+    }
+
     [Fact]
     public void Every_example_folder_is_a_valid_csharp_identifier()
     {
