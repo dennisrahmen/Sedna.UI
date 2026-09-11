@@ -10,7 +10,7 @@
         <nav class="nav">
             <div class="nav-scroll">
                 <a class="nav-link" href="#"><i class="ri-inbox-line"></i><span>Queue</span><span class="nav-count">3</span></a>
-                <a class="nav-link" href="#"><i class="ri-chat-3-line"></i><span>Orders</span></a>
+                <a class="nav-link active" href="#"><i class="ri-chat-3-line"></i><span>Orders</span></a>
                 <a class="nav-link" href="#"><i class="ri-check-double-line"></i><span>Decided</span></a>
                 <a class="nav-link" href="#"><i class="ri-settings-3-line"></i><span>Settings</span></a>
             </div>
@@ -19,14 +19,26 @@
 
     <div class="content">
         <header class="topbar">
-            <nav class="breadcrumb" aria-label="Breadcrumb">
-                <a href="#">Orders</a>
-                <span aria-hidden="true">/</span>
-                <span>ORD-48812</span>
-            </nav>
+            <button class="topbar-btn topbar-btn--start" aria-label="Collapse sidebar" data-tip="Collapse the sidebar to an icon rail."><i class="ri-side-bar-line"></i></button>
+            <div class="topbar-spacer"></div>
+            <div class="user-widget">
+                <button class="user-trigger">
+                    <span class="user-avatar"><i class="ri-user-line"></i></span>
+                    <span class="user-info">
+                        <span class="user-name">Alex Fischer</span>
+                        <span class="user-email">alex.fischer@example.com</span>
+                    </span>
+                </button>
+                <a class="user-signout" href="#" aria-label="Sign out" data-tip="Sign out of the console."><i class="ri-logout-box-r-line"></i></a>
+            </div>
         </header>
 
         <div class="page">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a class="breadcrumb-item" href="#">Orders</a>
+                <span class="breadcrumb-item" aria-current="page">ORD-48812</span>
+            </nav>
+
             <div class="empty-state empty-state--page">
                 <svg class="state-art state-art--lg" aria-hidden="true"><use href="_content/Sedna.UI/img/Sedna.UI.states.svg#not-found" /></svg>
                 <span class="empty-state-code">404 Not found</span>

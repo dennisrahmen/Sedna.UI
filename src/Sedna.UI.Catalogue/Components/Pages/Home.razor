@@ -39,14 +39,12 @@
     </div>
 </div>
 
-<h2 id="pages">Every page</h2>
-
 @foreach (var group in CataloguePages.Groups)
 {
     var pages = CataloguePages.InGroup(group).Where(p => p.Route != "/").ToList();
     if (pages.Count == 0) continue;
 
-    <h3>@group</h3>
+    <h2>@group</h2>
     <div class="cat-tiles">
         @foreach (var item in pages)
         {
