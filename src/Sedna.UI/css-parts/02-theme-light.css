@@ -44,8 +44,21 @@
     --redacted:       var(--crimson-700);
 
     --brand-soft: var(--coral-600);
-    --brand-text: var(--coral-700);
+    /* Step 800, not 700. Brand text in this variant is read on the canvas — and on a
+       brand tint over it, which is where it is dimmest — so the step has to clear AA
+       there rather than against white. 700 does that for Sedna's own coral, whose
+       steps were solved by hand, and for a GENERATED ramp it does not: the shared
+       lightness curve puts step 700 at one lightness for every hue, and WCAG luminance
+       weights hues differently, so a green brand measured 4.03:1 and a blue one 4.47:1
+       on the tint. 800 clears it for both, and for the library's own brand. The same
+       reasoning as --brand taking step 600 against white (docs/BRANDING.md §3.1), one
+       step further along because the surface underneath is a tinted canvas rather
+       than plain white. */
+    --brand-text: var(--coral-800);
     --brand-tint: color-mix(in srgb, var(--brand) 10%, transparent);
+    /* Lower than the dark variant's 24%: a tint darkens a light canvas, so the text on
+       it — --brand-text — loses contrast as this rises. The strong tint is bounded by
+       that pairing in either variant; BrandTextContrastTests is the measurement. */
     --brand-tint-strong: color-mix(in srgb, var(--brand) 20%, transparent);
     --accent:     var(--orbit-700);
 

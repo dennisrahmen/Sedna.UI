@@ -84,8 +84,11 @@ reach for `<dialog>` before reaching for `.modal-backdrop`.
   with no app edit, which the release rules make Major. Queued for the next major.
 - **No automated audit yet.** `axe-core` via Playwright is planned; today the browser tests assert
   computed styles and console cleanliness, not WCAG rules.
-- **Token contrast is not verified.** The default palette was chosen by eye. A contrast audit across
-  all four theme combinations is planned.
+- **Token contrast is verified in parts, not wholesale.** Measured on every build: the near-floor
+  pairs `docs/BRANDING.md` §7.1 names, the muted role on every elevation level, and every rule that
+  paints in a brand colour — the last against each surface it can sit on, in both variants, for the
+  built-in themes and a generated one. The rest of the palette has not been audited pair by pair, and
+  a full audit across all four theme combinations is still planned.
 - **`.table--stack` throws away column alignment** by design, so comparing one value across rows stops
   being possible below 640px. It is opt-in for that reason.
 

@@ -96,7 +96,13 @@
     --brand:            var(--coral-600);
     --brand-hover:      var(--coral-700);
     --brand-active:     var(--coral-800);
-    --brand-soft:       var(--coral-500);         /* icons/spinners on tinted surfaces — Sedna Red at full strength */
+    /* --brand-soft is a DISPLAY role, never a text one: icons, spinners and focus
+       borders, where 3:1 is the requirement. Its light value is the step solved for
+       white text on it, which says nothing about reading it as text on the canvas —
+       so text in brand colour takes --brand-text, the role measured against the
+       surface it renders on. BrandTextContrastTests measures every brand-coloured
+       rule in the sheet, in both variants, for every built-in and generated theme. */
+    --brand-soft:       var(--coral-500);         /* icons/spinners/focus borders — Sedna Red at full strength */
     --brand-text:       var(--coral-400);         /* readable brand text on the theme bg */
     /* Mixed from --brand rather than restated as literals, so redefining --brand
        alone carries the tint and every focus ring with it. An app may still pin any
