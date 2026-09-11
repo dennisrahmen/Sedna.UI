@@ -35,7 +35,13 @@
     text-decoration: none;
 }
 .brand:hover { text-decoration: none; }
-.brand-logo { width: 30px; height: 30px; border-radius: var(--radius-surface); flex-shrink: 0; }
+/* The tile takes a colour, a mark drawn in CSS, or an <img> — and an app's real logo
+   is the third one, which nothing fitted: an image keeps its intrinsic size and its
+   square corners, so every consuming app wrote the same four declarations for itself.
+   The pair here is the one `.avatar` already uses. An image that is not square is
+   cropped rather than squashed, so supply a square asset. */
+.brand-logo { width: 30px; height: 30px; border-radius: var(--radius-surface); flex-shrink: 0; overflow: hidden; }
+.brand-logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-sub {
     display: block; font-size: var(--text-1); color: var(--muted);

@@ -16,6 +16,17 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Nav.BrandLogoImage" Title="A logo image in the brand tile" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <code>.brand-logo</code> sizes and clips whatever is in it, so an app's own logo goes in as a
+        plain <code>&lt;img&gt;</code> carrying no width, height or radius of its own — the tile is
+        30px and rounded, and the image fills it whatever its intrinsic size is. An image that is not
+        square is <strong>cropped rather than squashed</strong>, so supply a square asset. Leave
+        <code>alt</code> empty where the brand text beside it already names the app, or the name is
+        announced twice.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Interop.ActiveNavLink" Title="The active link" Demo="ex-demo--block">
     <p>
         Which link is the current page is the one thing this markup cannot express, so the package
