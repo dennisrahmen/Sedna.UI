@@ -1,6 +1,6 @@
 ![Sedna.UI — one design-token contract. Semantic CSS. Consistent Blazor apps.](https://raw.githubusercontent.com/dennisrahmen/Sedna.UI/main/assets/brand/sedna-ui-social-preview.png)
 
-[![CI](https://img.shields.io/github/actions/workflow/status/dennisrahmen/Sedna.UI/ci.yml?branch=main&logo=github&style=flat-square&label=ci)](https://github.com/dennisrahmen/Sedna.UI/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/actions/workflow/status/dennisrahmen/Sedna.UI/release.yml?logo=github&style=flat-square&label=release)](https://github.com/dennisrahmen/Sedna.UI/actions/workflows/release.yml)
 [![Catalogue](https://img.shields.io/badge/catalogue-browse-FF6B4A?style=flat-square&logo=github)](https://www.sedna-ui.com/)
 [![NuGet version](https://img.shields.io/nuget/v/Sedna.UI?color=FF6B4A&label=nuget&logo=nuget&style=flat-square)](https://www.nuget.org/packages/Sedna.UI/)
 [![NuGet downloads](https://img.shields.io/nuget/dt/Sedna.UI?color=FF6B4A&label=downloads&logo=nuget&style=flat-square)](https://www.nuget.org/packages/Sedna.UI/)

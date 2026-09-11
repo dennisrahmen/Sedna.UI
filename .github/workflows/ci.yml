@@ -1,8 +1,10 @@
 name: CI
 
+# Pull requests only. The ruleset on main requires `build` on a branch that is up to
+# date with main, so a merge lands exactly the tree this ran on, and a second run on
+# main would prove nothing. Do not add a push trigger back without dropping that rule.
+# CodeQL still runs on main: it is the baseline pull requests are compared against.
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
