@@ -43,7 +43,7 @@ public class NotFoundTests(CatalogueAppFixture app)
         // A GET is not a JSON-RPC call, so the endpoint refuses it — and a refusal with no
         // body is exactly what the status-code middleware would otherwise fill with HTML.
         // Headers only: whatever the transport answers, the body is not read.
-        var request = new HttpRequestMessage(HttpMethod.Get, new Uri("/mcp", UriKind.Relative));
+        using var request = new HttpRequestMessage(HttpMethod.Get, new Uri("/mcp", UriKind.Relative));
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
         using var response = await app.Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
