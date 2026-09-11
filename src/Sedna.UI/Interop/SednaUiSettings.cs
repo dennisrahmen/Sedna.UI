@@ -55,7 +55,7 @@ public sealed record SednaUiSettings
     [JsonPropertyName("cvd")]
     public bool ColourBlind { get; init; }
 
-    /// <summary>Whether compact density is on, which tightens table and cell padding.</summary>
+    /// <summary>Whether compact density is on, which tightens table cell and card padding.</summary>
     [JsonPropertyName("compact")]
     public bool Compact { get; init; }
 

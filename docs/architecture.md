@@ -103,9 +103,10 @@ without being in the ordering statement, since an undeclared layer sorts after e
 blocks, as the rebrand recipe shows.
 
 **An unconditional rule of yours beats a library rule at any specificity.** The case to check is
-compact density: an app carrying its own `.table th, .table td { padding: 8px 12px }` wins over
-`:root[data-density="compact"] .table td`, so compact density stops tightening its tables. Delete the
-copied rule.
+compact density: an app carrying its own `.table th, .table td { padding: 8px 12px }` or
+`.card-body { padding: … }` wins over the padding compact density remaps, so those tables and cards
+stop tightening. Delete the copied rule. The same goes for a `:root[data-density="compact"] .card-body`
+rule written before cards compacted on their own: it still wins, and now fights the library's value.
 
 **`!important` is actively harmful here, not merely unnecessary.** Layer order *inverts* for important
 declarations, so an `!important` inside `sedna.paint` is harder for you to override than an ordinary
@@ -251,7 +252,9 @@ tag's own `data-variant-default`.
 The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, so go and danger read as
 blue against red. Amber and the brand colour are unchanged.
 
-`data-density="compact"` tightens `.table` padding. Apps tighten their own page-specific components.
+`data-density="compact"` is a token remap. It tightens table cells through `--cell-pad-y` /
+`--cell-pad-x`, and every card part — `.card-head`, `.card-body`, `.card-foot` — through `--card-pad-block` / `--card-pad-inline`. An app's own component tightens with them by reading
+the same tokens; page-specific components with other spacing are the app's to tighten.
 
 ## Branding
 
