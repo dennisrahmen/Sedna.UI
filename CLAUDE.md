@@ -339,8 +339,8 @@ in `assets/brand/` are bespoke rather than built from an icon.
 ## JavaScript
 
 `Sedna.UI.js` holds generic UI behaviour only: hover hints, theme settings, clipboard, notifications,
-toasts, confirm dialogs, delegated menus, tabs, the command palette and the header search, and the
-Markdown editor. App-specific interop stays in the app's own script. The member table is in
+toasts, confirm dialogs, delegated menus, tabs, combo fields, the command palette and the header search,
+and the Markdown editor. App-specific interop stays in the app's own script. The member table is in
 `docs/architecture.md`.
 
 - `palette` and `search` share one matcher, `ui._.score`. Do not write a second one.
@@ -366,13 +366,13 @@ component and are not part of the scale — a sticky table uses 1, 2 and 3, and 
 says which is which and why the pinned column cannot sit at 0. Every rung is in use. A test fails on any value not on the scale, so a new
 layer is added to the table in `docs/architecture.md` first.
 
-550 carries the dropdown panels: `.menu`, `.search-panel`, `.popover` and the user widget's own. A real
+550 carries the dropdown panels: `.menu`, `.search-panel`, `.popover`, `.form-combo-panel` and the user widget's own. A real
 `.popover` is in the top layer and ignores the scale entirely; the rung is its fallback.
 
 **The browser floor is Chromium — current Chrome and Edge.** CSS anchor positioning is therefore
-available, and three things use it: `.popover`; the collapsed rail's hover flyout, which has no other
-option because `.nav-scroll` scrolls and a scroll container clips both axes; and `.menu`, for the same
-reason — an absolutely positioned panel is laid out inside the nearest scroll container and counts
+available, and these use it: `.popover`; the collapsed rail's hover flyout, which has no other
+option because `.nav-scroll` scrolls and a scroll container clips both axes; `.form-combo-panel`; and
+`.menu`, for the same reason — an absolutely positioned panel is laid out inside the nearest scroll container and counts
 towards its scrollable overflow, so a menu opened in a toolbar or a scrolling table both grew that
 container a scrollbar and got clipped at its edge. Use anchor positioning where the alternative is
 measuring in JavaScript, not as a default.

@@ -80,6 +80,8 @@ public class BrandTextContrastTests
         [".tab[aria-selected=\"true\"]:hover"] = (Ink.Text, []),
         [".tab--active .tab-count"] = (Ink.Text, ["--brand-tint"]),
         [".tab[aria-selected=\"true\"] .tab-count"] = (Ink.Text, ["--brand-tint"]),
+        // The "Clear all" link in a combo panel's head line, on the panel's own ground.
+        [".form-combo-head button"] = (Ink.Text, []),
         [".chip--active"] = (Ink.Text, ["--brand-tint"]),
         [".chip--active i"] = (Ink.Icon, ["--brand-tint"]),
         [".chip--active .chip-dismiss"] = (Ink.Icon, ["--brand-tint"]),

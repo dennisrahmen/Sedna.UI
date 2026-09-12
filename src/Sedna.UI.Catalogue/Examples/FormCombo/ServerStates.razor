@@ -1,0 +1,95 @@
+<div class="field-grid">
+    <div class="form-field">
+        <label class="form-label" for="cs-loading">Opening</label>
+        <div class="form-combo form-combo--inline">
+            <div class="form-combo-box">
+                <input class="form-combo-input" id="cs-loading" type="text" role="combobox" placeholder="Search the catalogue…"
+                       aria-expanded="true" aria-controls="cs-loading-list" autocomplete="off" />
+                <span class="form-combo-actions">
+                    <span class="spinner form-combo-busy" role="status" aria-label="Loading"></span>
+                </span>
+            </div>
+            <div class="form-combo-panel">
+                <div class="form-combo-head">Loading products…</div>
+                <div class="form-combo-list" id="cs-loading-list" role="listbox" aria-busy="true" aria-label="Products">
+                    <div class="form-combo-skeleton"><div class="skeleton skeleton-text" style="width:46%"></div></div>
+                    <div class="form-combo-skeleton"><div class="skeleton skeleton-text" style="width:62%"></div></div>
+                    <div class="form-combo-skeleton"><div class="skeleton skeleton-text" style="width:38%"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="cs-page">First page</label>
+        <div class="form-combo form-combo--inline">
+            <div class="form-combo-box">
+                <input class="form-combo-input" id="cs-page" type="text" role="combobox" placeholder="Search the catalogue…"
+                       aria-expanded="true" aria-controls="cs-page-list" autocomplete="off" />
+                <span class="form-combo-actions">
+                    <span class="spinner form-combo-busy" role="status" aria-label="Loading"></span>
+                </span>
+            </div>
+            <div class="form-combo-panel">
+                <div class="form-combo-head">50 of 12,480 · type to search</div>
+                <div class="form-combo-list" id="cs-page-list" role="listbox" aria-multiselectable="true" aria-label="Products">
+                    <div class="form-combo-option" role="option" id="cs-page-1" aria-selected="false"><span class="form-combo-option-text">Pavlova</span><span class="form-combo-option-meta">NW-10046</span></div>
+                    <div class="form-combo-option" role="option" id="cs-page-2" aria-selected="true"><span class="form-combo-option-text">Queso Cabrales</span><span class="form-combo-option-meta">NW-10047</span></div>
+                    <div class="form-combo-option" role="option" id="cs-page-3" aria-selected="false"><span class="form-combo-option-text">Konbu</span><span class="form-combo-option-meta">NW-10048</span></div>
+                </div>
+                <button class="form-combo-more" type="button">Load 50 more</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="cs-search">Searching</label>
+        <div class="form-combo form-combo--inline">
+            <div class="form-combo-box">
+                <input class="form-combo-input" id="cs-search" type="text" role="combobox" placeholder="Search the catalogue…"
+                       value="cran" aria-expanded="true" aria-controls="cs-search-list" autocomplete="off" />
+                <span class="form-combo-actions">
+                    <span class="spinner form-combo-busy" role="status" aria-label="Searching"></span>
+                </span>
+            </div>
+            <div class="form-combo-panel">
+                <div class="form-combo-head">Searching…</div>
+                <div class="form-combo-list" id="cs-search-list" role="listbox" aria-busy="true" aria-multiselectable="true" aria-label="Products">
+                    <div class="form-combo-option" role="option" id="cs-search-1" aria-selected="false"><span class="form-combo-option-text">Pavlova</span><span class="form-combo-option-meta">NW-10046</span></div>
+                    <div class="form-combo-option" role="option" id="cs-search-2" aria-selected="true"><span class="form-combo-option-text">Queso Cabrales</span><span class="form-combo-option-meta">NW-10047</span></div>
+                    <div class="form-combo-option" role="option" id="cs-search-3" aria-selected="false"><span class="form-combo-option-text">Konbu</span><span class="form-combo-option-meta">NW-10048</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="cs-none">Nothing found</label>
+        <div class="form-combo form-combo--inline">
+            <div class="form-combo-box">
+                <input class="form-combo-input" id="cs-none" type="text" role="combobox" placeholder="Search the catalogue…"
+                       value="quinoa" aria-expanded="true" aria-controls="cs-none-list" autocomplete="off" />
+            </div>
+            <div class="form-combo-panel">
+                <div class="form-combo-list" id="cs-none-list" role="listbox" aria-label="Products"></div>
+                <div class="form-combo-empty"><i class="ri-search-line"></i>No product matches “quinoa”.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="cs-error">Failed</label>
+        <div class="form-combo form-combo--inline">
+            <div class="form-combo-box">
+                <input class="form-combo-input" id="cs-error" type="text" role="combobox" placeholder="Search the catalogue…"
+                       value="cran" aria-expanded="true" aria-controls="cs-error-status" aria-describedby="cs-error-status" autocomplete="off" />
+            </div>
+            <div class="form-combo-panel">
+                <div class="form-combo-status form-combo-status--error" id="cs-error-status" role="alert">
+                    <i class="ri-error-warning-line"></i>The catalogue did not answer.
+                    <button class="btn btn-sm" type="button"><i class="ri-refresh-line"></i> Retry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

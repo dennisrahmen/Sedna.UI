@@ -71,18 +71,32 @@
         }
     }
 
+    /* A combo field's panel hangs off its box the same way. An inline one is in
+       the flow and has nothing to go stale. */
+    function closeCombos(scroller) {
+        var open = document.querySelectorAll('[data-combo] .form-combo-input[aria-expanded="true"]');
+        for (var i = 0; i < open.length; i++) {
+            var host = open[i].closest('[data-combo]');
+            if (host.classList.contains('form-combo--inline')) continue;
+            var panel = host.querySelector('.form-combo-panel');
+            var box = host.querySelector('.form-combo-box');
+            if (panel && stale(scroller, panel, box)) ui.combo.close(host);
+        }
+    }
+
     /* Capture, because `scroll` does not bubble: without it a scroll on anything
        but the document goes unheard, and the frame's own `.page` is a container.
        Delegated from document, so a panel rendered by a later Blazor render is
        covered with nothing re-bound.
 
-       Both branches open with one querySelector that finds nothing, which is the
+       Every branch opens with one querySelector that finds nothing, which is the
        case on every scroll event but a handful. */
     document.addEventListener('scroll', function (e) {
         var scroller = scrolledElement(e.target);
         if (!scroller) return;
         closeMenus(scroller);
         closePopovers(scroller);
+        closeCombos(scroller);
     }, true);
 
 })(window.sednaUi);

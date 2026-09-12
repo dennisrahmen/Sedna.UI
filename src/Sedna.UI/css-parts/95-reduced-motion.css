@@ -45,6 +45,8 @@
        changes the border, and a panel that appears is a panel. */
     .form-select::picker-icon      { transition: none; }
     .form-select::picker(select)   { transition: none; }
+    .form-combo-box,
+    .form-combo-toggle i { transition: none; }   /* 49 */
     .form-check input[type="radio"]    { transition: none; }   /* 45 */
     .switch input[type="checkbox"]     { transition: none; }   /* 45 */
     .switch input[type="checkbox"]::after { transition: none; }

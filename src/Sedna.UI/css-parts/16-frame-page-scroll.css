@@ -95,7 +95,7 @@
    (a card, a modal, a drawer, a menu, a popover, a toast). A scroller inside any
    of them is therefore right without being named here, and the fallback is the
    page. Only a scroller that can appear WITHOUT its surface names one below. */
-.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list,
+.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list, .form-combo-list,
 .modal-body, .deck-body {
     --scroll-bg: var(--surface-here, var(--bg));
     background:
@@ -114,6 +114,7 @@
    because both scroll by construction: the panel is capped at the viewport, so the
    body is the part that gives way and it must say so at its edge. */
 .drawer-body,
-.palette-list { --surface-here: var(--bg-elevated); }
+.palette-list,
+.form-combo-list { --surface-here: var(--bg-elevated); }
 .nav-scroll { --surface-here: var(--sidebar-bg); }
 

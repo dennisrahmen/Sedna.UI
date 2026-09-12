@@ -1,0 +1,47 @@
+<div class="form-field">
+    <label class="form-label" for="tags">Tags</label>
+    <div class="form-combo" data-combo="multi">
+        <div class="form-combo-box">
+            @foreach (var tag in _picked)
+            {
+                <span class="chip" data-value="@tag.Id">
+                    <span class="chip-label">@tag.Name</span>
+                    <button class="chip-dismiss" type="button" aria-label="Remove @tag.Name"
+                            @onclick="() => _picked.Remove(tag)"><i class="ri-close-line"></i></button>
+                </span>
+            }
+            <input class="form-combo-input" id="tags" type="text" role="combobox" placeholder="Add tags…"
+                   aria-expanded="false" aria-controls="tags-list" aria-autocomplete="list" autocomplete="off" />
+            <span class="form-combo-actions">
+                <button class="form-combo-btn form-combo-clear" type="button" aria-label="Remove every tag"
+                        @onclick="_picked.Clear"><i class="ri-close-line"></i></button>
+                <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show tags">
+                    <i class="ri-arrow-down-s-line"></i>
+                </button>
+            </span>
+        </div>
+        <div class="form-combo-panel">
+            <div class="form-combo-list" id="tags-list" role="listbox" aria-multiselectable="true" aria-label="Tags">
+                @foreach (var tag in _all)
+                {
+                    <div class="form-combo-option" role="option" id="tags-@tag.Id" data-value="@tag.Id"
+                         aria-selected="@(_picked.Contains(tag) ? "true" : "false")"
+                         @onclick="() => Toggle(tag)">@tag.Name</div>
+                }
+            </div>
+            <div class="form-combo-empty"><i class="ri-search-line"></i>No tag matches.</div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // The whole list is on the page, so the script filters it as the reader types —
+    // no binding on the input, no round trip per keystroke.
+    private List<Tag> _all = [];
+    private readonly List<Tag> _picked = [];
+
+    private void Toggle(Tag tag)
+    {
+        if (!_picked.Remove(tag)) _picked.Add(tag);
+    }
+}
