@@ -1,0 +1,116 @@
+/* ── Area rail ──────────────────────────────────────────────────────────────
+   A sidebar in two columns: a narrow rail of areas, and beside it one .nav panel
+   holding only the current area's links. For an app whose nav has outgrown one
+   list and splits cleanly into a handful of areas.
+
+     <aside class="sidebar sidebar--areas">
+       <div class="nav-areas">
+         <a class="brand" href="/">…the usual .brand…</a>
+         <nav class="nav-areas-list" aria-label="Areas">
+           <button class="nav-area" type="button" aria-controls="area-orders"
+                   aria-expanded="true" data-nav-area>
+             <i class="ri-inbox-line"></i><span>Orders</span>
+           </button>
+           <button class="nav-area" type="button" aria-controls="area-stock"
+                   aria-expanded="false" data-nav-area>…</button>
+         </nav>
+       </div>
+       <nav class="nav" id="area-orders" aria-label="Orders">
+         <div class="nav-area-title">Orders</div>
+         <div class="nav-scroll">…</div>
+       </nav>
+       <nav class="nav" id="area-stock" aria-label="Stock" hidden>…</nav>
+     </aside>
+
+   Two forms of rail item, and the same class for both:
+     · a <button data-nav-area> swaps panels in place, through the script;
+     · an <a href> goes to the area's first page, and the app renders that area's
+       panel. No script, and the form to use when the sidebar can collapse, because
+       a collapsed .sidebar--areas keeps only the rail.
+
+   The current area is `aria-expanded="true"` on a button and `.active` on a link —
+   the same class ActiveLink appends — and both are styled alike.
+
+   The rail's width is a knob beside the sidebar's own, and it is also the collapsed
+   width: a collapsed area rail is the rail. */
+.sidebar.sidebar--areas {
+    --nav-areas-width: 64px;
+    --sidebar-width: calc(var(--nav-areas-width) + 200px);
+    --sidebar-width-collapsed: var(--nav-areas-width);
+    flex-direction: row;
+}
+
+.nav-areas {
+    width: var(--nav-areas-width);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-inline-end: 1px solid var(--sidebar-border);
+}
+/* The brand drops to its tile, as it does in the collapsed rail; the text stays in
+   the accessibility tree. */
+.nav-areas .brand { justify-content: center; padding: 0; gap: 0; }
+.nav-areas .brand-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+
+.nav-areas-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-3);
+}
+.nav-areas-list::-webkit-scrollbar { display: none; }
+
+.nav-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-1);
+    background: none;
+    border: none;
+    border-radius: var(--radius-surface);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: var(--text-1);
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+.nav-area i { font-size: var(--text-8); line-height: 1; }
+/* A long area name wraps inside the rail rather than widening it. */
+.nav-area > span { max-width: 100%; overflow-wrap: anywhere; }
+.nav-area:hover { background: var(--sidebar-hover); color: var(--sidebar-fg); text-decoration: none; }
+.nav-area:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.nav-area[aria-expanded="true"],
+.nav-area.active { background: var(--brand-tint); color: var(--brand-text); }
+
+/* The panel. A .nav is display:flex, which outranks the UA's [hidden], so the
+   hidden panels are put away explicitly. */
+.sidebar--areas > .nav { flex: 1; min-width: 0; }
+.sidebar--areas > .nav[hidden] { display: none; }
+
+/* The panel's heading sits on the brand's line, so the two columns share one
+   divider across the top of the sidebar. */
+.nav-area-title {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    flex-shrink: 0;
+    padding: 0 var(--space-7);
+    border-bottom: 1px solid var(--sidebar-border);
+    color: var(--sidebar-fg);
+    font-size: var(--text-4);
+    font-weight: 600;
+}

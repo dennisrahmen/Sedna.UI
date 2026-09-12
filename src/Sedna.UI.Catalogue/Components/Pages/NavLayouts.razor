@@ -1,0 +1,83 @@
+@page "/nav-layouts"
+
+<CatHead Title="Nav layouts" Tier="@CatHead.Tier1">
+    Ways to arrange a sidebar that has outgrown one list. They share the nav's classes, so an
+    app can start with one and move to another without restyling a single link.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-route-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Choose by how many pages, and how they split</span>
+        <table class="table">
+            <thead><tr><th>Layout</th><th>Use when</th></tr></thead>
+            <tbody>
+                <tr><td>Text-only links</td><td>Every page should stay in view, and the icons have become noise</td></tr>
+                <tr><td>Accordion groups</td><td>The pages fall into groups and a reader works in one at a time</td></tr>
+                <tr><td>Accordion with a filter</td><td>There are too many pages to scan, and readers know what they are looking for</td></tr>
+                <tr><td>Area rail</td><td>The app splits into a handful of areas that each deserve their own nav</td></tr>
+                <tr><td>Areas in the topbar</td><td>The same split, keeping the sidebar at its usual width</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<CatExample TExample="Examples.NavLayouts.QuietList" Title="Text-only links" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        The ordinary nav with the icons left off, so the section labels do the grouping. No new class
+        and no script. <strong>Do not collapse it</strong>: the collapsed rail shows only icons, and a
+        link without one becomes a blank box.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.AccordionGroups" Title="Accordion groups" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        Every group a <code>.nav-group</code>, each sharing one <code>name</code>, so opening a group
+        closes the one that was open. That is the platform's exclusive <code>&lt;details&gt;</code>
+        and needs no script. Put <code>open</code> on the group holding the current page, and keep
+        each <code>name</code> unique to one nav.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.FilteredNav" Title="Accordion with a filter" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <strong>Live — type <code>shelf</code>, <code>refund</code> or <code>print</code>.</strong>
+        <code>.nav-filter</code> above <code>.nav-scroll</code>, with <code>data-nav-filter</code> on
+        its input. A link stays when every word typed is in its label or its
+        <code>data-keywords</code>, which is where the words a reader would type but the label does not
+        say belong. Closed groups show their matches without opening, Enter follows the first match,
+        and Escape or following a link clears the filter. <code>.nav-filter-empty</code> shows when
+        nothing is left.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.AreaRail" Title="Area rail" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <strong>Live — click an area.</strong> <code>.sidebar--areas</code> puts a
+        <code>.nav-areas</code> rail beside one <code>.nav</code> panel per area; each panel is an
+        ordinary nav under a <code>.nav-area-title</code>. A <code>.nav-area</code> button with
+        <code>data-nav-area</code> and <code>aria-controls</code> swaps panels in place. An app that
+        decides the area from the address leaves <code>data-nav-area</code> off and renders the
+        panel itself, or the two will disagree about which panel is showing.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.CollapsedAreaRail" Title="Collapsed area rail" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <code>.collapsed</code> keeps the rail and drops the panel, so the collapsed width is the
+        rail's own, <code>--nav-areas-width</code>. With no panel to swap, each area is a
+        <strong>link</strong> to its first page, marked current with <code>.active</code> as
+        <code>ActiveLink</code> writes it. Use this form whenever the sidebar can collapse, and under
+        <code>.layout--responsive</code>, which collapses it below 900px.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.TopbarAreas" Title="Areas in the topbar" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <code>.topbar-nav</code> holds one <code>.topbar-nav-link</code> per area, and the sidebar
+        lists only the current area's pages. They are links, not <a href="/tabs">tabs</a>: an area
+        has an address. Give each link the address its area's pages share, and
+        <code>ActiveLink</code>'s prefix match marks it current on every page inside. The row scrolls
+        sideways rather than wrapping when the header is narrow.
+    </p>
+</CatExample>

@@ -18,6 +18,7 @@
      11-frame-sidebar.css
      12-frame-collapsed-rail.css
      13-frame-topbar.css
+     14-frame-nav-filter.css
      15-frame-user-widget.css
      16-frame-page-scroll.css
      17-frame-hover-hints.css
@@ -25,6 +26,8 @@
      19-frame-responsive.css
      20-frame-layouts.css
      21-frame-search.css
+     22-frame-nav-areas.css
+     23-frame-topbar-nav.css
      30-cards.css
      31-badges.css
      32-tables.css
@@ -1673,6 +1676,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 .sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; }
 .sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+/* A rail has no room to type in, so the nav filter goes with the labels. */
+.sidebar.collapsed .nav-filter { display: none; }
+/* A collapsed area rail is the rail alone: the panel goes, and the rail's own
+   divider with it, since the sidebar's edge now stands in the same place. */
+.sidebar.collapsed.sidebar--areas > .nav { display: none; }
+.sidebar.collapsed.sidebar--areas .nav-areas { border-inline-end: none; }
 
 /* Rail-only hover flyout. The JS tip engine skips .sidebar precisely so this
    pure-CSS variant owns the collapsed rail (no double tooltip).
@@ -1821,6 +1830,86 @@ a.topbar-version--pre:hover {
 .topbar > .health-badge,
 .topbar > .stale,
 .topbar > .topbar-version { align-self: center; margin-inline: var(--space-6); }
+}
+
+/* ── 14-frame-nav-filter.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
+/* ── Nav filter ─────────────────────────────────────────────────────────────
+   A field above .nav-scroll that narrows a long nav to the links matching what was
+   typed. Pair it with closed .nav-groups: the nav is short at rest, and a reader who
+   knows the word never scrolls.
+
+     <nav class="nav">
+       <div class="nav-filter">
+         <i class="ri-filter-3-line" aria-hidden="true"></i>
+         <input class="nav-filter-input" type="search" placeholder="Filter pages"
+                aria-label="Filter pages" data-nav-filter>
+       </div>
+       <div class="nav-scroll">
+         … .nav-link, .nav-section and .nav-group, a link optionally data-keywords="…"
+         <p class="nav-filter-empty">No page matches.</p>
+       </div>
+     </nav>
+
+   The script sets data-filtering on .nav while the field holds text, and
+   data-nav-miss on every .nav-scroll link that does not match. Everything below
+   reads those two attributes, so nothing here moves an element or opens a group:
+   a closed .nav-group shows its matching links through ::details-content without
+   its `open` attribute changing, and clearing the field puts every group back as
+   the reader left it.
+
+   Its own input class rather than .form-input: that one lives in sedna.paint, which
+   outranks this layer, so the icon's padding could not be added to it from here. */
+.nav-filter {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin: var(--space-4) var(--space-5) var(--space-2);
+}
+.nav-filter > i {
+    position: absolute;
+    inset-inline-start: var(--space-4);
+    font-size: var(--text-5);
+    color: var(--muted);
+    pointer-events: none;
+}
+.nav-filter-input {
+    width: 100%;
+    min-height: var(--control-height-sm);
+    padding: var(--space-2) var(--space-4);
+    padding-inline-start: calc(var(--space-4) + var(--text-5) + var(--space-3));
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: var(--text-3);
+    line-height: 1.4;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.nav-filter-input::placeholder { color: var(--muted); }
+.nav-filter-input:focus {
+    outline: none;
+    border-color: var(--brand-soft);
+    box-shadow: 0 0 0 2px var(--brand-glow);
+}
+
+.nav-filter-empty {
+    display: none;
+    margin: 0;
+    padding: var(--space-4) var(--space-7);
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+
+.nav[data-filtering] .nav-scroll .nav-link[data-nav-miss] { display: none; }
+/* A section or a group with no match left in it goes, label and all. */
+.nav[data-filtering] .nav-section:not(:has(.nav-link:not([data-nav-miss]))),
+.nav[data-filtering] .nav-group:not(:has(.nav-link:not([data-nav-miss]))) { display: none; }
+.nav[data-filtering] .nav-group::details-content { content-visibility: visible; }
+.nav[data-filtering] .nav-group > summary::after { transform: rotate(-180deg); }
+.nav[data-filtering] .nav-scroll:not(:has(.nav-link:not([data-nav-miss]))) .nav-filter-empty { display: block; }
 }
 
 /* ── 15-frame-user-widget.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -2314,6 +2403,9 @@ a.topbar-version--pre:hover {
     }
     .layout--responsive .sidebar .nav-status-dot { width: 9px; height: 9px; }
     .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+    .layout--responsive .sidebar .nav-filter { display: none; }
+    .layout--responsive .sidebar.sidebar--areas > .nav { display: none; }
+    .layout--responsive .sidebar.sidebar--areas .nav-areas { border-inline-end: none; }
 
     /* The rail's own flyout, which is what carries the label once the text is
        gone. Anchor-positioned for the reason spelled out in
@@ -2716,6 +2808,188 @@ a.topbar-version--pre:hover {
     position: absolute;
     top: calc(100% + 6px);
     inset-inline: 0;
+}
+}
+
+/* ── 22-frame-nav-areas.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
+/* ── Area rail ──────────────────────────────────────────────────────────────
+   A sidebar in two columns: a narrow rail of areas, and beside it one .nav panel
+   holding only the current area's links. For an app whose nav has outgrown one
+   list and splits cleanly into a handful of areas.
+
+     <aside class="sidebar sidebar--areas">
+       <div class="nav-areas">
+         <a class="brand" href="/">…the usual .brand…</a>
+         <nav class="nav-areas-list" aria-label="Areas">
+           <button class="nav-area" type="button" aria-controls="area-orders"
+                   aria-expanded="true" data-nav-area>
+             <i class="ri-inbox-line"></i><span>Orders</span>
+           </button>
+           <button class="nav-area" type="button" aria-controls="area-stock"
+                   aria-expanded="false" data-nav-area>…</button>
+         </nav>
+       </div>
+       <nav class="nav" id="area-orders" aria-label="Orders">
+         <div class="nav-area-title">Orders</div>
+         <div class="nav-scroll">…</div>
+       </nav>
+       <nav class="nav" id="area-stock" aria-label="Stock" hidden>…</nav>
+     </aside>
+
+   Two forms of rail item, and the same class for both:
+     · a <button data-nav-area> swaps panels in place, through the script;
+     · an <a href> goes to the area's first page, and the app renders that area's
+       panel. No script, and the form to use when the sidebar can collapse, because
+       a collapsed .sidebar--areas keeps only the rail.
+
+   The current area is `aria-expanded="true"` on a button and `.active` on a link —
+   the same class ActiveLink appends — and both are styled alike.
+
+   The rail's width is a knob beside the sidebar's own, and it is also the collapsed
+   width: a collapsed area rail is the rail. */
+.sidebar.sidebar--areas {
+    --nav-areas-width: 64px;
+    --sidebar-width: calc(var(--nav-areas-width) + 200px);
+    --sidebar-width-collapsed: var(--nav-areas-width);
+    flex-direction: row;
+}
+
+.nav-areas {
+    width: var(--nav-areas-width);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-inline-end: 1px solid var(--sidebar-border);
+}
+/* The brand drops to its tile, as it does in the collapsed rail; the text stays in
+   the accessibility tree. */
+.nav-areas .brand { justify-content: center; padding: 0; gap: 0; }
+.nav-areas .brand-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+
+.nav-areas-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-3);
+}
+.nav-areas-list::-webkit-scrollbar { display: none; }
+
+.nav-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-1);
+    background: none;
+    border: none;
+    border-radius: var(--radius-surface);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: var(--text-1);
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+.nav-area i { font-size: var(--text-8); line-height: 1; }
+/* A long area name wraps inside the rail rather than widening it. */
+.nav-area > span { max-width: 100%; overflow-wrap: anywhere; }
+.nav-area:hover { background: var(--sidebar-hover); color: var(--sidebar-fg); text-decoration: none; }
+.nav-area:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.nav-area[aria-expanded="true"],
+.nav-area.active { background: var(--brand-tint); color: var(--brand-text); }
+
+/* The panel. A .nav is display:flex, which outranks the UA's [hidden], so the
+   hidden panels are put away explicitly. */
+.sidebar--areas > .nav { flex: 1; min-width: 0; }
+.sidebar--areas > .nav[hidden] { display: none; }
+
+/* The panel's heading sits on the brand's line, so the two columns share one
+   divider across the top of the sidebar. */
+.nav-area-title {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    flex-shrink: 0;
+    padding: 0 var(--space-7);
+    border-bottom: 1px solid var(--sidebar-border);
+    color: var(--sidebar-fg);
+    font-size: var(--text-4);
+    font-weight: 600;
+}
+}
+
+/* ── 23-frame-topbar-nav.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
+/* ── Areas in the topbar ────────────────────────────────────────────────────
+   A row of links across the header naming the app's areas, with the sidebar
+   holding only the current area's pages. The docs-site arrangement: the full
+   width stays, and the sidebar is as short as one area.
+
+     <header class="topbar">
+       <nav class="topbar-nav" aria-label="Areas">
+         <a class="topbar-nav-link active" href="/orders" aria-current="page">Orders</a>
+         <a class="topbar-nav-link" href="/stock">Stock</a>
+       </nav>
+       <div class="topbar-spacer"></div>
+       …
+     </header>
+
+   Links, never .tabs. An area is a place with an address, and .tabs swap a region
+   of one page — a tab that changes the URL is a link wearing a control's clothes.
+
+   The current area is `.active`, which is what ActiveLink.CssClass appends, and
+   `aria-current="page"` is styled the same so either one on its own reads right.
+   Give the area's link the address the area's pages share as a prefix, and
+   ActiveLink's prefix match lights it up on every page inside it.
+
+   The row scrolls sideways on a narrow header rather than wrapping: a second line
+   would break the header's fixed 44px, which the sidebar's brand is aligned to. */
+.topbar-nav {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-1);
+    min-width: 0;
+    padding: 0 var(--space-5);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.topbar-nav::-webkit-scrollbar { display: none; }
+
+.topbar-nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-shrink: 0;
+    padding: 0 var(--space-5);
+    /* The indicator's 2px is reserved when it is not showing, so the label does not
+       jump on becoming current, and a matching top edge keeps the label centred. */
+    border-bottom: 2px solid transparent;
+    border-top: 2px solid transparent;
+    color: var(--muted);
+    font-size: var(--text-4);
+    white-space: nowrap;
+    text-decoration: none;
+}
+.topbar-nav-link i { font-size: var(--text-6); }
+.topbar-nav-link:hover { color: var(--fg); text-decoration: none; }
+.topbar-nav-link:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.topbar-nav-link.active,
+.topbar-nav-link[aria-current="page"] {
+    border-bottom-color: var(--brand);
+    color: var(--fg);
 }
 }
 
@@ -9757,6 +10031,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     /* ── Tier 1 — the frame ─────────────────────────────────────────────── */
     .sidebar          { transition: none; }   /* 11 — collapse to the icon rail */
     .nav-status-card  { transition: none; }   /* 11 */
+    .nav-filter-input { transition: none; }   /* 14 */
     .user-signout     { transition: none; }   /* 15 */
     /* 17 — the hint appears at its final position instead of sliding in. Opacity
        is kept as a step, not a fade, by removing the transition entirely. */

@@ -1,0 +1,76 @@
+/* ── Nav filter ─────────────────────────────────────────────────────────────
+   A field above .nav-scroll that narrows a long nav to the links matching what was
+   typed. Pair it with closed .nav-groups: the nav is short at rest, and a reader who
+   knows the word never scrolls.
+
+     <nav class="nav">
+       <div class="nav-filter">
+         <i class="ri-filter-3-line" aria-hidden="true"></i>
+         <input class="nav-filter-input" type="search" placeholder="Filter pages"
+                aria-label="Filter pages" data-nav-filter>
+       </div>
+       <div class="nav-scroll">
+         … .nav-link, .nav-section and .nav-group, a link optionally data-keywords="…"
+         <p class="nav-filter-empty">No page matches.</p>
+       </div>
+     </nav>
+
+   The script sets data-filtering on .nav while the field holds text, and
+   data-nav-miss on every .nav-scroll link that does not match. Everything below
+   reads those two attributes, so nothing here moves an element or opens a group:
+   a closed .nav-group shows its matching links through ::details-content without
+   its `open` attribute changing, and clearing the field puts every group back as
+   the reader left it.
+
+   Its own input class rather than .form-input: that one lives in sedna.paint, which
+   outranks this layer, so the icon's padding could not be added to it from here. */
+.nav-filter {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin: var(--space-4) var(--space-5) var(--space-2);
+}
+.nav-filter > i {
+    position: absolute;
+    inset-inline-start: var(--space-4);
+    font-size: var(--text-5);
+    color: var(--muted);
+    pointer-events: none;
+}
+.nav-filter-input {
+    width: 100%;
+    min-height: var(--control-height-sm);
+    padding: var(--space-2) var(--space-4);
+    padding-inline-start: calc(var(--space-4) + var(--text-5) + var(--space-3));
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: var(--text-3);
+    line-height: 1.4;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.nav-filter-input::placeholder { color: var(--muted); }
+.nav-filter-input:focus {
+    outline: none;
+    border-color: var(--brand-soft);
+    box-shadow: 0 0 0 2px var(--brand-glow);
+}
+
+.nav-filter-empty {
+    display: none;
+    margin: 0;
+    padding: var(--space-4) var(--space-7);
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+
+.nav[data-filtering] .nav-scroll .nav-link[data-nav-miss] { display: none; }
+/* A section or a group with no match left in it goes, label and all. */
+.nav[data-filtering] .nav-section:not(:has(.nav-link:not([data-nav-miss]))),
+.nav[data-filtering] .nav-group:not(:has(.nav-link:not([data-nav-miss]))) { display: none; }
+.nav[data-filtering] .nav-group::details-content { content-visibility: visible; }
+.nav[data-filtering] .nav-group > summary::after { transform: rotate(-180deg); }
+.nav[data-filtering] .nav-scroll:not(:has(.nav-link:not([data-nav-miss]))) .nav-filter-empty { display: block; }

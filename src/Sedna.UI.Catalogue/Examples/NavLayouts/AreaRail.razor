@@ -1,0 +1,63 @@
+<aside class="sidebar sidebar--areas" style="height:520px">
+    <div class="nav-areas">
+        <div class="brand">
+            <div class="brand-logo" style="background:var(--brand)"></div>
+            <div class="brand-text">
+                <strong>Dispatch Console</strong>
+                <span class="brand-sub">Northwind Retail</span>
+            </div>
+        </div>
+        <nav class="nav-areas-list" aria-label="Areas">
+            <button class="nav-area" type="button" aria-controls="dispatch-area-orders" aria-expanded="true" data-nav-area><i class="ri-inbox-line"></i><span>Orders</span></button>
+            <button class="nav-area" type="button" aria-controls="dispatch-area-stock" aria-expanded="false" data-nav-area><i class="ri-archive-stack-line"></i><span>Stock</span></button>
+            <button class="nav-area" type="button" aria-controls="dispatch-area-shipping" aria-expanded="false" data-nav-area><i class="ri-truck-line"></i><span>Shipping</span></button>
+            <button class="nav-area" type="button" aria-controls="dispatch-area-admin" aria-expanded="false" data-nav-area><i class="ri-settings-3-line"></i><span>Admin</span></button>
+        </nav>
+    </div>
+
+    <nav class="nav" id="dispatch-area-orders" aria-label="Orders">
+        <div class="nav-area-title">Orders</div>
+        <div class="nav-scroll">
+            <a class="nav-link active" href="#" aria-current="page"><span>Queue</span><span class="nav-count">3</span></a>
+            <a class="nav-link" href="#"><span>On hold</span></a>
+            <a class="nav-link" href="#"><span>Returns</span></a>
+            <div class="nav-section">
+                <span class="nav-section-label">History</span>
+                <a class="nav-link" href="#"><span>Decided</span></a>
+                <a class="nav-link" href="#"><span>Exports</span></a>
+            </div>
+        </div>
+        <div class="nav-tools">
+            <a class="nav-link nav-link-tool" href="#"><i class="ri-book-2-line"></i><span>Documentation</span><i class="ri-external-link-line nav-link-ext"></i></a>
+        </div>
+    </nav>
+    <nav class="nav" id="dispatch-area-stock" aria-label="Stock" hidden>
+        <div class="nav-area-title">Stock</div>
+        <div class="nav-scroll">
+            <a class="nav-link" href="#"><span>Items</span></a>
+            <a class="nav-link" href="#"><span>Locations</span></a>
+            <div class="nav-section">
+                <span class="nav-section-label">Movements</span>
+                <a class="nav-link" href="#"><span>Transfers</span></a>
+                <a class="nav-link" href="#"><span>Stock counts</span></a>
+            </div>
+        </div>
+    </nav>
+    <nav class="nav" id="dispatch-area-shipping" aria-label="Shipping" hidden>
+        <div class="nav-area-title">Shipping</div>
+        <div class="nav-scroll">
+            <a class="nav-link" href="#"><span>Carriers</span></a>
+            <a class="nav-link" href="#"><span>Labels</span></a>
+            <a class="nav-link" href="#"><span>Pickups</span></a>
+        </div>
+    </nav>
+    <nav class="nav" id="dispatch-area-admin" aria-label="Administration" hidden>
+        <div class="nav-area-title">Administration</div>
+        <div class="nav-scroll">
+            <a class="nav-link" href="#"><span>Users</span></a>
+            <a class="nav-link" href="#"><span>Roles</span></a>
+            <a class="nav-link" href="#"><span>API keys</span></a>
+            <a class="nav-link" href="#"><span>Audit log</span></a>
+        </div>
+    </nav>
+</aside>

@@ -66,6 +66,8 @@ public class BrandTextContrastTests
         [".markdown-body a"] = (Ink.Text, []),
         [".nav-link.active"] = (Ink.Text, ["--brand-tint"]),
         [".nav-link.active i"] = (Ink.Icon, ["--brand-tint"]),
+        [".nav-area[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
+        [".nav-area.active"] = (Ink.Text, ["--brand-tint"]),
         [".user-avatar"] = (Ink.Text, ["--brand-tint"]),
         [".avatar"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over"] = (Ink.Text, ["--brand-tint"]),
