@@ -1123,7 +1123,7 @@
     "HoverHints/TipGate": "0.11.0",
     "Index/HostPage": "0.11.0",
     "Index/Install": "0.2.0",
-    "Index/Rebrand": "0.2.0",
+    "Index/Rebrand": null,
     "Index/Registration": "0.2.0",
     "Interop/ActiveNavLink": "0.2.0",
     "Interop/ConfirmFromCsharp": "0.2.0",

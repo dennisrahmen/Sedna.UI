@@ -44,8 +44,8 @@ public class ThemeRemapTests
         // makes CSS load order irrelevant. A media query that varies *appearance* is
         // the same kind of block and carries the same obligation — with the sharper
         // edge that @media adds source order without adding specificity, which is
-        // exactly how the five light-theme cascade bugs found migrating AI_Console
-        // outranked the semantic rules above them.
+        // exactly how the five light-theme cascade bugs found migrating a consuming
+        // app outranked the semantic rules above them.
         //
         // Layout media queries (min-width / max-width / orientation / print) are NOT
         // covered: a responsive frame has to move real selectors, and a print sheet

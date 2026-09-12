@@ -1,18 +1,18 @@
 :root {
-    --brand:          #e41f16;
-    --brand-hover:    #c8170f;
-    --brand-active:   #a81209;
-    --brand-soft:     #ff6f66;
-    --brand-text:     #ff8f88;
-    --accent:         #ff6f66;
-    --sidebar-active: #e41f16;
+    --brand:          #d62828;
+    --brand-hover:    #b81f1f;
+    --brand-active:   #8f1818;
+    --brand-soft:     #ff7a70;
+    --brand-text:     #ff9b93;
+    --accent:         #ff7a70;
+    --sidebar-active: #d62828;
 }
 
 /* The light variant needs the readable-on-white variants. */
 :root[data-variant="light"] {
-    --brand-soft: #e41f16;
-    --brand-text: #c8170f;
-    --accent:     #c8170f;
+    --brand-soft: #d62828;
+    --brand-text: #b81f1f;
+    --accent:     #b81f1f;
 }
 
 /* --brand-tint and the four --brand-ring/-glow tokens are mixed from
