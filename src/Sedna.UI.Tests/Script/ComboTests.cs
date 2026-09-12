@@ -258,9 +258,12 @@ public class ComboTests : ScriptTestBase
             """);
         await page.Keyboard.TypeAsync("desk@example.net");
         await page.Keyboard.PressAsync(",");
+        // A name every plain object already has, which a set built on one reported as a duplicate.
+        await page.Keyboard.TypeAsync("constructor");
+        await page.Keyboard.PressAsync("Enter");
 
         var state = await page.EvaluateAsync<JsonElement>("() => ({ changes, value: q.value })");
-        Assert.Equal(["ops@example.org", "billing@example.net", "desk@example.net"],
+        Assert.Equal(["ops@example.org", "billing@example.net", "desk@example.net", "constructor"],
             state.GetProperty("changes").EnumerateArray().Select(e => e.GetString()));
         Assert.Equal("", state.GetProperty("value").GetString());
     }

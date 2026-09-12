@@ -1306,13 +1306,17 @@ window.sednaUi = window.sednaUi || {};
 
     function commit(host, raw) {
         var input = inputOf(host);
-        var seen = {}, entries = [];
-        chips(host).forEach(function (c) { seen[(c.getAttribute('data-value') || '').toLowerCase()] = true; });
+        /* An array, not an object used as a set: the keys are whatever the reader
+           typed, and `constructor` or `__proto__` as a property name reads a value
+           that is already there — the entry was skipped as a duplicate — or writes
+           to the prototype. */
+        var seen = chips(host).map(function (c) { return (c.getAttribute('data-value') || '').toLowerCase(); });
+        var entries = [];
 
         String(raw).split(splitter(host)).forEach(function (part) {
             var entry = part.trim(), key = entry.toLowerCase();
-            if (!entry || seen[key]) return;
-            seen[key] = true;
+            if (!entry || seen.indexOf(key) >= 0) return;
+            seen.push(key);
             entries.push(entry);
         });
 
