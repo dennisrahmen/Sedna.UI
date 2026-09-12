@@ -1,0 +1,40 @@
+<div class="form-field">
+    <label class="form-label" for="recipients">Send the report to</label>
+    <div class="form-combo" data-combo="free">
+        <div class="form-combo-box">
+            <i class="ri-mail-line form-combo-icon" aria-hidden="true"></i>
+            @foreach (var address in _recipients)
+            {
+                <span class="chip @(IsAddress(address) ? "" : "chip--invalid")" data-value="@address">
+                    <span class="chip-label">@address</span>
+                    <button class="chip-dismiss" type="button" aria-label="Remove @address"
+                            @onclick="() => _recipients.Remove(address)"><i class="ri-close-line"></i></button>
+                </span>
+            }
+            @* No binding: the script clears the input after each entry. One `change`
+               arrives per entry, already split out of a pasted list, duplicates dropped. *@
+            <input class="form-combo-input" id="recipients" type="text" inputmode="email"
+                   placeholder="Add an address…" autocomplete="off"
+                   aria-invalid="@(_recipients.All(IsAddress) ? "false" : "true")"
+                   aria-describedby="recipients-error"
+                   @onchange="Add" />
+        </div>
+    </div>
+    @if (_recipients.FirstOrDefault(a => !IsAddress(a)) is { } bad)
+    {
+        <p class="form-error" id="recipients-error">“@bad” is not an e-mail address.</p>
+    }
+</div>
+
+@code {
+    private readonly List<string> _recipients = [];
+
+    private void Add(ChangeEventArgs e)
+    {
+        if (e.Value is string entry && !_recipients.Contains(entry, StringComparer.OrdinalIgnoreCase))
+            _recipients.Add(entry);
+    }
+
+    private static bool IsAddress(string value) =>
+        MailAddress.TryCreate(value, out var parsed) && parsed.Host.Contains('.');
+}

@@ -356,7 +356,7 @@ A panel's primary action is a filled button in its semantic colour.
 | Drawer panel | 490 | `.drawer` |
 | Modal backdrop | 500 | `.modal-backdrop` |
 | Spotlight | 510 | `.spotlight-hole`, `.spotlight-tip` |
-| Popover, dropdown menu | 550 | `.menu`, `.search-panel`, `.popover`, the user widget's own panel |
+| Popover, dropdown menu | 550 | `.menu`, `.search-panel`, `.popover`, `.form-combo-panel`, the user widget's own panel |
 | Toast | 600 | `.toast-stack` |
 | Hover hints, reconnect banner | 1000 | `.sedna-tip`, `#components-reconnect-modal`, `.skip-link` |
 
@@ -415,7 +415,8 @@ Two things the flat list does not say:
 | `confirm(options)` | A `<dialog>.showModal()` confirmation. Returns a promise; `danger: true` reddens confirm and focuses cancel |
 | `modal` | The platform dialog for an app's own markup: `show(id)` → `showModal()`, `close(id, value)` → `close(value)`. An id that is not a `<dialog>`, or one already open, warns in the console and does nothing — an exception crossing the interop boundary from a Blazor handler tears down the circuit |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
-| — | `22-anchored.js` adds no member. It closes an open `.menu` or `.popover` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |
+| — | `22-anchored.js` adds no member. It closes an open `.menu`, `.popover` or `.form-combo-panel` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |
+| `combo` | The keyboard, open state and filtering behind a `data-combo` field: `open(el)`, `close(el)`. The page owns the selection — the script clicks the active option on Enter, clicks the last chip's `.chip-dismiss` on a second Backspace, clicks the `.form-combo-more` after the list once the list is scrolled to its end, and for `data-combo="free"` sends one `change` per committed entry, replacing the platform's own `change` on blur so an entry is never sent twice. It writes only attributes an app never renders (`aria-expanded`, `aria-activedescendant`, `hidden` on a filtered row, `data-active`, `data-armed`) and paints matches through the CSS Custom Highlight API, so a Blazor render never reverts it. `data-combo-managed` makes it keep the selection itself, for a page with no app behind it |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |
 | `transfer` | Moves rows between a `.transfer`'s two list boxes: `add(host)`, `remove(host)`, each returning how many moved. Delegated from `[data-transfer-add]` / `[data-transfer-remove]` and from a double-click on a row. Selection is left to the platform, which already has the contract this wants — a plain click takes one row, Ctrl or Shift extends — and nothing arrives selected: selection here is a staging act, not an answer, and rows that landed selected accumulated into a highlight nobody made. The first row moved is scrolled into view instead. Both lists get a bubbling `change` afterwards, so an app's existing handler sees it; it appends in alphabetical order only where the destination was already sorted, because re-sorting a list whose order is meaningful would destroy it silently |
 | `select` | `refresh(root?)` → how many it fixed. Fills in the `<selectedcontent>` clone a customizable `<select>` should have made and Blazor's render prevents, leaving the closed box blank. Runs on load and after any render that adds nodes; an app calls it only for a select it moved into place some other way |
@@ -435,7 +436,7 @@ Two things the flat list does not say:
 `ui._` also exists and is **private** — shared closure state the parts need. It may change in a patch.
 
 Several behaviours are delegated from `document`, so content rendered after load is covered without
-re-wiring: hover hints, `data-menu-toggle`, `data-tabs`, `data-search`, `data-dropzone`,
+re-wiring: hover hints, `data-menu-toggle`, `data-combo`, `data-tabs`, `data-search`, `data-dropzone`,
 `data-sheet`, same-page fragment links, and `data-copy` / `data-copy-target`. The last two have no
 member on the global — the attribute is the whole API.
 
@@ -640,9 +641,9 @@ that loses a property to a more specific rule and silently does nothing. Those a
 `getComputedStyle`, never by looking, which is why the browser tests assert computed values.
 
 **CSS anchor positioning, deliberately.** The floor is Chromium — current Chrome and Edge — so
-`anchor-name`, `anchor-scope`, `position-area` and `align-self: anchor-center` are all available and
-four things depend on them: the collapsed rail's hover flyout, `.popover`, `.menu` and a
-`.form-select`'s own `::picker(select)`.
+`anchor-name`, `anchor-scope`, `position-area` and `align-self: anchor-center` are all available, and
+the collapsed rail's hover flyout, `.popover`, `.menu`, `.form-combo-panel` and a `.form-select`'s own
+`::picker(select)` depend on them.
 
 The rail is the one that could not be done any other way. It scrolls, and **a scroll container clips
 both axes** — there is no combination of `overflow` values that scrolls vertically and lets a child out

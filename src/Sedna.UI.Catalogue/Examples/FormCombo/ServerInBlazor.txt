@@ -1,0 +1,105 @@
+<div class="form-combo" data-combo="multi" data-combo-source="server">
+    <div class="form-combo-box">
+        @* The note's own tags come with the note, so they are chips before any search
+           has run — whether or not they are in the page of results below. *@
+        @foreach (var tag in _note.Tags)
+        {
+            <span class="chip" data-value="@tag.Id">
+                <span class="chip-label">@tag.Name</span>
+                <button class="chip-dismiss" type="button" aria-label="Remove @tag.Name"
+                        @onclick="() => _note.Tags.Remove(tag)"><i class="ri-close-line"></i></button>
+            </span>
+        }
+        <input class="form-combo-input" id="note-tags" type="text" role="combobox" placeholder="Search tags…"
+               aria-expanded="false" aria-controls="@(_failed ? "note-tags-status" : "note-tags-list")" aria-autocomplete="list" autocomplete="off"
+               @bind="_query" @bind:event="oninput" @bind:after="SearchAsync" @onfocus="OpenedAsync" />
+        <span class="form-combo-actions">
+            <span class="spinner form-combo-busy" role="status" aria-label="Searching"></span>
+            <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show tags">
+                <i class="ri-arrow-down-s-line"></i>
+            </button>
+        </span>
+    </div>
+    <div class="form-combo-panel">
+        @if (_failed)
+        {
+            <div class="form-combo-status form-combo-status--error" id="note-tags-status" role="alert">
+                <i class="ri-error-warning-line"></i>The tags could not be loaded.
+                <button class="btn btn-sm" type="button" @onclick="SearchAsync">Retry</button>
+            </div>
+        }
+        else
+        {
+            <div class="form-combo-head">@_total tags</div>
+            <div class="form-combo-list" id="note-tags-list" role="listbox" aria-multiselectable="true"
+                 aria-label="Tags" aria-busy="@(_busy ? "true" : "false")">
+                @if (_rows is null)
+                {
+                    <div class="form-combo-skeleton"><div class="skeleton skeleton-text" style="width:50%"></div></div>
+                    <div class="form-combo-skeleton"><div class="skeleton skeleton-text" style="width:35%"></div></div>
+                }
+                else
+                {
+                    @foreach (var tag in _rows)
+                    {
+                        <div class="form-combo-option" role="option" id="note-tags-@tag.Id" data-value="@tag.Id"
+                             aria-selected="@(_note.Tags.Contains(tag) ? "true" : "false")"
+                             @onclick="() => Toggle(tag)">@tag.Name</div>
+                    }
+                }
+            </div>
+            @if (_rows is not null && _rows.Count < _total)
+            {
+                @* After the list, not in it. The script clicks it once the list is scrolled to its end. *@
+                <button class="form-combo-more" type="button" @onclick="NextPageAsync">Load more</button>
+            }
+            <div class="form-combo-empty"><i class="ri-search-line"></i>No tag matches “@_query”.</div>
+        }
+    </div>
+</div>
+
+@code {
+    private const int PageSize = 50;
+
+    private string _query = "";
+    private List<Tag>? _rows;          // null until the first page arrives
+    private int _total;
+    private bool _busy, _failed;
+    private CancellationTokenSource? _pending;
+
+    // The most-used tags, loaded the first time the field is focused.
+    private Task OpenedAsync() => _rows is null ? LoadAsync(debounce: false) : Task.CompletedTask;
+
+    private Task SearchAsync() => LoadAsync(debounce: true);
+
+    private async Task LoadAsync(bool debounce)
+    {
+        _pending?.Cancel();
+        var mine = _pending = new CancellationTokenSource();
+        try
+        {
+            if (debounce) await Task.Delay(250, mine.Token);
+            _busy = true;
+            _failed = false;
+            var page = await Tags.SearchAsync(_query, offset: 0, take: PageSize, mine.Token);
+            _rows = page.Rows;
+            _total = page.Total;
+        }
+        catch (OperationCanceledException) { return; }    // a newer keystroke won
+        catch (HttpRequestException) { _failed = true; }
+        finally { if (_pending == mine) _busy = false; }
+    }
+
+    private async Task NextPageAsync()
+    {
+        _busy = true;
+        var page = await Tags.SearchAsync(_query, offset: _rows!.Count, take: PageSize, default);
+        _rows.AddRange(page.Rows);
+        _busy = false;
+    }
+
+    private void Toggle(Tag tag)
+    {
+        if (!_note.Tags.Remove(tag)) _note.Tags.Add(tag);
+    }
+}

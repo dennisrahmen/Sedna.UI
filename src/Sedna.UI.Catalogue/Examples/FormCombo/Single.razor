@@ -1,0 +1,40 @@
+<div class="form-field" style="max-width:360px">
+    <label class="form-label" for="cb-product">Product</label>
+    <div class="form-combo" data-combo="single" data-combo-managed>
+        <div class="form-combo-box">
+            <span class="form-combo-value">Chang</span>
+            <input class="form-combo-input" id="cb-product" type="text" role="combobox" placeholder="Pick a product…"
+                   aria-expanded="false" aria-controls="cb-product-list" aria-autocomplete="list" autocomplete="off" />
+            <span class="form-combo-actions">
+                <button class="form-combo-btn form-combo-clear" type="button" aria-label="Clear the product"><i class="ri-close-line"></i></button>
+                <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show products"><i class="ri-arrow-down-s-line"></i></button>
+            </span>
+        </div>
+        <input type="hidden" name="product" value="chang" data-combo-field />
+        <div class="form-combo-panel">
+            <div class="form-combo-list" id="cb-product-list" role="listbox" aria-label="Products">
+                <div class="form-combo-group" role="presentation">Beverages</div>
+                <div class="form-combo-option" role="option" id="cb-product-chai" data-value="chai" aria-selected="false">Chai</div>
+                <div class="form-combo-option" role="option" id="cb-product-chang" data-value="chang" aria-selected="true">Chang</div>
+                <div class="form-combo-group" role="presentation">Condiments</div>
+                <div class="form-combo-option" role="option" id="cb-product-aniseed-syrup" data-value="aniseed-syrup" aria-selected="false">Aniseed Syrup</div>
+                <div class="form-combo-option" role="option" id="cb-product-cranberry-sauce" data-value="cranberry-sauce" aria-selected="false">Cranberry Sauce</div>
+                <div class="form-combo-option" role="option" id="cb-product-hot-pepper-sauce" data-value="hot-pepper-sauce" aria-selected="false">Hot Pepper Sauce</div>
+                <div class="form-combo-option" role="option" id="cb-product-maple-syrup" data-value="maple-syrup" aria-selected="false">Maple Syrup</div>
+                <div class="form-combo-option" role="option" id="cb-product-marmalade" data-value="marmalade" aria-selected="false">Marmalade</div>
+                <div class="form-combo-group" role="presentation">Dairy</div>
+                <div class="form-combo-option" role="option" id="cb-product-camembert" data-value="camembert" aria-selected="false">Camembert</div>
+                <div class="form-combo-option" role="option" id="cb-product-gorgonzola" data-value="gorgonzola" aria-selected="false">Gorgonzola</div>
+                <div class="form-combo-option" role="option" id="cb-product-mascarpone" data-value="mascarpone" aria-selected="false">Mascarpone</div>
+                <div class="form-combo-option" role="option" id="cb-product-queso-cabrales" data-value="queso-cabrales" aria-selected="false">Queso Cabrales</div>
+                <div class="form-combo-option" role="option" id="cb-product-raclette" data-value="raclette" aria-selected="false">Raclette</div>
+                <div class="form-combo-group" role="presentation">Seafood</div>
+                <div class="form-combo-option" role="option" id="cb-product-clam-chowder" data-value="clam-chowder" aria-selected="false">Clam Chowder</div>
+                <div class="form-combo-option" role="option" id="cb-product-crab-meat" data-value="crab-meat" aria-selected="false">Crab Meat</div>
+                <div class="form-combo-option" role="option" id="cb-product-ikura" data-value="ikura" aria-selected="false">Ikura</div>
+                <div class="form-combo-option" role="option" id="cb-product-konbu" data-value="konbu" aria-selected="false">Konbu</div>
+            </div>
+            <div class="form-combo-empty"><i class="ri-search-line"></i>No product matches.</div>
+        </div>
+    </div>
+</div>

@@ -89,5 +89,17 @@
 .chip--active i,
 .chip--active .chip-dismiss { color: var(--brand-text); }
 
+/* Not accepted — an address that is not one, a value the app rejected. Kept as a
+   chip rather than thrown away, so the reader can see the typo and fix it. Pair it
+   with a .form-error that names the value: colour alone says nothing to a reader
+   going by lightness. */
+.chip--invalid {
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+    color: var(--danger-fg);
+}
+.chip--invalid > i,
+.chip--invalid .chip-dismiss { color: var(--danger-fg); }
+
 /* A whole row of them, wrapping. */
 .chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }

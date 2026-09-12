@@ -1,0 +1,435 @@
+/* ── Combo field ─────────────────────────────────────────────────────────────
+   A field you type into to pick something: a searchable single select, a
+   multiselect whose picks are chips, a list the app searches on the server, and
+   free entry that turns what is typed into chips.
+
+   Not `.form-select`. A <select> cannot hold a text input or a chip, even with
+   `appearance: base-select`, so this is a box of plain markup:
+
+     .form-combo                      the field; carries the anchor scope
+       .form-combo-box                the bordered box, shaped like .form-input
+         .chip …                      each pick, for multi and free entry
+         .form-combo-value            the current value, for a single select
+         .form-combo-input            the text input — role="combobox"
+         .form-combo-actions          clear, busy spinner, chevron
+       .form-combo-panel              the drop-down
+         .form-combo-head             optional count or "Clear all" line
+         .form-combo-list             role="listbox"
+           .form-combo-option         role="option", aria-selected
+         .form-combo-empty            shown by CSS when no option is visible
+
+   OPEN IS `aria-expanded="true"` ON THE INPUT, and nothing else. The attribute is
+   what a screen reader announces, so it is also what shows the panel; a class
+   beside it could disagree with it. 23-combo.js sets it. With scripting blocked the
+   panel never opens and the box is still a labelled text input.
+
+   Chips and options are the page's markup. In a Blazor app they render from the
+   app's own state, which is the only way a pick that is not in the loaded page of
+   results — a tag already on a note, say — can still be shown.
+   ─────────────────────────────────────────────────────────────────────────── */
+.form-combo {
+    position: relative;
+    display: block;
+    width: 100%;
+    anchor-scope: --sedna-combo;
+}
+
+.form-combo-box {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    /* A single row of small-tier chips is centred by `align-items` in a box that is
+       exactly one control tall, so a field with chips is as tall as one without. The
+       block padding only matters once they wrap, where it keeps the rows off the
+       border. */
+    padding: var(--space-1) var(--space-2);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--fg);
+    cursor: text;
+    anchor-name: --sedna-combo;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.form-combo-box:hover { border-color: var(--border-hover); }
+.form-combo-box:focus-within {
+    border-color: var(--brand-soft);
+    box-shadow: 0 0 0 2px var(--brand-glow);
+}
+/* Invalid and disabled are the INPUT's attributes, which is where a screen reader
+   reads them. The box follows. */
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]) { border-color: var(--danger-border-strong); }
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within {
+    box-shadow: 0 0 0 2px var(--danger-ring);
+}
+.form-combo-box:has(> .form-combo-input:disabled) {
+    background: var(--surface-soft);
+    color: var(--muted);
+    cursor: not-allowed;
+}
+
+/* A leading icon — an envelope on an address field. */
+.form-combo-icon {
+    flex-shrink: 0;
+    padding-inline-start: var(--space-3);
+    color: var(--muted);
+    font-size: var(--text-5);
+}
+
+.form-combo-input {
+    flex: 1 1 8ch;
+    min-width: 8ch;
+    min-height: var(--control-height-sm);
+    padding: 0 var(--space-3);
+    background: none;
+    border: 0;
+    outline: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: var(--text-4);
+}
+.form-combo-input::placeholder { color: var(--border-strong); }
+.form-combo-input:disabled { cursor: not-allowed; }
+
+/* ── Single select: the value under the input ─────────────────────────────
+   The chosen value and the input share one grid cell, and the input is on top
+   with a transparent ground. A click on the value is a click on the input, with
+   no script, and typing hides the value so the query reads on its own.
+
+   `:placeholder-shown` is the only test for "nothing typed" a stylesheet has, so
+   a single select's input needs a placeholder attribute — `placeholder=" "` will
+   do. Without one the value is never shown. */
+.form-combo-box:has(> .form-combo-value) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+}
+.form-combo-box > .form-combo-value,
+.form-combo-box:has(> .form-combo-value) > .form-combo-input {
+    grid-row: 1;
+    grid-column: 1;
+}
+.form-combo-box:has(> .form-combo-value) > .form-combo-actions { grid-row: 1; grid-column: 2; }
+.form-combo-value {
+    overflow: hidden;
+    padding: 0 var(--space-3);
+    font-size: var(--text-4);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.form-combo-value:not(:empty) ~ .form-combo-input::placeholder { color: transparent; }
+.form-combo-box:has(> .form-combo-input:not(:placeholder-shown)) > .form-combo-value { visibility: hidden; }
+.form-combo-box:has(> .form-combo-input[aria-expanded="true"]) > .form-combo-value { color: var(--muted); }
+
+/* ── Actions ──────────────────────────────────────────────────────────────── */
+.form-combo-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-inline-start: auto;
+    padding-inline-start: var(--space-2);
+}
+.form-combo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: var(--radius-small);
+    color: var(--muted);
+    font-size: var(--text-6);
+    line-height: 1;
+    cursor: pointer;
+}
+.form-combo-btn:hover { background: var(--bg-hover); color: var(--fg); }
+.form-combo-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.form-combo-toggle i { transition: transform var(--motion-fast); }
+.form-combo-box:has(> .form-combo-input[aria-expanded="true"]) .form-combo-toggle i { transform: rotate(180deg); }
+/* Clear appears once there is something to clear. */
+.form-combo-box:not(:has(> .chip, > .form-combo-value:not(:empty))) .form-combo-clear { display: none; }
+.form-combo-box:has(> .form-combo-input:disabled) .form-combo-btn { display: none; }
+/* A spinner in the actions, shown while the list is busy — the app's server
+   search sets aria-busy on the list, and this follows it. */
+.form-combo-busy { margin-inline: var(--space-3); }
+.form-combo:not(:has(.form-combo-list[aria-busy="true"])) .form-combo-busy { display: none; }
+
+/* The chip Backspace will remove next. 23-combo.js marks it on the first press
+   and clicks its dismiss button on the second, so holding Backspace to fix a typo
+   never eats the picks in front of it. */
+.form-combo-box > .chip[data-armed] {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 2px var(--brand-ring-soft);
+    color: var(--fg);
+}
+
+/* ── Collapsed while not in use ───────────────────────────────────────────
+   `.form-combo--collapse` keeps a long set of picks to one row until the field is
+   focused: the first three chips, then a count of the rest. Focus it and every
+   chip wraps back in, and 23-combo.js opens the list. The count is a CSS counter
+   over the chips that are hidden, so nothing measures and nothing is written.
+
+   The count is the BOX's ::after, moved back beside the last visible chip with
+   `order`. It cannot be a pseudo-element of the third chip, where it would sit
+   naturally: a counter is read in tree order, and there it would come before the
+   chips it counts and always say +0. */
+.form-combo--collapse:not(:focus-within) > .form-combo-box {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    counter-reset: sedna-combo-more;
+}
+.form-combo--collapse:not(:focus-within) > .form-combo-box > .chip { flex-shrink: 1; min-width: 0; }
+.form-combo--collapse:not(:focus-within) > .form-combo-box > .form-combo-input { flex-basis: 0; }
+.form-combo--collapse:not(:focus-within) > .form-combo-box > .chip:nth-child(n + 4 of .chip) {
+    position: absolute;
+    visibility: hidden;
+    counter-increment: sedna-combo-more;
+}
+.form-combo--collapse:not(:focus-within) > .form-combo-box > .form-combo-input,
+.form-combo--collapse:not(:focus-within) > .form-combo-box > .form-combo-actions { order: 2; }
+.form-combo--collapse:not(:focus-within) > .form-combo-box:has(> .chip:nth-child(4 of .chip))::after {
+    content: "+" counter(sedna-combo-more);
+    order: 1;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-height-sm);
+    padding: 0 var(--space-4);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ── The panel ────────────────────────────────────────────────────────────
+   Anchored to the box and as wide as it, on the dropdown rung of the z-index
+   scale. Fixed rather than absolute for the reason `.menu` is: an absolutely
+   positioned panel is clipped by, and scrolls, the nearest scroll container —
+   a combo in a drawer or a scrolling form lost the bottom of its list.
+   22-anchored.js closes it on a scroll that moves the box. */
+.form-combo-panel {
+    display: none;
+    position: fixed;
+    position-anchor: --sedna-combo;
+    position-area: block-end span-inline-end;
+    justify-self: start;
+    align-self: start;
+    width: anchor-size(width);
+    min-width: 14rem;
+    position-try-fallbacks: flip-block;
+    position-visibility: anchors-visible;
+    margin-block-start: var(--space-2);
+    padding: var(--space-2);
+    --surface-here: var(--bg-elevated);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    z-index: 550;
+}
+.form-combo:has(> .form-combo-box > .form-combo-input[aria-expanded="true"]) > .form-combo-panel { display: block; }
+
+/* `.form-combo--inline` keeps the list open under the field, in the flow — for a
+   picker that is the whole content of a drawer or a popover, where a drop-down
+   over it would cover nothing but itself. */
+.form-combo--inline > .form-combo-panel {
+    display: block;
+    position: static;
+    /* The anchored panel's `start` alignment shrinks an in-flow block to its
+       content; an inline list is as wide as its field. */
+    justify-self: stretch;
+    align-self: auto;
+    width: auto;
+    min-width: 0;
+    box-shadow: none;
+}
+
+/* The list scrolls on its own, with the edge fade every scroller in the frame has
+   (16-frame-page-scroll.css). Do not add `.sedna-scroll` to it: that utility is a
+   later layer, and its `max-height: var(--scroll-max)` of `none` would let a long
+   list run off the screen. */
+.form-combo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    max-height: 16rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+/* Busy keeps the rows that are there, dimmed, until the new ones land: a list
+   that empties on every keystroke flickers, and reads as "no results" between. */
+.form-combo-list[aria-busy="true"] > .form-combo-option { opacity: 0.5; }
+
+.form-combo-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-2) var(--space-4) var(--space-3);
+    margin-block-end: var(--space-2);
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+}
+.form-combo-head button {
+    padding: 0;
+    background: none;
+    border: 0;
+    color: var(--brand-text);
+    font: inherit;
+    cursor: pointer;
+}
+.form-combo-head button:hover { text-decoration: underline; }
+
+/* ── Options ──────────────────────────────────────────────────────────────── */
+.form-combo-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: calc(var(--control-height-sm) + var(--space-2));
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    font-size: var(--text-4);
+    line-height: 1.35;
+    cursor: pointer;
+    user-select: none;
+}
+/* A filtered row. `display: flex` above outranks the browser's own `[hidden]`
+   rule, which is a user-agent style, so the attribute alone left every row on
+   screen. */
+.form-combo-option[hidden],
+.form-combo-group[hidden] { display: none; }
+/* Where the keyboard is. The pointer lands on the same tint, because the two never
+   disagree for long enough to matter. `data-active` rather than a class: the script
+   sets it on markup Blazor renders, and Blazor rewrites a class attribute whole. */
+.form-combo-option:hover,
+.form-combo-option[data-active] { background: var(--bg-hover); }
+.form-combo-option[aria-disabled="true"] { color: var(--muted); cursor: default; }
+.form-combo-option[aria-disabled="true"]:hover { background: none; }
+
+/* The marker is drawn, so an option's markup is its text and nothing else. A
+   single select ticks the chosen row; a multiselectable list draws a checkbox. */
+.form-combo-option { position: relative; }
+.form-combo-option::before {
+    content: "";
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+}
+.form-combo-option[aria-selected="true"]::after,
+[aria-multiselectable="true"] > .form-combo-option[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    /* The tick sits over the ::before slot. Offset from the inline start, so it
+       follows the slot in RTL. */
+    inset-inline-start: calc(var(--space-4) + 5px);
+    top: 50%;
+    width: 5px;
+    height: 9px;
+    border-inline-end: 2px solid var(--brand-text);
+    border-bottom: 2px solid var(--brand-text);
+    transform: translateY(-60%) rotate(45deg);
+}
+/* The same box `.form-check` draws, so a multiselect reads as a list of checkboxes. */
+[aria-multiselectable="true"] > .form-combo-option::before {
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+}
+[aria-multiselectable="true"] > .form-combo-option[aria-selected="true"]::before {
+    background: var(--brand);
+    border-color: var(--brand);
+}
+[aria-multiselectable="true"] > .form-combo-option[aria-selected="true"]::after {
+    width: 4px;
+    height: 8px;
+    border-color: var(--on-solid);
+}
+
+.form-combo-option-text { overflow: hidden; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }
+.form-combo-option-meta {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    white-space: nowrap;
+}
+.form-combo-group {
+    padding: var(--space-4) var(--space-4) var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-1);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* What the query matched, painted through the CSS Custom Highlight API — the
+   script registers ranges and never touches the text nodes, which Blazor holds
+   references to. */
+::highlight(sedna-combo-match) {
+    background-color: var(--brand-tint-strong);
+    color: var(--fg);
+}
+
+/* ── States inside the panel ──────────────────────────────────────────────── */
+.form-combo-empty,
+.form-combo-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+.form-combo-empty i,
+.form-combo-status i { font-size: var(--text-6); }
+/* Shown whenever no option is visible and nothing is loading — after filtering,
+   and for a server result that came back empty — so neither the script nor the
+   app has to toggle it. */
+.form-combo-empty { display: none; }
+.form-combo-panel:not(:has(.form-combo-option:not([hidden]))):not(:has([aria-busy="true"])) > .form-combo-empty { display: flex; }
+.form-combo-status--error { color: var(--danger-fg); }
+.form-combo-status .btn { margin-inline-start: auto; }
+
+/* A row the height of an option, for the first page of a server list. */
+.form-combo-skeleton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: calc(var(--control-height-sm) + var(--space-2));
+    padding: var(--space-2) var(--space-4);
+}
+.form-combo-skeleton > .skeleton { margin: 0; }
+
+/* The next page of a server list, straight after `.form-combo-list` — not inside
+   it, because a listbox may hold only options. A real button, so a pointer or a
+   keyboard can ask for it; the script also clicks it once the list is scrolled to
+   its end. */
+.form-combo-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    width: 100%;
+    min-height: calc(var(--control-height-sm) + var(--space-2));
+    padding: var(--space-2) var(--space-4);
+    background: none;
+    border: 0;
+    border-radius: var(--radius-inner);
+    color: var(--muted);
+    font: inherit;
+    font-size: var(--text-2);
+    cursor: pointer;
+}
+.form-combo-more:hover { background: var(--bg-hover); color: var(--fg); }

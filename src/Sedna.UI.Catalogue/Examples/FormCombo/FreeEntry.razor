@@ -1,0 +1,26 @@
+<div class="form-field" style="max-width:520px">
+    <label class="form-label" for="cb-recipients">Send the report to</label>
+    <div class="form-combo" data-combo="free" data-combo-managed data-combo-validate="email">
+        <div class="form-combo-box">
+            <i class="ri-mail-line form-combo-icon" aria-hidden="true"></i>
+            <span class="chip" data-value="alex.fischer@example.com">
+                <span class="chip-label">alex.fischer@example.com</span>
+                <button class="chip-dismiss" type="button" aria-label="Remove alex.fischer@example.com"><i class="ri-close-line"></i></button>
+                <input type="hidden" name="recipients" value="alex.fischer@example.com" />
+            </span>
+            <input class="form-combo-input" id="cb-recipients" type="text" inputmode="email" placeholder="Add an address…"
+                   autocomplete="off" aria-describedby="cb-recipients-hint" />
+            <span class="form-combo-actions">
+                <button class="form-combo-btn form-combo-clear" type="button" aria-label="Remove every address"><i class="ri-close-line"></i></button>
+            </span>
+        </div>
+        <template data-combo-chip>
+            <span class="chip">
+                <span class="chip-label"></span>
+                <button class="chip-dismiss" type="button" aria-label="Remove {label}"><i class="ri-close-line"></i></button>
+                <input type="hidden" name="recipients" />
+            </span>
+        </template>
+    </div>
+    <p class="form-hint" id="cb-recipients-hint">Enter, comma or paste to add. Backspace twice removes the last one.</p>
+</div>

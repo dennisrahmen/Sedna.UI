@@ -1,0 +1,128 @@
+@page "/form-combo"
+
+<CatHead Title="Combo fields">
+    <code>.form-combo</code> is a field you type into to pick something: a searchable select, a
+    multiselect whose picks are chips, a list the app searches on the server, and free entry that turns
+    what is typed into chips. It is markup and classes like everything else &mdash;
+    <code>data-combo</code> adds the keyboard.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-information-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">The page owns the selection</span>
+        In a Blazor app the chips and the options render from the app's state, and the script turns key
+        presses into the clicks and changes that markup already handles: <kbd class="kbd">Enter</kbd>
+        clicks the option, a second <kbd class="kbd">Backspace</kbd> clicks the last chip's dismiss
+        button. The live examples below carry <code>data-combo-managed</code>, which lets the script keep
+        the selection itself for a page with no app behind it. <strong>Leave it off wherever C# renders
+        the chips</strong>, or both add one.
+    </div>
+</div>
+
+<CatExample TExample="Examples.FormCombo.Multi" Title="Multiselect with chips" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> Each pick is a <code>.chip</code> inside <code>.form-combo-box</code>, and the
+        list stays open while you pick. A chip goes by its &times;, by unticking its row, or by
+        <kbd class="kbd">Backspace</kbd> twice in the empty input &mdash; the first press only marks it, so
+        holding the key to fix a typo never eats the chips in front of it.
+    </p>
+    <p>
+        <code>aria-multiselectable="true"</code> on the list is what draws the checkboxes. Open is
+        <code>aria-expanded="true"</code> on the input, and nothing else: the attribute a screen reader
+        announces is the one that shows the panel.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCombo.Single" Title="Searchable select" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>.form-combo-value</code> holds the chosen label, under the input in the
+        same cell, so it reads like a <code>.form-select</code> until you type. The input needs a
+        <code>placeholder</code> &mdash; <code>:placeholder-shown</code> is how the stylesheet knows nothing
+        is typed. A managed field writes the value into its <code>input[data-combo-field]</code>; a Blazor
+        page renders <code>.form-combo-value</code> from its own state instead.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCombo.FreeEntry" Title="Free entry" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; try pasting <code>ops@example.org, billing@example.net; ops@example</code>.</strong>
+        <code>data-combo="free"</code> has no list. <kbd class="kbd">Enter</kbd>, a comma, a semicolon,
+        leaving the field and pasting all commit; a pasted list is split and entries already there are
+        skipped. An address field also splits on spaces, which an address never holds.
+    </p>
+    <p>
+        <code>.chip--invalid</code> keeps a rejected entry as a chip rather than throwing the typo away;
+        clicking its label in a managed field puts it back in the input. A managed field checks addresses
+        with <code>data-combo-validate="email"</code>, which, unlike <code>type="email"</code>, rejects a
+        domain with no dot.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCombo.Collapse" Title="Collapsed until focused" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.form-combo--collapse</code> keeps a long set of picks to one row while the field is not in
+        use: the first three chips, then a count of the rest from a CSS counter. Focus it and every chip
+        wraps back and the list opens, because the reader came to change the picks. Without the modifier the box grows a row at a time, which is right in a form where the
+        picks are the thing being reviewed.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCombo.ServerStates" Title="Server-backed states" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-combo-source="server"</code> tells the script the app filters, so it hides no rows. The
+        states are the app's markup: <code>.form-combo-skeleton</code> rows for the first page,
+        <code>aria-busy="true"</code> on the list while a query runs &mdash; which dims the rows that are
+        there and shows <code>.form-combo-busy</code> &mdash;, <code>.form-combo-empty</code> when a result
+        came back empty, and <code>.form-combo-status--error</code> with a retry.
+    </p>
+    <p>
+        <code>.form-combo-more</code>, straight after the list, asks for the next page &mdash; after it
+        rather than in it, because a listbox may hold only options. It is a real button, and the script
+        clicks it once the list is scrolled to its end. These are drawn with
+        <code>.form-combo--inline</code>, which keeps the list open in the flow &mdash; the shape for a
+        picker that is the whole content of a drawer or a popover.
+    </p>
+</CatExample>
+
+<CatSnippet Name="FormCombo/MultiInBlazor.txt" Title="A multiselect in Blazor">
+    <p>
+        The whole list is on the page, so the script filters it and the component binds nothing to the
+        input. <code>@@onclick</code> on an option and on a chip's dismiss button is the integration;
+        <code>aria-selected</code> is rendered as the string <code>"true"</code> or <code>"false"</code>,
+        because a Razor boolean attribute is written with no value at all.
+    </p>
+</CatSnippet>
+
+<CatSnippet Name="FormCombo/ServerInBlazor.txt" Title="A server-backed list in Blazor">
+    <p>
+        The picks render from the record being edited, not from the search results, so a tag already on
+        the note is a chip before any search has run. The query is bound on <code>oninput</code> and
+        debounced in C#, and a superseded search is cancelled rather than allowed to overwrite a newer one.
+    </p>
+</CatSnippet>
+
+<CatSnippet Name="FormCombo/FreeEntryInBlazor.txt" Title="Free entry in Blazor">
+    <p>
+        One <code>change</code> arrives per entry, already split and de-duplicated, and the script clears
+        the input afterwards. The platform's own <code>change</code> on leaving the field is replaced by
+        the same commit, so a typed entry is never added twice.
+    </p>
+</CatSnippet>
+
+<h2 id="keyboard">Keyboard</h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Key</th><th>Single</th><th>Multi</th><th>Free entry</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><kbd class="kbd">↓</kbd> <kbd class="kbd">↑</kbd></td><td>open, then move</td><td>open, then move</td><td>move through suggestions, if any</td></tr>
+            <tr><td><kbd class="kbd">Enter</kbd></td><td>pick and close</td><td>tick or untick, stay open</td><td>add what was typed</td></tr>
+            <tr><td><kbd class="kbd">,</kbd> <kbd class="kbd">;</kbd> paste</td><td>&mdash;</td><td>&mdash;</td><td>add; a pasted list is split</td></tr>
+            <tr><td><kbd class="kbd">Backspace</kbd> in an empty input</td><td>&mdash;</td><td>mark the last chip, then remove it</td><td>mark the last chip, then remove it</td></tr>
+            <tr><td><kbd class="kbd">Esc</kbd></td><td>close and clear the query</td><td>close and clear the query</td><td>clear what was typed</td></tr>
+            <tr><td><kbd class="kbd">Tab</kbd></td><td>close</td><td>close</td><td>add what was typed, then move on</td></tr>
+        </tbody>
+    </table>
+</div>
