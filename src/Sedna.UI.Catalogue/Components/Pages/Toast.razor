@@ -15,6 +15,18 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.ToastHandleFromCsharp" Title="Work that ends later" Demo="ex-demo--block">
+    <p>
+        <strong>Live — upload it.</strong> <code>ToastAsync</code> returns a
+        <code>SednaToast</code>: show <em>Uploading…</em> with <code>timeoutMs: 0</code>, and when the
+        work ends <code>ReplaceAsync</code> the outcome into the same toast, in place.
+        <code>DismissAsync</code> removes it early. A toast the reader already closed is not an error:
+        replacing it shows a new one, because the outcome still has to reach them. The close button's
+        name is <code>SednaUiOptions.ToastDismissLabel</code> — the one word the library writes
+        itself — or <code>dismissLabel</code> for one toast.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Toast.Toast" Title="The markup" Demo="ex-demo--block ex-demo--pad">
     <p>
         You do not write this for <code>sednaUi.toast</code> — it is here for an app that renders the
@@ -37,8 +49,9 @@
 
 <CatSnippet Name="Toast/ToastApi.txt" Title="The API">
     <p>
-        The JavaScript call returns a function that removes that toast early. A function does not
-        cross into C#, so <code>ToastAsync</code> has no remover — keep a withdrawable toast in
-        JavaScript.
+        The JavaScript call returns a function that removes that toast early, whose
+        <code>id</code> also names it for <code>toast.dismiss(id)</code> and
+        <code>toast.replace(id, message, options)</code>. <code>dismissLabel</code> names the close
+        button, and <code>configure({ toastDismissLabel })</code> sets it once for every toast.
     </p>
 </CatSnippet>

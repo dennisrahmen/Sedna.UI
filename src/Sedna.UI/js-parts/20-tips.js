@@ -33,6 +33,9 @@
             // Optional app gate — e.g. a guided tour suppressing hints outside
             // the live step. Set sednaUi.tips.gate = function (el) { … }.
             if (typeof api.gate === 'function' && !api.gate(el)) return null;
+            // Off altogether — the reader switched hints off in the app's settings.
+            // The C# form of the gate, since a predicate does not cross into C#.
+            if (api.enabled === false) return null;
             return el;
         }
 
@@ -158,7 +161,16 @@
         window.addEventListener('scroll', hide, true);   // capture: any scroll container
         window.addEventListener('resize', hide);
 
-        var api = { gate: null, hide: hide };
+        var api = {
+            gate: null,
+            enabled: true,
+            hide: hide,
+            // A boolean, where the gate is a function: what an app holds in C#.
+            setEnabled: function (on) {
+                api.enabled = on !== false;
+                if (!api.enabled) hide();
+            }
+        };
         return api;
     })();
 

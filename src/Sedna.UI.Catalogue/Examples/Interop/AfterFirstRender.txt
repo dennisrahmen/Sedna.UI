@@ -1,0 +1,21 @@
+@inject ISednaUi Ui
+@inject IOrderService Orders
+
+@code {
+    private Order? _order;
+    private string? _failure;     // decided while prerendering, said once interactive
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { _order = await Orders.GetAsync(Id); }
+        catch (OrderNotFoundException) { _failure = $"Order {Id} no longer exists."; }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // The first render with a circuit behind it. Interop works from here, and it
+        // runs once, so the toast is shown once.
+        if (!firstRender || _failure is null) return;
+        await Ui.ToastAsync(_failure, ToastKind.Danger, timeoutMs: 0);
+    }
+}

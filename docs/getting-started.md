@@ -385,9 +385,13 @@ Every member is a JavaScript call, so **none of them can run during prerendering
 event handler, or from `OnAfterRenderAsync(firstRender: true)`. They deliberately do not swallow the
 exception prerendering raises: a call that silently did nothing would be far harder to find.
 
-Two parts of the JavaScript surface have no C# equivalent, because each is a function and a function
-does not cross into C#: `toast()` returns one that removes that toast early, and `tips.gate` is a
-predicate you assign to suppress hover hints. Both stay JavaScript.
+A function does not cross into C#, so where the script hands one over the C# member hands over data:
+`ToastAsync` returns a `SednaToast` you can `DismissAsync` or `ReplaceAsync`, and
+`SetTipsEnabledAsync(false)` is the C# form of `tips.gate`. An app not written in English sets
+`SednaUiOptions.ToastDismissLabel`, the one word the library writes into the page itself.
+
+To show something decided during prerendering — a toast from `OnInitializedAsync` — keep it as state
+and show it from `OnAfterRenderAsync(firstRender: true)`; the catalogue's From C# page has the recipe.
 
 ## Writing pages
 

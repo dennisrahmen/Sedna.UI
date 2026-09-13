@@ -45,6 +45,13 @@ thing that markup cannot, which is knowing which nav link is the current page. D
 here and do not fork it: a copied frame stops receiving library fixes, and it will silently miss later
 additions such as the responsive drawer and the skip link.
 
+### Toasts, and the one word the library writes
+
+`ISednaUi.ToastAsync` returns a `SednaToast`. For work that ends later, show the running state with
+`timeoutMs: 0` and `ReplaceAsync` the outcome into it. Set `SednaUiOptions.ToastDismissLabel` in
+`AddSednaUi` when the app is not in English — the toast's close button is the only text the library
+writes. `SetTipsEnabledAsync(false)` switches hover hints off from a setting.
+
 ### State the markup cannot express
 
 Three helpers render attributes from the app's own state — never a component:

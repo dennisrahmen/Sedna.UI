@@ -36,6 +36,17 @@ public sealed class SednaUiOptions
     public bool LangCookie { get; set; }
 
     /// <summary>
+    /// The accessible name of a toast's close button. Defaults to <c>Dismiss</c>.
+    /// </summary>
+    /// <remarks>
+    /// The one word the library writes into the page itself — everything else on screen is the
+    /// app's markup — so an app not written in English sets it once here. It reaches the script
+    /// through <see cref="ISednaUi.ConfigureAsync"/>; a single toast can still override it with
+    /// the <c>dismissLabel</c> argument of <see cref="ISednaUi.ToastAsync"/>.
+    /// </remarks>
+    public string ToastDismissLabel { get; set; } = "Dismiss";
+
+    /// <summary>
     /// The registered themes. <see cref="SednaBrandStyle"/> and <see cref="SednaUiBrand.ToCss"/>
     /// emit palette CSS for every one of these, reachable at <c>[data-theme="&lt;name&gt;"]</c>.
     /// </summary>

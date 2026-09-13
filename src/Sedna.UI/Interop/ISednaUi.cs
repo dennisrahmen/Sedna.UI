@@ -13,10 +13,11 @@ namespace Sedna.UI;
 /// that silently did nothing would be far harder to find than one that threw.
 /// </para>
 /// <para>
-/// Two parts of the JavaScript surface have no member here, because neither can
-/// cross the boundary. <c>toast()</c> returns a function that removes that toast
-/// early. <c>tips.gate</c> is a predicate an app assigns to suppress hover hints
-/// conditionally. Both stay JavaScript.
+/// A function does not cross the interop boundary, so where the JavaScript surface
+/// hands one over, the member here hands over data naming the same thing:
+/// <see cref="ToastAsync"/> returns a <see cref="SednaToast"/> handle where
+/// <c>toast()</c> returns a remover, and <see cref="SetTipsEnabledAsync"/> is a
+/// boolean where <c>tips.gate</c> is a predicate.
 /// </para>
 /// </remarks>
 public interface ISednaUi
@@ -32,17 +33,25 @@ public interface ISednaUi
     /// usually right for a failure.
     /// </param>
     /// <param name="dismissible">Whether to render the close button.</param>
-    /// <returns>A task that completes once the toast is on the page.</returns>
+    /// <param name="dismissLabel">
+    /// The close button's accessible name for this toast. Unset uses
+    /// <see cref="SednaUiOptions.ToastDismissLabel"/>.
+    /// </param>
+    /// <returns>
+    /// The toast, once it is on the page: dismiss it early or replace what it says with the
+    /// handle. An app with nothing more to say about it can ignore the result.
+    /// </returns>
     /// <remarks>
     /// Anything the user must act on is an <c>.alert</c>, not a toast — a toast
     /// carrying a required action is an action nobody performs.
     /// </remarks>
-    Task ToastAsync(
+    Task<SednaToast> ToastAsync(
         string message,
         ToastKind kind = ToastKind.Info,
         string? title = null,
         int timeoutMs = 4000,
-        bool dismissible = true);
+        bool dismissible = true,
+        string? dismissLabel = null);
 
     /// <summary>
     /// Opens a <c>&lt;dialog&gt;</c> the app wrote — a <c>.modal</c>, a <c>.drawer</c> or a
@@ -117,6 +126,20 @@ public interface ISednaUi
     /// positioned.
     /// </remarks>
     Task<SednaSpotlight> FollowSpotlightAsync(string hole, string target, SpotlightOptions? options = null);
+
+    /// <summary>
+    /// Turns hover hints on or off for the whole page — for a reader who switched them off in
+    /// the app's settings, or while a tour owns their attention.
+    /// </summary>
+    /// <param name="enabled">False hides any hint showing and shows no more until set true.</param>
+    /// <returns>A task that completes once the setting is applied.</returns>
+    /// <remarks>
+    /// The C# form of <c>sednaUi.tips.gate</c>. The gate is a predicate, and a function does
+    /// not cross the interop boundary; the common reason to gate hints is a boolean the app
+    /// already holds, and this is that boolean. Both apply: a hint shows only when enabled
+    /// and when the gate, if any, allows it.
+    /// </remarks>
+    Task SetTipsEnabledAsync(bool enabled);
 
     /// <summary>Copies text to the clipboard.</summary>
     /// <param name="text">The text to copy.</param>

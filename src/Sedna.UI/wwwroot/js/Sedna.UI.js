@@ -72,7 +72,10 @@ window.sednaUi = window.sednaUi || {};
         // default is not the built-in one sets this and the matching
         // data-theme-default on the boot script, or a first visit is stamped with a
         // name that selects somebody else's palette.
-        themeDefault: 'sedna'
+        themeDefault: 'sedna',
+        // The accessible name of a toast's close button: the one word the library
+        // writes itself, so an app not written in English sets it once.
+        toastDismissLabel: 'Dismiss'
     };
 
     function key(k) { return config.storagePrefix + k; }
@@ -461,6 +464,9 @@ window.sednaUi = window.sednaUi || {};
             // Optional app gate — e.g. a guided tour suppressing hints outside
             // the live step. Set sednaUi.tips.gate = function (el) { … }.
             if (typeof api.gate === 'function' && !api.gate(el)) return null;
+            // Off altogether — the reader switched hints off in the app's settings.
+            // The C# form of the gate, since a predicate does not cross into C#.
+            if (api.enabled === false) return null;
             return el;
         }
 
@@ -586,7 +592,16 @@ window.sednaUi = window.sednaUi || {};
         window.addEventListener('scroll', hide, true);   // capture: any scroll container
         window.addEventListener('resize', hide);
 
-        var api = { gate: null, hide: hide };
+        var api = {
+            gate: null,
+            enabled: true,
+            hide: hide,
+            // A boolean, where the gate is a function: what an app holds in C#.
+            setEnabled: function (on) {
+                api.enabled = on !== false;
+                if (!api.enabled) hide();
+            }
+        };
         return api;
     })();
 
@@ -4413,6 +4428,17 @@ window.sednaUi = window.sednaUi || {};
    focus to say "saved" interrupts whatever the user is typing. `polite` for the
    ordinary kinds and `assertive` for danger, because a failure is worth cutting in
    for and a success is not.
+
+   One of the two pieces of UI the library draws itself (the hover-hint bubble is the
+   other): a toast is one line with nothing to author. Its one word of the library's
+   own — the close button's label — comes from `dismissLabel`, per call or through
+   configure({ toastDismissLabel }), so it is never English in a German app.
+
+   A HANDLE, NOT ONLY A FUNCTION. toast() returns a remover, which JavaScript can
+   hold; C# cannot, because a function does not cross the interop boundary. So every
+   toast also has an id — toast.show() returns it — and toast.dismiss(id) and
+   toast.replace(id, message, opts) act on it: the "Uploading…" toast turns into
+   "Uploaded" in place instead of flickering out and back.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -4441,21 +4467,23 @@ window.sednaUi = window.sednaUi || {};
         return el;
     }
 
-    /**
-     * message  the line to show; a plain string, inserted as text
-     * opts     { kind: 'go'|'warn'|'danger'|'info', title, timeout, dismissible }
-     * returns  a function that removes this toast early
-     */
-    ui.toast = function (message, opts) {
+    var live = {};       // id -> { el, remove, timer }
+    var nextId = 1;
+
+    // Fills a toast element for its kind, title and message, with the close button
+    // and the timeout. Shared by a new toast and a replaced one, so replacing is
+    // exactly showing again in the same place.
+    function paint(entry, message, opts) {
         opts = opts || {};
+        var el = entry.el;
         var kind = ICONS[opts.kind] ? opts.kind : 'info';
         var host = stack();
 
         // A failure interrupts; a confirmation waits its turn.
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
 
-        var el = document.createElement('div');
         el.className = 'toast toast-' + kind;
+        el.textContent = '';
 
         var icon = document.createElement('i');
         icon.className = ICONS[kind];
@@ -4475,30 +4503,74 @@ window.sednaUi = window.sednaUi || {};
         el.appendChild(icon);
         el.appendChild(body);
 
-        var timer = 0;
-        function remove() {
-            clearTimeout(timer);
-            if (el.parentNode) el.parentNode.removeChild(el);
-            if (!host.children.length && host.parentNode) host.parentNode.removeChild(host);
-        }
-
         if (opts.dismissible !== false) {
             var close = document.createElement('button');
             close.type = 'button';
             close.className = 'toast-close';
-            close.setAttribute('aria-label', 'Dismiss');
-            close.innerHTML = '<i class="ri-close-line" aria-hidden="true"></i>';
-            close.addEventListener('click', remove);
+            close.setAttribute('aria-label', opts.dismissLabel || ui._.config.toastDismissLabel || 'Dismiss');
+            var x = document.createElement('i');
+            x.className = 'ri-close-line';
+            x.setAttribute('aria-hidden', 'true');
+            close.appendChild(x);
+            close.addEventListener('click', entry.remove);
             el.appendChild(close);
         }
 
-        host.appendChild(el);
-
-        // 0 means "stays until dismissed" — for a failure the user has to read.
+        clearTimeout(entry.timer);
+        // 0 means "stays until dismissed" — for a failure the user has to read, or for
+        // work still running that will replace this toast when it ends.
         var ms = opts.timeout === undefined ? 4000 : opts.timeout;
-        if (ms > 0) timer = setTimeout(remove, ms);
+        entry.timer = ms > 0 ? setTimeout(entry.remove, ms) : 0;
+    }
 
-        return remove;
+    /**
+     * message  the line to show; a plain string, inserted as text
+     * opts     { kind: 'go'|'warn'|'danger'|'info', title, timeout, dismissible, dismissLabel }
+     * returns  a function that removes this toast early; its `id` names the toast for
+     *          toast.dismiss() and toast.replace()
+     */
+    ui.toast = function (message, opts) {
+        var host = stack();
+        var id = nextId++;
+        var entry = { el: document.createElement('div'), timer: 0 };
+
+        entry.remove = function () {
+            clearTimeout(entry.timer);
+            delete live[id];
+            if (entry.el.parentNode) entry.el.parentNode.removeChild(entry.el);
+            if (!host.children.length && host.parentNode) host.parentNode.removeChild(host);
+        };
+        entry.remove.id = id;
+        live[id] = entry;
+
+        paint(entry, message, opts);
+        host.appendChild(entry.el);
+
+        return entry.remove;
+    };
+
+    /* Shows a toast and returns its id — the form C# can hold. */
+    ui.toast.show = function (message, opts) {
+        return ui.toast(message, opts).id;
+    };
+
+    /* Removes a toast early. False when it has already gone, which is not an error:
+       a timeout and a dismissal race whenever the work ends near the deadline. */
+    ui.toast.dismiss = function (id) {
+        var entry = live[id];
+        if (!entry) return false;
+        entry.remove();
+        return true;
+    };
+
+    /* Replaces a toast's kind, title, message and timeout in place, keeping its
+       position in the stack. When it has already gone, shows a new one instead — the
+       outcome of the work still has to be reported — and returns that one's id. */
+    ui.toast.replace = function (id, message, opts) {
+        var entry = live[id];
+        if (!entry) return ui.toast.show(message, opts);
+        paint(entry, message, opts);
+        return id;
     };
 
 })(window.sednaUi);

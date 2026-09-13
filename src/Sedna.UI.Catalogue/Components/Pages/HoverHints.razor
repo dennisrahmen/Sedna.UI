@@ -74,8 +74,9 @@
         Assign a predicate to <code>sednaUi.tips.gate</code> and it is asked before every hint,
         with the trigger element. Use it while something else owns the reader's attention — a
         guided tour, a drag in progress. The library has no knowledge of what is suppressing them,
-        which is why this is a predicate and not a setting. It is JavaScript: a function does not
-        cross into C#.
+        which is why this is a predicate and not a setting. From C#, where the reason is usually a
+        setting the app already holds, <code>ISednaUi.SetTipsEnabledAsync(false)</code> switches
+        every hint off and hides the one showing; both apply together.
     </p>
 </CatSnippet>
 
