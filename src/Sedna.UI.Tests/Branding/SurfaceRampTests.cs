@@ -82,6 +82,41 @@ public class SurfaceRampTests
         }
     }
 
+    [Fact]
+    public void The_anchor_step_is_the_profiles_lightness_unless_the_anchor_is_exact()
+    {
+        // Documented both ways, so the doc cannot quietly call anchorHex "the colour at this
+        // step" again: by default only its hue and chroma travel.
+        const string LogoGrey = "#7b7b7a";
+
+        var derived = SednaRamp.Surface(LogoGrey, 500);
+        var exact = SednaRamp.Surface(LogoGrey, 500, exactAnchor: true);
+
+        Assert.NotEqual(LogoGrey, derived[500], StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(LogoGrey, exact[500], StringComparer.OrdinalIgnoreCase);
+
+        // Only the anchor step moves.
+        foreach (var step in SednaRamp.SurfaceSteps.Where(s => s != 500))
+            Assert.Equal(derived[step], exact[step], StringComparer.OrdinalIgnoreCase);
+
+        // And the ramp still descends through it.
+        var luminance = SednaRamp.SurfaceSteps.Select(step => Luminance(exact[step])).ToList();
+        for (var i = 1; i < luminance.Count; i++)
+            Assert.True(luminance[i] < luminance[i - 1],
+                $"slate-{SednaRamp.SurfaceSteps[i]} is not darker than slate-{SednaRamp.SurfaceSteps[i - 1]}.");
+    }
+
+    [Fact]
+    public void An_exact_surface_anchor_that_does_not_fit_its_step_is_rejected()
+    {
+        // A light grey pinned as the canvas would be lighter than the cards above it.
+        var error = Assert.Throws<ArgumentException>(
+            () => SednaRamp.Surface("#d4d4d4", 900, exactAnchor: true));
+
+        Assert.Contains("non-monotonic", error.Message, StringComparison.Ordinal);
+        Assert.Contains("fits step", error.Message, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("#18181b")]   // graphite, the shipped demo
     [InlineData("#0f172a")]   // Sedna's own canvas

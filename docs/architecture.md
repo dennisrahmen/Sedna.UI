@@ -357,6 +357,10 @@ it does fit: the semantic tier reads neighbouring steps as hover and active stat
 and a reversed ramp ships a hover state lighter than its resting state. `exactAnchor` and
 `contrastSolvedStep` cannot claim the same step, because they decide it by opposite rules.
 
+`SednaRamp.Surface` works the same way: the anchor sets the base ramp's hue and chroma, each step's
+lightness comes from the measured surface profile, and `exactAnchor: true` pins a mandated grey —
+`SednaRamp.Surface("#7B7B7A", anchorStep: 500, exactAnchor: true)` — under the same fit rule.
+
 Register themes and emit the palette CSS:
 
 ```csharp
