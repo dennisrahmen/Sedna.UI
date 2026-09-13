@@ -32,11 +32,11 @@ public class InteropTests : BunitContext
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
 
-        await Wrapper().ToastAsync("Approved TCK0031209", ToastKind.Go, title: "Done",
+        await Wrapper().ToastAsync("Restarted orders-console-01", ToastKind.Go, title: "Done",
             timeoutMs: 0, dismissible: false);
 
         var call = Only("sednaUi.toast");
-        Assert.Equal("Approved TCK0031209", call.Arguments[0]);
+        Assert.Equal("Restarted orders-console-01", call.Arguments[0]);
 
         var options = call.Arguments[1]!;
         // The script's own vocabulary, which is also the CSS modifier suffix.
