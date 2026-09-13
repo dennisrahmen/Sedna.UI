@@ -15,25 +15,20 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` �
    removes: a consuming app that already styles an added name sees its appearance change on upgrade with
    no error, so the list is what lets it grep first — and a removal is the breaking part of the release,
    which `build/release-inventory.sh` prints first for that reason.
-3. Date the unreleased entries in `class-history.json` as the version about to ship, and merge that
-   with the rest of the release PR:
-
-   ```bash
-   build/class-history.sh --stamp 0.2.0
-   ```
-
-   A tag does exactly two things to that file — every `null` becomes its version, and `latestRelease`
-   moves onto it — and neither needs the tag to exist. Doing it here means the tag reproduces the file
-   that is already committed, so **there is no regeneration to remember afterwards.** `--check` accepts
-   a file stamped for a version that sorts after the newest tag and has no tag of its own; one release
-   ahead, only one, and only as the exact rewrite `--stamp` produces.
-
-4. Tag and push. **Tag the commit the stamp is on** — the merge commit on `main`, not the branch:
+3. Tag `main` and push. There is no release PR and nothing to prepare in the tree:
 
    ```bash
    git tag -a v0.2.0 -F /tmp/notes.md
    git push origin v0.2.0
    ```
+
+4. Afterwards, the first pull request regenerates `class-history.json` — `--check` in CI fails until
+   it does, so it cannot be forgotten. A tag does exactly two things to that file: every `null` the
+   tag covers becomes its version, and `latestRelease` moves onto it. Until that merge the committed
+   copy is behind, and the hosted catalogue is not: `release.yml` runs `build/class-history.sh` at the
+   tag and attaches the result to the GitHub release, and the site fetches the latest release's copy
+   at runtime to date whatever its embedded copy still calls unreleased. A fetch that fails leaves
+   the embedded copy in charge, which under-reports and never over-reports.
 
 `release.yml` builds, tests, packs, verifies the package contents, publishes to nuget.org, and creates the
 GitHub release. The release body is the tag message plus an install snippet and a compare link to the

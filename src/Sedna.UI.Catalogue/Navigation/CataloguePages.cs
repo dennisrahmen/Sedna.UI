@@ -12,9 +12,9 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// entry both fail.
 /// </para>
 /// <para>
-/// One family per page, and one job per group. A group holds between two and seven
-/// entries so that it can be scanned; a page that carries two families gets split
-/// rather than named with an ampersand.
+/// One family per page, and one job per group. A group is an area on the sidebar's
+/// rail, so it can hold as many pages as its job has; a page that carries two
+/// families gets split rather than named with an ampersand.
 /// </para>
 /// <para>
 /// <c>Keywords</c> is hand-kept and deliberately not generated. It carries the terms
@@ -28,11 +28,13 @@ internal static class CataloguePages
     public const string Frame = "Frame";
     public const string Structure = "Structure";
     public const string Actions = "Actions";
+    /// <summary>The layout around the controls, and the controls themselves.</summary>
     public const string Forms = "Forms";
-    /// <summary>The controls themselves. Forms is the layout around them.</summary>
-    public const string Inputs = "Inputs";
     public const string Data = "Data";
-    public const string Media = "Text and media";
+    /// <summary>The small things that name or mark a record: badges, chips, avatars.</summary>
+    public const string Labels = "Labels";
+    /// <summary>Content the app did not author: media, prose, Markdown.</summary>
+    public const string Content = "Content";
     public const string Feedback = "Feedback";
     public const string Overlays = "Overlays";
     public const string Utilities = "Utilities";
@@ -69,8 +71,11 @@ internal static class CataloguePages
             "Links, the current one, collapsible groups, and the icon rail.",
             "sidebar nav nav-link nav-group active link collapsed rail flyout icon badge count external open details group ActiveLink"),
         new("/nav-layouts", Frame, "Nav layouts", "ri-route-line",
-            "Arranging a nav that has outgrown one list, and the bottom bar that replaces it on a phone.",
-            "accordion filter search narrow long many pages area areas rail panel two-level topbar-nav header links sidebar--areas nav-areas nav-filter data-nav-filter data-nav-area keywords overwhelming bottombar bottom bar tab bar mobile phone dock accessory hide on scroll layout--bottombar"),
+            "Arranging a nav that has outgrown one list: accordions, a filter, an area rail, areas in the topbar.",
+            "accordion filter search narrow long many pages area areas rail panel two-level topbar-nav header links sidebar--areas nav-areas nav-filter data-nav-filter data-nav-area keywords overwhelming"),
+        new("/bottombar", Frame, "Bottom bar", "ri-layout-bottom-2-line",
+            "The bar across the bottom of a phone, for the few places or actions used most.",
+            "bottombar bottom bar tab bar mobile phone dock accessory hide on scroll layout--bottombar tint card icons menu first sheet actions"),
         new("/topbar", Frame, "Topbar and user", "ri-layout-top-2-line",
             "Header search, the status and version chips, and the user widget.",
             "topbar header search search-max user-widget user-menu avatar version build tag status health tip hover hint"),
@@ -86,22 +91,28 @@ internal static class CataloguePages
 
         new("/structure", Structure, "Page structure", "ri-layout-top-line",
             "Title rows, dividers, callouts and code blocks.",
-            "page-head divider callout note code-block copy clamp expand"),
+            "page-head divider callout note code-block copy clamp expand lip"),
         new("/card", Structure, "Cards", "ri-square-line",
             "Head, body and key/value rows. Put whatever markup you need inside.",
             "card-head card-body card-foot footer foot kv key value warning caveat flush padding canvas actions"),
         new("/grid", Structure, "Grids", "ri-layout-grid-line",
             "Three breakpoint-free layout primitives.",
             "masonry card-grid field-grid form-grid form fields two-up columns layout span full row stranded"),
-        new("/collections", Structure, "Collections", "ri-list-unordered",
-            "Lists, steps, accordions and trees.",
-            "list steps wizard accordion details tree hierarchy lockup sticky group header"),
+        new("/list", Structure, "Lists", "ri-list-unordered",
+            "Rows that open, act or merely show, as dividers or as cards, with stacking group headers.",
+            "list list-row list-main list-title list-sub list-meta lockup line count clamp wrap list--cards cards sticky group header flush density"),
+        new("/collections", Structure, "Collections", "ri-node-tree",
+            "Steps, accordions and trees.",
+            "steps wizard accordion details summary tree hierarchy folder expand exclusive"),
         new("/timeline", Structure, "Timeline", "ri-time-line",
             "A record of what happened and when, with icon, avatar and gutter variants.",
             "timeline history audit trail event feed activity log run comment thread marker dot when"),
-        new("/tabs", Structure, "Tabs and segmented", "ri-folder-2-line",
-            "Swap a region of content, or change a setting in place.",
-            "tab tablist panel segmented radio"),
+        new("/tabs", Structure, "Tabs", "ri-folder-2-line",
+            "Swap a region of content in place, and a strip of links that only looks like one.",
+            "tab tablist panel tab-count tab--active data-tabs strip links"),
+        new("/segmented", Structure, "Segmented control", "ri-toggle-line",
+            "Change a setting in place: a few short options, built from radios.",
+            "segmented radio toggle group option setting view switch sizes toolbar"),
 
         new("/button", Actions, "Buttons", "ri-cursor-line",
             "Six variants chosen by meaning, three sizes, plus icon-only, ghost and the FAB.",
@@ -111,63 +122,69 @@ internal static class CataloguePages
             "btn-group split-btn caret dropdown zoom"),
         new("/toolbar", Actions, "Toolbar", "ri-filter-3-line",
             "The filter bar that sits above a table or list.",
-            "filter search count width wide grow toolbar-input"),
-        new("/menu", Actions, "Menus and popovers", "ri-more-2-fill",
-            "A dropdown of actions, an anchored panel of content, and the value trigger.",
-            "dropdown actions anchor scrim disclosure popover popovertarget value-trigger picker"),
+            "filter search count width wide grow toolbar-input selection bulk"),
+        new("/menu", Actions, "Menus", "ri-more-2-fill",
+            "A dropdown of actions opened from a control, and the value trigger.",
+            "dropdown actions anchor scrim disclosure menu-anchor data-menu-toggle value-trigger picker overflow"),
+        new("/popover", Actions, "Popovers", "ri-message-2-line",
+            "A small amount of content anchored to the control that opened it.",
+            "popover popovertarget anchor top layer light dismiss definition detail explain tooltip rich"),
 
         new("/form", Forms, "Form layout", "ri-edit-box-line",
             "The anatomy of a field, two-up rows, sections and the actions row.",
             "form-field form-label form-hint field-grid two-up fieldset legend section actions split start required settings card assemble submit whole"),
         new("/form-validation", Forms, "Validation", "ri-shield-check-line",
             "How a rejected value is shown, and what a screen reader is told.",
-            "form-error form-warning aria-invalid aria-describedby required label marker invalid message reject"),
-
-        new("/form-text", Inputs, "Text fields", "ri-input-field",
+            "form-error form-warning aria-invalid aria-describedby required label marker invalid message reject summary"),
+        new("/form-text", Forms, "Text fields", "ri-input-field",
             "The text input in three sizes, its states, and the input group around it.",
             "input text email search password url placeholder disabled readonly form-input-sm form-input-lg value-display input-group input-affix unit prefix affix width narrow"),
-        new("/form-textarea", Inputs, "Text areas", "ri-text-block",
+        new("/form-textarea", Forms, "Text areas", "ri-text-block",
             "Multi-line input, and locking which way it can be dragged.",
             "textarea rows resize resize-none resize-both vertical lock multiline comment note maxlength counter"),
-        new("/form-select", Inputs, "Selects", "ri-dropdown-list",
+        new("/form-select", Forms, "Selects", "ri-dropdown-list",
             "The themed drop-down, options with content, and the list box.",
             "select form-select select-sm select-lg option optgroup legend selectedcontent picker caret multiple size listbox multiselect base-select transfer picklist dual list move"),
-        new("/form-combo", Inputs, "Combo fields", "ri-price-tag-3-line",
+        new("/form-combo", Forms, "Combo fields", "ri-price-tag-3-line",
             "A searchable select, chips for several picks, a server-backed list and free entry.",
             "combo combobox form-combo autocomplete typeahead searchable select multiselect chips tags token input email recipients free entry server lazy load more paging debounce"),
-        new("/form-choice", Inputs, "Checks and switches", "ri-checkbox-line",
+        new("/form-choice", Forms, "Checks and switches", "ri-checkbox-line",
             "Checkboxes, radios and the switch — and which of the three to reach for.",
-            "checkbox radio switch toggle form-check fieldset exclusive setting immediate saved disabled policy"),
-        new("/form-file", Inputs, "File inputs", "ri-attachment-2",
+            "checkbox radio switch toggle form-check fieldset exclusive setting immediate saved disabled policy dependent hint choice"),
+        new("/form-file", Forms, "File inputs", "ri-attachment-2",
             "File pickers and a dropzone that takes a real drop.",
             "file dropzone upload attachment drag drop file-list"),
-        new("/form-numeric", Inputs, "Ranges and steppers", "ri-number-1",
+        new("/form-numeric", Forms, "Ranges and steppers", "ri-number-1",
             "Ranges, steppers and date inputs — the controls whose internals are per-engine.",
             "range slider stepper number date time picker spinner appearance disabled"),
 
         new("/table", Data, "Tables", "ri-table-line",
-            "One class on the table, plus sticky headers, sorting and a stacked layout.",
-            "sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num pinned frozen pin-start pin-end column width min-width shrink fit prose control"),
+            "One class on the table, plus sticky headers, sorting, pinned columns and a stacked layout.",
+            "sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num pinned frozen pin-start pin-end column width min-width shrink fit prose control actions"),
         new("/stat", Data, "Stats", "ri-numbers-line",
             "One number that matters, which way it moved, and what it is measured against.",
             "kpi number metric delta tile target unavailable dashboard"),
-        new("/badge", Data, "Badges", "ri-price-tag-3-line",
-            "Semantic pills in three sizes, plus three categorical hues.",
-            "pill status cyan orange teal small large"),
-        new("/chip", Data, "Chips", "ri-price-tag-line",
-            "Removable filters and recipients, and the set they sit in.",
-            "chip tag filter dismissible removable chip-set"),
-        new("/avatar", Data, "Avatars", "ri-user-line",
-            "A person or an actor, the group, and the lockup that names them.",
-            "avatar initials group person user identity lockup name email subtext"),
         new("/pager", Data, "Pagination", "ri-more-line",
             "Moving through a long result set, and the breadcrumb trail that says where it sits.",
             "pagination page-link breadcrumb trail button view state server paged"),
 
-        new("/media", Media, "Media and prose", "ri-image-line",
-            "Bounded media, long-form text, and redacted values.",
-            "image figure gallery aspect prose article redacted secret"),
-        new("/markdown", Media, "Markdown", "ri-markdown-line",
+        new("/badge", Labels, "Badges", "ri-price-tag-3-line",
+            "Semantic pills in three sizes, plus three categorical hues.",
+            "pill status cyan orange teal small large severity"),
+        new("/chip", Labels, "Chips", "ri-price-tag-line",
+            "Removable filters and recipients, and the set they sit in.",
+            "chip tag filter dismissible removable chip-set"),
+        new("/avatar", Labels, "Avatars", "ri-user-line",
+            "A person or an actor, the group, and the lockup that names them.",
+            "avatar initials group person user identity lockup name email subtext"),
+
+        new("/media", Content, "Media", "ri-image-line",
+            "A bounded frame for an image you did not size, and a gallery of attachments.",
+            "image figure gallery aspect ratio contain cover thumbnail attachment photo"),
+        new("/prose", Content, "Prose", "ri-article-line",
+            "Long-form text from a source the app does not control, and redacted values.",
+            "prose article body measure foreign contain sanitized html redacted secret masked"),
+        new("/markdown", Content, "Markdown", "ri-markdown-line",
             "Rendered Markdown, and an editor with a live preview.",
             "md-editor preview render markdown-body"),
 
@@ -180,13 +197,16 @@ internal static class CataloguePages
         new("/progress", Feedback, "Progress and spinners", "ri-loader-4-line",
             "Determinate bars, indeterminate bars, spinners and skeletons.",
             "progress bar spinner skeleton loading busy indeterminate placeholder block height surface"),
-        new("/empty-state", Feedback, "Empty and live states", "ri-inbox-line",
-            "Nothing to show, waiting for something, and the state of a live connection.",
-            "empty-state nothing found access failed retry pending connection streaming health status stale output log illustration drawing icon"),
+        new("/empty-state", Feedback, "Empty states", "ri-inbox-line",
+            "Nothing to show, and waiting for something: the drawing, the icon, and the block itself.",
+            "empty-state nothing found access failed retry pending illustration drawing icon state-art"),
+        new("/live-state", Feedback, "Live states", "ri-pulse-line",
+            "The state of a connection, a pane of machine output, and work still running.",
+            "live connection streaming health health-badge status stale output log follow tail activity running job cancel"),
 
         new("/modal", Overlays, "Modal", "ri-window-2-line",
             "A question that has to be answered before anything else happens.",
-            "dialog backdrop confirm showModal sm lg scroll tall max-height footer ShowModalAsync"),
+            "dialog backdrop confirm showModal sm lg scroll tall max-height footer ShowModalAsync deck first-run"),
         new("/drawer", Overlays, "Drawers and sheets", "ri-layout-right-line",
             "A panel from an edge, for a secondary flow that can be left.",
             "drawer sheet side panel filter edge scrim"),
@@ -215,18 +235,22 @@ internal static class CataloguePages
         new("/utility-safe-area", Utilities, "Safe area", "ri-smartphone-line",
             "Holding your own bar clear of a home indicator, a notch or a rounded corner.",
             "sedna-safe-top sedna-safe-bottom sedna-safe-inline env safe-area-inset viewport-fit cover notch home indicator iphone island phone landscape"),
+
         new("/script", Reference, "The script", "ri-code-s-slash-line",
-            "Toasts, confirmations, clipboard, hover hints, and the delegated behaviours.",
-            "sednaUi toast confirm copy clipboard menu tabs dropzone follow interop javascript time zone cookie tz boot showModal select refresh selectedcontent"),
+            "Loading it, and the JavaScript behind toasts, confirmations, the clipboard and the delegated behaviours.",
+            "sednaUi toast confirm copy clipboard menu tabs dropzone follow javascript boot theme default time zone cookie tz select refresh selectedcontent"),
+        new("/interop", Reference, "From C#", "ri-braces-line",
+            "ISednaUi: toasts, confirmations, settings, the time zone and the modal, called from a component.",
+            "ISednaUi interop C# csharp AddSednaUi ToastAsync ConfirmAsync ISednaSettings LoadSettingsAsync GetTimeZoneAsync ShowModalAsync prerender OnAfterRenderAsync"),
         // Not "/mcp": that route is the MCP endpoint itself, mapped in Program.cs.
         new("/mcp-server", Reference, "MCP server", "ri-robot-2-line",
             "The read-only endpoint an agent points at, its six tools and four resources.",
             "mcp agent ai claude tool resource read-only streamable http rate limit since"),
     ];
 
-    /// <summary>The group names, in the order the sidebar shows them.</summary>
+    /// <summary>The group names, in the order the sidebar's rail shows them.</summary>
     public static IReadOnlyList<string> Groups { get; } =
-        [Start, Frame, Structure, Actions, Forms, Inputs, Data, Media, Feedback, Overlays, Utilities, Reference];
+        [Start, Frame, Structure, Actions, Forms, Data, Labels, Content, Feedback, Overlays, Utilities, Reference];
 
     /// <summary>
     /// The icon each group carries in the sidebar's area rail. <c>NavigationTests</c>
@@ -240,9 +264,9 @@ internal static class CataloguePages
             [Structure] = "ri-layout-grid-line",
             [Actions] = "ri-play-circle-line",
             [Forms] = "ri-file-list-3-line",
-            [Inputs] = "ri-input-method-line",
             [Data] = "ri-database-2-line",
-            [Media] = "ri-image-line",
+            [Labels] = "ri-price-tag-3-line",
+            [Content] = "ri-file-text-line",
             [Feedback] = "ri-notification-3-line",
             [Overlays] = "ri-stack-line",
             [Utilities] = "ri-tools-line",

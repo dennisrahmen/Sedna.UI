@@ -142,7 +142,6 @@ build/bundle-css.sh          # wwwroot/css/Sedna.UI.css   from css-parts/
 build/bundle-js.sh           # wwwroot/js/Sedna.UI.js     from js-parts/
 build/export-tokens.sh       # wwwroot/tokens/…tokens.json    from the token parts
 build/class-history.sh       # which release first shipped each class, token, C# member and example
-build/class-history.sh --stamp 0.5.0   # …dated as the release about to be tagged; see releasing.md
 ```
 
 Counts are calculated, never typed. `build/css-inventory.sh` is the single implementation of "what does

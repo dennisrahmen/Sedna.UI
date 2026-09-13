@@ -1,0 +1,77 @@
+@page "/interop"
+
+<CatHead Title="From C#" Tier="@CatHead.Site">
+    <code>ISednaUi</code> is the typed way into the <a href="/script">script</a> from a component:
+    every member is one JavaScript call, and none of them adds behaviour the script does not
+    already have. This page is the members that are easiest to get wrong; the rest are on the
+    page of the thing they drive.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-braces-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Register it once, and never call it while prerendering</span>
+        <code>builder.Services.AddSednaUi()</code>, then <code>@@inject ISednaUi Ui</code>. Every
+        member is a JavaScript call, so <strong>none of them can run during prerendering</strong>
+        — call them from an event handler, or from
+        <code>OnAfterRenderAsync(firstRender: true)</code>. The wrappers do not swallow that
+        exception.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Interop.ToastsFromCsharp" Title="Toasts" Demo="ex-demo--block">
+    <p>
+        <code>ToastAsync</code> takes the message and a <code>ToastKind</code>, whose members are the
+        CSS modifier suffixes, so <code>ToastKind.Go</code> and <code>.toast-go</code> cannot drift
+        apart. There is no C# equivalent of the remover function <code>toast()</code> returns —
+        dismissing a toast early stays a JavaScript concern.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.ConfirmFromCsharp" Title="Confirmation" Demo="ex-demo--block">
+    <p>
+        <code>await Ui.ConfirmAsync(…)</code> returns a <code>bool</code>, so the decision reads as
+        ordinary C# control flow. Built on <code>&lt;dialog&gt;.showModal()</code> rather than
+        <code>window.confirm()</code>, which in Blazor Server blocks the circuit while it is open.
+        A dialog holding a form is <a href="/modal"><code>ShowModalAsync</code></a> instead.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.SettingsFromCsharp" Title="Appearance settings" Demo="ex-demo--block">
+    <p>
+        <code>ISednaSettings</code> is the applied settings as state, with a <code>Changed</code>
+        event — where <code>ISednaUi.LoadSettingsAsync</code> only answers what they are now, which
+        goes stale when a reader on “System” changes their OS between light and dark. Call
+        <code>StartAsync</code> from <code>OnAfterRenderAsync(firstRender)</code>, and check
+        <code>IsLive</code> before drawing a toggle, or someone who chose light sees “dark” selected
+        for one frame.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.TimeZoneFromCsharp" Title="The browser's time zone" Demo="ex-demo--block">
+    <p>
+        <strong>Live — this is your own zone.</strong> <code>ISednaUi.GetTimeZoneAsync()</code> reads
+        <code>Intl</code> through the circuit and returns the IANA id, so a Blazor Server app gets the
+        zone on the <em>first</em> session in a new browser — where the
+        <a href="/script">cookie <code>boot.js</code> writes</a> is still absent and a navigation is
+        not an HTTP request. The two are the same answer at two moments: the cookie serves the
+        first server render, this serves the circuit. It is interop, so call it from
+        <code>OnAfterRenderAsync(firstRender: true)</code>, and keep the configured fallback for the
+        render before it answers.
+    </p>
+</CatExample>
+
+<h2 id="elsewhere">The rest of the surface</h2>
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Member</th><th>Shown on</th></tr></thead>
+        <tbody>
+            <tr><td><code>Nav.CssClass</code>, <code>Nav.AriaCurrent</code>, <code>ActiveLink.IsActive</code></td><td><a href="/nav">Sidebar and nav</a> — which link is the current page, and which group is open</td></tr>
+            <tr><td><code>ShowModalAsync</code>, <code>CloseModalAsync</code></td><td><a href="/modal">Modal</a> — a dialog holding a form</td></tr>
+            <tr><td><code>InitMarkdownAsync</code></td><td><a href="/markdown">Markdown</a> — wiring the editor after first render</td></tr>
+            <tr><td><code>RegisterSearchAsync</code>, <code>RegisterCommandsAsync</code></td><td><a href="/topbar">Topbar</a> and the <a href="/palette">command palette</a> — the index and the commands</td></tr>
+            <tr><td><code>CopyTextAsync</code></td><td><a href="/script">The script</a> — where <code>data-copy</code> needs no C# at all</td></tr>
+            <tr><td><code>ConfigureAsync</code></td><td><a href="/script">The script</a> — only for an app whose default theme is not the built-in one</td></tr>
+        </tbody>
+    </table>
+</div>

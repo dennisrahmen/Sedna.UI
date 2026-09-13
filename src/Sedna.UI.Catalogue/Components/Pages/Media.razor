@@ -1,8 +1,8 @@
 @page "/media"
 
-<CatHead Title="Media and prose">
-    Content the app did not author: an attachment, an article body, or a value the reader is not
-    allowed to see.
+<CatHead Title="Media">
+    An image whose size the app does not control, and a gallery of attachments. Long-form text
+    from a source the app did not author is <a href="/prose">Prose</a>.
 </CatHead>
 
 <div class="callout callout-info">
@@ -36,39 +36,8 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Media.Prose" Title="Prose" Demo="ex-demo--block">
-    <p>
-        Long-form text rendered from a source the app does not control — a release note, a
-        knowledge-base article, an e-mail body. <a href="/markdown"><code>.markdown-body</code></a>
-        covers rendered Markdown and looks identical; <code>.prose</code> is the same job when the
-        HTML did not come from Markdown. <strong>The 72-character measure sits on the element
-        carrying the class</strong>, so where the prose <em>is</em> a panel &mdash;
-        <code>class="card-body prose"</code> &mdash; set <code>--prose-measure: none</code> on the
-        box and put the class on an inner wrapper.
-    </p>
-</CatExample>
 
-<CatExample TExample="Examples.Media.ForeignProse" Title="HTML from somewhere else" Demo="ex-demo--block">
-    <p>
-        <code>.prose--foreign</code> adds <strong>containment</strong> on top of
-        <code>.prose</code>'s typography: what a 3000px-wide table, an unbroken 400-character URL or
-        a 4000px image does to the card it landed in. Add it to anything sanitized rather than
-        authored — a ticketing system's journal entry, a forwarded mail body, a CMS field — and note
-        that it contains but does not sanitize: the same server-side pass has to add
-        <code>tabindex="0"</code> to a table that scrolls, or a keyboard cannot reach the off-screen
-        columns, and <code>role="table"</code> to put back the role
-        <code>display: block</code> drops.
-    </p>
-</CatExample>
 
-<CatExample TExample="Examples.Media.RedactedValues" Title="Redacted values" Demo="ex-demo--block">
-    <p>
-        A value deliberately withheld — a secret, a masked identifier, a field the reader's role
-        cannot see. <strong>It must not merely look hidden:</strong> this class marks a placeholder
-        the server sent <em>in place of</em> the value, so if the real text is in the HTML it is not
-        redacted, whatever it looks like.
-    </p>
-</CatExample>
 
 <CatExample TExample="Examples.Media.Gallery" Title="A gallery of attachments" Demo="ex-demo--block">
     <p>

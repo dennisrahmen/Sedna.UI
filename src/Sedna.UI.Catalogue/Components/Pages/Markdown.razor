@@ -30,7 +30,7 @@
         wiring is <code>data-md-view</code> on the root, <code>data-md-input</code> on the textarea,
         <code>data-md-preview</code> on the preview pane, <code>data-md-cmd</code> on toolbar
         buttons and <code>data-md-tab</code> on each radio of the
-        <a href="/tabs"><code>.segmented</code></a> Write/Preview switch;
+        <a href="/segmented"><code>.segmented</code></a> Write/Preview switch;
         <strong>the markup sits inert until <code>sednaUi.md.init()</code> runs</strong> — from C#,
         <code>ISednaUi.InitMarkdownAsync()</code> in <code>OnAfterRenderAsync</code>, which wires
         every editor in the document and is idempotent per editor. In Blazor, bind the textarea with

@@ -1,0 +1,43 @@
+@page "/live-state"
+
+<CatHead Title="Live states">
+    What a view shows while something is still happening: the state of the connection behind it,
+    the lines a job is writing, and work the reader can watch and cancel. A view with nothing to
+    show yet is an <a href="/empty-state">empty state</a>; a wait with a known shape is a
+    <a href="/progress">skeleton</a>.
+</CatHead>
+
+<CatExample TExample="Examples.LiveState.Connection" Title="Connection state" Demo="ex-demo--block">
+    <p>
+        <code>.health-badge</code> with a <code>.health-dot</code>, in six states: the active
+        <code>--live</code>, <code>--streaming</code> and <code>--connecting</code> pulse, and the
+        settled <code>--idle</code>, <code>--degraded</code> and <code>--down</code> do not.
+        <strong>The word is not optional</strong> &mdash; a colour alone fails for anybody who
+        cannot see it. <code>.stale</code> is how old the number beside it is, with
+        <code>--warn</code> when it is old enough to distrust. The circuit's own state is the
+        <a href="/status-bar">status bar</a>'s job, not a badge's.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.LiveState.OutputPane" Title="Output pane" Demo="ex-demo--block">
+    <p>
+        <code>.output</code> is lines of machine output &mdash; a build log, a command's stdout, an
+        event stream, an audit trail &mdash; as a real list, monospace with tabular figures, with
+        <code>.output-head</code> outside the pane so it does not scroll away with the lines.
+        <strong>Add <code>data-follow</code> and it sticks to the newest line</strong>, releasing
+        when the reader scrolls up and re-attaching when they scroll back down;
+        <code>sednaUi.output.follow(pane)</code> re-attaches it from a &ldquo;jump to
+        latest&rdquo; button.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.LiveState.ActivityRow" Title="Work in progress" Demo="ex-demo--block">
+    <p>
+        Background work the reader can see and cancel. There is no activity-row class: it is a
+        <a href="/list"><code>.list-row</code></a> with a
+        <a href="/progress"><code>.progress</code></a> bar in its subtext &mdash; determinate for
+        work with a known size, indeterminate for work accepted but not started &mdash; and the
+        controls in <code>.list-meta</code>. Mark the row <code>aria-busy="true"</code> while it
+        runs.
+    </p>
+</CatExample>

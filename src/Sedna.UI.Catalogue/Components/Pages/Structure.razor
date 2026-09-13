@@ -39,3 +39,18 @@
         sideways rather than wrapping, because a wrapped command no longer copies correctly by eye.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.Structure.ClampedCodeBlock" Title="A long block, clamped" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; expand it.</strong> <code>.code-block--clamped</code> bounds the block to
+        <code>--code-clamp</code> (360px; 180px here) and scrolls inside it, and the
+        <code>.code-block-lip</code> fades the last visible line so the reader can see there is
+        more. The <code>.code-block-expand</code> button carries <code>data-code-expand</code>, and
+        the script removes the clamp and flips <code>aria-expanded</code>. The label sits in a
+        <code>&lt;span&gt;</code> so the icon survives the swap: <code>data-code-collapse</code>
+        is the wording once open and <code>data-code-expand-label</code> the wording on the way
+        back. Keep <code>tabindex="0"</code> on
+        the <code>&lt;pre&gt;</code>: a scroll container a keyboard cannot reach is a part of the
+        page a keyboard cannot read.
+    </p>
+</CatExample>

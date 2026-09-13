@@ -16,6 +16,63 @@ internal sealed record Meta(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Warning);
 
 /// <summary>
+/// One <c>class-history.json</c>, parsed: the release each class, token, public C#
+/// member and example first shipped in, and null for one in no release.
+/// </summary>
+/// <remarks>
+/// Two of these exist at runtime — the copy embedded at build, and the copy the
+/// latest GitHub release carries (<see cref="ReleasedHistory"/>) — so the parsing
+/// lives here rather than in the envelope that merges them.
+/// </remarks>
+internal sealed record HistoryMaps(
+    string LatestRelease,
+    Dictionary<string, string?> Classes,
+    Dictionary<string, string?> Tokens,
+    Dictionary<string, string?> Csharp,
+    Dictionary<string, string?> Examples,
+    Dictionary<string, string?> ByMemberName)
+{
+    public static HistoryMaps Parse(JsonElement root)
+    {
+        var csharp = Map(root.GetProperty("csharp"));
+
+        // An example mentions `RegisterCommandsAsync`, not `ISednaUi.RegisterCommandsAsync`,
+        // so the bare name has to resolve too. Where two types declare the same member —
+        // `Href` is on both PaletteCommand and SearchItem — the OLDEST wins: the question
+        // this answers is "can my version write this", and either type having had it since
+        // 0.2.0 makes the answer yes.
+        var byMemberName = new Dictionary<string, string?>(StringComparer.Ordinal);
+        foreach (var (key, since) in csharp)
+        {
+            var dot = key.IndexOf('.', StringComparison.Ordinal);
+            var bare = dot < 0 ? key : key[(dot + 1)..];
+            if (!byMemberName.TryGetValue(bare, out var held))
+            {
+                byMemberName[bare] = since;
+                continue;
+            }
+
+            if (held is null || (since is not null && VersionEnvelope.Compare(since, held) < 0))
+                byMemberName[bare] = since;
+        }
+
+        return new HistoryMaps(
+            root.GetProperty("latestRelease").GetString() ?? "0.0.0",
+            Map(root.GetProperty("classes")),
+            Map(root.GetProperty("tokens")),
+            csharp,
+            Map(root.GetProperty("examples")),
+            byMemberName);
+    }
+
+    private static Dictionary<string, string?> Map(JsonElement element) =>
+        element.EnumerateObject().ToDictionary(
+            p => p.Name,
+            p => p.Value.ValueKind == JsonValueKind.Null ? null : p.Value.GetString(),
+            StringComparer.Ordinal);
+}
+
+/// <summary>
 /// Says which release first shipped each class and token, and warns when an agent
 /// asks about something its installed version does not have.
 /// </summary>
@@ -34,16 +91,36 @@ internal sealed record Meta(
 /// there is nothing to upgrade to and "upgrade Sedna.UI" is advice the caller
 /// cannot take. The warning says the two separately for that reason.
 /// </para>
+/// <para>
+/// Two copies of the history answer here. The embedded one is what the build had; a
+/// <c>null</c> in it means "in no release <em>as far as this checkout knew</em>",
+/// which between a tag and the first merge after it understates every entry the
+/// tag shipped. The latest release's own copy (<see cref="ReleasedHistory"/>) was
+/// generated at the tag and is asked only where the embedded copy says null, so it
+/// can only ever move an entry from "unreleased" to the release that shipped it.
+/// </para>
 /// </remarks>
 internal sealed class VersionEnvelope
 {
-    private readonly Dictionary<string, string?> _classes;
-    private readonly Dictionary<string, string?> _tokens;
-    private readonly Dictionary<string, string?> _csharp;
-    private readonly Dictionary<string, string?> _examples;
-    private readonly Dictionary<string, string?> _byMemberName;
+    private readonly HistoryMaps _embedded;
+    private readonly ReleasedHistory _released;
 
-    public VersionEnvelope()
+    public VersionEnvelope(ReleasedHistory released) : this(Embedded(), released, ResolveCommit(
+        typeof(VersionEnvelope).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion,
+        Environment.GetEnvironmentVariable))
+    {
+    }
+
+    internal VersionEnvelope(HistoryMaps embedded, ReleasedHistory released, string commit)
+    {
+        _embedded = embedded;
+        _released = released;
+        Commit = commit;
+        BuiltUtc = File.GetLastWriteTimeUtc(typeof(VersionEnvelope).Assembly.Location).ToString("O");
+    }
+
+    private static HistoryMaps Embedded()
     {
         var assembly = typeof(VersionEnvelope).Assembly;
 
@@ -54,43 +131,23 @@ internal sealed class VersionEnvelope
                                "class-history.json is not embedded. Run build/class-history.sh.");
 
         using var document = JsonDocument.Parse(stream);
-        var root = document.RootElement;
-
-        LatestRelease = root.GetProperty("latestRelease").GetString() ?? "0.0.0";
-        _classes = Map(root.GetProperty("classes"));
-        _tokens = Map(root.GetProperty("tokens"));
-        _csharp = Map(root.GetProperty("csharp"));
-        _examples = Map(root.GetProperty("examples"));
-
-        // An example mentions `RegisterCommandsAsync`, not `ISednaUi.RegisterCommandsAsync`,
-        // so the bare name has to resolve too. Where two types declare the same member —
-        // `Href` is on both PaletteCommand and SearchItem — the OLDEST wins: the question
-        // this answers is "can my version write this", and either type having had it since
-        // 0.2.0 makes the answer yes.
-        _byMemberName = new Dictionary<string, string?>(StringComparer.Ordinal);
-        foreach (var (key, since) in _csharp)
-        {
-            var dot = key.IndexOf('.', StringComparison.Ordinal);
-            var bare = dot < 0 ? key : key[(dot + 1)..];
-            if (!_byMemberName.TryGetValue(bare, out var held))
-            {
-                _byMemberName[bare] = since;
-                continue;
-            }
-
-            if (held is null || (since is not null && Compare(since, held) < 0))
-                _byMemberName[bare] = since;
-        }
-
-        Commit = ResolveCommit(
-            assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                ?.InformationalVersion,
-            Environment.GetEnvironmentVariable);
-
-        BuiltUtc = File.GetLastWriteTimeUtc(assembly.Location).ToString("O");
+        return HistoryMaps.Parse(document.RootElement);
     }
 
-    public string LatestRelease { get; }
+    /// <summary>
+    /// The newest release either copy knows. The embedded copy is behind between a tag
+    /// and the first merge after it; the release's own copy is not.
+    /// </summary>
+    public string LatestRelease
+    {
+        get
+        {
+            var released = _released.Current?.LatestRelease;
+            return released is not null && Compare(released, _embedded.LatestRelease) > 0
+                ? released
+                : _embedded.LatestRelease;
+        }
+    }
 
     public string Commit { get; }
 
@@ -122,10 +179,10 @@ internal sealed class VersionEnvelope
         string.IsNullOrWhiteSpace(commit) ? "unknown" : commit.Trim();
 
     /// <summary>The release a class first shipped in, or null if it is unreleased.</summary>
-    public string? SinceClass(string name) => _classes.GetValueOrDefault(name.TrimStart('.'));
+    public string? SinceClass(string name) => Since(m => m.Classes, name.TrimStart('.'));
 
     /// <summary>The release a token first shipped in, or null if it is unreleased.</summary>
-    public string? SinceToken(string name) => _tokens.GetValueOrDefault(name);
+    public string? SinceToken(string name) => Since(m => m.Tokens, name);
 
     /// <summary>The release a public C# type or member first shipped in.</summary>
     /// <remarks>
@@ -134,10 +191,13 @@ internal sealed class VersionEnvelope
     /// not declare — the caller only ever asks about names the index matched.
     /// </remarks>
     public string? SinceMember(string name) =>
-        _csharp.TryGetValue(name, out var exact) ? exact : _byMemberName.GetValueOrDefault(name);
+        _embedded.Csharp.ContainsKey(name)
+            ? Since(m => m.Csharp, name)
+            : Since(m => m.ByMemberName, name);
 
     /// <summary>Whether a name is one the C# history knows.</summary>
-    public bool KnowsMember(string name) => _csharp.ContainsKey(name) || _byMemberName.ContainsKey(name);
+    public bool KnowsMember(string name) =>
+        _embedded.Csharp.ContainsKey(name) || _embedded.ByMemberName.ContainsKey(name);
 
     /// <summary>
     /// The floor for one example: the newest release among everything it uses.
@@ -165,8 +225,10 @@ internal sealed class VersionEnvelope
 
         foreach (var name in classes)
         {
-            if (!_classes.TryGetValue(name.TrimStart('.'), out var since)) continue;
+            var key = name.TrimStart('.');
+            if (!_embedded.Classes.ContainsKey(key)) continue;
             any = true;
+            var since = Since(m => m.Classes, key);
             // A single unreleased class makes the whole example unreleased.
             if (since is null) return null;
             if (newest is null || Compare(since, newest) > 0) newest = since;
@@ -181,7 +243,21 @@ internal sealed class VersionEnvelope
             if (newest is null || Compare(since, newest) > 0) newest = since;
         }
 
-        return any ? newest : _examples.GetValueOrDefault(id);
+        return any ? newest : Since(m => m.Examples, id);
+    }
+
+    /// <summary>
+    /// The embedded copy's answer, and where that is null — in no release this checkout
+    /// knew of — the latest release's own answer, which is exact for the release it was
+    /// generated at. A name the embedded copy lacks is null either way.
+    /// </summary>
+    private string? Since(Func<HistoryMaps, Dictionary<string, string?>> map, string key)
+    {
+        if (!map(_embedded).TryGetValue(key, out var embedded)) return null;
+        if (embedded is not null) return embedded;
+
+        var released = _released.Current;
+        return released is not null && map(released).TryGetValue(key, out var atRelease) ? atRelease : null;
     }
 
     /// <summary>
@@ -277,10 +353,4 @@ internal sealed class VersionEnvelope
 
         return parts;
     }
-
-    private static Dictionary<string, string?> Map(JsonElement element) =>
-        element.EnumerateObject().ToDictionary(
-            p => p.Name,
-            p => p.Value.ValueKind == JsonValueKind.Null ? null : p.Value.GetString(),
-            StringComparer.Ordinal);
 }

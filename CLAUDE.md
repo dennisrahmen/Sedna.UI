@@ -237,9 +237,11 @@ matters it is **calculated**, never typed:
 - `build/api-inventory.sh` is the same implementation for the public C# surface, and is the one place
   that answers "what does this library export".
 - `build/class-history.sh` derives which release first shipped each class, token, public C# member and
-  example, which is what the MCP server's `since` reports. `--check` in CI. **The release PR runs
-  `--stamp <version>`**, which dates the unreleased entries as the version about to be tagged — the
-  only thing a tag does to this file, done before it exists so nothing has to be regenerated after.
+  example, which is what the MCP server's `since` reports. `--check` in CI. **Nothing is done before
+  a release**: the tag is what dates an entry, the first PR after it regenerates the file, and until
+  that merge the hosted site reads the release's own copy — `release.yml` attaches the history
+  computed at the tag to every GitHub release, and the catalogue fetches it at runtime
+  (`ReleasedHistory`) to fill in what its embedded copy still calls unreleased.
 
 The landing page's figures are computed at runtime by the browser's own CSS parser
 (`sednaUiCatalogue.readInventory`), and a test compares them against a .NET regex over the same
@@ -463,14 +465,7 @@ version first.
    app already styles changes its appearance silently otherwise. The removals are the breaking part of
    the release, and `build/release-inventory.sh` prints them first for that reason; list them just as
    plainly. Confirm the notes too.
-6. Once the version is confirmed, stamp the class history with it **in the release PR**, so the tag
-   reproduces a file that is already committed and nothing has to be regenerated afterwards:
-
-   ```bash
-   build/class-history.sh --stamp 0.2.0
-   ```
-
-7. Merge, then tag **the commit the stamp is on**:
+6. Once the version and the notes are confirmed, tag `main` — no release PR, nothing to stamp:
 
    ```bash
    git tag -a v0.2.0 -F notes.md
@@ -479,6 +474,10 @@ version first.
 
    Write `notes.md` outside the repo. The first line becomes the release title suffix; the rest becomes
    the body.
+
+7. The first pull request after the release regenerates `class-history.json` — `--check` fails until it
+   does. The hosted site is right in the meantime: `release.yml` attaches the history computed at the
+   tag to the release, and the catalogue reads it.
 
 `release.yml` builds, tests, packs, verifies the package contents, publishes to nuget.org, and creates the
 GitHub release.

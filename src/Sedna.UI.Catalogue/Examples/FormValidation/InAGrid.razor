@@ -1,0 +1,29 @@
+<form style="max-width:560px">
+    <div class="field-grid">
+        <div class="form-field">
+            <label class="form-label form-label--required" for="vg-host">Host</label>
+            <input class="form-input" id="vg-host" type="text" value="src-db-14" required />
+        </div>
+        <div class="form-field">
+            <label class="form-label form-label--required" for="vg-port">Port</label>
+            <input class="form-input" id="vg-port" type="number" value="65900" required
+                   aria-invalid="true" aria-describedby="vg-port-err" />
+            <p class="form-error" id="vg-port-err">
+                <i class="ri-error-warning-line"></i>
+                <span>Above 65535, so no port can answer.</span>
+            </p>
+        </div>
+        <div class="form-field sedna-span-full">
+            <label class="form-label" for="vg-note">Note</label>
+            <textarea class="form-input" id="vg-note" rows="2" aria-describedby="vg-note-warn">Temporary — remove after the migration</textarea>
+            <p class="form-warning" id="vg-note-warn">
+                <i class="ri-alert-line"></i>
+                <span>Notes are shown to every operator, including contractors.</span>
+            </p>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn" type="button">Cancel</button>
+        <button class="btn btn-primary" type="button">Save connection</button>
+    </div>
+</form>

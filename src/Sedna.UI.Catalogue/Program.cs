@@ -31,6 +31,10 @@ builder.Services.AddSednaUi(o =>
 // app serves — so the MCP server and the site cannot describe different bytes.
 builder.Services.AddSingleton<CatalogueIndex>();
 builder.Services.AddSingleton<VersionEnvelope>();
+// The latest release's own class history, read at runtime so the site is right
+// between a tag and the first merge after it. ReleasedHistory:Url empty turns it off.
+builder.Services.AddSingleton<ReleasedHistory>();
+builder.Services.AddHostedService<ReleasedHistoryFetcher>();
 
 // The topbar search's index, derived from the same two sources. A singleton
 // because it is the same list for everyone: the circuit only pushes it.

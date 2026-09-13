@@ -54,7 +54,10 @@ public sealed class CatalogueAppFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        _factory = new WebApplicationFactory<Program>();
+        // No outbound call from a test run: the latest release's class history is
+        // fetched from GitHub in production, and an empty URL turns that off.
+        _factory = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(b => b.UseSetting("ReleasedHistory:Url", ""));
         _factory.UseKestrel(0);
         _factory.StartServer();
         BaseAddress = _factory.ClientOptions.BaseAddress;
