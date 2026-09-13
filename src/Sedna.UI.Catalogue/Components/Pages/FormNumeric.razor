@@ -2,7 +2,8 @@
 
 <CatHead Title="Ranges and steppers">
     The controls whose native internals have to be named per engine. Everything here restates one
-    design in several vendor pseudo-elements.
+    design in several vendor pseudo-elements. Date and time inputs, the other such family, have
+    <a href="/form-datetime">a page of their own</a>.
 </CatHead>
 
 <div class="callout callout-warn">
@@ -42,26 +43,10 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.FormNumeric.DateTime" Title="Date and time" Demo="ex-demo--block">
-    <p>
-        <code>.form-input</code> already covers the box. What needs naming is the calendar picker
-        glyph, which the browser draws in a fixed colour we cannot reach — so it is inverted, by an
-        amount that moves with the theme (<code>--picker-invert</code>).
-    </p>
-    <p>
-        The picker <em>panel</em> is dark because <code>color-scheme</code> is set on
-        <code>&lt;html&gt;</code> from <code>--color-scheme</code>. That is also what makes the native
-        scrollbars and a bare <code>&lt;select&gt;</code>'s option list match the theme — a
-        <code>.form-select</code> no longer needs it, because base appearance makes its drop-down a
-        panel the stylesheet reaches directly.
-    </p>
-</CatExample>
-
 <CatExample TExample="Examples.FormNumeric.Sizes" Title="Three sizes" Demo="ex-demo--block">
     <p>
         The stepper takes its tier from its children: <code>.btn-sm</code> on both buttons and
-        <code>.form-input-sm</code> on the input. A date or time input is a
-        <code>.form-input</code>, so it takes the tier the same way.
+        <code>.form-input-sm</code> on the input.
     </p>
     <p>
         Every row here is one <a href="/concepts">control height</a>, so the stepper, the date field

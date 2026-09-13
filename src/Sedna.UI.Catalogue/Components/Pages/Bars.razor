@@ -1,0 +1,76 @@
+@page "/bars"
+
+<CatHead Title="Bars and meters">
+    The small charts a page of figures is made of: a list of bars to compare a handful of values,
+    one bar split into parts that add up, and a value against a scale with the thresholds marked.
+    Each is markup and classes; the one number only the app knows is an inline custom property.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-palette-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">One colour family for every chart</span>
+        Every filled part paints <code>currentColor</code>, so which colour it is comes from one
+        set of modifiers that a bar, a segment, a meter fill, a <a href="/sparkline">sparkline</a>
+        or a legend swatch all take. <code>.series-1</code>, <code>.series-2</code>,
+        <code>.series-3</code>, <code>.series-4</code>, <code>.series-5</code> and
+        <code>.series-6</code> are the categorical run &mdash; the brand first, then hues ordered
+        so neighbours differ &mdash; for parts that are merely different from each other.
+        <code>.series-go</code>, <code>.series-warn</code>, <code>.series-danger</code>,
+        <code>.series-info</code> and <code>.series-muted</code> are the semantic families, for a part that <em>means</em> something. Never colour a
+        category with a semantic family: a red slice says &ldquo;danger&rdquo; whether or not the
+        data does. The brand is the default, so one series needs no modifier.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Bars.BarList" Title="A list of bars" Demo="ex-demo--block">
+    <p>
+        <code>.bar-list</code> is rows of label, bar and value, for comparing a few things down a
+        column. The fill is <code>--value</code>, a percentage of the widest; the value is text
+        as well as a bar, because the number is what the reader takes away and the bar is for the
+        comparison. <code>aria-current="true"</code> on a row is the one the figure above is
+        about, and <code>--bar-list-label</code> on the list widens the label column.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bars.BarListSemantic" Title="Bars that mean something" Demo="ex-demo--block">
+    <p>
+        The same list with the semantic families on the fills. Here the rows are outcomes, so
+        the colour is a judgement the reader already makes &mdash; and <code>.series-muted</code>
+        is for the part that is not yet anything.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bars.StackBar" Title="One bar in parts" Demo="ex-demo--block">
+    <p>
+        <code>.stack-bar</code> is one bar whose segments add up: the states an order book is in,
+        the share each carrier has. Each <code>.stack-bar-segment</code> is <code>--value</code>,
+        and where they do not reach 100% the track shows through &mdash; the honest picture of a
+        total that is not fully accounted for. The bar is one picture, so it takes
+        <code>role="img"</code> and a label that says the numbers; the
+        <code>.stack-bar-legend</code> under it is the same numbers for the eye, each key with a
+        <code>.stack-bar-swatch</code> in the segment's colour. <code>.stack-bar--lg</code> is the
+        taller track for a bar that is the point of a card, and <code>.meter--lg</code> the same
+        for a meter.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bars.Meter" Title="A value against its thresholds" Demo="ex-demo--block">
+    <p>
+        <code>.meter</code> differs from a <a href="/progress">progress bar</a> in what the marks
+        say: progress ends at 100% and is done, a meter has a line the reader does not want the
+        fill to cross. Each <code>.meter-mark</code> is at <code>--at</code>, and
+        <code>.meter-mark-label</code> names it; <code>--labelled</code> on the meter reserves the
+        line under the track for those labels, and <code>.meter-scale</code> is the pair of end
+        values under that. The fill's colour is the app's judgement of the value &mdash; a series
+        modifier &mdash; and the marks stay neutral.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bars.MeterRow" Title="Meters in a table" Demo="ex-demo--block">
+    <p>
+        Without labels, a meter is a cell: the mark is still the cap, the fill's family says
+        how close each queue is, and the figures in the next column are the numbers. Give the
+        column a width, or the meters shrink to the longest name.
+    </p>
+</CatExample>

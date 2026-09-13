@@ -93,6 +93,18 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Table.GroupedRows" Title="Grouped rows" Demo="ex-demo--block">
+    <p>
+        A <code>.tr-group</code> row heads the rows after it &mdash; a state, a day, a customer.
+        Its one cell is a <code>&lt;th scope="rowgroup"&gt;</code> spanning the table, so a screen
+        reader announces the group with every row under it, and the <code>.tr-group-body</code>
+        inside it is a flex row that takes whatever belongs to the group: a sentence, a
+        <a href="/badge">badge</a> for the count, a <a href="/chip">chip</a> for the filter that
+        made it, with <code>.tr-group-count</code> at the far end. Under
+        <code>.table--sticky</code> the group row pins beneath the header.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Table.StackedNarrowScreen" Title="Stacked on a narrow screen" Demo="ex-demo--block">
     <p>
         <code>.table--stack</code> turns each row into a card below 640px, taking each cell's label

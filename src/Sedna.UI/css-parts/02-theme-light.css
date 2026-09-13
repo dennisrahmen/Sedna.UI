@@ -72,6 +72,13 @@
     --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
     --go-border: var(--green-300);
     --go-fg:     var(--green-700);
+    /* Two steps down: a 400 on a white canvas is a pastel, and a pastel bar is
+       neither the brand's weight nor readable against the track. */
+    --viz-2: var(--cyan-600);
+    --viz-3: var(--orange-600);
+    --viz-4: var(--teal-600);
+    --viz-5: var(--violet-600);
+    --viz-6: var(--indigo-600);
 
     --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
     --warn-border: var(--amber-300);

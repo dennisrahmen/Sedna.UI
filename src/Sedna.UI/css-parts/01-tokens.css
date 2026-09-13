@@ -121,6 +121,19 @@
        .state-art--live or .empty-state--pending; the sprite's motion classes read it as
        their play state, and the reduced-motion block removes the animations outright. */
     --state-motion:     paused;
+
+    /* ── Data visualisation ────────────────────────────────────────────────
+       Six series colours for parts of a chart that are merely different from each
+       other — the segments of a stack bar, the lines of a legend. The brand first,
+       then hues ordered so neighbours differ in hue and in lightness. A part that
+       MEANS something takes a semantic family instead; the `.series-*` modifiers in
+       54-data-viz.css are the one place these are read. */
+    --viz-1: var(--brand);
+    --viz-2: var(--cyan-400);
+    --viz-3: var(--orange-400);
+    --viz-4: var(--teal-400);
+    --viz-5: var(--violet-400);
+    --viz-6: var(--indigo-300);
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
     /* One step up from --brand-tint, for hovering something already tinted by it.
        Pointing at a chosen row must not replace its tint with the neutral hover:
