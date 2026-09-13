@@ -104,3 +104,17 @@
     filter: invert(var(--picker-invert));
 }
 .form-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* iOS gives a date or time input an intrinsic width and centres its value, and
+   both ignore the class: the field ran past its column and its text sat in the
+   middle. `min-width: 0` lets it shrink to the column, `appearance: none` hands
+   the box to the class, and the value pseudo-element is told to start where every
+   other field's text does. The picker still opens on tap; only the box changes. */
+.form-input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"], [type="week"]) {
+    min-width: 0;
+    appearance: none;
+}
+.form-input::-webkit-date-and-time-value {
+    text-align: start;
+    min-height: 1.4em;
+}

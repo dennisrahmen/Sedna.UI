@@ -34,10 +34,28 @@
 }
 
 /* ── Content column ───────────────────────────────────────────────────────── */
-.cat-main {
+/* The column fills the page, so the footer sits at the bottom of a short page —
+   the 404, a page with two examples — instead of under its last line. .cat-main
+   stays a block: a flex column would stop its headings' margins collapsing. */
+.cat-column {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
     max-width: 1100px;
     margin-inline: auto;
+}
+.cat-main {
+    flex: 1;
     padding-bottom: 64px;
+}
+/* A page that is nothing but a page-level empty state — the 404 — wraps it in
+   .cat-centre, which centres it between the top and the footer. */
+.cat-main:has(> .cat-centre) { display: flex; flex-direction: column; }
+.cat-centre {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .cat-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 6px; }

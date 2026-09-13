@@ -6,6 +6,9 @@
 
    Elements inside .sidebar are skipped: the collapsed rail has its own CSS
    flyout, and both firing would double the tooltip.
+
+   On touch there is no hover, so press and hold shows the hint instead — see the
+   pointer handlers at the end.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -100,7 +103,57 @@
             if (el) { current = el; place(el); }   // no delay for keyboard focus
         });
         document.addEventListener('focusout', hide);
-        document.addEventListener('mousedown', hide);    // a click dismisses its own hint
+        document.addEventListener('mousedown', function () {
+            if (!held) hide();   // a click dismisses its own hint; a long press is showing it
+        });
+
+        /* Touch has no hover, so a hint would never appear at all. Press and hold
+           shows it, as the platform shows a link's address: the trigger's own action
+           does not fire — the click that follows a long press is swallowed — and the
+           hint stays a moment after the finger lifts, so it can be read with the
+           finger out of the way. A tap is unchanged, which is why the hold is longer
+           than any tap: 500ms, the platform's own long-press threshold. */
+        var HOLD = 500, LINGER = 1500;
+        var holdTimer = null, held = null, lingerTimer = null, swallow = false;
+
+        function release() {
+            clearTimeout(holdTimer);
+            holdTimer = null;
+            if (!held) return;
+            var el = held;
+            held = null;
+            clearTimeout(lingerTimer);
+            lingerTimer = setTimeout(function () { if (current === el) hide(); }, LINGER);
+        }
+
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType !== 'touch') return;
+            var el = trigger(e.target);
+            if (!el) return;
+            clearTimeout(holdTimer);
+            holdTimer = setTimeout(function () {
+                held = el;
+                swallow = true;
+                current = el;
+                place(el);
+            }, HOLD);
+        }, true);
+        document.addEventListener('pointerup', release, true);
+        document.addEventListener('pointercancel', release, true);
+        document.addEventListener('pointermove', function (e) {
+            // A finger that moves is scrolling, not holding.
+            if (e.pointerType === 'touch' && holdTimer && !held) { clearTimeout(holdTimer); holdTimer = null; }
+        }, true);
+        // The press that showed the hint is not also the press that acts.
+        document.addEventListener('click', function (e) {
+            if (!swallow) return;
+            swallow = false;
+            e.preventDefault();
+            e.stopPropagation();
+        }, true);
+        document.addEventListener('contextmenu', function (e) {
+            if (held || holdTimer) e.preventDefault();
+        });
         window.addEventListener('scroll', hide, true);   // capture: any scroll container
         window.addEventListener('resize', hide);
 

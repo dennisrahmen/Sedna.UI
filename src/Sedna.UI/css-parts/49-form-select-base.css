@@ -103,6 +103,14 @@
    clone drops it rather than being allowed to grow. */
 .form-select selectedcontent .option-hint { display: none; }
 
+/* The base-appearance select lays the label and the hint out itself, so the
+   separator between them is noise here and goes. It exists for the fallback
+   below, where an <option> is one text node and the two would otherwise run
+   together — "Frankfurteu-central-1" — in the list and in the closed box alike. */
+@supports (appearance: base-select) {
+    .form-select .option-sep { display: none; }
+}
+
 /* ── The caret ──────────────────────────────────────────────────────────────
    The same arrow the fallback paints, drawn once as a box instead of twice as a
    background: two 5px triangles side by side. `margin-inline-start: auto` is what

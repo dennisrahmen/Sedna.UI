@@ -37,7 +37,8 @@
                    necessarily the page being read. *@
                 <a class="nav-area @(group == CurrentGroup ? "active" : null)"
                    aria-current="@(group == CurrentGroup ? "true" : null)"
-                   href="@FirstRoute(group)">
+                   href="@FirstRoute(group)"
+                   @onclick="AreaChosen">
                     <i class="@CataloguePages.GroupIcons[group]"></i><span>@group</span>
                 </a>
             }

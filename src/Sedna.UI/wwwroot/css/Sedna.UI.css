@@ -2142,6 +2142,10 @@ a.topbar-version--pre:hover {
 }
 .sedna-tip--visible { opacity: 1; transform: none; }
 .btn[data-tip] { cursor: pointer; }
+/* Press and hold shows the hint on touch, so the platform's own long-press
+   behaviour on a trigger — the link preview, the text-selection loupe — would
+   fight it. Off on triggers only. */
+[data-tip] { -webkit-touch-callout: none; }
 
 }
 
@@ -3504,7 +3508,9 @@ a.topbar-version--pre:hover {
     white-space: nowrap;
     vertical-align: middle;
 }
-.badge i { font-size: var(--text-3); }
+/* `line-height: 1`, or the glyph inherits the pill's 1.45 line box and its font's
+   baseline offset drops it a pixel under the text on iOS. */
+.badge i { font-size: var(--text-3); line-height: 1; }
 
 .badge-sm   { font-size: var(--text-1); padding: 0 var(--space-3); }
 .badge-sm i { font-size: var(--text-2); }
@@ -5581,6 +5587,20 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     filter: invert(var(--picker-invert));
 }
 .form-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* iOS gives a date or time input an intrinsic width and centres its value, and
+   both ignore the class: the field ran past its column and its text sat in the
+   middle. `min-width: 0` lets it shrink to the column, `appearance: none` hands
+   the box to the class, and the value pseudo-element is told to start where every
+   other field's text does. The picker still opens on tap; only the box changes. */
+.form-input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"], [type="week"]) {
+    min-width: 0;
+    appearance: none;
+}
+.form-input::-webkit-date-and-time-value {
+    text-align: start;
+    min-height: 1.4em;
+}
 }
 
 /* ── 49-form-combo.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -6128,6 +6148,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 /* A hint is an aside about an option, and the closed box is one line tall. The
    clone drops it rather than being allowed to grow. */
 .form-select selectedcontent .option-hint { display: none; }
+
+/* The base-appearance select lays the label and the hint out itself, so the
+   separator between them is noise here and goes. It exists for the fallback
+   below, where an <option> is one text node and the two would otherwise run
+   together — "Frankfurteu-central-1" — in the list and in the closed box alike. */
+@supports (appearance: base-select) {
+    .form-select .option-sep { display: none; }
+}
 
 /* ── The caret ──────────────────────────────────────────────────────────────
    The same arrow the fallback paints, drawn once as a box instead of twice as a
@@ -7804,6 +7832,15 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     .table--pin-end tbody tr > td:last-child:not([colspan]),
     .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
+/* The same two facts as attributes, written by 22-scroll-edge.js, for the engine
+   without scroll-state() — WebKit, where a table that fit still drew the end
+   shadow. Where the query works the two agree. */
+.sedna-scroll-x[data-scroll-start] .table--pin-start thead th:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start tbody tr > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end thead th:last-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end tbody tr > td:last-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 
 /* The row states, mirroring the background rules above one for one. Set on the
    <tr> so a custom property carries them into the pinned cell by inheritance;
