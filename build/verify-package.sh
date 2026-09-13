@@ -49,7 +49,6 @@ REQUIRED=(
     "staticwebassets/lib/remixicon/remixicon.css"
     "staticwebassets/lib/remixicon/remixicon.woff2"
     "staticwebassets/lib/remixicon/LICENSE"
-    "staticwebassets/img/Sedna.UI.states.svg"
     "README.md"
     "LICENSE"
     "THIRD-PARTY-NOTICES.md"

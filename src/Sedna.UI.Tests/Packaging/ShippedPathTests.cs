@@ -18,7 +18,6 @@ public class ShippedPathTests
     [InlineData("wwwroot/lib/remixicon/remixicon.css")]
     [InlineData("wwwroot/lib/remixicon/remixicon.woff2")]
     [InlineData("wwwroot/lib/remixicon/LICENSE")]
-    [InlineData("wwwroot/img/Sedna.UI.states.svg")]
     public void Shipped_asset_exists_at_its_documented_path(string relativePath)
     {
         // Consuming apps write these paths out by hand as

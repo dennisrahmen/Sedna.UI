@@ -5,17 +5,18 @@ using Sedna.UI.Tests.TestSupport;
 namespace Sedna.UI.Tests;
 
 /// <summary>
-/// Guards on <c>wwwroot/img/Sedna.UI.states.svg</c>, the state illustrations.
+/// Guards on <c>StateArt/Sedna.UI.states.svg</c>, the state illustrations.
 /// </summary>
 /// <remarks>
-/// The sprite is a shipped asset that nothing in the build parses, so every one of
-/// these failures would otherwise reach a consuming app as a drawing that silently
-/// does not appear or does not follow the theme.
+/// The sprite is embedded in the assembly and written into every page by
+/// <c>SednaStateArt</c>, and nothing in the build parses it, so every one of these
+/// failures would otherwise reach a consuming app as a drawing that silently does not
+/// appear or does not follow the theme.
 /// </remarks>
 public class StateSpriteTests
 {
     private static readonly string SpritePath =
-        Path.Combine(Assets.ProjectDir, "wwwroot", "img", "Sedna.UI.states.svg");
+        Path.Combine(Assets.ProjectDir, "StateArt", "Sedna.UI.states.svg");
 
     private static string Source => File.ReadAllText(SpritePath);
 
@@ -73,6 +74,36 @@ public class StateSpriteTests
         Assert.True(hits.Count == 0,
             "Line work is currentColor and the accent is var(--state-accent). Found: "
             + string.Join(", ", hits));
+    }
+
+    [Fact]
+    public void The_sprite_carries_no_style_of_its_own()
+    {
+        // The drawing classes live in 42-state-art.css, where an app's own sprite can
+        // use them too. A <style> here would be a second place the same rules live —
+        // and, now that the sprite is written into the page, a document-wide
+        // stylesheet under names an app may already use.
+        Assert.DoesNotContain("<style", Source, StringComparison.Ordinal);
+        Assert.DoesNotContain(" style=", Source, StringComparison.Ordinal);
+
+        var classes = Regex.Matches(Source, "class=\"([^\"]+)\"")
+            .SelectMany(m => m.Groups[1].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Distinct()
+            .Where(c => !c.StartsWith("sedna-", StringComparison.Ordinal))
+            .ToList();
+        Assert.True(classes.Count == 0,
+            "Every class in the sprite is a library-owned sedna-* name, so it cannot collide "
+            + "with an app's own once it is in the page. Found: " + string.Join(", ", classes));
+    }
+
+    [Fact]
+    public void The_component_renders_the_sprite_verbatim()
+    {
+        // SednaStateArt is the sprite's only way into a page, so it has to be this file
+        // byte for byte — an embedded copy that drifted from the source would be the
+        // drift these tests exist to catch, one step removed.
+        Assert.Equal(Source.Replace("\r\n", "\n", StringComparison.Ordinal),
+            SednaStateArt.Sprite.Replace("\r\n", "\n", StringComparison.Ordinal));
     }
 
     [Theory]

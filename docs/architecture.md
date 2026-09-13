@@ -10,8 +10,9 @@ Pages write plain HTML and apply the classes.
 
 Content UI is always a class, never a component. There is no `<DataTable>` and there will not be one.
 
-Both tiers are CSS classes. The package ships one component, `SednaBrandStyle` — a service that
-emits infrastructure CSS, not markup a page depends on. See [Branding](#branding).
+Both tiers are CSS classes. The package ships two components, and both emit infrastructure rather
+than markup a page depends on: `SednaBrandStyle`, the palette CSS (see [Branding](#branding)), and
+`SednaStateArt`, the [state illustrations](#state-illustrations) as a hidden sprite.
 
 ## The frame
 
@@ -485,16 +486,31 @@ The icons remain under the Remix Icon License v1.0, not Apache-2.0. See
 
 ## State illustrations
 
-`_content/Sedna.UI/img/Sedna.UI.states.svg` holds thirteen `<symbol>` drawings, one per state:
-`nothing-yet`, `no-results`, `filtered-out`, `no-access`, `failed`, `waiting`, `not-found`,
-`server-error`, `session-expired`, `maintenance`, `all-done`, `first-run`, `offline`. A page
-references one by id:
+`SednaStateArt`, placed once at the top of `<body>`, writes thirteen `<symbol>` drawings into the page,
+one per state: `nothing-yet`, `no-results`, `filtered-out`, `no-access`, `failed`, `waiting`,
+`not-found`, `server-error`, `session-expired`, `maintenance`, `all-done`, `first-run`, `offline`. A
+page references one by id:
 
 ```html
 <svg class="state-art state-art--lg" aria-hidden="true">
-    <use href="_content/Sedna.UI/img/Sedna.UI.states.svg#no-access" />
+    <use href="#no-access" />
 </svg>
 ```
+
+The sprite is embedded in the assembly and is not a static web asset. It used to be one, referenced
+as `<use href="…/Sedna.UI.states.svg#id">`, and WebKit renders an external reference as a document
+of its own — no inherited `color`, no custom properties — so every drawing was black on iOS. A
+same-document reference inherits both in every engine, needs no second request and is in the first
+server-rendered paint.
+
+The sprite carries no style: every part is one of the `.sedna-art-*` classes in `42-state-art.css`
+(line, soft, dash, accent, accent-fill, tint, knockout), which is what lets an app add a `<symbol>` of
+its own in a hidden `<svg class="sedna-sprite">` and get the same sizing, colour and motion. The accent
+is `--state-accent`, re-pointed by `.empty-state--failed` and by `.state-art--go/--warn/--danger/--info`.
+Seven drawings have a moving part, a `.sedna-art-bob/-sweep/-nudge/-blink/-tick/-twinkle` class whose
+`animation-play-state` reads `--state-motion`: `paused` at `:root`, `running` from `.state-art--live`
+and `.empty-state--pending`; `prefers-reduced-motion` removes the animations outright. Every
+animation's first frame is the resting pose.
 
 Three sizes — `--sm` 56px, the bare class 96px, `--lg` 152px. There is no smaller step: below 56px the
 3-unit stroke fills in.

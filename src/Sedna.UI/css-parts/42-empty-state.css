@@ -63,6 +63,9 @@
    One declaration, inherited by the drawing through the `<use>` shadow tree. There is
    no second sprite for the error states and there must not be one. */
 .empty-state--failed { --state-accent: var(--danger-fg); }
+/* A wait is the one state where the drawing may move: the arrow nudging at the free
+   slot says "still queued" the way the spinner says "still loading". */
+.empty-state--pending { --state-motion: running; }
 /* A glyph has no line work to leave grey, so the whole of it takes the accent. */
 .empty-state--failed .state-icon { color: var(--danger-fg); }
 

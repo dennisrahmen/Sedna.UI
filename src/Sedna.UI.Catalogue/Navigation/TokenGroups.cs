@@ -63,6 +63,9 @@ internal static class TokenGroups
             // because that is what it points at by default; .empty-state--failed moves
             // it into the danger ramp for its own subtree.
             "--state-accent",
+            // Whether a drawing's moving part moves: paused at :root, running from
+            // .state-art--live and .empty-state--pending.
+            "--state-motion",
         ]),
 
         new("Sidebar", [

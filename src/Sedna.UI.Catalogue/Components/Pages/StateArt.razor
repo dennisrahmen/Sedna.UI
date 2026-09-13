@@ -1,0 +1,103 @@
+@page "/state-art"
+
+<CatHead Title="State art">
+    The drawing that says which state a view is in, before the sentence is read. Thirteen of them
+    ship with the package, one per state; an app adds its own with the same classes. Where the
+    thing that is missing has a glyph of its own, the <a href="/empty-state#state-icon">state
+    icon</a> takes the drawing's place.
+</CatHead>
+
+<CatSnippet Name="StateArt/Use.html" Title="Putting it on a page">
+    <p>
+        <code>&lt;SednaStateArt /&gt;</code> once, at the top of <code>&lt;body&gt;</code> in the
+        host page, writes the sprite into the document; every page then references a drawing by
+        id with a same-document <code>&lt;use&gt;</code>. It is in the page and not a file on
+        purpose &mdash; a <code>&lt;use&gt;</code> pointing at an external file is rendered as a
+        document of its own in WebKit, with no inherited colour and no custom properties, so every
+        line came out black &mdash; and it arrives in the first server-rendered paint, which
+        matters most on the pages that show when something is broken.
+        <code>aria-hidden</code>, because the drawing repeats what the title says.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.StateArt.Sprite" Title="The thirteen states" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Pick by what happened: <code>#nothing-yet</code> and <code>#all-done</code> are both an
+        empty list and are opposites; <code>#failed</code> came back wrong and
+        <code>#offline</code> never left; <code>#no-results</code> searched everything and
+        <code>#filtered-out</code> excluded it. Reusing one drawing across two states makes them
+        look like the same page to somebody scanning a screenshot in a ticket.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.StateArt.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        <code>.state-art--sm</code> (56px) for a row inside a table or a narrow panel, the bare
+        <code>.state-art</code> (96px) for a card, and <code>.state-art--lg</code> (152px) for a
+        page that is nothing but this &mdash; see <a href="/common-pages">Common pages</a>. There is
+        no step below 56px; where there is less room than that, use the sentence on its own.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.StateArt.Accents" Title="The accent, by meaning" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Every drawing has one accent &mdash; the part that says what happened &mdash; and it is
+        <code>--state-accent</code>, the brand colour by default. <code>.state-art--go</code>,
+        <code>--warn</code>, <code>--danger</code> and <code>--info</code> point it at the same
+        families the badges and buttons use, and
+        <a href="/empty-state"><code>.empty-state--failed</code></a> points it at danger for
+        everything inside. The line work stays muted in all of them: a whole green drawing reads
+        as an illustration of green, not of a cleared queue. Switch the theme in the header and the
+        drawings follow; nothing here names a colour.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.StateArt.Motion" Title="The part that moves" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Seven of the drawings have a part that can move, and it is paused until the page says
+        otherwise: <code>.state-art--live</code> runs one drawing, and
+        <code>.empty-state--pending</code> runs the drawing inside it &mdash; the card at the end
+        &mdash; because a wait is the one state where &ldquo;still happening&rdquo; is the
+        message. Everything else stays still: a drawing beside a sentence is read, and a movement
+        beside it competes with the reading. Every animation's first frame is the resting pose, so
+        a paused drawing is the still drawing, and <code>prefers-reduced-motion</code> switches all
+        of them off, last.
+    </p>
+</CatExample>
+
+<h2 id="own">Drawing your own</h2>
+<CatExample TExample="Examples.StateArt.OwnSprite" Title="An app's own drawing" Demo="ex-demo--block">
+    <p>
+        Put a <code>&lt;symbol&gt;</code> in a hidden <code>&lt;svg class="sedna-sprite"&gt;</code>
+        anywhere in the page &mdash; the layout, the page itself &mdash; and reference it exactly
+        as a shipped one. The classes are the drawing: <code>.sedna-art-line</code> for the line
+        work, <code>.sedna-art-soft</code> for what is there but not the point,
+        <code>.sedna-art-dash</code> for what is absent or expected, <code>.sedna-art-accent</code>
+        (and <code>.sedna-art-accent-fill</code>) for the one part that says what happened,
+        <code>.sedna-art-tint</code> for a faint wash behind a shape, and
+        <code>.sedna-art-knockout</code> for a shape that has to cover the line behind it and takes
+        the colour of whatever surface the drawing sits on. Sizing, colour, the accent families and
+        the motion gating are all the classes', so the paths are the only thing you write.
+    </p>
+    <p>
+        Draw on the same 120-unit grid, with nothing thinner than the 3-unit stroke the classes set
+        and no gap under 6 units &mdash; the smallest size renders at 56px, and detail below that
+        fills in. One accent per scene. A part that moves takes one of the motion classes,
+        <code>.sedna-art-bob</code>, <code>.sedna-art-sweep</code>, <code>.sedna-art-nudge</code>,
+        <code>.sedna-art-blink</code>, <code>.sedna-art-tick</code> or
+        <code>.sedna-art-twinkle</code>, and rests until <code>.state-art--live</code> says
+        otherwise. Prefix the id with something of your own, so it can never collide with a state
+        that ships later.
+    </p>
+</CatExample>
+
+<div class="callout callout-info">
+    <i class="ri-contrast-2-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Forced colours and print need nothing from you</span>
+        Under Windows high contrast the tokens the classes read are remapped, so the line work is
+        <code>CanvasText</code>, the accent <code>Highlight</code> and a knockout
+        <code>Canvas</code>; on paper the drawing prints as it stands, in the light palette. The
+        sprite writes no colour, which is what makes both true without a second file.
+    </div>
+</div>

@@ -1,38 +1,55 @@
 /* ── State art ──────────────────────────────────────────────────────────────
    The drawing that says which state a view is in. One per state, from the sprite
-   shipped at `wwwroot/img/Sedna.UI.states.svg`:
+   `SednaStateArt` writes into the page once, at the top of <body>:
 
+     <SednaStateArt />
+     …
      <svg class="state-art state-art--lg" aria-hidden="true">
-       <use href="_content/Sedna.UI/img/Sedna.UI.states.svg#no-access" />
+       <use href="#no-access" />
      </svg>
 
    Thirteen symbols: nothing-yet, no-results, filtered-out, no-access, failed,
    waiting, not-found, server-error, session-expired, maintenance, all-done,
    first-run, offline.
 
-   ── Why a sprite and not an icon, and not markup ──
+   ── Why a sprite in the page, and not a file ──
+   A `<use>` pointing at an external file is rendered as a document of its own in
+   WebKit: no inherited `color`, no custom properties, so every line was black. A
+   same-document reference inherits both in every engine, needs no second request, and
+   is in the first server-rendered paint — which matters most on the pages that show
+   when something is broken. The sprite ships inside the assembly, and a fix to a
+   drawing still lands once, for every app.
+
+   ── Why a drawing, and not an icon or markup ──
    One generic ornament on every empty state says only "this block is styled"; the
    reader still has to read the sentence to learn whether there is no data, no
    permission, or no connection. A drawing per state is the part that can be read
-   before the text.
-
-   It is a shipped asset rather than inline markup because a fix has to land once.
-   Thirteen drawings copied into every consuming app is thirteen drawings to chase
-   when one of them is wrong, and this library exists so that a UI fix is made here.
-   It is not a second icon set either: an icon set is a vocabulary an app draws from,
-   and this is thirteen fixed pictures of thirteen fixed states.
+   before the text. It is not a second icon set: an icon set is a vocabulary an app
+   draws from, and this is thirteen fixed pictures of thirteen fixed states.
 
    The icon is still available, as `.state-icon` below, for what the sprite cannot
    say: which kind of thing is missing — invoices, attachments, members. Pick the glyph
    for that thing. One glyph on every empty panel is the ornament described above.
 
    ── Colour ──
-   The sprite writes no colour at all. Its line work is `currentColor`, which lands on
-   whatever `color` the host sets — `--muted` here — and its single accent is
+   The sprite writes no colour and no style. Every part carries one of the sprite
+   classes declared here — the drawing IS these classes — so line work lands on
+   whatever `color` the host sets (`--muted`) and the single accent is
    `var(--state-accent)`, declared in the token block and re-pointed by whatever the
-   art sits in: `.empty-state--failed` swaps it for the danger colour and the drawing
-   follows, with no second file to keep in step. Inherited custom properties cross into
-   a `<use>` shadow tree, which is the whole reason this works.
+   art sits in: `.empty-state--failed` swaps it for the danger colour, the modifiers
+   below swap it for a semantic family, and the drawing follows with no second file
+   to keep in step. Inherited properties and custom properties cross into a `<use>`
+   shadow tree, and the class rules apply to the cloned parts as they apply to the
+   originals, which together is the whole reason this works.
+
+   ── Motion ──
+   Seven of the drawings have a part that can move — the item arriving, the magnifier
+   sweeping, the clock ticking — and each is a class on that part. All of them are
+   paused until the page says otherwise, through `--state-motion`: `.state-art--live`
+   runs one drawing, `.empty-state--pending` runs the drawing inside it, and the
+   reduced-motion block switches every one of them off. Every animation's first frame is the
+   resting pose, so a paused drawing is the still drawing and nothing depends on
+   scripting or on the preference.
 
    ── Sizes ──
    Three, because the same state has to appear in three places. `--sm` is for a row
@@ -43,6 +60,12 @@
 
    The block reserves its own space with `flex-shrink: 0`: dropped into a flex row it
    would otherwise be squeezed to nothing by the text beside it, silently.
+
+   ── An app's own drawings ──
+   Put a `<symbol>` of your own in a hidden `<svg class="sedna-sprite">` anywhere in
+   the page, draw it on the same 120-unit grid with the classes below, and reference
+   it exactly as a shipped one. The sizing, the colour, the accents and the motion
+   gating are all the class's, so the drawing is the only thing you write.
    ─────────────────────────────────────────────────────────────────────────── */
 .state-art {
     display: block;
@@ -54,12 +77,109 @@
 .state-art--sm { width: 56px; height: 56px; }
 .state-art--lg { width: 152px; height: 152px; }
 
+/* The accent, by what the state means: the same families as badges and buttons. The
+   line work stays `--muted` in all of them — a whole green drawing reads as an
+   illustration of green, not of a cleared queue. */
+.state-art--go     { --state-accent: var(--go-fg); }
+.state-art--warn   { --state-accent: var(--warn-fg); }
+.state-art--danger { --state-accent: var(--danger-fg); }
+.state-art--info   { --state-accent: var(--info-fg); }
+
+/* The drawing's moving part runs. Inherited, so it reaches the part through the
+   `<use>` shadow tree like the accent does. */
+.state-art--live { --state-motion: running; }
+
+/* ── The sprite ─────────────────────────────────────────────────────────────
+   Hidden without `display: none`: a symbol is never rendered in place either way,
+   but WebKit drops the definitions inside a `display: none` subtree — gradients,
+   masks, and on some versions the symbols themselves. Out of flow and zero-sized, it
+   costs the page nothing and every `<use>` still resolves. */
+.sedna-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* ── The drawing classes ──────────────────────────────────────────────────────
+   A 3-unit stroke on the 120-unit grid, round caps and round joins: the one line
+   weight that makes thirteen scenes — and an app's fourteenth — read as one set. */
+.sedna-art-line,
+.sedna-art-soft,
+.sedna-art-accent {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+/* The part of the scene that is there but not the point: a list behind the
+   magnifier, the panel the padlock sits on. */
+.sedna-art-soft { opacity: 0.4; }
+/* Something absent or expected — a slot not filled, the way a signpost pointed. */
+.sedna-art-dash { stroke-dasharray: 6 7; }
+/* The one part that says what happened. */
+.sedna-art-accent { stroke: var(--state-accent); }
+.sedna-art-accent-fill { fill: var(--state-accent); stroke: none; }
+/* A faint wash behind a shape, so a filled area reads as a surface and not a hole. */
+.sedna-art-tint { fill: currentColor; stroke: none; opacity: 0.07; }
+/* A shape that has to cover what is behind it — the clock over the pass, the
+   barrier across the panel. It takes the colour of the surface the drawing sits on,
+   so it cuts the line behind it cleanly on a card, a modal or the page. */
+.sedna-art-knockout { fill: var(--surface-here, var(--bg)); stroke: none; }
+
+/* ── Motion ─────────────────────────────────────────────────────────────────
+   Each class is one small, slow, looping movement whose first frame is the resting
+   pose. `animation-play-state` reads `--state-motion`, which is `paused` at :root, so
+   nothing moves until an ancestor says `running` — and the reduced-motion block
+   removes the animations altogether, last. Durations are slow on purpose: a drawing beside a sentence is
+   read, and anything quicker than a breath competes with the reading. */
+.sedna-art-bob,
+.sedna-art-sweep,
+.sedna-art-nudge,
+.sedna-art-blink,
+.sedna-art-tick,
+.sedna-art-twinkle {
+    animation-play-state: var(--state-motion);
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+/* The item on its way into the tray. */
+.sedna-art-bob     { animation-name: sedna-art-bob;     animation-duration: 2.4s; }
+/* The magnifier passing over the list. */
+.sedna-art-sweep   { animation-name: sedna-art-sweep;   animation-duration: 3.2s; }
+/* The arrow pointing at the free slot. */
+.sedna-art-nudge   { animation-name: sedna-art-nudge;   animation-duration: 1.8s; }
+/* A signal, or a fault light. */
+.sedna-art-blink   { animation-name: sedna-art-blink;   animation-duration: 1.6s; }
+/* The clock's hands, once a minute in twelve seconds. Pivoted on the clock's
+   centre in the sprite's own units, because the hand is not the centre of itself. */
+.sedna-art-tick {
+    animation-name: sedna-art-tick;
+    animation-duration: 12s;
+    animation-timing-function: linear;
+    transform-box: view-box;
+    transform-origin: 88px 80px;
+}
+/* A sparkle, breathing in place. */
+.sedna-art-twinkle {
+    animation-name: sedna-art-twinkle;
+    animation-duration: 2s;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+@keyframes sedna-art-bob     { 0%, 100% { transform: translateY(0); }   50% { transform: translateY(5px); } }
+@keyframes sedna-art-sweep   { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-7px, 3px); } }
+@keyframes sedna-art-nudge   { 0%, 100% { transform: translateX(0); }   50% { transform: translateX(6px); } }
+@keyframes sedna-art-blink   { 0%, 100% { opacity: 1; }                 50% { opacity: 0.2; } }
+@keyframes sedna-art-tick    { to { transform: rotate(360deg); } }
+@keyframes sedna-art-twinkle { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.7); opacity: 0.45; } }
+
 /* ── State icon ───────────────────────────────────────────────────────────────
    A Remix Icon glyph in the drawing's place, with the same title, sentence and
    actions under it:
-
      <i class="ri-file-list-3-line state-icon" aria-hidden="true"></i>
-
    The same three places as the drawing, so the same three steps — `--sm` for a table
    row or a narrow panel, the bare class for a card, `--lg` for the page. They are
    font sizes because the glyph is type, and `line-height: 1` keeps the inherited
