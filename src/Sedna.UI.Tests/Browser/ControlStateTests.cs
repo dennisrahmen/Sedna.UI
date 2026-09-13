@@ -101,7 +101,7 @@ public class ControlStateTests : ScriptTestBase
             }
             """);
 
-        Assert.Equal(0, tops[0], 1);                        // header pinned to the top
+        Assert.Equal(0, tops[0], 1.0);                        // header pinned to the top
         Assert.Equal(tops[2], tops[1], 1.5);                // filter row directly under it
         Assert.Equal(tops[1] + tops[4], tops[3], 1.5);      // group row under both, overlapping neither
     }
@@ -143,7 +143,7 @@ public class ControlStateTests : ScriptTestBase
         var heights = await page.EvaluateAsync<double[]>(
             "() => ['c', 't'].map(id => document.getElementById(id).getBoundingClientRect().height)");
 
-        Assert.Equal(heights[1], heights[0], 1);
+        Assert.Equal(heights[1], heights[0], 1.0);
     }
 
     [Fact]

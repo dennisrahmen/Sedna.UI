@@ -45,6 +45,11 @@ The `00`–`04` band is full, so it holds two parts numbered `00`: `00-header.cs
 both land in `sedna.tokens`, which is what matters. Renumbering `01-tokens.css` to make room would
 have pushed `04-theme-contrast.css` into `05`, i.e. into `sedna.base`.
 
+The `30`–`69` components band is full as well, so a new component shares a number: `66` holds
+`66-calendar.css`, `66-chat.css` and `66-status-indicator.css`, in that order. None depends on another,
+and all three are in `sedna.paint`. `70`–`72` are RTL, forced colours and print, which must stay after
+every component.
+
 Two consequences to keep in mind while writing a rule:
 
 - **A later layer beats an earlier one regardless of specificity.** That is why a utility at (0,1,0)
