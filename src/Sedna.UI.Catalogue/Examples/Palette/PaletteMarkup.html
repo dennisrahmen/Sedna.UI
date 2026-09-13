@@ -1,38 +1,37 @@
-<!-- What sednaUi.palette builds. Written out because an app rendering its own
-     command list needs the classes; if you call palette.register() you never write
-     any of this. -->
-<dialog class="palette" id="cmdk">
-    <input class="palette-input" type="text" placeholder="Search commands…"
-           role="combobox" aria-expanded="true" aria-controls="cmdk-list"
-           aria-activedescendant="cmdk-0" aria-label="Search commands" autocomplete="off" />
+<!-- The palette an app writes, once, in its layout. sednaUi.palette fills the list
+     from the templates and draws nothing itself, so every word here is yours to
+     translate. Leave the list empty: the script owns its children. The group and
+     empty templates are optional. -->
+<dialog class="palette" data-palette aria-label="Commands">
+    <input class="palette-input" type="text" placeholder="Search commands…" aria-label="Search commands" />
 
-    <ul class="palette-list" id="cmdk-list" role="listbox" aria-label="Commands">
-        <!-- role="presentation" on the <li> is load-bearing: a listbox may only own
-             options, and a bare <li> breaks aria-required-children. -->
-        <li role="presentation"><div class="palette-group">Actions</div></li>
-        <!-- role="option" on a div, not a button: an option is not a button, and being
-             one inside a listbox is what makes aria-selected legal. axe rejects
-             aria-selected on a plain button, correctly. -->
-        <li role="presentation">
-            <div class="palette-item" role="option" id="cmdk-0" aria-selected="true">
-                <i class="ri-check-double-line" aria-hidden="true"></i> Approve the selected reservation
-                <span class="palette-item-note">Ctrl A</span>
-            </div>
-        </li>
-        <li role="presentation">
-            <div class="palette-item" role="option" id="cmdk-1" aria-selected="false">
-                <i class="ri-user-shared-line" aria-hidden="true"></i> Reassign order
-            </div>
-        </li>
-        <!-- The no-matches state, in place of the options. Say what was searched, not
-             just "no results" — the reader needs to know the query was what they
-             thought it was. -->
-        <li role="presentation"><div class="palette-empty">Nothing matches &ldquo;xyzzy&rdquo;.</div></li>
-    </ul>
+    <ul class="palette-list" aria-label="Commands"></ul>
 
     <div class="palette-footer">
         <span><span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move</span>
         <span><span class="kbd">Enter</span> to run</span>
         <span><span class="kbd">Esc</span> to close</span>
     </div>
+
+    <!-- One command. data-label and data-note take text; data-icon takes the command's
+         icon class. A slot with nothing to say is removed. role="presentation" on the
+         <li> is load-bearing: a listbox may only own options. -->
+    <template data-palette-item>
+        <li role="presentation">
+            <div class="palette-item" role="option">
+                <i data-icon aria-hidden="true"></i><span data-label></span>
+                <span class="palette-item-note" data-note></span>
+            </div>
+        </li>
+    </template>
+
+    <!-- A heading over a run of commands from one group, while nothing is typed. -->
+    <template data-palette-group>
+        <li role="presentation"><div class="palette-group" data-group></div></li>
+    </template>
+
+    <!-- In place of the options. Say what was searched, not just "no results". -->
+    <template data-palette-empty>
+        <li role="presentation"><div class="palette-empty">Nothing matches &ldquo;<span data-query></span>&rdquo;.</div></li>
+    </template>
 </dialog>

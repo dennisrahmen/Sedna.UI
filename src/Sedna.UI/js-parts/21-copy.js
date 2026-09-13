@@ -9,9 +9,20 @@
    no wiring — and nothing has to be re-bound on every render, which is how per-
    element handlers leak.
 
-   The confirmation is swapped into the button and put back after 1.4s. The original
-   HTML is stashed on the element rather than in a closure, so two rapid clicks
-   cannot restore a "Copied" label as if it were the original.
+   The outcome is an attribute, never a rewrite of the button: `data-copied="ok"` or
+   `data-copied="failed"` for 1.4s. The words and the icons are the app's, marked with
+   what the stylesheet shows when:
+
+     <button class="btn btn-sm" type="button" data-copy="…">
+       <i class="ri-file-copy-line" data-copied-hide></i>
+       <i class="ri-check-line" data-copied-show="ok"></i>
+       <span data-copied-hide>Copy</span>
+       <span data-copied-show="ok">Copied</span>
+       <span data-copied-show="failed">Copy failed</span>
+     </button>
+
+   Rewriting the button's content was drawing markup in the app's own element — in
+   English, and in a subtree a framework owns and can revert mid-flash.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -30,20 +41,13 @@
     }
 
     function flash(btn, ok) {
-        // Only stash on the first click; a second click mid-flash must not stash
-        // the confirmation as the thing to restore.
-        if (btn.dataset.copyOriginal === undefined) {
-            btn.dataset.copyOriginal = btn.innerHTML;
-        }
+        // One timer per button: a second click mid-flash restarts the window rather
+        // than letting the first timer end the second flash early.
         clearTimeout(+btn.dataset.copyTimer || 0);
-
-        btn.innerHTML = ok
-            ? '<i class="ri-check-line"></i><span>Copied</span>'
-            : '<i class="ri-error-warning-line"></i><span>Copy failed</span>';
+        btn.setAttribute('data-copied', ok ? 'ok' : 'failed');
 
         btn.dataset.copyTimer = setTimeout(function () {
-            btn.innerHTML = btn.dataset.copyOriginal;
-            delete btn.dataset.copyOriginal;
+            btn.removeAttribute('data-copied');
             delete btn.dataset.copyTimer;
         }, RESTORE_MS);
     }

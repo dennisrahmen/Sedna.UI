@@ -53,11 +53,22 @@ own prefix should move onto these classes rather than keep a parallel copy.
 There are two ways to use it, and the choice is about where the results come from:
 
 - **A fixed, known set** — the app's pages, reports, settings screens. Register it once with
-  `ISednaUi.RegisterSearchAsync`, add `data-search` to the input, and the panel, the ranking and the
-  keyboard come from the library.
+  `ISednaUi.RegisterSearchAsync`, write the results panel — `[data-search-panel]` with its
+  `<template>`s, copied from the Topbar page — once at the end of the layout, and point the input at
+  it with `data-search="<panel id>"`. The ranking and the keyboard come from the library; every word in
+  the panel is the app's.
 - **A database.** Leave `data-search` off and render `.search-panel` yourself. The debounce length,
   cancelling a superseded keystroke and the busy state are decisions about your backend, and the
   library will not guess them.
+
+### The command palette is app markup too
+
+`ISednaUi.RegisterCommandsAsync` supplies the commands; the `<dialog class="palette" data-palette>`
+with its input, footer and `<template>`s is written once in the layout, copied from the Command palette
+page. Without it, Ctrl-K stays the browser's.
+
+A `data-copy` button carries its own feedback: `data-copied-hide` on what shows at rest,
+`data-copied-show="ok"` on what replaces it. The script only sets `data-copied` on the button.
 
 ### Dialogs are the platform's, not a div
 

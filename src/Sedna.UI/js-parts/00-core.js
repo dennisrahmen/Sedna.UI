@@ -95,7 +95,43 @@ window.sednaUi = window.sednaUi || {};
     // thing: NOT part of the public contract. Nothing outside js-parts/ may read
     // it, and it may change in a patch release. Everything an app is allowed to
     // touch is a named member on `ui` itself.
-    ui._ = { config: config, key: key, readRaw: readRaw, score: score };
+    /* Clones the first element of an app's <template> and fills its `data-*` slots.
+
+       `slots` maps a slot name to text: { label: 'Open queue' } writes textContent
+       into the clone's [data-label]. A slot whose value is empty, null or undefined is
+       REMOVED, so a row without a note carries no empty note element for the CSS to
+       space. The text goes in as textContent, never as markup: registered labels are
+       data, and often data from a server.
+
+       This is how the script renders rows while every element and word on screen stays
+       the app's — the rule in the root CLAUDE.md. Returns null when there is no template,
+       which the caller treats as "this row shape is not wanted". */
+    function fill(template, slots) {
+        if (!template) return null;
+        // .content for a parsed template. A template Blazor rendered holds its children
+        // in the element itself: the renderer builds with appendChild, which does not
+        // reach .content. Neither is rendered, so both are read.
+        var node = (template.content && template.content.firstElementChild) || template.firstElementChild;
+        if (!node) return null;
+        node = node.cloneNode(true);
+
+        Object.keys(slots || {}).forEach(function (name) {
+            var value = slots[name];
+            var targets = node.matches('[data-' + name + ']') ? [node] : [];
+            var inner = node.querySelectorAll('[data-' + name + ']');
+            for (var i = 0; i < inner.length; i++) targets.push(inner[i]);
+            targets.forEach(function (t) {
+                if (value === undefined || value === null || value === '') {
+                    if (t !== node) t.remove();
+                } else {
+                    t.textContent = String(value);
+                }
+            });
+        });
+        return node;
+    }
+
+    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill };
 
     ui.configure = function (opts) {
         if (!opts) return;

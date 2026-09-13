@@ -9,8 +9,9 @@
 <CatExample TExample="Examples.Palette.CommandPalette" Title="Open it" Demo="ex-demo--block">
     <p>
         <strong>Live.</strong> This site registers one command per page with
-        <code>sednaUi.palette.register</code>; until something is registered the library leaves the
-        browser's own <kbd>Ctrl</kbd>+<kbd>K</kbd> alone. A command registered from C# carries an
+        <code>sednaUi.palette.register</code>, and writes the palette itself in its layout — the
+        markup below. Until something is registered, or with no palette in the page, the library
+        leaves the browser's own <kbd>Ctrl</kbd>+<kbd>K</kbd> alone. A command registered from C# carries an
         <code>Href</code> and navigates. A <code>run</code> callback is a JavaScript function, and a
         function does not cross into C# — navigation is what a serialisable command carries.
     </p>

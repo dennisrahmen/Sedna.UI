@@ -20,8 +20,8 @@
         <strong>Live — type in it.</strong> <code>.search</code> goes at the start of the topbar,
         after the nav toggles and before <code>.topbar-spacer</code>, and is hidden below 720px, so
         an app needs another way in on a phone. <code>data-search</code> hands the box to
-        <code>sednaUi.search</code>, which builds the result panel, ranks against the index the app
-        registered and implements the keyboard; narrow it with
+        <code>sednaUi.search</code>, which ranks against the index the app registered, implements the
+        keyboard and fills the result panel you wrote — below; narrow it with
         <code>style="--search-max: 340px"</code> on the box, and keep the input's placeholder —
         the clear button is shown by CSS on <code>:placeholder-shown</code>.
     </p>
@@ -29,7 +29,11 @@
 
 <CatSnippet Name="Topbar/SearchResults.html" Title="Result panel">
     <p>
-        One <code>.search-item</code> per result — a <code>.search-item-title</code> and a
+        <strong>The panel is yours to write</strong>, once, outside <code>.topbar</code>, with a
+        <code>&lt;template&gt;</code> per row shape; <code>data-search="&lt;panel id&gt;"</code> on the
+        input names it. The script clones the templates, fills their <code>data-*</code> slots with
+        text and places the panel under the box, so the empty and the cut-off lines are in your
+        language. One <code>.search-item</code> per result — a <code>.search-item-title</code> and a
         <code>.search-item-meta</code> line, with <code>.search-item--sel</code> where the keyboard
         is and <code>.search-status</code> for the busy and empty line. Put
         <code>.sedna-scroll</code> on the panel, use an <code>&lt;a&gt;</code> rather than a button

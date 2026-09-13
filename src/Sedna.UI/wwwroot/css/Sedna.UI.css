@@ -11873,6 +11873,16 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     cursor: not-allowed;
 }
 
+/* A copy button's outcome, which the script reports as `data-copied="ok"` or
+   `data-copied="failed"` on the button for a moment and never by rewriting it. The
+   words and icons are the app's: `data-copied-hide` marks what shows at rest, and
+   `data-copied-show="ok"` / `"failed"` what replaces it. Nothing in the button is
+   inserted or removed, so a framework that owns the button has nothing to revert. */
+[data-copied] [data-copied-hide] { display: none; }
+[data-copied-show]:not([data-copied="ok"] [data-copied-show="ok"], [data-copied="failed"] [data-copied-show="failed"]) {
+    display: none;
+}
+
 /* ── Safe area ──────────────────────────────────────────────────────────────
    For an app's OWN element on a viewport edge, once the host page carries
    `viewport-fit=cover` — a sticky action bar under a form, a footer, a bottom

@@ -3,7 +3,7 @@
 
     <div class="search">
         <i class="ri-search-line search-icon" aria-hidden="true"></i>
-        <input class="search-input" type="search" data-search autocomplete="off" spellcheck="false"
+        <input class="search-input" type="search" data-search="header-results" autocomplete="off" spellcheck="false"
                placeholder="Search…" aria-label="Search" />
         <button class="search-clear" type="button" aria-label="Clear the search" tabindex="-1">
             <i class="ri-close-line"></i>
@@ -15,3 +15,22 @@
         <span class="health-badge health-badge--healthy"><span class="health-dot"></span> Live</span>
     </div>
 </header>
+
+<div class="search-panel sedna-scroll" id="header-results" data-search-panel hidden>
+    <div data-search-list aria-label="Results"></div>
+    <template data-search-item>
+        <a class="search-item">
+            <span class="search-item-title" data-title></span>
+            <span class="search-item-meta">
+                <span class="text-mono" data-code></span><span data-meta></span>
+                <span class="search-tag" data-tag></span>
+            </span>
+        </a>
+    </template>
+    <template data-search-empty>
+        <div class="search-status">Nothing matches &ldquo;<span data-query></span>&rdquo;.</div>
+    </template>
+    <template data-search-more>
+        <div class="search-status"><span data-count></span> more. Keep typing to narrow it down.</div>
+    </template>
+</div>

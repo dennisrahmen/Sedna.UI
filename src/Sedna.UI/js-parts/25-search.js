@@ -1,7 +1,7 @@
 /* ── Header search, delegated ────────────────────────────────────────────────
-   The topbar's free-text box. Register what is searchable once, write the box in
-   markup, and the dropdown, the ranking, the keyboard and the clear button come
-   from here:
+   The topbar's free-text box. Register what is searchable once, write the box and
+   its results panel in markup, and the ranking, the keyboard and the clear button
+   come from here:
 
      sednaUi.search.register([
        { title, meta, code, tag, tone, href, keywords }, …
@@ -13,6 +13,33 @@
        <button class="search-clear" type="button" aria-label="Clear"><i class="ri-close-line"></i></button>
      </div>
 
+     <div class="search-panel sedna-scroll" data-search-panel hidden>
+       <div data-search-list aria-label="Results"></div>
+       <template data-search-item>
+         <a class="search-item">
+           <span class="search-item-title" data-title></span>
+           <span class="search-item-meta">
+             <span class="text-mono" data-code></span><span data-meta></span>
+             <span class="search-tag" data-tag></span>
+           </span>
+         </a>
+       </template>
+       <template data-search-empty><div class="search-status">Nothing matches “<span data-query></span>”.</div></template>
+       <template data-search-more><div class="search-status"><span data-count></span> more — keep typing to narrow it down.</div></template>
+     </div>
+
+   THE PANEL IS THE APP'S, words included. The script clones its templates into the
+   list and fills their slots (ui._.fill in 00-core.js); a slot with nothing to say is
+   removed, and a result without `href` loses the attribute. Leave the list empty in
+   the markup, and put no `style` attribute on the panel: the script positions it.
+
+   Put the panel OUTSIDE .topbar — at the end of the layout is right. .topbar is
+   z-index 60 and creates a stacking context, so a panel inside it could never rise
+   above a modal backdrop. The script then fixes it under the box it measured. A
+   panel nested in `.search` with `.search-panel--anchored` is positioned by CSS
+   instead, and nothing is measured. With several boxes, `data-search="<panel id>"`
+   names each one's panel; with one, the first `[data-search-panel]` is used.
+
    Only `title` is required. `href` is where choosing the result goes; an item
    without one is inert unless it carries a `run` callback, which only a source
    registered from JavaScript can have — a function does not cross into C#.
@@ -23,10 +50,8 @@
    busy state. An app searching a database renders its own results with these classes
    and leaves data-search off the input.
 
-   What this file writes to the DOM is one panel, appended to <body>. Nothing is
-   inserted into the box itself, so a framework that owns that subtree — Blazor
-   does — cannot revert it. The clear button is app markup shown by CSS on
-   :placeholder-shown, so it works with this script blocked.
+   The clear button is app markup shown by CSS on :placeholder-shown, so it works
+   with this script blocked.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -38,8 +63,10 @@
     var MAX = 8;
 
     var items = [];
-    var panel = null;      // the dropdown, in <body>
+    var panel = null;      // the app's [data-search-panel] for the active box
     var list = null;
+    var warned = false;
+    var fill = ui._.fill;
     var box = null;        // the .search the panel is currently anchored to
     var input = null;
     var shown = [];
@@ -108,39 +135,45 @@
         return out.map(function (r) { return r.item; });
     }
 
-    function el(tag, className, text) {
-        var node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text !== undefined && text !== null) node.textContent = text;
-        return node;
-    }
+    /* The panel belonging to a box: the one its data-search names, else the first in
+       the document. Claims the listbox role on its list, because that is a promise
+       about the keyboard contract below. */
+    function panelFor(target) {
+        var named = target.getAttribute('data-search');
+        var found = (named && document.getElementById(named)) ||
+            (target.closest('.search') || document).querySelector('[data-search-panel]') ||
+            document.querySelector('[data-search-panel]');
+        if (!found) {
+            if (!warned) console.warn('sednaUi.search: no [data-search-panel] in the document. The results panel is app markup — see the Topbar page.');
+            warned = true;
+            return null;
+        }
 
-    function build() {
-        // sedna-scroll, because the panel scrolls past eight rows and the OS default
-        // bar is the one thing on it that would not follow the theme.
-        panel = el('div', 'search-panel sedna-scroll');
-        panel.id = 'sedna-search-panel';
-        panel.hidden = true;
+        var inner = found.querySelector('[data-search-list]') || found;
+        if (!inner.id) inner.id = 'sedna-search-list';
+        inner.setAttribute('role', 'listbox');
 
-        list = el('div');
-        list.id = 'sedna-search-list';
-        // A real listbox owned by the input as a combobox. The claim is made only
-        // because the keyboard contract behind it is implemented in full below:
-        // arrows, Home/End, Enter, and the highlight moving while focus stays in
-        // the input.
-        list.setAttribute('role', 'listbox');
-        panel.appendChild(list);
-
-        document.body.appendChild(panel);
-
-        // mousedown, not click: the default would blur the input before the click
+        // Mousedown, not click: the default would blur the input before the click
         // lands, and the focusout handler would close the panel out from under the
         // pointer. Preventing it keeps focus where the combobox pattern wants it.
-        panel.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        if (!found.hasAttribute('data-search-wired')) {
+            found.setAttribute('data-search-wired', '');
+            found.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        }
+
+        panel = found;
+        list = inner;
+        return found;
+    }
+
+    function template(name) {
+        return panel.querySelector('template[data-search-' + name + ']');
     }
 
     function place() {
         if (!box || !panel || panel.hidden) return;
+        // Anchored by CSS inside the box: nothing to measure.
+        if (panel.classList.contains('search-panel--anchored')) return;
         var r = box.getBoundingClientRect();
         panel.style.top = (r.bottom + 6) + 'px';
         panel.style.left = r.left + 'px';
@@ -148,31 +181,28 @@
     }
 
     function row(item, i) {
+        var node = fill(template('item'), {
+            title: item.title, code: item.code, meta: item.meta, tag: item.tag
+        });
+        if (!node) return null;
+
         // An <a> when the result navigates, so the browser's own affordances come
         // with it — middle-click, "open in new tab", and a framework router that
         // intercepts internal links to navigate without a reload.
-        var node = el(item.href ? 'a' : 'div', 'search-item');
-        if (item.href) node.href = item.href;
+        if (item.href) node.setAttribute('href', item.href);
+        else node.removeAttribute('href');
+
+        var tag = node.querySelector('.search-tag');
+        if (tag) tag.classList.toggle('search-tag--warn', item.tone === 'warn');
+
+        var meta = node.querySelector('.search-item-meta');
+        if (meta && !meta.children.length && !meta.textContent.trim()) meta.remove();
+
         node.setAttribute('role', 'option');
         node.setAttribute('aria-selected', String(i === 0));
         node.setAttribute('tabindex', '-1');
-        node.id = 'sedna-search-item-' + i;
-        if (i === 0) node.classList.add('search-item--sel');
-
-        node.appendChild(el('span', 'search-item-title', item.title));
-
-        if (item.code || item.meta || item.tag) {
-            var meta = el('span', 'search-item-meta');
-            if (item.code) meta.appendChild(el('span', 'text-mono', item.code));
-            if (item.meta) meta.appendChild(el('span', null, item.meta));
-            if (item.tag) {
-                meta.appendChild(el(
-                    'span',
-                    'search-tag' + (item.tone === 'warn' ? ' search-tag--warn' : ''),
-                    item.tag));
-            }
-            node.appendChild(meta);
-        }
+        node.id = list.id + '-item-' + i;
+        node.classList.toggle('search-item--sel', i === 0);
 
         node.addEventListener('click', function (e) { pick(i, e); });
         node.addEventListener('mouseenter', function () { highlight(i); });
@@ -180,7 +210,7 @@
     }
 
     function render(query) {
-        if (!panel) build();
+        if (!panel) return;
 
         var all = rank(query);
         total = all.length;
@@ -191,16 +221,20 @@
         if (!shown.length) {
             // Says what was searched rather than just "no results": the reader
             // needs to see the query was what they thought it was.
-            list.appendChild(el('div', 'search-status', 'Nothing matches “' + query + '”.'));
+            var empty = fill(template('empty'), { query: query });
+            if (empty) list.appendChild(empty);
             input.removeAttribute('aria-activedescendant');
         } else {
-            for (var i = 0; i < shown.length; i++) list.appendChild(row(shown[i], i));
+            for (var i = 0; i < shown.length; i++) {
+                var node = row(shown[i], i);
+                if (node) list.appendChild(node);
+            }
             var cut = total - shown.length;
             if (cut > 0) {
-                list.appendChild(el('div', 'search-status',
-                    cut + (cut === 1 ? ' more match' : ' more matches') + '. Keep typing to narrow it down.'));
+                var more = fill(template('more'), { count: cut });
+                if (more) list.appendChild(more);
             }
-            input.setAttribute('aria-activedescendant', 'sedna-search-item-0');
+            input.setAttribute('aria-activedescendant', list.id + '-item-0');
         }
 
         open();
@@ -222,7 +256,7 @@
         }
     }
 
-    function rows() { return list ? list.querySelectorAll('.search-item') : []; }
+    function rows() { return list ? list.querySelectorAll('[role="option"]') : []; }
 
     function highlight(next) {
         var all = rows();
@@ -244,7 +278,7 @@
         var item = shown[i];
         // Resolved before close(), which is what a keyboard Enter needs: it has no
         // event of its own to let through, so it clicks the row instead.
-        var node = (!e && item && item.href) ? list.querySelector('#sedna-search-item-' + i) : null;
+        var node = (!e && item && item.href) ? document.getElementById(list.id + '-item-' + i) : null;
         close();
         // The query is spent. Left in place it would survive a router navigation
         // and not a full page load, so the box would sometimes hold the last
@@ -285,7 +319,7 @@
 
     function inside(node) {
         if (!(node instanceof Element)) return false;
-        return !!(node.closest('.search') || node.closest('.search-panel'));
+        return !!(node.closest('.search') || node.closest('.search-panel, [data-search-panel]'));
     }
 
     ui.search = {
@@ -311,12 +345,14 @@
        keep it. An app whose box is never reached by this code keeps a plain
        input, which is the honest markup for one. */
     function adopt(target) {
+        if (panel && input !== target) close();
+        if (!panelFor(target)) return false;
         input = target;
         box = target.closest('.search') || target;
-        if (!panel) build();
         input.setAttribute('role', 'combobox');
-        input.setAttribute('aria-controls', 'sedna-search-list');
+        input.setAttribute('aria-controls', list.id);
         input.setAttribute('aria-autocomplete', 'list');
+        return true;
     }
 
     document.addEventListener('input', function (e) {
@@ -326,7 +362,7 @@
         // with these classes. Saying "nothing matches" over them would be a lie.
         if (!items.length) return;
 
-        adopt(target);
+        if (!adopt(target)) return;
         if (!target.value.trim()) { close(); return; }
         render(target.value);
     });
@@ -375,8 +411,7 @@
         var target = e.target;
         if (target instanceof Element && target.matches('[data-search]')) {
             if (!items.length || !target.value.trim()) return;
-            adopt(target);
-            render(target.value);
+            if (adopt(target)) render(target.value);
             return;
         }
         if (!inside(target)) close();
