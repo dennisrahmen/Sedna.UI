@@ -1,0 +1,29 @@
+<nav class="pagination" aria-label="Pagination">
+    <button class="page-link" type="button" disabled="@(_page == 1)" @onclick="@(() => _page--)">
+        <i class="ri-arrow-left-s-line"></i> Previous
+    </button>
+
+    @foreach (var slot in SednaPager.Window(_page, Pages))
+    {
+        if (slot.IsGap)
+        {
+            <span class="page-gap" aria-hidden="true">…</span>
+            continue;
+        }
+        var number = slot.Number;
+        <button class="page-link" type="button" aria-current="@(slot.IsCurrent ? "page" : null)"
+                @onclick="@(() => _page = number)">@number</button>
+    }
+
+    <button class="page-link" type="button" disabled="@(_page == Pages)" @onclick="@(() => _page++)">
+        Next <i class="ri-arrow-right-s-line"></i>
+    </button>
+    <span class="page-count">Page @_page of @Pages</span>
+</nav>
+
+@code {
+    private const int Pages = 61;
+
+    // The current page is the app's state; SednaPager only decides which numbers to show.
+    private int _page = 1;
+}

@@ -1,0 +1,51 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th aria-sort="@_sort.AriaSort("order")">
+                <button class="th-sort" type="button" @onclick="@(() => Sort("order"))">Order</button>
+            </th>
+            <th aria-sort="@_sort.AriaSort("age")">
+                <button class="th-sort" type="button" @onclick="@(() => Sort("age"))">Age</button>
+            </th>
+            <th class="col-num" aria-sort="@_sort.AriaSort("reopens")">
+                <button class="th-sort" type="button" @onclick="@(() => Sort("reopens"))">Reopens</button>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Rows())
+        {
+            <tr><td>@row.Order</td><td class="col-muted">@row.Age min</td><td class="col-num">@row.Reopens</td></tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private sealed record Row(string Order, int Age, int Reopens);
+
+    private static readonly Row[] All =
+    [
+        new("ORD-4204", 22, 3),
+        new("ORD-4209", 4, 0),
+        new("ORD-4187", 72, 12),
+    ];
+
+    // The sort is the app's state. SednaSort only answers aria-sort for each header,
+    // which is what the arrow follows and what a screen reader announces.
+    private SednaSort _sort = SednaSort.By("age", descending: true);
+
+    private void Sort(string column) => _sort = _sort.Toggle(column);
+
+    // The ordering itself stays the app's query — here a LINQ sort, in an app a database one.
+    private IEnumerable<Row> Rows()
+    {
+        IEnumerable<Row> rows = _sort.Column switch
+        {
+            "order" => All.OrderBy(r => r.Order, StringComparer.Ordinal),
+            "age" => All.OrderBy(r => r.Age),
+            "reopens" => All.OrderBy(r => r.Reopens),
+            _ => All,
+        };
+        return _sort.Descending ? rows.Reverse() : rows;
+    }
+}

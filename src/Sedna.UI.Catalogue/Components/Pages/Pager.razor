@@ -34,6 +34,16 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.PagerFromCsharp" Title="Which numbers to show, from C#" Demo="ex-demo--block">
+    <p>
+        <strong>Live — page through it.</strong> <code>SednaPager.Window(current, total)</code>
+        returns the slots to render — page numbers and <code>.page-gap</code>s — so the markup stays
+        a <code>foreach</code>. The count of slots is the same on every page, so the buttons do not
+        shift under the pointer, and a gap never hides a single page. <code>edge</code> and
+        <code>around</code> widen the ends and the neighbourhood.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Pager.Breadcrumbs" Title="Breadcrumbs" Demo="ex-demo--block">
     <p>
         For where a page sits when the sidebar cannot show it — a record three levels inside a

@@ -45,6 +45,17 @@ thing that markup cannot, which is knowing which nav link is the current page. D
 here and do not fork it: a copied frame stops receiving library fixes, and it will silently miss later
 additions such as the responsive drawer and the skip link.
 
+### State the markup cannot express
+
+Three helpers render attributes from the app's own state — never a component:
+
+- **A sorted table:** `SednaSort` — `aria-sort="@_sort.AriaSort("due")"` on each sortable header,
+  `_sort = _sort.Toggle("due")` on its `.th-sort` button.
+- **A pager:** `foreach (var slot in SednaPager.Window(_page, _pages))`, rendering `.page-gap` for a gap.
+- **Tabs selected from C#:** `data-tabs="managed"` on the tablist, `@attributes="SednaTabs.Tab(key, _tab)"`
+  on each tab and `SednaTabs.Panel(key, _tab)` on each panel. Never plain `data-tabs` with C# selection:
+  two things would write `aria-selected`.
+
 ### The header search
 
 `.search` in the topbar is a library class. An app that already ships its own search chrome under its

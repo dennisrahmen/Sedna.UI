@@ -84,4 +84,43 @@ public class TabsTests : ScriptTestBase
     }
 
     // ── declarative copy ────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task A_managed_tablist_leaves_the_selection_to_the_app_and_clicks_on_the_keys()
+    {
+        if (NoBrowser) return;
+        // data-tabs="managed": the app renders aria-selected, tabindex and hidden from its
+        // own state. The script must not write them, or there are two writers again; it moves
+        // focus and clicks, and the app's handler — a stand-in here — does the rest.
+        var page = await Open("""
+            <div class="tabs" role="tablist" data-tabs="managed">
+                <button class="tab" role="tab" aria-controls="m1" aria-selected="true" tabindex="0" id="m-t1">One</button>
+                <button class="tab" role="tab" aria-controls="m2" aria-selected="false" tabindex="-1" id="m-t2">Two</button>
+            </div>
+            <div role="tabpanel" id="m1">first</div>
+            <div role="tabpanel" id="m2" hidden>second</div>
+            """);
+
+        await page.EvaluateAsync("""
+            () => {
+                window.clicked = [];
+                document.querySelectorAll('[role=tab]').forEach(t =>
+                    t.addEventListener('click', () => window.clicked.push(t.id)));
+            }
+            """);
+
+        await page.Locator("#m-t1").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowRight");
+
+        Assert.Equal(["m-t2"], await page.EvaluateAsync<string[]>("() => window.clicked"));
+        Assert.Equal("m-t2", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+        // Untouched: nothing the app rendered was rewritten.
+        Assert.Equal("false", await page.GetAttributeAsync("#m-t2", "aria-selected"));
+        Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('m2').hidden"));
+
+        // A pointer click is the app's too: the script neither cancels nor answers it.
+        await page.Locator("#m-t1").ClickAsync();
+        Assert.Equal("true", await page.GetAttributeAsync("#m-t1", "aria-selected"));
+        Assert.Equal(["m-t2", "m-t1"], await page.EvaluateAsync<string[]>("() => window.clicked"));
+    }
 }
