@@ -155,7 +155,9 @@ public class ControlStateTests : ScriptTestBase
             <button class="swatch" id="on" type="button" style="--swatch: var(--coral-500)" aria-pressed="true" aria-label="Coral"></button>
             <div class="editor" id="e"><div class="editor-body" contenteditable="true" id="b">text</div></div>
             <input class="form-input" id="f">
-            """);
+            """,
+            // Both rings transition in; read mid-transition, the two differ only by timing.
+            extraHead: "<style>* { transition: none; }</style>");
 
         await page.Locator("#b").FocusAsync();
         var styles = await page.EvaluateAsync<string[]>("""
