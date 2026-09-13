@@ -428,6 +428,21 @@
     --card-pad-block:  var(--space-6);
     --card-pad-inline: var(--space-7);
 
+    /* ── List rows ──────────────────────────────────────────────────────────
+       The padding of every `.list-row` and the gap between the cards of a
+       `.list--cards`, remapped by [data-density="compact"]. A row follows density
+       because it is a row, not because a card contains it; inside a `.card` its
+       inline padding is still the card's gutter. */
+    --list-pad-block:  var(--space-5);
+    --list-pad-inline: var(--space-6);
+    --list-gap:        var(--space-4);
+
+    /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
+       number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
+       every line inside and aligns the row's slots to the first line; set on one
+       `.list-title` or `.list-sub` it shapes that line alone. */
+    --list-lines: 1;
+
     /* ── Metrics ────────────────────────────────────────────────────────── */
     --page-max: 1800px;    /* content column cap on ultra-wide screens */
 

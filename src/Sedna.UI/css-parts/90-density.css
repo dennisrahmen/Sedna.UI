@@ -2,7 +2,8 @@
    [data-density="compact"] on <html>. A pure token remap, like every other theme
    block, so it composes with the themes and CSS load order stays irrelevant.
 
-   Two families tighten: table cells (--cell-pad-*) and card parts (--card-pad-*).
+   Three families tighten: table cells (--cell-pad-*), card parts (--card-pad-*) and
+   list rows (--list-pad-*, plus --list-gap between the cards of `.list--cards`).
    Anything else that should tighten with them reads the same tokens and gets it for
    free — an app's own card part written with `.card-body`, or its own component
    padded with var(--card-pad-inline).
@@ -17,4 +18,7 @@
     --cell-pad-x: var(--space-5);
     --card-pad-block: var(--space-4);
     --card-pad-inline: var(--space-6);
+    --list-pad-block: var(--space-3);
+    --list-pad-inline: var(--space-5);
+    --list-gap: var(--space-2);
 }

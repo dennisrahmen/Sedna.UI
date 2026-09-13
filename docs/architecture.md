@@ -264,7 +264,7 @@ The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, s
 blue against red. Amber and the brand colour are unchanged.
 
 `data-density="compact"` is a token remap. It tightens table cells through `--cell-pad-y` /
-`--cell-pad-x`, and every card part — `.card-head`, `.card-body`, `.card-foot` — through `--card-pad-block` / `--card-pad-inline`. An app's own component tightens with them by reading
+`--cell-pad-x`, and every card part — `.card-head`, `.card-body`, `.card-foot` — through `--card-pad-block` / `--card-pad-inline`, and every `.list-row` — in a card or not — through `--list-pad-block` / `--list-pad-inline`, with `--list-gap` between the cards of a `.list--cards`. An app's own component tightens with them by reading
 the same tokens; page-specific components with other spacing are the app's to tighten.
 
 ## Branding
