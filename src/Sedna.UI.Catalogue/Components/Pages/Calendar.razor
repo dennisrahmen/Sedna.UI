@@ -1,0 +1,74 @@
+@page "/calendar"
+
+<CatHead Title="Calendar">
+    The surfaces a scheduling view is drawn on — a month, a week or a day on a time axis, a year — and
+    a date picker built on the same grid. The library paints the grid; every date, span, overlap and
+    recurrence is your app's to work out.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-calendar-2-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Positions are yours, as custom properties</span>
+        A pill says which days it covers with <code>grid-column</code>, and a block says when it starts
+        and how long it runs with <code>--cal-start</code> and <code>--cal-span</code>. Nothing is
+        measured, so a server render is already right and a re-render has nothing to fight.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Calendar.Month" Title="A month" Demo="ex-demo--block">
+    <p>
+        One <code>.cal-row</code> per week: seven <code>.cal-day</code>s, and over them
+        <code>.cal-row-events</code> in the same seven columns, where each <code>.cal-event</code> takes
+        its days with <code>grid-column</code> and a lane with <code>grid-row</code>.
+        <code>--cal-lanes</code> is how many lanes a day shows; what does not fit is a
+        <code>.cal-more</code>, which sits in the row under them. A span that runs into the next week is
+        two pills, <code>--continues-end</code> then <code>--continues-start</code>. Today is
+        <code>aria-current="date"</code> on the day; <code>--outside</code> and <code>--weekend</code>
+        are the days you mark. Pills take the badge families — <code>--go</code>, <code>--warn</code>,
+        <code>--danger</code>, <code>--info</code>, <code>--cyan</code>, <code>--orange</code>,
+        <code>--teal</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.Week" Title="A week on a time axis" Demo="ex-demo--block">
+    <p>
+        <code>.cal-week</code> puts a <code>.cal-hours</code> gutter beside one <code>.cal-day-col</code>
+        per day. <code>--cal-hours</code> is how many hour rows the axis has and
+        <code>--cal-hour-height</code> how tall each is. A <code>.cal-block</code>'s
+        <code>--cal-start</code> and <code>--cal-span</code> are in hours from the top of the axis, so
+        09:30 on an axis starting at 07:00 is <code>2.5</code>; two blocks that overlap go side by side
+        with <code>--cal-lane</code> and <code>--cal-lanes</code>, which you work out.
+        <code>.cal-now</code> is the line for the current time, at <code>--cal-at</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.Day" Title="A day" Demo="ex-demo--block">
+    <p>
+        The same surface with <code>--cal-days: 1</code>. Nothing else changes, so a week view and a day
+        view share one set of rules and one layout of blocks.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.Year" Title="A year" Demo="ex-demo--block">
+    <p>
+        <code>.cal-year</code> lays out small months — <code>.cal-month--mini</code>, numbers only and
+        square days — and wraps them to the width, so twelve fill a page and three fit a panel. A day
+        with something on it is <code>.cal-day--marked</code>. Hide the weekday initials from a screen
+        reader with <code>aria-hidden</code>, as here: the date is in the day's own label or context.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.DatePicker" Title="A date picker" Demo="ex-demo--pad">
+    <p>
+        <strong>Live — open it.</strong> For a date that has to look the same in every engine, or a range,
+        or days that cannot be chosen. <code>.datepicker</code> is a <a href="/popover">popover</a>, so
+        the anchoring, light dismiss and <kbd>Escape</kbd> are the platform's; its body is the small
+        month grid. Each day is a <code>&lt;button&gt;</code> <strong>named with its full date</strong> —
+        &ldquo;21&rdquo; alone is not a date to a screen reader — and <code>aria-pressed="true"</code>
+        when chosen. A range is <code>--range-start</code>, <code>--in-range</code> and
+        <code>--range-end</code> on the days you work out; an unavailable day is a disabled button.
+        The keys beyond <kbd>Tab</kbd> are yours to add. For a single date the native
+        <a href="/form-datetime">date input</a> is still the better default.
+    </p>
+</CatExample>
