@@ -1,0 +1,27 @@
+<div class="layout layout--bottombar">
+    <aside class="sidebar">…the sidebar, hidden below 560px…</aside>
+
+    <div class="content">
+        <header class="topbar">…</header>
+        <main class="page">…</main>
+
+        <!-- Shown below 560px only. data-hide-on-scroll steps the items away while the
+             reader scrolls down, and brings them back on the way up. -->
+        <nav class="bottombar" aria-label="Main" data-hide-on-scroll>
+            <div class="bottombar-items">
+                <a class="bottombar-item active" href="/orders" aria-current="page">
+                    <span class="bottombar-icon"><i class="ri-inbox-line"></i><span class="bottombar-count">3</span></span>
+                    <span class="bottombar-label">Orders</span>
+                </a>
+                <a class="bottombar-item" href="/pick">
+                    <span class="bottombar-icon"><i class="ri-barcode-box-line"></i></span>
+                    <span class="bottombar-label">Pick</span>
+                </a>
+                <a class="bottombar-item" href="/stock">
+                    <span class="bottombar-icon"><i class="ri-archive-stack-line"></i></span>
+                    <span class="bottombar-label">Stock</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+</div>

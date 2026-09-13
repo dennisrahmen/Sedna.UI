@@ -1,0 +1,58 @@
+/* ── Areas in the topbar ────────────────────────────────────────────────────
+   A row of links across the header naming the app's areas, with the sidebar
+   holding only the current area's pages. The docs-site arrangement: the full
+   width stays, and the sidebar is as short as one area.
+
+     <header class="topbar">
+       <nav class="topbar-nav" aria-label="Areas">
+         <a class="topbar-nav-link active" href="/orders" aria-current="page">Orders</a>
+         <a class="topbar-nav-link" href="/stock">Stock</a>
+       </nav>
+       <div class="topbar-spacer"></div>
+       …
+     </header>
+
+   Links, never .tabs. An area is a place with an address, and .tabs swap a region
+   of one page — a tab that changes the URL is a link wearing a control's clothes.
+
+   The current area is `.active`, which is what ActiveLink.CssClass appends, and
+   `aria-current="page"` is styled the same so either one on its own reads right.
+   Give the area's link the address the area's pages share as a prefix, and
+   ActiveLink's prefix match lights it up on every page inside it.
+
+   The row scrolls sideways on a narrow header rather than wrapping: a second line
+   would break the header's fixed 44px, which the sidebar's brand is aligned to. */
+.topbar-nav {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-1);
+    min-width: 0;
+    padding: 0 var(--space-5);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.topbar-nav::-webkit-scrollbar { display: none; }
+
+.topbar-nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-shrink: 0;
+    padding: 0 var(--space-5);
+    /* The indicator's 2px is reserved when it is not showing, so the label does not
+       jump on becoming current, and a matching top edge keeps the label centred. */
+    border-bottom: 2px solid transparent;
+    border-top: 2px solid transparent;
+    color: var(--muted);
+    font-size: var(--text-4);
+    white-space: nowrap;
+    text-decoration: none;
+}
+.topbar-nav-link i { font-size: var(--text-6); }
+.topbar-nav-link:hover { color: var(--fg); text-decoration: none; }
+.topbar-nav-link:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.topbar-nav-link.active,
+.topbar-nav-link[aria-current="page"] {
+    border-bottom-color: var(--brand);
+    color: var(--fg);
+}

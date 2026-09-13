@@ -24,6 +24,16 @@ if the app names a class the stylesheet does not define or one the page does not
 `.page` is the only scroll container; do not wrap it in another. `.collapsed` on `.sidebar` gives the
 56px rail and changes nothing else, because the rail is pure CSS.
 
+A nav that has outgrown one list has other arrangements, all on the catalogue's *Nav
+layouts* page: accordion `.nav-group`s, the same with a `.nav-filter` above them, `.sidebar--areas`
+(a `.nav-areas` rail beside one `.nav` panel per area), and `.topbar-nav` (the areas as links across
+the header, with the sidebar holding only the current one). They share the nav's classes, so moving
+between them changes the container and not the links.
+
+On a phone, `.bottombar` is the last child of `.content`: in the flow, so `.page` ends where it
+begins. Its treatments are the default line, `--tint`, `--card` and `--icons`, over one markup, and
+`.layout--bottombar` shows it below 560px while hiding the sidebar there. It needs no z-index.
+
 ### The C# surface
 
 Three things the package ships that markup cannot express:
@@ -418,6 +428,7 @@ Two things the flat list does not say:
 | — | `22-anchored.js` adds no member. It closes an open `.menu`, `.popover` or `.form-combo-panel` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |
 | `combo` | The keyboard, open state and filtering behind a `data-combo` field: `open(el)`, `close(el)`. The page owns the selection — the script clicks the active option on Enter, clicks the last chip's `.chip-dismiss` on a second Backspace, clicks the `.form-combo-more` after the list once the list is scrolled to its end, and for `data-combo="free"` sends one `change` per committed entry, replacing the platform's own `change` on blur so an entry is never sent twice. It writes only attributes an app never renders (`aria-expanded`, `aria-activedescendant`, `hidden` on a filtered row, `data-active`, `data-armed`) and paints matches through the CSS Custom Highlight API, so a Blazor render never reverts it. `data-combo-managed` makes it keep the selection itself, for a page with no app behind it |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |
+| `nav` | The nav filter and the area rail. `filter(input, query?)` narrows the `.nav` behind a `data-nav-filter` input to the links whose label or `data-keywords` contain every word typed, and returns how many match; Enter follows the first, Escape clears, and following a link clears. It writes `data-filtering` and `data-nav-miss` and the CSS does the rest, so a closed `.nav-group` shows its matches without its `open` changing. `showArea(itemOrPanelId)` shows the panel a `data-nav-area` rail item controls and hides the rest. A `.bottombar` with `data-hide-on-scroll` gets `data-away` while the scroller it shares a container with moves down, loses it on the way up, and loses it when focus enters the bar. It tests containment rather than calling the palette's ranker, because a filter shows every hit at equal weight and has no bottom for a weak one to sink to |
 | `transfer` | Moves rows between a `.transfer`'s two list boxes: `add(host)`, `remove(host)`, each returning how many moved. Delegated from `[data-transfer-add]` / `[data-transfer-remove]` and from a double-click on a row. Selection is left to the platform, which already has the contract this wants — a plain click takes one row, Ctrl or Shift extends — and nothing arrives selected: selection here is a staging act, not an answer, and rows that landed selected accumulated into a highlight nobody made. The first row moved is scrolled into view instead. Both lists get a bubbling `change` afterwards, so an app's existing handler sees it; it appends in alphabetical order only where the destination was already sorted, because re-sorting a list whose order is meaningful would destroy it silently |
 | `select` | `refresh(root?)` → how many it fixed. Fills in the `<selectedcontent>` clone a customizable `<select>` should have made and Blazor's render prevents, leaving the closed box blank. Runs on load and after any render that adds nodes; an app calls it only for a select it moved into place some other way |
 | `palette` | Command palette, opened by Ctrl/⌘-K once commands exist: `register(list)`, `open()`, `close()`, `rank(query)` |

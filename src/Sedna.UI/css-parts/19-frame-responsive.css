@@ -59,6 +59,9 @@
     }
     .layout--responsive .sidebar .nav-status-dot { width: 9px; height: 9px; }
     .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+    .layout--responsive .sidebar .nav-filter { display: none; }
+    .layout--responsive .sidebar.sidebar--areas > .nav { display: none; }
+    .layout--responsive .sidebar.sidebar--areas .nav-areas { border-inline-end: none; }
 
     /* The rail's own flyout, which is what carries the label once the text is
        gone. Anchor-positioned for the reason spelled out in

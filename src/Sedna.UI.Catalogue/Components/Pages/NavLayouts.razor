@@ -1,0 +1,145 @@
+@page "/nav-layouts"
+
+<CatHead Title="Nav layouts" Tier="@CatHead.Tier1">
+    Ways to arrange a sidebar that has outgrown one list, and the bottom bar that takes its place
+    on a phone. The sidebar layouts share the nav's classes, so an app can move between them
+    without restyling a single link.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-route-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Choose by how many pages, and how they split</span>
+        <table class="table">
+            <thead><tr><th>Layout</th><th>Use when</th></tr></thead>
+            <tbody>
+                <tr><td>Text-only links</td><td>Every page should stay in view, and the icons have become noise</td></tr>
+                <tr><td>Accordion groups</td><td>The pages fall into groups and a reader works in one at a time</td></tr>
+                <tr><td>Accordion with a filter</td><td>There are too many pages to scan, and readers know what they are looking for</td></tr>
+                <tr><td>Area rail</td><td>The app splits into a handful of areas that each deserve their own nav</td></tr>
+                <tr><td>Areas in the topbar</td><td>The same split, keeping the sidebar at its usual width</td></tr>
+                <tr><td>Bottom bar</td><td>On a phone, for the few places or actions used most</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<CatExample TExample="Examples.NavLayouts.QuietList" Title="Text-only links" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        The ordinary nav with the icons left off, so the section labels do the grouping. No new class
+        and no script. <strong>Do not collapse it</strong>: the collapsed rail shows only icons, and a
+        link without one becomes a blank box.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.AccordionGroups" Title="Accordion groups" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        Every group a <code>.nav-group</code>, each sharing one <code>name</code>, so opening a group
+        closes the one that was open. That is the platform's exclusive <code>&lt;details&gt;</code>
+        and needs no script. Put <code>open</code> on the group holding the current page, and keep
+        each <code>name</code> unique to one nav.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.FilteredNav" Title="Accordion with a filter" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <strong>Live — type <code>shelf</code>, <code>refund</code> or <code>print</code>.</strong>
+        <code>.nav-filter</code> above <code>.nav-scroll</code>, with <code>data-nav-filter</code> on
+        its input. A link stays when every word typed is in its label or its
+        <code>data-keywords</code>, which is where the words a reader would type but the label does not
+        say belong. Closed groups show their matches without opening, Enter follows the first match,
+        and Escape or following a link clears the filter. <code>.nav-filter-empty</code> shows when
+        nothing is left.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.AreaRail" Title="Area rail" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <strong>Live — click an area.</strong> <code>.sidebar--areas</code> puts a
+        <code>.nav-areas</code> rail beside one <code>.nav</code> panel per area; each panel is an
+        ordinary nav under a <code>.nav-area-title</code>. A <code>.nav-area</code> button with
+        <code>data-nav-area</code> and <code>aria-controls</code> swaps panels in place. An app that
+        decides the area from the address leaves <code>data-nav-area</code> off and renders the
+        panel itself, or the two will disagree about which panel is showing.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.CollapsedAreaRail" Title="Collapsed area rail" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <code>.collapsed</code> keeps the rail and drops the panel, so the collapsed width is the
+        rail's own, <code>--nav-areas-width</code>. With no panel to swap, each area is a
+        <strong>link</strong> to its first page, marked current with <code>.active</code> as
+        <code>ActiveLink</code> writes it. Use this form whenever the sidebar can collapse, and under
+        <code>.layout--responsive</code>, which collapses it below 900px.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.TopbarAreas" Title="Areas in the topbar" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <code>.topbar-nav</code> holds one <code>.topbar-nav-link</code> per area, and the sidebar
+        lists only the current area's pages. They are links, not <a href="/tabs">tabs</a>: an area
+        has an address. Give each link the address its area's pages share, and
+        <code>ActiveLink</code>'s prefix match marks it current on every page inside. The row scrolls
+        sideways rather than wrapping when the header is narrow.
+    </p>
+</CatExample>
+
+<h2 id="bottom-bar">On a phone: the bottom bar</h2>
+
+<CatExample TExample="Examples.NavLayouts.BottombarLine" Title="Bottom bar" Demo="ex-demo--pad">
+    <p>
+        <strong>Live — scroll the list.</strong> <code>.bottombar</code> is the last child of
+        <code>.content</code>, so <code>.page</code> ends where it begins and nothing sits under it.
+        Icons only: the current item also shows its label and carries the topbar's brand line, and
+        every other label is visually hidden, so each item keeps its accessible name.
+        <code>.bottombar-count</code> rides the icon, and follows the label on the current item so a
+        wide count never covers text. <code>--end</code> sets a cell apart with a short divider;
+        <code>.bottombar-accessory</code> holds something running in the background.
+        <code>data-hide-on-scroll</code> steps the items away on the way down and back on the way up.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.BottombarTint" Title="Tint" Demo="ex-demo--pad">
+    <p>
+        <code>.bottombar--tint</code> marks the current place the way the sidebar marks its current
+        link: <code>--brand-tint</code> on a control-radius block, with no line.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.BottombarCard" Title="Card" Demo="ex-demo--pad">
+    <p>
+        <code>.bottombar--card</code> floats the items as a card — its border, radius and
+        <code>--shadow-float</code> — and the accessory becomes a smaller card of its own above them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.BottombarIcons" Title="Icons only" Demo="ex-demo--pad">
+    <p>
+        <code>.bottombar--icons</code> shows no label at all, with a short brand mark under the
+        current icon. The labels are still in the markup and still name each item, so write them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.BottombarMenu" Title="Menu first" Demo="ex-demo--pad">
+    <p>
+        <strong>Live — open the menu.</strong> A <code>--start</code> cell opens every page in a
+        <a href="/drawer">sheet</a>, so the bar holds the few places used most and the sheet holds
+        the rest. The sheet is an ordinary <code>.nav</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.NavLayouts.BottombarActions" Title="Actions" Demo="ex-demo--pad">
+    <p>
+        On a record the bar holds what can be done to it rather than where to go: buttons, a
+        <code>role="toolbar"</code> and no current item. Keep it to the actions used most, and put
+        the rest behind the <code>--end</code> cell.
+    </p>
+</CatExample>
+
+<CatSnippet Name="NavLayouts/BottombarOnAPhone.html" Title="On a phone only">
+    <p>
+        <code>.layout--bottombar</code> on <code>.layout</code> shows the bottom bar below 560px and
+        hides the sidebar there, and does the reverse above it. Without it the bar shows at every
+        width, which is what an app built only for phones wants.
+    </p>
+</CatSnippet>

@@ -12,7 +12,7 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// entry both fail.
 /// </para>
 /// <para>
-/// One family per page, and one job per group. A group holds between two and six
+/// One family per page, and one job per group. A group holds between two and seven
 /// entries so that it can be scanned; a page that carries two families gets split
 /// rather than named with an ampersand.
 /// </para>
@@ -68,6 +68,9 @@ internal static class CataloguePages
         new("/nav", Frame, "Sidebar and nav", "ri-side-bar-line",
             "Links, the current one, collapsible groups, and the icon rail.",
             "sidebar nav nav-link nav-group active link collapsed rail flyout icon badge count external open details group ActiveLink"),
+        new("/nav-layouts", Frame, "Nav layouts", "ri-route-line",
+            "Arranging a nav that has outgrown one list, and the bottom bar that replaces it on a phone.",
+            "accordion filter search narrow long many pages area areas rail panel two-level topbar-nav header links sidebar--areas nav-areas nav-filter data-nav-filter data-nav-area keywords overwhelming bottombar bottom bar tab bar mobile phone dock accessory hide on scroll layout--bottombar"),
         new("/topbar", Frame, "Topbar and user", "ri-layout-top-2-line",
             "Header search, the status and version chips, and the user widget.",
             "topbar header search search-max user-widget user-menu avatar version build tag status health tip hover hint"),

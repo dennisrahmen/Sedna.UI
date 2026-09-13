@@ -34,6 +34,12 @@
 }
 .sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; }
 .sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+/* A rail has no room to type in, so the nav filter goes with the labels. */
+.sidebar.collapsed .nav-filter { display: none; }
+/* A collapsed area rail is the rail alone: the panel goes, and the rail's own
+   divider with it, since the sidebar's edge now stands in the same place. */
+.sidebar.collapsed.sidebar--areas > .nav { display: none; }
+.sidebar.collapsed.sidebar--areas .nav-areas { border-inline-end: none; }
 
 /* Rail-only hover flyout. The JS tip engine skips .sidebar precisely so this
    pure-CSS variant owns the collapsed rail (no double tooltip).

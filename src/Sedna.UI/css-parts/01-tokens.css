@@ -289,6 +289,7 @@
        search panel came to cast near-black in light mode. ShadowTokenTests
        asserts the two blocks list the same names. */
     --shadow-topbar:    0 3px 8px rgba(0, 0, 0, 0.28);
+    --shadow-bottombar: 0 -3px 8px rgba(0, 0, 0, 0.28);
     --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.18);
     --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.5);
     --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.42);
