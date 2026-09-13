@@ -27,7 +27,7 @@ public class TipTouchTests : ScriptTestBase
         var page = await Open(Body);
 
         await Pointer(page, "pointerdown");
-        await page.WaitForTimeoutAsync(650);
+        await page.WaitForTimeoutAsync(450);
         await Assertions.Expect(page.Locator(".sedna-tip")).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("sedna-tip--visible"));
         await Assertions.Expect(page.Locator(".sedna-tip")).ToHaveTextAsync("Deletes the order and its reservations");
 

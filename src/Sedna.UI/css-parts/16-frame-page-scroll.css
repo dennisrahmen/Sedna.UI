@@ -63,6 +63,18 @@
    own vertical rhythm. */
 .page > * + *:not(h1, h2, h3, h4, h5, h6, .lede) { margin-block-start: var(--page-gap); }
 
+/* ── A page whose last thing sits at the bottom ─────────────────────────────
+   `.page--fill` makes the page a flex column, so a `.page-foot` — a footer, a
+   sticky-looking action row — sits at the bottom of a short page rather than under
+   its last paragraph, and a lone `.empty-state--page` (which is `flex: 1` already)
+   centres itself between the top and that foot. Opt-in, because a flex column
+   blockifies inline children and stops sibling margins collapsing; the rhythm rule
+   above is one-sided, so it is unchanged. Not a percentage height: WebKit does not
+   resolve `min-height: 100%` against a flexed scroller, and a column that measured
+   itself that way sat short on an iPad. */
+.page--fill { display: flex; flex-direction: column; }
+.page--fill > .page-foot { margin-top: auto; }
+
 .back-link {
     display: inline-flex; align-items: center; gap: var(--space-2);
     font-size: var(--text-3); color: var(--muted); text-decoration: none; margin-bottom: var(--space-6);
