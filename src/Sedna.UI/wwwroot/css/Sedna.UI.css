@@ -7728,6 +7728,11 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
     overflow: hidden;
 }
 
+/* Inside a surface that already draws the frame — a card whose tabs pick between
+   several files. The block gives up its own border and corners so the card's are the
+   only ones; everything else about it is unchanged. */
+.code-block--flush { border: none; border-radius: 0; }
+
 /* An optional header naming the file or the language. */
 .code-block-head {
     display: flex;
