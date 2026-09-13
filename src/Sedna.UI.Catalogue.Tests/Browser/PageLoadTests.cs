@@ -322,4 +322,26 @@ public class PageLoadTests(CatalogueAppFixture app)
 
         await page.CloseAsync();
     }
+
+    [Fact]
+    public async Task Choosing_an_area_on_the_collapsed_rail_opens_the_sidebar_again()
+    {
+        if (app.NoBrowser) return;
+
+        // A collapsed rail shows the areas and nothing else. Choosing one means
+        // "show me its pages", which the rail cannot — so the sidebar opens back up.
+        var page = await app.OpenInteractiveAsync("/");
+        var sidebar = page.Locator(".cat-drawer .sidebar");
+
+        await page.Locator("[aria-label='Collapse navigation']").ClickAsync();
+        await sidebar.And(page.Locator(".collapsed")).WaitForAsync(new() { Timeout = 10_000 });
+
+        var other = CataloguePages.InGroup(CataloguePages.All.Single(p => p.Route == "/table").Group).First().Route;
+        await sidebar.Locator($".nav-area[href='{other}']").ClickAsync();
+
+        await sidebar.And(page.Locator(":not(.collapsed)")).WaitForAsync(new() { Timeout = 10_000 });
+        await sidebar.Locator(".nav-link[href='/table']").WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 10_000 });
+
+        await page.CloseAsync();
+    }
 }

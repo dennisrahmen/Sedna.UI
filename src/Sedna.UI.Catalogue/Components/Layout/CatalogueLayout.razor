@@ -97,5 +97,11 @@
 
     private void CloseDrawer() => _navOpen = false;
 
-    private void KeepDrawerOpen() => _keepOpen = true;
+    // On a phone the drawer stays; on a desktop a collapsed rail opens back up —
+    // an area is a list of pages, and the rail alone cannot show it.
+    private void KeepDrawerOpen()
+    {
+        _keepOpen = true;
+        _collapsed = false;
+    }
 }

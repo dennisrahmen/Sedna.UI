@@ -348,7 +348,7 @@ public class FrameLayoutTests : ScriptTestBase
         // Slow the motion down so the middle of it can be observed.
         await page.EvaluateAsync("() => document.querySelector('.sidebar').style.setProperty('--motion-mid', '2s')");
 
-        // [sidebarWidth, navWidth, labelPosition]
+        // [sidebarWidth, navWidth, labelPosition, labelWidth]
         const string probe = """
             () => {
                 const sidebar = document.querySelector('.sidebar');
@@ -356,10 +356,13 @@ public class FrameLayoutTests : ScriptTestBase
                 return [
                     Math.round(sidebar.getBoundingClientRect().width),
                     Math.round(sidebar.querySelector('.nav').getBoundingClientRect().width),
-                    getComputedStyle(label).position
+                    getComputedStyle(label).position,
+                    Math.round(label.getBoundingClientRect().width)
                 ];
             }
             """;
+        var restingLabel = Convert.ToInt32((await page.EvaluateAsync<object[]>(probe))[3], System.Globalization.CultureInfo.InvariantCulture);
+        Assert.True(restingLabel > 20, "The label should have its text's width at rest.");
 
         await page.EvaluateAsync("() => document.querySelector('.sidebar').classList.add('collapsed')");
         await page.WaitForTimeoutAsync(600);
@@ -368,6 +371,10 @@ public class FrameLayoutTests : ScriptTestBase
         Assert.True(midWidth is > 56 and < 220, $"The sidebar should be mid-way, it is {midWidth}px.");
         Assert.Equal(220, Convert.ToInt32(mid[1], System.Globalization.CultureInfo.InvariantCulture));
         Assert.Equal("static", (string)mid[2]);
+        // `auto` to `1px` cannot interpolate, so without allow-discrete the size
+        // snapped at once while position waited: a 1px-wide span in the flow,
+        // its words stacked and overlapping the next link.
+        Assert.Equal(restingLabel, Convert.ToInt32(mid[3], System.Globalization.CultureInfo.InvariantCulture));
 
         await page.WaitForTimeoutAsync(2000);
         var done = await page.EvaluateAsync<object[]>(probe);
