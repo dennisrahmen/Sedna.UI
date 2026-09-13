@@ -7,9 +7,9 @@ namespace Sedna.UI;
 /// <para>
 /// A command registered from C# navigates: set <see cref="Href"/> and choosing the
 /// command goes there. The palette's JavaScript form also accepts a <c>run</c>
-/// callback, which has no C# equivalent — the library never calls back into .NET,
-/// so a <see cref="Delegate"/> here could not be invoked. Register commands that
-/// must run arbitrary code from JavaScript instead.
+/// callback, which has no C# equivalent: a function does not cross the interop
+/// boundary, so a <see cref="Delegate"/> here could not be invoked. Register commands
+/// that must run arbitrary code from JavaScript instead.
 /// </para>
 /// </remarks>
 public sealed record PaletteCommand

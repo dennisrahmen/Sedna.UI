@@ -1,4 +1,4 @@
-@inject IJSRuntime Js
+@inject ISednaUi Ui
 @implements IAsyncDisposable
 
 <div class="sedna-col">
@@ -71,7 +71,7 @@
         new("Today against the target", "Both figures update as shipments move. A dash means the endpoint did not answer — never a zero."),
     ];
 
-    private IJSObjectReference? _handle;
+    private SednaSpotlight? _tour;
     private int _step;
     private string _side = "…";
 
@@ -84,19 +84,17 @@
     {
         if (firstRender)
         {
-            _handle = await Js.InvokeAsync<IJSObjectReference>(
-                "sednaUi.spotlight.follow", "#follow-hole", "[data-live]",
-                new
-                {
-                    pad = 6,
-                    include = "[data-live-extra]",
-                    tip = "#follow-tip",
-                    placement = "auto",
-                    // This demo is a box on a page, so the box stands in for the viewport.
-                    // A tour that runs across the whole page leaves `boundary` off.
-                    boundary = "#follow-stage",
-                    root = "#follow-stage",
-                });
+            _tour = await Ui.FollowSpotlightAsync("#follow-hole", "[data-live]", new SpotlightOptions
+            {
+                Pad = 6,
+                Include = "[data-live-extra]",
+                Tip = "#follow-tip",
+                Placement = SpotlightPlacement.Auto,
+                // This demo is a box on a page, so the box stands in for the viewport.
+                // A tour that runs across the whole page leaves Boundary and Root unset.
+                Boundary = "#follow-stage",
+                Root = "#follow-stage",
+            });
         }
 
         // After every render, because the bubble's own size decides which side it fits on
@@ -118,8 +116,8 @@
 
     private async Task Update()
     {
-        if (_handle is null) return;
-        var side = await _handle.InvokeAsync<string?>("update");
+        if (_tour is null) return;
+        var side = await _tour.UpdateAsync();
         if (side is not null && side != _side)
         {
             _side = side;
@@ -127,15 +125,10 @@
         }
     }
 
-    // stop() detaches the listeners and the observer, releases any lock, and hides the hole.
+    // Ends the step: detaches the listeners and the observer, releases any lock, and hides
+    // the hole. The handle is the app's, so ending it is the app's job.
     public async ValueTask DisposeAsync()
     {
-        if (_handle is null) return;
-        try
-        {
-            await _handle.InvokeVoidAsync("stop");
-            await _handle.DisposeAsync();
-        }
-        catch (JSDisconnectedException) { /* the circuit went first */ }
+        if (_tour is not null) await _tour.DisposeAsync();
     }
 }

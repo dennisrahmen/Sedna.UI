@@ -1,8 +1,8 @@
 @page "/script"
 
 <CatHead Title="The script">
-    <code>sednaUi</code> holds generic UI behaviour only: theme settings, clipboard, toasts,
-    confirmations, and delegated wiring for menus and tabs. Every class on these pages applies
+    <code>sednaUi</code> holds generic UI behaviour only: theme settings, clipboard, toasts, the
+    dialog presenter, and delegated wiring for menus and tabs. Every class on these pages applies
     with scripting blocked &mdash; the script adds behaviour, never appearance. The same surface
     typed for a component is <a href="/interop">From C#</a>;
     <a href="/hover-hints">hover hints</a> have a page of their own.
@@ -56,15 +56,6 @@
         <code>sednaUi.toast(message, opts)</code> creates the stack on first use and returns a
         function that removes that toast early. <code>timeout: 0</code> keeps it until dismissed, and
         the message is inserted as <em>text</em>, never as markup.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Script.Confirmation" Title="Confirmation" Demo="ex-demo--block">
-    <p>
-        <code>await sednaUi.confirm({ … })</code> resolves <code>true</code> or <code>false</code>.
-        With <code>danger: true</code> the confirm button turns red <em>and</em> focus starts on
-        <strong>Cancel</strong>, so a stray <kbd>Enter</kbd> does not delete anything. Use it instead
-        of <code>window.confirm()</code>, which blocks the Blazor Server circuit while it is open.
     </p>
 </CatExample>
 

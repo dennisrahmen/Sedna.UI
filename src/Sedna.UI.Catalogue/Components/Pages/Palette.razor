@@ -11,8 +11,8 @@
         <strong>Live.</strong> This site registers one command per page with
         <code>sednaUi.palette.register</code>; until something is registered the library leaves the
         browser's own <kbd>Ctrl</kbd>+<kbd>K</kbd> alone. A command registered from C# carries an
-        <code>Href</code> and navigates — a <code>run</code> callback is JavaScript-only, because
-        the library never calls back into .NET.
+        <code>Href</code> and navigates. A <code>run</code> callback is a JavaScript function, and a
+        function does not cross into C# — navigation is what a serialisable command carries.
     </p>
 </CatExample>
 

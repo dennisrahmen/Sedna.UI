@@ -13,6 +13,11 @@
     @ChildContent
     <div class="ex-demo @Demo">@Instance</div>
     <CatCode Source="@Source" Label="@($"{Title} — markup")" />
+    @if (Companion is not null)
+    {
+        <p class="cat-ex-file"><code>@CompanionFile</code></p>
+        <CatCode Source="@ExampleSource.For(Companion)" Label="@($"{Title} — {CompanionFile}")" />
+    }
 </section>
 
 @code {
@@ -27,6 +32,14 @@
     /// One or two sentences: when to use this, and what the reader would otherwise
     /// get wrong.
     [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// A second file the example needs, printed under the first — the app's own overlay
+    /// component, for an example that presents one. A path under Examples/, such as
+    /// "Interop/ReassignOrder.razor". It is not rendered on its own: it is only
+    /// meaningful inside the thing that presents it.
+    [Parameter] public string? Companion { get; set; }
+
+    private string? CompanionFile => Companion is null ? null : Path.GetFileName(Companion);
 
     private string Anchor => Slug.From(CatTitle.Plain(Title));
 

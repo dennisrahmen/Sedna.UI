@@ -52,6 +52,26 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.OverlayFromCsharp" Title="A drawer as its own component" Demo="ex-demo--block" Companion="Interop/ReassignOrder.razor">
+    <p>
+        <strong>Live — open it.</strong> <code>ISednaOverlays.ShowAsync&lt;TComponent, TResult&gt;</code>
+        renders your component, opens the <code>&lt;dialog&gt;</code> it wrote and completes with
+        what it closed with — <code>Overlay.CloseAsync(result)</code>, or the default for
+        <kbd>Escape</kbd> and <code>CancelAsync()</code>. The component takes a cascading
+        <code>SednaOverlay</code> and puts its <code>Id</code> on the dialog; every element and word
+        on screen is still in your file, and the drawer is removed only once it has slid out. Place
+        <code>&lt;SednaOverlayHost /&gt;</code> once in the layout. The same works for a
+        <code>.modal</code> or a <code>.sheet</code>, and <code>ISednaUi.ShowModalAsync(id)</code>
+        opens any of the three when the dialog is already in the page.
+    </p>
+    <p>
+        <strong>The <code>&lt;dialog&gt;</code> has to be in the component's first render</strong>,
+        because it is opened as soon as the component has rendered once. Load data inside it,
+        behind a <a href="/skeleton"><code>.skeleton</code></a>. Use a nullable result, such as
+        <code>bool?</code>, where cancelled has to differ from a real <code>false</code>.
+    </p>
+</CatExample>
+
 <CatSnippet Name="Drawer/DrawerScrimForm.html" Title="A drawer that is not modal">
     <p>
         <code>.drawer-scrim</code> and <code>.drawer-scrim--open</code> are for a drawer the reader

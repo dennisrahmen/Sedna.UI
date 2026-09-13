@@ -7,13 +7,15 @@
 <CatExample TExample="Examples.Interop.SpotlightFollow" Title="A three-step tour" Demo="ex-demo--block ex-demo--flush">
     <p>
         <strong>Live — step through it.</strong>
-        <code>sednaUi.spotlight.follow(hole, target, options)</code> keeps the hole and the bubble
-        attached while the page moves under them — scroll, resize, and the case neither of those
-        covers: a re-render shifting the DOM with no event at all — and returns a handle with
-        <code>update()</code> and <code>stop()</code>. The hole is positioned against its offset
-        parent, so give the stage <code>position: relative</code>, and call <code>update()</code>
-        after every render rather than only on a step change: the bubble's own size decides which
-        side it fits on.
+        <code>ISednaUi.FollowSpotlightAsync(hole, target, options)</code> — in JavaScript,
+        <code>sednaUi.spotlight.follow</code> — keeps the hole and the bubble attached while the
+        page moves under them: scroll, resize, and the case neither of those covers, a re-render
+        shifting the DOM with no event at all. It returns a <code>SednaSpotlight</code> the
+        component owns and disposes. The hole, the bubble and the steps are your markup and your
+        state; this only positions them. The hole is placed against its offset parent, so give the
+        stage <code>position: relative</code>, and call <code>UpdateAsync()</code> after every
+        render rather than only on a step change: the bubble's own size decides which side it
+        fits on.
     </p>
 </CatExample>
 
@@ -21,8 +23,8 @@
     <p>
         Every element may be given as a CSS selector instead of an element, and for anything that
         outlives one render that is the form to prefer — a framework replaces the node, and a
-        reference captured once then points at a detached copy. It is also what lets a Blazor app
-        drive it from C# without threading an <code>ElementReference</code> through every call.
+        reference captured once then points at a detached copy. It is also why the C# options take
+        selectors rather than an <code>ElementReference</code>.
     </p>
 </CatSnippet>
 

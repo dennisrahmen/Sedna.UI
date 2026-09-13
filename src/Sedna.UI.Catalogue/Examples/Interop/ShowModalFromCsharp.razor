@@ -53,10 +53,16 @@
 
     private sealed record Outcome(bool Saved, string Label, string ReturnValue);
 
-    private Task Open()
+    // Completes when the dialog closes, with its returnValue: "save" or "cancel" from the
+    // two buttons below, and null for Escape.
+    private async Task Open()
     {
         _result = null;
-        return Ui.ShowModalAsync(Id);
+        var returnValue = await Ui.ShowModalAsync(Id);
+
+        _result = returnValue == "save"
+            ? new Outcome(true, $"{_name} · expires {_expires:yyyy-MM-dd}", "save")
+            : new Outcome(false, "Cancelled", returnValue ?? "null");
     }
 
     // Both routes out close the dialog through CloseModalAsync, and the form is a
@@ -64,23 +70,13 @@
     //
     // The platform's own dialog-method submit does not survive a Blazor handler:
     // closing the dialog and setting returnValue is the DEFAULT ACTION of the submit
-    // event, and Blazor's event delegator preventDefaults every submit so that a
-    // plain @onsubmit form does not navigate. So Create ran its handler and the
-    // dialog stayed open, with nothing logged — while Cancel, a type="button",
-    // worked, because it never needed a default action.
+    // event, and Blazor's event delegator preventDefaults every submit that has an
+    // @onsubmit handler, so that the form does not navigate. So Create would run its
+    // handler and the dialog would stay open, with nothing logged.
     //
     // Handling it in C# is also the honest shape for a dialog holding a form: the
     // work can fail, and a dialog that has already closed cannot show why.
-    private async Task Save()
-    {
-        var expires = _expires.ToString("yyyy-MM-dd");
-        await Ui.CloseModalAsync(Id, "save");
-        _result = new Outcome(true, $"{_name} · expires {expires}", "save");
-    }
+    private Task Save() => Ui.CloseModalAsync(Id, "save");
 
-    private async Task Cancel()
-    {
-        await Ui.CloseModalAsync(Id, "cancel");
-        _result = new Outcome(false, "Cancelled", "cancel");
-    }
+    private Task Cancel() => Ui.CloseModalAsync(Id, "cancel");
 }

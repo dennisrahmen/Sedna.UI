@@ -1,34 +1,38 @@
 @inject ISednaUi Ui
 
-<div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center">
-    <button class="btn" type="button" @onclick="Apply">Confirm an action</button>
-    <button class="btn btn-danger" type="button" @onclick="Discard">Confirm something destructive</button>
+<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+    <button class="btn btn-danger" type="button" @onclick="Discard">
+        <i class="ri-delete-bin-line"></i> Discard the reservation
+    </button>
     <span class="badge">@_outcome</span>
 </div>
+
+@* The confirmation is ordinary markup: its words, its buttons and their order are the
+   app's. Each button's value becomes the dialog's returnValue, and the safe choice comes
+   first in source order, which is the one showModal() focuses. *@
+<dialog id="discard-reservation" class="modal modal-sm" aria-labelledby="discard-reservation-title">
+    <form method="dialog">
+        <div class="modal-header">
+            <h3 id="discard-reservation-title">Discard the reservation?</h3>
+        </div>
+        <div class="modal-body">
+            <p>The five lines on ORD-4209 go back into stock. This cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" value="keep">Keep it</button>
+            <button class="btn btn-danger" value="discard"><i class="ri-delete-bin-line"></i> Discard</button>
+        </div>
+    </form>
+</dialog>
 
 @code {
     private string _outcome = "nothing yet";
 
-    private async Task Apply()
-    {
-        var ok = await Ui.ConfirmAsync(
-            "Apply the reservation?",
-            "The order will be rerouted to EU-West.",
-            confirmLabel: "Apply");
-
-        _outcome = ok ? "applied" : "cancelled";
-    }
-
-    // danger reddens the confirm button and focuses Cancel, so a stray Enter does
-    // not delete anything.
+    // Completes when the dialog closes, however it closed. Escape comes back as null,
+    // so anything but the one value that means yes is a no.
     private async Task Discard()
     {
-        var ok = await Ui.ConfirmAsync(
-            "Discard the reservation?",
-            "This cannot be undone.",
-            confirmLabel: "Discard",
-            danger: true);
-
-        _outcome = ok ? "discarded" : "kept";
+        var answer = await Ui.ShowModalAsync("discard-reservation");
+        _outcome = answer == "discard" ? "discarded" : "kept";
     }
 }

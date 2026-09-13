@@ -94,6 +94,19 @@ public class RegistrationTests
     }
 
     [Fact]
+    public void The_overlay_presenter_is_registered_scoped_too()
+    {
+        var services = WithJsRuntime();
+        services.AddSednaUi();
+
+        var descriptor = Assert.Single(services, d => d.ServiceType == typeof(ISednaOverlays));
+
+        // It holds the overlays open in one circuit; a singleton would render one reader's
+        // dialog into every other reader's layout.
+        Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
+    }
+
+    [Fact]
     public void The_settings_service_starts_with_the_documented_defaults()
     {
         var services = WithJsRuntime();

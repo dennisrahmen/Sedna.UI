@@ -48,7 +48,7 @@ first: it creates the global and the shared internals every other part reads.
 | `2x` | behaviour delegated from `document` — hover hints, copy, menus, tabs; accordion, drawer and palette land here too |
 | `3x` | the Markdown editor |
 | `4x` | small interop helpers |
-| `5x` | things the library puts on the page itself — notifications, the audio ping, toasts, the confirmation dialog |
+| `5x` | things the library puts on the page itself — notifications, the audio ping, toasts |
 
 A `2x` part may call a helper from `4x` even though it loads earlier: the call happens
 inside an event handler, long after every part has run. Do not read a later part's
@@ -73,23 +73,30 @@ may change in a patch release. Everything an app may touch is a named member on 
 - **The public API is a contract.** `sednaUi` is a pinned global that consuming apps call into.
   Removing or renaming a member, or changing a signature, is a **major** version change. Adding one is
   minor.
-- **Do not reach into .NET.** Parts manipulate the DOM and dispatch events that Blazor's bindings
-  pick up — the Markdown editor is the reference for this. Never `DotNet.invokeMethod`, and never go
-  looking for a .NET object a part was not handed.
+- **The script never goes looking for .NET.** The boundary is stated once, in the root `CLAUDE.md`
+  under **The interop boundary**; what it means inside this directory:
 
-  **The one exception is a reference the caller hands in**, and `watchSettings` /
-  `unwatchSettings` in `40-interop.js` is it: `ISednaSettings` passes a `DotNetObjectReference` and
-  the part invokes `SettingsChanged` on that object and nothing else. Everything the rule protects
-  still holds — a part nobody calls touches no .NET, the script works with no .NET on the page at
-  all (`settings.onChange` takes a plain function, and that is what the notification actually runs),
-  and the coupling is visible in the calling C# rather than hidden in the script.
-
-  It exists because the alternative has no answer. A scoped C# service cannot hear a DOM event, so
-  the only other route to "tell the app the reader changed their OS theme" is making the app put an
-  element with a handler in its layout — markup, to carry a notification.
-
-  If another part needs the same thing: keep the behaviour part framework-agnostic with a
-  plain-function listener, as `10-settings.js` is, and put the bridge in `4x`.
+  - Parts change the DOM and dispatch events that Blazor's bindings pick up — the Markdown editor is the
+    reference. Never `DotNet.invokeMethod`, and never go looking for a .NET object a part was not handed.
+  - **Completing an awaited call is allowed.** Return a promise and settle it; `modal.show` in
+    `42-modal.js` is the reference. A promise that waits on the reader must settle on a route that does
+    not depend on an event being dispatched — see that part's header for why the `close` event is not
+    one.
+  - **Invoking a reference the caller hands in is allowed**, and `watchSettings` / `unwatchSettings` in
+    `40-interop.js` is the reference: `ISednaSettings` passes a `DotNetObjectReference`, owns and
+    disposes it, and the part invokes `SettingsChanged` on it and nothing else. The script works with no
+    .NET on the page at all — `settings.onChange` takes a plain function — and the coupling is visible
+    in the calling C#.
+  - **A function does not cross; a handle does.** When a member takes or returns a function, give the
+    bridge an id and keep the function in a table keyed by it, as `watchSettings` does. Keep the
+    behaviour part framework-agnostic and put the bridge in `4x`.
+- **Draw no markup, except the toast and the hover-hint bubble.** A part adds classes, attributes and
+  state to elements the app wrote. `51-toast.js` and `20-tips.js` are the two parts that build UI, and
+  the root `CLAUDE.md` says why they are the only ones. A part may add an element nobody sees or
+  reads — the palette's detached navigation anchor, a clipboard textarea — but never a panel, a
+  dialog, a control, or a word of text the app did not supply.
+- **Rows come from the app's `<template>`.** A part that renders data clones a template the app wrote
+  and fills its `data-*` slots with `textContent`, never `innerHTML`. `24-palette.js` is the reference.
 - **Fail soft.** Wrap anything a browser may refuse (`localStorage`, clipboard, `Notification`,
   `AudioContext`) in `try`/`catch` and degrade. A blocked API must not break the page.
 - **Delegate from `document`, do not wire per element.** Blazor re-renders, and re-wiring on every

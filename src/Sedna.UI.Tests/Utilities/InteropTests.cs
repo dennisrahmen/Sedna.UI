@@ -66,21 +66,69 @@ public class InteropTests : BunitContext
     }
 
     [Fact]
-    public async Task Confirm_maps_its_labels_onto_the_scripts_option_names()
+    public async Task ShowModal_completes_with_the_return_value_the_script_resolves()
     {
-        JSInterop.Setup<bool>("sednaUi.confirm", _ => true).SetResult(true);
+        JSInterop.Setup<string?>("sednaUi.modal.show", _ => true).SetResult("delete");
 
-        var answer = await Wrapper().ConfirmAsync("Delete the queue?", "This cannot be undone.",
-            confirmLabel: "Delete", cancelLabel: "Keep", danger: true);
+        var answer = await Wrapper().ShowModalAsync("delete-queue");
 
-        Assert.True(answer);
-        var options = Only("sednaUi.confirm").Arguments[0]!;
-        Assert.Equal("Delete the queue?", Read(options, "title"));
-        Assert.Equal("This cannot be undone.", Read(options, "message"));
-        // The script reads `confirm` and `cancel`, not `confirmLabel`.
-        Assert.Equal("Delete", Read(options, "confirm"));
-        Assert.Equal("Keep", Read(options, "cancel"));
-        Assert.Equal(true, Read(options, "danger"));
+        Assert.Equal("delete", answer);
+        Assert.Equal("delete-queue", Only("sednaUi.modal.show").Arguments[0]);
+    }
+
+    [Fact]
+    public async Task ShowModal_uses_the_overload_Blazor_does_not_time_out()
+    {
+        JSInterop.Setup<string?>("sednaUi.modal.show", _ => true).SetResult(null);
+
+        await Wrapper().ShowModalAsync("delete-queue");
+
+        // THE defect this guards. The token-less InvokeAsync wraps every call in Blazor
+        // Server's one-minute default timeout, so a dialog a reader left open for a minute
+        // threw TaskCanceledException into the app's handler. Only the CancellationToken
+        // overload is exempt, and bUnit records which one was used.
+        Assert.NotNull(Only("sednaUi.modal.show").CancellationToken);
+    }
+
+    [Fact]
+    public async Task A_cancelled_ShowModal_closes_the_dialog_it_stopped_waiting_for()
+    {
+        var show = JSInterop.Setup<string?>("sednaUi.modal.show", _ => true);
+        JSInterop.SetupVoid("sednaUi.modal.close", _ => true).SetVoidResult();
+        using var cts = new CancellationTokenSource();
+
+        var waiting = Wrapper().ShowModalAsync("delete-queue", cts.Token);
+        await cts.CancelAsync();
+        show.SetCanceled();     // what the real runtime does with a cancelled token
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => waiting);
+        // A dialog left open with nobody awaiting its answer would be a trap.
+        Assert.Equal("delete-queue", Only("sednaUi.modal.close").Arguments[0]);
+    }
+
+    [Fact]
+    public async Task A_spotlight_step_sends_only_the_options_that_were_set()
+    {
+        JSInterop.SetupModule("sednaUi.spotlight.follow", _ => true).SetupVoid("stop").SetVoidResult();
+
+        await using var step = await Wrapper().FollowSpotlightAsync("#hole", "[data-live]", new SpotlightOptions
+        {
+            Tip = "#tip",
+            Placement = SpotlightPlacement.Auto,
+            Lock = new SpotlightLock { Interactive = true },
+        });
+
+        var call = Only("sednaUi.spotlight.follow");
+        Assert.Equal("#hole", call.Arguments[0]);
+        Assert.Equal("[data-live]", call.Arguments[1]);
+
+        // Unset options are left out rather than sent as null: the script tests several
+        // with `typeof x === 'number'` and others with truthiness, and a null that reads
+        // as "set" to one of them would move the bubble.
+        var options = Assert.IsType<Dictionary<string, object>>(call.Arguments[2]);
+        Assert.Equal(["lock", "placement", "tip"], options.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal("auto", options["placement"]);
+        Assert.Equal(true, ((Dictionary<string, object>)options["lock"])["interactive"]);
     }
 
     [Fact]
@@ -146,8 +194,8 @@ public class InteropTests : BunitContext
             Only("sednaUi.palette.register").Arguments[0]!);
         var command = Assert.Single(commands);
 
-        // A callback cannot cross the boundary — the library never calls back into
-        // .NET — so navigation is the one action a serialisable command can carry.
+        // A function does not cross the boundary, so navigation is the one action a
+        // serialisable command can carry.
         Assert.Equal("/queue", command.Href);
     }
 

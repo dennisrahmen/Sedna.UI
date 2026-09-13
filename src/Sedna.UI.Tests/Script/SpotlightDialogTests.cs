@@ -81,7 +81,7 @@ public class SpotlightDialogTests : ScriptTestBase
         // moved into the dialog rather than merely raised above it.
         var (page, errors) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync("() => sednaUi.modal.show('panel')");
+        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
         await page.EvaluateAsync(
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { tip: '#tip' })");
 
@@ -112,7 +112,7 @@ public class SpotlightDialogTests : ScriptTestBase
         var (page, errors) = await OpenStyled(
             Stage, extraHead: "<style>:root { --motion-fast: 0s; --motion-slow: 0s }</style>");
 
-        await page.EvaluateAsync("() => sednaUi.modal.show('panel')");
+        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
 
         // [surface x, surface y, target x, target y] — the header's padding, which is
         // panel and not text, and the middle of the control the step is about.
@@ -165,7 +165,7 @@ public class SpotlightDialogTests : ScriptTestBase
         // backdrop div the app started with.
         var (page, errors) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync("() => sednaUi.modal.show('panel')");
+        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
         await page.EvaluateAsync(
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { tip: '#tip' })");
 
@@ -214,7 +214,7 @@ public class SpotlightDialogTests : ScriptTestBase
         // everything else in the dialog does not, and typing survives.
         var (page, errors) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync("() => sednaUi.modal.show('panel')");
+        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
         // Placed below the anchor, which is the bottom of the dialog: a bubble over the
         // controls this test force-clicks would take the clicks itself, and the count
         // would be right for the wrong reason.
@@ -314,7 +314,7 @@ public class SpotlightDialogTests : ScriptTestBase
         Assert.Equal("none", await page.EvaluateAsync<string>(
             "() => document.getElementById('hole').style.display"));
 
-        await page.EvaluateAsync("() => sednaUi.modal.show('panel')");
+        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
 
         await page.WaitForFunctionAsync(
             "() => document.getElementById('hole').matches(':popover-open')",

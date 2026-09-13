@@ -1,0 +1,23 @@
+@inject ISednaOverlays Overlays
+
+<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+    <button class="btn" type="button" @onclick="Reassign">
+        <i class="ri-user-shared-line"></i> Reassign ORD-4209
+    </button>
+    <span class="form-hint">Owner</span>
+    <span class="badge">@_owner</span>
+</div>
+
+@code {
+    private string _owner = "Alex Fischer";
+
+    // ReassignOrder writes its own <dialog class="drawer">. This renders it, opens it,
+    // and waits for the owner it closes with — null for Escape, Cancel or the close button.
+    private async Task Reassign()
+    {
+        var owner = await Overlays.ShowAsync<ReassignOrder, string>(
+            new() { [nameof(ReassignOrder.Current)] = _owner });
+
+        if (owner is not null) _owner = owner;
+    }
+}

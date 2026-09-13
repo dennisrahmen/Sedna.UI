@@ -142,6 +142,4 @@ public class ToastTests : ScriptTestBase
         await page.Locator(".toast-close").ClickAsync();
         Assert.Equal(0, await page.Locator(".toast").CountAsync());
     }
-
-    // ── confirm ─────────────────────────────────────────────────────────────
 }

@@ -23,17 +23,8 @@
     <p>
         <code>ToastAsync</code> takes the message and a <code>ToastKind</code>, whose members are the
         CSS modifier suffixes, so <code>ToastKind.Go</code> and <code>.toast-go</code> cannot drift
-        apart. There is no C# equivalent of the remover function <code>toast()</code> returns —
-        dismissing a toast early stays a JavaScript concern.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Interop.ConfirmFromCsharp" Title="Confirmation" Demo="ex-demo--block">
-    <p>
-        <code>await Ui.ConfirmAsync(…)</code> returns a <code>bool</code>, so the decision reads as
-        ordinary C# control flow. Built on <code>&lt;dialog&gt;.showModal()</code> rather than
-        <code>window.confirm()</code>, which in Blazor Server blocks the circuit while it is open.
-        A dialog holding a form is <a href="/modal"><code>ShowModalAsync</code></a> instead.
+        apart. A toast is one of the two pieces of UI the library draws for you, because a line of
+        text has nothing to author.
     </p>
 </CatExample>
 
@@ -67,7 +58,9 @@
         <thead><tr><th>Member</th><th>Shown on</th></tr></thead>
         <tbody>
             <tr><td><code>Nav.CssClass</code>, <code>Nav.AriaCurrent</code>, <code>ActiveLink.IsActive</code></td><td><a href="/nav">Sidebar and nav</a> — which link is the current page, and which group is open</td></tr>
-            <tr><td><code>ShowModalAsync</code>, <code>CloseModalAsync</code></td><td><a href="/modal">Modal</a> — a dialog holding a form</td></tr>
+            <tr><td><code>ShowModalAsync</code>, <code>CloseModalAsync</code></td><td><a href="/modal">Modal</a> — awaiting a dialog you wrote, a confirmation included</td></tr>
+            <tr><td><code>ISednaOverlays</code>, <code>SednaOverlayHost</code></td><td><a href="/drawer">Drawers and sheets</a> — a modal, drawer or sheet that is its own component, with a typed result</td></tr>
+            <tr><td><code>FollowSpotlightAsync</code></td><td><a href="/spotlight">Spotlight</a> — a tour step that stays attached to its target</td></tr>
             <tr><td><code>InitMarkdownAsync</code></td><td><a href="/markdown">Markdown</a> — wiring the editor after first render</td></tr>
             <tr><td><code>RegisterSearchAsync</code>, <code>RegisterCommandsAsync</code></td><td><a href="/topbar">Topbar</a> and the <a href="/palette">command palette</a> — the index and the commands</td></tr>
             <tr><td><code>CopyTextAsync</code></td><td><a href="/script">The script</a> — where <code>data-copy</code> needs no C# at all</td></tr>

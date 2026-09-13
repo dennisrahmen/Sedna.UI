@@ -15,7 +15,7 @@
 
    Only `title` is required. `href` is where choosing the result goes; an item
    without one is inert unless it carries a `run` callback, which only a source
-   registered from JavaScript can have — the library never calls back into .NET.
+   registered from JavaScript can have — a function does not cross into C#.
 
    THE INDEX IS CLIENT-SIDE, and that is the whole design. A per-keystroke round trip
    is an app's decision to make, not a shared library's: it needs a debounce whose

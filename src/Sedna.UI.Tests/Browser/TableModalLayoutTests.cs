@@ -52,7 +52,7 @@ public class TableModalLayoutTests : ScriptTestBase
 
         var (page, _) = await OpenStyled(body);
         await page.SetViewportSizeAsync(1000, 700);
-        if (form == "dialog") await page.EvaluateAsync("() => sednaUi.modal.show('m')");
+        if (form == "dialog") await page.EvaluateAsync("() => { sednaUi.modal.show('m'); }");
 
         var viewport = page.ViewportSize!;
         var header = (await page.Locator(".modal-header").BoundingBoxAsync())!;

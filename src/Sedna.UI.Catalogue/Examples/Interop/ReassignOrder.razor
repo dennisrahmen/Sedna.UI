@@ -1,0 +1,40 @@
+@* The app's own overlay component. Everything on screen is written here — the drawer,
+   its words and its buttons — and ISednaOverlays only presents it. *@
+
+<dialog id="@Overlay.Id" class="drawer" aria-labelledby="@($"{Overlay.Id}-title")">
+    <div class="drawer-header">
+        <h3 id="@($"{Overlay.Id}-title")">Reassign ORD-4209</h3>
+        <button class="modal-close" type="button" aria-label="Close" @onclick="Overlay.CancelAsync">
+            <i class="ri-close-line"></i>
+        </button>
+    </div>
+    <div class="drawer-body">
+        <div class="form-field">
+            <label class="form-label" for="@($"{Overlay.Id}-owner")">New owner</label>
+            <select class="form-input form-select" id="@($"{Overlay.Id}-owner")" @bind="_owner">
+                @foreach (var person in People)
+                {
+                    <option value="@person">@person</option>
+                }
+            </select>
+        </div>
+        <p class="form-hint">Currently @Current. The new owner is notified.</p>
+    </div>
+    <div class="drawer-footer">
+        <button class="btn" type="button" @onclick="Overlay.CancelAsync">Cancel</button>
+        <button class="btn btn-primary" type="button" disabled="@(_owner == Current)"
+                @onclick="() => Overlay.CloseAsync(_owner)">Reassign</button>
+    </div>
+</dialog>
+
+@code {
+    private static readonly string[] People = ["Alex Fischer", "Priya Nair", "Jordan Weiss"];
+
+    private string _owner = "";
+
+    [CascadingParameter] public SednaOverlay Overlay { get; set; } = default!;
+
+    [Parameter] public string Current { get; set; } = "";
+
+    protected override void OnInitialized() => _owner = Current;
+}

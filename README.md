@@ -27,8 +27,9 @@ and that nobody should restyle per project.
 
 **Both are semantic CSS classes.** Pages write plain, open HTML and apply them, so there is no
 `<DataTable>`, no `<AppShell>`, and there will not be either. The package is the stylesheet, the script,
-the icons and a small C# surface for what markup cannot express — which link is the current page, and
-typed access to the browser API.
+the icons and a small C# surface for what markup cannot express — which link is the current page, typed
+access to the browser API, and a presenter that opens the dialogs an app writes. The markup on screen is
+always the app's.
 
 → [Architecture and the token contract](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/architecture.md)
 

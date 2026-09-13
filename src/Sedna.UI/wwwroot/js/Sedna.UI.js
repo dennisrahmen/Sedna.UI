@@ -32,7 +32,6 @@
      42-modal.js
      50-notify.js
      51-toast.js
-     52-confirm.js
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── 00-core.js ──────────────────────────────────────────────── */
@@ -2163,9 +2162,9 @@ window.sednaUi = window.sednaUi || {};
         // `run` first: a command that has both is doing something more than
         // navigating, and `href` is then only there for a middle-click.
         if (typeof c.run === 'function') c.run();
-        // `href` is what a command registered from C# uses. A callback cannot cross
-        // that boundary — the library never calls back into .NET — so navigation is
-        // the one action a serialisable command can carry.
+        // `href` is what a command registered from C# uses. A function does not
+        // cross into C#, so navigation is the one action a serialisable command can
+        // carry.
         else if (c.href) go(c.href);
     }
 
@@ -2302,7 +2301,7 @@ window.sednaUi = window.sednaUi || {};
 
    Only `title` is required. `href` is where choosing the result goes; an item
    without one is inert unless it carries a `run` callback, which only a source
-   registered from JavaScript can have — the library never calls back into .NET.
+   registered from JavaScript can have — a function does not cross into C#.
 
    THE INDEX IS CLIENT-SIDE, and that is the whole design. A per-keystroke round trip
    is an app's decision to make, not a shared library's: it needs a debounce whose
@@ -3155,7 +3154,7 @@ window.sednaUi = window.sednaUi || {};
    Toolbar + textarea + live preview inside one .md-editor root. Blazor owns the
    value through the textarea's two-way @bind (@bind:event="oninput"); toolbar
    edits mutate the textarea and dispatch a bubbling 'input' event so the binding
-   picks them up — this code never calls back into .NET.
+   picks them up, which is the whole of its conversation with .NET.
 
    init() is idempotent per editor, since Blazor re-renders its host. Call it with no
    argument to wire every .md-editor in the document, with a container to wire the ones
@@ -4084,27 +4083,54 @@ window.sednaUi = window.sednaUi || {};
 })(window.sednaUi);
 
 /* ── 42-modal.js ──────────────────────────────────────────────── */
-/* ── The platform dialog ─────────────────────────────────────────────────────
-   sednaUi.modal.show(id)          → dialog.showModal()
+/* ── The dialog presenter ────────────────────────────────────────────────────
+   await sednaUi.modal.show(id)    → dialog.showModal(); resolves with returnValue
    sednaUi.modal.close(id, value)  → dialog.close(value)
+   await sednaUi.modal.idle(id)    → resolves once a closed dialog's transition ends
 
-   Two calls, and the reason they exist is not convenience. `.modal` on a <dialog>
-   gets the top layer, a focus trap, Escape-to-close and inert content behind it —
-   all four from the platform, none of them reachable from Blazor without
-   IJSRuntime, which the consuming rules say an app should not inject. So an app
-   that followed those rules fell back to a `.modal-backdrop` div behind an `@if`
-   and lost all four; sednaUi.confirm already calls showModal() internally, so the
-   capability was in the file and simply had no door.
+   The presenter for markup the app wrote: a `.modal`, a `.drawer` or a `.sheet`,
+   each a <dialog>. The platform gives the top layer, a focus trap, Escape-to-close
+   and inert content behind it — all four, none reachable from Blazor without
+   IJSRuntime, which the consuming rules say an app should not inject. An app that
+   followed those rules otherwise fell back to a `.modal-backdrop` div behind an
+   `@if` and lost all four.
 
-   `confirm` is not a substitute: it takes strings and returns a bool, and these
-   dialogs hold forms.
+   show() resolves with the dialog's returnValue when it closes, or null when it
+   closed without one — Escape, close() with no value, a button whose value is
+   empty. So a confirmation is the app's own markup and one comparison:
 
-   An id that is not a <dialog> is a no-op with a console warning rather than a
+     if (await sednaUi.modal.show('delete-queue') === 'delete') …
+
+   SETTLED FROM THE `open` ATTRIBUTE, NEVER FROM THE `close` EVENT. Every way a
+   dialog closes — Escape, a <form method="dialog"> submit, close() from anywhere —
+   removes the attribute synchronously, and a MutationObserver sees that as a
+   microtask. The `close` event is queued as a task instead, and a background or
+   non-compositing tab applies close() without ever dispatching it: an await hanging
+   off the event never returns, and in a Blazor handler that is an action that
+   silently stops working.
+
+   A dialog removed from the document while open settles null too, so a page
+   navigated away from under an open dialog does not leave its caller waiting.
+
+   returnValue is cleared as the dialog opens, because the platform keeps the last
+   one: without that, Escape on a second opening reports the first opening's button.
+
+   An id that is not a <dialog> resolves null with a console warning rather than a
    throw. The call sites are Blazor event handlers, where an exception crossing the
    interop boundary tears down the circuit — a wrong id should cost a line in the
    console, not the reader's page.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
+
+    // The cap on idle(). A closing transition is --motion-mid; this only has to be
+    // longer than any transition an app would give a dialog, and short enough that a
+    // background tab, which does not advance animations, is not waited on for long.
+    var IDLE_CAP_MS = 1000;
+
+    // One pending promise per open dialog, so a second show() on a dialog that is
+    // already open — a Blazor re-render calling it twice — joins the first wait
+    // instead of starting a rival one.
+    var pending = new WeakMap();
 
     function dialogById(id, verb) {
         var el = document.getElementById(id);
@@ -4120,18 +4146,54 @@ window.sednaUi = window.sednaUi || {};
         return el;
     }
 
+    function watch(d) {
+        return new Promise(function (resolve) {
+            var done = false;
+            var attrs = new MutationObserver(check);
+            var tree = new MutationObserver(check);
+
+            function check() {
+                if (done || (d.open && d.isConnected)) return;
+                done = true;
+                attrs.disconnect();
+                tree.disconnect();
+                pending.delete(d);
+                // Removed while still open is not an answer, whatever returnValue says.
+                resolve(!d.open && d.returnValue ? d.returnValue : null);
+            }
+
+            attrs.observe(d, { attributes: true, attributeFilter: ['open'] });
+            tree.observe(document, { childList: true, subtree: true });
+        });
+    }
+
     ui.modal = {
         show: function (id) {
             var d = dialogById(id, 'show');
-            // Already open: showModal() on an open dialog throws InvalidStateError,
-            // and a re-render that calls show() twice is ordinary in Blazor.
-            if (!d || d.open) return;
-            try { d.showModal(); } catch (e) { console.warn('sednaUi.modal.show: ' + e.message); }
+            if (!d) return Promise.resolve(null);
+
+            // Already open — by this call before, or by the app's own showModal():
+            // showModal() on an open dialog throws InvalidStateError, so join the wait.
+            if (!d.open) {
+                d.returnValue = '';
+                try { d.showModal(); }
+                catch (e) {
+                    console.warn('sednaUi.modal.show: ' + e.message);
+                    return Promise.resolve(null);
+                }
+            }
+
+            var waiting = pending.get(d);
+            if (!waiting) {
+                waiting = watch(d);
+                pending.set(d, waiting);
+            }
+            return waiting;
         },
 
-        // returnValue reaches the app through the dialog's own `close` event, which
-        // is where a <form method="dialog"> puts its submitter value too — so both
-        // routes out of the dialog are read the same way.
+        // The value becomes the dialog's returnValue, which is what show() resolves
+        // with — the same place a <form method="dialog"> puts its submitter's value, so
+        // both routes out of the dialog are read the same way.
         close: function (id, value) {
             var d = dialogById(id, 'close');
             if (!d || !d.open) return;
@@ -4139,6 +4201,32 @@ window.sednaUi = window.sednaUi || {};
                 if (value === undefined || value === null) d.close();
                 else d.close(String(value));
             } catch (e) { console.warn('sednaUi.modal.close: ' + e.message); }
+        },
+
+        /* Resolves once a dialog that has just closed has finished animating out.
+
+           For something about to remove the dialog from the document, which is what
+           an overlay host does after show() resolves: a `.drawer` slides out over
+           --motion-mid, and removing it mid-slide cuts the panel off where it stands.
+           Reading computed style first is what starts the closing transition, so
+           getAnimations() sees it without waiting a frame — and a frame never comes in
+           a background tab. A hidden page resolves at once, because nobody can see the
+           slide and its animations do not advance; the cap covers the rest. */
+        idle: function (id) {
+            var d = document.getElementById(id);
+            if (!d || d.open || typeof d.getAnimations !== 'function') return Promise.resolve();
+            if (document.visibilityState === 'hidden') return Promise.resolve();
+
+            getComputedStyle(d).display;
+            var running = d.getAnimations().map(function (a) {
+                return a.finished.catch(function () { /* cancelled is finished too */ });
+            });
+            if (!running.length) return Promise.resolve();
+
+            return Promise.race([
+                Promise.all(running),
+                new Promise(function (r) { setTimeout(r, IDLE_CAP_MS); })
+            ]).then(function () { });
         }
     };
 
@@ -4302,106 +4390,6 @@ window.sednaUi = window.sednaUi || {};
         if (ms > 0) timer = setTimeout(remove, ms);
 
         return remove;
-    };
-
-})(window.sednaUi);
-
-/* ── 52-confirm.js ──────────────────────────────────────────────── */
-/* ── Confirmation dialog ─────────────────────────────────────────────────────
-   await sednaUi.confirm({ title, message, confirm, cancel, danger })
-     → true if confirmed, false if cancelled or dismissed.
-
-   Built on <dialog>.showModal(), which is the whole reason this exists rather than
-   an app hand-rolling a .modal-backdrop: the platform gives the top layer, a focus
-   trap, Escape-to-close and inert content behind, and none of those are things a
-   div-based overlay can do without a lot of code that is usually wrong.
-
-   Replaces window.confirm(), which blocks the thread, cannot be styled, and in
-   Blazor Server blocks the circuit while it is open.
-
-   No fallback for a browser without <dialog>. The supported floor is Chromium —
-   current Chrome and Edge — which has had it for years; a fallback path would be
-   untested code that only ever runs where the library is not supported anyway.
-   ─────────────────────────────────────────────────────────────────────────── */
-(function (ui) {
-
-    function el(tag, className, text) {
-        var node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text !== undefined) node.textContent = text;
-        return node;
-    }
-
-    ui.confirm = function (opts) {
-        opts = opts || {};
-        var title = opts.title || 'Are you sure?';
-        var message = opts.message || '';
-        var confirmLabel = opts.confirm || 'Confirm';
-        var cancelLabel = opts.cancel || 'Cancel';
-
-        return new Promise(function (resolve) {
-            var dialog = document.createElement('dialog');
-            dialog.className = 'modal modal-sm';
-
-            var header = el('div', 'modal-header');
-            var h3 = el('h3', null, title);
-            header.appendChild(h3);
-
-            var body = el('div', 'modal-body');
-            if (message) body.appendChild(el('p', null, message));
-
-            var footer = el('div', 'modal-footer');
-            var cancel = el('button', 'btn', cancelLabel);
-            cancel.type = 'button';
-            var ok = el('button', 'btn ' + (opts.danger ? 'btn-danger' : 'btn-primary'), confirmLabel);
-            ok.type = 'button';
-            footer.appendChild(cancel);
-            footer.appendChild(ok);
-
-            dialog.appendChild(header);
-            if (message) dialog.appendChild(body);
-            dialog.appendChild(footer);
-            document.body.appendChild(dialog);
-
-            // Settle on the ACTION, not only on the dialog's `close` event.
-            //
-            // Resolving purely from `close` gives the promise a single point of
-            // failure: if that event does not arrive — and it does not, for instance,
-            // in a background or non-compositing tab, where close() still takes
-            // effect but the queued event is never dispatched — then `await confirm()`
-            // never returns. In a Blazor handler that is an action that silently stops
-            // working, with no error anywhere.
-            //
-            // So every route a user can take settles directly: both buttons, and the
-            // `cancel` event that Escape fires. The `close` listener is a third line
-            // only — it covers an app calling close() on the dialog itself, and it is
-            // no more reliable than the event it hangs off, which is the point. Nothing
-            // a user can do depends on it.
-            //
-            // settled makes the first route win and the rest no-ops, so the paths
-            // cannot double-resolve or double-remove.
-            var settled = false;
-            function settle(value) {
-                if (settled) return;
-                settled = true;
-                try { if (dialog.open) dialog.close(); } catch (e) { /* already closed */ }
-                if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
-                resolve(value);
-            }
-
-            ok.addEventListener('click', function () { settle(true); });
-            cancel.addEventListener('click', function () { settle(false); });
-            dialog.addEventListener('cancel', function () { settle(false); });   // Escape
-            dialog.addEventListener('close', function () { settle(false); });
-
-            dialog.showModal();
-
-            // Focus the SAFE choice. showModal() focuses the first focusable element,
-            // which would be Cancel here by source order — but for a destructive
-            // action that ordering is the point, so it is made explicit rather than
-            // left to depend on the DOM order.
-            (opts.danger ? cancel : ok).focus();
-        });
     };
 
 })(window.sednaUi);

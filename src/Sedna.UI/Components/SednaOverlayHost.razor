@@ -1,0 +1,14 @@
+@* SednaOverlayHost — renders the app components ISednaOverlays is presenting.
+   See the XML doc comment on the partial class in SednaOverlayHost.razor.cs. *@
+@namespace Sedna.UI
+@implements IDisposable
+
+@if (_attached)
+{
+    foreach (var entry in Service.Open)
+    {
+        <CascadingValue Value="entry.Overlay" IsFixed="true" @key="entry.Overlay.Id">
+            <DynamicComponent Type="entry.Component" Parameters="entry.Parameters" />
+        </CascadingValue>
+    }
+}

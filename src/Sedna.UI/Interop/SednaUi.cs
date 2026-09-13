@@ -42,17 +42,6 @@ public sealed class SednaUi : ISednaUi
             new { kind = Name(kind), title, timeout = timeoutMs, dismissible }).AsTask();
 
     /// <inheritdoc />
-    public Task<bool> ConfirmAsync(
-        string title,
-        string? message = null,
-        string confirmLabel = "Confirm",
-        string cancelLabel = "Cancel",
-        bool danger = false)
-        => _js.InvokeAsync<bool>(
-            "sednaUi.confirm",
-            new { title, message, confirm = confirmLabel, cancel = cancelLabel, danger }).AsTask();
-
-    /// <inheritdoc />
     public Task<bool> CopyTextAsync(string text)
         => _js.InvokeAsync<bool>("sednaUi.copyText", text).AsTask();
 
@@ -129,12 +118,39 @@ public sealed class SednaUi : ISednaUi
     public Task OpenTabAsync(string url) => _js.InvokeVoidAsync("sednaUi.openTab", url).AsTask();
 
     /// <inheritdoc />
-    public Task ShowModalAsync(string elementId)
-        => _js.InvokeVoidAsync("sednaUi.modal.show", elementId).AsTask();
+    public async Task<string?> ShowModalAsync(string elementId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // The token overload, always: it is the one Blazor does not wrap in its
+            // default one-minute timeout, and this call lasts as long as the reader takes.
+            return await _js.InvokeAsync<string?>("sednaUi.modal.show", cancellationToken, [elementId])
+                .ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // A caller that stopped waiting must not leave the dialog open with nobody
+            // listening for its answer.
+            try { await CloseModalAsync(elementId).ConfigureAwait(false); }
+            catch (JSDisconnectedException) { /* the circuit is gone, and the dialog with it */ }
+            throw;
+        }
+    }
 
     /// <inheritdoc />
     public Task CloseModalAsync(string elementId, string? returnValue = null)
         => _js.InvokeVoidAsync("sednaUi.modal.close", elementId, returnValue).AsTask();
+
+    /// <inheritdoc />
+    public async Task<SednaSpotlight> FollowSpotlightAsync(string hole, string target, SpotlightOptions? options = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(hole);
+        ArgumentException.ThrowIfNullOrWhiteSpace(target);
+
+        var step = await _js.InvokeAsync<IJSObjectReference>(
+            "sednaUi.spotlight.follow", hole, target, (options ?? new SpotlightOptions()).ToScript());
+        return new SednaSpotlight(step);
+    }
 
     /// <inheritdoc />
     public Task<int> ViewportWidthAsync()

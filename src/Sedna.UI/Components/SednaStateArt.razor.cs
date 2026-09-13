@@ -26,9 +26,9 @@ namespace Sedna.UI;
 /// show when something is broken.
 /// </para>
 /// <para>
-/// This is the second of the two components the root <c>CLAUDE.md</c> allows, for the
-/// same reason as <see cref="SednaBrandStyle"/>: it emits infrastructure — a block of
-/// definitions nothing renders directly — not markup a page reader needs to see or copy.
+/// An infrastructure component, like <see cref="SednaBrandStyle"/>, in the sense of
+/// <b>Markup belongs to the app</b> in the root <c>CLAUDE.md</c>: it emits a block of
+/// definitions nothing renders directly, not markup a page reader needs to see or copy.
 /// The markup they copy is the <c>&lt;svg class="state-art"&gt;</c> on their own page.
 /// </para>
 /// </remarks>

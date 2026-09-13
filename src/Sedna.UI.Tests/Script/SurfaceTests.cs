@@ -21,7 +21,7 @@ public class SurfaceTests : ScriptTestBase
 
         var missing = await page.EvaluateAsync<string[]>("""
             () => [
-                'configure', 'settings', 'tips', 'toast', 'confirm', 'menu', 'tabs',
+                'configure', 'settings', 'tips', 'toast', 'modal', 'menu', 'tabs',
                 'palette', 'search', 'md', 'spotlight', 'copyText', 'openTab',
                 'viewportWidth', 'timeZone', 'getItem', 'setItem', 'requestNotify', 'notify', 'ping',
                 'watchSettings', 'unwatchSettings'
@@ -40,6 +40,7 @@ public class SurfaceTests : ScriptTestBase
                     settings: ['load', 'save', 'apply', 'onChange'],
                     menu: ['closeAll'],
                     tabs: ['select'],
+                    modal: ['show', 'close', 'idle'],
                     palette: ['register', 'open', 'close', 'rank'],
                     search: ['register', 'rank', 'close'],
                     md: ['init', 'apply', 'render'],

@@ -13,25 +13,71 @@ Pixel-identical in every app, never restyled per project.
 **Tier 2 — the paint.** Tables, forms, cards, badges, buttons, panels, alerts. Pages write plain HTML
 and apply the classes.
 
-**Both tiers are CSS classes. No component may wrap UI.** Do not add a `<DataTable>`, a `<Card>` or an
-`<AppShell>` — the frame is markup on the catalogue's Shell & nav page, copied like everything else.
-Adding UI means adding classes and a catalogue page.
+**Both tiers are CSS classes.** Do not add a `<DataTable>`, a `<Card>` or an `<AppShell>` — the frame
+is markup on the catalogue's Shell & nav page, copied like everything else. Adding UI means adding
+classes and a catalogue page.
 
-**The reason is workability, not taste.** A component hides the CSS, the HTML and the JS behind a tag,
-and an agent cannot read or edit what it cannot see — so the markup stops being greppable, copyable and
-reviewable. That is the whole objection, and it only applies to components that *contain markup a
-reader needs*.
+## Markup belongs to the app
 
-**A component that provides a service or a small helper is therefore allowed**, because it hides
-nothing a reader wants: it emits infrastructure, not UI. `SednaBrandStyle`, which renders a `<style>`
-block of brand tokens into `<head>`, and `SednaStateArt`, which writes the state illustrations' sprite
-into `<body>`, are the two sanctioned examples. The test is simple — if removing the
-component would leave a reader unable to see the markup their page renders, it is forbidden; if it
-would only make them write plumbing by hand, it is fine.
+**The library never stands in for markup the app would otherwise write.** A component hides the CSS,
+the HTML and the JS behind a tag, and an agent cannot read or edit what it cannot see — so the markup
+stops being greppable, copyable and reviewable. That is the whole objection, and it decides every case
+below.
 
-The package is the stylesheet, the script, the icons, the token export, and a small C# surface for the
-things markup cannot express: `ActiveLink` (which link is the current page), `ISednaUi` (typed
-access to the browser API) and `AddSednaUi()`. Most of this library is CSS.
+**The test: after this ships, does the app still author the markup it renders?**
+
+Three kinds of code pass it, and they are the only kinds that may exist beside the stylesheet:
+
+- **Infrastructure components** emit no UI. `SednaBrandStyle` writes a `<style>` of brand tokens into
+  `<head>`; `SednaStateArt` writes the state illustrations' `<symbol>` sprite into `<body>`. Removing
+  one leaves a reader able to see every line their page renders — they would only write plumbing by
+  hand.
+- **Presenters** show, hide and await markup the app wrote. `ISednaUi.ShowModalAsync(id)` opens the
+  app's `<dialog>` — a modal, a drawer or a sheet — and completes with its `returnValue` when it
+  closes. `ISednaOverlays.ShowAsync<TComponent, TResult>` renders an app component through
+  `SednaOverlayHost`, opens the `<dialog>` that component wrote, and completes with the result it
+  closed with. **A presenter never adds an element the app did not write.** Presenters are for overlays
+  opened by app logic; a popover or a menu opened by its trigger's own attribute needs none.
+- **State helpers** compute what markup cannot express. `ActiveLink` answers which link is the current
+  page, as `aria-current`; a sort, tab or pager helper has the same shape. Pure functions, no interop,
+  nothing held.
+
+**The toast and the hover-hint bubble are the two exceptions.** Neither has a form, a result or
+anything to author — a toast is one line the app passes in, a hint is the app's own `data-tip` text — so
+the library draws them: `51-toast.js` builds the toast and `20-tips.js` builds the one `.sedna-tip`
+bubble. They are named here so nobody removes them by this rule, and so nothing is added beside them.
+A confirmation dialog, the command palette and the header search's results were all once drawn by the
+script and were moved to app markup for exactly that.
+
+**A list the script fills comes from the app's `<template>`.** Where the script renders rows from data —
+the palette's commands, the header search's results — the app writes the container and a `<template>`
+per row shape, and the script clones it and fills `data-*` slots. Every element and every word on
+screen is then the app's, in the app's language.
+
+## The interop boundary
+
+**The script never goes looking for .NET.** Parts change the DOM and dispatch events that Blazor's
+bindings pick up. A part may do two more things, and only these:
+
+- **Complete a call the app is awaiting.** `ShowModalAsync` completing when the dialog closes is one
+  call finishing, not the library calling in.
+- **Invoke a reference the app handed it and owns.** `ISednaSettings` passes a `DotNetObjectReference`
+  to `watchSettings`, and creates and disposes it; the script invokes that one object and nothing else.
+  The script never creates, finds or keeps a reference of its own.
+
+**The test: who owns and disposes the reference?** If it is the app, the call is allowed. If the script
+would have to hold one to make a feature work, the feature is designed wrong.
+
+**A function does not cross the boundary; a handle does.** Where a JavaScript member takes or returns a
+function, the C# member takes or returns data naming the same thing — an id, a boolean — and the script
+keeps the function in a table keyed by it, as `watchSettings` does.
+
+**A call that waits on the reader passes a `CancellationToken`.** Blazor applies a one-minute timeout
+to every interop call that does not, so a dialog left open for a minute would throw into the app.
+
+The package is the stylesheet, the script, the icons, the token export, and the C# surface above:
+`ActiveLink`, `ISednaUi`, `ISednaSettings`, `ISednaOverlays` and `AddSednaUi()`. Most of this library is
+CSS.
 
 ## The stylesheet and the script are generated
 
@@ -79,8 +125,10 @@ Permanently out of scope:
 - Wrapping tables, forms or page content in components.
 - Wrapping the frame in components. The frame is markup, not a component tree; do not introduce one.
 
-  This bans components that **hide markup**. It does not ban components outright — see the two-tier
-  section above. A service or helper component that emits no UI is allowed.
+  This bans components that **hide markup**. It does not ban components outright — see **Markup
+  belongs to the app** above for the three kinds that are allowed.
+- Library-drawn UI beyond the toast: a confirmation, a prompt, an alert box built by the script. The app
+  writes it as a modal and a presenter shows it.
 - **The package** loading anything from a remote URL at runtime. Everything it needs ships inside it,
   so no host outage can affect a customer site. The catalogue application is a web server, and that
   rule is about the package.
@@ -201,10 +249,10 @@ src/
     wwwroot/js/Sedna.UI.js        GENERATED by build/bundle-js.sh — do not edit
     wwwroot/js/Sedna.UI.boot.js   pre-paint theme, loaded in <head>; standalone
     StateArt/…states.svg              the thirteen state illustrations, one <symbol> each; embedded, not shipped as a file
-    Components/                       SednaBrandStyle and SednaStateArt, the two infrastructure components
+    Components/                       SednaBrandStyle, SednaStateArt (infrastructure) and SednaOverlayHost (presenter)
     wwwroot/tokens/…tokens.json       GENERATED by build/export-tokens.sh
     Navigation/ActiveLink.cs          which link is the current page
-    Interop/                          ISednaUi — typed access to the browser API
+    Interop/                          ISednaUi, ISednaSettings and ISednaOverlays — typed access to the browser API
   Sedna.UI.Tests/                 xUnit + bUnit + Playwright, over the shipped assets
   Sedna.UI.Catalogue/             the hosted catalogue and the MCP server
     Components/Pages/                 one .razor page per class family
@@ -345,9 +393,9 @@ in `assets/brand/` are bespoke rather than built from an icon.
 ## JavaScript
 
 `Sedna.UI.js` holds generic UI behaviour only: hover hints, theme settings, clipboard, notifications,
-toasts, confirm dialogs, delegated menus, tabs, combo fields, the command palette and the header search,
-and the Markdown editor. App-specific interop stays in the app's own script. The member table is in
-`docs/architecture.md`.
+toasts, the dialog presenter, delegated menus, tabs, combo fields, the command palette and the header
+search, and the Markdown editor. App-specific interop stays in the app's own script. The member table is
+in `docs/architecture.md`, and the rules for crossing into .NET are **The interop boundary** above.
 
 - `palette` and `search` share one matcher, `ui._.score`. Do not write a second one.
 - `search`'s index is client-side and registered up front. Searching a database is the app's own job —

@@ -228,6 +228,17 @@ internal sealed class CatalogueIndex
 
                 var blurb = Blurb(source, tag.Index + tag.Length);
                 found[id] = new ExampleMeta(id.Split('/')[0], CatTitle.Plain(title), blurb);
+
+                // A companion file is printed by the same example, so it is found under
+                // that example's page and title rather than as an untitled orphan.
+                if (attrs.TryGetValue("Companion", out var companion))
+                {
+                    var companionId = Path.ChangeExtension(companion, null);
+                    found[companionId] = new ExampleMeta(
+                        id.Split('/')[0],
+                        $"{CatTitle.Plain(title)} — {Path.GetFileName(companion)}",
+                        blurb);
+                }
             }
         }
 
