@@ -37,7 +37,19 @@
     .modal-backdrop,
     .page-head-actions,
     .form-actions,
-    .code-block-copy { display: none; }
+    .code-block-copy,
+    .chat-launcher,
+    .chat-flyover,
+    .chat-composer,
+    .chat-closed,
+    .chat-actions,
+    .chat-jump,
+    .chat-quick-replies { display: none; }
+
+    /* A thread prints whole: the scroller lets its messages out, and a message is
+       not cut across a page. */
+    .chat-pane > .chat { overflow: visible; }
+    .chat-message { break-inside: avoid; }
 
     /* A card is a box on screen; on paper the border is what keeps it a box, and the
        shadow is nothing. Kept whole across a page break: a card split in half loses

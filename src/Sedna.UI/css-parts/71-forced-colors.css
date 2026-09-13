@@ -115,7 +115,16 @@
     .tree-leaf[aria-current="true"],
     .list-row[aria-current="true"],
     .list-row[aria-selected="true"],
-    .segmented-option:has(input:checked) { outline: 1px solid Highlight; }
+    .segmented-option:has(input:checked),
+    .chat-reaction[aria-pressed="true"] { outline: 1px solid Highlight; }
+
+    /* A chat bubble is nothing but a background; without a line around it a
+       thread is a column of text with no turns in it. */
+    .chat-bubble,
+    .chat-attachment,
+    .chat-link-card,
+    .chat-reaction,
+    .chat-jump { outline: 1px solid CanvasText; outline-offset: -1px; }
 
     /* A status dot is the one thing whose actual colour IS the content — it is not
        decoration on a label, it IS the label — so it opts out of the forced palette
@@ -123,5 +132,6 @@
     .nav-status-dot,
     .health-dot,
     .chip-dot,
+    .avatar-presence::after,
     .timeline > li::before { forced-color-adjust: none; }
 }
