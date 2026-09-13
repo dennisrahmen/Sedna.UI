@@ -1,0 +1,58 @@
+<div class="gallery" style="max-width:520px">
+    <button class="btn-ghost" type="button" style="padding:0; text-align:start"
+            onclick="document.getElementById('lb-racking').showModal()">
+        <span class="media-frame media-frame--cover">
+            <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=280&amp;h=280&amp;fit=crop&amp;q=70&amp;auto=format"
+                 width="280" height="280" loading="lazy"
+                 alt="A warehouse aisle of tall pallet racking, seen down its length" />
+        </span>
+        <span class="text-sm text-muted text-truncate sedna-mt-1">racking-bay-4209.jpg</span>
+    </button>
+    <button class="btn-ghost" type="button" style="padding:0; text-align:start"
+            onclick="document.getElementById('lb-dock').showModal()">
+        <span class="media-frame media-frame--cover">
+            <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=280&amp;h=280&amp;fit=crop&amp;q=70&amp;auto=format"
+                 width="280" height="280" loading="lazy"
+                 alt="A warehouse floor stacked with yellow crates, staff working in the aisle" />
+        </span>
+        <span class="text-sm text-muted text-truncate sedna-mt-1">crates-4209.jpg</span>
+    </button>
+</div>
+
+<dialog class="lightbox" id="lb-racking" aria-labelledby="lb-racking-title">
+    <div class="lightbox-head">
+        <strong class="lightbox-title" id="lb-racking-title">racking-bay-4209.jpg</strong>
+        <span class="lightbox-meta">1 of 2 · 1.2 MB</span>
+        <div class="lightbox-actions">
+            <a class="btn btn-ghost btn-icon" href="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=1600&amp;q=80&amp;auto=format" target="_blank" rel="noopener" aria-label="Open the original in a new tab"><i class="ri-external-link-line"></i></a>
+            <form method="dialog"><button class="btn btn-ghost btn-icon" aria-label="Close"><i class="ri-close-line"></i></button></form>
+        </div>
+    </div>
+    <div class="lightbox-stage">
+        <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=1600&amp;q=80&amp;auto=format"
+             alt="A warehouse aisle of tall pallet racking, seen down its length" />
+    </div>
+    <button class="lightbox-prev" type="button" aria-label="Previous" disabled><i class="ri-arrow-left-s-line"></i></button>
+    <button class="lightbox-next" type="button" aria-label="Next"
+            onclick="document.getElementById('lb-racking').close(); document.getElementById('lb-dock').showModal()"><i class="ri-arrow-right-s-line"></i></button>
+    <p class="lightbox-caption">Bay 4 after the racking was moved. Photo by CHUTTERSNAP on Unsplash.</p>
+</dialog>
+
+<dialog class="lightbox" id="lb-dock" aria-labelledby="lb-dock-title">
+    <div class="lightbox-head">
+        <strong class="lightbox-title" id="lb-dock-title">crates-4209.jpg</strong>
+        <span class="lightbox-meta">2 of 2 · 940 KB</span>
+        <div class="lightbox-actions">
+            <a class="btn btn-ghost btn-icon" href="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&amp;q=80&amp;auto=format" target="_blank" rel="noopener" aria-label="Open the original in a new tab"><i class="ri-external-link-line"></i></a>
+            <form method="dialog"><button class="btn btn-ghost btn-icon" aria-label="Close"><i class="ri-close-line"></i></button></form>
+        </div>
+    </div>
+    <div class="lightbox-stage">
+        <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&amp;q=80&amp;auto=format"
+             alt="A warehouse floor stacked with yellow crates, staff working in the aisle" />
+    </div>
+    <button class="lightbox-prev" type="button" aria-label="Previous"
+            onclick="document.getElementById('lb-dock').close(); document.getElementById('lb-racking').showModal()"><i class="ri-arrow-left-s-line"></i></button>
+    <button class="lightbox-next" type="button" aria-label="Next" disabled><i class="ri-arrow-right-s-line"></i></button>
+    <p class="lightbox-caption">The crates on the floor before the belt. Photo by Adrian Sulyok on Unsplash.</p>
+</dialog>

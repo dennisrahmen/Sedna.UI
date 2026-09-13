@@ -49,3 +49,29 @@
         same rule.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.Media.Lightbox" Title="Looking at one large" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; open a picture.</strong> <code>.lightbox</code> is a
+        <code>&lt;dialog&gt;</code> opened with <code>showModal()</code> &mdash;
+        <a href="/modal"><code>ShowModalAsync</code></a> from C# &mdash; so the top layer, the
+        focus trap, <kbd>Escape</kbd> and the inert page behind it are the platform's. The
+        <code>.lightbox-stage</code> holds the picture as large as the viewport allows;
+        <code>.lightbox-head</code> carries the <code>.lightbox-title</code>, the
+        <code>.lightbox-meta</code> and the <code>.lightbox-actions</code> &mdash; download, open, close
+        &mdash; and <code>.lightbox-prev</code> / <code>.lightbox-next</code> go to the neighbours,
+        with the <code>.lightbox-caption</code> under it all. Which picture is in it is the app's
+        state, and so are the arrow keys: one dialog whose stage the app re-renders, or one per
+        attachment as here. A picture that opens one is a <code>.media-open</code> button.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Media/LightboxDocument.html" Title="A document in it">
+    <p>
+        A PDF or a text file is a <code>.lightbox-frame</code> in the stage &mdash; an
+        <code>&lt;object&gt;</code> with a download link as its fallback, or an
+        <code>&lt;iframe&gt;</code> with a <code>title</code> &mdash; and the download link in
+        the actions is the way to keep it. Name the frame the way a screen reader would want the
+        tab it replaces named.
+    </p>
+</CatSnippet>

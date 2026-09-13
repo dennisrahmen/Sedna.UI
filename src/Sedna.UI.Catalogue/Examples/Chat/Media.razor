@@ -1,0 +1,86 @@
+<div class="card" style="max-width:560px">
+    <div class="card-body">
+        <div class="chat" role="log" aria-label="Chat with Alex Fischer">
+            <div class="chat-message">
+                <span class="avatar avatar-sm">AF</span>
+                <div class="chat-body">
+                    <div class="chat-meta"><span class="chat-author">Alex Fischer</span><time class="chat-time" datetime="2026-09-13T09:52">09:52</time></div>
+                    <div class="chat-bubble chat-bubble--media">
+                        <div class="chat-media-grid">
+                            <button class="media-open" type="button" aria-label="Open the photo of the racking bay"
+                                    onclick="document.getElementById('lb-chat-1').showModal()">
+                                <span class="media-frame media-frame--square media-frame--cover">
+                                    <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=280&amp;h=280&amp;fit=crop&amp;q=70&amp;auto=format"
+                                         width="280" height="280" loading="lazy" alt="A warehouse aisle of tall pallet racking" />
+                                </span>
+                            </button>
+                            <button class="media-open" type="button" aria-label="Open the photo of the crates"
+                                    onclick="document.getElementById('lb-chat-2').showModal()">
+                                <span class="media-frame media-frame--square media-frame--cover">
+                                    <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=280&amp;h=280&amp;fit=crop&amp;q=70&amp;auto=format"
+                                         width="280" height="280" loading="lazy" alt="A warehouse floor stacked with yellow crates" />
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chat-bubble">
+                        Reprinted and on the belt — both bays. Photos by CHUTTERSNAP and Adrian Sulyok on Unsplash.
+                        <a class="chat-attachment sedna-mt-2" href="#">
+                            <i class="ri-file-pdf-2-line"></i>
+                            <span class="chat-attachment-name">pod-ord-4209.pdf</span>
+                            <span class="chat-attachment-size">84 KB</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form class="chat-composer">
+            <div class="chat-composer-files">
+                <span class="chat-composer-thumb">
+                    <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=96&amp;h=96&amp;fit=crop&amp;q=70&amp;auto=format" width="48" height="48" alt="The crates on the floor, attached" />
+                    <button class="chip-dismiss" type="button" aria-label="Remove the photo"><i class="ri-close-line"></i></button>
+                </span>
+                <span class="chip"><i class="ri-file-excel-2-line"></i> stock-check.xlsx <button class="chip-dismiss" type="button" aria-label="Remove stock-check.xlsx"><i class="ri-close-line"></i></button></span>
+            </div>
+            <div class="chat-composer-row">
+                <button class="btn btn-ghost btn-icon" type="button" aria-label="Attach a file"><i class="ri-attachment-2"></i></button>
+                <textarea class="form-input" rows="1" placeholder="Message Alex Fischer" aria-label="Message">Stock check from this morning, and the belt right now.</textarea>
+                <button class="btn btn-primary btn-icon" type="submit" aria-label="Send"><i class="ri-send-plane-2-line"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<dialog class="lightbox" id="lb-chat-1" aria-labelledby="lb-chat-1-title">
+    <div class="lightbox-head">
+        <strong class="lightbox-title" id="lb-chat-1-title">racking-bay-4209.jpg</strong>
+        <span class="lightbox-meta">1 of 2 · Alex Fischer, 09:52</span>
+        <div class="lightbox-actions">
+            <form method="dialog"><button class="btn btn-ghost btn-icon" aria-label="Close"><i class="ri-close-line"></i></button></form>
+        </div>
+    </div>
+    <div class="lightbox-stage">
+        <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=1600&amp;q=80&amp;auto=format" alt="A warehouse aisle of tall pallet racking" />
+    </div>
+    <button class="lightbox-prev" type="button" aria-label="Previous" disabled><i class="ri-arrow-left-s-line"></i></button>
+    <button class="lightbox-next" type="button" aria-label="Next"
+            onclick="document.getElementById('lb-chat-1').close(); document.getElementById('lb-chat-2').showModal()"><i class="ri-arrow-right-s-line"></i></button>
+    <p class="lightbox-caption">Photo by CHUTTERSNAP on Unsplash.</p>
+</dialog>
+<dialog class="lightbox" id="lb-chat-2" aria-labelledby="lb-chat-2-title">
+    <div class="lightbox-head">
+        <strong class="lightbox-title" id="lb-chat-2-title">crates-4209.jpg</strong>
+        <span class="lightbox-meta">2 of 2 · Alex Fischer, 09:52</span>
+        <div class="lightbox-actions">
+            <form method="dialog"><button class="btn btn-ghost btn-icon" aria-label="Close"><i class="ri-close-line"></i></button></form>
+        </div>
+    </div>
+    <div class="lightbox-stage">
+        <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&amp;q=80&amp;auto=format" alt="A warehouse floor stacked with yellow crates" />
+    </div>
+    <button class="lightbox-prev" type="button" aria-label="Previous"
+            onclick="document.getElementById('lb-chat-2').close(); document.getElementById('lb-chat-1').showModal()"><i class="ri-arrow-left-s-line"></i></button>
+    <button class="lightbox-next" type="button" aria-label="Next" disabled><i class="ri-arrow-right-s-line"></i></button>
+    <p class="lightbox-caption">Photo by Adrian Sulyok on Unsplash.</p>
+</dialog>
