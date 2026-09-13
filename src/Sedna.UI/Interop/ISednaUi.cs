@@ -45,34 +45,22 @@ public interface ISednaUi
         bool dismissible = true);
 
     /// <summary>
-    /// Asks the user to confirm, and waits for the answer.
-    /// </summary>
-    /// <param name="title">The question.</param>
-    /// <param name="message">Optional detail: what will happen, and to what.</param>
-    /// <param name="confirmLabel">The confirming button's label.</param>
-    /// <param name="cancelLabel">The cancelling button's label.</param>
-    /// <param name="danger">
-    /// Reddens the confirming button and focuses cancel instead, for a destructive
-    /// action.
-    /// </param>
-    /// <returns><see langword="true"/> if confirmed; false if cancelled or dismissed.</returns>
-    /// <remarks>
-    /// Built on <c>&lt;dialog&gt;.showModal()</c>, so it does not block the circuit
-    /// the way <c>window.confirm()</c> does.
-    /// </remarks>
-    Task<bool> ConfirmAsync(
-        string title,
-        string? message = null,
-        string confirmLabel = "Confirm",
-        string cancelLabel = "Cancel",
-        bool danger = false);
-
-    /// <summary>
-    /// Opens a <c>&lt;dialog class="modal"&gt;</c> with the platform's own
-    /// <c>showModal()</c>.
+    /// Opens a <c>&lt;dialog&gt;</c> the app wrote — a <c>.modal</c>, a <c>.drawer</c> or a
+    /// <c>.sheet</c> — with the platform's own <c>showModal()</c>, and waits for it to close.
     /// </summary>
     /// <param name="elementId">The <c>id</c> of the <c>&lt;dialog&gt;</c>.</param>
-    /// <returns>A task that completes once it is open.</returns>
+    /// <param name="cancellationToken">
+    /// Stops the wait and closes the dialog. Passed through to the interop call, which is
+    /// what exempts it from Blazor's one-minute interop timeout — without a token, a dialog
+    /// the reader left open for a minute would throw into the caller.
+    /// </param>
+    /// <returns>
+    /// The dialog's <c>returnValue</c> once it closes — the <c>value</c> of the
+    /// <c>&lt;form method="dialog"&gt;</c> button that closed it, or what
+    /// <see cref="CloseModalAsync"/> passed — or <see langword="null"/> when it closed
+    /// without one: <kbd>Escape</kbd>, a close with no value, or a button whose value is
+    /// empty.
+    /// </returns>
     /// <remarks>
     /// <para>
     /// This is what makes a dialog a dialog: the top layer, a focus trap,
@@ -80,24 +68,27 @@ public interface ISednaUi
     /// <c>.modal-backdrop</c> div behind an <c>@if</c> has none of them.
     /// </para>
     /// <para>
-    /// The markup, the classes and the styling are already the app's — this only
-    /// opens it. Use <see cref="ConfirmAsync"/> instead for a question with two
-    /// answers; this is for a dialog holding a form.
+    /// The markup, the classes, the wording and the styling are the app's; this only
+    /// presents it. A confirmation is therefore a <c>.modal-sm</c> the app writes, with a
+    /// <c>&lt;form method="dialog"&gt;</c> whose buttons carry values, and one comparison
+    /// on the result. For a dialog that is its own component and hands back a typed
+    /// result, use <see cref="ISednaOverlays"/>.
     /// </para>
     /// <para>
-    /// An id that is not a <c>&lt;dialog&gt;</c>, or an already-open one, is a no-op
-    /// with a console warning rather than an exception, because an exception crossing
-    /// the interop boundary from a Blazor handler tears down the circuit.
+    /// A second call on a dialog that is already open joins the first wait. An id that is
+    /// not a <c>&lt;dialog&gt;</c> completes with <see langword="null"/> and a console
+    /// warning rather than an exception, because an exception crossing the interop
+    /// boundary from a Blazor handler tears down the circuit.
     /// </para>
     /// </remarks>
-    Task ShowModalAsync(string elementId);
+    Task<string?> ShowModalAsync(string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>Closes a <c>&lt;dialog&gt;</c> opened with <see cref="ShowModalAsync"/>.</summary>
     /// <param name="elementId">The <c>id</c> of the <c>&lt;dialog&gt;</c>.</param>
     /// <param name="returnValue">
-    /// Optional value to set as the dialog's <c>returnValue</c>, which its own
-    /// <c>close</c> event carries — the same place a <c>&lt;form method="dialog"&gt;</c>
-    /// puts its submitter's value.
+    /// Optional value to set as the dialog's <c>returnValue</c>, which is what the
+    /// waiting <see cref="ShowModalAsync"/> completes with — the same place a
+    /// <c>&lt;form method="dialog"&gt;</c> puts its submitter's value.
     /// </param>
     /// <returns>A task that completes once it is closed.</returns>
     /// <remarks>
@@ -107,6 +98,25 @@ public interface ISednaUi
     /// completes.
     /// </remarks>
     Task CloseModalAsync(string elementId, string? returnValue = null);
+
+    /// <summary>
+    /// Starts a spotlight step: the app's <c>.spotlight-hole</c> and bubble follow the target
+    /// while the page scrolls, resizes and re-renders.
+    /// </summary>
+    /// <param name="hole">The app's <c>.spotlight-hole</c>, as a CSS selector.</param>
+    /// <param name="target">What to highlight, as a CSS selector. Several matches are unioned.</param>
+    /// <param name="options">Padding, the bubble and its placement, and the lock.</param>
+    /// <returns>
+    /// The live step. Call <see cref="SednaSpotlight.UpdateAsync"/> after every render, and
+    /// dispose it when the step ends.
+    /// </returns>
+    /// <remarks>
+    /// A presenter: the hole, the bubble, its words and the sequence of steps are all the
+    /// app's markup and state. This measures and positions them, which is the only part the
+    /// browser alone knows. The hole is placed against its offset parent, which has to be
+    /// positioned.
+    /// </remarks>
+    Task<SednaSpotlight> FollowSpotlightAsync(string hole, string target, SpotlightOptions? options = null);
 
     /// <summary>Copies text to the clipboard.</summary>
     /// <param name="text">The text to copy.</param>
@@ -128,7 +138,7 @@ public interface ISednaUi
     /// It takes no element, because an app should not have to hold a reference to each
     /// editor to make it work. The textarea keeps its own value through
     /// <c>@bind:event="oninput"</c> — toolbar edits mutate it and dispatch a bubbling
-    /// <c>input</c> event, and nothing here calls back into .NET.
+    /// <c>input</c> event, which Blazor's own binding picks up.
     /// </para>
     /// </remarks>
     Task InitMarkdownAsync();
