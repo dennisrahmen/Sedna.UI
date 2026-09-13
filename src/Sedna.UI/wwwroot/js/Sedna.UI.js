@@ -505,8 +505,9 @@ window.sednaUi = window.sednaUi || {};
            does not fire — the click that follows a long press is swallowed — and the
            hint stays a moment after the finger lifts, so it can be read with the
            finger out of the way. A tap is unchanged, which is why the hold is longer
-           than any tap: 500ms, the platform's own long-press threshold. */
-        var HOLD = 500, LINGER = 1500;
+           than any tap — and shorter than the platform's own long press, 500ms,
+           which selects the trigger's text and shows the loupe: 300ms sits between. */
+        var HOLD = 300, LINGER = 1500;
         var holdTimer = null, held = null, lingerTimer = null, swallow = false;
 
         function release() {

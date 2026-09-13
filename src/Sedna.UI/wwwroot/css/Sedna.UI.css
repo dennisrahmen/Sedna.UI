@@ -2077,6 +2077,18 @@ a.topbar-version--pre:hover {
    own vertical rhythm. */
 .page > * + *:not(h1, h2, h3, h4, h5, h6, .lede) { margin-block-start: var(--page-gap); }
 
+/* ── A page whose last thing sits at the bottom ─────────────────────────────
+   `.page--fill` makes the page a flex column, so a `.page-foot` — a footer, a
+   sticky-looking action row — sits at the bottom of a short page rather than under
+   its last paragraph, and a lone `.empty-state--page` (which is `flex: 1` already)
+   centres itself between the top and that foot. Opt-in, because a flex column
+   blockifies inline children and stops sibling margins collapsing; the rhythm rule
+   above is one-sided, so it is unchanged. Not a percentage height: WebKit does not
+   resolve `min-height: 100%` against a flexed scroller, and a column that measured
+   itself that way sat short on an iPad. */
+.page--fill { display: flex; flex-direction: column; }
+.page--fill > .page-foot { margin-top: auto; }
+
 .back-link {
     display: inline-flex; align-items: center; gap: var(--space-2);
     font-size: var(--text-3); color: var(--muted); text-decoration: none; margin-bottom: var(--space-6);
@@ -2166,7 +2178,7 @@ a.topbar-version--pre:hover {
 /* Press and hold shows the hint on touch, so the platform's own long-press
    behaviour on a trigger — the link preview, the text-selection loupe — would
    fight it. Off on triggers only. */
-[data-tip] { -webkit-touch-callout: none; }
+[data-tip] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 
 }
 
@@ -4290,6 +4302,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    A placeholder with the shape of the content that is coming, so the page does
    not reflow when it arrives. Give it the height of the real thing. */
 .skeleton {
+    /* A block whatever the element: a <span> in a table cell or a list row is the
+       natural markup, and an inline box ignores the height that is the whole point. */
+    display: block;
     background: var(--skeleton-bg);
     background-image: linear-gradient(
         90deg,

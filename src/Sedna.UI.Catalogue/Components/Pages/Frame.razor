@@ -60,6 +60,17 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Frame.PageFoot" Title="A footer at the bottom of a short page" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <code>.page--fill</code> makes the page a flex column, so a <code>.page-foot</code> &mdash;
+        a footer, a build line &mdash; sits at the bottom of a page that is shorter than the
+        viewport rather than under its last paragraph, and a lone
+        <a href="/empty-state"><code>.empty-state--page</code></a> centres itself between the top
+        and the foot. Opt in per page: a flex column stops sibling margins collapsing, which the
+        block page relies on. This site's own pages use it.
+    </p>
+</CatExample>
+
 <CatSnippet Name="Frame/NarrowScreens.html" Title="Narrow screens">
     <p>
         Add <code>.layout--responsive</code> to <code>.layout</code> and the sidebar becomes the

@@ -28,5 +28,5 @@
 /* Press and hold shows the hint on touch, so the platform's own long-press
    behaviour on a trigger — the link preview, the text-selection loupe — would
    fight it. Off on triggers only. */
-[data-tip] { -webkit-touch-callout: none; }
+[data-tip] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 

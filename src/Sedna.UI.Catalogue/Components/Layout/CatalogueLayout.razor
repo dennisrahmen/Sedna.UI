@@ -31,9 +31,9 @@
     <div class="content">
         <CatalogueTopbar @bind-NavOpen="_navOpen" @bind-Collapsed="_collapsed" />
 
-        <div class="page">
-            @* .cat-column is a flex column filling the page, so the footer sits at the
-               bottom of a short page rather than under its last paragraph. *@
+        <div class="page page--fill">
+            @* The library's own answer to a footer on a short page: the page is a flex
+               column, and .cat-column fills it so the footer sits at its bottom. *@
             <div class="cat-column">
                 <main class="cat-main" id="main" tabindex="-1">
                     @Body

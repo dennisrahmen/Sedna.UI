@@ -2,6 +2,9 @@
    A placeholder with the shape of the content that is coming, so the page does
    not reflow when it arrives. Give it the height of the real thing. */
 .skeleton {
+    /* A block whatever the element: a <span> in a table cell or a list row is the
+       natural markup, and an inline box ignores the height that is the whole point. */
+    display: block;
     background: var(--skeleton-bg);
     background-image: linear-gradient(
         90deg,
