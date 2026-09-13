@@ -1,5 +1,6 @@
 using Sedna.UI.Catalogue.Tests.TestSupport;
 using Microsoft.Playwright;
+using Sedna.UI.Catalogue.Navigation;
 
 namespace Sedna.UI.Catalogue.Tests;
 
@@ -121,9 +122,14 @@ public class PageLoadTests(CatalogueAppFixture app)
             var sidebar = page.Locator(".cat-drawer .sidebar");
 
             // The sidebar is built from the registry, so a page that renders none of
-            // it has lost its layout rather than its content.
-            var links = await sidebar.Locator(".nav-link").CountAsync();
-            if (links < 10) problems.Add($"{route}: only {links} nav links rendered");
+            // it has lost its layout rather than its content. The rail carries every
+            // group; the panel carries only the current one's pages.
+            var areas = await sidebar.Locator(".nav-area").CountAsync();
+            if (areas != CataloguePages.Groups.Count)
+                problems.Add($"{route}: {areas} areas rendered, expected {CataloguePages.Groups.Count}");
+
+            var activeAreas = await sidebar.Locator(".nav-area.active").CountAsync();
+            if (activeAreas != 1) problems.Add($"{route}: {activeAreas} areas are active, expected 1");
 
             var active = await sidebar.Locator(".nav-link.active").CountAsync();
             if (active != 1) problems.Add($"{route}: {active} nav links are active, expected 1");
@@ -281,6 +287,17 @@ public class PageLoadTests(CatalogueAppFixture app)
 
         foreach (var route in new[] { "/badge", "/card", "/table", "/" })
         {
+            // A page in another group is behind its area: the area link opens the
+            // group's first page, and the panel then holds the link to click.
+            var group = CataloguePages.All.Single(p => p.Route == route).Group;
+            var areaHref = CataloguePages.InGroup(group).First().Route;
+            if (await sidebar.Locator($".nav-link[href='{route}']").CountAsync() == 0)
+            {
+                await sidebar.Locator($".nav-area[href='{areaHref}']").ClickAsync();
+                await sidebar.Locator($".nav-area.active[href='{areaHref}']")
+                    .WaitForAsync(new() { Timeout = 10_000 });
+            }
+
             await sidebar.Locator($".nav-link[href='{route}']").ClickAsync();
 
             // A Playwright timeout here names the selector, which is the whole

@@ -1,6 +1,11 @@
-@* The library's own sidebar markup, written by hand. There are no frame
-   components: this is what a consuming app writes, so a regression in .sidebar,
-   .nav-link or the collapsed rail shows up here first.
+@* The library's own area-rail sidebar, written by hand. There are no frame
+   components: this is what a consuming app writes, so a regression in
+   .sidebar--areas, .nav-area, .nav-link or the collapsed rail shows up here first.
+
+   Each group is an area. The rail items are LINKS to the group's first page, not
+   data-nav-area buttons: the sidebar collapses to the rail, and a collapsed
+   .sidebar--areas has no panel to swap. The address decides the area, and only the
+   current area's panel is rendered.
 
    The active state is the one thing markup cannot express. ActiveLink supplies it,
    and the root link is the documented trap — with the default Prefix it is active
@@ -14,48 +19,54 @@
 @using Sedna.UI.Catalogue.Navigation
 @inject NavigationManager Nav
 
-<aside class="sidebar @(Collapsed ? "collapsed" : null)">
-    <a class="brand" href="/">
-        <span class="brand-logo cat-mark"></span>
-        <span class="brand-text">
-            <strong>Sedna.UI</strong>
-            <span class="brand-sub">catalogue</span>
-        </span>
-    </a>
+<aside class="sidebar sidebar--areas @(Collapsed ? "collapsed" : null)">
+    <div class="nav-areas">
+        <a class="brand" href="/">
+            <span class="brand-logo cat-mark"></span>
+            <span class="brand-text">
+                <strong>Sedna.UI</strong>
+                <span class="brand-sub">catalogue</span>
+            </span>
+        </a>
 
-    <nav class="nav">
-        <div class="nav-scroll">
+        <nav class="nav-areas-list" aria-label="Areas">
             @foreach (var group in CataloguePages.Groups)
             {
-                <div class="nav-section">
-                    <span class="nav-section-label">@group</span>
-                    @* `item`, never `page`: Razor reads a bare `@page.` as the
-                       @@page directive and the file stops compiling. *@
-                    @foreach (var item in CataloguePages.InGroup(group))
-                    {
-                        @* data-tip is what labels the icon once the rail is
-                           collapsed — the library's CSS flyout reads it. It is
-                           inert while the sidebar is expanded, and the JS hint
-                           engine skips .sidebar, so there is no second tooltip. *@
-                        <a class="@Nav.CssClass(item.Route, match: MatchFor(item))"
-                           aria-current="@Nav.AriaCurrent(item.Route, MatchFor(item))"
-                           data-tip="@item.Label"
-                           href="@item.Route">
-                            <i class="@item.Icon"></i><span>@item.Label</span>
-                        </a>
-                    }
-                </div>
+                @* aria-current="true", not "page": the area is the current one of a
+                   set, and its link goes to the group's first page, which is not
+                   necessarily the page being read. *@
+                <a class="nav-area @(group == CurrentGroup ? "active" : null)"
+                   aria-current="@(group == CurrentGroup ? "true" : null)"
+                   href="@FirstRoute(group)">
+                    <i class="@CataloguePages.GroupIcons[group]"></i><span>@group</span>
+                </a>
+            }
+        </nav>
+    </div>
+
+    <nav class="nav" aria-label="@CurrentGroup">
+        <div class="nav-area-title">@CurrentGroup</div>
+        <div class="nav-scroll">
+            @* `item`, never `page`: Razor reads a bare `@page.` as the @@page
+               directive and the file stops compiling. *@
+            @foreach (var item in CataloguePages.InGroup(CurrentGroup))
+            {
+                <a class="@Nav.CssClass(item.Route, match: MatchFor(item))"
+                   aria-current="@Nav.AriaCurrent(item.Route, MatchFor(item))"
+                   href="@item.Route">
+                    <i class="@item.Icon"></i><span>@item.Label</span>
+                </a>
             }
         </div>
 
         <div class="nav-tools">
-            <CatLink Class="nav-link nav-link-tool" Href="@CatalogueLinks.Repo" data-tip="Repository">
+            <CatLink Class="nav-link nav-link-tool" Href="@CatalogueLinks.Repo">
                 <i class="ri-github-fill"></i><span>Repository</span><i class="ri-external-link-line nav-link-ext"></i>
             </CatLink>
-            <CatLink Class="nav-link nav-link-tool" Href="@CatalogueLinks.NuGet" data-tip="NuGet">
+            <CatLink Class="nav-link nav-link-tool" Href="@CatalogueLinks.NuGet">
                 <i class="ri-box-3-line"></i><span>NuGet</span><i class="ri-external-link-line nav-link-ext"></i>
             </CatLink>
-            <CatLink Class="nav-link nav-link-tool" Href="@CatalogueLinks.Icons" data-tip="Remix Icon">
+            <CatLink Class="nav-link nav-link-tool" Href="@CatalogueLinks.Icons">
                 <i class="ri-brush-line"></i><span>Remix Icon</span><i class="ri-external-link-line nav-link-ext"></i>
             </CatLink>
         </div>
