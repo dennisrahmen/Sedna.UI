@@ -136,6 +136,10 @@ internal static class TokenGroups
             "--control-height-sm", "--control-height", "--control-height-lg",
         ], Swatch: false),
 
+        new("Choice inset", [
+            "--choice-inset-check", "--choice-inset-switch",
+        ], Swatch: false),
+
         new("Corner rounding", [
             "--radius-control", "--radius-surface", "--radius-panel", "--radius-inner",
             "--radius-small", "--radius-pill",

@@ -1,0 +1,36 @@
+<div style="display:flex; flex-direction:column; gap:12px; max-width:520px">
+    <label class="switch"><input type="checkbox" checked /> E-mail notifications</label>
+    <div class="choice-dependent">
+        <div class="form-field">
+            <label class="form-label" for="dep-recipients">Recipients</label>
+            <input class="form-input" id="dep-recipients" type="text" value="alex.fischer@example.com, ops@example.com" />
+            <p class="form-hint">Comma-separated. Each gets one message per approval.</p>
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="dep-url">Link target</label>
+            <input class="form-input" id="dep-url" type="url" value="https://approvals.example.com" />
+        </div>
+    </div>
+
+    <label class="switch">
+        <input type="checkbox" checked />
+        <span class="choice-text">
+            <span>Housekeeping</span>
+            <span class="choice-hint">Runs nightly. Each task below can be turned off on its own.</span>
+        </span>
+    </label>
+    <div class="choice-dependent">
+        <label class="form-check"><input type="checkbox" checked /> Reconcile assignments</label>
+        <label class="form-check"><input type="checkbox" checked /> Close stale topics</label>
+        <div class="choice-dependent">
+            <div class="form-field">
+                <label class="form-label" for="dep-stale">Stale after</label>
+                <div class="input-group" style="max-width:160px">
+                    <input class="form-input" id="dep-stale" type="number" value="7" />
+                    <span class="input-affix">days</span>
+                </div>
+            </div>
+        </div>
+        <label class="form-check"><input type="checkbox" /> Prune the audit trail</label>
+    </div>
+</div>

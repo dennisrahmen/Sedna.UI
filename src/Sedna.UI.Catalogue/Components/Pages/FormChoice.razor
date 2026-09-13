@@ -39,7 +39,26 @@
 
 <CatExample TExample="Examples.FormChoice.RadioCards" Title="Options that need explaining" Demo="ex-demo--block">
     <p>
-        A hint under each option, indented past the control so the text lines up with the label rather
-        than the circle.
+        <code>.choice-text</code> takes the place of the label text and <code>.choice-hint</code> goes
+        inside it, so the hint starts where the label does. The same slot works in a
+        <code>.form-check</code> and a <code>.switch</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormChoice.DependentOptions" Title="Options that depend on another" Demo="ex-demo--block">
+    <p>
+        Put a <code>.choice-dependent</code> straight after the checkbox, radio or switch it belongs to.
+        It indents by that control's inset, <code>--choice-inset-check</code> or
+        <code>--choice-inset-switch</code>, so its fields line up with the label, and one inside another
+        indents again. A hint between the control and the block breaks the pairing &mdash; put it in
+        <code>.choice-hint</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormChoice.InactiveOptions" Title="Inactive while off" Demo="ex-demo--block">
+    <p>
+        Opt in with <code>.choice-dependent--dim</code>, which fades the block and makes it inert, or
+        <code>.choice-dependent--hide</code>. Both follow the control's live state, so they need no
+        round trip. Without either, the block stays as it is.
     </p>
 </CatExample>

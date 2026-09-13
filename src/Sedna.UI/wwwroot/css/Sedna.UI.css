@@ -704,6 +704,16 @@
     --control-height:    36px;
     --control-height-lg: 44px;   /* the WCAG AAA target size */
 
+    /* ── Choice inset ───────────────────────────────────────────────────────
+       Where a choice control's label starts, measured from the control's inline
+       edge: the box or track plus the gap after it. `.choice-dependent` indents by
+       these, so what belongs to an option lines up with its label. The widths are
+       the controls' own fixed sizes and the gaps ride the spacing scale, so a
+       redefined scale moves both. `ChoiceInsetTests` measures each against the
+       rendered control. */
+    --choice-inset-check:  calc(15px + var(--space-4));   /* checkbox and radio */
+    --choice-inset-switch: calc(34px + var(--space-5));
+
     /* How tall a clamped code block is before it scrolls. Raise it for docs, lower it
        for a dense admin page. */
     --code-clamp: 360px;
@@ -3729,8 +3739,13 @@ textarea.form-input::-webkit-resizer {
     cursor: pointer;
     user-select: none;
 }
+/* `margin: 0` on every choice control: `appearance: none` keeps the browser's own
+   margin — 3px and 4px on a checkbox, 5px on a radio — which pushed the label out past
+   `--choice-inset-check` and set the box a pixel off centre. The library owns the
+   geometry, so the tokens can state it. */
 .form-check input[type="checkbox"] {
     appearance: none;
+    margin: 0;
     width: 15px;
     height: 15px;
     flex-shrink: 0;
@@ -4836,6 +4851,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    colour. */
 .form-check input[type="radio"] {
     appearance: none;
+    margin: 0;               /* see the checkbox in 34-forms.css */
     width: 15px;
     height: 15px;
     flex-shrink: 0;
@@ -4888,6 +4904,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 }
 .switch input[type="checkbox"] {
     appearance: none;
+    margin: 0;               /* see the checkbox in 34-forms.css */
     position: relative;
     flex-shrink: 0;
     width: 34px;
@@ -4925,9 +4942,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .switch input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.45; }
 .switch:has(input:disabled) { cursor: not-allowed; color: var(--muted); }
 
-/* Room for a sentence explaining the consequence, under the label. */
-.switch-text  { display: flex; flex-direction: column; gap: var(--space-1); }
-.switch-hint  { font-size: var(--text-3); color: var(--muted); }
+/* ── Label and hint ─────────────────────────────────────────────────────────
+   Room for a sentence under the label: what the option does, or what flipping it
+   costs. One slot for the checkbox, the radio and the switch, so turning one into
+   another keeps its markup. It takes the place of the label text, so the hint
+   starts where the label starts with nothing to measure. */
+.choice-text { display: flex; flex-direction: column; gap: var(--space-1); }
+.choice-hint { font-size: var(--text-3); color: var(--muted); }
 }
 
 /* ── 46-form-layout.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -5126,6 +5147,45 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     flex-direction: column;
     gap: var(--space-7);
 }
+
+/* ── Dependent options ──────────────────────────────────────────────────────
+   Fields that only matter while the option above them is on: the recipients under
+   "E-mail notifications", a threshold under "Close stale topics". Put the
+   `.choice-dependent` straight after the `.form-check` or `.switch` it belongs to and
+   it indents by that control's inset, so its content starts where the label does.
+   A dependent inside a dependent indents again, measured from the edge it is already
+   on.
+
+   Only the block IMMEDIATELY after the control is indented. A hint between the two
+   breaks the pairing and the block sits flush — put the hint in the control's own
+   `.choice-hint` instead, where it lines up with the label anyway. */
+.choice-dependent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    min-width: 0;
+}
+.form-check + .choice-dependent { margin-inline-start: var(--choice-inset-check); }
+.switch + .choice-dependent     { margin-inline-start: var(--choice-inset-switch); }
+/* `display: flex` above outranks the browser's own `[hidden]`. */
+.choice-dependent[hidden] { display: none; }
+
+/* Inactive while the option is off. Opt-in, because whether an unused setting
+   vanishes, fades or stays put is the page's call. Both follow the control's live
+   `:checked` state, so they need no round trip and work on a page with no
+   interactivity at all; a radio is off while another in its set is chosen.
+
+   `--dim` is also inert: a block that looks unavailable and still takes focus and
+   typing is the worse of both. It is not `disabled` — the values still submit with
+   the form. */
+:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--hide { display: none; }
+:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--dim {
+    opacity: 0.45;
+    interactivity: inert;
+}
+/* Opacity multiplies, so a faded block inside a faded one would drop to 0.2. The
+   inner one keeps full opacity and is faded once, with its parent. */
+:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--dim .choice-dependent--dim { opacity: 1; }
 
 /* ── Transfer ───────────────────────────────────────────────────────────────
    Two list boxes with the buttons that move rows between them: pick on the left,

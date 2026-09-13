@@ -1,0 +1,20 @@
+<div style="display:flex; flex-direction:column; gap:12px; max-width:520px">
+    <label class="form-check"><input type="checkbox" /> Forward rejected requests</label>
+    <div class="choice-dependent choice-dependent--dim">
+        <div class="form-field">
+            <label class="form-label" for="inact-forward">Forward to</label>
+            <input class="form-input" id="inact-forward" type="email" value="review@example.com" />
+        </div>
+    </div>
+
+    <label class="switch"><input type="checkbox" /> Escalate after a deadline</label>
+    <div class="choice-dependent choice-dependent--hide">
+        <div class="form-field">
+            <label class="form-label" for="inact-hours">Escalate after</label>
+            <div class="input-group" style="max-width:160px">
+                <input class="form-input" id="inact-hours" type="number" value="24" />
+                <span class="input-affix">hours</span>
+            </div>
+        </div>
+    </div>
+</div>

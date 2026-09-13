@@ -369,6 +369,16 @@
     --control-height:    36px;
     --control-height-lg: 44px;   /* the WCAG AAA target size */
 
+    /* ── Choice inset ───────────────────────────────────────────────────────
+       Where a choice control's label starts, measured from the control's inline
+       edge: the box or track plus the gap after it. `.choice-dependent` indents by
+       these, so what belongs to an option lines up with its label. The widths are
+       the controls' own fixed sizes and the gaps ride the spacing scale, so a
+       redefined scale moves both. `ChoiceInsetTests` measures each against the
+       rendered control. */
+    --choice-inset-check:  calc(15px + var(--space-4));   /* checkbox and radio */
+    --choice-inset-switch: calc(34px + var(--space-5));
+
     /* How tall a clamped code block is before it scrolls. Raise it for docs, lower it
        for a dense admin page. */
     --code-clamp: 360px;
