@@ -66,6 +66,7 @@
      61-buttons-extra.css
      62-media-and-prose.css
      63-drawer.css
+     64-lightbox.css
      64-palette-spotlight.css
      65-popover.css
      66-chat.css
@@ -9453,6 +9454,183 @@ dialog.sheet.sheet--dragging { transition: none; }
 .tree-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
 }
 
+/* ── 64-lightbox.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Lightbox ───────────────────────────────────────────────────────────────
+   One attachment, large: a picture or a video as big as the screen allows, a
+   document in a frame, with its name, its caption, the way to the next one and
+   the way out. A `<dialog>` opened with `showModal()`, so the top layer, the focus
+   trap, Escape and inert content behind are the platform's — the same reasons as
+   `.modal`, and the same `ShowModalAsync` from C#:
+
+     <dialog class="lightbox" id="lb-1" aria-labelledby="lb-1-title">
+       <div class="lightbox-head">
+         <strong class="lightbox-title" id="lb-1-title">racking-bay-4209.jpg</strong>
+         <span class="lightbox-meta">2 of 5 · 1.2 MB</span>
+         <div class="lightbox-actions">
+           <a class="btn btn-ghost btn-icon" href="…" download aria-label="Download"><i class="ri-download-2-line"></i></a>
+           <form method="dialog"><button class="btn btn-ghost btn-icon" aria-label="Close"><i class="ri-close-line"></i></button></form>
+         </div>
+       </div>
+       <div class="lightbox-stage"><img src="…" alt="…" /></div>
+       <button class="lightbox-prev" type="button" aria-label="Previous"><i class="ri-arrow-left-s-line"></i></button>
+       <button class="lightbox-next" type="button" aria-label="Next"><i class="ri-arrow-right-s-line"></i></button>
+       <p class="lightbox-caption">Bay 4 after the racking was moved.</p>
+     </dialog>
+
+   Which picture is in it is the app's state — one dialog whose stage the app
+   re-renders, or one dialog per attachment — and so are the arrow keys: the buttons
+   are there for the pointer and the keyboard tabs to them. The chrome is drawn in
+   `--on-solid` over the backdrop, which is dark in both variants.
+   ─────────────────────────────────────────────────────────────────────────── */
+dialog.lightbox {
+    --lightbox-bar: 56px;   /* the head's and the caption's height, which the stage keeps clear */
+    inset: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--on-solid);
+    overflow: hidden;
+}
+dialog.lightbox::backdrop {
+    background: var(--backdrop);
+    backdrop-filter: blur(4px);
+}
+/* The dialog's own ground, over the blurred backdrop: a picture on a translucent
+   backdrop shows the page through its letterbox. */
+dialog.lightbox::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--backdrop);
+}
+
+/* The picture, as large as the viewport allows and no larger, clear of the head,
+   the caption and the device's edges. */
+.lightbox-stage {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(var(--lightbox-bar) + var(--safe-block-start)) calc(var(--space-11) + var(--safe-inline-end)) calc(var(--lightbox-bar) + var(--safe-block-end)) calc(var(--space-11) + var(--safe-inline-start));
+}
+.lightbox-stage > img,
+.lightbox-stage > video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-float);
+}
+/* A document rather than a picture: a PDF, a text file. The frame is the whole
+   stage, on the elevated surface so its own page reads. */
+.lightbox-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: var(--radius-surface);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-float);
+}
+
+.lightbox-head {
+    position: absolute;
+    top: var(--safe-block-start);
+    inset-inline: var(--safe-inline-start) var(--safe-inline-end);
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-height: var(--lightbox-bar);
+    padding: var(--space-4) var(--space-6);
+    /* Above the stage, which is later in the source and covers the whole dialog. */
+    z-index: 1;
+}
+.lightbox-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-5);
+}
+.lightbox-meta {
+    font-size: var(--text-3);
+    opacity: 0.75;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.lightbox-actions { display: flex; align-items: center; gap: var(--space-2); }
+/* The library's ghost buttons, in the chrome's own ink: on the backdrop a ghost's
+   text colour is the page's, which is the wrong one in the light variant. */
+.lightbox-actions > .btn,
+.lightbox-actions > form > .btn { color: var(--on-solid); }
+.lightbox-actions > .btn:hover,
+.lightbox-actions > form > .btn:hover { color: var(--on-solid); background: var(--backdrop); border-color: transparent; }
+
+/* The way to the neighbours: round, on the sides, over the stage's padding. */
+.lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: var(--backdrop);
+    color: var(--on-solid);
+    font-size: var(--text-8);
+    cursor: pointer;
+}
+.lightbox-prev { inset-inline-start: calc(var(--space-4) + var(--safe-inline-start)); }
+.lightbox-next { inset-inline-end: calc(var(--space-4) + var(--safe-inline-end)); }
+.lightbox-prev:hover, .lightbox-next:hover { background: var(--bg-elevated); color: var(--fg); }
+.lightbox-prev:focus-visible, .lightbox-next:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring); }
+.lightbox-prev:disabled, .lightbox-next:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.lightbox-caption {
+    position: absolute;
+    bottom: var(--safe-block-end);
+    inset-inline: var(--safe-inline-start) var(--safe-inline-end);
+    margin: 0;
+    padding: var(--space-4) var(--space-8);
+    min-height: var(--lightbox-bar);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: var(--text-3);
+    opacity: 0.85;
+}
+
+/* ── The thing that opens one ───────────────────────────────────────────────
+   A picture that can be looked at large is a button around it. Cursor and focus
+   ring, nothing else: the picture is the button's whole face. */
+.media-open {
+    display: block;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-surface);
+    background: none;
+    cursor: zoom-in;
+    overflow: hidden;
+}
+.media-open > img,
+.media-open > .media-frame { display: block; }
+.media-open:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring-soft); }
+}
+
 /* ── 64-palette-spotlight.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Command palette ────────────────────────────────────────────────────────
@@ -9952,6 +10130,15 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 /* A picture or a file preview fills the bubble to its corners. */
 .chat-bubble--media { padding: 0; overflow: hidden; }
 .chat-bubble--media > img { display: block; max-width: 100%; height: auto; }
+/* Several pictures in one message: a grid of `.media-open` buttons, each a square
+   `.media-frame`, two across. Three pictures leave a slot; four fill it. */
+.chat-media-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-1);
+    width: min(100%, 320px);
+}
+.chat-media-grid > .media-open { border-radius: 0; }
 /* Someone named. */
 .chat-mention {
     color: var(--brand-text);
@@ -10123,7 +10310,24 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 }
 .chat-composer-reply > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-composer-reply > strong { color: var(--fg-soft); }
-.chat-composer-files { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chat-composer-files { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+/* A picture waiting to be sent: its thumbnail with the remove button over its corner. */
+.chat-composer-thumb {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-inner);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.chat-composer-thumb > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.chat-composer-thumb > .chip-dismiss {
+    position: absolute;
+    top: var(--space-1);
+    inset-inline-end: var(--space-1);
+    background: var(--bg-elevated);
+}
 .chat-composer-row { display: flex; align-items: flex-end; gap: var(--space-3); }
 .chat-composer-row > .form-input { flex: 1; min-width: 0; resize: none; }
 
