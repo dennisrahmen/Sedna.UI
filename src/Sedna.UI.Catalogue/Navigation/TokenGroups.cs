@@ -46,7 +46,7 @@ internal static class TokenGroups
         new("Surfaces, text, lines", [
             "--bg", "--bg-elevated", "--bg-hover", "--fg", "--fg-soft", "--muted",
             "--border", "--border-strong", "--border-hover", "--divider", "--card-bg",
-            "--surface-soft", "--surface-strong", "--on-solid", "--redacted",
+            "--surface-soft", "--surface-strong", "--on-solid", "--on-viz", "--redacted",
         ]),
 
         new("Named surfaces and elevation", [

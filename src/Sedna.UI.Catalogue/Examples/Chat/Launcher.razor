@@ -1,10 +1,12 @@
 <div class="sedna-row sedna-gap-3">
-    <button class="chat-launcher" type="button" style="position: relative" popovertarget="ex-flyover" aria-label="Open the chat, 2 unread">
-        <i class="ri-chat-3-line"></i>
-        <span class="chat-launcher-count" aria-hidden="true">2</span>
-    </button>
-    <span class="text-muted text-sm">Shown in the flow here; in an app it is fixed to the corner. Open it.</span>
+    <button class="btn btn-primary" type="button" popovertarget="ex-flyover"><i class="ri-chat-3-line"></i> Open the chat</button>
+    <span class="text-muted text-sm">The launcher is in the corner of this page, where it lives; this opens the same flyover.</span>
 </div>
+
+<button class="chat-launcher" type="button" popovertarget="ex-flyover" aria-label="Open the chat, 2 unread">
+    <i class="ri-chat-3-line"></i>
+    <span class="chat-launcher-count" aria-hidden="true">2</span>
+</button>
 
 <div class="chat-flyover" id="ex-flyover" popover="manual" role="dialog" aria-label="Chat with Alex Fischer">
     <div class="chat-flyover-head">

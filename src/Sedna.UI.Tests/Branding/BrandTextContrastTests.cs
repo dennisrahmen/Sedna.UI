@@ -96,7 +96,7 @@ public class BrandTextContrastTests
         [".chat-status--read"] = (Ink.Icon, ["--brand-tint", "--surface-strong"]),
         [".chat-mention"] = (Ink.Text, ["--brand-tint", "--surface-strong"]),
         [".chat-reaction[aria-pressed=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
-        [".chat-replies"] = (Ink.Text, []),
+        [".chat-replies > strong"] = (Ink.Text, []),
         [".chip--active"] = (Ink.Text, ["--brand-tint"]),
         [".chip--active i"] = (Ink.Icon, ["--brand-tint"]),
         [".chip--active .chip-dismiss"] = (Ink.Icon, ["--brand-tint"]),
