@@ -91,4 +91,15 @@
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+
+    /* 42 — every drawing's moving part rests. Each animation's first frame is the
+       resting pose, so the part with no animation is the still drawing, not a broken
+       one. The rules reach the parts inside a `<use>` shadow tree because class rules
+       apply to the clones as they apply to the originals in the sprite. */
+    .sedna-art-bob,
+    .sedna-art-sweep,
+    .sedna-art-nudge,
+    .sedna-art-blink,
+    .sedna-art-tick,
+    .sedna-art-twinkle { animation: none; }
 }

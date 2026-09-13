@@ -151,6 +151,7 @@
         "--brand-soft": "var(--coral-500)",
         "--brand-text": "var(--coral-400)",
         "--state-accent": "var(--brand)",
+        "--state-motion": "paused",
         "--brand-tint": "color-mix(in srgb, var(--brand) 14%, transparent)",
         "--brand-tint-strong": "color-mix(in srgb, var(--brand) 24%, transparent)",
         "--brand-ring": "color-mix(in srgb, var(--brand) 50%, transparent)",

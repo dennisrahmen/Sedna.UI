@@ -117,6 +117,10 @@
        moves it into the danger ramp — and the sprite reads it through the <use> shadow
        tree without knowing which state it is drawing. */
     --state-accent:     var(--brand);
+    /* Whether a drawing's moving part moves. `paused` here, `running` from
+       .state-art--live or .empty-state--pending; the sprite's motion classes read it as
+       their play state, and the reduced-motion block removes the animations outright. */
+    --state-motion:     paused;
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
     /* One step up from --brand-tint, for hovering something already tinted by it.
        Pointing at a chosen row must not replace its tint with the neutral hover:

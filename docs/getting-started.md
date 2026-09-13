@@ -29,10 +29,16 @@ library stylesheet, and the `<base>` must come before all of them.
     <link rel="stylesheet" href="css/brand.css" />
 </head>
 <body>
+    <SednaStateArt />
     <!-- … -->
     <script src="_content/Sedna.UI/js/Sedna.UI.js"></script>
 </body>
 ```
+
+`SednaStateArt` writes the state illustrations into the page once, so a
+`<svg class="state-art"><use href="#no-access" /></svg>` anywhere in the app is a same-document
+reference — the only kind every engine colours from the page. See
+[State art](https://www.sedna-ui.com/state-art).
 
 `Sedna.UI.boot.js` applies the stored theme name and variant before first paint. Load it in
 `<head>`.
