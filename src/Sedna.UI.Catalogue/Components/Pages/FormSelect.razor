@@ -28,8 +28,10 @@
         code. <strong>Add a <code>&lt;button&gt;</code> holding
         <code>&lt;selectedcontent&gt;&lt;/selectedcontent&gt;</code> as the select's first child</strong>
         and the closed box shows a clone of whichever option is chosen. Leave it out and the browser
-        supplies its own, which runs every text node together: an option with an
-        <code>.option-hint</code> then reads <code>Frankfurteu-central-1</code>.
+        supplies its own, which runs every text node together. A browser without base
+        appearance — Safari — shows the option's whole text in the list and in the closed
+        box, so the <code>.option-sep</code> between label and hint is what keeps it
+        readable there: <code>Frankfurt · eu-central-1</code>. Base appearance hides it.
     </p>
     <p>
         The clone is the browser's to make and Blazor's render does not trigger it, so

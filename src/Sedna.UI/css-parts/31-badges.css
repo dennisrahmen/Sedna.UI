@@ -20,7 +20,9 @@
     white-space: nowrap;
     vertical-align: middle;
 }
-.badge i { font-size: var(--text-3); }
+/* `line-height: 1`, or the glyph inherits the pill's 1.45 line box and its font's
+   baseline offset drops it a pixel under the text on iOS. */
+.badge i { font-size: var(--text-3); line-height: 1; }
 
 .badge-sm   { font-size: var(--text-1); padding: 0 var(--space-3); }
 .badge-sm i { font-size: var(--text-2); }

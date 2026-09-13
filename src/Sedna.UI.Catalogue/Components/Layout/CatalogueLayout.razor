@@ -22,7 +22,7 @@
      data-interactive="@(RendererInfo.IsInteractive ? "true" : null)">
 
     <div class="cat-drawer">
-        <CatalogueSidebar Collapsed="_collapsed" />
+        <CatalogueSidebar Collapsed="_collapsed" AreaChosen="KeepDrawerOpen" />
     </div>
 
     <button class="cat-scrim" type="button" aria-label="Close navigation"
@@ -32,10 +32,14 @@
         <CatalogueTopbar @bind-NavOpen="_navOpen" @bind-Collapsed="_collapsed" />
 
         <div class="page">
-            <main class="cat-main" id="main" tabindex="-1">
-                @Body
+            @* .cat-column is a flex column filling the page, so the footer sits at the
+               bottom of a short page rather than under its last paragraph. *@
+            <div class="cat-column">
+                <main class="cat-main" id="main" tabindex="-1">
+                    @Body
+                </main>
                 <CatalogueFooter />
-            </main>
+            </div>
         </div>
     </div>
 </div>
@@ -43,6 +47,9 @@
 @code {
     private bool _navOpen;
     private bool _collapsed;
+    // Set by the sidebar when a rail area is chosen: that navigation opens the
+    // area's first page, and the drawer stays so the reader can pick one of its pages.
+    private bool _keepOpen;
 
     // This subscription is for the layout's OWN state below — the drawer and the
     // search panel. It deliberately does not carry the sidebar's active link:
@@ -70,8 +77,10 @@
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         // Navigating from inside the drawer closes it: on a phone the destination
-        // is behind the panel that was just used to reach it.
-        _navOpen = false;
+        // is behind the panel that was just used to reach it — unless the navigation
+        // was a rail area, whose pages the reader has not seen yet.
+        if (!_keepOpen) _navOpen = false;
+        _keepOpen = false;
         // Same for the result panel. It is anchored to a box the enhanced
         // navigation may have just moved, and a list for the previous page is
         // worse than none.
@@ -85,4 +94,6 @@
     }
 
     private void CloseDrawer() => _navOpen = false;
+
+    private void KeepDrawerOpen() => _keepOpen = true;
 }

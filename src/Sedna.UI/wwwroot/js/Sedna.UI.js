@@ -15,6 +15,7 @@
      21-transfer.js
      22-anchored.js
      22-menu.js
+     22-scroll-edge.js
      23-combo.js
      23-nav.js
      23-tabs.js
@@ -398,6 +399,9 @@ window.sednaUi = window.sednaUi || {};
 
    Elements inside .sidebar are skipped: the collapsed rail has its own CSS
    flyout, and both firing would double the tooltip.
+
+   On touch there is no hover, so press and hold shows the hint instead — see the
+   pointer handlers at the end.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -492,7 +496,57 @@ window.sednaUi = window.sednaUi || {};
             if (el) { current = el; place(el); }   // no delay for keyboard focus
         });
         document.addEventListener('focusout', hide);
-        document.addEventListener('mousedown', hide);    // a click dismisses its own hint
+        document.addEventListener('mousedown', function () {
+            if (!held) hide();   // a click dismisses its own hint; a long press is showing it
+        });
+
+        /* Touch has no hover, so a hint would never appear at all. Press and hold
+           shows it, as the platform shows a link's address: the trigger's own action
+           does not fire — the click that follows a long press is swallowed — and the
+           hint stays a moment after the finger lifts, so it can be read with the
+           finger out of the way. A tap is unchanged, which is why the hold is longer
+           than any tap: 500ms, the platform's own long-press threshold. */
+        var HOLD = 500, LINGER = 1500;
+        var holdTimer = null, held = null, lingerTimer = null, swallow = false;
+
+        function release() {
+            clearTimeout(holdTimer);
+            holdTimer = null;
+            if (!held) return;
+            var el = held;
+            held = null;
+            clearTimeout(lingerTimer);
+            lingerTimer = setTimeout(function () { if (current === el) hide(); }, LINGER);
+        }
+
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType !== 'touch') return;
+            var el = trigger(e.target);
+            if (!el) return;
+            clearTimeout(holdTimer);
+            holdTimer = setTimeout(function () {
+                held = el;
+                swallow = true;
+                current = el;
+                place(el);
+            }, HOLD);
+        }, true);
+        document.addEventListener('pointerup', release, true);
+        document.addEventListener('pointercancel', release, true);
+        document.addEventListener('pointermove', function (e) {
+            // A finger that moves is scrolling, not holding.
+            if (e.pointerType === 'touch' && holdTimer && !held) { clearTimeout(holdTimer); holdTimer = null; }
+        }, true);
+        // The press that showed the hint is not also the press that acts.
+        document.addEventListener('click', function (e) {
+            if (!swallow) return;
+            swallow = false;
+            e.preventDefault();
+            e.stopPropagation();
+        }, true);
+        document.addEventListener('contextmenu', function (e) {
+            if (held || holdTimer) e.preventDefault();
+        });
         window.addEventListener('scroll', hide, true);   // capture: any scroll container
         window.addEventListener('resize', hide);
 
@@ -906,6 +960,71 @@ window.sednaUi = window.sednaUi || {};
         // of the document.
         try { open.focus(); } catch (err) { /* detached */ }
     });
+
+})(window.sednaUi);
+
+/* ── 22-scroll-edge.js ──────────────────────────────────────────────── */
+/* ── Scroll edges, for engines without scroll-state() ─────────────────────────
+   A pinned table column paints an edge shadow only while there is a column
+   scrolled under it. The stylesheet decides that with a scroll-state container
+   query on `.sedna-scroll-x`, which WebKit does not have — so on an iPad a table
+   that fits still drew the shadow, as though there were something to scroll to.
+
+   This writes the same two facts as attributes on every `.sedna-scroll-x`:
+
+     data-scroll-start   the scroller is at its inline start (or does not scroll)
+     data-scroll-end     the scroller is at its inline end (or does not scroll)
+
+   and 59-table-extensions.css reads them beside the container query. Where the
+   query works the two agree; where it does not, the attributes are the only signal.
+   They are attributes an app never renders, so a Blazor re-render neither reverts
+   them nor fights over them — the observer below puts them back on a node that was
+   replaced. Nothing here is a public member: the attributes are the whole contract.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    function mark(el) {
+        var max = el.scrollWidth - el.clientWidth;
+        // RTL scrolls into negative values in every current engine; the distance
+        // from the start is the magnitude either way.
+        var pos = Math.abs(el.scrollLeft);
+        el.toggleAttribute('data-scroll-start', max <= 1 || pos <= 1);
+        el.toggleAttribute('data-scroll-end', max <= 1 || pos >= max - 1);
+    }
+
+    function markAll(root) {
+        var scope = root && root.querySelectorAll ? root : document;
+        var all = scope.querySelectorAll('.sedna-scroll-x');
+        for (var i = 0; i < all.length; i++) mark(all[i]);
+        if (scope !== document && scope.classList && scope.classList.contains('sedna-scroll-x')) mark(scope);
+    }
+
+    /* Capture, because `scroll` does not bubble. */
+    document.addEventListener('scroll', function (e) {
+        var el = e.target;
+        if (el && el.classList && el.classList.contains('sedna-scroll-x')) mark(el);
+    }, true);
+
+    window.addEventListener('resize', function () { markAll(); });
+
+    /* Content rendered after load — a table a Blazor page adds, or a re-render that
+       replaced the scroller — is marked when it lands. Childlist only: the marks
+       themselves are attribute changes, and watching those would loop. */
+    function watch() {
+        markAll();
+        if (!('MutationObserver' in window)) return;
+        new MutationObserver(function (records) {
+            for (var i = 0; i < records.length; i++) {
+                var added = records[i].addedNodes;
+                for (var j = 0; j < added.length; j++) {
+                    if (added[j].nodeType === 1) markAll(added[j]);
+                }
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
+    else watch();
 
 })(window.sednaUi);
 

@@ -159,23 +159,21 @@ internal static class TokenGroups
         ], Swatch: false),
 
         // How much of each viewport edge the device has taken — a home indicator, a
-        // notch, a rounded corner. Every one reads 0px in this browser and on every
-        // desktop, which is the whole design: `env()` is the device detection, so a
-        // rule that adds one is correct everywhere without asking what it is running
-        // on. They stay 0px until the host page carries `viewport-fit=cover`.
+        // notch, a rounded corner. 0px on a desktop, a real value on a phone or a
+        // tablet; `env()` is the device detection, so a rule that adds one is correct
+        // everywhere without asking what it is running on.
         //
-        // The Note exists because that reads as a broken page rather than as a
-        // correct answer — four zeros in a list where every other group shows a real
-        // value. It is the one group whose printed value needs a sentence.
+        // The Note exists because four zeros in a list where every other group shows
+        // a real value read as a broken page on a desktop. It is the one group whose
+        // printed value needs a sentence.
         new("Safe area", [
             "--safe-block-start", "--safe-block-end", "--safe-inline-start", "--safe-inline-end",
         ], Swatch: false,
-            Note: "0px is the right answer on a desktop, and on a phone with nothing at that "
-                + "edge. A value appears where the device actually reserves the edge — a notch, "
-                + "a home indicator, a rounded corner — and only once the host page carries "
-                + "viewport-fit=cover. Reading env() yourself gives the same zeros; the point "
-                + "of the token is that a rule can add the inset without asking what it is "
-                + "running on."),
+            Note: "What this device has taken from each edge: 0px on a desktop and wherever "
+                + "nothing is in the way, the home indicator, notch or rounded corner on a phone "
+                + "or a tablet. A rule that adds the token is right on both without asking what "
+                + "it is running on; the host page needs viewport-fit=cover for the values to "
+                + "arrive at all."),
 
         // Not colours and not sizes: two values the library needs because the browser
         // draws something we cannot reach. `--color-scheme` goes on <html> and is what

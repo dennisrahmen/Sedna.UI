@@ -252,6 +252,15 @@
     .table--pin-end tbody tr > td:last-child:not([colspan]),
     .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
+/* The same two facts as attributes, written by 22-scroll-edge.js, for the engine
+   without scroll-state() — WebKit, where a table that fit still drew the end
+   shadow. Where the query works the two agree. */
+.sedna-scroll-x[data-scroll-start] .table--pin-start thead th:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start tbody tr > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end thead th:last-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end tbody tr > td:last-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 
 /* The row states, mirroring the background rules above one for one. Set on the
    <tr> so a custom property carries them into the pinned cell by inheritance;

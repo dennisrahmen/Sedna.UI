@@ -9,6 +9,13 @@ public partial class CatalogueSidebar : ComponentBase, IDisposable
     [Parameter] public bool Collapsed { get; set; }
 
     /// <summary>
+    /// Raised when a rail area is chosen. The layout keeps the phone drawer open across
+    /// the navigation that follows: choosing an area shows its pages, and the reader has
+    /// not picked one yet.
+    /// </summary>
+    [Parameter] public EventCallback AreaChosen { get; set; }
+
+    /// <summary>
     /// The component that reads the address is the component that subscribes.
     /// </summary>
     /// <remarks>
