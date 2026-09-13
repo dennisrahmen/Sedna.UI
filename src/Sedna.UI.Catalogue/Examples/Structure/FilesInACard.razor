@@ -1,0 +1,36 @@
+<div class="card">
+    <div class="card-head card-head--tabs">
+        <div class="tabs" role="tablist" data-tabs aria-label="Reassign an order — files">
+            <button class="tab" role="tab" type="button" id="reassign-page" aria-controls="reassign-page-code" aria-selected="true">
+                Page.razor
+            </button>
+            <button class="tab" role="tab" type="button" id="reassign-dialog" aria-controls="reassign-dialog-code" aria-selected="false" tabindex="-1">
+                Dialog.razor
+            </button>
+        </div>
+    </div>
+    <div class="card-body card-body--flush">
+        <div class="tab-panel" role="tabpanel" id="reassign-page-code" aria-labelledby="reassign-page">
+            <div class="code-block code-block--flush">
+                <button class="code-block-copy" type="button" data-copy-target>
+                    <i class="ri-file-copy-line" data-copied-hide></i><span data-copied-hide>Copy</span>
+                    <i class="ri-check-line" data-copied-show="ok"></i><span data-copied-show="ok">Copied</span>
+                </button>
+                <pre tabindex="0" role="group" aria-label="Page.razor"><code>&lt;button class="btn" type="button" onclick="document.getElementById('reassign').showModal()"&gt;
+    Reassign ORD-4209
+&lt;/button&gt;</code></pre>
+            </div>
+        </div>
+        <div class="tab-panel" role="tabpanel" id="reassign-dialog-code" aria-labelledby="reassign-dialog" hidden>
+            <div class="code-block code-block--flush">
+                <button class="code-block-copy" type="button" data-copy-target>
+                    <i class="ri-file-copy-line" data-copied-hide></i><span data-copied-hide>Copy</span>
+                    <i class="ri-check-line" data-copied-show="ok"></i><span data-copied-show="ok">Copied</span>
+                </button>
+                <pre tabindex="0" role="group" aria-label="Dialog.razor"><code>&lt;dialog class="drawer" id="reassign" aria-labelledby="reassign-title"&gt;
+    &lt;div class="drawer-header"&gt;&lt;h3 id="reassign-title"&gt;Reassign ORD-4209&lt;/h3&gt;&lt;/div&gt;
+&lt;/dialog&gt;</code></pre>
+            </div>
+        </div>
+    </div>
+</div>

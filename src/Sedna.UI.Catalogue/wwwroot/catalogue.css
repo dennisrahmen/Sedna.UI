@@ -280,8 +280,7 @@
    no margin of its own, so without this the demo, the code block or the paragraph
    after it started against the table's last border. Same 12px the prose uses. */
 .cat-ex > table { margin: 0 0 12px; }
-/* The name above a companion file's code block: the second file an example needs. */
-.cat-ex > .cat-ex-file { margin: 16px 0 6px; }
+
 
 /* The demo surface is genuinely docs chrome — it is the frame around an example,
    not part of it. The code block below it is NOT: it is the library's own

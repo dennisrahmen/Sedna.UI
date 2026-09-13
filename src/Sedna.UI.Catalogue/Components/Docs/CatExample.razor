@@ -12,11 +12,38 @@
     </h2>
     @ChildContent
     <div class="ex-demo @Demo">@Instance</div>
-    <CatCode Source="@Source" Label="@($"{Title} — markup")" />
-    @if (Companion is not null)
+    @if (Companion is null)
     {
-        <p class="cat-ex-file"><code>@CompanionFile</code></p>
-        <CatCode Source="@ExampleSource.For(Companion)" Label="@($"{Title} — {CompanionFile}")" />
+        <CatCode Source="@Source" Label="@($"{Title} — markup")" />
+    }
+    else
+    {
+        @* Two files, one example: the page that presents and the component it presents.
+           The library's own tabs in a card, so the files are one thing to read, switched
+           with the keyboard like any tablist. data-tabs rather than C# state, because a
+           code block has to work before the circuit connects. *@
+        <div class="card">
+            <div class="card-head card-head--tabs">
+                <div class="tabs" role="tablist" data-tabs aria-label="@($"{Title} — files")">
+                    <button class="tab" role="tab" type="button" id="@($"{Anchor}-file-1")"
+                            aria-controls="@($"{Anchor}-files-1")" aria-selected="true">
+                        @ExampleFile
+                    </button>
+                    <button class="tab" role="tab" type="button" id="@($"{Anchor}-file-2")"
+                            aria-controls="@($"{Anchor}-files-2")" aria-selected="false" tabindex="-1">
+                        @CompanionFile
+                    </button>
+                </div>
+            </div>
+            <div class="card-body card-body--flush">
+                <div class="tab-panel" role="tabpanel" id="@($"{Anchor}-files-1")" aria-labelledby="@($"{Anchor}-file-1")">
+                    <CatCode Source="@Source" Label="@($"{Title} — {ExampleFile}")" Flush />
+                </div>
+                <div class="tab-panel" role="tabpanel" id="@($"{Anchor}-files-2")" aria-labelledby="@($"{Anchor}-file-2")" hidden>
+                    <CatCode Source="@ExampleSource.For(Companion)" Label="@($"{Title} — {CompanionFile}")" Flush />
+                </div>
+            </div>
+        </div>
     }
 </section>
 
@@ -33,11 +60,13 @@
     /// get wrong.
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
-    /// A second file the example needs, printed under the first — the app's own overlay
-    /// component, for an example that presents one. A path under Examples/, such as
-    /// "Interop/ReassignOrder.razor". It is not rendered on its own: it is only
-    /// meaningful inside the thing that presents it.
+    /// A second file the example needs — the app's own overlay component, for an example
+    /// that presents one. A path under Examples/, such as "Interop/ReassignOrder.razor".
+    /// The two files are then tabs in a card instead of one code block. The companion is
+    /// never rendered on its own: it is only meaningful inside the thing that presents it.
     [Parameter] public string? Companion { get; set; }
+
+    private string ExampleFile => typeof(TExample).Name + ".razor";
 
     private string? CompanionFile => Companion is null ? null : Path.GetFileName(Companion);
 

@@ -38,9 +38,9 @@ bytes, so a demo and its snippet cannot drift.
   `ISednaOverlays` and `ActiveLink`, where the thing being shown *is* C#. A test asserts from both directions that it is used
   for nothing else, so it cannot become a home for examples that failed the scan.
 - **An example that needs a second file** — the app's own overlay component, for an example that
-  presents one — names it with `Companion="Interop/ReassignOrder.razor"`. The page prints it under the
-  first file, and the MCP index files it under the same example's title. It is never rendered on its
-  own.
+  presents one — names it with `Companion="Interop/ReassignOrder.razor"`. The page shows the two files as
+  tabs in a card, and the MCP index files the companion under the same example's title. It is never
+  rendered on its own.
 - `Demo="ex-demo--block"` lays the demo out as a block instead of a centred row; add `ex-demo--pad` for
   something that needs room, or `ex-demo--flush` for a demo that brings its own edge, like a whole
   frame. Omit it for small inline things like a badge.
