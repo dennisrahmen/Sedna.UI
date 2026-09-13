@@ -41,6 +41,7 @@ public class SurfaceTests : ScriptTestBase
                     menu: ['closeAll'],
                     tabs: ['select'],
                     modal: ['show', 'close', 'idle'],
+                    toast: ['show', 'dismiss', 'replace'],
                     palette: ['register', 'open', 'close', 'rank'],
                     search: ['register', 'rank', 'close'],
                     md: ['init', 'apply', 'render'],

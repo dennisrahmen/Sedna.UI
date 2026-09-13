@@ -61,4 +61,25 @@ public class TipTouchTests : ScriptTestBase
         await page.Locator("#b").ClickAsync();
         Assert.Equal(1, await page.EvaluateAsync<int>("() => window.clicks || 0"));
     }
+
+    [Fact]
+    public async Task Switched_off_no_hint_shows_and_the_one_showing_goes()
+    {
+        if (NoBrowser) return;
+        // The C# form of the gate: a boolean, because a predicate does not cross into C#.
+        var page = await Open(Body);
+
+        await Pointer(page, "pointerdown");
+        await page.WaitForTimeoutAsync(450);
+        await Assertions.Expect(page.Locator(".sedna-tip")).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("sedna-tip--visible"));
+
+        await page.EvaluateAsync("() => sednaUi.tips.setEnabled(false)");
+        Assert.False(await page.EvaluateAsync<bool>("() => !!document.querySelector('.sedna-tip--visible')"));
+
+        await Pointer(page, "pointerup");
+        await page.Locator("#b").FocusAsync();
+        await page.WaitForTimeoutAsync(300);
+        Assert.False(await page.EvaluateAsync<bool>("() => !!document.querySelector('.sedna-tip--visible')"),
+            "A hint showed while hints were switched off.");
+    }
 }

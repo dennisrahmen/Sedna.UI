@@ -32,20 +32,57 @@ public class InteropTests : BunitContext
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
 
-        await Wrapper().ToastAsync("Restarted orders-console-01", ToastKind.Go, title: "Done",
+        JSInterop.Setup<int>("sednaUi.toast.show", _ => true).SetResult(7);
+
+        var toast = await Wrapper().ToastAsync("Restarted orders-console-01", ToastKind.Go, title: "Done",
             timeoutMs: 0, dismissible: false);
 
-        var call = Only("sednaUi.toast");
+        Assert.Equal(7, toast.Id);
+        var call = Only("sednaUi.toast.show");
         Assert.Equal("Restarted orders-console-01", call.Arguments[0]);
 
-        var options = call.Arguments[1]!;
+        var options = (IDictionary<string, object?>)call.Arguments[1]!;
         // The script's own vocabulary, which is also the CSS modifier suffix.
-        Assert.Equal("go", Read(options, "kind"));
-        Assert.Equal("Done", Read(options, "title"));
+        Assert.Equal("go", options["kind"]);
+        Assert.Equal("Done", options["title"]);
         // 0 means "stays until dismissed", so it has to survive as 0 rather than
         // being treated as "not set" and defaulted back to 4000.
-        Assert.Equal(0, Read(options, "timeout"));
-        Assert.Equal(false, Read(options, "dismissible"));
+        Assert.Equal(0, options["timeout"]);
+        Assert.Equal(false, options["dismissible"]);
+        // Unset, so the script uses the configured label rather than an empty one.
+        Assert.False(((IDictionary<string, object?>)options).ContainsKey("dismissLabel"));
+    }
+
+    [Fact]
+    public async Task A_toast_handle_dismisses_and_replaces_the_toast_it_names()
+    {
+        JSInterop.Setup<int>("sednaUi.toast.show", _ => true).SetResult(3);
+        JSInterop.Setup<bool>("sednaUi.toast.dismiss", _ => true).SetResult(true);
+        // The toast had gone, so the script showed a new one and reports its id.
+        JSInterop.Setup<int>("sednaUi.toast.replace", _ => true).SetResult(4);
+
+        var toast = await Wrapper().ToastAsync("Uploading…", timeoutMs: 0, dismissLabel: "Schließen");
+        await toast.ReplaceAsync("Uploaded", ToastKind.Go);
+
+        var replace = Only("sednaUi.toast.replace");
+        Assert.Equal(3, replace.Arguments[0]);
+        Assert.Equal("Uploaded", replace.Arguments[1]);
+        // The label chosen for the toast survives replacing it.
+        Assert.Equal("Schließen", ((IDictionary<string, object?>)replace.Arguments[2]!)["dismissLabel"]);
+        Assert.Equal(4, toast.Id);
+
+        Assert.True(await toast.DismissAsync());
+        Assert.Equal(4, Only("sednaUi.toast.dismiss").Arguments[0]);
+    }
+
+    [Fact]
+    public async Task Tips_are_switched_with_a_boolean()
+    {
+        JSInterop.SetupVoid("sednaUi.tips.setEnabled", _ => true).SetVoidResult();
+
+        await Wrapper().SetTipsEnabledAsync(false);
+
+        Assert.Equal(false, Only("sednaUi.tips.setEnabled").Arguments[0]);
     }
 
     [Theory]
@@ -60,7 +97,7 @@ public class InteropTests : BunitContext
 
         await Wrapper().ToastAsync("x", kind);
 
-        Assert.Equal(expected, Read(Only("sednaUi.toast").Arguments[1]!, "kind"));
+        Assert.Equal(expected, ((IDictionary<string, object?>)Only("sednaUi.toast.show").Arguments[1]!)["kind"]);
         // .toast-go, .toast-warn, .toast-danger, .toast-info all exist.
         Assert.Contains($".toast-{expected}", Assets.Css, StringComparison.Ordinal);
     }
@@ -145,6 +182,7 @@ public class InteropTests : BunitContext
             LangCookie = true,
             Themes = [northwind],
             Default = "northwind",
+            ToastDismissLabel = "Schließen",
         }).ConfigureAsync();
 
         var options = Only("sednaUi.configure").Arguments[0]!;
@@ -154,6 +192,8 @@ public class InteropTests : BunitContext
         // The default theme travels too: the script stamps data-theme from it with nothing
         // stored, and SednaUiBrand.ToCss emits this theme — not "sedna" — at bare :root.
         Assert.Equal("northwind", Read(options, "themeDefault"));
+        // The one word the library writes into the page itself.
+        Assert.Equal("Schließen", Read(options, "toastDismissLabel"));
     }
 
     [Fact]

@@ -5,10 +5,77 @@ using Microsoft.Playwright;
 namespace Sedna.UI.Tests;
 
 /// <summary>
-/// Toasts: one reused stack, aria-live chosen by kind, and a message inserted as text.
+/// Toasts: one reused stack, aria-live chosen by kind, a message inserted as text, and an id
+/// that C# can hold to dismiss or replace one.
 /// </summary>
 public class ToastTests : ScriptTestBase
 {
+    [Fact]
+    public async Task Replace_changes_a_toast_in_place_and_keeps_its_position()
+    {
+        if (NoBrowser) return;
+        // "Uploading…" turning into "Uploaded" must not leave and come back: same element,
+        // same place in the stack, new kind and message.
+        var page = await Open("<div></div>");
+
+        var result = await page.EvaluateAsync<string[]>("""
+            () => {
+                const first = sednaUi.toast.show('Uploading…', { timeout: 0 });
+                sednaUi.toast.show('Another', { timeout: 0 });
+                const el = document.querySelector('.toast');
+                const same = sednaUi.toast.replace(first, 'Uploaded', { kind: 'go', timeout: 0 });
+                const now = document.querySelector('.toast');
+                return [String(same === first), String(now === el), now.className,
+                        now.querySelector('.toast-body').textContent];
+            }
+            """);
+
+        Assert.Equal(["true", "true", "toast toast-go", "Uploaded"], result);
+    }
+
+    [Fact]
+    public async Task A_gone_toast_is_not_an_error_and_replacing_it_shows_a_new_one()
+    {
+        if (NoBrowser) return;
+        // The work can finish after the toast timed out or the reader closed it. Its outcome
+        // still has to reach them.
+        var page = await Open("<div></div>");
+
+        var result = await page.EvaluateAsync<string[]>("""
+            () => {
+                const id = sednaUi.toast.show('Uploading…', { timeout: 0 });
+                const dismissed = sednaUi.toast.dismiss(id);
+                const again = sednaUi.toast.dismiss(id);
+                const next = sednaUi.toast.replace(id, 'Uploaded', { timeout: 0 });
+                return [String(dismissed), String(again), String(next !== id),
+                        document.querySelector('.toast-body').textContent];
+            }
+            """);
+
+        Assert.Equal(["true", "false", "true", "Uploaded"], result);
+    }
+
+    [Fact]
+    public async Task The_close_buttons_name_is_configured_once_and_can_be_overridden()
+    {
+        if (NoBrowser) return;
+        // The one word the library writes itself, so it has to be the app's language.
+        var page = await Open("<div></div>");
+
+        var labels = await page.EvaluateAsync<string[]>("""
+            () => {
+                const before = (sednaUi.toast('a', { timeout: 0 }), document.querySelector('.toast-close').getAttribute('aria-label'));
+                sednaUi.configure({ toastDismissLabel: 'Schließen' });
+                sednaUi.toast('b', { timeout: 0 });
+                sednaUi.toast('c', { timeout: 0, dismissLabel: 'Ausblenden' });
+                const all = [...document.querySelectorAll('.toast-close')].map(b => b.getAttribute('aria-label'));
+                return [before, all[1], all[2]];
+            }
+            """);
+
+        Assert.Equal(["Dismiss", "Schließen", "Ausblenden"], labels);
+    }
+
     [Fact]
     public async Task Toast_creates_and_reuses_one_stack_and_removes_it_when_empty()
     {

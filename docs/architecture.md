@@ -88,9 +88,9 @@ the layout around it. Blazor only hands new parameters to a child whose paramete
 subscription one level too high re-renders the layout and leaves the links reading the previous address.
 
 `ISednaUi` is `IJSRuntime` calls, so none of it can run during prerendering. Two members of the
-JavaScript surface have no wrapper yet, because each is a function: `toast()` returns a remover, and
-`tips.gate` is a predicate an app assigns. A function does not cross the boundary — see **The interop
-boundary** above for the shape a C# equivalent takes.
+JavaScript surface hand over a function, which does not cross the boundary, so their C# members hand
+over data instead: `ToastAsync` returns a `SednaToast` handle holding the toast's id, and
+`SetTipsEnabledAsync(bool)` is the boolean form of `tips.gate`.
 
 `ShowModalAsync` completes when the dialog closes, with its `returnValue`, and settles from the dialog's
 `open` attribute rather than its `close` event, which a background tab never dispatches.
@@ -463,8 +463,8 @@ Two things the flat list does not say:
 |---|---|
 | `configure(options)` | Storage prefix, notification icon, language cookie, default theme name |
 | `settings` | `load()`, `save(key, value)`, `apply()`, `onChange(fn)` → unsubscribe. Keys: `theme`, `variant`, `cvd`, `density`, `dir`, `lang` |
-| `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally |
-| `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
+| `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally; `tips.setEnabled(bool)` switches them all, and is what `ISednaUi.SetTipsEnabledAsync` calls |
+| `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover, whose `id` names the toast; `timeout: 0` stays until dismissed; `dismissLabel` — or `configure({ toastDismissLabel })` — names the close button. `toast.show(message, options)` returns the id, `toast.dismiss(id)` removes it early, `toast.replace(id, message, options)` changes it in place or shows a new one when it has gone |
 | `modal` | The presenter for an app's own `<dialog>` — `.modal`, `.drawer`, `.sheet`, `.lightbox`. `show(id)` → `showModal()`, returning a promise of its `returnValue` once it closes, or `null` for a close without one; a second `show` on an open dialog joins the first wait. `close(id, value)` → `close(value)`. `idle(id)` resolves once a closed dialog's transition has finished. An id that is not a `<dialog>` warns in the console and resolves `null` — an exception crossing the interop boundary from a Blazor handler tears down the circuit |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | — | `22-anchored.js` adds no member. It closes an open `.menu`, `.popover` or `.form-combo-panel` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |

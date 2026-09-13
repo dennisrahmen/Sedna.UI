@@ -30,16 +30,41 @@ public sealed class SednaUi : ISednaUi
     }
 
     /// <inheritdoc />
-    public Task ToastAsync(
+    public async Task<SednaToast> ToastAsync(
         string message,
         ToastKind kind = ToastKind.Info,
         string? title = null,
         int timeoutMs = 4000,
-        bool dismissible = true)
-        => _js.InvokeVoidAsync(
-            "sednaUi.toast",
-            message,
-            new { kind = Name(kind), title, timeout = timeoutMs, dismissible }).AsTask();
+        bool dismissible = true,
+        string? dismissLabel = null)
+    {
+        var id = await _js.InvokeAsync<int>(
+            "sednaUi.toast.show", message, ToastOptions(kind, title, timeoutMs, dismissible, dismissLabel));
+        return new SednaToast(_js, id, dismissLabel);
+    }
+
+    /// <inheritdoc />
+    public Task SetTipsEnabledAsync(bool enabled)
+        => _js.InvokeVoidAsync("sednaUi.tips.setEnabled", enabled).AsTask();
+
+    /// <summary>The options object the script's toast reads, shared with <see cref="SednaToast"/>.</summary>
+    /// <remarks>
+    /// <c>dismissLabel</c> is left out when unset rather than sent as null, so the script falls
+    /// back to the configured label instead of an empty name.
+    /// </remarks>
+    internal static Dictionary<string, object?> ToastOptions(
+        ToastKind kind, string? title, int timeoutMs, bool dismissible, string? dismissLabel)
+    {
+        var options = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["kind"] = Name(kind),
+            ["title"] = title,
+            ["timeout"] = timeoutMs,
+            ["dismissible"] = dismissible,
+        };
+        if (!string.IsNullOrWhiteSpace(dismissLabel)) options["dismissLabel"] = dismissLabel;
+        return options;
+    }
 
     /// <inheritdoc />
     public Task<bool> CopyTextAsync(string text)
@@ -72,6 +97,7 @@ public sealed class SednaUi : ISednaUi
                 // whose default is its own theme, and select a registered Sedna palette — or
                 // name a theme nobody registered — on every first visit.
                 themeDefault = _options.Default,
+                toastDismissLabel = _options.ToastDismissLabel,
             }).AsTask();
 
     /// <inheritdoc />

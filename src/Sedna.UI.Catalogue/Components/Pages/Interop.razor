@@ -19,12 +19,22 @@
     </div>
 </div>
 
+<CatSnippet Name="Interop/AfterFirstRender.txt" Title="Something to say before the circuit is up">
+    <p>
+        A toast decided in <code>OnInitializedAsync</code> — a record that failed to load — cannot be
+        shown there: the page is still prerendering. Keep the outcome as state, and say it once the
+        first interactive render has happened. That is the whole recipe; a flag on
+        <code>ISednaUi</code> would only move the same <code>if</code> somewhere harder to see.
+    </p>
+</CatSnippet>
+
 <CatExample TExample="Examples.Interop.ToastsFromCsharp" Title="Toasts" Demo="ex-demo--block">
     <p>
         <code>ToastAsync</code> takes the message and a <code>ToastKind</code>, whose members are the
         CSS modifier suffixes, so <code>ToastKind.Go</code> and <code>.toast-go</code> cannot drift
         apart. A toast is one of the two pieces of UI the library draws for you, because a line of
-        text has nothing to author.
+        text has nothing to author. It returns a <a href="/toast#work-that-ends-later">handle</a>
+        for dismissing or replacing it.
     </p>
 </CatExample>
 
@@ -60,6 +70,7 @@
             <tr><td><code>Nav.CssClass</code>, <code>Nav.AriaCurrent</code>, <code>ActiveLink.IsActive</code></td><td><a href="/nav">Sidebar and nav</a> — which link is the current page, and which group is open</td></tr>
             <tr><td><code>ShowModalAsync</code>, <code>CloseModalAsync</code></td><td><a href="/modal">Modal</a> — awaiting a dialog you wrote, a confirmation included</td></tr>
             <tr><td><code>ISednaOverlays</code>, <code>SednaOverlayHost</code></td><td><a href="/drawer">Drawers and sheets</a> — a modal, drawer or sheet that is its own component, with a typed result</td></tr>
+            <tr><td><code>SetTipsEnabledAsync</code></td><td><a href="/hover-hints">Hover hints</a> — switching every hint off from a setting</td></tr>
             <tr><td><code>FollowSpotlightAsync</code></td><td><a href="/spotlight">Spotlight</a> — a tour step that stays attached to its target</td></tr>
             <tr><td><code>InitMarkdownAsync</code></td><td><a href="/markdown">Markdown</a> — wiring the editor after first render</td></tr>
             <tr><td><code>RegisterSearchAsync</code>, <code>RegisterCommandsAsync</code></td><td><a href="/topbar">Topbar</a> and the <a href="/palette">command palette</a> — the index and the commands</td></tr>

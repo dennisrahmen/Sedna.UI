@@ -35,7 +35,10 @@ window.sednaUi = window.sednaUi || {};
         // default is not the built-in one sets this and the matching
         // data-theme-default on the boot script, or a first visit is stamped with a
         // name that selects somebody else's palette.
-        themeDefault: 'sedna'
+        themeDefault: 'sedna',
+        // The accessible name of a toast's close button: the one word the library
+        // writes itself, so an app not written in English sets it once.
+        toastDismissLabel: 'Dismiss'
     };
 
     function key(k) { return config.storagePrefix + k; }

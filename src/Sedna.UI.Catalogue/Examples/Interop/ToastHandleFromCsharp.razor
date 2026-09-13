@@ -1,0 +1,30 @@
+@inject ISednaUi Ui
+
+<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+    <button class="btn" type="button" disabled="@_busy" @onclick="Upload">
+        <i class="ri-upload-2-line"></i> Upload the packing list
+    </button>
+    <label class="form-check"><input type="checkbox" @bind="_fail" /> Make it fail</label>
+</div>
+
+@code {
+    private bool _busy;
+    private bool _fail;
+
+    // One toast for the whole piece of work: it says "uploading" while it runs and is
+    // replaced in place with the outcome, rather than one toast leaving and another arriving.
+    private async Task Upload()
+    {
+        _busy = true;
+        var toast = await Ui.ToastAsync("Uploading packing-list-4209.pdf…", timeoutMs: 0, dismissible: false);
+
+        await Task.Delay(1500);     // the work
+
+        if (_fail)
+            await toast.ReplaceAsync("The warehouse did not answer. Nothing was uploaded.", ToastKind.Danger, timeoutMs: 0);
+        else
+            await toast.ReplaceAsync("packing-list-4209.pdf is attached to ORD-4209.", ToastKind.Go, title: "Uploaded");
+
+        _busy = false;
+    }
+}
