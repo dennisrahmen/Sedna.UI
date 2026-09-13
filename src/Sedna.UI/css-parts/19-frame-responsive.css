@@ -108,3 +108,50 @@
     .layout--responsive .topbar-version,
     .topbar--responsive .topbar-version { display: none; }
 }
+
+/* ── The document scrolls on a phone ─────────────────────────────────────────
+   `.page` is the frame's only scroll container, and on a phone that is the one
+   thing Safari cannot see: it collapses its own toolbar only while the DOCUMENT
+   scrolls, so an app whose page scrolls inside a box keeps the full toolbar on
+   screen for ever, and the reader loses a fifth of the height on every page.
+
+   `.layout--flow` hands the scrolling to the document below 560px. The shell grows
+   with its content instead of clipping to the viewport, the page is in the flow,
+   the topbar sticks under the notch, a sidebar sticks to the top of its column and
+   a bottom bar to the bottom of the viewport. Above 560px nothing changes — no
+   desktop browser has a toolbar to collapse, and the frame keeps its one scroller.
+   Opt-in, like the other two: an app with a page that must never move under its
+   header — a full-bleed map, an editor — keeps the box. */
+@media (max-width: 560px) {
+    .layout--flow {
+        height: auto;
+        min-height: 100dvh;
+        /* Clip, not visible, on the inline axis: a scroll container had given the
+           column `min-width: 0` for free, and without it one wide table would widen
+           the whole document and scroll the shell sideways under the toolbar. */
+        overflow: clip visible;
+    }
+    .layout--flow > .content { overflow: visible; min-width: 0; }
+    /* In the flow, and filling the column so a .page--fill foot still sits at the
+       bottom; the scroll shadows go with the scrolling. */
+    .layout--flow .page {
+        flex: 1 0 auto;
+        min-width: 0;
+        overflow: visible;
+        background: none;
+    }
+    .layout--flow .topbar {
+        position: sticky;
+        top: var(--safe-block-start);
+    }
+    .layout--flow > .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100dvh;
+        align-self: flex-start;
+    }
+    .layout--flow .bottombar {
+        position: sticky;
+        bottom: 0;
+    }
+}
