@@ -307,12 +307,69 @@
 /* Under a sticky header the group row is a header too, and pins beneath it. The
    header's height is not knowable here, so it is the app's one number: set
    `--table-head-height` on the table where its header is not the default 36px. */
-.table--sticky { --table-head-height: 36px; }
+.table--sticky { --table-head-height: 36px; --table-filter-height: 0px; }
 .table--sticky .tr-group > th {
     position: sticky;
-    top: var(--table-head-height);
+    top: calc(var(--table-head-height) + var(--table-filter-height));
     z-index: 1;
 }
+
+/* ── Filter row ─────────────────────────────────────────────────────────────
+   A second header row whose cells hold a filter for their column — a
+   `.form-input.form-input-sm` or a `.form-select`. For an admin table that is
+   filtered per column; the toolbar above a table is still the default.
+
+     <thead>
+       <tr><th>Order</th><th>Status</th></tr>
+       <tr class="tr-filter">
+         <th><input class="form-input form-input-sm" type="search" aria-label="Filter by order"></th>
+         <th><select class="form-input form-select form-input-sm" aria-label="Filter by status">…</select></th>
+       </tr>
+     </thead>
+
+   The header's uppercase treatment is undone, because the cell holds a control, not a
+   column name. Every filter needs an aria-label: the column heading above it is not
+   its label.
+
+   Under `.table--sticky` it pins beneath the header row. The header's height is not
+   knowable here, which is why `--table-head-height` exists; the filter row's own
+   height is added to where a group row pins, through `--table-filter-height`. */
+.tr-filter > th {
+    padding-block: var(--space-2);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--fg);
+}
+.tr-filter :is(.form-input, .form-select) { width: 100%; min-width: 0; }
+.table--sticky:has(.tr-filter) { --table-filter-height: 37px; }
+.table--sticky .tr-filter > th { top: var(--table-head-height); }
+
+/* ── Nothing here, and still loading ────────────────────────────────────────
+   The table or list is present — framed by its toolbar and its count — and this
+   query returned nothing. The page-level "nothing here" is `.empty-state`; this is
+   the commoner case inside it.
+
+     <tr class="tr-empty"><td colspan="999">No order matches these filters.</td></tr>
+
+   `colspan="999"`, never the real count: a browser clamps a colspan to the columns
+   the table has, so the cell spans them all and does not go stale the next time a
+   column is added. A `.state-art` drawing in the cell sits centred above the text.
+
+   `.tr-busy` is the same row for a refresh in flight, holding a `.spinner`; the first
+   load is `.skeleton` rows instead. `.list-empty` is an `<li>` in a `.list`. */
+.tr-empty > td,
+.tr-busy > td,
+.list-empty {
+    padding: var(--space-10) var(--space-7);
+    color: var(--muted);
+    font-size: var(--text-4);
+    text-align: center;
+}
+.tr-empty:hover > td,
+.tr-busy:hover > td { background: none; }
+.tr-busy .spinner { margin-inline-end: var(--space-4); }
+:is(.tr-empty, .list-empty) .state-art { display: block; margin: 0 auto var(--space-5); }
 
 /* The row states, mirroring the background rules above one for one. Set on the
    <tr> so a custom property carries them into the pinned cell by inheritance;

@@ -32,6 +32,16 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Button.Pending" Title="While its action runs">
+    <p>
+        <code>aria-busy="true"</code> while a save or a call is in flight. The label stays in the layout
+        and is painted out, so the button keeps its measured width and does not shrink under the
+        cursor; a ring in the variant's own ink spins in its place, and a second pointer click is
+        ignored. Leave <code>disabled</code> off — it drops focus and stops the state being
+        announced — and have the handler ignore a second <kbd>Enter</kbd> while the work runs.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Button.IconOnly" Title="Icon-only">
     <p>
         <strong><code>.btn-icon</code> is not optional</strong> &mdash; a bare <code>.btn</code>

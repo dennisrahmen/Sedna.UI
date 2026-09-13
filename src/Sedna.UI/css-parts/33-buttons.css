@@ -71,3 +71,38 @@
 /* Its own ring, so focus is not a blue halo around a red destructive button. */
 .btn-danger:focus-visible { box-shadow: 0 0 0 2px var(--danger-ring); }
 
+/* ── In flight ──────────────────────────────────────────────────────────────
+   `aria-busy="true"` on a button whose action is running — a save, a submit, an API
+   call. Keyed off the attribute a screen reader announces, the way `.th-sort` keys
+   off aria-sort, so the paint and the announcement cannot disagree.
+
+   THE BUTTON KEEPS ITS MEASURED WIDTH. The label and icon stay in the layout and are
+   only painted transparent, and the spinner is laid over the middle, so the box does
+   not shrink under the cursor mid-click. `-webkit-text-fill-color` rather than
+   `color: transparent`, because the ring is drawn in `currentColor` and has to keep
+   the variant's own text colour — on `.btn-primary` that is the on-solid ink.
+
+   Pointer clicks are stopped, so a double click cannot submit twice. The keyboard is
+   not: leave `disabled` off, which would drop focus to <body> and stop the busy state
+   being announced, and have the handler ignore a second activation while its work
+   runs. */
+.btn[aria-busy="true"] {
+    position: relative;
+    -webkit-text-fill-color: transparent;
+    cursor: progress;
+    pointer-events: none;
+}
+.btn[aria-busy="true"] > :is(svg, img) { visibility: hidden; }
+.btn[aria-busy="true"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 1em;
+    height: 1em;
+    margin: auto;
+    border: 2px solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    animation: sedna-spin var(--spin-duration) linear infinite;
+}
+

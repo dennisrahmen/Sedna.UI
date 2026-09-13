@@ -117,6 +117,29 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Table.FilterRow" Title="A filter per column" Demo="ex-demo--block">
+    <p>
+        <code>.tr-filter</code> is a second header row holding a <code>.form-input-sm</code> or a
+        <code>.form-select</code> per column, for an admin table filtered column by column — the
+        <a href="/toolbar">toolbar</a> above a table is still the default. Give every control an
+        <code>aria-label</code>: the heading above it is not its label. Under
+        <code>.table--sticky</code> it pins beneath the header, and a <code>.tr-group</code> row
+        pins beneath both; set <code>--table-filter-height</code> on the table if your controls are
+        not the small size.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Table.EmptyAndBusyRows" Title="Nothing found, and refreshing" Demo="ex-demo--block">
+    <p>
+        <code>.tr-empty</code> is the row for a query that returned nothing, inside a table that is
+        still there with its toolbar and count; <code>.tr-busy</code> is the same row for a refresh
+        in flight. Write <strong><code>colspan="999"</code></strong>, never the real count: a
+        browser clamps it to the columns the table has, so it spans them all and does not go stale
+        when a column is added. A <a href="/state-art"><code>.state-art</code></a> drawing sits
+        centred above the text; the first load is <a href="/skeleton">skeleton</a> rows instead.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Table.StackedNarrowScreen" Title="Stacked on a narrow screen" Demo="ex-demo--block">
     <p>
         <code>.table--stack</code> turns each row into a card below 640px, taking each cell's label

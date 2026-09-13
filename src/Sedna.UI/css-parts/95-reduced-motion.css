@@ -82,6 +82,7 @@
     .deck-step        { animation: none; }    /* 36 */
     .deck-dot         { transition: none; }   /* 36 */
     .spinner          { animation: none; }    /* 39 */
+    .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
     .progress-bar     { transition: none; }   /* 41 */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
