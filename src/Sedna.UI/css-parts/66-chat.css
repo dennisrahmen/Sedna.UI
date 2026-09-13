@@ -1,0 +1,386 @@
+/* ── Chat ─────────────────────────────────────────────────────────────────────
+   A conversation: messages in bubbles, mine on the end and theirs on the start,
+   with the day, the author, the time, what happened to the message and how people
+   reacted to it — and the composer under it, the launcher that keeps a chat one
+   tap away, and the flyover that opens from it.
+
+   Everything is markup and classes. The app owns every piece of state — which
+   messages there are, who reacted, what is typed, whether the flyover is open — and
+   the two things that need a hand from the platform use it rather than a script:
+   the flyover is a `popover`, so the top layer and light dismiss are the browser's,
+   and the message menu is the library's own delegated `.menu`.
+
+     <div class="chat" role="log" aria-live="polite" aria-label="Chat with Alex Fischer">
+       <div class="chat-day">Today</div>
+       <div class="chat-message">
+         <span class="avatar avatar-sm">AF</span>
+         <div class="chat-body">
+           <div class="chat-meta"><span class="chat-author">Alex Fischer</span><time class="chat-time">09:41</time></div>
+           <div class="chat-bubble">Can you reroute ORD-4209 to EU-West?</div>
+         </div>
+       </div>
+       <div class="chat-message chat-message--mine">
+         <div class="chat-body">
+           <div class="chat-bubble">Done — leaves Hamburg at 12:20.</div>
+           <div class="chat-meta"><time class="chat-time">09:44</time><i class="ri-check-double-line chat-status" title="Read"></i></div>
+         </div>
+       </div>
+     </div>
+
+   `role="log"` with `aria-live="polite"`: a message that arrives is announced once,
+   after whatever the reader is doing, and the history is one navigable region.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── The thread ─────────────────────────────────────────────────────────────── */
+.chat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-5) 0;
+}
+
+/* A line across the thread: the day, or "new messages". */
+.chat-day,
+.chat-unread {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    margin-block: var(--space-4);
+    font-size: var(--text-2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+.chat-day::before, .chat-day::after,
+.chat-unread::before, .chat-unread::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--divider);
+}
+.chat-unread { color: var(--brand-text); }
+.chat-unread::before, .chat-unread::after { background: var(--brand); opacity: 0.5; }
+
+/* Something the app did, told in the thread: joined, renamed, pinned. */
+.chat-system {
+    align-self: center;
+    font-size: var(--text-3);
+    color: var(--muted);
+    text-align: center;
+}
+
+/* ── A message ──────────────────────────────────────────────────────────────
+   Avatar on the start, then the body; mine has no avatar and sits on the end. A
+   `--continued` message is the same author's next one and drops the meta above
+   the bubble, so a run of them reads as one turn. */
+.chat-message {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-4);
+    max-width: min(72%, 40rem);
+    position: relative;
+}
+.chat-message--mine { align-self: flex-end; flex-direction: row-reverse; }
+.chat-message--continued { margin-top: calc(var(--space-2) * -1); }
+.chat-message--continued > .avatar { visibility: hidden; }
+.chat-message--continued .chat-meta:first-child { display: none; }
+.chat-body { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.chat-message--mine .chat-body { align-items: flex-end; }
+
+.chat-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: var(--text-2);
+    color: var(--muted);
+    padding-inline: var(--space-2);
+}
+.chat-author { font-weight: 600; color: var(--fg-soft); }
+.chat-time { font-variant-numeric: tabular-nums; }
+.chat-edited { font-style: italic; }
+/* What happened to my message: sent (one check), delivered (two), read (two, brand). */
+.chat-status { font-size: var(--text-4); }
+.chat-status--read { color: var(--brand-text); }
+.chat-status--failed { color: var(--danger-fg); }
+
+/* ── The bubble ─────────────────────────────────────────────────────────────
+   Theirs on the neutral strong surface, mine on the brand tint. Both keep the
+   page's text colour: the tint is translucent, so it reads on every surface and
+   never fights a link or a mention inside it. Four corners rounded and the one
+   nearest the avatar sharper, which is what points a bubble at its author. */
+.chat-bubble {
+    --surface-here: var(--surface-strong);
+    background: var(--surface-here);
+    padding: var(--space-4) var(--space-6);
+    border-radius: var(--radius-surface) var(--radius-surface) var(--radius-surface) var(--radius-inner);
+    color: var(--fg);
+    font-size: var(--text-4);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+.chat-message--mine .chat-bubble {
+    background: var(--brand-tint);
+    border-radius: var(--radius-surface) var(--radius-surface) var(--radius-inner) var(--radius-surface);
+}
+.chat-bubble p { margin: 0; }
+.chat-bubble p + p { margin-top: var(--space-3); }
+/* Not delivered. The border says it, the status icon says why, the retry is a
+   real button in the meta line. */
+.chat-bubble--failed { box-shadow: inset 0 0 0 1px var(--danger-border); }
+/* A picture or a file preview fills the bubble to its corners. */
+.chat-bubble--media { padding: 0; overflow: hidden; }
+.chat-bubble--media > img { display: block; max-width: 100%; height: auto; }
+/* Someone named. */
+.chat-mention {
+    color: var(--brand-text);
+    font-weight: 600;
+    text-decoration: none;
+}
+.chat-mention:hover { text-decoration: underline; }
+
+/* The message this one answers, quoted at the top of the bubble. */
+.chat-quote {
+    display: block;
+    margin-bottom: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-inline-start: 2px solid var(--border-strong);
+    border-radius: var(--radius-inner);
+    background: var(--surface-soft);
+    font-size: var(--text-3);
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.chat-quote > strong { color: var(--fg-soft); margin-inline-end: var(--space-3); }
+
+/* A file in a bubble: icon, name, size. */
+.chat-attachment {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+    background: var(--surface-here);
+    color: inherit;
+    text-decoration: none;
+    font-size: var(--text-3);
+}
+.chat-attachment > i { font-size: var(--text-8); color: var(--muted); flex-shrink: 0; }
+.chat-attachment-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-attachment-size { color: var(--muted); font-variant-numeric: tabular-nums; margin-inline-start: auto; flex-shrink: 0; }
+.chat-attachment:hover { border-color: var(--border-strong); text-decoration: none; }
+
+/* ── Reactions ──────────────────────────────────────────────────────────────
+   Under the bubble: a pill per emoji with its count, `aria-pressed` on the ones
+   that are mine, and the last pill adds one. */
+.chat-reactions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chat-reaction {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 24px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface-strong);
+    color: var(--fg-soft);
+    font-family: inherit;
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+.chat-reaction:hover { border-color: var(--border-strong); }
+.chat-reaction[aria-pressed="true"] {
+    background: var(--brand-tint);
+    border-color: var(--brand);
+    color: var(--brand-text);
+}
+.chat-reaction:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* The picker: a grid of emoji buttons, inside a `.popover`. */
+.chat-emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: var(--space-1);
+}
+.chat-emoji {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-inner);
+    background: none;
+    font-size: var(--text-7);
+    line-height: 1;
+    cursor: pointer;
+}
+.chat-emoji:hover { background: var(--bg-hover); }
+.chat-emoji:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* ── Actions on a message ───────────────────────────────────────────────────
+   React, reply, more — a row of ghost icon buttons that appears beside the
+   bubble on hover and whenever anything in the message has focus, so the keyboard
+   reaches it. Positioned in the gap above the bubble's far corner so it covers
+   nothing. */
+.chat-actions {
+    position: absolute;
+    top: calc(var(--space-6) * -1);
+    inset-inline-end: 0;
+    display: flex;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-float);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--motion-fast), visibility var(--motion-fast);
+}
+.chat-message--mine .chat-actions { inset-inline-end: auto; inset-inline-start: 0; }
+.chat-message:hover .chat-actions,
+.chat-message:focus-within .chat-actions { opacity: 1; visibility: visible; }
+
+/* Who has read up to here, after the last message. */
+.chat-seen {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    font-size: var(--text-2);
+    color: var(--muted);
+}
+
+/* ── Typing ─────────────────────────────────────────────────────────────────
+   Three dots in a bubble, breathing in turn. The words are in the markup for a
+   screen reader ("Alex is typing"), visually hidden. */
+.chat-typing {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: 1.5em;
+}
+.chat-typing > i {
+    --chat-typing-duration: 1.2s;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: sedna-chat-typing var(--chat-typing-duration) ease-in-out infinite;
+}
+/* Each dot a sixth of a cycle behind the one before it. */
+.chat-typing > i:nth-child(2) { animation-delay: calc(var(--chat-typing-duration) / 6); }
+.chat-typing > i:nth-child(3) { animation-delay: calc(var(--chat-typing-duration) / 3); }
+@keyframes sedna-chat-typing {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* ── The composer ───────────────────────────────────────────────────────────
+   Under the thread: what is being answered, what is attached, the field and the
+   send. The field is a `.form-input` textarea that starts at one row; growing
+   with the text is the app's (`rows` from the line count, or a script of its own). */
+.chat-composer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--divider);
+}
+.chat-composer-reply {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    border-inline-start: 2px solid var(--brand);
+    background: var(--surface-soft);
+    border-radius: var(--radius-inner);
+    font-size: var(--text-3);
+    color: var(--muted);
+}
+.chat-composer-reply > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-composer-reply > strong { color: var(--fg-soft); }
+.chat-composer-files { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chat-composer-row { display: flex; align-items: flex-end; gap: var(--space-3); }
+.chat-composer-row > .form-input { flex: 1; min-width: 0; resize: none; }
+
+/* ── The launcher and the flyover ───────────────────────────────────────────
+   The launcher is the chat's one-tap way in: a round brand button in the corner,
+   above the home indicator, with the unread count on it. The FAB's corner and the
+   FAB's rung — it IS the page's one floating action where a chat is the page's job.
+
+   The flyover is the panel it opens: a `popover`, so it is in the top layer, closes
+   on Escape and light dismiss, and needs no script to show. Fixed in the same
+   corner, a phone's full width, a desktop's card. Its parts are the thread and the
+   composer above, under a head that names the conversation and closes it. */
+.chat-launcher {
+    position: fixed;
+    inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
+    z-index: 60;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 50%;
+    background: var(--brand);
+    color: var(--on-solid);
+    font-size: var(--text-8);
+    box-shadow: var(--shadow-float);
+    cursor: pointer;
+}
+.chat-launcher:hover { background: var(--brand-hover); }
+.chat-launcher:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--brand-ring); }
+.chat-launcher-count {
+    position: absolute;
+    top: -4px;
+    inset-inline-end: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--danger-solid);
+    color: var(--on-solid);
+    font-size: var(--text-2);
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+    box-shadow: 0 0 0 2px var(--bg);
+}
+
+.chat-flyover {
+    inset: auto;
+    margin: 0;
+    position: fixed;
+    inset-block-end: calc(var(--space-8) + 52px + var(--space-4) + var(--safe-block-end));
+    inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
+    z-index: 550;
+    display: none;
+    flex-direction: column;
+    width: min(380px, calc(100vw - 2 * var(--space-8)));
+    height: min(560px, calc(100dvh - 120px - var(--safe-block-end)));
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    --surface-here: var(--bg-elevated);
+    background: var(--bg-elevated);
+    color: var(--fg);
+    box-shadow: var(--shadow-float);
+    overflow: hidden;
+}
+.chat-flyover:popover-open { display: flex; }
+.chat-flyover-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--divider);
+}
+.chat-flyover-head > strong { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-flyover > .chat { flex: 1; min-height: 0; overflow-y: auto; padding-inline: var(--space-5); }
+.chat-flyover > .chat-composer { padding: var(--space-4) var(--space-5); }

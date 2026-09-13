@@ -1,0 +1,116 @@
+@page "/chat"
+
+<CatHead Title="Chat">
+    A conversation: messages in bubbles, mine on the end and theirs on the start, with the day,
+    the author, the time, what happened to the message and how people reacted to it &mdash; the
+    composer under it, and the launcher that keeps a chat one tap away on every page. Every
+    piece of state is the app's; the two things that need the platform use it rather than a
+    script.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-chat-3-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">The thread is a log</span>
+        <code>role="log"</code> with <code>aria-live="polite"</code> on the <code>.chat</code>: a
+        message that arrives is announced once, after whatever the reader is doing, and the
+        history is one region to navigate. Give it an <code>aria-label</code> naming the
+        conversation. Every icon &mdash; a status check, a reaction, an action &mdash; carries a
+        name; the emoji in a reaction is not one.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Chat.Thread" Title="A conversation" Demo="ex-demo--block">
+    <p>
+        <code>.chat-message</code> is avatar and <code>.chat-body</code>; <code>--mine</code> puts
+        it on the end with no avatar, <code>--continued</code> is the same author's next message
+        and drops the <code>.chat-meta</code> above it, so a run reads as one turn. The
+        <code>.chat-bubble</code> is on the neutral surface for theirs and the brand tint for mine,
+        both in the page's own text colour. <code>.chat-day</code> and <code>.chat-unread</code> are
+        lines across the thread; <code>.chat-status</code> is what happened to my message &mdash;
+        one check sent, two delivered, <code>--read</code> in the brand &mdash; and
+        <code>.chat-bubble--failed</code> with <code>.chat-status--failed</code> and a retry is one
+        that did not go. <code>.chat-typing</code> is the three dots, with the words for a screen
+        reader beside them, visually hidden.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.GroupThread" Title="A group" Demo="ex-demo--block">
+    <p>
+        The same markup with more people: every message carries its avatar and
+        <code>.chat-author</code>, a <code>.chat-system</code> line tells what the app did, a
+        <code>.chat-mention</code> names someone, a <code>.chat-quote</code> at the top of a bubble
+        is the message it answers, and <code>.chat-seen</code> after the last message is who has
+        read up to here. Colour the avatars from the <a href="/bars">series tokens</a>, so four
+        people are four colours and none of them is a semantic one.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Reactions" Title="Reactions" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; open the picker.</strong> <code>.chat-reactions</code> under a bubble
+        is a pill per emoji with its count, <code>aria-pressed="true"</code> on the ones that are
+        mine and an <code>aria-label</code> that says the emoji's name and the count &mdash; a
+        screen reader does not read &ldquo;👍 3&rdquo; as anything. The last pill adds one: it opens
+        a <a href="/popover"><code>.popover</code></a> holding a <code>.chat-emoji-grid</code> of
+        <code>.chat-emoji</code> buttons, each named. Which emoji the picker offers is the app's
+        list; the platform's own picker is a keyboard away and needs no help.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Actions" Title="Actions on a message" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; hover a message, or tab into it.</strong> <code>.chat-actions</code>
+        is a row of ghost icon buttons in the gap above the bubble's far corner, shown on hover
+        and whenever anything in the message has focus, so the keyboard reaches it. React and
+        reply are buttons; more is a <a href="/menu"><code>.menu</code></a> with
+        <code>data-menu-toggle</code>, and the destructive item is
+        <code>.menu-item--danger</code>. On a phone, where there is no hover, a long press on the
+        bubble is the app's way in &mdash; it opens the same menu.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Composer" Title="The composer" Demo="ex-demo--block">
+    <p>
+        <code>.chat-composer</code> is what is being answered, what is attached, the field and the
+        send. <code>.chat-composer-reply</code> quotes the message being replied to with a way to
+        stop; <code>.chat-composer-files</code> is the pending attachments as
+        <a href="/chip">chips</a>, each removable; the <code>.chat-composer-row</code> holds the
+        <code>.form-input</code> textarea between attach, emoji and send. Enter sends and
+        Shift+Enter breaks a line &mdash; the app's handler, because the library does not know
+        which the app wants &mdash; and the field grows with the text by <code>rows</code> from
+        the line count.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Attachments" Title="Files and pictures" Demo="ex-demo--block">
+    <p>
+        <code>.chat-attachment</code> is a file in a bubble &mdash; an <code>&lt;a&gt;</code> with
+        the icon, the name and the size, so it downloads like any link &mdash; and
+        <code>.chat-bubble--media</code> is a bubble that is a picture, filled to its corners with
+        the caption in the next bubble. Give the image its <code>width</code> and
+        <code>height</code>, or the thread jumps as it loads.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Launcher" Title="The launcher and the flyover" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; open it.</strong> <code>.chat-launcher</code> is the round brand button
+        in the corner, above the home indicator, with the unread count on it as
+        <code>.chat-launcher-count</code>; it is the page's one floating action where a chat is the
+        page's job, so it takes the <a href="/button">FAB</a>'s corner and rung. It opens the
+        <code>.chat-flyover</code> with <code>popovertarget</code>: a <code>popover="manual"</code>
+        panel, so it is in the top layer and stays open while the reader works, and the close
+        button in its <code>.chat-flyover-head</code> is the way out. Inside it the thread and the
+        composer are the ones above; on a phone it is the viewport's width.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Conversations" Title="The conversations" Demo="ex-demo--block">
+    <p>
+        The list of chats is a <a href="/list"><code>.list</code></a>: an avatar or an
+        <code>.avatar-group</code>, the name and the last line, the time and an unread
+        <a href="/badge">badge</a>. Nothing here is a chat class, and that is the point &mdash;
+        the row that navigates is the row that navigates everywhere else.
+    </p>
+</CatExample>

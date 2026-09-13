@@ -253,7 +253,10 @@ public class PageLoadTests(CatalogueAppFixture app)
             for (var i = 0; i < toggles; i++)
             {
                 var toggle = page.Locator(".ex-demo [data-menu-toggle]").Nth(i);
-                await toggle.ClickAsync();
+                // A toggle inside a chat message's action row is hidden until the
+                // message is hovered, which a real reader does before reaching it.
+                await toggle.HoverAsync(new() { Force = true });
+                await toggle.ClickAsync(new() { Force = true });
                 spills.AddRange(await page.EvaluateAsync<string[]>(measure));
                 await page.Keyboard.PressAsync("Escape");
             }
