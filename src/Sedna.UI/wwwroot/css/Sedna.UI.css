@@ -759,6 +759,21 @@
     --card-pad-block:  var(--space-6);
     --card-pad-inline: var(--space-7);
 
+    /* ── List rows ──────────────────────────────────────────────────────────
+       The padding of every `.list-row` and the gap between the cards of a
+       `.list--cards`, remapped by [data-density="compact"]. A row follows density
+       because it is a row, not because a card contains it; inside a `.card` its
+       inline padding is still the card's gutter. */
+    --list-pad-block:  var(--space-5);
+    --list-pad-inline: var(--space-6);
+    --list-gap:        var(--space-4);
+
+    /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
+       number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
+       every line inside and aligns the row's slots to the first line; set on one
+       `.list-title` or `.list-sub` it shapes that line alone. */
+    --list-lines: 1;
+
     /* ── Metrics ────────────────────────────────────────────────────────── */
     --page-max: 1800px;    /* content column cap on ultra-wide screens */
 
@@ -7191,7 +7206,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     display: flex;
     align-items: center;
     gap: var(--space-6);
-    padding: var(--space-5) var(--space-6);
+    padding: var(--list-pad-block) var(--list-pad-inline);
     color: inherit;
     text-decoration: none;
 }
@@ -7250,14 +7265,92 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 /* The dominant field and its supporting line. min-width: 0 is what lets the
    ellipsis work — a flex item defaults to min-content width and refuses to shrink. */
 .list-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); }
-.list-title { color: var(--fg); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.list-sub { color: var(--muted); font-size: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* Trailing metadata — a timestamp, a badge, a chevron. */
+/* Both lines are cut after `--list-lines` lines: 1 by default, `none` to wrap, or any
+   count. One knob rather than a `--wrap` modifier, so "two lines, then clamp" is a
+   value and not a release. `-webkit-line-clamp` needs `display: -webkit-box` and has
+   no unprefixed form that works. Chromium still lays inline children out as text, so
+   a badge inside a title flows on the line rather than becoming a line of its own.
+   `overflow-wrap: anywhere` is for the one-word line — an e-mail address — which
+   would otherwise run past the edge unclamped instead of breaking into the ellipsis. */
+.list-title,
+.list-sub {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--list-lines);
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+.list-title { color: var(--fg); font-weight: 500; }
+.list-sub { color: var(--muted); font-size: var(--text-3); }
+/* Metadata — a timestamp, a badge, a chevron. Trailing, as a child of the row; or
+   as a line of its own above the title, as the first child of `.list-main`, where it
+   wraps rather than pushing the row wider than its container. */
 .list-meta { display: flex; align-items: center; gap: var(--space-4); flex-shrink: 0; color: var(--muted); font-size: var(--text-3); }
+.list-main > .list-meta { flex-wrap: wrap; row-gap: var(--space-1); }
+
+/* A row taller than one line — lines set to wrap or clamp at more than one, or a
+   meta line above the title — aligns its leading visual and trailing slot to the top
+   rather than centring them on the whole height, so the avatar sits beside the title
+   it belongs to. The container is the row's parent, so this sees `--list-lines` set
+   on the row or anything above it, and not a value set on one line alone. */
+@container not style(--list-lines: 1) {
+    .list-row > * { align-self: flex-start; }
+}
+.list-row:has(> .list-main > .list-meta:first-child) > * { align-self: flex-start; }
 
 /* Inside a card the rows meet the card's edges, so the divider spans the full
    width instead of floating with a gap at each end. */
 .card > .list > li > .list-row { padding-inline: var(--card-pad-inline); }
+
+/* ── Cards: the same rows, presented apart ──────────────────────────────────
+   `.list--cards` is a presentation of the same markup, not a second component: a gap
+   instead of dividers, and each row a card — surface, border, radius. Everything else
+   is the row's own: the button reset, hover, pressed, focus, disabled, density and
+   sticky group heads between the cards.
+
+   The surface follows the card ladder by depth, so a card list inside a `.card` takes
+   the next step up, as a nested `.card` would. Each rung sets `--surface-here` only
+   and the base rule paints it, so no rung outranks a state below.
+
+   Selection reads as strongly as a bordered card: the brand border doubled by an
+   inset ring, over the tint. Inset rather than outside the border, because the usual
+   parent is a scroll container and an outer ring on the first or last card is
+   clipped at its edge. The tint is a layer over the opaque surface, not the
+   background itself — `--brand-tint` is translucent and would show the page through
+   the card. */
+.list--cards { display: flex; flex-direction: column; gap: var(--list-gap); }
+.list--cards > li + li { border-top: none; }
+.list--cards > li > .list-row {
+    --surface-here: var(--surface-raised-1);
+    background-color: var(--surface-here);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+}
+.card .list--cards > li > .list-row { --surface-here: var(--surface-raised-2); }
+.card .card .list--cards > li > .list-row { --surface-here: var(--surface-raised-3); --muted: var(--fg-soft); }
+
+.list--cards > li > :is(a, button).list-row:hover { background-color: var(--bg-hover); border-color: var(--border-strong); }
+.list--cards > li > button.list-row:active { background-color: var(--btn-active-bg); }
+.list--cards > li > .list-row:is([aria-current="true"], [aria-selected="true"]),
+.list--cards > li > .list-row:is([aria-current="true"], [aria-selected="true"]):hover {
+    background-color: var(--surface-here);
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+    border-color: var(--brand);
+    box-shadow: inset 0 0 0 1px var(--brand);
+}
+.list--cards > li > :is(a, button).list-row:is([aria-current="true"], [aria-selected="true"]):focus-visible {
+    box-shadow: inset 0 0 0 1px var(--brand), inset 0 0 0 3px var(--brand-ring-soft);
+}
+
+/* In a card the list keeps the card's gutter round the whole stack, and the rows go
+   back to their own padding — the card-edge rule above is for rows that meet the
+   card's border, and these do not. */
+.card > .list--cards { padding: var(--card-pad-block) var(--card-pad-inline); }
+.card > .list--cards > li > .list-row { padding-inline: var(--list-pad-inline); }
+/* A group head between cards puts its label on the cards' text: the row's padding
+   plus the card's 1px border. */
+.list--cards > .sticky-group-head,
+.card > .list--cards > .sticky-group-head { padding-inline: calc(var(--list-pad-inline) + 1px); }
 
 /* ── The row as a lockup ────────────────────────────────────────────────────
    `.list-row` + `.list-main` + `.list-title` + `.list-sub` + `.list-meta` is a leading
@@ -9257,6 +9350,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .page-link[aria-current="page"],
     .palette-item[aria-selected="true"],
     .tree-leaf[aria-current="true"],
+    .list-row[aria-current="true"],
     .list-row[aria-selected="true"],
     .segmented-option:has(input:checked) { outline: 1px solid Highlight; }
 
@@ -9612,7 +9706,8 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    [data-density="compact"] on <html>. A pure token remap, like every other theme
    block, so it composes with the themes and CSS load order stays irrelevant.
 
-   Two families tighten: table cells (--cell-pad-*) and card parts (--card-pad-*).
+   Three families tighten: table cells (--cell-pad-*), card parts (--card-pad-*) and
+   list rows (--list-pad-*, plus --list-gap between the cards of `.list--cards`).
    Anything else that should tighten with them reads the same tokens and gets it for
    free — an app's own card part written with `.card-body`, or its own component
    padded with var(--card-pad-inline).
@@ -9627,6 +9722,9 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     --cell-pad-x: var(--space-5);
     --card-pad-block: var(--space-4);
     --card-pad-inline: var(--space-6);
+    --list-pad-block: var(--space-3);
+    --list-pad-inline: var(--space-5);
+    --list-gap: var(--space-2);
 }
 }
 

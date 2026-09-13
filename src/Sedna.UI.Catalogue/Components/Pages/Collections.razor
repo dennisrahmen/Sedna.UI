@@ -20,6 +20,30 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Collections.ListLines" Title="Line count" Demo="ex-demo--block">
+    <p>
+        <code>.list-title</code> and <code>.list-sub</code> show one line with an ellipsis until
+        <code>--list-lines</code> says otherwise: a number clamps after that many lines, and
+        <code>none</code> wraps freely &mdash; use it where the supporting line is a sentence, which
+        a translation will make longer. <strong>Set it on the list, an <code>&lt;li&gt;</code> or a
+        row</strong> to shape every line inside and align the row's leading and trailing slots to
+        the first line; set it on one <code>.list-title</code> or <code>.list-sub</code> to shape
+        that line alone. Row padding follows <code>[data-density]</code> wherever the list sits.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Collections.ListCards" Title="List as cards" Demo="ex-demo--block">
+    <p>
+        <code>.list--cards</code> presents the same rows as separate cards &mdash; a gap instead of
+        dividers, each row a card surface &mdash; for a work list the reader picks from, where rows
+        that run together are hard to tell apart. The markup does not change, so the button reset,
+        hover, focus, <code>disabled</code>, density and sticky group headers all carry over, and
+        <code>aria-current</code> or <code>aria-selected</code> draws a brand border. A
+        <code>.list-meta</code> as the first child of <code>.list-main</code> is a line above the
+        title.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Collections.Steps" Title="Steps" Demo="ex-demo--block">
     <p>
         Progress through a sequence that has an order and an end — a wizard, an approval chain.

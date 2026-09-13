@@ -148,7 +148,7 @@ internal static class TokenGroups
 
         new("Density and metrics", [
             "--page-max", "--cell-pad-x", "--cell-pad-y", "--card-pad-block", "--card-pad-inline",
-            "--code-clamp",
+            "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--code-clamp",
         ], Swatch: false),
 
         // How much of each viewport edge the device has taken — a home indicator, a
