@@ -38,6 +38,7 @@ internal static class CataloguePages
     public const string Feedback = "Feedback";
     public const string Overlays = "Overlays";
     public const string Utilities = "Utilities";
+    /// <summary>The section of Start that holds the reference pages: the script, C#, the MCP server.</summary>
     public const string Reference = "Reference";
 
     /// <summary>
@@ -236,21 +237,24 @@ internal static class CataloguePages
             "Holding your own bar clear of a home indicator, a notch or a rounded corner.",
             "sedna-safe-top sedna-safe-bottom sedna-safe-inline env safe-area-inset viewport-fit cover notch home indicator iphone island phone landscape"),
 
-        new("/script", Reference, "The script", "ri-code-s-slash-line",
+        new("/script", Start, "The script", "ri-code-s-slash-line",
             "Loading it, and the JavaScript behind toasts, confirmations, the clipboard and the delegated behaviours.",
-            "sednaUi toast confirm copy clipboard menu tabs dropzone follow javascript boot theme default time zone cookie tz select refresh selectedcontent"),
-        new("/interop", Reference, "From C#", "ri-braces-line",
+            "sednaUi toast confirm copy clipboard menu tabs dropzone follow javascript boot theme default time zone cookie tz select refresh selectedcontent",
+            Section: Reference),
+        new("/interop", Start, "From C#", "ri-braces-line",
             "ISednaUi: toasts, confirmations, settings, the time zone and the modal, called from a component.",
-            "ISednaUi interop C# csharp AddSednaUi ToastAsync ConfirmAsync ISednaSettings LoadSettingsAsync GetTimeZoneAsync ShowModalAsync prerender OnAfterRenderAsync"),
+            "ISednaUi interop C# csharp AddSednaUi ToastAsync ConfirmAsync ISednaSettings LoadSettingsAsync GetTimeZoneAsync ShowModalAsync prerender OnAfterRenderAsync",
+            Section: Reference),
         // Not "/mcp": that route is the MCP endpoint itself, mapped in Program.cs.
-        new("/mcp-server", Reference, "MCP server", "ri-robot-2-line",
+        new("/mcp-server", Start, "MCP server", "ri-robot-2-line",
             "The read-only endpoint an agent points at, its six tools and four resources.",
-            "mcp agent ai claude tool resource read-only streamable http rate limit since"),
+            "mcp agent ai claude tool resource read-only streamable http rate limit since",
+            Section: Reference),
     ];
 
     /// <summary>The group names, in the order the sidebar's rail shows them.</summary>
     public static IReadOnlyList<string> Groups { get; } =
-        [Start, Frame, Structure, Actions, Forms, Data, Labels, Content, Feedback, Overlays, Utilities, Reference];
+        [Start, Frame, Structure, Actions, Forms, Data, Labels, Content, Feedback, Overlays, Utilities];
 
     /// <summary>
     /// The icon each group carries in the sidebar's area rail. <c>NavigationTests</c>
@@ -270,7 +274,6 @@ internal static class CataloguePages
             [Feedback] = "ri-notification-3-line",
             [Overlays] = "ri-stack-line",
             [Utilities] = "ri-tools-line",
-            [Reference] = "ri-book-open-line",
         };
 
     /// <summary>
@@ -295,4 +298,8 @@ internal static class CataloguePages
     /// <summary>The pages in one group, in registration order.</summary>
     public static IEnumerable<CataloguePage> InGroup(string group) =>
         All.Where(p => p.Group == group);
+
+    /// <summary>The section names one group's panel carries, in first-seen order.</summary>
+    public static IEnumerable<string> SectionsOf(string group) =>
+        InGroup(group).Select(p => p.Section).OfType<string>().Distinct(StringComparer.Ordinal);
 }

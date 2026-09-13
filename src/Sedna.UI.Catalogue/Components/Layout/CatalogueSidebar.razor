@@ -49,13 +49,29 @@
         <div class="nav-scroll">
             @* `item`, never `page`: Razor reads a bare `@page.` as the @@page
                directive and the file stops compiling. *@
-            @foreach (var item in CataloguePages.InGroup(CurrentGroup))
+            @foreach (var item in CataloguePages.InGroup(CurrentGroup).Where(p => p.Section is null))
             {
                 <a class="@Nav.CssClass(item.Route, match: MatchFor(item))"
                    aria-current="@Nav.AriaCurrent(item.Route, MatchFor(item))"
                    href="@item.Route">
                     <i class="@item.Icon"></i><span>@item.Label</span>
                 </a>
+            }
+            @* A page that belongs in the area but not in its main list — the reference
+               pages under Start — sits in a labelled .nav-section after it. *@
+            @foreach (var section in CataloguePages.SectionsOf(CurrentGroup))
+            {
+                <div class="nav-section">
+                    <span class="nav-section-label">@section</span>
+                    @foreach (var item in CataloguePages.InGroup(CurrentGroup).Where(p => p.Section == section))
+                    {
+                        <a class="@Nav.CssClass(item.Route, match: MatchFor(item))"
+                           aria-current="@Nav.AriaCurrent(item.Route, MatchFor(item))"
+                           href="@item.Route">
+                            <i class="@item.Icon"></i><span>@item.Label</span>
+                        </a>
+                    }
+                </div>
             }
         </div>
 

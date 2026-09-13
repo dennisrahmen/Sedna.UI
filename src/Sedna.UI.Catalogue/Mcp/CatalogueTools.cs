@@ -319,6 +319,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                     id = p.Route,
                     title = p.Label,
                     group = p.Group,
+                    section = p.Section,
                     blurb = p.Blurb,
                     exampleCount = index.Examples.Count(e => e.Route == p.Route),
                 }),

@@ -2894,7 +2894,10 @@ a.topbar-version--pre:hover {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
-    padding: var(--space-4) var(--space-3);
+    /* Almost no inline padding: the rail is 64px and a label is set at --text-1, so
+       "Reference" needs every pixel — with 6px each side it broke as "Referenc e",
+       and only in the expanded rail, whose 1px divider took the last pixel. */
+    padding: var(--space-4) var(--space-1);
 }
 .nav-areas-list::-webkit-scrollbar { display: none; }
 
@@ -2903,7 +2906,7 @@ a.topbar-version--pre:hover {
     flex-direction: column;
     align-items: center;
     gap: var(--space-1);
-    padding: var(--space-4) var(--space-1);
+    padding: var(--space-4) 0;
     background: none;
     border: none;
     border-radius: var(--radius-surface);
@@ -2917,8 +2920,10 @@ a.topbar-version--pre:hover {
     cursor: pointer;
 }
 .nav-area i { font-size: var(--text-8); line-height: 1; }
-/* A long area name wraps inside the rail rather than widening it. */
-.nav-area > span { max-width: 100%; overflow-wrap: anywhere; }
+/* A long area name wraps inside the rail rather than widening it — at a hyphen
+   where the language has one, and mid-word only as the last resort, which is what
+   `anywhere` means beside `hyphens`. Give the page a `lang`, or there are no hyphens. */
+.nav-area > span { max-width: 100%; hyphens: auto; overflow-wrap: anywhere; }
 .nav-area:hover { background: var(--sidebar-hover); color: var(--sidebar-fg); text-decoration: none; }
 .nav-area:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
 .nav-area[aria-expanded="true"],
