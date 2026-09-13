@@ -36,13 +36,13 @@
     @* The library's .search box, in the place the frame puts it: first thing
        after the nav toggles, before the spacer.
 
-       Everything below the input is sednaUi.search — the panel, the ranking
-       and the keyboard. This markup is the whole of what an app writes, and the
+       sednaUi.search supplies the ranking and the keyboard; the results panel is
+       markup in CatalogueLayout, outside the topbar, and data-search names it. The
        index is registered from CatalogueLayout once the circuit is up. The clear
        button is shown by CSS on :placeholder-shown, so it needs no state here. *@
     <div class="search">
         <i class="ri-search-line search-icon" aria-hidden="true"></i>
-        <input class="search-input" id="cat-search" type="search" data-search
+        <input class="search-input" id="cat-search" type="search" data-search="cat-search-results"
                autocomplete="off" spellcheck="false"
                placeholder="Search pages and examples…" aria-label="Search the catalogue" />
         <button class="search-clear" type="button" aria-label="Clear the search" tabindex="-1">

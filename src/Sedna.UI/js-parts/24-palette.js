@@ -1,14 +1,46 @@
 /* ── Command palette ─────────────────────────────────────────────────────────
-   sednaUi.palette.register([{ label, icon, group, note, run, keywords }])
+   sednaUi.palette.register([{ label, icon, group, note, run, href, keywords }])
    sednaUi.palette.open()      — or Ctrl/Cmd-K, which is wired for you
+
+   THE MARKUP IS THE APP'S. The script draws nothing: the app writes one
+   <dialog class="palette" data-palette> with its input, its list and its footer,
+   in its own words, and a <template> for each row shape —
+
+     <dialog class="palette" data-palette aria-label="Commands">
+       <input class="palette-input" type="text" placeholder="Search commands…" aria-label="Search commands">
+       <ul class="palette-list" aria-label="Commands"></ul>
+       <div class="palette-footer">…</div>
+       <template data-palette-item>
+         <li role="presentation">
+           <div class="palette-item" role="option">
+             <i data-icon aria-hidden="true"></i><span data-label></span>
+             <span class="palette-item-note" data-note></span>
+           </div>
+         </li>
+       </template>
+       <template data-palette-group>
+         <li role="presentation"><div class="palette-group" data-group></div></li>
+       </template>
+       <template data-palette-empty>
+         <li role="presentation"><div class="palette-empty">Nothing matches “<span data-query></span>”.</div></li>
+       </template>
+     </dialog>
+
+   — and the script clones those templates into the list and fills their slots
+   (ui._.fill in 00-core.js). A slot with nothing to say is removed; `data-icon`
+   takes the command's icon class. Leave the list empty in the markup: the script
+   owns its children, and a framework rendering some of its own would fight it.
+   The group and empty templates are optional.
+
+   The script adds what is behaviour, not appearance: the combobox and listbox roles,
+   aria-expanded, aria-controls, aria-activedescendant, aria-selected and each
+   option's id, because those are a promise about the keyboard contract only this
+   file keeps.
 
    The scorer is ui._.score in 00-core.js, shared with the header search so the
    two cannot rank the same query differently. Matches in `keywords` score below
    the same match in the label, so a command is never outranked by one that
    merely mentions the word.
-
-   Everything is built from the classes in css-parts/64-palette-spotlight.css, so a
-   palette opened by this looks exactly like the one the catalogue documents.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -20,6 +52,8 @@
     var list = null;
     var shown = [];      // the currently visible commands, in ranked order
     var at = 0;          // index into shown
+    var wired = [];      // dialogs whose listeners are attached
+    var warned = false;
 
     function rank(query) {
         var out = [];
@@ -39,11 +73,10 @@
         return out.map(function (r) { return r.c; });
     }
 
-    function el(tag, className, text) {
-        var node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text !== undefined) node.textContent = text;
-        return node;
+    var fill = ui._.fill;
+
+    function template(name) {
+        return dialog.querySelector('template[data-palette-' + name + ']');
     }
 
     function render(query) {
@@ -52,13 +85,10 @@
         list.textContent = '';
 
         if (!shown.length) {
-            var empty = el('li');
-            empty.setAttribute('role', 'presentation');
             // Says what was searched, not just "no results" — the reader needs to
-            // know the query was what they thought it was.
-            empty.appendChild(el('div', 'palette-empty',
-                query ? 'Nothing matches “' + query + '”.' : 'No commands registered.'));
-            list.appendChild(empty);
+            // know the query was what they thought it was. The words are the app's.
+            var empty = fill(template('empty'), { query: query });
+            if (empty) list.appendChild(empty);
             input.removeAttribute('aria-activedescendant');
             return;
         }
@@ -69,45 +99,34 @@
             // once a query has reordered the list — a heading over unrelated results
             // is worse than no heading.
             if (!query && c.group && c.group !== lastGroup) {
-                // role="presentation" is load-bearing: a listbox may only own
-                // options, and a bare <li> here breaks aria-required-children — while
-                // also ceasing to be a listitem, because the <ul> is no longer a list.
-                // Presentation makes the <li> transparent to both rules.
-                var head = el('li');
-                head.setAttribute('role', 'presentation');
-                head.appendChild(el('div', 'palette-group', c.group));
-                list.appendChild(head);
+                var head = fill(template('group'), { group: c.group });
+                if (head) list.appendChild(head);
                 lastGroup = c.group;
             }
 
-            // role="option" on a <div>, not a <button>: an option is not a button,
-            // and being one inside a listbox is what makes aria-selected and
-            // aria-activedescendant legal. Activated by click and by the input's
-            // Enter handler, never by receiving focus.
-            var li = el('li');
-            li.setAttribute('role', 'presentation');
-            var btn = el('div', 'palette-item');
-            btn.setAttribute('role', 'option');
-            btn.id = 'sedna-palette-' + i;
-            btn.setAttribute('aria-selected', String(i === 0));
+            var row = fill(template('item'), { label: c.label, note: c.note });
+            if (!row) return;
 
-            if (c.icon) {
-                var icon = el('i', c.icon);
-                icon.setAttribute('aria-hidden', 'true');
-                btn.appendChild(icon);
-            }
-            btn.appendChild(document.createTextNode(c.label));
-            if (c.note) btn.appendChild(el('span', 'palette-item-note', c.note));
+            var icon = row.querySelector('[data-icon]');
+            if (icon && c.icon) c.icon.split(/\s+/).forEach(function (k) { if (k) icon.classList.add(k); });
+            else if (icon) icon.remove();
 
-            btn.addEventListener('click', function () { run(i); });
-            li.appendChild(btn);
-            list.appendChild(li);
+            // role="option" is the app's template's, and the row it sits on is what the
+            // keyboard moves over. The template's outer element is often an
+            // <li role="presentation"> around it, which a listbox needs.
+            var option = row.matches('[role="option"]') ? row : row.querySelector('[role="option"]') || row;
+            option.setAttribute('role', 'option');
+            option.id = list.id + '-' + i;
+            option.setAttribute('aria-selected', String(i === 0));
+            option.addEventListener('click', function () { run(i); });
+
+            list.appendChild(row);
         });
 
-        input.setAttribute('aria-activedescendant', 'sedna-palette-0');
+        input.setAttribute('aria-activedescendant', list.id + '-0');
     }
 
-    function items() { return list.querySelectorAll('.palette-item'); }
+    function items() { return list.querySelectorAll('[role="option"]'); }
 
     function highlight(next) {
         var all = items();
@@ -164,37 +183,34 @@
         a.remove();
     }
 
-    function build() {
-        dialog = document.createElement('dialog');
-        dialog.className = 'palette';
+    /* Finds the app's palette and claims the roles on it. Re-run on every open, because
+       a framework may have replaced the dialog since the last one; the listeners are
+       attached once per element. */
+    function adopt() {
+        var found = document.querySelector('dialog[data-palette]');
+        if (!found) {
+            if (!warned) console.warn('sednaUi.palette: no <dialog data-palette> in the document. The palette is app markup — see the Command palette page.');
+            warned = true;
+            return false;
+        }
 
-        input = el('input', 'palette-input');
-        input.type = 'text';
-        input.placeholder = 'Search commands…';
+        dialog = found;
+        input = dialog.querySelector('.palette-input, input');
+        list = dialog.querySelector('.palette-list, ul');
+        if (!input || !list) {
+            console.warn('sednaUi.palette: the palette needs an input and a list.');
+            return false;
+        }
+
+        if (!list.id) list.id = 'sedna-palette-list';
+        list.setAttribute('role', 'listbox');
         input.setAttribute('role', 'combobox');
         input.setAttribute('aria-expanded', 'true');
-        input.setAttribute('aria-controls', 'sedna-palette-list');
-        input.setAttribute('aria-label', 'Search commands');
+        input.setAttribute('aria-controls', list.id);
         input.setAttribute('autocomplete', 'off');
 
-        list = el('ul', 'palette-list');
-        list.id = 'sedna-palette-list';
-        // A real listbox owned by the combobox input. Claimed because the keyboard
-        // contract behind it is implemented in full below: arrows, Home/End, Enter,
-        // and the highlight moving while focus stays in the input. axe rejects
-        // aria-selected on a plain button, correctly — the attribute means nothing
-        // without the role.
-        list.setAttribute('role', 'listbox');
-        list.setAttribute('aria-label', 'Commands');
-
-        var foot = el('div', 'palette-footer');
-        foot.innerHTML =
-            '<span><span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move</span>' +
-            '<span><span class="kbd">Enter</span> to run</span>' +
-            '<span><span class="kbd">Esc</span> to close</span>';
-
-        dialog.append(input, list, foot);
-        document.body.appendChild(dialog);
+        if (wired.indexOf(dialog) >= 0) return true;
+        wired.push(dialog);
 
         input.addEventListener('input', function () { render(input.value); });
 
@@ -210,6 +226,7 @@
         // layer, so a click whose target IS the dialog element landed outside the
         // panel's own children.
         dialog.addEventListener('click', function (e) { if (e.target === dialog) close(); });
+        return true;
     }
 
     function close() {
@@ -224,7 +241,7 @@
         },
 
         open: function () {
-            if (!dialog) build();
+            if (!adopt()) return false;
             if (dialog.open) return true;
 
             input.value = '';
@@ -247,6 +264,8 @@
         if (e.key !== 'k' && e.key !== 'K') return;
         if (!e.ctrlKey && !e.metaKey) return;
         if (!commands.length) return;      // nothing registered: leave the browser's own binding alone
+        // Nor with no palette to open: swallowing the key for a warning helps nobody.
+        if (!document.querySelector('dialog[data-palette]')) return;
 
         e.preventDefault();
         ui.palette.open();

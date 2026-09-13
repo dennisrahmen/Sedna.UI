@@ -24,6 +24,20 @@ public class SearchTests : ScriptTestBase
             <button class="search-clear" type="button" aria-label="Clear"><i class="ri-close-line"></i></button>
           </div>
         </header>
+        <div class="search-panel sedna-scroll" data-search-panel hidden>
+          <div data-search-list aria-label="Ergebnisse"></div>
+          <template data-search-item>
+            <a class="search-item">
+              <span class="search-item-title" data-title></span>
+              <span class="search-item-meta">
+                <span class="text-mono" data-code></span><span data-meta></span>
+                <span class="search-tag" data-tag></span>
+              </span>
+            </a>
+          </template>
+          <template data-search-empty><div class="search-status">Kein Treffer für „<span data-query></span>“</div></template>
+          <template data-search-more><div class="search-status"><span data-count></span> weitere Treffer</div></template>
+        </div>
         """;
 
     private const string Register =
@@ -64,7 +78,7 @@ public class SearchTests : ScriptTestBase
 
         // The first result is where the keyboard starts, and the input has to say so
         // for a screen reader to follow the highlight without focus moving.
-        Assert.Equal("sedna-search-item-0",
+        Assert.Equal(await page.GetAttributeAsync(".search-item >> nth=0", "id"),
             await page.GetAttributeAsync(".search-input", "aria-activedescendant"));
         Assert.Equal("combobox", await page.GetAttributeAsync(".search-input", "role"));
     }
@@ -89,19 +103,86 @@ public class SearchTests : ScriptTestBase
     }
 
     [Fact]
-    public async Task The_panel_is_outside_the_topbar_so_it_is_not_trapped_in_its_stacking_context()
+    public async Task The_apps_panel_outside_the_topbar_is_fixed_under_the_box()
     {
         if (NoBrowser) return;
         // .topbar is z-index 60 and creates a stacking context: a panel nested inside
-        // it could never rise above a modal backdrop, whatever its own z-index.
+        // it could never rise above a modal backdrop, whatever its own z-index. So the
+        // app puts its panel outside, and the script places it under the box it measured.
         var page = await Open(Box, head: StylesheetTag);
         await page.EvaluateAsync(Register);
         await page.FillAsync(".search-input", "qu");
 
-        Assert.True(await page.EvaluateAsync<bool>(
-            "() => document.querySelector('.search-panel').parentElement === document.body"));
+        var placed = await page.EvaluateAsync<string>("""
+            () => {
+                const panel = document.querySelector('.search-panel');
+                const box = document.querySelector('.search').getBoundingClientRect();
+                const r = panel.getBoundingClientRect();
+                return [panel.parentElement === document.body, Math.round(r.left) === Math.round(box.left),
+                        Math.round(r.width) === Math.round(box.width), r.top >= box.bottom].join(':');
+            }
+            """);
+
+        Assert.Equal("true:true:true:true", placed);
         Assert.Equal("550", await page.EvalOnSelectorAsync<string>(
             ".search-panel", "el => getComputedStyle(el).zIndex"));
+    }
+
+    [Fact]
+    public async Task A_result_is_the_apps_template_and_an_empty_slot_is_removed()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Box);
+        await page.EvaluateAsync("""
+            () => sednaUi.search.register([
+                { title: 'Quality report', tag: 'KPI', tone: 'warn' },
+                { title: 'Quality gate', href: '/gate' }
+            ])
+            """);
+
+        await page.FillAsync(".search-input", "quality");
+
+        var shape = await page.EvaluateAsync<string[]>("""
+            () => {
+                const rows = document.querySelectorAll('.search-item');
+                return [
+                    String(rows[0].hasAttribute('href')),                    // no href, no attribute
+                    rows[0].querySelector('.search-tag').className,
+                    String(!!rows[0].querySelector('[data-code]')),          // empty slot removed
+                    String(!!rows[1].querySelector('.search-item-meta')),    // nothing left to show
+                    rows[1].getAttribute('href'),
+                ];
+            }
+            """);
+
+        Assert.Equal(["false", "search-tag search-tag--warn", "false", "false", "/gate"], shape);
+    }
+
+    [Fact]
+    public async Task Nothing_found_uses_the_apps_own_words()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Box);
+        await page.EvaluateAsync(Register);
+
+        await page.FillAsync(".search-input", "xyzzy");
+
+        Assert.Equal("Kein Treffer für „xyzzy“", await page.InnerTextAsync(".search-status"));
+    }
+
+    [Fact]
+    public async Task Without_panel_markup_a_registered_box_stays_a_plain_input()
+    {
+        if (NoBrowser) return;
+        // The script draws no panel of its own any more; with none in the page it
+        // warns once and leaves the box alone.
+        var page = await Open("""<div class="search"><input class="search-input" type="search" data-search></div>""");
+        await page.EvaluateAsync(Register);
+
+        await page.FillAsync(".search-input", "qu");
+
+        Assert.Equal(0, await page.Locator(".search-panel").CountAsync());
+        Assert.Null(await page.GetAttributeAsync(".search-input", "role"));
     }
 
     [Fact]
@@ -271,7 +352,6 @@ public class SearchTests : ScriptTestBase
         await page.FillAsync(".search-input", "queue");
 
         Assert.Equal(8, await page.Locator(".search-item").CountAsync());
-        Assert.Contains("4 more matches", await page.InnerTextAsync(".search-status"),
-            StringComparison.Ordinal);
+        Assert.Equal("4 weitere Treffer", await page.InnerTextAsync(".search-status"));
     }
 }

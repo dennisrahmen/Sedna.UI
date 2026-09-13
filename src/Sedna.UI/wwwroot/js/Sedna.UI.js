@@ -132,7 +132,43 @@ window.sednaUi = window.sednaUi || {};
     // thing: NOT part of the public contract. Nothing outside js-parts/ may read
     // it, and it may change in a patch release. Everything an app is allowed to
     // touch is a named member on `ui` itself.
-    ui._ = { config: config, key: key, readRaw: readRaw, score: score };
+    /* Clones the first element of an app's <template> and fills its `data-*` slots.
+
+       `slots` maps a slot name to text: { label: 'Open queue' } writes textContent
+       into the clone's [data-label]. A slot whose value is empty, null or undefined is
+       REMOVED, so a row without a note carries no empty note element for the CSS to
+       space. The text goes in as textContent, never as markup: registered labels are
+       data, and often data from a server.
+
+       This is how the script renders rows while every element and word on screen stays
+       the app's — the rule in the root CLAUDE.md. Returns null when there is no template,
+       which the caller treats as "this row shape is not wanted". */
+    function fill(template, slots) {
+        if (!template) return null;
+        // .content for a parsed template. A template Blazor rendered holds its children
+        // in the element itself: the renderer builds with appendChild, which does not
+        // reach .content. Neither is rendered, so both are read.
+        var node = (template.content && template.content.firstElementChild) || template.firstElementChild;
+        if (!node) return null;
+        node = node.cloneNode(true);
+
+        Object.keys(slots || {}).forEach(function (name) {
+            var value = slots[name];
+            var targets = node.matches('[data-' + name + ']') ? [node] : [];
+            var inner = node.querySelectorAll('[data-' + name + ']');
+            for (var i = 0; i < inner.length; i++) targets.push(inner[i]);
+            targets.forEach(function (t) {
+                if (value === undefined || value === null || value === '') {
+                    if (t !== node) t.remove();
+                } else {
+                    t.textContent = String(value);
+                }
+            });
+        });
+        return node;
+    }
+
+    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill };
 
     ui.configure = function (opts) {
         if (!opts) return;
@@ -568,9 +604,20 @@ window.sednaUi = window.sednaUi || {};
    no wiring — and nothing has to be re-bound on every render, which is how per-
    element handlers leak.
 
-   The confirmation is swapped into the button and put back after 1.4s. The original
-   HTML is stashed on the element rather than in a closure, so two rapid clicks
-   cannot restore a "Copied" label as if it were the original.
+   The outcome is an attribute, never a rewrite of the button: `data-copied="ok"` or
+   `data-copied="failed"` for 1.4s. The words and the icons are the app's, marked with
+   what the stylesheet shows when:
+
+     <button class="btn btn-sm" type="button" data-copy="…">
+       <i class="ri-file-copy-line" data-copied-hide></i>
+       <i class="ri-check-line" data-copied-show="ok"></i>
+       <span data-copied-hide>Copy</span>
+       <span data-copied-show="ok">Copied</span>
+       <span data-copied-show="failed">Copy failed</span>
+     </button>
+
+   Rewriting the button's content was drawing markup in the app's own element — in
+   English, and in a subtree a framework owns and can revert mid-flash.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -589,20 +636,13 @@ window.sednaUi = window.sednaUi || {};
     }
 
     function flash(btn, ok) {
-        // Only stash on the first click; a second click mid-flash must not stash
-        // the confirmation as the thing to restore.
-        if (btn.dataset.copyOriginal === undefined) {
-            btn.dataset.copyOriginal = btn.innerHTML;
-        }
+        // One timer per button: a second click mid-flash restarts the window rather
+        // than letting the first timer end the second flash early.
         clearTimeout(+btn.dataset.copyTimer || 0);
-
-        btn.innerHTML = ok
-            ? '<i class="ri-check-line"></i><span>Copied</span>'
-            : '<i class="ri-error-warning-line"></i><span>Copy failed</span>';
+        btn.setAttribute('data-copied', ok ? 'ok' : 'failed');
 
         btn.dataset.copyTimer = setTimeout(function () {
-            btn.innerHTML = btn.dataset.copyOriginal;
-            delete btn.dataset.copyOriginal;
+            btn.removeAttribute('data-copied');
             delete btn.dataset.copyTimer;
         }, RESTORE_MS);
     }
@@ -2028,16 +2068,48 @@ window.sednaUi = window.sednaUi || {};
 
 /* ── 24-palette.js ──────────────────────────────────────────────── */
 /* ── Command palette ─────────────────────────────────────────────────────────
-   sednaUi.palette.register([{ label, icon, group, note, run, keywords }])
+   sednaUi.palette.register([{ label, icon, group, note, run, href, keywords }])
    sednaUi.palette.open()      — or Ctrl/Cmd-K, which is wired for you
+
+   THE MARKUP IS THE APP'S. The script draws nothing: the app writes one
+   <dialog class="palette" data-palette> with its input, its list and its footer,
+   in its own words, and a <template> for each row shape —
+
+     <dialog class="palette" data-palette aria-label="Commands">
+       <input class="palette-input" type="text" placeholder="Search commands…" aria-label="Search commands">
+       <ul class="palette-list" aria-label="Commands"></ul>
+       <div class="palette-footer">…</div>
+       <template data-palette-item>
+         <li role="presentation">
+           <div class="palette-item" role="option">
+             <i data-icon aria-hidden="true"></i><span data-label></span>
+             <span class="palette-item-note" data-note></span>
+           </div>
+         </li>
+       </template>
+       <template data-palette-group>
+         <li role="presentation"><div class="palette-group" data-group></div></li>
+       </template>
+       <template data-palette-empty>
+         <li role="presentation"><div class="palette-empty">Nothing matches “<span data-query></span>”.</div></li>
+       </template>
+     </dialog>
+
+   — and the script clones those templates into the list and fills their slots
+   (ui._.fill in 00-core.js). A slot with nothing to say is removed; `data-icon`
+   takes the command's icon class. Leave the list empty in the markup: the script
+   owns its children, and a framework rendering some of its own would fight it.
+   The group and empty templates are optional.
+
+   The script adds what is behaviour, not appearance: the combobox and listbox roles,
+   aria-expanded, aria-controls, aria-activedescendant, aria-selected and each
+   option's id, because those are a promise about the keyboard contract only this
+   file keeps.
 
    The scorer is ui._.score in 00-core.js, shared with the header search so the
    two cannot rank the same query differently. Matches in `keywords` score below
    the same match in the label, so a command is never outranked by one that
    merely mentions the word.
-
-   Everything is built from the classes in css-parts/64-palette-spotlight.css, so a
-   palette opened by this looks exactly like the one the catalogue documents.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -2049,6 +2121,8 @@ window.sednaUi = window.sednaUi || {};
     var list = null;
     var shown = [];      // the currently visible commands, in ranked order
     var at = 0;          // index into shown
+    var wired = [];      // dialogs whose listeners are attached
+    var warned = false;
 
     function rank(query) {
         var out = [];
@@ -2068,11 +2142,10 @@ window.sednaUi = window.sednaUi || {};
         return out.map(function (r) { return r.c; });
     }
 
-    function el(tag, className, text) {
-        var node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text !== undefined) node.textContent = text;
-        return node;
+    var fill = ui._.fill;
+
+    function template(name) {
+        return dialog.querySelector('template[data-palette-' + name + ']');
     }
 
     function render(query) {
@@ -2081,13 +2154,10 @@ window.sednaUi = window.sednaUi || {};
         list.textContent = '';
 
         if (!shown.length) {
-            var empty = el('li');
-            empty.setAttribute('role', 'presentation');
             // Says what was searched, not just "no results" — the reader needs to
-            // know the query was what they thought it was.
-            empty.appendChild(el('div', 'palette-empty',
-                query ? 'Nothing matches “' + query + '”.' : 'No commands registered.'));
-            list.appendChild(empty);
+            // know the query was what they thought it was. The words are the app's.
+            var empty = fill(template('empty'), { query: query });
+            if (empty) list.appendChild(empty);
             input.removeAttribute('aria-activedescendant');
             return;
         }
@@ -2098,45 +2168,34 @@ window.sednaUi = window.sednaUi || {};
             // once a query has reordered the list — a heading over unrelated results
             // is worse than no heading.
             if (!query && c.group && c.group !== lastGroup) {
-                // role="presentation" is load-bearing: a listbox may only own
-                // options, and a bare <li> here breaks aria-required-children — while
-                // also ceasing to be a listitem, because the <ul> is no longer a list.
-                // Presentation makes the <li> transparent to both rules.
-                var head = el('li');
-                head.setAttribute('role', 'presentation');
-                head.appendChild(el('div', 'palette-group', c.group));
-                list.appendChild(head);
+                var head = fill(template('group'), { group: c.group });
+                if (head) list.appendChild(head);
                 lastGroup = c.group;
             }
 
-            // role="option" on a <div>, not a <button>: an option is not a button,
-            // and being one inside a listbox is what makes aria-selected and
-            // aria-activedescendant legal. Activated by click and by the input's
-            // Enter handler, never by receiving focus.
-            var li = el('li');
-            li.setAttribute('role', 'presentation');
-            var btn = el('div', 'palette-item');
-            btn.setAttribute('role', 'option');
-            btn.id = 'sedna-palette-' + i;
-            btn.setAttribute('aria-selected', String(i === 0));
+            var row = fill(template('item'), { label: c.label, note: c.note });
+            if (!row) return;
 
-            if (c.icon) {
-                var icon = el('i', c.icon);
-                icon.setAttribute('aria-hidden', 'true');
-                btn.appendChild(icon);
-            }
-            btn.appendChild(document.createTextNode(c.label));
-            if (c.note) btn.appendChild(el('span', 'palette-item-note', c.note));
+            var icon = row.querySelector('[data-icon]');
+            if (icon && c.icon) c.icon.split(/\s+/).forEach(function (k) { if (k) icon.classList.add(k); });
+            else if (icon) icon.remove();
 
-            btn.addEventListener('click', function () { run(i); });
-            li.appendChild(btn);
-            list.appendChild(li);
+            // role="option" is the app's template's, and the row it sits on is what the
+            // keyboard moves over. The template's outer element is often an
+            // <li role="presentation"> around it, which a listbox needs.
+            var option = row.matches('[role="option"]') ? row : row.querySelector('[role="option"]') || row;
+            option.setAttribute('role', 'option');
+            option.id = list.id + '-' + i;
+            option.setAttribute('aria-selected', String(i === 0));
+            option.addEventListener('click', function () { run(i); });
+
+            list.appendChild(row);
         });
 
-        input.setAttribute('aria-activedescendant', 'sedna-palette-0');
+        input.setAttribute('aria-activedescendant', list.id + '-0');
     }
 
-    function items() { return list.querySelectorAll('.palette-item'); }
+    function items() { return list.querySelectorAll('[role="option"]'); }
 
     function highlight(next) {
         var all = items();
@@ -2193,37 +2252,34 @@ window.sednaUi = window.sednaUi || {};
         a.remove();
     }
 
-    function build() {
-        dialog = document.createElement('dialog');
-        dialog.className = 'palette';
+    /* Finds the app's palette and claims the roles on it. Re-run on every open, because
+       a framework may have replaced the dialog since the last one; the listeners are
+       attached once per element. */
+    function adopt() {
+        var found = document.querySelector('dialog[data-palette]');
+        if (!found) {
+            if (!warned) console.warn('sednaUi.palette: no <dialog data-palette> in the document. The palette is app markup — see the Command palette page.');
+            warned = true;
+            return false;
+        }
 
-        input = el('input', 'palette-input');
-        input.type = 'text';
-        input.placeholder = 'Search commands…';
+        dialog = found;
+        input = dialog.querySelector('.palette-input, input');
+        list = dialog.querySelector('.palette-list, ul');
+        if (!input || !list) {
+            console.warn('sednaUi.palette: the palette needs an input and a list.');
+            return false;
+        }
+
+        if (!list.id) list.id = 'sedna-palette-list';
+        list.setAttribute('role', 'listbox');
         input.setAttribute('role', 'combobox');
         input.setAttribute('aria-expanded', 'true');
-        input.setAttribute('aria-controls', 'sedna-palette-list');
-        input.setAttribute('aria-label', 'Search commands');
+        input.setAttribute('aria-controls', list.id);
         input.setAttribute('autocomplete', 'off');
 
-        list = el('ul', 'palette-list');
-        list.id = 'sedna-palette-list';
-        // A real listbox owned by the combobox input. Claimed because the keyboard
-        // contract behind it is implemented in full below: arrows, Home/End, Enter,
-        // and the highlight moving while focus stays in the input. axe rejects
-        // aria-selected on a plain button, correctly — the attribute means nothing
-        // without the role.
-        list.setAttribute('role', 'listbox');
-        list.setAttribute('aria-label', 'Commands');
-
-        var foot = el('div', 'palette-footer');
-        foot.innerHTML =
-            '<span><span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move</span>' +
-            '<span><span class="kbd">Enter</span> to run</span>' +
-            '<span><span class="kbd">Esc</span> to close</span>';
-
-        dialog.append(input, list, foot);
-        document.body.appendChild(dialog);
+        if (wired.indexOf(dialog) >= 0) return true;
+        wired.push(dialog);
 
         input.addEventListener('input', function () { render(input.value); });
 
@@ -2239,6 +2295,7 @@ window.sednaUi = window.sednaUi || {};
         // layer, so a click whose target IS the dialog element landed outside the
         // panel's own children.
         dialog.addEventListener('click', function (e) { if (e.target === dialog) close(); });
+        return true;
     }
 
     function close() {
@@ -2253,7 +2310,7 @@ window.sednaUi = window.sednaUi || {};
         },
 
         open: function () {
-            if (!dialog) build();
+            if (!adopt()) return false;
             if (dialog.open) return true;
 
             input.value = '';
@@ -2276,6 +2333,8 @@ window.sednaUi = window.sednaUi || {};
         if (e.key !== 'k' && e.key !== 'K') return;
         if (!e.ctrlKey && !e.metaKey) return;
         if (!commands.length) return;      // nothing registered: leave the browser's own binding alone
+        // Nor with no palette to open: swallowing the key for a warning helps nobody.
+        if (!document.querySelector('dialog[data-palette]')) return;
 
         e.preventDefault();
         ui.palette.open();
@@ -2285,9 +2344,9 @@ window.sednaUi = window.sednaUi || {};
 
 /* ── 25-search.js ──────────────────────────────────────────────── */
 /* ── Header search, delegated ────────────────────────────────────────────────
-   The topbar's free-text box. Register what is searchable once, write the box in
-   markup, and the dropdown, the ranking, the keyboard and the clear button come
-   from here:
+   The topbar's free-text box. Register what is searchable once, write the box and
+   its results panel in markup, and the ranking, the keyboard and the clear button
+   come from here:
 
      sednaUi.search.register([
        { title, meta, code, tag, tone, href, keywords }, …
@@ -2299,6 +2358,33 @@ window.sednaUi = window.sednaUi || {};
        <button class="search-clear" type="button" aria-label="Clear"><i class="ri-close-line"></i></button>
      </div>
 
+     <div class="search-panel sedna-scroll" data-search-panel hidden>
+       <div data-search-list aria-label="Results"></div>
+       <template data-search-item>
+         <a class="search-item">
+           <span class="search-item-title" data-title></span>
+           <span class="search-item-meta">
+             <span class="text-mono" data-code></span><span data-meta></span>
+             <span class="search-tag" data-tag></span>
+           </span>
+         </a>
+       </template>
+       <template data-search-empty><div class="search-status">Nothing matches “<span data-query></span>”.</div></template>
+       <template data-search-more><div class="search-status"><span data-count></span> more — keep typing to narrow it down.</div></template>
+     </div>
+
+   THE PANEL IS THE APP'S, words included. The script clones its templates into the
+   list and fills their slots (ui._.fill in 00-core.js); a slot with nothing to say is
+   removed, and a result without `href` loses the attribute. Leave the list empty in
+   the markup, and put no `style` attribute on the panel: the script positions it.
+
+   Put the panel OUTSIDE .topbar — at the end of the layout is right. .topbar is
+   z-index 60 and creates a stacking context, so a panel inside it could never rise
+   above a modal backdrop. The script then fixes it under the box it measured. A
+   panel nested in `.search` with `.search-panel--anchored` is positioned by CSS
+   instead, and nothing is measured. With several boxes, `data-search="<panel id>"`
+   names each one's panel; with one, the first `[data-search-panel]` is used.
+
    Only `title` is required. `href` is where choosing the result goes; an item
    without one is inert unless it carries a `run` callback, which only a source
    registered from JavaScript can have — a function does not cross into C#.
@@ -2309,10 +2395,8 @@ window.sednaUi = window.sednaUi || {};
    busy state. An app searching a database renders its own results with these classes
    and leaves data-search off the input.
 
-   What this file writes to the DOM is one panel, appended to <body>. Nothing is
-   inserted into the box itself, so a framework that owns that subtree — Blazor
-   does — cannot revert it. The clear button is app markup shown by CSS on
-   :placeholder-shown, so it works with this script blocked.
+   The clear button is app markup shown by CSS on :placeholder-shown, so it works
+   with this script blocked.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -2324,8 +2408,10 @@ window.sednaUi = window.sednaUi || {};
     var MAX = 8;
 
     var items = [];
-    var panel = null;      // the dropdown, in <body>
+    var panel = null;      // the app's [data-search-panel] for the active box
     var list = null;
+    var warned = false;
+    var fill = ui._.fill;
     var box = null;        // the .search the panel is currently anchored to
     var input = null;
     var shown = [];
@@ -2394,39 +2480,45 @@ window.sednaUi = window.sednaUi || {};
         return out.map(function (r) { return r.item; });
     }
 
-    function el(tag, className, text) {
-        var node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text !== undefined && text !== null) node.textContent = text;
-        return node;
-    }
+    /* The panel belonging to a box: the one its data-search names, else the first in
+       the document. Claims the listbox role on its list, because that is a promise
+       about the keyboard contract below. */
+    function panelFor(target) {
+        var named = target.getAttribute('data-search');
+        var found = (named && document.getElementById(named)) ||
+            (target.closest('.search') || document).querySelector('[data-search-panel]') ||
+            document.querySelector('[data-search-panel]');
+        if (!found) {
+            if (!warned) console.warn('sednaUi.search: no [data-search-panel] in the document. The results panel is app markup — see the Topbar page.');
+            warned = true;
+            return null;
+        }
 
-    function build() {
-        // sedna-scroll, because the panel scrolls past eight rows and the OS default
-        // bar is the one thing on it that would not follow the theme.
-        panel = el('div', 'search-panel sedna-scroll');
-        panel.id = 'sedna-search-panel';
-        panel.hidden = true;
+        var inner = found.querySelector('[data-search-list]') || found;
+        if (!inner.id) inner.id = 'sedna-search-list';
+        inner.setAttribute('role', 'listbox');
 
-        list = el('div');
-        list.id = 'sedna-search-list';
-        // A real listbox owned by the input as a combobox. The claim is made only
-        // because the keyboard contract behind it is implemented in full below:
-        // arrows, Home/End, Enter, and the highlight moving while focus stays in
-        // the input.
-        list.setAttribute('role', 'listbox');
-        panel.appendChild(list);
-
-        document.body.appendChild(panel);
-
-        // mousedown, not click: the default would blur the input before the click
+        // Mousedown, not click: the default would blur the input before the click
         // lands, and the focusout handler would close the panel out from under the
         // pointer. Preventing it keeps focus where the combobox pattern wants it.
-        panel.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        if (!found.hasAttribute('data-search-wired')) {
+            found.setAttribute('data-search-wired', '');
+            found.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        }
+
+        panel = found;
+        list = inner;
+        return found;
+    }
+
+    function template(name) {
+        return panel.querySelector('template[data-search-' + name + ']');
     }
 
     function place() {
         if (!box || !panel || panel.hidden) return;
+        // Anchored by CSS inside the box: nothing to measure.
+        if (panel.classList.contains('search-panel--anchored')) return;
         var r = box.getBoundingClientRect();
         panel.style.top = (r.bottom + 6) + 'px';
         panel.style.left = r.left + 'px';
@@ -2434,31 +2526,28 @@ window.sednaUi = window.sednaUi || {};
     }
 
     function row(item, i) {
+        var node = fill(template('item'), {
+            title: item.title, code: item.code, meta: item.meta, tag: item.tag
+        });
+        if (!node) return null;
+
         // An <a> when the result navigates, so the browser's own affordances come
         // with it — middle-click, "open in new tab", and a framework router that
         // intercepts internal links to navigate without a reload.
-        var node = el(item.href ? 'a' : 'div', 'search-item');
-        if (item.href) node.href = item.href;
+        if (item.href) node.setAttribute('href', item.href);
+        else node.removeAttribute('href');
+
+        var tag = node.querySelector('.search-tag');
+        if (tag) tag.classList.toggle('search-tag--warn', item.tone === 'warn');
+
+        var meta = node.querySelector('.search-item-meta');
+        if (meta && !meta.children.length && !meta.textContent.trim()) meta.remove();
+
         node.setAttribute('role', 'option');
         node.setAttribute('aria-selected', String(i === 0));
         node.setAttribute('tabindex', '-1');
-        node.id = 'sedna-search-item-' + i;
-        if (i === 0) node.classList.add('search-item--sel');
-
-        node.appendChild(el('span', 'search-item-title', item.title));
-
-        if (item.code || item.meta || item.tag) {
-            var meta = el('span', 'search-item-meta');
-            if (item.code) meta.appendChild(el('span', 'text-mono', item.code));
-            if (item.meta) meta.appendChild(el('span', null, item.meta));
-            if (item.tag) {
-                meta.appendChild(el(
-                    'span',
-                    'search-tag' + (item.tone === 'warn' ? ' search-tag--warn' : ''),
-                    item.tag));
-            }
-            node.appendChild(meta);
-        }
+        node.id = list.id + '-item-' + i;
+        node.classList.toggle('search-item--sel', i === 0);
 
         node.addEventListener('click', function (e) { pick(i, e); });
         node.addEventListener('mouseenter', function () { highlight(i); });
@@ -2466,7 +2555,7 @@ window.sednaUi = window.sednaUi || {};
     }
 
     function render(query) {
-        if (!panel) build();
+        if (!panel) return;
 
         var all = rank(query);
         total = all.length;
@@ -2477,16 +2566,20 @@ window.sednaUi = window.sednaUi || {};
         if (!shown.length) {
             // Says what was searched rather than just "no results": the reader
             // needs to see the query was what they thought it was.
-            list.appendChild(el('div', 'search-status', 'Nothing matches “' + query + '”.'));
+            var empty = fill(template('empty'), { query: query });
+            if (empty) list.appendChild(empty);
             input.removeAttribute('aria-activedescendant');
         } else {
-            for (var i = 0; i < shown.length; i++) list.appendChild(row(shown[i], i));
+            for (var i = 0; i < shown.length; i++) {
+                var node = row(shown[i], i);
+                if (node) list.appendChild(node);
+            }
             var cut = total - shown.length;
             if (cut > 0) {
-                list.appendChild(el('div', 'search-status',
-                    cut + (cut === 1 ? ' more match' : ' more matches') + '. Keep typing to narrow it down.'));
+                var more = fill(template('more'), { count: cut });
+                if (more) list.appendChild(more);
             }
-            input.setAttribute('aria-activedescendant', 'sedna-search-item-0');
+            input.setAttribute('aria-activedescendant', list.id + '-item-0');
         }
 
         open();
@@ -2508,7 +2601,7 @@ window.sednaUi = window.sednaUi || {};
         }
     }
 
-    function rows() { return list ? list.querySelectorAll('.search-item') : []; }
+    function rows() { return list ? list.querySelectorAll('[role="option"]') : []; }
 
     function highlight(next) {
         var all = rows();
@@ -2530,7 +2623,7 @@ window.sednaUi = window.sednaUi || {};
         var item = shown[i];
         // Resolved before close(), which is what a keyboard Enter needs: it has no
         // event of its own to let through, so it clicks the row instead.
-        var node = (!e && item && item.href) ? list.querySelector('#sedna-search-item-' + i) : null;
+        var node = (!e && item && item.href) ? document.getElementById(list.id + '-item-' + i) : null;
         close();
         // The query is spent. Left in place it would survive a router navigation
         // and not a full page load, so the box would sometimes hold the last
@@ -2571,7 +2664,7 @@ window.sednaUi = window.sednaUi || {};
 
     function inside(node) {
         if (!(node instanceof Element)) return false;
-        return !!(node.closest('.search') || node.closest('.search-panel'));
+        return !!(node.closest('.search') || node.closest('.search-panel, [data-search-panel]'));
     }
 
     ui.search = {
@@ -2597,12 +2690,14 @@ window.sednaUi = window.sednaUi || {};
        keep it. An app whose box is never reached by this code keeps a plain
        input, which is the honest markup for one. */
     function adopt(target) {
+        if (panel && input !== target) close();
+        if (!panelFor(target)) return false;
         input = target;
         box = target.closest('.search') || target;
-        if (!panel) build();
         input.setAttribute('role', 'combobox');
-        input.setAttribute('aria-controls', 'sedna-search-list');
+        input.setAttribute('aria-controls', list.id);
         input.setAttribute('aria-autocomplete', 'list');
+        return true;
     }
 
     document.addEventListener('input', function (e) {
@@ -2612,7 +2707,7 @@ window.sednaUi = window.sednaUi || {};
         // with these classes. Saying "nothing matches" over them would be a lie.
         if (!items.length) return;
 
-        adopt(target);
+        if (!adopt(target)) return;
         if (!target.value.trim()) { close(); return; }
         render(target.value);
     });
@@ -2661,8 +2756,7 @@ window.sednaUi = window.sednaUi || {};
         var target = e.target;
         if (target instanceof Element && target.matches('[data-search]')) {
             if (!items.length || !target.value.trim()) return;
-            adopt(target);
-            render(target.value);
+            if (adopt(target)) render(target.value);
             return;
         }
         if (!inside(target)) close();

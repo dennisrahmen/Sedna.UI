@@ -1,10 +1,32 @@
-<!-- What sednaUi.search builds, and what an app renders itself when the
-     results come from a database rather than a registered index.
+<!-- The panel an app writes for data-search, once, outside .topbar — at the end of the
+     layout. sednaUi.search fills the list from the templates, positions the panel
+     under the box, and draws nothing itself. data-search="order-results" on the input
+     names it. A panel nested inside .topbar would be trapped in its stacking context
+     at z-index 60, under every modal on the page. -->
+<div class="search-panel sedna-scroll" id="order-results" data-search-panel hidden>
+    <div data-search-list aria-label="Results"></div>
 
-     The panel is appended to <body> with position: fixed, and its top, left and
-     width are set from the box it belongs to. A panel nested inside .search
-     would be trapped in .topbar's stacking context at z-index 60, under every
-     modal on the page. -->
+    <!-- One result. Each data-* slot takes text, and a slot with nothing to say is
+         removed. An <a>, so middle-click and "open in a new tab" work; a result with no
+         href loses the attribute. tone: 'warn' adds .search-tag--warn. -->
+    <template data-search-item>
+        <a class="search-item">
+            <span class="search-item-title" data-title></span>
+            <span class="search-item-meta">
+                <span class="text-mono" data-code></span><span data-meta></span>
+                <span class="search-tag" data-tag></span>
+            </span>
+        </a>
+    </template>
+    <template data-search-empty>
+        <div class="search-status">No order matches &ldquo;<span data-query></span>&rdquo;.</div>
+    </template>
+    <template data-search-more>
+        <div class="search-status"><span data-count></span> more. Keep typing to narrow it down.</div>
+    </template>
+</div>
+
+<!-- And what the list holds once results are in, for an app rendering its own. -->
 <div class="search-panel sedna-scroll" role="listbox" aria-label="Results">
 
     <a class="search-item search-item--sel" role="option" aria-selected="true" tabindex="-1" href="/order/4182">

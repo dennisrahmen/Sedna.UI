@@ -15,7 +15,9 @@
        A focusable scroll container needs a role and a name to go with it. *@
     <pre tabindex="0" role="group" aria-label="@(Label ?? "Code example")"><code>@Source</code></pre>
     <button class="code-block-copy" type="button" data-copy-target="">
-        <i class="ri-file-copy-line"></i><span>Copy</span>
+        <i class="ri-file-copy-line" data-copied-hide></i><span data-copied-hide>Copy</span>
+        <i class="ri-check-line" data-copied-show="ok"></i><span data-copied-show="ok">Copied</span>
+        <i class="ri-error-warning-line" data-copied-show="failed"></i><span data-copied-show="failed">Copy failed</span>
     </button>
     @if (Clamped)
     {

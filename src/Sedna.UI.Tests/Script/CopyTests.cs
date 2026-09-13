@@ -4,58 +4,56 @@ using Microsoft.Playwright;
 namespace Sedna.UI.Tests;
 
 /// <summary>
-/// Declarative copy, including the stash that stops a second click restoring "Copied" as the original label.
+/// Declarative copy: the outcome is an attribute on the app's button, and the app's own
+/// words for it are shown by the stylesheet.
 /// </summary>
 public class CopyTests : ScriptTestBase
 {
+    private const string Button = """
+        <button type="button" id="c" data-copy="orders-console-01">
+            <span data-copied-hide>Kopieren</span>
+            <span data-copied-show="ok">Kopiert</span>
+            <span data-copied-show="failed">Fehlgeschlagen</span>
+        </button>
+        """;
+
     [Fact]
-    public async Task Copy_puts_the_text_on_the_clipboard_and_restores_the_real_label()
+    public async Task Copy_marks_the_button_and_never_rewrites_it()
     {
         if (NoBrowser) return;
-        // Two rapid clicks must not restore "Copied" as if it were the original, which
-        // is why the original is stashed on the element rather than in a closure.
-        var page = await Open(
-            """<button type="button" id="c" data-copy="orders-console-01"><span>Copy</span></button>""");
+        // The script used to swap the button's content for an English "Copied": drawing
+        // markup inside an element the app owns, which a framework can revert mid-flash.
+        var page = await Open(Button, head: StylesheetTag);
 
         // The confirmation is a 1400ms real-time window, so on a loaded machine two
-        // ClickAsync round trips can straddle it: the first flash restores before the
-        // second click lands and the button honestly reads Copy, Copied, Copy, Copied,
-        // Copy. So the page clock is paused — InstallAsync alone leaves it running — and
-        // the restore fires only when the test runs it, however slowly the clicks arrive.
+        // ClickAsync round trips can straddle it. The page clock is paused, so the restore
+        // fires only when the test runs it, however slowly the clicks arrive.
         await page.Clock.InstallAsync(new() { TimeDate = new DateTime(2030, 1, 1) });
         await page.Clock.PauseAtAsync(new DateTime(2030, 1, 1, 0, 0, 1));
 
-        // Every text the button ever had, and a count of label swaps: the second flash
-        // writes the same "Copied" again, so only the count shows that it landed.
         await page.EvaluateAsync("""
             () => {
-                const btn = document.getElementById('c');
-                window.seen = [btn.innerText.trim()];
-                window.flashes = 0;
-                new MutationObserver(records => {
-                    window.flashes += records.filter(r => r.target === btn && r.addedNodes.length).length;
-                    const now = btn.innerText.trim();
-                    if (now !== window.seen[window.seen.length - 1]) window.seen.push(now);
-                }).observe(btn, { childList: true, subtree: true, characterData: true });
+                window.childChanges = 0;
+                new MutationObserver(r => window.childChanges += r.length)
+                    .observe(document.getElementById('c'), { childList: true, subtree: true, characterData: true });
             }
             """);
 
-        // The flash waits on the clipboard write, so each wait also orders the read
-        // below after the write rather than racing it.
         await page.Locator("#c").ClickAsync();
-        await page.WaitForFunctionAsync("() => window.flashes === 1");
+        await page.WaitForFunctionAsync("() => document.getElementById('c').dataset.copied === 'ok'");
+        // A second click mid-flash restarts the window rather than ending it early.
         await page.Locator("#c").ClickAsync();
-        await page.WaitForFunctionAsync("() => window.flashes === 2");
 
         Assert.Equal("orders-console-01", await page.EvaluateAsync<string>(
             "() => navigator.clipboard.readText()"));
-        await Assertions.Expect(page.Locator("#c")).ToHaveTextAsync("Copied");
+        // innerText, which is what is rendered: textContent would include the hidden words.
+        Assert.Equal("Kopiert", await page.EvaluateAsync<string>("() => document.getElementById('c').innerText.trim()"));
 
         await page.Clock.RunForAsync(1400);
 
-        await Assertions.Expect(page.Locator("#c")).ToHaveTextAsync("Copy");
-        var seen = await page.EvaluateAsync<string[]>("() => window.seen");
-        Assert.Equal(["Copy", "Copied", "Copy"], seen);
+        Assert.Equal("Kopieren", await page.EvaluateAsync<string>("() => document.getElementById('c').innerText.trim()"));
+        Assert.Null(await page.GetAttributeAsync("#c", "data-copied"));
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => window.childChanges"));
     }
 
     [Fact]
@@ -76,6 +74,4 @@ public class CopyTests : ScriptTestBase
         Assert.Equal("dotnet add package Sedna.UI",
             (await page.EvaluateAsync<string>("() => navigator.clipboard.readText()")).Trim());
     }
-
-    // ── command palette ─────────────────────────────────────────────────────
 }

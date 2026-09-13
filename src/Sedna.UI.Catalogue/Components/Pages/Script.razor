@@ -65,7 +65,10 @@
         that element's text; an empty <code>data-copy-target</code> inside a
         <a href="/structure"><code>.code-block</code></a> copies its <code>&lt;pre&gt;</code>. The
         click is delegated from <code>document</code>, so a button rendered by a later Blazor render
-        works with nothing wired.
+        works with nothing wired. The outcome is <code>data-copied="ok"</code> or
+        <code>"failed"</code> on the button for 1.4 seconds, and the script never rewrites it: mark
+        what shows at rest with <code>data-copied-hide</code> and what replaces it with
+        <code>data-copied-show="ok"</code> or <code>"failed"</code>, in your own words.
     </p>
 </CatExample>
 
