@@ -335,4 +335,55 @@ public class FrameLayoutTests : ScriptTestBase
     private static double Pixels(string value) =>
         double.Parse(value.Replace("px", "", StringComparison.Ordinal),
             System.Globalization.CultureInfo.InvariantCulture);
+
+    [Fact]
+    public async Task The_rail_keeps_its_labels_while_the_width_moves_and_snaps_only_at_the_end()
+    {
+        if (NoBrowser) return;
+        // Collapsing used to hide the labels at once and then shrink an empty column;
+        // expanding showed them at once, re-wrapped to every width on the way. Now the
+        // content keeps the expanded layout under a clipping edge while the width moves,
+        // and takes the rail's layout only once it has arrived.
+        var (page, _) = await OpenStyled(Rail(collapsed: false));
+        // Slow the motion down so the middle of it can be observed.
+        await page.EvaluateAsync("() => document.querySelector('.sidebar').style.setProperty('--motion-mid', '2s')");
+
+        // [sidebarWidth, navWidth, labelPosition]
+        const string probe = """
+            () => {
+                const sidebar = document.querySelector('.sidebar');
+                const label = sidebar.querySelector('.nav-link > span');
+                return [
+                    Math.round(sidebar.getBoundingClientRect().width),
+                    Math.round(sidebar.querySelector('.nav').getBoundingClientRect().width),
+                    getComputedStyle(label).position
+                ];
+            }
+            """;
+
+        await page.EvaluateAsync("() => document.querySelector('.sidebar').classList.add('collapsed')");
+        await page.WaitForTimeoutAsync(600);
+        var mid = await page.EvaluateAsync<object[]>(probe);
+        var midWidth = Convert.ToInt32(mid[0], System.Globalization.CultureInfo.InvariantCulture);
+        Assert.True(midWidth is > 56 and < 220, $"The sidebar should be mid-way, it is {midWidth}px.");
+        Assert.Equal(220, Convert.ToInt32(mid[1], System.Globalization.CultureInfo.InvariantCulture));
+        Assert.Equal("static", (string)mid[2]);
+
+        await page.WaitForTimeoutAsync(2000);
+        var done = await page.EvaluateAsync<object[]>(probe);
+        Assert.Equal(56, Convert.ToInt32(done[0], System.Globalization.CultureInfo.InvariantCulture));
+        // The rail's width less its edge.
+        var navDone = Convert.ToInt32(done[1], System.Globalization.CultureInfo.InvariantCulture);
+        Assert.True(navDone is 55 or 56, $"The nav should have released its width; it is {navDone}px.");
+        Assert.Equal("absolute", (string)done[2]);
+
+        // Opening: the labels are back at once, at the full width, under the growing edge.
+        await page.EvaluateAsync("() => document.querySelector('.sidebar').classList.remove('collapsed')");
+        await page.WaitForTimeoutAsync(300);
+        var opening = await page.EvaluateAsync<object[]>(probe);
+        var openingWidth = Convert.ToInt32(opening[0], System.Globalization.CultureInfo.InvariantCulture);
+        Assert.True(openingWidth is > 56 and < 220, $"The sidebar should be opening, it is {openingWidth}px.");
+        Assert.Equal(220, Convert.ToInt32(opening[1], System.Globalization.CultureInfo.InvariantCulture));
+        Assert.Equal("static", (string)opening[2]);
+    }
 }

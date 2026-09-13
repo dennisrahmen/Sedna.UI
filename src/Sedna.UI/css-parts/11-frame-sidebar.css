@@ -16,8 +16,22 @@
     border-inline-end: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
-    transition: width var(--motion-fast) ease;
+    /* Clipped, so that while the width moves the content keeps the layout it had
+       and the edge covers or reveals it — rather than the labels re-wrapping to
+       every width in between. The rail's flyout is `position: fixed` and is not
+       clipped by this. */
+    overflow: clip;
+    transition: width var(--motion-mid) ease-out;
+    /* The rail's layout snaps in AFTER the width has arrived, through a zero-length
+       transition delayed by the width's own duration — see the collapsed rail. */
+    --sidebar-snap: 0s;
+    --snap: var(--sidebar-snap) var(--motion-mid);
 }
+/* The columns hold their expanded width while the sidebar narrows over them; the
+   collapsed rules release it once the width has arrived. */
+.sidebar > .brand,
+.sidebar > .nav,
+.sidebar > .nav-tools { min-width: var(--sidebar-width); }
 
 /* flex-shrink: 0 because the sidebar is a flex column and the brand is the only
    item in it that can shrink. A nav taller than the viewport — a collapsed rail
