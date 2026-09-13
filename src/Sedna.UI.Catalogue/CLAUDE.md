@@ -107,7 +107,7 @@ survives re-renders by construction.
 
 Global `InteractiveServer`, with one invariant: **every example demo and every code block renders
 identically before the circuit connects.** Interactivity adds behaviour; it is never required to see an
-example. Three things genuinely need it — the `ISednaUi` demos on `/script`, the theme toggles, and
+example. Three things genuinely need it — the `ISednaUi` demos on `/interop`, the theme toggles, and
 the sidebar's active link.
 
 The trap to know: with prerendering, the server's HTML is replaced when the circuit connects, so
@@ -122,7 +122,8 @@ these without prompting.
 
 Nothing in the index is hand-listed: examples come from the same embedded resources the pages render,
 classes from the stylesheet the app serves, docs from the repository's own `docs/`. `since` comes from
-`build/class-history.sh`. The contract is in `docs/architecture.md`.
+`build/class-history.sh` — the embedded copy, and for anything it still calls unreleased, the latest
+release's own copy, which `ReleasedHistory` fetches from the GitHub release at runtime. The contract is in `docs/architecture.md`.
 
 **No tool declares an `outputSchema`.** They return anonymous objects the SDK cannot describe, so
 `UseStructuredContent` made each one advertise `{"type":"object","properties":{"result":true}}` — a

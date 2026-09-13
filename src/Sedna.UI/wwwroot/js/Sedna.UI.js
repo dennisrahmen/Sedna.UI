@@ -2767,15 +2767,17 @@ window.sednaUi = window.sednaUi || {};
      <div class="code-block code-block--clamped">
        <pre tabindex="0"><code>…</code></pre>
        <div class="code-block-lip">
-         <button class="code-block-expand" data-code-expand aria-expanded="false">
-           <i class="ri-arrow-down-s-line"></i> Show all 42 lines
+         <button class="code-block-expand" data-code-expand aria-expanded="false"
+                 data-code-expand-label="Show all 42 lines" data-code-collapse="Show fewer lines">
+           <i class="ri-arrow-down-s-line"></i> <span>Show all 42 lines</span>
          </button>
        </div>
      </div>
 
    The clamp is CSS, so the block is bounded and scrollable with scripting blocked;
-   this only removes the bound. `aria-expanded` moves with it, and the label swaps to
-   the collapse wording from `data-code-collapse` if one is given.
+   this only removes the bound. `aria-expanded` moves with it, and the label — the
+   <span>, so the icon stays — swaps to `data-code-collapse` once open and back to
+   `data-code-expand-label` on collapse, when both are given.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 

@@ -1,0 +1,49 @@
+@page "/popover"
+
+<CatHead Title="Popovers">
+    A small amount of <em>content</em> anchored to the control that opened it &mdash; why a row is
+    pending, what a number means, the detail behind a figure. A list of <em>actions</em> is a
+    <a href="/menu">menu</a>; one line with no markup in it is a
+    <a href="/hover-hints">hover hint</a>.
+</CatHead>
+
+<CatExample TExample="Examples.Popover.Popover" Title="Popover" Demo="ex-demo--pad">
+    <p>
+        <strong>Live &mdash; open it.</strong> <strong>The <code>popover</code> attribute is
+        required</strong>, and so is opening it from a <code>popovertarget</code> control, which
+        also makes that button the popover's implicit anchor, so nothing here declares an
+        <code>anchor-name</code>. The platform then supplies the top layer, light dismiss,
+        <kbd>Escape</kbd> and focus handling, so unlike <code>.menu</code> this needs no scrim and
+        no key handler. It closes on a scroll that moves its trigger, because an anchored panel's
+        position is fixed at the moment it opens.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Popover.Shapes" Title="Four shapes" Demo="ex-demo--block">
+    <p>
+        A definition, a key/value detail block, a small table, and one with an action in it. One
+        trailing action that acts on what the panel is explaining is fine; a list of actions is a
+        <code>.menu</code>. <code>popovertargetaction="hide"</code> closes it from inside with no
+        script at all.
+    </p>
+    <p>
+        The panel is <code>width: max-content</code>, so each of these is as wide as what is in it
+        and no wider. That is what makes <code>.kv</code>'s gap load-bearing here and nowhere else:
+        <code>space-between</code> has no free space to distribute in a shrink-to-fit box, so
+        without the gap the key would run straight into the value. The table takes
+        <code>.popover--flush</code>, which drops the panel's padding so the table reaches the
+        rounded corners instead of sitting in a frame inside a frame — the title keeps its own
+        inset, and the last row gives up its rule to the panel's border.
+    </p>
+</CatExample>
+
+<div class="callout callout-info">
+    <i class="ri-stack-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Above everything, by promotion rather than by number</span>
+        A real <code>.popover</code> is in the top layer, which no z-index reaches, and is ordered
+        by when it was promoted &mdash; so one opened from inside a modal dialog sits over the
+        dialog. Its rung on the <a href="/concepts#z-order">z-order scale</a>, 550, is the fallback
+        for a panel that carries the class without the attribute.
+    </div>
+</div>

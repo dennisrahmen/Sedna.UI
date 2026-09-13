@@ -1,8 +1,10 @@
 @page "/empty-state"
 
-<CatHead Title="Empty and live states">
-    What a view shows when it has nothing to show, and what it shows while it is waiting, streaming
-    or disconnected. Say which of those it is: they call for different actions.
+<CatHead Title="Empty states">
+    What a view shows when it has nothing to show, and what it shows while it is waiting. Say
+    which of those it is: they call for different actions. Something still happening &mdash; a
+    connection, a log being written, a job running &mdash; is a <a href="/live-state">live
+    state</a>.
 </CatHead>
 
 <h2 id="state-art">The drawing says which state it is</h2>
@@ -55,7 +57,7 @@
     </p>
 </CatExample>
 
-<h2 id="empty-and-live">Empty, waiting and live</h2>
+<h2 id="empty-and-waiting">Empty and waiting</h2>
 
 <CatExample TExample="Examples.EmptyState.EmptyState" Title="Empty" Demo="ex-demo--block">
     <p>
@@ -81,38 +83,8 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.EmptyState.Connection" Title="Connection state" Demo="ex-demo--block">
-    <p>
-        <code>.health-badge</code> with a <code>.health-dot</code>, in six states: the active
-        <code>--live</code>, <code>--streaming</code> and <code>--connecting</code> pulse, and the
-        settled <code>--idle</code>, <code>--degraded</code> and <code>--down</code> do not.
-        <strong>The word is not optional</strong> &mdash; a colour alone fails for anybody who
-        cannot see it. <code>.stale</code> is how old the number beside it is, with
-        <code>--warn</code> when it is old enough to distrust.
-    </p>
-</CatExample>
 
-<CatExample TExample="Examples.EmptyState.OutputPane" Title="Output pane" Demo="ex-demo--block">
-    <p>
-        <code>.output</code> is lines of machine output &mdash; a build log, a command's stdout, an
-        event stream, an audit trail &mdash; as a real list, monospace with tabular figures, with
-        <code>.output-head</code> outside the pane so it does not scroll away with the lines.
-        <strong>Add <code>data-follow</code> and it sticks to the newest line</strong>, releasing
-        when the reader scrolls up and re-attaching when they scroll back down;
-        <code>sednaUi.output.follow(pane)</code> re-attaches it from a &ldquo;jump to
-        latest&rdquo; button.
-    </p>
-</CatExample>
 
-<CatExample TExample="Examples.EmptyState.ActivityRow" Title="Work in progress" Demo="ex-demo--block">
-    <p>
-        Background work the reader can see and cancel. There is no activity-row class: it is a
-        <a href="/collections"><code>.list-row</code></a> with a
-        <a href="/progress"><code>.progress</code></a> bar in its subtext &mdash; determinate for
-        work with a known size, indeterminate for work accepted but not started &mdash; and the
-        controls in <code>.list-meta</code>.
-    </p>
-</CatExample>
 
 <h2 id="page-level">When the whole page is the state</h2>
 

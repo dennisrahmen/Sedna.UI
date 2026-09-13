@@ -1,0 +1,30 @@
+<div class="code-block code-block--clamped" style="--code-clamp: 180px">
+    <div class="code-block-head">
+        <span>build-runner-04 · job 8841</span>
+        <button class="code-block-copy" type="button" data-copy-target>
+            <i class="ri-file-copy-line"></i> Copy
+        </button>
+    </div>
+    <pre tabindex="0"><code>Unhandled exception. System.InvalidOperationException: The reservation has already been decided.
+   at Northwind.Dispatch.Reservations.Decide(ReservationId id, Decision decision) in /src/Dispatch/Reservations.cs:line 148
+   at Northwind.Dispatch.Reservations.Reroute(ReservationId id, Region target) in /src/Dispatch/Reservations.cs:line 92
+   at Northwind.Dispatch.Api.RerouteEndpoint.Handle(RerouteRequest request, CancellationToken ct) in /src/Dispatch.Api/RerouteEndpoint.cs:line 41
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.Invoke(HttpContext httpContext)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+--- End of stack trace from previous location ---
+   at Northwind.Dispatch.Api.Program.Main(String[] args) in /src/Dispatch.Api/Program.cs:line 22
+
+Request: POST /api/reservations/rsv-20419/reroute
+Correlation: 3f9c1a7e-6b2d-4c8e-9a51-0d7e4b2c1f60
+Host: orders-console-01
+Elapsed: 38 ms</code></pre>
+    <div class="code-block-lip">
+        <button class="code-block-expand" type="button" data-code-expand aria-expanded="false"
+                data-code-expand-label="Show all 16 lines" data-code-collapse="Show fewer lines">
+            <i class="ri-arrow-down-s-line"></i> <span>Show all 16 lines</span>
+        </button>
+    </div>
+</div>

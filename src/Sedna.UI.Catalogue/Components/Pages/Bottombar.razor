@@ -1,0 +1,66 @@
+@page "/bottombar"
+
+<CatHead Title="Bottom bar" Tier="@CatHead.Tier1">
+    The bar across the bottom of a phone, holding the few places or actions used most. It takes
+    the sidebar's place below 560px, and its items are the same links a
+    <a href="/nav">nav</a> holds — only the container changes.
+</CatHead>
+
+<CatExample TExample="Examples.Bottombar.Line" Title="Bottom bar" Demo="ex-demo--pad">
+    <p>
+        <strong>Live — scroll the list.</strong> <code>.bottombar</code> is the last child of
+        <code>.content</code>, so <code>.page</code> ends where it begins and nothing sits under it.
+        Icons only: the current item also shows its label and carries the topbar's brand line, and
+        every other label is visually hidden, so each item keeps its accessible name.
+        <code>.bottombar-count</code> rides the icon, and follows the label on the current item so a
+        wide count never covers text. <code>--end</code> sets a cell apart with a short divider;
+        <code>.bottombar-accessory</code> holds something running in the background.
+        <code>data-hide-on-scroll</code> steps the items away on the way down and back on the way up.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bottombar.Tint" Title="Tint" Demo="ex-demo--pad">
+    <p>
+        <code>.bottombar--tint</code> marks the current place the way the sidebar marks its current
+        link: <code>--brand-tint</code> on a control-radius block, with no line.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bottombar.Floating" Title="Card" Demo="ex-demo--pad">
+    <p>
+        <code>.bottombar--card</code> floats the items as a card — its border, radius and
+        <code>--shadow-float</code> — and the accessory becomes a smaller card of its own above them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bottombar.IconsOnly" Title="Icons only" Demo="ex-demo--pad">
+    <p>
+        <code>.bottombar--icons</code> shows no label at all, with a short brand mark under the
+        current icon. The labels are still in the markup and still name each item, so write them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bottombar.MenuFirst" Title="Menu first" Demo="ex-demo--pad">
+    <p>
+        <strong>Live — open the menu.</strong> A <code>--start</code> cell opens every page in a
+        <a href="/drawer">sheet</a>, so the bar holds the few places used most and the sheet holds
+        the rest. The sheet is an ordinary <code>.nav</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bottombar.Actions" Title="Actions" Demo="ex-demo--pad">
+    <p>
+        On a record the bar holds what can be done to it rather than where to go: buttons, a
+        <code>role="toolbar"</code> and no current item. Keep it to the actions used most, and put
+        the rest behind the <code>--end</code> cell.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Bottombar/OnAPhone.html" Title="On a phone only">
+    <p>
+        <code>.layout--bottombar</code> on <code>.layout</code> shows the bottom bar below 560px and
+        hides the sidebar there, and does the reverse above it. Without it the bar shows at every
+        width, which is what an app built only for phones wants. The bar already holds itself clear
+        of a home indicator; <a href="/utility-safe-area">Safe area</a> is for a bar of your own.
+    </p>
+</CatSnippet>

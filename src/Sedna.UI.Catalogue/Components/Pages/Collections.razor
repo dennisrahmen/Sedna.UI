@@ -1,48 +1,14 @@
 @page "/collections"
 
 <CatHead Title="Collections">
-    Ways to show a set of things. Pick by what the reader does with it: compare values
-    (a <a href="/table">table</a>), open one at a time (<code>.list</code>), follow an order
-    (<code>.steps</code>), or expand into detail (<code>.accordion</code>, <code>.tree</code>).
-    A record of what happened, with when, is a <a href="/timeline">timeline</a>.
+    A set the reader follows or expands: an order with an end (<code>.steps</code>), and detail
+    that unfolds (<code>.accordion</code>, <code>.tree</code>). Rows the reader opens are a
+    <a href="/list">list</a>, values compared down a column are a <a href="/table">table</a>, and
+    a record of what happened, with when, is a <a href="/timeline">timeline</a>.
 </CatHead>
 
-<CatExample TExample="Examples.Collections.List" Title="List" Demo="ex-demo--block">
-    <p>
-        For rows where a table would be wrong: the fields differ per row, one field dominates and
-        the rest supports it, or each row is something you <em>open</em> rather than compare down a
-        column. <strong>A row that navigates is an <code>&lt;a class="list-row"&gt;</code> filling
-        the <code>&lt;li&gt;</code> and a row that acts is a
-        <code>&lt;button class="list-row"&gt;</code></strong> &mdash; never a click handler on the
-        <code>&lt;li&gt;</code> &mdash; while a non-interactive row stays a
-        <code>&lt;span&gt;</code> and gets no hover, pressed or focus state. The
-        <a href="/drawer">action sheet</a> is a list of button rows.
-    </p>
-</CatExample>
 
-<CatExample TExample="Examples.Collections.ListLines" Title="Line count" Demo="ex-demo--block">
-    <p>
-        <code>.list-title</code> and <code>.list-sub</code> show one line with an ellipsis until
-        <code>--list-lines</code> says otherwise: a number clamps after that many lines, and
-        <code>none</code> wraps freely &mdash; use it where the supporting line is a sentence, which
-        a translation will make longer. <strong>Set it on the list, an <code>&lt;li&gt;</code> or a
-        row</strong> to shape every line inside and align the row's leading and trailing slots to
-        the first line; set it on one <code>.list-title</code> or <code>.list-sub</code> to shape
-        that line alone. Row padding follows <code>[data-density]</code> wherever the list sits.
-    </p>
-</CatExample>
 
-<CatExample TExample="Examples.Collections.ListCards" Title="List as cards" Demo="ex-demo--block">
-    <p>
-        <code>.list--cards</code> presents the same rows as separate cards &mdash; a gap instead of
-        dividers, each row a card surface &mdash; for a work list the reader picks from, where rows
-        that run together are hard to tell apart. The markup does not change, so the button reset,
-        hover, focus, <code>disabled</code>, density and sticky group headers all carry over, and
-        <code>aria-current</code> or <code>aria-selected</code> draws a brand border. A
-        <code>.list-meta</code> as the first child of <code>.list-main</code> is a line above the
-        title.
-    </p>
-</CatExample>
 
 <CatExample TExample="Examples.Collections.Steps" Title="Steps" Demo="ex-demo--block">
     <p>
@@ -53,27 +19,7 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Collections.StickyGroups" Title="Stacking group headers" Demo="ex-demo--block">
-    <p>
-        A grouped list in a scroll container where each header pins <strong>below</strong> the one
-        above it instead of replacing it, so the reader keeps the whole path to where they are —
-        scroll the card. <strong>The app supplies one number and nothing else:</strong>
-        <code>style="--group-head-index: 2"</code>. On a surface your own app paints, set
-        <code>style="--group-head-bg: var(--surface-strong)"</code> on the list;
-        <code>--group-head-fg</code> and <code>--group-head-height</code> are the same escape hatch
-        for the label colour and the pinned height.
-    </p>
-</CatExample>
 
-<CatExample TExample="Examples.Collections.StickyGroupsRule" Title="Group headers as a caption" Demo="ex-demo--block">
-    <p>
-        <code>--rule</code> trades the full-width bottom border for a hairline running from the
-        label to the end of the row, so the header reads as a caption over the rows rather than a
-        bar across them; use it where the groups are a state the reader scans past, not a section
-        they land in. A trailing count needs <code>.sticky-group-count</code>, because the rule is
-        the header's own <code>::after</code> and a pseudo-element is always the last child.
-    </p>
-</CatExample>
 
 <CatExample TExample="Examples.Collections.Accordion" Title="Accordion" Demo="ex-demo--block">
     <p>

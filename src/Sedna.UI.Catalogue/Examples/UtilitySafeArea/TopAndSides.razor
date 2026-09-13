@@ -1,0 +1,18 @@
+<div class="sedna-col" style="max-width:460px">
+    <p class="text-muted text-sm">
+        A phone held sideways: the notch takes 44px from one inline edge, the rounded corners 44px
+        from the other, and the status strip 21px from the top. Set by hand on the frame below —
+        on the device itself the values come from env() and this markup does not change.
+    </p>
+
+    <div style="--safe-block-start:21px; --safe-inline-start:44px; --safe-inline-end:44px; border:1px dashed var(--border-strong); border-radius:var(--radius-surface); padding:12px">
+        <div class="text-muted text-sm" style="margin-bottom:8px">Simulating a notch, two rounded corners and a status strip</div>
+        <div class="card">
+            <div class="card-body sedna-row sedna-safe-top sedna-safe-inline">
+                <button class="btn btn-sm btn-icon" type="button" aria-label="Back"><i class="ri-arrow-left-line"></i></button>
+                <span class="sedna-fill">Your own full-screen bar</span>
+                <button class="btn btn-sm btn-go">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
