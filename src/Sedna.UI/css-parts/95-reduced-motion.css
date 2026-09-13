@@ -24,6 +24,26 @@
 
     /* ── Tier 1 — the frame ─────────────────────────────────────────────── */
     .sidebar          { transition: none; }   /* 11 — collapse to the icon rail */
+    /* 12 — the rail's layout arrives with the width, not after it. */
+    .sidebar.collapsed > .brand,
+    .sidebar.collapsed > .nav,
+    .sidebar.collapsed > .nav-tools { transition: none; }
+    .sidebar.collapsed .brand { transition: none; }
+    .sidebar.collapsed .brand-text { transition: none; }
+    .sidebar.collapsed .nav-section-label { transition: none; }
+    .sidebar.collapsed .nav-section { transition: none; }
+    .sidebar.collapsed .nav-link { transition: none; }
+    .sidebar.collapsed .nav-link > span:not(.nav-count) { transition: none; }
+    .sidebar.collapsed .nav-link-ext { transition: none; }
+    .sidebar.collapsed .nav-count { transition: none; }
+    .sidebar.collapsed .nav-status-card { transition: none; }
+    .sidebar.collapsed .nav-status-label,
+    .sidebar.collapsed .nav-status-state { transition: none; }
+    .sidebar.collapsed .nav-status-dot { transition: none; }
+    .sidebar.collapsed .nav-tools-sep { transition: none; }
+    .sidebar.collapsed .nav-filter { transition: none; }
+    .sidebar.collapsed.sidebar--areas > .nav { transition: none; }
+    .sidebar.collapsed.sidebar--areas .nav-areas { transition: none; }
     .nav-status-card  { transition: none; }   /* 11 */
     .nav-filter-input { transition: none; }   /* 14 */
     .bottombar-items  { transition: none; }   /* 24 — steps away on scroll */

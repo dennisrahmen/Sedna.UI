@@ -103,7 +103,9 @@
 
 /* The panel. A .nav is display:flex, which outranks the UA's [hidden], so the
    hidden panels are put away explicitly. */
-.sidebar--areas > .nav { flex: 1; min-width: 0; }
+/* Its width is what the sidebar leaves beside the rail, and it holds that width
+   while the sidebar closes over it (11-frame-sidebar.css). */
+.sidebar--areas > .nav { flex: 1; min-width: calc(var(--sidebar-width) - var(--nav-areas-width)); }
 .sidebar--areas > .nav[hidden] { display: none; }
 
 /* The panel's heading sits on the brand's line, so the two columns share one

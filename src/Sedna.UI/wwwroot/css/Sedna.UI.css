@@ -1529,8 +1529,22 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     border-inline-end: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
-    transition: width var(--motion-fast) ease;
+    /* Clipped, so that while the width moves the content keeps the layout it had
+       and the edge covers or reveals it — rather than the labels re-wrapping to
+       every width in between. The rail's flyout is `position: fixed` and is not
+       clipped by this. */
+    overflow: clip;
+    transition: width var(--motion-mid) ease-out;
+    /* The rail's layout snaps in AFTER the width has arrived, through a zero-length
+       transition delayed by the width's own duration — see the collapsed rail. */
+    --sidebar-snap: 0s;
+    --snap: var(--sidebar-snap) var(--motion-mid);
 }
+/* The columns hold their expanded width while the sidebar narrows over them; the
+   collapsed rules release it once the width has arrived. */
+.sidebar > .brand,
+.sidebar > .nav,
+.sidebar > .nav-tools { min-width: var(--sidebar-width); }
 
 /* flex-shrink: 0 because the sidebar is a flex column and the brand is the only
    item in it that can shrink. A nav taller than the viewport — a collapsed rail
@@ -1681,31 +1695,59 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 /* ── 12-frame-collapsed-rail.css → @layer sedna.frame ──────────────────────────────────────────────── */
 @layer sedna.frame {
 /* ── Collapsed sidebar rail ─────────────────────────────────────────────── */
+/* The choreography. `.sidebar` transitions its width, and everything inside keeps
+   the expanded layout while it moves — the sidebar clips, so the labels are
+   covered by the edge rather than re-wrapped to every width in between — and
+   takes the rail's layout only once the width has arrived. That is what the
+   `transition` on each rule below is: a zero-length transition delayed by the
+   width's own duration (`--snap`, from 11-frame-sidebar.css), `allow-discrete` so
+   `position`, `overflow` and `clip-path` take part; `display: none` needs no delay,
+   since a discrete transition to `none` flips at its end by definition.
+
+   Opening runs the other way and needs nothing here: a transition takes the
+   values of the state being entered, and the expanded rules declare none, so the
+   labels are back at once and the growing edge reveals them. Reduced motion turns
+   all of it off with the width, in 95-reduced-motion.css. */
 .sidebar.collapsed { width: var(--sidebar-width-collapsed); }
-.sidebar.collapsed .brand { justify-content: center; padding: 0; gap: 0; }
+.sidebar.collapsed > .brand,
+.sidebar.collapsed > .nav,
+.sidebar.collapsed > .nav-tools { min-width: 0; transition: min-width var(--snap); }
+.sidebar.collapsed .brand {
+    justify-content: center; padding: 0; gap: 0;
+    transition: justify-content var(--snap) allow-discrete, padding var(--snap), gap var(--snap);
+}
 .sidebar.collapsed .brand-text {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
+    transition: position var(--snap) allow-discrete, width var(--snap), height var(--snap), overflow var(--snap) allow-discrete, clip-path var(--snap) allow-discrete;
 }
-.sidebar.collapsed .nav-section-label { display: none; }
-.sidebar.collapsed .nav-section { margin-bottom: var(--space-4); }
-.sidebar.collapsed .nav-link { justify-content: center; padding: var(--space-4) 0; gap: 0; position: relative; }
+.sidebar.collapsed .nav-section-label { display: none; transition: display var(--motion-mid) allow-discrete; }
+.sidebar.collapsed .nav-section { margin-bottom: var(--space-4); transition: margin-bottom var(--snap); }
+.sidebar.collapsed .nav-link {
+    justify-content: center; padding: var(--space-4) 0; gap: 0; position: relative;
+    transition: justify-content var(--snap) allow-discrete, padding var(--snap), gap var(--snap);
+}
 .sidebar.collapsed .nav-link > span:not(.nav-count) {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
+    transition: position var(--snap) allow-discrete, width var(--snap), height var(--snap), overflow var(--snap) allow-discrete, clip-path var(--snap) allow-discrete;
 }
-.sidebar.collapsed .nav-link-ext { display: none; }
+.sidebar.collapsed .nav-link-ext { display: none; transition: display var(--motion-mid) allow-discrete; }
 .sidebar.collapsed .nav-count {
     position: absolute; top: 2px; inset-inline-end: var(--space-3); margin-inline-start: 0;
     min-width: 15px; padding: 0 var(--space-2); font-size: var(--text-1); line-height: 1.6;
+    transition: position var(--snap) allow-discrete, top var(--snap), inset-inline-end var(--snap), margin-inline-start var(--snap), min-width var(--snap), padding var(--snap), font-size var(--snap), line-height var(--snap);
 }
-.sidebar.collapsed .nav-status-card { align-items: center; padding: var(--space-4) 0; position: relative; }
+.sidebar.collapsed .nav-status-card {
+    align-items: center; padding: var(--space-4) 0; position: relative;
+    transition: background var(--motion-fast), border-color var(--motion-fast), align-items var(--snap) allow-discrete, padding var(--snap);
+}
 .sidebar.collapsed .nav-status-label,
 .sidebar.collapsed .nav-status-state {
     position: absolute;
@@ -1713,15 +1755,16 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
+    transition: position var(--snap) allow-discrete, width var(--snap), height var(--snap), overflow var(--snap) allow-discrete, clip-path var(--snap) allow-discrete;
 }
-.sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; }
-.sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+.sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; transition: width var(--snap), height var(--snap); }
+.sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); transition: margin var(--snap); }
 /* A rail has no room to type in, so the nav filter goes with the labels. */
-.sidebar.collapsed .nav-filter { display: none; }
+.sidebar.collapsed .nav-filter { display: none; transition: display var(--motion-mid) allow-discrete; }
 /* A collapsed area rail is the rail alone: the panel goes, and the rail's own
    divider with it, since the sidebar's edge now stands in the same place. */
-.sidebar.collapsed.sidebar--areas > .nav { display: none; }
-.sidebar.collapsed.sidebar--areas .nav-areas { border-inline-end: none; }
+.sidebar.collapsed.sidebar--areas > .nav { display: none; transition: display var(--motion-mid) allow-discrete; }
+.sidebar.collapsed.sidebar--areas .nav-areas { border-inline-end: none; transition: border-inline-end var(--snap); }
 
 /* Rail-only hover flyout. The JS tip engine skips .sidebar precisely so this
    pure-CSS variant owns the collapsed rail (no double tooltip).
@@ -2425,6 +2468,9 @@ a.topbar-version--pre:hover {
    ─────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
     .layout--responsive .sidebar { width: var(--sidebar-width-collapsed); }
+    .layout--responsive .sidebar > .brand,
+    .layout--responsive .sidebar > .nav,
+    .layout--responsive .sidebar > .nav-tools { min-width: 0; }
     .layout--responsive .sidebar .brand { justify-content: center; padding: 0; gap: 0; }
     .layout--responsive .sidebar .brand-text {
         position: absolute;
@@ -3021,7 +3067,9 @@ a.topbar-version--pre:hover {
 
 /* The panel. A .nav is display:flex, which outranks the UA's [hidden], so the
    hidden panels are put away explicitly. */
-.sidebar--areas > .nav { flex: 1; min-width: 0; }
+/* Its width is what the sidebar leaves beside the rail, and it holds that width
+   while the sidebar closes over it (11-frame-sidebar.css). */
+.sidebar--areas > .nav { flex: 1; min-width: calc(var(--sidebar-width) - var(--nav-areas-width)); }
 .sidebar--areas > .nav[hidden] { display: none; }
 
 /* The panel's heading sits on the brand's line, so the two columns share one
@@ -11877,6 +11925,26 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 
     /* ── Tier 1 — the frame ─────────────────────────────────────────────── */
     .sidebar          { transition: none; }   /* 11 — collapse to the icon rail */
+    /* 12 — the rail's layout arrives with the width, not after it. */
+    .sidebar.collapsed > .brand,
+    .sidebar.collapsed > .nav,
+    .sidebar.collapsed > .nav-tools { transition: none; }
+    .sidebar.collapsed .brand { transition: none; }
+    .sidebar.collapsed .brand-text { transition: none; }
+    .sidebar.collapsed .nav-section-label { transition: none; }
+    .sidebar.collapsed .nav-section { transition: none; }
+    .sidebar.collapsed .nav-link { transition: none; }
+    .sidebar.collapsed .nav-link > span:not(.nav-count) { transition: none; }
+    .sidebar.collapsed .nav-link-ext { transition: none; }
+    .sidebar.collapsed .nav-count { transition: none; }
+    .sidebar.collapsed .nav-status-card { transition: none; }
+    .sidebar.collapsed .nav-status-label,
+    .sidebar.collapsed .nav-status-state { transition: none; }
+    .sidebar.collapsed .nav-status-dot { transition: none; }
+    .sidebar.collapsed .nav-tools-sep { transition: none; }
+    .sidebar.collapsed .nav-filter { transition: none; }
+    .sidebar.collapsed.sidebar--areas > .nav { transition: none; }
+    .sidebar.collapsed.sidebar--areas .nav-areas { transition: none; }
     .nav-status-card  { transition: none; }   /* 11 */
     .nav-filter-input { transition: none; }   /* 14 */
     .bottombar-items  { transition: none; }   /* 24 — steps away on scroll */
