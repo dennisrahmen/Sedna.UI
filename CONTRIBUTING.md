@@ -49,6 +49,8 @@ See [docs/development.md](docs/development.md) for what each guard covers.
 - **Components that wrap page content.** Tables, forms, cards and panels are CSS classes on purpose. A
   `<DataTable>` hides markup from whoever edits the page. See
   [docs/architecture.md](docs/architecture.md).
+- **UI the library draws.** A confirmation, a prompt or a panel built by the script. The app writes it and
+  a presenter shows it; the toast and the hover-hint bubble are the only exceptions.
 - **A dependency on MudBlazor, Syncfusion, Radzen or Tailwind.**
 - **A second icon set.** Remix Icon is bundled and is the only one.
 - **Colour literals in the library CSS.** Every colour resolves through a token; a test enforces it.

@@ -29,17 +29,16 @@
     <p>
         <strong>Live — open it.</strong> <code>ISednaUi.ShowModalAsync(id)</code> is the one line of
         script the example above needs, without an inline <code>onclick</code> and without injecting
-        <code>IJSRuntime</code>, and <code>CloseModalAsync(id, returnValue)</code> closes it again
-        with the value its <code>close</code> event carries. Use
-        <a href="/interop"><code>ConfirmAsync</code></a> for a question with two answers — this is for
-        a dialog holding a form.
+        <code>IJSRuntime</code>. It completes when the dialog closes, with its
+        <code>returnValue</code> — what <code>CloseModalAsync(id, returnValue)</code> passed, or
+        <code>null</code> for <kbd>Escape</kbd> — so the result reads as ordinary C# control flow.
     </p>
     <p>
         <strong>Both</strong> routes out call <code>CloseModalAsync</code>, and the form is a plain
         <code>&lt;form&gt;</code> rather than <code>&lt;form method="dialog"&gt;</code>: closing the
         dialog is that attribute's <em>default action</em>, and Blazor's event delegator
-        preventDefaults every <code>submit</code> so an <code>@@onsubmit</code> form does not
-        navigate. Submit and it is cancelled with it, so the dialog stays open and nothing is
+        preventDefaults a <code>submit</code> with an <code>@@onsubmit</code> handler so the form
+        does not navigate. Submit and it is cancelled with it, so the dialog stays open and nothing is
         logged. Handling it in C# is the honest shape here anyway — the work can fail, and a dialog
         that has already closed cannot show why.
     </p>
@@ -56,7 +55,20 @@
     <p>
         Name the consequence in the body, and make the confirming button the destructive one. Put
         Cancel first in source order — <code>showModal()</code> focuses the first focusable element,
-        so the safe choice is the one that takes focus.
+        so the safe choice is the one that takes focus. A dialog that is its own component and hands
+        back a typed result is <a href="/drawer#a-drawer-as-its-own-component"><code>ISednaOverlays</code></a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.ConfirmFromCsharp" Title="A confirmation, from C#" Demo="ex-demo--block">
+    <p>
+        <strong>Live — open it.</strong> A confirmation is a <code>.modal-sm</code> you write, not
+        something the library draws, so the question, the button labels and the language are
+        yours. Wrap it in <code>&lt;form method="dialog"&gt;</code> with a <code>value</code> on each
+        button and compare what <code>ShowModalAsync</code> returns with the one value that means
+        yes: <kbd>Escape</kbd> comes back as <code>null</code>. Leave <code>@@onsubmit</code> off
+        this form — a Blazor submit handler cancels the submit, and closing the dialog is that
+        submit's default action.
     </p>
 </CatExample>
 

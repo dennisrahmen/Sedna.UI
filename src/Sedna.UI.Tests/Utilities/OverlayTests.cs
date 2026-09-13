@@ -22,6 +22,10 @@ public class OverlayTests : BunitContext
 
     public OverlayTests()
     {
+        // Each test answers the dialog only after asserting on what rendered, and bUnit fails
+        // a handler still unanswered after DefaultWaitTimeout — one second, which a loaded
+        // run of the whole suite exceeds.
+        DefaultWaitTimeout = TimeSpan.FromSeconds(15);
         Services.AddSednaUi();
         _show = JSInterop.Setup<string?>("sednaUi.modal.show", _ => true);
         JSInterop.SetupVoid("sednaUi.modal.close", _ => true).SetVoidResult();

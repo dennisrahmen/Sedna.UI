@@ -125,11 +125,12 @@
            --motion-mid, and removing it mid-slide cuts the panel off where it stands.
            Reading computed style first is what starts the closing transition, so
            getAnimations() sees it without waiting a frame — and a frame never comes in
-           a background tab. Capped for the same reason: a tab that does not advance
-           animations never finishes one. */
+           a background tab. A hidden page resolves at once, because nobody can see the
+           slide and its animations do not advance; the cap covers the rest. */
         idle: function (id) {
             var d = document.getElementById(id);
             if (!d || d.open || typeof d.getAnimations !== 'function') return Promise.resolve();
+            if (document.visibilityState === 'hidden') return Promise.resolve();
 
             getComputedStyle(d).display;
             var running = d.getAnimations().map(function (a) {

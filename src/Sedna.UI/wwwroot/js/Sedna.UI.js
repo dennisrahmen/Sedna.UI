@@ -2162,9 +2162,9 @@ window.sednaUi = window.sednaUi || {};
         // `run` first: a command that has both is doing something more than
         // navigating, and `href` is then only there for a middle-click.
         if (typeof c.run === 'function') c.run();
-        // `href` is what a command registered from C# uses. A callback cannot cross
-        // that boundary — the library never calls back into .NET — so navigation is
-        // the one action a serialisable command can carry.
+        // `href` is what a command registered from C# uses. A function does not
+        // cross into C#, so navigation is the one action a serialisable command can
+        // carry.
         else if (c.href) go(c.href);
     }
 
@@ -2301,7 +2301,7 @@ window.sednaUi = window.sednaUi || {};
 
    Only `title` is required. `href` is where choosing the result goes; an item
    without one is inert unless it carries a `run` callback, which only a source
-   registered from JavaScript can have — the library never calls back into .NET.
+   registered from JavaScript can have — a function does not cross into C#.
 
    THE INDEX IS CLIENT-SIDE, and that is the whole design. A per-keystroke round trip
    is an app's decision to make, not a shared library's: it needs a debounce whose
@@ -3154,7 +3154,7 @@ window.sednaUi = window.sednaUi || {};
    Toolbar + textarea + live preview inside one .md-editor root. Blazor owns the
    value through the textarea's two-way @bind (@bind:event="oninput"); toolbar
    edits mutate the textarea and dispatch a bubbling 'input' event so the binding
-   picks them up — this code never calls back into .NET.
+   picks them up, which is the whole of its conversation with .NET.
 
    init() is idempotent per editor, since Blazor re-renders its host. Call it with no
    argument to wire every .md-editor in the document, with a container to wire the ones
@@ -4210,11 +4210,12 @@ window.sednaUi = window.sednaUi || {};
            --motion-mid, and removing it mid-slide cuts the panel off where it stands.
            Reading computed style first is what starts the closing transition, so
            getAnimations() sees it without waiting a frame — and a frame never comes in
-           a background tab. Capped for the same reason: a tab that does not advance
-           animations never finishes one. */
+           a background tab. A hidden page resolves at once, because nobody can see the
+           slide and its animations do not advance; the cap covers the rest. */
         idle: function (id) {
             var d = document.getElementById(id);
             if (!d || d.open || typeof d.getAnimations !== 'function') return Promise.resolve();
+            if (document.visibilityState === 'hidden') return Promise.resolve();
 
             getComputedStyle(d).display;
             var running = d.getAnimations().map(function (a) {

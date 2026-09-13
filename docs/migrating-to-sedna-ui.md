@@ -86,7 +86,7 @@ to:
 builder.Services.AddSednaUi();
 ```
 
-Every other member on the interface — `ToastAsync`, `ConfirmAsync`, `CopyTextAsync`,
+Every other member on the interface — `ToastAsync`, `ShowModalAsync`, `CopyTextAsync`,
 `SaveSettingAsync`, `LoadSettingsAsync` and the rest — keeps its name; only the type and the
 registration call move.
 

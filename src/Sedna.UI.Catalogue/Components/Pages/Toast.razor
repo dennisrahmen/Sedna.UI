@@ -37,8 +37,8 @@
 
 <CatSnippet Name="Toast/ToastApi.txt" Title="The API">
     <p>
-        The JavaScript call returns a function that removes that toast early; the C# wrapper cannot,
-        because a callback does not cross the interop boundary — keep a withdrawable toast in
+        The JavaScript call returns a function that removes that toast early. A function does not
+        cross into C#, so <code>ToastAsync</code> has no remover — keep a withdrawable toast in
         JavaScript.
     </p>
 </CatSnippet>

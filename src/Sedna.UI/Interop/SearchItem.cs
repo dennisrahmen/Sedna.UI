@@ -13,8 +13,8 @@ namespace Sedna.UI;
 /// </para>
 /// <para>
 /// Choosing a result navigates to <see cref="Href"/>. The JavaScript form also
-/// accepts a <c>run</c> callback, which has no C# equivalent — the library never
-/// calls back into .NET, so a <see cref="Delegate"/> here could not be invoked.
+/// accepts a <c>run</c> callback, which has no C# equivalent: a function does not
+/// cross the interop boundary, so a <see cref="Delegate"/> here could not be invoked.
 /// </para>
 /// </remarks>
 public sealed record SearchItem

@@ -7,7 +7,7 @@ sednaUi.palette.register([
 ]);
 
 // C# — a command registered from .NET carries an Href, never a callback: the
-// library does not call back into .NET, so navigation is the one action a
+// function does not cross into C#, so navigation is the one action a
 // serialisable command can perform.
 await Ui.RegisterCommandsAsync(
 [

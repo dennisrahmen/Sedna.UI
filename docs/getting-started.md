@@ -369,16 +369,25 @@ private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => St
 builder.Services.AddSednaUi();
 ```
 
-That registers `ISednaUi`, a typed wrapper over the browser API — `ToastAsync`, `ConfirmAsync`,
-`CopyTextAsync`, `SaveSettingAsync`, the command palette, and the rest of `sednaUi`.
+That registers `ISednaUi`, a typed wrapper over the browser API — `ToastAsync`, `ShowModalAsync`,
+`CopyTextAsync`, `SaveSettingAsync`, the command palette, and the rest of `sednaUi` — plus
+`ISednaSettings` and `ISednaOverlays`.
+
+To present a modal, drawer or sheet that is its own component, place the host once in the layout,
+inside the interactive render tree:
+
+```razor
+@* MainLayout.razor, after the .layout *@
+<SednaOverlayHost />
+```
 
 Every member is a JavaScript call, so **none of them can run during prerendering**. Call them from an
 event handler, or from `OnAfterRenderAsync(firstRender: true)`. They deliberately do not swallow the
 exception prerendering raises: a call that silently did nothing would be far harder to find.
 
-Two parts of the JavaScript surface have no C# equivalent, because neither can cross the boundary.
-`toast()` returns a function that removes that toast early, and `tips.gate` is a predicate you assign to
-suppress hover hints. Both stay JavaScript.
+Two parts of the JavaScript surface have no C# equivalent, because each is a function and a function
+does not cross into C#: `toast()` returns one that removes that toast early, and `tips.gate` is a
+predicate you assign to suppress hover hints. Both stay JavaScript.
 
 ## Writing pages
 

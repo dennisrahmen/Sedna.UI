@@ -46,6 +46,10 @@
     </div>
 </div>
 
+@* Renders the overlay components ISednaOverlays presents. No element of its own, and
+   its position does not matter: an open modal dialog is in the top layer. *@
+<SednaOverlayHost />
+
 @code {
     private bool _navOpen;
     private bool _collapsed;

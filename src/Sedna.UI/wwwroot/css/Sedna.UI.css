@@ -4048,8 +4048,8 @@ textarea.form-input::-webkit-resizer {
 /* ── As a <dialog> ──────────────────────────────────────────────────────────
    `.modal` on a <dialog> opened with showModal() gets the top layer, a focus trap,
    Escape-to-close and inert content behind it — none of which a div-based backdrop
-   can do without a lot of code that is usually subtly wrong. sednaUi.confirm()
-   uses this, and an app should too wherever its markup can be a <dialog>.
+   can do without a lot of code that is usually subtly wrong. ShowModalAsync opens
+   one, and an app should use it wherever its markup can be a <dialog>.
 
    No .modal-backdrop is involved: ::backdrop is the platform's own, so the
    dimming comes from the pseudo-element rather than from an element in the page.

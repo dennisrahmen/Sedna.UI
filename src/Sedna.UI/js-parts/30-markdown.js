@@ -2,7 +2,7 @@
    Toolbar + textarea + live preview inside one .md-editor root. Blazor owns the
    value through the textarea's two-way @bind (@bind:event="oninput"); toolbar
    edits mutate the textarea and dispatch a bubbling 'input' event so the binding
-   picks them up — this code never calls back into .NET.
+   picks them up, which is the whole of its conversation with .NET.
 
    init() is idempotent per editor, since Blazor re-renders its host. Call it with no
    argument to wire every .md-editor in the document, with a container to wire the ones

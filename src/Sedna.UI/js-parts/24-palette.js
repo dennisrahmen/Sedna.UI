@@ -133,9 +133,9 @@
         // `run` first: a command that has both is doing something more than
         // navigating, and `href` is then only there for a middle-click.
         if (typeof c.run === 'function') c.run();
-        // `href` is what a command registered from C# uses. A callback cannot cross
-        // that boundary — the library never calls back into .NET — so navigation is
-        // the one action a serialisable command can carry.
+        // `href` is what a command registered from C# uses. A function does not
+        // cross into C#, so navigation is the one action a serialisable command can
+        // carry.
         else if (c.href) go(c.href);
     }
 

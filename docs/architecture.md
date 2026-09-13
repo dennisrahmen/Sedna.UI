@@ -10,9 +10,36 @@ Pages write plain HTML and apply the classes.
 
 Content UI is always a class, never a component. There is no `<DataTable>` and there will not be one.
 
-Both tiers are CSS classes. The package ships two components, and both emit infrastructure rather
-than markup a page depends on: `SednaBrandStyle`, the palette CSS (see [Branding](#branding)), and
-`SednaStateArt`, the [state illustrations](#state-illustrations) as a hidden sprite.
+## Markup belongs to the app
+
+The test for anything beside the stylesheet: **after it ships, does the app still author the markup it
+renders?** Three kinds of code pass.
+
+| Kind | What it does | In the package |
+|---|---|---|
+| Infrastructure component | Emits no UI | `SednaBrandStyle`, the palette CSS (see [Branding](#branding)); `SednaStateArt`, the [state illustrations](#state-illustrations) as a hidden sprite |
+| Presenter | Shows, hides and awaits markup the app wrote, adding no element of its own | `ShowModalAsync`, `ISednaOverlays` with `SednaOverlayHost`, `FollowSpotlightAsync` |
+| State helper | Computes what markup cannot express; pure, no interop | `ActiveLink` |
+
+**The toast and the hover-hint bubble are the two exceptions**: neither has anything to author, so the
+script draws them. Nothing else is drawn by the library. Where the script renders rows from data, it
+clones the app's `<template>`, so every element and word on screen is the app's.
+
+Presenters are for overlays opened by app logic. A popover or a menu opened by its trigger's own
+attribute needs none.
+
+## The interop boundary
+
+**The script never goes looking for .NET.** It may complete a call the app is awaiting, and it may
+invoke a reference the app handed it and owns — `watchSettings` is the one that exists. The test is who
+owns and disposes the reference: if it is the app, the call is allowed.
+
+A function does not cross the boundary; a handle does. Where a JavaScript member takes or returns a
+function, the C# member takes or returns data naming the same thing, and the script keeps the function
+in a table keyed by it.
+
+A call that waits on the reader passes a `CancellationToken`. Blazor applies a one-minute timeout to
+every interop call that does not.
 
 ## The frame
 
@@ -39,12 +66,14 @@ begins. Its treatments are the default line, `--tint`, `--card` and `--icons`, o
 
 ### The C# surface
 
-Three things the package ships that markup cannot express:
+What the package ships that markup cannot express:
 
 | Member | Purpose |
 |---|---|
 | `ActiveLink.IsActive` / `CssClass` / `AriaCurrent` | Which navigation link is the current page |
-| `ISednaUi` | Typed access to `sednaUi` — toasts, confirmations, clipboard, settings, palette, search, the Markdown editor |
+| `ISednaUi` | Typed access to `sednaUi` — toasts, the dialog presenter, the spotlight, clipboard, settings, palette, search, the Markdown editor |
+| `ISednaSettings` | The applied appearance settings as state, with a `Changed` event |
+| `ISednaOverlays`, `SednaOverlay`, `SednaOverlayHost` | Presents an app component as a modal, drawer or sheet and returns the result it closed with |
 | `AddSednaUi()` | Registers the above, scoped to the circuit |
 
 `ActiveLink` drops the query string and the fragment, treats a trailing slash as insignificant, and
@@ -56,8 +85,16 @@ the layout around it. Blazor only hands new parameters to a child whose paramete
 subscription one level too high re-renders the layout and leaves the links reading the previous address.
 
 `ISednaUi` is `IJSRuntime` calls, so none of it can run during prerendering. Two members of the
-JavaScript surface have no wrapper because neither can cross the boundary: `toast()` returns a remover
-function, and `tips.gate` is a predicate an app assigns.
+JavaScript surface have no wrapper yet, because each is a function: `toast()` returns a remover, and
+`tips.gate` is a predicate an app assigns. A function does not cross the boundary — see **The interop
+boundary** above for the shape a C# equivalent takes.
+
+`ShowModalAsync` completes when the dialog closes, with its `returnValue`, and settles from the dialog's
+`open` attribute rather than its `close` event, which a background tab never dispatches.
+`ISednaOverlays.ShowAsync<TComponent, TResult>` builds on it: `SednaOverlayHost` renders the component,
+which writes its own `<dialog id="@Overlay.Id">`; the dialog is opened once the component has rendered,
+awaited, and removed only after `modal.idle()` reports its closing transition has finished. Nothing in
+it holds a `DotNetObjectReference`.
 
 The only package dependency is `Microsoft.AspNetCore.Components.Web`, which is where
 `NavigationManager`, `NavLinkMatch` and `IJSRuntime` live. It is a `PackageReference` rather than a
@@ -425,8 +462,7 @@ Two things the flat list does not say:
 | `settings` | `load()`, `save(key, value)`, `apply()`, `onChange(fn)` → unsubscribe. Keys: `theme`, `variant`, `cvd`, `density`, `dir`, `lang` |
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally |
 | `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
-| `confirm(options)` | A `<dialog>.showModal()` confirmation. Returns a promise; `danger: true` reddens confirm and focuses cancel |
-| `modal` | The platform dialog for an app's own markup: `show(id)` → `showModal()`, `close(id, value)` → `close(value)`. An id that is not a `<dialog>`, or one already open, warns in the console and does nothing — an exception crossing the interop boundary from a Blazor handler tears down the circuit |
+| `modal` | The presenter for an app's own `<dialog>` — `.modal`, `.drawer`, `.sheet`, `.lightbox`. `show(id)` → `showModal()`, returning a promise of its `returnValue` once it closes, or `null` for a close without one; a second `show` on an open dialog joins the first wait. `close(id, value)` → `close(value)`. `idle(id)` resolves once a closed dialog's transition has finished. An id that is not a `<dialog>` warns in the console and resolves `null` — an exception crossing the interop boundary from a Blazor handler tears down the circuit |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | — | `22-anchored.js` adds no member. It closes an open `.menu`, `.popover` or `.form-combo-panel` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |
 | — | `22-scroll-edge.js` adds no member. It marks every `.sedna-scroll-x` with `data-scroll-start` / `data-scroll-end` as it scrolls, which is what a pinned table column's edge shadow reads in an engine without `scroll-state()` container queries — WebKit — and agrees with the query where it exists |
@@ -734,5 +770,6 @@ on a timer instead of not at all.
 - App-specific business UI — approval panels, SLA badges, tour overlays, page-specific grids.
 - MudBlazor, Syncfusion, Radzen, Tailwind.
 - Wrapping tables, forms or page content in components.
+- Library-drawn UI beyond the toast and the hover-hint bubble. A confirmation is an app-owned modal.
 - Loading anything from a remote URL at runtime. Everything the package needs, including the icon font,
   ships inside it.

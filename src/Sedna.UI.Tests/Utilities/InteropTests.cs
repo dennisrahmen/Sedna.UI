@@ -194,8 +194,8 @@ public class InteropTests : BunitContext
             Only("sednaUi.palette.register").Arguments[0]!);
         var command = Assert.Single(commands);
 
-        // A callback cannot cross the boundary — the library never calls back into
-        // .NET — so navigation is the one action a serialisable command can carry.
+        // A function does not cross the boundary, so navigation is the one action a
+        // serialisable command can carry.
         Assert.Equal("/queue", command.Href);
     }
 

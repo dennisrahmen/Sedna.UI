@@ -64,8 +64,23 @@ There are two ways to use it, and the choice is about where the results come fro
 Put an app's own modal in a `<dialog class="modal">` with an `id`, and open it with
 `ISednaUi.ShowModalAsync(id)`. That is the whole reason the member exists: the top layer, a focus trap,
 Escape-to-close and inert content behind come from the browser, and a `.modal-backdrop` div behind an
-`@if` has none of the four. `ConfirmAsync` is for a question with two answers; this is for a dialog
-holding a form. Neither needs `IJSRuntime`.
+`@if` has none of the four. The same call opens a `<dialog class="drawer">` or a `.sheet`. Neither this
+nor anything below needs `IJSRuntime`.
+
+`ShowModalAsync` completes when the dialog closes, with its `returnValue`, so **a confirmation is a
+`.modal-sm` you write**: a `<form method="dialog">` whose buttons carry a `value`, and one comparison on
+the result — `null` is Escape. The library draws no confirmation, so the wording and the language are
+the app's. Leave `@onsubmit` off that form: a Blazor submit handler cancels the submit, and closing the
+dialog is its default action.
+
+A modal, drawer or sheet that is **its own component** and hands back a typed result goes through
+`ISednaOverlays.ShowAsync<TComponent, TResult>(parameters)`. Place `<SednaOverlayHost />` once in the
+layout. The component takes `[CascadingParameter] SednaOverlay Overlay`, puts `id="@Overlay.Id"` on its
+`<dialog>`, renders that dialog on its first render, and closes with `Overlay.CloseAsync(result)` or
+`Overlay.CancelAsync()`.
+
+A tour step is `ISednaUi.FollowSpotlightAsync(hole, target, options)`; dispose the `SednaSpotlight` it
+returns when the step ends.
 
 The panel caps itself at the viewport and the body is what scrolls, so a tall form needs no
 `max-height` of its own. A scrolling body holding nothing focusable does need `tabindex="0"` with a

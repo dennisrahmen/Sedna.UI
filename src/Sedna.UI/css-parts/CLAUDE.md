@@ -82,7 +82,7 @@ Two consequences to keep in mind while writing a rule:
 - **Nothing is loaded or inlined.** No `url(`, no `data:` URI. Need a glyph? Use the bundled Remix Icon
   font on a pseudo-element. Need a mark? Draw it in CSS.
 - **Tier 2 is classes, never components.** If you are reaching for a wrapper component, stop and read
-  `CLAUDE.md` in the repo root.
+  **Markup belongs to the app** in `CLAUDE.md` in the repo root.
 
 ## Naming
 

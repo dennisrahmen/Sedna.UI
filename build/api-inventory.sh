@@ -130,6 +130,10 @@ find "$DIR" -type f -name '*.cs' -not -path '*/obj/*' -not -path '*/bin/*' -prin
                         gsub(/[ \t]/, "", member)
                     }
                 }
+                # A generic constraint on its own line — `where TComponent : IComponent;`
+                # closing an interface member — sits at member depth with no parens open,
+                # and would otherwise report the constrained type as a member.
+                else if (line ~ /^[ 	]*where[ 	]/) { }
                 # An interface member has no accessibility keyword; a class member
                 # must carry `public`.
                 # An indexer is reported by reflection under the name the compiler

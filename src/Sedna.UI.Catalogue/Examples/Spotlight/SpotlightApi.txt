@@ -39,13 +39,16 @@ const step = sednaUi.spotlight.follow('#hole', '[data-live]', {
 step.update();   // after the app changes something itself; returns the side used
 step.stop();     // end of step: detaches, unlocks, hides the hole
 
-// From Blazor, with no ElementReference to thread through:
-_handle = await Js.InvokeAsync<IJSObjectReference>(
-    "sednaUi.spotlight.follow", "#hole", "[data-live]",
-    new { tip = "#tip", placement = "auto", root = "#stage" });
+// From C#, with no ElementReference to thread through and no IJSRuntime:
+_step = await Ui.FollowSpotlightAsync("#hole", "[data-live]", new SpotlightOptions
+{
+    Tip = "#tip",
+    Placement = SpotlightPlacement.Auto,
+    Root = "#stage",
+});
 
-await _handle.InvokeAsync<string?>("update");   // after every render
-await _handle.InvokeVoidAsync("stop");          // on dispose
+await _step.UpdateAsync();      // after every render; returns the side used
+await _step.DisposeAsync();     // end of step, and from the component's own DisposeAsync
 
 // The element the hole sits in has to be positioned: the hole is placed against
 // its offset parent.
