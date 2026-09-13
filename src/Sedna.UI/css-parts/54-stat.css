@@ -24,6 +24,11 @@
     color: var(--fg);
     font-variant-numeric: tabular-nums;
 }
+/* A smaller value, for a stat whose value is wide — a timestamp, a date range, a name —
+   in a row of stats the reader compares. The label, note and unit keep their size:
+   only the figure steps down, so the tile still lines up with its neighbours. */
+.stat--sm .stat-value { font-size: var(--text-6); }
+
 /* A unit or denominator that should not compete with the number. */
 .stat-unit { font-size: var(--text-4); font-weight: 500; color: var(--muted); }
 .stat-note { font-size: var(--text-3); color: var(--muted); }

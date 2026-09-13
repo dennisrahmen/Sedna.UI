@@ -3779,6 +3779,41 @@ a.topbar-version--pre:hover {
 /* Its own ring, so focus is not a blue halo around a red destructive button. */
 .btn-danger:focus-visible { box-shadow: 0 0 0 2px var(--danger-ring); }
 
+/* ── In flight ──────────────────────────────────────────────────────────────
+   `aria-busy="true"` on a button whose action is running — a save, a submit, an API
+   call. Keyed off the attribute a screen reader announces, the way `.th-sort` keys
+   off aria-sort, so the paint and the announcement cannot disagree.
+
+   THE BUTTON KEEPS ITS MEASURED WIDTH. The label and icon stay in the layout and are
+   only painted transparent, and the spinner is laid over the middle, so the box does
+   not shrink under the cursor mid-click. `-webkit-text-fill-color` rather than
+   `color: transparent`, because the ring is drawn in `currentColor` and has to keep
+   the variant's own text colour — on `.btn-primary` that is the on-solid ink.
+
+   Pointer clicks are stopped, so a double click cannot submit twice. The keyboard is
+   not: leave `disabled` off, which would drop focus to <body> and stop the busy state
+   being announced, and have the handler ignore a second activation while its work
+   runs. */
+.btn[aria-busy="true"] {
+    position: relative;
+    -webkit-text-fill-color: transparent;
+    cursor: progress;
+    pointer-events: none;
+}
+.btn[aria-busy="true"] > :is(svg, img) { visibility: hidden; }
+.btn[aria-busy="true"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 1em;
+    height: 1em;
+    margin: auto;
+    border: 2px solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    animation: sedna-spin var(--spin-duration) linear infinite;
+}
+
 }
 
 /* ── 34-forms.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -7361,6 +7396,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     color: var(--fg);
     font-variant-numeric: tabular-nums;
 }
+/* A smaller value, for a stat whose value is wide — a timestamp, a date range, a name —
+   in a row of stats the reader compares. The label, note and unit keep their size:
+   only the figure steps down, so the tile still lines up with its neighbours. */
+.stat--sm .stat-value { font-size: var(--text-6); }
+
 /* A unit or denominator that should not compete with the number. */
 .stat-unit { font-size: var(--text-4); font-weight: 500; color: var(--muted); }
 .stat-note { font-size: var(--text-3); color: var(--muted); }
@@ -8373,12 +8413,69 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 /* Under a sticky header the group row is a header too, and pins beneath it. The
    header's height is not knowable here, so it is the app's one number: set
    `--table-head-height` on the table where its header is not the default 36px. */
-.table--sticky { --table-head-height: 36px; }
+.table--sticky { --table-head-height: 36px; --table-filter-height: 0px; }
 .table--sticky .tr-group > th {
     position: sticky;
-    top: var(--table-head-height);
+    top: calc(var(--table-head-height) + var(--table-filter-height));
     z-index: 1;
 }
+
+/* ── Filter row ─────────────────────────────────────────────────────────────
+   A second header row whose cells hold a filter for their column — a
+   `.form-input.form-input-sm` or a `.form-select`. For an admin table that is
+   filtered per column; the toolbar above a table is still the default.
+
+     <thead>
+       <tr><th>Order</th><th>Status</th></tr>
+       <tr class="tr-filter">
+         <th><input class="form-input form-input-sm" type="search" aria-label="Filter by order"></th>
+         <th><select class="form-input form-select form-input-sm" aria-label="Filter by status">…</select></th>
+       </tr>
+     </thead>
+
+   The header's uppercase treatment is undone, because the cell holds a control, not a
+   column name. Every filter needs an aria-label: the column heading above it is not
+   its label.
+
+   Under `.table--sticky` it pins beneath the header row. The header's height is not
+   knowable here, which is why `--table-head-height` exists; the filter row's own
+   height is added to where a group row pins, through `--table-filter-height`. */
+.tr-filter > th {
+    padding-block: var(--space-2);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--fg);
+}
+.tr-filter :is(.form-input, .form-select) { width: 100%; min-width: 0; }
+.table--sticky:has(.tr-filter) { --table-filter-height: 37px; }
+.table--sticky .tr-filter > th { top: var(--table-head-height); }
+
+/* ── Nothing here, and still loading ────────────────────────────────────────
+   The table or list is present — framed by its toolbar and its count — and this
+   query returned nothing. The page-level "nothing here" is `.empty-state`; this is
+   the commoner case inside it.
+
+     <tr class="tr-empty"><td colspan="999">No order matches these filters.</td></tr>
+
+   `colspan="999"`, never the real count: a browser clamps a colspan to the columns
+   the table has, so the cell spans them all and does not go stale the next time a
+   column is added. A `.state-art` drawing in the cell sits centred above the text.
+
+   `.tr-busy` is the same row for a refresh in flight, holding a `.spinner`; the first
+   load is `.skeleton` rows instead. `.list-empty` is an `<li>` in a `.list`. */
+.tr-empty > td,
+.tr-busy > td,
+.list-empty {
+    padding: var(--space-10) var(--space-7);
+    color: var(--muted);
+    font-size: var(--text-4);
+    text-align: center;
+}
+.tr-empty:hover > td,
+.tr-busy:hover > td { background: none; }
+.tr-busy .spinner { margin-inline-end: var(--space-4); }
+:is(.tr-empty, .list-empty) .state-art { display: block; margin: 0 auto var(--space-5); }
 
 /* The row states, mirroring the background rules above one for one. Set on the
    <tr> so a custom property carries them into the pinned cell by inheritance;
@@ -12033,6 +12130,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .deck-step        { animation: none; }    /* 36 */
     .deck-dot         { transition: none; }   /* 36 */
     .spinner          { animation: none; }    /* 39 */
+    .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
     .progress-bar     { transition: none; }   /* 41 */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }

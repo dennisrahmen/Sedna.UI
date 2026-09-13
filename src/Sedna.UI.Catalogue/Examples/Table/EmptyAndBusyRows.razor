@@ -1,0 +1,26 @@
+<div class="sedna-col sedna-gap-3">
+    <table class="table">
+        <thead>
+            <tr><th>Order</th><th>Status</th><th>Owner</th><th class="col-num">Lines</th></tr>
+        </thead>
+        <tbody>
+            <tr class="tr-empty">
+                <td colspan="999">
+                    <svg class="state-art state-art--sm" aria-hidden="true"><use href="#filtered-out" /></svg>
+                    No order matches these filters. Clear one to see more.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table">
+        <thead>
+            <tr><th>Order</th><th>Status</th><th>Owner</th><th class="col-num">Lines</th></tr>
+        </thead>
+        <tbody aria-busy="true">
+            <tr class="tr-busy">
+                <td colspan="999"><span class="spinner" aria-hidden="true"></span>Refreshing orders…</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
