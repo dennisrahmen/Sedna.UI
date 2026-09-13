@@ -4,13 +4,19 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// One page of the catalogue, as the sidebar, the landing-page tiles, the search
 /// index and the MCP server all see it.
 /// </summary>
+/// <param name="Section">
+/// A labelled section inside the group's panel, for pages that belong in the group's
+/// area but not in its main list — the reference pages under Start. Null for the
+/// main list, which is every other page.
+/// </param>
 internal sealed record CataloguePage(
     string Route,
     string Group,
     string Label,
     string Icon,
     string Blurb,
-    string Keywords)
+    string Keywords,
+    string? Section = null)
 {
     /// <summary>
     /// The static filename this page was before the catalogue became an

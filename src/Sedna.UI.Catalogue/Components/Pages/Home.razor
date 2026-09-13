@@ -39,12 +39,12 @@
     </div>
 </div>
 
-@foreach (var group in CataloguePages.Groups)
+@foreach (var heading in Headings)
 {
-    var pages = CataloguePages.InGroup(group).Where(p => p.Route != "/").ToList();
+    var pages = heading.Pages;
     if (pages.Count == 0) continue;
 
-    <h2>@group</h2>
+    <h2>@heading.Title</h2>
     <div class="cat-tiles">
         @foreach (var item in pages)
         {
@@ -62,6 +62,14 @@
 
 @code {
     private Inventory? _inventory;
+
+    // One heading per group, and one more per section a group carries — the reference
+    // pages under Start are their own row of tiles rather than tiles among the start pages.
+    private static IEnumerable<(string Title, List<CataloguePage> Pages)> Headings =>
+        CataloguePages.Groups.SelectMany(group =>
+            new[] { (Title: group, Pages: CataloguePages.InGroup(group).Where(p => p.Route != "/" && p.Section is null).ToList()) }
+                .Concat(CataloguePages.SectionsOf(group)
+                    .Select(section => (Title: section, Pages: CataloguePages.InGroup(group).Where(p => p.Section == section).ToList()))));
 
     private sealed record Inventory(int Tokens, int Classes, int Icons);
 

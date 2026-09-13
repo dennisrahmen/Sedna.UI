@@ -34,7 +34,7 @@ internal sealed class CatalogueSearch
             Href = page.Route,
             Code = page.Route,
             Meta = page.Blurb,
-            Keywords = $"{page.Keywords} {page.Group}",
+            Keywords = $"{page.Keywords} {page.Group} {page.Section}",
         });
 
         var examples = index.Examples.Select(example => new SearchItem
