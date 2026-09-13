@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Sedna.UI.Tests.TestSupport;
 using Microsoft.Playwright;
 
@@ -16,39 +15,45 @@ public class CopyTests : ScriptTestBase
         // Two rapid clicks must not restore "Copied" as if it were the original, which
         // is why the original is stashed on the element rather than in a closure.
         var page = await Open(
-            """<button type="button" id="c" data-copy="TCK0031209"><span>Copy</span></button>""");
+            """<button type="button" id="c" data-copy="orders-console-01"><span>Copy</span></button>""");
 
-        // The confirmation is a 1400ms window, so it cannot be SAMPLED: on a machine
-        // loaded enough — every full-suite run beside the browser tests — the whole
-        // window opens and closes between the click and the assertion, and the test
-        // failed for having looked too late rather than for anything being wrong.
-        // Both directions of the same race: a fixed sleep afterwards was also too
-        // short whenever the timer ran late.
-        //
-        // So the label is watched instead of read. The observer is installed before
-        // the click and records every text the button ever had, which is what the
-        // claim actually is — it said "Copied", and then it said "Copy" again — and
-        // is true whenever those happened.
+        // The confirmation is a 1400ms real-time window, so on a loaded machine two
+        // ClickAsync round trips can straddle it: the first flash restores before the
+        // second click lands and the button honestly reads Copy, Copied, Copy, Copied,
+        // Copy. So the page clock is paused — InstallAsync alone leaves it running — and
+        // the restore fires only when the test runs it, however slowly the clicks arrive.
+        await page.Clock.InstallAsync(new() { TimeDate = new DateTime(2030, 1, 1) });
+        await page.Clock.PauseAtAsync(new DateTime(2030, 1, 1, 0, 0, 1));
+
+        // Every text the button ever had, and a count of label swaps: the second flash
+        // writes the same "Copied" again, so only the count shows that it landed.
         await page.EvaluateAsync("""
             () => {
                 const btn = document.getElementById('c');
                 window.seen = [btn.innerText.trim()];
-                new MutationObserver(() => {
+                window.flashes = 0;
+                new MutationObserver(records => {
+                    window.flashes += records.filter(r => r.target === btn && r.addedNodes.length).length;
                     const now = btn.innerText.trim();
                     if (now !== window.seen[window.seen.length - 1]) window.seen.push(now);
                 }).observe(btn, { childList: true, subtree: true, characterData: true });
             }
             """);
 
+        // The flash waits on the clipboard write, so each wait also orders the read
+        // below after the write rather than racing it.
         await page.Locator("#c").ClickAsync();
+        await page.WaitForFunctionAsync("() => window.flashes === 1");
         await page.Locator("#c").ClickAsync();
+        await page.WaitForFunctionAsync("() => window.flashes === 2");
 
-        Assert.Equal("TCK0031209", await page.EvaluateAsync<string>(
+        Assert.Equal("orders-console-01", await page.EvaluateAsync<string>(
             "() => navigator.clipboard.readText()"));
+        await Assertions.Expect(page.Locator("#c")).ToHaveTextAsync("Copied");
 
-        await Assertions.Expect(page.Locator("#c")).ToHaveTextAsync(
-            "Copy", new() { Timeout = 6000 });
+        await page.Clock.RunForAsync(1400);
 
+        await Assertions.Expect(page.Locator("#c")).ToHaveTextAsync("Copy");
         var seen = await page.EvaluateAsync<string[]>("() => window.seen");
         Assert.Equal(["Copy", "Copied", "Copy"], seen);
     }
