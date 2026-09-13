@@ -177,4 +177,97 @@ public class NavTests : ScriptTestBase
         // The sidebar's own 1px edge is the only difference between the two.
         Assert.InRange(state.GetProperty("width").GetDouble() - state.GetProperty("rail").GetDouble(), 0, 1.5);
     }
+
+    private const string BottombarFixture = """
+        <div class="content" style="width:360px; height:500px">
+            <main class="page" id="page"><div style="height:2000px">long</div></main>
+            <nav class="bottombar" id="bar" aria-label="Main" data-hide-on-scroll>
+                <div class="bottombar-items">
+                    <a class="bottombar-item active" href="#o" id="current" aria-current="page">
+                        <span class="bottombar-icon"><i class="ri-inbox-line"></i><span class="bottombar-count" id="c1">99+</span></span>
+                        <span class="bottombar-label" id="l1">Orders</span>
+                    </a>
+                    <a class="bottombar-item" href="#p" id="other">
+                        <span class="bottombar-icon"><i class="ri-barcode-box-line" id="i2"></i><span class="bottombar-count" id="c2">99+</span></span>
+                        <span class="bottombar-label">Pick</span>
+                    </a>
+                    <a class="bottombar-item" href="#s" id="third">
+                        <span class="bottombar-icon"><i class="ri-archive-stack-line" id="i3"></i></span>
+                        <span class="bottombar-label">Stock</span>
+                    </a>
+                    <button class="bottombar-item bottombar-item--end" type="button" id="search">
+                        <span class="bottombar-icon"><i class="ri-search-line"></i></span>
+                        <span class="bottombar-label">Search</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+        """;
+
+    [Fact]
+    public async Task A_wide_count_never_covers_a_label_or_a_neighbouring_icon()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled(BottombarFixture);
+
+        var state = await page.EvaluateAsync<JsonElement>("""
+            () => {
+                const r = id => document.getElementById(id).getBoundingClientRect();
+                const overlap = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
+                return {
+                    countOnOwnLabel: overlap(r('c1'), r('l1')),
+                    countInsideCurrent: r('c1').right <= r('current').right + 0.5,
+                    countOnNeighbourIcon: overlap(r('c2'), r('i3')),
+                    otherLabelHidden: r('other').width > 0 && document.querySelector('#other .bottombar-label').getBoundingClientRect().width <= 1,
+                    otherName: document.getElementById('other').textContent.includes('Pick')
+                };
+            }
+            """);
+
+        Assert.False(state.GetProperty("countOnOwnLabel").GetBoolean(), "on the current item the count follows the label");
+        Assert.True(state.GetProperty("countInsideCurrent").GetBoolean(), "the current item grows to hold its label and count");
+        Assert.False(state.GetProperty("countOnNeighbourIcon").GetBoolean());
+        Assert.True(state.GetProperty("otherLabelHidden").GetBoolean(), "only the current item shows its label");
+        Assert.True(state.GetProperty("otherName").GetBoolean(), "a hidden label still names its item");
+    }
+
+    [Fact]
+    public async Task The_bottom_bar_steps_away_on_the_way_down_and_returns_on_the_way_up()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled(BottombarFixture);
+        await page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
+
+        await page.EvaluateAsync("() => document.getElementById('page').scrollTop = 400");
+        await page.WaitForFunctionAsync("() => document.getElementById('bar').hasAttribute('data-away')");
+        Assert.Equal(0, await page.EvaluateAsync<double>("() => document.querySelector('.bottombar-items').getBoundingClientRect().height"));
+
+        // The scroller's resize is not acted on for a moment after the bar moves; wait that out.
+        await page.WaitForTimeoutAsync(500);
+        await page.EvaluateAsync("() => document.getElementById('page').scrollTop = 200");
+        await page.WaitForFunctionAsync("() => !document.getElementById('bar').hasAttribute('data-away')");
+        await page.WaitForTimeoutAsync(500);
+
+        // Focus arriving in a bar that is away brings it back, so a keyboard user never lands on an item they cannot see.
+        await page.EvaluateAsync("() => document.getElementById('page').scrollTop = 900");
+        await page.WaitForFunctionAsync("() => document.getElementById('bar').hasAttribute('data-away')");
+        await page.EvaluateAsync("() => document.getElementById('search').focus()");
+        Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('bar').hasAttribute('data-away')"));
+    }
+
+    [Fact]
+    public async Task Near_the_end_of_a_short_page_the_bar_leaving_does_not_bring_it_straight_back()
+    {
+        if (NoBrowser) return;
+        // Barely taller than its scroller: the bar leaving grows the scroller, the browser
+        // clamps scrollTop upwards, and that must not read as the reader scrolling up.
+        var (page, _) = await OpenStyled(BottombarFixture.Replace("height:2000px", "height:520px", StringComparison.Ordinal));
+        await page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
+
+        await page.EvaluateAsync("() => { const p = document.getElementById('page'); p.scrollTop = p.scrollHeight; }");
+        await page.WaitForFunctionAsync("() => document.getElementById('bar').hasAttribute('data-away')");
+        await page.WaitForTimeoutAsync(700);
+
+        Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('bar').hasAttribute('data-away')"));
+    }
 }

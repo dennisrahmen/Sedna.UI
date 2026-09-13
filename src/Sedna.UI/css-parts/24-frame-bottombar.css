@@ -1,0 +1,275 @@
+/* ── Bottom bar ─────────────────────────────────────────────────────────────
+   The phone's frame: a bar on the bottom edge for the three to five things a phone
+   user does most — places, or the actions on what is on screen. It is the topbar's
+   counterpart, and the last child of .content, so it sits in the flow: .page ends
+   where it begins, and the page's last row is never under it.
+
+     <div class="content">
+       <header class="topbar">…</header>
+       <main class="page">…</main>
+       <nav class="bottombar" aria-label="Main">
+         <div class="bottombar-accessory">…</div>                 optional
+         <div class="bottombar-items">
+           <a class="bottombar-item active" href="/orders" aria-current="page">
+             <span class="bottombar-icon"><i class="ri-inbox-line"></i><span class="bottombar-count">3</span></span>
+             <span class="bottombar-label">Orders</span>
+           </a>
+           …
+           <button class="bottombar-item bottombar-item--end" type="button">
+             <span class="bottombar-icon"><i class="ri-search-line"></i></span>
+             <span class="bottombar-label">Search</span>
+           </button>
+         </div>
+       </nav>
+     </div>
+
+   Icons only; the current item also shows its label. Every other label is visually
+   hidden rather than removed, so each item keeps its accessible name with no
+   aria-label to keep in step.
+
+   THE COUNT sits on the icon's corner, ringed in the bar's own surface. On the current
+   item — the one showing its label — .bottombar-icon dissolves and the count follows the
+   label instead, so a wide "99+" never lands on text. The current item takes the width
+   its label and count need; the others share what is left and never go under 44px.
+
+   FOUR TREATMENTS, one markup. The default is the topbar turned over: its surface,
+   its divider on the edge that meets the page, and .topbar-nav-link's brand line on the
+   current item.
+     .bottombar--tint    the sidebar's current link laid sideways: a tinted block
+     .bottombar--card    floating, as a .card would: its border, radius and shadow
+     .bottombar--icons   no label anywhere; a short brand mark under the current icon
+
+   --end and --start are cells set apart by a short divider: search at the end, or a
+   menu at the start that opens every page in a sheet — the bar holds a few places, the
+   sheet holds the rest.
+
+   It shows at every width. .layout--bottombar (below) is the opt-in that shows it on a
+   phone only and hides the sidebar there instead. */
+.bottombar {
+    --bottombar-height: 46px;
+    --bottombar-surface: var(--bg-elevated);
+    --surface-here: var(--bottombar-surface);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bottombar-surface);
+    border-top: 1px solid var(--border);
+    box-shadow: var(--shadow-bottombar);
+    padding-block-end: var(--safe-block-end);
+}
+
+.bottombar-items {
+    display: flex;
+    align-items: stretch;
+    height: var(--bottombar-height);
+    overflow: hidden;
+    transition: height var(--motion-mid) ease;
+}
+
+.bottombar-item {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0;
+    background: none;
+    border: none;
+    /* Reserved on both edges, so the current item's line does not push its content off
+       the row's centre. */
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: var(--text-3);
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+}
+.bottombar-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.bottombar-item:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+
+.bottombar-icon { position: relative; display: inline-flex; }
+.bottombar-icon i { font-size: var(--text-8); line-height: 1; }
+
+.bottombar-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    order: 1;
+}
+
+.bottombar-count {
+    position: absolute;
+    top: -5px;
+    inset-inline-start: calc(100% - 7px);
+    min-width: 16px;
+    height: 16px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--brand);
+    color: var(--on-solid);
+    font-size: var(--text-1);
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 0 0 2px var(--bottombar-surface);
+    order: 2;
+}
+
+/* The current item: `.active` as ActiveLink writes it, or aria-current on its own. */
+/* It grows to its label and count, and gives the label up to an ellipsis before it lets
+   the row overflow — a long name on a narrow phone. */
+.bottombar-item.active,
+.bottombar-item[aria-current="page"] {
+    flex: 0 1 auto;
+    padding-inline: var(--space-6);
+    border-top-color: var(--brand);
+    color: var(--fg);
+}
+.bottombar-item.active i,
+.bottombar-item[aria-current="page"] i { color: var(--brand-text); }
+.bottombar-item.active .bottombar-label,
+.bottombar-item[aria-current="page"] .bottombar-label {
+    position: static;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    clip-path: none;
+}
+.bottombar-item.active .bottombar-icon,
+.bottombar-item[aria-current="page"] .bottombar-icon { display: contents; }
+.bottombar-item.active .bottombar-count,
+.bottombar-item[aria-current="page"] .bottombar-count { position: static; box-shadow: none; }
+
+/* A cell set apart: search at the end, a menu at the start. The divider stops short of
+   both edges, so it separates the cell without cutting the bar in two. */
+.bottombar-item--end,
+.bottombar-item--start { flex: 0 0 var(--bottombar-height); }
+.bottombar-item--end::before,
+.bottombar-item--start::before {
+    content: '';
+    position: absolute;
+    inset-block: var(--space-5);
+    width: 1px;
+    background: var(--border);
+}
+.bottombar-item--end::before { inset-inline-start: 0; }
+.bottombar-item--start::before { inset-inline-end: 0; }
+
+/* ── The accessory: something running in the background ── */
+.bottombar-accessory {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: 38px;
+    padding: 0 var(--space-3) 0 var(--space-6);
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-3);
+}
+.bottombar-accessory > i { color: var(--brand-text); font-size: var(--text-6); }
+.bottombar-accessory-text { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* A fixed-width slot for a .progress, which fills whatever holds it. A column, so the
+   bar inside is a block with a height whatever element it was written as. */
+.bottombar-meter { flex: 0 0 48px; display: flex; flex-direction: column; }
+
+/* data-away is written by the script for data-hide-on-scroll: the items step out of
+   the way while the reader scrolls down, and the accessory stays. */
+.bottombar[data-away] .bottombar-items { height: 0; }
+.bottombar[data-away] .bottombar-accessory { border-bottom-color: transparent; }
+
+/* ── B · Tint ── */
+.bottombar--tint { --bottombar-height: 52px; }
+.bottombar--tint .bottombar-items { gap: var(--space-2); padding: var(--space-3) var(--space-3); }
+.bottombar--tint .bottombar-item { border-width: 0; border-radius: var(--radius-control); }
+.bottombar--tint .bottombar-item.active,
+.bottombar--tint .bottombar-item[aria-current="page"] { background: var(--brand-tint); color: var(--brand-text); }
+.bottombar--tint .bottombar-item--end,
+.bottombar--tint .bottombar-item--start { flex-basis: 40px; border-radius: 0; }
+.bottombar--tint .bottombar-item--end::before,
+.bottombar--tint .bottombar-item--start::before { inset-block: var(--space-2); }
+.bottombar--tint .bottombar-item--end { margin-inline-start: var(--space-2); }
+.bottombar--tint .bottombar-item--start { margin-inline-end: var(--space-2); }
+.bottombar--tint[data-away] .bottombar-items { padding-block: 0; }
+
+/* ── C · Card ── */
+.bottombar--card {
+    --bottombar-height: 50px;
+    --bottombar-surface: var(--card-bg);
+    gap: var(--space-3);
+    padding: 0 var(--space-5) calc(var(--space-5) + var(--safe-block-end));
+    background: none;
+    border-top: none;
+    box-shadow: none;
+}
+.bottombar--card .bottombar-accessory,
+.bottombar--card .bottombar-items {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-float);
+}
+.bottombar--card .bottombar-items { gap: var(--space-1); padding: var(--space-2); }
+.bottombar--card .bottombar-item { border-width: 0; border-radius: var(--radius-control); }
+.bottombar--card .bottombar-item.active,
+.bottombar--card .bottombar-item[aria-current="page"] { background: var(--surface-strong); }
+.bottombar--card .bottombar-item--end,
+.bottombar--card .bottombar-item--start { flex-basis: 40px; border-radius: 0; }
+.bottombar--card .bottombar-item--end::before,
+.bottombar--card .bottombar-item--start::before { inset-block: var(--space-3); }
+.bottombar--card[data-away] .bottombar-items { padding-block: 0; border-width: 0; box-shadow: none; }
+
+/* ── D · Icons only ── */
+.bottombar--icons { --bottombar-height: 48px; }
+.bottombar--icons .bottombar-item { border-width: 0; }
+.bottombar--icons .bottombar-item.active,
+.bottombar--icons .bottombar-item[aria-current="page"] { flex: 1 1 0; padding-inline: 0; }
+.bottombar--icons .bottombar-item.active .bottombar-label,
+.bottombar--icons .bottombar-item[aria-current="page"] .bottombar-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.bottombar--icons .bottombar-item.active .bottombar-icon,
+.bottombar--icons .bottombar-item[aria-current="page"] .bottombar-icon { display: inline-flex; }
+.bottombar--icons .bottombar-item.active .bottombar-count,
+.bottombar--icons .bottombar-item[aria-current="page"] .bottombar-count { position: absolute; box-shadow: 0 0 0 2px var(--bottombar-surface); }
+.bottombar--icons .bottombar-item.active::after,
+.bottombar--icons .bottombar-item[aria-current="page"]::after {
+    content: '';
+    position: absolute;
+    bottom: var(--space-3);
+    inset-inline-start: 50%;
+    width: 16px;
+    height: 2px;
+    margin-inline-start: -8px;
+    border-radius: 1px;
+    background: var(--brand);
+}
+
+/* .page pads its own bottom edge clear of the home indicator, because it is normally
+   what reaches the device's edge. With a bottom bar below it, the bar does that
+   instead, and the page keeps only its gutter. */
+.content:has(> .bottombar) > .page { padding-block-end: var(--space-9); }
+
+/* ── On a phone only ────────────────────────────────────────────────────────
+   .layout--bottombar on .layout shows the bottom bar below 560px and hides the sidebar
+   there, and does the reverse above it. Opt-in, like .layout--responsive, because an
+   app that writes a bottom bar and a sidebar may want both at every width. */
+@media (max-width: 560px) {
+    .layout--bottombar > .sidebar { display: none; }
+}
+@media (min-width: 561px) {
+    .layout--bottombar .bottombar { display: none; }
+    .layout--bottombar .content:has(> .bottombar) > .page { padding-block-end: calc(var(--space-9) + var(--safe-block-end)); }
+}

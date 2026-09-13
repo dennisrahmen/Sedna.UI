@@ -1,0 +1,119 @@
+<div class="content" style="flex:none; width:100%; max-width:360px; height:600px; border:1px solid var(--border); border-radius:var(--radius-surface); overflow:hidden">
+    <header class="topbar">
+        <div class="bare-brand"><div class="brand-logo" style="background:var(--brand)"></div><strong>Dispatch</strong></div>
+        <div class="topbar-spacer"></div>
+        <button class="topbar-btn" aria-label="Notifications"><i class="ri-notification-3-line"></i></button>
+    </header>
+
+    <main class="page">
+        <h1>Orders</h1>
+        <div class="card">
+            <ul class="list">
+                <li>
+                    <a class="list-row" href="#">
+                        <span class="list-main"><span class="list-title">Order 10248</span><span class="list-sub">Northwind Retail · 3 items</span></span>
+                        <span class="list-meta"><span class="badge badge-warn">Picking</span></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="list-row" href="#">
+                        <span class="list-main"><span class="list-title">Order 10249</span><span class="list-sub">2 items · leaves 14:30</span></span>
+                        <span class="list-meta"><span class="badge badge-info">Packed</span></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="list-row" href="#">
+                        <span class="list-main"><span class="list-title">Order 10250</span><span class="list-sub">Address rejected</span></span>
+                        <span class="list-meta"><span class="badge badge-danger">On hold</span></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="list-row" href="#">
+                        <span class="list-main"><span class="list-title">Order 10251</span><span class="list-sub">6 items</span></span>
+                        <span class="list-meta"><span class="badge badge-warn">Picking</span></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="list-row" href="#">
+                        <span class="list-main"><span class="list-title">Order 10252</span><span class="list-sub">1 item · delivered</span></span>
+                        <span class="list-meta"><span class="badge badge-go">Done</span></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="list-row" href="#">
+                        <span class="list-main"><span class="list-title">Order 10253</span><span class="list-sub">4 items</span></span>
+                        <span class="list-meta"><span class="badge badge-warn">Picking</span></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="list-row" href="#">
+                        <span class="list-main"><span class="list-title">Order 10254</span><span class="list-sub">3 items · leaves 16:00</span></span>
+                        <span class="list-meta"><span class="badge badge-info">Packed</span></span>
+                    </a>
+                </li>
+                <li>
+                    <a class="list-row" href="#">
+                        <span class="list-main"><span class="list-title">Order 10255</span><span class="list-sub">2 items</span></span>
+                        <span class="list-meta"><span class="badge badge-warn">Picking</span></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </main>
+
+    <nav class="bottombar bottombar--tint" aria-label="Main">
+        <div class="bottombar-items">
+            <button class="bottombar-item bottombar-item--start" type="button" onclick="document.getElementById('dispatch-all-pages').showModal()">
+                <span class="bottombar-icon"><i class="ri-menu-line"></i></span>
+                <span class="bottombar-label">All pages</span>
+            </button>
+            <a class="bottombar-item active" href="#" aria-current="page">
+                <span class="bottombar-icon"><i class="ri-inbox-line"></i><span class="bottombar-count">3</span></span>
+                <span class="bottombar-label">Orders</span>
+            </a>
+            <a class="bottombar-item" href="#">
+                <span class="bottombar-icon"><i class="ri-barcode-box-line"></i><span class="bottombar-count">12</span></span>
+                <span class="bottombar-label">Pick</span>
+            </a>
+            <a class="bottombar-item" href="#">
+                <span class="bottombar-icon"><i class="ri-archive-stack-line"></i></span>
+                <span class="bottombar-label">Stock</span>
+            </a>
+            <a class="bottombar-item" href="#">
+                <span class="bottombar-icon"><i class="ri-user-line"></i></span>
+                <span class="bottombar-label">Account</span>
+            </a>
+        </div>
+    </nav>
+
+    <dialog class="drawer sheet" data-sheet id="dispatch-all-pages" aria-labelledby="dispatch-all-pages-title">
+        <div class="sheet-handle"></div>
+        <div class="drawer-header">
+            <h3 id="dispatch-all-pages-title">All pages</h3>
+            <button class="modal-close" type="button" aria-label="Close" onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="drawer-body drawer-body--flush">
+            <nav class="nav">
+                <div class="nav-scroll">
+                    <div class="nav-section">
+                        <span class="nav-section-label">Orders</span>
+                        <a class="nav-link active" href="#" aria-current="page"><i class="ri-inbox-line"></i><span>Queue</span><span class="nav-count">3</span></a>
+                        <a class="nav-link" href="#"><i class="ri-pause-circle-line"></i><span>On hold</span></a>
+                        <a class="nav-link" href="#"><i class="ri-arrow-go-back-line"></i><span>Returns</span></a>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-section-label">Stock</span>
+                        <a class="nav-link" href="#"><i class="ri-price-tag-3-line"></i><span>Items</span></a>
+                        <a class="nav-link" href="#"><i class="ri-map-pin-line"></i><span>Locations</span></a>
+                        <a class="nav-link" href="#"><i class="ri-arrow-left-right-line"></i><span>Transfers</span></a>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-section-label">Administration</span>
+                        <a class="nav-link" href="#"><i class="ri-team-line"></i><span>Users</span></a>
+                        <a class="nav-link" href="#"><i class="ri-file-list-3-line"></i><span>Audit log</span></a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </dialog>
+</div>

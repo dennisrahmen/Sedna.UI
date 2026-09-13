@@ -1,6 +1,6 @@
-/* ── Nav filter and area rail, delegated ──────────────────────────────────────
-   Two sidebar behaviours, both opt-in by attribute and both read by CSS in the
-   frame parts: 14-frame-nav-filter.css and 22-frame-nav-areas.css.
+/* ── Nav filter, area rail and bottom bar, delegated ──────────────────────────
+   Three nav behaviours, each opt-in by attribute and each read by CSS in the frame
+   parts: 14-frame-nav-filter.css, 22-frame-nav-areas.css and 24-frame-bottombar.css.
 
    THE FILTER. An input carrying data-nav-filter narrows the .nav it sits in:
 
@@ -31,7 +31,13 @@
    then have two things setting `hidden`. Render the panel from the current address
    and make each rail item a link to its area, as the tabs note says of data-tabs.
 
-   Neither behaviour inserts or removes an element, and each writes only attributes
+   THE BOTTOM BAR. A .bottombar carrying data-hide-on-scroll steps its items out of the
+   way while the reader scrolls down and brings them back on the way up, by writing
+   data-away. It follows the scroller it shares a container with — .page, beside it in
+   .content — or the document. Focus moving into the bar brings it back, so a keyboard
+   user never tabs onto an item they cannot see.
+
+   None of these behaviours inserts or removes an element, and each writes only attributes
    an app does not render itself, so a Blazor re-render has nothing to revert.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
@@ -97,6 +103,49 @@
             if (item) showArea(item);
         }
     };
+
+    // Direction, not offset: the bar leaves on the way down and returns on the way up,
+    // wherever on the page that happens. A few pixels either way is a trackpad settling,
+    // not a decision.
+    //
+    // The bar is in the flow, so its leaving makes the scroller taller — and near the
+    // end of a page the browser answers by clamping scrollTop upwards, which reads as
+    // the reader scrolling back up and brings the bar straight back. So for a moment
+    // after the bar moves, the scroll position is followed but not acted on.
+    var lastY = new WeakMap();
+    var SETTLE_MS = 400;
+    var settledAt = new WeakMap();
+
+    document.addEventListener('scroll', function (e) {
+        var bars = document.querySelectorAll('.bottombar[data-hide-on-scroll]');
+        if (bars.length === 0) return;
+
+        var root = document.scrollingElement;
+        var scroller = e.target === document ? root : e.target;
+        if (!scroller || scroller.nodeType !== 1) return;
+
+        var y = scroller.scrollTop;
+        var last = lastY.has(scroller) ? lastY.get(scroller) : 0;
+        if ((settledAt.get(scroller) || 0) > Date.now()) { lastY.set(scroller, y); return; }
+        if (Math.abs(y - last) < 8) return;
+        lastY.set(scroller, y);
+
+        var away = y > last && y > 40;
+        for (var i = 0; i < bars.length; i++) {
+            var shared = scroller === root || (bars[i].parentElement && bars[i].parentElement.contains(scroller));
+            if (!shared || bars[i].contains(scroller)) continue;
+            var was = bars[i].hasAttribute('data-away');
+            if (away && !was && !bars[i].contains(document.activeElement)) bars[i].setAttribute('data-away', '');
+            else if (!away && was) bars[i].removeAttribute('data-away');
+            else continue;
+            settledAt.set(scroller, Date.now() + SETTLE_MS);
+        }
+    }, true);
+
+    document.addEventListener('focusin', function (e) {
+        var bar = e.target.closest && e.target.closest('.bottombar[data-away]');
+        if (bar) bar.removeAttribute('data-away');
+    });
 
     document.addEventListener('input', function (e) {
         if (e.target.matches && e.target.matches('[data-nav-filter]')) apply(e.target);

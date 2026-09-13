@@ -26,6 +26,7 @@
     .sidebar          { transition: none; }   /* 11 — collapse to the icon rail */
     .nav-status-card  { transition: none; }   /* 11 */
     .nav-filter-input { transition: none; }   /* 14 */
+    .bottombar-items  { transition: none; }   /* 24 — steps away on scroll */
     .user-signout     { transition: none; }   /* 15 */
     /* 17 — the hint appears at its final position instead of sliding in. Opacity
        is kept as a step, not a fade, by removing the transition entirely. */

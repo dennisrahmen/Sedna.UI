@@ -165,6 +165,7 @@
     --scroll-shade:    rgba(15, 23, 42, 0.16);    /* slate-900 */
 
     --shadow-topbar:    0 3px 8px rgba(15, 23, 42, 0.1);      /* slate-900 */
+    --shadow-bottombar: 0 -3px 8px rgba(15, 23, 42, 0.1);     /* slate-900 */
     --shadow-nav-tools: 0 -6px 12px 0 rgba(15, 23, 42, 0.06); /* slate-900 */
     --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.22);   /* slate-900 */
     --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.22);    /* slate-900 */
