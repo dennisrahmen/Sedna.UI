@@ -47,11 +47,12 @@
        leaves the new page at the previous page's offset — halfway down, on a route the
        reader has just arrived at. Call this from a LocationChanged handler.
 
-       Falls back to the window for a page that is not inside the frame, such as a
-       bare-layout sign-in screen. */
+       The window as well, always: under .layout--flow on a phone the document is the
+       scroller, and for a page that is not inside the frame — a bare-layout sign-in
+       screen — it is the only one. */
     ui.scrollPageTop = function () {
         var page = document.querySelector('.page');
-        if (page) { page.scrollTop = 0; return; }
+        if (page) page.scrollTop = 0;
         try { window.scrollTo(0, 0); } catch (e) { /* ignore */ }
     };
 

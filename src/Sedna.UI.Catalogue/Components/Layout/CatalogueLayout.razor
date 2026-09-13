@@ -18,7 +18,9 @@
    focus — which is what the Shell & nav page tells an app to rely on. *@
 <a class="skip-link" href="#main">Skip to content</a>
 
-<div class="layout @(_navOpen ? "cat-nav-open" : null)"
+@* .layout--flow: on a phone the document scrolls, so Safari collapses its toolbar
+   as the reader scrolls — with the page scrolling inside a box it never does. *@
+<div class="layout layout--flow @(_navOpen ? "cat-nav-open" : null)"
      data-interactive="@(RendererInfo.IsInteractive ? "true" : null)">
 
     <div class="cat-drawer">

@@ -80,6 +80,19 @@
     </p>
 </CatSnippet>
 
+<CatSnippet Name="Frame/PhoneFlow.html" Title="On a phone, the document scrolls">
+    <p>
+        <code>.page</code> is the frame's only scroll container, and that is the one thing a
+        phone's browser cannot see: Safari collapses its toolbar only while the <em>document</em>
+        scrolls, so a page scrolling inside a box keeps the full toolbar on screen for ever.
+        <code>.layout--flow</code> hands the scrolling to the document below 560px &mdash; the
+        shell grows with its content, the topbar sticks under the notch, a sidebar sticks to the
+        top of its column and a bottom bar to the bottom of the viewport &mdash; and changes
+        nothing above it. This site uses it. Keep the box for a page that must never move under
+        its header, a full-bleed map or an editor.
+    </p>
+</CatSnippet>
+
 <CatSnippet Name="Frame/SkipLink.html" Title="Skip link">
     <p>
         The first focusable thing on the page, jumping past the navigation to the content —

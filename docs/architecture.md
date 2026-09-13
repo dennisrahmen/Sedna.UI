@@ -23,7 +23,9 @@ on the catalogue's *Shell and nav* page, and the catalogue application writes ex
 if the app names a class the stylesheet does not define or one the page does not show.
 
 `.page` is the only scroll container; do not wrap it in another. `.collapsed` on `.sidebar` gives the
-56px rail and changes nothing else, because the rail is pure CSS.
+56px rail and changes nothing else, because the rail is pure CSS. The one exception is opt-in and
+phone-only: `.layout--flow` hands the scrolling to the document below 560px, because Safari collapses
+its toolbar only while the document scrolls; the topbar, a sidebar and a bottom bar then stick.
 
 A nav that has outgrown one list has other arrangements, all on the catalogue's *Nav
 layouts* page: accordion `.nav-group`s, the same with a `.nav-filter` above them, `.sidebar--areas`
