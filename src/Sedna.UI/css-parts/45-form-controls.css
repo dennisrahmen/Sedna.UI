@@ -190,3 +190,60 @@
    starts where the label starts with nothing to measure. */
 .choice-text { display: flex; flex-direction: column; gap: var(--space-1); }
 .choice-hint { font-size: var(--text-3); color: var(--muted); }
+
+/* ── Colour ─────────────────────────────────────────────────────────────────
+   `<input type="color" class="form-color">`. The native input IS the picker, so there
+   is no picker logic here — only its chrome, which otherwise is a small system-styled
+   box that sits badly beside a .form-input in every engine. It takes the shared control
+   heights, the field border and the field focus ring; `.form-input-sm` and
+   `.form-input-lg` size it like any other field.
+
+   The swatch inside is the engine's own pseudo-element, which is why it is reached
+   with the prefixed selectors: the wrapper's padding is what left the colour floating
+   in a frame, and its border drew a second one. */
+.form-color {
+    inline-size: var(--control-height);
+    block-size: var(--control-height);
+    padding: var(--space-1);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.form-color.form-input-sm { inline-size: var(--control-height-sm); block-size: var(--control-height-sm); }
+.form-color.form-input-lg { inline-size: var(--control-height-lg); block-size: var(--control-height-lg); }
+.form-color:hover { border-color: var(--border-hover); }
+.form-color:focus-visible { outline: none; border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
+.form-color:disabled { cursor: not-allowed; opacity: 0.45; }
+.form-color::-webkit-color-swatch-wrapper { padding: 0; }
+.form-color::-webkit-color-swatch { border: none; border-radius: calc(var(--radius-control) - 2px); }
+.form-color::-moz-color-swatch { border: none; border-radius: calc(var(--radius-control) - 2px); }
+
+/* ── Swatches ───────────────────────────────────────────────────────────────
+   A preset palette to pick from — a label's colour, a calendar group's — as a row of
+   buttons. Each swatch carries its colour as `--swatch` in its own style attribute,
+   because the colour is the app's data, and the chosen one is `aria-pressed="true"`:
+   the attribute a screen reader announces, and a ring rather than a tint, so the
+   choice is visible whatever the swatch's own colour is. Name each one with
+   `aria-label` — a colour is not its own accessible name.
+
+     <div class="swatch-grid" role="group" aria-label="Label colour">
+       <button class="swatch" type="button" style="--swatch: var(--coral-500)" aria-label="Coral" aria-pressed="true"></button>
+       …
+     </div> */
+.swatch-grid { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.swatch {
+    --swatch: transparent;
+    inline-size: var(--control-height-sm);
+    block-size: var(--control-height-sm);
+    padding: 0;
+    background: var(--swatch);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    cursor: pointer;
+}
+.swatch:hover { border-color: var(--border-strong); }
+.swatch:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-glow); }
+.swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg); }
+.swatch[aria-pressed="true"]:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--brand-soft); }

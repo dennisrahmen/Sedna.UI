@@ -105,6 +105,9 @@
     .tree-leaf:focus-visible,
     .skip-link:focus,
     .fab:focus-visible,
+    .form-color:focus-visible,
+    .swatch:focus-visible,
+    .editor:focus-within,
     :is(a, button).list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
 
     /* Selected and current states are backgrounds, which are flattened away. An
@@ -117,7 +120,9 @@
     .list-row[aria-current="true"],
     .list-row[aria-selected="true"],
     .segmented-option:has(input:checked),
-    .chat-reaction[aria-pressed="true"] { outline: 1px solid Highlight; }
+    .chat-reaction[aria-pressed="true"],
+    .swatch[aria-pressed="true"],
+    .editor-toolbar [aria-pressed="true"] { outline: 1px solid Highlight; }
 
     /* A chat bubble is nothing but a background; without a line around it a
        thread is a column of text with no turns in it. */

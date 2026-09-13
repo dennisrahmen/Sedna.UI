@@ -1,6 +1,62 @@
 /* ── Markdown editor ────────────────────────────────────────────────────────
    Toolbar + textarea + rendered preview in one bordered box. The Write/Preview
    tabs flip [data-md-view] on the root (done by the JS). */
+/* ── Editor chrome ──────────────────────────────────────────────────────────
+   The frame, toolbar and body for a rich-text editor the APP brings — TipTap, Quill,
+   ProseMirror, a plain contenteditable. Not an editor: no document model, no sanitiser,
+   nothing that edits. The skin only, so a third-party editor's toolbar stops looking
+   foreign beside .btn and .form-input.
+
+     <div class="editor">
+       <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+         <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-pressed="true" aria-label="Bold"><i class="ri-bold"></i></button>
+         <span class="editor-sep" role="separator"></span>
+         …
+       </div>
+       <div class="editor-body prose">the editor mounts here</div>
+     </div>
+
+   `.editor-body` is the scrolling content area; put `.prose` on it so what is typed looks
+   like what is later rendered. A pressed formatting button is `aria-pressed="true"` — the
+   attribute, not a class — which the toolbar colours. The frame takes the focus ring of a
+   focused .form-input while anything inside it has focus. */
+.editor {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    --surface-here: var(--bg);
+    --editor-max-height: 480px;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.editor:focus-within { border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
+.editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--divider);
+}
+.editor-toolbar [aria-pressed="true"] { background: var(--brand-tint); color: var(--brand-text); }
+.editor-sep {
+    align-self: stretch;
+    inline-size: 1px;
+    margin: var(--space-1) var(--space-2);
+    background: var(--divider);
+}
+.editor-body {
+    min-block-size: 160px;
+    max-block-size: var(--editor-max-height);
+    overflow-y: auto;
+    padding: var(--space-5) var(--space-6);
+    max-width: none;
+}
+/* The editable element the app's editor mounts. The frame already shows focus. */
+.editor-body [contenteditable]:focus,
+.editor-body[contenteditable]:focus { outline: none; }
+
 .md-editor {
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
