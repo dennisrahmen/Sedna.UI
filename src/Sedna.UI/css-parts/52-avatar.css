@@ -53,6 +53,35 @@
    uniformly branded. */
 .avatar--muted { background: var(--surface-strong); color: var(--muted); }
 
+/* ── Presence ───────────────────────────────────────────────────────────────
+   Online, away, busy or offline, as a dot on the avatar's corner. A wrapper rather
+   than a pseudo-element on the avatar itself, which clips to its circle:
+
+     <span class="avatar-presence avatar-presence--online" aria-label="Alex Fischer, online">
+       <span class="avatar">AF</span>
+     </span>
+
+   The ring around the dot is the surface it sits on (`--surface-here`, the page
+   otherwise), so it separates from the avatar on a card and on the page alike. The
+   dot's colour is the state, so it opts out of forced colours. */
+.avatar-presence { position: relative; display: inline-flex; flex-shrink: 0; }
+.avatar-presence::after {
+    --presence-size: 9px;
+    content: '';
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-end: 0;
+    width: var(--presence-size);
+    height: var(--presence-size);
+    border-radius: 50%;
+    background: var(--muted);
+    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
+}
+.avatar-presence--online::after { background: var(--go-solid); }
+.avatar-presence--away::after   { background: var(--warn-solid); }
+.avatar-presence--busy::after   { background: var(--danger-solid); }
+.avatar-presence--offline::after { background: var(--bg-elevated); box-shadow: 0 0 0 2px var(--surface-here, var(--bg)), inset 0 0 0 2px var(--muted); }
+
 /* ── Avatar group ───────────────────────────────────────────────────────────
    Overlapping avatars for "these several people".
 

@@ -51,4 +51,72 @@ public class ChatLayoutTests : ScriptTestBase
         Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('fly').matches(':popover-open')"));
         Assert.Equal("fixed", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('fly')).position"));
     }
+
+    [Fact]
+    public async Task The_flyover_is_the_whole_screen_on_a_phone()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled(Thread);
+        await page.SetViewportSizeAsync(375, 700);
+        await page.Locator("#open").ClickAsync();
+
+        var box = await page.Locator("#fly").BoundingBoxAsync();
+        Assert.NotNull(box);
+        Assert.True(Math.Abs(box!.Width - 375) < 1 && Math.Abs(box.Height - 700) < 1,
+            $"On a phone the flyover should fill the viewport; it is {box.Width}×{box.Height}.");
+    }
+
+    // Twenty messages in a 320px pane: the thread scrolls, the composer does not move.
+    private static readonly string Pane = $$"""
+        <div class="chat-pane" id="pane" style="height:320px; width:480px">
+            <div class="chat" id="chat" role="log">
+                <div class="chat-day" id="day">Today</div>
+                {{string.Concat(Enumerable.Range(1, 20).Select(i => $"""<div class="chat-message"><div class="chat-body"><div class="chat-bubble">Message {i}</div></div></div>"""))}}
+            </div>
+            <button class="chat-jump" id="jump" type="button">New</button>
+            <form class="chat-composer" id="composer"><div class="chat-composer-row">
+                <textarea class="form-input" id="field" rows="1"></textarea>
+            </div></form>
+        </div>
+        """;
+
+    [Fact]
+    public async Task The_pane_scrolls_the_thread_and_keeps_the_composer_at_the_bottom()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled(Pane);
+
+        var pane = await page.Locator("#pane").BoundingBoxAsync();
+        var composer = await page.Locator("#composer").BoundingBoxAsync();
+        Assert.True(Math.Abs(composer!.Y + composer.Height - (pane!.Y + pane.Height)) < 1, "The composer is not at the pane's bottom.");
+
+        Assert.True(await page.EvaluateAsync<bool>("() => { const c = document.getElementById('chat'); return c.scrollHeight > c.clientHeight; }"),
+            "The thread does not scroll inside the pane.");
+        Assert.Equal("sticky", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('day')).position"));
+
+        // The jump floats over the thread: above the composer, inside the pane, over the thread's box.
+        var jump = await page.Locator("#jump").BoundingBoxAsync();
+        var chat = await page.Locator("#chat").BoundingBoxAsync();
+        Assert.True(jump!.Y + jump.Height <= composer.Y + 1, "The jump overlaps the composer.");
+        Assert.True(jump.Y >= chat!.Y && jump.Y < chat.Y + chat.Height, "The jump is not over the thread.");
+    }
+
+    [Fact]
+    public async Task The_composer_grows_with_the_text_and_stops_at_a_few_lines()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled(Pane);
+        var field = page.Locator("#field");
+
+        var oneLine = (await field.BoundingBoxAsync())!.Height;
+        await field.FillAsync("one\ntwo\nthree\nfour");
+        var fourLines = (await field.BoundingBoxAsync())!.Height;
+        Assert.True(fourLines > oneLine * 2, $"The field did not grow with the text ({oneLine} → {fourLines}).");
+
+        await field.FillAsync(string.Join("\n", Enumerable.Range(1, 40).Select(i => $"line {i}")));
+        var forty = (await field.BoundingBoxAsync())!.Height;
+        Assert.True(forty < oneLine * 12, $"The field grew without a limit ({forty}px for forty lines).");
+        Assert.True(await page.EvaluateAsync<bool>("() => { const f = document.getElementById('field'); return f.scrollHeight > f.clientHeight; }"),
+            "Past the limit the field should scroll.");
+    }
 }

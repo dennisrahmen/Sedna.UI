@@ -78,8 +78,19 @@
         <a href="/chip">chips</a>, each removable; the <code>.chat-composer-row</code> holds the
         <code>.form-input</code> textarea between attach, emoji and send. Enter sends and
         Shift+Enter breaks a line &mdash; the app's handler, because the library does not know
-        which the app wants &mdash; and the field grows with the text by <code>rows</code> from
-        the line count.
+        which the app wants. The field grows with the text from its <code>rows</code> to about
+        six lines and scrolls after that (<code>field-sizing: content</code>; a browser without
+        it keeps the <code>rows</code>). <code>.chat-closed</code> takes the composer's place
+        when nothing can be sent any more.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.QuickReplies" Title="Quick replies, and a closed conversation" Demo="ex-demo--block">
+    <p>
+        <code>.chat-quick-replies</code> under a message is a row of <a href="/chip">chips</a>
+        that are buttons &mdash; the answers a bot or an assistant offers, each sending itself as
+        the reply; the app removes the row once one is taken. <code>.chat-closed</code> stands
+        where the composer was when the conversation cannot continue, with the way to a new one.
     </p>
 </CatExample>
 
@@ -87,8 +98,8 @@
     <p>
         <code>.chat-attachment</code> is a file in a bubble &mdash; an <code>&lt;a&gt;</code> with
         the icon, the name and the size, so it downloads like any link &mdash; and
-        <code>.chat-bubble--media</code> is a bubble that is a picture, filled to its corners with
-        the caption in the next bubble. Give the image its <code>width</code> and
+        <code>.chat-bubble--media</code> is a bubble that is a picture or a <code>&lt;video&gt;</code>,
+        filled to its corners with the caption in the next bubble. Give the image its <code>width</code> and
         <code>height</code>, or the thread jumps as it loads.
     </p>
 </CatExample>
@@ -107,6 +118,31 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Chat.Contents" Title="What a bubble holds" Demo="ex-demo--block">
+    <p>
+        <code>.chat-forwarded</code> above the text says where a message came from;
+        <code>.chat-bubble--deleted</code> keeps a taken-back message's place and says so. A
+        <code>&lt;pre&gt;</code>, a <code>&lt;code&gt;</code> and a list fit the bubble and take
+        its ink, and so does a <a href="/markdown"><code>.markdown-body</code></a> inside it
+        &mdash; which is how an assistant's answer, rendered from Markdown, reads as a message
+        rather than a document.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Cards" Title="A link, a voice message, an upload" Demo="ex-demo--block">
+    <p>
+        <code>.chat-link-card</code> unfurls a link the message carries &mdash; the picture, the
+        title, a line and the host in <code>.chat-link-card-body</code>; the app fetches the
+        preview. <code>.chat-audio</code> is a voice message: play, the <code>.chat-audio-bars</code>
+        with each bar's height in <code>--h</code> and the ones already heard as
+        <code>.chat-audio-heard</code>, and the <code>.chat-audio-time</code>. The
+        <code>&lt;audio&gt;</code> element is the app's and hidden; the play button names the
+        length. A file still uploading is a <code>.chat-attachment</code> with a
+        <a href="/progress"><code>.progress</code></a> under the name and the percentage in the
+        size column.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Chat.Launcher" Title="The launcher and the flyover" Demo="ex-demo--block ex-demo--pad">
     <p>
         <strong>Live &mdash; open it.</strong> <code>.chat-launcher</code> is the round brand button
@@ -116,7 +152,39 @@
         <code>.chat-flyover</code> with <code>popovertarget</code>: a <code>popover="manual"</code>
         panel, so it is in the top layer and stays open while the reader works, and the close
         button in its <code>.chat-flyover-head</code> is the way out. Inside it the thread and the
-        composer are the ones above; on a phone it is the viewport's width.
+        composer are the ones above; on a phone it is the whole screen.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Pane" Title="A page of it" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; scroll the thread.</strong> <code>.chat-pane</code> is the chat as
+        a page's whole height: give it a height &mdash; <code>100%</code> inside a
+        <a href="/frame"><code>.page--fill</code></a>, or one of its own &mdash; and the
+        thread takes what the <code>.chat-pinned</code> bar above and the composer below leave,
+        scrolling on its own with each <code>.chat-day</code> sticking as it passes. The thread
+        that scrolls carries <code>tabindex="0"</code>, so the keyboard can scroll it too.
+        <code>.chat-jump</code> floats over the thread's bottom edge for the moment the reader
+        has scrolled up and something arrives; the app shows it and scrolls on the click.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Flat" Title="Flat, like a channel" Demo="ex-demo--block">
+    <p>
+        <code>.chat--flat</code> on the thread is a channel rather than a conversation: no
+        bubbles, every message full width on the start with the author beside the time, the row
+        lit on hover. Mine is not on the end here &mdash; in a channel of forty people, whose a
+        message is is the name. <code>.chat-replies</code> under a message is the thread it
+        started: who answered, how many, and when.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Loading" Title="While it loads" Demo="ex-demo--block">
+    <p>
+        The history arriving is <a href="/skeleton">skeletons</a> in the thread's own shapes: a
+        <code>.skeleton-avatar</code> at the avatar's size, a <code>.skeleton-text</code> for the
+        meta line and a <code>.skeleton-block</code> at a bubble's height, mine on the end. The
+        card is <code>aria-busy</code> and the words are there for a screen reader.
     </p>
 </CatExample>
 

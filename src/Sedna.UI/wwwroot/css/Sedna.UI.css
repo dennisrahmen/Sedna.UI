@@ -6804,6 +6804,35 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    uniformly branded. */
 .avatar--muted { background: var(--surface-strong); color: var(--muted); }
 
+/* ── Presence ───────────────────────────────────────────────────────────────
+   Online, away, busy or offline, as a dot on the avatar's corner. A wrapper rather
+   than a pseudo-element on the avatar itself, which clips to its circle:
+
+     <span class="avatar-presence avatar-presence--online" aria-label="Alex Fischer, online">
+       <span class="avatar">AF</span>
+     </span>
+
+   The ring around the dot is the surface it sits on (`--surface-here`, the page
+   otherwise), so it separates from the avatar on a card and on the page alike. The
+   dot's colour is the state, so it opts out of forced colours. */
+.avatar-presence { position: relative; display: inline-flex; flex-shrink: 0; }
+.avatar-presence::after {
+    --presence-size: 9px;
+    content: '';
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-end: 0;
+    width: var(--presence-size);
+    height: var(--presence-size);
+    border-radius: 50%;
+    background: var(--muted);
+    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
+}
+.avatar-presence--online::after { background: var(--go-solid); }
+.avatar-presence--away::after   { background: var(--warn-solid); }
+.avatar-presence--busy::after   { background: var(--danger-solid); }
+.avatar-presence--offline::after { background: var(--bg-elevated); box-shadow: 0 0 0 2px var(--surface-here, var(--bg)), inset 0 0 0 2px var(--muted); }
+
 /* ── Avatar group ───────────────────────────────────────────────────────────
    Overlapping avatars for "these several people".
 
@@ -10111,7 +10140,8 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     --surface-here: var(--surface-strong);
     background: var(--surface-here);
     padding: var(--space-4) var(--space-6);
-    border-radius: var(--radius-surface) var(--radius-surface) var(--radius-surface) var(--radius-inner);
+    border-radius: var(--radius-surface);
+    border-end-start-radius: var(--radius-inner);
     color: var(--fg);
     font-size: var(--text-4);
     line-height: 1.5;
@@ -10120,16 +10150,50 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 }
 .chat-message--mine .chat-bubble {
     background: var(--brand-tint);
-    border-radius: var(--radius-surface) var(--radius-surface) var(--radius-inner) var(--radius-surface);
+    border-end-start-radius: var(--radius-surface);
+    border-end-end-radius: var(--radius-inner);
 }
 .chat-bubble p { margin: 0; }
 .chat-bubble p + p { margin-top: var(--space-3); }
 /* Not delivered. The border says it, the status icon says why, the retry is a
    real button in the meta line. */
 .chat-bubble--failed { box-shadow: inset 0 0 0 1px var(--danger-border); }
+/* Taken back: the bubble stays, so the thread keeps its shape, and says so. */
+.chat-bubble--deleted { font-style: italic; color: var(--muted); }
+/* Passed on from somewhere else: a line above the text that says so. */
+.chat-forwarded {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+    font-size: var(--text-2);
+    font-style: italic;
+    color: var(--muted);
+}
+/* Rich text in a bubble: a code block, a list, a `.markdown-body` from a bot or an
+   assistant. Each fits the bubble's width and takes its ink, so an answer rendered
+   from Markdown reads like a message and not like a document. */
+.chat-bubble pre {
+    margin: var(--space-3) 0 0;
+    padding: var(--space-3) var(--space-4);
+    max-width: 100%;
+    overflow-x: auto;
+    border-radius: var(--radius-inner);
+    background: var(--code-bg);
+    color: var(--code-fg);
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    line-height: 1.5;
+}
+.chat-bubble code { font-family: var(--font-mono); font-size: 0.9em; }
+.chat-bubble pre code { font-size: inherit; }
+.chat-bubble ul,
+.chat-bubble ol { margin: var(--space-3) 0 0; padding-inline-start: var(--space-7); }
+.chat-bubble > .markdown-body { color: inherit; font-size: inherit; line-height: inherit; }
 /* A picture or a file preview fills the bubble to its corners. */
 .chat-bubble--media { padding: 0; overflow: hidden; }
-.chat-bubble--media > img { display: block; max-width: 100%; height: auto; }
+.chat-bubble--media > img,
+.chat-bubble--media > video { display: block; max-width: 100%; height: auto; }
 /* Several pictures in one message: a grid of `.media-open` buttons, each a square
    `.media-frame`, two across. Three pictures leave a slot; four fill it. */
 .chat-media-grid {
@@ -10180,6 +10244,67 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .chat-attachment-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-attachment-size { color: var(--muted); font-variant-numeric: tabular-nums; margin-inline-start: auto; flex-shrink: 0; }
 .chat-attachment:hover { border-color: var(--border-strong); text-decoration: none; }
+/* One still on its way up: the bar under the name is a `.progress`, and the size
+   column says how far. */
+.chat-attachment { flex-wrap: wrap; }
+.chat-attachment > .progress { flex-basis: 100%; height: 3px; }
+
+/* A link the message carries, unfurled: the picture, the title, a line and the host.
+   The app fetches the preview; this is only the card. */
+.chat-link-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: stretch;
+    margin-top: var(--space-3);
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+    background: var(--surface-here);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+}
+.chat-link-card:hover { border-color: var(--border-strong); text-decoration: none; }
+.chat-link-card > img { width: 88px; height: 100%; object-fit: cover; }
+.chat-link-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-3);
+}
+.chat-link-card-body > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-link-card-body > span { color: var(--fg-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.chat-link-card-body > small { color: var(--muted); font-size: var(--text-2); }
+
+/* A voice message: play, the waveform, how long. The bars are `<i>` elements with
+   their height in `--h`; the ones already heard carry `.chat-audio-heard`. The
+   `<audio>` is the app's and hidden — the bars are the picture of it. */
+.chat-audio {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: min(100%, 240px);
+}
+.chat-audio-bars {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex: 1;
+    height: 28px;
+}
+.chat-audio-bars > i {
+    --h: 30%;
+    flex: 1;
+    height: var(--h);
+    min-height: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--muted);
+    opacity: 0.6;
+}
+.chat-audio-bars > .chat-audio-heard { background: var(--brand); opacity: 1; }
+.chat-audio-time { font-size: var(--text-3); color: var(--muted); font-variant-numeric: tabular-nums; }
 
 /* ── Reactions ──────────────────────────────────────────────────────────────
    Under the bubble: a pill per emoji with its count, `aria-pressed` on the ones
@@ -10207,6 +10332,25 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     color: var(--brand-text);
 }
 .chat-reaction:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* The thread under a message: how many answered and when, opening it. */
+.chat-replies {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-3);
+    font-weight: 600;
+    color: var(--brand-text);
+    text-decoration: none;
+}
+.chat-replies:hover { text-decoration: underline; }
+.chat-replies > span { font-weight: 400; color: var(--muted); }
+
+/* Answers offered under a message — a bot's, an assistant's — as chips that send
+   themselves. The app removes the row once one is taken. */
+.chat-quick-replies { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chat-quick-replies > .chip { cursor: pointer; font-family: inherit; }
+.chat-quick-replies > .chip:hover { border-color: var(--border-strong); color: var(--fg); }
 
 /* The picker: a grid of emoji buttons, inside a `.popover`. */
 .chat-emoji-grid {
@@ -10329,7 +10473,127 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     background: var(--bg-elevated);
 }
 .chat-composer-row { display: flex; align-items: flex-end; gap: var(--space-3); }
-.chat-composer-row > .form-input { flex: 1; min-width: 0; resize: none; }
+.chat-composer-row > .form-input {
+    flex: 1;
+    min-width: 0;
+    resize: none;
+    /* Grows with the text from its `rows` up to about six lines, then scrolls. */
+    field-sizing: content;
+    max-height: 9.5em;
+}
+/* Nothing can be sent: the composer's place, saying why. */
+.chat-closed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border-top: 1px solid var(--divider);
+    font-size: var(--text-3);
+    color: var(--muted);
+    text-align: center;
+}
+
+/* ── A page of it ───────────────────────────────────────────────────────────
+   The chat as the page's whole height: something pinned at the top, the thread
+   scrolling in the middle with its days sticking as they pass, the composer
+   staying at the bottom. Give the pane a height — `height: 100%` in a
+   `.page--fill`, or one of its own — and the thread takes what is left.
+
+     <div class="chat-pane">
+       <div class="chat-pinned">…</div>
+       <div class="chat" role="log">…</div>
+       <button class="chat-jump" type="button">3 new messages <i class="ri-arrow-down-line"></i></button>
+       <form class="chat-composer">…</form>
+     </div>
+
+   `.chat-jump` sits over the thread's bottom edge, after it in the source, for the
+   moment the reader has scrolled up and something arrives. */
+.chat-pane {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    --surface-here: var(--bg);
+}
+.card .chat-pane { --surface-here: var(--card-bg); }
+.chat-pane > .chat { flex: 1; min-height: 0; overflow-y: auto; padding-inline: var(--space-5); }
+/* A scroller the keyboard can reach carries `tabindex="0"`, and so a focus ring. */
+.chat-pane > .chat:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+/* Sticks to the top of the thread on its own ground, so it is readable over what
+   scrolls under it. */
+.chat-pane .chat-day {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin-block: 0;
+    padding-block: var(--space-2);
+    background: var(--surface-here);
+}
+.chat-pane > .chat-composer,
+.chat-pane > .chat-closed { padding-inline: var(--space-5); padding-bottom: var(--space-4); }
+.chat-jump {
+    --chat-jump-lift: 44px;    /* its own height plus the gap it floats above the composer */
+    position: relative;
+    z-index: 1;
+    align-self: center;
+    margin-block-start: calc(var(--chat-jump-lift) * -1);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-elevated);
+    color: var(--fg-soft);
+    font-family: inherit;
+    font-size: var(--text-3);
+    font-weight: 600;
+    box-shadow: var(--shadow-float);
+    cursor: pointer;
+}
+.chat-jump:hover { color: var(--fg); border-color: var(--border-strong); }
+.chat-jump:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--brand-ring-soft); }
+/* What is pinned, at the top of the pane. */
+.chat-pinned {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--divider);
+    background: var(--surface-soft);
+    font-size: var(--text-3);
+}
+.chat-pinned > i { color: var(--muted); flex-shrink: 0; }
+.chat-pinned > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-pinned > span > strong { color: var(--fg-soft); margin-inline-end: var(--space-3); }
+
+/* ── Flat ───────────────────────────────────────────────────────────────────
+   A channel rather than a conversation: no bubbles, every message full width on
+   the start with the author beside the time, the row lit on hover. Mine is not on
+   the end here — in a channel of forty people, whose it is is the name. The same
+   markup with `.chat--flat` on the thread. */
+.chat--flat { gap: var(--space-1); }
+.chat--flat .chat-message,
+.chat--flat .chat-message--mine {
+    max-width: none;
+    align-self: stretch;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-inner);
+}
+.chat--flat .chat-message:hover,
+.chat--flat .chat-message:focus-within { background: var(--bg-hover); }
+.chat--flat .chat-message--continued { margin-top: calc(var(--space-2) * -1); }
+.chat--flat .chat-body,
+.chat--flat .chat-message--mine .chat-body { align-items: flex-start; }
+.chat--flat .chat-meta { padding-inline: 0; }
+.chat--flat .chat-bubble,
+.chat--flat .chat-message--mine .chat-bubble { padding: 0; background: transparent; border-radius: 0; }
+.chat--flat .chat-bubble--failed { box-shadow: none; }
+.chat--flat .chat-actions,
+.chat--flat .chat-message--mine .chat-actions { top: calc(var(--space-4) * -1); inset-inline-end: var(--space-4); inset-inline-start: auto; }
 
 /* ── The launcher and the flyover ───────────────────────────────────────────
    The launcher is the chat's one-tap way in: a round brand button in the corner,
@@ -10408,6 +10672,21 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .chat-flyover-head > strong { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-flyover > .chat { flex: 1; min-height: 0; overflow-y: auto; padding-inline: var(--space-5); }
 .chat-flyover > .chat-composer { padding: var(--space-4) var(--space-5); }
+
+/* On a phone the flyover is the screen: a 380px card with a margin around it is
+   most of a phone anyway, and the keyboard needs the rest. */
+@media (max-width: 560px) {
+    .chat-flyover {
+        inset: 0;
+        width: 100%;
+        height: 100dvh;
+        max-height: none;
+        border: none;
+        border-radius: 0;
+        padding-top: var(--safe-block-start);
+        padding-bottom: var(--safe-block-end);
+    }
+}
 }
 
 /* ── 66-status-indicator.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -11172,7 +11451,16 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .tree-leaf[aria-current="true"],
     .list-row[aria-current="true"],
     .list-row[aria-selected="true"],
-    .segmented-option:has(input:checked) { outline: 1px solid Highlight; }
+    .segmented-option:has(input:checked),
+    .chat-reaction[aria-pressed="true"] { outline: 1px solid Highlight; }
+
+    /* A chat bubble is nothing but a background; without a line around it a
+       thread is a column of text with no turns in it. */
+    .chat-bubble,
+    .chat-attachment,
+    .chat-link-card,
+    .chat-reaction,
+    .chat-jump { outline: 1px solid CanvasText; outline-offset: -1px; }
 
     /* A status dot is the one thing whose actual colour IS the content — it is not
        decoration on a label, it IS the label — so it opts out of the forced palette
@@ -11180,6 +11468,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .nav-status-dot,
     .health-dot,
     .chip-dot,
+    .avatar-presence::after,
     .timeline > li::before { forced-color-adjust: none; }
 }
 }
@@ -11225,7 +11514,19 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .modal-backdrop,
     .page-head-actions,
     .form-actions,
-    .code-block-copy { display: none; }
+    .code-block-copy,
+    .chat-launcher,
+    .chat-flyover,
+    .chat-composer,
+    .chat-closed,
+    .chat-actions,
+    .chat-jump,
+    .chat-quick-replies { display: none; }
+
+    /* A thread prints whole: the scroller lets its messages out, and a message is
+       not cut across a page. */
+    .chat-pane > .chat { overflow: visible; }
+    .chat-message { break-inside: avoid; }
 
     /* A card is a box on screen; on paper the border is what keeps it a box, and the
        shadow is nothing. Kept whole across a page break: a card split in half loses
