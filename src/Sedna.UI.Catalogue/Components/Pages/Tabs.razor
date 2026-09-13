@@ -24,9 +24,20 @@
         the matching <code>aria-controls</code> panel, and the roving <code>tabindex</code> that
         makes <kbd>Tab</kbd> step over the whole tablist. Mark the selected tab with
         <code>aria-selected="true"</code> rather than <code>.tab--active</code>, which is for a
-        strip that is genuinely not a tablist. An app driving its tabs from C# leaves
-        <code>data-tabs</code> off — otherwise two things set <code>aria-selected</code> — and wires
-        the arrow keys in the component.
+        strip that is genuinely not a tablist. An app driving its tabs from C# uses
+        <code>data-tabs="managed"</code> instead — below.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.TabsFromCsharp" Title="Tabs the app selects" Demo="ex-demo--block">
+    <p>
+        <strong>Live — use the arrow keys.</strong> With <code>data-tabs="managed"</code> the script
+        owns only the keyboard: an arrow, <kbd>Home</kbd> or <kbd>End</kbd> moves focus to a tab and
+        clicks it, and your click handler changes the selection. Nothing the script does writes
+        <code>aria-selected</code>, <code>tabindex</code> or <code>hidden</code>, so there is one
+        writer. <code>SednaTabs.Tab(key, selected, prefix)</code> and <code>Panel(…)</code> render
+        those attributes, with ids that name each other; give each tablist on a page its own
+        prefix.
     </p>
 </CatExample>
 

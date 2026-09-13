@@ -110,7 +110,7 @@ internal static class CataloguePages
             "timeline history audit trail event feed activity log run comment thread marker dot when"),
         new("/tabs", Structure, "Tabs", "ri-folder-2-line",
             "Swap a region of content in place, and a strip of links that only looks like one.",
-            "tab tablist panel tab-count tab--active data-tabs strip links"),
+            "tab tablist panel tab-count tab--active data-tabs managed SednaTabs strip links"),
         new("/segmented", Structure, "Segmented control", "ri-toggle-line",
             "Change a setting in place: a few short options, built from radios.",
             "segmented radio toggle group option setting view switch sizes toolbar"),
@@ -164,7 +164,7 @@ internal static class CataloguePages
 
         new("/table", Data, "Tables", "ri-table-line",
             "One class on the table, plus sticky headers, sorting, pinned columns and a stacked layout.",
-            "sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num pinned frozen pin-start pin-end column width min-width shrink fit prose control actions group grouped rowgroup tr-group"),
+            "sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num pinned frozen pin-start pin-end column width min-width shrink fit prose control actions group grouped rowgroup tr-group SednaSort AriaSort Toggle"),
         new("/stat", Data, "Stats", "ri-numbers-line",
             "One number that matters, which way it moved, and what it is measured against.",
             "kpi number metric delta tile target unavailable dashboard"),
@@ -176,7 +176,7 @@ internal static class CataloguePages
             "sparkline trend line chart svg polyline area reference stat table cell series"),
         new("/pager", Data, "Pagination", "ri-more-line",
             "Moving through a long result set, and the breadcrumb trail that says where it sits.",
-            "pagination page-link breadcrumb trail button view state server paged"),
+            "pagination page-link page-gap breadcrumb trail button view state server paged SednaPager Window PagerSlot"),
 
         new("/badge", Labels, "Badges", "ri-price-tag-3-line",
             "Semantic pills in three sizes, plus three categorical hues.",

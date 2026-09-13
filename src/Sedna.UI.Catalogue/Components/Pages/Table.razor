@@ -45,6 +45,18 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.SortFromCsharp" Title="Sorting from C#" Demo="ex-demo--block">
+    <p>
+        <strong>Live — sort it.</strong> <code>SednaSort</code> holds which column and which
+        direction, and <code>AriaSort(column)</code> renders the attribute on every sortable header —
+        <code>none</code> on the others, which is what shows the hover arrow.
+        <code>Toggle(column)</code> starts a new column ascending and turns the sorted one;
+        <code>thenNone: true</code> returns a descending column to unsorted. The ordering is still
+        your query, and <code>ToQuery()</code> / <code>FromQuery()</code> carry the sort in an
+        address as <code>age</code> or <code>-age</code>.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Table.StickyHeader" Title="Sticky header" Demo="ex-demo--block">
     <p>
         <code>.table--sticky</code> needs a scroll container around the table with a

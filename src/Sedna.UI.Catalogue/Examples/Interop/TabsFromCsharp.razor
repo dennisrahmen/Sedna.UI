@@ -1,0 +1,32 @@
+<div class="tabs" role="tablist" aria-label="Orders" data-tabs="managed">
+    @foreach (var tab in Tabs)
+    {
+        var key = tab.Key;
+        <button class="tab" type="button" @attributes="SednaTabs.Tab(key, _tab, Prefix)" @onclick="@(() => _tab = key)">
+            @tab.Label
+        </button>
+    }
+</div>
+
+@foreach (var tab in Tabs)
+{
+    <div class="tab-panel" @attributes="SednaTabs.Panel(tab.Key, _tab, Prefix)">
+        <p>@tab.Body</p>
+    </div>
+}
+
+@code {
+    private const string Prefix = "orders";
+
+    private static readonly (string Key, string Label, string Body)[] Tabs =
+    [
+        ("open", "Open", "Twelve orders are waiting on a reservation."),
+        ("held", "Held", "Three orders are held for stock."),
+        ("done", "Dispatched", "Forty-one orders left the warehouse today."),
+    ];
+
+    // The selected tab is the app's state. data-tabs="managed" hands the keyboard to the
+    // script, which moves focus and clicks; the click handler above changes this, and
+    // SednaTabs renders what follows from it.
+    private string _tab = "open";
+}

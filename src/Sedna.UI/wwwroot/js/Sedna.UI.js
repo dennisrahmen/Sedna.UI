@@ -1998,8 +1998,14 @@ window.sednaUi = window.sednaUi || {};
      <div class="tab-panel" role="tabpanel" id="p1">…</div>
      <div class="tab-panel" role="tabpanel" id="p2" hidden>…</div>
 
-   An app that drives the tabs from C# should NOT add data-tabs — it would then have
-   two things setting aria-selected. Wire the arrow keys in the component instead.
+   A tablist whose selection the app keeps — a Blazor component rendering
+   aria-selected from its own state — takes data-tabs="managed" instead. The script
+   then owns only the keyboard: an arrow, Home or End moves focus to the next tab and
+   CLICKS it, and the app's own click handler changes the selection and renders
+   aria-selected, tabindex and the panels' hidden. Nothing here writes those, so there
+   are never two things setting them. SednaTabs.Tab and SednaTabs.Panel in C# render
+   the attributes. The combo field works the same way: the page owns the selection,
+   and the script clicks.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -2023,22 +2029,30 @@ window.sednaUi = window.sednaUi || {};
         }
     }
 
+    function managed(list) { return list.getAttribute('data-tabs') === 'managed'; }
+
     ui.tabs = {
-        // Selects a tab programmatically, by element or by its aria-controls id.
+        // Selects a tab programmatically, by element or by its aria-controls id. In a
+        // managed tablist that is a click on it, which the app's handler answers.
         select: function (tabOrPanelId) {
             var tab = typeof tabOrPanelId === 'string'
                 ? document.querySelector('[role="tab"][aria-controls="' + tabOrPanelId + '"]')
                 : tabOrPanelId;
             var list = tab && tab.closest('[data-tabs]');
-            if (list) select(list, tab);
+            if (!list) return;
+            if (managed(list)) tab.click();
+            else select(list, tab);
         }
     };
 
     document.addEventListener('click', function (e) {
         var tab = e.target.closest('[data-tabs] [role="tab"]');
         if (!tab || tab.disabled) return;
+        var list = tab.closest('[data-tabs]');
+        // The app's own handler selects a managed tab.
+        if (managed(list)) return;
         e.preventDefault();
-        select(tab.closest('[data-tabs]'), tab);
+        select(list, tab);
     });
 
     document.addEventListener('keydown', function (e) {
@@ -2060,8 +2074,9 @@ window.sednaUi = window.sednaUi || {};
         else return;
 
         e.preventDefault();
-        select(list, tabs[to]);
         tabs[to].focus();
+        if (managed(list)) tabs[to].click();
+        else select(list, tabs[to]);
     });
 
 })(window.sednaUi);
