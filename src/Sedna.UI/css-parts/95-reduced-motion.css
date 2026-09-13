@@ -62,6 +62,8 @@
     .form-input,
     .form-select      { transition: none; }   /* 34 */
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
+    .editor           { transition: none; }   /* 44 */
+    .form-color       { transition: none; }   /* 45 */
     /* 49 — the caret is drawn in its open position instead of turning over, and the
        drop-down is simply there. Neither carries information: `:open` already
        changes the border, and a panel that appears is a panel. */

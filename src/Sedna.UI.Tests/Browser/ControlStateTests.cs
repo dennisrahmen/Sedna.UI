@@ -125,4 +125,55 @@ public class ControlStateTests : ScriptTestBase
         Assert.Equal(sizes[0], sizes[2]);       // labels match across the row
         Assert.True(sizes[3] < sizes[1], $"The small value is {sizes[3]}px against {sizes[1]}px.");
     }
+
+    [Theory]
+    [InlineData("", "")]
+    [InlineData("form-input-sm", "form-input-sm")]
+    [InlineData("form-input-lg", "form-input-lg")]
+    public async Task A_colour_field_is_as_tall_as_the_text_field_beside_it(string colourSize, string inputSize)
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled($"""
+            <div style="display:flex; gap:8px; align-items:flex-start">
+              <input class="form-color {colourSize}" id="c" type="color" value="#3aa8e2">
+              <input class="form-input {inputSize}" id="t" value="#3aa8e2">
+            </div>
+            """);
+
+        var heights = await page.EvaluateAsync<double[]>(
+            "() => ['c', 't'].map(id => document.getElementById(id).getBoundingClientRect().height)");
+
+        Assert.Equal(heights[1], heights[0], 1);
+    }
+
+    [Fact]
+    public async Task A_pressed_swatch_carries_a_ring_and_an_editor_takes_the_field_focus_ring()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled("""
+            <button class="swatch" id="off" type="button" style="--swatch: var(--coral-500)" aria-pressed="false" aria-label="Coral"></button>
+            <button class="swatch" id="on" type="button" style="--swatch: var(--coral-500)" aria-pressed="true" aria-label="Coral"></button>
+            <div class="editor" id="e"><div class="editor-body" contenteditable="true" id="b">text</div></div>
+            <input class="form-input" id="f">
+            """,
+            // Both rings transition in; read mid-transition, the two differ only by timing.
+            extraHead: "<style>* { transition: none; }</style>");
+
+        await page.Locator("#b").FocusAsync();
+        var styles = await page.EvaluateAsync<string[]>("""
+            () => {
+                const s = id => getComputedStyle(document.getElementById(id));
+                const editorRing = s('e').boxShadow;
+                document.getElementById('f').focus();
+                return [s('off').boxShadow, s('on').boxShadow, s('on').backgroundColor, editorRing, s('f').boxShadow];
+            }
+            """);
+
+        Assert.Equal("none", styles[0]);
+        Assert.NotEqual("none", styles[1]);
+        // The swatch's own colour comes through --swatch, not a default.
+        Assert.NotEqual("rgba(0, 0, 0, 0)", styles[2]);
+        // The frame shows the same ring a focused field does.
+        Assert.Equal(styles[4], styles[3]);
+    }
 }

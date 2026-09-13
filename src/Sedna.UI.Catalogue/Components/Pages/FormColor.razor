@@ -1,0 +1,26 @@
+@page "/form-color"
+
+<CatHead Title="Colour">
+    Picking a colour: the platform's own picker in the field's chrome, and a preset palette to choose
+    from. There is no picker logic in the library — the native input already is one.
+</CatHead>
+
+<CatExample TExample="Examples.FormColor.ColourField" Title="A colour field" Demo="ex-demo--block">
+    <p>
+        <code>.form-color</code> on <code>&lt;input type="color"&gt;</code> gives it the shared control
+        heights, the field border and the field focus ring, so it lines up beside a
+        <code>.form-input</code>; <code>.form-input-sm</code> and <code>.form-input-lg</code> size it. Pair
+        it with a text field for the value when the reader may need to type or paste one — the native
+        picker's own entry is per-engine.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormColor.Swatches" Title="A preset palette" Demo="ex-demo--block">
+    <p>
+        <code>.swatch-grid</code> of <code>&lt;button class="swatch"&gt;</code>, each carrying its colour
+        as <code>--swatch</code> in its style attribute, because the colour is your data. The chosen one
+        is <code>aria-pressed="true"</code>, drawn as a ring rather than a tint so it shows on any
+        colour. <strong>Name every swatch</strong> with <code>aria-label</code>: a colour is not an
+        accessible name, and a reader who cannot tell two greens apart needs the word.
+    </p>
+</CatExample>

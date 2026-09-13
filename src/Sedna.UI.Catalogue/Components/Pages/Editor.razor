@@ -1,0 +1,20 @@
+@page "/editor"
+
+<CatHead Title="Rich-text editor chrome">
+    The frame, the toolbar and the body for an editor your app brings — TipTap, Quill, ProseMirror or a
+    plain <code>contenteditable</code>. Not an editor: the document model, the sanitiser and the
+    security surface stay with the editor you chose.
+</CatHead>
+
+<CatExample TExample="Examples.Editor.EditorChrome" Title="Around an editor" Demo="ex-demo--block">
+    <p>
+        <strong>Live — type in it.</strong> <code>.editor</code> is the frame and takes a focused field's
+        ring while anything inside has focus. <code>.editor-toolbar</code> is a wrapping row of
+        <code>.btn-ghost.btn-icon.btn-sm</code> with <code>.editor-sep</code> between groups, and a mark
+        that is on is <code>aria-pressed="true"</code> — the attribute your editor already reports, which
+        the toolbar colours. <code>.editor-body</code> is where the editor mounts and what scrolls, capped
+        by <code>--editor-max-height</code>; add <code>.prose</code> to it so what is typed looks like
+        what is later rendered. For Markdown, the library's own <a href="/markdown">editor</a> is the
+        better fit.
+    </p>
+</CatExample>

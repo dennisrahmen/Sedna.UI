@@ -108,6 +108,7 @@ public class BrandTextContrastTests
         [".tree-leaf[aria-current=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".palette-item[aria-selected=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".palette-item[aria-selected=\"true\"] i"] = (Ink.Icon, ["--brand-tint"]),
+        [".editor-toolbar [aria-pressed=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".timeline > li[data-state=\"current\"] > .timeline-mark"] = (Ink.Icon, []),
     };
 
