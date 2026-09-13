@@ -199,6 +199,11 @@ public class PageLoadTests(CatalogueAppFixture app)
 
                     if (style.position !== 'absolute' && style.position !== 'sticky') return false;
 
+                    // Fixed is the viewport's, not the box's: a launcher in the page's
+                    // corner, and the count on it, are where they are meant to be.
+                    for (let a = el; a && a !== demo; a = a.parentElement)
+                        if (getComputedStyle(a).position === 'fixed') return false;
+
                     // A sticky cell inside a scroller the EXAMPLE created — a wide
                     // table in a .sedna-scroll-x — takes the same escape the note
                     // above grants tables: scrolling the region to reach it is the

@@ -67,7 +67,7 @@
 .sidebar.collapsed .nav-filter { display: none; transition: display var(--motion-mid) allow-discrete; }
 /* A collapsed area rail is the rail alone: the panel goes, and the rail's own
    divider with it, since the sidebar's edge now stands in the same place. */
-.sidebar.collapsed.sidebar--areas > .nav { display: none; transition: display var(--motion-mid) allow-discrete; }
+.sidebar.collapsed.sidebar--areas > .nav { display: none; transition: display var(--motion-mid) allow-discrete, min-width var(--snap); }
 .sidebar.collapsed.sidebar--areas .nav-areas { border-inline-end: none; transition: border-inline-end var(--snap); }
 
 /* Rail-only hover flyout. The JS tip engine skips .sidebar precisely so this

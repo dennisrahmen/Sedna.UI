@@ -39,6 +39,7 @@
         --surface-soft:    Canvas;
         --surface-strong:  Canvas;
         --on-solid:        HighlightText;
+        --on-viz:          CanvasText;
 
         --brand:           Highlight;
         --brand-hover:     Highlight;

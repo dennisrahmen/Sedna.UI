@@ -41,8 +41,8 @@
         <code>.chat-author</code>, a <code>.chat-system</code> line tells what the app did, a
         <code>.chat-mention</code> names someone, a <code>.chat-quote</code> at the top of a bubble
         is the message it answers, and <code>.chat-seen</code> after the last message is who has
-        read up to here. Colour the avatars from the <a href="/bars">series tokens</a>, so four
-        people are four colours and none of them is a semantic one.
+        read up to here. Colour the avatars with <a href="/avatar"><code>.avatar--viz-1</code></a> to
+        <code>--viz-6</code>, so four people are four colours and none of them is a semantic one.
     </p>
 </CatExample>
 
@@ -145,8 +145,8 @@
 
 <CatExample TExample="Examples.Chat.Launcher" Title="The launcher and the flyover" Demo="ex-demo--block ex-demo--pad">
     <p>
-        <strong>Live &mdash; open it.</strong> <code>.chat-launcher</code> is the round brand button
-        in the corner, above the home indicator, with the unread count on it as
+        <strong>Live &mdash; it is in the corner of this page.</strong> <code>.chat-launcher</code>
+        is the round brand button in the corner, above the home indicator, with the unread count on it as
         <code>.chat-launcher-count</code>; it is the page's one floating action where a chat is the
         page's job, so it takes the <a href="/button">FAB</a>'s corner and rung. It opens the
         <code>.chat-flyover</code> with <code>popovertarget</code>: a <code>popover="manual"</code>

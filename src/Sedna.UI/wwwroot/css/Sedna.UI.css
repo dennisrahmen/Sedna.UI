@@ -416,6 +416,10 @@
        every filled control. Ice White here would lower all six ratios at once,
        which is why --white exists in the palette as an absolute. */
     --on-solid:        var(--white);          /* text on any filled/solid button */
+    /* Text on a series fill. The dark theme's series are light steps (cyan-400,
+       teal-400), where white fails AA; the light theme's are 600 steps, and the
+       light block swaps this to white. */
+    --on-viz:          var(--slate-900);
     --redacted:        var(--crimson-400);
 
     /* ── Brand — THE app override point ─────────────────────────────────────
@@ -935,6 +939,7 @@
     --viz-4: var(--teal-600);
     --viz-5: var(--violet-600);
     --viz-6: var(--indigo-600);
+    --on-viz: var(--white);
 
     --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
     --warn-border: var(--amber-300);
@@ -1763,7 +1768,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .sidebar.collapsed .nav-filter { display: none; transition: display var(--motion-mid) allow-discrete; }
 /* A collapsed area rail is the rail alone: the panel goes, and the rail's own
    divider with it, since the sidebar's edge now stands in the same place. */
-.sidebar.collapsed.sidebar--areas > .nav { display: none; transition: display var(--motion-mid) allow-discrete; }
+.sidebar.collapsed.sidebar--areas > .nav { display: none; transition: display var(--motion-mid) allow-discrete, min-width var(--snap); }
 .sidebar.collapsed.sidebar--areas .nav-areas { border-inline-end: none; transition: border-inline-end var(--snap); }
 
 /* Rail-only hover flyout. The JS tip engine skips .sidebar precisely so this
@@ -6843,7 +6848,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .avatar i { font-size: var(--text-6); }
 
 .avatar-sm { --avatar-size: 22px; --avatar-overlap: 6px; font-size: var(--text-1); }
-.avatar-sm i { font-size: var(--text-4); }
+/* An even size in the 22px circle: an odd one sits on a half pixel and the glyph
+   rounds off-centre. */
+.avatar-sm i { font-size: var(--text-5); }
 .avatar-lg { --avatar-size: 40px; --avatar-overlap: 11px; font-size: var(--text-6); }
 .avatar-lg i { font-size: var(--text-9); }
 
@@ -6851,6 +6858,18 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    sender. Keeps the brand tint for people, so a page of rows does not read as
    uniformly branded. */
 .avatar--muted { background: var(--surface-strong); color: var(--muted); }
+/* One person one colour, from the series tokens, so four people in a thread are
+   four hues and none of them is a semantic one. The initials take `--on-viz`, the
+   ink measured against the series fills in each theme: the brand text on one was
+   unreadable, and white fails on the dark theme's light steps. */
+/* The first series colour is the brand, whose measured ink is white (4.55:1);
+   the dark ink lands under the floor on it. */
+.avatar--viz-1 { background: var(--viz-1); color: var(--on-solid); }
+.avatar--viz-2 { background: var(--viz-2); color: var(--on-viz); }
+.avatar--viz-3 { background: var(--viz-3); color: var(--on-viz); }
+.avatar--viz-4 { background: var(--viz-4); color: var(--on-viz); }
+.avatar--viz-5 { background: var(--viz-5); color: var(--on-viz); }
+.avatar--viz-6 { background: var(--viz-6); color: var(--on-viz); }
 
 /* ── Presence ───────────────────────────────────────────────────────────────
    Online, away, busy or offline, as a dot on the avatar's corner. A wrapper rather
@@ -10335,16 +10354,19 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     gap: var(--space-4);
     min-width: min(100%, 240px);
 }
+.chat-audio > .btn { flex-shrink: 0; border-radius: 50%; }
 .chat-audio-bars {
     display: flex;
     align-items: center;
     gap: var(--space-1);
     flex: 1;
+    min-width: 128px;
     height: 28px;
 }
 .chat-audio-bars > i {
     --h: 30%;
     flex: 1;
+    min-width: 2px;
     height: var(--h);
     min-height: 3px;
     border-radius: var(--radius-pill);
@@ -10381,18 +10403,19 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 }
 .chat-reaction:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 
-/* The thread under a message: how many answered and when, opening it. */
+/* The thread under a message: who answered, how many (the `<strong>`, which is the
+   link's own colour and underline — the avatars carry neither) and when. */
 .chat-replies {
     display: inline-flex;
     align-items: center;
     gap: var(--space-3);
     font-size: var(--text-3);
-    font-weight: 600;
-    color: var(--brand-text);
+    color: var(--muted);
     text-decoration: none;
 }
-.chat-replies:hover { text-decoration: underline; }
-.chat-replies > span { font-weight: 400; color: var(--muted); }
+.chat-replies > strong { font-weight: 600; color: var(--brand-text); }
+.chat-replies:hover { text-decoration: none; }
+.chat-replies:hover > strong { text-decoration: underline; }
 
 /* Answers offered under a message — a bot's, an assistant's — as chips that send
    themselves. The app removes the row once one is taken. */
@@ -10558,6 +10581,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    `.chat-jump` sits over the thread's bottom edge, after it in the source, for the
    moment the reader has scrolled up and something arrives. */
 .chat-pane {
+    position: relative;
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -10565,7 +10589,16 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     --surface-here: var(--bg);
 }
 .card .chat-pane { --surface-here: var(--card-bg); }
-.chat-pane > .chat { flex: 1; min-height: 0; overflow-y: auto; padding-inline: var(--space-5); }
+/* No top padding: a sticky day cannot leave its parent's content box, so padding
+   there would be a strip the messages scroll through above it. The jump anchors
+   to this box. */
+.chat-pane > .chat {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 var(--space-5) var(--space-4);
+    anchor-name: --sedna-chat-thread;
+}
 /* A scroller the keyboard can reach carries `tabindex="0"`, and so a focus ring. */
 .chat-pane > .chat:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
 /* Sticks to the top of the thread on its own ground, so it is readable over what
@@ -10575,17 +10608,21 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     top: 0;
     z-index: 1;
     margin-block: 0;
-    padding-block: var(--space-2);
+    padding-block: var(--space-3);
     background: var(--surface-here);
 }
 .chat-pane > .chat-composer,
 .chat-pane > .chat-closed { padding-inline: var(--space-5); padding-bottom: var(--space-4); }
+/* Over the thread's bottom edge, centred, taking no room in the column: anchored
+   to the scroller rather than pulled up by a margin, which pulled the composer up
+   over the last message with it. */
 .chat-jump {
-    --chat-jump-lift: 44px;    /* its own height plus the gap it floats above the composer */
-    position: relative;
+    position: absolute;
+    position-anchor: --sedna-chat-thread;
+    inset-block-end: anchor(end);
+    justify-self: anchor-center;
+    margin-block-end: var(--space-4);
     z-index: 1;
-    align-self: center;
-    margin-block-start: calc(var(--chat-jump-lift) * -1);
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -11423,6 +11460,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
         --surface-soft:    Canvas;
         --surface-strong:  Canvas;
         --on-solid:        HighlightText;
+        --on-viz:          CanvasText;
 
         --brand:           Highlight;
         --brand-hover:     Highlight;

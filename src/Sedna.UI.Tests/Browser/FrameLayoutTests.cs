@@ -386,4 +386,44 @@ public class FrameLayoutTests : ScriptTestBase
         Assert.Equal(220, Convert.ToInt32(opening[1], System.Globalization.CultureInfo.InvariantCulture));
         Assert.Equal("static", (string)opening[2]);
     }
+
+    [Fact]
+    public async Task The_area_rail_panel_holds_its_width_while_the_sidebar_closes_over_it()
+    {
+        if (NoBrowser) return;
+        // The area panel's own rule, (0,4,0), had overridden the held width with its
+        // display transition, so the panel narrowed with the sidebar and its labels
+        // re-wrapped on the way — the exact jerk the plain rail no longer has.
+        const string body = """
+            <div class="layout" style="height:400px">
+              <aside class="sidebar sidebar--areas">
+                <div class="nav-areas">
+                  <a class="brand" href="#"><span class="brand-logo"></span><span class="brand-text">C</span></a>
+                  <nav class="nav-areas-list"><button class="nav-area" type="button" aria-expanded="true"><i class="ri-inbox-line"></i><span>Orders</span></button></nav>
+                </div>
+                <nav class="nav">
+                  <div class="nav-area-title">Orders</div>
+                  <div class="nav-scroll">
+                    <a class="nav-link" href="#"><i class="ri-inbox-line"></i><span>A label that is long enough to wrap</span></a>
+                  </div>
+                </nav>
+              </aside>
+              <div class="content"><div class="page"><p>page</p></div></div>
+            </div>
+            """;
+        var (page, _) = await OpenStyled(body);
+        await page.EvaluateAsync("() => document.querySelector('.sidebar').style.setProperty('--motion-mid', '2s')");
+        var restingNav = (await page.Locator(".sidebar > .nav").BoundingBoxAsync())!.Width;
+
+        await page.EvaluateAsync("() => document.querySelector('.sidebar').classList.add('collapsed')");
+        await page.WaitForTimeoutAsync(600);
+        var sidebar = (await page.Locator(".sidebar").BoundingBoxAsync())!.Width;
+        var nav = (await page.Locator(".sidebar > .nav").BoundingBoxAsync())!.Width;
+        Assert.True(sidebar < restingNav + 64, $"The sidebar should be closing, it is {sidebar}px.");
+        Assert.Equal(restingNav, nav);
+        Assert.Equal("flex", await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('.sidebar > .nav')).display"));
+
+        await page.WaitForTimeoutAsync(2000);
+        Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('.sidebar > .nav')).display"));
+    }
 }

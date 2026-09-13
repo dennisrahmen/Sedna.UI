@@ -78,6 +78,10 @@
        every filled control. Ice White here would lower all six ratios at once,
        which is why --white exists in the palette as an absolute. */
     --on-solid:        var(--white);          /* text on any filled/solid button */
+    /* Text on a series fill. The dark theme's series are light steps (cyan-400,
+       teal-400), where white fails AA; the light theme's are 600 steps, and the
+       light block swaps this to white. */
+    --on-viz:          var(--slate-900);
     --redacted:        var(--crimson-400);
 
     /* ── Brand — THE app override point ─────────────────────────────────────

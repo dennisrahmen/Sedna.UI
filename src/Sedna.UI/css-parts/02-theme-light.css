@@ -79,6 +79,7 @@
     --viz-4: var(--teal-600);
     --viz-5: var(--violet-600);
     --viz-6: var(--indigo-600);
+    --on-viz: var(--white);
 
     --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
     --warn-border: var(--amber-300);

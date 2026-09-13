@@ -44,7 +44,9 @@
 .avatar i { font-size: var(--text-6); }
 
 .avatar-sm { --avatar-size: 22px; --avatar-overlap: 6px; font-size: var(--text-1); }
-.avatar-sm i { font-size: var(--text-4); }
+/* An even size in the 22px circle: an odd one sits on a half pixel and the glyph
+   rounds off-centre. */
+.avatar-sm i { font-size: var(--text-5); }
 .avatar-lg { --avatar-size: 40px; --avatar-overlap: 11px; font-size: var(--text-6); }
 .avatar-lg i { font-size: var(--text-9); }
 
@@ -52,6 +54,18 @@
    sender. Keeps the brand tint for people, so a page of rows does not read as
    uniformly branded. */
 .avatar--muted { background: var(--surface-strong); color: var(--muted); }
+/* One person one colour, from the series tokens, so four people in a thread are
+   four hues and none of them is a semantic one. The initials take `--on-viz`, the
+   ink measured against the series fills in each theme: the brand text on one was
+   unreadable, and white fails on the dark theme's light steps. */
+/* The first series colour is the brand, whose measured ink is white (4.55:1);
+   the dark ink lands under the floor on it. */
+.avatar--viz-1 { background: var(--viz-1); color: var(--on-solid); }
+.avatar--viz-2 { background: var(--viz-2); color: var(--on-viz); }
+.avatar--viz-3 { background: var(--viz-3); color: var(--on-viz); }
+.avatar--viz-4 { background: var(--viz-4); color: var(--on-viz); }
+.avatar--viz-5 { background: var(--viz-5); color: var(--on-viz); }
+.avatar--viz-6 { background: var(--viz-6); color: var(--on-viz); }
 
 /* ── Presence ───────────────────────────────────────────────────────────────
    Online, away, busy or offline, as a dot on the avatar's corner. A wrapper rather
