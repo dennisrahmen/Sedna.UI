@@ -84,6 +84,16 @@ public class NavigationTests
     }
 
     [Fact]
+    public void Every_group_has_a_rail_icon()
+    {
+        // Each group is one item in the sidebar's area rail, and an item with no
+        // icon renders as a bare label in a column of icons.
+        Assert.Equal(
+            CataloguePages.Groups.Order(StringComparer.Ordinal),
+            CataloguePages.GroupIcons.Keys.Order(StringComparer.Ordinal));
+    }
+
+    [Fact]
     public void Every_legacy_file_name_is_distinct()
     {
         // The legacy names drive the /catalogue/<file>.html redirects. Two routes

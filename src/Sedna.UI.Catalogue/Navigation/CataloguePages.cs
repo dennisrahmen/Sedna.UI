@@ -229,6 +229,27 @@ internal static class CataloguePages
         [Start, Frame, Structure, Actions, Forms, Inputs, Data, Media, Feedback, Overlays, Utilities, Reference];
 
     /// <summary>
+    /// The icon each group carries in the sidebar's area rail. <c>NavigationTests</c>
+    /// fails on a group without one.
+    /// </summary>
+    public static IReadOnlyDictionary<string, string> GroupIcons { get; } =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [Start] = "ri-compass-3-line",
+            [Frame] = "ri-layout-masonry-line",
+            [Structure] = "ri-layout-grid-line",
+            [Actions] = "ri-play-circle-line",
+            [Forms] = "ri-file-list-3-line",
+            [Inputs] = "ri-input-method-line",
+            [Data] = "ri-database-2-line",
+            [Media] = "ri-image-line",
+            [Feedback] = "ri-notification-3-line",
+            [Overlays] = "ri-stack-line",
+            [Utilities] = "ri-tools-line",
+            [Reference] = "ri-book-open-line",
+        };
+
+    /// <summary>
     /// Routes that used to exist, and where they went. The site is public and linked
     /// from the README, the package page and the docs, so a split page leaves its old
     /// address working rather than 404ing.

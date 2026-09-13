@@ -25,6 +25,16 @@ public partial class CatalogueSidebar : ComponentBase, IDisposable
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => StateHasChanged();
 
+    /// <summary>
+    /// The group of the page being read. An address that is no catalogue page — the
+    /// not-found page — shows the first group, so the panel is never empty.
+    /// </summary>
+    private string CurrentGroup =>
+        CataloguePages.All.FirstOrDefault(p => Nav.IsActive(p.Route, MatchFor(p)))?.Group
+        ?? CataloguePages.Groups[0];
+
+    private static string FirstRoute(string group) => CataloguePages.InGroup(group).First().Route;
+
     // The root link needs NavLinkMatch.All or it is active everywhere — the same
     // trap the framework's NavLink has, and the reason this line is spelled out
     // rather than hidden behind a default.
