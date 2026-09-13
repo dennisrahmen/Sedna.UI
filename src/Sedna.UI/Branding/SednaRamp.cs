@@ -205,7 +205,7 @@ public sealed class SednaRamp
             result[step] = Oklch.ToHex(l, c, anchorH);
         }
 
-        if (exactAnchor) AssertAnchorFitsItsStep(result, anchorStep, anchorHex);
+        if (exactAnchor) AssertAnchorFitsItsStep(result, anchorStep, anchorHex, LightnessCurve);
 
         return new SednaRamp(result);
     }
@@ -222,7 +222,8 @@ public sealed class SednaRamp
     /// caller can still move the anchor to the step its lightness actually belongs at.
     /// </remarks>
     private static void AssertAnchorFitsItsStep(
-        IReadOnlyDictionary<int, string> ramp, int anchorStep, string anchorHex)
+        IReadOnlyDictionary<int, string> ramp, int anchorStep, string anchorHex,
+        IReadOnlyDictionary<int, double> curve)
     {
         var ordered = ramp.Keys.OrderBy(s => s).ToList();
         var at = ordered.IndexOf(anchorStep);
@@ -238,8 +239,8 @@ public sealed class SednaRamp
 
         // Which step it would have fitted at: the one whose curve lightness is closest.
         var fits = ordered
-            .Where(s => LightnessCurve.ContainsKey(s))
-            .OrderBy(s => Math.Abs(LightnessCurve[s] - anchorL))
+            .Where(s => curve.ContainsKey(s))
+            .OrderBy(s => Math.Abs(curve[s] - anchorL))
             .First();
 
         var clash = above ?? below;
@@ -277,7 +278,24 @@ public sealed class SednaRamp
     /// The colour the canvas should be, i.e. what <c>--bg</c> resolves to in the dark variant.
     /// A neutral grey gives a neutral base; a tinted one tints the whole ramp proportionally.
     /// </param>
-    /// <param name="anchorStep">Which step <paramref name="anchorHex"/> IS. 900 — the canvas — by default.</param>
+    /// <param name="anchorStep">
+    /// Which step <paramref name="anchorHex"/> stands for — 900, the canvas, by default. The anchor
+    /// sets the ramp's hue and how much chroma it carries; every step's <b>lightness</b>, the
+    /// anchor step's included, comes from the measured surface profile, so <b>the colour emitted
+    /// at this step is not <paramref name="anchorHex"/></b> unless <paramref name="exactAnchor"/>
+    /// says so.
+    /// </param>
+    /// <param name="exactAnchor">
+    /// Emit <paramref name="anchorHex"/> verbatim at <paramref name="anchorStep"/> — for a grey a
+    /// corporate design mandates, such as a logo grey that has to be exactly itself. The other
+    /// steps are still generated from the profile around it. <see langword="false"/> (the
+    /// default) generates the anchor step like any other.
+    /// </param>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="exactAnchor"/> is set and the anchor does not fit its step: lighter than
+    /// the step above it or darker than the step below, which would reverse the ramp. The message
+    /// names the step it does fit.
+    /// </exception>
     /// <remarks>
     /// <para>
     /// <b>Why this is not <see cref="FromAnchor"/>.</b> That method exists for brand hues: its
@@ -303,7 +321,7 @@ public sealed class SednaRamp
     /// pays for it until a theme generates a base.
     /// </para>
     /// </remarks>
-    public static SednaRamp Surface(string anchorHex, int anchorStep = 900)
+    public static SednaRamp Surface(string anchorHex, int anchorStep = 900, bool exactAnchor = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(anchorHex);
 
@@ -326,6 +344,15 @@ public sealed class SednaRamp
         {
             var (l, c, h) = profile[step];
             result[step] = Oklch.ToHex(l, c * chromaScale, (h + hueShift + 360) % 360);
+        }
+
+        if (exactAnchor)
+        {
+            // The one grey in the ramp that is chosen rather than derived — rejected, with the
+            // step it belongs at, when it would make the surfaces fold back on themselves.
+            result[anchorStep] = NormaliseHex(anchorHex);
+            AssertAnchorFitsItsStep(result, anchorStep, anchorHex,
+                profile.ToDictionary(p => p.Key, p => p.Value.L));
         }
 
         return new SednaRamp(result);

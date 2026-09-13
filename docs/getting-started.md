@@ -295,6 +295,10 @@ canvas should be:
 var palette = new SednaPalette(slate: SednaRamp.Surface("#18181b"), coral: sedna.Coral, …);
 ```
 
+A grey the design mandates exactly — a logo grey at step 500 — is kept with
+`SednaRamp.Surface("#7B7B7A", anchorStep: 500, exactAnchor: true)`; without it, the step takes the
+profile's lightness.
+
 That moves the canvas, the chrome, the cards and all three elevation levels together — see
 [branding §4.5](BRANDING.md#45-changing-the-base). `SednaRamp.FromAnchor` is for brand hues and is
 the wrong tool here: its curve puts step 900 at more than half lightness.
