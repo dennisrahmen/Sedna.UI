@@ -197,6 +197,9 @@ internal static class CataloguePages
         new("/markdown", Content, "Markdown", "ri-markdown-line",
             "Rendered Markdown, and an editor with a live preview.",
             "md-editor preview render markdown-body"),
+        new("/chat", Content, "Chat", "ri-chat-3-line",
+            "Bubbles, groups, replies, reactions and emoji, the composer, and the launcher with its flyover.",
+            "chat message bubble thread conversation group reply quote mention reaction emoji picker typing seen read receipt composer attachment launcher flyover widget support messenger"),
 
         new("/alert", Feedback, "Alerts", "ri-error-warning-line",
             "Inline banners for a state that persists while the page is open.",

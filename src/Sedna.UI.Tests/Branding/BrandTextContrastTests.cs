@@ -90,6 +90,12 @@ public class BrandTextContrastTests
         [".tab[aria-selected=\"true\"] .tab-count"] = (Ink.Text, ["--brand-tint"]),
         // The "Clear all" link in a combo panel's head line, on the panel's own ground.
         [".form-combo-head button"] = (Ink.Text, []),
+        // Chat: the unread line on the thread's ground; a mention and a read check inside a
+        // bubble, which is the neutral surface or, for mine, the tint; a reaction that is mine.
+        [".chat-unread"] = (Ink.Text, []),
+        [".chat-status--read"] = (Ink.Icon, ["--brand-tint", "--surface-strong"]),
+        [".chat-mention"] = (Ink.Text, ["--brand-tint", "--surface-strong"]),
+        [".chat-reaction[aria-pressed=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".chip--active"] = (Ink.Text, ["--brand-tint"]),
         [".chip--active i"] = (Ink.Icon, ["--brand-tint"]),
         [".chip--active .chip-dismiss"] = (Ink.Icon, ["--brand-tint"]),
