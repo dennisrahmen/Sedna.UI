@@ -106,8 +106,13 @@ textarea.form-input::-webkit-resizer {
     cursor: pointer;
     user-select: none;
 }
+/* `margin: 0` on every choice control: `appearance: none` keeps the browser's own
+   margin — 3px and 4px on a checkbox, 5px on a radio — which pushed the label out past
+   `--choice-inset-check` and set the box a pixel off centre. The library owns the
+   geometry, so the tokens can state it. */
 .form-check input[type="checkbox"] {
     appearance: none;
+    margin: 0;
     width: 15px;
     height: 15px;
     flex-shrink: 0;

@@ -193,6 +193,45 @@
     gap: var(--space-7);
 }
 
+/* ── Dependent options ──────────────────────────────────────────────────────
+   Fields that only matter while the option above them is on: the recipients under
+   "E-mail notifications", a threshold under "Close stale topics". Put the
+   `.choice-dependent` straight after the `.form-check` or `.switch` it belongs to and
+   it indents by that control's inset, so its content starts where the label does.
+   A dependent inside a dependent indents again, measured from the edge it is already
+   on.
+
+   Only the block IMMEDIATELY after the control is indented. A hint between the two
+   breaks the pairing and the block sits flush — put the hint in the control's own
+   `.choice-hint` instead, where it lines up with the label anyway. */
+.choice-dependent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    min-width: 0;
+}
+.form-check + .choice-dependent { margin-inline-start: var(--choice-inset-check); }
+.switch + .choice-dependent     { margin-inline-start: var(--choice-inset-switch); }
+/* `display: flex` above outranks the browser's own `[hidden]`. */
+.choice-dependent[hidden] { display: none; }
+
+/* Inactive while the option is off. Opt-in, because whether an unused setting
+   vanishes, fades or stays put is the page's call. Both follow the control's live
+   `:checked` state, so they need no round trip and work on a page with no
+   interactivity at all; a radio is off while another in its set is chosen.
+
+   `--dim` is also inert: a block that looks unavailable and still takes focus and
+   typing is the worse of both. It is not `disabled` — the values still submit with
+   the form. */
+:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--hide { display: none; }
+:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--dim {
+    opacity: 0.45;
+    interactivity: inert;
+}
+/* Opacity multiplies, so a faded block inside a faded one would drop to 0.2. The
+   inner one keeps full opacity and is faded once, with its parent. */
+:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--dim .choice-dependent--dim { opacity: 1; }
+
 /* ── Transfer ───────────────────────────────────────────────────────────────
    Two list boxes with the buttons that move rows between them: pick on the left,
    the row appears on the right. For choosing a SET out of a long list, where a

@@ -274,6 +274,8 @@
         "--control-height-sm": "28px",
         "--control-height": "36px",
         "--control-height-lg": "44px",
+        "--choice-inset-check": "calc(15px + var(--space-4))",
+        "--choice-inset-switch": "calc(34px + var(--space-5))",
         "--code-clamp": "360px",
         "--text-1": "10px",
         "--text-2": "11px",
