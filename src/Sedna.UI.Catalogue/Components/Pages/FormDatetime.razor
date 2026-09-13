@@ -1,0 +1,62 @@
+@page "/form-datetime"
+
+<CatHead Title="Date and time">
+    <code>.form-input</code> on a date, time, month or week input. The box is the text field's;
+    what the class adds is the parts the browser draws in its own colours, and the two things
+    iOS does to a date input that a desktop never shows.
+</CatHead>
+
+<CatExample TExample="Examples.FormDatetime.Basics" Title="The four inputs" Demo="ex-demo--block">
+    <p>
+        <code>date</code>, <code>time</code>, <code>datetime-local</code> and <code>month</code>,
+        each a <code>.form-input</code>. Pick the type for the picker and the keyboard the platform
+        gives you, and keep <code>value</code> in the wire format &mdash; <code>2026-09-18</code>,
+        <code>08:30</code> &mdash; whatever the reader's locale shows. A
+        <code>datetime-local</code> is local to the browser and carries no zone: the hint says
+        which zone the server will read it in, or two people book the same hour.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormDatetime.Range" Title="From and to" Demo="ex-demo--block">
+    <p>
+        Two dates in a <a href="/grid"><code>.field-grid</code></a> inside one
+        <code>.form-section</code>, so the legend names the pair. <code>min</code> and
+        <code>max</code> are what the picker greys out; move the end's <code>min</code> with the
+        start, or the picker offers a range that the server will reject.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormDatetime.Steps" Title="Slots and weeks" Demo="ex-demo--block">
+    <p>
+        <code>step</code> in seconds turns a time input into slots &mdash; 900 is a quarter hour
+        &mdash; and <code>min</code>/<code>max</code> bound the day. <code>week</code> is for a
+        planning horizon; its value is the ISO week, <code>2026-W38</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormDatetime.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        The input's own tiers, <code>.form-input-sm</code> and <code>-lg</code>, so a date beside
+        a button is the button's height. A date is a fixed shape, so it takes a
+        <a href="/form-text"><code>.sedna-w</code></a> width rather than filling the row.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormDatetime.States" Title="Read-only, disabled and rejected" Demo="ex-demo--block">
+    <p>
+        The same three states as a text field: <code>readonly</code> is still submitted,
+        <code>disabled</code> is not, and a rejected date carries <code>aria-invalid</code> and a
+        <a href="/form-validation"><code>.form-error</code></a> that says what a valid one would be.
+    </p>
+</CatExample>
+
+<h2 id="platform">What the browser draws</h2>
+<p class="cat-lede">
+    The calendar glyph is a browser glyph in a fixed colour, invisible on a dark surface until it
+    is inverted &mdash; <code>--picker-invert</code> flips it with the theme &mdash; and the picker
+    panel follows <code>color-scheme</code>, set on <code>&lt;html&gt;</code> from
+    <code>--color-scheme</code>. On iOS a date input has an intrinsic width and centres its value,
+    and both ignore the class, so the field ran past its column and its text sat in the middle;
+    the stylesheet gives it <code>min-width: 0</code> and <code>appearance: none</code> and starts
+    the value where every other field's starts. The picker still opens on tap.
+</p>

@@ -102,4 +102,10 @@
     .sedna-art-blink,
     .sedna-art-tick,
     .sedna-art-twinkle { animation: none; }
+
+    /* 54 — a bar, a segment or a meter fill lands at its value instead of growing
+       to it. The value was never the motion. */
+    .bar-list-fill,
+    .stack-bar-segment,
+    .meter-fill { transition: none; }
 }

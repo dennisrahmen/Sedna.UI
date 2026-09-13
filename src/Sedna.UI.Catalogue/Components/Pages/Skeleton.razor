@@ -1,0 +1,89 @@
+@page "/skeleton"
+
+<CatHead Title="Skeletons">
+    A placeholder the shape of what is coming, so the page does not reflow when it arrives. One
+    class shimmers; the rest are the shapes a page is made of &mdash; a line, a title, a control,
+    a circle, a picture, a block &mdash; and a loading state is those shapes arranged as the real
+    thing will be.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-question-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">A skeleton is for a known shape</span>
+        A table of rows, a card of fields, a chart: the reader knows what is coming, so the
+        placeholder can be its shape. A wait with a percentage is a
+        <a href="/progress"><code>.progress</code></a>, a wait with nothing to report is a
+        <code>.spinner</code>, and a panel that will stay empty is an
+        <a href="/empty-state">empty state</a>. Mark the container <code>aria-busy="true"</code>
+        &mdash; the bars are decoration and must not be announced one by one &mdash; and give
+        every placeholder the height of the real thing, because a height that is merely close
+        reflows the page when the content lands.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Skeleton.Lines" Title="Lines and a title" Demo="ex-demo--block">
+    <p>
+        <code>.skeleton-text</code> is a line of text and <code>.skeleton-title</code> a heading;
+        <code>.skeleton-avatar</code> is the small circle beside one. Vary the widths &mdash;
+        identical bars read as a table rather than a paragraph.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Skeleton.ListRows" Title="List rows" Demo="ex-demo--block">
+    <p>
+        The real <code>.list</code> markup with placeholders where the content goes, so the rows
+        are exactly the height the rows will be. <code>.skeleton-badge</code> is the pill a row
+        ends with.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Skeleton.TableRows" Title="Table rows" Demo="ex-demo--block">
+    <p>
+        The header is real &mdash; the reader knows the columns before the rows &mdash; and each
+        cell holds one line sized to what the column usually holds. Three rows are enough to say
+        &ldquo;a table&rdquo;; a screen of them says &ldquo;broken&rdquo;.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Skeleton.Form" Title="A form" Demo="ex-demo--block">
+    <p>
+        <code>.skeleton-control</code> is one control height &mdash; a field or a button &mdash;
+        with <code>.skeleton-control--sm</code> and <code>.skeleton-control--lg</code> for the other
+        tiers, so a form of placeholders
+        lays out on the same grid as the form it stands in for.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Skeleton.Stats" Title="Stat tiles" Demo="ex-demo--block">
+    <p>
+        Label, value, delta: the value is a <code>.skeleton-title</code> given the value's height,
+        because the figure is what the reader is waiting for and its box is the one that must not
+        move.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Skeleton.Chart" Title="A chart" Demo="ex-demo--block">
+    <p>
+        <code>.skeleton-bars</code> is a row of bars at different heights &mdash; each is
+        <code>--bar</code> &mdash; so the box reads as a chart and not as a paragraph.
+        <code>--skeleton-height</code> is the box's height, as it is for a block.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Skeleton.Media" Title="A picture, and a circle of any size" Demo="ex-demo--block">
+    <p>
+        <code>.skeleton-image</code> is a 16:9 box for a picture that is loading, and
+        <code>.skeleton-circle</code> a circle of <code>--skeleton-size</code> &mdash; an avatar in
+        another tier, a status dot, a logo tile.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Skeleton.Blocks" Title="A surface that has not arrived" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.skeleton-block</code> is the shape of a <em>surface</em> &mdash; a card of settings,
+        a table of rows, a graph. It is 8rem, with <code>.skeleton-block--sm</code> at 4rem for a
+        field or a row and <code>.skeleton-block--lg</code> at 12rem for a document or a table;
+        between the steps, set <code>--skeleton-height</code>, as the third card does.
+    </p>
+</CatExample>

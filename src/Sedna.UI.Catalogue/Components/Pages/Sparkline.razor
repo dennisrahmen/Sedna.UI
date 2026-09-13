@@ -1,0 +1,47 @@
+@page "/sparkline"
+
+<CatHead Title="Sparklines">
+    The last few dozen readings as one line, with no axis and no numbers. It says which way things
+    are going; the figure beside it says where they are. An inline <code>&lt;svg&gt;</code> the app
+    fills with its own points, and the classes size and colour it.
+</CatHead>
+
+<CatExample TExample="Examples.Sparkline.Basic" Title="Three sizes, three colours" Demo="ex-demo--block">
+    <p>
+        <code>.sparkline</code> is 32px tall and as wide as its box; <code>--sm</code> is 20px for
+        a table cell, <code>--lg</code> 56px for a card that is about the trend. The
+        <code>viewBox</code> is the data's own range and <code>preserveAspectRatio="none"</code>
+        stretches it to the box, while <code>vector-effect: non-scaling-stroke</code> keeps the
+        <code>.sparkline-line</code> 2px whatever the stretch. <code>.sparkline-area</code> is the
+        optional fill under the line, and the colour is a <a href="/bars">series modifier</a>,
+        the brand by default. <code>aria-hidden</code>: a line has no accessible answer, the figure
+        beside it is.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Sparkline.InAStat" Title="Under a figure" Demo="ex-demo--block">
+    <p>
+        A <a href="/stat">stat tile</a> with the trend under its value, which is where a sparkline
+        earns its place: the number, which way it moved, and the shape of the way. A
+        <code>.sparkline-ref</code> line is the target or the average the reader compares it
+        against.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Sparkline.InATable" Title="In a table cell" Demo="ex-demo--block">
+    <p>
+        One per row, 96px wide and the row's own height, so a column of them reads as one chart
+        with the row labels as its axis. The change column beside it is the number the line
+        illustrates.
+    </p>
+</CatExample>
+
+<div class="callout callout-warn">
+    <i class="ri-line-chart-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Not a chart library</span>
+        A line with hundreds of points, an axis, a tooltip on hover, a legend that toggles a
+        series &mdash; those are a chart component's job, and the app's. Scale the points into
+        the <code>viewBox</code> yourself, in C#: the library draws whatever polyline it is given.
+    </div>
+</div>

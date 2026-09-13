@@ -34,6 +34,41 @@
 .skeleton-block--sm { --skeleton-height: 4rem; }
 .skeleton-block--lg { --skeleton-height: 12rem; }
 
+/* The other shapes a page is made of, each the size of the real thing so nothing
+   moves when it lands: a field or a button (one control height), a pill, a circle
+   of any size (an avatar in a different tier, a status dot), a picture. */
+.skeleton-control { height: var(--control-height); border-radius: var(--radius-control); }
+.skeleton-control--sm { height: var(--control-height-sm); }
+.skeleton-control--lg { height: var(--control-height-lg); }
+.skeleton-badge { width: 4rem; height: 18px; border-radius: var(--radius-pill); }
+.skeleton-circle {
+    --skeleton-size: 36px;
+    width: var(--skeleton-size);
+    height: var(--skeleton-size);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.skeleton-image {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    border-radius: var(--radius-surface);
+}
+/* A chart that has not arrived: a row of bars at different heights, so the box
+   reads as a chart and not as a paragraph. Each bar's height is `--bar`. */
+.skeleton-bars {
+    --skeleton-height: 8rem;
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-3);
+    height: var(--skeleton-height);
+}
+.skeleton-bars > .skeleton {
+    --bar: 50%;
+    flex: 1;
+    height: var(--bar);
+    border-radius: var(--radius-inner) var(--radius-inner) 0 0;
+}
+
 @keyframes sedna-skeleton {
     from { background-position: 200% 0; }
     to   { background-position: -200% 0; }

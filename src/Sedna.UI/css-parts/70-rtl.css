@@ -52,6 +52,8 @@
 /* The drawer slides in from an inline edge; `inset-inline-end` already puts it on
    the correct side, so only the direction of travel is wrong. */
 [dir="rtl"] .drawer { transform: translateX(-100%); }
+/* 54 — a meter's mark label is centred on its mark by a translate. */
+[dir="rtl"] .meter-mark-label { transform: translateX(50%); }
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
 
 /* A sheet is one of those too — `<div class="drawer sheet">` — but it travels along

@@ -1,7 +1,9 @@
 @page "/progress"
 
 <CatHead Title="Progress and spinners">
-    Four ways to say &ldquo;working&rdquo;, picked by how much you know about what is coming.
+    Three ways to say &ldquo;working&rdquo;, picked by how much you know about what is coming.
+    The fourth &mdash; the shape of what is coming, before it arrives &mdash; is a
+    <a href="/skeleton">skeleton</a>.
 </CatHead>
 
 <div class="callout callout-info">
@@ -9,8 +11,8 @@
     <div class="callout-body">
         <span class="callout-title">Pick by what you know</span>
         A percentage is a <code>.progress</code> bar. No
-        percentage, but a known shape — a table of rows, a card — is a <code>.skeleton</code>. Neither is
-        a <code>.spinner</code>. Nothing at all yet, in a panel that will fill, is
+        percentage, but a known shape — a table of rows, a card — is a
+        <a href="/skeleton"><code>.skeleton</code></a>. Neither is a <code>.spinner</code>. Nothing at all yet, in a panel that will fill, is
         <a href="/empty-state"><code>.empty-state--pending</code></a>.
     </div>
 </div>
@@ -48,24 +50,7 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Progress.Skeleton" Title="Skeleton" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Give each placeholder the height and width of the content that is coming, and vary the line
-        widths — identical bars read as a table rather than a paragraph. Mark the container
-        <code>aria-busy="true"</code>; the bars are decoration and should not be announced one by
-        one.
-    </p>
-</CatExample>
 
-<CatExample TExample="Examples.Progress.SkeletonBlock" Title="Skeleton block" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>.skeleton-block</code> is the shape of a <em>surface</em> that has not arrived — a card
-        of settings, a table of rows, a graph. It is 8rem, with
-        <code>.skeleton-block--sm</code> at 4rem for a field or a row and
-        <code>.skeleton-block--lg</code> at 12rem for a document or a table; between the steps, set
-        <code>--skeleton-height</code>, as the third card does.
-    </p>
-</CatExample>
 
 <CatExample TExample="Examples.Progress.RunningJobs" Title="A list of running work" Demo="ex-demo--block">
     <p>

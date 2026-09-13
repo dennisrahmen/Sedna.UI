@@ -55,6 +55,7 @@
      51-segmented.css
      52-avatar.css
      53-chip.css
+     54-data-viz.css
      54-stat.css
      55-page-structure.css
      56-code-block.css
@@ -456,6 +457,19 @@
        .state-art--live or .empty-state--pending; the sprite's motion classes read it as
        their play state, and the reduced-motion block removes the animations outright. */
     --state-motion:     paused;
+
+    /* ── Data visualisation ────────────────────────────────────────────────
+       Six series colours for parts of a chart that are merely different from each
+       other — the segments of a stack bar, the lines of a legend. The brand first,
+       then hues ordered so neighbours differ in hue and in lightness. A part that
+       MEANS something takes a semantic family instead; the `.series-*` modifiers in
+       54-data-viz.css are the one place these are read. */
+    --viz-1: var(--brand);
+    --viz-2: var(--cyan-400);
+    --viz-3: var(--orange-400);
+    --viz-4: var(--teal-400);
+    --viz-5: var(--violet-400);
+    --viz-6: var(--indigo-300);
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
     /* One step up from --brand-tint, for hovering something already tinted by it.
        Pointing at a chosen row must not replace its tint with the neutral hover:
@@ -912,6 +926,13 @@
     --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
     --go-border: var(--green-300);
     --go-fg:     var(--green-700);
+    /* Two steps down: a 400 on a white canvas is a pastel, and a pastel bar is
+       neither the brand's weight nor readable against the track. */
+    --viz-2: var(--cyan-600);
+    --viz-3: var(--orange-600);
+    --viz-4: var(--teal-600);
+    --viz-5: var(--violet-600);
+    --viz-6: var(--indigo-600);
 
     --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
     --warn-border: var(--amber-300);
@@ -4301,6 +4322,41 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .skeleton-block--sm { --skeleton-height: 4rem; }
 .skeleton-block--lg { --skeleton-height: 12rem; }
 
+/* The other shapes a page is made of, each the size of the real thing so nothing
+   moves when it lands: a field or a button (one control height), a pill, a circle
+   of any size (an avatar in a different tier, a status dot), a picture. */
+.skeleton-control { height: var(--control-height); border-radius: var(--radius-control); }
+.skeleton-control--sm { height: var(--control-height-sm); }
+.skeleton-control--lg { height: var(--control-height-lg); }
+.skeleton-badge { width: 4rem; height: 18px; border-radius: var(--radius-pill); }
+.skeleton-circle {
+    --skeleton-size: 36px;
+    width: var(--skeleton-size);
+    height: var(--skeleton-size);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.skeleton-image {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    border-radius: var(--radius-surface);
+}
+/* A chart that has not arrived: a row of bars at different heights, so the box
+   reads as a chart and not as a paragraph. Each bar's height is `--bar`. */
+.skeleton-bars {
+    --skeleton-height: 8rem;
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-3);
+    height: var(--skeleton-height);
+}
+.skeleton-bars > .skeleton {
+    --bar: 50%;
+    flex: 1;
+    height: var(--bar);
+    border-radius: var(--radius-inner) var(--radius-inner) 0 0;
+}
+
 @keyframes sedna-skeleton {
     from { background-position: 200% 0; }
     to   { background-position: -200% 0; }
@@ -6847,6 +6903,274 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 }
 
+/* ── 54-data-viz.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Data visualisation ──────────────────────────────────────────────────────
+   The small charts a page of figures is made of: a list of bars to compare a
+   handful of values, one bar split into parts, a value against a scale with the
+   thresholds marked, and a sparkline under a number. Each is markup and classes;
+   the one number only the app knows is an inline custom property.
+
+   ── Colour is one family, for every chart ──
+   Every filled part paints `currentColor`, so which colour it is comes from ONE set
+   of modifiers, `.series-*`, that any of them takes: a bar, a segment, a meter fill,
+   a sparkline, a legend swatch. `.series-1` … `.series-6` are the categorical run —
+   the brand first, then hues ordered so neighbours differ in both hue and lightness
+   — for parts that are merely different from each other. `.series-go`, `--warn`,
+   `--danger`, `--info` and `--muted` are the semantic families, for a part that
+   MEANS something. Never colour a category with a semantic family: a red slice says
+   "danger" whether or not the data does.
+
+   The brand is the default — every fill starts at `--viz-1`, which is the brand —
+   so a chart with one series needs no modifier at all.
+
+   ── Nothing here is a chart library ──
+   A line with more than a few dozen points, an axis, a tooltip on hover, a legend
+   that toggles — those are a chart component's job, and the app's. These are the
+   shapes that appear beside a number in a card, and they read without JavaScript.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Bar list ───────────────────────────────────────────────────────────────
+   Rows of label, bar and value, for comparing a handful of things — carriers by
+   volume, regions by open orders. The bar is `--value`, a percentage, on the fill:
+
+     <div class="bar-list">
+       <div class="bar-list-row">
+         <span class="bar-list-label">EU-Central</span>
+         <span class="bar-list-track"><span class="bar-list-fill" style="--value: 62%"></span></span>
+         <span class="bar-list-value">1 240</span>
+       </div>
+     </div>
+
+   The label column is `--bar-list-label`, 9rem by default, set on the list where the
+   names are longer. The value is what the reader takes away, so it is text and not
+   only a bar; the bar is for the comparison down the column. */
+.bar-list {
+    --bar-list-label: 9rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+.bar-list-row {
+    display: grid;
+    grid-template-columns: minmax(0, var(--bar-list-label)) 1fr auto;
+    align-items: center;
+    gap: var(--space-5);
+}
+.bar-list-label {
+    font-size: var(--text-3);
+    color: var(--fg-soft);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.bar-list-track {
+    display: block;
+    height: 10px;
+    background: var(--progress-track);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+}
+.bar-list-fill {
+    --value: 0%;   /* the app's one number, set inline */
+    display: block;
+    height: 100%;
+    width: var(--value);
+    background: currentColor;
+    color: var(--viz-1);
+    border-radius: inherit;
+    transition: width var(--motion-slow) ease;
+}
+.bar-list-value {
+    font-size: var(--text-3);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    min-width: 3ch;
+    text-align: end;
+}
+/* A row the reader is on, or the one the figure above is about. */
+.bar-list-row[aria-current="true"] .bar-list-label,
+.bar-list-row[aria-current="true"] .bar-list-value { color: var(--fg); font-weight: 600; }
+
+/* ── Stack bar ──────────────────────────────────────────────────────────────
+   One bar in parts that add up — the states an order book is in, the share each
+   carrier has. Each segment is `--value`, its share as a percentage; the parts
+   should sum to 100% and the track shows through where they do not, which is the
+   honest picture of a total that is not fully accounted for.
+
+     <div class="stack-bar" role="img" aria-label="Orders by state: 62% decided, …">
+       <span class="stack-bar-segment series-go" style="--value: 62%"></span>
+       <span class="stack-bar-segment series-warn" style="--value: 28%"></span>
+       <span class="stack-bar-segment series-muted" style="--value: 10%"></span>
+     </div>
+
+   The bar is one picture, so it takes `role="img"` and a label that says the
+   numbers; the legend under it is the same numbers for the eye. */
+.stack-bar {
+    display: flex;
+    gap: var(--space-1);
+    height: 10px;
+    background: var(--progress-track);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+}
+.stack-bar--lg { height: 18px; }
+.stack-bar-segment {
+    --value: 0%;
+    flex: 0 0 var(--value);
+    min-width: 2px;
+    background: currentColor;
+    color: var(--viz-1);
+    transition: flex-basis var(--motion-slow) ease;
+}
+.stack-bar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-7);
+    margin-top: var(--space-4);
+    font-size: var(--text-3);
+    color: var(--muted);
+}
+.stack-bar-key {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-variant-numeric: tabular-nums;
+}
+.stack-bar-swatch {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: var(--radius-inner);
+    background: currentColor;
+    color: var(--viz-1);
+}
+
+/* ── Meter ──────────────────────────────────────────────────────────────────
+   A value against a scale with the thresholds marked — disk at 71% with the alert
+   line at 80%, a queue against its cap. It differs from `.progress` in what the
+   marks say: progress ends at 100% and is done, a meter has a line the reader does
+   not want the fill to cross.
+
+     <div class="meter meter--labelled">
+       <span class="meter-fill series-warn" style="--value: 71%"></span>
+       <span class="meter-mark" style="--at: 80%"><span class="meter-mark-label">alert 80%</span></span>
+     </div>
+
+   The fill's colour is the app's judgement of the value, through a series
+   modifier; the marks are neutral. `--labelled` reserves the line under the track
+   for the mark labels, and `.meter-scale` is the pair of end values under that. */
+.meter {
+    position: relative;
+    height: 10px;
+    background: var(--progress-track);
+    border-radius: var(--radius-pill);
+}
+.meter--lg { height: 18px; }
+.meter--labelled { margin-bottom: calc(var(--text-2) + var(--space-5)); }
+.meter-fill {
+    --value: 0%;
+    display: block;
+    height: 100%;
+    width: var(--value);
+    background: currentColor;
+    color: var(--viz-1);
+    border-radius: inherit;
+    transition: width var(--motion-slow) ease;
+}
+.meter-mark {
+    --at: 0%;
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    inset-inline-start: var(--at);
+    width: 2px;
+    margin-inline-start: -1px;
+    border-radius: 1px;
+    background: var(--fg-soft);
+}
+.meter-mark-label {
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    margin-top: var(--space-2);
+    font-size: var(--text-2);
+    color: var(--muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+.meter-scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-2);
+    font-size: var(--text-2);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Sparkline ──────────────────────────────────────────────────────────────
+   The last few dozen readings as one line, under a figure or in a table cell,
+   with no axis and no numbers: it says which way things are going, and the figure
+   beside it says where they are. An inline <svg> whose viewBox is the data's own
+   range and which stretches to its box:
+
+     <svg class="sparkline" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+       <path class="sparkline-area" d="M0 20 L8 18 … L100 6 V32 H0 Z" />
+       <polyline class="sparkline-line" points="0,20 8,18 … 100,6" />
+     </svg>
+
+   `preserveAspectRatio="none"` is what lets one viewBox fit any box, and
+   `vector-effect: non-scaling-stroke` is what keeps the line 2px when it does. The
+   colour is the series modifier, the brand by default; `aria-hidden`, because the
+   figure beside it is the accessible answer — a line has none. */
+.sparkline {
+    display: block;
+    width: 100%;
+    height: 32px;
+    color: var(--viz-1);
+    overflow: visible;
+}
+.sparkline--sm { height: 20px; }
+.sparkline--lg { height: 56px; }
+.sparkline-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+}
+.sparkline-area { fill: currentColor; opacity: 0.12; stroke: none; }
+/* A reference: the target, the average, the same day last week. */
+.sparkline-ref {
+    stroke: currentColor;
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+    opacity: 0.5;
+    vector-effect: non-scaling-stroke;
+}
+/* Under a stat's value, and in a table cell, where the row's height is the box. */
+.stat > .sparkline { margin-top: var(--space-2); }
+.table td > .sparkline { width: 96px; height: 24px; }
+
+/* ── Series colours ─────────────────────────────────────────────────────────
+   Last in the part on purpose. Every fill above sets its default `color`, and a
+   modifier at the same specificity wins only by coming later — so this block stays
+   at the end, or every segment paints the brand whatever class it carries. */
+.series-1 { color: var(--viz-1); }
+.series-2 { color: var(--viz-2); }
+.series-3 { color: var(--viz-3); }
+.series-4 { color: var(--viz-4); }
+.series-5 { color: var(--viz-5); }
+.series-6 { color: var(--viz-6); }
+.series-go     { color: var(--go-solid); }
+.series-warn   { color: var(--warn-solid); }
+.series-danger { color: var(--danger-solid); }
+.series-info   { color: var(--info-solid); }
+.series-muted  { color: var(--border-strong); }
+}
+
 /* ── 54-stat.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Stat tile ──────────────────────────────────────────────────────────────
@@ -7841,6 +8165,58 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .sedna-scroll-x[data-scroll-end] .table--pin-end thead th:last-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end tbody tr > td:last-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+
+/* ── Group rows ─────────────────────────────────────────────────────────────
+   A row that heads the rows after it — a state, a day, a customer — written as
+   one cell spanning the table:
+
+     <tr class="tr-group">
+       <th colspan="4" scope="rowgroup">
+         <div class="tr-group-body">
+           Waiting on you <span class="badge badge-warn">3</span>
+           <span class="chip">EU-Central <button class="chip-dismiss" …></button></span>
+           <span class="tr-group-count">3 of 128</span>
+         </div>
+       </th>
+     </tr>
+
+   A <th> with `scope="rowgroup"`, so a screen reader announces the group with each
+   row under it; the header's own uppercase treatment is undone here, because the
+   cell holds a sentence and the chips and badges that belong to it, not a column
+   name. The flex row is a child rather than the cell — `display: flex` on a cell
+   takes it out of the table and the colspan with it. `.tr-group-count` sits at
+   the far end. */
+.tr-group > th,
+.tr-group > td {
+    background: var(--surface-soft);
+    padding-block: var(--space-3);
+    font-size: var(--text-3);
+    font-weight: 600;
+    color: var(--fg-soft);
+    text-transform: none;
+    letter-spacing: 0;
+}
+.tr-group-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+}
+.tr-group-count {
+    margin-inline-start: auto;
+    color: var(--muted);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+/* Under a sticky header the group row is a header too, and pins beneath it. The
+   header's height is not knowable here, so it is the app's one number: set
+   `--table-head-height` on the table where its header is not the default 36px. */
+.table--sticky { --table-head-height: 36px; }
+.table--sticky .tr-group > th {
+    position: sticky;
+    top: var(--table-head-height);
+    z-index: 1;
+}
 
 /* The row states, mirroring the background rules above one for one. Set on the
    <tr> so a custom property carries them into the pinned cell by inheritance;
@@ -9961,6 +10337,8 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 /* The drawer slides in from an inline edge; `inset-inline-end` already puts it on
    the correct side, so only the direction of travel is wrong. */
 [dir="rtl"] .drawer { transform: translateX(-100%); }
+/* 54 — a meter's mark label is centred on its mark by a translate. */
+[dir="rtl"] .meter-mark-label { transform: translateX(50%); }
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
 
 /* A sheet is one of those too — `<div class="drawer sheet">` — but it travels along
@@ -10619,6 +10997,12 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     .sedna-art-blink,
     .sedna-art-tick,
     .sedna-art-twinkle { animation: none; }
+
+    /* 54 — a bar, a segment or a meter fill lands at its value instead of growing
+       to it. The value was never the motion. */
+    .bar-list-fill,
+    .stack-bar-segment,
+    .meter-fill { transition: none; }
 }
 }
 
