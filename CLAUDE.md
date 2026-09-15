@@ -395,7 +395,9 @@ in `assets/brand/` are bespoke rather than built from an icon.
 
 `Sedna.UI.js` holds generic UI behaviour only: hover hints, theme settings, clipboard, notifications,
 toasts, the dialog presenter, delegated menus, tabs, combo fields, the command palette and the header
-search, and the Markdown editor. App-specific interop stays in the app's own script. The member table is
+search, drag and drop, and the Markdown editor. Drag and drop moves no node: it writes attributes and
+dispatches `sedna-drop`, and the app moves the item. `wwwroot/Sedna.UI.lib.module.js` is the Blazor
+initializer that gives those events their data in C#. App-specific interop stays in the app's own script. The member table is
 in `docs/architecture.md`, and the rules for crossing into .NET are **The interop boundary** above.
 
 - `palette` and `search` share one matcher, `ui._.score`. Do not write a second one.

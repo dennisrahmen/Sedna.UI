@@ -134,7 +134,14 @@ window.sednaUi = window.sednaUi || {};
         return node;
     }
 
-    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill };
+    /* How long a finger stays down before a press becomes a hold, in ms. Shared by the
+       two things a hold starts — a hover hint and a drag — so a press means the same
+       thing everywhere on the page. Longer than any tap, and shorter than the
+       platform's own long press, 500ms, which selects the text under the finger and
+       shows the loupe: 300ms sits between. */
+    var HOLD = 300;
+
+    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD };
 
     ui.configure = function (opts) {
         if (!opts) return;

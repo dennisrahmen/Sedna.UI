@@ -78,6 +78,7 @@ What the package ships that markup cannot express:
 | `ISednaSettings` | The applied appearance settings as state, with a `Changed` event |
 | `ISednaOverlays`, `SednaOverlay`, `SednaOverlayHost` | Presents an app component as a modal, drawer or sheet and returns the result it closed with |
 | `AddSednaUi()` | Registers the above, scoped to the circuit |
+| `EventHandlers`, `SednaDropEventArgs`, `SednaDragEventArgs` | Makes `@onsedna-drop`, `@onsedna-dragstart` and `@onsedna-dragend` bindable with their data. The Razor compiler finds an event only through a class named exactly `EventHandlers`, in a namespace the component imports |
 
 `ActiveLink` drops the query string and the fragment, treats a trailing slash as insignificant, and
 requires a prefix match to end on a path segment, so `/queue` does not light up on `/queue-archive`. The
@@ -86,6 +87,11 @@ link to the app root needs `NavLinkMatch.All`. The helpers are pure and do not s
 markup that survives navigation subscribes itself — **in the component that renders the links**, not in
 the layout around it. Blazor only hands new parameters to a child whose parameters differ, so a
 subscription one level too high re-renders the layout and leaves the links reading the previous address.
+
+The drag-and-drop events need a browser half as well: `wwwroot/Sedna.UI.lib.module.js` is a Blazor
+JavaScript initializer, found and loaded by Blazor from its name, which registers the three event names
+so their `detail` becomes the event arguments. No app references it. It calls nothing in .NET; the events
+are ordinary bubbling DOM events a page without Blazor listens to directly.
 
 `ISednaUi` is `IJSRuntime` calls, so none of it can run during prerendering. Two members of the
 JavaScript surface hand over a function, which does not cross the boundary, so their C# members hand
@@ -448,6 +454,10 @@ Two things the flat list does not say:
   moves the bubble into the dialog — everything outside an open modal dialog is inert, and inertness
   follows the DOM rather than the paint order, so raising alone leaves the bubble visible and dead.
   Rung 510 is what applies to every other step, including one over a `.modal-backdrop` div at 500.
+- **An item carried by a pointer leaves the scale too.** `sednaUi.drag` raises it into the top layer as
+  a manual popover for the length of the drag, so no `overflow` around it clips it and nothing paints
+  over it; the slot it left is held open on a neighbour, so the list does not close up under the pointer.
+  Keyboard dragging raises nothing. `z-index: 3` on `[data-dragging="pointer"]` is only the fallback.
 - **The collapsed rail's flyout is `position: fixed`**, not absolute, because `.nav-scroll` scrolls and
   would otherwise clip it. It is still on rung 400: fixed positioning escapes an ancestor's `overflow`,
   not the z-order.
@@ -480,6 +490,7 @@ Two things the flat list does not say:
 | `select` | `refresh(root?)` → how many it fixed. Fills in the `<selectedcontent>` clone a customizable `<select>` should have made and Blazor's render prevents, leaving the closed box blank. Runs on load and after any render that adds nodes; an app calls it only for a select it moved into place some other way |
 | `palette` | Command palette over the app's own `<dialog class="palette" data-palette>`, opened by Ctrl/⌘-K once commands exist and a palette is in the page: `register(list)`, `open()` → false with no palette, `close()`, `rank(query)`. Rows are cloned from the dialog's `<template data-palette-item>`, `-group` and `-empty`, with `data-label`, `data-note`, `data-icon`, `data-group` and `data-query` slots; the script adds the combobox/listbox roles and the selection state |
 | `search` | Header search behind a `data-search` input: `register(items)`, `rank(query)`, `close()`. The results panel is the app's `[data-search-panel]` — named by `data-search="<id>"`, else the one in the box, else the first in the page — filled from its `<template data-search-item>`, `-empty` and `-more` (`data-title`, `data-code`, `data-meta`, `data-tag`, `data-query`, `data-count`). Placed under the box unless it carries `.search-panel--anchored` |
+| `drag` | Drag and drop of the app's own items between `data-drag-zone`s: mouse and pen after a few pixels, a finger after `ui._.hold` (on a `data-drag-handle`, at once), and Space / arrows / Space or Escape from the keyboard, announced through the app's `[data-drag-live]` region in its own sentences. It moves no node: it writes `data-dragging`, `data-drop-state`, `data-drop-over` and `data-drop-edge`, raises a pointer-carried item into the top layer as a manual `popover` with its box in `--drag-*` custom properties, holds its slot open on a neighbour with `data-drag-slot`, clears all of it, then dispatches `sedna-dragstart` (cancelable), `sedna-drop` on the zone landed in (`item`, `type`, `from`, `to`, `index`, `fromIndex`, `keyboard`; only when the item moved) and `sedna-dragend`. `index` counts the destination without the item. Zones sharing `data-drag-group` trade items, `data-drag-accept` restricts them by `data-drag-type`, and no item is offered a zone inside itself. Scrolls any scroller the pointer is held against. Focus returns to the item once the app has re-rendered it. `cancel()`, `active()` → the dragged item's id or null |
 | `dropzone` | Delegated drag-and-drop for a `data-dropzone` zone: maintains `.dropzone--over`, hands a dropped file to the zone's own `input[type=file]` as a `change` event. `reset()` clears the highlight |
 | `output` | Follow-tail for a `data-follow` output pane: sticks to the newest line, releases when the reader scrolls up, re-attaches when they scroll back down. `data-follow` is the app's switch — removing it stops following, adding it again jumps to the newest line. While the reader is scrolled away the pane carries `data-follow-paused`, which shows a `.output-jump` button, and a bubbling `sedna-follow` event with `detail.following` fires on each change. Opening a row's `<details>` past the bottom releases following, and an open menu in the pane holds it still. A `data-output-follow` button follows the pane its `aria-controls` names, or the one in its `.output-panel`. `follow(pane)`, `isFollowing(pane)` |
 | `codeBlock` | `toggle(block, expanded?)` — expands or collapses a `.code-block--clamped`. Delegated from `[data-code-expand]` |
@@ -494,7 +505,7 @@ Two things the flat list does not say:
 `ui._` also exists and is **private** — shared closure state the parts need. It may change in a patch.
 
 Several behaviours are delegated from `document`, so content rendered after load is covered without
-re-wiring: hover hints, `data-menu-toggle`, `data-combo`, `data-tabs`, `data-search`, `data-dropzone`,
+re-wiring: hover hints, `data-menu-toggle`, `data-combo`, `data-tabs`, `data-search`, `data-drag-zone`, `data-dropzone`,
 `data-sheet`, same-page fragment links, and `data-copy` / `data-copy-target`. The last two have no
 member on the global — the attribute is the whole API. The outcome is `data-copied="ok"` or
 `"failed"` on the button for 1.4 seconds; the app's markup marks what shows at rest with

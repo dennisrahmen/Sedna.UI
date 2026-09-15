@@ -1,0 +1,28 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}. Arrow keys move it, Space drops it, Escape cancels."
+   data-drag-move="{item}, position {position} of {count}."
+   data-drag-drop="{item} dropped at position {position} of {count}."
+   data-drag-cancel="Cancelled. {item} is back at position {position}."></p>
+
+<div class="sedna-scroll sedna-scroll--sm">
+    <ol class="drag-list" data-drag-zone="pick-queue" aria-label="Pick queue" @onsedna-drop="Drop">
+        @foreach (var order in _orders)
+        {
+            <li class="drag-item" @key="order" data-drag-item="@order" tabindex="0">
+                <span class="text-mono">@order</span>
+            </li>
+        }
+    </ol>
+</div>
+
+@code {
+    private readonly List<string> _orders = Enumerable.Range(4101, 30).Select(n => $"ORD-{n}").ToList();
+
+    // Nothing here knows about scrolling: holding a dragged row near the top or bottom edge
+    // of the .sedna-scroll scrolls it, and Index is counted where the list has scrolled to.
+    private void Drop(SednaDropEventArgs e)
+    {
+        if (!_orders.Remove(e.Item)) return;
+        _orders.Insert(Math.Min(e.Index, _orders.Count), e.Item);
+    }
+}

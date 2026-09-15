@@ -1,0 +1,311 @@
+/* ── Drag and drop ──────────────────────────────────────────────────────────
+   Moving the app's own items: a list reordered, a card carried to another lane, a
+   grid of tiles rearranged. `data-drag-zone`, `data-drag-item` and `data-drag-handle`
+   hand the input to 26-drag.js, which never moves a node — it writes the attributes
+   below and dispatches `sedna-drop`, and the app moves the item in its own list.
+
+   The states are keyed on those ATTRIBUTES, not on the classes, so an item that is a
+   `.card` or a `.list-row` gets the lifted look, the insertion line and the zone states
+   without `.drag-item`. The classes are the look of a plain draggable row, tile and lane.
+
+     data-dragging="pointer"    the item under the pointer, raised into the top layer and
+                                carried by --drag-x / --drag-y
+     data-dragging="keyboard"   the item picked up with Space, still in place
+     data-drop-state="valid"    a zone it can land in; "invalid" one that refuses it
+     data-drop-over             the zone under the pointer, either kind
+     data-drop-edge             "before" or "after": the item the line is drawn against
+     data-drag-slot             "start", "end" or "column": the neighbour holding open the
+                                slot a raised item left
+
+   Not files. A file dropped from the desktop is `.dropzone`, in 47-form-file.css.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── What makes a thing draggable ───────────────────────────────────────────
+   Zero specificity, so any class that positions the item or sets its cursor wins. The
+   position is what the insertion line and the lifted item's z-index resolve against. */
+:where([data-drag-item], [data-drop-edge]) { position: relative; }
+
+/* Where the pointer has carried the item. Declared on every item, so a nested item never
+   inherits the offset of the one around it; the script sets both on the dragged item's
+   own style and removes them on drop. */
+:where([data-drag-item]) {
+    --drag-x: 0px;
+    --drag-y: 0px;
+    --drag-left: 0px;
+    --drag-top: 0px;
+    --drag-width: auto;
+    --drag-height: auto;
+    --drag-slot-size: 0px;
+    --drag-slot-column: auto;
+}
+
+/* A whole item that drags: no text selection under a mouse drag, and no callout or
+   loupe under a finger held still to lift it. An item with a handle of its own keeps
+   its text selectable, because only the handle drags. */
+:where([data-drag-zone] > [data-drag-item]:not([aria-disabled="true"]):not(:has([data-drag-handle]))) {
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* A handle is claimed outright: a finger on it drags at once rather than scrolling. */
+:where([data-drag-handle]) {
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+:where([data-drag-item][aria-disabled="true"] [data-drag-handle]) { cursor: not-allowed; }
+
+/* ── The zones ──────────────────────────────────────────────────────────────
+   A column of rows, and a grid of tiles. Padding, so the zone's outline and the line
+   over the first item have room inside whatever holds it. */
+.drag-list,
+.drag-grid {
+    --drop-gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-2);
+    list-style: none;
+    border-radius: var(--radius-surface);
+}
+.drag-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--drop-gap);
+}
+.drag-grid {
+    --drop-gap: var(--space-4);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 7.5rem), 1fr));
+    gap: var(--drop-gap);
+}
+
+/* ── A draggable row ────────────────────────────────────────────────────────── */
+.drag-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: var(--control-height-lg);
+    padding: var(--space-2) var(--space-5);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--fg);
+    font-size: var(--text-4);
+}
+.drag-item:has(> .drag-handle) { padding-inline-start: var(--space-2); }
+.drag-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.drag-item[aria-disabled="true"] {
+    background: var(--surface-soft);
+    color: var(--muted);
+}
+
+/* In a grid the row becomes a tile: the content stacks and centres. */
+.drag-grid > .drag-item {
+    flex-direction: column;
+    justify-content: center;
+    min-height: 6rem;
+    padding: var(--space-4);
+    text-align: center;
+}
+.drag-grid > .drag-item > i { font-size: var(--text-8); color: var(--muted); }
+
+/* The grip. As tall as the row, so a finger does not have to find a glyph. */
+.drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    align-self: stretch;
+    width: var(--control-height-sm);
+    min-height: var(--control-height-sm);
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: var(--radius-small);
+    color: var(--muted);
+    font-size: var(--text-6);
+    line-height: 1;
+}
+.drag-handle:hover { background: var(--bg-hover); color: var(--fg); }
+.drag-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+[aria-disabled="true"] > .drag-handle { color: var(--border-strong); background: none; }
+
+/* ── A board of lanes ───────────────────────────────────────────────────────
+   Lanes side by side, scrolling sideways when they outgrow the page — which is also
+   what a card carried to the edge scrolls. Each lane holds a heading and one zone; the
+   zone stretches to the foot of the lane, so a card dropped under the last one still
+   lands in it. */
+.drag-board {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(min(15rem, 80%), 1fr);
+    gap: var(--space-5);
+    overflow-x: auto;
+    padding-block-end: var(--space-2);
+}
+.drag-lane {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-4);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+}
+.drag-lane-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin: 0;
+    padding-inline: var(--space-2);
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-weight: 600;
+}
+.drag-lane > .drag-list { flex: 1; }
+
+/* ── An empty zone ──────────────────────────────────────────────────────────
+   The app writes it once, inside the zone, and it shows only while the zone has no
+   items — so an app renders it unconditionally and never has to track the count. It is
+   not an item, so it is never counted as a position. */
+.drag-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    min-height: var(--control-height-lg);
+    padding: var(--space-4);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-control);
+    color: var(--muted);
+    font-size: var(--text-3);
+    text-align: center;
+}
+[data-drag-zone]:has(> [data-drag-item]) > .drag-empty { display: none; }
+[data-drop-state="valid"][data-drop-over] > .drag-empty {
+    border-color: var(--brand);
+    color: var(--brand-text);
+}
+
+/* The states come last, so they win over the look of a row, a tile and a lane at equal
+   weight — a held row keeps its ring while it is also the focused one. */
+
+/* ── The item being dragged ─────────────────────────────────────────────────
+   The item itself is carried, by `translate` — the individual property, so an app's own
+   `transform` on the item still applies. It keeps its slot in the layout while it
+   travels, so nothing else on the page moves until the app re-renders the list.
+   z-index 3 is the top of the local band: above its siblings and the next lane, and
+   still inside the component. */
+[data-dragging="pointer"] {
+    translate: var(--drag-x) var(--drag-y);
+    z-index: 3;
+    box-shadow: var(--shadow-float);
+    cursor: grabbing;
+    opacity: 0.94;
+}
+[data-dragging="pointer"] [data-drag-handle] { cursor: grabbing; }
+
+/* Raised into the top layer while it is carried — see `lift` in 26-drag.js — so nothing
+   around it can clip it. Pinned at the box it had in the list. */
+[data-dragging="pointer"]:popover-open {
+    position: fixed;
+    inset: auto;
+    /* rtl-ok: a viewport coordinate measured by getBoundingClientRect, which is physical in either direction */
+    left: var(--drag-left);
+    top: var(--drag-top);
+    width: var(--drag-width);
+    height: var(--drag-height);
+    margin: 0;
+    box-sizing: border-box;
+}
+/* The slot the raised item left, held open on a neighbour so nothing the reader aimed at
+   moves. The script measures the size; see `lift` in 26-drag.js. */
+[data-drag-slot="start"] { margin-block-start: var(--drag-slot-size); }
+[data-drag-slot="end"]   { margin-block-end: var(--drag-slot-size); }
+[data-drag-axis="x"] > [data-drag-slot="start"] { margin-block-start: 0; margin-inline-start: var(--drag-slot-size); }
+[data-drag-axis="x"] > [data-drag-slot="end"]   { margin-block-end: 0; margin-inline-end: var(--drag-slot-size); }
+[data-drag-slot="column"] { grid-column-start: var(--drag-slot-column); }
+
+/* What the platform's popover style would otherwise paint on an item whose own classes
+   say nothing about it. Zero specificity, so every class that does say — a .card's
+   border, a .drag-item's padding — keeps its own. */
+:where([data-dragging="pointer"]:popover-open) {
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background-color: transparent;
+    overflow: visible;
+}
+
+/* Picked up from the keyboard: it stays where it is, and the ring says it is held. An
+   outline, so it is painted in forced colours as it is. */
+[data-dragging="keyboard"] {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    box-shadow: var(--shadow-dropdown);
+}
+
+/* ── Zones while something is dragged ───────────────────────────────────────
+   Outlines, not borders, so a zone lighting up moves nothing. The style of the line is
+   the second channel beside its colour: dashed where it can go, dotted where it cannot,
+   solid where it is about to. */
+[data-drop-state] {
+    outline: 2px dashed var(--border-strong);
+    outline-offset: 2px;
+}
+[data-drop-state="valid"][data-drop-over] {
+    outline-style: solid;
+    outline-color: var(--brand);
+    background-color: var(--brand-tint);
+}
+[data-drop-state="invalid"] {
+    outline-style: dotted;
+    outline-color: var(--border);
+}
+[data-drop-state="invalid"] > [data-drag-item] { opacity: 0.55; }
+[data-drop-state="invalid"][data-drop-over] {
+    outline-color: var(--danger-border-strong);
+    background-color: var(--danger-bg);
+    cursor: not-allowed;
+}
+
+/* ── The insertion line ─────────────────────────────────────────────────────
+   Drawn on the item the drop lands in front of, or after the last one, centred in the
+   gap between items. A zone class sets --drop-gap to its own gap; an app zone with a
+   different gap sets it too, or the line sits against the item's edge. A border rather
+   than a fill, because forced colours paints borders and flattens backgrounds. */
+[data-drop-edge]::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    height: 0;
+    border-top: 3px solid var(--brand);
+    border-radius: var(--radius-pill);
+    pointer-events: none;
+}
+[data-drop-edge="before"]::before { top: calc(var(--drop-gap, 0px) / -2 - 1.5px); }
+[data-drop-edge="after"]::before  { bottom: calc(var(--drop-gap, 0px) / -2 - 1.5px); }
+
+/* Side by side, the line stands up between the two items. */
+:is([data-drag-axis="x"], [data-drag-axis="grid"]) > [data-drop-edge]::before {
+    inset-block: 0;
+    inset-inline: auto;
+    width: 0;
+    height: auto;
+    border-top: 0;
+    border-inline-start: 3px solid var(--brand);
+}
+:is([data-drag-axis="x"], [data-drag-axis="grid"]) > [data-drop-edge="before"]::before {
+    top: 0;
+    inset-inline-start: calc(var(--drop-gap, 0px) / -2 - 1.5px);
+}
+:is([data-drag-axis="x"], [data-drag-axis="grid"]) > [data-drop-edge="after"]::before {
+    bottom: 0;
+    inset-inline-end: calc(var(--drop-gap, 0px) / -2 - 1.5px);
+}

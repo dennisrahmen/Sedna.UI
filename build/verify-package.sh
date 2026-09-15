@@ -65,6 +65,17 @@ for entry in "${REQUIRED[@]}"; do
     fi
 done
 
+# The Blazor JavaScript initializer that gives the drag-and-drop events their data. The
+# SDK fingerprints a JS module's file name in the package and maps the plain name to it,
+# so this is a pattern rather than a literal entry. Without it, @onsedna-drop in every
+# consuming app receives empty event arguments, and nothing errors.
+if grep -Eq '^staticwebassets/Sedna\.UI\.([a-z0-9]+\.)?lib\.module\.js$' <<<"$CONTENTS"; then
+    printf '  ok      %s\n' "staticwebassets/Sedna.UI.lib.module.js (fingerprinted)"
+else
+    printf '  MISSING %s\n' "staticwebassets/Sedna.UI.lib.module.js"
+    failed=1
+fi
+
 echo
 
 # The stylesheet must be the real one, not an empty placeholder, and must still
