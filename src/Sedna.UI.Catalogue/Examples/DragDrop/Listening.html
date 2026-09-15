@@ -1,0 +1,17 @@
+<ol class="drag-list" id="release-steps" data-drag-zone="release-steps" aria-label="Release steps">
+    <li class="drag-item" data-drag-item="backup" tabindex="0">Back up src-db-14</li>
+    <li class="drag-item" data-drag-item="migrate" tabindex="0">Run the schema migration</li>
+    <li class="drag-item" data-drag-item="promote" tabindex="0">Promote the release</li>
+</ol>
+
+<script>
+    // The script says what moved; the page moves it. Index counts the destination
+    // without the item, so a reorder and a move between zones are the same two lines.
+    document.getElementById('release-steps').addEventListener('sedna-drop', function (e) {
+        var move = e.detail;   // { item, type, from, to, index, fromIndex, keyboard }
+        var list = steps[move.from];
+        var step = list.splice(list.indexOf(move.item), 1)[0];
+        steps[move.to].splice(move.index, 0, step);
+        render();              // the page's own render, from its own state
+    });
+</script>

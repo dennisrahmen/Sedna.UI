@@ -112,6 +112,8 @@
     .file-tile:has(.file-tile-open:focus-visible),
     .media-transcript > summary:focus-visible,
     .media-transcript-time:focus-visible,
+    .drag-item:focus-visible,
+    .drag-handle:focus-visible,
     :is(a, button).list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
 
     /* Selected and current states are backgrounds, which are flattened away. An

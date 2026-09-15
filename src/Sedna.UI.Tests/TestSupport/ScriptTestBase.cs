@@ -45,18 +45,25 @@ public abstract class ScriptTestBase : BrowserTestBase
     /// An IANA zone to emulate, for the two places the library reads one. Null leaves
     /// the runner's own, which is what a zone test must not assert against.
     /// </param>
+    /// <param name="hasTouch">
+    /// A touch screen, for a test that drives real touch input through CDP rather than
+    /// synthesising pointer events: the browser's own decision between a scroll and a
+    /// hold is what such a test is about.
+    /// </param>
     protected async Task<IPage> Open(
         string body,
         string head = "",
         bool withMainScript = true,
         ColorScheme colorScheme = ColorScheme.Light,
         IDictionary<string, string>? storage = null,
-        string? timeZone = null)
+        string? timeZone = null,
+        bool hasTouch = false)
     {
         var context = await Browser!.NewContextAsync(new()
         {
             ColorScheme = colorScheme,
             TimezoneId = timeZone,
+            HasTouch = hasTouch,
             // The copy tests need the clipboard without a permission prompt.
             Permissions = new[] { "clipboard-read", "clipboard-write" },
         });

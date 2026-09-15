@@ -1,0 +1,67 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}. Up and down move it, left and right change lane, Space drops it."
+   data-drag-move="{item}: {zone}, position {position} of {count}."
+   data-drag-drop="{item} dropped in {zone} at position {position}."
+   data-drag-cancel="Cancelled. {item} is back in {zone}."></p>
+
+<div class="drag-board" @onsedna-drop="Drop">
+    @foreach (var (id, title) in Lanes)
+    {
+        <section class="drag-lane" aria-labelledby="lane-@id">
+            <h3 class="drag-lane-head" id="lane-@id">
+                @title <span class="badge">@_lanes[id].Count</span>
+            </h3>
+            <ul class="drag-list" data-drag-zone="@id" data-drag-group="board" data-drag-label="@title">
+                @foreach (var card in _lanes[id])
+                {
+                    <li class="drag-item" @key="card.Id" data-drag-item="@card.Id" data-drag-label="@card.Title"
+                        tabindex="0" aria-disabled="@(card.Locked ? "true" : null)">
+                        <span class="text-mono text-muted text-nowrap">@card.Id</span>
+                        <span>@card.Title</span>
+                    </li>
+                }
+                <li class="drag-empty">Nothing here. Drop a card to move it in.</li>
+            </ul>
+        </section>
+    }
+</div>
+
+@code {
+    private sealed record Card(string Id, string Title, bool Locked = false);
+
+    private static readonly (string Id, string Title)[] Lanes =
+    [
+        ("queued", "Queued"),
+        ("active", "In progress"),
+        ("done", "Done"),
+    ];
+
+    private readonly Dictionary<string, List<Card>> _lanes = new()
+    {
+        ["queued"] =
+        [
+            new("ORD-4204", "Reserve stock for the spring range"),
+            new("ORD-4209", "Confirm the courier pickup"),
+            new("ORD-4187", "Refund the damaged delivery"),
+        ],
+        ["active"] =
+        [
+            new("ORD-4211", "Re-print the customs label"),
+            new("ORD-4190", "Awaiting sign-off from finance", Locked: true),
+        ],
+        ["done"] = [],
+    };
+
+    // One handler on the board hears every lane, because the event bubbles from the zone it
+    // landed in. From and To name the lanes; a reorder inside one lane has both the same.
+    private void Drop(SednaDropEventArgs e)
+    {
+        var from = _lanes[e.From];
+        var card = from.Find(c => c.Id == e.Item);
+        if (card is null) return;
+
+        from.Remove(card);
+        var to = _lanes[e.To];
+        to.Insert(Math.Min(e.Index, to.Count), card);
+    }
+}

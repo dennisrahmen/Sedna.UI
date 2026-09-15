@@ -78,6 +78,7 @@ public class BrandTextContrastTests
         [".avatar"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over i"] = (Ink.Icon, ["--brand-tint"]),
+        ["[data-drop-state=\"valid\"][data-drop-over] > .drag-empty"] = (Ink.Text, ["--brand-tint"]),
         // A chosen row is tinted, and pointing at it or arrowing onto it deepens the tint — so
         // the label sits on either one.
         [".form-select option:checked"] = (Ink.Text, ["--brand-tint", "--brand-tint-strong"]),

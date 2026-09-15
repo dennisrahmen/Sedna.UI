@@ -1,0 +1,68 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}. Arrow keys move it, Space drops it, Escape cancels."
+   data-drag-move="{item}: {zone}, position {position} of {count}."
+   data-drag-drop="{item} dropped in {zone} at position {position}."
+   data-drag-cancel="Cancelled. {item} is back in {zone}."></p>
+
+<ul class="drag-list" data-drag-zone="stages" data-drag-group="plan" data-drag-accept="stage"
+    data-drag-label="Stages" @onsedna-drop="Drop">
+    @foreach (var stage in _stages)
+    {
+        <li class="card" @key="stage.Id" data-drag-item="@stage.Id" data-drag-type="stage" data-drag-label="@stage.Title">
+            <div class="card-head">
+                <div class="sedna-row">
+                    <button class="drag-handle" type="button" data-drag-handle aria-label="Move stage @stage.Title">
+                        <i class="ri-draggable" aria-hidden="true"></i>
+                    </button>
+                    <h3>@stage.Title</h3>
+                </div>
+                <span class="badge">@stage.Steps.Count</span>
+            </div>
+            <div class="card-body">
+                <ul class="drag-list" data-drag-zone="@stage.Id" data-drag-group="plan" data-drag-accept="task"
+                    data-drag-label="@stage.Title">
+                    @foreach (var step in stage.Steps)
+                    {
+                        <li class="drag-item" @key="step.Id" data-drag-item="@step.Id" data-drag-type="task"
+                            data-drag-label="@step.Title" tabindex="0">@step.Title</li>
+                    }
+                    <li class="drag-empty">No tasks in this stage.</li>
+                </ul>
+            </div>
+        </li>
+    }
+</ul>
+
+@code {
+    private sealed record Step(string Id, string Title);
+    private sealed record Stage(string Id, string Title, List<Step> Steps);
+
+    private readonly List<Stage> _stages =
+    [
+        new("build", "Build", [new("compile", "Compile"), new("test", "Run the tests")]),
+        new("ship", "Ship", [new("package", "Package"), new("sign", "Sign the package")]),
+        new("verify", "Verify", []),
+    ];
+
+    // One zone of stages that takes only stages, and one zone of tasks per stage that takes
+    // only tasks — all in one group, so a task moves between stages. A stage carried over a
+    // task list is refused there and lands in the list of stages around it.
+    private void Drop(SednaDropEventArgs e)
+    {
+        if (e.Type == "stage")
+        {
+            var stage = _stages.Find(s => s.Id == e.Item);
+            if (stage is null) return;
+            _stages.Remove(stage);
+            _stages.Insert(Math.Min(e.Index, _stages.Count), stage);
+            return;
+        }
+
+        var from = _stages.Find(s => s.Id == e.From)?.Steps;
+        var to = _stages.Find(s => s.Id == e.To)?.Steps;
+        var step = from?.Find(t => t.Id == e.Item);
+        if (to is null || step is null) return;
+        from!.Remove(step);
+        to.Insert(Math.Min(e.Index, to.Count), step);
+    }
+}

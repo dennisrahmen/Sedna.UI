@@ -1,0 +1,41 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}. Arrow keys move it, Space drops it, Escape cancels."
+   data-drag-move="{item}, tile {position} of {count}."
+   data-drag-drop="{item} dropped at tile {position} of {count}."
+   data-drag-cancel="Cancelled. {item} is back at tile {position}."></p>
+
+<ul class="drag-grid" data-drag-zone="dashboard" data-drag-axis="grid" aria-label="Dashboard tiles"
+    @onsedna-drop="Drop">
+    @foreach (var tile in _tiles)
+    {
+        <li class="drag-item" @key="tile.Id" data-drag-item="@tile.Id" data-drag-label="@tile.Title" tabindex="0">
+            <i class="@tile.Icon" aria-hidden="true"></i>
+            <span>@tile.Title</span>
+        </li>
+    }
+</ul>
+
+@code {
+    private sealed record Tile(string Id, string Title, string Icon);
+
+    private readonly List<Tile> _tiles =
+    [
+        new("orders", "Orders", "ri-inbox-line"),
+        new("revenue", "Revenue", "ri-line-chart-line"),
+        new("share", "Channel share", "ri-pie-chart-line"),
+        new("sites", "Sites", "ri-map-pin-line"),
+        new("rota", "Rota", "ri-calendar-line"),
+        new("team", "Team", "ri-team-line"),
+        new("health", "Health", "ri-dashboard-line"),
+    ];
+
+    // data-drag-axis="grid" counts tiles in reading order, so Index is the same position
+    // in this flat list whatever the column count at the reader's width.
+    private void Drop(SednaDropEventArgs e)
+    {
+        var tile = _tiles.Find(t => t.Id == e.Item);
+        if (tile is null) return;
+        _tiles.Remove(tile);
+        _tiles.Insert(Math.Min(e.Index, _tiles.Count), tile);
+    }
+}

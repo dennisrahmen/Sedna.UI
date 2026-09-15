@@ -1,0 +1,45 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}. Arrow keys move it, Space drops it, Escape cancels."
+   data-drag-move="{item}, position {position} of {count}."
+   data-drag-drop="{item} dropped at position {position} of {count}."
+   data-drag-cancel="Cancelled. {item} is back at position {position}."></p>
+<p class="visually-hidden" id="release-steps-help">
+    Press Space to pick up a step, the arrow keys to move it, and Space again to drop it.
+</p>
+
+<ol class="drag-list" data-drag-zone="release-steps" aria-label="Release steps" @onsedna-drop="Drop">
+    @foreach (var step in _steps)
+    {
+        <li class="drag-item" @key="step.Id" data-drag-item="@step.Id" data-drag-label="@step.Title"
+            aria-disabled="@(step.Locked ? "true" : null)">
+            <button class="drag-handle" type="button" data-drag-handle
+                    aria-label="Move @step.Title" aria-describedby="release-steps-help">
+                <i class="@(step.Locked ? "ri-lock-2-line" : "ri-draggable")" aria-hidden="true"></i>
+            </button>
+            <span>@step.Title</span>
+        </li>
+    }
+</ol>
+
+@code {
+    private sealed record Step(string Id, string Title, bool Locked = false);
+
+    private readonly List<Step> _steps =
+    [
+        new("freeze", "Freeze deploys to orders-console-01", Locked: true),
+        new("backup", "Back up src-db-14"),
+        new("migrate", "Run the schema migration"),
+        new("canary", "Route five percent of traffic to the canary"),
+        new("promote", "Promote the release"),
+    ];
+
+    // The list is the app's. The script says which item went where; this moves it and the
+    // render puts the rows in the new order. Index counts the list without the item.
+    private void Drop(SednaDropEventArgs e)
+    {
+        var step = _steps.Find(s => s.Id == e.Item);
+        if (step is null) return;
+        _steps.Remove(step);
+        _steps.Insert(Math.Min(e.Index, _steps.Count), step);
+    }
+}

@@ -1,0 +1,170 @@
+@page "/drag-drop"
+
+<CatHead Title="Drag and drop">
+    Reordering a list, carrying a card to another lane, rearranging tiles &mdash; by mouse, by a finger
+    held still, and by the keyboard. The markup and the list are the app's: <code>data-drag-*</code>
+    attributes hand the input to the script, and the move arrives as a <code>sedna-drop</code> event.
+    Not files: a file dropped from the desktop is the <a href="/form-file">dropzone</a>.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-information-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">The script never moves a node</span>
+        A drag writes attributes on the app's own elements &mdash; the lifted item, the zone states, the
+        insertion line &mdash; and clears them before it says what happened. The app moves the item in its
+        own list and renders. In Blazor that is <code>@@onsedna-drop</code> and a remove and an insert;
+        <code>@@using Sedna.UI</code> in <code>_Imports.razor</code> is what makes the attribute known.
+        Every example below is a component doing exactly that.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Interop.DragReorder" Title="Reorder a list" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; drag a handle, or focus one and press <kbd class="kbd">Space</kbd>.</strong>
+        <code>data-drag-zone</code> on the list, <code>data-drag-item</code> on each row, and
+        <code>data-drag-handle</code> on the grip, which makes the grip the only place a row drags from
+        &mdash; the rest of the row keeps its text selectable and its controls clickable. A row with
+        <code>aria-disabled="true"</code> stays put, and others can still be dropped around it.
+    </p>
+    <p>
+        <code>Index</code> counts the list <em>without</em> the item, so the handler is a remove and an
+        insert. A drop back where the row started sends no event at all.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.DragBoard" Title="Move cards between lanes" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> Zones that share a <code>data-drag-group</code> trade items; a zone with
+        no group only reorders its own. The event bubbles from the zone the card landed in, so one
+        handler on <code>.drag-board</code> hears every lane, and <code>From</code> and <code>To</code>
+        name them.
+    </p>
+    <p>
+        A whole card drags, so on a phone it lifts after the same press-and-hold as a hover hint, and a
+        finger that moves first scrolls the page as usual. From the keyboard, the arrows across the lane
+        move the card to the next one. <code>.drag-empty</code> is written once in every lane and shows
+        only while the lane has no cards.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.DragTiles" Title="Reorder a grid of tiles" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>.drag-grid</code> with <code>data-drag-axis="grid"</code>: positions
+        run in reading order, so <code>Index</code> is a position in one flat list whatever the column
+        count at this width, and the insertion line stands up beside the tile. In a grid the arrow keys
+        move by one tile across and by one row up and down. <code>data-drag-axis="x"</code> is the same
+        for a single row.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.DragNested" Title="A nested zone that takes only some items" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; carry a stage over another stage's tasks.</strong>
+        <code>data-drag-accept</code> names the <code>data-drag-type</code>s a zone takes. The stages take
+        only stages and each task list only tasks, all in one group, so a task moves between stages while
+        a stage is refused by every task list &mdash; drawn dotted, and red under the pointer &mdash; and
+        lands in the list of stages around it instead. No item is ever offered a zone inside itself.
+    </p>
+    <p>
+        The stage is a <code>.card</code>, not a <code>.drag-item</code>: every state is keyed on the
+        attributes, so any element can be the thing that is dragged. An empty
+        <code>data-drag-accept=""</code> takes nothing, which is a zone items are dragged out of only.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.DragAutoScroll" Title="Scrolling while dragging" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; hold a row against the bottom edge.</strong> Near the edge of anything that
+        scrolls, a pointer drag scrolls it, faster the closer it gets &mdash; this
+        <code>.sedna-scroll</code>, a <code>.drag-board</code> sideways, and the page itself. It waits
+        until the pointer has moved, so a row picked up near the edge does not set the list running. From
+        the keyboard, the target row is scrolled into view instead.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.DragDrop.States" Title="The states" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Every state frozen, to see them side by side. The script writes all of them during a drag:
+        <code>data-dragging</code> on the item, <code>data-drop-state</code> on every zone the item could
+        reach, <code>data-drop-over</code> on the one under the pointer, and <code>data-drop-edge</code> on
+        the item the line is drawn against. Dashed, solid and dotted outlines carry the difference as well
+        as the colour.
+    </p>
+    <p>
+        The line sits in the middle of the gap between items, which it reads from
+        <code>--drop-gap</code>. <code>.drag-list</code> and <code>.drag-grid</code> set it; a zone of
+        your own with a different gap sets it too.
+    </p>
+</CatExample>
+
+<CatSnippet Name="DragDrop/Listening.html" Title="Without Blazor">
+    <p>
+        The events are ordinary bubbling DOM events, so a page with no Blazor on it listens with
+        <code>addEventListener</code>. <code>sedna-dragstart</code> is cancelable: calling
+        <code>preventDefault()</code> keeps the item where it is.
+    </p>
+</CatSnippet>
+
+<h2 id="attributes">Attributes <CatAnchor Id="attributes" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Attribute</th><th>On</th><th>Does</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>data-drag-zone="id"</code></td><td>a list</td><td>Its direct children with <code>data-drag-item</code> are its items. Anything else inside it is not counted.</td></tr>
+            <tr><td><code>data-drag-item="id"</code></td><td>an item</td><td>Can be dragged. The id is what the events carry.</td></tr>
+            <tr><td><code>data-drag-handle</code></td><td>inside an item</td><td>The item drags from here and nowhere else. Lifts at once under a finger.</td></tr>
+            <tr><td><code>data-drag-group="name"</code></td><td>a zone</td><td>Zones sharing a group trade items.</td></tr>
+            <tr><td><code>data-drag-type="name"</code></td><td>an item</td><td>What <code>data-drag-accept</code> matches.</td></tr>
+            <tr><td><code>data-drag-accept="a b"</code></td><td>a zone</td><td>The only types it takes. Empty takes nothing.</td></tr>
+            <tr><td><code>data-drag-axis</code></td><td>a zone</td><td><code>y</code> by default, <code>x</code> for a row, <code>grid</code> for tiles.</td></tr>
+            <tr><td><code>data-drag-label</code></td><td>an item or a zone</td><td>Its name in an announcement. An item falls back to its text, a zone to its <code>aria-label</code>.</td></tr>
+            <tr><td><code>aria-disabled="true"</code></td><td>an item or a zone</td><td>Nothing lifts from it or lands in it.</td></tr>
+            <tr><td><code>data-drag-live</code></td><td>a live region</td><td>Where a keyboard drag is announced, in the sentences below.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="events">Events <CatAnchor Id="events" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Event</th><th>On</th><th>Detail</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>sedna-dragstart</code></td><td>the item</td><td><code>item</code>, <code>type</code>, <code>zone</code>, <code>index</code>, <code>keyboard</code>. Cancelable.</td></tr>
+            <tr><td><code>sedna-drop</code></td><td>the zone it landed in</td><td><code>item</code>, <code>type</code>, <code>from</code>, <code>to</code>, <code>index</code>, <code>fromIndex</code>, <code>keyboard</code>. Only when the item moved.</td></tr>
+            <tr><td><code>sedna-dragend</code></td><td>the item</td><td>As <code>sedna-dragstart</code>, plus <code>dropped</code>. Always, last.</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    In C# they are <code>SednaDragEventArgs</code> and <code>SednaDropEventArgs</code>.
+    <code>sednaUi.drag.cancel()</code> puts back an item mid-drag, for a zone about to be torn down.
+</p>
+
+<h2 id="keyboard">Keyboard <CatAnchor Id="keyboard" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Key</th><th>Does</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><kbd class="kbd">Space</kbd> <kbd class="kbd">Enter</kbd></td><td>On a focused item, or on its handle: picks it up. While held: drops it.</td></tr>
+            <tr><td><kbd class="kbd">↑</kbd> <kbd class="kbd">↓</kbd></td><td>Moves it along a list, or by a row in a grid.</td></tr>
+            <tr><td><kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd></td><td>Moves it to the previous or next zone that takes it; along a row or a grid.</td></tr>
+            <tr><td><kbd class="kbd">Home</kbd> <kbd class="kbd">End</kbd></td><td>To the first or last position.</td></tr>
+            <tr><td><kbd class="kbd">Page Up</kbd> <kbd class="kbd">Page Down</kbd></td><td>To the previous or next zone, in any layout.</td></tr>
+            <tr><td><kbd class="kbd">Esc</kbd>, or leaving the item</td><td>Puts it back.</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    Each step is read out through the app's own <code>[data-drag-live]</code> region, from the sentence in
+    its <code>data-drag-pickup</code>, <code>data-drag-move</code>, <code>data-drag-drop</code> or
+    <code>data-drag-cancel</code>, with <code>{item}</code>, <code>{zone}</code>, <code>{position}</code> and
+    <code>{count}</code> filled in. A step with no sentence says nothing. Once the app has moved the item,
+    focus returns to it.
+</p>

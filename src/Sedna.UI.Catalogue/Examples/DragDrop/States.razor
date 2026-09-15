@@ -1,0 +1,38 @@
+<div class="field-grid">
+    <div class="sedna-col sedna-gap-2">
+        <span class="form-label">Items</span>
+        <ul class="drag-list">
+            <li class="drag-item"><span>Whole row drags</span></li>
+            <li class="drag-item">
+                <span class="drag-handle" aria-hidden="true"><i class="ri-draggable"></i></span>
+                <span>Drags from its handle</span>
+            </li>
+            <li class="drag-item" aria-disabled="true">
+                <span class="drag-handle" aria-hidden="true"><i class="ri-lock-2-line"></i></span>
+                <span>Cannot be moved</span>
+            </li>
+            <li class="drag-item" data-drop-edge="before"><span>The line: a drop lands above this row</span></li>
+            <li class="drag-item" data-dragging="keyboard"><span>Picked up with Space</span></li>
+            <li class="drag-item" data-dragging="pointer"><span>Carried by the pointer</span></li>
+        </ul>
+    </div>
+
+    <div class="sedna-col sedna-gap-2">
+        <span class="form-label">Zones</span>
+        <ul class="drag-list" data-drop-state="valid">
+            <li class="drag-item">Can take it</li>
+        </ul>
+        <ul class="drag-list" data-drop-state="valid" data-drop-over>
+            <li class="drag-item">Can take it, and the pointer is over it</li>
+        </ul>
+        <ul class="drag-list" data-drop-state="invalid">
+            <li class="drag-item">Refuses it</li>
+        </ul>
+        <ul class="drag-list" data-drop-state="invalid" data-drop-over>
+            <li class="drag-item">Refuses it, and the pointer is over it</li>
+        </ul>
+        <ul class="drag-list" data-drag-zone="states-empty">
+            <li class="drag-empty">Empty. Drop a card to move it in.</li>
+        </ul>
+    </div>
+</div>

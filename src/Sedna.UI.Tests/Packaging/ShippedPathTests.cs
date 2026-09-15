@@ -18,6 +18,9 @@ public class ShippedPathTests
     [InlineData("wwwroot/lib/remixicon/remixicon.css")]
     [InlineData("wwwroot/lib/remixicon/remixicon.woff2")]
     [InlineData("wwwroot/lib/remixicon/LICENSE")]
+    // No app writes this one out: Blazor finds a JavaScript initializer by exactly this
+    // name, and a rename leaves @onsedna-drop receiving empty event arguments.
+    [InlineData("wwwroot/Sedna.UI.lib.module.js")]
     public void Shipped_asset_exists_at_its_documented_path(string relativePath)
     {
         // Consuming apps write these paths out by hand as
