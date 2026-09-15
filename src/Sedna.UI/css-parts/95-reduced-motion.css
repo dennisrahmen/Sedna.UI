@@ -96,6 +96,7 @@
     .health-badge--streaming .health-dot,
     .health-badge--connecting .health-dot { animation: none; }
     .health-badge--healthy .health-dot { animation: none; }
+    .cal-event-dot--live { animation: none; }   /* 66 — the event still says "Live" in text */
     .segmented-option { transition: none; }   /* 51 */
     /* 64 — the hole appears at the new target instead of sliding to it, and the
        "do this now" marker stops pulsing. Neither carries information: the ring is
