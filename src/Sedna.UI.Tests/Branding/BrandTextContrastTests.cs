@@ -97,6 +97,10 @@ public class BrandTextContrastTests
         [".chat-mention"] = (Ink.Text, ["--brand-tint", "--surface-strong"]),
         [".chat-reaction[aria-pressed=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".chat-replies > strong"] = (Ink.Text, []),
+        // A transcript's times, on the player's ground or on the tint of the line being spoken;
+        // the playing track's number, on the tint of the current row.
+        [".media-transcript-time"] = (Ink.Text, ["--brand-tint"]),
+        ["[aria-current=\"true\"] > .media-track-num"] = (Ink.Text, ["--brand-tint"]),
         [".chip--active"] = (Ink.Text, ["--brand-tint"]),
         [".chip--active i"] = (Ink.Icon, ["--brand-tint"]),
         [".chip--active .chip-dismiss"] = (Ink.Icon, ["--brand-tint"]),

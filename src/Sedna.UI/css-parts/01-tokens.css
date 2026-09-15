@@ -293,6 +293,11 @@
        --backdrop is the exception that proves it — pure black belongs to no ramp,
        has no hue to drift, and is what a modal backdrop should be in every theme. */
     --backdrop:      rgba(0, 0, 0, 0.65);       /* modal backdrop */
+    /* A video's letterbox, and the scrim under a label or a play glyph on a picture.
+       Black in every theme for the same reason as --backdrop: a film is framed in
+       black, and a label on a photograph cannot know what the photograph is. */
+    --media-bg:      var(--black);
+    --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);

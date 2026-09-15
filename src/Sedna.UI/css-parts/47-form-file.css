@@ -111,3 +111,39 @@
    alone. */
 .file-item--error { border-color: var(--danger-border); color: var(--danger-fg); }
 .file-item--error > i { color: var(--danger-fg); }
+
+/* ── What happened to it ────────────────────────────────────────────────────
+   An item that says more than its name: `.file-item-main` stacks the name over a
+   `.file-meta` line or a `.progress` bar, `.file-item-status` is the glyph for how it
+   went, and `.file-item-actions` holds its buttons — retry, cancel, remove, download.
+
+     <li class="file-item">
+       <span class="file-icon file-icon--sheet"><i class="ri-file-excel-2-line"></i></span>
+       <span class="file-item-main">
+         <span class="file-item-name">stock-check.xlsx</span>
+         <span class="progress" role="progressbar" aria-valuenow="64" aria-label="Uploading stock-check.xlsx"><span class="progress-bar" style="width:64%"></span></span>
+       </span>
+       <span class="file-item-size">64%</span>
+       <span class="file-item-actions"><button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Cancel">…</button></span>
+     </li>
+
+   Uploading needs no modifier — the bar is the state. `--done` and `--error` colour
+   the status glyph, and the glyph's shape says it without the colour. The same item
+   is a file attached to a record, or to a chat message, as an `<a>` that downloads. */
+.file-item-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+.file-item-main > .file-item-name { flex: none; }
+.file-item-main > .progress { height: 3px; }
+.file-item-status { flex-shrink: 0; font-size: var(--text-6); color: var(--muted); }
+.file-item--done .file-item-status { color: var(--go-fg); }
+.file-item--error .file-item-status { color: var(--danger-fg); }
+.file-item--error .file-meta { color: var(--danger-fg); }
+.file-item-actions { display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0; }
+a.file-item { color: inherit; text-decoration: none; }
+a.file-item:hover { border-color: var(--border-strong); text-decoration: none; }
+a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }

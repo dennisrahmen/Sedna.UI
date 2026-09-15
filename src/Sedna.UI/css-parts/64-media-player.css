@@ -1,0 +1,206 @@
+/* ── Video and audio ──────────────────────────────────────────────────────────
+   The frame around the platform's own player. The `<video controls>` or
+   `<audio controls>` is the app's and stays native — play, seek, volume, captions,
+   picture-in-picture, full screen and the keyboard are the browser's, and none of it
+   is redrawn here. What the library adds is what the element does not carry: the
+   title, the length and the date, the actions, and the transcript.
+
+     <figure class="media-player">
+       <video controls preload="metadata" poster="…" width="1280" height="720">
+         <source src="…" type="video/mp4" />
+         <track kind="captions" src="…" srclang="en" label="English" />
+       </video>
+       <figcaption class="media-player-body">
+         <span class="media-player-text">
+           <strong class="media-player-title">Receiving a pallet at dock 4</strong>
+           <span class="file-meta"><span>4:32</span><span>12 Sep 2026</span></span>
+         </span>
+         <span class="media-player-actions">…</span>
+       </figcaption>
+       <details class="media-transcript">…</details>
+     </figure>
+
+   A `<track kind="captions">` is what puts the captions button in the native
+   controls; the transcript is the same words, readable and searchable without playing.
+   ─────────────────────────────────────────────────────────────────────────── */
+.media-player {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    background: var(--surface-here, var(--bg));
+    overflow: hidden;
+}
+/* The picture on the letterbox, at its frame's ratio before a byte has loaded, so the
+   page does not jump when the metadata arrives. A different ratio is the element's
+   own `aspect-ratio`, set inline or by the app. */
+.media-player > video {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    background: var(--media-bg);
+}
+/* The title, the meta line and the actions: under a video, or the whole of an audio
+   player with the `<audio>` in the text column. */
+.media-player-body {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    min-width: 0;
+    padding: var(--space-5) var(--space-6);
+}
+.media-player-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+.media-player-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fg);
+    font-size: var(--text-5);
+    font-weight: 600;
+}
+.media-player-actions { display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0; }
+/* The native audio control takes the text column's width, under the title. */
+.media-player-text > audio {
+    display: block;
+    width: 100%;
+    height: var(--control-height);
+    margin-top: var(--space-3);
+}
+/* On a phone the actions go under the text rather than squeezing the title to
+   nothing. */
+@media (max-width: 560px) {
+    .media-player-body { flex-wrap: wrap; }
+    .media-player-body > .media-player-actions { margin-inline-start: auto; }
+}
+
+/* ── Transcript ─────────────────────────────────────────────────────────────
+   What was said, with the time it was said, under the player — a `<details>`, so it
+   opens with no script. Each time is a button the app wires to `currentTime`; the
+   line being spoken now carries `aria-current="true"`, set by the app from the
+   element's `timeupdate`. Long transcripts scroll inside their own box. */
+.media-transcript { border-top: 1px solid var(--divider); }
+.media-transcript > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+}
+.media-transcript > summary::-webkit-details-marker { display: none; }
+.media-transcript > summary:hover { background: var(--bg-hover); }
+.media-transcript > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.media-transcript > summary::after {
+    content: '';
+    margin-inline-start: auto;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.5;
+    transition: transform var(--motion-fast) ease;
+}
+.media-transcript[open] > summary::after { transform: rotate(-180deg); }
+.media-transcript > ol {
+    margin: 0;
+    padding: 0 0 var(--space-4);
+    list-style: none;
+    max-height: 16rem;
+    overflow-y: auto;
+}
+.media-transcript li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-5);
+    padding: var(--space-2) var(--space-6);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    line-height: 1.5;
+}
+.media-transcript li[aria-current="true"] {
+    background: var(--brand-tint);
+    box-shadow: inset 3px 0 0 var(--brand);
+    color: var(--fg);
+}
+.media-transcript-time {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--brand-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+.media-transcript-time:hover { text-decoration: underline; }
+.media-transcript-time:focus-visible { outline: none; border-radius: var(--radius-small); box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* ── A track in a list ──────────────────────────────────────────────────────
+   A playlist is a `.list`: the row is a button that plays, the length is the
+   `.list-meta`, and the one playing is `aria-current="true"`. The number column is a
+   fixed width so one to twelve, and the glyph, line up, and the playing row's number is the app's
+   equalizer glyph in the brand. */
+.media-track-num {
+    flex-shrink: 0;
+    width: 20px;
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+.media-track-num > i { font-size: var(--text-6); }
+[aria-current="true"] > .media-track-num { color: var(--brand-text); }
+
+/* ── A waveform ─────────────────────────────────────────────────────────────
+   A voice message, a call recording, a dictated note: play, the bars, how long. The
+   bars are `<i>` elements with their height in `--h`; the ones already heard carry
+   `.audio-wave-heard`. The `<audio>` is the app's and hidden — the bars are the
+   picture of it, and the play button's name says the length. On a narrow screen the
+   bars give up width and the time never wraps. */
+.audio-wave {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: min(100%, 240px);
+}
+.audio-wave > .btn { flex-shrink: 0; border-radius: 50%; }
+.audio-wave-bars {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex: 1;
+    min-width: 64px;
+    height: 28px;
+}
+.audio-wave-bars > i {
+    --h: 30%;
+    flex: 1;
+    min-width: 2px;
+    height: var(--h);
+    min-height: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--muted);
+    opacity: 0.6;
+}
+.audio-wave-bars > .audio-wave-heard { background: var(--brand); opacity: 1; }
+.audio-wave-time {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: var(--text-3);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}

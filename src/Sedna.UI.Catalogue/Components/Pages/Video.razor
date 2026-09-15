@@ -1,0 +1,52 @@
+@page "/video"
+
+<CatHead Title="Video">
+    A frame around the platform's own player, and a video as a tile in a grid. The
+    <code>&lt;video controls&gt;</code> stays native &mdash; play, seek, volume, captions, full
+    screen and the keyboard are the browser's and none of it is redrawn. The library adds what the
+    element does not carry: the title, the length, the actions and the transcript. Sound on its own
+    is <a href="/audio">Audio</a>.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-film-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">The demos have no video in them</span>
+        This site loads photographs from one remote host and nothing else, so each player shows its
+        poster and has no source. <strong>The package loads nothing remote</strong>; the app's
+        <code>&lt;source&gt;</code> and <code>&lt;track&gt;</code> go inside the element.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Video.Player" Title="A player" Demo="ex-demo--block">
+    <p>
+        <code>.media-player</code> is a <code>&lt;figure&gt;</code>: the <code>&lt;video&gt;</code>
+        on a black letterbox at 16:9 before a byte has loaded, so the page does not jump when the
+        metadata arrives, then the <code>.media-player-body</code> as its caption &mdash; the
+        <code>.media-player-title</code> and a <a href="/files"><code>.file-meta</code></a> line in
+        <code>.media-player-text</code>, and <code>.media-player-actions</code>. Give the element its
+        <code>width</code>, <code>height</code> and a <code>poster</code>, and
+        <code>preload="metadata"</code> or <code>"none"</code> in a page of several.
+    </p>
+    <p>
+        Captions are a <code>&lt;track kind="captions"&gt;</code>, which is what puts the captions
+        button in the native controls; a toggle of your own beside the title is a button with
+        <code>aria-pressed</code> that sets the track's <code>mode</code>.
+        <code>.media-transcript</code> is the same words under the player, readable and searchable
+        without playing: a <code>&lt;details&gt;</code>, so it opens with no script, holding an
+        <code>&lt;ol&gt;</code> of lines. Each <code>.media-transcript-time</code> is a button the app
+        wires to <code>currentTime</code>, and the line being spoken carries
+        <code>aria-current="true"</code>, set from the element's <code>timeupdate</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Video.Grid" Title="Video tiles" Demo="ex-demo--block">
+    <p>
+        A library of videos is a <a href="/files"><code>.file-grid</code></a> with
+        <code>--wide</code>, which gives each tile the room and a 16:9 thumbnail. On the thumbnail,
+        <code>.file-tile-play</code> says it plays and <code>.file-tile-badge</code> in the corner is
+        its length, both on a scrim that reads over any picture; the words &ldquo;Length&rdquo; are
+        there for a screen reader. The rest is the file tile: the link that opens it, the meta line
+        and the menu.
+    </p>
+</CatExample>

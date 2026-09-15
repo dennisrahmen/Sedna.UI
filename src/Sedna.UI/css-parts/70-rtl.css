@@ -85,6 +85,10 @@
    that put it there is a `margin-inline-start`. So the offset is restated from the
    other edge; the arithmetic is the same, mirrored. */
 [dir="rtl"] .avatar { --avatar-cut-x: calc(var(--avatar-overlap) - var(--avatar-size) / 2); }
+/* The same hole in a conversation's stacked pair, where the front avatar sits at the
+   inline end: measured from the back avatar's left edge, which in RTL is the pair's
+   inline end minus its own width. */
+[dir="rtl"] .chat-avatars > .avatar:first-child:not(:last-child) { --chat-avatars-cut-x: calc(var(--chat-avatars-item) * 1.5 - var(--chat-avatars-size)); }
 
 /* The tree's disclosure caret points along the inline axis, so it starts mirrored
    and rotates the other way when open. */

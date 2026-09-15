@@ -96,8 +96,9 @@
 
 <CatExample TExample="Examples.Chat.Attachments" Title="Files and pictures" Demo="ex-demo--block">
     <p>
-        <code>.chat-attachment</code> is a file in a bubble &mdash; an <code>&lt;a&gt;</code> with
-        the icon, the name and the size, so it downloads like any link &mdash; and
+        A file in a bubble is the <a href="/files"><code>.file-item</code></a> every other file
+        list uses &mdash; an <code>&lt;a&gt;</code> with the <code>.file-icon</code>, the name and
+        the size, so it downloads like any link, on the bubble's own surface &mdash; and
         <code>.chat-bubble--media</code> is a bubble that is a picture or a <code>&lt;video&gt;</code>,
         filled to its corners with the caption in the next bubble. Give the image its <code>width</code> and
         <code>height</code>, or the thread jumps as it loads.
@@ -112,7 +113,7 @@
         <code>.media-frame</code> that opens the <a href="/media"><code>.lightbox</code></a> &mdash;
         a modal dialog with the picture as large as the screen allows, the sender and time in its
         meta line, and the way to the next one. A file travels beside them as a
-        <code>.chat-attachment</code>. In the composer, a picture waiting to be sent is a
+        <a href="/files"><code>.file-item</code></a>. In the composer, a picture waiting to be sent is a
         <code>.chat-composer-thumb</code> with its remove button over the corner, next to the
         chips for the other files.
     </p>
@@ -133,11 +134,11 @@
     <p>
         <code>.chat-link-card</code> unfurls a link the message carries &mdash; the picture, the
         title, a line and the host in <code>.chat-link-card-body</code>; the app fetches the
-        preview. <code>.chat-audio</code> is a voice message: play, the <code>.chat-audio-bars</code>
+        preview. A voice message is an <a href="/audio"><code>.audio-wave</code></a>: play, the <code>.audio-wave-bars</code>
         with each bar's height in <code>--h</code> and the ones already heard as
-        <code>.chat-audio-heard</code>, and the <code>.chat-audio-time</code>. The
+        <code>.audio-wave-heard</code>, and the <code>.audio-wave-time</code>. The
         <code>&lt;audio&gt;</code> element is the app's and hidden; the play button names the
-        length. A file still uploading is a <code>.chat-attachment</code> with a
+        length. A file still uploading is a <code>.file-item</code> with a
         <a href="/progress"><code>.progress</code></a> under the name and the percentage in the
         size column.
     </p>
@@ -190,9 +191,12 @@
 
 <CatExample TExample="Examples.Chat.Conversations" Title="The conversations" Demo="ex-demo--block">
     <p>
-        The list of chats is a <a href="/list"><code>.list</code></a>: an avatar or an
-        <code>.avatar-group</code>, the name and the last line, the time and an unread
-        <a href="/badge">badge</a>. Nothing here is a chat class, and that is the point &mdash;
-        the row that navigates is the row that navigates everywhere else.
+        The list of chats is a <a href="/list"><code>.list</code></a>: an avatar, the name and the
+        last line, the time and an unread <a href="/badge">badge</a> &mdash; the row that
+        navigates is the row that navigates everywhere else. A group is a
+        <code>.chat-avatars</code>: two of its people stacked corner to corner inside one
+        avatar's square, so a group's name starts where a person's does and the column of names
+        stays straight. An <code>.avatar-group</code> there would be as wide as its count. Name
+        the pair once, on the wrapper.
     </p>
 </CatExample>

@@ -62,6 +62,38 @@
 .chat-unread { color: var(--brand-text); }
 .chat-unread::before, .chat-unread::after { background: var(--brand); opacity: 0.5; }
 
+/* A conversation's picture in a list of them: two people of a group stacked corner to
+   corner inside one avatar's square. An `.avatar-group` is as wide as its count, so a
+   group's name started further in than a person's and the column of names and last
+   lines was crooked; this keeps the leading column one width whoever is in it. One
+   person is a plain `.avatar`. The avatar in front is cut out of the one behind, as in
+   `.avatar-group`, so the gap is right on every surface. */
+.chat-avatars {
+    --chat-avatars-size: 28px;
+    --chat-avatars-item: 20px;
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: var(--chat-avatars-size);
+    height: var(--chat-avatars-size);
+}
+.chat-avatars > .avatar {
+    --avatar-size: var(--chat-avatars-item);
+    position: absolute;
+    font-size: var(--text-1);
+}
+.chat-avatars > .avatar:first-child:not(:last-child) {
+    --chat-avatars-cut-x: calc(var(--chat-avatars-size) - var(--chat-avatars-item) / 2);
+    top: 0;
+    inset-inline-start: 0;
+    mask-image: radial-gradient(
+        circle calc(var(--chat-avatars-item) / 2 + var(--avatar-gap))
+        at var(--chat-avatars-cut-x) calc(var(--chat-avatars-size) - var(--chat-avatars-item) / 2),
+        transparent 100%, currentColor 100%);
+}
+.chat-avatars > .avatar:last-child { bottom: 0; inset-inline-end: 0; }
+.chat-avatars > .avatar i { font-size: var(--text-3); }
+
 /* Something the app did, told in the thread: joined, renamed, pinned. */
 .chat-system {
     align-self: center;
@@ -200,27 +232,12 @@
 }
 .chat-quote > strong { color: var(--fg-soft); margin-inline-end: var(--space-3); }
 
-/* A file in a bubble: icon, name, size. */
-.chat-attachment {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-inner);
-    background: var(--surface-here);
-    color: inherit;
-    text-decoration: none;
-    font-size: var(--text-3);
-}
-.chat-attachment > i { font-size: var(--text-8); color: var(--muted); flex-shrink: 0; }
-.chat-attachment-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.chat-attachment-size { color: var(--muted); font-variant-numeric: tabular-nums; margin-inline-start: auto; flex-shrink: 0; }
-.chat-attachment:hover { border-color: var(--border-strong); text-decoration: none; }
-/* One still on its way up: the bar under the name is a `.progress`, and the size
-   column says how far. */
-.chat-attachment { flex-wrap: wrap; }
-.chat-attachment > .progress { flex-basis: 100%; height: 3px; }
+/* A file in a bubble is a `.file-item` (47-form-file.css) — the icon, the name, the
+   size, a `.progress` while it uploads — on the bubble's own surface rather than the
+   list's, so it reads as part of the message. A voice message is an `.audio-wave`
+   (64-media-player.css), which needs nothing from the bubble. */
+.chat-bubble .file-item { background: var(--surface-here); }
+.chat-bubble .file-item + .file-item { margin-top: var(--space-2); }
 
 /* A link the message carries, unfurled: the picture, the title, a line and the host.
    The app fetches the preview; this is only the card. */
@@ -250,37 +267,6 @@
 .chat-link-card-body > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-link-card-body > span { color: var(--fg-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .chat-link-card-body > small { color: var(--muted); font-size: var(--text-2); }
-
-/* A voice message: play, the waveform, how long. The bars are `<i>` elements with
-   their height in `--h`; the ones already heard carry `.chat-audio-heard`. The
-   `<audio>` is the app's and hidden — the bars are the picture of it. */
-.chat-audio {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    min-width: min(100%, 240px);
-}
-.chat-audio > .btn { flex-shrink: 0; border-radius: 50%; }
-.chat-audio-bars {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    flex: 1;
-    min-width: 128px;
-    height: 28px;
-}
-.chat-audio-bars > i {
-    --h: 30%;
-    flex: 1;
-    min-width: 2px;
-    height: var(--h);
-    min-height: 3px;
-    border-radius: var(--radius-pill);
-    background: var(--muted);
-    opacity: 0.6;
-}
-.chat-audio-bars > .chat-audio-heard { background: var(--brand); opacity: 1; }
-.chat-audio-time { font-size: var(--text-3); color: var(--muted); font-variant-numeric: tabular-nums; }
 
 /* ── Reactions ──────────────────────────────────────────────────────────────
    Under the bubble: a pill per emoji with its count, `aria-pressed` on the ones

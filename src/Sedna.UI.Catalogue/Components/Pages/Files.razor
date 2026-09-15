@@ -1,0 +1,103 @@
+@page "/files"
+
+<CatHead Title="Files">
+    A folder of files as a table or as a grid of tiles, the files attached to a record, and uploads
+    on their way up. The pieces are small &mdash; a type icon, a name cut in the middle, a meta line
+    &mdash; and the rows they sit in are the library's own <a href="/table">table</a> and
+    <a href="/list">list</a>. Which files there are, what is selected and what a click does are the
+    app's. Pictures and video in a thread are on <a href="/chat">Chat</a>; one looked at large is the
+    <a href="/media">lightbox</a>.
+</CatHead>
+
+<CatExample TExample="Examples.Files.Folder" Title="A folder" Demo="ex-demo--block">
+    <p>
+        A <a href="/table"><code>.table</code></a> with the path above it as a
+        <a href="/pager"><code>.breadcrumb</code></a>. The name column's cell is a
+        <code>.file-cell</code> &mdash; the <code>.file-icon</code> and the <code>.file-name</code>
+        &mdash; and a cell holding one takes whatever the <code>.col-fit</code> columns leave and cuts
+        the name inside it, rather than pushing the table wider than its card. Make the cell an
+        <code>&lt;a&gt;</code> so the file opens like a link; sort with
+        <a href="/table"><code>.th-sort</code></a>, select with <code>aria-selected</code> on the row.
+        Folders first, with the count where a file has its size.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Files.Names" Title="A name cut in the middle" Demo="ex-demo--block">
+    <p>
+        <code>text-overflow</code> cuts at the end, which is exactly where two files differ &mdash;
+        <code>-signed.pdf</code> and <code>-unsigned.pdf</code> both end in an ellipsis. So the app
+        splits the name in two: <code>.file-name-start</code> is cut and
+        <code>.file-name-end</code>, the last few characters and the extension, never shrinks. Read
+        aloud the two spans are the whole name, and a name that fits shows whole. Put the full name
+        in <code>title</code> for the pointer. Split inside a word, not at a space: a space at the
+        end of the start collapses.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Files.Icons" Title="Type icons">
+    <p>
+        <code>.file-icon</code> is a Remix Icon glyph on a small tile. The kind tints the glyph from
+        the categorical series &mdash; <code>--pdf</code>, <code>--doc</code>,
+        <code>--sheet</code>, <code>--slides</code>, <code>--image</code> and <code>--media</code>
+        &mdash; and anything else keeps the neutral ink; the glyph still names the kind, so colour
+        is never the only signal. <code>--sm</code> is the size for a table row or an upload. An
+        <code>&lt;img&gt;</code> in the tile is a thumbnail in the same place.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Files.Recent" Title="A list of files" Demo="ex-demo--block">
+    <p>
+        Where there are no columns to compare &mdash; recent files, a panel beside a record &mdash;
+        the rows are a <a href="/list"><code>.list</code></a>: the icon leading, the name as the
+        <code>.list-title</code> and the <code>.file-meta</code> line under it. The meta line draws
+        its own separators, so they are never copied or read out, and wraps rather than widening the
+        row.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Files.Attachments" Title="Attached to a record" Demo="ex-demo--block">
+    <p>
+        A <code>.file-list</code> of <code>.file-item</code> cards, each an <code>&lt;a&gt;</code>
+        that downloads. <code>.file-item-main</code> stacks the name over its meta line, and
+        <code>.file-item-status</code> is the trailing glyph. The same item is a file in a
+        <a href="/chat">chat message</a>. An item that is a link holds no other control; one with
+        actions is a <code>&lt;li&gt;</code>, as below.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Files.Upload" Title="Uploads" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; drag a file onto it.</strong> The
+        <a href="/form-file"><code>.dropzone</code></a> above, and one <code>.file-item</code> per
+        file under it. Uploading needs no modifier: a <a href="/progress"><code>.progress</code></a>
+        in <code>.file-item-main</code> is the state and the size column says how far.
+        <code>.file-item--done</code> and <code>.file-item--error</code> colour the
+        <code>.file-item-status</code> glyph, whose shape says the same without the colour, and a
+        failure's meta line says why. <code>.file-item-actions</code> holds what can be done to it
+        now &mdash; cancel while it goes, retry when it failed, delete once it is there. Name every
+        icon button after its file.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Files.Grid" Title="A grid of tiles" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; tick a tile.</strong> <code>.file-grid</code> is a real
+        <code>&lt;ul&gt;</code>, breakpoint-free, of <code>.file-tile</code>s: a
+        <code>.file-tile-thumb</code> holding a picture or a large <code>.file-icon</code>, the name
+        and the meta line. A tile is three controls and never one element with a click handler:
+        <code>.file-tile-check</code>, a <a href="/form-choice"><code>.form-check</code></a> named
+        for the file, selects; <code>.file-tile-open</code> opens, and its hit area is the whole
+        tile under the other two; <code>.file-tile-menu</code> acts. Selected is read from the
+        checkbox, so it needs no class and no script. The checkbox and the menu appear on hover and
+        focus, stay once anything is selected, and are always there on a touch screen. The count and
+        the bulk actions are a <a href="/toolbar"><code>.toolbar</code></a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Files.EmptyFolder" Title="An empty folder" Demo="ex-demo--block">
+    <p>
+        An <a href="/empty-state"><code>.empty-state</code></a> where the table or the grid would
+        be, with the path still above it so the reader knows which folder is empty, and the one
+        action that fills it.
+    </p>
+</CatExample>

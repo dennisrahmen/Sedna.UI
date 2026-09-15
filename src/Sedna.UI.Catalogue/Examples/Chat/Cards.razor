@@ -22,13 +22,13 @@
             <div class="chat-message chat-message--mine">
                 <div class="chat-body">
                     <div class="chat-bubble">
-                        <div class="chat-audio">
+                        <div class="audio-wave">
                             <button class="btn btn-sm btn-primary btn-icon" type="button" aria-label="Play the voice message, 19 seconds"><i class="ri-play-fill"></i></button>
-                            <span class="chat-audio-bars" aria-hidden="true">
-                                <i class="chat-audio-heard" style="--h:35%"></i><i class="chat-audio-heard" style="--h:60%"></i><i class="chat-audio-heard" style="--h:85%"></i><i class="chat-audio-heard" style="--h:50%"></i><i class="chat-audio-heard" style="--h:30%"></i><i class="chat-audio-heard" style="--h:70%"></i><i class="chat-audio-heard" style="--h:95%"></i><i class="chat-audio-heard" style="--h:55%"></i><i class="chat-audio-heard" style="--h:40%"></i>
+                            <span class="audio-wave-bars" aria-hidden="true">
+                                <i class="audio-wave-heard" style="--h:35%"></i><i class="audio-wave-heard" style="--h:60%"></i><i class="audio-wave-heard" style="--h:85%"></i><i class="audio-wave-heard" style="--h:50%"></i><i class="audio-wave-heard" style="--h:30%"></i><i class="audio-wave-heard" style="--h:70%"></i><i class="audio-wave-heard" style="--h:95%"></i><i class="audio-wave-heard" style="--h:55%"></i><i class="audio-wave-heard" style="--h:40%"></i>
                                 <i style="--h:65%"></i><i style="--h:80%"></i><i style="--h:45%"></i><i style="--h:25%"></i><i style="--h:60%"></i><i style="--h:90%"></i><i style="--h:50%"></i><i style="--h:35%"></i><i style="--h:70%"></i><i style="--h:40%"></i><i style="--h:55%"></i><i style="--h:30%"></i><i style="--h:65%"></i><i style="--h:45%"></i><i style="--h:25%"></i>
                             </span>
-                            <span class="chat-audio-time">0:07 / 0:19</span>
+                            <span class="audio-wave-time">0:07 / 0:19</span>
                         </div>
                     </div>
                     <div class="chat-meta"><time class="chat-time" datetime="2026-09-13T10:15">10:15</time><i class="ri-check-double-line chat-status" aria-label="Delivered" role="img"></i></div>
@@ -38,11 +38,13 @@
             <div class="chat-message chat-message--mine">
                 <div class="chat-body">
                     <div class="chat-bubble">
-                        <span class="chat-attachment" role="status" aria-label="Uploading stock-check.xlsx, 64 percent">
-                            <i class="ri-file-excel-2-line"></i>
-                            <span class="chat-attachment-name">stock-check.xlsx</span>
-                            <span class="chat-attachment-size">1.2 MB · 64%</span>
-                            <span class="progress" aria-hidden="true"><span class="progress-bar" style="width:64%"></span></span>
+                        <span class="file-item" role="status" aria-label="Uploading stock-check.xlsx, 64 percent">
+                            <span class="file-icon file-icon--sm file-icon--sheet"><i class="ri-file-excel-2-line"></i></span>
+                            <span class="file-item-main">
+                                <span class="file-item-name">stock-check.xlsx</span>
+                                <span class="progress" aria-hidden="true"><span class="progress-bar" style="width:64%"></span></span>
+                            </span>
+                            <span class="file-item-size">64%</span>
                         </span>
                     </div>
                     <div class="chat-meta"><span>Sending…</span></div>
