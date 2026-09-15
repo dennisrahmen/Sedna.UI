@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Sedna.UI.Tests.TestSupport;
 
 namespace Sedna.UI.Tests;
@@ -432,5 +433,75 @@ public class FrameLayoutTests : ScriptTestBase
 
         await page.WaitForTimeoutAsync(2000);
         Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('.sidebar > .nav')).display"));
+    }
+
+    [Fact]
+    public async Task The_bottom_bar_rounds_to_its_radius_and_its_inner_corners_stay_concentric()
+    {
+        if (NoBrowser) return;
+        // --bottombar-radius rounds the card, and everything inside follows it in by the
+        // card's padding and border, never going squarer than a control. The default must
+        // stay exactly what shipped before the property existed.
+        static string Bar(string treatment, string id, string radius = "") =>
+            $$"""
+            <nav class="bottombar {{treatment}}" id="{{id}}" style="{{radius}}" aria-label="Main">
+              <div class="bottombar-accessory"><span class="bottombar-accessory-text">Uploading</span></div>
+              <div class="bottombar-items">
+                <a class="bottombar-item active" href="#" aria-current="page"><span class="bottombar-icon"><i class="ri-inbox-line"></i></span><span class="bottombar-label">Orders</span></a>
+                <a class="bottombar-item" href="#"><span class="bottombar-icon"><i class="ri-user-line"></i></span><span class="bottombar-label">Account</span></a>
+                <button class="bottombar-item bottombar-item--end" type="button"><span class="bottombar-icon"><i class="ri-search-line"></i></span><span class="bottombar-label">Search</span></button>
+              </div>
+            </nav>
+            """;
+        const string round = "--bottombar-radius: 18px";
+        var body = $"""
+            <div style="width:360px">
+            {Bar("bottombar--card", "card")}
+            {Bar("bottombar--card", "round", round)}
+            {Bar("bottombar--tint", "tint", round)}
+            <div dir="rtl">{Bar("bottombar--card", "rtl", round)}</div>
+            </div>
+            """;
+        var (page, errors) = await OpenStyled(body);
+
+        var json = await page.EvaluateAsync<JsonElement>("""
+            () => {
+                const cs = sel => getComputedStyle(document.querySelector(sel));
+                const token = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+                const px = v => Math.round(parseFloat(v) * 100) / 100 + 'px';
+                const out = { surface: px(token('--radius-surface')), control: px(token('--radius-control')) };
+                for (const id of ['card', 'round', 'tint', 'rtl']) {
+                    out[id + '.items'] = px(cs(`#${id} .bottombar-items`).borderTopLeftRadius);
+                    out[id + '.accessory'] = px(cs(`#${id} .bottombar-accessory`).borderTopLeftRadius);
+                    out[id + '.active'] = px(cs(`#${id} .bottombar-item.active`).borderTopLeftRadius);
+                    const end = cs(`#${id} .bottombar-item--end`);
+                    out[id + '.endLeft'] = px(end.borderTopLeftRadius);
+                    out[id + '.endRight'] = px(end.borderBottomRightRadius);
+                }
+                return out;
+            }
+            """);
+        string R(string key) => json.GetProperty(key).GetString()!;
+
+        // The default: the card at the surface radius, the current item at a control's.
+        Assert.Equal(R("surface"), R("card.items"));
+        Assert.Equal(R("surface"), R("card.accessory"));
+        Assert.Equal(R("control"), R("card.active"));
+
+        // 18px: both cards take it; inside, 18 less the 4px padding and 1px border.
+        Assert.Equal("18px", R("round.items"));
+        Assert.Equal("18px", R("round.accessory"));
+        Assert.Equal("13px", R("round.active"));
+        Assert.Equal("0px", R("round.endLeft"));
+        Assert.Equal("13px", R("round.endRight"));
+
+        // Tint has no outer corner; its block follows the same value in by the bar's padding.
+        Assert.Equal("12px", R("tint.active"));
+
+        // The set-apart cell rounds the card's side, which mirrors.
+        Assert.Equal("13px", R("rtl.endLeft"));
+        Assert.Equal("0px", R("rtl.endRight"));
+
+        Assert.Empty(errors);
     }
 }
