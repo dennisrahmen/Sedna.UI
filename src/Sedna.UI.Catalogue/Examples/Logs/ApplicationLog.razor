@@ -1,0 +1,44 @@
+<ul class="output output--columns" tabindex="0" aria-label="Application log" style="max-width:860px">
+    <li class="output-line output-line--debug">
+        <span class="output-time">09:14:01.902</span>
+        <span class="output-level"><i class="ri-bug-line" aria-hidden="true"></i> DEBUG</span>
+        <span class="output-source">orders.sync</span>
+        <span class="output-msg">polling <span class="output-str">"warehouse-feed"</span>, <span class="output-key">since=</span><span class="output-num">1789371241</span></span>
+    </li>
+    <li class="output-line output-line--info">
+        <span class="output-time">09:14:02.004</span>
+        <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> INFO</span>
+        <span class="output-source">orders.sync</span>
+        <span class="output-msg">received <span class="output-num">42</span> changes for order <span class="output-id">ORD-4182</span></span>
+    </li>
+    <li class="output-line output-line--info">
+        <span class="output-time">09:14:02.117</span>
+        <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> INFO</span>
+        <span class="output-source">billing.invoices</span>
+        <span class="output-msg">invoice <span class="output-id">INV-20931</span> created for <span class="output-str">"Northwind Retail"</span>, <span class="output-key">total=</span><span class="output-num">1249.90</span> EUR</span>
+    </li>
+    <li class="output-line output-line--warn">
+        <span class="output-time">09:14:02.118</span>
+        <span class="output-level"><i class="ri-alert-line" aria-hidden="true"></i> WARN</span>
+        <span class="output-source">orders.reservations</span>
+        <span class="output-msg">stock service slow to answer for <span class="output-id">ORD-4182</span>, took <span class="output-num">2311</span> ms</span>
+    </li>
+    <li class="output-line output-line--info">
+        <span class="output-time">09:14:03.560</span>
+        <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> INFO</span>
+        <span class="output-source">auth.sessions</span>
+        <span class="output-msg">signed in <span class="output-str">"alex.fischer@example.com"</span> from <span class="output-id">203.0.113.17</span></span>
+    </li>
+    <li class="output-line output-line--error">
+        <span class="output-time">09:14:04.771</span>
+        <span class="output-level"><i class="ri-close-circle-line" aria-hidden="true"></i> ERROR</span>
+        <span class="output-source">orders.reservations</span>
+        <span class="output-msg">reservation failed for <span class="output-id">ORD-4190</span>: <span class="output-str">"stock service returned 504"</span></span>
+    </li>
+    <li class="output-line output-line--info">
+        <span class="output-time">09:14:05.012</span>
+        <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> INFO</span>
+        <span class="output-source">notifications.mail</span>
+        <span class="output-msg">queued <span class="output-num">3</span> messages to <span class="output-str">"orders@example.com"</span></span>
+    </li>
+</ul>

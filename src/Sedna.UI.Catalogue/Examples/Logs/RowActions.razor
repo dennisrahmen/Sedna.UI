@@ -1,0 +1,77 @@
+<ul class="output output--columns" tabindex="0" aria-label="Integration log" style="max-width:860px; max-height:none">
+    <li class="output-line output-line--info">
+        <span class="output-time">15:47:30.118</span>
+        <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> INFO</span>
+        <span class="output-source">shop.import</span>
+        <span class="output-msg">imported <span class="output-num">318</span> products from <span class="output-str">"catalogue-2026-09.csv"</span></span>
+        <div class="output-actions">
+            <button class="btn btn-sm btn-ghost btn-icon" type="button" aria-label="Copy line" data-copy="15:47:30.118 INFO shop.import imported 318 products from catalogue-2026-09.csv">
+                <i class="ri-file-copy-line" data-copied-hide></i>
+                <i class="ri-check-line" data-copied-show="ok"></i>
+            </button>
+            <div class="menu-anchor">
+                <button class="btn btn-sm btn-ghost btn-icon" type="button" data-menu-toggle aria-expanded="false" aria-label="More actions for this line">
+                    <i class="ri-more-2-fill"></i>
+                </button>
+                <div class="menu" hidden>
+                    <button class="menu-item" type="button"><i class="ri-filter-3-line"></i> Only shop.import</button>
+                    <button class="menu-item" type="button"><i class="ri-time-line"></i> Lines around this one</button>
+                    <button class="menu-item" type="button"><i class="ri-link"></i> Copy link to line</button>
+                </div>
+            </div>
+        </div>
+    </li>
+    <li class="output-line output-line--error">
+        <details class="output-details">
+            <summary>
+                <span class="output-time">15:47:31.402</span>
+                <span class="output-level"><i class="ri-close-circle-line" aria-hidden="true"></i> ERROR</span>
+                <span class="output-source">shop.import</span>
+                <span class="output-msg">row <span class="output-num">212</span> rejected: SKU <span class="output-id">NW-10442</span> has no price</span>
+            </summary>
+            <pre class="output-trace">file     catalogue-2026-09.csv
+row      212
+column   price
+value    (empty)</pre>
+        </details>
+        <div class="output-actions">
+            <button class="btn btn-sm btn-ghost btn-icon" type="button" aria-label="Copy line" data-copy="15:47:31.402 ERROR shop.import row 212 rejected: SKU NW-10442 has no price">
+                <i class="ri-file-copy-line" data-copied-hide></i>
+                <i class="ri-check-line" data-copied-show="ok"></i>
+            </button>
+            <div class="menu-anchor">
+                <button class="btn btn-sm btn-ghost btn-icon" type="button" data-menu-toggle aria-expanded="false" aria-label="More actions for this line">
+                    <i class="ri-more-2-fill"></i>
+                </button>
+                <div class="menu" hidden>
+                    <button class="menu-item" type="button"><i class="ri-filter-3-line"></i> Only shop.import</button>
+                    <button class="menu-item" type="button"><i class="ri-edit-line"></i> Open product NW-10442</button>
+                    <hr class="menu-sep" />
+                    <button class="menu-item" type="button"><i class="ri-eye-off-line"></i> Mute this message</button>
+                </div>
+            </div>
+        </div>
+    </li>
+    <li class="output-line output-line--info">
+        <span class="output-time">15:47:31.980</span>
+        <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> INFO</span>
+        <span class="output-source">shop.search</span>
+        <span class="output-msg">reindex queued for <span class="output-num">317</span> products</span>
+        <div class="output-actions">
+            <button class="btn btn-sm btn-ghost btn-icon" type="button" aria-label="Copy line" data-copy="15:47:31.980 INFO shop.search reindex queued for 317 products">
+                <i class="ri-file-copy-line" data-copied-hide></i>
+                <i class="ri-check-line" data-copied-show="ok"></i>
+            </button>
+            <div class="menu-anchor">
+                <button class="btn btn-sm btn-ghost btn-icon" type="button" data-menu-toggle aria-expanded="false" aria-label="More actions for this line">
+                    <i class="ri-more-2-fill"></i>
+                </button>
+                <div class="menu" hidden>
+                    <button class="menu-item" type="button"><i class="ri-filter-3-line"></i> Only shop.search</button>
+                    <button class="menu-item" type="button"><i class="ri-time-line"></i> Lines around this one</button>
+                    <button class="menu-item" type="button"><i class="ri-link"></i> Copy link to line</button>
+                </div>
+            </div>
+        </div>
+    </li>
+</ul>

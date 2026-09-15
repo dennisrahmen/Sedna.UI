@@ -1,0 +1,43 @@
+<ul class="output output--columns" tabindex="0" aria-label="Worker log" style="max-width:860px; max-height:none">
+    <li class="output-line output-line--info">
+        <span class="output-time">11:32:08.410</span>
+        <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> INFO</span>
+        <span class="output-source">orders.worker</span>
+        <span class="output-msg">picked up batch <span class="output-id">B-7713</span> with <span class="output-num">25</span> orders</span>
+    </li>
+    <li class="output-line output-line--error">
+        <details class="output-details">
+            <summary>
+                <span class="output-time">11:32:09.022</span>
+                <span class="output-level"><i class="ri-close-circle-line" aria-hidden="true"></i> ERROR</span>
+                <span class="output-source">orders.worker</span>
+                <span class="output-msg">unhandled exception while pricing <span class="output-id">ORD-4190</span></span>
+            </summary>
+            <pre class="output-trace">System.InvalidOperationException: No price list is active for currency 'CHF'.
+   at Orders.Pricing.PriceListResolver.Resolve(String currency) in PriceListResolver.cs:line 58
+   at Orders.Pricing.OrderPricer.PriceAsync(Order order, CancellationToken ct) in OrderPricer.cs:line 112
+   at Orders.Worker.BatchProcessor.ProcessAsync(Batch batch, CancellationToken ct) in BatchProcessor.cs:line 74</pre>
+        </details>
+    </li>
+    <li class="output-line output-line--warn">
+        <details class="output-details" open>
+            <summary>
+                <span class="output-time">11:32:09.540</span>
+                <span class="output-level"><i class="ri-alert-line" aria-hidden="true"></i> WARN</span>
+                <span class="output-source">http.client</span>
+                <span class="output-msg">POST /v2/reservations answered 429, backing off</span>
+            </summary>
+            <pre class="output-trace">request   POST https://stock.example.com/v2/reservations
+host      src-db-14 via 198.51.100.23
+attempt   2 of 5
+retry in  4.0 s
+trace id  4bf92f3577b34da6a3ce929d0e0e4736</pre>
+        </details>
+    </li>
+    <li class="output-line output-line--info">
+        <span class="output-time">11:32:13.601</span>
+        <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> INFO</span>
+        <span class="output-source">orders.worker</span>
+        <span class="output-msg">batch <span class="output-id">B-7713</span> done: <span class="output-num">24</span> priced, <span class="output-num">1</span> failed</span>
+    </li>
+</ul>

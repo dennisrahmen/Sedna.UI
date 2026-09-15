@@ -101,5 +101,12 @@
 .chip--invalid > i,
 .chip--invalid .chip-dismiss { color: var(--danger-fg); }
 
+/* A chip that is a <button>: a filter offered and toggled in place, such as a log
+   level. `aria-pressed` carries the state for a screen reader and `.chip--active` the
+   look, so the two are set together. A button does not inherit the page's font. */
+button.chip { font-family: inherit; cursor: pointer; }
+button.chip:hover { border-color: var(--border-hover); }
+button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
 /* A whole row of them, wrapping. */
 .chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
