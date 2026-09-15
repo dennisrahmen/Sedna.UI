@@ -109,6 +109,11 @@ public class BrandTextContrastTests
         [".page-link[aria-current=\"page\"]"] = (Ink.Text, ["--brand-tint"]),
         [".table th[aria-sort=\"ascending\"]"] = (Ink.Text, ["--table-head-bg"]),
         [".table th[aria-sort=\"descending\"]"] = (Ink.Text, ["--table-head-bg"]),
+        // A filtered column's heading, on the header's ground; its header filter button, a glyph
+        // on the tint it fills with.
+        [".table th.col-filtered"] = (Ink.Text, ["--table-head-bg"]),
+        [".th-filter--active"] = (Ink.Icon, ["--table-head-bg", "--brand-tint"]),
+        [".th-filter--active:hover"] = (Ink.Icon, ["--table-head-bg", "--brand-tint"]),
         [".steps > li[data-state=\"current\"]::before"] = (Ink.Text, []),
         [".tree-leaf[aria-current=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".palette-item[aria-selected=\"true\"]"] = (Ink.Text, ["--brand-tint"]),

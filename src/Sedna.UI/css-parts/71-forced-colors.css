@@ -100,6 +100,8 @@
     .page-link:focus-visible,
     .chip-dismiss:focus-visible,
     .th-sort:focus-visible,
+    .th-filter:focus-visible,
+    .input-clear:focus-visible,
     .accordion summary:focus-visible,
     .tree summary:focus-visible,
     .tree-leaf:focus-visible,
@@ -128,6 +130,7 @@
     .file-tile:has(.file-tile-check :checked),
     .media-transcript li[aria-current="true"],
     .segmented-option:has(input:checked),
+    .th-filter--active,
     .chat-reaction[aria-pressed="true"],
     .swatch[aria-pressed="true"],
     .cal-day:is([aria-pressed="true"], [aria-selected="true"], [aria-current="date"]),
@@ -142,12 +145,17 @@
     .cal-event,
     .cal-block { outline: 1px solid CanvasText; outline-offset: -1px; }
 
+    /* A filtered column's heading is marked by a colour and an inset shadow, and
+       neither survives; an outline inside the cell is what is left. */
+    .table thead tr:not(.tr-filter) > th.col-filtered { outline: 2px solid Highlight; outline-offset: -2px; }
+
     /* A status dot is the one thing whose actual colour IS the content — it is not
        decoration on a label, it IS the label — so it opts out of the forced palette
        entirely. */
     .nav-status-dot,
     .health-dot,
     .chip-dot,
+    .th-filter--active::after,
     .avatar-presence::after,
     .timeline > li::before { forced-color-adjust: none; }
 }
