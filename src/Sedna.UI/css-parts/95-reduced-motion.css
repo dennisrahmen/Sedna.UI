@@ -145,5 +145,6 @@
        to it. The value was never the motion. */
     .bar-list-fill,
     .stack-bar-segment,
-    .meter-fill { transition: none; }
+    .meter-fill,
+    .bar-previous { transition: none; }
 }

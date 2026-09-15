@@ -262,6 +262,77 @@
 .stat > .sparkline { margin-top: var(--space-2); }
 .table td > .sparkline { width: 96px; height: 24px; }
 
+/* ── Against a previous value ───────────────────────────────────────────────
+   This month over last month, this year over last: one bar carrying two values. The
+   fill is the current value, as everywhere above; `.bar-previous` is the previous one,
+   a hatch behind the fill with a line at its end, both in one colour so they read as
+   one thing and not as a threshold `.meter-mark`.
+
+     <span class="bar-list-track">
+       <span class="bar-previous" style="--value: 64%"></span>
+       <span class="bar-list-fill" style="--value: 72%"></span>
+     </span>
+
+   It goes first, inside a `.bar-list-track`, a `.meter` or a `.progress`, so the fill
+   after it paints over it. Where the previous value is higher the hatch sticks out past
+   the fill; where it is lower the fill covers the hatch and the line is what is left,
+   which is why the line reaches past the track on both sides and sits over the fill.
+
+   A hatch rather than a lighter tint of the fill: a tint of the brand is the track's
+   lightness in dark mode, and a neutral tint is the brand's lightness under the
+   colour-blind palette. The texture differs from a solid fill in every palette. It is
+   `--viz-previous` by default and takes a `.series-*` modifier where the previous value
+   should wear the fill's hue.
+
+   In the value column, `.bar-list-previous` is the previous figure, smaller and muted
+   beside the current one; a `.stat-delta` in the same place says the change instead.
+   In a legend, `.stack-bar-swatch--previous` is the hatch and the line as a key. */
+.bar-list-track:has(> .bar-previous),
+.meter:has(> .bar-previous),
+.progress:has(> .bar-previous) {
+    position: relative;
+    isolation: isolate;   /* keeps the line's z-index inside the track */
+    overflow: visible;    /* the line reaches past the track */
+}
+.bar-previous {
+    --value: 0%;
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: var(--value);
+    border-radius: inherit;
+    color: var(--viz-previous);
+    background: repeating-linear-gradient(-45deg, currentColor 0 2px, transparent 2px 5px);
+    transition: width var(--motion-slow) ease;
+}
+.bar-previous::after {
+    content: "";
+    position: absolute;
+    z-index: 1;   /* over the fill that follows, so a lower previous value still shows */
+    top: -3px;
+    bottom: -3px;
+    inset-inline-end: -1px;
+    width: 2px;
+    border-radius: 1px;
+    background: currentColor;
+}
+/* Positioned, so it paints over the hatch before it rather than under it. */
+.bar-previous ~ :is(.bar-list-fill, .meter-fill, .progress-bar) { position: relative; }
+
+.bar-list-value:has(> .bar-list-previous, > .stat-delta) { color: var(--fg-soft); }
+.bar-list-previous {
+    margin-inline-start: var(--space-2);
+    font-size: var(--text-2);
+    color: var(--muted);
+}
+.bar-list-value > .stat-delta { margin-inline-start: var(--space-3); }
+
+.stack-bar-swatch--previous {
+    color: var(--viz-previous);
+    background: repeating-linear-gradient(-45deg, currentColor 0 2px, transparent 2px 4px);
+    border-inline-end: 2px solid currentColor;
+}
+
 /* ── Series colours ─────────────────────────────────────────────────────────
    Last in the part on purpose. Every fill above sets its default `color`, and a
    modifier at the same specificity wins only by coming later — so this block stays

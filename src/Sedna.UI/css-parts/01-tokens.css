@@ -138,6 +138,12 @@
     --viz-4: var(--teal-400);
     --viz-5: var(--violet-400);
     --viz-6: var(--indigo-300);
+    /* The previous value behind a compared bar — last month behind this month. A
+       neutral rather than a seventh hue, because it stands behind whichever series the
+       fill is; the hatch `.bar-previous` draws it in is what tells it from the fill, so
+       the pair holds in the colour-blind palette and in greyscale. At least 3:1 against
+       the track and the card, the floor for a graphical object that carries a value. */
+    --viz-previous: var(--slate-400);
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
     /* One step up from --brand-tint, for hovering something already tinted by it.
        Pointing at a chosen row must not replace its tint with the neutral hover:
