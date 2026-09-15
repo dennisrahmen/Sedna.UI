@@ -470,4 +470,69 @@ public class CalendarLayoutTests : ScriptTestBase
         Assert.Equal(1, m[5]);            // a chosen month is filled
         Assert.Equal(1, m[6]);            // and this month chosen reads on-solid, not brand on brand
     }
+    [Fact]
+    public async Task A_timeline_pill_covers_its_columns_the_label_stays_pinned_and_now_is_at_its_column()
+    {
+        if (NoBrowser) return;
+        string Row(string label, string events, int lanes = 0) =>
+            "<div class=\"cal-timeline-row\"><span class=\"cal-timeline-label\"><span>" + label + "</span></span>"
+            + "<div class=\"cal-timeline-cells\" aria-hidden=\"true\"></div>"
+            + "<div class=\"cal-row-events\">" + events + "</div></div>";
+        var heads = string.Concat(Enumerable.Range(1, 20).Select(n => $"<span class=\"cal-timeline-col\" id=\"c{n}\">{n}</span>"));
+        var (page, _) = await OpenStyled($"""
+            <div class="sedna-scroll-x" id="scroller" style="width: 600px">
+              <div class="cal-timeline" id="t" style="--cal-columns: 20; --cal-lanes: 2; --cal-label-width: 120px; --cal-column-min: 40px">
+                <div class="cal-timeline-head"><span class="cal-timeline-corner">Dock</span>{heads}</div>
+                {Row("Dock 1", "<a class=\"cal-event\" id=\"pill\" href=\"#\" style=\"grid-column: 3 / span 4; grid-row: 1\">Inbound</a>")}
+                <div class="cal-now" id="now" style="--cal-at: 2.5"></div>
+              </div>
+            </div>
+            <div class="cal-timeline cal-timeline--grow" id="g" style="--cal-columns: 7; --cal-lanes: 1; width: 600px; margin-top: 24px">
+              {Row("Busy", string.Concat(Enumerable.Range(1, 4).Select(n => $"<a class=\"cal-event\" href=\"#\" style=\"grid-column: 1 / span 2; grid-row: {n}\">E{n}</a>")))}
+              {Row("Quiet", "")}
+            </div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const r = id => document.getElementById(id).getBoundingClientRect();
+                const pill = r('pill'), c3 = r('c3'), c6 = r('c6'), now = r('now');
+                const labelEl = document.querySelector('#t .cal-timeline-label');
+                const label = () => labelEl.getBoundingClientRect().left;
+                const before = label();
+                const scroller = document.getElementById('scroller');
+                scroller.scrollLeft = 300;
+                scroller.dispatchEvent(new Event('scroll'));
+                const after = label();
+                const rows = [...document.querySelectorAll('#g .cal-timeline-row')].map(x => x.getBoundingClientRect().height);
+                const last = [...document.querySelectorAll('#g .cal-event')].at(-1).getBoundingClientRect();
+                const busy = document.querySelector('#g .cal-timeline-row').getBoundingClientRect();
+                return [pill.left - c3.left, c6.right - pill.right, now.left - (c3.left + c3.width / 2),
+                        scroller.scrollWidth > scroller.clientWidth ? 1 : 0, after - before,
+                        rows[0] - rows[1], busy.bottom - last.bottom];
+            }
+            """);
+        await page.WaitForTimeoutAsync(100);
+        var shadows = await page.EvaluateAsync<string[]>("""
+            async () => {
+                const labelEl = document.querySelector('#t .cal-timeline-label');
+                const scroller = document.getElementById('scroller');
+                const scrolled = getComputedStyle(labelEl).boxShadow;
+                scroller.scrollLeft = 0;
+                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+                return [getComputedStyle(labelEl).boxShadow, scrolled];
+            }
+            """);
+
+        Assert.InRange(m[0], 0, 6);          // the pill starts inside its first column
+        Assert.InRange(m[1], 0, 6);          // and ends inside its last
+        Assert.InRange(m[2], -2, 2);         // 2.5 columns is the middle of the third
+        Assert.Equal(1, m[3]);               // the columns ran out of room and scroll
+        Assert.InRange(m[4], -1.5, 0.5);     // and the label did not move with them — it pins at the
+                                             // scroller's edge, one border-width left of where it started
+        Assert.True(m[5] > 40, $"A growing row with four lanes is only {m[5]}px taller than a quiet one.");
+        Assert.InRange(m[6], 0, 16);         // its last lane is inside it
+        Assert.Equal("none", shadows[0]);    // no edge while nothing is under the label
+        Assert.NotEqual("none", shadows[1]); // and an edge once columns are
+    }
 }

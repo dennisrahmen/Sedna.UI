@@ -123,6 +123,7 @@ public class BrandTextContrastTests
         [".cal-month--mini .cal-day[aria-current=\"date\"]"] = (Ink.Text, []),
         [".cal-pick:where([aria-current]:not([aria-current=\"false\"]))"] = (Ink.Text, []),
         [".cal-week-head .cal-weekday[aria-current=\"date\"]"] = (Ink.Text, []),
+        [".cal-timeline-col[aria-current=\"date\"]"] = (Ink.Text, []),
         [".timeline > li[data-state=\"current\"] > .timeline-mark"] = (Ink.Icon, []),
     };
 

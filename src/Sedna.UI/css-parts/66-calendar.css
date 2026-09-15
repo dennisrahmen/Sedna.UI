@@ -479,6 +479,165 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     background: var(--danger-fg);
 }
 
+/* ── Timeline ──────────────────────────────────────────────────────────────
+   Rows against a run of columns: one row per month with its days across — a year —
+   or one row per room, vehicle or person with days or hours across — a resource
+   timeline. It is the same layout with a different key down the side, so it is one
+   class. The pills are the month's: `.cal-row-events`, lanes, `.cal-more`,
+   `--continues-*`, the fills and the slots, all unchanged.
+
+     <div class="sedna-scroll-x">
+       <div class="cal-timeline" style="--cal-columns: 14; --cal-lanes: 2">
+         <div class="cal-timeline-head">
+           <span class="cal-timeline-corner">Dock</span>
+           <span class="cal-timeline-col cal-day--weekend">Sa 19</span> … one per column …
+         </div>
+         <div class="cal-timeline-row">
+           <span class="cal-timeline-label">Dock 1</span>
+           <div class="cal-timeline-cells" aria-hidden="true">
+             <span></span> … <span class="cal-day--weekend"></span> … one per column, or none
+           </div>
+           <div class="cal-row-events">
+             <a class="cal-event" href="…" style="grid-column: 3 / span 4; grid-row: 1">Inbound, Northwind Retail</a>
+           </div>
+         </div>
+         … one .cal-timeline-row per row …
+         <div class="cal-now" style="--cal-at: 2.6"></div>
+       </div>
+     </div>
+
+   `--cal-columns` is how many columns there are, and the app writes it: a stylesheet
+   cannot count a month's days. A pill's `grid-column` counts from the first column,
+   exactly as in a week of the month. The label column is `--cal-label-width` and stays
+   pinned to the inline start while the columns scroll under it; a column is never
+   narrower than `--cal-column-min`, so put the timeline in a `.sedna-scroll-x`.
+
+   A column that is a day takes the day's own modifiers — `.cal-day--weekend`,
+   `.cal-day--holiday`, `.cal-day--outside` — on its `.cal-timeline-col` and on the
+   matching span in each row's `.cal-timeline-cells`, and today is `aria-current="date"`
+   on the heading. A row without cells still draws its column lines. `.cal-now` is a
+   vertical rule across every row, at `--cal-at` columns from the start: 2.5 is half
+   way through the third. `.cal-timeline--grow` grows each row to fit its lanes instead
+   of summarising the rest in a `.cal-more`, as `.cal-month--grow` does. */
+.cal-timeline {
+    --cal-columns: 7;
+    --cal-lanes: 2;
+    --cal-event-height: 20px;
+    --cal-label-width: 136px;
+    --cal-column-min: 32px;
+    --cal-at: 0;
+    --cal-label-edge: var(--shadow-edge-start);
+    position: relative;
+    min-inline-size: calc(var(--cal-label-width) + var(--cal-columns) * var(--cal-column-min));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    background: var(--card-bg);
+    --surface-here: var(--card-bg);
+}
+.cal-timeline-head,
+.cal-timeline-row {
+    display: grid;
+    grid-template-columns: var(--cal-label-width) repeat(var(--cal-columns), [col] minmax(var(--cal-column-min), 1fr));
+}
+.cal-timeline-head { border-bottom: 1px solid var(--border); }
+.cal-timeline-row { position: relative; }
+.cal-timeline-row + .cal-timeline-row { border-top: 1px solid var(--divider); }
+
+/* The label and the corner above it stay put while the columns scroll. They sit above
+   the pills (local stacking, 3 over the events' 1), on the surface, so a pill slides
+   under the label rather than over it. */
+.cal-timeline-corner,
+.cal-timeline-label {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding: var(--space-2) var(--space-4);
+    background: var(--card-bg);
+    border-inline-end: 1px solid var(--divider);
+}
+.cal-timeline-corner {
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.cal-timeline-label {
+    /* On the first lane's line, so a row's name reads level with its first pill. */
+    align-items: flex-start;
+    line-height: var(--cal-event-height);
+    color: var(--fg);
+    font-size: var(--text-3);
+    font-weight: 500;
+    min-block-size: calc((var(--cal-lanes) + 1) * (var(--cal-event-height) + var(--space-1)) + 2 * var(--space-2));
+}
+.cal-timeline-label > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The edge, off until a column is scrolled under the label — the pinned table column's
+   rule: on by default, and off while the scroller sits at its start, by the
+   scroll-state query or, where there is none, by 22-scroll-edge.js's attribute. The
+   token is a custom property so 70-rtl.css can turn the shadow round. */
+.cal-timeline :is(.cal-timeline-corner, .cal-timeline-label) { box-shadow: var(--cal-label-edge); }
+@container not scroll-state(scrollable: inline-start) {
+    .cal-timeline :is(.cal-timeline-corner, .cal-timeline-label) { box-shadow: none; }
+}
+.sedna-scroll-x[data-scroll-start] .cal-timeline :is(.cal-timeline-corner, .cal-timeline-label) { box-shadow: none; }
+/* The timeline cannot clip its corners, because a clipping box would stop the label
+   pinning; the two pinned cells at the corners follow the radius themselves. */
+.cal-timeline-corner { border-start-start-radius: calc(var(--radius-surface) - 1px); }
+.cal-timeline-row:not(:has(~ .cal-timeline-row)) > .cal-timeline-label { border-end-start-radius: calc(var(--radius-surface) - 1px); }
+
+.cal-timeline-col {
+    padding: var(--space-3) var(--space-1);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    white-space: nowrap;
+}
+.cal-timeline-col + .cal-timeline-col { border-inline-start: 1px solid var(--divider); }
+.cal-timeline-col[aria-current="date"] { color: var(--brand-text); font-weight: 600; }
+
+/* The columns behind a row: shading from the day modifiers, and one hairline per column
+   drawn rather than laid out, so a row with no cells still has its lines. */
+.cal-timeline-cells {
+    grid-column: col 1 / -1;
+    grid-row: 1;
+    display: grid;
+    grid-template-columns: repeat(var(--cal-columns), minmax(0, 1fr));
+    background-image: linear-gradient(to right, var(--divider) 1px, transparent 1px);
+    background-size: calc(100% / var(--cal-columns)) 100%;
+}
+.cal-timeline-cells > .cal-day--outside { background: var(--surface-soft); }
+.cal-timeline-label { grid-column: 1; grid-row: 1; }
+
+.cal-timeline-row > .cal-row-events {
+    grid-column: col 1 / -1;
+    inset: var(--space-2) 0;
+    grid-template-columns: repeat(var(--cal-columns), minmax(0, 1fr));
+}
+
+.cal-timeline > .cal-now {
+    inset-block: 0;
+    inset-inline-start: calc(var(--cal-label-width) + (100% - var(--cal-label-width)) * var(--cal-at) / var(--cal-columns));
+    inline-size: 2px;
+    block-size: auto;
+}
+.cal-timeline > .cal-now::before { inset-inline-start: -3px; inset-block-start: -4px; }
+
+.cal-timeline--grow .cal-timeline-row > .cal-row-events {
+    position: relative;
+    inset: auto;
+    grid-row: 1;
+    margin-block: var(--space-2);
+    grid-template-rows: none;
+    grid-auto-rows: var(--cal-event-height);
+    min-block-size: calc(var(--cal-lanes) * (var(--cal-event-height) + var(--space-1)));
+}
+.cal-timeline--grow .cal-timeline-label { min-block-size: 0; }
+
 /* ── Year ──────────────────────────────────────────────────────────────────
    Twelve small months. `.cal-month--mini` is the month grid with numbers only — no
    lanes, no pills — and square days; a day that has something on it is

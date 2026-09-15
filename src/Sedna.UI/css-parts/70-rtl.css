@@ -108,6 +108,7 @@
    properties. */
 [dir="rtl"] .table--pin-start { --pin-edge-start: var(--shadow-edge-end); }
 [dir="rtl"] .table--pin-end   { --pin-edge-end:   var(--shadow-edge-start); }
+[dir="rtl"] .cal-timeline     { --cal-label-edge: var(--shadow-edge-end); }
 
 /* The collapsed rail's flyout needs nothing here, and neither does anything else in
    the rail. `position-area: inline-end` and `align-self: anchor-center` are both

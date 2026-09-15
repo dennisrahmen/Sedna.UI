@@ -130,6 +130,31 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Calendar.TimelineResources" Title="A resource timeline" Demo="ex-demo--block">
+    <p>
+        One row per room, vehicle or person, with the days or hours across. <code>.cal-timeline</code>
+        takes the column count as <code>--cal-columns</code> &mdash; yours to write, because a stylesheet
+        cannot count days &mdash; and each <code>.cal-timeline-row</code> is a
+        <code>.cal-timeline-label</code>, pinned while the columns scroll, a
+        <code>.cal-timeline-cells</code> behind it for the shading, and the month's own
+        <code>.cal-row-events</code>: the same pills, lanes, <code>.cal-more</code>, fills and
+        <code>--continues-*</code>. A column that is a day takes the day's modifiers, and
+        <code>.cal-now</code> is a vertical rule at <code>--cal-at</code> columns. Keep it in a
+        <code>.sedna-scroll-x</code>: a column never gets narrower than <code>--cal-column-min</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.TimelineYear" Title="A year as a timeline" Demo="ex-demo--block">
+    <p>
+        The same layout with months down the side and days across: a column past the end of a short
+        month is <code>.cal-day--outside</code>, and a holiday is <code>.cal-day--holiday</code>.
+        <code>.cal-timeline--grow</code> grows each row to fit its lanes instead of summarising the rest,
+        as <code>.cal-month--grow</code> does, so <code>--cal-lanes</code> becomes the height an empty row
+        still keeps. <code>--cal-label-width</code> and <code>--cal-column-min</code> fit the label and
+        the day numbers.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Calendar.DatePicker" Title="A date picker" Demo="ex-demo--pad">
     <p>
         <strong>Live — open it.</strong> For a date that has to look the same in every engine, or a range,
