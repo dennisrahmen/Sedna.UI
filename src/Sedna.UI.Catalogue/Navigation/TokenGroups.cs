@@ -178,7 +178,7 @@ internal static class TokenGroups
         // The six series colours the charts read through .series-1 … .series-6: the
         // brand, then hues ordered so neighbours differ. Remapped two steps darker in
         // the light theme, where a 400 is a pastel.
-        new("Data visualisation", ["--viz-1", "--viz-2", "--viz-3", "--viz-4", "--viz-5", "--viz-6"]),
+        new("Data visualisation", ["--viz-1", "--viz-2", "--viz-3", "--viz-4", "--viz-5", "--viz-6", "--viz-previous"]),
 
         // Not colours and not sizes: two values the library needs because the browser
         // draws something we cannot reach. `--color-scheme` goes on <html> and is what

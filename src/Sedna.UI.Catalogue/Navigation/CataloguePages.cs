@@ -176,7 +176,7 @@ internal static class CataloguePages
             "kpi number metric delta tile target unavailable dashboard stat--sm small value timestamp date"),
         new("/bars", Data, "Bars and meters", "ri-bar-chart-horizontal-line",
             "A list of bars to compare a few values, one bar split into parts, and a value against its thresholds.",
-            "bar chart bar-list stack-bar stacked segment share percent meter gauge threshold mark scale series colour legend"),
+            "bar chart bar-list stack-bar stacked segment share percent meter gauge threshold mark scale series colour legend compare comparison previous last year last month delta"),
         new("/sparkline", Data, "Sparklines", "ri-line-chart-line",
             "The last few dozen readings as one line, under a figure or in a table cell.",
             "sparkline trend line chart svg polyline area reference stat table cell series"),

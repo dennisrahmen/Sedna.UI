@@ -2,7 +2,8 @@
 
 <CatHead Title="Bars and meters">
     The small charts a page of figures is made of: a list of bars to compare a handful of values,
-    one bar split into parts that add up, and a value against a scale with the thresholds marked.
+    one bar split into parts that add up, a value against a scale with the thresholds marked, and
+    a bar or a meter against its previous value.
     Each is markup and classes; the one number only the app knows is an inline custom property.
 </CatHead>
 
@@ -73,5 +74,40 @@
         Without labels, a meter is a cell: the mark is still the cap, the fill's family says
         how close each queue is, and the figures in the next column are the numbers. Give the
         column a width, or the meters shrink to the longest name.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bars.BarListCompared" Title="This year against last" Demo="ex-demo--block">
+    <p>
+        Use a comparison where the question is &ldquo;better or worse than before&rdquo; rather than
+        &ldquo;how much&rdquo;: this year against last, this month against the one before. A
+        <code>.bar-previous</code> goes first in the track, at its own <code>--value</code>, and the
+        fill after it paints over it. Where the previous value was higher its hatch sticks out past
+        the fill; where it was lower the fill covers the hatch and the line at its end is still
+        there. <code>.bar-list-previous</code> puts the previous figure beside the current one, and a
+        <code>.stack-bar-legend</code> with a <code>.stack-bar-swatch--previous</code> says which is
+        which &mdash; without it a reader takes the hatch for a second series. Give each track
+        <code>role="img"</code> and a label that states both values, with the period each belongs to.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bars.BarListDelta" Title="Month against month, with the change" Demo="ex-demo--block">
+    <p>
+        When the change matters more than the old figure, put a <code>.stat-delta</code> in the value
+        column instead of <code>.bar-list-previous</code>. The arrow carries the direction and the
+        modifier the judgement, exactly as under a stat, and a change too small to judge takes
+        no modifier. The hatch is neutral whatever series the fill is; give
+        <code>.bar-previous</code> the fill's <code>.series-*</code> only where both bars must share
+        a hue.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bars.MeterCompared" Title="A meter or a progress bar against before" Demo="ex-demo--block">
+    <p>
+        <code>.bar-previous</code> works the same way as the first child of a <code>.meter</code> or a
+        <code>.progress</code>: disk now against a week ago, a sprint against the last one on the
+        same day. On a meter the previous value's line sits beside the threshold marks, so keep the
+        legend. A <code>.stack-bar</code> takes no previous value: its parts are shares of one
+        total, and two totals compare better as two stack bars, one above the other.
     </p>
 </CatExample>
