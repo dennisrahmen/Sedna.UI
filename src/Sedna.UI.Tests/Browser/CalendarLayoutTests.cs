@@ -497,10 +497,12 @@ public class CalendarLayoutTests : ScriptTestBase
             () => {
                 const r = id => document.getElementById(id).getBoundingClientRect();
                 const pill = r('pill'), c3 = r('c3'), c6 = r('c6'), now = r('now');
-                const label = () => document.querySelector('#t .cal-timeline-label').getBoundingClientRect().left;
+                const labelEl = document.querySelector('#t .cal-timeline-label');
+                const label = () => labelEl.getBoundingClientRect().left;
                 const before = label();
                 const scroller = document.getElementById('scroller');
                 scroller.scrollLeft = 300;
+                scroller.dispatchEvent(new Event('scroll'));
                 const after = label();
                 const rows = [...document.querySelectorAll('#g .cal-timeline-row')].map(x => x.getBoundingClientRect().height);
                 const last = [...document.querySelectorAll('#g .cal-event')].at(-1).getBoundingClientRect();
@@ -508,6 +510,17 @@ public class CalendarLayoutTests : ScriptTestBase
                 return [pill.left - c3.left, c6.right - pill.right, now.left - (c3.left + c3.width / 2),
                         scroller.scrollWidth > scroller.clientWidth ? 1 : 0, after - before,
                         rows[0] - rows[1], busy.bottom - last.bottom];
+            }
+            """);
+        await page.WaitForTimeoutAsync(100);
+        var shadows = await page.EvaluateAsync<string[]>("""
+            async () => {
+                const labelEl = document.querySelector('#t .cal-timeline-label');
+                const scroller = document.getElementById('scroller');
+                const scrolled = getComputedStyle(labelEl).boxShadow;
+                scroller.scrollLeft = 0;
+                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+                return [getComputedStyle(labelEl).boxShadow, scrolled];
             }
             """);
 
@@ -519,5 +532,7 @@ public class CalendarLayoutTests : ScriptTestBase
                                              // scroller's edge, one border-width left of where it started
         Assert.True(m[5] > 40, $"A growing row with four lanes is only {m[5]}px taller than a quiet one.");
         Assert.InRange(m[6], 0, 16);         // its last lane is inside it
+        Assert.Equal("none", shadows[0]);    // no edge while nothing is under the label
+        Assert.NotEqual("none", shadows[1]); // and an edge once columns are
     }
 }

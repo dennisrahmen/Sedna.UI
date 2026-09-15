@@ -12632,6 +12632,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     --cal-label-width: 136px;
     --cal-column-min: 32px;
     --cal-at: 0;
+    --cal-label-edge: var(--shadow-edge-start);
     position: relative;
     min-inline-size: calc(var(--cal-label-width) + var(--cal-columns) * var(--cal-column-min));
     border: 1px solid var(--border);
@@ -12680,7 +12681,15 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     min-block-size: calc((var(--cal-lanes) + 1) * (var(--cal-event-height) + var(--space-1)) + 2 * var(--space-2));
 }
 .cal-timeline-label > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sedna-scroll-x[data-scroll-start] .cal-timeline :is(.cal-timeline-corner, .cal-timeline-label) { box-shadow: var(--shadow-edge-start); }
+/* The edge, off until a column is scrolled under the label — the pinned table column's
+   rule: on by default, and off while the scroller sits at its start, by the
+   scroll-state query or, where there is none, by 22-scroll-edge.js's attribute. The
+   token is a custom property so 70-rtl.css can turn the shadow round. */
+.cal-timeline :is(.cal-timeline-corner, .cal-timeline-label) { box-shadow: var(--cal-label-edge); }
+@container not scroll-state(scrollable: inline-start) {
+    .cal-timeline :is(.cal-timeline-corner, .cal-timeline-label) { box-shadow: none; }
+}
+.sedna-scroll-x[data-scroll-start] .cal-timeline :is(.cal-timeline-corner, .cal-timeline-label) { box-shadow: none; }
 /* The timeline cannot clip its corners, because a clipping box would stop the label
    pinning; the two pinned cells at the corners follow the radius themselves. */
 .cal-timeline-corner { border-start-start-radius: calc(var(--radius-surface) - 1px); }
@@ -14434,6 +14443,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    properties. */
 [dir="rtl"] .table--pin-start { --pin-edge-start: var(--shadow-edge-end); }
 [dir="rtl"] .table--pin-end   { --pin-edge-end:   var(--shadow-edge-start); }
+[dir="rtl"] .cal-timeline     { --cal-label-edge: var(--shadow-edge-end); }
 
 /* The collapsed rail's flyout needs nothing here, and neither does anything else in
    the rail. `position-area: inline-end` and `align-self: anchor-center` are both
