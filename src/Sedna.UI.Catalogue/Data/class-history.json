@@ -971,6 +971,7 @@
     "--cal-gutter": "0.14.0",
     "--cal-hour-height": "0.14.0",
     "--cal-hours": "0.14.0",
+    "--cal-label-edge": null,
     "--cal-label-width": null,
     "--cal-lane": "0.14.0",
     "--cal-lanes": "0.14.0",
