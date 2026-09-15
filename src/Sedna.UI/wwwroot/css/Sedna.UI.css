@@ -9880,6 +9880,55 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 .gallery > button:hover .media-frame { border-color: var(--border-hover); }
 .gallery > *:focus-visible { outline: none; }
 .gallery > *:focus-visible .media-frame { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+/* Pictures that share one frame — the photos in a message, the ones on a card — two
+   across with a hairline between them. The frame they sit in has the corners, so the
+   pictures have none of their own. */
+.gallery--tight {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-1);
+    width: min(100%, 320px);
+}
+.gallery--tight > *,
+.gallery--tight .media-frame { border-radius: 0; }
+
+/* ── Link preview ───────────────────────────────────────────────────────────
+   A link unfurled — the picture, the title, a line and the host — in a message, a
+   comment or a record's description. The app fetches the preview; this is the card.
+
+     <a class="link-preview" href="https://ops.example.com/docks">
+       <img src="…" width="88" height="88" alt="">
+       <span class="link-preview-body">
+         <strong>Dock schedule — week 38</strong>
+         <span>Inbound and outbound slots for all four docks.</span>
+         <small>ops.example.com</small>
+       </span>
+     </a> */
+.link-preview {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: stretch;
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+    background: var(--surface-here);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+}
+.link-preview:hover { border-color: var(--border-strong); text-decoration: none; }
+.link-preview:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.link-preview > img { width: 88px; height: 100%; object-fit: cover; }
+.link-preview-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-3);
+}
+.link-preview-body > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-preview-body > span { color: var(--fg-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.link-preview-body > small { color: var(--muted); font-size: var(--text-2); }
 
 /* ── Prose ──────────────────────────────────────────────────────────────────
    Long-form text an app renders from a source it does not control — a release note,
@@ -10750,6 +10799,33 @@ a.file-cell { color: inherit; text-decoration: none; }
 a.file-cell:hover .file-name { text-decoration: underline; }
 .table td:has(> .file-cell) { width: 100%; max-width: 0; min-width: 10rem; }
 
+/* ── A picture waiting to go ────────────────────────────────────────────────
+   A thumbnail of a picture that is attached and not yet sent or uploaded, with the
+   button that takes it back over its corner. It sits beside the `.chip`s of the other
+   files — in a message composer, or above an upload form's submit.
+
+     <span class="file-thumb">
+       <img src="…" width="48" height="48" alt="The crates on the floor">
+       <button class="chip-dismiss" type="button" aria-label="Remove the photo">…</button>
+     </span> */
+.file-thumb {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-inner);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.file-thumb > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.file-thumb > .chip-dismiss {
+    position: absolute;
+    top: var(--space-1);
+    inset-inline-end: var(--space-1);
+    background: var(--bg-elevated);
+}
+
 /* ── A grid of tiles ────────────────────────────────────────────────────────
    A folder as pictures: a real `<ul>`, breakpoint-free like `.gallery`, each tile a
    thumbnail or a large type icon over the name and the meta line. `--wide` is for
@@ -11233,27 +11309,33 @@ dialog.lightbox::before {
    A voice message, a call recording, a dictated note: play, the bars, how long. The
    bars are `<i>` elements with their height in `--h`; the ones already heard carry
    `.audio-wave-heard`. The `<audio>` is the app's and hidden — the bars are the
-   picture of it, and the play button's name says the length. On a narrow screen the
-   bars give up width and the time never wraps. */
+   picture of it, and the play button's name says the length.
+
+   Every bar is a fixed width with a fixed gap, so a waveform is as wide as its bars
+   and looks the same in a list row, a card and a chat bubble. Stretched to its
+   container instead, the same recording drew fat bars in a wide row and hairlines in
+   a bubble that shrinks to its content. On a narrow screen the bars that do not fit
+   are cut off at the end, and the time never wraps. */
 .audio-wave {
     display: flex;
     align-items: center;
     gap: var(--space-4);
-    min-width: min(100%, 240px);
+    max-width: 100%;
 }
 .audio-wave > .btn { flex-shrink: 0; border-radius: 50%; }
 .audio-wave-bars {
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    flex: 1;
-    min-width: 64px;
+    flex: 0 1 auto;
+    min-width: 0;
     height: 28px;
+    overflow: hidden;
 }
 .audio-wave-bars > i {
     --h: 30%;
-    flex: 1;
-    min-width: 2px;
+    flex: none;
+    width: 3px;
     height: var(--h);
     min-height: 3px;
     border-radius: var(--radius-pill);
@@ -12467,15 +12549,6 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 .chat-bubble--media { padding: 0; overflow: hidden; }
 .chat-bubble--media > img,
 .chat-bubble--media > video { display: block; max-width: 100%; height: auto; }
-/* Several pictures in one message: a grid of `.media-open` buttons, each a square
-   `.media-frame`, two across. Three pictures leave a slot; four fill it. */
-.chat-media-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-1);
-    width: min(100%, 320px);
-}
-.chat-media-grid > .media-open { border-radius: 0; }
 /* Someone named. */
 .chat-mention {
     color: var(--brand-text);
@@ -12500,41 +12573,18 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 }
 .chat-quote > strong { color: var(--fg-soft); margin-inline-end: var(--space-3); }
 
-/* A file in a bubble is a `.file-item` (47-form-file.css) — the icon, the name, the
-   size, a `.progress` while it uploads — on the bubble's own surface rather than the
-   list's, so it reads as part of the message. A voice message is an `.audio-wave`
-   (64-media-player.css), which needs nothing from the bubble. */
+/* A bubble builds nothing of its own for what it carries. A file is a `.file-item`
+   (47-form-file.css) — the icon, the name, the size, a `.progress` while it uploads —
+   on the bubble's own surface rather than the list's, so it reads as part of the
+   message. Several pictures are a `.gallery--tight` and a link is a `.link-preview`
+   (62-media-and-prose.css), a voice message is an `.audio-wave` (64-media-player.css),
+   and a picture waiting in the composer is a `.file-thumb` (64-files.css). */
 .chat-bubble .file-item { background: var(--surface-here); }
 .chat-bubble .file-item + .file-item { margin-top: var(--space-2); }
 
-/* A link the message carries, unfurled: the picture, the title, a line and the host.
-   The app fetches the preview; this is only the card. */
-.chat-link-card {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: stretch;
-    margin-top: var(--space-3);
-    max-width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-inner);
-    background: var(--surface-here);
-    color: inherit;
-    text-decoration: none;
-    overflow: hidden;
-}
-.chat-link-card:hover { border-color: var(--border-strong); text-decoration: none; }
-.chat-link-card > img { width: 88px; height: 100%; object-fit: cover; }
-.chat-link-card-body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    min-width: 0;
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-3);
-}
-.chat-link-card-body > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.chat-link-card-body > span { color: var(--fg-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.chat-link-card-body > small { color: var(--muted); font-size: var(--text-2); }
+/* A link the message carries is a `.link-preview` (62-media-and-prose.css), set off
+   from the text above it. */
+.chat-bubble > .link-preview { margin-top: var(--space-3); }
 
 /* ── Reactions ──────────────────────────────────────────────────────────────
    Under the bubble: a pill per emoji with its count, `aria-pressed` on the ones
@@ -12686,23 +12736,6 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 .chat-composer-reply > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-composer-reply > strong { color: var(--fg-soft); }
 .chat-composer-files { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
-/* A picture waiting to be sent: its thumbnail with the remove button over its corner. */
-.chat-composer-thumb {
-    position: relative;
-    display: inline-block;
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-inner);
-    overflow: hidden;
-    border: 1px solid var(--border);
-}
-.chat-composer-thumb > img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.chat-composer-thumb > .chip-dismiss {
-    position: absolute;
-    top: var(--space-1);
-    inset-inline-end: var(--space-1);
-    background: var(--bg-elevated);
-}
 .chat-composer-row { display: flex; align-items: flex-end; gap: var(--space-3); }
 .chat-composer-row > .form-input {
     flex: 1;
@@ -13936,7 +13969,7 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
     /* A chat bubble is nothing but a background; without a line around it a
        thread is a column of text with no turns in it. */
     .chat-bubble,
-    .chat-link-card,
+    .link-preview,
     .chat-reaction,
     .chat-jump,
     .cal-event,

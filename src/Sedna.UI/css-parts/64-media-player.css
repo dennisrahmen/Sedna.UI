@@ -169,27 +169,33 @@
    A voice message, a call recording, a dictated note: play, the bars, how long. The
    bars are `<i>` elements with their height in `--h`; the ones already heard carry
    `.audio-wave-heard`. The `<audio>` is the app's and hidden — the bars are the
-   picture of it, and the play button's name says the length. On a narrow screen the
-   bars give up width and the time never wraps. */
+   picture of it, and the play button's name says the length.
+
+   Every bar is a fixed width with a fixed gap, so a waveform is as wide as its bars
+   and looks the same in a list row, a card and a chat bubble. Stretched to its
+   container instead, the same recording drew fat bars in a wide row and hairlines in
+   a bubble that shrinks to its content. On a narrow screen the bars that do not fit
+   are cut off at the end, and the time never wraps. */
 .audio-wave {
     display: flex;
     align-items: center;
     gap: var(--space-4);
-    min-width: min(100%, 240px);
+    max-width: 100%;
 }
 .audio-wave > .btn { flex-shrink: 0; border-radius: 50%; }
 .audio-wave-bars {
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    flex: 1;
-    min-width: 64px;
+    flex: 0 1 auto;
+    min-width: 0;
     height: 28px;
+    overflow: hidden;
 }
 .audio-wave-bars > i {
     --h: 30%;
-    flex: 1;
-    min-width: 2px;
+    flex: none;
+    width: 3px;
     height: var(--h);
     min-height: 3px;
     border-radius: var(--radius-pill);

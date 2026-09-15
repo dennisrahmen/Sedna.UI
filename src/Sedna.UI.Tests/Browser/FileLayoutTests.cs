@@ -144,6 +144,31 @@ public class FileLayoutTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task A_waveform_is_drawn_the_same_in_a_wide_row_and_in_a_bubble_that_fits_its_content()
+    {
+        if (NoBrowser) return;
+        const string wave = """
+            <button class="btn btn-sm btn-icon" type="button" aria-label="Play">P</button>
+            <span class="audio-wave-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="audio-wave-time">0:07 / 0:19</span>
+            """;
+        var (page, _) = await OpenStyled($"""
+            <div style="width:600px"><div class="audio-wave" id="wide">{wave}</div></div>
+            <div style="display:inline-block; max-width:320px"><div class="audio-wave" id="fit">{wave}</div></div>
+            """);
+
+        var bars = await page.EvaluateAsync<double[]>("""
+            () => ['wide', 'fit'].flatMap(id => {
+                const b = document.querySelector('#' + id + ' .audio-wave-bars');
+                return [b.getBoundingClientRect().width, b.firstElementChild.getBoundingClientRect().width];
+            })
+            """);
+
+        Assert.Equal(bars[0], bars[2], 0.01);   // the same bars take the same width
+        Assert.Equal(bars[1], bars[3], 0.01);   // and each bar is as thick in both
+    }
+
+    [Fact]
     public async Task A_track_number_and_the_playing_glyph_take_the_same_width()
     {
         if (NoBrowser) return;

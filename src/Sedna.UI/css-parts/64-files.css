@@ -91,6 +91,33 @@ a.file-cell { color: inherit; text-decoration: none; }
 a.file-cell:hover .file-name { text-decoration: underline; }
 .table td:has(> .file-cell) { width: 100%; max-width: 0; min-width: 10rem; }
 
+/* ── A picture waiting to go ────────────────────────────────────────────────
+   A thumbnail of a picture that is attached and not yet sent or uploaded, with the
+   button that takes it back over its corner. It sits beside the `.chip`s of the other
+   files — in a message composer, or above an upload form's submit.
+
+     <span class="file-thumb">
+       <img src="…" width="48" height="48" alt="The crates on the floor">
+       <button class="chip-dismiss" type="button" aria-label="Remove the photo">…</button>
+     </span> */
+.file-thumb {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-inner);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.file-thumb > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.file-thumb > .chip-dismiss {
+    position: absolute;
+    top: var(--space-1);
+    inset-inline-end: var(--space-1);
+    background: var(--bg-elevated);
+}
+
 /* ── A grid of tiles ────────────────────────────────────────────────────────
    A folder as pictures: a real `<ul>`, breakpoint-free like `.gallery`, each tile a
    thumbnail or a large type icon over the name and the meta line. `--wide` is for
