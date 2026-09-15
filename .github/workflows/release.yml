@@ -122,7 +122,10 @@ jobs:
       # There is NO CHANGELOG.md in this repo. The GitHub Releases page IS the
       # changelog, and each release's notes come from its ANNOTATED TAG MESSAGE:
       #
-      #     git tag -a v0.2.0 -F notes.md && git push origin v0.2.0
+      #     git tag -a v0.2.0 -F notes.md --cleanup=verbatim && git push origin v0.2.0
+      #
+      # --cleanup=verbatim keeps the notes' `##` headings: git's default cleanup
+      # strips every line starting with `#` from the message.
       #
       # So the notes are written once, at the moment of tagging, and live with
       # the release they describe — nothing to keep in sync in the working tree.

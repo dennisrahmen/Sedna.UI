@@ -18,9 +18,12 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` â€
 3. Tag `main` and push. There is no release PR and nothing to prepare in the tree:
 
    ```bash
-   git tag -a v0.2.0 -F /tmp/notes.md
+   git tag -a v0.2.0 -F /tmp/notes.md --cleanup=verbatim
    git push origin v0.2.0
    ```
+
+   `--cleanup=verbatim` is required. Without it git deletes every line starting with `#`, so every
+   Markdown heading disappears from the tag message and from the release body built from it.
 
 4. Afterwards, the first pull request regenerates `class-history.json` â€” `--check` in CI fails until
    it does, so it cannot be forgotten. A tag does exactly two things to that file: every `null` the

@@ -521,11 +521,13 @@ version first.
 6. Once the version and the notes are confirmed, tag `main` — no release PR, nothing to stamp:
 
    ```bash
-   git tag -a v0.2.0 -F notes.md
+   git tag -a v0.2.0 -F notes.md --cleanup=verbatim
    git push origin v0.2.0
    ```
 
-   Write `notes.md` outside the repo. The first line becomes the release title suffix; the rest becomes
+   `--cleanup=verbatim` is required: git's default cleanup deletes every line starting with `#`, so
+   every Markdown heading would vanish from the tag message and the release body. Write `notes.md`
+   outside the repo. The first line becomes the release title suffix; the rest becomes
    the body.
 
 7. The first pull request after the release regenerates `class-history.json` — `--check` fails until it
