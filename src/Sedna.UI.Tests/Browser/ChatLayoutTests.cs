@@ -119,4 +119,27 @@ public class ChatLayoutTests : ScriptTestBase
         Assert.True(await page.EvaluateAsync<bool>("() => { const f = document.getElementById('field'); return f.scrollHeight > f.clientHeight; }"),
             "Past the limit the field should scroll.");
     }
+    [Fact]
+    public async Task A_group_and_a_person_start_their_names_at_the_same_x()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled("""
+            <ul class="list" style="width:360px">
+                <li><a class="list-row" href="#"><span class="avatar">AF</span><span class="list-main" id="person"><span class="list-title">Alex Fischer</span></span></a></li>
+                <li><a class="list-row" href="#"><span class="chat-avatars" id="pair"><span class="avatar" id="back">PN</span><span class="avatar" id="front">TF</span></span><span class="list-main" id="group"><span class="list-title">Dispatch</span></span></a></li>
+            </ul>
+            """);
+
+        var person = (await page.Locator("#person").BoundingBoxAsync())!.X;
+        var group = (await page.Locator("#group").BoundingBoxAsync())!.X;
+        Assert.True(Math.Abs(person - group) < 0.5, $"A person's name starts at {person} and a group's at {group}.");
+
+        // The pair stays inside its square, the front one lower and further along.
+        var pair = (await page.Locator("#pair").BoundingBoxAsync())!;
+        var back = (await page.Locator("#back").BoundingBoxAsync())!;
+        var front = (await page.Locator("#front").BoundingBoxAsync())!;
+        Assert.True(back.X >= pair.X && front.X + front.Width <= pair.X + pair.Width + 0.5
+                    && front.Y + front.Height <= pair.Y + pair.Height + 0.5, "The stacked avatars leave their square.");
+        Assert.True(front.X > back.X && front.Y > back.Y, "The front avatar is not stacked corner to corner.");
+    }
 }

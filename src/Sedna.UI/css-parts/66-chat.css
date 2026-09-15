@@ -62,6 +62,38 @@
 .chat-unread { color: var(--brand-text); }
 .chat-unread::before, .chat-unread::after { background: var(--brand); opacity: 0.5; }
 
+/* A conversation's picture in a list of them: two people of a group stacked corner to
+   corner inside one avatar's square. An `.avatar-group` is as wide as its count, so a
+   group's name started further in than a person's and the column of names and last
+   lines was crooked; this keeps the leading column one width whoever is in it. One
+   person is a plain `.avatar`. The avatar in front is cut out of the one behind, as in
+   `.avatar-group`, so the gap is right on every surface. */
+.chat-avatars {
+    --chat-avatars-size: 28px;
+    --chat-avatars-item: 20px;
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: var(--chat-avatars-size);
+    height: var(--chat-avatars-size);
+}
+.chat-avatars > .avatar {
+    --avatar-size: var(--chat-avatars-item);
+    position: absolute;
+    font-size: var(--text-1);
+}
+.chat-avatars > .avatar:first-child:not(:last-child) {
+    --chat-avatars-cut-x: calc(var(--chat-avatars-size) - var(--chat-avatars-item) / 2);
+    top: 0;
+    inset-inline-start: 0;
+    mask-image: radial-gradient(
+        circle calc(var(--chat-avatars-item) / 2 + var(--avatar-gap))
+        at var(--chat-avatars-cut-x) calc(var(--chat-avatars-size) - var(--chat-avatars-item) / 2),
+        transparent 100%, currentColor 100%);
+}
+.chat-avatars > .avatar:last-child { bottom: 0; inset-inline-end: 0; }
+.chat-avatars > .avatar i { font-size: var(--text-3); }
+
 /* Something the app did, told in the thread: joined, renamed, pinned. */
 .chat-system {
     align-self: center;
