@@ -39,6 +39,15 @@
      .bottombar--card    floating, as a .card would: its border, radius and shadow
      .bottombar--icons   no label anywhere; a short brand mark under the current icon
 
+   --bottombar-radius is how round the bar is, the surface radius by default. On --card it
+   rounds both cards, and the current item's block and a set-apart cell's outer side follow
+   it in by the card's padding, so the corners stay concentric; on --tint it rounds the
+   current item's block. Neither goes squarer than a control. The line and --icons bars
+   run edge to edge and have no corner to round. Set it on the bar, or on .bottombar in
+   the app's stylesheet for every bar:
+
+     <nav class="bottombar bottombar--card" style="--bottombar-radius: 16px" aria-label="Main">
+
    --end and --start are cells set apart by a short divider: search at the end, or a
    menu at the start that opens every page in a sheet — the bar holds a few places, the
    sheet holds the rest.
@@ -47,6 +56,7 @@
    phone only and hides the sidebar there instead. */
 .bottombar {
     --bottombar-height: 46px;
+    --bottombar-radius: var(--radius-surface);
     --bottombar-surface: var(--bg-elevated);
     --surface-here: var(--bottombar-surface);
     flex-shrink: 0;
@@ -189,7 +199,7 @@
 /* ── B · Tint ── */
 .bottombar--tint { --bottombar-height: 52px; }
 .bottombar--tint .bottombar-items { gap: var(--space-2); padding: var(--space-3) var(--space-3); }
-.bottombar--tint .bottombar-item { border-width: 0; border-radius: var(--radius-control); }
+.bottombar--tint .bottombar-item { border-width: 0; border-radius: max(var(--radius-control), calc(var(--bottombar-radius) - var(--space-3))); }
 .bottombar--tint .bottombar-item.active,
 .bottombar--tint .bottombar-item[aria-current="page"] { background: var(--brand-tint); color: var(--brand-text); }
 .bottombar--tint .bottombar-item--end,
@@ -214,15 +224,25 @@
 .bottombar--card .bottombar-items {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: var(--radius-surface);
+    border-radius: var(--bottombar-radius);
     box-shadow: var(--shadow-float);
 }
 .bottombar--card .bottombar-items { gap: var(--space-1); padding: var(--space-2); }
-.bottombar--card .bottombar-item { border-width: 0; border-radius: var(--radius-control); }
+/* Inset by the padding and the border, so the block's corner shares the card's centre. */
+.bottombar--card .bottombar-item { border-width: 0; border-radius: max(var(--radius-control), calc(var(--bottombar-radius) - var(--space-2) - 1px)); }
 .bottombar--card .bottombar-item.active,
 .bottombar--card .bottombar-item[aria-current="page"] { background: var(--surface-strong); }
 .bottombar--card .bottombar-item--end,
 .bottombar--card .bottombar-item--start { flex-basis: 40px; border-radius: 0; }
+/* Square on the divider's side, concentric on the card's, so a hover fills the corner. */
+.bottombar--card .bottombar-item--end {
+    border-start-end-radius: max(0px, calc(var(--bottombar-radius) - var(--space-2) - 1px));
+    border-end-end-radius: max(0px, calc(var(--bottombar-radius) - var(--space-2) - 1px));
+}
+.bottombar--card .bottombar-item--start {
+    border-start-start-radius: max(0px, calc(var(--bottombar-radius) - var(--space-2) - 1px));
+    border-end-start-radius: max(0px, calc(var(--bottombar-radius) - var(--space-2) - 1px));
+}
 .bottombar--card .bottombar-item--end::before,
 .bottombar--card .bottombar-item--start::before { inset-block: var(--space-3); }
 .bottombar--card[data-away] .bottombar-items { padding-block: 0; border-width: 0; box-shadow: none; }
