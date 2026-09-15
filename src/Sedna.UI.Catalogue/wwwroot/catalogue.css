@@ -95,6 +95,9 @@
 }
 .cat-main > h2:first-child { margin-top: 8px; }
 .cat-main > h3 { margin: 26px 0 10px; font-size: 14px; }
+/* A page's lede card followed straight by an example: the example takes the gap, since the
+   card may not. */
+.cat-main > .card + .cat-ex { margin-top: 38px; }
 
 .cat-anchor {
     margin-left: 8px;

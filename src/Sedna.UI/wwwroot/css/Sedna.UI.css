@@ -7255,18 +7255,22 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
    The label column is `--bar-list-label`, 9rem by default, set on the list where the
    names are longer. The value is what the reader takes away, so it is text and not
-   only a bar; the bar is for the comparison down the column. */
+   only a bar; the bar is for the comparison down the column.
+
+   The columns belong to the list and each row is a subgrid of them, so the widest
+   value sets the value column for every row. Sized row by row, `1 240` took its width
+   out of its own track, and the longest bar was drawn shorter than a shorter one. */
 .bar-list {
     --bar-list-label: 9rem;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
+    display: grid;
+    grid-template-columns: minmax(0, var(--bar-list-label)) 1fr auto;
+    gap: var(--space-4) var(--space-5);
 }
 .bar-list-row {
     display: grid;
-    grid-template-columns: minmax(0, var(--bar-list-label)) 1fr auto;
+    grid-column: span 3;   /* the list's three columns: label, track, value */
+    grid-template-columns: subgrid;
     align-items: center;
-    gap: var(--space-5);
 }
 .bar-list-label {
     font-size: var(--text-3);
@@ -7370,7 +7374,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
    The fill's colour is the app's judgement of the value, through a series
    modifier; the marks are neutral. `--labelled` reserves the line under the track
-   for the mark labels, and `.meter-scale` is the pair of end values under that. */
+   for the mark labels, and `.meter-scale` is the pair of end values under that.
+
+   Two marks close together would print their labels over each other, so
+   `.meter-mark--above` moves one label over the track, and `--labelled` reserves that
+   line as well once a mark asks for it. */
 .meter {
     position: relative;
     height: 10px;
@@ -7379,6 +7387,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 }
 .meter--lg { height: 18px; }
 .meter--labelled { margin-bottom: calc(var(--text-2) + var(--space-5)); }
+.meter--labelled:has(.meter-mark--above) { margin-top: calc(var(--text-2) + var(--space-5)); }
 .meter-fill {
     --value: 0%;
     display: block;
@@ -7410,6 +7419,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     color: var(--muted);
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+}
+.meter-mark--above .meter-mark-label {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: var(--space-2);
 }
 .meter-scale {
     display: flex;
@@ -8240,16 +8255,27 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
         the rows running into the header text. That is why the border is drawn with
         a box-shadow here rather than a border.
    z-index 2 is local stacking inside the table, not a rung on the documented scale;
-   the band is described where the pinned column sets the rest of it. */
+   the band is described where the pinned column sets the rest of it.
+
+   The `<thead>` sticks, not each cell. Pinned cell by cell, every header row after the
+   first needs the height of the rows above it as a number, and a number that is a pixel
+   off is a pixel of body rows showing through between two header rows. Pinned as one
+   box, the rows of a header cannot come apart.
+
+   The cells' second shadow paints a pixel of the header's own surface above it, over
+   the seam a fractional device-pixel ratio can leave between the header and the top
+   of its scroller. The scroller clips it everywhere else. */
 .table--sticky { border-collapse: separate; border-spacing: 0; }
-.table--sticky th {
+.table--sticky thead {
     position: sticky;
     top: 0;
     z-index: 2;
+}
+.table--sticky thead th {
     /* Opaque, not the translucent --table-head-bg: rows scrolling underneath would
        show through it. */
     background: var(--bg-elevated);
-    box-shadow: inset 0 -1px 0 var(--border);
+    box-shadow: inset 0 -1px 0 var(--border), 0 -1px 0 var(--bg-elevated);
 }
 .table--sticky td { border-bottom: 1px solid var(--border); }
 
@@ -8458,7 +8484,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .table--sticky.table--pin-end thead th:last-child:not([colspan]) {
     background-color: var(--bg-elevated);
     background-image: none;
-    box-shadow: inset 0 -1px 0 var(--border), var(--pin-shadow);
+    box-shadow: inset 0 -1px 0 var(--border), 0 -1px 0 var(--bg-elevated), var(--pin-shadow);
 }
 
 /* The edge, off until there is a column behind it. `.sedna-scroll-x` is the
@@ -8531,11 +8557,15 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 }
 /* Under a sticky header the group row is a header too, and pins beneath it. The
    header's height is not knowable here, so it is the app's one number: set
-   `--table-head-height` on the table where its header is not the default 36px. */
-.table--sticky { --table-head-height: 36px; --table-filter-height: 0px; }
+   `--table-head-height` on the table where its header is not the default 35px.
+
+   The group row pins a pixel higher than the two heights add up to. It lies below the
+   header in the stacking order, so a pixel too high is a pixel hidden under the header,
+   and a pixel too low was a strip of rows showing through. */
+.table--sticky { --table-head-height: 35px; --table-filter-height: 0px; }
 .table--sticky .tr-group > th {
     position: sticky;
-    top: calc(var(--table-head-height) + var(--table-filter-height));
+    top: calc(var(--table-head-height) + var(--table-filter-height) - 1px);
     z-index: 1;
 }
 
@@ -8556,9 +8586,9 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    column name. Every filter needs an aria-label: the column heading above it is not
    its label.
 
-   Under `.table--sticky` it pins beneath the header row. The header's height is not
-   knowable here, which is why `--table-head-height` exists; the filter row's own
-   height is added to where a group row pins, through `--table-filter-height`. */
+   Under `.table--sticky` it pins with the header row, because the whole `<thead>` is
+   what sticks. Its height is added to where a group row pins, through
+   `--table-filter-height`. */
 .tr-filter > th {
     padding-block: var(--space-2);
     font-weight: 400;
@@ -8568,7 +8598,6 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 }
 .tr-filter :is(.form-input, .form-select) { width: 100%; min-width: 0; }
 .table--sticky:has(.tr-filter) { --table-filter-height: 37px; }
-.table--sticky .tr-filter > th { top: var(--table-head-height); }
 
 /* ── Nothing here, and still loading ────────────────────────────────────────
    The table or list is present — framed by its toolbar and its count — and this
@@ -12269,7 +12298,7 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 
     /* A table's header repeats on every page — that is what <thead> is for, and it
        only happens if the header is not sticky. */
-    .table--sticky th { position: static; }
+    .table--sticky thead { position: static; }
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
     .table tr { break-inside: avoid; }

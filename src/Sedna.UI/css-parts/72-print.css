@@ -61,7 +61,7 @@
 
     /* A table's header repeats on every page — that is what <thead> is for, and it
        only happens if the header is not sticky. */
-    .table--sticky th { position: static; }
+    .table--sticky thead { position: static; }
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
     .table tr { break-inside: avoid; }
