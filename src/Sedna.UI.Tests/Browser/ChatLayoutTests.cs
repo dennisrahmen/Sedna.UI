@@ -126,7 +126,7 @@ public class ChatLayoutTests : ScriptTestBase
         var (page, _) = await OpenStyled("""
             <ul class="list" style="width:360px">
                 <li><a class="list-row" href="#"><span class="avatar">AF</span><span class="list-main" id="person"><span class="list-title">Alex Fischer</span></span></a></li>
-                <li><a class="list-row" href="#"><span class="chat-avatars" id="pair"><span class="avatar" id="back">PN</span><span class="avatar" id="front">TF</span></span><span class="list-main" id="group"><span class="list-title">Dispatch</span></span></a></li>
+                <li><a class="list-row" href="#"><span class="avatar-pair" id="pair"><span class="avatar" id="back">PN</span><span class="avatar" id="front">TF</span></span><span class="list-main" id="group"><span class="list-title">Dispatch</span></span></a></li>
             </ul>
             """);
 

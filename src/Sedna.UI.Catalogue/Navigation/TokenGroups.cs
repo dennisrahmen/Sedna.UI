@@ -112,6 +112,7 @@ internal static class TokenGroups
             "--backdrop", "--overlay", "--spotlight-dim", "--media-bg", "--media-scrim", "--tip-bg", "--tip-border", "--tip-fg",
             "--scrollbar", "--scrollbar-hover", "--scroll-shade",
             "--progress-track", "--skeleton-bg", "--skeleton-sheen",
+            "--presence-out-of-office",
         ]),
 
         new("Shadows", [
