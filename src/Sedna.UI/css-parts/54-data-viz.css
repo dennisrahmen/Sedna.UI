@@ -37,18 +37,22 @@
 
    The label column is `--bar-list-label`, 9rem by default, set on the list where the
    names are longer. The value is what the reader takes away, so it is text and not
-   only a bar; the bar is for the comparison down the column. */
+   only a bar; the bar is for the comparison down the column.
+
+   The columns belong to the list and each row is a subgrid of them, so the widest
+   value sets the value column for every row. Sized row by row, `1 240` took its width
+   out of its own track, and the longest bar was drawn shorter than a shorter one. */
 .bar-list {
     --bar-list-label: 9rem;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
+    display: grid;
+    grid-template-columns: minmax(0, var(--bar-list-label)) 1fr auto;
+    gap: var(--space-4) var(--space-5);
 }
 .bar-list-row {
     display: grid;
-    grid-template-columns: minmax(0, var(--bar-list-label)) 1fr auto;
+    grid-column: span 3;   /* the list's three columns: label, track, value */
+    grid-template-columns: subgrid;
     align-items: center;
-    gap: var(--space-5);
 }
 .bar-list-label {
     font-size: var(--text-3);
@@ -152,7 +156,11 @@
 
    The fill's colour is the app's judgement of the value, through a series
    modifier; the marks are neutral. `--labelled` reserves the line under the track
-   for the mark labels, and `.meter-scale` is the pair of end values under that. */
+   for the mark labels, and `.meter-scale` is the pair of end values under that.
+
+   Two marks close together would print their labels over each other, so
+   `.meter-mark--above` moves one label over the track, and `--labelled` reserves that
+   line as well once a mark asks for it. */
 .meter {
     position: relative;
     height: 10px;
@@ -161,6 +169,7 @@
 }
 .meter--lg { height: 18px; }
 .meter--labelled { margin-bottom: calc(var(--text-2) + var(--space-5)); }
+.meter--labelled:has(.meter-mark--above) { margin-top: calc(var(--text-2) + var(--space-5)); }
 .meter-fill {
     --value: 0%;
     display: block;
@@ -192,6 +201,12 @@
     color: var(--muted);
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+}
+.meter-mark--above .meter-mark-label {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: var(--space-2);
 }
 .meter-scale {
     display: flex;

@@ -101,9 +101,9 @@ public class ControlStateTests : ScriptTestBase
             }
             """);
 
-        Assert.Equal(0, tops[0], 1.0);                        // header pinned to the top
-        Assert.Equal(tops[2], tops[1], 1.5);                // filter row directly under it
-        Assert.Equal(tops[1] + tops[4], tops[3], 1.5);      // group row under both, overlapping neither
+        Assert.Equal(0, tops[0], 0.01);                       // header pinned to the top
+        Assert.Equal(tops[2], tops[1], 0.01);               // filter row flush under it: no seam to see rows through
+        Assert.InRange(tops[3], tops[1] + tops[4] - 1.01, tops[1] + tops[4]); // group row under both, never below them
     }
 
     [Fact]
