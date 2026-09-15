@@ -18,3 +18,31 @@
         better fit.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.Integrations.QuillEditor" Title="Quill, through Spillgebees.Blazor.RichTextEditor" Demo="ex-demo--block">
+    <p>
+        <strong>Live — type, format, add a link.</strong> The one editor the library dresses. The
+        app adds the <a href="https://www.nuget.org/packages/Spillgebees.Blazor.RichTextEditor">Spillgebees.Blazor.RichTextEditor</a>
+        package itself &mdash; Sedna.UI references nothing third-party &mdash; and hands the chrome's
+        classes to the component: <code>.editor</code> as <code>ContainerClass</code>,
+        <code>.editor-toolbar</code> through <code>ToolbarOptions</code>, and
+        <code>.editor-body.prose</code> as <code>EditorContainerClass</code>. The toolbar is the
+        app's own: <code>.btn-ghost.btn-icon.btn-sm</code> buttons carrying Quill's
+        <code>ql-*</code> class, which Quill fills with its icon and marks
+        <code>aria-pressed</code>.
+    </p>
+    <p>
+        <strong>Prefer buttons to Quill's pickers.</strong> A <code>&lt;select class="ql-header"&gt;</code>
+        is dressed too &mdash; Quill turns it into a dropdown labelled with the app's option text &mdash;
+        but the label Quill builds is a <code>role="button"</code> with no accessible name, and Quill
+        copies the select's <code>aria-label</code> onto an element that may not carry one. A button per
+        value, as here, has neither problem.
+    </p>
+    <p>
+        <strong>Do not link the package's stylesheet.</strong> It is unlayered, so it would beat
+        every rule the library has; the library carries what Quill needs to work. The link
+        tooltip's words come from <code>--editor-link-open</code>, <code>--editor-link-edit</code>,
+        <code>--editor-link-save</code> and <code>--editor-link-remove</code>, set on any ancestor
+        in the app's language. Built and tested against version 3.0.0 of the package (Quill 2).
+    </p>
+</CatExample>

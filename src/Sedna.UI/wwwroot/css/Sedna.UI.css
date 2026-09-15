@@ -45,6 +45,7 @@
      42-state-art.css
      43-content-grids.css
      44-markdown.css
+     44-quill.css
      45-form-controls.css
      46-form-layout.css
      47-form-file.css
@@ -5200,6 +5201,383 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 }
 
 
+}
+
+/* ── 44-quill.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Quill, inside the editor chrome ────────────────────────────────────────
+   The one editor engine the library dresses: Quill 2, as the Blazor component
+   Spillgebees.Blazor.RichTextEditor renders it. The library references neither — an
+   app that wants the editor adds the package, and this part is what makes the result
+   look like the rest of the app. CLAUDE.md names it as an exception to "no styling
+   for a particular integration" and says why a second engine is not added beside it.
+
+   The app writes the chrome's classes onto the component and its own toolbar:
+
+     <RichTextEditor @bind-Content="content"
+                     ContainerClass="editor"
+                     ToolbarOptions="new() { ToolbarContainerClass = &quot;editor-toolbar&quot; }"
+                     EditorContainerClass="editor-body prose"
+                     Placeholder="Write the handover note">
+       <ToolbarContent>
+         <button class="btn btn-ghost btn-icon btn-sm ql-bold" type="button" aria-label="Bold"></button>
+         <span class="editor-sep" role="separator"></span>
+         …
+       </ToolbarContent>
+     </RichTextEditor>
+
+   and does NOT link the package's own stylesheet. That file is unlayered, so every
+   rule in it would outrank every rule here whatever the specificity; this part carries
+   the few rules Quill needs to work as well as the look.
+
+   Quill fills each `ql-*` button with its own 18-unit SVG and reports the state on
+   `aria-pressed`, which `.editor-toolbar` already colours. Every rule is scoped to
+   `.editor`, so an app using Quill with its own theme elsewhere is untouched.
+
+   The words are the app's. The link tooltip's labels come from four custom properties
+   the app sets on the editor or any ancestor, in its own language:
+
+     --editor-link-open: "Open"   --editor-link-edit: "Edit"
+     --editor-link-save: "Save"   --editor-link-remove: "Remove"
+
+   and a picker item's label is the text of the `<option>` the app wrote, which Quill
+   copies to `data-label`. They are declared empty on the root element rather than on
+   `.editor`, where they would hide the value an ancestor set. */
+:where(html) {
+    --editor-link-open: "";
+    --editor-link-edit: "";
+    --editor-link-save: "";
+    --editor-link-remove: "";
+}
+
+/* ── The editable area ──────────────────────────────────────────────────────
+   The component puts `.editor-body` on Quill's container, which also holds the link
+   tooltip. A container that scrolls would clip the tooltip at its edge, so the scroll
+   moves one level in, to `.ql-editor`, and the container stays a positioned box. */
+.editor .ql-container {
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+.editor-body.ql-container {
+    min-block-size: 0;
+    max-block-size: none;
+    padding: 0;
+    overflow: visible;
+}
+.editor .ql-editor {
+    flex: 1;
+    box-sizing: border-box;
+    min-block-size: 160px;
+    max-block-size: var(--editor-max-height);
+    overflow-y: auto;
+    padding: var(--space-5) var(--space-6);
+    outline: none;
+    tab-size: 4;
+    text-align: start;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    counter-reset: list-0 list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+}
+.editor .ql-editor > * { cursor: text; }
+.editor .ql-clipboard {
+    position: absolute;
+    inset-inline-start: -100000px;
+    top: 50%;
+    height: 1px;
+    overflow-y: hidden;
+}
+.editor .ql-hidden { display: none; }
+/* Quill's words for an empty editor are the component's `Placeholder`. */
+.editor .ql-editor.ql-blank::before {
+    content: attr(data-placeholder);
+    position: absolute;
+    inset-inline: var(--space-6);
+    color: var(--border-strong);
+    pointer-events: none;
+}
+.editor .ql-container.ql-disabled .ql-editor > * { cursor: default; }
+.editor:has(.ql-container.ql-disabled) { background: var(--surface-soft); }
+.editor:has(.ql-container.ql-disabled) .editor-toolbar { opacity: 0.45; pointer-events: none; }
+
+/* ── Lists ──────────────────────────────────────────────────────────────────
+   Quill 2 writes every list as an `<ol>` of `<li data-list="bullet|ordered|checked|
+   unchecked">` and draws the marker itself, into a `.ql-ui` span, so the browser's own
+   markers are off and the counters below number an ordered list through its indents:
+   1. a. i. and round again, as a document editor does. */
+.editor .ql-editor ol { padding-inline-start: 1.5em; }
+.editor .ql-editor li {
+    position: relative;
+    list-style-type: none;
+    padding-inline-start: 1.5em;
+}
+.editor .ql-editor .ql-ui { position: absolute; }
+.editor .ql-editor li > .ql-ui::before {
+    display: inline-block;
+    width: 1.2em;
+    margin-inline-start: -1.5em;
+    margin-inline-end: 0.3em;
+    text-align: end;
+    white-space: nowrap;
+    color: var(--muted);
+}
+.editor .ql-editor li[data-list="bullet"] > .ql-ui::before { content: "\2022"; }
+/* A checklist item's box, drawn rather than a character, so it matches `.form-check`. */
+.editor .ql-editor li:is([data-list="checked"], [data-list="unchecked"]) > .ql-ui::before {
+    content: "";
+    box-sizing: border-box;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-inner);
+    background: var(--bg);
+}
+.editor .ql-editor li[data-list="checked"] > .ql-ui::before {
+    content: "\2713";
+    display: inline-grid;
+    place-items: center;
+    font-size: 0.8em;
+    width: 1.25em;
+    height: 1.25em;
+    line-height: 1;
+    border-color: var(--brand);
+    background: var(--brand);
+    color: var(--on-solid);
+}
+.editor .ql-editor li[data-list="checked"] { color: var(--muted); text-decoration: line-through; }
+.editor .ql-container:not(.ql-disabled) li:is([data-list="checked"], [data-list="unchecked"]) > .ql-ui { cursor: pointer; }
+
+.editor .ql-editor :is(p, h1, h2, h3, h4, h5, h6) { counter-set: list-0 list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; }
+.editor .ql-editor li[data-list] { counter-set: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; }
+.editor .ql-editor li[data-list].ql-indent-1 { counter-set: list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; }
+.editor .ql-editor li[data-list].ql-indent-2 { counter-set: list-3 list-4 list-5 list-6 list-7 list-8 list-9; }
+.editor .ql-editor li[data-list].ql-indent-3 { counter-set: list-4 list-5 list-6 list-7 list-8 list-9; }
+.editor .ql-editor li[data-list].ql-indent-4 { counter-set: list-5 list-6 list-7 list-8 list-9; }
+.editor .ql-editor li[data-list].ql-indent-5 { counter-set: list-6 list-7 list-8 list-9; }
+.editor .ql-editor li[data-list].ql-indent-6 { counter-set: list-7 list-8 list-9; }
+.editor .ql-editor li[data-list].ql-indent-7 { counter-set: list-8 list-9; }
+.editor .ql-editor li[data-list].ql-indent-8 { counter-set: list-9; }
+
+.editor .ql-editor li[data-list="ordered"] { counter-increment: list-0; }
+.editor .ql-editor li[data-list="ordered"] > .ql-ui::before { content: counter(list-0, decimal) ". "; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-1 { counter-increment: list-1; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-1 > .ql-ui::before { content: counter(list-1, lower-alpha) ". "; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-2 { counter-increment: list-2; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-2 > .ql-ui::before { content: counter(list-2, lower-roman) ". "; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-3 { counter-increment: list-3; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-3 > .ql-ui::before { content: counter(list-3, decimal) ". "; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-4 { counter-increment: list-4; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-4 > .ql-ui::before { content: counter(list-4, lower-alpha) ". "; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-5 { counter-increment: list-5; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-5 > .ql-ui::before { content: counter(list-5, lower-roman) ". "; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-6 { counter-increment: list-6; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-6 > .ql-ui::before { content: counter(list-6, decimal) ". "; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-7 { counter-increment: list-7; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-7 > .ql-ui::before { content: counter(list-7, lower-alpha) ". "; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-8 { counter-increment: list-8; }
+.editor .ql-editor li[data-list="ordered"].ql-indent-8 > .ql-ui::before { content: counter(list-8, lower-roman) ". "; }
+
+/* Indents, as Quill steps them: three ems a level, a list item half a level more. */
+.editor .ql-editor .ql-indent-1 { padding-inline-start: 3em; }
+.editor .ql-editor li.ql-indent-1 { padding-inline-start: 4.5em; }
+.editor .ql-editor .ql-indent-2 { padding-inline-start: 6em; }
+.editor .ql-editor li.ql-indent-2 { padding-inline-start: 7.5em; }
+.editor .ql-editor .ql-indent-3 { padding-inline-start: 9em; }
+.editor .ql-editor li.ql-indent-3 { padding-inline-start: 10.5em; }
+.editor .ql-editor .ql-indent-4 { padding-inline-start: 12em; }
+.editor .ql-editor li.ql-indent-4 { padding-inline-start: 13.5em; }
+.editor .ql-editor .ql-indent-5 { padding-inline-start: 15em; }
+.editor .ql-editor li.ql-indent-5 { padding-inline-start: 16.5em; }
+.editor .ql-editor .ql-indent-6 { padding-inline-start: 18em; }
+.editor .ql-editor li.ql-indent-6 { padding-inline-start: 19.5em; }
+.editor .ql-editor .ql-indent-7 { padding-inline-start: 21em; }
+.editor .ql-editor li.ql-indent-7 { padding-inline-start: 22.5em; }
+.editor .ql-editor .ql-indent-8 { padding-inline-start: 24em; }
+.editor .ql-editor li.ql-indent-8 { padding-inline-start: 25.5em; }
+
+/* ── What Quill marks up inside a line ──────────────────────────────────────
+   Alignment and direction are classes Quill writes. `right` is Quill's word for the
+   physical edge, so it stays physical. Sizes are relative to the text around them. */
+.editor .ql-editor .ql-direction-rtl { direction: rtl; text-align: inherit; }
+.editor .ql-editor .ql-align-center { text-align: center; }
+.editor .ql-editor .ql-align-justify { text-align: justify; }
+/* Quill's `right` is the physical edge whatever the direction, which is what it stores. */
+.editor .ql-editor .ql-align-right { text-align: end; }
+.editor .ql-editor .ql-direction-rtl.ql-align-right { text-align: start; }
+.editor .ql-editor .ql-size-small { font-size: 0.75em; }
+.editor .ql-editor .ql-size-large { font-size: 1.5em; }
+.editor .ql-editor .ql-size-huge { font-size: 2.5em; }
+.editor .ql-editor .ql-font-monospace { font-family: var(--font-mono); }
+.editor .ql-editor .ql-video { display: block; max-width: 100%; }
+.editor .ql-editor code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 0.1em 0.35em;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+}
+.editor .ql-editor .ql-code-block-container {
+    position: relative;
+    margin: 0.8em 0;
+    padding: var(--space-5) var(--space-6);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    overflow-x: auto;
+}
+.editor .ql-editor .ql-code-block-container .ql-ui { top: var(--space-2); inset-inline-end: var(--space-2); }
+.editor .ql-editor a { color: var(--accent); text-decoration: underline; }
+
+/* ── The toolbar ────────────────────────────────────────────────────────────
+   Quill's icons are strokes and fills in its own classes; they take the button's
+   colour, so a pressed, hovered or disabled button needs nothing more. */
+.editor-toolbar button > svg {
+    display: block;
+    width: 1.25em;
+    height: 1.25em;
+}
+.editor-toolbar .ql-stroke {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.editor-toolbar .ql-stroke-miter { fill: none; stroke: currentColor; stroke-width: 2; stroke-miterlimit: 10; }
+.editor-toolbar :is(.ql-fill, .ql-stroke.ql-fill) { fill: currentColor; }
+.editor-toolbar :is(.ql-thin, .ql-stroke.ql-thin) { stroke-width: 1; }
+.editor-toolbar .ql-even { fill-rule: evenodd; }
+.editor-toolbar .ql-transparent { opacity: 0.4; }
+/* The direction button carries two icons and shows the one for the other way. */
+.editor-toolbar .ql-direction svg:last-child { display: none; }
+.editor-toolbar .ql-direction[aria-pressed="true"] svg:first-child { display: none; }
+.editor-toolbar .ql-direction[aria-pressed="true"] svg:last-child { display: block; }
+
+/* A `<select class="ql-header">` becomes a picker: Quill hides the select and builds a
+   label and a list of items from its options. Here it is a ghost control with a
+   dropdown panel, on the dropdown rung of the z-index scale. */
+.editor-toolbar .ql-picker {
+    position: relative;
+    display: inline-flex;
+    height: var(--control-height-sm);
+    font-size: var(--text-3);
+    color: var(--fg);
+}
+.editor-toolbar .ql-picker-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: 100%;
+    padding: 0 var(--space-3) 0 var(--space-5);
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.editor-toolbar .ql-picker-label:hover,
+.editor-toolbar .ql-picker.ql-expanded .ql-picker-label { background: var(--bg-hover); }
+.editor-toolbar .ql-picker-label > svg { width: 1.25em; height: 1.25em; }
+.editor-toolbar :is(.ql-picker-label, .ql-picker-item)[data-label]::before { content: attr(data-label); }
+.editor-toolbar .ql-picker-options {
+    display: none;
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 0;
+    z-index: 550;
+    min-width: 100%;
+    margin-top: var(--space-1);
+    padding: var(--space-2);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    white-space: nowrap;
+}
+.editor-toolbar .ql-picker.ql-expanded .ql-picker-options { display: block; }
+.editor-toolbar .ql-picker-item {
+    display: block;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    cursor: pointer;
+}
+.editor-toolbar .ql-picker-item:hover { background: var(--bg-hover); }
+.editor-toolbar .ql-picker-item.ql-selected { background: var(--brand-tint); color: var(--brand-text); }
+/* A colour picker's items are swatches Quill paints with the option's value. */
+.editor-toolbar .ql-color-picker.ql-expanded .ql-picker-options {
+    display: grid;
+    grid-template-columns: repeat(7, var(--space-8));
+    gap: var(--space-1);
+}
+.editor-toolbar .ql-color-picker .ql-picker-item {
+    width: var(--space-8);
+    height: var(--space-8);
+    padding: 0;
+    border: 1px solid var(--border);
+}
+.editor-toolbar .ql-color-picker .ql-picker-item.ql-selected { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.editor-toolbar .ql-icon-picker .ql-picker-item > svg { display: block; width: 1.25em; height: 1.25em; }
+
+/* ── The link tooltip ───────────────────────────────────────────────────────
+   Quill's own popup for a link: the address, and edit / save / remove. It is a
+   dropdown panel on the same rung as a picker, and its words are the app's custom
+   properties, declared empty at the top of this part. */
+.editor .ql-tooltip {
+    position: absolute;
+    z-index: 550;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    color: var(--fg);
+    font-size: var(--text-3);
+    white-space: nowrap;
+    transform: translateY(var(--space-4));
+}
+.editor .ql-tooltip.ql-flip { transform: translateY(calc(var(--space-4) * -1)); }
+.editor .ql-tooltip.ql-hidden { display: none; }
+.editor .ql-tooltip::before { content: var(--editor-link-open); color: var(--muted); }
+.editor .ql-tooltip a { cursor: pointer; text-decoration: none; }
+.editor .ql-tooltip a.ql-preview {
+    max-width: 16rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--accent);
+}
+.editor .ql-tooltip :is(a.ql-action, a.ql-remove) {
+    color: var(--fg-soft);
+    font-weight: 500;
+}
+.editor .ql-tooltip :is(a.ql-action, a.ql-remove):hover { color: var(--fg); }
+.editor .ql-tooltip a.ql-action::after { content: var(--editor-link-edit); }
+.editor .ql-tooltip a.ql-remove::before { content: var(--editor-link-remove); }
+.editor .ql-tooltip input[type="text"] {
+    display: none;
+    box-sizing: border-box;
+    width: 16rem;
+    height: var(--control-height-sm);
+    padding: 0 var(--space-4);
+    font: inherit;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    outline: none;
+}
+.editor .ql-tooltip input[type="text"]:focus { border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
+.editor .ql-tooltip.ql-editing::before,
+.editor .ql-tooltip.ql-editing :is(a.ql-preview, a.ql-remove) { display: none; }
+.editor .ql-tooltip.ql-editing input[type="text"] { display: block; }
+.editor .ql-tooltip.ql-editing a.ql-action::after { content: var(--editor-link-save); }
 }
 
 /* ── 45-form-controls.css → @layer sedna.paint ──────────────────────────────────────────────── */

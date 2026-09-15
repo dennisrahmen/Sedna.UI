@@ -34,9 +34,15 @@ bytes, so a demo and its snippet cannot drift.
   must **never** be named `.razor`: the Razor SDK's own `<Content Include="**\*.razor">` glob would
   sweep it into a component and the build would fail somewhere confusing. No two-dot filenames either —
   that breaks default manifest naming.
-- **`Examples/Interop/` is the one place Razor is allowed**, for demonstrating `ISednaUi`,
-  `ISednaOverlays` and `ActiveLink`, where the thing being shown *is* C#. A test asserts from both directions that it is used
-  for nothing else, so it cannot become a home for examples that failed the scan.
+- **`Examples/Interop/` and `Examples/Integrations/` are the two places Razor is allowed** —
+  `Interop` for demonstrating `ISednaUi`, `ISednaOverlays` and `ActiveLink`, `Integrations` for the
+  third-party rich-text editor the catalogue references to show the library's Quill skin — where the
+  thing being shown *is* C#. A test asserts from both directions that they are used for nothing else,
+  so neither can become a home for examples that failed the scan. In `Integrations`, a `ql-` class is
+  Quill's own hook and is the one name the class guard does not look up.
+- **The catalogue references `Spillgebees.Blazor.RichTextEditor`, the library never does.** Its
+  version is pinned in the csproj; bump it deliberately and check `/editor`, because the skin in
+  `44-quill.css` follows Quill's generated markup.
 - **An example that needs a second file** — the app's own overlay component, for an example that
   presents one — names it with `Companion="Interop/ReassignOrder.razor"`. The page shows the two files as
   tabs in a card, and the MCP index files the companion under the same example's title. It is never

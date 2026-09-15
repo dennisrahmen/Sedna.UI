@@ -119,6 +119,7 @@ public class BrandTextContrastTests
         [".palette-item[aria-selected=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".palette-item[aria-selected=\"true\"] i"] = (Ink.Icon, ["--brand-tint"]),
         [".editor-toolbar [aria-pressed=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
+        [".editor-toolbar .ql-picker-item.ql-selected"] = (Ink.Text, ["--brand-tint"]),
         [".cal-month--mini .cal-day[aria-current=\"date\"]"] = (Ink.Text, []),
         [".cal-week-head .cal-weekday[aria-current=\"date\"]"] = (Ink.Text, []),
         [".timeline > li[data-state=\"current\"] > .timeline-mark"] = (Ink.Icon, []),

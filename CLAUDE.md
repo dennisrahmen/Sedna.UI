@@ -119,6 +119,13 @@ App-specific business UI stays in the app that owns it: its own workflow panels,
 guided tours, styling for a particular integration's output, page-specific grids. If a class knows
 what the app is *for*, it belongs to the app.
 
+**Quill 2 is the one integration the library dresses.** `44-quill.css` skins the markup Quill
+generates inside `.editor`, as `Spillgebees.Blazor.RichTextEditor` renders it, so an app that needs a
+rich-text editor gets one that looks native without writing its own. The library references neither: the
+app adds the package and does not link the package's stylesheet, and the catalogue references it to show
+and test the skin on the real component, pinned to one version. It is named here so it is not removed by
+the rule above, and so a second editor engine is not added beside it.
+
 Permanently out of scope:
 
 - MudBlazor, Syncfusion, Radzen, Tailwind.
@@ -216,8 +223,9 @@ the Razor SDK's own glob would sweep it into a component. Do not hand-write a `<
 
 **An example `.razor` file is plain HTML with no Razor syntax at all.** Then the bytes on disk are the
 bytes compiled, rendered and printed, so nothing is escaped and the snippet pastes into a `.razor` page
-and an `.html` file alike. `Examples/Interop/` is the one exception, for demonstrating the C# surface,
-and a test asserts from both directions that it is used for nothing else.
+and an `.html` file alike. `Examples/Interop/` and `Examples/Integrations/` are the exceptions — the C#
+surface, and the third-party editor the catalogue references — and a test asserts from both directions
+that they are used for nothing else.
 
 Adding a page: create `Components/Pages/<Name>.razor` with a `@page` route, then add it to
 `CataloguePages`. Tests fail on an orphaned page and on a registry entry with no page.

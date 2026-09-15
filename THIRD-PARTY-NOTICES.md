@@ -10,6 +10,7 @@ Only one of them ships inside the package. The distinction matters for anyone au
 |---|---|---|
 | Remix Icon | **yes** | `_content/Sedna.UI/lib/remixicon/` |
 | `ModelContextProtocol.AspNetCore` | no — the catalogue application only | published in its container image |
+| `Spillgebees.Blazor.RichTextEditor`, with Quill | no — the catalogue application only | published in its container image |
 | Outfit | no — a design asset, never loaded as a UI face | `assets/brand/font/` |
 
 ## Remix Icon
@@ -71,6 +72,12 @@ application (`src/Sedna.UI.Catalogue`), whose container image is published.
 | Package | Licence | Source |
 |---|---|---|
 | `ModelContextProtocol.AspNetCore` | Apache-2.0 | <https://github.com/modelcontextprotocol/csharp-sdk> |
+| `Spillgebees.Blazor.RichTextEditor` | MIT | <https://github.com/Spillgebees/Blazor.RichTextEditor> |
+| `BlazorComponentUtilities` (its dependency) | MIT | <https://github.com/EdCharbeneau/BlazorComponentUtilities> |
+| Quill 2 (bundled in its script) | BSD-3-Clause | <https://github.com/slab/quill> |
+
+The library's stylesheet dresses the markup Quill generates, but ships no Quill code and references
+neither package: an app that wants the editor adds `Spillgebees.Blazor.RichTextEditor` itself.
 
 The library itself takes exactly one dependency, `Microsoft.AspNetCore.Components.Web`, and
 `build/verify-package.sh` fails if the packed dependency list is anything else.

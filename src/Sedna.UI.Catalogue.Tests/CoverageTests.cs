@@ -24,6 +24,11 @@ namespace Sedna.UI.Catalogue.Tests;
 /// writes but may need to recognise.
 /// </para>
 /// <para>
+/// The <c>ql-</c> classes are skipped: they are the markup Quill generates inside
+/// <c>.editor</c>, which <c>44-quill.css</c> dresses and <c>/editor</c> documents as one
+/// integration rather than class by class.
+/// </para>
+/// <para>
 /// A stricter version of this, asserting every class is <i>rendered or printed</i>
 /// by a page rather than merely mentioned in a file, currently reports eleven
 /// classes that exist only while JavaScript is mid-interaction —
@@ -47,7 +52,10 @@ public class CoverageTests
                 .OrderBy(p => p, StringComparer.Ordinal)
                 .Select(File.ReadAllText));
 
+        // A `ql-` class is markup Quill generates and the library's Quill skin dresses.
+        // The app never writes one — /editor documents them as a family, not one by one.
         var missing = Declared()
+            .Where(name => !name.StartsWith("ql-", StringComparison.Ordinal))
             .Where(name => !haystack.Contains(name, StringComparison.Ordinal))
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToList();
