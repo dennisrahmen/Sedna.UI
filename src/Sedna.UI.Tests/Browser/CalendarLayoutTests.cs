@@ -429,7 +429,7 @@ public class CalendarLayoutTests : ScriptTestBase
     public async Task A_picker_s_time_row_and_its_levels_fit_the_panel_with_one_divider()
     {
         if (NoBrowser) return;
-        var picks = string.Concat(Enumerable.Range(1, 12).Select(n => $"<button class=\"cal-pick\" type=\"button\" aria-pressed=\"{(n == 9 ? "true" : "false")}\">{n}</button>"));
+        var picks = string.Concat(Enumerable.Range(1, 12).Select(n => $"<button class=\"cal-pick\" type=\"button\" aria-pressed=\"{(n == 9 ? "true" : "false")}\"{(n == 9 ? " aria-current=\"date\"" : "")}>{n}</button>"));
         var (page, _) = await OpenStyled($"""
             <div class="datepicker" id="panel" style="position: static">
               <div class="cal-months" id="months">{picks}</div>
@@ -450,11 +450,15 @@ public class CalendarLayoutTests : ScriptTestBase
                 const from = document.getElementById('from').getBoundingClientRect();
                 const to = document.getElementById('to').getBoundingClientRect();
                 const panel = document.getElementById('panel').getBoundingClientRect();
-                const chosen = getComputedStyle(document.querySelector('#months .cal-pick[aria-pressed="true"]')).backgroundColor;
+                const chosenPick = getComputedStyle(document.querySelector('#months .cal-pick[aria-pressed="true"]'));
+                const chosen = chosenPick.backgroundColor;
                 const other = getComputedStyle(document.querySelector('#months .cal-pick[aria-pressed="false"]')).backgroundColor;
+                const onSolid = getComputedStyle(document.querySelector('#months .cal-pick[aria-pressed="true"]')).color;
+                const probe = document.createElement('span'); probe.style.color = 'var(--on-solid)'; document.body.append(probe);
+                const expectedInk = getComputedStyle(probe).color; probe.remove();
                 return [cols('months'), cols('years'), Math.abs(from.top - to.top), to.right <= panel.right ? 1 : 0,
                         parseFloat(getComputedStyle(document.getElementById('actions')).borderTopWidth),
-                        chosen !== other ? 1 : 0];
+                        chosen !== other ? 1 : 0, onSolid === expectedInk ? 1 : 0];
             }
             """);
 
@@ -464,5 +468,6 @@ public class CalendarLayoutTests : ScriptTestBase
         Assert.Equal(1, m[3]);            // and stay inside the panel
         Assert.Equal(0, m[4]);            // the actions share the time row's divider
         Assert.Equal(1, m[5]);            // a chosen month is filled
+        Assert.Equal(1, m[6]);            // and this month chosen reads on-solid, not brand on brand
     }
 }

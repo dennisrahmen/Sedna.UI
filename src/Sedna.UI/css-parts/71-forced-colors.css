@@ -141,6 +141,7 @@
     .chat-reaction[aria-pressed="true"],
     .swatch[aria-pressed="true"],
     .cal-day:is([aria-pressed="true"], [aria-selected="true"], [aria-current="date"]),
+    .cal-pick:is([aria-pressed="true"], [aria-current]:not([aria-current="false"])),
     .editor-toolbar [aria-pressed="true"] { outline: 1px solid Highlight; }
 
     /* A chat bubble is nothing but a background; without a line around it a
