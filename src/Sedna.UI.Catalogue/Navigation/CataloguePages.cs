@@ -142,7 +142,7 @@ internal static class CataloguePages
             "form-error form-warning aria-invalid aria-describedby required label marker invalid message reject summary"),
         new("/form-text", Forms, "Text fields", "ri-input-field",
             "The text input in three sizes, its states, and the input group around it.",
-            "input text email search password url placeholder disabled readonly form-input-sm form-input-lg value-display input-group input-affix unit prefix affix width narrow"),
+            "input text email search password url placeholder disabled readonly form-input-sm form-input-lg value-display input-group input-affix input-clear clear unit prefix affix width narrow form-trigger"),
         new("/form-textarea", Forms, "Text areas", "ri-text-block",
             "Multi-line input, and locking which way it can be dragged.",
             "textarea rows resize resize-none resize-both vertical lock multiline comment note maxlength counter"),
@@ -170,7 +170,7 @@ internal static class CataloguePages
 
         new("/table", Data, "Tables", "ri-table-line",
             "One class on the table, plus sticky headers, sorting, pinned columns and a stacked layout.",
-            "sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num pinned frozen pin-start pin-end column width min-width shrink fit prose control actions group grouped rowgroup tr-group SednaSort AriaSort Toggle tr-filter filter row per column tr-empty tr-busy empty nothing found no results refreshing colspan"),
+            "sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num pinned frozen pin-start pin-end column width min-width shrink fit prose control actions group grouped rowgroup tr-group SednaSort AriaSort Toggle tr-filter filter row per column filtered col-filtered th-filter th-filter--active form-trigger input-clear multi-select checkboxes selected range date boolean yes no any reset all admin grid tr-empty tr-busy empty nothing found no results refreshing colspan"),
         new("/stat", Data, "Stats", "ri-numbers-line",
             "One number that matters, which way it moved, and what it is measured against.",
             "kpi number metric delta tile target unavailable dashboard stat--sm small value timestamp date"),

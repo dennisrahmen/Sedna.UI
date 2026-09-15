@@ -119,7 +119,9 @@
     font-size: var(--text-4);
     white-space: nowrap;
 }
-.input-affix i { font-size: var(--text-6); }
+/* `line-height: 1`, as `.btn i` has: at the inherited line height the glyph's own line box
+   is taller than the small tier's room, and a search icon made a 28px group 28.5px. */
+.input-affix i { font-size: var(--text-6); line-height: 1; }
 /* The rule goes between the affix and the control, so it is drawn on whichever
    side the control is on. */
 .input-affix:first-child { border-inline-end: 1px solid var(--border); }
@@ -137,6 +139,85 @@
 .input-group .btn:not(:first-child) { border-inline-start: 1px solid var(--border); }
 .input-group .btn:not(:last-child)  { border-inline-end:   1px solid var(--border); }
 .input-group .btn:focus-visible { box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+
+/* ── Clear button ───────────────────────────────────────────────────────────
+   A button that empties the field beside it, drawn inside the group rather than as
+   a segment of it — a search box's ✕, a filter's reset:
+
+     <div class="input-group input-group--sm">
+       <span class="input-affix"><i class="ri-search-line"></i></span>
+       <input class="form-input" type="search" placeholder="Host" aria-label="Filter by host">
+       <button class="input-clear" type="button" aria-label="Clear the host filter"><i class="ri-close-line"></i></button>
+     </div>
+
+   Shown only while there is something to clear, decided by `:placeholder-shown`, so
+   the field needs a placeholder — without one the button simply stays visible, which
+   is the harmless failure. The app still empties the value on click.
+
+   The platform's own ✕ on `type="search"` sits in the same place and does not follow
+   the theme, so a group holding this button hides it. */
+.input-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    align-self: center;
+    width: 22px;
+    height: 22px;
+    margin-inline: var(--space-1);
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: var(--radius-small);
+    color: var(--muted);
+    font-size: var(--text-5);
+    line-height: 1;
+    cursor: pointer;
+}
+.input-clear:hover { background: var(--bg-hover); color: var(--fg); }
+.input-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.input-group:has(> .form-input:placeholder-shown) > .input-clear { display: none; }
+.input-group:has(> .input-clear) > .form-input::-webkit-search-cancel-button { display: none; }
+
+/* ── Trigger field ──────────────────────────────────────────────────────────
+   A <button> in the shape of a field, for a value that is chosen in a panel and
+   shown here as a summary — "2 selected" from a popover of checkboxes, "1–15 Sep"
+   from a `.datepicker`. It is worn WITH `.form-input`, which gives it the border,
+   the focus ring and the three size tiers, so it lines up with the text fields
+   beside it at every size:
+
+     <button class="form-input form-input-sm form-trigger" type="button" popovertarget="region-filter">
+       <i class="ri-map-pin-line"></i><span>2 selected</span>
+     </button>
+
+   The chevron is drawn by CSS, and turns while the popover it opens is showing —
+   read from `:popover-open` on the NEXT sibling, so put the popover straight after
+   the button. The value truncates rather than pushing the chevron out. */
+.form-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-align: start;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.form-trigger > i { flex-shrink: 0; color: var(--muted); font-size: var(--text-5); line-height: 1; }
+.form-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.form-trigger::after {
+    content: '';
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.5;
+    transition: transform var(--motion-fast);
+}
+.form-trigger:hover { border-color: var(--border-hover); }
+.form-trigger:hover::after { opacity: 1; }
+.form-trigger[aria-expanded="true"]::after,
+.form-trigger:has(+ :popover-open)::after { transform: rotate(180deg); }
 
 /* ── Form actions ───────────────────────────────────────────────────────────
    The row a form ends with. Right-aligned, because that is where the button that

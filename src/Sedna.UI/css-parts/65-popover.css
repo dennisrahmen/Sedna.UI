@@ -59,6 +59,15 @@
     color: var(--fg-soft);
     font-size: var(--text-4);
     line-height: 1.6;
+    /* A popover is written next to the control that opens it, and that is often a
+       table header cell — which is uppercase, spaced, bold and muted, and every one
+       of those is inherited. A column's filter opened from its header came out as a
+       panel of shouting labels. */
+    font-weight: 400;
+    letter-spacing: normal;
+    text-align: start;
+    text-transform: none;
+    white-space: normal;
 }
 .popover > :first-child { margin-top: 0; }
 .popover > :last-child { margin-bottom: 0; }

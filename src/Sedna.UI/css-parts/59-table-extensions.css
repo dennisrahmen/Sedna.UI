@@ -359,6 +359,109 @@
 .tr-filter :is(.form-input, .form-select) { width: 100%; min-width: 0; }
 .table--sticky:has(.tr-filter) { --table-filter-height: 37px; }
 
+/* One filter per type of column, each built from a control that already exists and
+   each at the SMALL tier, which is what keeps the row one height — 37px is the
+   control plus the cell's block padding and its rule, and a single default-size
+   control in any cell makes the whole row taller than the sticky offset above says:
+
+     · text          `.input-group--sm` with a search `.input-affix` and an `.input-clear`
+     · one choice    `.form-select.form-select-sm`, with `<selectedcontent>` for icons or badges
+     · several       `.form-trigger` reading "2 selected", opening a `.popover` of `.form-check`s
+     · number range  `.input-group--sm` holding two number fields and an `.input-affix` between
+     · date range    `.form-trigger` opening a `.datepicker`
+     · yes / no      `.segmented--sm` with an Any option
+
+   Inside a cell an icon affix gives up its dividing rule and most of its padding: it
+   labels the field rather than being a value beside it, and a narrow column cannot
+   spare 20px around a glyph. A number field gives up its spin buttons for the same
+   room. The group and the segmented control fill the cell like the fields do. */
+.tr-filter :is(.input-group, .form-trigger) { width: 100%; min-width: 0; }
+.tr-filter .segmented { display: flex; width: 100%; }
+.tr-filter .segmented-option { flex: 1 1 0; justify-content: center; padding-inline: var(--space-3); }
+.tr-filter .input-affix { padding-inline: var(--space-3); border-inline: 0; }
+.tr-filter .input-affix:first-child + .form-input { padding-inline-start: 0; }
+.tr-filter .input-affix:not(:first-child, :last-child) { padding-inline: 0; }
+.tr-filter .form-input::-webkit-inner-spin-button,
+.tr-filter .form-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* ── A filtered column ──────────────────────────────────────────────────────
+   `.col-filtered` on the header cell of a column whose filter is set, and on its
+   cell in the filter row. The heading takes the brand colour and a rule under it,
+   and the control in the filter row takes the brand border, so a reader scanning
+   a wide table finds the columns that are narrowing it without reading every
+   field. Colour and a rule are not a label: say it in the heading's accessible
+   name too, with a `.visually-hidden` "filtered".
+
+   A rule, not a colour alone, because a sorted column's heading is already the
+   brand colour; the two states have to be told apart when both are on. Drawn as an
+   inset shadow so it does not change the header's height, and restated for
+   `.table--sticky`, whose header already draws its bottom hairline the same way. */
+.table th.col-filtered { color: var(--brand-text); }
+.table thead tr:not(.tr-filter) > th.col-filtered { box-shadow: inset 0 -2px 0 var(--brand); }
+.table--sticky thead tr:not(.tr-filter) > th.col-filtered {
+    box-shadow: inset 0 -2px 0 var(--brand), 0 -1px 0 var(--bg-elevated);
+}
+.tr-filter > th.col-filtered :is(.form-input, .form-select, .input-group, .segmented) {
+    border-color: var(--brand-soft);
+}
+
+/* ── Filter from the header ─────────────────────────────────────────────────
+   The alternative to a filter row, for a table too narrow to give every column a
+   field: a small button at the end of the header cell opens the column's filter in
+   a `.popover`.
+
+     <th>
+       <div class="sedna-row sedna-gap-0">
+         Status
+         <button class="th-filter th-filter--active" type="button" popovertarget="status-filter"
+                 aria-label="Filter by status, 2 chosen"><i class="ri-filter-3-line"></i></button>
+         <div class="popover" id="status-filter" popover>…</div>
+       </div>
+     </th>
+
+   `.th-filter--active` is the column's filter being set: the button fills and
+   carries a dot, which is what an admin grid's funnel does. Say so in the
+   aria-label as well.
+
+   The button keeps the header row its height: it is taller than the heading's line
+   box, and the negative block margin takes back the difference. Next to a
+   `.th-sort`, which fills a cell with no padding, it keeps its own distance from
+   the cell's edge. */
+.th-filter {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    margin-block: -3px;
+    margin-inline-start: auto;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: var(--radius-small);
+    color: var(--muted);
+    font-size: var(--text-4);
+    line-height: 1;
+    cursor: pointer;
+}
+.th-filter:hover { background: var(--bg-hover); color: var(--fg); }
+.th-filter:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.table th[aria-sort] .th-filter { margin-inline-end: var(--space-3); }
+.th-filter--active,
+.th-filter--active:hover { background: var(--brand-tint); color: var(--brand-text); }
+.th-filter--active::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 2px;
+    inset-inline-end: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand);
+}
+
 /* ── Nothing here, and still loading ────────────────────────────────────────
    The table or list is present — framed by its toolbar and its count — and this
    query returned nothing. The page-level "nothing here" is `.empty-state`; this is

@@ -1,0 +1,55 @@
+<div class="card" style="max-width:360px">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order</th>
+                <th class="col-filtered">
+                    <div class="sedna-row sedna-gap-0">
+                        Status<span class="visually-hidden">, filtered</span>
+                        <button class="th-filter th-filter--active" type="button" popovertarget="fp-status" aria-label="Filter by status, 2 chosen"><i class="ri-filter-3-line"></i></button>
+                        <div class="popover" id="fp-status" popover>
+                            <strong class="popover-title">Status</strong>
+                            <div class="sedna-col">
+                                <label class="form-check"><input type="checkbox" checked /> <span class="badge badge-info">Open</span></label>
+                                <label class="form-check"><input type="checkbox" checked /> <span class="badge badge-warn">Held</span></label>
+                                <label class="form-check"><input type="checkbox" /> <span class="badge badge-go">Shipped</span></label>
+                                <label class="form-check"><input type="checkbox" /> <span class="badge badge-danger">Cancelled</span></label>
+                            </div>
+                            <div class="form-actions form-actions--split">
+                                <button class="btn btn-sm btn-ghost" type="button">Clear</button>
+                                <button class="btn btn-sm btn-primary" type="button" popovertarget="fp-status" popovertargetaction="hide">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </th>
+                <th aria-sort="descending">
+                    <div class="sedna-row sedna-gap-0">
+                        <button class="th-sort" type="button">Placed</button>
+                        <button class="th-filter" type="button" popovertarget="fp-placed" aria-label="Filter by date placed"><i class="ri-filter-3-line"></i></button>
+                        <div class="popover" id="fp-placed" popover>
+                            <strong class="popover-title">Placed</strong>
+                            <div class="sedna-col">
+                                <div class="segmented segmented--sm" role="group" aria-label="Comparison">
+                                    <label class="segmented-option"><input type="radio" name="fp-placed-op" />Before</label>
+                                    <label class="segmented-option"><input type="radio" name="fp-placed-op" checked />On</label>
+                                    <label class="segmented-option"><input type="radio" name="fp-placed-op" />After</label>
+                                </div>
+                                <input class="form-input form-input-sm" type="date" aria-label="Date placed" />
+                            </div>
+                            <div class="form-actions form-actions--split">
+                                <button class="btn btn-sm btn-ghost" type="button">Clear</button>
+                                <button class="btn btn-sm btn-primary" type="button" popovertarget="fp-placed" popovertargetaction="hide">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>ORD-4187</td><td><span class="badge badge-info">Open</span></td><td class="col-muted">14 Sep 2026</td></tr>
+            <tr><td>ORD-4209</td><td><span class="badge badge-info">Open</span></td><td class="col-muted">12 Sep 2026</td></tr>
+            <tr><td>ORD-4176</td><td><span class="badge badge-warn">Held</span></td><td class="col-muted">9 Sep 2026</td></tr>
+            <tr><td>ORD-4204</td><td><span class="badge badge-warn">Held</span></td><td class="col-muted">8 Sep 2026</td></tr>
+        </tbody>
+    </table>
+</div>

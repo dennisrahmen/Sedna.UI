@@ -1,0 +1,90 @@
+<div class="toolbar">
+    <div class="toolbar-filters">
+        <span class="chip chip--active">
+            <span class="chip-label">Status: Open, Held</span>
+            <button class="chip-dismiss" type="button" aria-label="Remove the status filter"><i class="ri-close-line"></i></button>
+        </span>
+        <span class="chip chip--active">
+            <span class="chip-label">Amount: 100–500</span>
+            <button class="chip-dismiss" type="button" aria-label="Remove the amount filter"><i class="ri-close-line"></i></button>
+        </span>
+        <span class="chip chip--active">
+            <span class="chip-label">Region: EU-West</span>
+            <button class="chip-dismiss" type="button" aria-label="Remove the region filter"><i class="ri-close-line"></i></button>
+        </span>
+        <button class="btn btn-sm btn-ghost" type="button"><i class="ri-filter-off-line"></i> Reset all</button>
+    </div>
+    <div class="toolbar-actions">
+        <span class="toolbar-count">6 of 482 orders</span>
+    </div>
+</div>
+<div class="sedna-scroll" style="max-height:280px">
+    <table class="table table--sticky">
+        <thead>
+            <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th class="col-filtered">Status<span class="visually-hidden">, filtered</span></th>
+                <th class="col-num col-filtered">Amount<span class="visually-hidden">, filtered</span></th>
+                <th class="col-filtered">Region<span class="visually-hidden">, filtered</span></th>
+            </tr>
+            <tr class="tr-filter">
+                <th class="col-control" style="--col-control-min: 8rem">
+                    <div class="input-group input-group--sm">
+                        <span class="input-affix"><i class="ri-search-line"></i></span>
+                        <input class="form-input" type="search" placeholder="ORD-…" aria-label="Filter by order" />
+                        <button class="input-clear" type="button" aria-label="Clear the order filter"><i class="ri-close-line"></i></button>
+                    </div>
+                </th>
+                <th class="col-control" style="--col-control-min: 9rem">
+                    <div class="input-group input-group--sm">
+                        <span class="input-affix"><i class="ri-search-line"></i></span>
+                        <input class="form-input" type="search" placeholder="Name" aria-label="Filter by customer" />
+                        <button class="input-clear" type="button" aria-label="Clear the customer filter"><i class="ri-close-line"></i></button>
+                    </div>
+                </th>
+                <th class="col-control col-filtered" style="--col-control-min: 8rem">
+                    <button class="form-input form-input-sm form-trigger" type="button" popovertarget="fa-status" aria-label="Filter by status, 2 selected">
+                        <span>2 selected</span>
+                    </button>
+                    <div class="popover" id="fa-status" popover>
+                        <strong class="popover-title">Status</strong>
+                        <div class="sedna-col">
+                            <label class="form-check"><input type="checkbox" checked /> Open</label>
+                            <label class="form-check"><input type="checkbox" checked /> Held</label>
+                            <label class="form-check"><input type="checkbox" /> Shipped</label>
+                            <label class="form-check"><input type="checkbox" /> Cancelled</label>
+                        </div>
+                        <div class="form-actions form-actions--split">
+                            <button class="btn btn-sm btn-ghost" type="button">Clear</button>
+                            <button class="btn btn-sm btn-primary" type="button" popovertarget="fa-status" popovertargetaction="hide">Apply</button>
+                        </div>
+                    </div>
+                </th>
+                <th class="col-control col-num col-filtered" style="--col-control-min: 8rem">
+                    <div class="input-group input-group--sm">
+                        <input class="form-input" type="number" value="100" placeholder="Min" aria-label="Lowest amount" />
+                        <span class="input-affix">–</span>
+                        <input class="form-input" type="number" value="500" placeholder="Max" aria-label="Highest amount" />
+                    </div>
+                </th>
+                <th class="col-control col-filtered" style="--col-control-min: 8rem">
+                    <select class="form-select form-select-sm" aria-label="Filter by region">
+                        <option>Any</option>
+                        <option selected>EU-West</option>
+                        <option>EU-Central</option>
+                        <option>US-East</option>
+                    </select>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>ORD-4209</td><td>Alex Fischer</td><td><span class="badge badge-info">Open</span></td><td class="col-num">318.50</td><td>EU-West</td></tr>
+            <tr><td>ORD-4204</td><td>Priya Nair</td><td><span class="badge badge-warn">Held</span></td><td class="col-num">142.00</td><td>EU-West</td></tr>
+            <tr><td>ORD-4187</td><td>Jordan Weiss</td><td><span class="badge badge-info">Open</span></td><td class="col-num">489.90</td><td>EU-West</td></tr>
+            <tr><td>ORD-4182</td><td>Alex Fischer</td><td><span class="badge badge-info">Open</span></td><td class="col-num">104.25</td><td>EU-West</td></tr>
+            <tr><td>ORD-4176</td><td>Priya Nair</td><td><span class="badge badge-warn">Held</span></td><td class="col-num">276.00</td><td>EU-West</td></tr>
+            <tr><td>ORD-4171</td><td>Jordan Weiss</td><td><span class="badge badge-info">Open</span></td><td class="col-num">199.99</td><td>EU-West</td></tr>
+        </tbody>
+    </table>
+</div>

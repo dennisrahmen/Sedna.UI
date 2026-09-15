@@ -129,6 +129,42 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Table.FilterTypes" Title="A filter for each type of column" Demo="ex-demo--block">
+    <p>
+        Each filter is a control that already exists, at the small size, so the row stays one
+        height. Text is an <code>.input-group--sm</code> with a search affix and an
+        <code>.input-clear</code>, which shows only while the field has a value. One choice is a
+        <code>.form-select-sm</code>, holding <a href="/badge">badges</a> through
+        <code>&lt;selectedcontent&gt;</code> where the values are states. Several choices, and a
+        date range, are a <code>.form-trigger</code>: a button shaped like the field beside it that
+        reads <em>2 selected</em> and opens a <a href="/popover">popover</a> of checkboxes or a
+        <a href="/calendar">date picker</a>. A number range is two fields in one group, and yes /
+        no is a <code>.segmented--sm</code> with <em>Any</em>. <code>.col-filtered</code> on the
+        heading and the filter cell marks the columns that are set. <strong>Open the region and the
+        date.</strong>
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Table.FilterActive" Title="Several filters at once" Demo="ex-demo--block">
+    <p>
+        With more than one filter set, repeat them above the table as <code>.chip--active</code>
+        chips, each removable on its own, and end the row with <em>Reset all</em>. The chips are
+        what a reader sees without scanning the filter row, and the count says how much the filters
+        took away. Every filtered heading says so to a screen reader too, in a
+        <code>.visually-hidden</code> span — the colour and the rule under it are not a label.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Table.FilterPopover" Title="A filter in the header" Demo="ex-demo--block">
+    <p>
+        For a table too narrow for a filter row, a <code>.th-filter</code> button at the end of the
+        heading opens the column's filter in a <a href="/popover">popover</a>.
+        <code>.th-filter--active</code> fills it and adds a dot while the filter is set; say the same
+        in its <code>aria-label</code>. Beside a <code>.th-sort</code>, wrap the two in a
+        <code>.sedna-row.sedna-gap-0</code>. <strong>Open both.</strong>
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Table.EmptyAndBusyRows" Title="Nothing found, and refreshing" Demo="ex-demo--block">
     <p>
         <code>.tr-empty</code> is the row for a query that returned nothing, inside a table that is
