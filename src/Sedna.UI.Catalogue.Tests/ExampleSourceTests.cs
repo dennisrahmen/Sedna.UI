@@ -43,20 +43,21 @@ public class ExampleSourceTests
     public static TheoryData<string> AllExamples() => Files("*");
 
     /// <summary>
-    /// The one folder where an example is allowed to be Razor.
+    /// The two folders where an example is allowed to be Razor.
     /// </summary>
     /// <remarks>
     /// An example that demonstrates the C# wrappers or the active-link helper
-    /// cannot be plain HTML — the thing being shown <i>is</i> C#. Razor is then the
-    /// correct form for a reader to copy, so the exemption is real rather than a
-    /// loophole. It is a named folder so it cannot be reached for by accident, and
-    /// <see cref="Only_an_interop_example_contains_Razor_syntax"/> asserts from
-    /// both sides that it is used for nothing else.
+    /// (<c>Interop</c>), or a third-party component the catalogue references to show the
+    /// library's skin on it (<c>Integrations</c>), cannot be plain HTML — the thing being
+    /// shown <i>is</i> C#. Razor is then the correct form for a reader to copy, so the
+    /// exemption is real rather than a loophole. They are named folders so they cannot be
+    /// reached for by accident, and <see cref="Only_an_interop_example_contains_Razor_syntax"/>
+    /// asserts from both sides that they are used for nothing else.
     /// </remarks>
-    private const string InteropFolder = "Interop";
+    private static readonly string[] RazorFolders = ["Interop", "Integrations"];
 
     private static bool IsInterop(string path) =>
-        path.StartsWith(InteropFolder + Path.DirectorySeparatorChar, StringComparison.Ordinal);
+        RazorFolders.Any(f => path.StartsWith(f + Path.DirectorySeparatorChar, StringComparison.Ordinal));
 
     [Theory]
     [MemberData(nameof(LiveExamples))]
@@ -135,7 +136,8 @@ public class ExampleSourceTests
     {
         var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
         var isRazor = source.Contains("@code", StringComparison.Ordinal)
-                      || source.Contains("@inject", StringComparison.Ordinal);
+                      || source.Contains("@inject", StringComparison.Ordinal)
+                      || source.Contains("@bind", StringComparison.Ordinal);
 
         // Both directions. Without the second, Examples/Interop/ becomes a place to
         // put an ordinary example that failed the scan.

@@ -1,0 +1,42 @@
+@using Spillgebees.Blazor.RichTextEditor.Components
+@using Spillgebees.Blazor.RichTextEditor.Components.Toolbar
+
+@* The link tooltip's words, in the app's language. Any ancestor of the editor will do. *@
+<div style='--editor-link-open: "Open"; --editor-link-edit: "Edit"; --editor-link-save: "Save"; --editor-link-remove: "Remove"'>
+    <RichTextEditor @bind-Content="_content"
+                    ContainerClass="editor"
+                    ToolbarOptions="_toolbar"
+                    EditorContainerClass="editor-body prose"
+                    Placeholder="Write the handover note"
+                    UseAccessibleKeybindings="true">
+        <ToolbarContent>
+            <button class="btn btn-ghost btn-icon btn-sm ql-header" type="button" value="2" aria-label="Heading"></button>
+            <button class="btn btn-ghost btn-icon btn-sm ql-header" type="button" value="3" aria-label="Subheading"></button>
+            <span class="editor-sep" role="separator"></span>
+            <button class="btn btn-ghost btn-icon btn-sm ql-bold" type="button" aria-label="Bold"></button>
+            <button class="btn btn-ghost btn-icon btn-sm ql-italic" type="button" aria-label="Italic"></button>
+            <button class="btn btn-ghost btn-icon btn-sm ql-underline" type="button" aria-label="Underline"></button>
+            <span class="editor-sep" role="separator"></span>
+            <button class="btn btn-ghost btn-icon btn-sm ql-list" type="button" value="bullet" aria-label="Bulleted list"></button>
+            <button class="btn btn-ghost btn-icon btn-sm ql-list" type="button" value="ordered" aria-label="Numbered list"></button>
+            <button class="btn btn-ghost btn-icon btn-sm ql-list" type="button" value="check" aria-label="Checklist"></button>
+            <span class="editor-sep" role="separator"></span>
+            <button class="btn btn-ghost btn-icon btn-sm ql-blockquote" type="button" aria-label="Quote"></button>
+            <button class="btn btn-ghost btn-icon btn-sm ql-code-block" type="button" aria-label="Code block"></button>
+            <button class="btn btn-ghost btn-icon btn-sm ql-link" type="button" aria-label="Link"></button>
+            <button class="btn btn-ghost btn-icon btn-sm ql-clean" type="button" aria-label="Clear formatting"></button>
+        </ToolbarContent>
+    </RichTextEditor>
+</div>
+
+@code {
+    // The toolbar row takes the chrome's class through the options record.
+    private readonly ToolbarOptions _toolbar = new() { ToolbarContainerClass = "editor-toolbar" };
+
+    private string _content =
+        "<p><strong>Handover for ORD-4209.</strong> Three of five lines are reserved in EU-West.</p>"
+        + "<ol><li data-list=\"ordered\">Hold the remaining two for stock, re-checked hourly.</li>"
+        + "<li data-list=\"ordered\">Confirm the carrier slot for Thursday.</li>"
+        + "<li data-list=\"checked\">Reservation moved to Alex Fischer.</li>"
+        + "<li data-list=\"unchecked\">Tell the customer about the split delivery.</li></ol>";
+}

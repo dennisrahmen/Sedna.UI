@@ -26,6 +26,8 @@ namespace Sedna.UI.Catalogue.Tests;
 /// <para>
 /// The two stylesheets are the whole allowance and there is no exception list. Both
 /// ship inside the package, so a class in neither is a class no consuming app has.
+/// The one kind of name skipped is a <c>ql-</c> class in <c>Examples/Integrations/</c>:
+/// Quill's own hook, which its toolbar module looks for and no stylesheet declares.
 /// A value containing <c>@</c> is Razor computing the class at runtime
 /// (<c>Examples/Interop/</c>), which this cannot read and does not try to.
 /// </para>
@@ -56,6 +58,13 @@ public class ExampleClassTests
 
                 foreach (var name in value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
                 {
+                    // In an integration, a `ql-` class is Quill's own hook — the name its
+                    // toolbar module looks for — and never a class the library declares.
+                    if (IsIntegration(path) && name.StartsWith("ql-", StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
                     if (declared.Contains(name))
                     {
                         continue;
@@ -70,6 +79,10 @@ public class ExampleClassTests
                 }
             }
         }
+
+        static bool IsIntegration(string path) =>
+            Path.GetRelativePath(CatalogueAssets.ExamplesDir, path)
+                .StartsWith("Integrations" + Path.DirectorySeparatorChar, StringComparison.Ordinal);
 
         Assert.True(offenders.Count == 0,
             $"{offenders.Count} classes are written by an example but declared by no shipped "

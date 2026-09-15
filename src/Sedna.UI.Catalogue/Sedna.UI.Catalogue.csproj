@@ -82,6 +82,13 @@
          is a different project: it is not packaged, so nothing here reaches a
          consuming app. -->
     <PackageReference Include="ModelContextProtocol.AspNetCore" Version="2.0.0" />
+
+    <!-- The rich-text editor the /editor page integrates, to show the library's Quill
+         skin on the real component. The library references nothing third-party: an app
+         that wants an editor adds this package itself, and the skin in the library's
+         stylesheet is what makes it look like the rest of the app. Pinned, so a Quill
+         upgrade that moves the skin's hooks fails this project's tests first. -->
+    <PackageReference Include="Spillgebees.Blazor.RichTextEditor" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
