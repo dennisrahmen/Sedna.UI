@@ -565,6 +565,12 @@
     --secret-border: var(--violet-800);
     --secret-fg:     var(--violet-300);
 
+    /* The out-of-office presence mark. Not a semantic family: every other presence
+       state borrows go, warn or danger, and this one means none of them. Violet-600
+       clears 3:1 as a graphic against both the dark and the light page, so no theme
+       remaps it; the arrow knocked out of it is what carries the state. */
+    --presence-out-of-office: var(--violet-600);
+
     /* Extra badge hues — categorical only, no semantics attached. */
     --badge-cyan-bg:     rgba(34, 211, 238, 0.15);    /* cyan-400 */
     --badge-cyan-border: var(--cyan-800);
@@ -7128,14 +7134,15 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
        both derived from it. A size variant sets these two numbers and the geometry
        below follows.
 
-       --avatar-cut-x is the centre of the hole the group masks out: the next
-       avatar's centre, measured from this one's own box. Past the right edge in
-       LTR; 70-rtl.css mirrors it, because a radial-gradient position is physical
-       and margin-inline-start is not. */
+       --avatar-cut-x and --avatar-cut-y are the centre of the hole the group masks
+       out: the next avatar's centre, measured from this one's own box. Past the
+       right edge in LTR; 70-rtl.css mirrors it, because a radial-gradient position is
+       physical and margin-inline-start is not. */
     --avatar-size: 28px;
     --avatar-overlap: 8px;
     --avatar-gap: 2px;
     --avatar-cut-x: calc(100% + var(--avatar-size) / 2 - var(--avatar-overlap));
+    --avatar-cut-y: 50%;
     width: var(--avatar-size);
     height: var(--avatar-size);
     border-radius: 50%;
@@ -7175,34 +7182,174 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .avatar--viz-5 { background: var(--viz-5); color: var(--on-viz); }
 .avatar--viz-6 { background: var(--viz-6); color: var(--on-viz); }
 
-/* ── Presence ───────────────────────────────────────────────────────────────
-   Online, away, busy or offline, as a dot on the avatar's corner. A wrapper rather
-   than a pseudo-element on the avatar itself, which clips to its circle:
+/* ── Ring ───────────────────────────────────────────────────────────────────
+   A ring around an avatar, standing a gap off it, for a state of the person rather
+   than of their availability:
 
-     <span class="avatar-presence avatar-presence--online" aria-label="Alex Fischer, online">
+     .avatar--ring        selected, or the one speaking — the brand colour
+     .avatar--ring-warn   an administrator is acting as this person
+
+   An outline, not a box-shadow. The gap between the avatar and the ring is then
+   transparent — the surface shows through it on a card, on the page, in a toast and
+   over a selected row — where a shadow would have to paint the gap in a guessed
+   surface colour. An outline follows the border radius, so the ring is concentric at
+   every size, and forced colours still paint it, which they do not do for a shadow.
+
+   It also works on the topbar's `.user-avatar`, which is how the header says whose
+   session this is while somebody else is driving it. The ring is never the only
+   carrier: say "Acting as" in text beside it.
+
+   A ring on an avatar inside an `.avatar-group` is clipped by the group's cut-out,
+   which is drawn for a plain avatar; ring a single avatar or an `.avatar-pair`. */
+.avatar--ring,
+.avatar--ring-warn {
+    --avatar-ring: var(--brand);
+    --avatar-ring-width: 2px;
+    --avatar-ring-offset: 2px;
+    outline: var(--avatar-ring-width) solid var(--avatar-ring);
+    outline-offset: var(--avatar-ring-offset);
+}
+.avatar--ring-warn { --avatar-ring: var(--warn-solid); }
+
+/* ── Presence ───────────────────────────────────────────────────────────────
+   Whether the person can be reached, as a mark on the avatar's corner. A wrapper
+   rather than a pseudo-element on the avatar itself, which clips to its circle:
+
+     <span class="avatar-presence avatar-presence--online" role="img" aria-label="Alex Fischer, online">
        <span class="avatar">AF</span>
      </span>
 
-   The ring around the dot is the surface it sits on (`--surface-here`, the page
-   otherwise), so it separates from the avatar on a card and on the page alike. The
-   dot's colour is the state, so it opts out of forced colours. */
-.avatar-presence { position: relative; display: inline-flex; flex-shrink: 0; }
+     --online          a disc with a tick                go
+     --away            a disc with clock hands           warn
+     --busy            a plain disc                      danger
+     --do-not-disturb  a disc with a bar                 danger
+     --meeting         a disc with a hole                danger   in a meeting or a call
+     --presenting      a disc with a play mark           danger
+     --out-of-office   a disc with an arrow back         --presence-out-of-office
+     --offline         a ring                            muted
+     --unknown         a broken ring                     muted
+
+   EVERY STATE IS A SHAPE FIRST and a colour second. Several share the danger
+   colour, the colour-blind palette moves go and danger closer, and forced colours
+   collapse all of them to one ink — so the colour is a second channel and the shape
+   is the one that has to work alone. `AvatarPresenceTests` renders every state in forced
+   colours and fails when two of them draw the same pixels.
+
+   The marks are knocked out of the disc in `--presence-knockout`, the surface the
+   avatar sits on (`--surface-here`, the page otherwise), which is also the colour of
+   the separating ring around the dot — so a tick reads as a hole through to the card,
+   not as a white stroke drawn on it. All of it is gradients on the one pseudo-element:
+   the icon font cannot be used here, because `font-family` always rides a token.
+
+   The size is even, so a centred stroke lands on whole pixels, and it steps up with a
+   large avatar, where a fixed dot was a speck. The dot's colours are the content, so
+   it opts out of forced colours (71-forced-colors.css) and the tokens it reads are
+   remapped there instead.
+
+   `--label` puts the same mark in front of text, for a user widget, a list row or a
+   people picker, where the state is written out:
+
+     <span class="avatar-presence avatar-presence--label avatar-presence--away">Away · back at 14:00</span> */
+.avatar-presence {
+    --presence-size: 10px;
+    --presence-stroke: 2px;
+    --presence-knockout: var(--surface-here, var(--bg));
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.avatar-presence:has(> .avatar-lg) { --presence-size: 12px; }
 .avatar-presence::after {
-    --presence-size: 9px;
     content: '';
     position: absolute;
     inset-block-end: 0;
     inset-inline-end: 0;
+    flex-shrink: 0;
     width: var(--presence-size);
     height: var(--presence-size);
     border-radius: 50%;
     background: var(--muted);
-    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
+    box-shadow: 0 0 0 2px var(--presence-knockout);
 }
-.avatar-presence--online::after { background: var(--go-solid); }
-.avatar-presence--away::after   { background: var(--warn-solid); }
-.avatar-presence--busy::after   { background: var(--danger-solid); }
-.avatar-presence--offline::after { background: var(--bg-elevated); box-shadow: 0 0 0 2px var(--surface-here, var(--bg)), inset 0 0 0 2px var(--muted); }
+
+/* The glyphs. Each layer is a small positioned gradient with `no-repeat`, measured in
+   fractions of the dot, so it scales with `--presence-size`. The layers are
+   physical on purpose: a tick, a clock and a play mark do not mirror in RTL. */
+.avatar-presence--online::after {
+    background:
+        linear-gradient(45deg, transparent calc(50% - var(--presence-stroke) / 2), var(--presence-knockout) 0 calc(50% + var(--presence-stroke) / 2), transparent 0)
+            calc(var(--presence-size) * 0.2) calc(var(--presence-size) * 0.42) / calc(var(--presence-size) * 0.3) calc(var(--presence-size) * 0.3) no-repeat,
+        linear-gradient(-45deg, transparent calc(50% - var(--presence-stroke) / 2), var(--presence-knockout) 0 calc(50% + var(--presence-stroke) / 2), transparent 0)
+            calc(var(--presence-size) * 0.38) calc(var(--presence-size) * 0.24) / calc(var(--presence-size) * 0.44) calc(var(--presence-size) * 0.44) no-repeat,
+        var(--go-solid);
+}
+.avatar-presence--away::after {
+    background:
+        linear-gradient(var(--presence-knockout), var(--presence-knockout))
+            calc(var(--presence-size) / 2 - var(--presence-stroke) / 2) calc(var(--presence-size) * 0.2)
+            / var(--presence-stroke) calc(var(--presence-size) * 0.3 + var(--presence-stroke) / 2) no-repeat,
+        linear-gradient(var(--presence-knockout), var(--presence-knockout))
+            calc(var(--presence-size) / 2 - var(--presence-stroke) / 2) calc(var(--presence-size) / 2 - var(--presence-stroke) / 2)
+            / calc(var(--presence-size) * 0.28 + var(--presence-stroke) / 2) var(--presence-stroke) no-repeat,
+        var(--warn-solid);
+}
+.avatar-presence--busy::after { background: var(--danger-solid); }
+.avatar-presence--do-not-disturb::after {
+    background:
+        linear-gradient(var(--presence-knockout), var(--presence-knockout))
+            center / calc(var(--presence-size) * 0.6) var(--presence-stroke) no-repeat,
+        var(--danger-solid);
+}
+.avatar-presence--meeting::after {
+    background:
+        radial-gradient(circle calc(var(--presence-size) * 0.2), var(--presence-knockout) 100%, transparent 100%),
+        var(--danger-solid);
+}
+/* A 60° wedge from a point on the right, cut off at the left: a play mark whose
+   centroid sits on the dot's centre. */
+.avatar-presence--presenting::after {
+    background:
+        conic-gradient(from 240deg at 100% 50%, var(--presence-knockout) 0 60deg, transparent 0)
+            calc(var(--presence-size) * 0.34) calc(var(--presence-size) * 0.27)
+            / calc(var(--presence-size) * 0.42) calc(var(--presence-size) * 0.46) no-repeat,
+        var(--danger-solid);
+}
+/* An arrowhead — a right-angled wedge opening to the right — and a shaft behind it. */
+.avatar-presence--out-of-office::after {
+    background:
+        conic-gradient(from 45deg at 0 50%, var(--presence-knockout) 0 90deg, transparent 0)
+            calc(var(--presence-size) * 0.18) calc(var(--presence-size) * 0.2)
+            / calc(var(--presence-size) * 0.3) calc(var(--presence-size) * 0.6) no-repeat,
+        linear-gradient(var(--presence-knockout), var(--presence-knockout))
+            calc(var(--presence-size) * 0.4) calc(var(--presence-size) / 2 - var(--presence-stroke) / 2)
+            / calc(var(--presence-size) * 0.42) var(--presence-stroke) no-repeat,
+        var(--presence-out-of-office);
+}
+.avatar-presence--offline::after {
+    background: var(--bg-elevated);
+    box-shadow: 0 0 0 2px var(--presence-knockout), inset 0 0 0 var(--presence-stroke) var(--muted);
+}
+/* The ring of --offline, broken into dashes: not known to be away, just not known. */
+.avatar-presence--unknown::after {
+    background:
+        radial-gradient(circle closest-side, var(--bg-elevated) calc(100% - var(--presence-stroke)), transparent 0),
+        repeating-conic-gradient(var(--muted) 0 36deg, var(--bg-elevated) 0 60deg);
+}
+
+/* The mark in front of text. The pseudo-element is a flex item, so `order` puts it
+   first in either direction; the surface ring is dropped, there being no avatar to
+   separate it from. */
+.avatar-presence--label {
+    align-items: center;
+    gap: var(--space-3);
+    vertical-align: middle;
+}
+.avatar-presence--label::after {
+    position: static;
+    order: -1;
+    box-shadow: none;
+}
+.avatar-presence--label.avatar-presence--offline::after { box-shadow: inset 0 0 0 var(--presence-stroke) var(--muted); }
 
 /* ── Avatar group ───────────────────────────────────────────────────────────
    Overlapping avatars for "these several people".
@@ -7225,11 +7372,15 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 
 /* :has(+ .avatar), not :not(:last-child) — the last thing in a group is usually the
    .avatar-more counter, which overlaps nothing, so the avatar before it must not be
-   cut either. Only an avatar with an avatar after it is. */
-.avatar-group > .avatar:has(+ .avatar) {
+   cut either. Only an avatar with an avatar after it is.
+
+   The same rule cuts the back avatar of an `.avatar-pair` below, which only moves the
+   centre of the hole: one mechanism, so the gap is the same width in both. */
+.avatar-group > .avatar:has(+ .avatar),
+.avatar-pair > .avatar:first-child:not(:last-child) {
     mask-image: radial-gradient(
         circle calc(var(--avatar-size) / 2 + var(--avatar-gap))
-        at var(--avatar-cut-x) 50%,
+        at var(--avatar-cut-x) var(--avatar-cut-y),
         transparent 100%, currentColor 100%);
 }
 
@@ -7255,6 +7406,64 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
     padding-inline: var(--space-2) var(--space-4);
     color: var(--muted);
     font-size: var(--text-3);
+}
+
+/* ── Avatar pair ────────────────────────────────────────────────────────────
+   Two people in one avatar's square, stacked corner to corner: a conversation, a
+   hand-over, a shared owner. An `.avatar-group` is as wide as its count, so in a list
+   a group's name starts further in than a person's and the column of names is
+   crooked; a pair keeps the leading column one avatar wide whoever is in it. Chat's
+   conversation list is the case it was made for.
+
+     <span class="avatar-pair" role="img" aria-label="Priya Nair and Tomás Ferreira">
+       <span class="avatar avatar--viz-2" aria-hidden="true">PN</span>
+       <span class="avatar avatar--viz-4" aria-hidden="true">TF</span>
+     </span>
+
+   The size class goes on the pair — `.avatar-pair.avatar-lg` is a pair the size of a
+   large avatar — and the two inside take a step down from it, rounded to an even
+   pixel so the initials centre. The avatar in front is cut out of the one behind by
+   the group's own rule above, with the hole moved to the front one's centre.
+
+   Both sit in one grid cell, so the pair is sized by its content and needs no
+   positioning; the front one is pushed to the far corner by its margins, which are
+   logical and so mirror in RTL. The hole is a radial-gradient position and does not,
+   which is why 70-rtl.css restates --avatar-cut-x for it. */
+.avatar-pair {
+    --avatar-pair-size: var(--avatar-size, 28px);
+    display: inline-grid;
+    flex-shrink: 0;
+    width: var(--avatar-pair-size);
+    height: var(--avatar-pair-size);
+    /* Round, so a ring on the pair is a circle and a presence mark sits on its curve
+       like on any avatar. Nothing inside is clipped by it. */
+    border-radius: 50%;
+    vertical-align: middle;
+}
+.avatar-pair > .avatar {
+    --avatar-size: round(down, calc(var(--avatar-pair-size) * 0.72), 2px);
+    grid-area: 1 / 1;
+    font-size: var(--text-1);
+}
+.avatar-pair > .avatar i { font-size: var(--text-3); }
+.avatar-pair.avatar-lg > .avatar { font-size: var(--text-3); }
+.avatar-pair.avatar-lg > .avatar i { font-size: var(--text-6); }
+.avatar-pair > .avatar:first-child:not(:last-child) {
+    --avatar-cut-x: calc(var(--avatar-pair-size) - var(--avatar-size) / 2);
+    --avatar-cut-y: calc(var(--avatar-pair-size) - var(--avatar-size) / 2);
+}
+.avatar-pair > .avatar:last-child:not(:first-child) {
+    margin-block-start: calc(var(--avatar-pair-size) - var(--avatar-size));
+    margin-inline-start: calc(var(--avatar-pair-size) - var(--avatar-size));
+}
+/* The two avatars reach past the pair's inscribed circle at their outer corners, so a
+   ring on the pair stands off by that overshoot as well as its own gap: the gap is
+   then measured from the avatars, as it is on a single one. */
+.avatar-pair:is(.avatar--ring, .avatar--ring-warn) {
+    --avatar-ring-offset: calc(2px
+        + (var(--avatar-pair-size) - round(down, calc(var(--avatar-pair-size) * 0.72), 2px)) / 2 * 1.4142
+        + round(down, calc(var(--avatar-pair-size) * 0.72), 2px) / 2
+        - var(--avatar-pair-size) / 2);
 }
 }
 
@@ -12153,38 +12362,6 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 .chat-unread { color: var(--brand-text); }
 .chat-unread::before, .chat-unread::after { background: var(--brand); opacity: 0.5; }
 
-/* A conversation's picture in a list of them: two people of a group stacked corner to
-   corner inside one avatar's square. An `.avatar-group` is as wide as its count, so a
-   group's name started further in than a person's and the column of names and last
-   lines was crooked; this keeps the leading column one width whoever is in it. One
-   person is a plain `.avatar`. The avatar in front is cut out of the one behind, as in
-   `.avatar-group`, so the gap is right on every surface. */
-.chat-avatars {
-    --chat-avatars-size: 28px;
-    --chat-avatars-item: 20px;
-    position: relative;
-    display: inline-block;
-    flex-shrink: 0;
-    width: var(--chat-avatars-size);
-    height: var(--chat-avatars-size);
-}
-.chat-avatars > .avatar {
-    --avatar-size: var(--chat-avatars-item);
-    position: absolute;
-    font-size: var(--text-1);
-}
-.chat-avatars > .avatar:first-child:not(:last-child) {
-    --chat-avatars-cut-x: calc(var(--chat-avatars-size) - var(--chat-avatars-item) / 2);
-    top: 0;
-    inset-inline-start: 0;
-    mask-image: radial-gradient(
-        circle calc(var(--chat-avatars-item) / 2 + var(--avatar-gap))
-        at var(--chat-avatars-cut-x) calc(var(--chat-avatars-size) - var(--chat-avatars-item) / 2),
-        transparent 100%, currentColor 100%);
-}
-.chat-avatars > .avatar:last-child { bottom: 0; inset-inline-end: 0; }
-.chat-avatars > .avatar i { font-size: var(--text-3); }
-
 /* Something the app did, told in the thread: joined, renamed, pinned. */
 .chat-system {
     align-self: center;
@@ -13579,10 +13756,10 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
    that put it there is a `margin-inline-start`. So the offset is restated from the
    other edge; the arithmetic is the same, mirrored. */
 [dir="rtl"] .avatar { --avatar-cut-x: calc(var(--avatar-overlap) - var(--avatar-size) / 2); }
-/* The same hole in a conversation's stacked pair, where the front avatar sits at the
-   inline end: measured from the back avatar's left edge, which in RTL is the pair's
-   inline end minus its own width. */
-[dir="rtl"] .chat-avatars > .avatar:first-child:not(:last-child) { --chat-avatars-cut-x: calc(var(--chat-avatars-item) * 1.5 - var(--chat-avatars-size)); }
+/* The same hole in an `.avatar-pair`, where the front avatar sits at the inline end:
+   measured from the back avatar's left edge, which in RTL is the pair's inline end
+   minus its own width. */
+[dir="rtl"] .avatar-pair > .avatar:first-child:not(:last-child) { --avatar-cut-x: calc(var(--avatar-size) * 1.5 - var(--avatar-pair-size)); }
 
 /* The tree's disclosure caret points along the inline axis, so it starts mirrored
    and rotates the other way when open. */
@@ -13675,6 +13852,12 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
         --danger-solid: CanvasText; --danger-bg: Canvas; --danger-fg: CanvasText;
         --danger-border: CanvasText; --danger-border-strong: CanvasText;
         --info-bg: Canvas;   --info-border: CanvasText;   --info-fg: CanvasText;
+        --presence-out-of-office: CanvasText;
+        /* The nested card levels are palette steps, not aliases of --card-bg, and a
+           presence mark knocks its glyph out in --surface-here — which on a raised card
+           resolves to one of these. */
+        --surface-raised-2: Canvas;
+        --surface-raised-3: Canvas;
         --secret-bg: Canvas; --secret-border: CanvasText; --secret-fg: CanvasText;
 
         --badge-bg: Canvas;

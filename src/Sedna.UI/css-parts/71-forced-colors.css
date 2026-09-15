@@ -62,6 +62,12 @@
         --danger-solid: CanvasText; --danger-bg: Canvas; --danger-fg: CanvasText;
         --danger-border: CanvasText; --danger-border-strong: CanvasText;
         --info-bg: Canvas;   --info-border: CanvasText;   --info-fg: CanvasText;
+        --presence-out-of-office: CanvasText;
+        /* The nested card levels are palette steps, not aliases of --card-bg, and a
+           presence mark knocks its glyph out in --surface-here — which on a raised card
+           resolves to one of these. */
+        --surface-raised-2: Canvas;
+        --surface-raised-3: Canvas;
         --secret-bg: Canvas; --secret-border: CanvasText; --secret-fg: CanvasText;
 
         --badge-bg: Canvas;

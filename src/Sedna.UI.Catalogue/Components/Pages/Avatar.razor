@@ -26,13 +26,67 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Avatar.AvatarPair" Title="Pair" Demo="ex-demo--block">
+    <p>
+        <code>.avatar-pair</code> stacks two people corner to corner inside one avatar's square, so
+        in a list a pair's name starts where a single person's does and the column of names stays
+        straight &mdash; an <code>.avatar-group</code> there would be as wide as its count.
+        <a href="/chat">Chat</a>'s conversation list uses it for a group. Put the size class on the
+        pair, not on the avatars inside it; at <code>.avatar-sm</code> one initial fits. Name the
+        pair once, on the wrapper, and hide the avatars inside from a screen reader.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Avatar.Presence" Title="Presence" Demo="ex-demo--block">
     <p>
         <code>.avatar-presence</code> around an avatar puts the state on its corner:
-        <code>--online</code>, <code>--away</code>, <code>--busy</code> or <code>--offline</code>.
-        A wrapper rather than something on the avatar, which clips to its circle. The dot is the
+        <code>--online</code>, <code>--away</code>, <code>--busy</code>,
+        <code>--do-not-disturb</code>, <code>--meeting</code> (in a meeting or a call),
+        <code>--presenting</code>, <code>--out-of-office</code>, <code>--offline</code> or
+        <code>--unknown</code>. <strong>Every state is a different shape</strong>, not only a
+        different colour, so it survives the colour-blind palette and forced colours &mdash; do not
+        restyle one into a plain dot. The mark grows with <code>.avatar-lg</code>. It is the
         state's only carrier for the eye and none for a screen reader: name it, on the wrapper's
         <code>aria-label</code> or in the text beside it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Avatar.PresenceLabel" Title="Presence as text, and last seen" Demo="ex-demo--block">
+    <p>
+        <code>.avatar-presence--label</code> puts the same mark in front of text: in a list row, a
+        people picker or a profile card, where the state is written out and can carry a time
+        &mdash; &ldquo;in a meeting until 11:30&rdquo;. Offline has nothing more to say than when
+        the person was last there, so say that instead, in a <code>&lt;time&gt;</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Avatar.Rings" Title="Rings" Demo="ex-demo--block">
+    <p>
+        <code>.avatar--ring-warn</code> says an administrator is acting as this person, and
+        <code>.avatar--ring</code>, in the brand colour, marks the selected person or the one
+        speaking. The ring stands a gap off the avatar and the gap is transparent, so it reads on a
+        card, on the page and over a selected row; it works at every size, on an
+        <code>.avatar-pair</code>, and under a presence mark. A ring is never the only carrier:
+        write &ldquo;Acting as&rdquo; beside it. Do not ring an avatar inside an
+        <code>.avatar-group</code>, whose cut-out clips it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Avatar.ActingAsRow" Title="Acting as, in a list" Demo="ex-demo--block">
+    <p>
+        The person being acted as, in an administrator's user list: the ring on the avatar and a
+        <a href="/badge"><code>.badge-warn</code></a> that says so in words.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Avatar.ActingAsTopbar" Title="Acting as, in the topbar" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        While an administrator acts as somebody, the <a href="/topbar">user widget</a> shows that
+        person, with <code>.avatar--ring-warn</code> on <code>.user-avatar</code> and the badge in
+        place of the e-mail line &mdash; frame classes as they are, nothing added to the frame.
+        The menu says who is really signed in and offers the way back. On a phone the topbar
+        drops the name and the badge, so name the state on the trigger's
+        <code>aria-label</code> as well.
     </p>
 </CatExample>
 

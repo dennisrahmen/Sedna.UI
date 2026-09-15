@@ -223,6 +223,12 @@
     --secret-border: var(--violet-800);
     --secret-fg:     var(--violet-300);
 
+    /* The out-of-office presence mark. Not a semantic family: every other presence
+       state borrows go, warn or danger, and this one means none of them. Violet-600
+       clears 3:1 as a graphic against both the dark and the light page, so no theme
+       remaps it; the arrow knocked out of it is what carries the state. */
+    --presence-out-of-office: var(--violet-600);
+
     /* Extra badge hues — categorical only, no semantics attached. */
     --badge-cyan-bg:     rgba(34, 211, 238, 0.15);    /* cyan-400 */
     --badge-cyan-border: var(--cyan-800);
