@@ -242,6 +242,8 @@
         "--code-fg": "var(--indigo-300)",
         "--code-bg": "rgba(133, 144, 253, 0.1)",
         "--backdrop": "rgba(0, 0, 0, 0.65)",
+        "--media-bg": "var(--black)",
+        "--media-scrim": "color-mix(in srgb, var(--black) 62%, transparent)",
         "--overlay": "color-mix(in srgb, var(--slate-900) 66%, transparent)",
         "--spotlight-dim": "color-mix(in srgb, var(--slate-950) 62%, transparent)",
         "--tip-bg": "var(--slate-925)",

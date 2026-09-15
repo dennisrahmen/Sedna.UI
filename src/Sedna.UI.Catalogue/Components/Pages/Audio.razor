@@ -1,0 +1,40 @@
+@page "/audio"
+
+<CatHead Title="Audio">
+    A player around the native <code>&lt;audio&gt;</code> element, a waveform for a voice message or
+    a call recording, and a track list. The element's own controls stay native; the library adds the
+    title, the meta line, the transcript and the row a recording sits in. Pictures that move are
+    <a href="/video">Video</a>.
+</CatHead>
+
+<CatExample TExample="Examples.Audio.Player" Title="A player" Demo="ex-demo--block">
+    <p>
+        The same <a href="/video"><code>.media-player</code></a> as a video, with no picture: the
+        <code>.media-player-body</code> is the whole of it, a <a href="/files"><code>.file-icon</code></a>
+        or a cover leading, and the <code>&lt;audio controls&gt;</code> inside
+        <code>.media-player-text</code>, under the title, at the text column's width and the
+        control height. A call recording carries its <code>.media-transcript</code>, speaker by
+        speaker. The demo has no source; the app's goes on the element.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Audio.Recordings" Title="A waveform" Demo="ex-demo--block">
+    <p>
+        <code>.audio-wave</code> is a recording as a picture of itself: the play button, the
+        <code>.audio-wave-bars</code> with each bar's height in <code>--h</code> and the ones already
+        heard as <code>.audio-wave-heard</code>, and the <code>.audio-wave-time</code>. The
+        <code>&lt;audio&gt;</code> is the app's and hidden, and the play button's name says the
+        length. It is the voice message in a <a href="/chat">chat</a>, and here a voicemail in a
+        <a href="/list"><code>.list</code></a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Audio.Playlist" Title="A track list" Demo="ex-demo--block">
+    <p>
+        A playlist is an ordered <a href="/list"><code>.list</code></a>: each row a button that plays
+        it, the length as the <code>.list-meta</code>, and the one playing marked
+        <code>aria-current="true"</code>. <code>.media-track-num</code> is a fixed-width number
+        column, so one to twelve line up, and in the playing row it holds an equalizer glyph named
+        &ldquo;Playing&rdquo;, in the brand.
+    </p>
+</CatExample>

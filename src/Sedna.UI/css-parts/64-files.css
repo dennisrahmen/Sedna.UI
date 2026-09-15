@@ -1,0 +1,224 @@
+/* ── Files ────────────────────────────────────────────────────────────────────
+   The pieces a page of files is made from: the type icon, a name that keeps its
+   extension when it is cut, the size-date-owner line, and the tile a folder of them
+   is a grid of. A row of files is the library's own `.table` or `.list` with these
+   in its cells; an upload or an attachment is a `.file-item` (47-form-file.css).
+
+     <span class="file-icon file-icon--pdf"><i class="ri-file-pdf-2-line"></i></span>
+     <span class="file-name" title="delivery-note-week-38-signed.pdf">
+       <span class="file-name-start">delivery-note-week-38-</span><span class="file-name-end">signed.pdf</span>
+     </span>
+     <span class="file-meta"><span>84 KB</span><time datetime="2026-09-12">12 Sep</time><span>Alex Fischer</span></span>
+
+   Nothing here fetches, sorts or selects. Which files there are, which are selected
+   and what a click does are the app's.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── The type icon ──────────────────────────────────────────────────────────
+   A Remix Icon glyph on a small tile. The kind tints the glyph from the categorical
+   series, so a PDF, a spreadsheet and a picture tell apart at a glance, and the glyph
+   itself still says which — colour is never the only signal. Anything else keeps the
+   neutral ink. A thumbnail may stand in for the glyph: an `<img>` fills the tile. */
+.file-icon {
+    --file-icon-size: 36px;
+    --file-icon-ink: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--file-icon-size);
+    height: var(--file-icon-size);
+    border-radius: var(--radius-inner);
+    background: var(--surface-strong);
+    color: var(--file-icon-ink);
+    overflow: hidden;
+    line-height: 1;
+}
+.file-icon > i { font-size: var(--text-8); }
+.file-icon > img { width: 100%; height: 100%; object-fit: cover; }
+.file-icon--sm { --file-icon-size: 28px; }
+.file-icon--sm > i { font-size: var(--text-6); }
+.file-icon--pdf    { --file-icon-ink: var(--viz-1); }
+.file-icon--image  { --file-icon-ink: var(--viz-2); }
+.file-icon--slides { --file-icon-ink: var(--viz-3); }
+.file-icon--sheet  { --file-icon-ink: var(--viz-4); }
+.file-icon--media  { --file-icon-ink: var(--viz-5); }
+.file-icon--doc    { --file-icon-ink: var(--viz-6); }
+
+/* ── A name cut in the middle ───────────────────────────────────────────────
+   `text-overflow` only cuts at the end, which is where a file name keeps what tells
+   two files apart — `-signed.pdf`, `-v2.xlsx`. So the app splits the name in two and
+   only the start is cut: the end, a few characters and the extension, never shrinks.
+   Read aloud, the two spans are the whole name. Put the name in `title` too, for the
+   pointer. A name that fits shows whole and the split is invisible. */
+.file-name {
+    display: flex;
+    min-width: 0;
+    max-width: 100%;
+    white-space: nowrap;
+}
+.file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.file-name-end { flex-shrink: 0; }
+
+/* The size, the date, the owner — separated by a dot the stylesheet draws, so it is
+   never copied or read out. Wraps rather than widening what it sits in. */
+.file-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-3);
+    min-width: 0;
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+}
+.file-meta > * + *::before {
+    content: '·';
+    margin-inline-end: var(--space-3);
+}
+
+/* ── In a table ─────────────────────────────────────────────────────────────
+   The name column's cell: the icon and the name beside it. A table cell sizes to its content, so the column is told to take
+   what the `.col-fit` columns leave and to let the name be cut inside it, rather
+   than pushing the table wider than its card. */
+.file-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-width: 0;
+}
+a.file-cell { color: inherit; text-decoration: none; }
+a.file-cell:hover .file-name { text-decoration: underline; }
+.table td:has(> .file-cell) { width: 100%; max-width: 0; min-width: 10rem; }
+
+/* ── A grid of tiles ────────────────────────────────────────────────────────
+   A folder as pictures: a real `<ul>`, breakpoint-free like `.gallery`, each tile a
+   thumbnail or a large type icon over the name and the meta line. `--wide` is for
+   tiles whose picture is a frame of a video, which need the room.
+
+   The tile is three controls, never one element with a click handler: the checkbox
+   selects — a `.form-check` label around it, named for the file — the link or button opens (and its hit area is the whole tile, under the
+   other two), and the menu button acts. Selected is read from the checkbox, so it
+   needs no class and no script. */
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(136px, 100%), 1fr));
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.file-grid--wide { grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
+
+.file-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    background: var(--surface-here, var(--bg));
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+}
+.file-tile:hover { border-color: var(--border-hover); }
+.file-tile:has(.file-tile-check :checked) {
+    border-color: var(--brand);
+    box-shadow: inset 0 0 0 1px var(--brand);
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+}
+.file-tile:has(.file-tile-open:focus-visible) { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* The picture: square, cropped to fill, with the type icon large in the middle when
+   there is no picture to show. */
+.file-tile-thumb {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-inner);
+    background: var(--surface-soft);
+}
+.file-tile-thumb > img { width: 100%; height: 100%; object-fit: cover; }
+.file-tile-thumb > .file-icon { --file-icon-size: 56px; background: transparent; }
+.file-tile-thumb > .file-icon > i { font-size: var(--text-11); }
+.file-grid--wide .file-tile-thumb { aspect-ratio: 16 / 9; }
+
+/* Opens it. The link's own box is the name; its `::after` is the tile, so a click
+   anywhere that is not the checkbox or the menu opens the file. */
+.file-tile-open {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: var(--text-3);
+    font-weight: 500;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+.file-tile-open:focus-visible { outline: none; }
+.file-tile-open::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.file-tile-open:hover { text-decoration: none; }
+
+/* The checkbox over the thumbnail's corner and the menu over the other, both above
+   the stretched link. Shown on hover, on focus, and once anything is selected — a
+   touch screen has no hover, so a selection in progress keeps every box in reach. */
+.file-tile-check,
+.file-tile-menu {
+    position: absolute;
+    top: var(--space-5);
+    z-index: 1;
+    opacity: 0;
+    transition: opacity var(--motion-fast);
+}
+.file-tile-check { inset-inline-start: var(--space-5); }
+.file-tile-menu { inset-inline-end: var(--space-5); }
+.file-tile-menu.btn { background: var(--bg-elevated); }
+.file-tile:hover :is(.file-tile-check, .file-tile-menu),
+.file-tile:focus-within :is(.file-tile-check, .file-tile-menu),
+.file-tile-check:has(:checked),
+.file-grid:has(.file-tile-check :checked) .file-tile-check { opacity: 1; }
+@media (hover: none) {
+    .file-tile-check,
+    .file-tile-menu { opacity: 1; }
+}
+.file-tile > .file-meta { font-size: var(--text-2); }
+
+/* A label on the picture's corner — a video's duration, a page count. */
+.file-tile-badge {
+    position: absolute;
+    inset-block-end: var(--space-2);
+    inset-inline-end: var(--space-2);
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-inner);
+    background: var(--media-scrim);
+    color: var(--on-solid);
+    font-size: var(--text-2);
+    font-weight: 600;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+}
+/* A video's thumbnail says it plays: a round play glyph in the middle. */
+.file-tile-play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--media-scrim);
+    color: var(--on-solid);
+    font-size: var(--text-8);
+}

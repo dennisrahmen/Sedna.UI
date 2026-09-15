@@ -47,7 +47,9 @@ have pushed `04-theme-contrast.css` into `05`, i.e. into `sedna.base`.
 
 The `30`–`69` components band is full as well, so a new component shares a number: `66` holds
 `66-calendar.css`, `66-chat.css` and `66-status-indicator.css`, in that order. None depends on another,
-and all three are in `sedna.paint`. `70`–`72` are RTL, forced colours and print, which must stay after
+and all three are in `sedna.paint`. `64` holds `64-files.css`, `64-lightbox.css`, `64-media-player.css` and
+`64-palette-spotlight.css` the same way. Chat reuses `.file-item` and `.audio-wave` from earlier parts
+and adds only its bubble context, so it stays after them. `70`–`72` are RTL, forced colours and print, which must stay after
 every component.
 
 Two consequences to keep in mind while writing a rule:

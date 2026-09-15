@@ -109,7 +109,7 @@ internal static class TokenGroups
 
         new("Component surfaces", [
             "--badge-bg", "--table-head-bg", "--btn-active-bg", "--code-fg", "--code-bg",
-            "--backdrop", "--overlay", "--spotlight-dim", "--tip-bg", "--tip-border", "--tip-fg",
+            "--backdrop", "--overlay", "--spotlight-dim", "--media-bg", "--media-scrim", "--tip-bg", "--tip-border", "--tip-fg",
             "--scrollbar", "--scrollbar-hover", "--scroll-shade",
             "--progress-track", "--skeleton-bg", "--skeleton-sheen",
         ]),
