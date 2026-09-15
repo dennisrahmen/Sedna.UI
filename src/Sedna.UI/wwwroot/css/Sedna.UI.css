@@ -67,7 +67,9 @@
      62-media-and-prose.css
      63-drag.css
      63-drawer.css
+     64-files.css
      64-lightbox.css
+     64-media-player.css
      64-palette-spotlight.css
      65-popover.css
      66-calendar.css
@@ -633,6 +635,11 @@
        --backdrop is the exception that proves it — pure black belongs to no ramp,
        has no hue to drift, and is what a modal backdrop should be in every theme. */
     --backdrop:      rgba(0, 0, 0, 0.65);       /* modal backdrop */
+    /* A video's letterbox, and the scrim under a label or a play glyph on a picture.
+       Black in every theme for the same reason as --backdrop: a film is framed in
+       black, and a label on a photograph cannot know what the photograph is. */
+    --media-bg:      var(--black);
+    --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);
@@ -5802,6 +5809,42 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    alone. */
 .file-item--error { border-color: var(--danger-border); color: var(--danger-fg); }
 .file-item--error > i { color: var(--danger-fg); }
+
+/* ── What happened to it ────────────────────────────────────────────────────
+   An item that says more than its name: `.file-item-main` stacks the name over a
+   `.file-meta` line or a `.progress` bar, `.file-item-status` is the glyph for how it
+   went, and `.file-item-actions` holds its buttons — retry, cancel, remove, download.
+
+     <li class="file-item">
+       <span class="file-icon file-icon--sheet"><i class="ri-file-excel-2-line"></i></span>
+       <span class="file-item-main">
+         <span class="file-item-name">stock-check.xlsx</span>
+         <span class="progress" role="progressbar" aria-valuenow="64" aria-label="Uploading stock-check.xlsx"><span class="progress-bar" style="width:64%"></span></span>
+       </span>
+       <span class="file-item-size">64%</span>
+       <span class="file-item-actions"><button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Cancel">…</button></span>
+     </li>
+
+   Uploading needs no modifier — the bar is the state. `--done` and `--error` colour
+   the status glyph, and the glyph's shape says it without the colour. The same item
+   is a file attached to a record, or to a chat message, as an `<a>` that downloads. */
+.file-item-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+.file-item-main > .file-item-name { flex: none; }
+.file-item-main > .progress { height: 3px; }
+.file-item-status { flex-shrink: 0; font-size: var(--text-6); color: var(--muted); }
+.file-item--done .file-item-status { color: var(--go-fg); }
+.file-item--error .file-item-status { color: var(--danger-fg); }
+.file-item--error .file-meta { color: var(--danger-fg); }
+.file-item-actions { display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0; }
+a.file-item { color: inherit; text-decoration: none; }
+a.file-item:hover { border-color: var(--border-strong); text-decoration: none; }
+a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 }
 
 /* ── 48-form-numeric.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -7210,6 +7253,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 }
 .chip--invalid > i,
 .chip--invalid .chip-dismiss { color: var(--danger-fg); }
+
+/* A chip that is a <button>: a filter offered and toggled in place, such as a log
+   level. `aria-pressed` carries the state for a screen reader and `.chip--active` the
+   look, so the two are set together. A button does not inherit the page's font. */
+button.chip { font-family: inherit; cursor: pointer; }
+button.chip:hover { border-color: var(--border-hover); }
+button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 
 /* A whole row of them, wrapping. */
 .chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
@@ -10113,6 +10163,234 @@ dialog.sheet.sheet--dragging { transition: none; }
 .tree-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
 }
 
+/* ── 64-files.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Files ────────────────────────────────────────────────────────────────────
+   The pieces a page of files is made from: the type icon, a name that keeps its
+   extension when it is cut, the size-date-owner line, and the tile a folder of them
+   is a grid of. A row of files is the library's own `.table` or `.list` with these
+   in its cells; an upload or an attachment is a `.file-item` (47-form-file.css).
+
+     <span class="file-icon file-icon--pdf"><i class="ri-file-pdf-2-line"></i></span>
+     <span class="file-name" title="delivery-note-week-38-signed.pdf">
+       <span class="file-name-start">delivery-note-week-38-</span><span class="file-name-end">signed.pdf</span>
+     </span>
+     <span class="file-meta"><span>84 KB</span><time datetime="2026-09-12">12 Sep</time><span>Alex Fischer</span></span>
+
+   Nothing here fetches, sorts or selects. Which files there are, which are selected
+   and what a click does are the app's.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── The type icon ──────────────────────────────────────────────────────────
+   A Remix Icon glyph on a small tile. The kind tints the glyph from the categorical
+   series, so a PDF, a spreadsheet and a picture tell apart at a glance, and the glyph
+   itself still says which — colour is never the only signal. Anything else keeps the
+   neutral ink. A thumbnail may stand in for the glyph: an `<img>` fills the tile. */
+.file-icon {
+    --file-icon-size: 36px;
+    --file-icon-ink: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--file-icon-size);
+    height: var(--file-icon-size);
+    border-radius: var(--radius-inner);
+    background: var(--surface-strong);
+    color: var(--file-icon-ink);
+    overflow: hidden;
+    line-height: 1;
+}
+.file-icon > i { font-size: var(--text-8); }
+.file-icon > img { width: 100%; height: 100%; object-fit: cover; }
+.file-icon--sm { --file-icon-size: 28px; }
+.file-icon--sm > i { font-size: var(--text-6); }
+.file-icon--pdf    { --file-icon-ink: var(--viz-1); }
+.file-icon--image  { --file-icon-ink: var(--viz-2); }
+.file-icon--slides { --file-icon-ink: var(--viz-3); }
+.file-icon--sheet  { --file-icon-ink: var(--viz-4); }
+.file-icon--media  { --file-icon-ink: var(--viz-5); }
+.file-icon--doc    { --file-icon-ink: var(--viz-6); }
+
+/* ── A name cut in the middle ───────────────────────────────────────────────
+   `text-overflow` only cuts at the end, which is where a file name keeps what tells
+   two files apart — `-signed.pdf`, `-v2.xlsx`. So the app splits the name in two and
+   only the start is cut: the end, a few characters and the extension, never shrinks.
+   Read aloud, the two spans are the whole name. Put the name in `title` too, for the
+   pointer. A name that fits shows whole and the split is invisible. */
+.file-name {
+    display: flex;
+    min-width: 0;
+    max-width: 100%;
+    white-space: nowrap;
+}
+.file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.file-name-end { flex-shrink: 0; }
+
+/* The size, the date, the owner — separated by a dot the stylesheet draws, so it is
+   never copied or read out. Wraps rather than widening what it sits in. */
+.file-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-3);
+    min-width: 0;
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+}
+.file-meta > * + *::before {
+    content: '·';
+    margin-inline-end: var(--space-3);
+}
+
+/* ── In a table ─────────────────────────────────────────────────────────────
+   The name column's cell: the icon and the name beside it. A table cell sizes to its content, so the column is told to take
+   what the `.col-fit` columns leave and to let the name be cut inside it, rather
+   than pushing the table wider than its card. */
+.file-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-width: 0;
+}
+a.file-cell { color: inherit; text-decoration: none; }
+a.file-cell:hover .file-name { text-decoration: underline; }
+.table td:has(> .file-cell) { width: 100%; max-width: 0; min-width: 10rem; }
+
+/* ── A grid of tiles ────────────────────────────────────────────────────────
+   A folder as pictures: a real `<ul>`, breakpoint-free like `.gallery`, each tile a
+   thumbnail or a large type icon over the name and the meta line. `--wide` is for
+   tiles whose picture is a frame of a video, which need the room.
+
+   The tile is three controls, never one element with a click handler: the checkbox
+   selects — a `.form-check` label around it, named for the file — the link or button opens (and its hit area is the whole tile, under the
+   other two), and the menu button acts. Selected is read from the checkbox, so it
+   needs no class and no script. */
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(136px, 100%), 1fr));
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.file-grid--wide { grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
+
+.file-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    background: var(--surface-here, var(--bg));
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+}
+.file-tile:hover { border-color: var(--border-hover); }
+.file-tile:has(.file-tile-check :checked) {
+    border-color: var(--brand);
+    box-shadow: inset 0 0 0 1px var(--brand);
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+}
+.file-tile:has(.file-tile-open:focus-visible) { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* The picture: square, cropped to fill, with the type icon large in the middle when
+   there is no picture to show. */
+.file-tile-thumb {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-inner);
+    background: var(--surface-soft);
+}
+.file-tile-thumb > img { width: 100%; height: 100%; object-fit: cover; }
+.file-tile-thumb > .file-icon { --file-icon-size: 56px; background: transparent; }
+.file-tile-thumb > .file-icon > i { font-size: var(--text-11); }
+.file-grid--wide .file-tile-thumb { aspect-ratio: 16 / 9; }
+
+/* Opens it. The link's own box is the name; its `::after` is the tile, so a click
+   anywhere that is not the checkbox or the menu opens the file. */
+.file-tile-open {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: var(--text-3);
+    font-weight: 500;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+.file-tile-open:focus-visible { outline: none; }
+.file-tile-open::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.file-tile-open:hover { text-decoration: none; }
+
+/* The checkbox over the thumbnail's corner and the menu over the other, both above
+   the stretched link. Shown on hover, on focus, and once anything is selected — a
+   touch screen has no hover, so a selection in progress keeps every box in reach. */
+.file-tile-check,
+.file-tile-menu {
+    position: absolute;
+    top: var(--space-5);
+    z-index: 1;
+    opacity: 0;
+    transition: opacity var(--motion-fast);
+}
+.file-tile-check { inset-inline-start: var(--space-5); }
+.file-tile-menu { inset-inline-end: var(--space-5); }
+.file-tile-menu.btn { background: var(--bg-elevated); }
+.file-tile:hover :is(.file-tile-check, .file-tile-menu),
+.file-tile:focus-within :is(.file-tile-check, .file-tile-menu),
+.file-tile-check:has(:checked),
+.file-grid:has(.file-tile-check :checked) .file-tile-check { opacity: 1; }
+@media (hover: none) {
+    .file-tile-check,
+    .file-tile-menu { opacity: 1; }
+}
+.file-tile > .file-meta { font-size: var(--text-2); }
+
+/* A label on the picture's corner — a video's duration, a page count. */
+.file-tile-badge {
+    position: absolute;
+    inset-block-end: var(--space-2);
+    inset-inline-end: var(--space-2);
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-inner);
+    background: var(--media-scrim);
+    color: var(--on-solid);
+    font-size: var(--text-2);
+    font-weight: 600;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+}
+/* A video's thumbnail says it plays: a round play glyph in the middle. */
+.file-tile-play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--media-scrim);
+    color: var(--on-solid);
+    font-size: var(--text-8);
+}
+}
+
 /* ── 64-lightbox.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Lightbox ───────────────────────────────────────────────────────────────
@@ -10288,6 +10566,216 @@ dialog.lightbox::before {
 .media-open > img,
 .media-open > .media-frame { display: block; }
 .media-open:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring-soft); }
+}
+
+/* ── 64-media-player.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Video and audio ──────────────────────────────────────────────────────────
+   The frame around the platform's own player. The `<video controls>` or
+   `<audio controls>` is the app's and stays native — play, seek, volume, captions,
+   picture-in-picture, full screen and the keyboard are the browser's, and none of it
+   is redrawn here. What the library adds is what the element does not carry: the
+   title, the length and the date, the actions, and the transcript.
+
+     <figure class="media-player">
+       <video controls preload="metadata" poster="…" width="1280" height="720">
+         <source src="…" type="video/mp4" />
+         <track kind="captions" src="…" srclang="en" label="English" />
+       </video>
+       <figcaption class="media-player-body">
+         <span class="media-player-text">
+           <strong class="media-player-title">Receiving a pallet at dock 4</strong>
+           <span class="file-meta"><span>4:32</span><span>12 Sep 2026</span></span>
+         </span>
+         <span class="media-player-actions">…</span>
+       </figcaption>
+       <details class="media-transcript">…</details>
+     </figure>
+
+   A `<track kind="captions">` is what puts the captions button in the native
+   controls; the transcript is the same words, readable and searchable without playing.
+   ─────────────────────────────────────────────────────────────────────────── */
+.media-player {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    background: var(--surface-here, var(--bg));
+    overflow: hidden;
+}
+/* The picture on the letterbox, at its frame's ratio before a byte has loaded, so the
+   page does not jump when the metadata arrives. A different ratio is the element's
+   own `aspect-ratio`, set inline or by the app. */
+.media-player > video {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    background: var(--media-bg);
+}
+/* The title, the meta line and the actions: under a video, or the whole of an audio
+   player with the `<audio>` in the text column. */
+.media-player-body {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    min-width: 0;
+    padding: var(--space-5) var(--space-6);
+}
+.media-player-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+.media-player-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fg);
+    font-size: var(--text-5);
+    font-weight: 600;
+}
+.media-player-actions { display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0; }
+/* The native audio control takes the text column's width, under the title. */
+.media-player-text > audio {
+    display: block;
+    width: 100%;
+    height: var(--control-height);
+    margin-top: var(--space-3);
+}
+/* On a phone the actions go under the text rather than squeezing the title to
+   nothing. */
+@media (max-width: 560px) {
+    .media-player-body { flex-wrap: wrap; }
+    .media-player-body > .media-player-actions { margin-inline-start: auto; }
+}
+
+/* ── Transcript ─────────────────────────────────────────────────────────────
+   What was said, with the time it was said, under the player — a `<details>`, so it
+   opens with no script. Each time is a button the app wires to `currentTime`; the
+   line being spoken now carries `aria-current="true"`, set by the app from the
+   element's `timeupdate`. Long transcripts scroll inside their own box. */
+.media-transcript { border-top: 1px solid var(--divider); }
+.media-transcript > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+}
+.media-transcript > summary::-webkit-details-marker { display: none; }
+.media-transcript > summary:hover { background: var(--bg-hover); }
+.media-transcript > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.media-transcript > summary::after {
+    content: '';
+    margin-inline-start: auto;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.5;
+    transition: transform var(--motion-fast) ease;
+}
+.media-transcript[open] > summary::after { transform: rotate(-180deg); }
+.media-transcript > ol {
+    margin: 0;
+    padding: 0 0 var(--space-4);
+    list-style: none;
+    max-height: 16rem;
+    overflow-y: auto;
+}
+.media-transcript li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-5);
+    padding: var(--space-2) var(--space-6);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    line-height: 1.5;
+}
+.media-transcript li[aria-current="true"] {
+    background: var(--brand-tint);
+    box-shadow: inset 3px 0 0 var(--brand);
+    color: var(--fg);
+}
+.media-transcript-time {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--brand-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+.media-transcript-time:hover { text-decoration: underline; }
+.media-transcript-time:focus-visible { outline: none; border-radius: var(--radius-small); box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* ── A track in a list ──────────────────────────────────────────────────────
+   A playlist is a `.list`: the row is a button that plays, the length is the
+   `.list-meta`, and the one playing is `aria-current="true"`. The number column is a
+   fixed width so one to twelve, and the glyph, line up, and the playing row's number is the app's
+   equalizer glyph in the brand. */
+.media-track-num {
+    flex-shrink: 0;
+    width: 20px;
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+.media-track-num > i { font-size: var(--text-6); }
+[aria-current="true"] > .media-track-num { color: var(--brand-text); }
+
+/* ── A waveform ─────────────────────────────────────────────────────────────
+   A voice message, a call recording, a dictated note: play, the bars, how long. The
+   bars are `<i>` elements with their height in `--h`; the ones already heard carry
+   `.audio-wave-heard`. The `<audio>` is the app's and hidden — the bars are the
+   picture of it, and the play button's name says the length. On a narrow screen the
+   bars give up width and the time never wraps. */
+.audio-wave {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: min(100%, 240px);
+}
+.audio-wave > .btn { flex-shrink: 0; border-radius: 50%; }
+.audio-wave-bars {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex: 1;
+    min-width: 64px;
+    height: 28px;
+}
+.audio-wave-bars > i {
+    --h: 30%;
+    flex: 1;
+    min-width: 2px;
+    height: var(--h);
+    min-height: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--muted);
+    opacity: 0.6;
+}
+.audio-wave-bars > .audio-wave-heard { background: var(--brand); opacity: 1; }
+.audio-wave-time {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: var(--text-3);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
 }
 
 /* ── 64-palette-spotlight.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -10693,11 +11181,25 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    the rest is summarised by a `.cal-more`, which always sits in the row below them —
    a threshold the app sets, not a height the library measures. A span running into
    the next week is two pills: the first `--continues-end`, the second
-   `--continues-start`, which square off the edge that continues. */
+   `--continues-start`, which square off the edge that continues.
+
+   Week numbers are `.cal-month--weeknums` and one `.cal-weeknum` before each row's
+   days, with an empty `.cal-weekday` heading it. The number is the app's — ISO 8601
+   or the reader's locale's rule — because a stylesheet cannot count weeks:
+
+     <div class="cal-row">
+       <span class="cal-weeknum"><span class="visually-hidden">Week </span>38</span>
+       … 7 days, then .cal-row-events …
+     </div>
+
+   `.cal-month--grow` swaps the threshold for rows that grow to fit every lane the
+   app lays out: no `.cal-more`, and `--cal-lanes` becomes the height an empty week
+   still keeps. */
 .cal-month {
     --cal-lanes: 3;
     --cal-event-height: 20px;
     --cal-day-head: 28px;
+    --cal-weeknum-width: 40px;
     display: flex;
     flex-direction: column;
     border: 1px solid var(--border);
@@ -10706,10 +11208,15 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     background: var(--card-bg);
     --surface-here: var(--card-bg);
 }
+/* Each day column starts at a line named `day`, so a layer can say "from the first
+   day" and mean it with or without a week-number column in front. */
 .cal-weekdays,
 .cal-row {
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(7, [day] minmax(0, 1fr));
+}
+.cal-month--weeknums > :is(.cal-weekdays, .cal-row) {
+    grid-template-columns: var(--cal-weeknum-width) repeat(7, [day] minmax(0, 1fr));
 }
 .cal-weekdays { border-bottom: 1px solid var(--border); }
 .cal-weekday {
@@ -10751,8 +11258,30 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .cal-day[aria-current="date"] .cal-day-num { background: var(--brand); color: var(--on-solid); }
 .cal-day:is([aria-selected="true"], [aria-pressed="true"]) { background: var(--brand-tint); }
 
+/* The week number: muted, and outside the days, so it never reads as a date. A
+   <button> when choosing the week is something the app offers. */
+.cal-weeknum {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: var(--space-2) 0;
+    border-inline-end: 1px solid var(--divider);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    line-height: 24px;
+    text-align: center;
+}
+button.cal-weeknum { background: none; border-block: none; border-inline-start: none; font-family: inherit; cursor: pointer; }
+button.cal-weeknum:hover { background: var(--bg-hover); color: var(--fg); }
+button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.cal-month--weeknums .cal-weekdays > .cal-weekday:first-child { padding-inline: 0; text-align: center; }
+
+/* A positioned grid child takes its grid area as its containing block, so the layer
+   covers the days and never the week number. */
 .cal-row-events {
     position: absolute;
+    grid-column: day 1 / -1;
     inset: calc(var(--cal-day-head) + var(--space-2)) 0 var(--space-2);
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -10765,6 +11294,15 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 }
 .cal-row-events > * { pointer-events: auto; min-width: 0; }
 
+/* An event's colours are three custom properties, so a hue family sets them once and
+   every fill variant below reads them: `--cal-fill` the tint, `--cal-accent` the edge,
+   a dot, an icon and an outline, `--cal-solid` the filled background. */
+.cal-event,
+.cal-block {
+    --cal-fill: var(--brand-tint);
+    --cal-accent: var(--brand);
+    --cal-solid: var(--brand-text);
+}
 .cal-event {
     display: flex;
     align-items: center;
@@ -10772,8 +11310,8 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     margin-inline: var(--space-2);
     padding-inline: var(--space-3);
     overflow: hidden;
-    background: var(--brand-tint);
-    border-inline-start: 3px solid var(--brand);
+    background: var(--cal-fill);
+    border-inline-start: 3px solid var(--cal-accent);
     border-radius: var(--radius-inner);
     color: var(--fg);
     font-size: var(--text-2);
@@ -10806,14 +11344,92 @@ button.cal-event { border-block: none; border-inline-end: none; font-family: inh
     border-end-end-radius: 0;
 }
 
-/* The families badges use, by meaning and as categorical hues. */
-.cal-event--go     { background: var(--go-bg);     border-inline-start-color: var(--go-fg); }
-.cal-event--warn   { background: var(--warn-bg);   border-inline-start-color: var(--warn-fg); }
-.cal-event--danger { background: var(--danger-bg); border-inline-start-color: var(--danger-fg); }
-.cal-event--info   { background: var(--info-bg);   border-inline-start-color: var(--info-fg); }
-.cal-event--cyan   { background: var(--badge-cyan-bg);   border-inline-start-color: var(--badge-cyan-fg); }
-.cal-event--orange { background: var(--badge-orange-bg); border-inline-start-color: var(--badge-orange-fg); }
-.cal-event--teal   { background: var(--badge-teal-bg);   border-inline-start-color: var(--badge-teal-fg); }
+/* The families badges use, by meaning and as categorical hues. Each sets the three
+   colours and nothing else, so it works on a pill and a block, in every fill. */
+.cal-event--go     { --cal-fill: var(--go-bg);     --cal-accent: var(--go-fg);     --cal-solid: var(--go-fg); }
+.cal-event--warn   { --cal-fill: var(--warn-bg);   --cal-accent: var(--warn-fg);   --cal-solid: var(--warn-fg); }
+.cal-event--danger { --cal-fill: var(--danger-bg); --cal-accent: var(--danger-fg); --cal-solid: var(--danger-fg); }
+.cal-event--info   { --cal-fill: var(--info-bg);   --cal-accent: var(--info-fg);   --cal-solid: var(--info-fg); }
+.cal-event--cyan   { --cal-fill: var(--badge-cyan-bg);   --cal-accent: var(--badge-cyan-fg);   --cal-solid: var(--badge-cyan-fg); }
+.cal-event--orange { --cal-fill: var(--badge-orange-bg); --cal-accent: var(--badge-orange-fg); --cal-solid: var(--badge-orange-fg); }
+.cal-event--teal   { --cal-fill: var(--badge-teal-bg);   --cal-accent: var(--badge-teal-fg);   --cal-solid: var(--badge-teal-fg); }
+
+/* ── Fill ──────────────────────────────────────────────────────────────────
+   Tinted is the default. `--filled` is for what must stand out — confirmed, or
+   happening now — `--outline` for what should recede, and `--tentative` for an event
+   not yet accepted: a dashed edge on a faint hatch. Say "tentative" in text as well; a
+   dash is not a word. A filled event's ink is the calendar's own surface, which each
+   family's accent is already measured against. The pair of classes on the selector
+   outweighs `button.cal-event`, which removes a button's own borders. */
+:is(.cal-event, .cal-block).cal-event--filled {
+    background: var(--cal-solid);
+    border-inline-start-color: var(--cal-solid);
+    color: var(--card-bg);
+}
+.cal-event--filled .cal-event-time { color: inherit; }
+:is(.cal-event, .cal-block):is(.cal-event--outline, .cal-event--tentative) {
+    --cal-edge: 1px;
+    background: var(--card-bg);
+    border: var(--cal-edge) solid var(--cal-accent);
+    border-inline-start-width: 3px;
+}
+:is(.cal-event, .cal-block).cal-event--tentative {
+    /* Half the tint, as a hatch over the surface: faint, and still the family's hue. */
+    background: repeating-linear-gradient(-45deg, var(--cal-fill) 0 4px, transparent 4px 8px), var(--card-bg);
+    border-style: dashed;
+}
+.cal-event:is(.cal-event--outline, .cal-event--tentative) { line-height: calc(var(--cal-event-height) - 2 * var(--cal-edge)); }
+
+/* ── Leading and trailing slots ────────────────────────────────────────────
+   Before the title: an icon for the type of event, a dot, or a live dot for one in
+   progress. After it: the people on it, as a small `.avatar-group`. A title that has
+   to give way to the avatars is a `.cal-event-title`, which truncates.
+
+     <a class="cal-event cal-event--go" href="…">
+       <span class="cal-event-dot cal-event-dot--live"></span>
+       <span class="cal-event-time">14:00</span>
+       <span class="cal-event-title">Dispatch ORD-4209</span>
+       <span class="avatar-group cal-event-avatars">
+         <span class="avatar avatar--viz-2" title="Alex Fischer">AF</span> …
+       </span>
+     </a>
+
+   The icon, the dot and the avatars are all decoration to a screen reader unless the
+   app names them: `aria-hidden` on the icon, a visually hidden "Live" beside the dot,
+   and the people's names in the link's own text or label. */
+.cal-event-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-block .cal-event-title { white-space: normal; }
+.cal-event-icon {
+    flex-shrink: 0;
+    color: var(--cal-accent);
+    font-size: var(--text-3);
+    line-height: 1;
+    vertical-align: -0.1em;
+}
+.cal-event-dot {
+    display: inline-block;
+    flex-shrink: 0;
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background: var(--cal-accent);
+    vertical-align: 0.1em;
+}
+.cal-event-dot--live { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
+.cal-event--filled :is(.cal-event-icon, .cal-event-dot) { color: inherit; }
+.cal-event--filled .cal-event-dot { background: currentColor; }
+.cal-block :is(.cal-event-icon, .cal-event-dot) { margin-inline-end: var(--space-2); }
+
+.cal-event-avatars {
+    --avatar-size: 18px;
+    --avatar-overlap: 6px;
+    --avatar-gap: 1px;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+}
+.cal-event-avatars > .avatar { --avatar-size: 18px; --avatar-overlap: 6px; --avatar-gap: 1px; font-size: var(--text-1); letter-spacing: -0.04em; }
+.cal-event-avatars > .avatar-more { padding-inline: var(--space-1) 0; font-size: var(--text-1); color: inherit; }
+.cal-block .cal-event-avatars { float: inline-end; margin-block-start: var(--space-1); margin-inline-start: var(--space-2); line-height: 1; }
 
 .cal-more {
     grid-row: -2 / -1;
@@ -10827,6 +11443,30 @@ button.cal-event { border-block: none; border-inline-end: none; font-family: inh
 }
 button.cal-more { background: none; border: none; font-family: inherit; text-align: start; cursor: pointer; border-radius: var(--radius-inner); }
 button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
+
+/* ── Growing rows ──────────────────────────────────────────────────────────
+   The lanes join the row's own grid instead of floating over it, so a row is as
+   tall as its last lane. Items only overlap in a grid when every one of them is
+   placed, which is why each day takes its column by position here. */
+.cal-month--grow .cal-row > * { grid-row: 1; }
+.cal-month--grow .cal-weeknum { grid-column: 1; }
+.cal-month--grow .cal-day:nth-child(1 of .cal-day) { grid-column: day 1; }
+.cal-month--grow .cal-day:nth-child(2 of .cal-day) { grid-column: day 2; }
+.cal-month--grow .cal-day:nth-child(3 of .cal-day) { grid-column: day 3; }
+.cal-month--grow .cal-day:nth-child(4 of .cal-day) { grid-column: day 4; }
+.cal-month--grow .cal-day:nth-child(5 of .cal-day) { grid-column: day 5; }
+.cal-month--grow .cal-day:nth-child(6 of .cal-day) { grid-column: day 6; }
+.cal-month--grow .cal-day:nth-child(7 of .cal-day) { grid-column: day 7; }
+.cal-month--grow .cal-day {
+    min-height: calc(var(--cal-day-head) + var(--cal-lanes) * (var(--cal-event-height) + var(--space-1)) + var(--space-3));
+}
+.cal-month--grow .cal-row-events {
+    position: relative;
+    inset: auto;
+    margin-block: calc(var(--cal-day-head) + var(--space-2)) var(--space-2);
+    grid-template-rows: none;
+    grid-auto-rows: var(--cal-event-height);
+}
 
 /* ── Week and day ──────────────────────────────────────────────────────────
 
@@ -10850,15 +11490,30 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
    axis starting at 07:00 is 2.5. Two blocks that overlap are laid side by side by
    `--cal-lane` and `--cal-lanes`, which the app works out; `--cal-hours` is how many
    hour rows the axis has, and the hour labels are the app's text. `.cal-now` is the line for
-   the current time, at `--cal-at` hours. */
+   the current time, at `--cal-at` hours.
+
+   A block's text is clipped at the last whole line that fits, so a short block shows
+   its time and the start of its title and never half a line.
+
+   `--cal-day-min` is the narrowest a day may get; the week's own minimum width follows
+   from it, so put the week in a `.sedna-scroll-x` where the width can run out.
+
+   `.cal-week--by-lanes` lets each day's width follow how busy it is. CSS cannot tell
+   which blocks overlap, so the app writes the day's lane count — the most blocks side
+   by side at any moment, 1 for a quiet day — as `--cal-lanes` on the `.cal-day-col`
+   and the same number on that day's `.cal-weekday`, which keeps the heading over its
+   column. Days share the width in proportion to it and none gets narrower than
+   `--cal-day-min`. Leave the modifier off and every day is the same width. */
 .cal-week {
     --cal-days: 7;
     --cal-hours: 24;
     --cal-hour-height: 48px;
     --cal-gutter: 56px;
+    --cal-day-min: 0px;
     --cal-week-max-height: 560px;
     display: flex;
     flex-direction: column;
+    min-inline-size: calc(var(--cal-gutter) + var(--cal-days) * var(--cal-day-min));
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     overflow: hidden;
@@ -10868,8 +11523,24 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
 .cal-week-head,
 .cal-week-body {
     display: grid;
-    grid-template-columns: var(--cal-gutter) repeat(var(--cal-days), minmax(0, 1fr));
+    grid-template-columns: var(--cal-gutter) repeat(var(--cal-days), minmax(var(--cal-day-min), 1fr));
 }
+/* Flex rather than grid, because a flex item's grow factor can come from a custom
+   property on the item and a grid track's `fr` cannot. The heading and the body
+   resolve the same factors against the same width, so their columns agree. */
+.cal-week--by-lanes > :is(.cal-week-head, .cal-week-body) { display: flex; }
+.cal-week--by-lanes > :is(.cal-week-head, .cal-week-body) > :first-child { flex: 0 0 var(--cal-gutter); }
+.cal-week--by-lanes > .cal-week-head > .cal-weekday,
+.cal-week--by-lanes .cal-day-col {
+    --cal-lanes: 1;
+    flex: var(--cal-lanes) 1 0;
+    min-inline-size: var(--cal-day-min);
+}
+/* A flex item never gets narrower than its own padding and border, so a heading and
+   its column only share the width identically when both carry the same. The column's
+   padding moves nothing inside it: its blocks are positioned against the padding box. */
+.cal-week--by-lanes > .cal-week-head > .cal-weekday { padding-inline: var(--space-4); border-inline-start: 1px solid transparent; }
+.cal-week--by-lanes .cal-day-col { padding-inline: var(--space-4); }
 .cal-week-head { border-bottom: 1px solid var(--border); }
 .cal-week-head .cal-weekday { text-transform: none; letter-spacing: 0; font-size: var(--text-3); }
 .cal-week-head .cal-weekday[aria-current="date"] { color: var(--brand-text); }
@@ -10911,26 +11582,26 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     inline-size: calc(100% / var(--cal-lanes) - var(--space-2));
     block-size: calc(var(--cal-span) * var(--cal-hour-height) - var(--space-1));
     z-index: 1;
-    overflow: hidden;
     padding: var(--space-1) var(--space-3);
-    background: var(--brand-tint);
-    border-inline-start: 3px solid var(--brand);
+    background: var(--cal-fill);
+    border-inline-start: 3px solid var(--cal-accent);
     border-radius: var(--radius-inner);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
     line-height: 1.35;
     text-decoration: none;
+    /* Clipped at the content box, and the content box ends on a whole line: the bottom
+       padding takes up whatever is left over after the lines that fit. Below one line
+       the block shows what it can rather than nothing. */
+    --cal-edge: 0px;
+    --cal-block-inner: calc(var(--cal-span) * var(--cal-hour-height) - 2 * var(--space-1) - 2 * var(--cal-edge));
+    padding-block-end: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh)));
+    overflow: clip;
+    overflow-clip-margin: content-box;
 }
 .cal-block:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .cal-block .cal-event-time { display: block; }
-.cal-block.cal-event--go     { background: var(--go-bg);     border-inline-start-color: var(--go-fg); }
-.cal-block.cal-event--warn   { background: var(--warn-bg);   border-inline-start-color: var(--warn-fg); }
-.cal-block.cal-event--danger { background: var(--danger-bg); border-inline-start-color: var(--danger-fg); }
-.cal-block.cal-event--info   { background: var(--info-bg);   border-inline-start-color: var(--info-fg); }
-.cal-block.cal-event--cyan   { background: var(--badge-cyan-bg);   border-inline-start-color: var(--badge-cyan-fg); }
-.cal-block.cal-event--orange { background: var(--badge-orange-bg); border-inline-start-color: var(--badge-orange-fg); }
-.cal-block.cal-event--teal   { background: var(--badge-teal-bg);   border-inline-start-color: var(--badge-teal-fg); }
 
 .cal-now {
     --cal-at: 0;
@@ -10983,6 +11654,16 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     font-variant-numeric: tabular-nums;
 }
 .cal-month--mini .cal-day + .cal-day { border-inline-start: none; }
+.cal-month--mini { --cal-weeknum-width: 28px; }
+.cal-month--mini .cal-weeknum {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-inline-end: none;
+    font-size: var(--text-1);
+    line-height: 1;
+}
 .cal-month--mini .cal-day--weekend { background: none; color: var(--fg-soft); }
 .cal-month--mini .cal-day[aria-current="date"] { box-shadow: inset 0 0 0 1px var(--brand); color: var(--brand-text); font-weight: 600; }
 .cal-month--mini .cal-day:is([aria-selected="true"], [aria-pressed="true"]) { background: var(--brand); color: var(--on-solid); }
@@ -11015,6 +11696,48 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
     opacity: 0.55;
     cursor: not-allowed;
     pointer-events: none;
+}
+
+/* ── Holidays ──────────────────────────────────────────────────────────────
+   A day nobody works is `.cal-day--holiday`, shaded like a weekend. Its name is a
+   `.cal-holiday` beside the day number, or in a week's heading:
+
+     <div class="cal-day cal-day--holiday">
+       <span class="cal-day-num">3</span>
+       <span class="cal-holiday" role="img" aria-label="Holiday: Autumn bank holiday" data-tip="Autumn bank holiday">
+         <i class="ri-flag-2-line"></i><span class="cal-holiday-name">Autumn bank holiday</span>
+       </span>
+     </div>
+
+   A name that does not fit is cut short, and in a very narrow cell it goes and the
+   icon stays. Either way the `data-tip` takes over: the hint appears only while the
+   whole name is not on screen. The label is what a screen reader hears. In a small month there is no room
+   for a marker at all, so the day keeps the shade and carries the `data-tip` itself. */
+.cal-day--holiday { background: var(--surface-soft); }
+.cal-month--mini .cal-day--holiday { background: var(--surface-soft); }
+:is(.cal-day, .cal-weekday):has(> .cal-holiday) {
+    container: cal-cell / inline-size;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+}
+.cal-holiday {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    block-size: 24px;
+    color: var(--fg-soft);
+    font-size: var(--text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+.cal-holiday > i { flex-shrink: 0; color: var(--muted); font-size: var(--text-4); }
+.cal-weekday > .cal-holiday { block-size: auto; }
+.cal-holiday-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@container cal-cell (max-width: 72px) {
+    .cal-holiday-name { display: none; }
 }
 
 /* ── Date picker ───────────────────────────────────────────────────────────
@@ -11137,6 +11860,38 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 }
 .chat-unread { color: var(--brand-text); }
 .chat-unread::before, .chat-unread::after { background: var(--brand); opacity: 0.5; }
+
+/* A conversation's picture in a list of them: two people of a group stacked corner to
+   corner inside one avatar's square. An `.avatar-group` is as wide as its count, so a
+   group's name started further in than a person's and the column of names and last
+   lines was crooked; this keeps the leading column one width whoever is in it. One
+   person is a plain `.avatar`. The avatar in front is cut out of the one behind, as in
+   `.avatar-group`, so the gap is right on every surface. */
+.chat-avatars {
+    --chat-avatars-size: 28px;
+    --chat-avatars-item: 20px;
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: var(--chat-avatars-size);
+    height: var(--chat-avatars-size);
+}
+.chat-avatars > .avatar {
+    --avatar-size: var(--chat-avatars-item);
+    position: absolute;
+    font-size: var(--text-1);
+}
+.chat-avatars > .avatar:first-child:not(:last-child) {
+    --chat-avatars-cut-x: calc(var(--chat-avatars-size) - var(--chat-avatars-item) / 2);
+    top: 0;
+    inset-inline-start: 0;
+    mask-image: radial-gradient(
+        circle calc(var(--chat-avatars-item) / 2 + var(--avatar-gap))
+        at var(--chat-avatars-cut-x) calc(var(--chat-avatars-size) - var(--chat-avatars-item) / 2),
+        transparent 100%, currentColor 100%);
+}
+.chat-avatars > .avatar:last-child { bottom: 0; inset-inline-end: 0; }
+.chat-avatars > .avatar i { font-size: var(--text-3); }
 
 /* Something the app did, told in the thread: joined, renamed, pinned. */
 .chat-system {
@@ -11276,27 +12031,12 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 }
 .chat-quote > strong { color: var(--fg-soft); margin-inline-end: var(--space-3); }
 
-/* A file in a bubble: icon, name, size. */
-.chat-attachment {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-inner);
-    background: var(--surface-here);
-    color: inherit;
-    text-decoration: none;
-    font-size: var(--text-3);
-}
-.chat-attachment > i { font-size: var(--text-8); color: var(--muted); flex-shrink: 0; }
-.chat-attachment-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.chat-attachment-size { color: var(--muted); font-variant-numeric: tabular-nums; margin-inline-start: auto; flex-shrink: 0; }
-.chat-attachment:hover { border-color: var(--border-strong); text-decoration: none; }
-/* One still on its way up: the bar under the name is a `.progress`, and the size
-   column says how far. */
-.chat-attachment { flex-wrap: wrap; }
-.chat-attachment > .progress { flex-basis: 100%; height: 3px; }
+/* A file in a bubble is a `.file-item` (47-form-file.css) — the icon, the name, the
+   size, a `.progress` while it uploads — on the bubble's own surface rather than the
+   list's, so it reads as part of the message. A voice message is an `.audio-wave`
+   (64-media-player.css), which needs nothing from the bubble. */
+.chat-bubble .file-item { background: var(--surface-here); }
+.chat-bubble .file-item + .file-item { margin-top: var(--space-2); }
 
 /* A link the message carries, unfurled: the picture, the title, a line and the host.
    The app fetches the preview; this is only the card. */
@@ -11326,37 +12066,6 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 .chat-link-card-body > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-link-card-body > span { color: var(--fg-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .chat-link-card-body > small { color: var(--muted); font-size: var(--text-2); }
-
-/* A voice message: play, the waveform, how long. The bars are `<i>` elements with
-   their height in `--h`; the ones already heard carry `.chat-audio-heard`. The
-   `<audio>` is the app's and hidden — the bars are the picture of it. */
-.chat-audio {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    min-width: min(100%, 240px);
-}
-.chat-audio > .btn { flex-shrink: 0; border-radius: 50%; }
-.chat-audio-bars {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    flex: 1;
-    min-width: 128px;
-    height: 28px;
-}
-.chat-audio-bars > i {
-    --h: 30%;
-    flex: 1;
-    min-width: 2px;
-    height: var(--h);
-    min-height: 3px;
-    border-radius: var(--radius-pill);
-    background: var(--muted);
-    opacity: 0.6;
-}
-.chat-audio-bars > .chat-audio-heard { background: var(--brand); opacity: 1; }
-.chat-audio-time { font-size: var(--text-3); color: var(--muted); font-variant-numeric: tabular-nums; }
 
 /* ── Reactions ──────────────────────────────────────────────────────────────
    Under the bubble: a pill per emoji with its count, `aria-pressed` on the ones
@@ -11854,6 +12563,8 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
    Monospace with tabular figures, because the reader is comparing columns —
    timestamps, levels, ids — down the page rather than reading prose. */
 .output {
+    --output-level-width: 8ch;
+    --output-source-width: 20ch;
     display: block;
     max-height: 320px;
     overflow-y: auto;
@@ -11911,6 +12622,209 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 /* Something the app emitted about itself — "reconnected", "stream closed" — rather
    than a line from the thing being watched. */
 .output-line--note   { color: var(--muted); font-style: italic; }
+
+/* Debug chatter the reader usually skims past, and informational lines whose level
+   word alone takes the info hue — a pane of info lines tinted whole is a wall of
+   colour that hides the warnings it exists to surface. */
+.output-line--debug  { color: var(--muted); }
+.output-line--info .output-level { color: var(--info-fg); }
+
+/* ── Log viewer ─────────────────────────────────────────────────────────────
+   The same pane, read as an application's log: one entry per line, in columns.
+
+     <ul class="output output--columns" aria-label="Application log">
+       <li class="output-line output-line--warn">
+         <span class="output-time">09:14:02.118</span>
+         <span class="output-level"><i class="ri-alert-line" aria-hidden="true"></i> WARN</span>
+         <span class="output-source">orders.sync</span>
+         <span class="output-msg">retrying order <span class="output-id">ORD-4182</span></span>
+       </li>
+     </ul>
+
+   The level word stays in the markup beside its icon, for the same reason a
+   `.health-badge` keeps its word: an icon alone says nothing to a screen reader.
+
+   `--output-level-width` and `--output-source-width` are the two column measures, knobs
+   on the pane like `--toolbar-input-width`. A source longer than its column is cut
+   with an ellipsis rather than pushing the message out of line. They are declared on
+   `.output` itself, above. */
+.output-time,
+.output-level,
+.output-source { flex: none; white-space: nowrap; }
+.output-level {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    inline-size: var(--output-level-width);
+    font-weight: 600;
+}
+.output-level > i { align-self: center; font-weight: normal; }
+.output-source {
+    display: inline-block;
+    inline-size: var(--output-source-width);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
+    color: var(--muted);
+}
+
+/* The columns. The message takes what is left and, below its floor, drops onto a line
+   of its own instead of being squeezed to a word per line — which is what a phone gets
+   with no media query. The inline-start gutter holds an expanding row's caret, and is
+   on every row so the columns line up whether a row expands or not. */
+.output--columns .output-line,
+.output--columns .output-details > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: first baseline;
+    column-gap: var(--space-5);
+}
+.output--columns .output-line { padding-inline-start: var(--space-9); }
+.output-msg { flex: 1 1 32ch; min-width: 0; }
+
+/* Highlighted tokens, marked up by the app — the library does not parse a message.
+   The categorical hues carry no meaning of their own, which is what a highlight is.
+   On a tinted warn or error line they take the line's colour and hold their weight,
+   because a second hue on a tint fails contrast before it helps anyone. */
+.output-id  { color: var(--badge-cyan-fg); }
+.output-num { color: var(--badge-orange-fg); }
+.output-str { color: var(--badge-teal-fg); }
+.output-key { color: var(--muted); }
+:is(.output-line--warn, .output-line--error) :is(.output-id, .output-num, .output-str) {
+    color: inherit;
+    font-weight: 600;
+}
+
+/* ── Expanding rows ─────────────────────────────────────────────────────────
+   A row with more to show — a stack trace, the request that failed, the entry's
+   fields — is a <details> inside the line, so open and closed, the keyboard and the
+   announcement are the platform's. The caret sits in the row's gutter and turns the
+   way `.accordion`'s does. */
+/* `white-space: normal` on the <details>, because the line's `pre-wrap` would otherwise
+   draw the markup's own line break between the summary and the body as a blank row. */
+.output-details { flex: 1 1 100%; min-width: 0; white-space: normal; }
+.output-details > summary {
+    position: relative;
+    white-space: pre-wrap;
+    list-style: none;
+    cursor: pointer;
+}
+.output-details > summary::-webkit-details-marker { display: none; }
+.output-details > summary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.output-details > summary::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(var(--space-7) * -1);
+    inset-block-start: calc(0.5lh - 2px);
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.6;
+}
+.output-details[open] > summary::before { transform: rotate(-180deg); }
+
+/* What the row expands to. Any block: a <pre> for a trace, a `.kv` list for fields. */
+.output-trace {
+    margin: var(--space-2) 0 var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    background: var(--surface-soft);
+    border-inline-start: 2px solid var(--border-strong);
+    border-radius: var(--radius-inner);
+    color: var(--fg-soft);
+    font: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* ── Row actions ────────────────────────────────────────────────────────────
+   Copy the line, open the trace, filter by this source: a small strip at the row's
+   trailing edge that appears on hover and on focus, and stays while its menu is open.
+   The buttons are `.btn-ghost .btn-icon .btn-sm` and the menu is `.menu-anchor` with
+   `data-menu-toggle`, as anywhere else. Put the strip after a <details>, never inside
+   its <summary>, where a click on the menu's padding would toggle the row.
+
+   Transparent rather than hidden, so Tab still reaches the buttons and reveals them.
+   Centred on the row's first line whatever the pane's line height, through `lh`. */
+.output-line:has(> .output-actions) { position: relative; }
+.output-actions {
+    position: absolute;
+    inset-block-start: calc((1lh - var(--control-height-sm)) / 2);
+    inset-inline-end: var(--space-4);
+    display: flex;
+    gap: var(--space-1);
+    background: var(--bg-elevated);
+    border-radius: var(--radius-inner);
+    box-shadow: var(--shadow-dropdown);
+    font-family: var(--font-sans);
+    white-space: normal;
+    opacity: 0;
+}
+.output-line:hover > .output-actions,
+.output-line:focus-within > .output-actions,
+.output-actions:has([aria-expanded="true"]) { opacity: 1; }
+/* Nothing hovers on a touch screen, so the strip is always there and the row keeps
+   room for it rather than drawing it over the message. The room is two buttons wide:
+   a copy button and a menu, with anything more in the menu. */
+@media (hover: none) {
+    .output-actions { opacity: 1; background: none; box-shadow: none; }
+    .output-line:has(> .output-actions) { padding-inline-end: calc(var(--control-height-sm) * 2 + var(--space-6)); }
+}
+
+/* ── Wrap and density ───────────────────────────────────────────────────────
+   `--nowrap` is one line per entry, cut with an ellipsis; the pane never scrolls
+   sideways, so the row actions stay in view. Wrapping is the default because a cut
+   line hides the part of a message that differs. An expanding row still shows the
+   whole entry. `--dense` fits more rows for a reader scanning a long stretch. */
+.output--nowrap .output-line,
+.output--nowrap .output-msg {
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.output--nowrap.output--columns .output-line { overflow: visible; }
+.output--nowrap.output--columns .output-line,
+.output--nowrap.output--columns .output-details > summary { flex-wrap: nowrap; }
+.output--nowrap .output-trace { white-space: pre-wrap; }
+.output--dense { padding-block: var(--space-2); line-height: 1.35; }
+
+/* ── Nothing to show, and still loading ─────────────────────────────────────
+   An <li> in the pane, like `.list-empty` in a `.list`, so the pane keeps its frame
+   and its height while it has no lines. Put an `.empty-state` inside `.output-empty`.
+   `.output-busy` holds a `.spinner` and a few words: the first connect, or earlier
+   lines being fetched above the ones already shown. Mark the pane `aria-busy="true"`
+   while it is. The first load of a known shape is `.skeleton-text` lines instead. */
+.output-empty,
+.output-busy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-4);
+    text-align: center;
+    white-space: normal;
+}
+.output-empty { padding-inline: var(--space-7); }
+.output-busy { padding: var(--space-4) var(--space-7); }
+
+/* ── Following, and the way back to it ──────────────────────────────────────
+   `.output-panel` holds a `.output-head`, the pane and a `.output-jump` button. While
+   a `data-follow` pane is on its newest line the button is gone; when the reader
+   scrolls up, Sedna.UI.js marks the pane `data-follow-paused` and the button appears
+   over the foot of the pane. `data-output-follow` on the button scrolls back down and
+   follows again. Without the script there is no following, and no button either. */
+.output-panel { position: relative; }
+.output-jump {
+    position: absolute;
+    inset-block-end: var(--space-6);
+    inset-inline: 0;
+    width: max-content;
+    margin-inline: auto;
+    box-shadow: var(--shadow-dropdown);
+}
+.output-panel:not(:has(> .output[data-follow-paused])) > .output-jump { display: none; }
 }
 
 /* ── 68-guard.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -12373,6 +13287,10 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
    that put it there is a `margin-inline-start`. So the offset is restated from the
    other edge; the arithmetic is the same, mirrored. */
 [dir="rtl"] .avatar { --avatar-cut-x: calc(var(--avatar-overlap) - var(--avatar-size) / 2); }
+/* The same hole in a conversation's stacked pair, where the front avatar sits at the
+   inline end: measured from the back avatar's left edge, which in RTL is the pair's
+   inline end minus its own width. */
+[dir="rtl"] .chat-avatars > .avatar:first-child:not(:last-child) { --chat-avatars-cut-x: calc(var(--chat-avatars-item) * 1.5 - var(--chat-avatars-size)); }
 
 /* The tree's disclosure caret points along the inline axis, so it starts mirrored
    and rotates the other way when open. */
@@ -12511,6 +13429,10 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
     .form-color:focus-visible,
     .swatch:focus-visible,
     .editor:focus-within,
+    a.file-item:focus-visible,
+    .file-tile:has(.file-tile-open:focus-visible),
+    .media-transcript > summary:focus-visible,
+    .media-transcript-time:focus-visible,
     .drag-item:focus-visible,
     .drag-handle:focus-visible,
     :is(a, button).list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
@@ -12524,6 +13446,8 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
     .tree-leaf[aria-current="true"],
     .list-row[aria-current="true"],
     .list-row[aria-selected="true"],
+    .file-tile:has(.file-tile-check :checked),
+    .media-transcript li[aria-current="true"],
     .segmented-option:has(input:checked),
     .chat-reaction[aria-pressed="true"],
     .swatch[aria-pressed="true"],
@@ -12533,7 +13457,6 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
     /* A chat bubble is nothing but a background; without a line around it a
        thread is a column of text with no turns in it. */
     .chat-bubble,
-    .chat-attachment,
     .chat-link-card,
     .chat-reaction,
     .chat-jump,
@@ -13037,6 +13960,7 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
     .health-badge--streaming .health-dot,
     .health-badge--connecting .health-dot { animation: none; }
     .health-badge--healthy .health-dot { animation: none; }
+    .cal-event-dot--live { animation: none; }   /* 66 — the event still says "Live" in text */
     .segmented-option { transition: none; }   /* 51 */
     /* 64 — the hole appears at the new target instead of sliding to it, and the
        "do this now" marker stops pulsing. Neither carries information: the ring is
@@ -13066,6 +13990,13 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
     .sedna-art-blink,
     .sedna-art-tick,
     .sedna-art-twinkle { animation: none; }
+
+    /* 64 — a tile's border and its corner controls change at once, and the
+       transcript's caret flips rather than turning. */
+    .file-tile,
+    .file-tile-check,
+    .file-tile-menu,
+    .media-transcript > summary::after { transition: none; }
 
     /* 66 — the typing dots hold still and the action bar is simply there or not. */
     .chat-typing > i { animation: none; }
