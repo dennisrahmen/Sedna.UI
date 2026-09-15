@@ -425,4 +425,44 @@ public class CalendarLayoutTests : ScriptTestBase
         Assert.True(await TipFor("cut"), "The name is cut short, and no hint gave it back.");
         Assert.True(await TipFor("narrow"), "The name is hidden, and no hint gave it back.");
     }
+    [Fact]
+    public async Task A_picker_s_time_row_and_its_levels_fit_the_panel_with_one_divider()
+    {
+        if (NoBrowser) return;
+        var picks = string.Concat(Enumerable.Range(1, 12).Select(n => $"<button class=\"cal-pick\" type=\"button\" aria-pressed=\"{(n == 9 ? "true" : "false")}\">{n}</button>"));
+        var (page, _) = await OpenStyled($"""
+            <div class="datepicker" id="panel" style="position: static">
+              <div class="cal-months" id="months">{picks}</div>
+              <div class="cal-years" id="years">{picks}</div>
+              <div class="datepicker-time" id="time">
+                <label for="from">From</label>
+                <input class="form-input form-input-sm" id="from" type="time" value="14:00">
+                <span aria-hidden="true">&ndash;</span>
+                <input class="form-input form-input-sm" id="to" type="time" value="15:30" aria-label="Until">
+              </div>
+              <div class="datepicker-actions" id="actions"><button class="btn btn-sm" type="button">Set</button></div>
+            </div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const cols = id => getComputedStyle(document.getElementById(id)).gridTemplateColumns.split(' ').length;
+                const from = document.getElementById('from').getBoundingClientRect();
+                const to = document.getElementById('to').getBoundingClientRect();
+                const panel = document.getElementById('panel').getBoundingClientRect();
+                const chosen = getComputedStyle(document.querySelector('#months .cal-pick[aria-pressed="true"]')).backgroundColor;
+                const other = getComputedStyle(document.querySelector('#months .cal-pick[aria-pressed="false"]')).backgroundColor;
+                return [cols('months'), cols('years'), Math.abs(from.top - to.top), to.right <= panel.right ? 1 : 0,
+                        parseFloat(getComputedStyle(document.getElementById('actions')).borderTopWidth),
+                        chosen !== other ? 1 : 0];
+            }
+            """);
+
+        Assert.Equal(3, m[0]);            // twelve months in four rows of three
+        Assert.Equal(4, m[1]);            // twelve years in three rows of four
+        Assert.True(m[2] < 1, "A slot's two times wrapped onto two lines.");
+        Assert.Equal(1, m[3]);            // and stay inside the panel
+        Assert.Equal(0, m[4]);            // the actions share the time row's divider
+        Assert.Equal(1, m[5]);            // a chosen month is filled
+    }
 }
