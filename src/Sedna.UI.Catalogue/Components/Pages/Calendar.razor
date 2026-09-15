@@ -144,3 +144,25 @@
         <a href="/form-datetime">date input</a> is still the better default.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.Calendar.DatePickerTime" Title="A date with a time" Demo="ex-demo--pad">
+    <p>
+        <strong>Live — open it.</strong> A <code>.datepicker-time</code> row under the grid holds the
+        platform's own <code>&lt;input type="time"&gt;</code> as a <code>.form-input-sm</code> &mdash; one
+        for a moment, two for a slot &mdash; so the clock, the 12- or 24-hour form and the keys are the
+        reader's. Give each input a label, even when the second one is only read by a screen reader.
+        The actions under it share its divider.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.DatePickerLevels" Title="Months and years" Demo="ex-demo--pad">
+    <p>
+        <strong>Live — open both.</strong> To go further than a month at a time, make the
+        <code>.datepicker-title</code> a <code>&lt;button&gt;</code> that swaps the panel's body for the
+        level above: <code>.cal-months</code>, then <code>.cal-years</code>, each a grid of
+        <code>.cal-pick</code> buttons with the day grid's states &mdash; <code>aria-pressed="true"</code>
+        chosen, <code>aria-current</code> now, disabled out of bounds, and
+        <code>.cal-pick--outside</code> for the years of the neighbouring decade. Which level shows and
+        what a pick does are yours; name the title button with what it opens.
+    </p>
+</CatExample>
