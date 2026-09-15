@@ -1,0 +1,44 @@
+<ul class="output output--columns output--nowrap output--dense" tabindex="0" aria-label="Request log" style="max-width:720px">
+    <li class="output-line output-line--info">
+        <span class="output-time">10:41:02.114</span>
+        <span class="output-level">INFO</span>
+        <span class="output-source">http.server</span>
+        <span class="output-msg">GET /api/orders?status=open&amp;warehouse=north&amp;page=3&amp;pageSize=50 answered 200 in 38 ms</span>
+    </li>
+    <li class="output-line output-line--info">
+        <span class="output-time">10:41:02.380</span>
+        <span class="output-level">INFO</span>
+        <span class="output-source">http.server</span>
+        <span class="output-msg">GET /api/orders/ORD-4182/lines answered 200 in 12 ms</span>
+    </li>
+    <li class="output-line output-line--warn">
+        <span class="output-time">10:41:03.007</span>
+        <span class="output-level">WARN</span>
+        <span class="output-source">http.server</span>
+        <span class="output-msg">PUT /api/orders/ORD-4182/reservation answered 409 in 204 ms: the reservation was changed by another session after it was loaded</span>
+    </li>
+    <li class="output-line output-line--info">
+        <span class="output-time">10:41:03.551</span>
+        <span class="output-level">INFO</span>
+        <span class="output-source">http.server</span>
+        <span class="output-msg">GET /api/customers/search?q=northwind answered 200 in 61 ms</span>
+    </li>
+    <li class="output-line output-line--debug">
+        <span class="output-time">10:41:03.552</span>
+        <span class="output-level">DEBUG</span>
+        <span class="output-source">cache.customers</span>
+        <span class="output-msg">miss for key customers:search:northwind, stored for 300 s</span>
+    </li>
+    <li class="output-line output-line--error">
+        <span class="output-time">10:41:04.912</span>
+        <span class="output-level">ERROR</span>
+        <span class="output-source">http.server</span>
+        <span class="output-msg">POST /api/invoices/INV-20931/send answered 502 in 30012 ms: upstream mail relay at 198.51.100.8 did not respond</span>
+    </li>
+    <li class="output-line output-line--info">
+        <span class="output-time">10:41:05.230</span>
+        <span class="output-level">INFO</span>
+        <span class="output-source">http.server</span>
+        <span class="output-msg">GET /health answered 200 in 2 ms</span>
+    </li>
+</ul>

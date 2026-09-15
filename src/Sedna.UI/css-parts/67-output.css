@@ -12,6 +12,8 @@
    Monospace with tabular figures, because the reader is comparing columns —
    timestamps, levels, ids — down the page rather than reading prose. */
 .output {
+    --output-level-width: 8ch;
+    --output-source-width: 20ch;
     display: block;
     max-height: 320px;
     overflow-y: auto;
@@ -69,3 +71,206 @@
 /* Something the app emitted about itself — "reconnected", "stream closed" — rather
    than a line from the thing being watched. */
 .output-line--note   { color: var(--muted); font-style: italic; }
+
+/* Debug chatter the reader usually skims past, and informational lines whose level
+   word alone takes the info hue — a pane of info lines tinted whole is a wall of
+   colour that hides the warnings it exists to surface. */
+.output-line--debug  { color: var(--muted); }
+.output-line--info .output-level { color: var(--info-fg); }
+
+/* ── Log viewer ─────────────────────────────────────────────────────────────
+   The same pane, read as an application's log: one entry per line, in columns.
+
+     <ul class="output output--columns" aria-label="Application log">
+       <li class="output-line output-line--warn">
+         <span class="output-time">09:14:02.118</span>
+         <span class="output-level"><i class="ri-alert-line" aria-hidden="true"></i> WARN</span>
+         <span class="output-source">orders.sync</span>
+         <span class="output-msg">retrying order <span class="output-id">ORD-4182</span></span>
+       </li>
+     </ul>
+
+   The level word stays in the markup beside its icon, for the same reason a
+   `.health-badge` keeps its word: an icon alone says nothing to a screen reader.
+
+   `--output-level-width` and `--output-source-width` are the two column measures, knobs
+   on the pane like `--toolbar-input-width`. A source longer than its column is cut
+   with an ellipsis rather than pushing the message out of line. They are declared on
+   `.output` itself, above. */
+.output-time,
+.output-level,
+.output-source { flex: none; white-space: nowrap; }
+.output-level {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    inline-size: var(--output-level-width);
+    font-weight: 600;
+}
+.output-level > i { align-self: center; font-weight: normal; }
+.output-source {
+    display: inline-block;
+    inline-size: var(--output-source-width);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
+    color: var(--muted);
+}
+
+/* The columns. The message takes what is left and, below its floor, drops onto a line
+   of its own instead of being squeezed to a word per line — which is what a phone gets
+   with no media query. The inline-start gutter holds an expanding row's caret, and is
+   on every row so the columns line up whether a row expands or not. */
+.output--columns .output-line,
+.output--columns .output-details > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: first baseline;
+    column-gap: var(--space-5);
+}
+.output--columns .output-line { padding-inline-start: var(--space-9); }
+.output-msg { flex: 1 1 32ch; min-width: 0; }
+
+/* Highlighted tokens, marked up by the app — the library does not parse a message.
+   The categorical hues carry no meaning of their own, which is what a highlight is.
+   On a tinted warn or error line they take the line's colour and hold their weight,
+   because a second hue on a tint fails contrast before it helps anyone. */
+.output-id  { color: var(--badge-cyan-fg); }
+.output-num { color: var(--badge-orange-fg); }
+.output-str { color: var(--badge-teal-fg); }
+.output-key { color: var(--muted); }
+:is(.output-line--warn, .output-line--error) :is(.output-id, .output-num, .output-str) {
+    color: inherit;
+    font-weight: 600;
+}
+
+/* ── Expanding rows ─────────────────────────────────────────────────────────
+   A row with more to show — a stack trace, the request that failed, the entry's
+   fields — is a <details> inside the line, so open and closed, the keyboard and the
+   announcement are the platform's. The caret sits in the row's gutter and turns the
+   way `.accordion`'s does. */
+/* `white-space: normal` on the <details>, because the line's `pre-wrap` would otherwise
+   draw the markup's own line break between the summary and the body as a blank row. */
+.output-details { flex: 1 1 100%; min-width: 0; white-space: normal; }
+.output-details > summary {
+    position: relative;
+    white-space: pre-wrap;
+    list-style: none;
+    cursor: pointer;
+}
+.output-details > summary::-webkit-details-marker { display: none; }
+.output-details > summary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.output-details > summary::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(var(--space-7) * -1);
+    inset-block-start: calc(0.5lh - 2px);
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.6;
+}
+.output-details[open] > summary::before { transform: rotate(-180deg); }
+
+/* What the row expands to. Any block: a <pre> for a trace, a `.kv` list for fields. */
+.output-trace {
+    margin: var(--space-2) 0 var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    background: var(--surface-soft);
+    border-inline-start: 2px solid var(--border-strong);
+    border-radius: var(--radius-inner);
+    color: var(--fg-soft);
+    font: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* ── Row actions ────────────────────────────────────────────────────────────
+   Copy the line, open the trace, filter by this source: a small strip at the row's
+   trailing edge that appears on hover and on focus, and stays while its menu is open.
+   The buttons are `.btn-ghost .btn-icon .btn-sm` and the menu is `.menu-anchor` with
+   `data-menu-toggle`, as anywhere else. Put the strip after a <details>, never inside
+   its <summary>, where a click on the menu's padding would toggle the row.
+
+   Transparent rather than hidden, so Tab still reaches the buttons and reveals them.
+   Centred on the row's first line whatever the pane's line height, through `lh`. */
+.output-line:has(> .output-actions) { position: relative; }
+.output-actions {
+    position: absolute;
+    inset-block-start: calc((1lh - var(--control-height-sm)) / 2);
+    inset-inline-end: var(--space-4);
+    display: flex;
+    gap: var(--space-1);
+    background: var(--bg-elevated);
+    border-radius: var(--radius-inner);
+    box-shadow: var(--shadow-dropdown);
+    font-family: var(--font-sans);
+    white-space: normal;
+    opacity: 0;
+}
+.output-line:hover > .output-actions,
+.output-line:focus-within > .output-actions,
+.output-actions:has([aria-expanded="true"]) { opacity: 1; }
+/* Nothing hovers on a touch screen, so the strip is always there and the row keeps
+   room for it rather than drawing it over the message. The room is two buttons wide:
+   a copy button and a menu, with anything more in the menu. */
+@media (hover: none) {
+    .output-actions { opacity: 1; background: none; box-shadow: none; }
+    .output-line:has(> .output-actions) { padding-inline-end: calc(var(--control-height-sm) * 2 + var(--space-6)); }
+}
+
+/* ── Wrap and density ───────────────────────────────────────────────────────
+   `--nowrap` is one line per entry, cut with an ellipsis; the pane never scrolls
+   sideways, so the row actions stay in view. Wrapping is the default because a cut
+   line hides the part of a message that differs. An expanding row still shows the
+   whole entry. `--dense` fits more rows for a reader scanning a long stretch. */
+.output--nowrap .output-line,
+.output--nowrap .output-msg {
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.output--nowrap.output--columns .output-line { overflow: visible; }
+.output--nowrap.output--columns .output-line,
+.output--nowrap.output--columns .output-details > summary { flex-wrap: nowrap; }
+.output--nowrap .output-trace { white-space: pre-wrap; }
+.output--dense { padding-block: var(--space-2); line-height: 1.35; }
+
+/* ── Nothing to show, and still loading ─────────────────────────────────────
+   An <li> in the pane, like `.list-empty` in a `.list`, so the pane keeps its frame
+   and its height while it has no lines. Put an `.empty-state` inside `.output-empty`.
+   `.output-busy` holds a `.spinner` and a few words: the first connect, or earlier
+   lines being fetched above the ones already shown. Mark the pane `aria-busy="true"`
+   while it is. The first load of a known shape is `.skeleton-text` lines instead. */
+.output-empty,
+.output-busy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-4);
+    text-align: center;
+    white-space: normal;
+}
+.output-empty { padding-inline: var(--space-7); }
+.output-busy { padding: var(--space-4) var(--space-7); }
+
+/* ── Following, and the way back to it ──────────────────────────────────────
+   `.output-panel` holds a `.output-head`, the pane and a `.output-jump` button. While
+   a `data-follow` pane is on its newest line the button is gone; when the reader
+   scrolls up, Sedna.UI.js marks the pane `data-follow-paused` and the button appears
+   over the foot of the pane. `data-output-follow` on the button scrolls back down and
+   follows again. Without the script there is no following, and no button either. */
+.output-panel { position: relative; }
+.output-jump {
+    position: absolute;
+    inset-block-end: var(--space-6);
+    inset-inline: 0;
+    width: max-content;
+    margin-inline: auto;
+    box-shadow: var(--shadow-dropdown);
+}
+.output-panel:not(:has(> .output[data-follow-paused])) > .output-jump { display: none; }
