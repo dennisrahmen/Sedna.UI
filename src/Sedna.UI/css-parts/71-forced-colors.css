@@ -146,7 +146,7 @@
     /* A chat bubble is nothing but a background; without a line around it a
        thread is a column of text with no turns in it. */
     .chat-bubble,
-    .chat-link-card,
+    .link-preview,
     .chat-reaction,
     .chat-jump,
     .cal-event,

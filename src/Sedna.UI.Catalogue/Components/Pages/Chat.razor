@@ -108,13 +108,13 @@
 <CatExample TExample="Examples.Chat.Media" Title="Pictures, and looking at one large" Demo="ex-demo--block">
     <p>
         <strong>Live &mdash; open a picture.</strong> Several pictures in one message are a
-        <code>.chat-media-grid</code> inside a media bubble, two across, each a
+        <a href="/media"><code>.gallery--tight</code></a> inside a media bubble, two across, each a
         <a href="/media"><code>.media-open</code></a> button around a square
         <code>.media-frame</code> that opens the <a href="/media"><code>.lightbox</code></a> &mdash;
         a modal dialog with the picture as large as the screen allows, the sender and time in its
         meta line, and the way to the next one. A file travels beside them as a
         <a href="/files"><code>.file-item</code></a>. In the composer, a picture waiting to be sent is a
-        <code>.chat-composer-thumb</code> with its remove button over the corner, next to the
+        <a href="/files"><code>.file-thumb</code></a> with its remove button over the corner, next to the
         chips for the other files.
     </p>
 </CatExample>
@@ -132,8 +132,8 @@
 
 <CatExample TExample="Examples.Chat.Cards" Title="A link, a voice message, an upload" Demo="ex-demo--block">
     <p>
-        <code>.chat-link-card</code> unfurls a link the message carries &mdash; the picture, the
-        title, a line and the host in <code>.chat-link-card-body</code>; the app fetches the
+        A <a href="/media"><code>.link-preview</code></a> unfurls a link the message carries &mdash; the picture, the
+        title, a line and the host in <code>.link-preview-body</code>; the app fetches the
         preview. A voice message is an <a href="/audio"><code>.audio-wave</code></a>: play, the <code>.audio-wave-bars</code>
         with each bar's height in <code>--h</code> and the ones already heard as
         <code>.audio-wave-heard</code>, and the <code>.audio-wave-time</code>. The

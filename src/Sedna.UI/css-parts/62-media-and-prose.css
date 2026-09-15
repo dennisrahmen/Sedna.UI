@@ -44,6 +44,55 @@
 .gallery > button:hover .media-frame { border-color: var(--border-hover); }
 .gallery > *:focus-visible { outline: none; }
 .gallery > *:focus-visible .media-frame { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+/* Pictures that share one frame — the photos in a message, the ones on a card — two
+   across with a hairline between them. The frame they sit in has the corners, so the
+   pictures have none of their own. */
+.gallery--tight {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-1);
+    width: min(100%, 320px);
+}
+.gallery--tight > *,
+.gallery--tight .media-frame { border-radius: 0; }
+
+/* ── Link preview ───────────────────────────────────────────────────────────
+   A link unfurled — the picture, the title, a line and the host — in a message, a
+   comment or a record's description. The app fetches the preview; this is the card.
+
+     <a class="link-preview" href="https://ops.example.com/docks">
+       <img src="…" width="88" height="88" alt="">
+       <span class="link-preview-body">
+         <strong>Dock schedule — week 38</strong>
+         <span>Inbound and outbound slots for all four docks.</span>
+         <small>ops.example.com</small>
+       </span>
+     </a> */
+.link-preview {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: stretch;
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+    background: var(--surface-here);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+}
+.link-preview:hover { border-color: var(--border-strong); text-decoration: none; }
+.link-preview:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.link-preview > img { width: 88px; height: 100%; object-fit: cover; }
+.link-preview-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-3);
+}
+.link-preview-body > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-preview-body > span { color: var(--fg-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.link-preview-body > small { color: var(--muted); font-size: var(--text-2); }
 
 /* ── Prose ──────────────────────────────────────────────────────────────────
    Long-form text an app renders from a source it does not control — a release note,

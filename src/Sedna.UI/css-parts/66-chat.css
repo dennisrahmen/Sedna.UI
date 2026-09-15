@@ -167,15 +167,6 @@
 .chat-bubble--media { padding: 0; overflow: hidden; }
 .chat-bubble--media > img,
 .chat-bubble--media > video { display: block; max-width: 100%; height: auto; }
-/* Several pictures in one message: a grid of `.media-open` buttons, each a square
-   `.media-frame`, two across. Three pictures leave a slot; four fill it. */
-.chat-media-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-1);
-    width: min(100%, 320px);
-}
-.chat-media-grid > .media-open { border-radius: 0; }
 /* Someone named. */
 .chat-mention {
     color: var(--brand-text);
@@ -200,41 +191,18 @@
 }
 .chat-quote > strong { color: var(--fg-soft); margin-inline-end: var(--space-3); }
 
-/* A file in a bubble is a `.file-item` (47-form-file.css) — the icon, the name, the
-   size, a `.progress` while it uploads — on the bubble's own surface rather than the
-   list's, so it reads as part of the message. A voice message is an `.audio-wave`
-   (64-media-player.css), which needs nothing from the bubble. */
+/* A bubble builds nothing of its own for what it carries. A file is a `.file-item`
+   (47-form-file.css) — the icon, the name, the size, a `.progress` while it uploads —
+   on the bubble's own surface rather than the list's, so it reads as part of the
+   message. Several pictures are a `.gallery--tight` and a link is a `.link-preview`
+   (62-media-and-prose.css), a voice message is an `.audio-wave` (64-media-player.css),
+   and a picture waiting in the composer is a `.file-thumb` (64-files.css). */
 .chat-bubble .file-item { background: var(--surface-here); }
 .chat-bubble .file-item + .file-item { margin-top: var(--space-2); }
 
-/* A link the message carries, unfurled: the picture, the title, a line and the host.
-   The app fetches the preview; this is only the card. */
-.chat-link-card {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: stretch;
-    margin-top: var(--space-3);
-    max-width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-inner);
-    background: var(--surface-here);
-    color: inherit;
-    text-decoration: none;
-    overflow: hidden;
-}
-.chat-link-card:hover { border-color: var(--border-strong); text-decoration: none; }
-.chat-link-card > img { width: 88px; height: 100%; object-fit: cover; }
-.chat-link-card-body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    min-width: 0;
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-3);
-}
-.chat-link-card-body > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.chat-link-card-body > span { color: var(--fg-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.chat-link-card-body > small { color: var(--muted); font-size: var(--text-2); }
+/* A link the message carries is a `.link-preview` (62-media-and-prose.css), set off
+   from the text above it. */
+.chat-bubble > .link-preview { margin-top: var(--space-3); }
 
 /* ── Reactions ──────────────────────────────────────────────────────────────
    Under the bubble: a pill per emoji with its count, `aria-pressed` on the ones
@@ -386,23 +354,6 @@
 .chat-composer-reply > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-composer-reply > strong { color: var(--fg-soft); }
 .chat-composer-files { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
-/* A picture waiting to be sent: its thumbnail with the remove button over its corner. */
-.chat-composer-thumb {
-    position: relative;
-    display: inline-block;
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-inner);
-    overflow: hidden;
-    border: 1px solid var(--border);
-}
-.chat-composer-thumb > img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.chat-composer-thumb > .chip-dismiss {
-    position: absolute;
-    top: var(--space-1);
-    inset-inline-end: var(--space-1);
-    background: var(--bg-elevated);
-}
 .chat-composer-row { display: flex; align-items: flex-end; gap: var(--space-3); }
 .chat-composer-row > .form-input {
     flex: 1;
