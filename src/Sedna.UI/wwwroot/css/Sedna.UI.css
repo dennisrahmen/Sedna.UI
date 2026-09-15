@@ -10384,11 +10384,25 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    the rest is summarised by a `.cal-more`, which always sits in the row below them —
    a threshold the app sets, not a height the library measures. A span running into
    the next week is two pills: the first `--continues-end`, the second
-   `--continues-start`, which square off the edge that continues. */
+   `--continues-start`, which square off the edge that continues.
+
+   Week numbers are `.cal-month--weeknums` and one `.cal-weeknum` before each row's
+   days, with an empty `.cal-weekday` heading it. The number is the app's — ISO 8601
+   or the reader's locale's rule — because a stylesheet cannot count weeks:
+
+     <div class="cal-row">
+       <span class="cal-weeknum"><span class="visually-hidden">Week </span>38</span>
+       … 7 days, then .cal-row-events …
+     </div>
+
+   `.cal-month--grow` swaps the threshold for rows that grow to fit every lane the
+   app lays out: no `.cal-more`, and `--cal-lanes` becomes the height an empty week
+   still keeps. */
 .cal-month {
     --cal-lanes: 3;
     --cal-event-height: 20px;
     --cal-day-head: 28px;
+    --cal-weeknum-width: 40px;
     display: flex;
     flex-direction: column;
     border: 1px solid var(--border);
@@ -10397,10 +10411,15 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     background: var(--card-bg);
     --surface-here: var(--card-bg);
 }
+/* Each day column starts at a line named `day`, so a layer can say "from the first
+   day" and mean it with or without a week-number column in front. */
 .cal-weekdays,
 .cal-row {
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(7, [day] minmax(0, 1fr));
+}
+.cal-month--weeknums > :is(.cal-weekdays, .cal-row) {
+    grid-template-columns: var(--cal-weeknum-width) repeat(7, [day] minmax(0, 1fr));
 }
 .cal-weekdays { border-bottom: 1px solid var(--border); }
 .cal-weekday {
@@ -10442,8 +10461,30 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .cal-day[aria-current="date"] .cal-day-num { background: var(--brand); color: var(--on-solid); }
 .cal-day:is([aria-selected="true"], [aria-pressed="true"]) { background: var(--brand-tint); }
 
+/* The week number: muted, and outside the days, so it never reads as a date. A
+   <button> when choosing the week is something the app offers. */
+.cal-weeknum {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: var(--space-2) 0;
+    border-inline-end: 1px solid var(--divider);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    line-height: 24px;
+    text-align: center;
+}
+button.cal-weeknum { background: none; border-block: none; border-inline-start: none; font-family: inherit; cursor: pointer; }
+button.cal-weeknum:hover { background: var(--bg-hover); color: var(--fg); }
+button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.cal-month--weeknums .cal-weekdays > .cal-weekday:first-child { padding-inline: 0; text-align: center; }
+
+/* A positioned grid child takes its grid area as its containing block, so the layer
+   covers the days and never the week number. */
 .cal-row-events {
     position: absolute;
+    grid-column: day 1 / -1;
     inset: calc(var(--cal-day-head) + var(--space-2)) 0 var(--space-2);
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -10456,6 +10497,15 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 }
 .cal-row-events > * { pointer-events: auto; min-width: 0; }
 
+/* An event's colours are three custom properties, so a hue family sets them once and
+   every fill variant below reads them: `--cal-fill` the tint, `--cal-accent` the edge,
+   a dot, an icon and an outline, `--cal-solid` the filled background. */
+.cal-event,
+.cal-block {
+    --cal-fill: var(--brand-tint);
+    --cal-accent: var(--brand);
+    --cal-solid: var(--brand-text);
+}
 .cal-event {
     display: flex;
     align-items: center;
@@ -10463,8 +10513,8 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     margin-inline: var(--space-2);
     padding-inline: var(--space-3);
     overflow: hidden;
-    background: var(--brand-tint);
-    border-inline-start: 3px solid var(--brand);
+    background: var(--cal-fill);
+    border-inline-start: 3px solid var(--cal-accent);
     border-radius: var(--radius-inner);
     color: var(--fg);
     font-size: var(--text-2);
@@ -10497,14 +10547,92 @@ button.cal-event { border-block: none; border-inline-end: none; font-family: inh
     border-end-end-radius: 0;
 }
 
-/* The families badges use, by meaning and as categorical hues. */
-.cal-event--go     { background: var(--go-bg);     border-inline-start-color: var(--go-fg); }
-.cal-event--warn   { background: var(--warn-bg);   border-inline-start-color: var(--warn-fg); }
-.cal-event--danger { background: var(--danger-bg); border-inline-start-color: var(--danger-fg); }
-.cal-event--info   { background: var(--info-bg);   border-inline-start-color: var(--info-fg); }
-.cal-event--cyan   { background: var(--badge-cyan-bg);   border-inline-start-color: var(--badge-cyan-fg); }
-.cal-event--orange { background: var(--badge-orange-bg); border-inline-start-color: var(--badge-orange-fg); }
-.cal-event--teal   { background: var(--badge-teal-bg);   border-inline-start-color: var(--badge-teal-fg); }
+/* The families badges use, by meaning and as categorical hues. Each sets the three
+   colours and nothing else, so it works on a pill and a block, in every fill. */
+.cal-event--go     { --cal-fill: var(--go-bg);     --cal-accent: var(--go-fg);     --cal-solid: var(--go-fg); }
+.cal-event--warn   { --cal-fill: var(--warn-bg);   --cal-accent: var(--warn-fg);   --cal-solid: var(--warn-fg); }
+.cal-event--danger { --cal-fill: var(--danger-bg); --cal-accent: var(--danger-fg); --cal-solid: var(--danger-fg); }
+.cal-event--info   { --cal-fill: var(--info-bg);   --cal-accent: var(--info-fg);   --cal-solid: var(--info-fg); }
+.cal-event--cyan   { --cal-fill: var(--badge-cyan-bg);   --cal-accent: var(--badge-cyan-fg);   --cal-solid: var(--badge-cyan-fg); }
+.cal-event--orange { --cal-fill: var(--badge-orange-bg); --cal-accent: var(--badge-orange-fg); --cal-solid: var(--badge-orange-fg); }
+.cal-event--teal   { --cal-fill: var(--badge-teal-bg);   --cal-accent: var(--badge-teal-fg);   --cal-solid: var(--badge-teal-fg); }
+
+/* ── Fill ──────────────────────────────────────────────────────────────────
+   Tinted is the default. `--filled` is for what must stand out — confirmed, or
+   happening now — `--outline` for what should recede, and `--tentative` for an event
+   not yet accepted: a dashed edge on a faint hatch. Say "tentative" in text as well; a
+   dash is not a word. A filled event's ink is the calendar's own surface, which each
+   family's accent is already measured against. The pair of classes on the selector
+   outweighs `button.cal-event`, which removes a button's own borders. */
+:is(.cal-event, .cal-block).cal-event--filled {
+    background: var(--cal-solid);
+    border-inline-start-color: var(--cal-solid);
+    color: var(--card-bg);
+}
+.cal-event--filled .cal-event-time { color: inherit; }
+:is(.cal-event, .cal-block):is(.cal-event--outline, .cal-event--tentative) {
+    --cal-edge: 1px;
+    background: var(--card-bg);
+    border: var(--cal-edge) solid var(--cal-accent);
+    border-inline-start-width: 3px;
+}
+:is(.cal-event, .cal-block).cal-event--tentative {
+    /* Half the tint, as a hatch over the surface: faint, and still the family's hue. */
+    background: repeating-linear-gradient(-45deg, var(--cal-fill) 0 4px, transparent 4px 8px), var(--card-bg);
+    border-style: dashed;
+}
+.cal-event:is(.cal-event--outline, .cal-event--tentative) { line-height: calc(var(--cal-event-height) - 2 * var(--cal-edge)); }
+
+/* ── Leading and trailing slots ────────────────────────────────────────────
+   Before the title: an icon for the type of event, a dot, or a live dot for one in
+   progress. After it: the people on it, as a small `.avatar-group`. A title that has
+   to give way to the avatars is a `.cal-event-title`, which truncates.
+
+     <a class="cal-event cal-event--go" href="…">
+       <span class="cal-event-dot cal-event-dot--live"></span>
+       <span class="cal-event-time">14:00</span>
+       <span class="cal-event-title">Dispatch ORD-4209</span>
+       <span class="avatar-group cal-event-avatars">
+         <span class="avatar avatar--viz-2" title="Alex Fischer">AF</span> …
+       </span>
+     </a>
+
+   The icon, the dot and the avatars are all decoration to a screen reader unless the
+   app names them: `aria-hidden` on the icon, a visually hidden "Live" beside the dot,
+   and the people's names in the link's own text or label. */
+.cal-event-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-block .cal-event-title { white-space: normal; }
+.cal-event-icon {
+    flex-shrink: 0;
+    color: var(--cal-accent);
+    font-size: var(--text-3);
+    line-height: 1;
+    vertical-align: -0.1em;
+}
+.cal-event-dot {
+    display: inline-block;
+    flex-shrink: 0;
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background: var(--cal-accent);
+    vertical-align: 0.1em;
+}
+.cal-event-dot--live { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
+.cal-event--filled :is(.cal-event-icon, .cal-event-dot) { color: inherit; }
+.cal-event--filled .cal-event-dot { background: currentColor; }
+.cal-block :is(.cal-event-icon, .cal-event-dot) { margin-inline-end: var(--space-2); }
+
+.cal-event-avatars {
+    --avatar-size: 18px;
+    --avatar-overlap: 6px;
+    --avatar-gap: 1px;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+}
+.cal-event-avatars > .avatar { --avatar-size: 18px; --avatar-overlap: 6px; --avatar-gap: 1px; font-size: var(--text-1); letter-spacing: -0.04em; }
+.cal-event-avatars > .avatar-more { padding-inline: var(--space-1) 0; font-size: var(--text-1); color: inherit; }
+.cal-block .cal-event-avatars { float: inline-end; margin-block-start: var(--space-1); margin-inline-start: var(--space-2); line-height: 1; }
 
 .cal-more {
     grid-row: -2 / -1;
@@ -10518,6 +10646,30 @@ button.cal-event { border-block: none; border-inline-end: none; font-family: inh
 }
 button.cal-more { background: none; border: none; font-family: inherit; text-align: start; cursor: pointer; border-radius: var(--radius-inner); }
 button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
+
+/* ── Growing rows ──────────────────────────────────────────────────────────
+   The lanes join the row's own grid instead of floating over it, so a row is as
+   tall as its last lane. Items only overlap in a grid when every one of them is
+   placed, which is why each day takes its column by position here. */
+.cal-month--grow .cal-row > * { grid-row: 1; }
+.cal-month--grow .cal-weeknum { grid-column: 1; }
+.cal-month--grow .cal-day:nth-child(1 of .cal-day) { grid-column: day 1; }
+.cal-month--grow .cal-day:nth-child(2 of .cal-day) { grid-column: day 2; }
+.cal-month--grow .cal-day:nth-child(3 of .cal-day) { grid-column: day 3; }
+.cal-month--grow .cal-day:nth-child(4 of .cal-day) { grid-column: day 4; }
+.cal-month--grow .cal-day:nth-child(5 of .cal-day) { grid-column: day 5; }
+.cal-month--grow .cal-day:nth-child(6 of .cal-day) { grid-column: day 6; }
+.cal-month--grow .cal-day:nth-child(7 of .cal-day) { grid-column: day 7; }
+.cal-month--grow .cal-day {
+    min-height: calc(var(--cal-day-head) + var(--cal-lanes) * (var(--cal-event-height) + var(--space-1)) + var(--space-3));
+}
+.cal-month--grow .cal-row-events {
+    position: relative;
+    inset: auto;
+    margin-block: calc(var(--cal-day-head) + var(--space-2)) var(--space-2);
+    grid-template-rows: none;
+    grid-auto-rows: var(--cal-event-height);
+}
 
 /* ── Week and day ──────────────────────────────────────────────────────────
 
@@ -10541,15 +10693,30 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
    axis starting at 07:00 is 2.5. Two blocks that overlap are laid side by side by
    `--cal-lane` and `--cal-lanes`, which the app works out; `--cal-hours` is how many
    hour rows the axis has, and the hour labels are the app's text. `.cal-now` is the line for
-   the current time, at `--cal-at` hours. */
+   the current time, at `--cal-at` hours.
+
+   A block's text is clipped at the last whole line that fits, so a short block shows
+   its time and the start of its title and never half a line.
+
+   `--cal-day-min` is the narrowest a day may get; the week's own minimum width follows
+   from it, so put the week in a `.sedna-scroll-x` where the width can run out.
+
+   `.cal-week--by-lanes` lets each day's width follow how busy it is. CSS cannot tell
+   which blocks overlap, so the app writes the day's lane count — the most blocks side
+   by side at any moment, 1 for a quiet day — as `--cal-lanes` on the `.cal-day-col`
+   and the same number on that day's `.cal-weekday`, which keeps the heading over its
+   column. Days share the width in proportion to it and none gets narrower than
+   `--cal-day-min`. Leave the modifier off and every day is the same width. */
 .cal-week {
     --cal-days: 7;
     --cal-hours: 24;
     --cal-hour-height: 48px;
     --cal-gutter: 56px;
+    --cal-day-min: 0px;
     --cal-week-max-height: 560px;
     display: flex;
     flex-direction: column;
+    min-inline-size: calc(var(--cal-gutter) + var(--cal-days) * var(--cal-day-min));
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     overflow: hidden;
@@ -10559,8 +10726,24 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
 .cal-week-head,
 .cal-week-body {
     display: grid;
-    grid-template-columns: var(--cal-gutter) repeat(var(--cal-days), minmax(0, 1fr));
+    grid-template-columns: var(--cal-gutter) repeat(var(--cal-days), minmax(var(--cal-day-min), 1fr));
 }
+/* Flex rather than grid, because a flex item's grow factor can come from a custom
+   property on the item and a grid track's `fr` cannot. The heading and the body
+   resolve the same factors against the same width, so their columns agree. */
+.cal-week--by-lanes > :is(.cal-week-head, .cal-week-body) { display: flex; }
+.cal-week--by-lanes > :is(.cal-week-head, .cal-week-body) > :first-child { flex: 0 0 var(--cal-gutter); }
+.cal-week--by-lanes > .cal-week-head > .cal-weekday,
+.cal-week--by-lanes .cal-day-col {
+    --cal-lanes: 1;
+    flex: var(--cal-lanes) 1 0;
+    min-inline-size: var(--cal-day-min);
+}
+/* A flex item never gets narrower than its own padding and border, so a heading and
+   its column only share the width identically when both carry the same. The column's
+   padding moves nothing inside it: its blocks are positioned against the padding box. */
+.cal-week--by-lanes > .cal-week-head > .cal-weekday { padding-inline: var(--space-4); border-inline-start: 1px solid transparent; }
+.cal-week--by-lanes .cal-day-col { padding-inline: var(--space-4); }
 .cal-week-head { border-bottom: 1px solid var(--border); }
 .cal-week-head .cal-weekday { text-transform: none; letter-spacing: 0; font-size: var(--text-3); }
 .cal-week-head .cal-weekday[aria-current="date"] { color: var(--brand-text); }
@@ -10602,26 +10785,26 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     inline-size: calc(100% / var(--cal-lanes) - var(--space-2));
     block-size: calc(var(--cal-span) * var(--cal-hour-height) - var(--space-1));
     z-index: 1;
-    overflow: hidden;
     padding: var(--space-1) var(--space-3);
-    background: var(--brand-tint);
-    border-inline-start: 3px solid var(--brand);
+    background: var(--cal-fill);
+    border-inline-start: 3px solid var(--cal-accent);
     border-radius: var(--radius-inner);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
     line-height: 1.35;
     text-decoration: none;
+    /* Clipped at the content box, and the content box ends on a whole line: the bottom
+       padding takes up whatever is left over after the lines that fit. Below one line
+       the block shows what it can rather than nothing. */
+    --cal-edge: 0px;
+    --cal-block-inner: calc(var(--cal-span) * var(--cal-hour-height) - 2 * var(--space-1) - 2 * var(--cal-edge));
+    padding-block-end: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh)));
+    overflow: clip;
+    overflow-clip-margin: content-box;
 }
 .cal-block:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .cal-block .cal-event-time { display: block; }
-.cal-block.cal-event--go     { background: var(--go-bg);     border-inline-start-color: var(--go-fg); }
-.cal-block.cal-event--warn   { background: var(--warn-bg);   border-inline-start-color: var(--warn-fg); }
-.cal-block.cal-event--danger { background: var(--danger-bg); border-inline-start-color: var(--danger-fg); }
-.cal-block.cal-event--info   { background: var(--info-bg);   border-inline-start-color: var(--info-fg); }
-.cal-block.cal-event--cyan   { background: var(--badge-cyan-bg);   border-inline-start-color: var(--badge-cyan-fg); }
-.cal-block.cal-event--orange { background: var(--badge-orange-bg); border-inline-start-color: var(--badge-orange-fg); }
-.cal-block.cal-event--teal   { background: var(--badge-teal-bg);   border-inline-start-color: var(--badge-teal-fg); }
 
 .cal-now {
     --cal-at: 0;
@@ -10674,6 +10857,16 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     font-variant-numeric: tabular-nums;
 }
 .cal-month--mini .cal-day + .cal-day { border-inline-start: none; }
+.cal-month--mini { --cal-weeknum-width: 28px; }
+.cal-month--mini .cal-weeknum {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-inline-end: none;
+    font-size: var(--text-1);
+    line-height: 1;
+}
 .cal-month--mini .cal-day--weekend { background: none; color: var(--fg-soft); }
 .cal-month--mini .cal-day[aria-current="date"] { box-shadow: inset 0 0 0 1px var(--brand); color: var(--brand-text); font-weight: 600; }
 .cal-month--mini .cal-day:is([aria-selected="true"], [aria-pressed="true"]) { background: var(--brand); color: var(--on-solid); }
@@ -10706,6 +10899,48 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
     opacity: 0.55;
     cursor: not-allowed;
     pointer-events: none;
+}
+
+/* ── Holidays ──────────────────────────────────────────────────────────────
+   A day nobody works is `.cal-day--holiday`, shaded like a weekend. Its name is a
+   `.cal-holiday` beside the day number, or in a week's heading:
+
+     <div class="cal-day cal-day--holiday">
+       <span class="cal-day-num">3</span>
+       <span class="cal-holiday" role="img" aria-label="Holiday: Autumn bank holiday" data-tip="Autumn bank holiday">
+         <i class="ri-flag-2-line"></i><span class="cal-holiday-name">Autumn bank holiday</span>
+       </span>
+     </div>
+
+   A name that does not fit is cut short, and in a very narrow cell it goes and the
+   icon stays. Either way the `data-tip` takes over: the hint appears only while the
+   whole name is not on screen. The label is what a screen reader hears. In a small month there is no room
+   for a marker at all, so the day keeps the shade and carries the `data-tip` itself. */
+.cal-day--holiday { background: var(--surface-soft); }
+.cal-month--mini .cal-day--holiday { background: var(--surface-soft); }
+:is(.cal-day, .cal-weekday):has(> .cal-holiday) {
+    container: cal-cell / inline-size;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+}
+.cal-holiday {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    block-size: 24px;
+    color: var(--fg-soft);
+    font-size: var(--text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+.cal-holiday > i { flex-shrink: 0; color: var(--muted); font-size: var(--text-4); }
+.cal-weekday > .cal-holiday { block-size: auto; }
+.cal-holiday-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@container cal-cell (max-width: 72px) {
+    .cal-holiday-name { display: none; }
 }
 
 /* ── Date picker ───────────────────────────────────────────────────────────
@@ -12931,6 +13166,7 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
     .health-badge--streaming .health-dot,
     .health-badge--connecting .health-dot { animation: none; }
     .health-badge--healthy .health-dot { animation: none; }
+    .cal-event-dot--live { animation: none; }   /* 66 — the event still says "Live" in text */
     .segmented-option { transition: none; }   /* 51 */
     /* 64 — the hole appears at the new target instead of sliding to it, and the
        "do this now" marker stops pulsing. Neither carries information: the ring is

@@ -39,14 +39,26 @@
             return el;
         }
 
+        // True when the trigger, or anything inside it, is narrower than its own text
+        // and clips the rest — a truncated label.
+        function clipped(el) {
+            var nodes = [el].concat(Array.prototype.slice.call(el.querySelectorAll('*')));
+            for (var i = 0; i < nodes.length; i++) {
+                var n = nodes[i];
+                if (n.scrollWidth > n.clientWidth + 1 && getComputedStyle(n).overflowX !== 'visible') return true;
+            }
+            return false;
+        }
+
         function place(el) {
             var tip = el.getAttribute('data-tip');
             if (!tip) return hide();
             // Redundant when the trigger's own visible text already spells out
             // the whole hint (innerText respects CSS visibility, so a hidden
-            // label correctly counts as absent).
+            // label correctly counts as absent). Not when that text is cut off,
+            // though: an ellipsis hides exactly the part the hint would give back.
             var vis = (el.innerText || '').trim();
-            if (vis && vis.indexOf(tip) !== -1) return hide();
+            if (vis && vis.indexOf(tip) !== -1 && !clipped(el)) return hide();
 
             var box = ensureEl();
             box.textContent = tip;

@@ -31,6 +31,28 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Calendar.WeekNumbers" Title="Week numbers" Demo="ex-demo--block">
+    <p>
+        <code>.cal-month--weeknums</code> adds a column before the days, headed by an empty
+        <code>.cal-weekday</code>, and each row starts with a <code>.cal-weeknum</code>.
+        <strong>The number is yours</strong> — ISO 8601 or your reader's locale rule — because a stylesheet
+        cannot count weeks. Make it a <code>&lt;button&gt;</code> when choosing the week opens something,
+        and give it a visually hidden word, since a bare "38" is not a week to a screen reader. Pills and
+        <code>.cal-more</code> still take <code>grid-column</code> 1 to 7: the lanes cover only the days.
+        The same column works in the <a href="/calendar#a-date-picker">date picker</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.Growing" Title="Rows that grow" Demo="ex-demo--block">
+    <p>
+        <code>.cal-month--grow</code> is the other choice for a whole calendar: a week is as tall as its
+        last lane, so every event is on screen and there is no <code>.cal-more</code>. Use it where a
+        busy day must not hide anything — a dispatch plan, a rota — and the fixed rows where the month has
+        to fit a screen. <code>--cal-lanes</code> is then the height a quiet week keeps. The lanes and the
+        <code>grid-row</code> of each pill are still yours to work out.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Calendar.Week" Title="A week on a time axis" Demo="ex-demo--block">
     <p>
         <code>.cal-week</code> puts a <code>.cal-hours</code> gutter beside one <code>.cal-day-col</code>
@@ -39,7 +61,22 @@
         <code>--cal-start</code> and <code>--cal-span</code> are in hours from the top of the axis, so
         09:30 on an axis starting at 07:00 is <code>2.5</code>; two blocks that overlap go side by side
         with <code>--cal-lane</code> and <code>--cal-lanes</code>, which you work out.
-        <code>.cal-now</code> is the line for the current time, at <code>--cal-at</code>.
+        <code>.cal-now</code> is the line for the current time, at <code>--cal-at</code>. A block's text
+        stops at the last whole line that fits, so a short block shows its time and the start of its
+        title — put the full title in the link's label or a <code>data-tip</code> if it matters.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.WeekByLanes" Title="Room for busy days" Demo="ex-demo--block">
+    <p>
+        <code>.cal-week--by-lanes</code> shares the width by how busy each day is. CSS cannot tell which
+        blocks overlap, so <strong>you pass the count</strong>: the most blocks side by side on that day, as
+        <code>--cal-lanes</code> on its <code>.cal-day-col</code> and the same number on its
+        <code>.cal-weekday</code>, which keeps the heading over the column. A day you leave alone counts
+        as one lane. <code>--cal-day-min</code> is the narrowest any day may get, on this modifier or
+        without it; the week's own minimum width follows from it, so put the week in a
+        <code>.sedna-scroll-x</code>, which scrolls it sideways on a phone. Leave the modifier off and
+        every day is the same width again.
     </p>
 </CatExample>
 
@@ -47,6 +84,40 @@
     <p>
         The same surface with <code>--cal-days: 1</code>. Nothing else changes, so a week view and a day
         view share one set of rules and one layout of blocks.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.EventFills" Title="Event status as a fill" Demo="ex-demo--block">
+    <p>
+        Tinted is the default. <code>.cal-event--filled</code> is for what is settled or happening now,
+        <code>--outline</code> for what may be skipped, and <code>--tentative</code> — a dashed edge on a
+        faint hatch — for an invitation nobody has accepted yet. Each combines with every hue,
+        <code>--go</code> to <code>--teal</code>, on a pill and on a block. <strong>Say the status in words
+        too</strong>, as the time line does here: a dashed border is not something a screen reader or a
+        printout can pass on.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.EventSlots" Title="Type, state and people" Demo="ex-demo--block">
+    <p>
+        Before the title, a <code>.cal-event-icon</code> for the kind of event, a <code>.cal-event-dot</code>,
+        or <code>.cal-event-dot--live</code> for one in progress; all three take the event's hue. After it,
+        the people on it, as an <a href="/avatar">avatar group</a> with <code>.cal-event-avatars</code>,
+        which shrinks the avatars to the pill. On a pill, wrap the title in <code>.cal-event-title</code>
+        so it truncates instead of pushing the avatars out; on a block the avatars sit in the top corner
+        and the text wraps round them. The avatars and the dot are pictures: put the names and the word
+        "Live" in text as well.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Calendar.Holidays" Title="Holidays" Demo="ex-demo--block">
+    <p>
+        <code>.cal-day--holiday</code> shades a day nobody works, and a <code>.cal-holiday</code> beside the
+        day number names it with an icon. A name that does not fit is cut short, and in a very narrow cell
+        it drops out and the icon stays; either way its <code>data-tip</code> carries the name — the hint
+        only appears while the whole name is not on screen, so it never repeats it. The
+        <code>aria-label</code> is what a screen reader hears. A small month has no room for the marker:
+        shade the day and put the <code>data-tip</code> on it.
     </p>
 </CatExample>
 
@@ -68,7 +139,8 @@
         &ldquo;21&rdquo; alone is not a date to a screen reader — and <code>aria-pressed="true"</code>
         when chosen. A range is <code>--range-start</code>, <code>--in-range</code> and
         <code>--range-end</code> on the days you work out; an unavailable day is a disabled button.
-        The keys beyond <kbd>Tab</kbd> are yours to add. For a single date the native
+        The keys beyond <kbd>Tab</kbd> are yours to add. The week numbers are
+        <code>.cal-month--weeknums</code>, as on a full month. For a single date the native
         <a href="/form-datetime">date input</a> is still the better default.
     </p>
 </CatExample>

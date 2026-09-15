@@ -119,4 +119,310 @@ public class CalendarLayoutTests : ScriptTestBase
         Assert.Equal("line-through", s[5]);        // an unavailable day is struck, not only faded
         Assert.Equal("True", s[6], ignoreCase: true); // square days
     }
+
+    [Theory]
+    [InlineData("", 1)]
+    [InlineData("", 1.5)]
+    [InlineData("", 0.5)]
+    [InlineData("cal-event--outline", 1)]
+    [InlineData("cal-event--tentative", 2)]
+    public async Task A_block_shows_whole_lines_and_never_half_of_one(string variant, double span)
+    {
+        if (NoBrowser) return;
+        // The 14:00 block that overflowed on the catalogue: a time and a title that wraps,
+        // in a block too short for all of it.
+        var (page, _) = await OpenStyled($$"""
+            <div class="cal-week" style="--cal-days: 1; --cal-hours: 4; --cal-hour-height: 40px; width: 180px">
+              <div class="cal-week-body">
+                <div class="cal-hours"></div>
+                <div class="cal-day-col">
+                  <a class="cal-block cal-event--go {{variant}}" id="b" href="#" style="--cal-start: 0; --cal-span: {{span.ToString(System.Globalization.CultureInfo.InvariantCulture)}}"><span class="cal-event-time">14:00</span> Dispatch ORD-4209 to the north hub, with the carrier, the dock and the driver named in a title far too long for any block</a>
+                </div>
+              </div>
+            </div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const b = document.getElementById('b');
+                const s = getComputedStyle(b);
+                const box = b.getBoundingClientRect();
+                // The clip is the content box, and every line box is one line-height tall
+                // from its top: so whole lines show exactly when that height is a multiple.
+                const clipTop = box.top + parseFloat(s.borderTopWidth) + parseFloat(s.paddingTop);
+                const clipBottom = box.bottom - parseFloat(s.borderBottomWidth) - parseFloat(s.paddingBottom);
+                const lines = (clipBottom - clipTop) / parseFloat(s.lineHeight);
+                return [Math.abs(lines - Math.round(lines)), Math.round(lines), clipBottom - box.bottom,
+                        s.overflowX === 'clip' && s.overflowClipMargin.startsWith('content-box') ? 1 : 0,
+                        b.scrollHeight > b.clientHeight ? 1 : 0];
+            }
+            """);
+
+        Assert.True(m[0] < 0.05, $"The block's edge cuts a line {m[0]:0.00} of the way through.");
+        Assert.True(m[1] >= 1, "The block shows no line at all.");
+        Assert.True(m[2] <= 0, "The clip edge is outside the block.");
+        Assert.Equal(1, m[3]);                 // clipped at the content box, not the padding
+        Assert.Equal(1, m[4]);                 // and the fixture does overflow, or this proves nothing
+    }
+
+    [Fact]
+    public async Task Week_numbers_take_a_column_of_their_own_and_the_lanes_stay_over_the_days()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled($"""
+            <div class="cal-month cal-month--weeknums" style="--cal-lanes: 2; width: 740px">
+              <div class="cal-weekdays" id="head"><span class="cal-weekday"></span>{string.Concat(Enumerable.Range(1, 7).Select(i => $"<span class=\"cal-weekday\">D{i}</span>"))}</div>
+              <div class="cal-row" id="row">
+                <span class="cal-weeknum" id="wk">38</span>
+                {Days(7)}
+                <div class="cal-row-events">
+                  <a class="cal-event" id="first" href="#" style="grid-column: 1; grid-row: 1">Stand-up</a>
+                  <a class="cal-event" id="last" href="#" style="grid-column: 7; grid-row: 1">Rota</a>
+                </div>
+              </div>
+            </div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const days = [...document.querySelectorAll('#row .cal-day')].map(d => d.getBoundingClientRect());
+                const heads = [...document.querySelectorAll('#head .cal-weekday')].map(d => d.getBoundingClientRect());
+                const r = id => document.getElementById(id).getBoundingClientRect();
+                return [r('wk').width, days[0].left - r('wk').right,
+                        r('first').left - days[0].left, days[6].right - r('last').right,
+                        heads[1].left - days[0].left, days[0].width - days[6].width];
+            }
+            """);
+
+        Assert.Equal(40, m[0], 1.0);      // --cal-weeknum-width
+        Assert.Equal(0, m[1], 1.0);       // the days start where it ends
+        Assert.InRange(m[2], 0, 6);       // column 1 is the first day, not the week number
+        Assert.InRange(m[3], 0, 6);
+        Assert.Equal(0, m[4], 1.0);       // the heading still sits over its day
+        Assert.Equal(0, m[5], 1.0);
+    }
+
+    [Fact]
+    public async Task A_growing_row_is_as_tall_as_its_last_lane_and_keeps_its_days_in_place()
+    {
+        if (NoBrowser) return;
+        string Lanes(int n) => string.Concat(Enumerable.Range(1, n).Select(i =>
+            $"""<a class="cal-event" href="#" style="grid-column: 3; grid-row: {i}">Event {i}</a>"""));
+
+        var (page, _) = await OpenStyled($"""
+            <div class="cal-month cal-month--grow cal-month--weeknums" style="--cal-lanes: 1; width: 740px">
+              <div class="cal-row" id="busy">
+                <span class="cal-weeknum">38</span>
+                {Days(7)}
+                <div class="cal-row-events">{Lanes(6)}<a class="cal-event" id="span" href="#" style="grid-column: 2 / span 3; grid-row: 7">Inspection</a></div>
+              </div>
+              <div class="cal-row" id="quiet">
+                <span class="cal-weeknum">39</span>
+                {Days(7)}
+                <div class="cal-row-events"></div>
+              </div>
+            </div>
+            <div class="cal-month" style="--cal-lanes: 1; width: 740px">
+              <div class="cal-row" id="fixed">
+                {Days(7)}
+                <div class="cal-row-events">{Lanes(6)}</div>
+              </div>
+            </div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const r = el => el.getBoundingClientRect();
+                const busy = document.getElementById('busy'), quiet = document.getElementById('quiet');
+                const bd = [...busy.querySelectorAll('.cal-day')].map(r), qd = [...quiet.querySelectorAll('.cal-day')].map(r);
+                const last = r(busy.querySelector('.cal-row-events').lastElementChild);
+                const aligned = bd.every((d, i) => Math.abs(d.left - qd[i].left) < 1 && Math.abs(d.top - bd[0].top) < 1) ? 1 : 0;
+                return [r(busy).bottom - last.bottom, r(busy).height, r(quiet).height,
+                        r(document.getElementById('fixed')).height, aligned, bd[6].height - r(busy).height,
+                        r(document.getElementById('span')).left - bd[1].left];
+            }
+            """);
+
+        Assert.InRange(m[0], 0, 12);                          // the last lane is inside the row, near its foot
+        Assert.True(m[1] > 7 * 20, $"The busy row is {m[1]}px, too short for seven lanes.");
+        Assert.True(m[2] < m[1], "A quiet row grew as well.");
+        Assert.True(m[3] < m[1], "The fixed-row month grew with its lanes.");
+        Assert.Equal(1, m[4]);                                // days in their columns, in one row
+        Assert.Equal(0, m[5], 1.0);                           // and as tall as the row
+        Assert.InRange(m[6], 0, 6);                           // a span still starts on its day
+    }
+
+    [Fact]
+    public async Task A_busy_day_gets_the_width_and_its_heading_follows()
+    {
+        if (NoBrowser) return;
+        string Heads(string lanes) => string.Concat(Enumerable.Range(0, 7).Select(i =>
+            $"""<span class="cal-weekday" style="--cal-lanes: {(i == 1 ? lanes : "1")}">D{i}</span>"""));
+        string Cols(string lanes) => string.Concat(Enumerable.Range(0, 7).Select(i =>
+            $"""<div class="cal-day-col" style="--cal-lanes: {(i == 1 ? lanes : "1")}"></div>"""));
+        string Week(string id, string modifier, string style) => $"""
+            <div class="cal-week {modifier}" id="{id}" style="--cal-hours: 2; {style}">
+              <div class="cal-week-head"><span></span>{Heads("3")}</div>
+              <div class="cal-week-body" style="overflow: hidden"><div class="cal-hours"></div>{Cols("3")}</div>
+            </div>
+            """;
+
+        var (page, _) = await OpenStyled(
+            Week("weighted", "cal-week--by-lanes", "width: 506px")
+            + Week("floored", "cal-week--by-lanes", "--cal-day-min: 60px; width: 506px")
+            + Week("even", "", "width: 506px")
+            + $"""<div style="width: 300px"><div class="sedna-scroll-x">{Week("narrow", "cal-week--by-lanes", "--cal-day-min: 60px")}</div></div>""");
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const widths = id => [...document.querySelectorAll(`#${id} .cal-day-col`)].map(c => c.getBoundingClientRect().width);
+                const offset = id => {
+                    const h = [...document.querySelectorAll(`#${id} .cal-week-head .cal-weekday`)].map(e => e.getBoundingClientRect());
+                    const c = [...document.querySelectorAll(`#${id} .cal-day-col`)].map(e => e.getBoundingClientRect());
+                    return Math.max(...h.map((r, i) => Math.abs(r.left - c[i].left) + Math.abs(r.width - c[i].width)));
+                };
+                const w = widths('weighted'), f = widths('floored'), e = widths('even'), n = widths('narrow');
+                const col = document.querySelector('#weighted .cal-day-col'), cs = getComputedStyle(col);
+                const base = col.offsetWidth - col.clientWidth + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+                return [(w[1] - base) / (w[0] - base), offset('weighted'), Math.max(...e) - Math.min(...e), Math.min(...f), Math.min(...n),
+                        document.getElementById('narrow').getBoundingClientRect().width];
+            }
+            """);
+
+        Assert.Equal(3, m[0], 0.05);            // three lanes, three times the width
+        Assert.True(m[1] < 1, $"A heading is {m[1]}px off its column.");
+        Assert.True(m[2] < 1, "Without the modifier the days are no longer even.");
+        Assert.True(m[3] >= 59.5, $"A day is {m[3]}px, under --cal-day-min.");
+        Assert.True(m[4] >= 59.5, $"A day in a narrow scroller is {m[4]}px, under --cal-day-min.");
+        Assert.True(m[5] >= 56 + 7 * 60 - 1, "The week shrank below its days' minimum instead of scrolling.");
+    }
+
+    public static IEnumerable<object[]> FillsAndHues()
+    {
+        foreach (var variant in new[] { "dark", "light" })
+            yield return [variant];
+    }
+
+    [Theory]
+    [MemberData(nameof(FillsAndHues))]
+    public async Task Every_hue_changes_every_fill_and_filled_text_is_readable(string variant)
+    {
+        if (NoBrowser) return;
+        string[] hues = ["", "go", "warn", "danger", "info", "cyan", "orange", "teal"];
+        string[] fills = ["", "filled", "outline", "tentative"];
+        var body = string.Concat(fills.SelectMany(f => hues.Select(h =>
+        {
+            var cls = (f == "" ? "" : $" cal-event--{f}") + (h == "" ? "" : $" cal-event--{h}");
+            return $"""
+                <div class="cal-month" style="width: 300px"><div class="cal-row">{Days(7)}<div class="cal-row-events">
+                  <a class="cal-event{cls}" data-f="{f}" data-h="{h}" href="#" style="grid-column: 1 / span 7; grid-row: 1"><span class="cal-event-time">09:00</span> Title</a>
+                </div></div></div>
+                """;
+        })));
+
+        var (page, _) = await OpenStyled(body);
+        await page.EvaluateAsync($"() => document.documentElement.setAttribute('data-variant', '{variant}')");
+
+        var rows = await page.EvaluateAsync<string[][]>("""
+            () => {
+                const rgb = c => (c.match(/[\d.]+/g) || []).map(Number);
+                const lum = ([r, g, b]) => [r, g, b].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; })
+                    .reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+                const ratio = (a, b) => { const [x, y] = [lum(rgb(a)), lum(rgb(b))].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+                return [...document.querySelectorAll('[data-f]')].map(e => {
+                    const s = getComputedStyle(e), t = getComputedStyle(e.querySelector('.cal-event-time'));
+                    return [e.dataset.f, e.dataset.h, s.backgroundColor + '|' + s.backgroundImage, s.borderInlineStartColor, s.borderTopStyle,
+                            ratio(s.color, s.backgroundColor).toFixed(2), ratio(t.color, s.backgroundColor).toFixed(2)];
+                });
+            }
+            """);
+
+        foreach (var fill in new[] { "", "filled", "outline", "tentative" })
+        {
+            var set = rows.Where(r => r[0] == fill).ToList();
+            // Each hue paints a different accent inside the same fill: a family is not
+            // outranked by a variant.
+            Assert.Equal(set.Count, set.Select(r => r[3]).Distinct().Count());
+            if (fill is "" or "filled" or "tentative")
+                Assert.Equal(set.Count, set.Select(r => r[2]).Distinct().Count());
+        }
+
+        Assert.All(rows.Where(r => r[0] == "outline" || r[0] == "tentative"), r => Assert.NotEqual("none", r[4]));
+        Assert.All(rows.Where(r => r[0] == "tentative"), r => Assert.Equal("dashed", r[4]));
+        Assert.All(rows.Where(r => r[0] == "filled"), r =>
+        {
+            Assert.True(double.Parse(r[5], System.Globalization.CultureInfo.InvariantCulture) >= 4.5,
+                $"Filled {r[1]} title is {r[5]}:1 in {variant}.");
+            Assert.True(double.Parse(r[6], System.Globalization.CultureInfo.InvariantCulture) >= 4.5,
+                $"Filled {r[1]} time is {r[6]}:1 in {variant}.");
+        });
+    }
+
+    [Fact]
+    public async Task Avatars_keep_the_trailing_edge_and_the_title_gives_way()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled($"""
+            <div class="cal-month" style="width: 420px"><div class="cal-row">{Days(7)}<div class="cal-row-events">
+              <a class="cal-event" id="e" href="#" style="grid-column: 1 / span 2; grid-row: 1">
+                <span class="cal-event-dot cal-event-dot--live" id="dot"></span>
+                <span class="cal-event-title" id="t">Carrier onboarding with a title far too long for two days</span>
+                <span class="avatar-group cal-event-avatars" id="g"><span class="avatar">AF</span><span class="avatar">PN</span></span>
+              </a>
+            </div></div></div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const r = id => document.getElementById(id).getBoundingClientRect();
+                const e = document.getElementById('e'), t = document.getElementById('t');
+                const pad = parseFloat(getComputedStyle(e).paddingRight);
+                return [r('e').right - pad - r('g').right, r('g').height, r('e').height - r('g').height,
+                        t.scrollWidth > t.clientWidth ? 1 : 0, r('g').left - r('t').right, r('dot').width];
+            }
+            """);
+
+        Assert.Equal(0, m[0], 1.0);          // flush with the pill's end
+        Assert.True(m[2] >= 0, "The avatars are taller than the pill.");
+        Assert.Equal(1, m[3]);               // the title truncates
+        Assert.True(m[4] >= 0, "The title runs under the avatars.");
+        Assert.True(m[5] > 0);
+    }
+
+    [Fact]
+    public async Task A_holiday_name_steps_aside_for_its_hint_when_the_cell_is_narrow()
+    {
+        if (NoBrowser) return;
+        string Cell(string id, int width) => $"""
+            <div class="cal-day cal-day--holiday" style="width: {width}px">
+              <span class="cal-day-num">5</span>
+              <span class="cal-holiday" id="{id}" role="img" aria-label="Holiday: Autumn bank holiday" data-tip="Autumn bank holiday">
+                <i class="ri-flag-2-line"></i><span class="cal-holiday-name">Autumn bank holiday</span>
+              </span>
+            </div>
+            """;
+
+        var (page, _) = await OpenStyled(
+            $"""<div style="padding: 60px">{Cell("wide", 260)}{Cell("cut", 120)}{Cell("narrow", 64)}</div>""");
+
+        var shown = await page.EvaluateAsync<string[]>("""
+            () => ['wide', 'cut', 'narrow'].map(id => getComputedStyle(document.querySelector(`#${id} .cal-holiday-name`)).display)
+            """);
+        Assert.NotEqual("none", shown[0]);
+        Assert.NotEqual("none", shown[1]);
+        Assert.Equal("none", shown[2]);
+
+        async Task<bool> TipFor(string id)
+        {
+            await page.Mouse.MoveAsync(0, 0);
+            await page.WaitForTimeoutAsync(50);
+            await page.HoverAsync($"#{id}");
+            await page.WaitForTimeoutAsync(300);
+            return await page.EvaluateAsync<bool>("() => !!document.querySelector('.sedna-tip--visible')");
+        }
+
+        Assert.False(await TipFor("wide"), "The whole name is on screen, and the hint repeated it.");
+        Assert.True(await TipFor("cut"), "The name is cut short, and no hint gave it back.");
+        Assert.True(await TipFor("narrow"), "The name is hidden, and no hint gave it back.");
+    }
 }

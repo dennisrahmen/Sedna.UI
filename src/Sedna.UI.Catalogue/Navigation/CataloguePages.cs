@@ -179,7 +179,7 @@ internal static class CataloguePages
             "sparkline trend line chart svg polyline area reference stat table cell series"),
         new("/calendar", Data, "Calendar", "ri-calendar-2-line",
             "A month with event pills, a week or day on a time axis, a year, and a date picker on the same grid.",
-            "calendar cal-month cal-row cal-day cal-day-num cal-event cal-more cal-week cal-day-col cal-block cal-now cal-year cal-month--mini datepicker date picker range schedule booking shift agenda month week day year today"),
+            "calendar cal-month cal-row cal-day cal-day-num cal-event cal-more cal-week cal-day-col cal-block cal-now cal-year cal-month--mini cal-weeknum cal-month--weeknums cal-month--grow cal-week--by-lanes cal-event--filled cal-event--outline cal-event--tentative cal-event-title cal-event-icon cal-event-dot cal-event-avatars cal-day--holiday cal-holiday datepicker date picker range schedule booking shift agenda appointment assignee tentative holiday week number iso month week day year today"),
         new("/pager", Data, "Pagination", "ri-more-line",
             "Moving through a long result set, and the breadcrumb trail that says where it sits.",
             "pagination page-link page-gap breadcrumb trail button view state server paged SednaPager Window PagerSlot"),
