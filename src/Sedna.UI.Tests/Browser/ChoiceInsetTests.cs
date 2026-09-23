@@ -117,7 +117,7 @@ public class ChoiceInsetTests : ScriptTestBase
         var starts = await Starts(page, ids);
         var at = ids.Zip(starts).ToDictionary(p => p.First, p => p.Second, StringComparer.Ordinal);
 
-        var off = Pairs.Where(p => at[p.Follower] != at[p.Label])
+        var off = Pairs.Where(p => Math.Abs(at[p.Follower] - at[p.Label]) > 0.01)
             .Select(p => $"{p.Follower} at {at[p.Follower]}, {p.Label} at {at[p.Label]}")
             .ToList();
 

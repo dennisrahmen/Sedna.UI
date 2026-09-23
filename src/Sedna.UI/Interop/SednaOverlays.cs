@@ -83,8 +83,8 @@ internal sealed class SednaOverlays : ISednaOverlays
 
         // A <form method="dialog"> button's value is a string, so a caller asking for one
         // gets it without the component needing any C# to close.
-        return returnValue is not null && typeof(TResult) == typeof(string)
-            ? (TResult)(object)returnValue
+        return typeof(TResult) == typeof(string) && returnValue is TResult text
+            ? text
             : default;
     }
 

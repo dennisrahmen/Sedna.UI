@@ -242,10 +242,6 @@
 
     /* ── Marking ─────────────────────────────────────────────────────────────── */
 
-    function setAttr(el, name, value) {
-        if (el.getAttribute(name) !== value) el.setAttribute(name, value);
-    }
-
     function clearEdge() {
         if (drag.edge) drag.edge.removeAttribute('data-drop-edge');
         drag.edge = null;
