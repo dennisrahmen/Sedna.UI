@@ -5412,6 +5412,17 @@ window.sednaUi = window.sednaUi || {};
    own — the close button's label — comes from `dismissLabel`, per call or through
    configure({ toastDismissLabel }), so it is never English in a German app.
 
+   IN THE TOP LAYER, AND INSIDE AN OPEN MODAL. showModal() puts a <dialog> in the top
+   layer, above every z-index, so a stack that is merely `position: fixed` paints under
+   the dialog's backdrop — the failed save a dialog itself reports is never seen. The
+   stack is therefore a manual popover, re-shown for every toast so it is promoted above
+   whatever opened since. That alone is not enough: everything outside an open modal is
+   inert, and inertness follows the DOM, not the paint order, so a stack painted over
+   the dialog but outside it would be visible, unclickable and — being inert — never
+   announced. So while a modal is open the stack is MOVED into the one on top, and
+   back to <body> when it closes; 41-spotlight.js does the same with its bubble. The
+   stack is the library's own node, so moving it disturbs nothing a framework rendered.
+
    A HANDLE, NOT ONLY A FUNCTION. toast() returns a remover, which JavaScript can
    hold; C# cannot, because a function does not cross the interop boundary. So every
    toast also has an id — toast.show() returns it — and toast.dismiss(id) and
@@ -5429,21 +5440,105 @@ window.sednaUi = window.sednaUi || {};
 
     var OWN = '[data-sedna-toasts]';
 
+    var host = null;     // our stack, while it exists
+    var opened = [];     // modal dialogs, in the order they opened — the top layer's order
+    var watch = null;    // notices the dialog holding the stack being removed
+
+    function isModal(el) {
+        try { return !!el && el.isConnected && el.matches('dialog:modal'); } catch (e) { return false; }
+    }
+
+    /* The modal the stack belongs in, or null for <body>. The last one opened is the one
+       on top; one opened before this script ran is not in `opened`, so document order,
+       where a nested dialog follows its parent, stands in for it. */
+    function topModal(except) {
+        for (var i = opened.length - 1; i >= 0; i--) {
+            if (opened[i] !== except && isModal(opened[i])) return opened[i];
+        }
+        var all;
+        try { all = document.querySelectorAll('dialog:modal'); } catch (e) { return null; }
+        for (var j = all.length - 1; j >= 0; j--) if (all[j] !== except) return all[j];
+        return null;
+    }
+
+    /* Moves the stack to where it can be seen and reached, and promotes it above
+       everything already in the top layer. `except` is a dialog that is closing and
+       still matches :modal. */
+    function raise(except) {
+        if (!host) return;
+        var parent = topModal(except) || document.body;
+        if (host.parentNode !== parent) {
+            // Moving a node blurs whatever inside it had focus — a toast's close button.
+            var focused = host.contains(document.activeElement) ? document.activeElement : null;
+            parent.appendChild(host);
+            if (focused && focused !== document.activeElement) {
+                try { focused.focus({ preventScroll: true }); } catch (e) { /* refused */ }
+            }
+        }
+        try {
+            if (host.matches(':popover-open')) host.hidePopover();
+            host.showPopover();
+        } catch (e) { /* no popover support: z-index 600 is the fallback */ }
+        follow(parent !== document.body ? parent : null);
+    }
+
+    /* A dialog a framework removes takes the stack with it, before any close event can
+       say so. While the stack is in one, a removal brings it back to <body>. */
+    function follow(dialog) {
+        if (watch) { watch.disconnect(); watch = null; }
+        if (!dialog) return;
+        try {
+            watch = new MutationObserver(function () {
+                if (host && !host.isConnected) raise();
+            });
+            watch.observe(document.body, { childList: true, subtree: true });
+        } catch (e) { /* no observer: the next toast finds it */ }
+    }
+
     function stack() {
-        var el = document.querySelector(OWN);
-        if (!el) {
-            el = document.createElement('div');
-            el.className = 'toast-stack';
+        if (host && !host.isConnected && host.children.length) {
+            raise();     // taken out with a dialog, toasts and all: put it back
+            return host;
+        }
+        if (!host || !host.isConnected) {
+            host = document.createElement('div');
+            host.className = 'toast-stack';
             // The marker is what makes this OURS: only a stack the library created is
             // ever appended to, re-labelled, or removed.
-            el.setAttribute('data-sedna-toasts', '');
+            host.setAttribute('data-sedna-toasts', '');
             // The region is a status log, not a landmark to navigate to.
-            el.setAttribute('role', 'status');
-            el.setAttribute('aria-live', 'polite');
-            document.body.appendChild(el);
+            host.setAttribute('role', 'status');
+            host.setAttribute('aria-live', 'polite');
+            host.setAttribute('popover', 'manual');
         }
-        return el;
+        raise();
+        return host;
     }
+
+    function drop(el) {
+        if (el.parentNode) el.parentNode.removeChild(el);
+        if (host && !host.children.length) {
+            follow(null);
+            if (host.parentNode) host.parentNode.removeChild(host);
+            host = null;
+        }
+    }
+
+    /* Capture, because none of these bubble, and from the document because a dialog is
+       a node a framework replaces like any other. `beforetoggle` is the one that fires
+       while a closing dialog is still displayed, so the stack leaves before it hides. */
+    function track(e) {
+        var dialog = e.target;
+        if (!(dialog instanceof HTMLDialogElement)) return;
+        var closing = e.type === 'close' || e.newState === 'closed';
+        var at = opened.indexOf(dialog);
+        if (at >= 0) opened.splice(at, 1);
+        if (!closing && isModal(dialog)) opened.push(dialog);
+        if (host && host.children.length) raise(closing ? dialog : null);
+    }
+    document.addEventListener('beforetoggle', track, true);
+    document.addEventListener('toggle', track, true);
+    document.addEventListener('close', track, true);
 
     var live = {};       // id -> { el, remove, timer }
     var nextId = 1;
@@ -5455,7 +5550,7 @@ window.sednaUi = window.sednaUi || {};
         opts = opts || {};
         var el = entry.el;
         var kind = ICONS[opts.kind] ? opts.kind : 'info';
-        var host = stack();
+        stack();
 
         // A failure interrupts; a confirmation waits its turn.
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
@@ -5508,15 +5603,13 @@ window.sednaUi = window.sednaUi || {};
      *          toast.dismiss() and toast.replace()
      */
     ui.toast = function (message, opts) {
-        var host = stack();
         var id = nextId++;
         var entry = { el: document.createElement('div'), timer: 0 };
 
         entry.remove = function () {
             clearTimeout(entry.timer);
             delete live[id];
-            if (entry.el.parentNode) entry.el.parentNode.removeChild(entry.el);
-            if (!host.children.length && host.parentNode) host.parentNode.removeChild(host);
+            drop(entry.el);
         };
         entry.remove.id = id;
         live[id] = entry;

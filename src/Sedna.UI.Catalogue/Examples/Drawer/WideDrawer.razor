@@ -1,0 +1,24 @@
+<button class="btn" type="button" onclick="document.getElementById('photo-detail').showModal()">
+    <i class="ri-image-line"></i> Open the photo
+</button>
+
+<dialog class="drawer" id="photo-detail" aria-labelledby="photo-detail-title"
+        style="--drawer-width: 560px">
+    <div class="drawer-header">
+        <h3 id="photo-detail-title">racking-bay-4-after-the-move.jpg</h3>
+        <button class="modal-close" type="button" aria-label="Close"
+                onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="drawer-body">
+        <div class="media-frame media-frame--cover">
+            <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=960&amp;h=600&amp;fit=crop&amp;q=70&amp;auto=format"
+                 width="960" height="600" loading="lazy" alt="Racking in bay 4, restocked after the move" />
+        </div>
+        <div class="kv"><span class="k">Size</span><span class="v">3.4 MB</span></div>
+        <div class="kv"><span class="k">Taken</span><span class="v">12 Sep 2026</span></div>
+        <p class="form-hint sedna-mb-0">Photograph by CHUTTERSNAP on Unsplash.</p>
+    </div>
+    <div class="drawer-footer">
+        <button class="btn" type="button" onclick="this.closest('dialog').close()">Close</button>
+    </div>
+</dialog>

@@ -454,6 +454,11 @@ Two things the flat list does not say:
   moves the bubble into the dialog — everything outside an open modal dialog is inert, and inertness
   follows the DOM rather than the paint order, so raising alone leaves the bubble visible and dead.
   Rung 510 is what applies to every other step, including one over a `.modal-backdrop` div at 500.
+- **The library's toast stack leaves the scale too.** `sednaUi.toast` makes its `.toast-stack` a
+  manual popover and re-shows it for every toast, so it is promoted above any dialog opened since.
+  While a modal `<dialog>` is open the stack is moved into the one on top — for the spotlight's reason:
+  outside it the toasts would be inert, unclickable and never announced — and back to `<body>` when
+  that dialog closes or is removed. Rung 600 is the fallback, and what orders a stack an app renders.
 - **An item carried by a pointer leaves the scale too.** `sednaUi.drag` raises it into the top layer as
   a manual popover for the length of the drag, so no `overflow` around it clips it and nothing paints
   over it; the slot it left is held open on a neighbour, so the list does not close up under the pointer.
@@ -478,7 +483,7 @@ Two things the flat list does not say:
 | `configure(options)` | Storage prefix, notification icon, language cookie, default theme name |
 | `settings` | `load()`, `save(key, value)`, `apply()`, `onChange(fn)` → unsubscribe. Keys: `theme`, `variant`, `cvd`, `density`, `dir`, `lang` |
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally; `tips.setEnabled(bool)` switches them all, and is what `ISednaUi.SetTipsEnabledAsync` calls |
-| `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover, whose `id` names the toast; `timeout: 0` stays until dismissed; `dismissLabel` — or `configure({ toastDismissLabel })` — names the close button. `toast.show(message, options)` returns the id, `toast.dismiss(id)` removes it early, `toast.replace(id, message, options)` changes it in place or shows a new one when it has gone |
+| `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. The stack is a manual `popover` in the top layer, moved into the topmost open modal `<dialog>` while one is open. Returns its own remover, whose `id` names the toast; `timeout: 0` stays until dismissed; `dismissLabel` — or `configure({ toastDismissLabel })` — names the close button. `toast.show(message, options)` returns the id, `toast.dismiss(id)` removes it early, `toast.replace(id, message, options)` changes it in place or shows a new one when it has gone |
 | `modal` | The presenter for an app's own `<dialog>` — `.modal`, `.drawer`, `.sheet`, `.lightbox`. `show(id)` → `showModal()`, returning a promise of its `returnValue` once it closes, or `null` for a close without one; a second `show` on an open dialog joins the first wait. `close(id, value)` → `close(value)`. `idle(id)` resolves once a closed dialog's transition has finished. An id that is not a `<dialog>` warns in the console and resolves `null` — an exception crossing the interop boundary from a Blazor handler tears down the circuit |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | — | `22-anchored.js` adds no member. It closes an open `.menu`, `.popover` or `.form-combo-panel` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |

@@ -103,6 +103,29 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Files.Uncropped" Title="Pictures that must not be cropped" Demo="ex-demo--block">
+    <p>
+        A tile crops its picture to fill the square, which is right for a photograph and ruins a
+        logo or a screenshot. <code>.file-tile-thumb--contain</code> keeps the frame and fits the
+        whole picture inside it, so a row stays level. <code>.file-tile-thumb--natural</code> drops
+        the frame and gives the tile the picture's own shape, so the row goes ragged. The ratio
+        comes from the <code>&lt;img&gt;</code>'s <code>width</code> and <code>height</code>, so
+        write both, or the tile jumps when the picture loads. A tile with no picture keeps its frame
+        either way.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Files.Chosen" Title="Names shown whole, the action always there" Demo="ex-demo--block">
+    <p>
+        For a reader who picked these files and has to tell them apart by name, and who will not
+        hover to look for a button. <code>.file-name--wrap</code> shows the whole name over as
+        many lines as it takes, breaking a long run with no spaces in it anywhere, instead of
+        cutting it. <code>.file-tile-menu--always</code> keeps that one button visible without a
+        hover or a tap first; the checkbox keeps its own rule. Name the button after the file and
+        say what it does to it.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Files.EmptyFolder" Title="An empty folder" Demo="ex-demo--block">
     <p>
         An <a href="/empty-state"><code>.empty-state</code></a> where the table or the grid would

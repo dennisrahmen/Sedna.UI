@@ -360,6 +360,32 @@ public class OverlayLayoutTests : ScriptTestBase
         Assert.Empty(errors);
     }
 
+    /// <summary>
+    /// <c>--drawer-width</c> widens a drawer for a picture or a wide table, and the viewport
+    /// still caps it, so the knob cannot push a drawer off a phone.
+    /// </summary>
+    [Theory]
+    [InlineData(1280, 640)]
+    [InlineData(375, 375)]
+    public async Task A_drawers_width_knob_widens_it_and_the_viewport_still_caps_it(int viewport, int expected)
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <dialog class="drawer" id="wide" style="--drawer-width: 640px">
+              <div class="drawer-header"><h3>Photo</h3></div>
+              <div class="drawer-body"><p>One short line.</p></div>
+            </dialog>
+            """);
+        await page.SetViewportSizeAsync(viewport, 800);
+
+        await page.EvaluateAsync("() => document.getElementById('wide').showModal()");
+        var box = await Box(page, "wide");
+
+        Assert.Equal(expected, box[1] - box[0], 1);
+        Assert.Equal(box[4], box[1], 1);          // still on its edge
+        Assert.Empty(errors);
+    }
+
     private static async Task<double[]> Box(Microsoft.Playwright.IPage page, string id)
     {
         await page.WaitForFunctionAsync(
