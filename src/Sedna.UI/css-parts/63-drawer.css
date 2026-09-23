@@ -33,7 +33,10 @@
     z-index: 490;
     display: flex;
     flex-direction: column;
-    width: min(420px, 100vw);
+    /* The knob for a drawer that needs more room than a form — a record with a
+       picture in it, a wide table. Set it on the drawer; the viewport still caps it. */
+    --drawer-width: 420px;
+    width: min(var(--drawer-width), 100vw);
     /* The panel reaches the bottom edge in both forms — a side drawer spans the
        block axis, a sheet sits on it — so the home indicator would cross the footer's
        buttons on a phone. Padding rather than an offset, so the inset is filled with
@@ -79,7 +82,8 @@
 .sheet {
     inset-block: auto 0;
     inset-inline: 0;
-    width: min(480px, 100vw);
+    --drawer-width: 480px;
+    width: min(var(--drawer-width), 100vw);
     margin-inline: auto;
     max-height: 85vh;
     border: 1px solid var(--border);
