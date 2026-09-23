@@ -1,0 +1,74 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {items}. Arrow keys move, Space drops, Escape cancels."
+   data-drag-move="{zone}, position {position} of {count}."
+   data-drag-drop="{items} dropped in {zone} at position {position}."
+   data-drag-cancel="Cancelled. Nothing moved."></p>
+
+<div class="sedna-col sedna-gap-2" @onsedna-drop="Drop">
+    @foreach (var (id, title) in Zones)
+    {
+        <section class="sedna-col sedna-gap-1" aria-labelledby="pick-@id">
+            <h3 class="drag-lane-head" id="pick-@id">@title <span class="badge">@_zones[id].Count</span></h3>
+            <ul class="file-grid" data-drag-zone="@id" data-drag-group="photos" data-drag-axis="grid"
+                data-drag-label="@title" style="--drop-gap: var(--space-6)">
+                @foreach (var photo in _zones[id])
+                {
+                    <li class="file-tile" @key="photo.Id" data-drag-item="@photo.Id" data-drag-label="@photo.Name" tabindex="0">
+                        <label class="form-check file-tile-check">
+                            <input type="checkbox" data-drag-select aria-label="Select @photo.Name"
+                                   checked="@_picked.Contains(photo.Id)" @onchange="e => Toggle(photo.Id, e)" />
+                        </label>
+                        <span class="file-tile-thumb"><span class="file-icon file-icon--image"><i class="ri-image-line"></i></span></span>
+                        <span class="file-name">@photo.Name</span>
+                        <span class="file-meta"><span>@photo.Size</span></span>
+                    </li>
+                }
+                <li class="drag-empty">Nothing here yet. Tick photos above and drag one of them in.</li>
+            </ul>
+        </section>
+    }
+</div>
+
+@code {
+    private sealed record Photo(string Id, string Name, string Size);
+
+    private static readonly (string Id, string Title)[] Zones =
+    [
+        ("earlier", "From earlier issues"),
+        ("issue", "In this issue"),
+    ];
+
+    private readonly Dictionary<string, List<Photo>> _zones = new()
+    {
+        ["earlier"] =
+        [
+            new("p1", "open-day-group.jpg", "4.1 MB"),
+            new("p2", "new-racking-bay-4.jpg", "3.4 MB"),
+            new("p3", "forklift-training.jpg", "2.2 MB"),
+            new("p4", "crates-on-the-floor.jpg", "2.9 MB"),
+            new("p5", "team-summer-lunch.jpg", "3.8 MB"),
+        ],
+        ["issue"] = [new("p6", "cover-autumn.jpg", "1.6 MB")],
+    };
+
+    private readonly HashSet<string> _picked = [];
+
+    private void Toggle(string id, ChangeEventArgs e)
+    {
+        if (e.Value is true) _picked.Add(id);
+        else _picked.Remove(id);
+    }
+
+    // Items is every photo carried: the ticked ones when the one taken hold of was ticked,
+    // otherwise that one alone. Index counts the destination without any of them, so the
+    // handler is still a remove and an insert — of a run instead of one.
+    private void Drop(SednaDropEventArgs e)
+    {
+        var from = _zones[e.From];
+        var to = _zones[e.To];
+        var moving = e.Items.Select(id => from.Find(p => p.Id == id)).OfType<Photo>().ToList();
+        foreach (var photo in moving) from.Remove(photo);
+        to.InsertRange(Math.Min(e.Index, to.Count), moving);
+        _picked.ExceptWith(e.Items);
+    }
+}

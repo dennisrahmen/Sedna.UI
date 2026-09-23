@@ -141,7 +141,7 @@ public class DragTests : ScriptTestBase
     {
         Assert.Equal(0, await page.EvaluateAsync<int>("() => nodesMoved"));
         Assert.Equal(0, await page.EvaluateAsync<int>(
-            "() => document.querySelectorAll('[data-dragging], [data-drop-state], [data-drop-over], [data-drop-edge], [popover], [data-drag-slot]').length"));
+            "() => document.querySelectorAll('[data-dragging], [data-drop-state], [data-drop-over], [data-drop-edge], [popover], [data-drag-slot], [data-drag-carried], [data-drag-count]').length"));
         Assert.Equal(0, await page.EvaluateAsync<int>(
             "() => [...document.querySelectorAll('[data-drag-item]')].filter(el => el.hasAttribute('style') && el.style.getPropertyValue('--drag-x')).length"));
     }
@@ -532,6 +532,150 @@ public class DragTests : ScriptTestBase
         await Assertions.Expect(page.Locator("[data-drag-zone=f1-children]")).ToHaveAttributeAsync("data-drop-state", "invalid");
         await Assertions.Expect(page.Locator("[data-drag-zone=f2-children]")).ToHaveAttributeAsync("data-drop-state", "valid");
         await page.Keyboard.PressAsync("Escape");
+        await AssertNothingLeftBehind(page);
+    }
+
+    // ── Several at once ────────────────────────────────────────────────────────
+
+    private const string Picked = """
+        <p class="visually-hidden" aria-live="assertive" data-drag-live
+           data-drag-pickup="Picked up {items}."
+           data-drag-drop="Dropped {items} at {position} of {count}."></p>
+        <ul class="drag-list" style="width: 320px" data-drag-zone="picked" aria-label="Picked">
+          <li class="drag-item" data-drag-item="p1" tabindex="0" aria-selected="true">One</li>
+          <li class="drag-item" data-drag-item="p2" tabindex="0">Two</li>
+          <li class="drag-item" data-drag-item="p3" tabindex="0" aria-selected="true">Three</li>
+          <li class="drag-item" data-drag-item="p4" tabindex="0">Four</li>
+        </ul>
+        """;
+
+    private static string[] Items(Logged logged) =>
+        logged.Detail.GetProperty("items").EnumerateArray().Select(e => e.GetString()!).ToArray();
+
+    [Fact]
+    public async Task A_selected_item_carries_the_rest_of_the_selection_and_counts_them()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Picked);
+
+        await MouseDrag(page, await Point(page, "[data-drag-item=p3]"),
+            await Point(page, "[data-drag-item=p4]", fy: 0.8f), release: false);
+
+        // The others wait where they are, faded; the one in hand says how many travel.
+        await Assertions.Expect(page.Locator("[data-drag-item=p1]")).ToHaveAttributeAsync("data-drag-carried", "");
+        await Assertions.Expect(page.Locator("[data-drag-item=p3]")).ToHaveAttributeAsync("data-drag-count", "2");
+        Assert.Equal("\"2\"", await page.EvaluateAsync<string>(
+            "() => getComputedStyle(document.querySelector('[data-drag-item=p3]'), '::after').content"));
+        // The line is drawn among what stays, never against an item that is travelling.
+        await Assertions.Expect(page.Locator("[data-drag-item=p4]")).ToHaveAttributeAsync("data-drop-edge", "after");
+
+        await page.Mouse.UpAsync();
+
+        var log = await Log(page);
+        Assert.Equal(["p1", "p3"], Items(log[0]));
+        var drop = log.Single(l => l.Name == "sedna-drop");
+        // Two stay, so the end of the list is position 2 — counted without either of them.
+        AssertDrop(drop, "p3", "picked", "picked", index: 2, fromIndex: 2, keyboard: false);
+        Assert.Equal(["p1", "p3"], Items(drop));
+        Assert.Equal(["p1", "p3"], Items(log[^1]));
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task An_item_outside_the_selection_travels_alone()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Picked);
+
+        await MouseDrag(page, await Point(page, "[data-drag-item=p2]"),
+            await Point(page, "[data-drag-item=p4]", fy: 0.8f));
+
+        var drop = (await Log(page)).Single(l => l.Name == "sedna-drop");
+        AssertDrop(drop, "p2", "picked", "picked", index: 3, fromIndex: 1, keyboard: false);
+        Assert.Equal(["p2"], Items(drop));
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task A_selection_is_read_from_a_checkbox_and_goes_only_where_every_item_may()
+    {
+        if (NoBrowser) return;
+        // A tile has a checkbox, not aria-selected, which a list item may not carry.
+        var page = await OpenDrag("""
+            <div style="display: flex; gap: 24px">
+              <ul class="drag-list" style="width: 220px" data-drag-zone="todo" data-drag-group="board" aria-label="To do">
+                <li class="drag-item" data-drag-item="t1" data-drag-type="task"><input type="checkbox" data-drag-select checked aria-label="Select Rotate keys"> Rotate keys</li>
+                <li class="drag-item" data-drag-item="t2" data-drag-type="task"><input type="checkbox" data-drag-select checked aria-label="Select Renew certificate"> Renew certificate</li>
+                <li class="drag-item" data-drag-item="b1" data-drag-type="bug"><input type="checkbox" data-drag-select id="pick-b1" aria-label="Select Fix login"> Fix login</li>
+              </ul>
+              <ul class="drag-list" style="width: 220px; min-height: 160px" data-drag-zone="doing" data-drag-group="board"
+                  data-drag-accept="task" aria-label="Doing">
+                <li class="drag-empty">Nothing in progress</li>
+              </ul>
+            </div>
+            """);
+
+        await MouseDrag(page, await Point(page, "[data-drag-item=t1]", fx: 0.7f), await Point(page, "[data-drag-zone=doing]"));
+        var drop = (await Log(page)).Single(l => l.Name == "sedna-drop");
+        AssertDrop(drop, "t1", "todo", "doing", index: 0, fromIndex: 0, keyboard: false);
+        Assert.Equal(["t1", "t2"], Items(drop));
+
+        // With a bug in the selection, a lane that takes only tasks takes none of it.
+        await page.EvaluateAsync("() => { dragLog.length = 0; document.getElementById('pick-b1').checked = true; }");
+        await MouseDrag(page, await Point(page, "[data-drag-item=t1]", fx: 0.7f),
+            await Point(page, "[data-drag-zone=doing]"), release: false);
+        await Assertions.Expect(page.Locator("[data-drag-zone=doing]")).ToHaveAttributeAsync("data-drop-state", "invalid");
+        await page.Mouse.UpAsync();
+
+        Assert.DoesNotContain(await Log(page), l => l.Name == "sedna-drop");
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task A_selection_moves_from_the_keyboard_and_is_announced_by_its_size()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Picked);
+        var live = page.Locator("[data-drag-live]");
+
+        await page.Locator("[data-drag-item=p1]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await Assertions.Expect(live).ToHaveTextAsync("Picked up 2.");
+        await page.Keyboard.PressAsync("End");
+        await page.Keyboard.PressAsync("Enter");
+        await Assertions.Expect(live).ToHaveTextAsync("Dropped 2 at 3 of 3.");
+
+        var drop = (await Log(page)).Single(l => l.Name == "sedna-drop");
+        AssertDrop(drop, "p1", "picked", "picked", index: 2, fromIndex: 0, keyboard: true);
+        Assert.Equal(["p1", "p3"], Items(drop));
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task A_selection_set_down_where_it_already_is_sends_no_drop_unless_it_was_scattered()
+    {
+        if (NoBrowser) return;
+        // One and Three are apart: dropping them at One's place gathers them, which is a move.
+        var page = await OpenDrag(Picked);
+        await page.Locator("[data-drag-item=p1]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await page.Keyboard.PressAsync("Enter");
+        var scattered = (await Log(page)).Single(l => l.Name == "sedna-drop");
+        AssertDrop(scattered, "p1", "picked", "picked", index: 0, fromIndex: 0, keyboard: true);
+
+        // One and Two together, set down at once: nothing changes, so nothing is sent.
+        await page.EvaluateAsync("""
+            () => {
+                dragLog.length = 0;
+                document.querySelector('[data-drag-item=p3]').removeAttribute('aria-selected');
+                document.querySelector('[data-drag-item=p2]').setAttribute('aria-selected', 'true');
+            }
+            """);
+        await page.Locator("[data-drag-item=p2]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await page.Keyboard.PressAsync("Enter");
+
+        Assert.Equal(["sedna-dragstart", "sedna-dragend"], (await Log(page)).Select(l => l.Name));
         await AssertNothingLeftBehind(page);
     }
 }

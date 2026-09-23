@@ -251,6 +251,35 @@
     box-shadow: var(--shadow-dropdown);
 }
 
+/* ── Carrying a selection ───────────────────────────────────────────────────
+   The other selected items stay in place, faded, until the app moves them on the drop;
+   the item in hand says how many are travelling. A number read off the attribute the
+   script writes, so there is no word in it to translate — the sentence a screen reader
+   hears is the app's own, through {items}. The border is what forced colours paints. */
+[data-drag-carried] { opacity: 0.45; }
+[data-drag-count]::after {
+    content: attr(data-drag-count);
+    position: absolute;
+    inset-block-start: calc(var(--space-4) * -1);
+    inset-inline-end: calc(var(--space-4) * -1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding-inline: var(--space-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    background: var(--brand);
+    color: var(--on-solid);
+    box-shadow: var(--shadow-dropdown);
+    font-size: var(--text-2);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    pointer-events: none;
+}
+
 /* ── Zones while something is dragged ───────────────────────────────────────
    Outlines, not borders, so a zone lighting up moves nothing. The style of the line is
    the second channel beside its colour: dashed where it can go, dotted where it cannot,
