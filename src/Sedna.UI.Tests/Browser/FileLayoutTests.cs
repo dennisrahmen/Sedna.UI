@@ -99,6 +99,92 @@ public class FileLayoutTests : ScriptTestBase
         Assert.Equal(1, await Opacity("c2"));
     }
 
+    // A 16:9 and a 2:3 picture, sized by their attributes as a real thumbnail is.
+    private const string Wide = """<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180'/%3E" width="320" height="180" alt="">""";
+    private const string Tall = """<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'/%3E" width="200" height="300" alt="">""";
+
+    [Fact]
+    public async Task A_contained_thumb_keeps_its_frame_and_a_natural_one_takes_the_pictures_shape()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled($"""
+            <ul class="file-grid" style="width:200px;grid-template-columns:1fr">
+              <li class="file-tile"><span class="file-tile-thumb file-tile-thumb--contain" id="contain">{Wide}</span></li>
+              <li class="file-tile"><span class="file-tile-thumb file-tile-thumb--natural" id="natural">{Wide}</span></li>
+              <li class="file-tile"><span class="file-tile-thumb file-tile-thumb--natural" id="tall">{Tall}</span></li>
+              <li class="file-tile"><span class="file-tile-thumb file-tile-thumb--natural" id="icon"><span class="file-icon"><i></i></span></span></li>
+            </ul>
+            <ul class="file-grid file-grid--wide" style="width:300px">
+              <li class="file-tile"><span class="file-tile-thumb file-tile-thumb--natural" id="wide-grid">{Tall}</span></li>
+            </ul>
+            """);
+
+        async Task<double> Ratio(string id) => await page.EvaluateAsync<double>(
+            $"() => {{ const r = document.getElementById('{id}').getBoundingClientRect(); return r.width / r.height; }}");
+
+        Assert.Equal(1, await Ratio("contain"), 2);
+        Assert.Equal("contain", await page.EvaluateAsync<string>(
+            "() => getComputedStyle(document.querySelector('#contain > img')).objectFit"));
+        Assert.Equal(320.0 / 180, await Ratio("natural"), 2);
+        Assert.Equal(200.0 / 300, await Ratio("tall"), 2);
+        Assert.Equal(1, await Ratio("icon"), 2);              // no picture: the frame stays
+        Assert.Equal(200.0 / 300, await Ratio("wide-grid"), 2); // --wide's 16:9 does not win
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_wrapped_name_shows_whole_inside_a_narrow_tile()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <ul class="file-grid" style="width:140px;grid-template-columns:1fr">
+              <li class="file-tile" id="tile">
+                <a class="file-tile-open" href="#"><span class="file-tile-thumb"></span>
+                  <span class="file-name file-name--wrap" id="name">IMG_20260918_102915_warehouse_open_day_group_photo.jpeg</span></a>
+              </li>
+            </ul>
+            """);
+
+        var probe = await page.EvaluateAsync<double[]>("""
+            () => {
+                const tile = document.getElementById('tile').getBoundingClientRect();
+                const name = document.getElementById('name');
+                const r = name.getBoundingClientRect();
+                const line = parseFloat(getComputedStyle(name).lineHeight);
+                return [tile.right - r.right, name.scrollWidth - name.clientWidth, r.height / line];
+            }
+            """);
+
+        Assert.True(probe[0] >= 0, "The name runs out of its tile.");
+        Assert.Equal(0, probe[1], 0);                     // nothing clipped
+        Assert.True(probe[2] > 1.5, "A long name should wrap onto more lines.");
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task An_always_visible_tile_action_needs_no_hover()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled("""
+            <ul class="file-grid" style="width:300px">
+              <li class="file-tile">
+                <label class="form-check file-tile-check" id="check"><input type="checkbox" aria-label="Select one" /></label>
+                <a class="file-tile-open" href="#"><span class="file-tile-thumb"></span><span class="file-name">one.pdf</span></a>
+                <button class="btn btn-icon file-tile-menu file-tile-menu--always" id="always" type="button" aria-label="Remove one.pdf"><i></i></button>
+                <button class="btn btn-icon file-tile-menu" id="plain" type="button" aria-label="Actions for one.pdf" style="top:auto;bottom:0"><i></i></button>
+              </li>
+            </ul>
+            """);
+        await page.Mouse.MoveAsync(0, 600);
+
+        async Task<double> Opacity(string id) =>
+            await page.EvaluateAsync<double>($"() => parseFloat(getComputedStyle(document.getElementById('{id}')).opacity)");
+
+        Assert.Equal(1, await Opacity("always"));
+        Assert.Equal(0, await Opacity("plain"));   // the modifier, not a change to every menu
+        Assert.Equal(0, await Opacity("check"));   // and not to the checkbox
+    }
+
     [Fact]
     public async Task The_whole_tile_opens_the_file()
     {
