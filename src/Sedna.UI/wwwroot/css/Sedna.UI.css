@@ -4399,9 +4399,24 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    Plain `column`, not `column-reverse`: because the bottom edge is pinned, the
    box grows upward on its own, so the newest toast is already nearest the corner
    without reversing anything — and the rendered order matches the source order,
-   which a reader comparing the demo to the snippet depends on. */
+   which a reader comparing the demo to the snippet depends on.
+
+   The stack sednaUi.toast creates is a manual popover, so it reaches the top layer
+   above an open modal <dialog> — 51-toast.js says why. The UA gives `[popover]` a
+   centred, bordered, opaque box; the resets below take that back, and cost nothing on
+   a stack an app writes without the attribute. z-index 600 still orders it wherever
+   there is no top layer. */
 .toast-stack {
     position: fixed;
+    inset: auto;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    background: transparent;
+    color: inherit;
     /* Pinned to a corner, so it is outside the shell's own safe-area padding and
        takes both insets itself. ADDED to the offset rather than replacing it: the
        20px is the gap the design wants from the edge, and the inset is how much of
@@ -10799,6 +10814,35 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
     box-shadow: var(--shadow-dropdown);
 }
 
+/* ── Carrying a selection ───────────────────────────────────────────────────
+   The other selected items stay in place, faded, until the app moves them on the drop;
+   the item in hand says how many are travelling. A number read off the attribute the
+   script writes, so there is no word in it to translate — the sentence a screen reader
+   hears is the app's own, through {items}. The border is what forced colours paints. */
+[data-drag-carried] { opacity: 0.45; }
+[data-drag-count]::after {
+    content: attr(data-drag-count);
+    position: absolute;
+    inset-block-start: calc(var(--space-4) * -1);
+    inset-inline-end: calc(var(--space-4) * -1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding-inline: var(--space-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    background: var(--brand);
+    color: var(--on-solid);
+    box-shadow: var(--shadow-dropdown);
+    font-size: var(--text-2);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    pointer-events: none;
+}
+
 /* ── Zones while something is dragged ───────────────────────────────────────
    Outlines, not borders, so a zone lighting up moves nothing. The style of the line is
    the second channel beside its colour: dashed where it can go, dotted where it cannot,
@@ -10896,7 +10940,10 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
     z-index: 490;
     display: flex;
     flex-direction: column;
-    width: min(420px, 100vw);
+    /* The knob for a drawer that needs more room than a form — a record with a
+       picture in it, a wide table. Set it on the drawer; the viewport still caps it. */
+    --drawer-width: 420px;
+    width: min(var(--drawer-width), 100vw);
     /* The panel reaches the bottom edge in both forms — a side drawer spans the
        block axis, a sheet sits on it — so the home indicator would cross the footer's
        buttons on a phone. Padding rather than an offset, so the inset is filled with
@@ -10942,7 +10989,8 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 .sheet {
     inset-block: auto 0;
     inset-inline: 0;
-    width: min(480px, 100vw);
+    --drawer-width: 480px;
+    width: min(var(--drawer-width), 100vw);
     margin-inline: auto;
     max-height: 85vh;
     border: 1px solid var(--border);
@@ -11266,6 +11314,16 @@ dialog.sheet.sheet--dragging { transition: none; }
 }
 .file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .file-name-end { flex-shrink: 0; }
+/* The whole name over as many lines as it takes, for a reader who has to see every
+   character of a name they did not choose — an upload straight off a phone. A token
+   with no break in it breaks anywhere rather than running out of the tile, and does
+   not widen the column it sits in. The split spans, if the markup has them, simply
+   run on as text. */
+.file-name--wrap {
+    display: block;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
 
 /* The size, the date, the owner — separated by a dot the stylesheet draws, so it is
    never copied or read out. Wraps rather than widening what it sits in. */
@@ -11362,7 +11420,8 @@ a.file-cell:hover .file-name { text-decoration: underline; }
     box-shadow: inset 0 0 0 1px var(--brand);
     background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
 }
-.file-tile:has(.file-tile-open:focus-visible) { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.file-tile:has(.file-tile-open:focus-visible),
+.file-tile:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 
 /* The picture: square, cropped to fill, with the type icon large in the middle when
    there is no picture to show. */
@@ -11380,6 +11439,15 @@ a.file-cell:hover .file-name { text-decoration: underline; }
 .file-tile-thumb > .file-icon { --file-icon-size: 56px; background: transparent; }
 .file-tile-thumb > .file-icon > i { font-size: var(--text-11); }
 .file-grid--wide .file-tile-thumb { aspect-ratio: 16 / 9; }
+/* A picture that must not be cropped — a logo, a screenshot — in either of two shapes.
+   `--contain` keeps the tile's frame and fits the whole picture inside it, so a row of
+   tiles stays level. `--natural` drops the frame and takes the picture's own ratio,
+   from its width and height attributes before it loads, so a 16:9 logo is a 16:9
+   tile and the row goes ragged. Without a picture, both keep the frame, or a type
+   icon would collapse the tile to its own height. */
+.file-tile-thumb--contain > img { object-fit: contain; }
+.file-tile-thumb.file-tile-thumb--natural:has(> img) { aspect-ratio: auto; }
+.file-tile-thumb--natural > img { height: auto; object-fit: contain; }
 
 /* Opens it. The link's own box is the name; its `::after` is the tile, so a click
    anywhere that is not the checkbox or the menu opens the file. */
@@ -11425,6 +11493,10 @@ a.file-cell:hover .file-name { text-decoration: underline; }
     .file-tile-check,
     .file-tile-menu { opacity: 1; }
 }
+/* An action a reader must find without knowing to hover for it — the one thing a
+   tile is for, such as taking it back out of a selection. On the button, so the
+   checkbox keeps its own rule. */
+.file-tile-menu--always { opacity: 1; }
 .file-tile > .file-meta { font-size: var(--text-2); }
 
 /* A label on the picture's corner — a video's duration, a page count. */

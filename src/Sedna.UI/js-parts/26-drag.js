@@ -31,13 +31,23 @@
    worse, diffed against the wrong sibling — on the next render. So a drag changes
    attributes only, and the move itself is an event the app handles:
 
-     sedna-dragstart   on the item, cancelable       { item, type, zone, index, keyboard }
-     sedna-drop        on the zone it landed in      { item, type, from, to, index, fromIndex, keyboard }
-     sedna-dragend     on the item, always, last     { item, type, zone, index, keyboard, dropped }
+     sedna-dragstart   on the item, cancelable       { item, items, type, zone, index, keyboard }
+     sedna-drop        on the zone it landed in      { item, items, type, from, to, index, fromIndex, keyboard }
+     sedna-dragend     on the item, always, last     { item, items, type, zone, index, keyboard, dropped }
 
    `index` in sedna-drop is where the item goes in `to` once it has left `from`, so
    the app's whole handler is a remove and an insert. A drop back where it started
-   sends no sedna-drop. Every attribute below is cleared BEFORE the events go out, so
+   sends no sedna-drop.
+
+   SEVERAL AT ONCE. An item lifted while it is selected carries every other selected
+   item of its zone with it. Selected is what the app already writes: aria-selected="true"
+   on the item — a table row, an option — or a checked input[data-drag-select] inside
+   it, which is a tile's own checkbox. `items` lists the ids carried, in document order,
+   and is just [item] for an item lifted alone; `index` then counts `to` without any of
+   them, so the handler removes all of `items` and inserts them there, in that order.
+   A zone takes them only if it takes every one. The others stay where they are, marked
+   data-drag-carried, and the lifted item carries data-drag-count for the stylesheet to
+   show how many are travelling. Every attribute below is cleared BEFORE the events go out, so
    the render they cause starts from the app's own markup.
 
    What a drag writes, all of it on elements the app wrote:
@@ -50,6 +60,8 @@
      data-drop-over                     the zone under the pointer
      data-drop-edge="before|after"      the item the insertion line is drawn against
      data-drag-slot="start|end|column"  the neighbour holding a raised item's slot open
+     data-drag-carried                  the other selected items travelling with it
+     data-drag-count="3"                on the dragged item, when it carries others
 
    The lifted item, the line and the zone states are all CSS on those attributes
    (63-drag.css). Nothing is drawn: there is no ghost and no placeholder element.
@@ -88,13 +100,40 @@
 
     function zoneOf(item) { return isZone(item.parentElement) ? item.parentElement : null; }
 
-    function itemsOf(zone, except) {
+    function itemsOf(zone) {
         return toArray(zone.children).filter(function (el) {
-            return el !== except && el.hasAttribute('data-drag-item');
+            return el.hasAttribute('data-drag-item');
         });
     }
 
     function disabled(el) { return el.getAttribute('aria-disabled') === 'true'; }
+
+    /* Selected the way the app already says so: aria-selected on a row or an option, or
+       the item's own checkbox — a tile's .file-tile-check — marked data-drag-select. */
+    function selected(item) {
+        if (item.getAttribute('aria-selected') === 'true') return true;
+        var boxes = item.querySelectorAll('input[data-drag-select]');
+        for (var i = 0; i < boxes.length; i++) {
+            if (boxes[i].checked && boxes[i].closest('[data-drag-item]') === item) return true;
+        }
+        return false;
+    }
+
+    /* What lifting `item` carries: the item alone, or — when it is itself selected —
+       every selected item of its zone that can be lifted, in document order. */
+    function carriedWith(item, from) {
+        if (!selected(item)) return [item];
+        return itemsOf(from).filter(function (el) {
+            return el === item || (selected(el) && !disabled(el));
+        });
+    }
+
+    /* A zone's items the drop is placed among: everything but what is being carried. */
+    function others(zone) {
+        return toArray(zone.children).filter(function (el) {
+            return el.hasAttribute('data-drag-item') && drag.carried.indexOf(el) === -1;
+        });
+    }
 
     function handleOf(item) {
         var handles = item.querySelectorAll('[data-drag-handle]');
@@ -168,6 +207,7 @@
             data-drag-drop="Dropped {item} at position {position} of {count} in {zone}."
             data-drag-cancel="{item} is back where it was."></p>
 
+       {items} is how many are being carried, for a sentence about a selection.
        A step with no sentence says nothing. Leave the element empty in the markup: this
        writes its text. */
     function liveFor(el) {
@@ -186,10 +226,11 @@
 
         var back = kind === 'cancel' || !drag.zone;
         var zone = back ? drag.from : drag.zone;
-        var count = itemsOf(zone, drag.item).length + 1;
-        var index = back ? drag.fromIndex : drag.index;
-        var said = sentence.replace(/\{(item|zone|position|count)\}/g, function (all, name) {
+        var count = others(zone).length + 1;
+        var index = back ? drag.start : drag.index;
+        var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
             if (name === 'item') return drag.name;
+            if (name === 'items') return String(drag.carried.length);
             if (name === 'zone') return zoneName(zone);
             if (name === 'position') return String(index + 1);
             return String(count);
@@ -222,7 +263,7 @@
        drawn after the tile that ends the row above, where the pointer is. */
     function markEdge(zone, index, y) {
         clearEdge();
-        var items = itemsOf(zone, drag.item);
+        var items = others(zone);
         if (!items.length) return;
 
         var el = items[Math.min(index, items.length - 1)];
@@ -251,9 +292,17 @@
 
     function begin(item, mode, x, y) {
         var from = zoneOf(item);
-        var fromIndex = itemsOf(from).indexOf(item);
+        var all = itemsOf(from);
+        var fromIndex = all.indexOf(item);
+        var carried = carriedWith(item, from);
+        // Where the carried items sit among the rest, and whether they sit together: a
+        // run already together, dropped where it is, changes nothing and sends no drop.
+        var first = all.indexOf(carried[0]);
+        var start = first - all.slice(0, first).filter(function (el) { return carried.indexOf(el) !== -1; }).length;
+        var together = all.indexOf(carried[carried.length - 1]) - first === carried.length - 1;
         var detail = {
             item: item.getAttribute('data-drag-item'),
+            items: carried.map(function (el) { return el.getAttribute('data-drag-item'); }),
             type: item.getAttribute('data-drag-type'),
             zone: from.getAttribute('data-drag-zone'),
             index: fromIndex,
@@ -264,6 +313,7 @@
         var rect = item.getBoundingClientRect();
         drag = {
             item: item, mode: mode, from: from, fromIndex: fromIndex, detail: detail,
+            carried: carried, start: start, together: together,
             name: itemName(item),
             hadStyle: item.hasAttribute('style'),
             grabX: x - rect.left, grabY: y - rect.top, x: x, y: y, x0: x, y0: y, tx: 0, ty: 0,
@@ -275,20 +325,25 @@
         toArray(document.querySelectorAll('[data-drag-zone]')).forEach(function (zone) {
             var group = zone.getAttribute('data-drag-group');
             if (zone !== from && (!group || group !== from.getAttribute('data-drag-group'))) return;
-            zone.setAttribute('data-drop-state', accepts(zone, item, from) ? 'valid' : 'invalid');
+            var takes = carried.every(function (el) { return accepts(zone, el, from); });
+            zone.setAttribute('data-drop-state', takes ? 'valid' : 'invalid');
             drag.zones.push(zone);
         });
 
         item.setAttribute('data-dragging', mode);
+        if (carried.length > 1) {
+            item.setAttribute('data-drag-count', String(carried.length));
+            carried.forEach(function (el) { if (el !== item) el.setAttribute('data-drag-carried', ''); });
+        }
         if (mode === 'pointer') lift(item, rect);
         if (ui.tips && ui.tips.hide) ui.tips.hide();
         try { window.getSelection().removeAllRanges(); } catch (e) { /* nothing selected */ }
 
         if (mode === 'keyboard') {
-            target(from, fromIndex);
+            target(from, start);
             announce('pickup');
         } else {
-            target(from, fromIndex, y);
+            target(from, start, y);
             tick();
         }
         return true;
@@ -385,7 +440,7 @@
 
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
-        var moved = landed && (zone !== d.from || d.index !== d.fromIndex);
+        var moved = landed && (zone !== d.from || !d.together || d.index !== d.start);
 
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
 
@@ -398,6 +453,8 @@
             d.item.removeAttribute('popover');
         }
         d.item.removeAttribute('data-dragging');
+        d.item.removeAttribute('data-drag-count');
+        d.carried.forEach(function (el) { el.removeAttribute('data-drag-carried'); });
         BOX.forEach(function (name) { d.item.style.removeProperty(name); });
         if (!d.hadStyle && !d.item.getAttribute('style')) d.item.removeAttribute('style');
         drag = null;
@@ -406,6 +463,7 @@
         if (moved) {
             send(zone, 'sedna-drop', {
                 item: id,
+                items: d.detail.items,
                 type: d.detail.type,
                 from: d.detail.zone,
                 to: zone.getAttribute('data-drag-zone'),
@@ -416,7 +474,7 @@
         }
 
         var end = {
-            item: id, type: d.detail.type,
+            item: id, items: d.detail.items, type: d.detail.type,
             zone: moved ? zone.getAttribute('data-drag-zone') : d.detail.zone,
             index: moved ? d.index : d.fromIndex,
             keyboard: d.mode === 'keyboard',
@@ -486,7 +544,7 @@
     }
 
     function indexAt(zone, x, y) {
-        var items = itemsOf(zone, drag.item);
+        var items = others(zone);
         var axis = axisOf(zone);
         var flip = rtl(zone);
         for (var i = 0; i < items.length; i++) {
@@ -705,7 +763,7 @@
 
     function move(key) {
         var zone = drag.zone && drag.zone.getAttribute('data-drop-state') === 'valid' ? drag.zone : drag.from;
-        var max = itemsOf(zone, drag.item).length;
+        var max = others(zone).length;
         var axis = axisOf(zone);
         var flip = rtl(zone);
         var back = flip ? 'ArrowRight' : 'ArrowLeft';
@@ -740,7 +798,7 @@
             var next = zones[zones.indexOf(zone) + hop];
             if (!next) return;
             zone = next;
-            index = Math.min(index, itemsOf(zone, drag.item).length);
+            index = Math.min(index, others(zone).length);
         } else {
             index = Math.max(0, Math.min(max, index + step));
         }

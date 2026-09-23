@@ -58,6 +58,24 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.DragSelection" Title="Carry a selection" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; tick a few photos, then drag one of them.</strong> An item taken hold of
+        while it is selected carries the rest of its zone's selection with it. Selected is what the
+        markup already says: a checked <code>input[data-drag-select]</code> inside the item, which is
+        a tile's own <code>.file-tile-check</code>, or <code>aria-selected="true"</code> on an item
+        whose role allows it, such as a table row or an option. An item that is not selected travels
+        alone.
+    </p>
+    <p>
+        <code>Items</code> lists every id carried, in document order. <code>Index</code> counts the
+        destination without any of them, so the handler removes them all and inserts the run there.
+        The others fade in place, marked <code>data-drag-carried</code>, and the one in hand shows the
+        count from <code>data-drag-count</code>. <code>{items}</code> gives the count to an
+        announcement. A zone takes the selection only if it takes every item in it.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Interop.DragNested" Title="A nested zone that takes only some items" Demo="ex-demo--block ex-demo--pad">
     <p>
         <strong>Live &mdash; carry a stage over another stage's tasks.</strong>

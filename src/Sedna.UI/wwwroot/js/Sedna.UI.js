@@ -2857,13 +2857,23 @@ window.sednaUi = window.sednaUi || {};
    worse, diffed against the wrong sibling — on the next render. So a drag changes
    attributes only, and the move itself is an event the app handles:
 
-     sedna-dragstart   on the item, cancelable       { item, type, zone, index, keyboard }
-     sedna-drop        on the zone it landed in      { item, type, from, to, index, fromIndex, keyboard }
-     sedna-dragend     on the item, always, last     { item, type, zone, index, keyboard, dropped }
+     sedna-dragstart   on the item, cancelable       { item, items, type, zone, index, keyboard }
+     sedna-drop        on the zone it landed in      { item, items, type, from, to, index, fromIndex, keyboard }
+     sedna-dragend     on the item, always, last     { item, items, type, zone, index, keyboard, dropped }
 
    `index` in sedna-drop is where the item goes in `to` once it has left `from`, so
    the app's whole handler is a remove and an insert. A drop back where it started
-   sends no sedna-drop. Every attribute below is cleared BEFORE the events go out, so
+   sends no sedna-drop.
+
+   SEVERAL AT ONCE. An item lifted while it is selected carries every other selected
+   item of its zone with it. Selected is what the app already writes: aria-selected="true"
+   on the item — a table row, an option — or a checked input[data-drag-select] inside
+   it, which is a tile's own checkbox. `items` lists the ids carried, in document order,
+   and is just [item] for an item lifted alone; `index` then counts `to` without any of
+   them, so the handler removes all of `items` and inserts them there, in that order.
+   A zone takes them only if it takes every one. The others stay where they are, marked
+   data-drag-carried, and the lifted item carries data-drag-count for the stylesheet to
+   show how many are travelling. Every attribute below is cleared BEFORE the events go out, so
    the render they cause starts from the app's own markup.
 
    What a drag writes, all of it on elements the app wrote:
@@ -2876,6 +2886,8 @@ window.sednaUi = window.sednaUi || {};
      data-drop-over                     the zone under the pointer
      data-drop-edge="before|after"      the item the insertion line is drawn against
      data-drag-slot="start|end|column"  the neighbour holding a raised item's slot open
+     data-drag-carried                  the other selected items travelling with it
+     data-drag-count="3"                on the dragged item, when it carries others
 
    The lifted item, the line and the zone states are all CSS on those attributes
    (63-drag.css). Nothing is drawn: there is no ghost and no placeholder element.
@@ -2914,13 +2926,40 @@ window.sednaUi = window.sednaUi || {};
 
     function zoneOf(item) { return isZone(item.parentElement) ? item.parentElement : null; }
 
-    function itemsOf(zone, except) {
+    function itemsOf(zone) {
         return toArray(zone.children).filter(function (el) {
-            return el !== except && el.hasAttribute('data-drag-item');
+            return el.hasAttribute('data-drag-item');
         });
     }
 
     function disabled(el) { return el.getAttribute('aria-disabled') === 'true'; }
+
+    /* Selected the way the app already says so: aria-selected on a row or an option, or
+       the item's own checkbox — a tile's .file-tile-check — marked data-drag-select. */
+    function selected(item) {
+        if (item.getAttribute('aria-selected') === 'true') return true;
+        var boxes = item.querySelectorAll('input[data-drag-select]');
+        for (var i = 0; i < boxes.length; i++) {
+            if (boxes[i].checked && boxes[i].closest('[data-drag-item]') === item) return true;
+        }
+        return false;
+    }
+
+    /* What lifting `item` carries: the item alone, or — when it is itself selected —
+       every selected item of its zone that can be lifted, in document order. */
+    function carriedWith(item, from) {
+        if (!selected(item)) return [item];
+        return itemsOf(from).filter(function (el) {
+            return el === item || (selected(el) && !disabled(el));
+        });
+    }
+
+    /* A zone's items the drop is placed among: everything but what is being carried. */
+    function others(zone) {
+        return toArray(zone.children).filter(function (el) {
+            return el.hasAttribute('data-drag-item') && drag.carried.indexOf(el) === -1;
+        });
+    }
 
     function handleOf(item) {
         var handles = item.querySelectorAll('[data-drag-handle]');
@@ -2994,6 +3033,7 @@ window.sednaUi = window.sednaUi || {};
             data-drag-drop="Dropped {item} at position {position} of {count} in {zone}."
             data-drag-cancel="{item} is back where it was."></p>
 
+       {items} is how many are being carried, for a sentence about a selection.
        A step with no sentence says nothing. Leave the element empty in the markup: this
        writes its text. */
     function liveFor(el) {
@@ -3012,10 +3052,11 @@ window.sednaUi = window.sednaUi || {};
 
         var back = kind === 'cancel' || !drag.zone;
         var zone = back ? drag.from : drag.zone;
-        var count = itemsOf(zone, drag.item).length + 1;
-        var index = back ? drag.fromIndex : drag.index;
-        var said = sentence.replace(/\{(item|zone|position|count)\}/g, function (all, name) {
+        var count = others(zone).length + 1;
+        var index = back ? drag.start : drag.index;
+        var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
             if (name === 'item') return drag.name;
+            if (name === 'items') return String(drag.carried.length);
             if (name === 'zone') return zoneName(zone);
             if (name === 'position') return String(index + 1);
             return String(count);
@@ -3048,7 +3089,7 @@ window.sednaUi = window.sednaUi || {};
        drawn after the tile that ends the row above, where the pointer is. */
     function markEdge(zone, index, y) {
         clearEdge();
-        var items = itemsOf(zone, drag.item);
+        var items = others(zone);
         if (!items.length) return;
 
         var el = items[Math.min(index, items.length - 1)];
@@ -3077,9 +3118,17 @@ window.sednaUi = window.sednaUi || {};
 
     function begin(item, mode, x, y) {
         var from = zoneOf(item);
-        var fromIndex = itemsOf(from).indexOf(item);
+        var all = itemsOf(from);
+        var fromIndex = all.indexOf(item);
+        var carried = carriedWith(item, from);
+        // Where the carried items sit among the rest, and whether they sit together: a
+        // run already together, dropped where it is, changes nothing and sends no drop.
+        var first = all.indexOf(carried[0]);
+        var start = first - all.slice(0, first).filter(function (el) { return carried.indexOf(el) !== -1; }).length;
+        var together = all.indexOf(carried[carried.length - 1]) - first === carried.length - 1;
         var detail = {
             item: item.getAttribute('data-drag-item'),
+            items: carried.map(function (el) { return el.getAttribute('data-drag-item'); }),
             type: item.getAttribute('data-drag-type'),
             zone: from.getAttribute('data-drag-zone'),
             index: fromIndex,
@@ -3090,6 +3139,7 @@ window.sednaUi = window.sednaUi || {};
         var rect = item.getBoundingClientRect();
         drag = {
             item: item, mode: mode, from: from, fromIndex: fromIndex, detail: detail,
+            carried: carried, start: start, together: together,
             name: itemName(item),
             hadStyle: item.hasAttribute('style'),
             grabX: x - rect.left, grabY: y - rect.top, x: x, y: y, x0: x, y0: y, tx: 0, ty: 0,
@@ -3101,20 +3151,25 @@ window.sednaUi = window.sednaUi || {};
         toArray(document.querySelectorAll('[data-drag-zone]')).forEach(function (zone) {
             var group = zone.getAttribute('data-drag-group');
             if (zone !== from && (!group || group !== from.getAttribute('data-drag-group'))) return;
-            zone.setAttribute('data-drop-state', accepts(zone, item, from) ? 'valid' : 'invalid');
+            var takes = carried.every(function (el) { return accepts(zone, el, from); });
+            zone.setAttribute('data-drop-state', takes ? 'valid' : 'invalid');
             drag.zones.push(zone);
         });
 
         item.setAttribute('data-dragging', mode);
+        if (carried.length > 1) {
+            item.setAttribute('data-drag-count', String(carried.length));
+            carried.forEach(function (el) { if (el !== item) el.setAttribute('data-drag-carried', ''); });
+        }
         if (mode === 'pointer') lift(item, rect);
         if (ui.tips && ui.tips.hide) ui.tips.hide();
         try { window.getSelection().removeAllRanges(); } catch (e) { /* nothing selected */ }
 
         if (mode === 'keyboard') {
-            target(from, fromIndex);
+            target(from, start);
             announce('pickup');
         } else {
-            target(from, fromIndex, y);
+            target(from, start, y);
             tick();
         }
         return true;
@@ -3211,7 +3266,7 @@ window.sednaUi = window.sednaUi || {};
 
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
-        var moved = landed && (zone !== d.from || d.index !== d.fromIndex);
+        var moved = landed && (zone !== d.from || !d.together || d.index !== d.start);
 
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
 
@@ -3224,6 +3279,8 @@ window.sednaUi = window.sednaUi || {};
             d.item.removeAttribute('popover');
         }
         d.item.removeAttribute('data-dragging');
+        d.item.removeAttribute('data-drag-count');
+        d.carried.forEach(function (el) { el.removeAttribute('data-drag-carried'); });
         BOX.forEach(function (name) { d.item.style.removeProperty(name); });
         if (!d.hadStyle && !d.item.getAttribute('style')) d.item.removeAttribute('style');
         drag = null;
@@ -3232,6 +3289,7 @@ window.sednaUi = window.sednaUi || {};
         if (moved) {
             send(zone, 'sedna-drop', {
                 item: id,
+                items: d.detail.items,
                 type: d.detail.type,
                 from: d.detail.zone,
                 to: zone.getAttribute('data-drag-zone'),
@@ -3242,7 +3300,7 @@ window.sednaUi = window.sednaUi || {};
         }
 
         var end = {
-            item: id, type: d.detail.type,
+            item: id, items: d.detail.items, type: d.detail.type,
             zone: moved ? zone.getAttribute('data-drag-zone') : d.detail.zone,
             index: moved ? d.index : d.fromIndex,
             keyboard: d.mode === 'keyboard',
@@ -3312,7 +3370,7 @@ window.sednaUi = window.sednaUi || {};
     }
 
     function indexAt(zone, x, y) {
-        var items = itemsOf(zone, drag.item);
+        var items = others(zone);
         var axis = axisOf(zone);
         var flip = rtl(zone);
         for (var i = 0; i < items.length; i++) {
@@ -3531,7 +3589,7 @@ window.sednaUi = window.sednaUi || {};
 
     function move(key) {
         var zone = drag.zone && drag.zone.getAttribute('data-drop-state') === 'valid' ? drag.zone : drag.from;
-        var max = itemsOf(zone, drag.item).length;
+        var max = others(zone).length;
         var axis = axisOf(zone);
         var flip = rtl(zone);
         var back = flip ? 'ArrowRight' : 'ArrowLeft';
@@ -3566,7 +3624,7 @@ window.sednaUi = window.sednaUi || {};
             var next = zones[zones.indexOf(zone) + hop];
             if (!next) return;
             zone = next;
-            index = Math.min(index, itemsOf(zone, drag.item).length);
+            index = Math.min(index, others(zone).length);
         } else {
             index = Math.max(0, Math.min(max, index + step));
         }
@@ -5354,6 +5412,17 @@ window.sednaUi = window.sednaUi || {};
    own — the close button's label — comes from `dismissLabel`, per call or through
    configure({ toastDismissLabel }), so it is never English in a German app.
 
+   IN THE TOP LAYER, AND INSIDE AN OPEN MODAL. showModal() puts a <dialog> in the top
+   layer, above every z-index, so a stack that is merely `position: fixed` paints under
+   the dialog's backdrop — the failed save a dialog itself reports is never seen. The
+   stack is therefore a manual popover, re-shown for every toast so it is promoted above
+   whatever opened since. That alone is not enough: everything outside an open modal is
+   inert, and inertness follows the DOM, not the paint order, so a stack painted over
+   the dialog but outside it would be visible, unclickable and — being inert — never
+   announced. So while a modal is open the stack is MOVED into the one on top, and
+   back to <body> when it closes; 41-spotlight.js does the same with its bubble. The
+   stack is the library's own node, so moving it disturbs nothing a framework rendered.
+
    A HANDLE, NOT ONLY A FUNCTION. toast() returns a remover, which JavaScript can
    hold; C# cannot, because a function does not cross the interop boundary. So every
    toast also has an id — toast.show() returns it — and toast.dismiss(id) and
@@ -5371,21 +5440,105 @@ window.sednaUi = window.sednaUi || {};
 
     var OWN = '[data-sedna-toasts]';
 
+    var host = null;     // our stack, while it exists
+    var opened = [];     // modal dialogs, in the order they opened — the top layer's order
+    var watch = null;    // notices the dialog holding the stack being removed
+
+    function isModal(el) {
+        try { return !!el && el.isConnected && el.matches('dialog:modal'); } catch (e) { return false; }
+    }
+
+    /* The modal the stack belongs in, or null for <body>. The last one opened is the one
+       on top; one opened before this script ran is not in `opened`, so document order,
+       where a nested dialog follows its parent, stands in for it. */
+    function topModal(except) {
+        for (var i = opened.length - 1; i >= 0; i--) {
+            if (opened[i] !== except && isModal(opened[i])) return opened[i];
+        }
+        var all;
+        try { all = document.querySelectorAll('dialog:modal'); } catch (e) { return null; }
+        for (var j = all.length - 1; j >= 0; j--) if (all[j] !== except) return all[j];
+        return null;
+    }
+
+    /* Moves the stack to where it can be seen and reached, and promotes it above
+       everything already in the top layer. `except` is a dialog that is closing and
+       still matches :modal. */
+    function raise(except) {
+        if (!host) return;
+        var parent = topModal(except) || document.body;
+        if (host.parentNode !== parent) {
+            // Moving a node blurs whatever inside it had focus — a toast's close button.
+            var focused = host.contains(document.activeElement) ? document.activeElement : null;
+            parent.appendChild(host);
+            if (focused && focused !== document.activeElement) {
+                try { focused.focus({ preventScroll: true }); } catch (e) { /* refused */ }
+            }
+        }
+        try {
+            if (host.matches(':popover-open')) host.hidePopover();
+            host.showPopover();
+        } catch (e) { /* no popover support: z-index 600 is the fallback */ }
+        follow(parent !== document.body ? parent : null);
+    }
+
+    /* A dialog a framework removes takes the stack with it, before any close event can
+       say so. While the stack is in one, a removal brings it back to <body>. */
+    function follow(dialog) {
+        if (watch) { watch.disconnect(); watch = null; }
+        if (!dialog) return;
+        try {
+            watch = new MutationObserver(function () {
+                if (host && !host.isConnected) raise();
+            });
+            watch.observe(document.body, { childList: true, subtree: true });
+        } catch (e) { /* no observer: the next toast finds it */ }
+    }
+
     function stack() {
-        var el = document.querySelector(OWN);
-        if (!el) {
-            el = document.createElement('div');
-            el.className = 'toast-stack';
+        if (host && !host.isConnected && host.children.length) {
+            raise();     // taken out with a dialog, toasts and all: put it back
+            return host;
+        }
+        if (!host || !host.isConnected) {
+            host = document.createElement('div');
+            host.className = 'toast-stack';
             // The marker is what makes this OURS: only a stack the library created is
             // ever appended to, re-labelled, or removed.
-            el.setAttribute('data-sedna-toasts', '');
+            host.setAttribute('data-sedna-toasts', '');
             // The region is a status log, not a landmark to navigate to.
-            el.setAttribute('role', 'status');
-            el.setAttribute('aria-live', 'polite');
-            document.body.appendChild(el);
+            host.setAttribute('role', 'status');
+            host.setAttribute('aria-live', 'polite');
+            host.setAttribute('popover', 'manual');
         }
-        return el;
+        raise();
+        return host;
     }
+
+    function drop(el) {
+        if (el.parentNode) el.parentNode.removeChild(el);
+        if (host && !host.children.length) {
+            follow(null);
+            if (host.parentNode) host.parentNode.removeChild(host);
+            host = null;
+        }
+    }
+
+    /* Capture, because none of these bubble, and from the document because a dialog is
+       a node a framework replaces like any other. `beforetoggle` is the one that fires
+       while a closing dialog is still displayed, so the stack leaves before it hides. */
+    function track(e) {
+        var dialog = e.target;
+        if (!(dialog instanceof HTMLDialogElement)) return;
+        var closing = e.type === 'close' || e.newState === 'closed';
+        var at = opened.indexOf(dialog);
+        if (at >= 0) opened.splice(at, 1);
+        if (!closing && isModal(dialog)) opened.push(dialog);
+        if (host && host.children.length) raise(closing ? dialog : null);
+    }
+    document.addEventListener('beforetoggle', track, true);
+    document.addEventListener('toggle', track, true);
+    document.addEventListener('close', track, true);
 
     var live = {};       // id -> { el, remove, timer }
     var nextId = 1;
@@ -5397,7 +5550,7 @@ window.sednaUi = window.sednaUi || {};
         opts = opts || {};
         var el = entry.el;
         var kind = ICONS[opts.kind] ? opts.kind : 'info';
-        var host = stack();
+        stack();
 
         // A failure interrupts; a confirmation waits its turn.
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
@@ -5450,15 +5603,13 @@ window.sednaUi = window.sednaUi || {};
      *          toast.dismiss() and toast.replace()
      */
     ui.toast = function (message, opts) {
-        var host = stack();
         var id = nextId++;
         var entry = { el: document.createElement('div'), timer: 0 };
 
         entry.remove = function () {
             clearTimeout(entry.timer);
             delete live[id];
-            if (entry.el.parentNode) entry.el.parentNode.removeChild(entry.el);
-            if (!host.children.length && host.parentNode) host.parentNode.removeChild(host);
+            drop(entry.el);
         };
         entry.remove.id = id;
         live[id] = entry;
