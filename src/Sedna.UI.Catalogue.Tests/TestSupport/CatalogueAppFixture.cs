@@ -31,6 +31,8 @@ public sealed class CatalogueAppFixture : IAsyncLifetime
     // Shared with the library's own suite. Two suites, one switch.
     private const string OptOutEnvVar = "SEDNA_UI_BROWSER_TESTS";
 
+    // The base factory owns the one WithWebHostBuilder derives from it, and disposes it.
+    private WebApplicationFactory<Program>? _baseFactory;
     private WebApplicationFactory<Program>? _factory;
     private IPlaywright? _playwright;
 
@@ -56,8 +58,8 @@ public sealed class CatalogueAppFixture : IAsyncLifetime
     {
         // No outbound call from a test run: the latest release's class history is
         // fetched from GitHub in production, and an empty URL turns that off.
-        _factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(b => b.UseSetting("ReleasedHistory:Url", ""));
+        _baseFactory = new WebApplicationFactory<Program>();
+        _factory = _baseFactory.WithWebHostBuilder(b => b.UseSetting("ReleasedHistory:Url", ""));
         _factory.UseKestrel(0);
         _factory.StartServer();
         BaseAddress = _factory.ClientOptions.BaseAddress;
@@ -80,6 +82,7 @@ public sealed class CatalogueAppFixture : IAsyncLifetime
         if (Browser is not null) await Browser.DisposeAsync();
         _playwright?.Dispose();
         if (_factory is not null) await _factory.DisposeAsync();
+        if (_baseFactory is not null) await _baseFactory.DisposeAsync();
     }
 
     /// <summary>The absolute URL of a route on the running app.</summary>

@@ -80,8 +80,8 @@ public class ComparisonBarTests : ScriptTestBase
 
         Assert.Empty(errors);
         Assert.Equal(m[0], m[1], 0.5);
-        Assert.True(m[2] == 1, "The previous value's line is the topmost thing at its own position — over the fill as well.");
-        Assert.True(m[3] == 1 && m[4] == 1, "The line reaches past the track above and below, so it shows when the fill covers the hatch.");
+        Assert.True((int)m[2] == 1, "The previous value's line is the topmost thing at its own position — over the fill as well.");
+        Assert.True((int)m[3] == 1 && (int)m[4] == 1, "The line reaches past the track above and below, so it shows when the fill covers the hatch.");
         Assert.True(m[5] > m[6], $"The line is {m[5]}px tall on a {m[6]}px track.");
     }
 

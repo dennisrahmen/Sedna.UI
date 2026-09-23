@@ -50,8 +50,6 @@
         info: 'ri-information-line'
     };
 
-    var OWN = '[data-sedna-toasts]';
-
     var host = null;     // our stack, while it exists
     var opened = [];     // modal dialogs, in the order they opened — the top layer's order
     var watch = null;    // notices the dialog holding the stack being removed

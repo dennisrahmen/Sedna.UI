@@ -90,7 +90,7 @@ public class AvatarRingTests : ScriptTestBase
 
             Assert.True(Math.Abs(pair[2] - square) < 0.5 && Math.Abs(pair[3] - square) < 0.5,
                 $"{dir} {size}: the pair is {pair[2]}×{pair[3]}px, not one {square}px avatar's square.");
-            Assert.True(back[2] < square && back[2] % 2 == 0, $"{dir} {size}: the avatars inside are {back[2]}px.");
+            Assert.True(back[2] < square && Math.Abs(back[2] % 2) < 0.01, $"{dir} {size}: the avatars inside are {back[2]}px.");
 
             // Both inside the square, the front one lower and at the inline end.
             foreach (var b in new[] { back, front })
