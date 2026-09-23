@@ -196,6 +196,85 @@ public class ToastTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task A_toast_shown_over_an_open_modal_is_visible_reachable_and_goes_home_after()
+    {
+        if (NoBrowser) return;
+        // showModal() puts the dialog in the top layer, above any z-index, and makes the
+        // rest of the page inert. A failed save the dialog itself reports used to paint
+        // under its backdrop, where nobody saw it and nothing announced it.
+        var page = await Open(
+            """
+            <dialog class="modal" id="dlg"><p>Editing</p><button type="button" id="save">Save</button></dialog>
+            """);
+
+        await page.EvaluateAsync("() => document.getElementById('dlg').showModal()");
+        await page.EvaluateAsync("() => sednaUi.toast('Saving failed', { kind: 'danger', timeout: 0 })");
+
+        var probe = await page.EvaluateAsync<JsonElement>("""
+            () => {
+                const stack = document.querySelector('[data-sedna-toasts]');
+                const toast = stack.querySelector('.toast');
+                const r = toast.getBoundingClientRect();
+                const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+                return { open: stack.matches(':popover-open'),
+                         inDialog: stack.parentElement.id === 'dlg',
+                         onTop: toast.contains(hit) };
+            }
+            """);
+
+        Assert.True(probe.GetProperty("open").GetBoolean(), "The stack is not in the top layer.");
+        Assert.True(probe.GetProperty("inDialog").GetBoolean(),
+            "The stack was left outside the modal, where it is inert and never announced.");
+        Assert.True(probe.GetProperty("onTop").GetBoolean(), "The toast is painted under the dialog.");
+
+        // Reachable, not merely painted: an inert close button would not take the click.
+        await page.Locator(".toast-close").ClickAsync(new() { Timeout = 2000 });
+        Assert.Equal(0, await page.Locator(".toast").CountAsync());
+
+        // A toast outliving the dialog goes back to <body>, still above the page.
+        await page.EvaluateAsync("() => sednaUi.toast('Still here', { timeout: 0 })");
+        await page.EvaluateAsync("() => document.getElementById('dlg').close()");
+        await page.WaitForFunctionAsync(
+            "() => document.querySelector('[data-sedna-toasts]').parentElement === document.body");
+        Assert.True(await page.EvaluateAsync<bool>(
+            "() => document.querySelector('[data-sedna-toasts]').matches(':popover-open')"));
+    }
+
+    [Fact]
+    public async Task A_toast_in_a_dialog_the_app_removes_is_kept()
+    {
+        if (NoBrowser) return;
+        // A framework removes a dialog as readily as it closes one, and removal fires no
+        // close event. The toasts the stack carried in with it must not go too.
+        var page = await Open("""<dialog class="modal" id="dlg"><p>Editing</p></dialog>""");
+
+        await page.EvaluateAsync("() => document.getElementById('dlg').showModal()");
+        await page.EvaluateAsync("() => sednaUi.toast('Saved with warnings', { timeout: 0 })");
+        await page.EvaluateAsync("() => document.getElementById('dlg').remove()");
+
+        await page.WaitForFunctionAsync(
+            "() => document.querySelector('[data-sedna-toasts]')?.parentElement === document.body");
+        Assert.Equal("Saved with warnings", await page.Locator(".toast-body").TextContentAsync());
+    }
+
+    [Fact]
+    public async Task A_modal_opened_after_a_toast_takes_the_stack_with_it()
+    {
+        if (NoBrowser) return;
+        // The top layer orders by promotion: a dialog opened later covers a stack shown
+        // earlier, unless the stack follows it.
+        var page = await Open("""<dialog class="modal" id="dlg"><p>Editing</p></dialog>""");
+
+        await page.EvaluateAsync("() => sednaUi.toast('Uploading…', { timeout: 0 })");
+        await page.EvaluateAsync("() => document.getElementById('dlg').showModal()");
+
+        await page.WaitForFunctionAsync(
+            "() => document.querySelector('[data-sedna-toasts]').parentElement.id === 'dlg'");
+        await page.Locator(".toast-close").ClickAsync(new() { Timeout = 2000 });
+        Assert.Equal(0, await page.Locator(".toast").CountAsync());
+    }
+
+    [Fact]
     public async Task Toast_with_a_zero_timeout_stays_until_it_is_dismissed()
     {
         if (NoBrowser) return;

@@ -16,9 +16,24 @@
    Plain `column`, not `column-reverse`: because the bottom edge is pinned, the
    box grows upward on its own, so the newest toast is already nearest the corner
    without reversing anything — and the rendered order matches the source order,
-   which a reader comparing the demo to the snippet depends on. */
+   which a reader comparing the demo to the snippet depends on.
+
+   The stack sednaUi.toast creates is a manual popover, so it reaches the top layer
+   above an open modal <dialog> — 51-toast.js says why. The UA gives `[popover]` a
+   centred, bordered, opaque box; the resets below take that back, and cost nothing on
+   a stack an app writes without the attribute. z-index 600 still orders it wherever
+   there is no top layer. */
 .toast-stack {
     position: fixed;
+    inset: auto;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    background: transparent;
+    color: inherit;
     /* Pinned to a corner, so it is outside the shell's own safe-area padding and
        takes both insets itself. ADDED to the offset rather than replacing it: the
        20px is the gap the design wants from the edge, and the inset is how much of
