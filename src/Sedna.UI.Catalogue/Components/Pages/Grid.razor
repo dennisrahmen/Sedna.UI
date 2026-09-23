@@ -1,64 +1,108 @@
 @page "/grid"
 
-<CatHead Title="Grids">
-    Layout primitives, all breakpoint-free: they respond to the space they are given rather than to
-    the viewport width, so they behave correctly inside a narrow column too.
+<CatHead Title="Grid and layout">
+    Three primitives for placing markup you write: a wrapping grid of peers, a 24-column grid for
+    panels, and a main column beside an aside. None of them cares what its children are — a card, a
+    field, a figure or an element of your own. All three are breakpoint-free: they respond to the width
+    they are given, so the same markup is right on a page, in a drawer and inside a narrow card.
 </CatHead>
 
 <div class="callout callout-info">
     <i class="ri-layout-grid-line"></i>
     <div class="callout-body">
-        <span class="callout-title">Page-specific grids stay in the app</span>
-        Only reusable layout primitives live
-        here; a two-pane layout or a tile grid tuned to one page's card size belongs in that page. Page
-        width needs no wrapper — <code>.page</code> holds content to <code>--page-max</code> and
-        centres it by growing its horizontal padding.
+        <span class="callout-title">Which one</span>
+        Children that are all the same kind and size — tiles, fields, thumbnails — go in
+        <code>.sedna-grid</code>. Panels of different widths that you place yourself — a dashboard — go
+        in <code>.sedna-grid-24</code>. One content column with a side panel is <code>.sedna-split</code>.
+        Page width needs no wrapper: <code>.page</code> holds content to <code>--page-max</code>.
     </div>
 </div>
 
-<CatExample TExample="Examples.Grid.CardMasonry" Title="`.card-masonry`" Demo="ex-demo--block">
+<CatExample TExample="Examples.Grid.Dashboard" Title="A dashboard" Demo="ex-demo--block">
     <p>
-        Cards of similar height flow across as many balanced columns as the width allows and stack
-        to fill each column instead of piling into one strip, every child kept whole.
-        <code>auto-fit</code> collapses empty tracks, so the cards that are present always stretch
-        to fill the row. Resize this window to watch it recolumn.
+        A <a href="/stat"><code>.stat-row</code></a> across the top, a chart two-thirds wide beside a
+        list, four tiles, and a table the full width — one <code>.sedna-grid-24</code>, with the spans
+        on the panels. <code>.card--fill</code> on each panel makes the cards in a row end on one line:
+        the body takes the spare height and the foot, or a <code>.card-warning</code>, sits on the
+        bottom edge. <code>.sedna-place-center</code> centres the empty tile's message.
+    </p>
+    <p>Resize the window to watch it collapse: the tiles pair up first, then everything stacks.</p>
+</CatExample>
+
+<CatExample TExample="Examples.Grid.Grid24" Title="`.sedna-grid-24`" Demo="ex-demo--block">
+    <p>
+        Twenty-four columns. <code>.sedna-span-1</code> to <code>.sedna-span-24</code> give a child
+        that many of them, and a child with no span takes the whole row. The even steps —
+        <code>.sedna-span-2</code>, <code>-4</code>, <code>-6</code> … <code>-24</code> — are a
+        twelve-column grid, if twelfths are how you think; the odd ones are there for the layouts
+        twelve cannot divide.
+    </p>
+    <p>
+        <strong>It collapses on its own width, not the viewport's.</strong> Below
+        <code>--grid-md</code> (48rem) a span under 8 becomes 12, so tiles pair up, and a span of 8
+        or more takes the row. Below <code>--grid-sm</code> (30rem) everything takes the row. Set
+        either on the grid to move the step.
+    </p>
+    <p>
+        It is a flex row underneath, so a child cannot span two rows: put a
+        <a href="/utility-layout"><code>.sedna-col</code></a> of tiles inside one span instead. The
+        <code>.sedna-gap-*</code> utilities work on it. A <code>.sedna-grid-24</code> inside a span
+        collapses by its own width.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Grid.CardGrid" Title="`.card-grid`" Demo="ex-demo--block">
+<CatExample TExample="Examples.Grid.Split" Title="`.sedna-split`" Demo="ex-demo--block">
     <p>
-        A set of peers in a plain wrapping grid: <code>auto-fill</code> keeps the track count
-        stable, so three cards stay three columns wide instead of stretching to fill the row. Use
-        this when the cards are equals of similar height, and <code>.card-masonry</code> when their
-        heights differ a lot.
+        A main column and an aside. The child marked <code>.sedna-split-aside</code> takes
+        <code>--split-aside</code> (18rem; <code>.sedna-split--sm</code> is 14rem,
+        <code>.sedna-split--lg</code> is 24rem), and the rest share what is left. The aside goes on
+        whichever side it sits in the markup. When the main column would drop below
+        <code>--split-main</code> (60%), the two stack.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Grid.FieldGrid" Title="`.field-grid`" Demo="ex-demo--block">
+<CatExample TExample="Examples.Grid.AutoFill" Title="`.sedna-grid`" Demo="ex-demo--block">
     <p>
-        Form fields side by side, collapsing to one column below roughly 200px per field. Use it
-        for values that belong together — a from/to pair, a host and port.
+        Peers in as many columns as <code>--grid-min</code> (280px) allows. It fills with empty tracks,
+        so three children in a wide grid stay three tracks wide instead of stretching across the row.
+        <code>.sedna-grid--sm</code> sets the minimum to 200px and <code>.sedna-grid--lg</code> to
+        340px.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Grid.AutoFit" Title="`.sedna-grid--fit`" Demo="ex-demo--block">
+    <p>
+        With <code>--fit</code> the empty tracks collapse, so the children that <em>are</em> there
+        stretch to fill the row. With <code>.sedna-start</code> added, each child keeps its own height
+        instead of stretching to the tallest in its row, which is what cards of very different
+        lengths want.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Grid.FieldGrid" Title="Fields side by side" Demo="ex-demo--block">
+    <p>
+        <code>.sedna-grid sedna-grid--sm sedna-grid--fit</code> is the form row: fields side by side,
+        dropping to one column below about 200px each. Use it for values that belong together, like a
+        from/to pair or a host and port.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Grid.SpanFull" Title="`.sedna-span-full`" Demo="ex-demo--block">
     <p>
-        One child of any grid taking the whole row — a chart over a row of tiles, the odd card in a
-        wrapping set that would otherwise sit alone at one track wide, or the
-        <a href="/form">long field</a> in a <code>.field-grid</code> of two-up fields.
-        <strong>Which child that is stays yours:</strong> nothing in CSS can count the children
-        against the tracks, and a grid needing several different spans per width band is a
-        page-specific grid.
-    </p>
-    <p>
-        It was <code>.card-span-full</code>, which was the wrong name on a form field. The old name
-        is gone rather than kept as an alias — rename it where you use it.
+        One child taking the whole row of any grid: a chart over a row of tiles, the odd card that
+        would otherwise sit alone at one track wide, or the <a href="/form">long field</a> among two-up
+        fields. <strong>You decide which child that is.</strong> CSS cannot count the children against
+        the tracks.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Grid.StatsAndCards" Title="A dashboard row" Demo="ex-demo--block">
-    <p>
-        The composition a dashboard is actually made of: a <a href="/stat"><code>.stat-row</code></a>
-        of figures above a <code>.card-grid</code> of the things behind them, both breakpoint-free.
-    </p>
-</CatExample>
+<div class="callout callout-warn">
+    <i class="ri-arrow-left-right-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Renamed</span>
+        <code>.card-grid</code> is now <code>.sedna-grid</code>. <code>.card-masonry</code> is now
+        <code>.sedna-grid sedna-grid--fit sedna-grid--lg sedna-start</code>. <code>.field-grid</code> is
+        now <code>.sedna-grid sedna-grid--sm sedna-grid--fit</code>. The old names are gone, not
+        aliased.
+    </div>
+</div>

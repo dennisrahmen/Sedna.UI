@@ -5,12 +5,12 @@
     Everything here puts children in a line or a stack and decides how they share the space.
 </CatHead>
 
-<div class="callout callout-warn">
-    <i class="ri-forbid-line"></i>
+<div class="callout callout-info">
+    <i class="ri-layout-grid-line"></i>
     <div class="callout-body">
-        <span class="callout-title">Not a grid system</span>
-        There are no breakpoint prefixes and no column classes. For a
-        real page layout reach for <a href="/grid">Grids</a>, whose three primitives are breakpoint-free.
+        <span class="callout-title">Arranging a page is a grid</span>
+        These arrange the children of one element. To place panels on a page — a dashboard, a main
+        column with an aside — use <a href="/grid">Grid and layout</a>.
     </div>
 </div>
 
@@ -29,6 +29,17 @@
         written on rather than the middle of their boxes — set the cross axis;
         <code>.sedna-between</code> sets the main one. <code>.sedna-wrap</code> lets a
         <code>.sedna-row</code> break without turning it into a <code>.sedna-row-wrap</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.UtilityLayout.Placement" Title="Placement" Demo="ex-demo--block">
+    <p>
+        <code>.sedna-justify-center</code> and <code>.sedna-justify-end</code> gather the children in
+        the middle or at the far end of the main axis. <code>.sedna-self-start</code>,
+        <code>.sedna-self-center</code>, <code>.sedna-self-end</code> and
+        <code>.sedna-self-stretch</code> move one child against the rest — a button that must not
+        stretch to the height of the panel beside it. <code>.sedna-place-center</code> puts its content
+        in the middle of the box on both axes: a spinner in an empty panel, a message in a blank tile.
     </p>
 </CatExample>
 

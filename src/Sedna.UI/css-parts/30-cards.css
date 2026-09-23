@@ -170,6 +170,21 @@
 }
 .card-warning i { font-size: var(--text-5); flex-shrink: 0; }
 
+/* ── A card that fills its cell ─────────────────────────────────────────────
+   Panels side by side in a dashboard row are stretched to the tallest one by the
+   grid, but a plain card is a block: its body stays as tall as its content and the
+   foot sits right under it, so two feet in one row end at different heights and the
+   row looks ragged. `--fill` makes the card a column: the body takes the spare
+   height, and whatever trails it — a foot, a caveat — sits on the bottom edge.
+
+   The trailing run is pushed by its FIRST member rather than by each, because two
+   auto margins would split the spare height and open a gap between a caveat and the
+   foot under it. That is also what places the run when the card has no .card-body
+   to grow — a `.list` straight in the card, a `.table`. */
+.card--fill { display: flex; flex-direction: column; }
+.card--fill > .card-body { flex: 1 1 auto; min-height: 0; }
+.card--fill > :is(.card-foot, .card-warning):not(:is(.card-foot, .card-warning) + *) { margin-block-start: auto; }
+
 /* Key/value row inside a card body. */
 /* The gap is a MINIMUM separation, not the layout. `space-between` is what puts the
    value at the trailing edge in a card, where the row is full width and the gap never
