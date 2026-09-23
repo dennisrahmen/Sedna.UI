@@ -242,7 +242,10 @@ public class PageLoadTests(CatalogueAppFixture app)
 
         foreach (var route in RoutedPages.All)
         {
-            var page = await app.OpenAsync(route);
+            // Interactive, not merely loaded: when the circuit connects it replaces the
+            // prerendered document, and a hover landing on a node mid-swap finds no box
+            // and fails as "Element is not visible" — about one run in three.
+            var page = await app.OpenInteractiveAsync(route);
             await page.SetViewportSizeAsync(width, 900);
             await page.EvaluateAsync("d => document.documentElement.setAttribute('dir', d)", dir);
 

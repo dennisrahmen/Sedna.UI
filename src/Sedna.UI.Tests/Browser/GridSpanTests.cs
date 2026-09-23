@@ -7,7 +7,7 @@ namespace Sedna.UI.Tests;
 /// </summary>
 /// <remarks>
 /// It was <c>.card-span-full</c> and was documented for a card grid, so a form field
-/// that needed the whole row of a <c>.field-grid</c> — a description, a checkbox line —
+/// that needed the whole row of a grid of fields — a description, a checkbox line —
 /// either wore a card's class or carried <c>style="grid-column:1 / -1"</c>. Measured in
 /// both grids here, because "works in any grid" is the claim the rename makes.
 /// </remarks>
@@ -16,7 +16,7 @@ public class GridSpanTests : ScriptTestBase
     private const string Fixture =
         """
         <div style="width:640px; padding:0">
-          <div class="field-grid" id="fields">
+          <div class="sedna-grid sedna-grid--sm sedna-grid--fit" id="fields">
             <div class="form-field" id="short">
               <label class="form-label" for="a">Queue</label>
               <input class="form-input" id="a" />
@@ -31,7 +31,7 @@ public class GridSpanTests : ScriptTestBase
             </div>
           </div>
 
-          <div class="card-grid" id="cards">
+          <div class="sedna-grid" id="cards">
             <div class="card" id="tile">one</div>
             <div class="card sedna-span-full" id="wide">two</div>
           </div>
@@ -39,7 +39,7 @@ public class GridSpanTests : ScriptTestBase
         """;
 
     [Fact]
-    public async Task It_spans_the_row_of_a_field_grid_and_of_a_card_grid()
+    public async Task It_spans_the_row_of_a_grid_of_fields_and_of_a_grid_of_cards()
     {
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled(Fixture);

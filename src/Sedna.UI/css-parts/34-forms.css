@@ -54,7 +54,7 @@
 /* ── A text area's resize grip ────────────────────────────────────
    Vertical is the DEFAULT rather than a class, because the failure is horizontal:
    the UA default is `resize: both`, and a textarea dragged wider than its
-   .field-grid track breaks the row it sits in and every row below it. Taller is
+   .sedna-grid track breaks the row it sits in and every row below it. Taller is
    never the problem, so the safe axis is the one you get for free and only the two
    departures need a name.
 

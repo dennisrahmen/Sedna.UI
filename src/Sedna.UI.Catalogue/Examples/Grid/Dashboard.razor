@@ -1,0 +1,118 @@
+<div class="sedna-grid-24">
+    <div class="stat-row">
+        <div class="stat">
+            <span class="stat-label">Dispatched this week</span>
+            <span class="stat-value">1,204</span>
+            <span class="stat-delta stat-delta--good"><i class="ri-arrow-up-line"></i> 8% on last week</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Awaiting stock</span>
+            <span class="stat-value">37</span>
+            <span class="stat-target">of 1,204 orders</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Median time to dispatch</span>
+            <span class="stat-value">4.2<span class="stat-unit">h</span></span>
+            <span class="stat-delta stat-delta--good"><i class="ri-arrow-down-line"></i> 20 min faster</span>
+        </div>
+    </div>
+
+    <section class="card card--fill sedna-span-16">
+        <div class="card-head"><h3>Open orders by region</h3></div>
+        <div class="card-body">
+            <div class="bar-list">
+                <div class="bar-list-row">
+                    <span class="bar-list-label">EU-Central</span>
+                    <span class="bar-list-track"><span class="bar-list-fill" style="--value: 100%"></span></span>
+                    <span class="bar-list-value">1 240</span>
+                </div>
+                <div class="bar-list-row">
+                    <span class="bar-list-label">EU-West</span>
+                    <span class="bar-list-track"><span class="bar-list-fill" style="--value: 62%"></span></span>
+                    <span class="bar-list-value">769</span>
+                </div>
+                <div class="bar-list-row">
+                    <span class="bar-list-label">Nordics</span>
+                    <span class="bar-list-track"><span class="bar-list-fill" style="--value: 31%"></span></span>
+                    <span class="bar-list-value">384</span>
+                </div>
+                <div class="bar-list-row">
+                    <span class="bar-list-label">Iberia</span>
+                    <span class="bar-list-track"><span class="bar-list-fill" style="--value: 18%"></span></span>
+                    <span class="bar-list-value">223</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-foot card-foot--start"><a href="#">All regions</a></div>
+    </section>
+
+    <section class="card card--fill sedna-span-8">
+        <div class="card-head"><h3>Needs attention</h3></div>
+        <ul class="list">
+            <li>
+                <a class="list-row" href="#">
+                    <span class="list-main">
+                        <span class="list-title">VPN disconnects every few minutes</span>
+                        <span class="list-sub">ORD-4204 · EU-West</span>
+                    </span>
+                    <span class="list-meta"><span class="badge badge-danger">P1</span></span>
+                </a>
+            </li>
+            <li>
+                <a class="list-row" href="#">
+                    <span class="list-main">
+                        <span class="list-title">Outlook will not start after the update</span>
+                        <span class="list-sub">ORD-4209 · EU-Central</span>
+                    </span>
+                    <span class="list-meta"><span class="badge badge-warn">P3</span></span>
+                </a>
+            </li>
+        </ul>
+        <div class="card-foot"><button class="btn btn-sm" type="button">Open queue</button></div>
+    </section>
+
+    <section class="card card--fill sedna-span-6">
+        <div class="card-head"><strong>EU-West</strong><span class="health-badge health-badge--live"><span class="health-dot"></span> Live</span></div>
+        <div class="card-body">
+            <div class="kv"><span class="k">Waiting</span><span class="v">12</span></div>
+            <div class="kv"><span class="k">Oldest</span><span class="v">2 h 14 m</span></div>
+        </div>
+    </section>
+    <section class="card card--fill sedna-span-6">
+        <div class="card-head"><strong>EU-Central</strong><span class="health-badge health-badge--degraded"><span class="health-dot"></span> Degraded</span></div>
+        <div class="card-body">
+            <div class="kv"><span class="k">Waiting</span><span class="v">25</span></div>
+            <div class="kv"><span class="k">Oldest</span><span class="v">9 h 02 m</span></div>
+        </div>
+        <div class="card-warning"><i class="ri-error-warning-line"></i> Counts may lag by ten minutes.</div>
+    </section>
+    <section class="card card--fill sedna-span-6">
+        <div class="card-head"><strong>Nordics</strong><span class="health-badge health-badge--live"><span class="health-dot"></span> Live</span></div>
+        <div class="card-body">
+            <div class="kv"><span class="k">Waiting</span><span class="v">4</span></div>
+            <div class="kv"><span class="k">Oldest</span><span class="v">31 m</span></div>
+        </div>
+    </section>
+    <section class="card card--fill sedna-span-6">
+        <div class="card-head"><strong>Iberia</strong><span class="health-badge health-badge--idle"><span class="health-dot"></span> Idle</span></div>
+        <div class="card-body sedna-place-center">
+            <span class="text-muted">Nothing waiting</span>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="card-head"><h3>Latest orders</h3></div>
+        <div class="sedna-scroll-x">
+            <table class="table">
+                <thead>
+                    <tr><th>Order</th><th>Short description</th><th>Priority</th><th class="text-end">Age</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>ORD-4209</td><td>Outlook will not start after update</td><td><span class="badge badge-warn">P3</span></td><td class="col-muted text-end">4 min</td></tr>
+                    <tr><td>ORD-4204</td><td>VPN disconnects every few minutes</td><td><span class="badge badge-danger">P1</span></td><td class="col-muted text-end">22 min</td></tr>
+                    <tr><td>ORD-4198</td><td>Request: second monitor</td><td><span class="badge">P4</span></td><td class="col-muted text-end">1 h</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

@@ -97,10 +97,13 @@
 
 /* Three gap steps and none. `.sedna-row` and `.sedna-col` set one gap; these are for the
    rows that need a tighter or looser one, which was an inline `style="gap:12px"`. */
-.sedna-gap-0 { gap: 0; }
-.sedna-gap-1 { gap: var(--space-4); }
-.sedna-gap-2 { gap: var(--space-6); }
-.sedna-gap-3 { gap: var(--space-8); }
+/* Each sets `--grid-gap` beside `gap`, because `.sedna-grid-24` computes its column
+   widths from that property: a gap changed on its own would leave the widths sized for
+   the old one and wrap the last panel of every row. */
+.sedna-gap-0 { gap: 0;                --grid-gap: 0px; }
+.sedna-gap-1 { gap: var(--space-4);   --grid-gap: var(--space-4); }
+.sedna-gap-2 { gap: var(--space-6);   --grid-gap: var(--space-6); }
+.sedna-gap-3 { gap: var(--space-8);   --grid-gap: var(--space-8); }
 
 /* Cross-axis alignment. `.sedna-row` centres; a row of fields with labels wants
    `.sedna-start`, and a row of text of different sizes wants `.sedna-baseline`. */
@@ -110,6 +113,27 @@
 .sedna-end      { align-items: flex-end; }
 .sedna-baseline { align-items: baseline; }
 .sedna-between  { justify-content: space-between; }
+
+/* The main axis, for the row whose children sit together at one end or in the middle
+   rather than filling it — a button pair centred under an empty state, a set of
+   controls at the far end of a toolbar row. Also valid on a grid, where it places
+   the tracks when they do not fill the width. */
+.sedna-justify-center { justify-content: center; }
+.sedna-justify-end    { justify-content: flex-end; }
+
+/* One child against the rest: a button that must not stretch to the height of the
+   panel beside it, a badge at the top of a tall row. They are align-SELF, so they
+   work the same in a flex row, a flex column and a grid cell. */
+.sedna-self-start   { align-self: flex-start; }
+.sedna-self-center  { align-self: center; }
+.sedna-self-end     { align-self: flex-end; }
+.sedna-self-stretch { align-self: stretch; }
+
+/* Its content in the middle of its box, both axes — a spinner in an empty panel, a
+   figure in a tile, a sign-in card on a blank page. A grid with `place-items`, which
+   is the one arrangement that centres a child of any display without it having to
+   know. */
+.sedna-place-center { display: grid; place-items: center; }
 
 /* The flex child that takes the remaining room. `min-width: 0` comes with it, because
    without it the child refuses to shrink below its content and every ellipsis inside

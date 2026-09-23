@@ -3653,6 +3653,21 @@ a.topbar-version--pre:hover {
 }
 .card-warning i { font-size: var(--text-5); flex-shrink: 0; }
 
+/* ── A card that fills its cell ─────────────────────────────────────────────
+   Panels side by side in a dashboard row are stretched to the tallest one by the
+   grid, but a plain card is a block: its body stays as tall as its content and the
+   foot sits right under it, so two feet in one row end at different heights and the
+   row looks ragged. `--fill` makes the card a column: the body takes the spare
+   height, and whatever trails it — a foot, a caveat — sits on the bottom edge.
+
+   The trailing run is pushed by its FIRST member rather than by each, because two
+   auto margins would split the spare height and open a gap between a caveat and the
+   foot under it. That is also what places the run when the card has no .card-body
+   to grow — a `.list` straight in the card, a `.table`. */
+.card--fill { display: flex; flex-direction: column; }
+.card--fill > .card-body { flex: 1 1 auto; min-height: 0; }
+.card--fill > :is(.card-foot, .card-warning):not(:is(.card-foot, .card-warning) + *) { margin-block-start: auto; }
+
 /* Key/value row inside a card body. */
 /* The gap is a MINIMUM separation, not the layout. `space-between` is what puts the
    value at the trailing edge in a card, where the row is full width and the gap never
@@ -3918,7 +3933,7 @@ a.topbar-version--pre:hover {
 /* ── A text area's resize grip ────────────────────────────────────
    Vertical is the DEFAULT rather than a class, because the failure is horizontal:
    the UA default is `resize: both`, and a textarea dragged wider than its
-   .field-grid track breaks the row it sits in and every row below it. Taller is
+   .sedna-grid track breaks the row it sits in and every row below it. Taller is
    never the problem, so the safe axis is the one you get for free and only the two
    departures need a name.
 
@@ -4981,73 +4996,179 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
 /* ── 43-content-grids.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
-/* ── Content grids ──────────────────────────────────────────────────────────
-   Layout primitives. Page-specific grids belong in the app, not here.
+/* ── Grids and placement ────────────────────────────────────────────────────
+   Three layout primitives for markup the app writes: a wrapping grid of peers, a
+   24-column grid to place panels on, and a main column beside an aside. None names
+   what goes in it — a card, a field, a figure and an app's own element are all
+   children like any other.
+
+   All three are breakpoint-free. They respond to the width they are GIVEN rather
+   than to the viewport, so the same markup is right on a page, in a drawer and
+   inside a narrow card.
 
    Every track minimum is `min(Npx, 100%)` rather than a bare `Npx`. A bare track
    minimum does not shrink, so a grid whose column floor exceeds the container
-   overflows it instead of dropping to one column — on a phone, and inside any narrow
-   card. `min()` keeps the floor above that width and lets the track collapse below it,
-   which is what makes these breakpoint-free rather than breakpoint-free above 340px. */
+   overflows it instead of dropping to one column. */
 
-/* Cards of similar height flow across as many balanced columns as the width
-   allows and stack to fill each column, instead of piling into one strip. Every
-   child is kept whole. auto-fit collapses empty tracks, so the cards that ARE
-   present always stretch to fill the row — no stranded empty column. */
-.card-masonry {
+/* ── .sedna-grid: peers in as many columns as fit ───────────────────────────
+   Every child one track wide, as many tracks as `--grid-min` allows. auto-FILL keeps
+   the track count stable, so three children in a wide grid stay three tracks wide
+   instead of stretching across the row — right for a set of peers, a row of tiles.
+
+   `--fit` switches to auto-FIT, which collapses the empty tracks so the children
+   that ARE present stretch to fill the row: two fields in a form row, or a handful
+   of cards whose count varies. Add `.sedna-start` when the children differ a lot in
+   height, so each keeps its own instead of stretching to the tallest in its row.
+
+   `--sm` / `--lg` move the floor for smaller children (form fields, 200px) and
+   bigger ones (a card with a chart or a table in it, 340px); `--grid-min` takes any
+   other length. */
+.sedna-grid {
+    --grid-min: 280px;
+    --grid-gap: var(--space-7);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
-    gap: var(--space-7);
-    align-items: start;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--grid-min), 100%), 1fr));
+    gap: var(--grid-gap);
+}
+.sedna-grid--fit { grid-template-columns: repeat(auto-fit, minmax(min(var(--grid-min), 100%), 1fr)); }
+.sedna-grid--sm  { --grid-min: 200px; }
+.sedna-grid--lg  { --grid-min: 340px; }
+
+/* ── .sedna-grid-24: panels placed on 24 columns ────────────────────────────
+   A dashboard: a chart two-thirds wide beside a list, four tiles under it, a table
+   the whole width. `.sedna-span-N` gives a child N of 24 columns; a child with no
+   span takes the whole row. 24 rather than 12 so thirds, quarters, sixths AND
+   eighths all divide evenly — and the even steps are a 12-column grid for anyone
+   who thinks in twelfths (`.sedna-span-6` of 24 is 3 of 12).
+
+   It collapses on its own, in two steps measured against its own width:
+
+     below --grid-md (48rem)  a span under 8 becomes 12 (tiles pair up two by two)
+                              and a span of 8 or more becomes 24 (a panel a third
+                              wide or wider needs the whole row)
+     below --grid-sm (30rem)  every child takes the whole row
+
+   Both knobs are custom properties, so a grid that should hold its columns longer
+   sets them lower.
+
+   ── Why this is flex and not `display: grid` ──
+   A grid cannot collapse its spans by itself: `span 8` in a grid that has dropped to
+   one track creates implicit columns and overflows. The fix everyone reaches for is a
+   container query on the grid — and that is ruled out here. `container-type:
+   inline-size` applies layout containment, which makes the grid the containing block
+   for every `position: fixed` descendant. A `.menu` or a `.form-combo-panel` inside a
+   panel is fixed precisely so that no ancestor's `overflow` clips it (58-menu.css);
+   under a contained grid it is clipped by the `.card` it opened in.
+
+   So each child computes its own width from the grid's, with no containment:
+   `(100% - threshold) * 999` is hugely negative above the threshold and hugely
+   positive below it, and `max()` / `min()` turn that into a switch. Percentages in
+   `flex-basis` resolve against the grid's width, so the switch reads the grid, not
+   the viewport — a nested `.sedna-grid-24` inside a span collapses by its own width.
+
+   What that costs is what a flex row cannot do: a child cannot span two ROWS, and
+   there is no explicit `grid-column` placement. A tall panel beside two stacked
+   tiles is a span holding a `.sedna-col` of them.
+
+   The width of N columns is `(100% + gap) * N / 24 - gap`: N columns plus the N - 1
+   gaps between them. Spans that sum to 24 then fill the row exactly, gaps included.
+   `.sedna-gap-*` set `--grid-gap` alongside `gap`, which is why they work here. */
+.sedna-grid-24 {
+    --grid-gap: var(--space-7);
+    --grid-md: 48rem;
+    --grid-sm: 30rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--grid-gap);
+}
+/* :where() keeps the defaults at zero specificity, so every span class — and an app's
+   own class on the child — beats them without a specificity race. */
+:where(.sedna-grid-24) > * {
+    --span: 24;
+    --span-md: 24;
+    --span-w:    calc((100% + var(--grid-gap)) * var(--span)    / 24 - var(--grid-gap));
+    --span-w-md: calc((100% + var(--grid-gap)) * var(--span-md) / 24 - var(--grid-gap));
+    flex: 0 0 max(
+        var(--span-w),
+        min(var(--span-w-md), (var(--grid-md) - 100%) * 999),
+        min(100%, (var(--grid-sm) - 100%) * 999)
+    );
+    /* A flex item's automatic minimum is its content, so a panel holding a wide table
+       would push the row wider instead of scrolling inside itself. */
+    min-width: 0;
 }
 
-/* Equal-height cards in a plain wrapping grid. Differs from .card-masonry in one
-   way that decides which to use: auto-FILL keeps the track count stable, so a
-   row of three cards stays three columns wide instead of stretching to fill the
-   row. Use this for a set of peers (a dashboard of tiles); use .card-masonry
-   when the cards have very different heights. */
-.card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
-    gap: var(--space-7);
-}
-
-/* Two-up field rows that collapse to one column when there isn't room. */
-.field-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
-    gap: var(--space-7);
-}
+.sedna-span-1  { --span: 1;  --span-md: 12; }
+.sedna-span-2  { --span: 2;  --span-md: 12; }
+.sedna-span-3  { --span: 3;  --span-md: 12; }
+.sedna-span-4  { --span: 4;  --span-md: 12; }
+.sedna-span-5  { --span: 5;  --span-md: 12; }
+.sedna-span-6  { --span: 6;  --span-md: 12; }
+.sedna-span-7  { --span: 7;  --span-md: 12; }
+.sedna-span-8  { --span: 8;  --span-md: 24; }
+.sedna-span-9  { --span: 9;  --span-md: 24; }
+.sedna-span-10 { --span: 10; --span-md: 24; }
+.sedna-span-11 { --span: 11; --span-md: 24; }
+.sedna-span-12 { --span: 12; --span-md: 24; }
+.sedna-span-13 { --span: 13; --span-md: 24; }
+.sedna-span-14 { --span: 14; --span-md: 24; }
+.sedna-span-15 { --span: 15; --span-md: 24; }
+.sedna-span-16 { --span: 16; --span-md: 24; }
+.sedna-span-17 { --span: 17; --span-md: 24; }
+.sedna-span-18 { --span: 18; --span-md: 24; }
+.sedna-span-19 { --span: 19; --span-md: 24; }
+.sedna-span-20 { --span: 20; --span-md: 24; }
+.sedna-span-21 { --span: 21; --span-md: 24; }
+.sedna-span-22 { --span: 22; --span-md: 24; }
+.sedna-span-23 { --span: 23; --span-md: 24; }
+.sedna-span-24 { --span: 24; --span-md: 24; }
 
 /* ── A child that takes the whole row ───────────────────────────────────────
-   One child of any grid — the three above, `.stat-row`, or a grid of an app's own —
-   spanning it end to end. A chart over a row of tiles, the odd card in a wrapping set
-   that would otherwise sit alone at one track wide, and the long field in a
-   `.field-grid` of two-up fields: a description, a Markdown editor, a checkbox line,
-   a hint that belongs to the row rather than to one field.
+   Of any grid: `.sedna-grid`, `.sedna-grid-24`, `.stat-row`, or a grid of an app's own.
+   A chart over a row of tiles, the odd card that would otherwise sit alone at one
+   track wide, the long field among two-up fields: a description, a Markdown editor,
+   a checkbox line.
 
-   It was `.card-span-full`, and a form field wearing a card's class was off-label
-   every time a form used it — which is most of them. Renamed rather than aliased:
-   the same idea under two names is two things to keep in step, and the second name
-   is the one that goes stale. `.sedna-` because the generic form of this name is one
-   an app's own stylesheet is likely to have already.
+   `1 / -1` rather than a `span` count, because the track COUNT of an auto-fill grid
+   depends on its width, and `span 2` in a grid one track wide creates an implicit
+   second column and overflows it. `1 / -1` is the whole row whatever the count. The
+   two custom properties are the same statement for `.sedna-grid-24`, which is flex.
 
-   `1 / -1` rather than a `span` count, because a count cannot be made safe here:
-   the track COUNT of an `auto-fit` / `auto-fill` grid depends on the container
-   width, so `span 2` in a grid that is one track wide creates an implicit second
-   column and overflows it. `1 / -1` needs to know nothing — it is the whole row
-   whatever the count, down to a single-column phone.
+   `min-width: 0` for the reason `.sedna-fill` carries it: a spanning card holding a
+   wide table would otherwise force the whole grid wider. */
+.sedna-span-full { grid-column: 1 / -1; --span: 24; --span-md: 24; min-width: 0; }
 
-   Which child is the odd one out stays the app's knowledge; nothing in CSS can
-   count the children against the tracks. A grid that needs several different spans
-   per width band is a page-specific grid, and the note at the top of this file
-   applies: it belongs in the app.
+/* ── .sedna-split: a main column and an aside ───────────────────────────────
+   A detail page with a side panel, a list beside a filter column, a dashboard's main
+   chart beside its activity feed. The child marked `.sedna-split-aside` holds
+   `--split-aside` (18rem); every other child shares what is left. Which side the
+   aside is on is its place in the markup — first is the inline start, last is the
+   inline end — so it mirrors under dir="rtl" with no rule.
 
-   `min-width: 0` comes with it for the reason `.sedna-fill` carries it — a grid
-   item's automatic minimum size is its content, so a spanning card holding a wide
-   table would force the whole grid wider instead of scrolling inside itself. */
-.sedna-span-full { grid-column: 1 / -1; min-width: 0; }
+   When the main column would drop below `--split-main` (60%) of the width, the two
+   stack instead, aside where it is in the markup. That is flex-wrap doing the
+   measuring: the main child grows 999 times faster than the aside, and its
+   `min-inline-size` is what forces the wrap. No breakpoint, so a split inside a
+   drawer stacks where the same split on a page does not.
 
+   `--sm` / `--lg` are a 14rem and a 24rem aside. */
+.sedna-split {
+    --split-aside: 18rem;
+    --split-main: 60%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-7);
+}
+.sedna-split > * {
+    flex: 999 1 0;
+    min-inline-size: min(var(--split-main), 100%);
+}
+.sedna-split > .sedna-split-aside {
+    flex: 1 1 var(--split-aside);
+    min-inline-size: 0;
+}
+.sedna-split--sm { --split-aside: 14rem; }
+.sedna-split--lg { --split-aside: 24rem; }
 }
 
 /* ── 44-markdown.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -14907,10 +15028,13 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 
 /* Three gap steps and none. `.sedna-row` and `.sedna-col` set one gap; these are for the
    rows that need a tighter or looser one, which was an inline `style="gap:12px"`. */
-.sedna-gap-0 { gap: 0; }
-.sedna-gap-1 { gap: var(--space-4); }
-.sedna-gap-2 { gap: var(--space-6); }
-.sedna-gap-3 { gap: var(--space-8); }
+/* Each sets `--grid-gap` beside `gap`, because `.sedna-grid-24` computes its column
+   widths from that property: a gap changed on its own would leave the widths sized for
+   the old one and wrap the last panel of every row. */
+.sedna-gap-0 { gap: 0;                --grid-gap: 0px; }
+.sedna-gap-1 { gap: var(--space-4);   --grid-gap: var(--space-4); }
+.sedna-gap-2 { gap: var(--space-6);   --grid-gap: var(--space-6); }
+.sedna-gap-3 { gap: var(--space-8);   --grid-gap: var(--space-8); }
 
 /* Cross-axis alignment. `.sedna-row` centres; a row of fields with labels wants
    `.sedna-start`, and a row of text of different sizes wants `.sedna-baseline`. */
@@ -14920,6 +15044,27 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .sedna-end      { align-items: flex-end; }
 .sedna-baseline { align-items: baseline; }
 .sedna-between  { justify-content: space-between; }
+
+/* The main axis, for the row whose children sit together at one end or in the middle
+   rather than filling it — a button pair centred under an empty state, a set of
+   controls at the far end of a toolbar row. Also valid on a grid, where it places
+   the tracks when they do not fill the width. */
+.sedna-justify-center { justify-content: center; }
+.sedna-justify-end    { justify-content: flex-end; }
+
+/* One child against the rest: a button that must not stretch to the height of the
+   panel beside it, a badge at the top of a tall row. They are align-SELF, so they
+   work the same in a flex row, a flex column and a grid cell. */
+.sedna-self-start   { align-self: flex-start; }
+.sedna-self-center  { align-self: center; }
+.sedna-self-end     { align-self: flex-end; }
+.sedna-self-stretch { align-self: stretch; }
+
+/* Its content in the middle of its box, both axes — a spinner in an empty panel, a
+   figure in a tile, a sign-in card on a blank page. A grid with `place-items`, which
+   is the one arrangement that centres a child of any display without it having to
+   know. */
+.sedna-place-center { display: grid; place-items: center; }
 
 /* The flex child that takes the remaining room. `min-width: 0` comes with it, because
    without it the child refuses to shrink below its content and every ellipsis inside

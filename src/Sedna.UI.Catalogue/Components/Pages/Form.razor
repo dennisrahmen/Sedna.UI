@@ -1,7 +1,7 @@
 @page "/form"
 
 <CatHead Title="Form layout">
-    <code>.form-field</code> stacks a label, a control and a hint; <code>.field-grid</code> puts two
+    <code>.form-field</code> stacks a label, a control and a hint; a <a href="/grid"><code>.sedna-grid</code></a> puts two
     side by side; <code>.form-section</code> groups them and <code>.form-actions</code> closes the
     form. The controls themselves each have their own page under <strong>Inputs</strong>.
 </CatHead>
@@ -12,14 +12,14 @@
 
 <CatExample TExample="Examples.Form.TwoUpRows" Title="Two-up rows" Demo="ex-demo--block">
     <p>
-        <code>.field-grid</code> lays fields out side by side and collapses to one column when there
+        <code>.sedna-grid sedna-grid--sm sedna-grid--fit</code> lays fields out side by side and collapses to one column when there
         is not room for two &mdash; no breakpoint to pick.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.Form.FullRow" Title="A field across the whole row" Demo="ex-demo--block">
     <p>
-        <code>.sedna-span-full</code> on a child of the <code>.field-grid</code> — the long field
+        <code>.sedna-span-full</code> on a child of that grid — the long field
         among the short ones: a description, a Markdown editor, a checkbox line, a hint that belongs
         to the row rather than to one field. It works in
         <a href="/grid">any grid</a>, down to a single-column phone, so there is no breakpoint and no
