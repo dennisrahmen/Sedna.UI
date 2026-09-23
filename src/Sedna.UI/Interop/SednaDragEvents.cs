@@ -32,12 +32,21 @@ public static class EventHandlers
 /// <remarks>
 /// <see cref="Index"/> counts the destination without the item, so the whole handler is a
 /// remove from <see cref="From"/> and an insert into <see cref="To"/> at that index — the
-/// same code whether the item changed zone or not.
+/// same code whether the item changed zone or not. With a selection, it is the same handler
+/// over <see cref="Items"/>: remove every one, then insert them at <see cref="Index"/> in
+/// that order.
 /// </remarks>
 public sealed class SednaDropEventArgs : EventArgs
 {
-    /// <summary>The item's <c>data-drag-item</c>.</summary>
+    /// <summary>The item's <c>data-drag-item</c>: the one the reader took hold of.</summary>
     public string Item { get; set; } = "";
+
+    /// <summary>
+    /// Every item carried, in document order: the selection of <see cref="From"/> when
+    /// <see cref="Item"/> was part of it — <c>aria-selected="true"</c>, or a checked
+    /// <c>input[data-drag-select]</c> — and otherwise <see cref="Item"/> alone.
+    /// </summary>
+    public string[] Items { get; set; } = [];
 
     /// <summary>The item's <c>data-drag-type</c>, or null when it has none.</summary>
     public string? Type { get; set; }
@@ -66,6 +75,9 @@ public sealed class SednaDragEventArgs : EventArgs
 {
     /// <summary>The item's <c>data-drag-item</c>.</summary>
     public string Item { get; set; } = "";
+
+    /// <summary>Every item carried, in document order; see <see cref="SednaDropEventArgs.Items"/>.</summary>
+    public string[] Items { get; set; } = [];
 
     /// <summary>The item's <c>data-drag-type</c>, or null when it has none.</summary>
     public string? Type { get; set; }
