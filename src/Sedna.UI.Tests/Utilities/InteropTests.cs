@@ -50,7 +50,7 @@ public class InteropTests : BunitContext
         Assert.Equal(0, options["timeout"]);
         Assert.Equal(false, options["dismissible"]);
         // Unset, so the script uses the configured label rather than an empty one.
-        Assert.False(((IDictionary<string, object?>)options).ContainsKey("dismissLabel"));
+        Assert.False(options.ContainsKey("dismissLabel"));
     }
 
     [Fact]

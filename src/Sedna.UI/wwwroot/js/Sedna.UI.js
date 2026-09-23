@@ -3068,10 +3068,6 @@ window.sednaUi = window.sednaUi || {};
 
     /* ── Marking ─────────────────────────────────────────────────────────────── */
 
-    function setAttr(el, name, value) {
-        if (el.getAttribute(name) !== value) el.setAttribute(name, value);
-    }
-
     function clearEdge() {
         if (drag.edge) drag.edge.removeAttribute('data-drop-edge');
         drag.edge = null;
@@ -5437,8 +5433,6 @@ window.sednaUi = window.sednaUi || {};
         danger: 'ri-error-warning-line',
         info: 'ri-information-line'
     };
-
-    var OWN = '[data-sedna-toasts]';
 
     var host = null;     // our stack, while it exists
     var opened = [];     // modal dialogs, in the order they opened — the top layer's order

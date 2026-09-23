@@ -80,8 +80,8 @@ public class AvatarPresenceTests : ScriptTestBase
         var sizes = await page.EvaluateAsync<double[]>("""
             () => ['sm', 'md', 'lg'].map(id => parseFloat(getComputedStyle(document.getElementById(id), '::after').width))
             """);
-        Assert.True(sizes[0] == sizes[1] && sizes[2] > sizes[1], $"Mark sizes: {string.Join(", ", sizes)}.");
-        Assert.All(sizes, s => Assert.True(s % 2 == 0, $"A mark of {s}px puts a centred stroke on a half pixel."));
+        Assert.True(Math.Abs(sizes[0] - sizes[1]) < 0.01 && sizes[2] > sizes[1], $"Mark sizes: {string.Join(", ", sizes)}.");
+        Assert.All(sizes, s => Assert.True(Math.Abs(s % 2) < 0.01, $"A mark of {s}px puts a centred stroke on a half pixel."));
 
         var corner = await page.EvaluateAsync<bool>("""
             () => ['sm', 'md', 'lg'].every(id => {
