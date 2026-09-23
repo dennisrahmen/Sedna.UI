@@ -14,19 +14,60 @@
         Children that are all the same kind and size — tiles, fields, thumbnails — go in
         <code>.sedna-grid</code>. Panels of different widths that you place yourself — a dashboard — go
         in <code>.sedna-grid-24</code>. One content column with a side panel is <code>.sedna-split</code>.
+        A column of panels inside any of them is a <code>.sedna-stack</code>.
         Page width needs no wrapper: <code>.page</code> holds content to <code>--page-max</code>.
     </div>
 </div>
 
 <CatExample TExample="Examples.Grid.Dashboard" Title="A dashboard" Demo="ex-demo--block">
     <p>
-        A <a href="/stat"><code>.stat-row</code></a> across the top, a chart two-thirds wide beside a
-        list, four tiles, and a table the full width — one <code>.sedna-grid-24</code>, with the spans
-        on the panels. <code>.card--fill</code> on each panel makes the cards in a row end on one line:
-        the body takes the spare height and the foot, or a <code>.card-warning</code>, sits on the
-        bottom edge. <code>.sedna-place-center</code> centres the empty tile's message.
+        A <a href="/stat"><code>.stat-row</code></a> across the top, then two independent columns:
+        a <code>.sedna-span-16</code> and a <code>.sedna-span-8</code>, each a <code>.sedna-stack</code>
+        of panels. <strong>A panel growing in one column moves nothing in the other</strong>, which
+        is what you want when the columns are unrelated — the main chart and table on one side, the
+        queue on the other. A stack takes the grid's own gap.
     </p>
-    <p>Resize the window to watch it collapse: the tiles pair up first, then everything stacks.</p>
+    <p>Resize the window to watch it collapse: the two columns stack below 48rem.</p>
+</CatExample>
+
+<h2 id="tall-panel">One tall panel</h2>
+<p>
+    A grid row is as tall as its tallest panel. One long list beside three short tiles leaves holes
+    beside the list and pushes the next row down by the difference. There are four ways out, from
+    the smallest change to the biggest.
+</p>
+<ul>
+    <li><code>.sedna-self-start</code> on the short panels keeps their own height. The row is still as tall.</li>
+    <li><code>.sedna-row-span-2</code>, <code>.sedna-row-span-3</code> and <code>.sedna-row-span-4</code> let the tall panel take several rows, and the short ones fill the rows beside it.</li>
+    <li><code>.sedna-stack</code> makes each column independent, as in the dashboard above.</li>
+    <li><code>.sedna-grid-24--rows</code> gives every row the same height, so nothing can move at all.</li>
+</ul>
+
+<CatExample TExample="Examples.Grid.RowSpan" Title="`.sedna-row-span-2`" Demo="ex-demo--block">
+    <p>
+        The rota is two rows tall and the four queues fill the two rows beside it, two by two.
+        <code>.card--fill</code> on every panel makes each end on its row's line.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Grid.FixedRows" Title="`.sedna-grid-24--rows`" Demo="ex-demo--block">
+    <p>
+        A board of tiles: every row is <code>--grid-row</code> (9rem) tall whatever is in it, so a
+        panel's height is its row span and nothing else. That is the layout monitoring dashboards
+        use, and the only one in which a panel filling up moves nothing. What does not fit scrolls
+        inside a <code>.card--fill</code>'s body while its head and foot stay in view — the queue here
+        has more items than its two rows show. Put a list in a <code>.card-body--flush</code> so it
+        is the body that scrolls.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Grid.Dense" Title="`.sedna-grid-24--dense`" Demo="ex-demo--block">
+    <p>
+        Two 16-column panels leave an 8-column hole beside each. <code>--dense</code> fills it with
+        the next panel that fits, so 3 moves up beside 1. <strong>The markup order is still the
+        reading and tab order</strong>, so a dense grid reads out of visual order: use it for tiles
+        that are peers, never for a sequence.
+    </p>
 </CatExample>
 
 <CatExample TExample="Examples.Grid.Grid24" Title="`.sedna-grid-24`" Demo="ex-demo--block">
@@ -38,16 +79,11 @@
         twelve cannot divide.
     </p>
     <p>
-        <strong>It collapses on its own width, not the viewport's.</strong> Below
-        <code>--grid-md</code> (48rem) a span under 8 becomes 12, so tiles pair up, and a span of 8
-        or more takes the row. Below <code>--grid-sm</code> (30rem) everything takes the row. Set
-        either on the grid to move the step.
-    </p>
-    <p>
-        It is a flex row underneath, so a child cannot span two rows: put a
-        <a href="/utility-layout"><code>.sedna-col</code></a> of tiles inside one span instead. The
-        <code>.sedna-gap-*</code> utilities work on it. A <code>.sedna-grid-24</code> inside a span
-        collapses by its own width.
+        <strong>It collapses on its own width, not the viewport's.</strong> Narrower than 48rem, a
+        span under 8 becomes 12, so tiles pair up, and a span of 8 or more takes the row. Narrower
+        than 30rem, everything takes the row. A <code>.sedna-grid-24</code> inside a span collapses
+        by its own width. It is a size container, so it takes its width from where it sits: inside a
+        flex row, give it <code>.sedna-fill</code>.
     </p>
 </CatExample>
 

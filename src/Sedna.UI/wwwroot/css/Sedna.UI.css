@@ -3663,9 +3663,14 @@ a.topbar-version--pre:hover {
    The trailing run is pushed by its FIRST member rather than by each, because two
    auto margins would split the spare height and open a gap between a caveat and the
    foot under it. That is also what places the run when the card has no .card-body
-   to grow — a `.list` straight in the card, a `.table`. */
+   to grow — a `.list` straight in the card, a `.table`.
+
+   The body scrolls when the card is given less height than its content — a fixed
+   row of `.sedna-grid-24--rows` — so the head and the foot stay in view and the
+   foot is never cut off by the card's own `overflow: hidden`. A card sized by its
+   content never overflows, so nothing changes for one that is not constrained. */
 .card--fill { display: flex; flex-direction: column; }
-.card--fill > .card-body { flex: 1 1 auto; min-height: 0; }
+.card--fill > .card-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 .card--fill > :is(.card-foot, .card-warning):not(:is(.card-foot, .card-warning) + *) { margin-block-start: auto; }
 
 /* Key/value row inside a card body. */
@@ -4998,7 +5003,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 @layer sedna.paint {
 /* ── Grids and placement ────────────────────────────────────────────────────
    Three layout primitives for markup the app writes: a wrapping grid of peers, a
-   24-column grid to place panels on, and a main column beside an aside. None names
+   24-column grid to place panels on, and a main column beside an aside — plus a
+   stack, for a column of panels inside any of them. None names
    what goes in it — a card, a field, a figure and an app's own element are all
    children like any other.
 
@@ -5041,61 +5047,42 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    eighths all divide evenly — and the even steps are a 12-column grid for anyone
    who thinks in twelfths (`.sedna-span-6` of 24 is 3 of 12).
 
-   It collapses on its own, in two steps measured against its own width:
+   It collapses on its own, in two steps measured against its OWN width, so the same
+   markup is right on a page, in a drawer and in a narrow card:
 
-     below --grid-md (48rem)  a span under 8 becomes 12 (tiles pair up two by two)
-                              and a span of 8 or more becomes 24 (a panel a third
-                              wide or wider needs the whole row)
-     below --grid-sm (30rem)  every child takes the whole row
+     narrower than 48rem  a span under 8 becomes 12 (tiles pair up two by two) and a
+                          span of 8 or more becomes 24 (a panel a third wide or wider
+                          needs the whole row)
+     narrower than 30rem  every child takes the whole row
 
-   Both knobs are custom properties, so a grid that should hold its columns longer
-   sets them lower.
-
-   ── Why this is flex and not `display: grid` ──
-   A grid cannot collapse its spans by itself: `span 8` in a grid that has dropped to
-   one track creates implicit columns and overflows. The fix everyone reaches for is a
-   container query on the grid — and that is ruled out here. `container-type:
-   inline-size` applies layout containment, which makes the grid the containing block
-   for every `position: fixed` descendant. A `.menu` or a `.form-combo-panel` inside a
-   panel is fixed precisely so that no ancestor's `overflow` clips it (58-menu.css);
-   under a contained grid it is clipped by the `.card` it opened in.
-
-   So each child computes its own width from the grid's, with no containment:
-   `(100% - threshold) * 999` is hugely negative above the threshold and hugely
-   positive below it, and `max()` / `min()` turn that into a switch. Percentages in
-   `flex-basis` resolve against the grid's width, so the switch reads the grid, not
-   the viewport — a nested `.sedna-grid-24` inside a span collapses by its own width.
-
-   What that costs is what a flex row cannot do: a child cannot span two ROWS, and
-   there is no explicit `grid-column` placement. A tall panel beside two stacked
-   tiles is a span holding a `.sedna-col` of them.
-
-   The width of N columns is `(100% + gap) * N / 24 - gap`: N columns plus the N - 1
-   gaps between them. Spans that sum to 24 then fill the row exactly, gaps included.
-   `.sedna-gap-*` set `--grid-gap` alongside `gap`, which is why they work here. */
+   That is a container query, so the grid is a size container. Two consequences:
+   its width cannot come from its content — inside a flex row it needs `.sedna-fill`
+   or a width of its own, or it shrinks to nothing — and it cannot restyle itself,
+   which is why the steps are fixed lengths and not custom properties. A `.menu` or
+   `.form-combo-panel` inside a panel still escapes the panel's edge:
+   `LayoutGridTests` opens one and clicks its last item. */
 .sedna-grid-24 {
     --grid-gap: var(--space-7);
-    --grid-md: 48rem;
-    --grid-sm: 30rem;
-    display: flex;
-    flex-wrap: wrap;
+    container: sedna-grid-24 / inline-size;
+    display: grid;
+    grid-template-columns: repeat(24, minmax(0, 1fr));
     gap: var(--grid-gap);
 }
 /* :where() keeps the defaults at zero specificity, so every span class — and an app's
-   own class on the child — beats them without a specificity race. */
+   own class on the child — beats them without a specificity race. `min-width: 0`
+   because a grid item's automatic minimum is its content, so a panel holding a wide
+   table would force its track wider instead of scrolling inside itself. */
 :where(.sedna-grid-24) > * {
     --span: 24;
     --span-md: 24;
-    --span-w:    calc((100% + var(--grid-gap)) * var(--span)    / 24 - var(--grid-gap));
-    --span-w-md: calc((100% + var(--grid-gap)) * var(--span-md) / 24 - var(--grid-gap));
-    flex: 0 0 max(
-        var(--span-w),
-        min(var(--span-w-md), (var(--grid-md) - 100%) * 999),
-        min(100%, (var(--grid-sm) - 100%) * 999)
-    );
-    /* A flex item's automatic minimum is its content, so a panel holding a wide table
-       would push the row wider instead of scrolling inside itself. */
+    grid-column: span var(--span);
     min-width: 0;
+}
+@container sedna-grid-24 (width < 48rem) {
+    :where(.sedna-grid-24) > * { grid-column: span var(--span-md); }
+}
+@container sedna-grid-24 (width < 30rem) {
+    :where(.sedna-grid-24) > * { grid-column: span 24; }
 }
 
 .sedna-span-1  { --span: 1;  --span-md: 12; }
@@ -5123,6 +5110,50 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .sedna-span-23 { --span: 23; --span-md: 24; }
 .sedna-span-24 { --span: 24; --span-md: 24; }
 
+/* ── Keeping one tall panel from moving everything under it ─────────────────
+   A row is as tall as its tallest child, so one long list beside three short tiles
+   leaves holes beside the list and pushes the next row down by the difference. Four
+   ways out, from the smallest change to the biggest:
+
+   `.sedna-self-start` on the short ones keeps their own height. The row is still as
+   tall as the list; the holes just stop being stretched cards.
+
+   `.sedna-row-span-N` lets the tall panel take N rows, and the short ones fill the
+   rows beside it — a list two rows tall beside two rows of tiles.
+
+   `.sedna-stack` turns one span into an independent column of panels. Each column
+   of a dashboard can then be as long as its own content without moving anything in
+   the others; this is the answer when the columns are unrelated (the main chart and
+   table on one side, a feed on the other).
+
+   `--rows` gives every row the same height, `--grid-row` (9rem), whatever is in it.
+   A panel's height is then its row span and nothing else, and what does not fit
+   scrolls inside `.card--fill`'s body. That is a board of tiles, the layout
+   monitoring dashboards use, and the only one in which nothing can move at all.
+
+   `--dense` back-fills a hole with a later child that fits it. The DOM order is
+   still the reading and tab order, so a dense grid reads out of visual order — use
+   it for tiles that are peers, never for a sequence. */
+.sedna-row-span-2 { grid-row: span 2; }
+.sedna-row-span-3 { grid-row: span 3; }
+.sedna-row-span-4 { grid-row: span 4; }
+
+.sedna-grid-24--rows {
+    --grid-row: 9rem;
+    grid-auto-rows: var(--grid-row);
+}
+.sedna-grid-24--dense { grid-auto-flow: row dense; }
+
+/* A column of panels with the grid's own gap, whichever grid it sits in —
+   `--grid-gap` is inherited from it, so a stack inside a `.sedna-gap-3` grid is
+   spaced like the grid. Outside a grid it falls back to the same 16px. */
+.sedna-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grid-gap, var(--space-7));
+    min-width: 0;
+}
+
 /* ── A child that takes the whole row ───────────────────────────────────────
    Of any grid: `.sedna-grid`, `.sedna-grid-24`, `.stat-row`, or a grid of an app's own.
    A chart over a row of tiles, the odd card that would otherwise sit alone at one
@@ -5131,12 +5162,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
    `1 / -1` rather than a `span` count, because the track COUNT of an auto-fill grid
    depends on its width, and `span 2` in a grid one track wide creates an implicit
-   second column and overflows it. `1 / -1` is the whole row whatever the count. The
-   two custom properties are the same statement for `.sedna-grid-24`, which is flex.
+   second column and overflows it. `1 / -1` is the whole row whatever the count.
 
    `min-width: 0` for the reason `.sedna-fill` carries it: a spanning card holding a
    wide table would otherwise force the whole grid wider. */
-.sedna-span-full { grid-column: 1 / -1; --span: 24; --span-md: 24; min-width: 0; }
+.sedna-span-full { grid-column: 1 / -1; min-width: 0; }
 
 /* ── .sedna-split: a main column and an aside ───────────────────────────────
    A detail page with a side panel, a list beside a filter column, a dashboard's main

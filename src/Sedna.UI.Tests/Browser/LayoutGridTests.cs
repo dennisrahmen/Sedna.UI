@@ -7,16 +7,15 @@ namespace Sedna.UI.Tests;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The 24-column grid computes every child's width from the grid's own with <c>calc()</c>,
-/// so the failures are all geometric and none of them is visible in the source: spans
-/// that should share a row wrapping by a sub-pixel, a gap utility that moves <c>gap</c>
-/// without the width formula, a collapse step that reads the viewport instead of the
-/// grid. Each fixture fixes the grid's width and measures the children.
+/// The failures here are all geometric and none of them is visible in the source: spans
+/// that should share a row wrapping, a collapse step that reads the viewport instead of
+/// the grid, a tall panel moving the row under it. Each fixture fixes the grid's width
+/// and measures the children.
 /// </para>
 /// <para>
-/// The grid must not be a size container. <c>container-type: inline-size</c> makes it the
-/// containing block for fixed descendants, and a <c>.menu</c> opened in a panel would be
-/// clipped by that panel's <c>.card</c>.
+/// The grid is a size container, for its collapse steps. A size container is the
+/// containing block for fixed descendants, which is how a <c>.menu</c> escapes its
+/// panel, so a menu opened in a panel is opened and clicked here.
 /// </para>
 /// </remarks>
 public class LayoutGridTests : ScriptTestBase
@@ -141,14 +140,153 @@ public class LayoutGridTests : ScriptTestBase
     }
 
     [Fact]
-    public async Task The_grid_is_not_a_size_container()
+    public async Task A_menu_opened_in_a_panel_is_not_clipped_by_it()
     {
         if (NoBrowser) return;
-        var (page, _) = await OpenStyled(Grid24(960, "", Boxes("sedna-span-12")));
+        var (page, errors) = await OpenStyled(
+            """
+            <div style="width:960px">
+              <div class="sedna-grid-24">
+                <div class="card sedna-span-12" style="height:80px"><div class="card-body">
+                  <div class="menu-anchor">
+                    <button class="btn btn-sm" id="trigger" type="button" data-menu-toggle aria-expanded="false">More</button>
+                    <div class="menu" hidden>
+                      <button class="menu-item" type="button">One</button>
+                      <button class="menu-item" type="button">Two</button>
+                      <button class="menu-item" type="button">Three</button>
+                      <button class="menu-item" type="button" id="last">Four</button>
+                    </div>
+                  </div>
+                </div></div>
+                <div class="card sedna-span-12" style="height:80px"></div>
+              </div>
+            </div>
+            <div style="height:600px"></div>
+            """);
+        await page.ClickAsync("#trigger");
 
-        var containerType = await page.EvaluateAsync<string>(
-            "() => getComputedStyle(document.getElementById('grid')).containerType");
-        Assert.Equal("normal", containerType);
+        var outside = await page.EvaluateAsync<bool>(
+            """
+            () => {
+              const last = document.getElementById('last').getBoundingClientRect();
+              const card = document.getElementById('trigger').closest('.card').getBoundingClientRect();
+              return last.top > card.bottom;
+            }
+            """);
+        Assert.True(outside, "The fixture should put the last item below the panel's edge.");
+
+        // Playwright refuses to click an element that is covered or clipped away, so
+        // this asks the reader's question directly: can the last item be reached.
+        await page.ClickAsync("#last", new() { Timeout = 5_000 });
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_panel_two_rows_tall_leaves_the_rows_beside_it_to_the_short_ones()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled(
+            """
+            <div style="width:960px">
+              <div class="sedna-grid-24" id="grid">
+                <div class="sedna-span-8 sedna-row-span-2" id="c0" style="height:300px">tall</div>
+                <div class="sedna-span-8" id="c1" style="height:60px">a</div>
+                <div class="sedna-span-8" id="c2" style="height:60px">b</div>
+                <div class="sedna-span-8" id="c3" style="height:60px">c</div>
+                <div class="sedna-span-8" id="c4" style="height:60px">d</div>
+              </div>
+            </div>
+            """);
+
+        var b = await Measure(page, 5);
+        Assert.Equal(b[0].Top, b[1].Top, 0.5);
+        Assert.Equal(b[0].Top, b[2].Top, 0.5);
+        Assert.True(b[3].Top < b[0].Top + 300,
+            $"The second row of short panels starts {b[3].Top - b[0].Top}px down, below the tall panel instead of beside it.");
+        Assert.True(b[3].Left > b[0].Right, "The second row of short panels should sit beside the tall one.");
+    }
+
+    [Fact]
+    public async Task A_stack_is_as_long_as_its_own_content_and_moves_nothing_beside_it()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled(
+            """
+            <div style="width:960px">
+              <div class="sedna-grid-24">
+                <div class="sedna-span-16 sedna-stack">
+                  <div id="c0" style="height:400px">long</div>
+                  <div id="c1" style="height:60px">under it</div>
+                </div>
+                <div class="sedna-span-8 sedna-stack">
+                  <div id="c2" style="height:60px">a</div>
+                  <div id="c3" style="height:60px">b</div>
+                </div>
+              </div>
+            </div>
+            """);
+
+        var b = await Measure(page, 4);
+        // A 60px panel and the grid's own 16px gap: nothing in the other column matters.
+        Assert.Equal(b[2].Top + 60 + 16, b[3].Top, 0.5);
+        Assert.Equal(b[0].Top + 400 + 16, b[1].Top, 0.5);
+    }
+
+    [Fact]
+    public async Task In_fixed_rows_a_panel_is_its_rows_tall_and_its_body_scrolls()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(
+            """
+            <div style="width:960px">
+              <div class="sedna-grid-24 sedna-grid-24--rows" style="--grid-row:200px">
+                <div class="card card--fill sedna-span-12" id="short">
+                  <div class="card-head"><strong>Short</strong></div>
+                  <div class="card-body">One line.</div>
+                </div>
+                <div class="card card--fill sedna-span-12" id="long">
+                  <div class="card-head"><strong>Long</strong></div>
+                  <div class="card-body" id="body"><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p><p>10</p><p>11</p><p>12</p></div>
+                  <div class="card-foot" id="foot"><button class="btn btn-sm" type="button">Open</button></div>
+                </div>
+                <div class="card card--fill sedna-row-span-2" id="double">
+                  <div class="card-body">Two rows.</div>
+                </div>
+              </div>
+            </div>
+            """);
+
+        Assert.Equal(200, await Height(page, "short"), 0.5);
+        Assert.Equal(200, await Height(page, "long"), 0.5);
+        Assert.Equal(200 * 2 + 16, await Height(page, "double"), 0.5);
+
+        var scrolls = await page.EvaluateAsync<bool>(
+            "() => { const b = document.getElementById('body'); return b.scrollHeight > b.clientHeight; }");
+        Assert.True(scrolls, "The long card's body should scroll inside its fixed row.");
+
+        var footInside = await page.EvaluateAsync<bool>(
+            """
+            () => document.getElementById('foot').getBoundingClientRect().bottom
+                  <= document.getElementById('long').getBoundingClientRect().bottom + 0.5
+            """);
+        Assert.True(footInside, "The foot should stay inside the card, under the scrolling body.");
+        Assert.Empty(errors);
+    }
+
+    private static Task<double> Height(Microsoft.Playwright.IPage page, string id) =>
+        page.EvaluateAsync<double>("id => document.getElementById(id).getBoundingClientRect().height", id);
+
+    [Theory]
+    [InlineData("", false)]
+    [InlineData("sedna-grid-24--dense", true)]
+    public async Task Dense_fills_the_hole_a_wide_panel_leaves(string modifier, bool filled)
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled(Grid24(960, modifier,
+            Boxes("sedna-span-16", "sedna-span-16", "sedna-span-8")));
+
+        var b = await Measure(page, 3);
+        Assert.Equal(filled, Math.Abs(b[2].Top - b[0].Top) < 0.5);
     }
 
     private const string SplitFixture =
