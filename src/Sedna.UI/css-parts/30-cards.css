@@ -180,9 +180,14 @@
    The trailing run is pushed by its FIRST member rather than by each, because two
    auto margins would split the spare height and open a gap between a caveat and the
    foot under it. That is also what places the run when the card has no .card-body
-   to grow — a `.list` straight in the card, a `.table`. */
+   to grow — a `.list` straight in the card, a `.table`.
+
+   The body scrolls when the card is given less height than its content — a fixed
+   row of `.sedna-grid-24--rows` — so the head and the foot stay in view and the
+   foot is never cut off by the card's own `overflow: hidden`. A card sized by its
+   content never overflows, so nothing changes for one that is not constrained. */
 .card--fill { display: flex; flex-direction: column; }
-.card--fill > .card-body { flex: 1 1 auto; min-height: 0; }
+.card--fill > .card-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 .card--fill > :is(.card-foot, .card-warning):not(:is(.card-foot, .card-warning) + *) { margin-block-start: auto; }
 
 /* Key/value row inside a card body. */

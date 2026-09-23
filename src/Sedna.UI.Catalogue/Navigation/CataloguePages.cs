@@ -98,7 +98,7 @@ internal static class CataloguePages
             "card-head card-body card-foot footer foot kv key value warning caveat flush padding canvas actions"),
         new("/grid", Structure, "Grid and layout", "ri-layout-grid-line",
             "A 24-column grid for dashboards, a wrapping grid of peers, and a main column beside an aside.",
-            "sedna-grid sedna-grid-24 sedna-span sedna-split sedna-split-aside card--fill dashboard panels columns 24 12 span place layout two-pane aside sidebar main masonry card-grid field-grid form fields two-up full row stranded equal height"),
+            "sedna-grid sedna-grid-24 sedna-span sedna-row-span sedna-stack sedna-grid-24--rows sedna-grid-24--dense row span tall stack fixed rows tiles board dense holes sedna-split sedna-split-aside card--fill dashboard panels columns 24 12 span place layout two-pane aside sidebar main masonry card-grid field-grid form fields two-up full row stranded equal height"),
         new("/list", Structure, "Lists", "ri-list-unordered",
             "Rows that open, act or merely show, as dividers or as cards, with stacking group headers.",
             "list list-row list-main list-title list-sub list-meta lockup line count clamp wrap list--cards cards sticky group header flush density list-empty empty nothing"),
