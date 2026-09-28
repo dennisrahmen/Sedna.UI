@@ -1,0 +1,39 @@
+<div class="graph-frame">
+    <div class="graph" data-graph id="graph-data-flow" data-graph-layout="dagre" data-graph-direction="LR"
+         data-graph-edge-labels="always" data-graph-arrows="target" data-graph-spacing="loose"
+         aria-label="Where order data goes">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="checkout" data-tone="1" data-icon="ri-secure-payment-line">Checkout</li>
+            <li data-node="orders-api" data-tone="2" data-icon="ri-server-line">Orders API</li>
+            <li data-node="fraud" data-tone="3" data-icon="ri-shield-check-line">Fraud check</li>
+            <li data-node="orders-db" data-tone="4" data-shape="barrel" data-icon="ri-database-2-line">src-db-14</li>
+            <li data-node="replica" data-tone="4" data-shape="barrel" data-icon="ri-database-2-line">src-db-15</li>
+            <li data-node="search" data-tone="5" data-icon="ri-search-line">Search index</li>
+            <li data-node="loader" data-tone="6" data-icon="ri-timer-line">Nightly loader</li>
+            <li data-node="warehouse" data-tone="6" data-shape="barrel" data-icon="ri-database-line">Data warehouse</li>
+            <li data-node="reports" data-tone="6" data-icon="ri-bar-chart-box-line">Reports</li>
+            <li data-node="audit" data-tone="muted" data-icon="ri-file-shield-2-line">Audit log</li>
+
+            <li data-edge data-source="checkout" data-target="orders-api" data-label="orders" data-weight="heavy">Checkout sends every order to the orders API</li>
+            <li data-edge data-source="orders-api" data-target="fraud" data-label="asks, is answered" data-arrow="both">The orders API asks the fraud check about each order and waits for the answer</li>
+            <li data-edge data-source="orders-api" data-target="orders-db" data-label="writes" data-weight="heavy">The orders API writes each order to src-db-14</li>
+            <li data-edge data-source="orders-db" data-target="replica" data-label="replicates · 40 s behind" data-tone="warn">src-db-14 replicates to src-db-15, forty seconds behind</li>
+            <li data-edge data-source="orders-api" data-target="search" data-label="indexes, best effort" data-line="dotted" data-weight="light">The orders API indexes each order for search, on a best-effort basis</li>
+            <li data-edge data-source="replica" data-target="loader" data-label="read at 02:00" data-line="dashed">The nightly loader reads src-db-15 at two in the morning</li>
+            <li data-edge data-source="loader" data-target="warehouse" data-label="loads" data-line="dashed">The nightly loader loads the data warehouse</li>
+            <li data-edge data-source="warehouse" data-target="reports" data-label="feeds">The data warehouse feeds the reports</li>
+            <li data-edge data-source="orders-api" data-target="audit" data-label="records" data-weight="light" data-muted>The orders API records each change in the audit log</li>
+            <li data-edge data-source="replica" data-target="reports" data-label="read directly · to remove" data-tone="danger">Reports read src-db-15 directly, which is to be removed</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-line graph-line--heavy graph-line--arrow"></span>The hot path</span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow"></span>Every change, as it happens</span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed graph-line--arrow"></span>On a schedule</span>
+        <span class="graph-key"><span class="graph-line graph-line--dotted graph-line--light graph-line--arrow"></span>Best effort</span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow series-warn"></span>Lagging</span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow series-danger"></span>To be removed</span>
+    </div>
+</div>

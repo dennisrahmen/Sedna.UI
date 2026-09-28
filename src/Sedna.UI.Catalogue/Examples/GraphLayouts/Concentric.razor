@@ -1,0 +1,49 @@
+<div class="graph" data-graph id="layout-concentric" data-graph-layout="concentric"
+     aria-label="The message broker, its topics, and who publishes and listens">
+    <ul class="graph-data" data-graph-data>
+        <li data-node="broker" data-root data-tone="1" data-icon="ri-broadcast-line" data-meta="mq-01">Message broker</li>
+        <li data-node="t-orders" data-tone="4" data-shape="diamond" data-meta="Topic">order-events</li>
+        <li data-node="t-payments" data-tone="4" data-shape="diamond" data-meta="Topic">payment-events</li>
+        <li data-node="t-stock" data-tone="4" data-shape="diamond" data-meta="Topic">stock-events</li>
+        <li data-node="t-shipping" data-tone="4" data-shape="diamond" data-meta="Topic">shipping-events</li>
+        <li data-node="t-customers" data-tone="4" data-shape="diamond" data-meta="Topic">customer-events</li>
+        <li data-node="checkout" data-tone="2">Checkout</li>
+        <li data-node="orders" data-tone="2">Orders</li>
+        <li data-node="payments" data-tone="2">Payments</li>
+        <li data-node="stock" data-tone="2">Stock</li>
+        <li data-node="warehouse" data-tone="2">Warehouse</li>
+        <li data-node="shipping" data-tone="2">Shipping</li>
+        <li data-node="identity" data-tone="2">Identity</li>
+        <li data-node="mail" data-tone="6">Order mails</li>
+        <li data-node="indexer" data-tone="6">Indexer</li>
+        <li data-node="loader" data-tone="6">Warehouse loader</li>
+        <li data-node="ledger" data-tone="6">Ledger</li>
+        <li data-node="tracking" data-tone="6">Order tracking</li>
+        <li data-node="crm" data-tone="6">Customer overview</li>
+        <li data-edge data-source="broker" data-target="t-orders" data-label="carries">The broker carries order-events</li>
+        <li data-edge data-source="broker" data-target="t-payments" data-label="carries">The broker carries payment-events</li>
+        <li data-edge data-source="broker" data-target="t-stock" data-label="carries">The broker carries stock-events</li>
+        <li data-edge data-source="broker" data-target="t-shipping" data-label="carries">The broker carries shipping-events</li>
+        <li data-edge data-source="broker" data-target="t-customers" data-label="carries">The broker carries customer-events</li>
+        <li data-edge data-source="checkout" data-target="t-orders" data-label="publishes">Checkout publishes order-events</li>
+        <li data-edge data-source="orders" data-target="t-orders" data-label="publishes">Orders publishes order-events</li>
+        <li data-edge data-source="payments" data-target="t-payments" data-label="publishes">Payments publishes payment-events</li>
+        <li data-edge data-source="stock" data-target="t-stock" data-label="publishes">Stock publishes stock-events</li>
+        <li data-edge data-source="warehouse" data-target="t-stock" data-label="publishes">The warehouse publishes stock-events</li>
+        <li data-edge data-source="shipping" data-target="t-shipping" data-label="publishes">Shipping publishes shipping-events</li>
+        <li data-edge data-source="identity" data-target="t-customers" data-label="publishes">Identity publishes customer-events</li>
+        <li data-edge data-source="t-orders" data-target="mail" data-label="listens">Order mails listen to order-events</li>
+        <li data-edge data-source="t-shipping" data-target="mail" data-label="listens">Order mails listen to shipping-events</li>
+        <li data-edge data-source="t-orders" data-target="indexer" data-label="listens">The indexer listens to order-events</li>
+        <li data-edge data-source="t-stock" data-target="indexer" data-label="listens">The indexer listens to stock-events</li>
+        <li data-edge data-source="t-orders" data-target="loader" data-label="listens">The warehouse loader listens to order-events</li>
+        <li data-edge data-source="t-payments" data-target="loader" data-label="listens">The warehouse loader listens to payment-events</li>
+        <li data-edge data-source="t-payments" data-target="ledger" data-label="listens">The ledger listens to payment-events</li>
+        <li data-edge data-source="t-shipping" data-target="tracking" data-label="listens">Order tracking listens to shipping-events</li>
+        <li data-edge data-source="t-orders" data-target="tracking" data-label="listens">Order tracking listens to order-events</li>
+        <li data-edge data-source="t-customers" data-target="crm" data-label="listens">The customer overview listens to customer-events</li>
+        <li data-edge data-source="t-orders" data-target="crm" data-label="listens">The customer overview listens to order-events</li>
+    </ul>
+    <div class="graph-canvas"></div>
+    <div class="graph-wait skeleton skeleton-block"></div>
+</div>

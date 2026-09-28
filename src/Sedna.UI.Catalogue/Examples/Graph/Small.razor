@@ -1,0 +1,34 @@
+<div class="card" style="max-width:560px">
+    <div class="card-head">
+        <h3>Linked to src-db-14</h3>
+        <div class="card-head-right">
+            <span class="toolbar-count" data-graph-for="graph-db-neighbours" data-graph-stats="{nodes} records"></span>
+        </div>
+    </div>
+    <div class="card-body card-body--flush">
+        <div class="graph graph--sm" data-graph id="graph-db-neighbours" aria-label="What is linked to src-db-14">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="db" data-root data-tone="4" data-icon="ri-database-2-line" data-meta="Primary database">src-db-14</li>
+                <li data-node="replica" data-tone="4" data-icon="ri-database-2-line" data-meta="Replica">src-db-15</li>
+                <li data-node="orders" data-tone="2" data-icon="ri-server-line" data-meta="Service">Orders API</li>
+                <li data-node="invoices" data-tone="2" data-icon="ri-bill-line" data-meta="Service">Invoices</li>
+                <li data-node="returns" data-tone="2" data-icon="ri-arrow-go-back-line" data-meta="Service">Returns</li>
+                <li data-node="backup" data-tone="5" data-icon="ri-save-3-line" data-meta="Nightly job">Backup</li>
+                <li data-node="loader" data-tone="5" data-icon="ri-timer-line" data-meta="Nightly job">Warehouse loader</li>
+                <li data-node="runner" data-tone="muted" data-icon="ri-terminal-box-line" data-meta="Migrations">build-runner-04</li>
+                <li data-node="dba" data-tone="3" data-icon="ri-team-line" data-meta="Owner">Data team</li>
+                <li data-edge data-source="orders" data-target="db" data-label="reads, writes">The orders API reads and writes src-db-14</li>
+                <li data-edge data-source="invoices" data-target="db" data-label="reads, writes">Invoices reads and writes src-db-14</li>
+                <li data-edge data-source="returns" data-target="db" data-label="reads">Returns reads src-db-14</li>
+                <li data-edge data-source="db" data-target="replica" data-label="replicates">src-db-14 replicates to src-db-15</li>
+                <li data-edge data-source="backup" data-target="db" data-label="nightly copy">The backup job copies src-db-14 every night</li>
+                <li data-edge data-source="loader" data-target="replica" data-label="nightly read">The warehouse loader reads src-db-15 every night</li>
+                <li data-edge data-source="runner" data-target="db" data-label="migrates">build-runner-04 runs the migrations on src-db-14</li>
+                <li data-edge data-source="dba" data-target="db" data-label="owns">The data team owns src-db-14</li>
+                <li data-edge data-source="dba" data-target="replica" data-label="owns">The data team owns src-db-15</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

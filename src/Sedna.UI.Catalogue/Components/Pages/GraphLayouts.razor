@@ -1,5 +1,169 @@
 @page "/graph-layouts"
 
 <CatHead Title="Graph layouts">
-    Being written.
+    Where the records go. <code>data-graph-layout</code> names a layout, and each answers a different
+    question: what the whole looks like, what surrounds one record, who reports to whom, where things
+    physically are. Pick the one whose question your reader is asking, rather than the one that looks
+    busiest.
 </CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-mind-map"></i>
+    <div class="callout-body">
+        <span class="callout-title">The same drawing every time</span>
+        Every layout is deterministic: records are ordered by how many links they have and then by id, and
+        nothing is left to chance, so the drawing a reader learned yesterday is the one that comes back today.
+        <code>dagre</code> and <code>fcose</code> are plugins, loaded the first time a graph uses them. The
+        records, the frame and the keys are on <a href="/graph">Graph</a>.
+    </div>
+</div>
+
+<CatExample TExample="Examples.GraphLayouts.Force" Title="Force" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        The default: springs along the links, so what is linked sits together and the shape of the whole is
+        the first thing a reader sees &mdash; here, which libraries everything shares and which only one
+        service uses. Use it for a map with no hierarchy and no groups. A <code>data-root</code> is placed at
+        the centre first and the springs work outwards from it. Every link here says &ldquo;uses&rdquo;, so
+        <code>data-graph-edge-labels="none"</code> leaves the labels off.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.Islands" Title="Islands" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A large graph read by its groups: one island per <code>data-group</code>, each shaped by its own
+        springs, packed in rows as wide as the frame, with the islands of one <code>data-cluster</code> side by
+        side. Springs alone melt groups into one ball, because the few links between groups pull harder than
+        everything inside them &mdash; so a graph of teams, racks or projects wants islands.
+    </p>
+    <p>
+        The record whose id is a group's name is that group's heart, placed in the middle of its island: each
+        team here. A record in no group that joins several islands &mdash; the event bus, the design system
+        &mdash; is put between them, and a link across islands stays quiet until one of its ends is pointed at.
+        With no <code>data-group</code> anywhere, <code>islands</code> falls back to <code>force</code>. The
+        minimap sits at the top with <code>.graph-minimap--top</code>, where this drawing leaves room.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.Rings" Title="Rings around a record" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Hops out from one record &mdash; the <code>data-root</code>, or the record a reader focused &mdash; then
+        springs to settle them. The question is how far each record is from the centre, and the rings are the
+        answer: here, what stops working while one database is down, and how directly. Each link is written
+        the way the data has it, &ldquo;Orders depends on src-db-14&rdquo;, and
+        <code>data-graph-arrows="source"</code> points it back, the way the failure travels.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.Concentric" Title="Concentric" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        The most connected in the middle, the least connected on the outside: what everything goes through,
+        at a glance. The broker is the <code>data-root</code>, which takes the very middle whatever its count;
+        its topics ring it, and the services that publish and listen are outermost.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.Tree" Title="Tree" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Breadth-first from the <code>data-root</code>, one rank per step, for data that really is a tree: a
+        catalogue, a folder, a site map, where each record has one parent. <code>data-graph-direction</code>
+        turns it &mdash; <code>TB</code>, the default, <code>LR</code>, <code>BT</code> or <code>RL</code>.
+        For a hierarchy where a record has several parents, or boxes with their links labelled, use
+        <code>dagre</code> below, which makes room between the ranks for both.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.OrgChart" Title="A hierarchy, top down" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>dagre</code> lays records out in ranks with every link pointing one way: an org chart, a
+        dependency tree, a flow. In boxes, with <code>data-graph-curve="taxi"</code>, the links turn at right
+        angles, which is how an org chart is drawn. Every line in an org chart says &ldquo;reports to&rdquo;, so
+        this one writes none.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.Pipeline" Title="A flow, left to right" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        The same layout with <code>data-graph-direction="LR"</code>, so a pipeline reads in the order it runs.
+        The three checks share a rank because each depends on the build and on nothing between them. Each
+        stage's tone is its result and the legend says which is which; the stage that has not started is
+        <code>data-muted</code>. <code>data-graph-curve="round-taxi"</code> rounds the corners of the right
+        angles.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.Compound" Title="Groups inside groups" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-parent</code> draws a record inside another &mdash; hosts in racks, racks in sites. The
+        parent is drawn as an outline in its tone with its name at the top, and <code>fcose</code>, springs that
+        understand nesting, lays each group out around its members and the groups around each other. A link can
+        cross groups, as the replication between the sites does, and a record can stand outside every group.
+        The key for a group is <code>.graph-swatch--group</code>. Folding a group away is on
+        <a href="/graph-plugins">Graph plugins</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.GridAndCircle" Title="Grid and circle" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Busiest first, in reading order. <code>grid</code> is for records whose links matter less than seeing
+        every one &mdash; a fleet, a set of flags &mdash; and <code>circle</code> for a ring, where the order is
+        the point. Both sort by how many links a record has and then by id, which is why the cache nodes go
+        round in their own order and the one rebalancing keeps its place.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.Preset" Title="Positions the app knows" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>preset</code> puts each record at its <code>data-x</code> and <code>data-y</code>: a floor plan, a
+        map, a diagram someone arranged and saved. The numbers are the drawing's own units, and the view fits
+        them to the frame, so they need no relation to pixels. Give every record a position.
+        <code>data-graph-drag="false"</code> keeps a reader from moving a dock door.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.Switcher" Title="Switching layouts" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; try each layout.</strong> A select with <code>data-graph-option="layout"</code>
+        switches it, radios with <code>data-graph-option="direction"</code> turn a tree or a hierarchy, and
+        <code>data-graph-option="spacing"</code> chooses <code>compact</code>, <code>normal</code> or
+        <code>loose</code> &mdash; what <code>data-graph-spacing</code> sets on the graph itself. The records
+        travel from where they were to where the new layout puts them, so a reader can follow one across the
+        change. These records have a root for the rings, groups for the islands and links that run one way for
+        a hierarchy. Data without them is still drawn in every layout &mdash; <code>islands</code> with no
+        groups falls back to <code>force</code> &mdash; but the layout has less to say.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphLayouts.Curves" Title="How links are drawn" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>data-graph-curve</code> draws every link: <code>bezier</code>, the default,
+        bends a link away from others between the same records; <code>straight</code> is the shortest line;
+        <code>taxi</code> turns at right angles along the layout's direction; and <code>round-taxi</code> rounds
+        those corners. Right angles suit a hierarchy in boxes, curves a map. The segmented control is
+        <code>data-graph-option="curve"</code>.
+    </p>
+</CatExample>
+
+<h2 id="which-layout">Which layout <CatAnchor Id="which-layout" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Layout</th><th>For</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>force</code></td><td>A map of records, shaped by its links. The default.</td></tr>
+            <tr><td><code>islands</code></td><td>A large graph read by its groups: <code>data-group</code>, and <code>data-cluster</code> for groups of groups.</td></tr>
+            <tr><td><code>rings</code></td><td>How far each record is from the root or the focus.</td></tr>
+            <tr><td><code>concentric</code></td><td>What everything goes through: the most connected in the middle.</td></tr>
+            <tr><td><code>tree</code></td><td>A true tree, breadth-first from the roots, in <code>data-graph-direction</code>.</td></tr>
+            <tr><td><code>dagre</code></td><td>A layered hierarchy: an org chart, a flow, a dependency tree. A plugin.</td></tr>
+            <tr><td><code>fcose</code></td><td>Springs that also lay out groups drawn inside groups, with <code>data-parent</code>. A plugin.</td></tr>
+            <tr><td><code>grid</code>, <code>circle</code></td><td>Every record in view, busiest first.</td></tr>
+            <tr><td><code>preset</code></td><td>Where <code>data-x</code> and <code>data-y</code> put each record.</td></tr>
+            <tr><td>any other name</td><td>A cytoscape layout of that name, when one is registered on the engine the handle's <code>cy</code> exposes.</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    A script changes the layout with <code>layout(name, { direction, spacing })</code> on the handle
+    <code>sednaUi.graph.get()</code> returns, and C# with <code>ISednaGraphs.LayoutAsync</code>.
+</p>

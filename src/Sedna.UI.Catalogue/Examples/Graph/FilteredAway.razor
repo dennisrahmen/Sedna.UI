@@ -1,0 +1,48 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <select class="form-input form-select form-select-sm sedna-w-fit" aria-label="Owning team" data-graph-filter="team">
+                <option value="" selected>Every team</option>
+                <option value="checkout">Checkout team</option>
+                <option value="search">Search team</option>
+                <option value="platform">Platform team</option>
+                <option value="data">Data team</option>
+            </select>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} services"></span>
+    </div>
+    <div class="card">
+        <div class="graph graph--sm" data-graph id="graph-by-team" data-graph-arrows="target"
+             aria-label="Services, by the team that owns them">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="storefront" data-team="checkout" data-tone="1" data-icon="ri-store-2-line">Storefront</li>
+                <li data-node="checkout" data-team="checkout" data-tone="1" data-icon="ri-secure-payment-line">Checkout</li>
+                <li data-node="payments" data-team="checkout" data-tone="1" data-icon="ri-bank-card-line">Payments</li>
+                <li data-node="search" data-team="search" data-tone="2" data-icon="ri-search-line">Search</li>
+                <li data-node="indexer" data-team="search" data-tone="2" data-icon="ri-refresh-line">Indexer</li>
+                <li data-node="gateway" data-team="platform" data-tone="4" data-icon="ri-door-open-line">Gateway</li>
+                <li data-node="identity" data-team="platform" data-tone="4" data-icon="ri-fingerprint-line">Identity</li>
+                <li data-edge data-source="gateway" data-target="storefront" data-label="routes">The gateway routes to the storefront</li>
+                <li data-edge data-source="storefront" data-target="search" data-label="calls">The storefront calls search</li>
+                <li data-edge data-source="storefront" data-target="checkout" data-label="calls">The storefront calls checkout</li>
+                <li data-edge data-source="checkout" data-target="payments" data-label="calls">Checkout calls payments</li>
+                <li data-edge data-source="checkout" data-target="identity" data-label="calls">Checkout calls identity</li>
+                <li data-edge data-source="indexer" data-target="search" data-label="feeds">The indexer feeds search</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+            <div class="graph-empty empty-state">
+                <svg class="state-art" aria-hidden="true"><use href="#nothing-yet" /></svg>
+                <span class="empty-state-title">No services registered</span>
+            </div>
+            <div class="graph-empty graph-empty--filtered empty-state">
+                <svg class="state-art" aria-hidden="true"><use href="#filtered-out" /></svg>
+                <span class="empty-state-title">This team owns no services yet</span>
+                <p>Every service on the map belongs to another team.</p>
+                <button class="btn btn-sm" type="button" data-graph-action="reset">
+                    <i class="ri-filter-off-line"></i> Show every team
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
