@@ -3329,30 +3329,34 @@ async function setData(g, data, opts = {}) {
     const wanted = new Map(els.map(e => [e.data.id, e]));
     const plugin = e => e.hasClass('eh-ghost') || e.hasClass('eh-handle') || e.hasClass('eh-preview') || e.hasClass('eh-ghost-edge');
     const removed = cy.elements().filter(e => !wanted.has(e.id()) && !plugin(e));
-    const fresh = [];
+    const fresh = els.filter(e => cy.getElementById(e.data.id).empty());
+    removed.remove();
+    // New records first, placed beside what they link to — so an existing record can be
+    // moved into a group that has only just arrived, and a new link has both its ends.
+    let i = 0;
+    const addedNodes = cy.add(fresh.filter(e => e.group === 'nodes')
+        .map(e => Object.assign(e, { position: e.position || positionNear(g, e.data.id, i++) })));
     cy.batch(() => {
-        removed.remove();
         els.forEach(e => {
             const ex = cy.getElementById(e.data.id);
-            if (ex.empty()) {
-                fresh.push(e);
-                return;
-            }
+            if (ex.empty() || addedNodes.contains(ex)) return;
+            // id, source, target and parent are immutable as data: an end or a group that
+            // changed is a move.
+            // A move replaces the element, so the data goes on what it returns.
             const d = Object.assign({}, e.data);
+            let target = ex;
             if (e.group === 'nodes') {
-                if ((ex.data('parent') || null) !== (d.parent || null)) ex.move({ parent: d.parent || null });
+                if ((ex.data('parent') || null) !== (d.parent || null)) target = ex.move({ parent: d.parent || null });
                 delete d.parent;
             } else {
-                if (ex.data('source') !== d.source || ex.data('target') !== d.target) ex.move({ source: d.source, target: d.target });
+                if (ex.data('source') !== d.source || ex.data('target') !== d.target) target = ex.move({ source: d.source, target: d.target });
                 delete d.source;
                 delete d.target;
             }
-            ex.data(d);
+            delete d.id;
+            target.data(d);
         });
     });
-    let i = 0;
-    const freshNodes = fresh.filter(e => e.group === 'nodes').map(e => Object.assign(e, { position: e.position || positionNear(g, e.data.id, i++) }));
-    const addedNodes = cy.add(freshNodes);
     const added = addedNodes.union(cy.add(fresh.filter(e => e.group === 'edges')));
     if (!reducedMotion()) {
         added.addClass('entering');
