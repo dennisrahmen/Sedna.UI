@@ -16,8 +16,10 @@ internal static class Assets
     public static string RepoRoot { get; } = FindRepoRoot();
 
     public static string ProjectDir => Path.Combine(RepoRoot, "src", "Sedna.UI");
+    public static string WwwrootDir => Path.Combine(ProjectDir, "wwwroot");
     public static string CssPath => Path.Combine(ProjectDir, "wwwroot", "css", "Sedna.UI.css");
     public static string JsPath => Path.Combine(ProjectDir, "wwwroot", "js", "Sedna.UI.js");
+    public static string GraphJsPath => Path.Combine(ProjectDir, "wwwroot", "js", "Sedna.UI.graph.js");
     public static string BootJsPath => Path.Combine(ProjectDir, "wwwroot", "js", "Sedna.UI.boot.js");
     public static string TokensPath =>
         Path.Combine(ProjectDir, "wwwroot", "tokens", "Sedna.UI.tokens.json");
@@ -25,6 +27,39 @@ internal static class Assets
         Path.Combine(ProjectDir, "wwwroot", "lib", "remixicon", "remixicon.css");
 
     public static string Css => File.ReadAllText(CssPath);
+
+    /// <summary>
+    /// The shipped file a URL path names — <c>/js/Sedna.UI.graph.js</c> is
+    /// <c>wwwroot/js/Sedna.UI.graph.js</c> — or null when there is none. A path that
+    /// climbs out of <c>wwwroot</c> is none.
+    /// </summary>
+    public static string? WwwrootFile(string urlPath)
+    {
+        var relative = Uri.UnescapeDataString(urlPath).TrimStart('/');
+        if (relative.Length == 0) return null;
+        var root = Path.GetFullPath(WwwrootDir) + Path.DirectorySeparatorChar;
+        var full = Path.GetFullPath(Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
+        return full.StartsWith(root, StringComparison.OrdinalIgnoreCase) && File.Exists(full) ? full : null;
+    }
+
+    /// <summary>
+    /// The media type a web server sends for a shipped file. A module script is refused
+    /// under any type that is not JavaScript, so the graph's import depends on this.
+    /// </summary>
+    public static string ContentTypeOf(string path) => Path.GetExtension(path).ToLowerInvariant() switch
+    {
+        ".js" or ".mjs" => "text/javascript; charset=utf-8",
+        ".css" => "text/css; charset=utf-8",
+        ".json" => "application/json; charset=utf-8",
+        ".svg" => "image/svg+xml",
+        ".png" => "image/png",
+        ".ico" => "image/x-icon",
+        ".woff2" => "font/woff2",
+        ".woff" => "font/woff",
+        ".txt" => "text/plain; charset=utf-8",
+        ".html" => "text/html; charset=utf-8",
+        _ => "application/octet-stream",
+    };
 
     private static string FindRepoRoot()
     {
