@@ -154,6 +154,25 @@ Before bumping the pinned version, read the class names the release adds and gre
 for each one. Where a name collides, delete the local rule and use the library's, or rename the local one
 into this app's own prefix.
 
+### Graphs
+
+Records and the links between them are a `[data-graph]` element — copy it from the catalogue's Graph
+pages, and read `docs/graph.md` (the MCP resource `sednaui://docs/graph`) for every attribute. The
+library ships the engine and loads it itself; the host page needs nothing added.
+
+- **Do not add a graph or chart library**, and do not import anything under `_content/Sedna.UI/lib/`.
+  The engine is reachable, unversioned, as the graph handle's `cy` — for what the markup cannot say.
+- **Colour a record with `data-tone`** (`1`–`6`, `go`, `warn`, `danger`, `info`, `muted`), never a hex:
+  the canvas follows the theme only through tones. A legend swatch is `.graph-swatch` with the matching
+  `.series-*` class.
+- **The toolbar, legend, filters, tooltip, menu and side panel are your markup** with `data-graph-*`
+  attributes; the script fills and places them. Write the `.graph-data` items as sentences — they are
+  the graph's text for a screen reader.
+- **From C#, use `ISednaGraphs`** by the element's id in `OnAfterRenderAsync`, and the
+  `@onsedna-graph-*` events. Records that arrive by call want `data-graph-deferred`; a large graph wants
+  `data-graph-src` or `SetDataAsync` rather than a Razor-rendered list.
+- **A link the reader draws is yours to add** (`@onsedna-graph-connect`), as a drop is.
+
 ### Icons
 
 Remix Icon is bundled in the package. Link `_content/Sedna.UI/lib/remixicon/remixicon.css` and use

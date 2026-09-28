@@ -1,0 +1,329 @@
+@page "/graph"
+
+<CatHead Title="Graph" Tier="@CatHead.Tier3">
+    Records and the links between them, drawn on a canvas: a dependency map, an org chart, a network,
+    a knowledge graph, a flow. The app writes the records as a list and the library draws the list.
+    The canvas is the one thing it paints &mdash; the toolbar, the legend, the empty state and every word
+    around the drawing are the app's own markup with the classes on this page.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-share-circle-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Nothing goes in the host page</span>
+        <code>Sedna.UI.js</code> finds every <code>[data-graph]</code> and imports the engine the first time
+        one comes within a screen of the viewport, so a page without a graph never downloads it. This page is
+        the anatomy; <a href="/graph-layouts">Graph layouts</a> places the records,
+        <a href="/graph-exploring">Exploring a graph</a> filters, searches and explains them, and
+        <a href="/graph-blazor">Graph in Blazor</a> feeds them from C#. Every attribute, control, event and
+        member is in <code>docs/graph.md</code>.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Graph.FromAList" Title="A graph from a list" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        The least a graph needs: a <code>.graph</code> with <code>data-graph</code>, an <code>id</code> and an
+        <code>aria-label</code>; its records as a <code>.graph-data</code> list; a <code>.graph-canvas</code> to
+        draw into; and a <code>.graph-wait</code> covering it until the first drawing is ready, because a canvas
+        that fills in record by record reads as broken. <code>data-node</code> makes an item a record, and
+        <code>data-edge</code> with <code>data-source</code> and <code>data-target</code> makes it a link.
+    </p>
+    <p>
+        <strong>The list is the data and the text alternative.</strong> It is visually hidden and a screen
+        reader reads it, so each link's text is a sentence &mdash; &ldquo;The orders API writes the order to
+        the orders database&rdquo; &mdash; and <code>data-label</code> is the short form the canvas writes. A
+        record's text is its name. Point at a record to light what it touches and read its links. When the list
+        changes, the drawing changes with it: what stayed keeps its place, and what arrived is put beside what
+        it links to. With scripting off, the graph is shown as its list.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Frame" Title="The whole frame" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.graph-frame</code> with <code>data-graph-frame</code> holds a graph and what goes with it: a
+        <code>.toolbar</code> above, a <code>.graph-legend</code> below, a panel beside. A control anywhere in
+        the frame drives its graph without naming it, and full screen takes the whole frame, so the search and
+        the legend come along. A graph in a <code>.card</code> takes the card's corners, and its names are
+        outlined in the card's colour rather than the page's.
+    </p>
+    <p>
+        <code>.graph-tools</code> is the view's own toolbar on the canvas: ghost icon buttons, each with a
+        <code>data-graph-action</code>, an <code>aria-label</code> and a <code>data-tip</code>, in groups split by
+        <code>.graph-tools-sep</code>. Full screen is a toggle the script flips through
+        <code>aria-pressed</code>; write both of its icons, <code>.graph-when-off</code> and
+        <code>.graph-when-on</code>, and the matching one shows, so nothing rewrites the button.
+        <code>canvas.graph-minimap</code> is the whole drawing in miniature &mdash; press it to go there &mdash;
+        and is hidden on a phone. <code>.graph-empty</code> on an <code>.empty-state</code> is what shows when
+        there are no records at all, and <code>data-graph-stats</code> keeps a count current in the app's words.
+    </p>
+    <p>
+        Each <code>.graph-key</code> in the legend holds a <code>.graph-swatch</code> wearing the
+        <code>.series-*</code> class of the records' <code>data-tone</code> &mdash; the colour the canvas paints
+        that tone, in every theme &mdash; or a <code>.graph-line</code> for a kind of link.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Records" Title="Records" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        What a record says about itself. <code>data-tone</code> is its colour: <code>1</code> to <code>6</code>
+        are the categorical run every <a href="/bars">chart</a> uses, for records that are merely different;
+        <code>go</code>, <code>warn</code>, <code>danger</code>, <code>info</code> and <code>muted</code> are for
+        a record whose colour <em>means</em> something. <code>data-shape</code> and <code>data-icon</code> say
+        what kind of record it is, <code>data-weight</code> how large it is drawn &mdash; by default, how many
+        links it has &mdash; and <code>data-meta</code> is a second line for its tooltip.
+    </p>
+    <p>
+        <code>data-root</code> is what the graph is about: ringed, always named, and where the keyboard starts.
+        <code>data-hub</code> is named in bold and before the others. <code>data-muted</code> is drawn quieter,
+        because a superseded decision still explains how the project got here. Names are placed the way a map
+        places them &mdash; the most important first, and one that would run into a name already placed waits
+        until zooming in makes room.
+    </p>
+    <p>
+        <strong>Colour is never the only carrier.</strong> Each kind here has a shape and a colour at once, so
+        the legend still reads in every colour-vision setting. A <code>.graph-swatch</code> takes the shape as
+        well: <code>--rounded</code>, <code>--hexagon</code>, <code>--square</code>, <code>--star</code>,
+        <code>--tag</code>, <code>--diamond</code> and <code>--triangle</code>, and <code>--muted</code> for a
+        quieter record.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Shapes" Title="Every shape" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        The shapes <code>data-shape</code> takes. The diamond, hexagon, octagon, pentagon, triangle and tag are
+        drawn with rounded corners, because a hard corner reads as a different shape at the size of a dot. A legend has a swatch for the circle, square,
+        rounded, diamond, triangle, hexagon, star and tag, so give the kinds a reader must tell apart one of
+        those. <code>data-graph-labels="all"</code> names every record whatever the room, which suits a key like
+        this one and crowds a map; <code>none</code> names only the record being pointed at.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Tones" Title="Tones that mean something" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A health map, where the colour is the point. The semantic tones are a judgement the reader already
+        makes &mdash; green is fine, red is down &mdash; so use them only where a record is in that state, and
+        never to tell categories apart: a red team says &ldquo;danger&rdquo; whatever the data says. A link
+        takes a <code>data-tone</code> too, so the failing call is as red as the provider it cannot reach.
+        <code>brand</code> and <code>accent</code> are the two tones of the app's own identity.
+    </p>
+    <p>
+        The retired service is <code>data-muted</code> with no tone of its own, which draws it in the quiet
+        <code>muted</code> tone; its key is <code>.series-muted</code> with <code>.graph-swatch--muted</code>.
+        The outside provider's key is a shape with no colour, because being outside is a kind and not a state.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Links" Title="Links" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A link's line says how its two ends are joined. <code>data-line</code> is <code>solid</code>,
+        <code>dashed</code> or <code>dotted</code>; <code>data-weight</code> is <code>light</code>,
+        <code>normal</code>, <code>heavy</code> or a number; <code>data-arrow</code> is <code>target</code>,
+        <code>source</code>, <code>both</code> or <code>none</code>, over the graph's own
+        <code>data-graph-arrows</code>. <code>data-tone</code> colours a link and <code>data-muted</code>
+        quietens it. In a graph of dots a link's label shows when one of its ends is pointed at;
+        <code>data-graph-edge-labels="always"</code> writes every one, for a small graph whose links are the
+        story, and <code>none</code> writes none.
+    </p>
+    <p>
+        Each <code>.graph-line</code> in the legend takes the same modifiers &mdash; <code>--dashed</code>,
+        <code>--dotted</code>, <code>--light</code>, <code>--heavy</code>, and <code>--arrow</code> for a link
+        with a direction &mdash; and a <code>.series-*</code> class for a tone. Give every kind of line a key: a
+        dashed line nobody explained is a guess.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.DotsAndBoxes" Title="Dots and boxes" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; switch between the two.</strong> Dots are for a map of many records, where the
+        shape of the whole is the point: each record a shape sized by its links, with its name beneath. Boxes,
+        <code>data-graph-nodes="box"</code>, are for a diagram of a few dozen that is read one record at a
+        time &mdash; a request path, an org chart, a flow &mdash; with the name inside, the icon before it and
+        <code>data-meta</code> as a second line. A graph of boxes writes its links' labels by default.
+        <code>data-display</code> on one record draws it the other way from the rest.
+    </p>
+    <p>
+        The switch is an ordinary radio group with <code>data-graph-option="nodes"</code>. Inside a
+        <code>[data-graph-frame]</code> it finds its graph without an id, and a radio keeps its native state, so
+        a Blazor binding can own it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Small" Title="A small graph in a card" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.graph--sm</code> is for a graph that is part of a page about something else: what one record
+        touches, in a card on its detail page, with <code>data-root</code> putting that record at the centre.
+        <code>.graph--lg</code> is the tall one, for a graph that is the subject of its page;
+        <code>.graph--fill</code> takes its container's height, so give the container one; and
+        <code>.graph--viewport</code> takes what the viewport has left under whatever is above it, for an app's
+        own graph page. Any other height is <code>--graph-height</code>: on the graph, or on its
+        <code>.graph-frame</code> to size a side panel beside it to match.
+    </p>
+    <p>
+        The count in the card's head is a <code>data-graph-stats</code> outside the graph, which names it with
+        <code>data-graph-for</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Network" Title="A large graph" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A <code>.graph--lg</code> network, with its tools where a map keeps them.
+        <code>.graph-tools--start</code> puts a toolbar at the top left, <code>--stack</code> turns it into a
+        column, and <code>--bottom</code> sends a second one to the bottom edge. <code>.graph-minimap--start</code>
+        moves the minimap to the bottom left and <code>.graph-minimap--top</code> to the top; put it where the
+        drawing is emptiest. With no <code>.graph-frame</code> around it, full screen takes the graph alone.
+    </p>
+    <p>
+        Every link here is a cable, so a label would add nothing and <code>data-graph-edge-labels="none"</code>
+        leaves them off. The wheel zooms only once the canvas has been pressed, so a graph in a page that
+        scrolls does not swallow the scroll; <code>data-graph-wheel="always"</code> is for a graph that is the
+        whole page.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Waiting" Title="Waiting for records" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-graph-deferred</code> says the records will arrive by a call &mdash; <code>set()</code> on the
+        handle <code>sednaUi.graph.get()</code> returns, or <code>ISednaGraphs.SetDataAsync</code> from C#
+        &mdash; so the <code>.graph-wait</code> stays up until they do, instead of an empty state flashing first.
+        Nothing calls this one, so it waits for good. Write the wait as a <code>.skeleton</code>: it is also what
+        shows before the script has started.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Empty" Title="Nothing to draw" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        An empty list draws nothing, and <code>.graph-empty</code> &mdash; an
+        <a href="/empty-state">empty state</a> inside the graph &mdash; says why and what to do about it, in the
+        app's words. The script only decides when it shows.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.FilteredAway" Title="Filtered to nothing" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; choose the data team.</strong> When there are records and the filters hide every
+        one, <code>.graph-empty--filtered</code> shows instead of the plain empty state: &ldquo;nothing
+        matches&rdquo; and &ldquo;nothing exists&rdquo; need different words and a different way out. Write
+        both, each on its own <code>.graph-empty</code>. The way out here is <code>data-graph-action="reset"</code>,
+        which puts every control back as it was first drawn.
+    </p>
+    <p>
+        The select is a <code>data-graph-filter</code> naming a field &mdash; the records' own
+        <code>data-team</code> &mdash; and its empty value chooses them all. Chips, search and the rest of the
+        filters are on <a href="/graph-exploring">Exploring a graph</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.ReadError" Title="When the records cannot be read" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.graph-empty--error</code> shows when the data could not be read: a <code>data-graph-src</code>
+        that answered with an error, or a response that is not JSON. Put it on an
+        <code>.empty-state--failed</code> that names the request, as any failed load would, and make its button
+        <code>data-graph-action="reload"</code>, which fetches <code>data-graph-src</code> again. This one is held in
+        its error state for the page, which is why <code>data-graph-state</code> is written on it and
+        <code>data-graph</code> is not: in an app that attribute is the script's alone.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Graph.Keyboard" Title="Keyboard and screen readers" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; tab to the graph, then use the arrow keys.</strong> A graph is one stop in the tab
+        order: the script adds <code>tabindex="0"</code> and <code>role="application"</code> unless the app wrote
+        its own, and inside it the arrows move a ring from record to record, Page Down walks the links, Space
+        selects and Enter opens. The name is the app's <code>aria-label</code>, and so is
+        <code>aria-roledescription="graph"</code>, if the word should be said.
+    </p>
+    <p>
+        Each step is said through the app's <code>[data-graph-live]</code> region, in the sentence in its
+        <code>data-graph-announce</code>, and a selection in its <code>data-graph-announce-select</code>:
+        <code>{label}</code>, <code>{kind}</code>, <code>{meta}</code>, any field of the record, and
+        <code>{links}</code>. It is shown under the graph here so you can read what a screen reader hears; in an
+        app it is usually <code>.visually-hidden</code>. With the <code>.graph-data</code> list, which reads as the
+        whole graph in sentences, nothing on the canvas needs a pointer.
+    </p>
+</CatExample>
+
+<h2 id="keys">Keys and pointer <CatAnchor Id="keys" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Pointer</th><th>Keyboard</th><th>Does</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>hover</td><td><kbd class="kbd">←</kbd> <kbd class="kbd">↑</kbd> <kbd class="kbd">→</kbd> <kbd class="kbd">↓</kbd></td><td>Lights a record's neighbourhood and shows its tooltip.</td></tr>
+            <tr><td>&mdash;</td><td><kbd class="kbd">Page Down</kbd> <kbd class="kbd">Page Up</kbd></td><td>The next or previous linked record: walking the links.</td></tr>
+            <tr><td>&mdash;</td><td><kbd class="kbd">Home</kbd></td><td>The root, else the most connected record.</td></tr>
+            <tr><td>click</td><td><kbd class="kbd">Space</kbd></td><td>Selects the record, or clears the selection.</td></tr>
+            <tr><td>double click</td><td><kbd class="kbd">Enter</kbd></td><td>Opens it: <code>sedna-graph-open</code>, then its <code>data-href</code>.</td></tr>
+            <tr><td>right click, long press</td><td>the menu key, <kbd class="kbd">Shift</kbd> + <kbd class="kbd">F10</kbd></td><td>The app's context menu.</td></tr>
+            <tr><td>drag the background, wheel</td><td><kbd class="kbd">Shift</kbd> + arrows, <kbd class="kbd">+</kbd> <kbd class="kbd">−</kbd>, <kbd class="kbd">0</kbd></td><td>Pans, zooms, fits everything.</td></tr>
+            <tr><td>&mdash;</td><td><kbd class="kbd">Esc</kbd></td><td>Clears the selection, then the ring.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="record-attributes">Record attributes <CatAnchor Id="record-attributes" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Attribute</th><th>Does</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>data-node="id"</code></td><td>Makes the item a record. Unique among records and links.</td></tr>
+            <tr><td>text, <code>data-label</code></td><td>The name on the canvas.</td></tr>
+            <tr><td><code>data-kind</code></td><td>A category, which a filter, a legend and an announcement can name.</td></tr>
+            <tr><td><code>data-tone</code></td><td><code>1</code>&ndash;<code>6</code>, <code>go</code>, <code>warn</code>, <code>danger</code>, <code>info</code>, <code>muted</code>, <code>brand</code>, <code>accent</code>. The colour of the <code>.series-*</code> class of the same name.</td></tr>
+            <tr><td><code>data-shape</code>, <code>data-icon</code></td><td>What kind of record it is, drawn: a shape, and a Remix Icon class inside it.</td></tr>
+            <tr><td><code>data-weight</code></td><td>Its size. By default, how many links it has.</td></tr>
+            <tr><td><code>data-root</code>, <code>data-hub</code>, <code>data-muted</code></td><td>What the graph is about; named first; drawn quieter.</td></tr>
+            <tr><td><code>data-meta</code></td><td>A second line: the default tooltip, and under the name in a box.</td></tr>
+            <tr><td><code>data-group</code>, <code>data-cluster</code>, <code>data-parent</code></td><td>Its island, its islands' cluster, and the record it is drawn inside &mdash; see <a href="/graph-layouts">Graph layouts</a>.</td></tr>
+            <tr><td><code>data-x</code>, <code>data-y</code></td><td>A position, for the <code>preset</code> layout.</td></tr>
+            <tr><td><code>data-href</code>, <code>data-tags</code>, <code>data-display</code></td><td>Where opening it goes; words a filter or a search matches; <code>dot</code> or <code>box</code> for this record alone.</td></tr>
+            <tr><td>any other <code>data-*</code></td><td>The app's own field, which a filter, a tooltip and an announcement can name.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="link-attributes">Link attributes <CatAnchor Id="link-attributes" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Attribute</th><th>Does</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>data-edge</code>, <code>data-source</code>, <code>data-target</code></td><td>Makes the item a link between two record ids. The id on <code>data-edge</code> is optional.</td></tr>
+            <tr><td>text, <code>data-label</code></td><td>The sentence a screen reader hears, and the short form the canvas writes.</td></tr>
+            <tr><td><code>data-kind</code></td><td>What an <code>edge.kind</code> filter names.</td></tr>
+            <tr><td><code>data-line</code>, <code>data-weight</code>, <code>data-arrow</code></td><td><code>solid</code> <code>dashed</code> <code>dotted</code>; <code>light</code> <code>normal</code> <code>heavy</code> or a number; <code>none</code> <code>target</code> <code>source</code> <code>both</code>.</td></tr>
+            <tr><td><code>data-tone</code>, <code>data-muted</code></td><td>As a record's. By default a link is the quiet border colour.</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    A link whose end is not a record, a duplicate id and a cycle of parents are left out with a warning in the
+    console, and the rest of the graph is drawn.
+</p>
+
+<h2 id="graph-options">Options on the graph <CatAnchor Id="graph-options" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Attribute</th><th>Values</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>data-graph-layout</code></td><td><code>force</code>, <code>islands</code>, <code>rings</code>, <code>concentric</code>, <code>tree</code>, <code>dagre</code>, <code>fcose</code>, <code>grid</code>, <code>circle</code>, <code>preset</code> &mdash; see <a href="/graph-layouts">Graph layouts</a>.</td></tr>
+            <tr><td><code>data-graph-direction</code>, <code>data-graph-spacing</code>, <code>data-graph-curve</code></td><td><code>TB</code> <code>LR</code> <code>BT</code> <code>RL</code>; <code>compact</code> <code>normal</code> <code>loose</code>; <code>bezier</code> <code>straight</code> <code>taxi</code> <code>round-taxi</code>.</td></tr>
+            <tr><td><code>data-graph-nodes</code></td><td><code>dot</code>, the default, or <code>box</code>.</td></tr>
+            <tr><td><code>data-graph-labels</code>, <code>data-graph-edge-labels</code></td><td><code>auto</code> <code>all</code> <code>none</code>; <code>hover</code> <code>always</code> <code>none</code>.</td></tr>
+            <tr><td><code>data-graph-arrows</code></td><td><code>none</code>, the default, <code>target</code>, <code>source</code>, <code>both</code>.</td></tr>
+            <tr><td><code>data-graph-open</code>, <code>data-graph-wheel</code></td><td><code>dbltap</code> <code>tap</code> <code>none</code>; <code>focus</code> <code>always</code> <code>none</code>.</td></tr>
+            <tr><td><code>data-graph-hover</code>, <code>data-graph-select</code>, <code>data-graph-drag</code></td><td><code>none</code> keeps the drawing still under the pointer; <code>none</code> turns selection off; <code>false</code> pins the records.</td></tr>
+            <tr><td><code>data-graph-deferred</code>, <code>data-graph-src</code>, <code>data-graph-eager</code></td><td>Records by a call; records fetched as JSON; start at once rather than when scrolled near.</td></tr>
+            <tr><td><code>data-graph-renderer</code></td><td><code>canvas</code>, the default, or <code>webgl</code> for a very large graph &mdash; check it on the hardware the app runs on.</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    The options that start with a filter, a focus, a colouring or a plugin are on
+    <a href="/graph-exploring">Exploring a graph</a> and <a href="/graph-plugins">Graph plugins</a>.
+</p>

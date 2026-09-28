@@ -228,7 +228,7 @@ public class McpToolTests(CatalogueAppFixture app)
     {
         var message = await Failure("get_integration_guide", new { section = "everything" });
 
-        foreach (var section in new[] { "host-page", "branding", "javascript", "rules" })
+        foreach (var section in new[] { "host-page", "branding", "javascript", "rules", "graph" })
             Assert.Contains(section, message, StringComparison.Ordinal);
     }
 

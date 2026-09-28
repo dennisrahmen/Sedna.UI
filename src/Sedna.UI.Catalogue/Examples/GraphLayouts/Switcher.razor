@@ -1,0 +1,86 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <select class="form-input form-select form-select-sm sedna-w-fit" aria-label="Layout" data-graph-option="layout">
+                <option value="force" selected>Force</option>
+                <option value="islands">Islands</option>
+                <option value="rings">Rings</option>
+                <option value="concentric">Concentric</option>
+                <option value="tree">Tree</option>
+                <option value="dagre">Hierarchy</option>
+                <option value="fcose">Compound springs</option>
+                <option value="grid">Grid</option>
+                <option value="circle">Circle</option>
+                <option value="preset">Preset</option>
+            </select>
+            <div class="segmented segmented--sm" role="group" aria-label="Direction, for a tree or a hierarchy">
+                <label class="segmented-option" data-tip="Top to bottom">
+                    <input type="radio" name="layout-switch-direction" value="TB" data-graph-option="direction" checked />
+                    <span><i class="ri-arrow-down-line" aria-hidden="true"></i><span class="visually-hidden">Top to bottom</span></span>
+                </label>
+                <label class="segmented-option" data-tip="Left to right">
+                    <input type="radio" name="layout-switch-direction" value="LR" data-graph-option="direction" />
+                    <span><i class="ri-arrow-right-line" aria-hidden="true"></i><span class="visually-hidden">Left to right</span></span>
+                </label>
+                <label class="segmented-option" data-tip="Bottom to top">
+                    <input type="radio" name="layout-switch-direction" value="BT" data-graph-option="direction" />
+                    <span><i class="ri-arrow-up-line" aria-hidden="true"></i><span class="visually-hidden">Bottom to top</span></span>
+                </label>
+                <label class="segmented-option" data-tip="Right to left">
+                    <input type="radio" name="layout-switch-direction" value="RL" data-graph-option="direction" />
+                    <span><i class="ri-arrow-left-line" aria-hidden="true"></i><span class="visually-hidden">Right to left</span></span>
+                </label>
+            </div>
+            <select class="form-input form-select form-select-sm sedna-w-fit" aria-label="Spacing" data-graph-option="spacing">
+                <option value="compact">Compact</option>
+                <option value="normal" selected>Normal</option>
+                <option value="loose">Loose</option>
+            </select>
+        </div>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="layout-switch" data-graph-arrows="target" data-graph-edge-labels="none"
+             aria-label="The shop's services, from the storefront down">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="storefront" data-root data-group="web" data-tone="1" data-icon="ri-store-2-line">Storefront</li>
+                <li data-node="product-pages" data-group="web" data-tone="1">Product pages</li>
+                <li data-node="account-pages" data-group="web" data-tone="1">Account pages</li>
+                <li data-node="search-api" data-group="search" data-tone="2">Search API</li>
+                <li data-node="suggestions" data-group="search" data-tone="2">Suggestions</li>
+                <li data-node="indexer" data-group="search" data-tone="2">Indexer</li>
+                <li data-node="cart" data-group="checkout" data-tone="3">Cart</li>
+                <li data-node="checkout" data-group="checkout" data-tone="3">Checkout</li>
+                <li data-node="payments" data-group="checkout" data-tone="3">Payments</li>
+                <li data-node="fraud" data-group="checkout" data-tone="3">Fraud check</li>
+                <li data-node="orders" data-group="fulfilment" data-tone="4">Orders</li>
+                <li data-node="stock" data-group="fulfilment" data-tone="4">Stock</li>
+                <li data-node="shipping" data-group="fulfilment" data-tone="4">Shipping</li>
+                <li data-node="labels" data-group="fulfilment" data-tone="4">Parcel labels</li>
+                <li data-node="identity" data-group="platform" data-tone="5">Identity</li>
+                <li data-node="mail" data-group="platform" data-tone="5">Order mails</li>
+                <li data-node="audit" data-group="platform" data-tone="5">Audit log</li>
+                <li data-edge data-source="storefront" data-target="product-pages">The storefront shows the product pages</li>
+                <li data-edge data-source="storefront" data-target="account-pages">The storefront shows the account pages</li>
+                <li data-edge data-source="storefront" data-target="search-api">The storefront calls the search API</li>
+                <li data-edge data-source="product-pages" data-target="suggestions">The product pages show suggestions</li>
+                <li data-edge data-source="search-api" data-target="indexer">The search API reads what the indexer built</li>
+                <li data-edge data-source="storefront" data-target="cart">The storefront fills the cart</li>
+                <li data-edge data-source="cart" data-target="checkout">The cart hands over to checkout</li>
+                <li data-edge data-source="checkout" data-target="payments">Checkout charges through payments</li>
+                <li data-edge data-source="payments" data-target="fraud">Payments screens with the fraud check</li>
+                <li data-edge data-source="checkout" data-target="orders">Checkout places the order</li>
+                <li data-edge data-source="orders" data-target="stock">Orders reserves stock</li>
+                <li data-edge data-source="orders" data-target="shipping">Orders books shipping</li>
+                <li data-edge data-source="shipping" data-target="labels">Shipping prints parcel labels</li>
+                <li data-edge data-source="account-pages" data-target="identity">The account pages sign in with identity</li>
+                <li data-edge data-source="checkout" data-target="identity">Checkout verifies with identity</li>
+                <li data-edge data-source="orders" data-target="mail">Orders sends the confirmation</li>
+                <li data-edge data-source="shipping" data-target="mail">Shipping sends the tracking mail</li>
+                <li data-edge data-source="payments" data-target="audit">Payments records every charge</li>
+                <li data-edge data-source="identity" data-target="audit">Identity records every sign-in</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

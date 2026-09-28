@@ -1,0 +1,130 @@
+<div class="graph-frame">
+    <div class="card">
+        <div class="graph graph--lg" data-graph id="layout-islands" data-graph-layout="islands" data-graph-edge-labels="none"
+             aria-label="Every team, the services it owns, and what they share">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="web" data-group="web" data-cluster="commerce" data-tone="1" data-shape="hexagon" data-icon="ri-team-line">Web team</li>
+                <li data-node="storefront" data-group="web" data-tone="1">Storefront</li>
+                <li data-node="product-pages" data-group="web" data-tone="1">Product pages</li>
+                <li data-node="account-pages" data-group="web" data-tone="1">Account pages</li>
+                <li data-node="cms" data-group="web" data-tone="1">Content editor</li>
+
+                <li data-node="checkout" data-group="checkout" data-cluster="commerce" data-tone="1" data-shape="hexagon" data-icon="ri-team-line">Checkout team</li>
+                <li data-node="cart" data-group="checkout" data-tone="1">Cart</li>
+                <li data-node="checkout-svc" data-group="checkout" data-tone="1">Checkout</li>
+                <li data-node="payments" data-group="checkout" data-tone="1">Payments</li>
+                <li data-node="vouchers" data-group="checkout" data-tone="1">Vouchers</li>
+                <li data-node="fraud" data-group="checkout" data-tone="1">Fraud check</li>
+
+                <li data-node="search" data-group="search" data-cluster="commerce" data-tone="1" data-shape="hexagon" data-icon="ri-team-line">Search team</li>
+                <li data-node="search-api" data-group="search" data-tone="1">Search API</li>
+                <li data-node="indexer" data-group="search" data-tone="1">Indexer</li>
+                <li data-node="suggestions" data-group="search" data-tone="1">Suggestions</li>
+                <li data-node="ranking" data-group="search" data-tone="1">Ranking</li>
+
+                <li data-node="fulfilment" data-group="fulfilment" data-cluster="operations" data-tone="2" data-shape="hexagon" data-icon="ri-team-line">Fulfilment team</li>
+                <li data-node="orders" data-group="fulfilment" data-tone="2">Orders</li>
+                <li data-node="stock" data-group="fulfilment" data-tone="2">Stock</li>
+                <li data-node="picking" data-group="fulfilment" data-tone="2">Picking</li>
+                <li data-node="shipping" data-group="fulfilment" data-tone="2">Shipping</li>
+                <li data-node="returns" data-group="fulfilment" data-tone="2">Returns</li>
+                <li data-node="labels" data-group="fulfilment" data-tone="2">Parcel labels</li>
+
+                <li data-node="support" data-group="support" data-cluster="operations" data-tone="2" data-shape="hexagon" data-icon="ri-team-line">Support tools team</li>
+                <li data-node="helpdesk" data-group="support" data-tone="2">Helpdesk</li>
+                <li data-node="refunds" data-group="support" data-tone="2">Refunds console</li>
+                <li data-node="customer-360" data-group="support" data-tone="2">Customer overview</li>
+
+                <li data-node="infra" data-group="infra" data-cluster="platform" data-tone="3" data-shape="hexagon" data-icon="ri-team-line">Infrastructure team</li>
+                <li data-node="gateway" data-group="infra" data-tone="3">Gateway</li>
+                <li data-node="identity" data-group="infra" data-tone="3">Identity</li>
+                <li data-node="secrets" data-group="infra" data-tone="3">Secrets</li>
+                <li data-node="ci" data-group="infra" data-tone="3">Build pipeline</li>
+
+                <li data-node="data" data-group="data" data-cluster="platform" data-tone="3" data-shape="hexagon" data-icon="ri-team-line">Data team</li>
+                <li data-node="warehouse" data-group="data" data-tone="3">Data warehouse</li>
+                <li data-node="loader" data-group="data" data-tone="3">Nightly loader</li>
+                <li data-node="reports" data-group="data" data-tone="3">Reports</li>
+                <li data-node="forecasts" data-group="data" data-tone="3">Stock forecasts</li>
+
+                <li data-node="event-bus" data-tone="muted" data-shape="diamond">Event bus</li>
+                <li data-node="design-system" data-tone="muted" data-shape="diamond">Design system</li>
+
+                <li data-edge data-source="web" data-target="storefront">The web team owns the storefront</li>
+                <li data-edge data-source="web" data-target="product-pages">The web team owns the product pages</li>
+                <li data-edge data-source="web" data-target="account-pages">The web team owns the account pages</li>
+                <li data-edge data-source="web" data-target="cms">The web team owns the content editor</li>
+                <li data-edge data-source="storefront" data-target="product-pages">The storefront shows the product pages</li>
+                <li data-edge data-source="cms" data-target="product-pages">The content editor publishes the product pages</li>
+                <li data-edge data-source="checkout" data-target="cart">The checkout team owns the cart</li>
+                <li data-edge data-source="checkout" data-target="checkout-svc">The checkout team owns checkout</li>
+                <li data-edge data-source="checkout" data-target="payments">The checkout team owns payments</li>
+                <li data-edge data-source="checkout" data-target="vouchers">The checkout team owns vouchers</li>
+                <li data-edge data-source="checkout" data-target="fraud">The checkout team owns the fraud check</li>
+                <li data-edge data-source="cart" data-target="checkout-svc">The cart hands over to checkout</li>
+                <li data-edge data-source="checkout-svc" data-target="payments">Checkout charges through payments</li>
+                <li data-edge data-source="payments" data-target="fraud">Payments screens with the fraud check</li>
+                <li data-edge data-source="search" data-target="search-api">The search team owns the search API</li>
+                <li data-edge data-source="search" data-target="indexer">The search team owns the indexer</li>
+                <li data-edge data-source="search" data-target="suggestions">The search team owns suggestions</li>
+                <li data-edge data-source="search" data-target="ranking">The search team owns ranking</li>
+                <li data-edge data-source="search-api" data-target="ranking">The search API ranks with ranking</li>
+                <li data-edge data-source="fulfilment" data-target="orders">The fulfilment team owns orders</li>
+                <li data-edge data-source="fulfilment" data-target="stock">The fulfilment team owns stock</li>
+                <li data-edge data-source="fulfilment" data-target="picking">The fulfilment team owns picking</li>
+                <li data-edge data-source="fulfilment" data-target="shipping">The fulfilment team owns shipping</li>
+                <li data-edge data-source="fulfilment" data-target="returns">The fulfilment team owns returns</li>
+                <li data-edge data-source="fulfilment" data-target="labels">The fulfilment team owns parcel labels</li>
+                <li data-edge data-source="orders" data-target="stock">Orders reserves stock</li>
+                <li data-edge data-source="stock" data-target="picking">Stock sends pick lists</li>
+                <li data-edge data-source="shipping" data-target="labels">Shipping prints parcel labels</li>
+                <li data-edge data-source="support" data-target="helpdesk">The support tools team owns the helpdesk</li>
+                <li data-edge data-source="support" data-target="refunds">The support tools team owns the refunds console</li>
+                <li data-edge data-source="support" data-target="customer-360">The support tools team owns the customer overview</li>
+                <li data-edge data-source="helpdesk" data-target="customer-360">The helpdesk opens the customer overview</li>
+                <li data-edge data-source="infra" data-target="gateway">The infrastructure team owns the gateway</li>
+                <li data-edge data-source="infra" data-target="identity">The infrastructure team owns identity</li>
+                <li data-edge data-source="infra" data-target="secrets">The infrastructure team owns secrets</li>
+                <li data-edge data-source="infra" data-target="ci">The infrastructure team owns the build pipeline</li>
+                <li data-edge data-source="gateway" data-target="identity">The gateway checks identity</li>
+                <li data-edge data-source="data" data-target="warehouse">The data team owns the data warehouse</li>
+                <li data-edge data-source="data" data-target="loader">The data team owns the nightly loader</li>
+                <li data-edge data-source="data" data-target="reports">The data team owns reports</li>
+                <li data-edge data-source="data" data-target="forecasts">The data team owns stock forecasts</li>
+                <li data-edge data-source="loader" data-target="warehouse">The nightly loader fills the data warehouse</li>
+                <li data-edge data-source="reports" data-target="warehouse">Reports read the data warehouse</li>
+
+                <li data-edge data-source="storefront" data-target="search-api">The storefront calls the search API</li>
+                <li data-edge data-source="product-pages" data-target="suggestions">The product pages show suggestions</li>
+                <li data-edge data-source="storefront" data-target="cart">The storefront fills the cart</li>
+                <li data-edge data-source="checkout-svc" data-target="orders">Checkout places orders</li>
+                <li data-edge data-source="refunds" data-target="payments">The refunds console refunds through payments</li>
+                <li data-edge data-source="customer-360" data-target="orders">The customer overview shows orders</li>
+                <li data-edge data-source="gateway" data-target="storefront">The gateway routes to the storefront</li>
+                <li data-edge data-source="account-pages" data-target="identity">The account pages sign in with identity</li>
+                <li data-edge data-source="checkout-svc" data-target="identity">Checkout verifies with identity</li>
+                <li data-edge data-source="loader" data-target="orders">The nightly loader reads orders</li>
+                <li data-edge data-source="forecasts" data-target="stock">Stock forecasts feed stock</li>
+                <li data-edge data-source="orders" data-target="event-bus">Orders publishes on the event bus</li>
+                <li data-edge data-source="shipping" data-target="event-bus">Shipping publishes on the event bus</li>
+                <li data-edge data-source="payments" data-target="event-bus">Payments publishes on the event bus</li>
+                <li data-edge data-source="indexer" data-target="event-bus">The indexer listens on the event bus</li>
+                <li data-edge data-source="loader" data-target="event-bus">The nightly loader listens on the event bus</li>
+                <li data-edge data-source="storefront" data-target="design-system">The storefront is built with the design system</li>
+                <li data-edge data-source="account-pages" data-target="design-system">The account pages are built with the design system</li>
+                <li data-edge data-source="helpdesk" data-target="design-system">The helpdesk is built with the design system</li>
+                <li data-edge data-source="refunds" data-target="design-system">The refunds console is built with the design system</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <canvas class="graph-minimap graph-minimap--top" data-graph-minimap aria-hidden="true"></canvas>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch series-1"></span>Commerce</span>
+        <span class="graph-key"><span class="graph-swatch series-2"></span>Operations</span>
+        <span class="graph-key"><span class="graph-swatch series-3"></span>Platform</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon"></span>A team, at the heart of its island</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-muted"></span>Shared by several teams</span>
+    </div>
+</div>

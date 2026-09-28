@@ -21,6 +21,11 @@ public class ShippedPathTests
     // No app writes this one out: Blazor finds a JavaScript initializer by exactly this
     // name, and a rename leaves @onsedna-drop receiving empty event arguments.
     [InlineData("wwwroot/Sedna.UI.lib.module.js")]
+    // No app writes these out either: Sedna.UI.js imports the module relative to itself, and
+    // the module imports the engine relative to itself. A rename is a graph that never starts.
+    [InlineData("wwwroot/js/Sedna.UI.graph.js")]
+    [InlineData("wwwroot/lib/cytoscape/cytoscape.js")]
+    [InlineData("wwwroot/lib/cytoscape/VENDORED.txt")]
     public void Shipped_asset_exists_at_its_documented_path(string relativePath)
     {
         // Consuming apps write these paths out by hand as

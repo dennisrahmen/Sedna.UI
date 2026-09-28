@@ -1,0 +1,35 @@
+<div class="card">
+    <div class="graph" data-graph id="pl-dagre" data-graph-layout="dagre" data-graph-nodes="box" data-graph-curve="taxi" data-graph-edge-labels="none"
+         aria-label="How the company is organised">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="director" data-tone="1" data-icon="ri-building-line" data-meta="Managing director" data-root>Northwind Retail</li>
+            <li data-node="engineering" data-tone="2" data-icon="ri-code-s-slash-line" data-meta="Alex Fischer">Engineering</li>
+            <li data-node="finance" data-tone="3" data-icon="ri-money-euro-circle-line" data-meta="Priya Nair">Finance</li>
+            <li data-node="operations" data-tone="5" data-icon="ri-truck-line" data-meta="Jordan Weiss">Operations</li>
+            <li data-node="people" data-tone="4" data-icon="ri-team-line" data-meta="Rin Nakamura">People</li>
+            <li data-node="platform" data-tone="2">Platform team</li>
+            <li data-node="checkout-team" data-tone="2">Checkout team</li>
+            <li data-node="data-team" data-tone="2">Data team</li>
+            <li data-node="payables" data-tone="3">Accounts payable</li>
+            <li data-node="controlling" data-tone="3">Controlling</li>
+            <li data-node="warehouse" data-tone="5">Warehouse</li>
+            <li data-node="service" data-tone="5">Customer service</li>
+            <li data-node="recruiting" data-tone="4">Recruiting</li>
+
+            <li data-edge data-source="director" data-target="engineering">Engineering reports to the managing director</li>
+            <li data-edge data-source="director" data-target="finance">Finance reports to the managing director</li>
+            <li data-edge data-source="director" data-target="operations">Operations reports to the managing director</li>
+            <li data-edge data-source="director" data-target="people">People reports to the managing director</li>
+            <li data-edge data-source="engineering" data-target="platform">The platform team is part of engineering</li>
+            <li data-edge data-source="engineering" data-target="checkout-team">The checkout team is part of engineering</li>
+            <li data-edge data-source="engineering" data-target="data-team">The data team is part of engineering</li>
+            <li data-edge data-source="finance" data-target="payables">Accounts payable is part of finance</li>
+            <li data-edge data-source="finance" data-target="controlling">Controlling is part of finance</li>
+            <li data-edge data-source="operations" data-target="warehouse">The warehouse is part of operations</li>
+            <li data-edge data-source="operations" data-target="service">Customer service is part of operations</li>
+            <li data-edge data-source="people" data-target="recruiting">Recruiting is part of people</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>

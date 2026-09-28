@@ -1,0 +1,38 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="segmented segmented--sm" role="group" aria-label="Draw the records as">
+            <label class="segmented-option">
+                <input type="radio" name="graph-request-drawn" value="box" data-graph-option="nodes" checked />
+                <span><i class="ri-layout-row-line"></i> Boxes</span>
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="graph-request-drawn" value="dot" data-graph-option="nodes" />
+                <span><i class="ri-bubble-chart-line"></i> Dots</span>
+            </label>
+        </div>
+    </div>
+    <div class="card">
+        <div class="graph graph--sm" data-graph id="graph-request-path" data-graph-nodes="box" data-graph-layout="dagre" data-graph-direction="LR"
+             data-graph-arrows="target" aria-label="The path of one request, from the edge to the database">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="edge" data-tone="1" data-icon="ri-flashlight-line" data-meta="203.0.113.10">Edge cache</li>
+                <li data-node="lb" data-tone="2" data-icon="ri-git-branch-line" data-meta="lb-01">Load balancer</li>
+                <li data-node="web" data-tone="3" data-icon="ri-store-2-line" data-meta="3 hosts · v2.14.1">Storefront</li>
+                <li data-node="sessions" data-tone="3" data-icon="ri-key-2-line" data-meta="1.2 GB">Session cache</li>
+                <li data-node="api" data-tone="4" data-icon="ri-server-line" data-meta="2 hosts · v5.3.0">Orders API</li>
+                <li data-node="events" data-tone="5" data-icon="ri-broadcast-line" data-meta="12 subscribers">order-events</li>
+                <li data-node="db" data-tone="6" data-icon="ri-database-2-line" data-meta="Primary">src-db-14</li>
+                <li data-node="replica" data-tone="6" data-icon="ri-database-2-line" data-meta="40 s behind">src-db-15</li>
+                <li data-edge data-source="edge" data-target="lb" data-label="on a miss">The edge cache asks the load balancer when it has no copy</li>
+                <li data-edge data-source="lb" data-target="web" data-label="round robin">The load balancer spreads requests over the storefront</li>
+                <li data-edge data-source="web" data-target="sessions" data-label="sessions">The storefront keeps sessions in the session cache</li>
+                <li data-edge data-source="web" data-target="api" data-label="REST">The storefront calls the orders API</li>
+                <li data-edge data-source="api" data-target="db" data-label="writes">The orders API writes to src-db-14</li>
+                <li data-edge data-source="api" data-target="events" data-label="publishes">The orders API publishes to order-events</li>
+                <li data-edge data-source="db" data-target="replica" data-label="replicates" data-line="dashed">src-db-14 replicates to src-db-15</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

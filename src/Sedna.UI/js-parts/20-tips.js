@@ -60,16 +60,20 @@
             var vis = (el.innerText || '').trim();
             if (vis && vis.indexOf(tip) !== -1 && !clipped(el)) return hide();
 
+            put(tip, el.getBoundingClientRect(), el.getAttribute('data-tip-pos'));
+        }
+
+        // The bubble, holding `text`, beside the viewport rectangle `r`.
+        function put(text, r, preferred) {
             var box = ensureEl();
-            box.textContent = tip;
+            box.textContent = text;
             // Measure at the origin with a settled width, then position.
             box.style.left = '0px';
             box.style.top = '0px';
             box.classList.add('sedna-tip--visible');
 
-            var r = el.getBoundingClientRect();
             var b = box.getBoundingClientRect();
-            var pos = el.getAttribute('data-tip-pos') || 'top';
+            var pos = preferred || 'top';
             var gap = 8, m = 6, vw = window.innerWidth, vh = window.innerHeight;
 
             // Vertical auto-flip when the preferred side has no room.
@@ -176,6 +180,18 @@
             gate: null,
             enabled: true,
             hide: hide,
+            /* The same bubble for something that is not an element — a record drawn on
+               the graph's canvas. `rect` is in viewport pixels ({ left, top, right,
+               bottom, width, height }, as getBoundingClientRect returns); `pos` is
+               top, bottom, left or right, and flips like data-tip-pos. Shows at once:
+               the caller has already decided the pointer is resting. `hide()` takes it
+               down, and so does the next hint anywhere on the page. */
+            at: function (rect, text, pos) {
+                if (!text || !rect || api.enabled === false) return hide();
+                current = null;
+                clearTimeout(showTimer);
+                put(String(text), rect, pos);
+            },
             // A boolean, where the gate is a function: what an app holds in C#.
             setEnabled: function (on) {
                 api.enabled = on !== false;

@@ -5,15 +5,19 @@
     to copy.
 </CatHead>
 
-<h2 id="two-tiers">The two tiers</h2>
+<h2 id="tiers">The three tiers</h2>
+
+<p class="cat-lede">
+    One question decides a tier: who writes the markup on screen?
+</p>
 
 <div class="cat-tiles">
     <div class="card cat-tile">
         <span class="cat-tile-ic"><i class="ri-side-bar-line"></i></span>
         <span class="cat-tile-text">
             <strong>Tier 1 — the frame</strong>
-            <span>Shell, sidebar and nav, header, user widget, toasts, the modal shell.
-            Pixel-identical in every app and never restyled per project.</span>
+            <span>Shell, sidebar and nav, header, user widget, the modal shell. The app writes it,
+            pixel-identical in every app and never restyled per project.</span>
         </span>
     </div>
     <div class="card cat-tile">
@@ -24,10 +28,19 @@
             apply the classes.</span>
         </span>
     </div>
+    <div class="card cat-tile">
+        <span class="cat-tile-ic"><i class="ri-shapes-line"></i></span>
+        <span class="cat-tile-text">
+            <strong>Tier 3 — the surfaces</strong>
+            <span>A toast, the hover-hint bubble, a graph, the document in a rich-text editor. The
+            library draws them, because there is nothing for the app to write; everything around one
+            is tier 2.</span>
+        </span>
+    </div>
 </div>
 
 <p class="cat-lede">
-    Both tiers are CSS classes. There is no <code>&lt;DataTable&gt;</code>, no
+    Tiers 1 and 2 are CSS classes. There is no <code>&lt;DataTable&gt;</code>, no
     <code>&lt;AppShell&gt;</code>, and there will not be either. The package ships the stylesheet, the
     script, the icons, the token export, and a small C# surface for what markup cannot express: which
     nav link is the current page, typed access to the browser API, and the service registration.

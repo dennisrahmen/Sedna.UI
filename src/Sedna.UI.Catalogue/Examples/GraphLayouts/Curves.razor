@@ -1,0 +1,45 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="segmented segmented--sm" role="group" aria-label="How links are drawn">
+            <label class="segmented-option">
+                <input type="radio" name="layout-curve" value="bezier" data-graph-option="curve" checked /> Curved
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="layout-curve" value="taxi" data-graph-option="curve" /> Angled
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="layout-curve" value="round-taxi" data-graph-option="curve" /> Rounded
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="layout-curve" value="straight" data-graph-option="curve" /> Straight
+            </label>
+        </div>
+    </div>
+    <div class="card">
+        <div class="graph graph--sm" data-graph id="layout-curves" data-graph-layout="dagre" data-graph-direction="LR"
+             data-graph-nodes="box" data-graph-arrows="target" data-graph-spacing="loose"
+             aria-label="The states an order passes through">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="placed" data-tone="1">Placed</li>
+                <li data-node="paid" data-tone="1">Paid</li>
+                <li data-node="packed" data-tone="1">Packed</li>
+                <li data-node="shipped" data-tone="1">Shipped</li>
+                <li data-node="delivered" data-tone="go">Delivered</li>
+                <li data-node="returned" data-tone="warn">Returned</li>
+                <li data-node="cancelled" data-tone="danger">Cancelled</li>
+                <li data-node="refunded" data-tone="muted">Refunded</li>
+                <li data-edge data-source="placed" data-target="paid" data-label="pay">An order is paid once the payment is taken</li>
+                <li data-edge data-source="placed" data-target="cancelled" data-label="cancel">A placed order can be cancelled</li>
+                <li data-edge data-source="paid" data-target="packed" data-label="pack">A paid order is picked and packed</li>
+                <li data-edge data-source="paid" data-target="refunded" data-label="cancel">A paid order that is cancelled is refunded</li>
+                <li data-edge data-source="packed" data-target="shipped" data-label="ship">A packed order ships when the carrier takes it</li>
+                <li data-edge data-source="shipped" data-target="delivered" data-label="sign">A shipped order is delivered once it is signed for</li>
+                <li data-edge data-source="shipped" data-target="returned" data-label="refuse">A shipped order is returned if it is refused at the door</li>
+                <li data-edge data-source="delivered" data-target="returned" data-label="send back">A delivered order is returned when the customer sends it back</li>
+                <li data-edge data-source="returned" data-target="refunded" data-label="check">A returned order is refunded once the goods are checked</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

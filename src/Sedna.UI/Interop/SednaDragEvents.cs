@@ -1,29 +1,4 @@
-using Microsoft.AspNetCore.Components;
-
 namespace Sedna.UI;
-
-/// <summary>
-/// Makes the drag-and-drop events <c>Sedna.UI.js</c> dispatches bindable from Razor, with
-/// their data: <c>@onsedna-drop</c>, <c>@onsedna-dragstart</c> and <c>@onsedna-dragend</c>.
-/// </summary>
-/// <remarks>
-/// <para>
-/// The Razor compiler finds an event only through a class of exactly this name, and only in
-/// a namespace the component imports — so <c>@using Sedna.UI</c> in <c>_Imports.razor</c>.
-/// <c>Sedna.UI.lib.module.js</c>, which Blazor loads by itself, registers the same three
-/// names in the browser.
-/// </para>
-/// <para>
-/// The script never moves an item. A drop is an event the app handles by moving the item in
-/// its own list and re-rendering; see <see cref="SednaDropEventArgs"/>.
-/// </para>
-/// </remarks>
-[EventHandler("onsedna-dragstart", typeof(SednaDragEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
-[EventHandler("onsedna-drop", typeof(SednaDropEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
-[EventHandler("onsedna-dragend", typeof(SednaDragEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
-public static class EventHandlers
-{
-}
 
 /// <summary>
 /// An item dropped somewhere other than where it started: <c>sedna-drop</c>, dispatched on

@@ -1,0 +1,73 @@
+@inject ISednaUi Ui
+@inject ISednaGraphs Graphs
+
+<div class="graph-frame" style="--graph-height: 18rem">
+    <div class="sedna-split sedna-split--sm">
+        <div class="card">
+            <div class="graph" data-graph id="owned-services" aria-label="Services and who owns them"
+                 @onsedna-graph-select="Selected"
+                 @onsedna-graph-open="Opened" @onsedna-graph-open:preventDefault>
+                <ul class="graph-data" data-graph-data>
+                    <li data-node="storefront" data-kind="Web app" data-icon="ri-store-2-line"
+                        data-owner="Alex Fischer" data-on-call="Priya Nair" data-href="/services/storefront">Storefront</li>
+                    <li data-node="orders" data-kind="Service" data-tone="2" data-icon="ri-server-line" data-meta="orders-console-01"
+                        data-owner="Priya Nair" data-on-call="Jordan Weiss" data-href="/services/orders">Orders API</li>
+                    <li data-node="payments" data-kind="Service" data-tone="2" data-icon="ri-bank-card-line"
+                        data-owner="Jordan Weiss" data-on-call="Alex Fischer" data-href="/services/payments">Payments</li>
+                    <li data-node="orders-db" data-kind="Database" data-tone="4" data-shape="square" data-icon="ri-database-2-line"
+                        data-meta="src-db-14" data-owner="Rin Nakamura" data-on-call="Priya Nair" data-href="/services/orders-db">Orders database</li>
+                    <li data-edge data-source="storefront" data-target="orders" data-label="places orders">The storefront places orders with the orders API</li>
+                    <li data-edge data-source="orders" data-target="payments" data-label="charges">The orders API charges payments</li>
+                    <li data-edge data-source="orders" data-target="orders-db" data-label="writes">The orders API writes the orders database</li>
+                </ul>
+                <div class="graph-canvas"></div>
+                <div class="graph-wait skeleton skeleton-block"></div>
+            </div>
+        </div>
+        <aside class="card card--fill sedna-split-aside graph-detail" aria-live="polite">
+            @if (_selected is { } service)
+            {
+                <div class="card-head">
+                    <strong>@service.Label</strong>
+                    <span class="badge">@service.Kind</span>
+                </div>
+                <div class="card-body">
+                    <div class="kv"><span class="k">Owner</span><span>@service.Fields.GetValueOrDefault("owner")</span></div>
+                    @* data-on-call arrives under the browser's own name for it: onCall. *@
+                    <div class="kv"><span class="k">On call</span><span>@service.Fields.GetValueOrDefault("onCall")</span></div>
+                    <div class="kv"><span class="k">Host</span><span class="v">@(service.Meta ?? "—")</span></div>
+                </div>
+                <div class="card-foot">
+                    <button class="btn btn-sm" type="button" @onclick="Clear">Clear</button>
+                </div>
+            }
+            else
+            {
+                <div class="card-body">
+                    <div class="empty-state empty-state--bare">
+                        <i class="ri-cursor-line state-icon state-icon--sm" aria-hidden="true"></i>
+                        <span class="empty-state-title">No service selected</span>
+                        <p>Click one to see who owns it. Double-click opens it.</p>
+                    </div>
+                </div>
+            }
+        </aside>
+    </div>
+</div>
+
+@code {
+    private SednaGraphNodeEventArgs? _selected;
+
+    // Id is null when the selection is cleared: Escape, a click on the background, or Clear.
+    private void Selected(SednaGraphNodeEventArgs e) => _selected = e.Id is null ? null : e;
+
+    // The graph clears its own selection and says so through @onsedna-graph-select, so the
+    // panel follows the graph rather than being cleared here as well.
+    private Task Clear() => Graphs.SelectAsync("owned-services", null);
+
+    // Cancelled by :preventDefault above, so the record's data-href is not followed and the
+    // app decides what opening means — its own page, a drawer, or here, a toast.
+    private Task Opened(SednaGraphNodeEventArgs e) => Ui.ToastAsync(
+        $"{e.Label} would open {e.Href}", ToastKind.Info,
+        title: e.Keyboard ? "Opened with Enter" : "Opened with a double-click");
+}

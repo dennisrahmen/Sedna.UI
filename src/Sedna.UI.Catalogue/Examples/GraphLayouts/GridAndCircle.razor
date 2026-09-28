@@ -1,0 +1,69 @@
+<div class="sedna-grid sedna-grid--lg">
+    <div class="card">
+        <div class="card-head"><h3>The fleet, busiest first</h3></div>
+        <div class="card-body card-body--flush">
+            <div class="graph graph--sm" data-graph id="layout-grid" data-graph-layout="grid" data-graph-spacing="loose" data-graph-edge-labels="none"
+                 aria-label="Every host, the busiest first">
+                <ul class="graph-data" data-graph-data>
+                    <li data-node="lb-01" data-tone="1">lb-01</li>
+                    <li data-node="web-01" data-tone="2">web-01</li>
+                    <li data-node="web-02" data-tone="2">web-02</li>
+                    <li data-node="web-03" data-tone="2">web-03</li>
+                    <li data-node="api-01" data-tone="3">api-01</li>
+                    <li data-node="api-02" data-tone="3">api-02</li>
+                    <li data-node="cache-01" data-tone="4">cache-01</li>
+                    <li data-node="src-db-14" data-tone="5">src-db-14</li>
+                    <li data-node="src-db-15" data-tone="5">src-db-15</li>
+                    <li data-node="backup-01" data-tone="6">backup-01</li>
+                    <li data-node="log-01" data-tone="6">log-01</li>
+                    <li data-node="build-runner-04" data-tone="6">build-runner-04</li>
+                    <li data-edge data-source="lb-01" data-target="web-01">lb-01 sends traffic to web-01</li>
+                    <li data-edge data-source="lb-01" data-target="web-02">lb-01 sends traffic to web-02</li>
+                    <li data-edge data-source="lb-01" data-target="web-03">lb-01 sends traffic to web-03</li>
+                    <li data-edge data-source="web-01" data-target="api-01">web-01 calls api-01</li>
+                    <li data-edge data-source="web-02" data-target="api-01">web-02 calls api-01</li>
+                    <li data-edge data-source="web-03" data-target="api-02">web-03 calls api-02</li>
+                    <li data-edge data-source="api-01" data-target="src-db-14">api-01 writes to src-db-14</li>
+                    <li data-edge data-source="api-02" data-target="src-db-14">api-02 writes to src-db-14</li>
+                    <li data-edge data-source="api-01" data-target="cache-01">api-01 caches in cache-01</li>
+                    <li data-edge data-source="api-02" data-target="cache-01">api-02 caches in cache-01</li>
+                    <li data-edge data-source="src-db-14" data-target="src-db-15">src-db-14 replicates to src-db-15</li>
+                    <li data-edge data-source="backup-01" data-target="src-db-15">backup-01 copies src-db-15</li>
+                    <li data-edge data-source="api-01" data-target="log-01">api-01 ships its logs to log-01</li>
+                    <li data-edge data-source="api-02" data-target="log-01">api-02 ships its logs to log-01</li>
+                    <li data-edge data-source="build-runner-04" data-target="api-01">build-runner-04 deploys to api-01</li>
+                </ul>
+                <div class="graph-canvas"></div>
+                <div class="graph-wait skeleton skeleton-block"></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h3>The session cache ring</h3></div>
+        <div class="card-body card-body--flush">
+            <div class="graph graph--sm" data-graph id="layout-circle" data-graph-layout="circle" data-graph-edge-labels="none"
+                 aria-label="The session cache nodes, each handing over to the next">
+                <ul class="graph-data" data-graph-data>
+                    <li data-node="cache-01" data-tone="4" data-meta="Keys 0 to 1FFF">cache-01</li>
+                    <li data-node="cache-02" data-tone="4" data-meta="Keys 2000 to 3FFF">cache-02</li>
+                    <li data-node="cache-03" data-tone="4" data-meta="Keys 4000 to 5FFF">cache-03</li>
+                    <li data-node="cache-04" data-tone="4" data-meta="Keys 6000 to 7FFF">cache-04</li>
+                    <li data-node="cache-05" data-tone="4" data-meta="Keys 8000 to 9FFF">cache-05</li>
+                    <li data-node="cache-06" data-tone="warn" data-meta="Keys A000 to BFFF · rebalancing">cache-06</li>
+                    <li data-node="cache-07" data-tone="4" data-meta="Keys C000 to DFFF">cache-07</li>
+                    <li data-node="cache-08" data-tone="4" data-meta="Keys E000 to FFFF">cache-08</li>
+                    <li data-edge data-source="cache-01" data-target="cache-02">cache-01 hands over to cache-02</li>
+                    <li data-edge data-source="cache-02" data-target="cache-03">cache-02 hands over to cache-03</li>
+                    <li data-edge data-source="cache-03" data-target="cache-04">cache-03 hands over to cache-04</li>
+                    <li data-edge data-source="cache-04" data-target="cache-05">cache-04 hands over to cache-05</li>
+                    <li data-edge data-source="cache-05" data-target="cache-06">cache-05 hands over to cache-06</li>
+                    <li data-edge data-source="cache-06" data-target="cache-07">cache-06 hands over to cache-07</li>
+                    <li data-edge data-source="cache-07" data-target="cache-08">cache-07 hands over to cache-08</li>
+                    <li data-edge data-source="cache-08" data-target="cache-01">cache-08 hands over to cache-01</li>
+                </ul>
+                <div class="graph-canvas"></div>
+                <div class="graph-wait skeleton skeleton-block"></div>
+            </div>
+        </div>
+    </div>
+</div>

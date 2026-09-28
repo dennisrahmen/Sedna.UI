@@ -1,0 +1,93 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <div class="input-group toolbar-input">
+                <span class="input-affix"><i class="ri-search-line"></i></span>
+                <input class="form-input" type="search" placeholder="Host or address" aria-label="Find a host by name or address" data-graph-search />
+            </div>
+            <span class="toolbar-count" data-graph-stats="{nodes} devices and groups" data-graph-stats-match="{matches} match"></span>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn btn-sm" type="button" data-graph-action="expand-all"><i class="ri-expand-diagonal-line"></i> Unfold all</button>
+            <button class="btn btn-sm" type="button" data-graph-action="collapse-all"><i class="ri-collapse-diagonal-line"></i> Fold all</button>
+        </div>
+    </div>
+    <div class="graph graph--lg card" data-graph id="network" data-graph-layout="fcose" data-graph-spacing="compact"
+         data-graph-collapse aria-label="Network by site and rack" aria-roledescription="graph">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="north" data-tone="muted" data-meta="192.0.2.0/24">North site</li>
+            <li data-node="rack-a" data-parent="north" data-tone="muted">Rack A</li>
+            <li data-node="rack-b" data-parent="north" data-tone="muted">Rack B</li>
+            <li data-node="south" data-tone="muted" data-meta="198.51.100.0/24">South site</li>
+            <li data-node="rack-c" data-parent="south" data-tone="muted">Rack C</li>
+            <li data-node="rack-d" data-parent="south" data-tone="muted">Rack D</li>
+
+            <li data-node="edge-router-01" data-role="Router" data-icon="ri-global-line" data-shape="diamond" data-tone="6" data-meta="203.0.113.1">edge-router-01</li>
+            <li data-node="firewall-01" data-role="Firewall" data-icon="ri-shield-line" data-shape="diamond" data-tone="6" data-meta="203.0.113.2">firewall-01</li>
+
+            <li data-node="core-switch-01" data-parent="north" data-role="Core switch" data-icon="ri-router-line" data-shape="diamond" data-tone="6" data-meta="192.0.2.1">core-switch-01</li>
+            <li data-node="rack-switch-11" data-parent="rack-a" data-role="Rack switch" data-icon="ri-router-line" data-shape="diamond" data-tone="6" data-meta="192.0.2.11">rack-switch-11</li>
+            <li data-node="src-db-14" data-parent="rack-a" data-role="Database primary" data-icon="ri-database-2-line" data-shape="square" data-tone="3" data-meta="192.0.2.14">src-db-14</li>
+            <li data-node="src-db-15" data-parent="rack-a" data-role="Database replica" data-icon="ri-database-2-line" data-shape="square" data-tone="3" data-meta="192.0.2.15">src-db-15</li>
+            <li data-node="rack-switch-12" data-parent="rack-b" data-role="Rack switch" data-icon="ri-router-line" data-shape="diamond" data-tone="6" data-meta="192.0.2.12">rack-switch-12</li>
+            <li data-node="build-runner-04" data-parent="rack-b" data-role="Build runner" data-icon="ri-cpu-line" data-tone="2" data-meta="192.0.2.31">build-runner-04</li>
+            <li data-node="build-runner-05" data-parent="rack-b" data-role="Build runner" data-icon="ri-cpu-line" data-tone="2" data-meta="192.0.2.32">build-runner-05</li>
+
+            <li data-node="core-switch-02" data-parent="south" data-role="Core switch" data-icon="ri-router-line" data-shape="diamond" data-tone="6" data-meta="198.51.100.1">core-switch-02</li>
+            <li data-node="rack-switch-21" data-parent="rack-c" data-role="Rack switch" data-icon="ri-router-line" data-shape="diamond" data-tone="6" data-meta="198.51.100.11">rack-switch-21</li>
+            <li data-node="orders-console-01" data-parent="rack-c" data-role="Application server" data-icon="ri-server-line" data-tone="2" data-meta="198.51.100.21">orders-console-01</li>
+            <li data-node="orders-console-02" data-parent="rack-c" data-role="Application server" data-icon="ri-server-line" data-tone="2" data-meta="198.51.100.22">orders-console-02</li>
+            <li data-node="rack-switch-22" data-parent="rack-d" data-role="Rack switch" data-icon="ri-router-line" data-shape="diamond" data-tone="6" data-meta="198.51.100.12">rack-switch-22</li>
+            <li data-node="storage-node-07" data-parent="rack-d" data-role="Storage node" data-icon="ri-hard-drive-2-line" data-shape="hexagon" data-tone="5" data-meta="198.51.100.41">storage-node-07</li>
+            <li data-node="storage-node-08" data-parent="rack-d" data-role="Storage node · a disk is failing" data-icon="ri-hard-drive-2-line" data-shape="hexagon" data-tone="danger" data-meta="198.51.100.42" data-hub>storage-node-08</li>
+            <li data-node="backup-vault-02" data-parent="rack-d" data-role="Backup vault" data-icon="ri-archive-line" data-shape="hexagon" data-tone="5" data-meta="198.51.100.43">backup-vault-02</li>
+
+            <li data-edge data-source="edge-router-01" data-target="firewall-01" data-label="uplink" data-weight="heavy">edge-router-01 hands all traffic to firewall-01.</li>
+            <li data-edge data-source="firewall-01" data-target="core-switch-01" data-label="10 Gb/s" data-weight="heavy">firewall-01 connects to core-switch-01 at 10 Gb/s.</li>
+            <li data-edge data-source="firewall-01" data-target="core-switch-02" data-label="10 Gb/s" data-weight="heavy">firewall-01 connects to core-switch-02 at 10 Gb/s.</li>
+            <li data-edge data-source="core-switch-01" data-target="core-switch-02" data-label="40 Gb/s between sites" data-weight="heavy" data-line="dashed">core-switch-01 and core-switch-02 are joined by a 40 Gb/s link between the sites.</li>
+            <li data-edge data-source="core-switch-01" data-target="rack-switch-11" data-label="10 Gb/s">core-switch-01 connects to rack-switch-11 at 10 Gb/s.</li>
+            <li data-edge data-source="core-switch-01" data-target="rack-switch-12" data-label="10 Gb/s">core-switch-01 connects to rack-switch-12 at 10 Gb/s.</li>
+            <li data-edge data-source="core-switch-02" data-target="rack-switch-21" data-label="10 Gb/s">core-switch-02 connects to rack-switch-21 at 10 Gb/s.</li>
+            <li data-edge data-source="core-switch-02" data-target="rack-switch-22" data-label="10 Gb/s">core-switch-02 connects to rack-switch-22 at 10 Gb/s.</li>
+            <li data-edge data-source="rack-switch-11" data-target="src-db-14" data-label="1 Gb/s">src-db-14 is on rack-switch-11.</li>
+            <li data-edge data-source="rack-switch-11" data-target="src-db-15" data-label="1 Gb/s">src-db-15 is on rack-switch-11.</li>
+            <li data-edge data-source="rack-switch-12" data-target="build-runner-04" data-label="1 Gb/s">build-runner-04 is on rack-switch-12.</li>
+            <li data-edge data-source="rack-switch-12" data-target="build-runner-05" data-label="1 Gb/s">build-runner-05 is on rack-switch-12.</li>
+            <li data-edge data-source="rack-switch-21" data-target="orders-console-01" data-label="1 Gb/s">orders-console-01 is on rack-switch-21.</li>
+            <li data-edge data-source="rack-switch-21" data-target="orders-console-02" data-label="1 Gb/s">orders-console-02 is on rack-switch-21.</li>
+            <li data-edge data-source="rack-switch-22" data-target="storage-node-07" data-label="10 Gb/s">storage-node-07 is on rack-switch-22.</li>
+            <li data-edge data-source="rack-switch-22" data-target="storage-node-08" data-label="10 Gb/s">storage-node-08 is on rack-switch-22.</li>
+            <li data-edge data-source="rack-switch-22" data-target="backup-vault-02" data-label="10 Gb/s">backup-vault-02 is on rack-switch-22.</li>
+            <li data-edge data-source="src-db-14" data-target="src-db-15" data-label="replicates" data-line="dotted">src-db-14 replicates to src-db-15.</li>
+            <li data-edge data-source="storage-node-07" data-target="storage-node-08" data-label="mirrors" data-line="dotted">storage-node-07 mirrors storage-node-08.</li>
+            <li data-edge data-source="storage-node-07" data-target="backup-vault-02" data-label="nightly snapshot" data-line="dotted">storage-node-07 sends a nightly snapshot to backup-vault-02.</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-tools" role="toolbar" aria-label="View">
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit to the frame" data-tip="Fit to the frame"><i class="ri-focus-3-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="arrange" aria-label="Arrange again" data-tip="Arrange again"><i class="ri-magic-line"></i></button>
+        </div>
+        <div class="graph-tip" data-graph-tip hidden>
+            <span class="graph-tip-head"><i data-graph-icon aria-hidden="true"></i><span class="graph-tip-title" data-graph-field="label"></span></span>
+            <span class="graph-tip-meta" data-graph-field="role"></span>
+            <span class="graph-tip-ref" data-graph-field="meta"></span>
+        </div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+        <p class="visually-hidden" data-graph-live aria-live="polite"
+           data-graph-announce="{label}, {role}, {meta}. {links} links." data-graph-announce-select="{label} selected."></p>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-6"></span> Network</span>
+        <span class="graph-key"><span class="graph-swatch series-2"></span> Compute</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-3"></span> Database</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-5"></span> Storage</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-danger"></span> Failing</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--group series-muted"></span> Site or rack</span>
+        <span class="graph-key"><span class="graph-line graph-line--heavy"></span> Trunk</span>
+        <span class="graph-key"><span class="graph-line graph-line--heavy graph-line--dashed"></span> Between sites</span>
+        <span class="graph-key"><span class="graph-line graph-line--dotted"></span> Replication and backup</span>
+    </div>
+</div>

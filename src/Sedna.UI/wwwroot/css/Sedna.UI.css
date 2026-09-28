@@ -57,6 +57,7 @@
      52-avatar.css
      53-chip.css
      54-data-viz.css
+     54-graph.css
      54-stat.css
      55-page-structure.css
      56-code-block.css
@@ -8140,14 +8141,18 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .chip-dismiss:hover { background: var(--bg-hover); color: var(--fg); }
 .chip-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 
-/* Chosen — a filter that is on, rather than one offered. */
-.chip--active {
+/* Chosen — a filter that is on, rather than one offered. A <button> chip whose
+   aria-pressed is "true" is chosen by that alone, so a script that toggles the state —
+   the graph's filter chips — changes the look with it. */
+.chip--active,
+button.chip[aria-pressed="true"] {
     background: var(--brand-tint);
     border-color: var(--brand-soft);
     color: var(--brand-text);
 }
 .chip--active i,
-.chip--active .chip-dismiss { color: var(--brand-text); }
+.chip--active .chip-dismiss,
+button.chip[aria-pressed="true"] i { color: var(--brand-text); }
 
 /* Not accepted — an address that is not one, a value the app rejected. Kept as a
    chip rather than thrown away, so the reader can see the typo and fix it. Pair it
@@ -8162,8 +8167,9 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .chip--invalid .chip-dismiss { color: var(--danger-fg); }
 
 /* A chip that is a <button>: a filter offered and toggled in place, such as a log
-   level. `aria-pressed` carries the state for a screen reader and `.chip--active` the
-   look, so the two are set together. A button does not inherit the page's font. */
+   level. `aria-pressed` carries the state for a screen reader and, on a button, the
+   look as well; `.chip--active` is the look for a chip that is not a button. A button
+   does not inherit the page's font. */
 button.chip { font-family: inherit; cursor: pointer; }
 button.chip:hover { border-color: var(--border-hover); }
 button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
@@ -8524,6 +8530,430 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .series-danger { color: var(--danger-solid); }
 .series-info   { color: var(--info-solid); }
 .series-muted  { color: var(--border-strong); }
+}
+
+/* ── 54-graph.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Graph ────────────────────────────────────────────────────────────────────
+   Records and the links between them, drawn on a canvas: a dependency map, an org
+   chart, a network, a knowledge graph, a flow. The canvas is the one surface the
+   library paints (see "The graph" in the root CLAUDE.md); everything around it is the
+   app's markup, and this file styles that frame:
+
+     <div class="graph-frame" data-graph-frame>
+       <div class="toolbar"> … filters, search, options — data-graph-* controls … </div>
+       <div class="graph" data-graph id="deps" aria-label="Service dependencies">
+         <ul class="graph-data" data-graph-data>
+           <li data-node="api" data-tone="2" data-icon="ri-server-line">Orders API</li>
+           <li data-node="db" data-tone="4" data-shape="square">Orders database</li>
+           <li data-edge data-source="api" data-target="db" data-label="reads">Orders API reads the orders database</li>
+         </ul>
+         <div class="graph-canvas"></div>
+         <div class="graph-tools" role="toolbar" aria-label="View"> … buttons … </div>
+         <canvas class="graph-minimap" data-graph-minimap aria-hidden="true"></canvas>
+         <div class="graph-wait skeleton"></div>
+         <div class="graph-empty empty-state"> … </div>
+       </div>
+     </div>
+
+   ── What the script writes, and what this file reads ──
+   `data-graph-state` on `.graph`: loading, ready, empty, filtered or error.
+   `.graph-wait` covers the canvas while loading; `.graph-empty` shows when there are
+   no records at all, `.graph-empty--filtered` when there are records and the filters
+   hide every one, and `.graph-empty--error` when the data could not be read.
+
+   ── Colour ──
+   A record's `data-tone` is one of the series the rest of the data-visualisation
+   family uses — `.series-1` … `.series-6`, `.series-go` / `-warn` / `-danger` /
+   `-info` / `-muted` — so a legend swatch wearing `.series-3` is the colour the canvas
+   paints a `data-tone="3"` record, in every theme.
+
+   ── Height ──
+   A canvas has no height of its own, so the graph sets one: `--graph-height`, 26rem by
+   default. `--sm` and `--lg` are the two others; `.graph--fill` takes its container's
+   height, for a graph that IS the page — give the container one. The side panel reads the
+   same property, so `--graph-height` set on the `.graph-frame` sizes the graph and its
+   panel together.
+   ─────────────────────────────────────────────────────────────────────────── */
+.graph {
+    position: relative;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    height: var(--graph-height, 26rem);
+    overflow: hidden;
+    border-radius: inherit;
+    /* No selection highlight across the toolbar and the labels while dragging the view. */
+    user-select: none;
+    -webkit-user-select: none;
+}
+.graph--sm { --graph-height: 18rem; }
+.graph--lg { --graph-height: 38rem; }
+.graph--fill { height: 100%; min-height: 12rem; }
+/* The rest of the viewport under whatever is above it — the graph page of an app. */
+.graph--viewport { --graph-height: clamp(24rem, calc(100dvh - 18rem), 72rem); }
+
+/* The graph is one stop in the tab order; the arrow keys move between records inside
+   it. Its ring is drawn inside the frame, above the canvas, so a card around the graph
+   that clips its content does not clip the ring as well. */
+.graph:focus { outline: none; }
+.graph:focus-visible::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px var(--brand-ring);
+    pointer-events: none;
+}
+
+/* What cytoscape draws into: the graph's one grid cell, so it fills the frame. Not
+   positioned absolutely — cytoscape puts its own unlayered `position: relative` on the
+   element it draws into, which outranks any rule in a layer, so the fill cannot depend
+   on `inset`. A stacking context of its own at 0, so the layers the engine and its
+   plugins add inside — whatever their own z-index — stay under the toolbar, the
+   minimap and the tooltip. */
+.graph-canvas {
+    position: relative;
+    grid-area: 1 / 1 / -1 / -1;
+    min-width: 0;
+    min-height: 0;
+    z-index: 0;
+}
+.graph[data-graph-drawing] .graph-canvas { cursor: crosshair; }
+
+/* The script fills the app's tooltip, menu and panel, and hides a slot with the
+   `hidden` attribute when a record has nothing for it — a menu item that does not apply,
+   a field left empty. A class that sets `display` would otherwise outrank the
+   attribute's own `display: none` and show it anyway — so this outweighs one class. */
+:is(.graph, .graph-detail, [data-graph-detail], .graph-menu) [hidden] { display: none; }
+
+/* The records as markup: read by the script, and read out by a screen reader as the
+   graph's text — so it is visually hidden, not hidden. Add `hidden` to it when the page
+   already says the same thing another way, such as a table beside the graph. */
+.graph-data {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ── The toolbar on the canvas ─────────────────────────────────────────────────
+   Zoom, fit, arrange, full screen: `.btn .btn-ghost .btn-sm .btn-icon` buttons with a
+   `data-graph-action` each, and a `data-tip` for their name. Top right by default;
+   `--start` puts it top left, `--bottom` along the bottom, `--stack` in a column. */
+.graph-tools {
+    position: absolute;
+    inset-block-start: var(--space-4);
+    inset-inline-end: var(--space-4);
+    z-index: 2;
+    display: flex;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-float);
+}
+.graph-tools--start { inset-inline-end: auto; inset-inline-start: var(--space-4); }
+.graph-tools--bottom { inset-block-start: auto; inset-block-end: var(--space-4); }
+.graph-tools--stack { flex-direction: column; }
+/* A divider between groups of tools. */
+.graph-tools-sep {
+    align-self: stretch;
+    width: 1px;
+    margin: var(--space-1) var(--space-1);
+    background: var(--border);
+}
+.graph-tools--stack .graph-tools-sep { width: auto; height: 1px; }
+/* A toggle tool that is on: the drawing mode, the outlines, full screen. */
+.graph-tools .btn[aria-pressed="true"] {
+    background: var(--brand-tint);
+    color: var(--brand-text);
+}
+/* One icon for each state of a toggle — the script flips aria-pressed and this shows
+   the matching one, so the button is never rewritten. */
+.btn[aria-pressed="true"] > .graph-when-off,
+.btn:not([aria-pressed="true"]) > .graph-when-on { display: none; }
+
+/* ── The minimap ───────────────────────────────────────────────────────────────
+   A <canvas data-graph-minimap> the app writes inside the graph; the script draws the
+   whole drawing into it and frames the part in view. Bottom right by default, `--start`
+   bottom left, `--top` along the top. Hidden on a phone, where the frame is the whole
+   screen already and there is no room for it. */
+.graph-minimap {
+    position: absolute;
+    inset-block-end: var(--space-4);
+    inset-inline-end: var(--space-4);
+    z-index: 2;
+    width: 11rem;
+    height: 7.5rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-float);
+    cursor: grab;
+}
+.graph-minimap:active { cursor: grabbing; }
+.graph-minimap--start { inset-inline-end: auto; inset-inline-start: var(--space-4); }
+.graph-minimap--top { inset-block-end: auto; inset-block-start: var(--space-4); }
+.graph--sm .graph-minimap { width: 8rem; height: 5.5rem; }
+@media (max-width: 560px) {
+    .graph-minimap { display: none; }
+}
+
+/* ── The tooltip ───────────────────────────────────────────────────────────────
+   The app's own, filled per record: `[data-graph-field]` slots take a field each.
+   Without one the library's hover-hint bubble says the record's name. Placed by the
+   script with a transform, clamped inside the frame, never under the pointer. */
+.graph-tip {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    max-width: 18rem;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-3);
+    line-height: 1.4;
+    color: var(--tip-fg);
+    background: var(--tip-bg);
+    border: 1px solid var(--tip-border);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-tip);
+    pointer-events: none;
+}
+.graph-tip[hidden] { display: none; }
+.graph-tip-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+.graph-tip-title { font-weight: 600; }
+.graph-tip-meta { color: var(--muted); }
+.graph-tip-ref {
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    color: var(--muted);
+}
+
+/* ── The context menu ──────────────────────────────────────────────────────────
+   A `.menu` the app writes inside the graph with `data-graph-menu`; the script opens it
+   where the pointer is. Positioned in the frame rather than anchored, because what it
+   belongs to is a point on a canvas, not an element. */
+.graph-menu {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    z-index: 3;
+    min-width: 12rem;
+}
+.graph-menu[hidden] { display: none; }
+
+/* ── Waiting and empty ─────────────────────────────────────────────────────────
+   Both cover the canvas. The wait is shown until the script has drawn — a canvas that
+   fills in record by record reads as broken — so it is also what shows before the
+   script has started. */
+.graph-wait,
+.graph-empty {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+.graph-wait { height: auto; }
+.graph[data-graph-state]:not([data-graph-state="loading"]) .graph-wait { display: none; }
+.graph-empty {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+.graph[data-graph-state="empty"] .graph-empty:not(.graph-empty--filtered, .graph-empty--error),
+.graph[data-graph-state="filtered"] .graph-empty--filtered,
+.graph[data-graph-state="error"] .graph-empty--error { display: flex; }
+
+/* ── The legend ────────────────────────────────────────────────────────────────
+   Keys for what the colours, shapes and lines mean. As filter chips — `button.chip`
+   with `data-graph-filter` — a key is also the switch for what it names, so there is
+   no second legend to keep in step. */
+.graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-6);
+    font-size: var(--text-3);
+    color: var(--fg-soft);
+}
+.graph-key {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+/* A record's key: its tone, from a `.series-*` class, in its shape. */
+.graph-swatch {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    background: currentColor;
+    border-radius: 50%;
+}
+.graph-swatch--square { border-radius: 1px; }
+.graph-swatch--rounded { border-radius: 3px; }
+.graph-swatch--diamond { border-radius: 1px; transform: rotate(45deg) scale(0.86); }
+.graph-swatch--triangle { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.graph-swatch--hexagon { border-radius: 0; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); }
+.graph-swatch--star {
+    border-radius: 0;
+    clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+.graph-swatch--tag { border-radius: 0; clip-path: polygon(0 0, 62% 0, 100% 50%, 62% 100%, 0 100%); }
+.graph-swatch--muted { opacity: 0.45; }
+/* A group's key: an outline, as the canvas draws a group or its hull. */
+.graph-swatch--group {
+    width: 14px;
+    height: 10px;
+    background: transparent;
+    border: 1.5px dashed currentColor;
+    border-radius: 3px;
+}
+
+/* A link's key: a line, so the two halves of a legend read apart at a glance. */
+.graph-line {
+    position: relative;
+    flex-shrink: 0;
+    width: 18px;
+    height: 0;
+    border-block-start: 2px solid currentColor;
+}
+.graph-line--dashed { border-block-start-style: dashed; }
+.graph-line--dotted { border-block-start-style: dotted; }
+.graph-line--light { border-block-start-width: 1px; opacity: 0.7; }
+.graph-line--heavy { border-block-start-width: 3px; }
+/* An arrowhead, for a link that has a direction. */
+.graph-line--arrow::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: -2px;
+    inset-block-start: -5px;
+    border-block: 4px solid transparent;
+    border-inline-start: 6px solid currentColor;
+}
+
+/* ── The frame ─────────────────────────────────────────────────────────────────
+   `.graph-frame` holds a graph with its toolbar, legend and side panel. Full screen
+   — `data-graph-action="fullscreen"` — takes the frame when there is one, so what is
+   around the graph comes with it; the graph then takes the height that is left. */
+.graph-frame {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+}
+.graph-frame:fullscreen,
+.graph:fullscreen { background: var(--bg); }
+.graph-frame:fullscreen {
+    padding: var(--space-7);
+    overflow: auto;
+}
+/* Everything between the frame and the graph — a card, its body, a split — grows into
+   the screen, so the graph takes whatever the toolbar and the legend leave, however deep
+   the app nested it. A split stays a row; its side panel stretches with the graph. */
+.graph-frame:fullscreen :has(.graph):not(.sedna-split, .sedna-split > *) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+/* A column of a split keeps the split's own sharing of the width and stretches to its
+   height, which it gets from the row. */
+.graph-frame:fullscreen .sedna-split > :has(.graph) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.graph-frame:fullscreen .sedna-split:has(.graph) {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.graph-frame:fullscreen .graph {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+}
+.graph-frame:fullscreen .graph-detail { max-height: none; }
+.graph:fullscreen {
+    height: 100dvh;
+    border-radius: 0;
+}
+
+/* The selected record's panel beside the graph (`data-graph-detail`), as tall as the
+   graph and no taller. On a `.card--fill` its head and foot stay and its body — the
+   record and its list of neighbours — scrolls, so selecting a busy record never pushes
+   the graph out of view. */
+.graph-detail { max-height: var(--graph-height, 26rem); }
+.graph-detail[hidden] { display: none; }
+/* A neighbour row's direction, from the data-graph-direction the script puts on the row.
+   The row's template writes one icon for each, and the matching one shows:
+
+     <span class="graph-direction" aria-hidden="true">
+       <i class="ri-arrow-right-line graph-direction-out"></i>
+       <i class="ri-arrow-left-line graph-direction-in"></i>
+       <i class="ri-arrow-left-right-line graph-direction-both"></i>
+     </span> */
+.graph-direction {
+    display: inline-flex;
+    color: var(--muted);
+}
+.graph-direction > * { display: none; }
+[data-graph-direction="out"] .graph-direction-out,
+[data-graph-direction="in"] .graph-direction-in,
+[data-graph-direction="both"] .graph-direction-both { display: inline; }
+
+/* ── Without scripting ─────────────────────────────────────────────────────────
+   Nothing in this library requires JavaScript, and a canvas cannot be drawn without
+   it — so with scripting off a graph is its list: the records and the sentences
+   linking them, readable, in place of a wait that would never end. A list the app
+   marked `hidden`, because the page says the same thing another way, stays hidden. */
+@media (scripting: none) {
+    .graph {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+    .graph-canvas,
+    .graph-wait,
+    .graph-tools,
+    .graph-minimap { display: none; }
+    .graph-data {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        padding: var(--space-5) var(--space-5) var(--space-5) var(--space-8);
+        overflow: visible;
+        clip-path: none;
+        white-space: normal;
+        color: var(--fg-soft);
+    }
+    /* A link written with no sentence of its own has nothing to read. */
+    .graph-data :empty { display: none; }
+}
+
+/* On paper the drawing is the point: the controls laid over it are left behind. */
+@media print {
+    .graph-tools,
+    .graph-minimap,
+    .graph-tip,
+    .graph-menu { display: none; }
+}
 }
 
 /* ── 54-stat.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -14876,6 +15306,8 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     .drag-item:focus-visible,
     .drag-handle:focus-visible,
     :is(a, button).list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+    /* The graph's ring is an overlay inside its frame, so it is restated there. */
+    .graph:focus-visible::after { outline: 2px solid CanvasText; outline-offset: -2px; }
 
     /* Selected and current states are backgrounds, which are flattened away. An
        outline is what is left that the mode still paints. */

@@ -1,0 +1,15 @@
+# Written by build/vendor-cytoscape.sh. name version integrity files
+cytoscape 3.34.3 sha512-yfYGhRcGAntq6YBD583j4n0Eg3jIxvWmZtz/5uz9UYkeIStSlMxuUja+ec5j3iBD8nv1rwaOAYMW09tBdkSeaQ== cytoscape.js
+cytoscape-dagre 4.0.1 sha512-hyNdh8Vp1nwzBcjHnM4c71G81bFhPmQYLXD2HM9AZIvl+8TrMzWEOPW45hF/XOBQiEguPcDQzi6VrXR1XBcXOA== cytoscape-dagre.js
+@dagrejs/dagre 3.0.0 sha512-ZzhnTy1rfuoew9Ez3EIw4L2znPGnYYhfn8vc9c4oB8iw6QAsszbiU0vRhlxWPFnmmNSFAkrYeF1PhM5m4lAN0Q== (licence only: bundled in another file)
+@dagrejs/graphlib 4.0.1 sha512-IvcV6FduIIAmLwnH+yun+QtV36SC7mERqa86aClNqmMN09WhmPPYU8ckHrZBozErf+UvHPWOTJYaGYiIcs0DgA== (licence only: bundled in another file)
+layout-base 2.0.1 sha512-dp3s92+uNI1hWIpPGH3jK2kxE2lMjdXdr+DH8ynZHpd6PUlH6x6cbuXnoMmiNumznqaNO31xu9e79F0uuZ0JFg== layout-base.js
+cose-base 2.2.0 sha512-AzlgcsCbUMymkADOJtQm3wO9S3ltPfYOFD5033keQn9NJzIbtnZj+UdBJe7DYml/8TdbtHJW3j58SOnKhWY/5g== cose-base.js
+cytoscape-fcose 2.2.0 sha512-ki1/VuRIHFCzxWNrsshHYPs6L7TvLu3DL+TyIGEsRcvVERmxokbf5Gdk7mFxZnTdiGtnA4cfSmjZJMviqSuZrQ== cytoscape-fcose.js
+lodash.memoize 4.1.2 sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag== lodash-memoize.js
+lodash.throttle 4.1.1 sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ== lodash-throttle.js
+cytoscape-edgehandles 4.0.1 sha512-uSYshkqRZ4luCxK295bEVTg46q4ZW+fwJhcIzMrtfNR7zeAnJ38Z48kUGeu5ibtXkgLbcZAg0YE4ED2dRuaePg== cytoscape-edgehandles.js
+cytoscape-expand-collapse 4.1.1 sha512-MI4/GsA6Rf6RRzNR1aCitBLSnxiIKLxvZyCzF+oti/zn/ui1jmf769VcEFAEbjjsAtwteGsTmczI+niCMWJNvA== cytoscape-expand-collapse.js
+bubblesets-js 3.0.1 sha512-EKPfysvIU5+u5RLW3mOr94wxzA3nKzqMBX0F95L95BPBDZPVgLBUnT0kJNz4UK/TXbGs8G7yEgl5MvibRBCQoQ== bubblesets.js
+cytoscape-layers 3.1.0 sha512-HhldyRPURRn4axeDsCiKdKqiZN8bcoWjclLXl3kWekDd7Wy4QHo5cntm4W4kxL/R0u8AA9VAfmNB1P7nJ9scew== cytoscape-layers.js
+cytoscape-bubblesets 4.1.0 sha512-5ms7vbsYXWI8HSZXvEEgT1eyIQbdkMXwGCF9ZEEl3awkpcO8CG3/DAeqa5udP+6lwb5GwFf5EC5E7iat7o8CJQ== cytoscape-bubblesets.js

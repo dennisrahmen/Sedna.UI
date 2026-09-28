@@ -1,0 +1,49 @@
+@inject ISednaGraphs Graphs
+
+<div class="card">
+    <div class="card-head">
+        <strong>Checkout services</strong>
+        <span class="form-hint">@(_shown is null ? "Loading…" : $"{_shown.Nodes} services, {_shown.Edges} calls")</span>
+    </div>
+    <div class="graph graph--sm" data-graph data-graph-deferred data-graph-arrows="target"
+         id="checkout-services" aria-label="Checkout services and what each one calls">
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>
+
+@code {
+    private SednaGraphStats? _shown;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // The first render with a circuit behind it: the element exists and interop works.
+        // Until the records arrive, data-graph-deferred keeps .graph-wait up.
+        if (!firstRender) return;
+
+        _shown = await Graphs.SetDataAsync("checkout-services", new SednaGraphData(Services, Calls));
+        StateHasChanged();
+    }
+
+    private static readonly SednaGraphNode[] Services =
+    [
+        new("storefront", "Storefront") { Kind = "web", Icon = "ri-store-2-line", Root = true },
+        new("orders", "Orders API") { Kind = "service", Tone = SednaGraphTone.Series(2), Icon = "ri-server-line", Meta = "orders-console-01" },
+        new("payments", "Payments") { Kind = "service", Tone = SednaGraphTone.Series(2), Icon = "ri-bank-card-line" },
+        new("search", "Search") { Kind = "service", Tone = SednaGraphTone.Series(2), Icon = "ri-search-line" },
+        new("orders-db", "Orders database") { Kind = "store", Tone = SednaGraphTone.Series(4), Shape = SednaGraphShape.Square, Icon = "ri-database-2-line" },
+        new("search-index", "Search index") { Kind = "store", Tone = SednaGraphTone.Series(4), Shape = SednaGraphShape.Square, Icon = "ri-database-2-line" },
+        new("courier", "Courier gateway") { Kind = "external", Tone = SednaGraphTone.Muted, Shape = SednaGraphShape.Diamond, Icon = "ri-truck-line" },
+    ];
+
+    private static readonly SednaGraphEdge[] Calls =
+    [
+        new("storefront", "orders") { Label = "places orders" },
+        new("storefront", "search") { Label = "searches" },
+        new("orders", "payments") { Label = "charges" },
+        new("orders", "orders-db") { Label = "writes" },
+        new("search", "search-index") { Label = "reads" },
+        new("orders", "courier") { Label = "books", Line = SednaGraphLine.Dashed },
+        new("orders", "search-index") { Label = "reindexes", Line = SednaGraphLine.Dotted },
+    ];
+}

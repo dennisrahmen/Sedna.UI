@@ -1,0 +1,48 @@
+<div class="graph-frame">
+    <div class="graph" data-graph id="layout-rings" data-graph-layout="rings" data-graph-arrows="source"
+         aria-label="What stops working while src-db-14 is down">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="db" data-root data-tone="danger" data-icon="ri-database-2-line" data-meta="Down since 09:42">src-db-14</li>
+            <li data-node="orders" data-tone="warn" data-icon="ri-file-list-3-line" data-meta="Fails with it">Orders</li>
+            <li data-node="invoices" data-tone="warn" data-icon="ri-bill-line" data-meta="Fails with it">Invoices</li>
+            <li data-node="returns" data-tone="warn" data-icon="ri-arrow-go-back-line" data-meta="Fails with it">Returns</li>
+            <li data-node="replica" data-tone="warn" data-icon="ri-database-2-line" data-meta="Stops catching up">src-db-15</li>
+            <li data-node="backup" data-tone="warn" data-icon="ri-save-3-line" data-meta="Skips tonight's copy">Backup</li>
+            <li data-node="checkout" data-tone="2" data-icon="ri-secure-payment-line" data-meta="Cannot place orders">Checkout</li>
+            <li data-node="tracking" data-tone="2" data-icon="ri-map-pin-line" data-meta="Shows stale orders">Order tracking</li>
+            <li data-node="customer-360" data-tone="2" data-icon="ri-user-search-line" data-meta="Shows stale orders">Customer overview</li>
+            <li data-node="refunds" data-tone="2" data-icon="ri-refund-2-line" data-meta="Cannot refund">Refunds console</li>
+            <li data-node="dunning" data-tone="2" data-icon="ri-mail-send-line" data-meta="Sends no reminders">Payment reminders</li>
+            <li data-node="loader" data-tone="2" data-icon="ri-timer-line" data-meta="Loads yesterday's data">Warehouse loader</li>
+            <li data-node="storefront" data-tone="muted" data-icon="ri-store-2-line" data-meta="Browsing still works">Storefront</li>
+            <li data-node="helpdesk" data-tone="muted" data-icon="ri-customer-service-2-line" data-meta="Answers slower">Helpdesk</li>
+            <li data-node="reports" data-tone="muted" data-icon="ri-bar-chart-box-line" data-meta="One day behind">Reports</li>
+            <li data-node="app" data-tone="muted" data-icon="ri-smartphone-line" data-meta="Browsing still works">Shop app</li>
+            <li data-edge data-source="orders" data-target="db" data-label="depends on">Orders depends on src-db-14</li>
+            <li data-edge data-source="invoices" data-target="db" data-label="depends on">Invoices depends on src-db-14</li>
+            <li data-edge data-source="returns" data-target="db" data-label="depends on">Returns depends on src-db-14</li>
+            <li data-edge data-source="replica" data-target="db" data-label="replicates">src-db-15 replicates from src-db-14</li>
+            <li data-edge data-source="backup" data-target="db" data-label="copies">Backup copies src-db-14</li>
+            <li data-edge data-source="checkout" data-target="orders" data-label="depends on">Checkout depends on orders</li>
+            <li data-edge data-source="tracking" data-target="orders" data-label="depends on">Order tracking depends on orders</li>
+            <li data-edge data-source="customer-360" data-target="orders" data-label="depends on">The customer overview depends on orders</li>
+            <li data-edge data-source="customer-360" data-target="invoices" data-label="depends on">The customer overview depends on invoices</li>
+            <li data-edge data-source="refunds" data-target="returns" data-label="depends on">The refunds console depends on returns</li>
+            <li data-edge data-source="dunning" data-target="invoices" data-label="depends on">Payment reminders depend on invoices</li>
+            <li data-edge data-source="loader" data-target="replica" data-label="reads">The warehouse loader reads src-db-15</li>
+            <li data-edge data-source="storefront" data-target="checkout" data-label="depends on">The storefront depends on checkout</li>
+            <li data-edge data-source="app" data-target="checkout" data-label="depends on">The shop app depends on checkout</li>
+            <li data-edge data-source="app" data-target="tracking" data-label="depends on">The shop app depends on order tracking</li>
+            <li data-edge data-source="helpdesk" data-target="customer-360" data-label="depends on">The helpdesk depends on the customer overview</li>
+            <li data-edge data-source="reports" data-target="loader" data-label="depends on">Reports depend on the warehouse loader</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch series-danger"></span>Down</span>
+        <span class="graph-key"><span class="graph-swatch series-warn"></span>Fails with it: one hop</span>
+        <span class="graph-key"><span class="graph-swatch series-2"></span>Degraded: two hops</span>
+        <span class="graph-key"><span class="graph-swatch series-muted"></span>Barely noticed: three hops</span>
+    </div>
+</div>

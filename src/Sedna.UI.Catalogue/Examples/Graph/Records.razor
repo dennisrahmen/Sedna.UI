@@ -1,0 +1,70 @@
+<div class="graph-frame">
+    <div class="graph" data-graph id="graph-project" data-graph-spacing="loose" aria-label="Everything linked to the checkout rebuild">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="rebuild" data-kind="project" data-shape="rounded" data-tone="1" data-icon="ri-rocket-2-line"
+                data-root data-weight="16" data-meta="Project · due in Q4">Checkout rebuild</li>
+            <li data-node="alex" data-kind="person" data-tone="2" data-icon="ri-user-3-line" data-meta="Engineering lead">Alex Fischer</li>
+            <li data-node="priya" data-kind="person" data-tone="2" data-icon="ri-user-3-line" data-meta="Payments engineer">Priya Nair</li>
+            <li data-node="jordan" data-kind="person" data-tone="2" data-icon="ri-user-3-line" data-meta="Product manager">Jordan Weiss</li>
+            <li data-node="rin" data-kind="person" data-tone="2" data-icon="ri-user-3-line" data-meta="Designer">Rin Nakamura</li>
+            <li data-node="web-team" data-kind="team" data-shape="hexagon" data-tone="3" data-icon="ri-team-line" data-hub data-meta="Team · 6 people">Web team</li>
+            <li data-node="payments-team" data-kind="team" data-shape="hexagon" data-tone="3" data-icon="ri-team-line" data-hub data-meta="Team · 4 people">Payments team</li>
+            <li data-node="brief" data-kind="document" data-shape="square" data-tone="4" data-icon="ri-file-text-line" data-meta="Document">Design brief</li>
+            <li data-node="runbook" data-kind="document" data-shape="square" data-tone="4" data-icon="ri-file-text-line" data-meta="Document">Rollout runbook</li>
+            <li data-node="load-test" data-kind="document" data-shape="square" data-tone="4" data-icon="ri-file-chart-line" data-meta="Document">Load test report</li>
+            <li data-node="beta" data-kind="milestone" data-shape="star" data-tone="5" data-meta="Milestone · 14 October">Staff beta</li>
+            <li data-node="release" data-kind="milestone" data-shape="star" data-tone="5" data-meta="Milestone · 18 November">General release</li>
+            <li data-node="pci" data-kind="tag" data-shape="tag" data-tone="6" data-meta="Tag">pci</li>
+            <li data-node="q4" data-kind="tag" data-shape="tag" data-tone="6" data-meta="Tag">q4</li>
+            <li data-node="one-page" data-kind="decision" data-shape="diamond" data-tone="go" data-meta="Decision · accepted">One checkout page</li>
+            <li data-node="tokenise" data-kind="decision" data-shape="diamond" data-tone="go" data-meta="Decision · accepted">Tokenise cards at the edge</li>
+            <li data-node="three-step" data-kind="decision" data-shape="diamond" data-tone="go" data-muted data-meta="Decision · superseded">Three-step checkout</li>
+            <li data-node="cut-over" data-kind="risk" data-shape="triangle" data-tone="danger" data-meta="Risk · blocking">Card provider cut-over</li>
+            <li data-node="freeze" data-kind="risk" data-shape="triangle" data-tone="warn" data-meta="Risk · open">Holiday change freeze</li>
+
+            <li data-edge data-source="alex" data-target="rebuild" data-label="leads">Alex Fischer leads the checkout rebuild</li>
+            <li data-edge data-source="jordan" data-target="rebuild" data-label="owns">Jordan Weiss owns the checkout rebuild</li>
+            <li data-edge data-source="web-team" data-target="rebuild" data-label="builds">The web team builds the checkout rebuild</li>
+            <li data-edge data-source="payments-team" data-target="rebuild" data-label="builds">The payments team builds the checkout rebuild</li>
+            <li data-edge data-source="alex" data-target="web-team" data-label="member of">Alex Fischer is in the web team</li>
+            <li data-edge data-source="rin" data-target="web-team" data-label="member of">Rin Nakamura is in the web team</li>
+            <li data-edge data-source="priya" data-target="payments-team" data-label="member of">Priya Nair is in the payments team</li>
+            <li data-edge data-source="rin" data-target="brief" data-label="wrote">Rin Nakamura wrote the design brief</li>
+            <li data-edge data-source="brief" data-target="rebuild" data-label="describes">The design brief describes the checkout rebuild</li>
+            <li data-edge data-source="alex" data-target="runbook" data-label="wrote">Alex Fischer wrote the rollout runbook</li>
+            <li data-edge data-source="runbook" data-target="release" data-label="prepares">The rollout runbook prepares the general release</li>
+            <li data-edge data-source="load-test" data-target="beta" data-label="gates">The load test report gates the staff beta</li>
+            <li data-edge data-source="priya" data-target="load-test" data-label="ran">Priya Nair ran the load test</li>
+            <li data-edge data-source="rebuild" data-target="beta" data-label="next">The staff beta is the next milestone</li>
+            <li data-edge data-source="beta" data-target="release" data-label="then">The general release follows the staff beta</li>
+            <li data-edge data-source="jordan" data-target="one-page" data-label="proposed">Jordan Weiss proposed one checkout page</li>
+            <li data-edge data-source="one-page" data-target="rebuild" data-label="decided for">One checkout page was decided for the rebuild</li>
+            <li data-edge data-source="one-page" data-target="three-step" data-label="supersedes" data-line="dashed">One checkout page supersedes the three-step checkout</li>
+            <li data-edge data-source="priya" data-target="tokenise" data-label="proposed">Priya Nair proposed tokenising cards at the edge</li>
+            <li data-edge data-source="tokenise" data-target="rebuild" data-label="decided for">Tokenising cards at the edge was decided for the rebuild</li>
+            <li data-edge data-source="tokenise" data-target="cut-over" data-label="mitigates">Tokenising cards at the edge mitigates the card provider cut-over</li>
+            <li data-edge data-source="cut-over" data-target="release" data-label="blocks" data-tone="danger">The card provider cut-over blocks the general release</li>
+            <li data-edge data-source="freeze" data-target="release" data-label="threatens" data-tone="warn">The holiday change freeze threatens the general release</li>
+            <li data-edge data-source="rebuild" data-target="pci" data-label="tagged">The checkout rebuild is tagged pci</li>
+            <li data-edge data-source="tokenise" data-target="pci" data-label="tagged">Tokenising cards at the edge is tagged pci</li>
+            <li data-edge data-source="beta" data-target="q4" data-label="tagged">The staff beta is tagged q4</li>
+            <li data-edge data-source="release" data-target="q4" data-label="tagged">The general release is tagged q4</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-1"></span>Project</span>
+        <span class="graph-key"><span class="graph-swatch series-2"></span>Person</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-3"></span>Team</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-4"></span>Document</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--star series-5"></span>Milestone</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--tag series-6"></span>Tag</span>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-go"></span>Decision</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond graph-swatch--muted series-go"></span>Superseded</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--triangle series-warn"></span>Open risk</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--triangle series-danger"></span>Blocking risk</span>
+    </div>
+</div>

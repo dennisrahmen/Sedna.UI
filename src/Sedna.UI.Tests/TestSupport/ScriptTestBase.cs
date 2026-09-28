@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json;
 using Microsoft.Playwright;
 
@@ -19,7 +20,9 @@ namespace Sedna.UI.Tests.TestSupport;
 /// <c>file://</c>. Two reasons: <c>localStorage</c> needs a real origin, which
 /// <c>boot.js</c> depends on entirely; and the scripts have to be genuine
 /// <c>&lt;script src&gt;</c> tags, because <c>boot.js</c> reads its options off
-/// <c>document.currentScript</c>.
+/// <c>document.currentScript</c>. The same holds for the graph: <c>Sedna.UI.js</c> imports
+/// <c>Sedna.UI.graph.js</c> relative to its own URL, and the module the engine relative to
+/// its own, so every shipped file is served at its <c>wwwroot</c> path.
 /// </para>
 /// </remarks>
 public abstract class ScriptTestBase : BrowserTestBase
@@ -50,6 +53,19 @@ public abstract class ScriptTestBase : BrowserTestBase
     /// synthesising pointer events: the browser's own decision between a scroll and a
     /// hold is what such a test is about.
     /// </param>
+    /// <param name="reducedMotion">
+    /// The reader's motion preference. <c>Reduce</c> makes the graph's layouts and view
+    /// changes land at once, so a test reads the drawing it asked for rather than a frame
+    /// of the way there.
+    /// </param>
+    /// <param name="forcedColors">Forced colours, as Windows high contrast sets them.</param>
+    /// <param name="serve">
+    /// Extra responses by path — the JSON a <c>data-graph-src</c> fetches, or an error.
+    /// </param>
+    /// <param name="beforeLoad">
+    /// Runs on the page before it navigates: where a console listener goes when what is
+    /// under test happens while the page loads.
+    /// </param>
     protected async Task<IPage> Open(
         string body,
         string head = "",
@@ -57,13 +73,19 @@ public abstract class ScriptTestBase : BrowserTestBase
         ColorScheme colorScheme = ColorScheme.Light,
         IDictionary<string, string>? storage = null,
         string? timeZone = null,
-        bool hasTouch = false)
+        bool hasTouch = false,
+        ReducedMotion? reducedMotion = null,
+        ForcedColors? forcedColors = null,
+        IReadOnlyDictionary<string, Served>? serve = null,
+        Action<IPage>? beforeLoad = null)
     {
         var context = await Browser!.NewContextAsync(new()
         {
             ColorScheme = colorScheme,
             TimezoneId = timeZone,
             HasTouch = hasTouch,
+            ReducedMotion = reducedMotion,
+            ForcedColors = forcedColors,
             // The copy tests need the clipboard without a permission prompt.
             Permissions = new[] { "clipboard-read", "clipboard-write" },
         });
@@ -78,62 +100,63 @@ public abstract class ScriptTestBase : BrowserTestBase
         }
 
         var page = await context.NewPageAsync();
+        beforeLoad?.Invoke(page);
 
+        // A path the fixture serves itself, else the shipped file of that name under
+        // wwwroot — the scripts, the stylesheet, the graph module, the engine and the
+        // icon font, from the real files and as a web server would type them — else the
+        // fixture page. Mapped rather than listed, so a module importing its neighbour by
+        // relative path finds it exactly as it would in an app.
         await page.RouteAsync($"{Origin}/**", async route =>
         {
-            var url = new Uri(route.Request.Url).AbsolutePath;
-            switch (url)
+            Requests.Enqueue(route.Request);
+            var path = new Uri(route.Request.Url).AbsolutePath;
+            if (serve is not null && serve.TryGetValue(path, out var served))
             {
-                case "/js/Sedna.UI.js":
-                    await route.FulfillAsync(new()
-                    {
-                        ContentType = "text/javascript",
-                        Body = await File.ReadAllTextAsync(Assets.JsPath),
-                    });
-                    return;
-                case "/js/Sedna.UI.boot.js":
-                    await route.FulfillAsync(new()
-                    {
-                        ContentType = "text/javascript",
-                        Body = await File.ReadAllTextAsync(Assets.BootJsPath),
-                    });
-                    return;
-                case "/css/Sedna.UI.css":
-                    await route.FulfillAsync(new()
-                    {
-                        ContentType = "text/css",
-                        Body = await File.ReadAllTextAsync(Assets.CssPath),
-                    });
-                    return;
-                case "/lib/remixicon/remixicon.css":
-                    await route.FulfillAsync(new()
-                    {
-                        ContentType = "text/css",
-                        Body = await File.ReadAllTextAsync(Assets.IconCssPath),
-                    });
-                    return;
-                default:
-                    await route.FulfillAsync(new()
-                    {
-                        ContentType = "text/html",
-                        Body = $"""
-                            <!DOCTYPE html>
-                            <html lang="en">
-                            <head><meta charset="utf-8"><title>fixture</title>{head}</head>
-                            <body>
-                            {body}
-                            {(withMainScript ? "<script src=\"/js/Sedna.UI.js\"></script>" : "")}
-                            </body>
-                            </html>
-                            """,
-                    });
-                    return;
+                await route.FulfillAsync(new()
+                {
+                    Status = served.Status,
+                    ContentType = served.ContentType,
+                    Body = served.Body,
+                });
+                return;
             }
+
+            if (Assets.WwwrootFile(path) is { } file)
+            {
+                await route.FulfillAsync(new()
+                {
+                    ContentType = Assets.ContentTypeOf(file),
+                    BodyBytes = await File.ReadAllBytesAsync(file),
+                });
+                return;
+            }
+
+            await route.FulfillAsync(new()
+            {
+                ContentType = "text/html",
+                Body = $"""
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head><meta charset="utf-8"><title>fixture</title>{head}</head>
+                    <body>
+                    {body}
+                    {(withMainScript ? "<script src=\"/js/Sedna.UI.js\"></script>" : "")}
+                    </body>
+                    </html>
+                    """,
+            });
         });
 
         await page.GotoAsync($"{Origin}/fixture.html");
         return page;
     }
+
+    /// <summary>A response the fixture serves at a path of its own.</summary>
+    protected sealed record Served(string Body, string ContentType = "application/json; charset=utf-8", int Status = 200);
+
+    /// <summary>Every request the fixture's origin answered, in order.</summary>
+    protected ConcurrentQueue<IRequest> Requests { get; } = new();
 
     /// <summary>The <c>boot.js</c> tag with no options, i.e. every default.</summary>
     protected const string BootTag = """<script src="/js/Sedna.UI.boot.js"></script>""";

@@ -1,0 +1,21 @@
+<div class="card">
+    <div class="graph" data-graph id="xp-open" data-graph-open="tap" data-graph-nodes="box" data-graph-layout="tree" data-graph-edge-labels="none"
+         aria-label="The graph pages of this catalogue. Choose one to go there.">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="graph" data-tone="1" data-icon="ri-share-circle-line" data-href="/graph" data-meta="The markup and the frame" data-root>Graph</li>
+            <li data-node="layouts" data-tone="2" data-icon="ri-mind-map" data-href="/graph-layouts" data-meta="Springs, islands, hierarchies">Graph layouts</li>
+            <li data-node="exploring" data-tone="2" data-icon="ri-compass-3-line" data-href="/graph-exploring" data-meta="Filters, search, the panel">Exploring a graph</li>
+            <li data-node="plugins" data-tone="2" data-icon="ri-puzzle-2-line" data-href="/graph-plugins" data-meta="Minimap, drawing, folding">Graph plugins</li>
+            <li data-node="gallery" data-tone="3" data-icon="ri-gallery-view-2" data-href="/graph-gallery" data-meta="Whole graphs for real jobs">Graph gallery</li>
+            <li data-node="blazor" data-tone="3" data-icon="ri-code-box-line" data-href="/graph-blazor" data-meta="Records from C#">Graph in Blazor</li>
+
+            <li data-edge data-source="graph" data-target="layouts" data-label="then">After Graph, read Graph layouts</li>
+            <li data-edge data-source="graph" data-target="exploring" data-label="then">After Graph, read Exploring a graph</li>
+            <li data-edge data-source="graph" data-target="plugins" data-label="then">After Graph, read Graph plugins</li>
+            <li data-edge data-source="exploring" data-target="gallery" data-label="then">After Exploring a graph, see the gallery</li>
+            <li data-edge data-source="plugins" data-target="blazor" data-label="then">After Graph plugins, read Graph in Blazor</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>

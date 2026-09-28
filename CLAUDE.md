@@ -5,17 +5,30 @@ Shared UI layer for Blazor apps. A UI fix is made here once, not re-copied into 
 Stack: **.NET 10 / Blazor / server-side Razor**. `net10.0`, `LangVersion latest`, `Nullable enable`,
 `ImplicitUsings enable`, `TreatWarningsAsErrors true`, xUnit.
 
-## Two tiers
+## Three tiers
 
-**Tier 1 — the frame.** Shell, sidebar and nav, header, user widget, toasts, modal shell.
-Pixel-identical in every app, never restyled per project.
+Every piece of UI belongs to exactly one tier, and one question decides which: **who writes the markup
+on screen?**
 
-**Tier 2 — the paint.** Tables, forms, cards, badges, buttons, panels, alerts. Pages write plain HTML
-and apply the classes.
+**Tier 1 — the frame.** Shell, sidebar and nav, header, user widget, modal shell. The app writes it,
+copied from the catalogue's Shell & nav page. Pixel-identical in every app, never restyled per project.
 
-**Both tiers are CSS classes.** Do not add a `<DataTable>`, a `<Card>` or an `<AppShell>` — the frame
-is markup on the catalogue's Shell & nav page, copied like everything else. Adding UI means adding
-classes and a catalogue page.
+**Tier 2 — the paint.** Tables, forms, cards, badges, buttons, panels, alerts. The app writes plain HTML
+and applies the classes.
+
+**Tier 3 — the surfaces.** What the library draws or drives itself, because there is nothing for the
+app to write: a toast, the hover-hint bubble, a graph's canvas, the document inside a rich-text editor.
+The app writes everything around a surface — its toolbar, legend, filters, menu, panel, empty state — as
+tier 2 markup, and hands the surface its data.
+
+**Tiers 1 and 2 are CSS classes, and nothing else.** Do not add a `<DataTable>`, a `<Card>` or an
+`<AppShell>` — the frame is markup on the catalogue's Shell & nav page, copied like everything else.
+Adding UI means adding classes and a catalogue page.
+
+**Tier 3 has a contract instead of exceptions.** The surfaces, how each reaches a page, and the rules
+every one meets are in `docs/surfaces.md` — the registry the tests read. A surface is admitted by the
+owner and by passing that contract; nothing in this file changes when one is added. See **Tier 3 —
+surfaces** below.
 
 ## Markup belongs to the app
 
@@ -26,7 +39,8 @@ below.
 
 **The test: after this ships, does the app still author the markup it renders?**
 
-Three kinds of code pass it, and they are the only kinds that may exist beside the stylesheet:
+Three kinds of code pass it, and they are the only kinds that may exist beside the stylesheet — apart
+from a tier 3 surface, which answers to its own contract:
 
 - **Infrastructure components** emit no UI. `SednaBrandStyle` writes a `<style>` of brand tokens into
   `<head>`; `SednaStateArt` writes the state illustrations' `<symbol>` sprite into `<body>`. Removing
@@ -42,12 +56,11 @@ Three kinds of code pass it, and they are the only kinds that may exist beside t
   page, as `aria-current`; `SednaSort` renders `aria-sort`, `SednaPager` picks the page numbers to show,
   `SednaTabs` renders a managed tablist's attributes. Pure functions, no interop, nothing held.
 
-**The toast and the hover-hint bubble are the two exceptions.** Neither has a form, a result or
-anything to author — a toast is one line the app passes in, a hint is the app's own `data-tip` text — so
-the library draws them: `51-toast.js` builds the toast and `20-tips.js` builds the one `.sedna-tip`
-bubble. They are named here so nobody removes them by this rule, and so nothing is added beside them.
-A confirmation dialog, the command palette and the header search's results were all once drawn by the
-script and were moved to app markup for exactly that.
+**Tier 3 is where the library draws, and nowhere else.** A surface draws only what has no author —
+the app's data or the app's one line — and the rule above still holds around it: every element and
+every word beside a surface is the app's. A confirmation dialog, the command palette and the header
+search's results were all once drawn by the script and were moved to app markup, because each had
+something to author; that is the test a proposed surface fails or passes.
 
 **A list the script fills comes from the app's `<template>`.** Where the script renders rows from data —
 the palette's commands, the header search's results — the app writes the container and a `<template>`
@@ -75,15 +88,16 @@ keeps the function in a table keyed by it, as `watchSettings` does.
 **A call that waits on the reader passes a `CancellationToken`.** Blazor applies a one-minute timeout
 to every interop call that does not, so a dialog left open for a minute would throw into the app.
 
-The package is the stylesheet, the script, the icons, the token export, and the C# surface above:
-`ActiveLink`, `SednaSort`, `SednaPager`, `SednaTabs`, `ISednaUi`, `ISednaSettings`, `ISednaOverlays` and
-`AddSednaUi()`. Most of this library is CSS.
+The package is the stylesheet, the script, the icons, the token export, the engines of the tier 3
+surfaces that ship one, and the C# surface above: `ActiveLink`, `SednaSort`, `SednaPager`, `SednaTabs`, `ISednaUi`, `ISednaSettings`,
+`ISednaOverlays`, `ISednaGraphs` and `AddSednaUi()`. Most of this library is CSS.
 
 ## The stylesheet and the script are generated
 
-Edit `src/Sedna.UI/css-parts/*.css` or `js-parts/*.js`, then run `build/bundle-css.sh` /
-`build/bundle-js.sh`. Never edit `wwwroot/css/Sedna.UI.css` or `wwwroot/js/Sedna.UI.js` — both
-are generated, and a test fails if a bundle and its parts disagree.
+Edit `src/Sedna.UI/css-parts/*.css`, `js-parts/*.js` or `graph-parts/*.js`, then run
+`build/bundle-css.sh` / `build/bundle-js.sh`. Never edit `wwwroot/css/Sedna.UI.css`,
+`wwwroot/js/Sedna.UI.js` or `wwwroot/js/Sedna.UI.graph.js` — all three are generated, and a test fails
+if a bundle and its parts disagree.
 
 Parts are **discovered**, not listed: the generator reads the directory, so adding a file is the whole
 job and nothing can be left out. Order is the byte-ordinal filename order, which is why every part
@@ -93,6 +107,13 @@ carries an `NN-` prefix and the build fails without one. Conventions for writing
 One file of each ships. The parts sit outside `wwwroot` so they are not static web assets: an app has
 exactly one stylesheet path and one script path. Do not add a runtime loader for the parts — JS-injected
 CSS leaves content unstyled until scripts run, and `@import` serialises the requests.
+
+**A shipped surface's module is the one kind of script an app never references.** `Sedna.UI.graph.js`
+is an ES module that `Sedna.UI.js` imports, relative to itself, the first time a page shows a
+`[data-graph]` — so a page without a graph never downloads it or the engine it imports, and the host
+page stays exactly as `docs/getting-started.md` writes it. It is generated from `graph-parts/` like the
+other two. Nothing but a tier 3 surface is loaded this way: a behaviour every page may need belongs in
+`Sedna.UI.js`.
 
 `Sedna.UI.boot.js` stays standalone. It runs in `<head>` before first paint; bundling it into the
 main script would defeat its purpose.
@@ -119,12 +140,10 @@ App-specific business UI stays in the app that owns it: its own workflow panels,
 guided tours, styling for a particular integration's output, page-specific grids. If a class knows
 what the app is *for*, it belongs to the app.
 
-**Quill 2 is the one integration the library dresses.** `44-quill.css` skins the markup Quill
-generates inside `.editor`, as `Spillgebees.Blazor.RichTextEditor` renders it, so an app that needs a
-rich-text editor gets one that looks native without writing its own. The library references neither: the
-app adds the package and does not link the package's stylesheet, and the catalogue references it to show
-and test the skin on the real component, pinned to one version. It is named here so it is not removed by
-the rule above, and so a second editor engine is not added beside it.
+**A tier 3 surface is the one way the library draws for the app or dresses another engine's output** —
+the graph ships cytoscape.js; the rich-text editor dresses the Quill an app installs. The registry in
+`docs/surfaces.md` names them, so the rule above does not remove them, and "one engine per job" keeps
+a second from being added beside one.
 
 Permanently out of scope:
 
@@ -134,8 +153,8 @@ Permanently out of scope:
 
   This bans components that **hide markup**. It does not ban components outright — see **Markup
   belongs to the app** above for the three kinds that are allowed.
-- Library-drawn UI beyond the toast and the hover-hint bubble: a confirmation, a prompt, an alert box
-  built by the script. The app writes it as a modal and a presenter shows it.
+- Library-drawn UI outside tier 3: a confirmation, a prompt, an alert box built by the script. The app
+  writes it as a modal and a presenter shows it.
 - **The package** loading anything from a remote URL at runtime. Everything it needs ships inside it,
   so no host outage can affect a customer site. The catalogue application is a web server, and that
   rule is about the package.
@@ -143,7 +162,13 @@ Permanently out of scope:
   only dependency and is unavoidable — `NavigationManager`, `NavLinkMatch` and `IJSRuntime` live there.
   A third-party package is the same exposure moved to build time: a supply-chain risk, a licence to
   audit, and a transitive version conflict in every consuming app. A test fails on one, and
-  `build/verify-package.sh` asserts the packed dependency list is exactly that one name.
+  `build/verify-package.sh` asserts the packed dependency list is exactly that one name. Vendored
+  browser code is not a package reference and is held to its own rules instead: Remix Icon under
+  **Icons**, a surface's engine under **Tier 3 — surfaces** — pinned, checksummed, licence-checked,
+  committed, and loaded by nothing but the library's own code.
+- A second engine for a job a surface already does, and any vendored code under a copyleft licence.
+  cytoscape-svg is the plugin this rules out today: it is GPL-3.0, and the graph's SVG export is
+  Sedna.UI's own instead.
 - A second icon set. Remix Icon is bundled and is the only one. The state illustrations in
   `StateArt/Sedna.UI.states.svg` are not one: an icon set is a vocabulary a page draws from,
   and that file is thirteen fixed pictures of thirteen fixed states, embedded in the assembly and
@@ -253,15 +278,18 @@ src/
   Sedna.UI/
     css-parts/                        the stylesheet, authored as one short file per component
     js-parts/                         the script, authored as one short file per behaviour
+    graph-parts/                      the graph module, authored as one file per concern
     wwwroot/css/Sedna.UI.css      GENERATED by build/bundle-css.sh — do not edit
     wwwroot/js/Sedna.UI.js        GENERATED by build/bundle-js.sh — do not edit
+    wwwroot/js/Sedna.UI.graph.js  GENERATED by build/bundle-js.sh — imported by Sedna.UI.js on demand
     wwwroot/js/Sedna.UI.boot.js   pre-paint theme, loaded in <head>; standalone
+    wwwroot/lib/cytoscape/            VENDORED by build/vendor-cytoscape.sh — the graph engine and its plugins
     StateArt/…states.svg              the thirteen state illustrations, one <symbol> each; embedded, not shipped as a file
     Components/                       SednaBrandStyle, SednaStateArt (infrastructure) and SednaOverlayHost (presenter)
     wwwroot/tokens/…tokens.json       GENERATED by build/export-tokens.sh
     Navigation/ActiveLink.cs          which link is the current page
     State/                            SednaSort, SednaPager, SednaTabs — the state helpers
-    Interop/                          ISednaUi, ISednaSettings and ISednaOverlays — typed access to the browser API
+    Interop/                          ISednaUi, ISednaSettings, ISednaOverlays and ISednaGraphs — typed access to the browser API
   Sedna.UI.Tests/                 xUnit + bUnit + Playwright, over the shipped assets
   Sedna.UI.Catalogue/             the hosted catalogue and the MCP server
     Components/Pages/                 one .razor page per class family
@@ -311,12 +339,12 @@ implementation agreed with itself — and the CSSOM implementation immediately f
 the browser re-serialises the icon font's `:before` as `::before`, so a regex copied from the .NET side
 reported zero icons.
 
-Three directories carry their own `CLAUDE.md`, next to the files an agent will edit: `css-parts/`,
+These directories carry their own `CLAUDE.md`, next to the files an agent will edit: `graph-parts/`, `css-parts/`,
 `js-parts/` and `src/Sedna.UI.Catalogue/`. Read the local one before adding a file there — it holds
 the rules that only apply inside it, including which number prefix to choose and which names are
 already taken.
 
-Keep `README.md` short — hero, badges, the two-tier summary, versioning, licence, links into `docs/`.
+Keep `README.md` short — hero, badges, the three-tier summary, versioning, licence, links into `docs/`.
 Detail belongs in `docs/`.
 
 Documentation is written as documentation: state what to do and what the rules are. Do not narrate design
@@ -384,6 +412,43 @@ minor component. Two restrictions bind this repo directly: the icons may not be 
 standalone icon pack, and none of them may be used as a logo or app icon — which is why the brand assets
 in `assets/brand/` are bespoke rather than built from an icon.
 
+## Tier 3 — surfaces
+
+`docs/surfaces.md` is the registry and the contract; read it before touching a surface or proposing
+one. What it means while editing:
+
+- **A surface without a row does not exist.** `SurfaceRegistryTests` reads the table and checks every
+  file a row names; `SurfacePageTests` checks the catalogue pages and their tier 3 badge. A script part
+  that puts an element a reader sees on the page, and is not a surface's, fails the registry test.
+- **The frame around a surface is tier 2.** A tooltip, a menu, a side panel, a legend, an
+  announcement: app markup the script fills with `textContent` and places. No `innerHTML` in a
+  surface's script, and a test says so.
+- **Colour through tokens, resolved in the browser**, never a literal handed to an engine — the same
+  test reads every surface's script for one.
+- **Vendored engines** live under `wwwroot/lib/<engine>/`, written by a `build/vendor-*.sh` script:
+  each package pinned to a version and to the sha512 of its registry tarball, checked before anything
+  is written, its licence copied beside it, and upstream's text shipped unchanged under a provenance
+  header — an ES module as it is, a UMD or CommonJS build wrapped in a module scope. A `VENDORED.txt`
+  lists what is there, the output is committed so the build needs no network, and `--check` compares
+  the committed files with a fresh vendor. After changing a version, update `THIRD-PARTY-NOTICES.md`; a
+  test holds it against `VENDORED.txt`. Every package must be MIT or as permissive — the script stops
+  on anything else.
+- **Only the library imports an engine**, by relative path from its own module. An app reaches one
+  through a handle, documented as unversioned — the graph's `cy` — and never by importing a file under
+  `lib/`.
+
+### The graph
+
+`[data-graph]` markup draws records and links on a canvas; the reference is `docs/graph.md`. The engine
+is [cytoscape.js](https://js.cytoscape.org/), vendored with its plugins by `build/vendor-cytoscape.sh`.
+
+- **A record's tone is a series name** — the colour of the `.series-*` class of the same name — read
+  through a probe element, so themes, the colour-vision setting and forced colours reach the canvas.
+- **The keyboard is not optional.** The graph is one tab stop with arrow-key navigation between records
+  and announcements in the app's words; a change that leaves a record unreachable without a pointer is a
+  regression.
+- The minimap and the SVG export are Sedna.UI's own; the other plugins are upstream's, loaded on demand.
+
 ## Naming
 
 - CSS classes: semantic, lowercase-kebab, no app or vendor prefix. Library-owned utilities that need a
@@ -403,9 +468,11 @@ in `assets/brand/` are bespoke rather than built from an icon.
 
 `Sedna.UI.js` holds generic UI behaviour only: hover hints, theme settings, clipboard, notifications,
 toasts, the dialog presenter, delegated menus, tabs, combo fields, the command palette and the header
-search, drag and drop, and the Markdown editor. Drag and drop moves no node: it writes attributes and
-dispatches `sedna-drop`, and the app moves the item. `wwwroot/Sedna.UI.lib.module.js` is the Blazor
-initializer that gives those events their data in C#. App-specific interop stays in the app's own script. The member table is
+search, drag and drop, the Markdown editor, and the graph's front door, which imports the graph module
+when a page first shows a graph. Drag and drop moves no node: it writes attributes and dispatches
+`sedna-drop`, and the app moves the item; a link drawn on a graph is `sedna-graph-connect` the same way.
+`wwwroot/Sedna.UI.lib.module.js` is the Blazor initializer that gives those events their data in C#,
+and tells the graph when Blazor has started. App-specific interop stays in the app's own script. The member table is
 in `docs/architecture.md`, and the rules for crossing into .NET are **The interop boundary** above.
 
 - `palette` and `search` share one matcher, `ui._.score`. Do not write a second one.

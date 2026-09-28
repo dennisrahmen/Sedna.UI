@@ -1,0 +1,20 @@
+<div class="graph" data-graph id="graph-order-path" data-graph-arrows="target" aria-label="How an order travels through the shop">
+    <ul class="graph-data" data-graph-data>
+        <li data-node="storefront" data-tone="1" data-icon="ri-store-2-line">Storefront</li>
+        <li data-node="orders-api" data-tone="2" data-icon="ri-server-line">Orders API</li>
+        <li data-node="payments" data-tone="3" data-icon="ri-bank-card-line">Payments</li>
+        <li data-node="orders-db" data-tone="4" data-icon="ri-database-2-line">Orders database</li>
+        <li data-node="stock" data-tone="5" data-icon="ri-stack-line">Stock</li>
+        <li data-node="warehouse" data-tone="5" data-icon="ri-building-3-line">Warehouse</li>
+        <li data-node="mail" data-tone="6" data-icon="ri-mail-send-line">Order mails</li>
+        <li data-edge data-source="storefront" data-target="orders-api" data-label="places">The storefront places the order with the orders API</li>
+        <li data-edge data-source="orders-api" data-target="payments" data-label="charges">The orders API charges the customer through payments</li>
+        <li data-edge data-source="orders-api" data-target="orders-db" data-label="writes">The orders API writes the order to the orders database</li>
+        <li data-edge data-source="orders-api" data-target="stock" data-label="reserves">The orders API reserves the items in stock</li>
+        <li data-edge data-source="stock" data-target="warehouse" data-label="picks">Stock asks the warehouse to pick the items</li>
+        <li data-edge data-source="orders-api" data-target="mail" data-label="confirms">The orders API confirms the order by mail</li>
+        <li data-edge data-source="payments" data-target="mail" data-label="receipt">Payments sends the receipt by mail</li>
+    </ul>
+    <div class="graph-canvas"></div>
+    <div class="graph-wait skeleton skeleton-block"></div>
+</div>

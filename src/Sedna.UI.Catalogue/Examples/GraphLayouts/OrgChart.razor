@@ -1,0 +1,30 @@
+<div class="card">
+    <div class="graph" data-graph id="layout-org" data-graph-layout="dagre" data-graph-direction="TB"
+         data-graph-nodes="box" data-graph-curve="taxi" data-graph-edge-labels="none" aria-label="Engineering, by department and team">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="alex" data-root data-tone="1" data-icon="ri-user-star-line" data-meta="Head of Engineering">Alex Fischer</li>
+            <li data-node="jordan" data-tone="2" data-icon="ri-user-3-line" data-meta="Commerce">Jordan Weiss</li>
+            <li data-node="priya" data-tone="3" data-icon="ri-user-3-line" data-meta="Platform">Priya Nair</li>
+            <li data-node="rin" data-tone="4" data-icon="ri-user-3-line" data-meta="Data">Rin Nakamura</li>
+            <li data-node="web" data-tone="2" data-icon="ri-team-line" data-meta="6 engineers">Web team</li>
+            <li data-node="checkout" data-tone="2" data-icon="ri-team-line" data-meta="5 engineers">Checkout team</li>
+            <li data-node="search" data-tone="2" data-icon="ri-team-line" data-meta="4 engineers">Search team</li>
+            <li data-node="infra" data-tone="3" data-icon="ri-team-line" data-meta="5 engineers">Infrastructure</li>
+            <li data-node="tools" data-tone="3" data-icon="ri-team-line" data-meta="3 engineers">Developer tools</li>
+            <li data-node="analytics" data-tone="4" data-icon="ri-team-line" data-meta="4 analysts">Analytics</li>
+            <li data-node="pipelines" data-tone="4" data-icon="ri-team-line" data-meta="3 engineers">Data engineering</li>
+            <li data-edge data-source="alex" data-target="jordan">Jordan Weiss reports to Alex Fischer</li>
+            <li data-edge data-source="alex" data-target="priya">Priya Nair reports to Alex Fischer</li>
+            <li data-edge data-source="alex" data-target="rin">Rin Nakamura reports to Alex Fischer</li>
+            <li data-edge data-source="jordan" data-target="web">The web team reports to Jordan Weiss</li>
+            <li data-edge data-source="jordan" data-target="checkout">The checkout team reports to Jordan Weiss</li>
+            <li data-edge data-source="jordan" data-target="search">The search team reports to Jordan Weiss</li>
+            <li data-edge data-source="priya" data-target="infra">Infrastructure reports to Priya Nair</li>
+            <li data-edge data-source="priya" data-target="tools">Developer tools reports to Priya Nair</li>
+            <li data-edge data-source="rin" data-target="analytics">Analytics reports to Rin Nakamura</li>
+            <li data-edge data-source="rin" data-target="pipelines">Data engineering reports to Rin Nakamura</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>

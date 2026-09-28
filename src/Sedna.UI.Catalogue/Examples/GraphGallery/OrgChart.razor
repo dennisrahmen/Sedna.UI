@@ -1,0 +1,68 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <div class="input-group toolbar-input">
+                <span class="input-affix"><i class="ri-search-line"></i></span>
+                <input class="form-input" type="search" placeholder="Name or role" aria-label="Find a person" data-graph-search />
+            </div>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} people" data-graph-stats-match="{matches} of {nodes} people match"></span>
+    </div>
+    <div class="graph card" data-graph id="org-chart" data-graph-layout="dagre" data-graph-nodes="box"
+         data-graph-curve="taxi" data-graph-edge-labels="none" aria-label="Organisation chart" aria-roledescription="graph">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="md" data-tone="1" data-icon="ri-user-star-line" data-meta="Managing director" data-location="Zürich office" data-email="alex.fischer@example.com" data-root>Alex Fischer</li>
+            <li data-node="engineering" data-tone="2" data-icon="ri-code-s-slash-line" data-meta="Engineering director" data-location="Zürich office" data-email="priya.nair@example.com">Priya Nair</li>
+            <li data-node="finance" data-tone="3" data-icon="ri-funds-line" data-meta="Finance director" data-location="Milano office" data-email="elena.cavalli@example.com">Elena Cavalli</li>
+            <li data-node="operations" data-tone="5" data-icon="ri-truck-line" data-meta="Operations director" data-location="Bern office" data-email="tobias.baumgartner@example.com">Tobias Baumgartner</li>
+            <li data-node="people" data-tone="info" data-icon="ri-team-line" data-meta="Head of people" data-location="Zürich office" data-email="judith.eichenberger@example.com">Judith Eichenberger</li>
+            <li data-node="platform" data-tone="2" data-meta="Platform lead" data-location="Remote" data-email="jordan.weiss@example.com">Jordan Weiss</li>
+            <li data-node="design" data-tone="2" data-meta="Design lead" data-location="Zürich office" data-email="rin.nakamura@example.com">Rin Nakamura</li>
+            <li data-node="controlling" data-tone="3" data-meta="Financial controller" data-location="Stuttgart office" data-email="marc.frei@example.com">Marc Frei</li>
+            <li data-node="logistics" data-tone="5" data-meta="Logistics manager" data-location="Bern office" data-email="tomas.ferreira@example.com">Tomás Ferreira</li>
+            <li data-node="service" data-tone="5" data-meta="Customer service lead" data-location="Zürich office" data-email="nadine.aebischer@example.com">Nadine Aebischer</li>
+            <li data-node="reliability" data-tone="2" data-meta="Site reliability engineer" data-location="St. Gallen office" data-email="simon.doerig@example.com">Simon Dörig</li>
+            <li data-node="data-role" data-tone="2" data-meta="Data engineer" data-location="Remote or Zürich" data-muted>Open role</li>
+
+            <li data-edge data-source="md" data-target="engineering">Priya Nair reports to Alex Fischer.</li>
+            <li data-edge data-source="md" data-target="finance">Elena Cavalli reports to Alex Fischer.</li>
+            <li data-edge data-source="md" data-target="operations">Tobias Baumgartner reports to Alex Fischer.</li>
+            <li data-edge data-source="md" data-target="people">Judith Eichenberger reports to Alex Fischer.</li>
+            <li data-edge data-source="engineering" data-target="platform">Jordan Weiss reports to Priya Nair.</li>
+            <li data-edge data-source="engineering" data-target="design">Rin Nakamura reports to Priya Nair.</li>
+            <li data-edge data-source="finance" data-target="controlling">Marc Frei reports to Elena Cavalli.</li>
+            <li data-edge data-source="operations" data-target="logistics">Tomás Ferreira reports to Tobias Baumgartner.</li>
+            <li data-edge data-source="operations" data-target="service">Nadine Aebischer reports to Tobias Baumgartner.</li>
+            <li data-edge data-source="platform" data-target="reliability">Simon Dörig reports to Jordan Weiss.</li>
+            <li data-edge data-source="platform" data-target="data-role" data-line="dashed">The open data engineer role will report to Jordan Weiss.</li>
+            <li data-edge data-source="operations" data-target="controlling" data-line="dotted" data-tone="5">Marc Frei also has a dotted-line report to Tobias Baumgartner.</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-tools" role="toolbar" aria-label="View">
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit to the frame" data-tip="Fit to the frame"><i class="ri-focus-3-line"></i></button>
+            <span class="graph-tools-sep"></span>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="export-svg" data-graph-filename="organisation-chart" aria-label="Download as SVG" data-tip="Download as SVG"><i class="ri-file-code-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="export-png" data-graph-filename="organisation-chart" aria-label="Download as PNG" data-tip="Download as PNG"><i class="ri-image-line"></i></button>
+        </div>
+        <div class="graph-tip" data-graph-tip hidden>
+            <span class="graph-tip-head"><i data-graph-icon aria-hidden="true"></i><span class="graph-tip-title" data-graph-field="label"></span></span>
+            <span class="graph-tip-meta" data-graph-field="meta"></span>
+            <span class="graph-tip-meta" data-graph-field="location"></span>
+            <span class="graph-tip-ref" data-graph-field="email"></span>
+        </div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+        <p class="visually-hidden" data-graph-live aria-live="polite"
+           data-graph-announce="{label}, {meta}. {links} links." data-graph-announce-select="{label} selected."></p>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-2"></span> Engineering</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-3"></span> Finance</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-5"></span> Operations</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-info"></span> People</span>
+        <span class="graph-key"><span class="graph-line"></span> Reports to</span>
+        <span class="graph-key"><span class="graph-line graph-line--dotted"></span> Dotted-line report</span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed"></span> Open role</span>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+@inject ISednaGraphs Graphs
+
+<div class="card">
+    <div class="graph graph--sm" data-graph data-graph-deferred id="fulfilment"
+         aria-label="Warehouses, and the services they stock from and ship through">
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="card-foot card-foot--start">
+        <button class="btn btn-sm" type="button" @onclick="OpenWarehouse" disabled="@(_opened.Count == Sites.Length)">
+            <i class="ri-add-line"></i> Open a warehouse
+        </button>
+        <button class="btn btn-sm" type="button" @onclick="CloseNewest" disabled="@(_opened.Count == 0)">
+            Close the newest
+        </button>
+        <label class="switch"><input type="checkbox" @bind="_fault" @bind:after="MarkFault" /> Stock fault</label>
+        <span class="form-hint sedna-push">@_status</span>
+    </div>
+</div>
+
+@code {
+    private const string Id = "fulfilment";
+    private static readonly string[] Sites = ["East", "Harbour", "Airport"];
+
+    private readonly List<SednaGraphNode> _nodes =
+    [
+        new("inventory", "Inventory") { Kind = "service", Icon = "ri-stack-line", Root = true },
+        new("orders", "Orders API") { Kind = "service", Tone = SednaGraphTone.Series(2), Icon = "ri-server-line" },
+        new("courier", "Courier gateway") { Kind = "external", Tone = SednaGraphTone.Muted, Shape = SednaGraphShape.Diamond, Icon = "ri-truck-line" },
+        Warehouse("North"),
+        Warehouse("South"),
+    ];
+
+    private readonly List<SednaGraphEdge> _edges =
+    [
+        new("orders", "inventory") { Label = "reserves stock" },
+        .. Links("North"),
+        .. Links("South"),
+    ];
+
+    private readonly Stack<string> _opened = new();
+    private bool _fault;
+    private string _status = "Loading…";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Send();
+        StateHasChanged();
+    }
+
+    private Task OpenWarehouse()
+    {
+        var site = Sites[_opened.Count];
+        _opened.Push(site);
+        _nodes.Add(Warehouse(site));
+        _edges.AddRange(Links(site));
+        return Send();
+    }
+
+    private Task CloseNewest()
+    {
+        var id = IdOf(_opened.Pop());
+        _nodes.RemoveAll(n => n.Id == id);
+        _edges.RemoveAll(e => e.Source == id || e.Target == id);
+        return Send();
+    }
+
+    private Task MarkFault()
+    {
+        // Same id, new values: the record is restyled where it stands.
+        var i = _nodes.FindIndex(n => n.Id == "inventory");
+        _nodes[i] = _nodes[i] with
+        {
+            Tone = _fault ? SednaGraphTone.Danger : null,
+            Meta = _fault ? "Counts are 20 minutes behind" : null,
+        };
+        return Send();
+    }
+
+    // Every record and link, every time. The script works out the difference: what stayed
+    // keeps its place, and a new warehouse is put beside what it links to.
+    private async Task Send()
+    {
+        var shown = await Graphs.SetDataAsync(Id, new SednaGraphData(_nodes, _edges));
+        _status = shown is null ? "" : $"{shown.Nodes} records, {shown.Edges} links";
+    }
+
+    private static string IdOf(string site) => "warehouse-" + site.ToLowerInvariant();
+
+    private static SednaGraphNode Warehouse(string site) =>
+        new(IdOf(site), $"Warehouse {site}") { Kind = "warehouse", Tone = SednaGraphTone.Series(3), Icon = "ri-building-4-line" };
+
+    private static SednaGraphEdge[] Links(string site) =>
+    [
+        new("inventory", IdOf(site)) { Label = "stocks" },
+        new(IdOf(site), "courier") { Label = "ships with", Line = SednaGraphLine.Dashed },
+    ];
+}

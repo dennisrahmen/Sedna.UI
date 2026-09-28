@@ -40,6 +40,8 @@ internal static class CataloguePages
     public const string Utilities = "Utilities";
     /// <summary>The section of Start that holds the reference pages: the script, C#, the MCP server.</summary>
     public const string Reference = "Reference";
+    /// <summary>The section of Data that holds the graph's pages: one family, too big for one page.</summary>
+    public const string Graph = "Graph";
 
     /// <summary>
     /// The page every unknown address renders. Deliberately not in <see cref="All"/>:
@@ -56,7 +58,7 @@ internal static class CataloguePages
             "Install the package, wire the host page, and rebrand the app.",
             "install nuget host page brand.css tokens registration setup agent mcp"),
         new("/concepts", Start, "Concepts", "ri-shapes-line",
-            "The two tiers, the cascade layers, the z-order scale and the token contract.",
+            "The three tiers, the cascade layers, the z-order scale and the token contract.",
             "tier layer cascade z-index override specificity naming contract"),
         new("/tokens", Start, "Tokens", "ri-palette-line",
             "Every colour, font and shadow token, read live from the loaded stylesheet.",
@@ -186,6 +188,31 @@ internal static class CataloguePages
         new("/pager", Data, "Pagination", "ri-more-line",
             "Moving through a long result set, and the breadcrumb trail that says where it sits.",
             "pagination page-link page-gap breadcrumb trail button view state server paged SednaPager Window PagerSlot"),
+
+        new("/graph", Data, "Graph", "ri-share-circle-line",
+            "Records and the links between them on a canvas: the markup, the frame, and how a reader moves through it.",
+            "graph network node edge link relationship diagram canvas cytoscape data-graph graph-canvas graph-data graph-tools graph-wait graph-empty graph-frame tone shape icon dot box keyboard screen reader accessible full screen sizes",
+            Section: Graph),
+        new("/graph-layouts", Data, "Graph layouts", "ri-mind-map",
+            "Springs, islands per group, rings around a record, hierarchies, grids and circles, and switching between them.",
+            "layout force islands rings concentric tree dagre hierarchy fcose compound grid circle preset direction spacing curve taxi bezier org chart flow",
+            Section: Graph),
+        new("/graph-exploring", Data, "Exploring a graph", "ri-compass-3-line",
+            "Filters that are also the legend, search, a record's neighbourhood, the side panel, tooltips and the menu.",
+            "filter chip legend search focus depth neighbourhood selection detail panel tooltip context menu colour by labels hide stats data-graph-filter data-graph-show data-graph-search data-graph-option data-graph-stats",
+            Section: Graph),
+        new("/graph-plugins", Data, "Graph plugins", "ri-puzzle-2-line",
+            "The minimap, drawing links, folding groups, outlining groups, and exporting the drawing.",
+            "minimap navigator edgehandles draw link connect expand collapse fold compound group hull bubblesets outline export svg png download",
+            Section: Graph),
+        new("/graph-gallery", Data, "Graph gallery", "ri-gallery-view-2",
+            "Whole graphs for real jobs: an org chart, a service map, a network, a knowledge graph, a workflow, a large map.",
+            "gallery recipe example org chart service map dependency network topology rack knowledge graph workflow state machine lineage mind map blast radius large performance",
+            Section: Graph),
+        new("/graph-blazor", Data, "Graph in Blazor", "ri-code-box-line",
+            "Records from C#, the reader's clicks as events, live updates, drawn links and filters from a component.",
+            "blazor csharp c# ISednaGraphs SetDataAsync FilterAsync onsedna-graph-select onsedna-graph-connect SednaGraphData SednaGraphNode SednaGraphEdge deferred live update circuit",
+            Section: Graph),
 
         new("/badge", Labels, "Badges", "ri-price-tag-3-line",
             "Semantic pills in three sizes, plus three categorical hues.",

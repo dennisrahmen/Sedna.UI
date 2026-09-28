@@ -1,0 +1,53 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="card">
+        <div class="graph" data-graph id="graph-owners" data-graph-arrows="target"
+             aria-label="Teams and the services they own" aria-roledescription="graph">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="checkout-team" data-kind="team" data-shape="hexagon" data-tone="3" data-icon="ri-team-line"
+                    data-meta="Led by Alex Fischer">Checkout team</li>
+                <li data-node="search-team" data-kind="team" data-shape="hexagon" data-tone="3" data-icon="ri-team-line"
+                    data-meta="Led by Priya Nair">Search team</li>
+                <li data-node="platform-team" data-kind="team" data-shape="hexagon" data-tone="3" data-icon="ri-team-line"
+                    data-meta="Led by Jordan Weiss">Platform team</li>
+                <li data-node="data-team" data-kind="team" data-shape="hexagon" data-tone="3" data-icon="ri-team-line"
+                    data-meta="Led by Rin Nakamura">Data team</li>
+                <li data-node="storefront" data-kind="service" data-tone="2" data-icon="ri-store-2-line" data-meta="Web front end">Storefront</li>
+                <li data-node="checkout" data-kind="service" data-tone="2" data-icon="ri-secure-payment-line" data-meta="Takes the payment">Checkout</li>
+                <li data-node="payments" data-kind="service" data-tone="2" data-icon="ri-bank-card-line" data-meta="Talks to the card provider">Payments</li>
+                <li data-node="search" data-kind="service" data-tone="2" data-icon="ri-search-line" data-meta="Answers product searches">Search</li>
+                <li data-node="indexer" data-kind="service" data-tone="2" data-icon="ri-refresh-line" data-meta="Rebuilds the index every hour">Indexer</li>
+                <li data-node="gateway" data-kind="service" data-tone="2" data-icon="ri-door-open-line" data-meta="Routes every request">Gateway</li>
+                <li data-node="identity" data-kind="service" data-tone="2" data-icon="ri-fingerprint-line" data-meta="Signs customers in">Identity</li>
+                <li data-node="warehouse" data-kind="service" data-tone="2" data-icon="ri-database-line" data-meta="Holds the reporting data">Data warehouse</li>
+                <li data-node="reports" data-kind="service" data-tone="2" data-icon="ri-bar-chart-box-line" data-meta="Monthly and daily figures">Reports</li>
+                <li data-edge data-source="checkout-team" data-target="storefront" data-label="owns">The checkout team owns the storefront</li>
+                <li data-edge data-source="checkout-team" data-target="checkout" data-label="owns">The checkout team owns checkout</li>
+                <li data-edge data-source="checkout-team" data-target="payments" data-label="owns">The checkout team owns payments</li>
+                <li data-edge data-source="search-team" data-target="search" data-label="owns">The search team owns search</li>
+                <li data-edge data-source="search-team" data-target="indexer" data-label="owns">The search team owns the indexer</li>
+                <li data-edge data-source="platform-team" data-target="gateway" data-label="owns">The platform team owns the gateway</li>
+                <li data-edge data-source="platform-team" data-target="identity" data-label="owns">The platform team owns identity</li>
+                <li data-edge data-source="data-team" data-target="warehouse" data-label="owns">The data team owns the data warehouse</li>
+                <li data-edge data-source="data-team" data-target="reports" data-label="owns">The data team owns reports</li>
+                <li data-edge data-source="gateway" data-target="storefront" data-label="routes to" data-line="dashed">The gateway routes to the storefront</li>
+                <li data-edge data-source="storefront" data-target="search" data-label="calls" data-line="dashed">The storefront calls search</li>
+                <li data-edge data-source="storefront" data-target="checkout" data-label="calls" data-line="dashed">The storefront calls checkout</li>
+                <li data-edge data-source="checkout" data-target="payments" data-label="calls" data-line="dashed">Checkout calls payments</li>
+                <li data-edge data-source="checkout" data-target="identity" data-label="calls" data-line="dashed">Checkout calls identity</li>
+                <li data-edge data-source="indexer" data-target="warehouse" data-label="reads" data-line="dashed">The indexer reads the data warehouse</li>
+                <li data-edge data-source="reports" data-target="warehouse" data-label="reads" data-line="dashed">Reports read the data warehouse</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-3"></span>Team</span>
+        <span class="graph-key"><span class="graph-swatch series-2"></span>Service</span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow"></span>Owns</span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed graph-line--arrow"></span>Calls</span>
+    </div>
+    <p class="form-hint" data-graph-live aria-live="polite"
+       data-graph-announce="{label}, {kind}. {meta}. {links} links."
+       data-graph-announce-select="{label} selected.">Tab to the graph, then move with the arrow keys.</p>
+</div>

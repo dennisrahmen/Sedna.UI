@@ -3,12 +3,13 @@
 `Sedna.UI` is licensed under [Apache-2.0](LICENSE). It redistributes the following third-party
 components, which remain under their own licences.
 
-Only one of them ships inside the package. The distinction matters for anyone auditing what a
+Only some of them ship inside the package. The distinction matters for anyone auditing what a
 `dotnet add package` actually pulls in:
 
 | Component | In the `.nupkg` | Where |
 |---|---|---|
 | Remix Icon | **yes** | `_content/Sedna.UI/lib/remixicon/` |
+| cytoscape.js and the graph's plugins | **yes** | `_content/Sedna.UI/lib/cytoscape/` |
 | `ModelContextProtocol.AspNetCore` | no — the catalogue application only | published in its container image |
 | `Spillgebees.Blazor.RichTextEditor`, with Quill | no — the catalogue application only | published in its container image |
 | Outfit | no — a design asset, never loaded as a UI face | `assets/brand/font/` |
@@ -63,6 +64,45 @@ Attribution is optional under Section 2.4. It is given here anyway, in the form 
 The `package.json` of `remixicon@4.9.1` on npm reports `Apache-2.0`. That is stale — the `License` file
 shipped inside the same package is the Remix Icon License v1.0, dated January 2026. The licence file that
 ships with the artifact governs, and it is the one vendored here.
+
+## The graph engine
+
+The graph (`[data-graph]`, see [`docs/graph.md`](docs/graph.md)) is drawn by cytoscape.js and the
+plugins below. Every one is under the MIT licence, and its licence text ships beside it in
+[`src/Sedna.UI/wwwroot/lib/cytoscape/licenses/`](src/Sedna.UI/wwwroot/lib/cytoscape/licenses/).
+They are vendored by [`build/vendor-cytoscape.sh`](build/vendor-cytoscape.sh) from the npm registry,
+each pinned to a version and to the sha512 of its tarball, and shipped as upstream wrote them under a
+provenance header — a UMD or CommonJS build is wrapped in a module scope so it can be imported, and
+nothing inside it is changed. The versions below are held against `VENDORED.txt` by a test.
+
+| Package | Version | Copyright | Loaded |
+|---|---|---|---|
+| cytoscape | 3.34.3 | Copyright (c) 2016-2026, The Cytoscape Consortium | with the first graph on a page |
+| cytoscape-dagre | 4.0.1 | Copyright (c) 2016-2018, 2020, 2022, 2026, The Cytoscape Consortium | the `dagre` layout |
+| @dagrejs/dagre | 3.0.0 | Copyright (c) 2012-2014 Chris Pettitt | bundled inside cytoscape-dagre |
+| @dagrejs/graphlib | 4.0.1 | Copyright (c) 2012-2014 Chris Pettitt | bundled inside cytoscape-dagre |
+| cytoscape-fcose | 2.2.0 | Copyright (c) 2018 - present, iVis-at-Bilkent | the `fcose` layout |
+| cose-base | 2.2.0 | Copyright (c) 2019 - present, iVis@Bilkent | the `fcose` layout |
+| layout-base | 2.0.1 | Copyright (c) 2019 iVis@Bilkent | the `fcose` layout |
+| cytoscape-edgehandles | 4.0.1 | Copyright (c) 2016-2019, 2021, The Cytoscape Consortium | drawing links |
+| lodash.memoize | 4.1.2 | Copyright jQuery Foundation and other contributors | drawing links |
+| lodash.throttle | 4.1.1 | Copyright jQuery Foundation and other contributors | drawing links, outlines |
+| cytoscape-expand-collapse | 4.1.1 | Copyright (c) 2017 - present, iVis@Bilkent | folding groups |
+| cytoscape-bubblesets | 4.1.0 | Copyright (c) 2021-2022 Samuel Gratzl | outlines around groups |
+| bubblesets-js | 3.0.1 | Copyright (c) 2021-2022 Samuel Gratzl | outlines around groups |
+| cytoscape-layers | 3.1.0 | Copyright (c) 2020 Samuel Gratzl | outlines around groups |
+
+### What this means if you use Sedna.UI
+
+Nothing is required of you beyond what the MIT licence asks of anyone redistributing the files: the
+package already carries each copyright notice and licence text, and a consuming app serves them from
+`_content/Sedna.UI/lib/cytoscape/licenses/` with the files they cover. A page without a graph loads none
+of it.
+
+### What is deliberately not here
+
+`cytoscape-svg` is licensed under GPL-3.0, which an Apache-2.0 package cannot carry without passing its
+terms on to every app that installs it. The graph's SVG export is Sedna.UI's own code instead.
 
 ## Catalogue application dependencies
 

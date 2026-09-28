@@ -47,7 +47,7 @@ first: it creates the global and the shared internals every other part reads.
 | `1x` | settings (theme, colour-blind palette, density, language) |
 | `2x` | behaviour delegated from `document` — hover hints, copy, menus, tabs; accordion, drawer and palette land here too |
 | `3x` | the Markdown editor |
-| `4x` | small interop helpers |
+| `4x` | interop helpers, the presenters (spotlight, modal) and the graph's front door |
 | `5x` | things the library puts on the page itself — notifications, the audio ping, toasts |
 
 A `2x` part may call a helper from `4x` even though it loads earlier: the call happens

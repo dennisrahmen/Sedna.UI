@@ -124,9 +124,13 @@ find "$DIR" -type f -name '*.cs' -not -path '*/obj/*' -not -path '*/bin/*' -prin
                 member = ""
 
                 if (typeKind == "enum") {
-                    # `Info,` / `Danger,` / `Warn = 2,`
-                    if (match(line, /^[ \t]*[A-Za-z_][A-Za-z0-9_]*/)) {
-                        member = substr(line, RSTART, RLENGTH)
+                    # `Info,` / `Danger,` / `Warn = 2,` — and a member whose attribute sits
+                    # on the same line, `[JsonStringEnumMemberName("circle")] Circle,`, which
+                    # the anchored match would otherwise miss for the leading bracket.
+                    enumLine = line
+                    while (sub(/^[ \t]*\[[^\]]*\][ \t]*/, "", enumLine)) { }
+                    if (match(enumLine, /^[ \t]*[A-Za-z_][A-Za-z0-9_]*/)) {
+                        member = substr(enumLine, RSTART, RLENGTH)
                         gsub(/[ \t]/, "", member)
                     }
                 }

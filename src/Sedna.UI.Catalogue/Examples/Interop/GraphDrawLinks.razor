@@ -1,0 +1,75 @@
+@inject ISednaGraphs Graphs
+
+<div class="card">
+    <div class="card-head">
+        <strong>Which service calls which</strong>
+        <label class="switch"><input type="checkbox" @bind="_drawing" @bind:after="Draw" /> Draw links</label>
+    </div>
+    <div class="graph graph--sm" data-graph data-graph-deferred id="drawn-calls" data-graph-arrows="target"
+         aria-label="Services, and the calls drawn between them" @onsedna-graph-connect="Connected">
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="card-foot card-foot--start">
+        @if (_drawn.Count == 0)
+        {
+            <span class="form-hint">@(_drawing ? "Drag from one service to another." : "Switch on Draw links, then drag between two services.")</span>
+        }
+        <div class="chip-set">
+            @foreach (var link in _drawn)
+            {
+                <span class="chip chip--active" @key="link">
+                    <span class="chip-label">@Name(link.Source) calls @Name(link.Target)</span>
+                    <button class="chip-dismiss" type="button" aria-label="Remove the link from @Name(link.Source) to @Name(link.Target)"
+                            @onclick="() => Remove(link)">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </span>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private const string Id = "drawn-calls";
+    private bool _drawing;
+    private readonly List<SednaGraphEdge> _drawn = [];
+
+    private static readonly SednaGraphNode[] Services =
+    [
+        new("storefront", "Storefront") { Icon = "ri-store-2-line" },
+        new("basket", "Basket") { Tone = SednaGraphTone.Series(2), Icon = "ri-shopping-cart-2-line" },
+        new("orders", "Orders API") { Tone = SednaGraphTone.Series(2), Icon = "ri-server-line" },
+        new("payments", "Payments") { Tone = SednaGraphTone.Series(2), Icon = "ri-bank-card-line" },
+        new("mail", "Order e-mails") { Tone = SednaGraphTone.Series(5), Icon = "ri-mail-send-line" },
+    ];
+
+    private static readonly SednaGraphEdge[] Known =
+    [
+        new("storefront", "basket") { Label = "calls" },
+        new("basket", "orders") { Label = "calls" },
+    ];
+
+    protected override Task OnAfterRenderAsync(bool firstRender) => firstRender ? Send() : Task.CompletedTask;
+
+    private Task Draw() => Graphs.SetDrawingAsync(Id, _drawing);
+
+    // The line the reader drew is gone again by the time this runs: a link is the app's to
+    // add, as a drop is. Add it to the data, send the data, and the graph draws it.
+    private async Task Connected(SednaGraphConnectEventArgs e)
+    {
+        if (Known.Concat(_drawn).Any(l => l.Source == e.Source && l.Target == e.Target)) return;
+        _drawn.Add(new SednaGraphEdge(e.Source, e.Target) { Label = "calls", Tone = SednaGraphTone.Accent });
+        await Send();
+    }
+
+    private Task Remove(SednaGraphEdge link)
+    {
+        _drawn.Remove(link);
+        return Send();
+    }
+
+    private Task Send() => Graphs.SetDataAsync(Id, new SednaGraphData(Services, [.. Known, .. _drawn]));
+
+    private static string Name(string id) => Services.First(s => s.Id == id).Label;
+}

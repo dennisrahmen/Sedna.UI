@@ -1,0 +1,74 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="card">
+        <div class="graph" data-graph id="xp-colour" data-graph-arrows="target" aria-label="Deliveries from the hubs through the depots to the stores">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="north-hub" data-tone="3" data-tone-region="2" data-tone-status="go" data-shape="star" data-icon="ri-building-4-line" data-meta="Hub · North · on schedule" data-hub>North hub</li>
+                <li data-node="south-hub" data-tone="3" data-tone-region="3" data-tone-status="warn" data-shape="star" data-icon="ri-building-4-line" data-meta="Hub · South · running late" data-hub>South hub</li>
+                <li data-node="hilltop" data-tone="5" data-tone-region="2" data-tone-status="go" data-shape="rounded" data-meta="Depot · North · on schedule">Hilltop depot</li>
+                <li data-node="harbour" data-tone="5" data-tone-region="5" data-tone-status="go" data-shape="rounded" data-meta="Depot · West · on schedule">Harbour depot</li>
+                <li data-node="riverside" data-tone="5" data-tone-region="4" data-tone-status="warn" data-shape="rounded" data-meta="Depot · East · running late">Riverside depot</li>
+                <li data-node="airport" data-tone="5" data-tone-region="3" data-tone-status="danger" data-shape="rounded" data-meta="Depot · South · stopped">Airport depot</li>
+                <li data-node="north-gate" data-tone="2" data-tone-region="2" data-tone-status="go" data-meta="Store · North · on schedule">North Gate store</li>
+                <li data-node="university" data-tone="2" data-tone-region="2" data-tone-status="go" data-meta="Store · North · on schedule">University store</li>
+                <li data-node="botanic" data-tone="2" data-tone-region="2" data-tone-status="go" data-meta="Store · North · on schedule">Botanic Garden store</li>
+                <li data-node="old-town" data-tone="2" data-tone-region="5" data-tone-status="go" data-meta="Store · West · on schedule">Old Town store</li>
+                <li data-node="seafront" data-tone="2" data-tone-region="5" data-tone-status="go" data-meta="Store · West · on schedule">Seafront store</li>
+                <li data-node="fish-market" data-tone="2" data-tone-region="5" data-tone-status="warn" data-meta="Store · West · running late">Fish Market store</li>
+                <li data-node="mill-lane" data-tone="2" data-tone-region="4" data-tone-status="warn" data-meta="Store · East · running late">Mill Lane store</li>
+                <li data-node="east-end" data-tone="2" data-tone-region="4" data-tone-status="warn" data-meta="Store · East · running late">East End store</li>
+                <li data-node="canal-street" data-tone="2" data-tone-region="4" data-tone-status="go" data-meta="Store · East · on schedule">Canal Street store</li>
+                <li data-node="exhibition" data-tone="2" data-tone-region="3" data-tone-status="danger" data-meta="Store · South · stopped">Exhibition store</li>
+                <li data-node="stadium" data-tone="2" data-tone-region="3" data-tone-status="danger" data-meta="Store · South · stopped">Stadium store</li>
+                <li data-node="south-park" data-tone="2" data-tone-region="3" data-tone-status="warn" data-meta="Store · South · running late">South Park store</li>
+
+                <li data-edge data-source="north-hub" data-target="south-hub" data-label="trunk" data-weight="heavy" data-arrow="both">The two hubs share a trunk route</li>
+                <li data-edge data-source="north-hub" data-target="hilltop" data-label="supplies">North hub supplies Hilltop depot</li>
+                <li data-edge data-source="north-hub" data-target="harbour" data-label="supplies">North hub supplies Harbour depot</li>
+                <li data-edge data-source="south-hub" data-target="riverside" data-label="supplies">South hub supplies Riverside depot</li>
+                <li data-edge data-source="south-hub" data-target="airport" data-label="supplies">South hub supplies Airport depot</li>
+                <li data-edge data-source="hilltop" data-target="north-gate" data-label="delivers">Hilltop depot delivers to North Gate store</li>
+                <li data-edge data-source="hilltop" data-target="university" data-label="delivers">Hilltop depot delivers to University store</li>
+                <li data-edge data-source="hilltop" data-target="botanic" data-label="delivers">Hilltop depot delivers to Botanic Garden store</li>
+                <li data-edge data-source="harbour" data-target="old-town" data-label="delivers">Harbour depot delivers to Old Town store</li>
+                <li data-edge data-source="harbour" data-target="seafront" data-label="delivers">Harbour depot delivers to Seafront store</li>
+                <li data-edge data-source="harbour" data-target="fish-market" data-label="delivers">Harbour depot delivers to Fish Market store</li>
+                <li data-edge data-source="riverside" data-target="mill-lane" data-label="delivers">Riverside depot delivers to Mill Lane store</li>
+                <li data-edge data-source="riverside" data-target="east-end" data-label="delivers">Riverside depot delivers to East End store</li>
+                <li data-edge data-source="riverside" data-target="canal-street" data-label="delivers">Riverside depot delivers to Canal Street store</li>
+                <li data-edge data-source="airport" data-target="exhibition" data-label="delivers">Airport depot delivers to Exhibition store</li>
+                <li data-edge data-source="airport" data-target="stadium" data-label="delivers">Airport depot delivers to Stadium store</li>
+                <li data-edge data-source="airport" data-target="south-park" data-label="delivers">Airport depot delivers to South Park store</li>
+                <li data-edge data-source="riverside" data-target="south-park" data-label="covers" data-line="dashed">Riverside depot covers South Park store while the airport depot is stopped</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="sedna-col sedna-gap-2" role="radiogroup" aria-label="Colour by">
+        <div class="sedna-row-wrap">
+            <label class="form-check" style="min-width:7rem"><input type="radio" name="xp-colour-by" data-graph-option="colour" value="tone" checked /> Kind</label>
+            <div class="graph-legend">
+                <span class="graph-key"><span class="graph-swatch graph-swatch--star series-3"></span> Hub</span>
+                <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-5"></span> Depot</span>
+                <span class="graph-key"><span class="graph-swatch series-2"></span> Store</span>
+            </div>
+        </div>
+        <div class="sedna-row-wrap">
+            <label class="form-check" style="min-width:7rem"><input type="radio" name="xp-colour-by" data-graph-option="colour" value="region" /> Region</label>
+            <div class="graph-legend">
+                <span class="graph-key"><span class="graph-swatch series-2"></span> North</span>
+                <span class="graph-key"><span class="graph-swatch series-4"></span> East</span>
+                <span class="graph-key"><span class="graph-swatch series-3"></span> South</span>
+                <span class="graph-key"><span class="graph-swatch series-5"></span> West</span>
+            </div>
+        </div>
+        <div class="sedna-row-wrap">
+            <label class="form-check" style="min-width:7rem"><input type="radio" name="xp-colour-by" data-graph-option="colour" value="status" /> Today</label>
+            <div class="graph-legend">
+                <span class="graph-key"><span class="graph-swatch series-go"></span> On schedule</span>
+                <span class="graph-key"><span class="graph-swatch series-warn"></span> Running late</span>
+                <span class="graph-key"><span class="graph-swatch series-danger"></span> Stopped</span>
+            </div>
+        </div>
+    </div>
+</div>

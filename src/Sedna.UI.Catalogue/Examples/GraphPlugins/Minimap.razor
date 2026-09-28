@@ -1,0 +1,232 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="graph-legend">
+            <span class="graph-key"><span class="graph-swatch series-2"></span> Storefront</span>
+            <span class="graph-key"><span class="graph-swatch series-3"></span> Ordering</span>
+            <span class="graph-key"><span class="graph-swatch series-1"></span> Payments</span>
+            <span class="graph-key"><span class="graph-swatch series-5"></span> Fulfilment</span>
+            <span class="graph-key"><span class="graph-swatch series-6"></span> Customers</span>
+            <span class="graph-key"><span class="graph-swatch series-4"></span> Platform</span>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} services · {edges} links"></span>
+    </div>
+    <div class="card">
+        <div class="graph graph--lg" data-graph id="pl-estate" data-graph-layout="islands" data-graph-arrows="target"
+             aria-label="Every service of the web shop, in its domain">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="storefront" data-group="storefront" data-tone="2" data-icon="ri-store-2-line" data-meta="Domain">Storefront</li>
+                <li data-node="product-pages" data-group="storefront" data-tone="2">Product pages</li>
+                <li data-node="search-pages" data-group="storefront" data-tone="2">Search pages</li>
+                <li data-node="account-pages" data-group="storefront" data-tone="2">Account pages</li>
+                <li data-node="basket-view" data-group="storefront" data-tone="2">Basket view</li>
+                <li data-node="checkout-pages" data-group="storefront" data-tone="2">Checkout pages</li>
+                <li data-node="content-blocks" data-group="storefront" data-tone="2">Content blocks</li>
+                <li data-node="image-resizer" data-group="storefront" data-tone="2">Image resizer</li>
+                <li data-node="page-cache" data-group="storefront" data-tone="2">Page cache</li>
+                <li data-node="consent-banner" data-group="storefront" data-tone="2">Consent banner</li>
+                <li data-node="store-locator" data-group="storefront" data-tone="2">Store locator</li>
+                <li data-node="wish-lists" data-group="storefront" data-tone="2">Wish lists</li>
+                <li data-node="ordering" data-group="ordering" data-tone="3" data-icon="ri-shopping-cart-2-line" data-meta="Domain">Ordering</li>
+                <li data-node="checkout-api" data-group="ordering" data-tone="3">Checkout API</li>
+                <li data-node="basket-service" data-group="ordering" data-tone="3">Basket service</li>
+                <li data-node="pricing" data-group="ordering" data-tone="3">Pricing</li>
+                <li data-node="vouchers" data-group="ordering" data-tone="3">Vouchers</li>
+                <li data-node="tax-rules" data-group="ordering" data-tone="3">Tax rules</li>
+                <li data-node="orders-api" data-group="ordering" data-tone="3">Orders API</li>
+                <li data-node="order-history" data-group="ordering" data-tone="3">Order history</li>
+                <li data-node="invoices" data-group="ordering" data-tone="3">Invoices</li>
+                <li data-node="returns" data-group="ordering" data-tone="3">Returns</li>
+                <li data-node="order-events" data-group="ordering" data-tone="3" data-shape="diamond">Order events</li>
+                <li data-node="order-database" data-group="ordering" data-tone="3" data-shape="square">Order database</li>
+                <li data-node="payments" data-group="payments" data-tone="1" data-icon="ri-bank-card-line" data-meta="Domain">Payments</li>
+                <li data-node="payments-api" data-group="payments" data-tone="1">Payments API</li>
+                <li data-node="card-gateway" data-group="payments" data-tone="1">Card gateway</li>
+                <li data-node="wallets" data-group="payments" data-tone="1">Wallets</li>
+                <li data-node="refunds" data-group="payments" data-tone="1">Refunds</li>
+                <li data-node="fraud-screening" data-group="payments" data-tone="1">Fraud screening</li>
+                <li data-node="payouts" data-group="payments" data-tone="1">Payouts</li>
+                <li data-node="ledger" data-group="payments" data-tone="1">Ledger</li>
+                <li data-node="reconciliation" data-group="payments" data-tone="1">Reconciliation</li>
+                <li data-node="chargebacks" data-group="payments" data-tone="1">Chargebacks</li>
+                <li data-node="payment-events" data-group="payments" data-tone="1" data-shape="diamond">Payment events</li>
+                <li data-node="ledger-database" data-group="payments" data-tone="1" data-shape="square">Ledger database</li>
+                <li data-node="fulfilment" data-group="fulfilment" data-tone="5" data-icon="ri-truck-line" data-meta="Domain">Fulfilment</li>
+                <li data-node="warehouse-sync" data-group="fulfilment" data-tone="5">Warehouse sync</li>
+                <li data-node="pick-lists" data-group="fulfilment" data-tone="5">Pick lists</li>
+                <li data-node="packing-app" data-group="fulfilment" data-tone="5">Packing app</li>
+                <li data-node="shipping-api" data-group="fulfilment" data-tone="5">Shipping API</li>
+                <li data-node="carrier-bridge" data-group="fulfilment" data-tone="5">Carrier bridge</li>
+                <li data-node="tracking" data-group="fulfilment" data-tone="5">Tracking</li>
+                <li data-node="label-printing" data-group="fulfilment" data-tone="5">Label printing</li>
+                <li data-node="stock-levels" data-group="fulfilment" data-tone="5">Stock levels</li>
+                <li data-node="replenishment" data-group="fulfilment" data-tone="5">Replenishment</li>
+                <li data-node="returns-desk" data-group="fulfilment" data-tone="5">Returns desk</li>
+                <li data-node="stock-database" data-group="fulfilment" data-tone="5" data-shape="square">Stock database</li>
+                <li data-node="customers" data-group="customers" data-tone="6" data-icon="ri-user-heart-line" data-meta="Domain">Customers</li>
+                <li data-node="accounts-api" data-group="customers" data-tone="6">Accounts API</li>
+                <li data-node="sign-in" data-group="customers" data-tone="6">Sign-in</li>
+                <li data-node="profiles" data-group="customers" data-tone="6">Profiles</li>
+                <li data-node="addresses" data-group="customers" data-tone="6">Addresses</li>
+                <li data-node="preferences" data-group="customers" data-tone="6">Preferences</li>
+                <li data-node="loyalty-points" data-group="customers" data-tone="6">Loyalty points</li>
+                <li data-node="newsletter" data-group="customers" data-tone="6">Newsletter</li>
+                <li data-node="reviews" data-group="customers" data-tone="6">Reviews</li>
+                <li data-node="support-tickets" data-group="customers" data-tone="6">Support tickets</li>
+                <li data-node="chat-assistant" data-group="customers" data-tone="6">Chat assistant</li>
+                <li data-node="customer-database" data-group="customers" data-tone="6" data-shape="square">Customer database</li>
+                <li data-node="platform" data-group="platform" data-tone="4" data-icon="ri-stack-line" data-meta="Domain">Platform</li>
+                <li data-node="api-gateway" data-group="platform" data-tone="4">API gateway</li>
+                <li data-node="service-mesh" data-group="platform" data-tone="4">Service mesh</li>
+                <li data-node="message-bus" data-group="platform" data-tone="4" data-shape="diamond">Message bus</li>
+                <li data-node="feature-flags" data-group="platform" data-tone="4">Feature flags</li>
+                <li data-node="secrets-store" data-group="platform" data-tone="4">Secrets store</li>
+                <li data-node="metrics" data-group="platform" data-tone="4">Metrics</li>
+                <li data-node="log-store" data-group="platform" data-tone="4">Log store</li>
+                <li data-node="tracing" data-group="platform" data-tone="4">Tracing</li>
+                <li data-node="build-pipeline" data-group="platform" data-tone="4">Build pipeline</li>
+                <li data-node="deploy-service" data-group="platform" data-tone="4">Deploy service</li>
+                <li data-node="status-page" data-group="platform" data-tone="4">Status page</li>
+
+                <li data-edge data-source="storefront" data-target="product-pages" data-label="runs" data-weight="light">Storefront runs Product pages</li>
+                <li data-edge data-source="storefront" data-target="search-pages" data-label="runs" data-weight="light">Storefront runs Search pages</li>
+                <li data-edge data-source="storefront" data-target="account-pages" data-label="runs" data-weight="light">Storefront runs Account pages</li>
+                <li data-edge data-source="storefront" data-target="basket-view" data-label="runs" data-weight="light">Storefront runs Basket view</li>
+                <li data-edge data-source="storefront" data-target="checkout-pages" data-label="runs" data-weight="light">Storefront runs Checkout pages</li>
+                <li data-edge data-source="storefront" data-target="content-blocks" data-label="runs" data-weight="light">Storefront runs Content blocks</li>
+                <li data-edge data-source="storefront" data-target="image-resizer" data-label="runs" data-weight="light">Storefront runs Image resizer</li>
+                <li data-edge data-source="storefront" data-target="page-cache" data-label="runs" data-weight="light">Storefront runs Page cache</li>
+                <li data-edge data-source="storefront" data-target="consent-banner" data-label="runs" data-weight="light">Storefront runs Consent banner</li>
+                <li data-edge data-source="storefront" data-target="store-locator" data-label="runs" data-weight="light">Storefront runs Store locator</li>
+                <li data-edge data-source="storefront" data-target="wish-lists" data-label="runs" data-weight="light">Storefront runs Wish lists</li>
+                <li data-edge data-source="ordering" data-target="checkout-api" data-label="runs" data-weight="light">Ordering runs Checkout API</li>
+                <li data-edge data-source="ordering" data-target="basket-service" data-label="runs" data-weight="light">Ordering runs Basket service</li>
+                <li data-edge data-source="ordering" data-target="pricing" data-label="runs" data-weight="light">Ordering runs Pricing</li>
+                <li data-edge data-source="ordering" data-target="vouchers" data-label="runs" data-weight="light">Ordering runs Vouchers</li>
+                <li data-edge data-source="ordering" data-target="tax-rules" data-label="runs" data-weight="light">Ordering runs Tax rules</li>
+                <li data-edge data-source="ordering" data-target="orders-api" data-label="runs" data-weight="light">Ordering runs Orders API</li>
+                <li data-edge data-source="ordering" data-target="order-history" data-label="runs" data-weight="light">Ordering runs Order history</li>
+                <li data-edge data-source="ordering" data-target="invoices" data-label="runs" data-weight="light">Ordering runs Invoices</li>
+                <li data-edge data-source="ordering" data-target="returns" data-label="runs" data-weight="light">Ordering runs Returns</li>
+                <li data-edge data-source="ordering" data-target="order-events" data-label="runs" data-weight="light">Ordering runs Order events</li>
+                <li data-edge data-source="ordering" data-target="order-database" data-label="runs" data-weight="light">Ordering runs Order database</li>
+                <li data-edge data-source="payments" data-target="payments-api" data-label="runs" data-weight="light">Payments runs Payments API</li>
+                <li data-edge data-source="payments" data-target="card-gateway" data-label="runs" data-weight="light">Payments runs Card gateway</li>
+                <li data-edge data-source="payments" data-target="wallets" data-label="runs" data-weight="light">Payments runs Wallets</li>
+                <li data-edge data-source="payments" data-target="refunds" data-label="runs" data-weight="light">Payments runs Refunds</li>
+                <li data-edge data-source="payments" data-target="fraud-screening" data-label="runs" data-weight="light">Payments runs Fraud screening</li>
+                <li data-edge data-source="payments" data-target="payouts" data-label="runs" data-weight="light">Payments runs Payouts</li>
+                <li data-edge data-source="payments" data-target="ledger" data-label="runs" data-weight="light">Payments runs Ledger</li>
+                <li data-edge data-source="payments" data-target="reconciliation" data-label="runs" data-weight="light">Payments runs Reconciliation</li>
+                <li data-edge data-source="payments" data-target="chargebacks" data-label="runs" data-weight="light">Payments runs Chargebacks</li>
+                <li data-edge data-source="payments" data-target="payment-events" data-label="runs" data-weight="light">Payments runs Payment events</li>
+                <li data-edge data-source="payments" data-target="ledger-database" data-label="runs" data-weight="light">Payments runs Ledger database</li>
+                <li data-edge data-source="fulfilment" data-target="warehouse-sync" data-label="runs" data-weight="light">Fulfilment runs Warehouse sync</li>
+                <li data-edge data-source="fulfilment" data-target="pick-lists" data-label="runs" data-weight="light">Fulfilment runs Pick lists</li>
+                <li data-edge data-source="fulfilment" data-target="packing-app" data-label="runs" data-weight="light">Fulfilment runs Packing app</li>
+                <li data-edge data-source="fulfilment" data-target="shipping-api" data-label="runs" data-weight="light">Fulfilment runs Shipping API</li>
+                <li data-edge data-source="fulfilment" data-target="carrier-bridge" data-label="runs" data-weight="light">Fulfilment runs Carrier bridge</li>
+                <li data-edge data-source="fulfilment" data-target="tracking" data-label="runs" data-weight="light">Fulfilment runs Tracking</li>
+                <li data-edge data-source="fulfilment" data-target="label-printing" data-label="runs" data-weight="light">Fulfilment runs Label printing</li>
+                <li data-edge data-source="fulfilment" data-target="stock-levels" data-label="runs" data-weight="light">Fulfilment runs Stock levels</li>
+                <li data-edge data-source="fulfilment" data-target="replenishment" data-label="runs" data-weight="light">Fulfilment runs Replenishment</li>
+                <li data-edge data-source="fulfilment" data-target="returns-desk" data-label="runs" data-weight="light">Fulfilment runs Returns desk</li>
+                <li data-edge data-source="fulfilment" data-target="stock-database" data-label="runs" data-weight="light">Fulfilment runs Stock database</li>
+                <li data-edge data-source="customers" data-target="accounts-api" data-label="runs" data-weight="light">Customers runs Accounts API</li>
+                <li data-edge data-source="customers" data-target="sign-in" data-label="runs" data-weight="light">Customers runs Sign-in</li>
+                <li data-edge data-source="customers" data-target="profiles" data-label="runs" data-weight="light">Customers runs Profiles</li>
+                <li data-edge data-source="customers" data-target="addresses" data-label="runs" data-weight="light">Customers runs Addresses</li>
+                <li data-edge data-source="customers" data-target="preferences" data-label="runs" data-weight="light">Customers runs Preferences</li>
+                <li data-edge data-source="customers" data-target="loyalty-points" data-label="runs" data-weight="light">Customers runs Loyalty points</li>
+                <li data-edge data-source="customers" data-target="newsletter" data-label="runs" data-weight="light">Customers runs Newsletter</li>
+                <li data-edge data-source="customers" data-target="reviews" data-label="runs" data-weight="light">Customers runs Reviews</li>
+                <li data-edge data-source="customers" data-target="support-tickets" data-label="runs" data-weight="light">Customers runs Support tickets</li>
+                <li data-edge data-source="customers" data-target="chat-assistant" data-label="runs" data-weight="light">Customers runs Chat assistant</li>
+                <li data-edge data-source="customers" data-target="customer-database" data-label="runs" data-weight="light">Customers runs Customer database</li>
+                <li data-edge data-source="platform" data-target="api-gateway" data-label="runs" data-weight="light">Platform runs API gateway</li>
+                <li data-edge data-source="platform" data-target="service-mesh" data-label="runs" data-weight="light">Platform runs Service mesh</li>
+                <li data-edge data-source="platform" data-target="message-bus" data-label="runs" data-weight="light">Platform runs Message bus</li>
+                <li data-edge data-source="platform" data-target="feature-flags" data-label="runs" data-weight="light">Platform runs Feature flags</li>
+                <li data-edge data-source="platform" data-target="secrets-store" data-label="runs" data-weight="light">Platform runs Secrets store</li>
+                <li data-edge data-source="platform" data-target="metrics" data-label="runs" data-weight="light">Platform runs Metrics</li>
+                <li data-edge data-source="platform" data-target="log-store" data-label="runs" data-weight="light">Platform runs Log store</li>
+                <li data-edge data-source="platform" data-target="tracing" data-label="runs" data-weight="light">Platform runs Tracing</li>
+                <li data-edge data-source="platform" data-target="build-pipeline" data-label="runs" data-weight="light">Platform runs Build pipeline</li>
+                <li data-edge data-source="platform" data-target="deploy-service" data-label="runs" data-weight="light">Platform runs Deploy service</li>
+                <li data-edge data-source="platform" data-target="status-page" data-label="runs" data-weight="light">Platform runs Status page</li>
+                <li data-edge data-source="product-pages" data-target="pricing" data-label="shows">Product pages shows Pricing</li>
+                <li data-edge data-source="search-pages" data-target="stock-levels" data-label="checks">Search pages checks Stock levels</li>
+                <li data-edge data-source="basket-view" data-target="basket-service" data-label="calls">Basket view calls Basket service</li>
+                <li data-edge data-source="checkout-pages" data-target="checkout-api" data-label="calls">Checkout pages calls Checkout API</li>
+                <li data-edge data-source="account-pages" data-target="accounts-api" data-label="calls">Account pages calls Accounts API</li>
+                <li data-edge data-source="account-pages" data-target="order-history" data-label="shows">Account pages shows Order history</li>
+                <li data-edge data-source="checkout-api" data-target="basket-service" data-label="reads">Checkout API reads Basket service</li>
+                <li data-edge data-source="checkout-api" data-target="payments-api" data-label="charges">Checkout API charges Payments API</li>
+                <li data-edge data-source="checkout-api" data-target="orders-api" data-label="places">Checkout API places Orders API</li>
+                <li data-edge data-source="checkout-api" data-target="vouchers" data-label="redeems">Checkout API redeems Vouchers</li>
+                <li data-edge data-source="pricing" data-target="tax-rules" data-label="applies">Pricing applies Tax rules</li>
+                <li data-edge data-source="orders-api" data-target="order-database" data-label="writes">Orders API writes Order database</li>
+                <li data-edge data-source="orders-api" data-target="order-events" data-label="publishes">Orders API publishes Order events</li>
+                <li data-edge data-source="order-events" data-target="warehouse-sync" data-label="feeds">Order events feeds Warehouse sync</li>
+                <li data-edge data-source="order-events" data-target="invoices" data-label="feeds">Order events feeds Invoices</li>
+                <li data-edge data-source="order-events" data-target="newsletter" data-label="feeds">Order events feeds Newsletter</li>
+                <li data-edge data-source="returns" data-target="refunds" data-label="asks for">Returns asks for Refunds</li>
+                <li data-edge data-source="returns" data-target="returns-desk" data-label="books">Returns books Returns desk</li>
+                <li data-edge data-source="payments-api" data-target="card-gateway" data-label="authorises">Payments API authorises Card gateway</li>
+                <li data-edge data-source="payments-api" data-target="fraud-screening" data-label="screens">Payments API screens Fraud screening</li>
+                <li data-edge data-source="payments-api" data-target="wallets" data-label="charges">Payments API charges Wallets</li>
+                <li data-edge data-source="payments-api" data-target="payment-events" data-label="publishes">Payments API publishes Payment events</li>
+                <li data-edge data-source="payment-events" data-target="ledger" data-label="feeds">Payment events feeds Ledger</li>
+                <li data-edge data-source="ledger" data-target="ledger-database" data-label="writes">Ledger writes Ledger database</li>
+                <li data-edge data-source="reconciliation" data-target="ledger" data-label="reads">Reconciliation reads Ledger</li>
+                <li data-edge data-source="chargebacks" data-target="refunds" data-label="raises">Chargebacks raises Refunds</li>
+                <li data-edge data-source="payouts" data-target="ledger" data-label="reads">Payouts reads Ledger</li>
+                <li data-edge data-source="warehouse-sync" data-target="pick-lists" data-label="prints">Warehouse sync prints Pick lists</li>
+                <li data-edge data-source="pick-lists" data-target="packing-app" data-label="feeds">Pick lists feeds Packing app</li>
+                <li data-edge data-source="packing-app" data-target="label-printing" data-label="prints">Packing app prints Label printing</li>
+                <li data-edge data-source="shipping-api" data-target="carrier-bridge" data-label="books">Shipping API books Carrier bridge</li>
+                <li data-edge data-source="carrier-bridge" data-target="tracking" data-label="feeds">Carrier bridge feeds Tracking</li>
+                <li data-edge data-source="stock-levels" data-target="stock-database" data-label="reads">Stock levels reads Stock database</li>
+                <li data-edge data-source="replenishment" data-target="stock-levels" data-label="reads">Replenishment reads Stock levels</li>
+                <li data-edge data-source="packing-app" data-target="shipping-api" data-label="calls">Packing app calls Shipping API</li>
+                <li data-edge data-source="sign-in" data-target="accounts-api" data-label="checks">Sign-in checks Accounts API</li>
+                <li data-edge data-source="profiles" data-target="customer-database" data-label="writes">Profiles writes Customer database</li>
+                <li data-edge data-source="addresses" data-target="customer-database" data-label="writes">Addresses writes Customer database</li>
+                <li data-edge data-source="loyalty-points" data-target="order-events" data-label="listens to">Loyalty points listens to Order events</li>
+                <li data-edge data-source="reviews" data-target="product-pages" data-label="shown on">Reviews shown on Product pages</li>
+                <li data-edge data-source="support-tickets" data-target="order-history" data-label="reads">Support tickets reads Order history</li>
+                <li data-edge data-source="chat-assistant" data-target="support-tickets" data-label="opens">Chat assistant opens Support tickets</li>
+                <li data-edge data-source="preferences" data-target="newsletter" data-label="controls">Preferences controls Newsletter</li>
+                <li data-edge data-source="api-gateway" data-target="checkout-api" data-label="routes">API gateway routes Checkout API</li>
+                <li data-edge data-source="api-gateway" data-target="accounts-api" data-label="routes">API gateway routes Accounts API</li>
+                <li data-edge data-source="api-gateway" data-target="payments-api" data-label="routes">API gateway routes Payments API</li>
+                <li data-edge data-source="service-mesh" data-target="api-gateway" data-label="carries">Service mesh carries API gateway</li>
+                <li data-edge data-source="message-bus" data-target="order-events" data-label="carries">Message bus carries Order events</li>
+                <li data-edge data-source="message-bus" data-target="payment-events" data-label="carries">Message bus carries Payment events</li>
+                <li data-edge data-source="feature-flags" data-target="checkout-pages" data-label="configures">Feature flags configures Checkout pages</li>
+                <li data-edge data-source="secrets-store" data-target="card-gateway" data-label="holds keys for">Secrets store holds keys for Card gateway</li>
+                <li data-edge data-source="metrics" data-target="api-gateway" data-label="watches">Metrics watches API gateway</li>
+                <li data-edge data-source="tracing" data-target="service-mesh" data-label="reads">Tracing reads Service mesh</li>
+                <li data-edge data-source="metrics" data-target="log-store" data-label="writes">Metrics writes Log store</li>
+                <li data-edge data-source="build-pipeline" data-target="deploy-service" data-label="hands over to">Build pipeline hands over to Deploy service</li>
+                <li data-edge data-source="status-page" data-target="metrics" data-label="reads">Status page reads Metrics</li>
+                <li data-edge data-source="page-cache" data-target="product-pages" data-label="caches">Page cache caches Product pages</li>
+                <li data-edge data-source="image-resizer" data-target="content-blocks" data-label="serves">Image resizer serves Content blocks</li>
+                <li data-edge data-source="consent-banner" data-target="newsletter" data-label="asks for">Consent banner asks for Newsletter</li>
+                <li data-edge data-source="store-locator" data-target="stock-levels" data-label="checks">Store locator checks Stock levels</li>
+                <li data-edge data-source="wish-lists" data-target="customer-database" data-label="writes">Wish lists writes Customer database</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-tools" role="toolbar" aria-label="View">
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+                <span class="graph-tools-sep"></span>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fullscreen" aria-pressed="false" aria-label="Full screen" data-tip="Full screen">
+                    <i class="ri-fullscreen-line graph-when-off"></i><i class="ri-fullscreen-exit-line graph-when-on"></i>
+                </button>
+            </div>
+            <canvas class="graph-minimap" data-graph-minimap aria-hidden="true"></canvas>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

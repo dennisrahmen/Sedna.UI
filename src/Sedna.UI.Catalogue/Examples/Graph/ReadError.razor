@@ -1,0 +1,13 @@
+<!-- Held in its error state for this page: the script writes data-graph-state, so a live graph
+     carries data-graph, an id and an aria-label instead, and never this attribute. -->
+<div class="graph graph--sm" data-graph-state="error">
+    <div class="graph-canvas"></div>
+    <div class="graph-wait skeleton skeleton-block"></div>
+    <div class="graph-empty graph-empty--error empty-state empty-state--failed">
+        <i class="ri-error-warning-line state-icon" aria-hidden="true"></i>
+        <span class="empty-state-title">Could not load the links</span>
+        <p>The request did not complete. Nothing has been changed.</p>
+        <span class="empty-state-detail">GET /api/orders/10482/links · 503 · 12:04:31</span>
+        <button class="btn btn-sm" type="button" data-graph-action="reload"><i class="ri-refresh-line"></i> Try again</button>
+    </div>
+</div>

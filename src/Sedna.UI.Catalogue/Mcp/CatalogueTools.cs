@@ -58,7 +58,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     private static readonly string[] Kinds = ["example", "class", "token", "page"];
 
     /// <summary>The sections <c>get_integration_guide</c> serves.</summary>
-    private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules"];
+    private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules", "graph"];
 
     [McpServerTool(Name = "search", ReadOnly = true, Destructive = false, Idempotent = true,
         OpenWorld = false)]
@@ -406,11 +406,12 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         Idempotent = true, OpenWorld = false)]
     [Description("""
         How to wire Sedna.UI into an app: the host page with its load order, the branding
-        recipe, the JavaScript and C# surface, and the rules a consuming app follows. Call once
-        when integrating, not per page.
+        recipe, the JavaScript and C# surface, the rules a consuming app follows, and the graph's
+        reference — its markup, controls, events, script and C#. Call once when integrating, not
+        per page.
         """)]
     public object GetIntegrationGuide(
-        [Description("One of: host-page, branding, javascript, rules. Omit for host-page.")]
+        [Description("One of: host-page, branding, javascript, rules, graph. Omit for host-page.")]
         string? section = null)
     {
         var name = section?.ToLowerInvariant() ?? "host-page";
@@ -420,6 +421,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
             "branding" => Docs.Read("getting-started.md"),
             "javascript" => Docs.Read("architecture.md"),
             "rules" => Docs.Read("CLAUDE.consuming-app.md"),
+            "graph" => Docs.Read("graph.md"),
             _ => throw new McpException(
                 $"Unknown section \"{section}\". Use one of: {string.Join(", ", Sections)} — "
                 + "or omit it for host-page."),
