@@ -2959,10 +2959,16 @@ a.topbar-version--pre:hover {
 .search-tag--warn { border-color: var(--warn-border); color: var(--warn-fg); }
 
 /* Below this the box would crowd the status pills and the controls beside it.
-   An app that hides the search here needs another way in — its own list page
-   usually already has one. */
+
+   `.topbar-btn--search` is the way in while it is hidden: a topbar button the app
+   writes, which opens whatever its search is — a page, a sheet, the palette — and
+   which shows exactly while the box does not. Under `.layout--bottombar` it goes
+   again where the bar shows, below 560px, because the bar's `--end` cell is the
+   search's place on a phone; 24-frame-bottombar.css does that. */
+.topbar-btn--search { display: none; }
 @media (max-width: 720px) {
     .search { display: none; }
+    .topbar-btn--search { display: inline-flex; }
 }
 
 /* ── The panel, rendered by the app ─────────────────────────────────────────
@@ -3477,6 +3483,8 @@ a.topbar-version--pre:hover {
    app that writes a bottom bar and a sidebar may want both at every width. */
 @media (max-width: 560px) {
     .layout--bottombar > .sidebar { display: none; }
+    /* The bar carries search here, so the topbar's stand-in for the box steps back. */
+    .layout--bottombar .topbar-btn--search { display: none; }
 }
 @media (min-width: 561px) {
     .layout--bottombar .bottombar { display: none; }

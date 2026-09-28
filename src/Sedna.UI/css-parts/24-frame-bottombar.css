@@ -293,6 +293,8 @@
    app that writes a bottom bar and a sidebar may want both at every width. */
 @media (max-width: 560px) {
     .layout--bottombar > .sidebar { display: none; }
+    /* The bar carries search here, so the topbar's stand-in for the box steps back. */
+    .layout--bottombar .topbar-btn--search { display: none; }
 }
 @media (min-width: 561px) {
     .layout--bottombar .bottombar { display: none; }
