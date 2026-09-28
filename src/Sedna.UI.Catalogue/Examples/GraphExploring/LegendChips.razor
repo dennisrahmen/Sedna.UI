@@ -1,0 +1,86 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <div class="chip-set" role="group" aria-label="Kinds shown">
+                <button class="chip" type="button" data-graph-filter="kind" value="service" aria-pressed="true">
+                    <span class="graph-swatch series-2"></span><span class="chip-label">Services</span>
+                </button>
+                <button class="chip" type="button" data-graph-filter="kind" value="database" aria-pressed="true">
+                    <span class="graph-swatch graph-swatch--square series-4"></span><span class="chip-label">Databases</span>
+                </button>
+                <button class="chip" type="button" data-graph-filter="kind" value="queue" aria-pressed="true">
+                    <span class="graph-swatch graph-swatch--diamond series-5"></span><span class="chip-label">Queues</span>
+                </button>
+                <button class="chip" type="button" data-graph-filter="kind" value="job" aria-pressed="true">
+                    <span class="graph-swatch graph-swatch--triangle series-3"></span><span class="chip-label">Scheduled jobs</span>
+                </button>
+                <button class="chip" type="button" data-graph-filter="kind" value="external" aria-pressed="true">
+                    <span class="graph-swatch graph-swatch--hexagon series-6"></span><span class="chip-label">Outside services</span>
+                </button>
+            </div>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} records"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="xp-kinds" data-graph-arrows="target" aria-label="The web shop's services, by kind">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="storefront" data-kind="service" data-tone="2" data-icon="ri-store-2-line" data-hub>Storefront</li>
+                <li data-node="checkout" data-kind="service" data-tone="2" data-icon="ri-shopping-cart-2-line">Checkout API</li>
+                <li data-node="orders" data-kind="service" data-tone="2" data-icon="ri-file-list-3-line">Orders API</li>
+                <li data-node="payments" data-kind="service" data-tone="2" data-icon="ri-bank-card-line">Payments API</li>
+                <li data-node="catalogue" data-kind="service" data-tone="2" data-icon="ri-book-2-line">Catalogue API</li>
+                <li data-node="search" data-kind="service" data-tone="2" data-icon="ri-search-line">Search API</li>
+                <li data-node="accounts" data-kind="service" data-tone="2" data-icon="ri-user-line">Accounts API</li>
+                <li data-node="shipping" data-kind="service" data-tone="2" data-icon="ri-truck-line">Shipping API</li>
+                <li data-node="notify" data-kind="service" data-tone="2" data-icon="ri-notification-3-line">Notifications</li>
+                <li data-node="orders-db" data-kind="database" data-tone="4" data-shape="square" data-icon="ri-database-2-line">Orders database</li>
+                <li data-node="catalogue-db" data-kind="database" data-tone="4" data-shape="square" data-icon="ri-database-2-line">Catalogue database</li>
+                <li data-node="accounts-db" data-kind="database" data-tone="4" data-shape="square" data-icon="ri-database-2-line">Accounts database</li>
+                <li data-node="search-index" data-kind="database" data-tone="4" data-shape="square" data-icon="ri-database-2-line">Search index</li>
+                <li data-node="order-events" data-kind="queue" data-tone="5" data-shape="diamond" data-icon="ri-stack-line">Order events</li>
+                <li data-node="mail-queue" data-kind="queue" data-tone="5" data-shape="diamond" data-icon="ri-stack-line">Mail queue</li>
+                <li data-node="price-import" data-kind="job" data-tone="3" data-shape="triangle" data-icon="ri-timer-line">Nightly price import</li>
+                <li data-node="cart-reminder" data-kind="job" data-tone="3" data-shape="triangle" data-icon="ri-timer-line">Abandoned-cart reminder</li>
+                <li data-node="card-processor" data-kind="external" data-tone="6" data-shape="hexagon" data-icon="ri-global-line">Card processor</li>
+                <li data-node="carrier" data-kind="external" data-tone="6" data-shape="hexagon" data-icon="ri-global-line">Carrier tracking</li>
+                <li data-node="mail-relay" data-kind="external" data-tone="6" data-shape="hexagon" data-icon="ri-global-line">Mail relay</li>
+
+                <li data-edge data-source="storefront" data-target="checkout" data-label="calls">The storefront calls the checkout API</li>
+                <li data-edge data-source="storefront" data-target="catalogue" data-label="calls">The storefront calls the catalogue API</li>
+                <li data-edge data-source="storefront" data-target="search" data-label="calls">The storefront calls the search API</li>
+                <li data-edge data-source="storefront" data-target="accounts" data-label="calls">The storefront calls the accounts API</li>
+                <li data-edge data-source="checkout" data-target="orders" data-label="places">The checkout API places orders</li>
+                <li data-edge data-source="checkout" data-target="payments" data-label="charges">The checkout API charges through the payments API</li>
+                <li data-edge data-source="checkout" data-target="shipping" data-label="quotes">The checkout API asks the shipping API for a quote</li>
+                <li data-edge data-source="orders" data-target="orders-db" data-label="writes">The orders API writes the orders database</li>
+                <li data-edge data-source="orders" data-target="order-events" data-label="publishes">The orders API publishes order events</li>
+                <li data-edge data-source="order-events" data-target="notify" data-label="feeds">Order events feed the notifications service</li>
+                <li data-edge data-source="order-events" data-target="shipping" data-label="feeds">Order events feed the shipping API</li>
+                <li data-edge data-source="notify" data-target="mail-queue" data-label="enqueues">Notifications put mail on the mail queue</li>
+                <li data-edge data-source="mail-queue" data-target="mail-relay" data-label="sends">The mail queue sends through the mail relay</li>
+                <li data-edge data-source="payments" data-target="card-processor" data-label="authorises">The payments API authorises cards with the card processor</li>
+                <li data-edge data-source="shipping" data-target="carrier" data-label="tracks">The shipping API tracks parcels with the carrier</li>
+                <li data-edge data-source="catalogue" data-target="catalogue-db" data-label="reads">The catalogue API reads the catalogue database</li>
+                <li data-edge data-source="search" data-target="search-index" data-label="queries">The search API queries the search index</li>
+                <li data-edge data-source="accounts" data-target="accounts-db" data-label="reads">The accounts API reads the accounts database</li>
+                <li data-edge data-source="price-import" data-target="catalogue-db" data-label="updates">The nightly price import updates the catalogue database</li>
+                <li data-edge data-source="price-import" data-target="search-index" data-label="rebuilds">The nightly price import rebuilds the search index</li>
+                <li data-edge data-source="cart-reminder" data-target="orders-db" data-label="reads">The abandoned-cart reminder reads the orders database</li>
+                <li data-edge data-source="cart-reminder" data-target="mail-queue" data-label="enqueues">The abandoned-cart reminder puts mail on the mail queue</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-tools" role="toolbar" aria-label="View">
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+            </div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+            <div class="graph-empty graph-empty--filtered empty-state">
+                <svg class="state-art" aria-hidden="true"><use href="#filtered-out" /></svg>
+                <span class="empty-state-title">Every kind is switched off</span>
+                <p>Switch a kind back on above, or start again.</p>
+                <button class="btn btn-sm" type="button" data-graph-action="reset"><i class="ri-filter-off-line"></i> Show every kind</button>
+            </div>
+        </div>
+    </div>
+</div>

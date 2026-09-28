@@ -1,5 +1,309 @@
 @page "/graph-exploring"
 
 <CatHead Title="Exploring a graph">
-    Being written.
+    Everything a reader does with a graph that is already drawn: narrowing it to what matters, finding a
+    record, following its links and reading one in full. Every control here is ordinary markup the app
+    writes &mdash; a chip, a select, a search field, a menu, a panel &mdash; with a <code>data-graph-*</code>
+    attribute, and none of it needs a line of the app's own script. The markup of a graph itself is on
+    <a href="/graph">Graph</a>.
 </CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-information-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Which graph a control drives</span>
+        The graph named by <code>data-graph-for</code> on the control or on an element around it, else the
+        graph the control is inside, else the one in its <code>[data-graph-frame]</code>. So a toolbar, a legend
+        and a panel sit anywhere in the frame and find their graph. A toggle button's
+        <code>aria-pressed</code> is flipped by the script; a checkbox, a radio, a select and a text field keep
+        their native state, which a Blazor binding can own. <code>data-graph-action="reset"</code> puts every
+        control back as it was first drawn.
+    </div>
+</div>
+
+<CatExample TExample="Examples.GraphExploring.LegendChips" Title="Filter chips that are the legend" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; switch a kind off.</strong> A <code>button.chip</code> with
+        <code>data-graph-filter="kind"</code> and a <code>value</code> is the key and the switch at once, so there
+        is no second legend to keep in step. Its <code>.graph-swatch</code> wears the <code>.series-*</code> class
+        of the kind's tone and the modifier of its shape &mdash; <code>--square</code>, <code>--diamond</code>,
+        <code>--triangle</code>, <code>--hexagon</code> &mdash; and a chip that is off <strong>hides its
+        value</strong>. A <code>button.chip</code> with <code>aria-pressed="true"</code> looks chosen by itself;
+        it needs no <code>.chip--active</code>.
+    </p>
+    <p>
+        <code>data-graph-stats</code> keeps a sentence current in the app's words. <code>.graph-empty--filtered</code>
+        shows when the filters hide every record, and a <code>reset</code> button in it puts every control back.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.ChooseOne" Title="Choosing one value" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> A <code>&lt;select&gt;</code> or a group of radios with <code>data-graph-filter</code>
+        <strong>chooses</strong>: only records with that value stay, and <code>value=""</code> chooses all. A record
+        without the field is not what was chosen, so it goes &mdash; the gateway and the message bus, which no team
+        owns, leave as soon as a team is chosen. A value with spaces chooses each of its words: &ldquo;Needs
+        attention&rdquo; is <code>value="degraded down"</code>.
+    </p>
+    <p>
+        That is the difference from a chip, which is a switch and hides only what it names. Choose Platform and
+        Needs attention together to see the empty state say so in the app's words.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.MutedAndIsolated" Title="Muted and unlinked records" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>data-muted</code> draws a record quieter &mdash; retired, archived, out of
+        scope &mdash; and <code>data-graph-show="muted"</code> on a checkbox or a switch shows or hides all of them.
+        <code>data-graph-show="isolated"</code> shows the records with no visible link, and while it is off they go
+        with whatever took their last link away: hide the retired applications and the receipt archive, fed only
+        by paper forms, goes too.
+    </p>
+    <p>
+        Both start as their control says, so this graph opens without the three applications that stand alone.
+        <code>.graph-swatch--muted</code> is the key for a quieter record.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.LinkFilters" Title="Filtering links" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>data-graph-filter="edge.kind"</code> filters links by their
+        <code>data-kind</code>. A link's key is a <code>.graph-line</code> &mdash; <code>--dashed</code>,
+        <code>--dotted</code>, <code>--light</code>, <code>--heavy</code>, <code>--arrow</code> &mdash; in the
+        <code>.series-*</code> colour its <code>data-tone</code> paints, with the same <code>data-line</code> and
+        <code>data-weight</code> on the links, so a line style carries the difference as well as the colour.
+    </p>
+    <p>
+        A chip written <code>aria-pressed="false"</code> starts off: monitoring stays hidden until it is asked for.
+        A record keeps its place when its links go; untick <code>data-graph-show="isolated"</code> beside the chips
+        to take away what is left with none.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.Search" Title="Search" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; try &ldquo;refund&rdquo;, then &ldquo;login code&rdquo;.</strong> A text field with
+        <code>data-graph-search</code> marks records as it is typed in, and once typing pauses the view settles on
+        the matches and what they link to. It marks rather than hides, because where a record sits among the others
+        is what a graph is for. Every word has to appear in a record's name, its id, its <code>data-meta</code>, its
+        kind or its <code>data-tags</code>.
+    </p>
+    <p>
+        <code>data-graph-stats-match</code> replaces the stats sentence while a search is marking records. The mark
+        is a ring in the accent colour, so give the records of a graph that is searched tones that are not close to
+        it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.Neighbourhood" Title="A record's neighbourhood" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; reach two steps out, then right-click http-client.</strong> A neighbourhood is one
+        record and what it touches, and nothing else. <code>data-graph-focus</code> starts the graph on one, and
+        <code>data-graph-focus-depth</code> or a <code>data-graph-option="depth"</code> control says how many links
+        out to reach. The <code>focus</code> action moves to another record &mdash; from the menu, the side panel or
+        a button &mdash; and <code>unfocus</code> shows everything again.
+    </p>
+    <p>
+        The record in focus is ringed and never filtered away, and the filters still apply around it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.SidePanel" Title="The side panel" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; select a service.</strong> The panel is what the canvas cannot be: text, and controls a
+        keyboard and a screen reader reach. <code>[data-graph-detail]</code> is shown while a record is selected and
+        hidden while none is. Every <code>[data-graph-field]</code> in it takes that field of the record as text
+        &mdash; a <code>data-*</code> of the record's own names one, as <code>team</code>, <code>owner</code> and
+        <code>host</code> do here &mdash; and <code>[data-graph-icon]</code> takes its icon. A field the record does
+        not have is hidden.
+    </p>
+    <p>
+        The neighbours are rows cloned from <code>&lt;template data-graph-neighbour&gt;</code> into
+        <code>[data-graph-neighbours]</code>, one per linked record. <code>[data-graph-link]</code> takes the label of
+        the link, and the row gets <code>data-graph-direction</code>, which shows one of
+        <code>.graph-direction-out</code>, <code>.graph-direction-in</code> and <code>.graph-direction-both</code>. A
+        <code>data-graph-action</code> in a row acts on that neighbour: <code>select</code> moves the panel there and
+        <code>focus</code> shows its neighbourhood.
+    </p>
+    <p>
+        <code>.graph-detail</code> on a <code>.card.card--fill</code> in a <code>.sedna-split-aside</code> is as tall
+        as the graph: its head and foot stay and its body scrolls. <code>--graph-height</code> on the
+        <code>.graph-frame</code> sizes the graph and the panel together. From the keyboard, the arrows move between
+        records and <kbd class="kbd">Space</kbd> selects, and the <code>[data-graph-live]</code> region says each in
+        the sentence of <code>data-graph-announce</code> or <code>data-graph-announce-select</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.DefaultTip" Title="The default tooltip" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; point at a step.</strong> With nothing written, pointing at a record, or reaching it
+        with the arrow keys, shows the library's <a href="/hover-hints">hover hint</a> &mdash; the bubble every
+        <code>data-tip</code> uses &mdash; above it, with the record's name and its <code>data-meta</code>. A link
+        says its label. That is enough for most graphs: write a tooltip of your own when a record has more to say.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.Tooltip" Title="A tooltip of your own" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; point at a device, then at a link.</strong> <code>.graph-tip</code> with
+        <code>data-graph-tip</code>, written once inside the graph and filled for each record:
+        <code>.graph-tip-head</code> holds the <code>[data-graph-icon]</code> and the <code>.graph-tip-title</code>,
+        <code>.graph-tip-meta</code> is a quieter line, and <code>.graph-tip-ref</code> is an identifier &mdash; an
+        address, a host name &mdash; in the monospace face. Any field fills a slot, and one a record lacks is hidden:
+        the upstream provider has no rack.
+    </p>
+    <p>
+        <code>data-graph-tip="edge"</code> is the tooltip for links, here with the link's label and its
+        <code>data-speed</code>. The script fills both with text and places them inside the frame, clear of the
+        pointer; the words, the order and the look are the app's.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.ContextMenu" Title="The context menu" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; right-click a page, or the empty canvas.</strong> <code>.menu.graph-menu</code> with
+        <code>data-graph-menu</code>, inside the graph, opens where a right click, a long press or the context-menu
+        key lands. It is the library's <a href="/menu"><code>.menu</code></a> with the app's items. A
+        <code>data-graph-action</code> item acts on the record the menu was opened on, and an item that does not
+        apply hides itself: <code>open</code> on a record with no <code>data-href</code>, every record's item on the
+        background. A <code>.menu-label</code> with <code>data-graph-field="label"</code> names the record.
+    </p>
+    <p>
+        Here <code>open</code> goes to the page, <code>hide</code> takes one record away, and <code>show-all</code>
+        brings back every record hidden that way. The arrow keys move through the items, and
+        <kbd class="kbd">Esc</kbd> closes the menu and puts focus back on the graph.
+        <code>sedna-graph-context</code> is dispatched first and is cancelable, for an app that opens something of its
+        own instead.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.ColourBy" Title="Colour by" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>data-tone</code> is the colouring a graph starts in; <code>data-tone-region</code>
+        and <code>data-tone-status</code> on the same records are two more, and a <code>data-graph-option="colour"</code>
+        control switches between them &mdash; <code>tone</code>, or the name after <code>data-tone-</code>. Every tone
+        is a <code>.series-*</code> colour, so the keys are the canvas's own in every theme and colour-vision setting.
+    </p>
+    <p>
+        Each colouring's keys sit beside its radio, so the legend in force is the one that is chosen, with no script
+        to swap legends. The shape stays with the kind whatever the colour says.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.Names" Title="Names" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>data-graph-option="labels"</code>: <code>auto</code> names what there is room
+        for, the way a map does &mdash; what is pointed at, selected or found first, then <code>data-hub</code>
+        records, then the busiest &mdash; and leaves out a name that would run into one already placed. Zooming in
+        makes room, so more appear. <code>all</code> names every record; <code>none</code> only the one pointed at,
+        selected or found.
+    </p>
+    <p>
+        <code>data-graph-option="edge-labels"</code>: <code>hover</code>, the default for dots, names a link while
+        one of its records is lit; <code>always</code> writes every link's name, which suits boxes better than a map
+        of dots; <code>none</code> never does. Both options are also attributes on the graph,
+        <code>data-graph-labels</code> and <code>data-graph-edge-labels</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.OpenOnClick" Title="Opening a record" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; this one navigates.</strong> A double click, or <kbd class="kbd">Enter</kbd> on the
+        record the keyboard is on, opens it: <code>sedna-graph-open</code> is dispatched and, unless it is cancelled,
+        the record's <code>data-href</code> is followed through a real link, so Blazor's router and any other
+        client-side router handle it. <code>data-graph-open="tap"</code> opens on a single click instead, for a graph
+        that is a way around, like this map of the graph pages; <code>none</code> never opens.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphExploring.Explorer" Title="All of it together" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> One frame: search, a team select, the kinds as chips, the stats and reset in the
+        toolbar; zoom, fit and full screen on the canvas, with <code>.graph-tools-sep</code> between the groups and
+        <code>.graph-when-off</code> and <code>.graph-when-on</code> for the two icons of the full-screen toggle; a
+        tooltip, a menu and a live region inside the graph; the panel beside it. Full screen takes the whole
+        <code>.graph-frame</code>, so the toolbar and the panel come with it. Not one line of it is script.
+    </p>
+</CatExample>
+
+<h2 id="controls">Controls <CatAnchor Id="controls" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Attribute</th><th>On</th><th>Does</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>data-graph-filter="field"</code></td><td>a chip</td><td>A checkbox, or a <code>button</code> with <code>aria-pressed</code>. Hides records with its <code>value</code> while it is off.</td></tr>
+            <tr><td><code>data-graph-filter="field"</code></td><td>a select, radios</td><td>Chooses: only records with the value stay. <code>""</code> chooses all.</td></tr>
+            <tr><td><code>data-graph-filter="edge.kind"</code></td><td>either</td><td>The same, for links.</td></tr>
+            <tr><td><code>data-graph-show="muted"</code>, <code>"isolated"</code></td><td>a checkbox, a switch, a toggle</td><td>Shows muted records, and records with no visible link.</td></tr>
+            <tr><td><code>data-graph-search</code></td><td>a text field</td><td>Marks the records that match what is typed.</td></tr>
+            <tr><td><code>data-graph-option="…"</code></td><td>a select, radios</td><td><code>labels</code>, <code>edge-labels</code>, <code>colour</code>, <code>depth</code>, and <code>layout</code>, <code>direction</code>, <code>spacing</code>, <code>nodes</code>, <code>curve</code>, <code>arrows</code>, which are on <a href="/graph-layouts">Graph layouts</a>.</td></tr>
+            <tr><td><code>data-graph-stats</code></td><td>any element</td><td>A sentence kept current: <code>{nodes}</code>, <code>{edges}</code>, <code>{matches}</code>, <code>{totalNodes}</code>, <code>{totalEdges}</code>. <code>data-graph-stats-match</code> replaces it while a search marks records.</td></tr>
+            <tr><td><code>data-graph-action="…"</code></td><td>a button</td><td><code>select</code>, <code>focus</code>, <code>unfocus</code>, <code>open</code>, <code>clear</code>, <code>hide</code>, <code>show-all</code>, <code>reset</code>, <code>zoom-in</code>, <code>zoom-out</code>, <code>fit</code>, <code>fullscreen</code>. An action on one record takes the button's <code>value</code>, else the menu's record, else the selection. The rest are on <a href="/graph-plugins">Graph plugins</a>.</td></tr>
+            <tr><td><code>data-graph-for="id"</code></td><td>a control, or an element around several</td><td>Names the graph they drive.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="filling">Markup the script fills <CatAnchor Id="filling" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Attribute</th><th>Where</th><th>Gets</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>data-graph-field="name"</code></td><td>the tooltip, the menu, the panel, a row</td><td>That field of the record, as text. Hidden when the record has none.</td></tr>
+            <tr><td><code>data-graph-icon</code></td><td>the same</td><td>The record's icon class, added to the element's own.</td></tr>
+            <tr><td><code>data-graph-tone</code></td><td>written on the tooltip and the panel</td><td>The record's tone, for the app's own styling.</td></tr>
+            <tr><td><code>data-graph-tip</code>, <code>data-graph-tip="edge"</code></td><td>inside the graph</td><td>The tooltip for records, and for links.</td></tr>
+            <tr><td><code>data-graph-menu</code></td><td>a <code>.menu</code> inside the graph</td><td>Opened on a record, or on the background.</td></tr>
+            <tr><td><code>data-graph-detail</code></td><td>in the frame, or with <code>data-graph-for</code></td><td>Shown while a record is selected.</td></tr>
+            <tr><td><code>data-graph-neighbours</code>, <code>&lt;template data-graph-neighbour&gt;</code></td><td>in the panel</td><td>One row per linked record, with <code>data-graph-direction</code> and a <code>[data-graph-link]</code> for the link's label.</td></tr>
+            <tr><td><code>data-graph-live</code></td><td>a polite live region</td><td>The sentence in <code>data-graph-announce</code> for each record the keyboard reaches, and in <code>data-graph-announce-select</code> for a selection: <code>{label}</code>, <code>{kind}</code>, <code>{meta}</code>, any field, and <code>{links}</code>.</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    A Blazor app that renders its own panel from <code>@@onsedna-graph-select</code> leaves
+    <code>data-graph-detail</code> off; <a href="/graph-blazor">Graph in Blazor</a> shows it.
+</p>
+
+<h2 id="keyboard">Keyboard <CatAnchor Id="keyboard" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Key</th><th>Pointer</th><th>Does</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><kbd class="kbd">←</kbd> <kbd class="kbd">↑</kbd> <kbd class="kbd">→</kbd> <kbd class="kbd">↓</kbd></td><td>hover</td><td>The nearest record that way: lit, named, and said.</td></tr>
+            <tr><td><kbd class="kbd">Page Down</kbd> <kbd class="kbd">Page Up</kbd></td><td>&mdash;</td><td>The next or previous record linked to this one.</td></tr>
+            <tr><td><kbd class="kbd">Home</kbd></td><td>&mdash;</td><td>The root, else the most connected record.</td></tr>
+            <tr><td><kbd class="kbd">Space</kbd></td><td>click</td><td>Select, or clear the selection.</td></tr>
+            <tr><td><kbd class="kbd">Enter</kbd></td><td>double click</td><td>Open.</td></tr>
+            <tr><td><kbd class="kbd">Shift</kbd> + <kbd class="kbd">F10</kbd>, the menu key</td><td>right click, long press</td><td>The menu.</td></tr>
+            <tr><td><kbd class="kbd">Shift</kbd> + arrows, <kbd class="kbd">+</kbd> <kbd class="kbd">−</kbd>, <kbd class="kbd">0</kbd></td><td>drag, wheel</td><td>Pan, zoom, fit.</td></tr>
+            <tr><td><kbd class="kbd">Esc</kbd></td><td>click the background</td><td>Clear the selection, then the ring.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="events">Events <CatAnchor Id="events" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Event</th><th>Detail</th><th></th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>sedna-graph-select</code></td><td>the record, or <code>{ id: null }</code></td><td></td></tr>
+            <tr><td><code>sedna-graph-hover</code></td><td>the record</td><td>Pointed at, or reached by keyboard.</td></tr>
+            <tr><td><code>sedna-graph-open</code></td><td>the record</td><td>Cancelable: cancelled, <code>data-href</code> is not followed.</td></tr>
+            <tr><td><code>sedna-graph-context</code></td><td>the record, with <code>x</code> and <code>y</code></td><td>Cancelable: cancelled, the app's menu does not open.</td></tr>
+            <tr><td><code>sedna-graph-change</code></td><td>the stats</td><td>After a filter, a search, new data or a fold.</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    They bubble from the <code>[data-graph]</code> element. A record is
+    <code>{ id, label, kind, group, cluster, parent, meta, href, tone, tags, fields, keyboard }</code>.
+</p>

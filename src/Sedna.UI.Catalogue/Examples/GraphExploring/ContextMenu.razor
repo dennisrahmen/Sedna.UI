@@ -1,0 +1,86 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <span class="text-sm text-muted">Right-click a page, or press <kbd class="kbd">Shift</kbd> + <kbd class="kbd">F10</kbd> on one.</span>
+        <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} pages"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="xp-menu" data-graph-arrows="target" aria-label="Pages of this catalogue and the pages each builds on">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="card" data-kind="structure" data-tone="2" data-href="/card" data-meta="Structure">Cards</li>
+                <li data-node="list" data-kind="structure" data-tone="2" data-href="/list" data-meta="Structure">Lists</li>
+                <li data-node="tabs" data-kind="structure" data-tone="2" data-href="/tabs" data-meta="Structure">Tabs</li>
+                <li data-node="button" data-kind="actions" data-tone="3" data-shape="diamond" data-href="/button" data-meta="Actions" data-hub>Buttons</li>
+                <li data-node="toolbar" data-kind="actions" data-tone="3" data-shape="diamond" data-href="/toolbar" data-meta="Actions">Toolbar</li>
+                <li data-node="menu" data-kind="actions" data-tone="3" data-shape="diamond" data-href="/menu" data-meta="Actions">Menus</li>
+                <li data-node="popover" data-kind="actions" data-tone="3" data-shape="diamond" data-href="/popover" data-meta="Actions">Popovers</li>
+                <li data-node="drag-drop" data-kind="actions" data-tone="3" data-shape="diamond" data-href="/drag-drop" data-meta="Actions">Drag and drop</li>
+                <li data-node="form-text" data-kind="forms" data-tone="4" data-shape="square" data-href="/form-text" data-meta="Forms">Text fields</li>
+                <li data-node="form-select" data-kind="forms" data-tone="4" data-shape="square" data-href="/form-select" data-meta="Forms">Selects</li>
+                <li data-node="segmented" data-kind="forms" data-tone="4" data-shape="square" data-href="/segmented" data-meta="Forms">Segmented control</li>
+                <li data-node="table" data-kind="data" data-tone="5" data-shape="star" data-href="/table" data-meta="Data">Tables</li>
+                <li data-node="pager" data-kind="data" data-tone="5" data-shape="star" data-href="/pager" data-meta="Data">Pagination</li>
+                <li data-node="graph" data-kind="data" data-tone="5" data-shape="star" data-href="/graph" data-meta="Data" data-hub>Graph</li>
+                <li data-node="graph-exploring" data-kind="data" data-tone="5" data-shape="star" data-href="/graph-exploring" data-meta="Data">Exploring a graph</li>
+                <li data-node="graph-plugins" data-kind="data" data-tone="5" data-shape="star" data-href="/graph-plugins" data-meta="Data">Graph plugins</li>
+                <li data-node="chip" data-kind="labels" data-tone="6" data-shape="tag" data-href="/chip" data-meta="Labels">Chips</li>
+                <li data-node="badge" data-kind="labels" data-tone="6" data-shape="tag" data-href="/badge" data-meta="Labels">Badges</li>
+                <li data-node="modal" data-kind="overlays" data-tone="1" data-shape="rounded" data-href="/modal" data-meta="Overlays">Modal</li>
+                <li data-node="drawer" data-kind="overlays" data-tone="1" data-shape="rounded" data-href="/drawer" data-meta="Overlays">Drawers and sheets</li>
+                <li data-node="empty-state" data-kind="feedback" data-tone="info" data-shape="triangle" data-href="/empty-state" data-meta="Feedback">Empty states</li>
+                <li data-node="skeleton" data-kind="feedback" data-tone="info" data-shape="triangle" data-href="/skeleton" data-meta="Feedback">Skeletons</li>
+
+                <li data-edge data-source="toolbar" data-target="button" data-label="builds on">Toolbar builds on Buttons</li>
+                <li data-edge data-source="toolbar" data-target="chip" data-label="builds on">Toolbar builds on Chips</li>
+                <li data-edge data-source="toolbar" data-target="form-select" data-label="builds on">Toolbar builds on Selects</li>
+                <li data-edge data-source="toolbar" data-target="form-text" data-label="builds on">Toolbar builds on Text fields</li>
+                <li data-edge data-source="toolbar" data-target="segmented" data-label="builds on">Toolbar builds on Segmented control</li>
+                <li data-edge data-source="menu" data-target="button" data-label="builds on">Menus build on Buttons</li>
+                <li data-edge data-source="popover" data-target="button" data-label="builds on">Popovers build on Buttons</li>
+                <li data-edge data-source="pager" data-target="button" data-label="builds on">Pagination builds on Buttons</li>
+                <li data-edge data-source="table" data-target="toolbar" data-label="builds on">Tables build on Toolbar</li>
+                <li data-edge data-source="table" data-target="pager" data-label="builds on">Tables build on Pagination</li>
+                <li data-edge data-source="table" data-target="empty-state" data-label="builds on">Tables build on Empty states</li>
+                <li data-edge data-source="table" data-target="skeleton" data-label="builds on">Tables build on Skeletons</li>
+                <li data-edge data-source="table" data-target="badge" data-label="builds on">Tables build on Badges</li>
+                <li data-edge data-source="list" data-target="empty-state" data-label="builds on">Lists build on Empty states</li>
+                <li data-edge data-source="tabs" data-target="card" data-label="builds on">Tabs build on Cards</li>
+                <li data-edge data-source="modal" data-target="button" data-label="builds on">Modal builds on Buttons</li>
+                <li data-edge data-source="drawer" data-target="button" data-label="builds on">Drawers build on Buttons</li>
+                <li data-edge data-source="drawer" data-target="list" data-label="builds on">Drawers build on Lists</li>
+                <li data-edge data-source="drag-drop" data-target="list" data-label="builds on">Drag and drop builds on Lists</li>
+                <li data-edge data-source="drag-drop" data-target="card" data-label="builds on">Drag and drop builds on Cards</li>
+                <li data-edge data-source="graph" data-target="card" data-label="builds on">Graph builds on Cards</li>
+                <li data-edge data-source="graph" data-target="toolbar" data-label="builds on">Graph builds on Toolbar</li>
+                <li data-edge data-source="graph" data-target="skeleton" data-label="builds on">Graph builds on Skeletons</li>
+                <li data-edge data-source="graph" data-target="empty-state" data-label="builds on">Graph builds on Empty states</li>
+                <li data-edge data-source="graph-exploring" data-target="graph" data-label="builds on">Exploring a graph builds on Graph</li>
+                <li data-edge data-source="graph-exploring" data-target="chip" data-label="builds on">Exploring a graph builds on Chips</li>
+                <li data-edge data-source="graph-exploring" data-target="menu" data-label="builds on">Exploring a graph builds on Menus</li>
+                <li data-edge data-source="graph-exploring" data-target="list" data-label="builds on">Exploring a graph builds on Lists</li>
+                <li data-edge data-source="graph-exploring" data-target="segmented" data-label="builds on">Exploring a graph builds on Segmented control</li>
+                <li data-edge data-source="graph-plugins" data-target="graph" data-label="builds on">Graph plugins build on Graph</li>
+                <li data-edge data-source="graph-plugins" data-target="button" data-label="builds on">Graph plugins build on Buttons</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="menu graph-menu" data-graph-menu role="menu" hidden>
+                <span class="menu-label" data-graph-field="label"></span>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="open"><i class="ri-external-link-line"></i> Open the page</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Show its neighbourhood</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="hide"><i class="ri-eye-off-line"></i> Hide it</button>
+                <span class="menu-label">The whole map</span>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> Show the whole map</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="show-all"><i class="ri-eye-line"></i> Show hidden pages</button>
+            </div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch series-2"></span> Structure</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-3"></span> Actions</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-4"></span> Forms</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--star series-5"></span> Data</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--tag series-6"></span> Labels</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-1"></span> Overlays</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--triangle series-info"></span> Feedback</span>
+    </div>
+</div>

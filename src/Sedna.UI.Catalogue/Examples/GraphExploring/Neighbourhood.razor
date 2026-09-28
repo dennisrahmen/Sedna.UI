@@ -1,0 +1,97 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <div class="segmented segmented--sm" role="group" aria-label="How far to reach">
+                <label class="segmented-option"><input type="radio" name="xp-reach" data-graph-option="depth" value="1" checked /> 1 step</label>
+                <label class="segmented-option"><input type="radio" name="xp-reach" data-graph-option="depth" value="2" /> 2 steps</label>
+                <label class="segmented-option"><input type="radio" name="xp-reach" data-graph-option="depth" value="3" /> 3 steps</label>
+            </div>
+            <button class="btn btn-sm" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> Every package</button>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} packages"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="xp-reach" data-graph-focus="checkout-ui" data-graph-focus-depth="1"
+             data-graph-arrows="target" aria-label="Packages of the web shop and what each depends on">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="web-shop" data-kind="application" data-tone="2" data-shape="square" data-meta="Application" data-hub>web-shop</li>
+                <li data-node="admin-console" data-kind="application" data-tone="2" data-shape="square" data-meta="Application" data-hub>admin-console</li>
+                <li data-node="mobile-web" data-kind="application" data-tone="2" data-shape="square" data-meta="Application">mobile-web</li>
+                <li data-node="checkout-ui" data-kind="feature" data-tone="3" data-meta="Feature package">checkout-ui</li>
+                <li data-node="catalogue-ui" data-kind="feature" data-tone="3" data-meta="Feature package">catalogue-ui</li>
+                <li data-node="account-ui" data-kind="feature" data-tone="3" data-meta="Feature package">account-ui</li>
+                <li data-node="ui-kit" data-kind="ui" data-tone="5" data-shape="diamond" data-meta="Shared interface">ui-kit</li>
+                <li data-node="form-kit" data-kind="ui" data-tone="5" data-shape="diamond" data-meta="Shared interface">form-kit</li>
+                <li data-node="charts" data-kind="ui" data-tone="5" data-shape="diamond" data-meta="Shared interface">charts</li>
+                <li data-node="design-tokens" data-kind="ui" data-tone="5" data-shape="diamond" data-meta="Shared interface">design-tokens</li>
+                <li data-node="http-client" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">http-client</li>
+                <li data-node="auth-client" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">auth-client</li>
+                <li data-node="api-schema" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">api-schema</li>
+                <li data-node="i18n" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">i18n</li>
+                <li data-node="money" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">money</li>
+                <li data-node="date-utils" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">date-utils</li>
+                <li data-node="analytics" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">analytics</li>
+                <li data-node="feature-flags" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">feature-flags</li>
+                <li data-node="logging" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">logging</li>
+                <li data-node="config" data-kind="library" data-tone="6" data-shape="hexagon" data-meta="Library">config</li>
+
+                <li data-edge data-source="web-shop" data-target="checkout-ui" data-label="depends on">web-shop depends on checkout-ui</li>
+                <li data-edge data-source="web-shop" data-target="catalogue-ui" data-label="depends on">web-shop depends on catalogue-ui</li>
+                <li data-edge data-source="web-shop" data-target="account-ui" data-label="depends on">web-shop depends on account-ui</li>
+                <li data-edge data-source="web-shop" data-target="ui-kit" data-label="depends on">web-shop depends on ui-kit</li>
+                <li data-edge data-source="web-shop" data-target="analytics" data-label="depends on">web-shop depends on analytics</li>
+                <li data-edge data-source="web-shop" data-target="feature-flags" data-label="depends on">web-shop depends on feature-flags</li>
+                <li data-edge data-source="mobile-web" data-target="checkout-ui" data-label="depends on">mobile-web depends on checkout-ui</li>
+                <li data-edge data-source="mobile-web" data-target="catalogue-ui" data-label="depends on">mobile-web depends on catalogue-ui</li>
+                <li data-edge data-source="mobile-web" data-target="ui-kit" data-label="depends on">mobile-web depends on ui-kit</li>
+                <li data-edge data-source="admin-console" data-target="ui-kit" data-label="depends on">admin-console depends on ui-kit</li>
+                <li data-edge data-source="admin-console" data-target="form-kit" data-label="depends on">admin-console depends on form-kit</li>
+                <li data-edge data-source="admin-console" data-target="charts" data-label="depends on">admin-console depends on charts</li>
+                <li data-edge data-source="admin-console" data-target="auth-client" data-label="depends on">admin-console depends on auth-client</li>
+                <li data-edge data-source="checkout-ui" data-target="ui-kit" data-label="depends on">checkout-ui depends on ui-kit</li>
+                <li data-edge data-source="checkout-ui" data-target="form-kit" data-label="depends on">checkout-ui depends on form-kit</li>
+                <li data-edge data-source="checkout-ui" data-target="http-client" data-label="depends on">checkout-ui depends on http-client</li>
+                <li data-edge data-source="checkout-ui" data-target="money" data-label="depends on">checkout-ui depends on money</li>
+                <li data-edge data-source="checkout-ui" data-target="analytics" data-label="depends on">checkout-ui depends on analytics</li>
+                <li data-edge data-source="catalogue-ui" data-target="ui-kit" data-label="depends on">catalogue-ui depends on ui-kit</li>
+                <li data-edge data-source="catalogue-ui" data-target="http-client" data-label="depends on">catalogue-ui depends on http-client</li>
+                <li data-edge data-source="catalogue-ui" data-target="money" data-label="depends on">catalogue-ui depends on money</li>
+                <li data-edge data-source="account-ui" data-target="form-kit" data-label="depends on">account-ui depends on form-kit</li>
+                <li data-edge data-source="account-ui" data-target="auth-client" data-label="depends on">account-ui depends on auth-client</li>
+                <li data-edge data-source="ui-kit" data-target="design-tokens" data-label="depends on">ui-kit depends on design-tokens</li>
+                <li data-edge data-source="ui-kit" data-target="i18n" data-label="depends on">ui-kit depends on i18n</li>
+                <li data-edge data-source="form-kit" data-target="ui-kit" data-label="depends on">form-kit depends on ui-kit</li>
+                <li data-edge data-source="form-kit" data-target="date-utils" data-label="depends on">form-kit depends on date-utils</li>
+                <li data-edge data-source="charts" data-target="design-tokens" data-label="depends on">charts depends on design-tokens</li>
+                <li data-edge data-source="charts" data-target="date-utils" data-label="depends on">charts depends on date-utils</li>
+                <li data-edge data-source="http-client" data-target="api-schema" data-label="depends on">http-client depends on api-schema</li>
+                <li data-edge data-source="http-client" data-target="auth-client" data-label="depends on">http-client depends on auth-client</li>
+                <li data-edge data-source="http-client" data-target="logging" data-label="depends on">http-client depends on logging</li>
+                <li data-edge data-source="auth-client" data-target="config" data-label="depends on">auth-client depends on config</li>
+                <li data-edge data-source="auth-client" data-target="logging" data-label="depends on">auth-client depends on logging</li>
+                <li data-edge data-source="analytics" data-target="config" data-label="depends on">analytics depends on config</li>
+                <li data-edge data-source="feature-flags" data-target="http-client" data-label="depends on">feature-flags depends on http-client</li>
+                <li data-edge data-source="feature-flags" data-target="config" data-label="depends on">feature-flags depends on config</li>
+                <li data-edge data-source="money" data-target="i18n" data-label="depends on">money depends on i18n</li>
+                <li data-edge data-source="date-utils" data-target="i18n" data-label="depends on">date-utils depends on i18n</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-tools" role="toolbar" aria-label="View">
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+            </div>
+            <div class="menu graph-menu" data-graph-menu role="menu" hidden>
+                <span class="menu-label" data-graph-field="label"></span>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Show what it touches</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> Show every package</button>
+            </div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-2"></span> Application</span>
+        <span class="graph-key"><span class="graph-swatch series-3"></span> Feature package</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-5"></span> Shared interface</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-6"></span> Library</span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow"></span> Depends on</span>
+    </div>
+</div>

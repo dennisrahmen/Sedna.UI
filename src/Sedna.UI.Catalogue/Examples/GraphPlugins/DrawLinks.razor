@@ -1,0 +1,60 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <span class="text-sm text-muted">Turn drawing on, then drag from one record to another.</span>
+        <span class="toolbar-count" data-graph-stats="{edges} feeds between {nodes} records"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="pl-draw" data-graph-managed data-graph-arrows="target"
+             aria-label="Where the sales reports get their data">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="orders-db" data-kind="source" data-tone="4" data-shape="square" data-icon="ri-database-2-line" data-meta="Source">Orders database</li>
+                <li data-node="clickstream" data-kind="source" data-tone="4" data-shape="square" data-icon="ri-cursor-line" data-meta="Source">Web analytics</li>
+                <li data-node="crm" data-kind="source" data-tone="4" data-shape="square" data-icon="ri-contacts-book-line" data-meta="Source">Customer export</li>
+                <li data-node="stock-feed" data-kind="source" data-tone="4" data-shape="square" data-icon="ri-archive-stack-line" data-meta="Source">Stock feed</li>
+                <li data-node="nightly-load" data-kind="job" data-tone="5" data-shape="diamond" data-icon="ri-timer-line" data-meta="Runs at 02:00">Nightly load</li>
+                <li data-node="click-job" data-kind="job" data-tone="5" data-shape="diamond" data-icon="ri-timer-line" data-meta="Runs hourly">Clickstream job</li>
+                <li data-node="stock-sync" data-kind="job" data-tone="5" data-shape="diamond" data-icon="ri-timer-line" data-meta="Runs every 15 minutes">Stock sync</li>
+                <li data-node="sales" data-kind="table" data-tone="2" data-icon="ri-table-line" data-meta="Table">Sales facts</li>
+                <li data-node="customers" data-kind="table" data-tone="2" data-icon="ri-table-line" data-meta="Table">Customer table</li>
+                <li data-node="products" data-kind="table" data-tone="2" data-icon="ri-table-line" data-meta="Table">Product table</li>
+                <li data-node="visits" data-kind="table" data-tone="2" data-icon="ri-table-line" data-meta="Table">Visits</li>
+                <li data-node="stock" data-kind="table" data-tone="2" data-icon="ri-table-line" data-meta="Table">Stock snapshot</li>
+                <li data-node="weekly-sales" data-kind="report" data-tone="3" data-shape="triangle" data-icon="ri-bar-chart-2-line" data-meta="Report">Weekly sales</li>
+                <li data-node="margin" data-kind="report" data-tone="3" data-shape="triangle" data-icon="ri-bar-chart-2-line" data-meta="Report">Margin by category</li>
+                <li data-node="stock-cover" data-kind="report" data-tone="3" data-shape="triangle" data-icon="ri-bar-chart-2-line" data-meta="Report">Stock cover</li>
+                <li data-node="campaigns" data-kind="report" data-tone="3" data-shape="triangle" data-icon="ri-bar-chart-2-line" data-meta="Report, no data yet" data-hub>Campaign results</li>
+
+                <li data-edge data-source="orders-db" data-target="nightly-load" data-label="feeds">The orders database feeds the nightly load</li>
+                <li data-edge data-source="crm" data-target="nightly-load" data-label="feeds">The customer export feeds the nightly load</li>
+                <li data-edge data-source="nightly-load" data-target="sales" data-label="fills">The nightly load fills the sales facts</li>
+                <li data-edge data-source="nightly-load" data-target="customers" data-label="fills">The nightly load fills the customer table</li>
+                <li data-edge data-source="nightly-load" data-target="products" data-label="fills">The nightly load fills the product table</li>
+                <li data-edge data-source="clickstream" data-target="click-job" data-label="feeds">Web analytics feeds the clickstream job</li>
+                <li data-edge data-source="click-job" data-target="visits" data-label="fills">The clickstream job fills the visits</li>
+                <li data-edge data-source="stock-feed" data-target="stock-sync" data-label="feeds">The stock feed feeds the stock sync</li>
+                <li data-edge data-source="stock-sync" data-target="stock" data-label="fills">The stock sync fills the stock snapshot</li>
+                <li data-edge data-source="sales" data-target="weekly-sales" data-label="feeds">The sales facts feed weekly sales</li>
+                <li data-edge data-source="sales" data-target="margin" data-label="feeds">The sales facts feed margin by category</li>
+                <li data-edge data-source="products" data-target="margin" data-label="feeds">The product table feeds margin by category</li>
+                <li data-edge data-source="stock" data-target="stock-cover" data-label="feeds">The stock snapshot feeds stock cover</li>
+                <li data-edge data-source="sales" data-target="stock-cover" data-label="feeds">The sales facts feed stock cover</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-tools" role="toolbar" aria-label="Drawing">
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="connect" aria-pressed="false" aria-label="Draw links" data-tip="Draw links">
+                    <i class="ri-link graph-when-off"></i><i class="ri-check-line graph-when-on"></i>
+                </button>
+                <span class="graph-tools-sep"></span>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+            </div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-4"></span> Source</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-5"></span> Job</span>
+        <span class="graph-key"><span class="graph-swatch series-2"></span> Table</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--triangle series-3"></span> Report</span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow"></span> Feeds</span>
+    </div>
+</div>

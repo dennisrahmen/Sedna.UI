@@ -1,0 +1,69 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <input class="form-input form-input-sm toolbar-input toolbar-input--wide" type="search" data-graph-search
+                   placeholder="Search the help centre, e.g. refund" aria-label="Search the help centre" />
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} articles and topics" data-graph-stats-match="{matches} of {nodes} match"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="xp-search" aria-label="Help-centre articles and the topics they are filed under">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="accounts" data-kind="topic" data-tone="3" data-shape="star" data-meta="Topic" data-hub>Accounts</li>
+                <li data-node="billing" data-kind="topic" data-tone="3" data-shape="star" data-meta="Topic" data-hub>Billing</li>
+                <li data-node="security" data-kind="topic" data-tone="3" data-shape="star" data-meta="Topic" data-hub>Security</li>
+                <li data-node="orders" data-kind="topic" data-tone="3" data-shape="star" data-meta="Topic" data-hub>Orders</li>
+                <li data-node="delivery" data-kind="topic" data-tone="3" data-shape="star" data-meta="Topic" data-hub>Delivery</li>
+
+                <li data-node="reset-password" data-kind="article" data-tone="4" data-tags="password login sign-in" data-meta="Article · 2 min read">Reset your password</li>
+                <li data-node="two-step" data-kind="article" data-tone="4" data-tags="mfa login code authenticator" data-meta="Article · 4 min read">Turn on two-step sign-in</li>
+                <li data-node="two-step-video" data-kind="video" data-tone="5" data-shape="tag" data-tags="mfa login code authenticator" data-meta="Video · 3 minutes">Setting up two-step sign-in</li>
+                <li data-node="change-email" data-kind="article" data-tone="4" data-tags="email profile login" data-meta="Article · 2 min read">Change the e-mail address on an account</li>
+                <li data-node="close-account" data-kind="article" data-tone="4" data-tags="delete privacy data" data-meta="Article · 3 min read">Close an account</li>
+                <li data-node="phishing" data-kind="article" data-tone="4" data-tags="email scam fraud" data-meta="Article · 5 min read">Spot a phishing e-mail</li>
+                <li data-node="invoice" data-kind="article" data-tone="4" data-tags="invoice pdf receipt vat" data-meta="Article · 1 min read">Download an invoice</li>
+                <li data-node="card" data-kind="article" data-tone="4" data-tags="card payment expiry" data-meta="Article · 2 min read">Update a payment card</li>
+                <li data-node="charged-twice" data-kind="article" data-tone="4" data-tags="refund charge payment pending" data-meta="Article · 3 min read">Why was I charged twice?</li>
+                <li data-node="refund" data-kind="article" data-tone="4" data-tags="refund return money" data-meta="Article · 3 min read">Request a refund</li>
+                <li data-node="cancel" data-kind="article" data-tone="4" data-tags="cancel order refund" data-meta="Article · 2 min read">Cancel an order</li>
+                <li data-node="return" data-kind="article" data-tone="4" data-tags="return refund label parcel" data-meta="Article · 4 min read">Return an item</li>
+                <li data-node="return-video" data-kind="video" data-tone="5" data-shape="tag" data-tags="return label parcel" data-meta="Video · 2 minutes">Printing a return label</li>
+                <li data-node="track" data-kind="article" data-tone="4" data-tags="tracking parcel carrier late" data-meta="Article · 2 min read">Track a parcel</li>
+                <li data-node="address" data-kind="article" data-tone="4" data-tags="address delivery move" data-meta="Article · 2 min read">Change a delivery address</li>
+                <li data-node="missing" data-kind="article" data-tone="4" data-tags="parcel lost late refund" data-meta="Article · 3 min read">A parcel has not arrived</li>
+
+                <li data-edge data-source="reset-password" data-target="accounts" data-label="filed under">Reset your password is filed under Accounts</li>
+                <li data-edge data-source="reset-password" data-target="security" data-label="filed under">Reset your password is filed under Security</li>
+                <li data-edge data-source="two-step" data-target="security" data-label="filed under">Turn on two-step sign-in is filed under Security</li>
+                <li data-edge data-source="two-step-video" data-target="two-step" data-label="shows">The video shows how to turn on two-step sign-in</li>
+                <li data-edge data-source="change-email" data-target="accounts" data-label="filed under">Change the e-mail address is filed under Accounts</li>
+                <li data-edge data-source="close-account" data-target="accounts" data-label="filed under">Close an account is filed under Accounts</li>
+                <li data-edge data-source="phishing" data-target="security" data-label="filed under">Spot a phishing e-mail is filed under Security</li>
+                <li data-edge data-source="invoice" data-target="billing" data-label="filed under">Download an invoice is filed under Billing</li>
+                <li data-edge data-source="card" data-target="billing" data-label="filed under">Update a payment card is filed under Billing</li>
+                <li data-edge data-source="charged-twice" data-target="billing" data-label="filed under">Why was I charged twice is filed under Billing</li>
+                <li data-edge data-source="refund" data-target="billing" data-label="filed under">Request a refund is filed under Billing</li>
+                <li data-edge data-source="refund" data-target="orders" data-label="filed under">Request a refund is filed under Orders</li>
+                <li data-edge data-source="cancel" data-target="orders" data-label="filed under">Cancel an order is filed under Orders</li>
+                <li data-edge data-source="return" data-target="orders" data-label="filed under">Return an item is filed under Orders</li>
+                <li data-edge data-source="return" data-target="delivery" data-label="filed under">Return an item is filed under Delivery</li>
+                <li data-edge data-source="return-video" data-target="return" data-label="shows">The video shows how to print a return label</li>
+                <li data-edge data-source="track" data-target="delivery" data-label="filed under">Track a parcel is filed under Delivery</li>
+                <li data-edge data-source="address" data-target="delivery" data-label="filed under">Change a delivery address is filed under Delivery</li>
+                <li data-edge data-source="address" data-target="orders" data-label="filed under">Change a delivery address is filed under Orders</li>
+                <li data-edge data-source="missing" data-target="delivery" data-label="filed under">A parcel has not arrived is filed under Delivery</li>
+                <li data-edge data-source="charged-twice" data-target="refund" data-label="see also" data-line="dashed">Why was I charged twice points to Request a refund</li>
+                <li data-edge data-source="missing" data-target="track" data-label="see also" data-line="dashed">A parcel has not arrived points to Track a parcel</li>
+                <li data-edge data-source="phishing" data-target="two-step" data-label="see also" data-line="dashed">Spot a phishing e-mail points to Turn on two-step sign-in</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--star series-3"></span> Topic</span>
+        <span class="graph-key"><span class="graph-swatch series-4"></span> Article</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--tag series-5"></span> Video</span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed"></span> See also</span>
+    </div>
+</div>

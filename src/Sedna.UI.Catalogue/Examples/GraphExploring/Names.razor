@@ -1,0 +1,104 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <div class="segmented segmented--sm" role="group" aria-label="Station names">
+                <label class="segmented-option"><input type="radio" name="xp-names" data-graph-option="labels" value="auto" checked /> Where they fit</label>
+                <label class="segmented-option"><input type="radio" name="xp-names" data-graph-option="labels" value="all" /> Every one</label>
+                <label class="segmented-option"><input type="radio" name="xp-names" data-graph-option="labels" value="none" /> None</label>
+            </div>
+            <div class="segmented segmented--sm" role="group" aria-label="Line names">
+                <label class="segmented-option"><input type="radio" name="xp-line-names" data-graph-option="edge-labels" value="hover" checked /> On hover</label>
+                <label class="segmented-option"><input type="radio" name="xp-line-names" data-graph-option="edge-labels" value="always" /> Always</label>
+                <label class="segmented-option"><input type="radio" name="xp-line-names" data-graph-option="edge-labels" value="none" /> Never</label>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="graph graph--lg" data-graph id="xp-names" aria-label="The city's rail and tram network">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="seafront" data-tone="muted" data-meta="Harbour line">Seafront</li>
+                <li data-node="harbour" data-tone="muted" data-meta="Harbour line">Harbour</li>
+                <li data-node="fish-market" data-tone="1" data-shape="rounded" data-meta="Change for the Harbour line and Circle line" data-hub>Fish Market</li>
+                <li data-node="old-town" data-tone="1" data-shape="rounded" data-meta="Change for the Harbour line, Airport line and Tram" data-hub>Old Town</li>
+                <li data-node="central" data-tone="1" data-shape="rounded" data-meta="Change for the Harbour line, University line and Tram" data-hub>Central</li>
+                <li data-node="museum-quarter" data-tone="muted" data-meta="Harbour line">Museum Quarter</li>
+                <li data-node="parkway" data-tone="1" data-shape="rounded" data-meta="Change for the Harbour line and Circle line" data-hub>Parkway</li>
+                <li data-node="hilltop" data-tone="muted" data-meta="Harbour line">Hilltop</li>
+                <li data-node="north-gate" data-tone="muted" data-meta="University line">North Gate</li>
+                <li data-node="university" data-tone="1" data-shape="rounded" data-meta="Change for the University line and Tram" data-hub>University</li>
+                <li data-node="botanic-garden" data-tone="1" data-shape="rounded" data-meta="Change for the University line and Circle line" data-hub>Botanic Garden</li>
+                <li data-node="market-square" data-tone="1" data-shape="rounded" data-meta="Change for the University line and Airport line" data-hub>Market Square</li>
+                <li data-node="stadium" data-tone="1" data-shape="rounded" data-meta="Change for the University line and Circle line" data-hub>Stadium</li>
+                <li data-node="south-park" data-tone="muted" data-meta="University line">South Park</li>
+                <li data-node="airport" data-tone="muted" data-meta="Airport line">Airport</li>
+                <li data-node="exhibition" data-tone="muted" data-meta="Airport line">Exhibition</li>
+                <li data-node="canal-street" data-tone="1" data-shape="rounded" data-meta="Change for the Airport line and Circle line" data-hub>Canal Street</li>
+                <li data-node="mill-lane" data-tone="muted" data-meta="Airport line">Mill Lane</li>
+                <li data-node="riverside" data-tone="1" data-shape="rounded" data-meta="Change for the Airport line and Circle line" data-hub>Riverside</li>
+                <li data-node="east-end" data-tone="muted" data-meta="Airport line">East End</li>
+                <li data-node="lighthouse" data-tone="muted" data-meta="Harbour line">Lighthouse</li>
+                <li data-node="observatory" data-tone="muted" data-meta="Harbour line">Observatory</li>
+                <li data-node="science-park" data-tone="muted" data-meta="University line">Science Park</li>
+                <li data-node="racecourse" data-tone="muted" data-meta="University line">Racecourse</li>
+                <li data-node="cargo-terminal" data-tone="muted" data-meta="Airport line">Cargo Terminal</li>
+                <li data-node="docklands" data-tone="muted" data-meta="Airport line">Docklands</li>
+                <li data-node="cathedral" data-tone="muted" data-meta="Tram">Cathedral</li>
+                <li data-node="town-hall" data-tone="muted" data-meta="Tram">Town Hall</li>
+                <li data-node="library" data-tone="muted" data-meta="Tram">Library</li>
+
+                <li data-edge data-source="lighthouse" data-target="seafront" data-kind="harbour" data-tone="2" data-weight="heavy" data-label="Harbour line">The Harbour line runs from Lighthouse to Seafront</li>
+                <li data-edge data-source="seafront" data-target="harbour" data-kind="harbour" data-tone="2" data-weight="heavy" data-label="Harbour line">The Harbour line runs from Seafront to Harbour</li>
+                <li data-edge data-source="harbour" data-target="fish-market" data-kind="harbour" data-tone="2" data-weight="heavy" data-label="Harbour line">The Harbour line runs from Harbour to Fish Market</li>
+                <li data-edge data-source="fish-market" data-target="old-town" data-kind="harbour" data-tone="2" data-weight="heavy" data-label="Harbour line">The Harbour line runs from Fish Market to Old Town</li>
+                <li data-edge data-source="old-town" data-target="central" data-kind="harbour" data-tone="2" data-weight="heavy" data-label="Harbour line">The Harbour line runs from Old Town to Central</li>
+                <li data-edge data-source="central" data-target="museum-quarter" data-kind="harbour" data-tone="2" data-weight="heavy" data-label="Harbour line">The Harbour line runs from Central to Museum Quarter</li>
+                <li data-edge data-source="museum-quarter" data-target="parkway" data-kind="harbour" data-tone="2" data-weight="heavy" data-label="Harbour line">The Harbour line runs from Museum Quarter to Parkway</li>
+                <li data-edge data-source="parkway" data-target="hilltop" data-kind="harbour" data-tone="2" data-weight="heavy" data-label="Harbour line">The Harbour line runs from Parkway to Hilltop</li>
+                <li data-edge data-source="hilltop" data-target="observatory" data-kind="harbour" data-tone="2" data-weight="heavy" data-label="Harbour line">The Harbour line runs from Hilltop to Observatory</li>
+                <li data-edge data-source="science-park" data-target="north-gate" data-kind="university" data-tone="3" data-weight="heavy" data-label="University line">The University line runs from Science Park to North Gate</li>
+                <li data-edge data-source="north-gate" data-target="university" data-kind="university" data-tone="3" data-weight="heavy" data-label="University line">The University line runs from North Gate to University</li>
+                <li data-edge data-source="university" data-target="botanic-garden" data-kind="university" data-tone="3" data-weight="heavy" data-label="University line">The University line runs from University to Botanic Garden</li>
+                <li data-edge data-source="botanic-garden" data-target="central" data-kind="university" data-tone="3" data-weight="heavy" data-label="University line">The University line runs from Botanic Garden to Central</li>
+                <li data-edge data-source="central" data-target="market-square" data-kind="university" data-tone="3" data-weight="heavy" data-label="University line">The University line runs from Central to Market Square</li>
+                <li data-edge data-source="market-square" data-target="stadium" data-kind="university" data-tone="3" data-weight="heavy" data-label="University line">The University line runs from Market Square to Stadium</li>
+                <li data-edge data-source="stadium" data-target="south-park" data-kind="university" data-tone="3" data-weight="heavy" data-label="University line">The University line runs from Stadium to South Park</li>
+                <li data-edge data-source="south-park" data-target="racecourse" data-kind="university" data-tone="3" data-weight="heavy" data-label="University line">The University line runs from South Park to Racecourse</li>
+                <li data-edge data-source="cargo-terminal" data-target="airport" data-kind="airport" data-tone="4" data-weight="heavy" data-label="Airport line">The Airport line runs from Cargo Terminal to Airport</li>
+                <li data-edge data-source="airport" data-target="exhibition" data-kind="airport" data-tone="4" data-weight="heavy" data-label="Airport line">The Airport line runs from Airport to Exhibition</li>
+                <li data-edge data-source="exhibition" data-target="canal-street" data-kind="airport" data-tone="4" data-weight="heavy" data-label="Airport line">The Airport line runs from Exhibition to Canal Street</li>
+                <li data-edge data-source="canal-street" data-target="market-square" data-kind="airport" data-tone="4" data-weight="heavy" data-label="Airport line">The Airport line runs from Canal Street to Market Square</li>
+                <li data-edge data-source="market-square" data-target="old-town" data-kind="airport" data-tone="4" data-weight="heavy" data-label="Airport line">The Airport line runs from Market Square to Old Town</li>
+                <li data-edge data-source="old-town" data-target="mill-lane" data-kind="airport" data-tone="4" data-weight="heavy" data-label="Airport line">The Airport line runs from Old Town to Mill Lane</li>
+                <li data-edge data-source="mill-lane" data-target="riverside" data-kind="airport" data-tone="4" data-weight="heavy" data-label="Airport line">The Airport line runs from Mill Lane to Riverside</li>
+                <li data-edge data-source="riverside" data-target="east-end" data-kind="airport" data-tone="4" data-weight="heavy" data-label="Airport line">The Airport line runs from Riverside to East End</li>
+                <li data-edge data-source="east-end" data-target="docklands" data-kind="airport" data-tone="4" data-weight="heavy" data-label="Airport line">The Airport line runs from East End to Docklands</li>
+                <li data-edge data-source="old-town" data-target="cathedral" data-kind="tram" data-tone="6" data-weight="heavy" data-label="Tram">The Tram runs from Old Town to Cathedral</li>
+                <li data-edge data-source="cathedral" data-target="town-hall" data-kind="tram" data-tone="6" data-weight="heavy" data-label="Tram">The Tram runs from Cathedral to Town Hall</li>
+                <li data-edge data-source="town-hall" data-target="central" data-kind="tram" data-tone="6" data-weight="heavy" data-label="Tram">The Tram runs from Town Hall to Central</li>
+                <li data-edge data-source="central" data-target="library" data-kind="tram" data-tone="6" data-weight="heavy" data-label="Tram">The Tram runs from Central to Library</li>
+                <li data-edge data-source="library" data-target="university" data-kind="tram" data-tone="6" data-weight="heavy" data-label="Tram">The Tram runs from Library to University</li>
+                <li data-edge data-source="fish-market" data-target="canal-street" data-kind="circle" data-tone="5" data-weight="heavy" data-label="Circle line">The Circle line runs from Fish Market to Canal Street</li>
+                <li data-edge data-source="canal-street" data-target="stadium" data-kind="circle" data-tone="5" data-weight="heavy" data-label="Circle line">The Circle line runs from Canal Street to Stadium</li>
+                <li data-edge data-source="stadium" data-target="riverside" data-kind="circle" data-tone="5" data-weight="heavy" data-label="Circle line">The Circle line runs from Stadium to Riverside</li>
+                <li data-edge data-source="riverside" data-target="parkway" data-kind="circle" data-tone="5" data-weight="heavy" data-label="Circle line">The Circle line runs from Riverside to Parkway</li>
+                <li data-edge data-source="parkway" data-target="botanic-garden" data-kind="circle" data-tone="5" data-weight="heavy" data-label="Circle line">The Circle line runs from Parkway to Botanic Garden</li>
+                <li data-edge data-source="botanic-garden" data-target="fish-market" data-kind="circle" data-tone="5" data-weight="heavy" data-label="Circle line">The Circle line runs from Botanic Garden to Fish Market</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-tools" role="toolbar" aria-label="View">
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+            </div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-line graph-line--heavy series-2"></span> Harbour line</span>
+        <span class="graph-key"><span class="graph-line graph-line--heavy series-3"></span> University line</span>
+        <span class="graph-key"><span class="graph-line graph-line--heavy series-4"></span> Airport line</span>
+        <span class="graph-key"><span class="graph-line graph-line--heavy series-5"></span> Circle line</span>
+        <span class="graph-key"><span class="graph-line graph-line--heavy series-6"></span> Tram</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-1"></span> Change here</span>
+    </div>
+</div>

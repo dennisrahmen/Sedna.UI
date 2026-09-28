@@ -1,0 +1,142 @@
+<div class="graph-frame" data-graph-frame style="--graph-height: 34rem">
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <input class="form-input form-input-sm toolbar-input" type="search" data-graph-search placeholder="Find a service or host" aria-label="Find a service or host" />
+            <select class="form-select form-select-sm toolbar-input" data-graph-filter="team" aria-label="Team">
+                <option value="" selected>Every team</option>
+                <option value="Checkout">Checkout</option>
+                <option value="Catalogue">Catalogue</option>
+                <option value="Fulfilment">Fulfilment</option>
+                <option value="Platform">Platform</option>
+            </select>
+            <div class="chip-set" role="group" aria-label="Kinds shown">
+                <button class="chip" type="button" data-graph-filter="kind" value="service" aria-pressed="true"><span class="graph-swatch series-2"></span><span class="chip-label">Services</span></button>
+                <button class="chip" type="button" data-graph-filter="kind" value="database" aria-pressed="true"><span class="graph-swatch graph-swatch--square series-4"></span><span class="chip-label">Databases</span></button>
+                <button class="chip" type="button" data-graph-filter="kind" value="queue" aria-pressed="true"><span class="graph-swatch graph-swatch--diamond series-5"></span><span class="chip-label">Queues</span></button>
+                <button class="chip" type="button" data-graph-filter="kind" value="external" aria-pressed="true"><span class="graph-swatch graph-swatch--hexagon series-6"></span><span class="chip-label">Outside</span></button>
+            </div>
+        </div>
+        <div class="toolbar-actions">
+            <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} · {edges} links" data-graph-stats-match="{matches} found"></span>
+            <button class="btn btn-ghost btn-sm" type="button" data-graph-action="reset"><i class="ri-restart-line"></i> Reset</button>
+        </div>
+    </div>
+    <div class="sedna-split">
+        <div class="card">
+            <div class="graph" data-graph id="xp-explorer" data-graph-arrows="target" aria-label="The web shop's services, who runs them and where">
+                <ul class="graph-data" data-graph-data>
+                    <li data-node="gateway" data-kind="service" data-team="Platform" data-owner="Priya Nair" data-host="gateway-01" data-tone="2" data-icon="ri-door-open-line" data-meta="Every request from outside comes in here" data-hub>API gateway</li>
+                    <li data-node="storefront" data-kind="service" data-team="Catalogue" data-owner="Rin Nakamura" data-host="web-front-01" data-tone="2" data-icon="ri-store-2-line" data-meta="The shop's pages, rendered on the server">Storefront</li>
+                    <li data-node="checkout" data-kind="service" data-team="Checkout" data-owner="Alex Fischer" data-host="checkout-api-02" data-tone="2" data-icon="ri-shopping-cart-2-line" data-meta="Turns a basket into an order" data-hub>Checkout API</li>
+                    <li data-node="basket" data-kind="service" data-team="Checkout" data-owner="Alex Fischer" data-host="basket-api-01" data-tone="2" data-icon="ri-shopping-basket-line" data-meta="What each shopper is about to buy">Basket</li>
+                    <li data-node="payments" data-kind="service" data-team="Checkout" data-owner="Alex Fischer" data-host="payments-api-01" data-tone="2" data-icon="ri-bank-card-line" data-meta="Charges and refunds">Payments API</li>
+                    <li data-node="orders" data-kind="service" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="orders-console-01" data-tone="2" data-icon="ri-file-list-3-line" data-meta="Every order from placed to delivered" data-hub>Orders API</li>
+                    <li data-node="shipping" data-kind="service" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="shipping-api-01" data-tone="2" data-icon="ri-truck-line" data-meta="Quotes, labels and tracking">Shipping API</li>
+                    <li data-node="returns" data-kind="service" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="returns-api-01" data-tone="2" data-icon="ri-arrow-go-back-line" data-meta="Return labels and refunds">Returns</li>
+                    <li data-node="catalogue" data-kind="service" data-team="Catalogue" data-owner="Rin Nakamura" data-host="catalogue-api-03" data-tone="2" data-icon="ri-book-2-line" data-meta="Products, prices and stock levels">Catalogue API</li>
+                    <li data-node="search" data-kind="service" data-team="Catalogue" data-owner="Rin Nakamura" data-host="search-node-02" data-tone="2" data-icon="ri-search-line" data-meta="Full-text search over the catalogue">Search API</li>
+                    <li data-node="notify" data-kind="service" data-team="Platform" data-owner="Priya Nair" data-host="notify-worker-02" data-tone="2" data-icon="ri-notification-3-line" data-meta="E-mail and push messages">Notifications</li>
+                    <li data-node="orders-db" data-kind="database" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="src-db-14" data-tone="4" data-shape="square" data-icon="ri-database-2-line" data-meta="Orders, lines and their history">Orders database</li>
+                    <li data-node="catalogue-db" data-kind="database" data-team="Catalogue" data-owner="Rin Nakamura" data-host="src-db-11" data-tone="4" data-shape="square" data-icon="ri-database-2-line" data-meta="Products and prices">Catalogue database</li>
+                    <li data-node="baskets-db" data-kind="database" data-team="Checkout" data-owner="Alex Fischer" data-host="cache-03" data-tone="4" data-shape="square" data-icon="ri-database-2-line" data-meta="Open baskets, kept for a week">Basket store</li>
+                    <li data-node="events" data-kind="queue" data-team="Platform" data-owner="Priya Nair" data-host="bus-broker-01" data-tone="5" data-shape="diamond" data-icon="ri-stack-line" data-meta="Everything that happens to an order">Order events</li>
+                    <li data-node="card-processor" data-kind="external" data-team="Checkout" data-owner="Alex Fischer" data-host="api.example.net" data-tone="6" data-shape="hexagon" data-icon="ri-global-line" data-meta="Authorises card payments">Card processor</li>
+                    <li data-node="carrier" data-kind="external" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="tracking.example.org" data-tone="6" data-shape="hexagon" data-icon="ri-global-line" data-meta="Parcel labels and tracking">Carrier</li>
+                    <li data-node="mail-relay" data-kind="external" data-team="Platform" data-owner="Priya Nair" data-host="mail.example.com" data-tone="6" data-shape="hexagon" data-icon="ri-global-line" data-meta="Sends the shop's e-mail">Mail relay</li>
+
+                    <li data-edge data-source="gateway" data-target="storefront" data-label="routes">The gateway routes to the storefront</li>
+                    <li data-edge data-source="gateway" data-target="checkout" data-label="routes">The gateway routes to the checkout API</li>
+                    <li data-edge data-source="gateway" data-target="returns" data-label="routes">The gateway routes to returns</li>
+                    <li data-edge data-source="storefront" data-target="catalogue" data-label="calls">The storefront calls the catalogue API</li>
+                    <li data-edge data-source="storefront" data-target="search" data-label="calls">The storefront calls the search API</li>
+                    <li data-edge data-source="storefront" data-target="basket" data-label="calls">The storefront calls the basket</li>
+                    <li data-edge data-source="basket" data-target="baskets-db" data-label="writes">The basket writes the basket store</li>
+                    <li data-edge data-source="checkout" data-target="basket" data-label="reads">The checkout API reads the basket</li>
+                    <li data-edge data-source="checkout" data-target="payments" data-label="charges">The checkout API charges through the payments API</li>
+                    <li data-edge data-source="checkout" data-target="orders" data-label="places">The checkout API places orders</li>
+                    <li data-edge data-source="checkout" data-target="shipping" data-label="quotes">The checkout API asks shipping for a quote</li>
+                    <li data-edge data-source="payments" data-target="card-processor" data-label="authorises">The payments API authorises cards with the card processor</li>
+                    <li data-edge data-source="orders" data-target="orders-db" data-label="writes">The orders API writes the orders database</li>
+                    <li data-edge data-source="orders" data-target="events" data-label="publishes">The orders API publishes order events</li>
+                    <li data-edge data-source="events" data-target="notify" data-label="feeds">Order events feed notifications</li>
+                    <li data-edge data-source="events" data-target="shipping" data-label="feeds">Order events feed the shipping API</li>
+                    <li data-edge data-source="notify" data-target="mail-relay" data-label="sends">Notifications send through the mail relay</li>
+                    <li data-edge data-source="shipping" data-target="carrier" data-label="books">The shipping API books parcels with the carrier</li>
+                    <li data-edge data-source="returns" data-target="orders" data-label="refunds">Returns refunds through the orders API</li>
+                    <li data-edge data-source="returns" data-target="carrier" data-label="books">Returns books return parcels with the carrier</li>
+                    <li data-edge data-source="catalogue" data-target="catalogue-db" data-label="reads">The catalogue API reads the catalogue database</li>
+                    <li data-edge data-source="search" data-target="catalogue-db" data-label="indexes">The search API indexes the catalogue database</li>
+                </ul>
+                <div class="graph-canvas"></div>
+                <div class="graph-tools" role="toolbar" aria-label="View">
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+                    <span class="graph-tools-sep"></span>
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fullscreen" aria-pressed="false" aria-label="Full screen" data-tip="Full screen">
+                        <i class="ri-fullscreen-line graph-when-off"></i><i class="ri-fullscreen-exit-line graph-when-on"></i>
+                    </button>
+                </div>
+                <div class="graph-tip" data-graph-tip hidden>
+                    <span class="graph-tip-head"><i data-graph-icon aria-hidden="true"></i><span class="graph-tip-title" data-graph-field="label"></span></span>
+                    <span class="graph-tip-meta" data-graph-field="meta"></span>
+                    <span class="graph-tip-ref" data-graph-field="host"></span>
+                </div>
+                <div class="menu graph-menu" data-graph-menu role="menu" hidden>
+                    <span class="menu-label" data-graph-field="label"></span>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="select"><i class="ri-side-bar-line"></i> Show its details</button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Show its neighbourhood</button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="hide"><i class="ri-eye-off-line"></i> Hide it</button>
+                    <hr class="menu-sep" />
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> Show every service</button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="show-all"><i class="ri-eye-line"></i> Show hidden services</button>
+                </div>
+                <div class="graph-wait skeleton skeleton-block"></div>
+                <div class="graph-empty graph-empty--filtered empty-state">
+                    <svg class="state-art" aria-hidden="true"><use href="#filtered-out" /></svg>
+                    <span class="empty-state-title">No service matches these filters</span>
+                    <button class="btn btn-sm" type="button" data-graph-action="reset"><i class="ri-filter-off-line"></i> Clear the filters</button>
+                </div>
+                <p class="visually-hidden" data-graph-live aria-live="polite"
+                   data-graph-announce="{label}, run by {team}. {links} links."
+                   data-graph-announce-select="{label} selected."></p>
+            </div>
+        </div>
+        <aside class="card card--fill sedna-split-aside graph-detail" data-graph-detail hidden aria-label="The selected service">
+            <div class="card-head">
+                <span class="sedna-row sedna-gap-2"><i data-graph-icon aria-hidden="true"></i><strong data-graph-field="label"></strong></span>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="clear" aria-label="Close" data-tip="Close"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="card-body">
+                <p class="text-muted text-sm sedna-mt-0" data-graph-field="meta"></p>
+                <div class="kv"><span class="k">Team</span><span data-graph-field="team"></span></div>
+                <div class="kv"><span class="k">Owner</span><span data-graph-field="owner"></span></div>
+                <div class="kv"><span class="k">Host</span><span class="v" data-graph-field="host"></span></div>
+                <div class="card-section">
+                    <p class="text-muted text-sm sedna-mt-0 sedna-mb-2">Linked services</p>
+                    <ul class="list list--cards" data-graph-neighbours aria-label="Linked services">
+                        <template data-graph-neighbour>
+                            <li>
+                                <div class="list-row">
+                                    <span class="graph-direction">
+                                        <i class="ri-arrow-right-line graph-direction-out" role="img" aria-label="Outgoing"></i>
+                                        <i class="ri-arrow-left-line graph-direction-in" role="img" aria-label="Incoming"></i>
+                                        <i class="ri-arrow-left-right-line graph-direction-both" role="img" aria-label="Both ways"></i>
+                                    </span>
+                                    <span class="list-main">
+                                        <button class="btn-bare list-title" type="button" data-graph-action="select" data-graph-field="label"></button>
+                                        <span class="list-sub" data-graph-link></span>
+                                    </span>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-foot card-foot--split">
+                <button class="btn btn-sm" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Its neighbourhood</button>
+                <button class="btn btn-ghost btn-sm" type="button" data-graph-action="unfocus">Show all</button>
+            </div>
+        </aside>
+    </div>
+</div>

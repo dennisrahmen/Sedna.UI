@@ -1,0 +1,25 @@
+<div class="card">
+    <div class="graph graph--sm" data-graph id="xp-bubble" data-graph-layout="dagre" data-graph-direction="LR" data-graph-arrows="target" aria-label="A new starter's first week, and what each step waits for">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="contract" data-tone="3" data-shape="star" data-meta="Before day one · People team" data-root>Contract signed</li>
+            <li data-node="laptop" data-tone="2" data-icon="ri-macbook-line" data-meta="Day one · IT desk">Laptop issued</li>
+            <li data-node="account" data-tone="2" data-icon="ri-user-add-line" data-meta="Day one · IT desk">Account created</li>
+            <li data-node="badge" data-tone="2" data-icon="ri-bank-card-2-line" data-meta="Day one · Reception">Building badge</li>
+            <li data-node="security" data-tone="5" data-icon="ri-shield-check-line" data-meta="Day two · 45 minutes online">Security training</li>
+            <li data-node="repos" data-tone="4" data-icon="ri-git-repository-line" data-meta="Day two · Team lead">Repository access</li>
+            <li data-node="buddy" data-tone="5" data-icon="ri-team-line" data-meta="Day three · Team lead">Meet a buddy</li>
+            <li data-node="first-change" data-tone="4" data-icon="ri-rocket-2-line" data-meta="By Friday · with the buddy">First change shipped</li>
+
+            <li data-edge data-source="contract" data-target="laptop" data-label="then">The laptop is issued once the contract is signed</li>
+            <li data-edge data-source="contract" data-target="account" data-label="then">The account is created once the contract is signed</li>
+            <li data-edge data-source="contract" data-target="badge" data-label="then">The badge is printed once the contract is signed</li>
+            <li data-edge data-source="account" data-target="security" data-label="then">Security training follows the account</li>
+            <li data-edge data-source="security" data-target="repos" data-label="unlocks">Security training unlocks repository access</li>
+            <li data-edge data-source="laptop" data-target="repos" data-label="then">Repository access needs the laptop</li>
+            <li data-edge data-source="repos" data-target="first-change" data-label="then">The first change needs repository access</li>
+            <li data-edge data-source="buddy" data-target="first-change" data-label="helps">The buddy helps ship the first change</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>

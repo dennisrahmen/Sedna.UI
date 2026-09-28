@@ -1,0 +1,65 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <div class="chip-set" role="group" aria-label="Links shown">
+                <button class="chip" type="button" data-graph-filter="edge.kind" value="call" aria-pressed="true">
+                    <span class="graph-line graph-line--arrow series-1"></span><span class="chip-label">Calls</span>
+                </button>
+                <button class="chip" type="button" data-graph-filter="edge.kind" value="event" aria-pressed="true">
+                    <span class="graph-line graph-line--dotted graph-line--arrow series-5"></span><span class="chip-label">Events</span>
+                </button>
+                <button class="chip" type="button" data-graph-filter="edge.kind" value="data" aria-pressed="true">
+                    <span class="graph-line graph-line--dashed graph-line--arrow series-4"></span><span class="chip-label">Reads and writes</span>
+                </button>
+                <button class="chip" type="button" data-graph-filter="edge.kind" value="replication" aria-pressed="true">
+                    <span class="graph-line graph-line--heavy series-3"></span><span class="chip-label">Replication</span>
+                </button>
+                <button class="chip" type="button" data-graph-filter="edge.kind" value="watch" aria-pressed="false">
+                    <span class="graph-line graph-line--light series-muted"></span><span class="chip-label">Monitoring</span>
+                </button>
+            </div>
+            <label class="form-check"><input type="checkbox" data-graph-show="isolated" checked /> Records left with no link</label>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{edges} of {totalEdges} links"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="xp-links" data-graph-arrows="target" aria-label="How an order travels between services">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="storefront" data-tone="2" data-icon="ri-store-2-line" data-hub>Storefront</li>
+                <li data-node="checkout" data-tone="2" data-icon="ri-shopping-cart-2-line">Checkout API</li>
+                <li data-node="orders" data-tone="2" data-icon="ri-file-list-3-line" data-hub>Orders API</li>
+                <li data-node="payments" data-tone="2" data-icon="ri-bank-card-line">Payments API</li>
+                <li data-node="stock" data-tone="2" data-icon="ri-archive-stack-line">Stock service</li>
+                <li data-node="invoicing" data-tone="2" data-icon="ri-bill-line">Invoicing</li>
+                <li data-node="warehouse" data-tone="2" data-icon="ri-inbox-archive-line">Warehouse app</li>
+                <li data-node="mail" data-tone="2" data-icon="ri-mail-send-line">Mail service</li>
+                <li data-node="events" data-tone="5" data-shape="diamond" data-icon="ri-stack-line">Order events</li>
+                <li data-node="orders-db" data-tone="4" data-shape="square" data-icon="ri-database-2-line">Orders database</li>
+                <li data-node="orders-replica" data-tone="4" data-shape="square" data-icon="ri-database-2-line">Orders replica</li>
+                <li data-node="stock-db" data-tone="4" data-shape="square" data-icon="ri-database-2-line">Stock database</li>
+                <li data-node="reporting" data-tone="6" data-shape="triangle" data-icon="ri-bar-chart-2-line">Reporting</li>
+                <li data-node="metrics" data-tone="muted" data-shape="hexagon" data-icon="ri-pulse-line">Metrics</li>
+
+                <li data-edge data-source="storefront" data-target="checkout" data-kind="call" data-tone="1" data-label="calls">The storefront calls the checkout API</li>
+                <li data-edge data-source="checkout" data-target="orders" data-kind="call" data-tone="1" data-label="places">The checkout API places the order with the orders API</li>
+                <li data-edge data-source="checkout" data-target="payments" data-kind="call" data-tone="1" data-label="charges">The checkout API charges through the payments API</li>
+                <li data-edge data-source="checkout" data-target="stock" data-kind="call" data-tone="1" data-label="reserves">The checkout API reserves stock</li>
+                <li data-edge data-source="orders" data-target="events" data-kind="event" data-tone="5" data-line="dotted" data-label="order placed">The orders API publishes an order-placed event</li>
+                <li data-edge data-source="events" data-target="invoicing" data-kind="event" data-tone="5" data-line="dotted" data-label="order placed">Invoicing hears every order placed</li>
+                <li data-edge data-source="events" data-target="warehouse" data-kind="event" data-tone="5" data-line="dotted" data-label="order placed">The warehouse app hears every order placed</li>
+                <li data-edge data-source="events" data-target="mail" data-kind="event" data-tone="5" data-line="dotted" data-label="order placed">The mail service hears every order placed</li>
+                <li data-edge data-source="orders" data-target="orders-db" data-kind="data" data-tone="4" data-line="dashed" data-label="writes">The orders API writes the orders database</li>
+                <li data-edge data-source="stock" data-target="stock-db" data-kind="data" data-tone="4" data-line="dashed" data-label="writes">The stock service writes the stock database</li>
+                <li data-edge data-source="warehouse" data-target="stock-db" data-kind="data" data-tone="4" data-line="dashed" data-label="reads">The warehouse app reads the stock database</li>
+                <li data-edge data-source="reporting" data-target="orders-replica" data-kind="data" data-tone="4" data-line="dashed" data-label="reads">Reporting reads the orders replica</li>
+                <li data-edge data-source="orders-db" data-target="orders-replica" data-kind="replication" data-tone="3" data-weight="heavy" data-arrow="none" data-label="replicates">The orders database replicates to the orders replica</li>
+                <li data-edge data-source="metrics" data-target="checkout" data-kind="watch" data-tone="muted" data-weight="light" data-label="watches">Metrics watches the checkout API</li>
+                <li data-edge data-source="metrics" data-target="orders" data-kind="watch" data-tone="muted" data-weight="light" data-label="watches">Metrics watches the orders API</li>
+                <li data-edge data-source="metrics" data-target="payments" data-kind="watch" data-tone="muted" data-weight="light" data-label="watches">Metrics watches the payments API</li>
+                <li data-edge data-source="metrics" data-target="events" data-kind="watch" data-tone="muted" data-weight="light" data-label="watches">Metrics watches the order events</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

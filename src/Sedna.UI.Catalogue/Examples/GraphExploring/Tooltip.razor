@@ -1,0 +1,49 @@
+<div class="card">
+    <div class="graph" data-graph id="xp-tip" data-graph-layout="dagre" data-graph-direction="LR" data-graph-nodes="box" aria-label="The office network, from the upstream provider down to the hosts">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="provider" data-tone="muted" data-shape="hexagon" data-icon="ri-cloud-line" data-meta="Upstream provider" data-address="198.51.100.1" data-root>Upstream provider</li>
+            <li data-node="edge-router-01" data-tone="2" data-shape="diamond" data-icon="ri-router-line" data-meta="Edge router, active" data-address="203.0.113.1" data-rack="Rack A1, room 2">edge-router-01</li>
+            <li data-node="edge-router-02" data-tone="2" data-shape="diamond" data-icon="ri-router-line" data-meta="Edge router, standby" data-address="203.0.113.2" data-rack="Rack A2, room 2">edge-router-02</li>
+            <li data-node="firewall-01" data-tone="3" data-shape="square" data-icon="ri-shield-keyhole-line" data-meta="Firewall pair" data-address="192.0.2.1" data-rack="Rack A1, room 2" data-hub>firewall-01</li>
+            <li data-node="core-switch-01" data-tone="5" data-shape="square" data-icon="ri-git-merge-line" data-meta="Core switch" data-address="192.0.2.10" data-rack="Rack B1, room 2" data-hub>core-switch-01</li>
+            <li data-node="core-switch-02" data-tone="5" data-shape="square" data-icon="ri-git-merge-line" data-meta="Core switch" data-address="192.0.2.11" data-rack="Rack B2, room 2">core-switch-02</li>
+            <li data-node="access-switch-01" data-tone="4" data-icon="ri-hard-drive-2-line" data-meta="Access switch, floor 1" data-address="192.0.2.21" data-rack="Floor 1 cabinet">access-switch-01</li>
+            <li data-node="access-switch-02" data-tone="4" data-icon="ri-hard-drive-2-line" data-meta="Access switch, floor 2" data-address="192.0.2.22" data-rack="Floor 2 cabinet">access-switch-02</li>
+            <li data-node="access-switch-03" data-tone="4" data-icon="ri-hard-drive-2-line" data-meta="Access switch, server room" data-address="192.0.2.23" data-rack="Rack C1, room 2">access-switch-03</li>
+            <li data-node="wifi-controller-01" data-tone="6" data-icon="ri-wifi-line" data-meta="Wireless controller" data-address="192.0.2.40" data-rack="Floor 1 cabinet">wifi-controller-01</li>
+            <li data-node="print-server-01" data-tone="6" data-icon="ri-printer-line" data-meta="Print server" data-address="192.0.2.60" data-rack="Floor 2 cabinet">print-server-01</li>
+            <li data-node="build-runner-04" data-tone="6" data-icon="ri-server-line" data-meta="Build runner" data-address="192.0.2.104" data-rack="Rack C1, room 2">build-runner-04</li>
+            <li data-node="src-db-14" data-tone="6" data-icon="ri-database-2-line" data-meta="Source database" data-address="192.0.2.114" data-rack="Rack C2, room 2">src-db-14</li>
+            <li data-node="orders-console-01" data-tone="6" data-icon="ri-computer-line" data-meta="Orders console" data-address="192.0.2.121" data-rack="Rack C2, room 2">orders-console-01</li>
+            <li data-node="backup-store-02" data-tone="6" data-icon="ri-archive-drawer-line" data-meta="Backup store" data-address="192.0.2.132" data-rack="Rack C3, room 2">backup-store-02</li>
+
+            <li data-edge data-source="provider" data-target="edge-router-01" data-label="transit" data-speed="10 Gbit/s">The upstream provider connects to edge-router-01</li>
+            <li data-edge data-source="provider" data-target="edge-router-02" data-label="transit" data-speed="10 Gbit/s" data-line="dashed">The upstream provider connects to edge-router-02, on standby</li>
+            <li data-edge data-source="edge-router-01" data-target="firewall-01" data-label="uplink" data-speed="10 Gbit/s">edge-router-01 connects to firewall-01</li>
+            <li data-edge data-source="edge-router-02" data-target="firewall-01" data-label="uplink" data-speed="10 Gbit/s" data-line="dashed">edge-router-02 connects to firewall-01, on standby</li>
+            <li data-edge data-source="firewall-01" data-target="core-switch-01" data-label="trunk" data-speed="2 × 10 Gbit/s" data-weight="heavy">firewall-01 connects to core-switch-01</li>
+            <li data-edge data-source="firewall-01" data-target="core-switch-02" data-label="trunk" data-speed="2 × 10 Gbit/s" data-weight="heavy">firewall-01 connects to core-switch-02</li>
+            <li data-edge data-source="core-switch-01" data-target="access-switch-01" data-label="uplink" data-speed="1 Gbit/s">core-switch-01 connects to access-switch-01</li>
+            <li data-edge data-source="core-switch-01" data-target="access-switch-02" data-label="uplink" data-speed="1 Gbit/s">core-switch-01 connects to access-switch-02</li>
+            <li data-edge data-source="core-switch-02" data-target="access-switch-03" data-label="uplink" data-speed="10 Gbit/s">core-switch-02 connects to access-switch-03</li>
+            <li data-edge data-source="access-switch-01" data-target="wifi-controller-01" data-label="access" data-speed="1 Gbit/s">access-switch-01 connects wifi-controller-01</li>
+            <li data-edge data-source="access-switch-02" data-target="print-server-01" data-label="access" data-speed="1 Gbit/s">access-switch-02 connects print-server-01</li>
+            <li data-edge data-source="access-switch-03" data-target="build-runner-04" data-label="access" data-speed="10 Gbit/s">access-switch-03 connects build-runner-04</li>
+            <li data-edge data-source="access-switch-03" data-target="src-db-14" data-label="access" data-speed="10 Gbit/s">access-switch-03 connects src-db-14</li>
+            <li data-edge data-source="access-switch-03" data-target="orders-console-01" data-label="access" data-speed="10 Gbit/s">access-switch-03 connects orders-console-01</li>
+            <li data-edge data-source="access-switch-03" data-target="backup-store-02" data-label="access" data-speed="10 Gbit/s">access-switch-03 connects backup-store-02</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-tip" data-graph-tip hidden>
+            <span class="graph-tip-head"><i data-graph-icon aria-hidden="true"></i><span class="graph-tip-title" data-graph-field="label"></span></span>
+            <span class="graph-tip-meta" data-graph-field="meta"></span>
+            <span class="graph-tip-ref" data-graph-field="address"></span>
+            <span class="graph-tip-meta" data-graph-field="rack"></span>
+        </div>
+        <div class="graph-tip" data-graph-tip="edge" hidden>
+            <span class="graph-tip-title" data-graph-field="label"></span>
+            <span class="graph-tip-ref" data-graph-field="speed"></span>
+        </div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>
