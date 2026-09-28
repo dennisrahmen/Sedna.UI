@@ -107,6 +107,23 @@ public class RegistrationTests
     }
 
     [Fact]
+    public void The_graph_service_is_registered_scoped_too()
+    {
+        var services = WithJsRuntime();
+        services.AddSednaUi();
+
+        var descriptor = Assert.Single(services, d => d.ServiceType == typeof(ISednaGraphs));
+
+        // Scoped because it calls one browser through its IJSRuntime: a singleton would
+        // draw one reader's records into whichever circuit resolved it first.
+        Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
+
+        using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        Assert.IsType<SednaGraphs>(scope.ServiceProvider.GetRequiredService<ISednaGraphs>());
+    }
+
+    [Fact]
     public void The_settings_service_starts_with_the_documented_defaults()
     {
         var services = WithJsRuntime();
