@@ -1,0 +1,73 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="card">
+        <div class="graph" data-graph id="pl-hulls" data-graph-hulls data-graph-arrows="target"
+             aria-label="Services, and the squad that owns each">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="search" data-group="discovery" data-tone="2" data-meta="Discovery squad">Search</li>
+                <li data-node="recommendations" data-group="discovery" data-tone="2" data-meta="Discovery squad">Recommendations</li>
+                <li data-node="product-pages" data-group="discovery" data-tone="2" data-meta="Discovery squad" data-hub>Product pages</li>
+                <li data-node="reviews" data-group="discovery" data-tone="2" data-meta="Discovery squad">Reviews</li>
+                <li data-node="wish-lists" data-group="discovery" data-tone="2" data-meta="Discovery squad">Wish lists</li>
+                <li data-node="basket" data-group="conversion" data-tone="3" data-meta="Conversion squad">Basket</li>
+                <li data-node="checkout" data-group="conversion" data-tone="3" data-meta="Conversion squad" data-hub>Checkout</li>
+                <li data-node="vouchers" data-group="conversion" data-tone="3" data-meta="Conversion squad">Vouchers</li>
+                <li data-node="payments" data-group="conversion" data-tone="3" data-meta="Conversion squad">Payments</li>
+                <li data-node="fraud" data-group="conversion" data-tone="3" data-meta="Conversion squad">Fraud screening</li>
+                <li data-node="orders" data-group="delivery" data-tone="5" data-meta="Delivery squad" data-hub>Orders</li>
+                <li data-node="warehouse" data-group="delivery" data-tone="5" data-meta="Delivery squad">Warehouse sync</li>
+                <li data-node="shipping" data-group="delivery" data-tone="5" data-meta="Delivery squad">Shipping</li>
+                <li data-node="tracking" data-group="delivery" data-tone="5" data-meta="Delivery squad">Tracking</li>
+                <li data-node="returns" data-group="delivery" data-tone="5" data-meta="Delivery squad">Returns</li>
+                <li data-node="gateway" data-group="platform" data-tone="4" data-shape="hexagon" data-meta="Platform squad" data-hub>Gateway</li>
+                <li data-node="bus" data-group="platform" data-tone="4" data-shape="diamond" data-meta="Platform squad">Message bus</li>
+                <li data-node="flags" data-group="platform" data-tone="4" data-shape="hexagon" data-meta="Platform squad">Feature flags</li>
+                <li data-node="metrics" data-group="platform" data-tone="4" data-shape="hexagon" data-meta="Platform squad">Metrics</li>
+                <li data-node="sign-in" data-group="platform" data-tone="4" data-shape="hexagon" data-meta="Platform squad">Sign-in</li>
+
+                <li data-edge data-source="gateway" data-target="product-pages" data-label="routes">The gateway routes to the product pages</li>
+                <li data-edge data-source="gateway" data-target="checkout" data-label="routes">The gateway routes to checkout</li>
+                <li data-edge data-source="gateway" data-target="sign-in" data-label="checks">The gateway checks sign-in</li>
+                <li data-edge data-source="product-pages" data-target="search" data-label="calls">The product pages call search</li>
+                <li data-edge data-source="product-pages" data-target="reviews" data-label="shows">The product pages show reviews</li>
+                <li data-edge data-source="product-pages" data-target="recommendations" data-label="shows">The product pages show recommendations</li>
+                <li data-edge data-source="recommendations" data-target="orders" data-label="reads">Recommendations read past orders</li>
+                <li data-edge data-source="wish-lists" data-target="sign-in" data-label="checks">Wish lists check sign-in</li>
+                <li data-edge data-source="wish-lists" data-target="product-pages" data-label="links to">Wish lists link to the product pages</li>
+                <li data-edge data-source="basket" data-target="vouchers" data-label="applies">The basket applies vouchers</li>
+                <li data-edge data-source="checkout" data-target="basket" data-label="reads">Checkout reads the basket</li>
+                <li data-edge data-source="checkout" data-target="payments" data-label="charges">Checkout charges through payments</li>
+                <li data-edge data-source="payments" data-target="fraud" data-label="screens">Payments screens with fraud screening</li>
+                <li data-edge data-source="checkout" data-target="orders" data-label="places">Checkout places orders</li>
+                <li data-edge data-source="orders" data-target="bus" data-label="publishes">Orders publish to the message bus</li>
+                <li data-edge data-source="bus" data-target="warehouse" data-label="feeds">The message bus feeds the warehouse sync</li>
+                <li data-edge data-source="orders" data-target="shipping" data-label="books">Orders book shipping</li>
+                <li data-edge data-source="warehouse" data-target="shipping" data-label="hands over">The warehouse sync hands parcels over to shipping</li>
+                <li data-edge data-source="returns" data-target="shipping" data-label="books">Returns book collection with shipping</li>
+                <li data-edge data-source="shipping" data-target="tracking" data-label="feeds">Shipping feeds tracking</li>
+                <li data-edge data-source="returns" data-target="orders" data-label="updates">Returns update orders</li>
+                <li data-edge data-source="returns" data-target="payments" data-label="refunds">Returns refund through payments</li>
+                <li data-edge data-source="flags" data-target="checkout" data-label="configures">Feature flags configure checkout</li>
+                <li data-edge data-source="flags" data-target="search" data-label="configures">Feature flags configure search</li>
+                <li data-edge data-source="metrics" data-target="gateway" data-label="watches">Metrics watches the gateway</li>
+                <li data-edge data-source="metrics" data-target="bus" data-label="watches">Metrics watches the message bus</li>
+                <li data-edge data-source="gateway" data-target="flags" data-label="reads">The gateway reads feature flags</li>
+                <li data-edge data-source="sign-in" data-target="flags" data-label="reads">Sign-in reads feature flags</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-tools" role="toolbar" aria-label="View">
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="hulls" aria-pressed="true" aria-label="Outline the squads" data-tip="Outline the squads">
+                    <i class="ri-shape-line"></i>
+                </button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="arrange" aria-label="Arrange again" data-tip="Arrange again"><i class="ri-magic-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+            </div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--group series-2"></span> Discovery squad</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--group series-3"></span> Conversion squad</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--group series-5"></span> Delivery squad</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--group series-4"></span> Platform squad</span>
+    </div>
+</div>

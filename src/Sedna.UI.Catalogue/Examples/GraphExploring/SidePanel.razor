@@ -1,0 +1,89 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="sedna-split">
+        <div class="card">
+            <div class="graph" data-graph id="xp-panel" data-graph-arrows="target" aria-label="Services, who runs them and where">
+                <ul class="graph-data" data-graph-data>
+                    <li data-node="storefront" data-kind="Service" data-team="Web" data-owner="Priya Nair" data-host="web-front-01" data-tone="2" data-icon="ri-store-2-line" data-meta="The shop's pages, rendered on the server">Storefront</li>
+                    <li data-node="checkout" data-kind="Service" data-team="Checkout" data-owner="Alex Fischer" data-host="checkout-api-02" data-tone="2" data-icon="ri-shopping-cart-2-line" data-meta="Turns a basket into an order" data-hub>Checkout API</li>
+                    <li data-node="payments" data-kind="Service" data-team="Checkout" data-owner="Alex Fischer" data-host="payments-api-01" data-tone="2" data-icon="ri-bank-card-line" data-meta="Charges and refunds">Payments API</li>
+                    <li data-node="orders" data-kind="Service" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="orders-console-01" data-tone="2" data-icon="ri-file-list-3-line" data-meta="Every order from placed to delivered" data-hub>Orders API</li>
+                    <li data-node="shipping" data-kind="Service" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="shipping-api-01" data-tone="2" data-icon="ri-truck-line" data-meta="Quotes, labels and tracking">Shipping API</li>
+                    <li data-node="catalogue" data-kind="Service" data-team="Catalogue" data-owner="Rin Nakamura" data-host="catalogue-api-03" data-tone="2" data-icon="ri-book-2-line" data-meta="Products, prices and stock levels">Catalogue API</li>
+                    <li data-node="search" data-kind="Service" data-team="Catalogue" data-owner="Rin Nakamura" data-host="search-node-02" data-tone="2" data-icon="ri-search-line" data-meta="Full-text search over the catalogue">Search API</li>
+                    <li data-node="notify" data-kind="Service" data-team="Platform" data-owner="Priya Nair" data-host="notify-worker-02" data-tone="2" data-icon="ri-notification-3-line" data-meta="E-mail and push messages">Notifications</li>
+                    <li data-node="orders-db" data-kind="Database" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="src-db-14" data-tone="4" data-shape="square" data-icon="ri-database-2-line" data-meta="Orders, lines and their history">Orders database</li>
+                    <li data-node="catalogue-db" data-kind="Database" data-team="Catalogue" data-owner="Rin Nakamura" data-host="src-db-11" data-tone="4" data-shape="square" data-icon="ri-database-2-line" data-meta="Products and prices">Catalogue database</li>
+                    <li data-node="events" data-kind="Queue" data-team="Platform" data-owner="Priya Nair" data-host="bus-broker-01" data-tone="5" data-shape="diamond" data-icon="ri-stack-line" data-meta="Everything that happens to an order">Order events</li>
+                    <li data-node="card-processor" data-kind="Outside service" data-team="Checkout" data-owner="Alex Fischer" data-host="api.example.net" data-tone="6" data-shape="hexagon" data-icon="ri-global-line" data-meta="Authorises card payments">Card processor</li>
+                    <li data-node="carrier" data-kind="Outside service" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="tracking.example.org" data-tone="6" data-shape="hexagon" data-icon="ri-global-line" data-meta="Parcel labels and tracking">Carrier</li>
+
+                    <li data-edge data-source="storefront" data-target="checkout" data-label="calls">The storefront calls the checkout API</li>
+                    <li data-edge data-source="storefront" data-target="catalogue" data-label="calls">The storefront calls the catalogue API</li>
+                    <li data-edge data-source="storefront" data-target="search" data-label="calls">The storefront calls the search API</li>
+                    <li data-edge data-source="checkout" data-target="payments" data-label="charges">The checkout API charges through the payments API</li>
+                    <li data-edge data-source="checkout" data-target="orders" data-label="places">The checkout API places orders</li>
+                    <li data-edge data-source="checkout" data-target="shipping" data-label="quotes">The checkout API asks shipping for a quote</li>
+                    <li data-edge data-source="checkout" data-target="catalogue" data-label="reserves">The checkout API reserves stock in the catalogue</li>
+                    <li data-edge data-source="payments" data-target="card-processor" data-label="authorises">The payments API authorises cards with the card processor</li>
+                    <li data-edge data-source="card-processor" data-target="payments" data-label="confirms">The card processor confirms payments back</li>
+                    <li data-edge data-source="orders" data-target="orders-db" data-label="writes">The orders API writes the orders database</li>
+                    <li data-edge data-source="orders" data-target="events" data-label="publishes">The orders API publishes order events</li>
+                    <li data-edge data-source="events" data-target="notify" data-label="feeds">Order events feed notifications</li>
+                    <li data-edge data-source="events" data-target="shipping" data-label="feeds">Order events feed the shipping API</li>
+                    <li data-edge data-source="shipping" data-target="carrier" data-label="books">The shipping API books parcels with the carrier</li>
+                    <li data-edge data-source="catalogue" data-target="catalogue-db" data-label="reads">The catalogue API reads the catalogue database</li>
+                    <li data-edge data-source="search" data-target="catalogue-db" data-label="indexes">The search API indexes the catalogue database</li>
+                </ul>
+                <div class="graph-canvas"></div>
+                <div class="graph-tools" role="toolbar" aria-label="View">
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+                </div>
+                <div class="graph-wait skeleton skeleton-block"></div>
+                <p class="visually-hidden" data-graph-live aria-live="polite"
+                   data-graph-announce="{label}, {kind}, run by {team}. {links} links."
+                   data-graph-announce-select="{label} selected. Its details are beside the graph."></p>
+            </div>
+        </div>
+        <aside class="card card--fill sedna-split-aside graph-detail" data-graph-detail hidden aria-label="The selected service">
+            <div class="card-head">
+                <span class="sedna-row sedna-gap-2"><i data-graph-icon aria-hidden="true"></i><strong data-graph-field="label"></strong></span>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="clear" aria-label="Close" data-tip="Close"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="card-body">
+                <p class="text-muted text-sm sedna-mt-0" data-graph-field="meta"></p>
+                <div class="kv"><span class="k">Kind</span><span data-graph-field="kind"></span></div>
+                <div class="kv"><span class="k">Team</span><span data-graph-field="team"></span></div>
+                <div class="kv"><span class="k">Owner</span><span data-graph-field="owner"></span></div>
+                <div class="kv"><span class="k">Host</span><span class="v" data-graph-field="host"></span></div>
+                <div class="card-section">
+                    <p class="text-muted text-sm sedna-mt-0 sedna-mb-2">Linked services</p>
+                    <ul class="list list--cards" data-graph-neighbours aria-label="Linked services">
+                        <template data-graph-neighbour>
+                            <li>
+                                <div class="list-row">
+                                    <span class="graph-direction">
+                                        <i class="ri-arrow-right-line graph-direction-out" role="img" aria-label="Outgoing"></i>
+                                        <i class="ri-arrow-left-line graph-direction-in" role="img" aria-label="Incoming"></i>
+                                        <i class="ri-arrow-left-right-line graph-direction-both" role="img" aria-label="Both ways"></i>
+                                    </span>
+                                    <span class="list-main">
+                                        <button class="btn-bare list-title" type="button" data-graph-action="select" data-graph-field="label"></button>
+                                        <span class="list-sub" data-graph-link></span>
+                                    </span>
+                                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="focus" data-tip="Show its neighbourhood">
+                                        <i class="ri-focus-2-line" aria-hidden="true"></i>
+                                        <span class="visually-hidden">Show the neighbourhood of <span data-graph-field="label"></span></span>
+                                    </button>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-foot card-foot--split">
+                <button class="btn btn-sm" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Its neighbourhood</button>
+                <button class="btn btn-ghost btn-sm" type="button" data-graph-action="unfocus">Show all</button>
+            </div>
+        </aside>
+    </div>
+</div>

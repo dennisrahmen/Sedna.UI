@@ -1,0 +1,55 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <label class="switch"><input type="checkbox" data-graph-show="muted" checked /> Retired applications</label>
+            <label class="switch"><input type="checkbox" data-graph-show="isolated" /> Applications with no links</label>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} applications"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="xp-muted" aria-label="Head-office applications and what they exchange">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="hr-portal" data-tone="2" data-icon="ri-team-line" data-meta="People" data-hub>HR portal</li>
+                <li data-node="payroll" data-tone="2" data-icon="ri-money-euro-circle-line" data-meta="People">Payroll</li>
+                <li data-node="time" data-tone="2" data-icon="ri-time-line" data-meta="People">Time tracking</li>
+                <li data-node="learning" data-tone="2" data-icon="ri-graduation-cap-line" data-meta="People">Learning platform</li>
+                <li data-node="ledger" data-tone="4" data-shape="square" data-icon="ri-book-3-line" data-meta="Finance" data-hub>Finance ledger</li>
+                <li data-node="expenses" data-tone="4" data-shape="square" data-icon="ri-receipt-line" data-meta="Finance">Expense claims</li>
+                <li data-node="invoices" data-tone="4" data-shape="square" data-icon="ri-scan-2-line" data-meta="Finance">Invoice scanning</li>
+                <li data-node="suppliers" data-tone="4" data-shape="square" data-icon="ri-building-line" data-meta="Finance">Supplier portal</li>
+                <li data-node="intranet" data-tone="5" data-shape="diamond" data-icon="ri-home-4-line" data-meta="Workplace" data-hub>Intranet</li>
+                <li data-node="rooms" data-tone="5" data-shape="diamond" data-icon="ri-calendar-check-line" data-meta="Workplace">Room booking</li>
+                <li data-node="visitors" data-tone="5" data-shape="diamond" data-icon="ri-user-add-line" data-meta="Workplace · stands alone">Visitor sign-in</li>
+                <li data-node="canteen" data-tone="5" data-shape="diamond" data-icon="ri-restaurant-line" data-meta="Workplace · stands alone">Canteen menu</li>
+                <li data-node="parking" data-tone="5" data-shape="diamond" data-icon="ri-parking-box-line" data-meta="Workplace · stands alone">Parking permits</li>
+                <li data-node="old-payroll" data-tone="2" data-icon="ri-money-euro-circle-line" data-meta="Retired in March" data-muted>Old payroll</li>
+                <li data-node="old-expenses" data-tone="4" data-shape="square" data-icon="ri-receipt-line" data-meta="Retired last year" data-muted>Paper expense forms</li>
+                <li data-node="receipts" data-tone="4" data-shape="square" data-icon="ri-archive-line" data-meta="Finance · fed only by paper forms">Receipt archive</li>
+
+                <li data-edge data-source="hr-portal" data-target="payroll" data-label="hires and leavers">The HR portal sends hires and leavers to payroll</li>
+                <li data-edge data-source="time" data-target="payroll" data-label="hours">Time tracking sends hours to payroll</li>
+                <li data-edge data-source="hr-portal" data-target="learning" data-label="enrols">The HR portal enrols new starters in the learning platform</li>
+                <li data-edge data-source="hr-portal" data-target="time" data-label="rosters">The HR portal sends rosters to time tracking</li>
+                <li data-edge data-source="payroll" data-target="ledger" data-label="salaries">Payroll posts salaries to the finance ledger</li>
+                <li data-edge data-source="expenses" data-target="ledger" data-label="claims">Expense claims post to the finance ledger</li>
+                <li data-edge data-source="invoices" data-target="ledger" data-label="invoices">Invoice scanning posts invoices to the finance ledger</li>
+                <li data-edge data-source="suppliers" data-target="invoices" data-label="uploads">Suppliers upload invoices through the supplier portal</li>
+                <li data-edge data-source="intranet" data-target="hr-portal" data-label="links to">The intranet links to the HR portal</li>
+                <li data-edge data-source="intranet" data-target="rooms" data-label="links to">The intranet links to room booking</li>
+                <li data-edge data-source="intranet" data-target="expenses" data-label="links to">The intranet links to expense claims</li>
+                <li data-edge data-source="old-payroll" data-target="ledger" data-label="salaries" data-muted>Old payroll posted salaries to the finance ledger</li>
+                <li data-edge data-source="old-payroll" data-target="payroll" data-label="replaced by" data-line="dotted" data-muted>Old payroll was replaced by payroll</li>
+                <li data-edge data-source="old-expenses" data-target="receipts" data-label="files" data-muted>Paper expense forms were filed in the receipt archive</li>
+                <li data-edge data-source="old-expenses" data-target="expenses" data-label="replaced by" data-line="dotted" data-muted>Paper expense forms were replaced by expense claims</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch series-2"></span> People</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-4"></span> Finance</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-5"></span> Workplace</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--muted"></span> Retired, drawn quieter</span>
+    </div>
+</div>

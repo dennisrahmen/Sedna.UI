@@ -1,0 +1,42 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <span class="text-sm text-muted">The whole drawing, not only the part in view, in the theme it is shown in.</span>
+        <div class="toolbar-actions">
+            <button class="btn btn-sm" type="button" data-graph-action="export-svg" data-graph-filename="order-flow"><i class="ri-file-code-line"></i> Download SVG</button>
+            <button class="btn btn-sm" type="button" data-graph-action="export-png" data-graph-filename="order-flow"><i class="ri-image-line"></i> Download PNG</button>
+        </div>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="pl-export" data-graph-layout="dagre" data-graph-direction="LR" data-graph-nodes="box" data-graph-arrows="target"
+             aria-label="How an order placed on the web shop travels through its systems">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="browser" data-tone="muted" data-icon="ri-global-line" data-meta="The shopper's browser">Browser</li>
+                <li data-node="cdn" data-tone="6" data-icon="ri-cloud-line" data-meta="Static files and pages">Content network</li>
+                <li data-node="gateway" data-tone="6" data-icon="ri-door-open-line" data-meta="gateway-01">API gateway</li>
+                <li data-node="storefront" data-tone="2" data-icon="ri-store-2-line" data-meta="web-front-01">Storefront</li>
+                <li data-node="checkout" data-tone="2" data-icon="ri-shopping-cart-2-line" data-meta="checkout-api-02">Checkout API</li>
+                <li data-node="payments" data-tone="2" data-icon="ri-bank-card-line" data-meta="payments-api-01">Payments API</li>
+                <li data-node="card-processor" data-tone="muted" data-icon="ri-global-line" data-meta="api.example.net">Card processor</li>
+                <li data-node="orders" data-tone="2" data-icon="ri-file-list-3-line" data-meta="orders-console-01">Orders API</li>
+                <li data-node="orders-db" data-tone="4" data-icon="ri-database-2-line" data-meta="src-db-14">Orders database</li>
+                <li data-node="events" data-tone="5" data-icon="ri-stack-line" data-meta="bus-broker-01">Order events</li>
+                <li data-node="warehouse" data-tone="3" data-icon="ri-inbox-archive-line" data-meta="warehouse-sync-01">Warehouse sync</li>
+                <li data-node="mail" data-tone="3" data-icon="ri-mail-send-line" data-meta="notify-worker-02">Order e-mails</li>
+
+                <li data-edge data-source="browser" data-target="cdn" data-label="pages">The browser loads pages from the content network</li>
+                <li data-edge data-source="browser" data-target="gateway" data-label="API calls">The browser calls the API gateway</li>
+                <li data-edge data-source="cdn" data-target="storefront" data-label="on a miss">The content network asks the storefront on a miss</li>
+                <li data-edge data-source="gateway" data-target="checkout" data-label="routes">The gateway routes to the checkout API</li>
+                <li data-edge data-source="checkout" data-target="payments" data-label="charges">The checkout API charges through the payments API</li>
+                <li data-edge data-source="payments" data-target="card-processor" data-label="authorises">The payments API authorises the card</li>
+                <li data-edge data-source="checkout" data-target="orders" data-label="places">The checkout API places the order</li>
+                <li data-edge data-source="orders" data-target="orders-db" data-label="writes">The orders API writes the orders database</li>
+                <li data-edge data-source="orders" data-target="events" data-label="publishes">The orders API publishes an event</li>
+                <li data-edge data-source="events" data-target="warehouse" data-label="picks">The event starts picking in the warehouse</li>
+                <li data-edge data-source="events" data-target="mail" data-label="confirms">The event sends the order confirmation</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

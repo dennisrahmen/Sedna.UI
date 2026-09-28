@@ -1,0 +1,34 @@
+<!-- The graph has no data-graph-managed: the page decides whether a drawn link is kept. -->
+<div class="graph" data-graph id="lineage" data-graph-connect aria-label="Where the sales reports get their data">
+    <ul class="graph-data" data-graph-data>
+        <li data-node="sales">Sales facts</li>
+        <li data-node="campaigns">Campaign results</li>
+    </ul>
+    <div class="graph-canvas"></div>
+    <div class="graph-wait skeleton skeleton-block"></div>
+</div>
+
+<script>
+    const graph = document.getElementById('lineage');
+
+    graph.addEventListener('sedna-graph-connect', async event => {
+        const { source, target } = event.detail;
+
+        // Save it first. The line the reader drew is already gone again.
+        const saved = await fetch('/api/lineage/links', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ source, target }),
+        });
+        if (!saved.ok) return;
+
+        // The list is the data: a new item is a new link on the canvas.
+        const item = document.createElement('li');
+        item.dataset.edge = '';
+        item.dataset.source = source;
+        item.dataset.target = target;
+        item.dataset.label = 'feeds';
+        item.textContent = `${source} feeds ${target}`;
+        graph.querySelector('[data-graph-data]').append(item);
+    });
+</script>

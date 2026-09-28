@@ -1,0 +1,73 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <button class="btn btn-sm" type="button" data-graph-action="expand-all"><i class="ri-add-box-line"></i> Open every module</button>
+            <button class="btn btn-sm" type="button" data-graph-action="collapse-all"><i class="ri-checkbox-indeterminate-line"></i> Fold every module</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-graph-action="arrange"><i class="ri-magic-line"></i> Arrange again</button>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} shown of {totalNodes}"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="pl-fold" data-graph-layout="fcose" data-graph-collapse data-graph-arrows="target"
+             aria-label="The web shop's code, by module, and what each part uses">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="checkout" data-tone="2" data-meta="Module">Checkout</li>
+                <li data-node="basket-view" data-parent="checkout" data-tone="2" data-meta="Component">Basket view</li>
+                <li data-node="address-form" data-parent="checkout" data-tone="2" data-meta="Component">Address form</li>
+                <li data-node="payment-form" data-parent="checkout" data-tone="2" data-meta="Component">Payment form</li>
+                <li data-node="order-summary" data-parent="checkout" data-tone="2" data-meta="Component">Order summary</li>
+                <li data-node="checkout-state" data-parent="checkout" data-tone="2" data-shape="diamond" data-meta="State">Checkout state</li>
+
+                <li data-node="catalogue" data-tone="3" data-meta="Module">Catalogue</li>
+                <li data-node="product-list" data-parent="catalogue" data-tone="3" data-meta="Component">Product list</li>
+                <li data-node="product-page" data-parent="catalogue" data-tone="3" data-meta="Component">Product page</li>
+                <li data-node="filters" data-parent="catalogue" data-tone="3" data-meta="Component">Filters</li>
+                <li data-node="price-tag" data-parent="catalogue" data-tone="3" data-meta="Component">Price tag</li>
+
+                <li data-node="account" data-tone="5" data-meta="Module">Account</li>
+                <li data-node="sign-in-form" data-parent="account" data-tone="5" data-meta="Component">Sign-in form</li>
+                <li data-node="profile-page" data-parent="account" data-tone="5" data-meta="Component">Profile page</li>
+                <li data-node="order-list" data-parent="account" data-tone="5" data-meta="Component">Order list</li>
+
+                <li data-node="shared" data-tone="4" data-meta="Module" data-collapsed>Shared</li>
+                <li data-node="button" data-parent="shared" data-tone="4" data-meta="Component">Button</li>
+                <li data-node="form-field" data-parent="shared" data-tone="4" data-meta="Component">Form field</li>
+                <li data-node="money" data-parent="shared" data-tone="4" data-shape="hexagon" data-meta="Helper">Money format</li>
+                <li data-node="http" data-parent="shared" data-tone="4" data-shape="hexagon" data-meta="Helper">HTTP client</li>
+                <li data-node="icons" data-parent="shared" data-tone="4" data-meta="Component">Icon</li>
+
+                <li data-edge data-source="basket-view" data-target="price-tag" data-label="uses">The basket view uses the price tag</li>
+                <li data-edge data-source="basket-view" data-target="checkout-state" data-label="reads">The basket view reads the checkout state</li>
+                <li data-edge data-source="address-form" data-target="form-field" data-label="uses">The address form uses the form field</li>
+                <li data-edge data-source="address-form" data-target="checkout-state" data-label="writes">The address form writes the checkout state</li>
+                <li data-edge data-source="payment-form" data-target="form-field" data-label="uses">The payment form uses the form field</li>
+                <li data-edge data-source="payment-form" data-target="http" data-label="uses">The payment form uses the HTTP client</li>
+                <li data-edge data-source="payment-form" data-target="checkout-state" data-label="writes">The payment form writes the checkout state</li>
+                <li data-edge data-source="order-summary" data-target="money" data-label="uses">The order summary uses the money format</li>
+                <li data-edge data-source="order-summary" data-target="button" data-label="uses">The order summary uses the button</li>
+                <li data-edge data-source="product-list" data-target="price-tag" data-label="uses">The product list uses the price tag</li>
+                <li data-edge data-source="product-list" data-target="filters" data-label="uses">The product list uses the filters</li>
+                <li data-edge data-source="product-page" data-target="price-tag" data-label="uses">The product page uses the price tag</li>
+                <li data-edge data-source="product-page" data-target="button" data-label="uses">The product page uses the button</li>
+                <li data-edge data-source="product-page" data-target="http" data-label="uses">The product page uses the HTTP client</li>
+                <li data-edge data-source="filters" data-target="icons" data-label="uses">The filters use the icon</li>
+                <li data-edge data-source="price-tag" data-target="money" data-label="uses">The price tag uses the money format</li>
+                <li data-edge data-source="sign-in-form" data-target="form-field" data-label="uses">The sign-in form uses the form field</li>
+                <li data-edge data-source="sign-in-form" data-target="http" data-label="uses">The sign-in form uses the HTTP client</li>
+                <li data-edge data-source="profile-page" data-target="form-field" data-label="uses">The profile page uses the form field</li>
+                <li data-edge data-source="order-list" data-target="money" data-label="uses">The order list uses the money format</li>
+                <li data-edge data-source="order-list" data-target="http" data-label="uses">The order list uses the HTTP client</li>
+                <li data-edge data-source="button" data-target="icons" data-label="uses">The button uses the icon</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="menu graph-menu" data-graph-menu role="menu" hidden>
+                <span class="menu-label" data-graph-field="label"></span>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="expand"><i class="ri-add-box-line"></i> Open the module</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="collapse"><i class="ri-checkbox-indeterminate-line"></i> Fold the module</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Show what it touches</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> Show everything</button>
+            </div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

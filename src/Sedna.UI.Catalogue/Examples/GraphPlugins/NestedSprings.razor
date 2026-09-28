@@ -1,0 +1,39 @@
+<div class="card">
+    <div class="graph" data-graph id="pl-fcose" data-graph-layout="fcose" data-graph-nodes="box" data-graph-arrows="target"
+         aria-label="Hosts in their racks and rooms, and what connects them">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="server-room" data-tone="2" data-meta="Room">Server room</li>
+            <li data-node="rack-a" data-parent="server-room" data-tone="2" data-meta="Rack">Rack A</li>
+            <li data-node="rack-b" data-parent="server-room" data-tone="2" data-meta="Rack">Rack B</li>
+            <li data-node="orders-console-01" data-parent="rack-a" data-tone="2" data-icon="ri-computer-line" data-meta="192.0.2.121">orders-console-01</li>
+            <li data-node="src-db-14" data-parent="rack-a" data-tone="4" data-icon="ri-database-2-line" data-meta="192.0.2.114">src-db-14</li>
+            <li data-node="src-db-11" data-parent="rack-a" data-tone="4" data-icon="ri-database-2-line" data-meta="192.0.2.111">src-db-11</li>
+            <li data-node="build-runner-04" data-parent="rack-b" data-tone="3" data-icon="ri-server-line" data-meta="192.0.2.104">build-runner-04</li>
+            <li data-node="build-runner-05" data-parent="rack-b" data-tone="3" data-icon="ri-server-line" data-meta="192.0.2.105">build-runner-05</li>
+            <li data-node="cache-03" data-parent="rack-b" data-tone="4" data-icon="ri-flashlight-line" data-meta="192.0.2.103">cache-03</li>
+
+            <li data-node="comms-room" data-tone="6" data-meta="Room">Comms room</li>
+            <li data-node="firewall-01" data-parent="comms-room" data-tone="6" data-icon="ri-shield-keyhole-line" data-meta="192.0.2.1">firewall-01</li>
+            <li data-node="core-switch-01" data-parent="comms-room" data-tone="6" data-icon="ri-git-merge-line" data-meta="192.0.2.10">core-switch-01</li>
+
+            <li data-node="vault" data-tone="5" data-meta="Room at the backup site">Backup vault</li>
+            <li data-node="backup-store-02" data-parent="vault" data-tone="5" data-icon="ri-archive-drawer-line" data-meta="198.51.100.32">backup-store-02</li>
+            <li data-node="src-db-24" data-parent="vault" data-tone="4" data-icon="ri-database-2-line" data-meta="198.51.100.24">src-db-24</li>
+            <li data-node="standby-gateway-01" data-parent="vault" data-tone="6" data-icon="ri-door-open-line" data-meta="198.51.100.1">standby-gateway-01</li>
+
+            <li data-edge data-source="firewall-01" data-target="core-switch-01" data-label="trunk">The firewall connects to the core switch</li>
+            <li data-edge data-source="core-switch-01" data-target="orders-console-01" data-label="access">The core switch connects orders-console-01</li>
+            <li data-edge data-source="core-switch-01" data-target="src-db-14" data-label="access">The core switch connects src-db-14</li>
+            <li data-edge data-source="orders-console-01" data-target="src-db-14" data-label="reads">orders-console-01 reads src-db-14</li>
+            <li data-edge data-source="build-runner-04" data-target="src-db-11" data-label="reads">build-runner-04 reads src-db-11</li>
+            <li data-edge data-source="build-runner-04" data-target="cache-03" data-label="caches in">build-runner-04 caches in cache-03</li>
+            <li data-edge data-source="build-runner-05" data-target="cache-03" data-label="caches in">build-runner-05 caches in cache-03</li>
+            <li data-edge data-source="src-db-14" data-target="src-db-24" data-label="replicates" data-line="dashed">src-db-14 replicates to src-db-24 in the backup vault</li>
+            <li data-edge data-source="src-db-14" data-target="backup-store-02" data-label="backs up" data-line="dotted">src-db-14 is backed up to backup-store-02</li>
+            <li data-edge data-source="src-db-11" data-target="backup-store-02" data-label="backs up" data-line="dotted">src-db-11 is backed up to backup-store-02</li>
+            <li data-edge data-source="firewall-01" data-target="standby-gateway-01" data-label="fails over to" data-line="dashed">The firewall fails over to the standby gateway</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>

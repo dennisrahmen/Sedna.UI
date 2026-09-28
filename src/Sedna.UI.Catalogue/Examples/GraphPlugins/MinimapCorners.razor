@@ -1,0 +1,143 @@
+<div class="sedna-col sedna-gap-3">
+    <ul class="graph-data" id="pl-bike-parts">
+        <li data-node="bicycle" data-tone="1" data-shape="star" data-meta="Finished product" data-root>Touring bicycle</li>
+        <li data-node="frame-set" data-tone="2" data-shape="square" data-meta="Assembly" data-hub>Frame set</li>
+        <li data-node="frame" data-tone="2" data-meta="Part">Frame</li>
+        <li data-node="fork" data-tone="2" data-meta="Part">Fork</li>
+        <li data-node="headset" data-tone="2" data-meta="Part">Headset</li>
+        <li data-node="seat-post" data-tone="2" data-meta="Part">Seat post</li>
+        <li data-node="saddle" data-tone="2" data-meta="Part">Saddle</li>
+        <li data-node="seat-clamp" data-tone="2" data-meta="Part">Seat clamp</li>
+        <li data-node="mudguards" data-tone="2" data-meta="Part">Mudguards</li>
+        <li data-node="kickstand" data-tone="2" data-meta="Part">Kickstand</li>
+        <li data-node="front-wheel" data-tone="3" data-shape="square" data-meta="Assembly" data-hub>Front wheel</li>
+        <li data-node="front-rim" data-tone="3" data-meta="Part">Front rim</li>
+        <li data-node="front-hub" data-tone="3" data-meta="Part">Front hub</li>
+        <li data-node="front-spokes" data-tone="3" data-meta="Part">Front spokes</li>
+        <li data-node="front-tyre" data-tone="3" data-meta="Part">Front tyre</li>
+        <li data-node="front-inner-tube" data-tone="3" data-meta="Part">Front inner tube</li>
+        <li data-node="front-rim-tape" data-tone="3" data-meta="Part">Front rim tape</li>
+        <li data-node="front-axle" data-tone="3" data-meta="Part">Front axle</li>
+        <li data-node="rear-wheel" data-tone="3" data-shape="square" data-meta="Assembly" data-hub>Rear wheel</li>
+        <li data-node="rear-rim" data-tone="3" data-meta="Part">Rear rim</li>
+        <li data-node="rear-hub" data-tone="3" data-meta="Part">Rear hub</li>
+        <li data-node="rear-spokes" data-tone="3" data-meta="Part">Rear spokes</li>
+        <li data-node="rear-tyre" data-tone="3" data-meta="Part">Rear tyre</li>
+        <li data-node="rear-inner-tube" data-tone="3" data-meta="Part">Rear inner tube</li>
+        <li data-node="rear-rim-tape" data-tone="3" data-meta="Part">Rear rim tape</li>
+        <li data-node="rear-axle" data-tone="3" data-meta="Part">Rear axle</li>
+        <li data-node="drivetrain" data-tone="5" data-shape="square" data-meta="Assembly" data-hub>Drivetrain</li>
+        <li data-node="crankset" data-tone="5" data-meta="Part">Crankset</li>
+        <li data-node="chainring" data-tone="5" data-meta="Part">Chainring</li>
+        <li data-node="bottom-bracket" data-tone="5" data-meta="Part">Bottom bracket</li>
+        <li data-node="chain" data-tone="5" data-meta="Part">Chain</li>
+        <li data-node="cassette" data-tone="5" data-meta="Part">Cassette</li>
+        <li data-node="rear-derailleur" data-tone="5" data-meta="Part">Rear derailleur</li>
+        <li data-node="shifter" data-tone="5" data-meta="Part">Shifter</li>
+        <li data-node="pedals" data-tone="5" data-meta="Part">Pedals</li>
+        <li data-node="brakes" data-tone="6" data-shape="square" data-meta="Assembly" data-hub>Brakes</li>
+        <li data-node="brake-levers" data-tone="6" data-meta="Part">Brake levers</li>
+        <li data-node="front-caliper" data-tone="6" data-meta="Part">Front caliper</li>
+        <li data-node="rear-caliper" data-tone="6" data-meta="Part">Rear caliper</li>
+        <li data-node="brake-pads" data-tone="6" data-meta="Part">Brake pads</li>
+        <li data-node="front-rotor" data-tone="6" data-meta="Part">Front rotor</li>
+        <li data-node="rear-rotor" data-tone="6" data-meta="Part">Rear rotor</li>
+        <li data-node="brake-hoses" data-tone="6" data-meta="Part">Brake hoses</li>
+        <li data-node="cockpit" data-tone="4" data-shape="square" data-meta="Assembly" data-hub>Cockpit</li>
+        <li data-node="handlebar" data-tone="4" data-meta="Part">Handlebar</li>
+        <li data-node="stem" data-tone="4" data-meta="Part">Stem</li>
+        <li data-node="grips" data-tone="4" data-meta="Part">Grips</li>
+        <li data-node="bell" data-tone="4" data-meta="Part">Bell</li>
+        <li data-node="front-light" data-tone="4" data-meta="Part">Front light</li>
+        <li data-node="rear-light" data-tone="4" data-meta="Part">Rear light</li>
+
+        <li data-edge data-source="frame-set" data-target="bicycle" data-label="part of">The frame set is part of the bicycle</li>
+        <li data-edge data-source="front-wheel" data-target="bicycle" data-label="part of">The front wheel is part of the bicycle</li>
+        <li data-edge data-source="rear-wheel" data-target="bicycle" data-label="part of">The rear wheel is part of the bicycle</li>
+        <li data-edge data-source="drivetrain" data-target="bicycle" data-label="part of">The drivetrain is part of the bicycle</li>
+        <li data-edge data-source="brakes" data-target="bicycle" data-label="part of">The brakes is part of the bicycle</li>
+        <li data-edge data-source="cockpit" data-target="bicycle" data-label="part of">The cockpit is part of the bicycle</li>
+        <li data-edge data-source="frame" data-target="frame-set" data-label="part of">The frame is part of the frame set</li>
+        <li data-edge data-source="fork" data-target="frame-set" data-label="part of">The fork is part of the frame set</li>
+        <li data-edge data-source="headset" data-target="frame-set" data-label="part of">The headset is part of the frame set</li>
+        <li data-edge data-source="seat-post" data-target="frame-set" data-label="part of">The seat post is part of the frame set</li>
+        <li data-edge data-source="saddle" data-target="frame-set" data-label="part of">The saddle is part of the frame set</li>
+        <li data-edge data-source="seat-clamp" data-target="frame-set" data-label="part of">The seat clamp is part of the frame set</li>
+        <li data-edge data-source="mudguards" data-target="frame-set" data-label="part of">The mudguards is part of the frame set</li>
+        <li data-edge data-source="kickstand" data-target="frame-set" data-label="part of">The kickstand is part of the frame set</li>
+        <li data-edge data-source="front-rim" data-target="front-wheel" data-label="part of">The front rim is part of the front wheel</li>
+        <li data-edge data-source="front-hub" data-target="front-wheel" data-label="part of">The front hub is part of the front wheel</li>
+        <li data-edge data-source="front-spokes" data-target="front-wheel" data-label="part of">The front spokes is part of the front wheel</li>
+        <li data-edge data-source="front-tyre" data-target="front-wheel" data-label="part of">The front tyre is part of the front wheel</li>
+        <li data-edge data-source="front-inner-tube" data-target="front-wheel" data-label="part of">The front inner tube is part of the front wheel</li>
+        <li data-edge data-source="front-rim-tape" data-target="front-wheel" data-label="part of">The front rim tape is part of the front wheel</li>
+        <li data-edge data-source="front-axle" data-target="front-wheel" data-label="part of">The front axle is part of the front wheel</li>
+        <li data-edge data-source="rear-rim" data-target="rear-wheel" data-label="part of">The rear rim is part of the rear wheel</li>
+        <li data-edge data-source="rear-hub" data-target="rear-wheel" data-label="part of">The rear hub is part of the rear wheel</li>
+        <li data-edge data-source="rear-spokes" data-target="rear-wheel" data-label="part of">The rear spokes is part of the rear wheel</li>
+        <li data-edge data-source="rear-tyre" data-target="rear-wheel" data-label="part of">The rear tyre is part of the rear wheel</li>
+        <li data-edge data-source="rear-inner-tube" data-target="rear-wheel" data-label="part of">The rear inner tube is part of the rear wheel</li>
+        <li data-edge data-source="rear-rim-tape" data-target="rear-wheel" data-label="part of">The rear rim tape is part of the rear wheel</li>
+        <li data-edge data-source="rear-axle" data-target="rear-wheel" data-label="part of">The rear axle is part of the rear wheel</li>
+        <li data-edge data-source="crankset" data-target="drivetrain" data-label="part of">The crankset is part of the drivetrain</li>
+        <li data-edge data-source="chainring" data-target="drivetrain" data-label="part of">The chainring is part of the drivetrain</li>
+        <li data-edge data-source="bottom-bracket" data-target="drivetrain" data-label="part of">The bottom bracket is part of the drivetrain</li>
+        <li data-edge data-source="chain" data-target="drivetrain" data-label="part of">The chain is part of the drivetrain</li>
+        <li data-edge data-source="cassette" data-target="drivetrain" data-label="part of">The cassette is part of the drivetrain</li>
+        <li data-edge data-source="rear-derailleur" data-target="drivetrain" data-label="part of">The rear derailleur is part of the drivetrain</li>
+        <li data-edge data-source="shifter" data-target="drivetrain" data-label="part of">The shifter is part of the drivetrain</li>
+        <li data-edge data-source="pedals" data-target="drivetrain" data-label="part of">The pedals is part of the drivetrain</li>
+        <li data-edge data-source="brake-levers" data-target="brakes" data-label="part of">The brake levers is part of the brakes</li>
+        <li data-edge data-source="front-caliper" data-target="brakes" data-label="part of">The front caliper is part of the brakes</li>
+        <li data-edge data-source="rear-caliper" data-target="brakes" data-label="part of">The rear caliper is part of the brakes</li>
+        <li data-edge data-source="brake-pads" data-target="brakes" data-label="part of">The brake pads is part of the brakes</li>
+        <li data-edge data-source="front-rotor" data-target="brakes" data-label="part of">The front rotor is part of the brakes</li>
+        <li data-edge data-source="rear-rotor" data-target="brakes" data-label="part of">The rear rotor is part of the brakes</li>
+        <li data-edge data-source="brake-hoses" data-target="brakes" data-label="part of">The brake hoses is part of the brakes</li>
+        <li data-edge data-source="handlebar" data-target="cockpit" data-label="part of">The handlebar is part of the cockpit</li>
+        <li data-edge data-source="stem" data-target="cockpit" data-label="part of">The stem is part of the cockpit</li>
+        <li data-edge data-source="grips" data-target="cockpit" data-label="part of">The grips is part of the cockpit</li>
+        <li data-edge data-source="bell" data-target="cockpit" data-label="part of">The bell is part of the cockpit</li>
+        <li data-edge data-source="front-light" data-target="cockpit" data-label="part of">The front light is part of the cockpit</li>
+        <li data-edge data-source="rear-light" data-target="cockpit" data-label="part of">The rear light is part of the cockpit</li>
+        <li data-edge data-source="rear-hub" data-target="cassette" data-label="carries" data-line="dashed">The rear hub carries the cassette</li>
+        <li data-edge data-source="front-hub" data-target="front-rotor" data-label="carries" data-line="dashed">The front hub carries the front rotor</li>
+        <li data-edge data-source="rear-hub" data-target="rear-rotor" data-label="carries" data-line="dashed">The rear hub carries the rear rotor</li>
+        <li data-edge data-source="shifter" data-target="rear-derailleur" data-label="moves" data-line="dashed">The shifter moves the rear derailleur</li>
+        <li data-edge data-source="brake-levers" data-target="brake-hoses" data-label="press" data-line="dashed">The brake levers press the brake hoses</li>
+        <li data-edge data-source="frame" data-target="bottom-bracket" data-label="holds" data-line="dashed">The frame holds the bottom bracket</li>
+        <li data-edge data-source="fork" data-target="front-caliper" data-label="holds" data-line="dashed">The fork holds the front caliper</li>
+        <li data-edge data-source="handlebar" data-target="shifter" data-label="holds" data-line="dashed">The handlebar holds the shifter</li>
+        <li data-edge data-source="handlebar" data-target="brake-levers" data-label="holds" data-line="dashed">The handlebar holds the brake levers</li>
+    </ul>
+    <div class="sedna-grid sedna-grid--fit sedna-grid--lg">
+        <div class="card">
+            <div class="graph graph--sm" data-graph id="pl-corner-start" data-graph-data="#pl-bike-parts" data-graph-arrows="target"
+                 aria-label="The parts of a touring bicycle">
+                <div class="graph-canvas"></div>
+                <div class="graph-tools graph-tools--stack" role="toolbar" aria-label="View">
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+                    <span class="graph-tools-sep"></span>
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+                </div>
+                <canvas class="graph-minimap graph-minimap--start" data-graph-minimap aria-hidden="true"></canvas>
+                <div class="graph-wait skeleton skeleton-block"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="graph graph--sm" data-graph id="pl-corner-top" data-graph-data="#pl-bike-parts" data-graph-arrows="target"
+                 aria-label="The parts of a touring bicycle, again">
+                <div class="graph-canvas"></div>
+                <div class="graph-tools graph-tools--bottom" role="toolbar" aria-label="View">
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+                    <span class="graph-tools-sep"></span>
+                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+                </div>
+                <canvas class="graph-minimap graph-minimap--top graph-minimap--start" data-graph-minimap aria-hidden="true"></canvas>
+                <div class="graph-wait skeleton skeleton-block"></div>
+            </div>
+        </div>
+    </div>
+</div>

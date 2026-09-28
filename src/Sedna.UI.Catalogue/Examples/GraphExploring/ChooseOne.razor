@@ -1,0 +1,90 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <select class="form-select form-select-sm toolbar-input" data-graph-filter="team" aria-label="Team">
+                <option value="" selected>Every team</option>
+                <option value="checkout">Checkout</option>
+                <option value="catalogue">Catalogue</option>
+                <option value="fulfilment">Fulfilment</option>
+                <option value="platform">Platform</option>
+            </select>
+            <div class="segmented segmented--sm" role="group" aria-label="Health">
+                <label class="segmented-option"><input type="radio" name="xp-choose-health" data-graph-filter="status" value="" checked /> All</label>
+                <label class="segmented-option"><input type="radio" name="xp-choose-health" data-graph-filter="status" value="healthy" /> Healthy</label>
+                <label class="segmented-option"><input type="radio" name="xp-choose-health" data-graph-filter="status" value="degraded down" /> Needs attention</label>
+            </div>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} services"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="xp-choose" data-graph-arrows="target" aria-label="Services by the team that runs them">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="gateway" data-tone="muted" data-shape="hexagon" data-icon="ri-door-open-line" data-status="healthy" data-meta="Shared by every team" data-hub>API gateway</li>
+                <li data-node="bus" data-tone="muted" data-shape="diamond" data-icon="ri-stack-line" data-status="healthy" data-meta="Shared by every team">Message bus</li>
+
+                <li data-node="basket" data-team="checkout" data-tone="2" data-status="healthy" data-meta="Checkout">Basket</li>
+                <li data-node="checkout" data-team="checkout" data-tone="2" data-status="healthy" data-meta="Checkout" data-hub>Checkout API</li>
+                <li data-node="payments" data-team="checkout" data-tone="2" data-status="healthy" data-meta="Checkout">Payments</li>
+                <li data-node="vouchers" data-team="checkout" data-tone="2" data-status="healthy" data-meta="Checkout">Vouchers</li>
+                <li data-node="fraud" data-team="checkout" data-tone="2" data-status="degraded" data-meta="Checkout · slow to answer">Fraud screening</li>
+
+                <li data-node="products" data-team="catalogue" data-tone="3" data-status="healthy" data-meta="Catalogue" data-hub>Product API</li>
+                <li data-node="pricing" data-team="catalogue" data-tone="3" data-status="healthy" data-meta="Catalogue">Pricing</li>
+                <li data-node="search" data-team="catalogue" data-tone="3" data-status="degraded" data-meta="Catalogue · index rebuilding">Search</li>
+                <li data-node="reviews" data-team="catalogue" data-tone="3" data-status="healthy" data-meta="Catalogue">Reviews</li>
+                <li data-node="media" data-team="catalogue" data-tone="3" data-shape="square" data-status="healthy" data-meta="Catalogue">Media store</li>
+
+                <li data-node="orders" data-team="fulfilment" data-tone="5" data-status="healthy" data-meta="Fulfilment" data-hub>Orders API</li>
+                <li data-node="warehouse" data-team="fulfilment" data-tone="5" data-status="down" data-meta="Fulfilment · not answering">Warehouse sync</li>
+                <li data-node="shipping" data-team="fulfilment" data-tone="5" data-status="healthy" data-meta="Fulfilment">Shipping</li>
+                <li data-node="returns" data-team="fulfilment" data-tone="5" data-status="healthy" data-meta="Fulfilment">Returns</li>
+                <li data-node="labels" data-team="fulfilment" data-tone="5" data-status="healthy" data-meta="Fulfilment">Label printing</li>
+
+                <li data-node="sign-in" data-team="platform" data-tone="4" data-status="healthy" data-meta="Platform" data-hub>Single sign-on</li>
+                <li data-node="flags" data-team="platform" data-tone="4" data-status="healthy" data-meta="Platform">Feature flags</li>
+                <li data-node="metrics" data-team="platform" data-tone="4" data-status="healthy" data-meta="Platform">Metrics</li>
+                <li data-node="logs" data-team="platform" data-tone="4" data-shape="square" data-status="healthy" data-meta="Platform">Log store</li>
+
+                <li data-edge data-source="gateway" data-target="basket" data-label="routes">The gateway routes to the basket</li>
+                <li data-edge data-source="gateway" data-target="checkout" data-label="routes">The gateway routes to the checkout API</li>
+                <li data-edge data-source="gateway" data-target="products" data-label="routes">The gateway routes to the product API</li>
+                <li data-edge data-source="gateway" data-target="orders" data-label="routes">The gateway routes to the orders API</li>
+                <li data-edge data-source="gateway" data-target="sign-in" data-label="checks">The gateway checks every call with single sign-on</li>
+                <li data-edge data-source="basket" data-target="pricing" data-label="prices">The basket prices its lines with pricing</li>
+                <li data-edge data-source="checkout" data-target="basket" data-label="reads">The checkout API reads the basket</li>
+                <li data-edge data-source="checkout" data-target="payments" data-label="charges">The checkout API charges through payments</li>
+                <li data-edge data-source="checkout" data-target="vouchers" data-label="redeems">The checkout API redeems vouchers</li>
+                <li data-edge data-source="payments" data-target="fraud" data-label="screens">Payments screens every charge for fraud</li>
+                <li data-edge data-source="checkout" data-target="orders" data-label="places">The checkout API places orders</li>
+                <li data-edge data-source="products" data-target="pricing" data-label="asks">The product API asks pricing for prices</li>
+                <li data-edge data-source="products" data-target="media" data-label="reads">The product API reads the media store</li>
+                <li data-edge data-source="products" data-target="reviews" data-label="shows">The product API shows reviews</li>
+                <li data-edge data-source="search" data-target="products" data-label="indexes">Search indexes the product API</li>
+                <li data-edge data-source="orders" data-target="bus" data-label="publishes">The orders API publishes to the message bus</li>
+                <li data-edge data-source="bus" data-target="warehouse" data-label="feeds">The message bus feeds the warehouse sync</li>
+                <li data-edge data-source="bus" data-target="shipping" data-label="feeds">The message bus feeds shipping</li>
+                <li data-edge data-source="shipping" data-target="labels" data-label="prints">Shipping prints parcel labels</li>
+                <li data-edge data-source="returns" data-target="orders" data-label="refunds">Returns refunds through the orders API</li>
+                <li data-edge data-source="returns" data-target="labels" data-label="prints">Returns prints return labels</li>
+                <li data-edge data-source="flags" data-target="checkout" data-label="configures">Feature flags configure the checkout API</li>
+                <li data-edge data-source="flags" data-target="search" data-label="configures">Feature flags configure search</li>
+                <li data-edge data-source="metrics" data-target="gateway" data-label="watches">Metrics watches the gateway</li>
+                <li data-edge data-source="metrics" data-target="logs" data-label="writes">Metrics writes to the log store</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+            <div class="graph-empty graph-empty--filtered empty-state">
+                <svg class="state-art" aria-hidden="true"><use href="#all-done" /></svg>
+                <span class="empty-state-title">Nothing needs attention here</span>
+                <p>Every service this team runs is healthy.</p>
+            </div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch series-2"></span> Checkout</span>
+        <span class="graph-key"><span class="graph-swatch series-3"></span> Catalogue</span>
+        <span class="graph-key"><span class="graph-swatch series-5"></span> Fulfilment</span>
+        <span class="graph-key"><span class="graph-swatch series-4"></span> Platform</span>
+        <span class="graph-key"><span class="graph-swatch series-muted"></span> Shared by every team</span>
+    </div>
+</div>

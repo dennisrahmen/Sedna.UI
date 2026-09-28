@@ -1,5 +1,185 @@
 @page "/graph-plugins"
 
 <CatHead Title="Graph plugins">
-    Being written.
+    What a graph does beyond drawing and reading: a minimap for a large one, links the reader draws, groups
+    that fold and groups that are outlined, the drawing as a file, and two more layouts. Each loads the first
+    time a graph on the page uses it, from inside the package, so a page that uses none downloads none. How a
+    reader moves through a graph is on <a href="/graph-exploring">Exploring a graph</a>.
 </CatHead>
+
+<CatExample TExample="Examples.GraphPlugins.Minimap" Title="The minimap" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; zoom in on one domain, then press or drag in the minimap.</strong>
+        <code>&lt;canvas class="graph-minimap" data-graph-minimap aria-hidden="true"&gt;</code>, written inside the
+        graph, draws the whole drawing in miniature and frames the part in view. Pressing it moves the view there,
+        dragging pans, and the wheel zooms about the point under the pointer. It is Sedna.UI's own, in the canvas's
+        colours, and while the view pans only the frame is drawn again.
+    </p>
+    <p>
+        Write one when a graph is larger than its frame, so that zooming in on a part does not lose the whole. It is
+        hidden on a phone, where the frame is the whole screen, and from assistive technology: the keyboard already
+        pans and zooms, with <kbd class="kbd">Shift</kbd> + arrows, <kbd class="kbd">+</kbd>
+        <kbd class="kbd">−</kbd> and <kbd class="kbd">0</kbd> to fit.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphPlugins.MinimapCorners" Title="Where the minimap sits" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Bottom right by default. <code>.graph-minimap--start</code> moves it to the start edge and
+        <code>.graph-minimap--top</code> to the top, and the two combine. Keep it clear of the tools:
+        <code>.graph-tools--stack</code> stands them in a column, <code>.graph-tools--bottom</code> moves them to
+        the bottom and <code>.graph-tools--start</code> to the start edge. In a <code>.graph--sm</code> the minimap
+        is smaller.
+    </p>
+    <p>
+        The two graphs read one list: <code>data-graph-data="#pl-bike-parts"</code> on a graph names a
+        <code>.graph-data</code> list anywhere on the page, so two views of the same records share one text
+        alternative.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphPlugins.DrawLinks" Title="Drawing links" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; turn drawing on and give Campaign results a feed.</strong> The <code>connect</code>
+        toggle &mdash; or <code>data-graph-connect</code> on the graph, to start drawing &mdash; turns a drag from
+        one record to another into a link, and the graph dispatches <code>sedna-graph-connect</code> with
+        <code>{ source, target }</code>. While it is on, the graph carries <code>data-graph-drawing</code> and the
+        pointer is a crosshair; a toggle's two icons are <code>.graph-when-off</code> and
+        <code>.graph-when-on</code>.
+    </p>
+    <p>
+        <strong>The line drawn is removed again, and the app adds the link to its own data</strong>, the way a drop
+        in <a href="/drag-drop">drag and drop</a> is the app's to make: it can check it, save it, or refuse it. This
+        page has no app behind it, so <code>data-graph-managed</code> keeps what is drawn instead. In Blazor the
+        handler is <code>@@onsedna-graph-connect</code> with <code>SednaGraphConnectEventArgs</code>, on
+        <a href="/graph-blazor">Graph in Blazor</a>.
+    </p>
+</CatExample>
+
+<CatSnippet Name="GraphPlugins/Connect.html" Title="Keeping a drawn link without Blazor">
+    <p>
+        The event is an ordinary bubbling DOM event. Save the link, then add an item to the list: the list is the
+        data, so a new item is a new line on the canvas.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.GraphPlugins.FoldGroups" Title="Folding groups" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; open every module, or right-click one.</strong> A record with <code>data-parent</code> is
+        drawn inside that record, which becomes a group. <code>data-graph-collapse</code> gives every group a fold
+        cue in its corner while it is selected &mdash; click a group, then its cue &mdash; and
+        <code>data-collapsed</code> on a group starts it folded, as Shared is here. A folded group is one record, and the links of what is inside it end on it.
+    </p>
+    <p>
+        <code>expand-all</code> and <code>collapse-all</code> act on every group. <code>expand</code> and
+        <code>collapse</code> act on one &mdash; a button's <code>value</code>, else the menu's record, else the
+        selection &mdash; and in a menu each hides itself where it does not apply. Folding dispatches
+        <code>sedna-graph-collapse</code> and unfolding <code>sedna-graph-expand</code>, each with
+        <code>{ id, label }</code>. An unfolded group opens where it is and the others stay put;
+        <code>arrange</code> lays the drawing out again.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphPlugins.Outlines" Title="Outlining groups" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>data-graph-hulls</code> &mdash; or the <code>hulls</code> toggle &mdash; draws a
+        soft outline around every <code>data-group</code> of two or more records, in the group's tone and routed
+        around the records that are not in it. The records are laid out by their links, so the outline is how the
+        reader sees who owns what on a map shaped by something else. It follows a record that is dragged, and
+        fades while a record is lit.
+    </p>
+    <p>
+        A group's key is <code>.graph-swatch--group</code> in its <code>.series-*</code> colour. Its tone is its
+        heart's &mdash; the record whose id is the group's name &mdash; else the one most of its members wear.
+        A <code>data-group</code> is not a container: for records drawn inside another, use
+        <code>data-parent</code>, as in the two examples either side of this one.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphPlugins.Export" Title="Exporting the drawing" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; both buttons download.</strong> <code>export-svg</code> and <code>export-png</code> save
+        the whole drawing &mdash; every record shown, not only the part in view &mdash; in the colours of the theme
+        it is shown in, so a dark page exports dark. <code>data-graph-filename</code> on the button names the file;
+        without it the file is named after the graph's id.
+    </p>
+    <p>
+        The SVG is Sedna.UI's own: each record a group with a <code>&lt;title&gt;</code>, the text as text, and every
+        colour the one the canvas resolved from the tokens. The PNG is the engine's, at twice the resolution. From
+        script, <code>graph.export('svg')</code> resolves a <code>Blob</code>; from C#, <code>ExportAsync</code>
+        returns a <code>data:</code> URL and <code>DownloadAsync</code> saves the file.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphPlugins.Hierarchy" Title="Hierarchies" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-graph-layout="dagre"</code> lays a graph out in ranks &mdash; an org chart, a flow, a dependency
+        tree &mdash; in the <code>data-graph-direction</code> given: <code>TB</code>, the default, <code>LR</code>,
+        <code>BT</code> or <code>RL</code>. Boxes and <code>data-graph-curve="taxi"</code> draw the right angles of an
+        org chart. Every layout, and switching between them, is on <a href="/graph-layouts">Graph layouts</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.GraphPlugins.NestedSprings" Title="Nested springs" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-graph-layout="fcose"</code> is springs that also lay out groups inside groups: hosts in racks,
+        racks in a room, all from <code>data-parent</code>. Boxes keep every name inside its group's
+        edge, which suits a diagram of a few dozen records. More on <a href="/graph-layouts">Graph layouts</a>.
+    </p>
+</CatExample>
+
+<h2 id="plugins">What loads, and under which licence <CatAnchor Id="plugins" /></h2>
+<p>
+    Everything below ships inside the package under <code>_content/Sedna.UI/lib/cytoscape/</code>, with each
+    licence beside the files it covers in <code>licenses/</code>. Nothing is fetched from anywhere else, and a
+    plugin that fails to load is reported in the console while the graph goes on drawing. The pinned versions are
+    in <code>VENDORED.txt</code> there and in <code>THIRD-PARTY-NOTICES.md</code>.
+</p>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>For</th><th>Package</th><th>Licence</th><th>Loaded</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>The canvas, and the PNG export</td><td>cytoscape</td><td>MIT</td><td>With the first graph on a page.</td></tr>
+            <tr><td>The minimap, the SVG export</td><td>Sedna.UI's own</td><td>Apache-2.0</td><td>With the graph module, which the first graph brings.</td></tr>
+            <tr><td>Drawing links</td><td>cytoscape-edgehandles, with lodash.memoize and lodash.throttle</td><td>MIT</td><td>When drawing is first turned on.</td></tr>
+            <tr><td>Folding groups</td><td>cytoscape-expand-collapse</td><td>MIT</td><td>For a graph with <code>data-graph-collapse</code> or a <code>data-collapsed</code> group, or at the first fold.</td></tr>
+            <tr><td>Outlining groups</td><td>cytoscape-bubblesets, with bubblesets-js, cytoscape-layers and lodash.throttle</td><td>MIT</td><td>When outlines are first turned on.</td></tr>
+            <tr><td>Hierarchies</td><td>cytoscape-dagre, which bundles @@dagrejs/dagre and @@dagrejs/graphlib</td><td>MIT</td><td>When the <code>dagre</code> layout first runs.</td></tr>
+            <tr><td>Nested springs</td><td>cytoscape-fcose, with cose-base and layout-base</td><td>MIT</td><td>When the <code>fcose</code> layout first runs.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="callout callout-info">
+    <i class="ri-scales-3-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Left out on purpose: cytoscape-svg</span>
+        It exports SVG as well, and it is licensed under GPL-3.0, which an Apache-2.0 package cannot carry without
+        passing its terms on to every app that installs it. The SVG export is Sedna.UI's own code instead, and a
+        copyleft plugin is out of scope whatever it offers.
+    </div>
+</div>
+
+<h2 id="actions">Actions, events and calls <CatAnchor Id="actions" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Plugin</th><th>On the graph</th><th>Action</th><th>Event</th><th>C#</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Minimap</td><td><code>canvas[data-graph-minimap]</code> inside it</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+            <tr><td>Drawing links</td><td><code>data-graph-connect</code>, <code>data-graph-managed</code></td><td><code>connect</code></td><td><code>sedna-graph-connect</code></td><td><code>SetDrawingAsync</code></td></tr>
+            <tr><td>Folding groups</td><td><code>data-graph-collapse</code>; <code>data-collapsed</code> on a group</td><td><code>expand</code>, <code>collapse</code>, <code>expand-all</code>, <code>collapse-all</code></td><td><code>sedna-graph-expand</code>, <code>sedna-graph-collapse</code></td><td><code>ExpandAsync</code>, <code>CollapseAsync</code></td></tr>
+            <tr><td>Outlining groups</td><td><code>data-graph-hulls</code></td><td><code>hulls</code></td><td>&mdash;</td><td><code>SetHullsAsync</code></td></tr>
+            <tr><td>Export</td><td>&mdash;</td><td><code>export-svg</code>, <code>export-png</code>, with <code>data-graph-filename</code></td><td>&mdash;</td><td><code>ExportAsync</code>, <code>DownloadAsync</code></td></tr>
+            <tr><td>Hierarchies, nested springs</td><td><code>data-graph-layout="dagre"</code>, <code>"fcose"</code></td><td>&mdash;</td><td>&mdash;</td><td><code>LayoutAsync</code></td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    From script, the handle <code>sednaUi.graph.get(id)</code> resolves has <code>connect(on)</code>,
+    <code>collapse(id?)</code>, <code>expand(id?)</code>, <code>hulls(on)</code>, <code>export(format)</code> and
+    <code>download(format, filename)</code>.
+</p>
