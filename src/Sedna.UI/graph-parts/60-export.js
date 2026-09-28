@@ -156,6 +156,17 @@ function svgOf(g, ground) {
     if (title) out.push(`<title>${esc(title)}</title>`);
     out.push(`<rect x="${num(x0)}" y="${num(y0)}" width="${num(w)}" height="${num(h)}" fill="${ground}"/>`);
 
+    // The outlines around groups, underneath everything: their paths are already in the
+    // drawing's own coordinates.
+    if (g.hullsOn && g.bb) {
+        for (const path of g.bb.getPaths()) {
+            const d = path.node.getAttribute('d');
+            if (!d) continue;
+            const st = path.node.style;
+            out.push(`<path class="graph-outline" d="${esc(d)}" fill="${st.fill || 'none'}" stroke="${st.stroke || 'none'}" stroke-width="${st.strokeWidth || 1}"/>`);
+        }
+    }
+
     // Groups underneath, outermost first.
     const parents = visible.nodes(':parent').toArray().sort((a, b) => a.ancestors().length - b.ancestors().length);
     for (const p of parents) {
