@@ -133,8 +133,16 @@ function writeStats(g, s) {
 
 async function control(g, c, type) {
     if (c.hasAttribute('data-graph-search')) {
-        search(g, c.value, true);
-        return changed(g);
+        // Marked as it is typed, but the view settles on the matches once the typing
+        // pauses: a view that flies to each keystroke's matches is impossible to read.
+        clearTimeout(g.typing);
+        const value = c.value;
+        g.typing = setTimeout(() => {
+            if (g.disposed) return;
+            search(g, value, true);
+            changed(g);
+        }, 140);
+        return;
     }
     if (c.hasAttribute('data-graph-option')) {
         const name = c.getAttribute('data-graph-option');

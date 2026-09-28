@@ -629,6 +629,7 @@ function dispose(g) {
     if (g.disposed) return;
     g.disposed = true;
     graphs.delete(g.el);
+    clearTimeout(g.typing);
     g.listeners.splice(0).forEach(off => { try { off(); } catch (e) { /* ignore */ } });
     g.observers.splice(0).forEach(o => o.disconnect());
     g.keys?.destroy();
