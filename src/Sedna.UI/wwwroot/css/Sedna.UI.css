@@ -8595,16 +8595,44 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
     grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
     gap: var(--space-7);
 }
-/* Dividers between tiles outside a card too, for a row that sits straight on the
-   page and still has to read as one object. */
-.stat-row--divided { gap: 0; }
-.stat-row--divided > .stat { padding-inline: var(--space-7); border-inline-start: 1px solid var(--divider); }
-.stat-row--divided > .stat:first-child { padding-inline-start: 0; border-inline-start: none; }
-/* Tiles inside a card get a dividing rule between them rather than a gap, so the
-   card reads as one object. */
-.card-body > .stat-row { gap: 0; }
-.card-body > .stat-row > .stat { padding: var(--space-2) var(--space-7); border-inline-start: 1px solid var(--divider); }
-.card-body > .stat-row > .stat:first-child { padding-inline-start: 0; border-inline-start: none; }
+/* ── A dividing rule between tiles ──────────────────────────────────────────
+   Tiles inside a card get a rule between them rather than a bare gap, so the card
+   reads as one object; `--divided` does the same for a row straight on the page.
+
+   The rule has to survive the row wrapping, and no selector can tell which tile starts
+   the second row. So EVERY tile draws its rule, in the middle of the gap before it,
+   and the row clips what falls outside its own edge: the first tile of each row puts
+   its rule there, and loses it. The clip margin lets a linked tile's hover and focus
+   ring out, and stops short of the rule.
+
+   The track floor is the plain row's 150px less the wider gap, so a row that fitted on
+   one line before still does. */
+.stat-row--divided,
+.card-body > .stat-row {
+    grid-template-columns: repeat(auto-fit, minmax(min(calc(150px - 2 * var(--space-7)), 100%), 1fr));
+    column-gap: calc(2 * var(--space-7));
+    row-gap: var(--space-7);
+    overflow: clip;
+    overflow-clip-margin: var(--space-6);
+}
+.stat-row--divided > .stat,
+.card-body > .stat-row > .stat { position: relative; }
+.card-body > .stat-row > .stat { padding-block: var(--space-2); }
+/* A border rather than a background, so forced-colors mode keeps it. */
+.stat-row--divided > .stat::before,
+.card-body > .stat-row > .stat::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(-1 * var(--space-7));
+    border-inline-start: 1px solid var(--divider);
+}
+/* A linked tile's box reaches past its track by its own margin; the rule does not. */
+.stat-row--divided > a.stat::before,
+.card-body > .stat-row > a.stat::before {
+    inset-block: var(--space-4);
+    inset-inline-start: calc(var(--space-5) - var(--space-7));
+}
 }
 
 /* ── 55-page-structure.css → @layer sedna.paint ──────────────────────────────────────────────── */
