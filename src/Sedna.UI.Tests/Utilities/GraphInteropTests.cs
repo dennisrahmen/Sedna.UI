@@ -174,11 +174,33 @@ public class GraphInteropTests : BunitContext
     {
         var stats = new SednaGraphStats(5, 4, 0, 7, 9, "api");
         JSInterop.Setup<SednaGraphStats?>(Bridge, i => (string?)i.Arguments[1] == "set").SetResult(stats);
-        JSInterop.Setup<string?>(Bridge, i => (string?)i.Arguments[1] == "export")
-            .SetResult("data:image/svg+xml;base64,PHN2Zy8+");
+        byte[] svg = [.. "<svg/>"u8];
+        JSInterop.Setup<IJSStreamReference?>(Bridge, i => (string?)i.Arguments[1] == "export")
+            .SetResult(new Bytes(svg));
 
         Assert.Equal(stats, await Graphs().SetDataAsync(Id, Tiny));
-        Assert.Equal("data:image/svg+xml;base64,PHN2Zy8+", await Graphs().ExportAsync(Id));
+        // The picture is streamed, not returned in the call's own message: a Blazor Server
+        // circuit's message-size limit refused a PNG of a few records.
+        Assert.Equal(svg, await Graphs().ExportAsync(Id));
+    }
+
+    [Fact]
+    public async Task An_export_with_no_graph_behind_it_is_null()
+    {
+        // The script answers no bytes, rather than no stream, for an id with no graph: a stream
+        // reference cannot be made of nothing.
+        JSInterop.Setup<IJSStreamReference?>(Bridge, _ => true).SetResult(new Bytes([]));
+        Assert.Null(await Graphs().ExportAsync(Id));
+    }
+
+    private sealed class Bytes(byte[] data) : IJSStreamReference
+    {
+        public long Length => data.Length;
+
+        public ValueTask<Stream> OpenReadStreamAsync(long maxAllowedSize = 512000, CancellationToken cancellationToken = default)
+            => ValueTask.FromResult<Stream>(new MemoryStream(data));
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
     [Fact]

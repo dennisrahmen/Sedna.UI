@@ -92,7 +92,8 @@ public sealed class SednaGraphs : ISednaGraphs
 
         // A stream rather than a return value: a picture of a few records is already past a
         // Blazor Server circuit's default message size, and a call over it never completes.
-        var reference = await Call<IJSStreamReference>(graphId, "export", cancellationToken, Name(format));
+        var reference = await Call<IJSStreamReference?>(graphId, "export", cancellationToken, Name(format));
+        if (reference is null) return null;
         await using (reference)
         {
             if (reference.Length == 0) return null;

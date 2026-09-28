@@ -57,9 +57,13 @@
         _status = shown is null ? "" : $"{shown.Nodes} of {shown.TotalNodes} services shown";
     }
 
-    // The whole drawing, not only the part in view, as a data: URL. It comes back through
-    // the circuit, so it is for a small picture the page shows; a file is DownloadAsync.
-    private async Task Export() => _picture = await Graphs.ExportAsync(Id, SednaGraphExport.Svg);
+    // The whole drawing, not only the part in view, as the file's bytes — streamed from the
+    // browser, so no circuit message size applies. Shown here; saved, it is DownloadAsync.
+    private async Task Export()
+    {
+        var svg = await Graphs.ExportAsync(Id, SednaGraphExport.Svg);
+        _picture = svg is null ? null : "data:image/svg+xml;base64," + Convert.ToBase64String(svg);
+    }
 
     // A file is the browser's to save: nothing but the name crosses the circuit.
     private Task Download() => Graphs.DownloadAsync(Id, SednaGraphExport.Png, "checkout-services");
