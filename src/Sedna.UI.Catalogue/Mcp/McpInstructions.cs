@@ -17,9 +17,10 @@ internal static class McpInstructions
         <AppShell>, and no component wrapper of any kind. Build a page by copying markup from
         this catalogue and applying the classes.
 
-        The library never draws UI for the app, except a toast and a hover hint. A confirmation
-        is a <dialog class="modal"> the app writes and awaits with ISednaUi.ShowModalAsync; a
-        modal, drawer or sheet that is its own component is presented with ISednaOverlays.
+        The library draws only its tier 3 surfaces — a toast, a hover hint, a graph — and every
+        control, menu, panel and legend around one is markup the app writes. A confirmation is a
+        <dialog class="modal"> the app writes and awaits with ISednaUi.ShowModalAsync; a modal,
+        drawer or sheet that is its own component is presented with ISednaOverlays.
 
         Use search first, then get_example for the exact markup. Do not write shared-UI markup
         from memory, and do not invent class names: a class that is not in the stylesheet does

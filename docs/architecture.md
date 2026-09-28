@@ -1,12 +1,19 @@
 # Architecture
 
-## Two tiers
+## Three tiers
 
-**Tier 1 — the frame.** Shell, sidebar and nav, header, user widget. Layout chrome that is
-pixel-identical in every app and is not restyled per project. Shipped as CSS classes.
+One question decides a tier: **who writes the markup on screen?**
+
+**Tier 1 — the frame.** Shell, sidebar and nav, header, user widget, modal shell. Layout chrome that is
+pixel-identical in every app and is not restyled per project. The app writes it; shipped as CSS classes.
 
 **Tier 2 — the paint.** Tables, forms, cards, badges, buttons, alerts. Shipped as semantic CSS classes.
 Pages write plain HTML and apply the classes.
+
+**Tier 3 — the surfaces.** What the library draws or drives because the app has nothing to write for
+it: a toast, the hover-hint bubble, a graph's canvas, the document inside a rich-text editor.
+Everything around a surface is tier 2 markup the app writes. The registry and the contract every
+surface meets are in [surfaces.md](surfaces.md).
 
 Content UI is always a class, never a component. There is no `<DataTable>` and there will not be one.
 
@@ -21,11 +28,10 @@ renders?** Three kinds of code pass.
 | Presenter | Shows, hides and awaits markup the app wrote, adding no element of its own | `ShowModalAsync`, `ISednaOverlays` with `SednaOverlayHost`, `FollowSpotlightAsync` |
 | State helper | Computes what markup cannot express; pure, no interop | `ActiveLink`, `SednaSort`, `SednaPager`, `SednaTabs` |
 
-**The toast, the hover-hint bubble and the graph's canvas are the three exceptions**: none has anything
-to author, so the library draws them — the graph engine paints only inside the app's `.graph-canvas`,
-and every toolbar, legend, tooltip, menu and panel around it is the app's markup, filled by the script.
-Nothing else is drawn by the library. Where the script renders rows from data, it
-clones the app's `<template>`, so every element and word on screen is the app's.
+**Tier 3 is where the library draws, and nowhere else.** A surface draws only what has no author —
+the app's data or the app's one line — and every toolbar, legend, tooltip, menu and panel around it is
+the app's markup, filled by the script. Where the script renders rows from data, it clones the app's
+`<template>`, so every element and word on screen is the app's.
 
 Presenters are for overlays opened by app logic. A popover or a menu opened by its trigger's own
 attribute needs none.

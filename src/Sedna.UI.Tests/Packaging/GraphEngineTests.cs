@@ -153,30 +153,5 @@ public class GraphEngineTests
         Assert.True(found.Count == 0, $"Sedna.UI.graph.js names something real: {string.Join(", ", found)}");
     }
 
-    [Fact]
-    public void The_graph_module_hands_the_engine_no_literal_colour_outside_a_fallback()
-    {
-        // Every colour on the canvas is a token read through the browser, so a theme, the
-        // colour-vision setting and forced colours reach it. A literal is allowed only as the
-        // fallback a probe returns on a page with no stylesheet — the second argument of a token
-        // read — never as a value the engine paints with.
-        var parts = Path.Combine(Assets.ProjectDir, "graph-parts");
-        var offenders = new List<string>();
-        foreach (var file in Directory.GetFiles(parts, "*.js"))
-        {
-            var lines = File.ReadAllLines(file);
-            for (var i = 0; i < lines.Length; i++)
-            {
-                var line = Regex.Replace(lines[i], @"//.*$", string.Empty);
-                if (!Regex.IsMatch(line, @"#[0-9a-fA-F]{3,8}\b|\brgba?\(\s*\d")) continue;
-                // A fallback: c('--token', 'rgb(…)'), token(…, fallback), the '#000' reset of a probe.
-                if (Regex.IsMatch(line, @"c\('--[a-z0-9-]+',\s*'rgba?\(|token\(|fillStyle = '#000'|\$\{r\}")) continue;
-                offenders.Add($"{Path.GetFileName(file)}:{i + 1}: {lines[i].Trim()}");
-            }
-        }
-
-        Assert.True(offenders.Count == 0,
-            "A literal colour reaches the canvas. Read a token instead:" + Environment.NewLine
-            + string.Join(Environment.NewLine, offenders));
-    }
+    // Colour is held for every surface at once: SurfaceRegistryTests.A_surface_script_names_no_colour.
 }

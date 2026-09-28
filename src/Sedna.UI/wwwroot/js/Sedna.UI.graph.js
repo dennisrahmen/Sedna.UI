@@ -365,8 +365,11 @@ function colourReader(host) {
     function rgba(value, fallback) {
         if (!value || value === 'transparent') return fallback;
         if (/^rgba?\(/.test(value) && !/\//.test(value)) return value;
+        // Reset to nothing first: a value the canvas cannot parse leaves the previous fill
+        // in place, and reads back as transparent — so as the fallback — rather than as
+        // whatever was painted last.
         ctx.clearRect(0, 0, 1, 1);
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = 'transparent';
         ctx.fillStyle = value;
         ctx.fillRect(0, 0, 1, 1);
         const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
@@ -409,22 +412,24 @@ function colourReader(host) {
     };
 }
 
-/* The neutral colours every drawing uses, resolved once per paint. The fallbacks are
-   never seen on a page with the stylesheet; they keep a graph legible on one without it. */
+/* The neutral colours every drawing uses, resolved once per paint. Tokens only, and no
+   literal behind them: a token the page does not declare leaves the probe's colour to
+   inherit, so it reads as the text around the graph rather than failing. */
 function palette(colours) {
     const c = (token, fallback) => colours.token(token, fallback);
+    const fg = c('--fg');
     return {
-        fg: c('--fg', 'rgb(15, 23, 42)'),
-        soft: c('--fg-soft', 'rgb(51, 65, 85)'),
-        muted: c('--muted', 'rgb(100, 116, 139)'),
-        line: c('--border-strong', 'rgb(148, 163, 184)'),
-        border: c('--border', 'rgb(203, 213, 225)'),
-        brand: c('--brand', 'rgb(215, 63, 26)'),
-        accent: c('--accent', 'rgb(89, 195, 255)'),
-        ring: c('--brand-ring', 'rgba(215, 63, 26, 0.45)'),
-        raised: c('--surface-raised-2', c('--card-bg', 'rgb(255, 255, 255)')),
-        tint: c('--brand-tint', 'rgba(215, 63, 26, 0.12)'),
-        ground: colours.ground(c('--card-bg', 'rgb(255, 255, 255)')),
+        fg,
+        soft: c('--fg-soft', fg),
+        muted: c('--muted', fg),
+        line: c('--border-strong', fg),
+        border: c('--border', fg),
+        brand: c('--brand', fg),
+        accent: c('--accent', fg),
+        ring: c('--brand-ring', fg),
+        raised: c('--surface-raised-2', c('--card-bg')),
+        tint: c('--brand-tint', c('--card-bg')),
+        ground: colours.ground(c('--card-bg')),
         font: colours.font(),
     };
 }

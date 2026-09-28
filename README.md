@@ -18,14 +18,17 @@ A shared UI layer for .NET 10 / Blazor apps.
 dotnet add package Sedna.UI
 ```
 
-## Two tiers
+## Three tiers
 
 **The frame** — shell, sidebar, header, user widget — is chrome that must be pixel-identical in every app
 and that nobody should restyle per project.
 
 **The paint** — tables, forms, cards, badges, buttons, alerts — is what a page puts inside it.
 
-**Both are semantic CSS classes.** Pages write plain, open HTML and apply them, so there is no
+**The surfaces** — a toast, a hover hint, a graph — are what the library draws, because there is
+nothing for the app to write. Everything around one is paint.
+
+**The frame and the paint are semantic CSS classes.** Pages write plain, open HTML and apply them, so there is no
 `<DataTable>`, no `<AppShell>`, and there will not be either. The package is the stylesheet, the script,
 the icons and a small C# surface for what markup cannot express — which link is the current page, typed
 access to the browser API, and a presenter that opens the dialogs an app writes. The markup on screen is
@@ -38,7 +41,7 @@ always the app's.
 | Link | Summary |
 |---|---|
 | [Getting started](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/getting-started.md) | Install, host-page setup, rebranding, icon font |
-| [Architecture](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/architecture.md) | The two tiers, the token contract, theming, z-order |
+| [Architecture](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/architecture.md) | The three tiers, the token contract, theming, z-order |
 | [Graph](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/graph.md) | Records and the links between them on a canvas: markup, controls, events, C# |
 | [Releasing](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/releasing.md) | SemVer rules, trusted publishing setup |
 | [Development](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/development.md) | Build, test, the guard tests, package verification |

@@ -67,7 +67,7 @@ See [docs/development.md](docs/development.md) for what each guard covers.
    example markup as a file under `Examples/`, and register the page in `CataloguePages`.
 3. `dotnet test`.
 
-Conventions — naming, the token contract, the two tiers — are in [CLAUDE.md](CLAUDE.md). It is written for
+Conventions — naming, the token contract, the three tiers — are in [CLAUDE.md](CLAUDE.md). It is written for
 both humans and AI agents working in this repo.
 
 ## Reporting a bug

@@ -35,6 +35,9 @@
          class, and this suite has to start an app as well, so the lifetime is a
          collection fixture instead. The gate it defines is reproduced there. -->
     <Compile Include="..\Sedna.UI.Tests\TestSupport\Assets.cs" Link="TestSupport\Assets.cs" />
+    <!-- The tier 3 registry reader, for the same reason: the pages are held to the table the
+         library's tests read, not to a second parse of it. -->
+    <Compile Include="..\Sedna.UI.Tests\TestSupport\Surfaces.cs" Link="TestSupport\Surfaces.cs" />
   </ItemGroup>
 
 </Project>
