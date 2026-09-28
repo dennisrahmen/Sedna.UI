@@ -5060,13 +5060,21 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    or a width of its own, or it shrinks to nothing — and it cannot restyle itself,
    which is why the steps are fixed lengths and not custom properties. A `.menu` or
    `.form-combo-panel` inside a panel still escapes the panel's edge:
-   `LayoutGridTests` opens one and clicks its last item. */
+   `LayoutGridTests` opens one and clicks its last item.
+
+   The 24 tracks stay at every width, so there are always 23 column gaps. At 16px
+   those come to 368px, wider than a phone's column: the tracks shrink to nothing
+   and a full-row child still overflows. The column gap is therefore capped at a
+   23rd of the grid's width. Above 30rem that never binds for the default gap or any
+   `.sedna-gap-N` step; below it every child takes the row, so a column gap is never
+   seen and shrinking it costs nothing. The row gap is untouched. */
 .sedna-grid-24 {
     --grid-gap: var(--space-7);
     container: sedna-grid-24 / inline-size;
     display: grid;
     grid-template-columns: repeat(24, minmax(0, 1fr));
     gap: var(--grid-gap);
+    column-gap: min(var(--grid-gap), 100% / 23);
 }
 /* :where() keeps the defaults at zero specificity, so every span class — and an app's
    own class on the child — beats them without a specificity race. `min-width: 0`
@@ -15058,13 +15066,15 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 
 /* Three gap steps and none. `.sedna-row` and `.sedna-col` set one gap; these are for the
    rows that need a tighter or looser one, which was an inline `style="gap:12px"`. */
-/* Each sets `--grid-gap` beside `gap`, because `.sedna-grid-24` computes its column
-   widths from that property: a gap changed on its own would leave the widths sized for
-   the old one and wrap the last panel of every row. */
+/* Each sets `--grid-gap` beside `gap`, because `.sedna-grid-24` and `.sedna-stack`
+   read their gap from that property. The last rule puts back the grid's capped column
+   gap, which the `gap` shorthand here would otherwise replace from this later layer —
+   43-content-grids.css says why it is capped. */
 .sedna-gap-0 { gap: 0;                --grid-gap: 0px; }
 .sedna-gap-1 { gap: var(--space-4);   --grid-gap: var(--space-4); }
 .sedna-gap-2 { gap: var(--space-6);   --grid-gap: var(--space-6); }
 .sedna-gap-3 { gap: var(--space-8);   --grid-gap: var(--space-8); }
+.sedna-grid-24:is(.sedna-gap-0, .sedna-gap-1, .sedna-gap-2, .sedna-gap-3) { column-gap: min(var(--grid-gap), 100% / 23); }
 
 /* Cross-axis alignment. `.sedna-row` centres; a row of fields with labels wants
    `.sedna-start`, and a row of text of different sizes wants `.sedna-baseline`. */

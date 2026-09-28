@@ -127,6 +127,30 @@ public class LayoutGridTests : ScriptTestBase
         Assert.All(boxes, box => Assert.Equal(400, box.Width, 0.5));
     }
 
+    // 23 column gaps of 16px are 368px, so a grid narrower than that — a phone's column —
+    // used to shrink its tracks to nothing and still push every full-row child past its
+    // edge. A gap step makes it worse, not better.
+    [Theory]
+    [InlineData(327, "")]
+    [InlineData(280, "")]
+    [InlineData(327, "sedna-gap-3")]
+    public async Task A_grid_narrower_than_its_gaps_keeps_every_child_inside_it(int width, string gridClass)
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Grid24(width, gridClass, Boxes("sedna-span-6", "", "sedna-span-12")));
+
+        var boxes = await Measure(page, 3);
+        var grid = await MeasureGrid(page);
+
+        Assert.Equal(width, grid.Width, 0.5);
+        Assert.All(boxes, box =>
+        {
+            Assert.Equal(grid.Left, box.Left, 0.5);
+            Assert.Equal(grid.Width, box.Width, 0.5);
+        });
+        Assert.Empty(errors);
+    }
+
     [Fact]
     public async Task The_steps_read_the_grid_and_not_the_viewport()
     {

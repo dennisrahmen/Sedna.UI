@@ -97,13 +97,15 @@
 
 /* Three gap steps and none. `.sedna-row` and `.sedna-col` set one gap; these are for the
    rows that need a tighter or looser one, which was an inline `style="gap:12px"`. */
-/* Each sets `--grid-gap` beside `gap`, because `.sedna-grid-24` computes its column
-   widths from that property: a gap changed on its own would leave the widths sized for
-   the old one and wrap the last panel of every row. */
+/* Each sets `--grid-gap` beside `gap`, because `.sedna-grid-24` and `.sedna-stack`
+   read their gap from that property. The last rule puts back the grid's capped column
+   gap, which the `gap` shorthand here would otherwise replace from this later layer —
+   43-content-grids.css says why it is capped. */
 .sedna-gap-0 { gap: 0;                --grid-gap: 0px; }
 .sedna-gap-1 { gap: var(--space-4);   --grid-gap: var(--space-4); }
 .sedna-gap-2 { gap: var(--space-6);   --grid-gap: var(--space-6); }
 .sedna-gap-3 { gap: var(--space-8);   --grid-gap: var(--space-8); }
+.sedna-grid-24:is(.sedna-gap-0, .sedna-gap-1, .sedna-gap-2, .sedna-gap-3) { column-gap: min(var(--grid-gap), 100% / 23); }
 
 /* Cross-axis alignment. `.sedna-row` centres; a row of fields with labels wants
    `.sedna-start`, and a row of text of different sizes wants `.sedna-baseline`. */
