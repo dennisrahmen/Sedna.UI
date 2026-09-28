@@ -440,7 +440,7 @@ public class GraphControlTests : GraphTestBase
         }
     }
 
-    [Fact(Skip = GraphBugs.FirstDrawingIsHeadless)]
+    [Fact]
     public async Task Arrange_puts_every_record_back_where_the_first_drawing_had_it()
     {
         if (NoBrowser) return;
@@ -474,7 +474,7 @@ public class GraphControlTests : GraphTestBase
         AssertQuiet();
     }
 
-    [Fact(Skip = GraphBugs.LayoutDependsOnZoom)]
+    [Fact]
     public async Task Arrange_lays_the_same_records_out_the_same_way_at_any_zoom()
     {
         if (NoBrowser) return;

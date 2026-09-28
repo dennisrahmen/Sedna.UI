@@ -75,11 +75,11 @@ async function collapsible(g) {
         zIndex: 2,
     });
     g.cy.on('expandcollapse.aftercollapse', 'node', e => {
-        g.emit('sedna-graph-collapse', { id: e.target.id(), label: e.target.data('label') });
+        if (!g.quietFolds) g.emit('sedna-graph-collapse', { id: e.target.id(), label: e.target.data('label') });
         afterStructure(g);
     });
     g.cy.on('expandcollapse.afterexpand', 'node', e => {
-        g.emit('sedna-graph-expand', { id: e.target.id(), label: e.target.data('label') });
+        if (!g.quietFolds) g.emit('sedna-graph-expand', { id: e.target.id(), label: e.target.data('label') });
         afterStructure(g);
     });
     return g.ec;

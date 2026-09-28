@@ -192,7 +192,7 @@ public class GraphKeyboardTests : GraphTestBase
         AssertQuiet();
     }
 
-    [Fact(Skip = GraphBugs.PageUpOffByOne)]
+    [Fact]
     public async Task Page_Up_goes_the_other_way_round_the_links_from_Page_Down()
     {
         if (NoBrowser) return;

@@ -115,10 +115,14 @@ function minimap(g, canvas) {
         if (!timer) timer = setTimeout(draw, 32);
     };
 
+    // From the pointer to the drawing, through the canvas's content box — its border is not
+    // part of what was drawn, and a pixel there is a pixel of error, magnified by the zoom.
     const toModel = e => {
         const r = canvas.getBoundingClientRect();
-        const dpr = canvas.width / Math.max(r.width, 1);
-        return { x: ((e.clientX - r.left) * dpr - ox) / scale, y: ((e.clientY - r.top) * dpr - oy) / scale };
+        const dpr = canvas.width / Math.max(canvas.clientWidth, 1);
+        const px = (e.clientX - r.left - canvas.clientLeft) * dpr;
+        const py = (e.clientY - r.top - canvas.clientTop) * dpr;
+        return { x: (px - ox) / scale, y: (py - oy) / scale };
     };
     const centreOn = e => {
         const m = toModel(e);
@@ -128,6 +132,8 @@ function minimap(g, canvas) {
 
     const onDown = e => {
         if (e.button !== 0) return;
+        dirty = true;
+        draw();
         dragging = true;
         canvas.setPointerCapture?.(e.pointerId);
         g.touched = true;

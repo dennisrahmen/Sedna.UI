@@ -342,7 +342,7 @@ public class GraphPluginTests : GraphTestBase
         AssertQuiet();
     }
 
-    [Fact(Skip = GraphBugs.AddedChildCrashesSprings)]
+    [Fact]
     public async Task A_record_added_to_a_folded_group_is_filed_inside_it_and_the_group_stays_folded()
     {
         if (NoBrowser) return;
@@ -490,6 +490,8 @@ public class GraphPluginTests : GraphTestBase
         await page.EvaluateAsync("() => { window.before = document.getElementById('minimap').toDataURL(); }");
         await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.zoom(3))");
         await page.WaitForFunctionAsync("() => document.getElementById('minimap').toDataURL() !== before");
+        // Records are held at their screen size once the zoom settles; press after that.
+        await page.WaitForFunctionAsync("() => cyOf('g').nodes().first().data('zoom') > 1");
 
         var box = (await page.Locator("#minimap").BoundingBoxAsync())!;
         await page.Mouse.ClickAsync(box.X + box.Width / 2, box.Y + box.Height / 2);

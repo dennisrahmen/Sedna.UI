@@ -13,7 +13,7 @@
    shared library — is put between them, where its neighbours are.
    ─────────────────────────────────────────────────────────────────────────── */
 
-async function islands(cy, visible, aspect, spacing) {
+async function islands(cy, visible, aspect, spacing, box) {
     const nodes = visible.nodes().filter(n => !n.isParent());
     const gap = 36 * spacing;
 

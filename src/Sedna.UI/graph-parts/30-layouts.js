@@ -91,7 +91,7 @@ const springs = (eles, count, spacing, overrides = {}) => eles.layout({
 
 /* Hop rings first, then springs — every run starts from the same place, so the force
    pass only pushes overlaps apart instead of finding a shape from noise. */
-async function rings(visible, options, spacing) {
+async function rings(visible, options, spacing, box) {
     const nodes = visible.nodes().filter(n => !n.isParent());
     const maxDegree = Math.max(1, ...nodes.map(n => n.data('degree') || 0));
     const centre = visible.nodes('.focus').nonempty() ? visible.nodes('.focus') : visible.nodes('[?root]');
@@ -105,6 +105,7 @@ async function rings(visible, options, spacing) {
         animate: false,
         avoidOverlap: true,
         minNodeSpacing: 30 * spacing,
+        boundingBox: box,
         concentric: n => (centre.nonempty() ? 10 - (hops.get(n.id()) ?? 9) : Math.round(6 * (n.data('degree') || 0) / maxDegree)),
         levelWidth: () => 1,
     }).run();
@@ -227,17 +228,17 @@ async function arrangeWith(cy, name, options, frame) {
             }
             return;
         case 'rings':
-            await rings(visible, options, spacing);
+            await rings(visible, options, spacing, frameBox);
             stretch(visible, aspect);
             return;
         case 'islands':
             cy.startBatch();
             try {
-                if (await islands(cy, visible, aspect, spacing)) return;
+                if (await islands(cy, visible, aspect, spacing, frameBox)) return;
             } finally {
                 cy.endBatch();
             }
-            await rings(visible, options, spacing);
+            await rings(visible, options, spacing, frameBox);
             stretch(visible, aspect);
             return;
         case 'force':
@@ -247,11 +248,11 @@ async function arrangeWith(cy, name, options, frame) {
                 return;
             }
             if (visible.nodes('.focus').nonempty() || visible.nodes('[?root]').nonempty()) {
-                await rings(visible, options, spacing);
+                await rings(visible, options, spacing, frameBox);
             } else {
                 await settled(visible.layout({
                     name: 'concentric', fit: false, animate: false, avoidOverlap: true, minNodeSpacing: 24 * spacing,
-                    concentric: n => n.data('degree') || 0, levelWidth: () => 2,
+                    boundingBox: frameBox, concentric: n => n.data('degree') || 0, levelWidth: () => 2,
                 }));
                 await settled(springs(visible, count, spacing));
             }

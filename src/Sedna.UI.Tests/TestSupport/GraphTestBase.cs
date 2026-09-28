@@ -4,51 +4,6 @@ using Microsoft.Playwright;
 namespace Sedna.UI.Tests.TestSupport;
 
 /// <summary>
-/// Defects the graph tests found, each the skip reason of the test that states the
-/// contract it breaks. Fixing one is deleting its <c>Skip</c>.
-/// </summary>
-internal static class GraphBugs
-{
-    public const string PointerMenuEscape =
-        "Bug: Escape does not close a menu opened by a right click. 53-menu.js listens for keys on the menu "
-        + "only, and a menu opened by the pointer is not focused — focus is on the graph, whose keys ignore an "
-        + "open menu. Repro: right-click a record, press Escape.";
-
-    public const string MenuIgnoresScroll =
-        "Bug: a scroll does not close the graph's menu, though 53-menu.js says it does: menus() listens for no "
-        + "scroll, and 22-anchored.js closes only a menu that has a trigger. Repro: right-click a record, scroll "
-        + "the page — the menu stays open, now away from its record.";
-
-    public const string PageUpOffByOne =
-        "Bug: Page Up from a record goes to its second-to-last neighbour, not its last, so with two neighbours "
-        + "Page Up and Page Down go to the same one. 52-keyboard.js along() starts the walk at -1, and "
-        + "(-1 - 1 + n) % n is n - 2. Repro: preset hub-east-far, ring on east: Page Down → far; ring on east "
-        + "again: Page Up → far.";
-
-    public const string FirstDrawingIsHeadless =
-        "Bug: the drawing a graph loads with cannot be arranged back to. It is laid out while the engine is "
-        + "headless, before mount(), when cy.width() and cy.height() are 0; every later run — arrange, reset, a "
-        + "relayout, layout() — is laid out mounted, and cytoscape's concentric and cose layouts size their "
-        + "bounding box from the container. Repro: load a force-layout graph and call "
-        + "(await sednaUi.graph.get('g')).layout() without moving anything: every record moves; a second "
-        + "layout() moves none.";
-
-    public const string LayoutDependsOnZoom =
-        "Bug: the same records are laid out differently at a different zoom. A dot's size is held on screen by "
-        + "shrinking it in the model as the zoom grows (held() in 22-style.js), and the layouts measure those "
-        + "sizes, so arranging zoomed in is a different drawing from arranging zoomed out. Repro: arrange, zoom "
-        + "in three steps, drag a record, arrange: the records land somewhere else.";
-
-    public const string AddedChildCrashesSprings =
-        "Bug: a record added to a live graph inside a group (data-parent) throws in cytoscape's cose — "
-        + "\"Cannot read properties of undefined (reading 'children')\" — and the new data is left half applied: "
-        + "setData() in 70-graph.js runs springs over the new record and its neighbours without its parent, and "
-        + "cose cannot lay out a child without its parent. With data-graph-collapse, every folded group is left "
-        + "unfolded. Repro: force layout, <li data-node=\"team\">, <li data-node=\"a\" data-parent=\"team\">; "
-        + "append <li data-node=\"b\" data-parent=\"team\"> to the list.";
-}
-
-/// <summary>
 /// A fixture page for the graph: the shipped stylesheet and scripts, an event log, and a
 /// console that is listened to from before the page loads.
 /// </summary>

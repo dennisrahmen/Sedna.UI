@@ -521,7 +521,7 @@ public class GraphInteractionTests : GraphTestBase
         AssertQuiet();
     }
 
-    [Fact(Skip = GraphBugs.PointerMenuEscape)]
+    [Fact]
     public async Task Escape_closes_a_menu_opened_by_the_pointer_and_leaves_focus_on_the_graph()
     {
         if (NoBrowser) return;
@@ -555,7 +555,7 @@ public class GraphInteractionTests : GraphTestBase
         AssertQuiet();
     }
 
-    [Fact(Skip = GraphBugs.MenuIgnoresScroll)]
+    [Fact]
     public async Task A_scroll_closes_the_menu()
     {
         if (NoBrowser) return;

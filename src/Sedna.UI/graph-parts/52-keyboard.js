@@ -126,7 +126,9 @@ function keyboard(g) {
             });
         if (!around.length) return null;
         g.walk = g.walk && g.walk.from === from.id() ? g.walk : { from: from.id(), at: -1 };
-        g.walk.at = (g.walk.at + step + around.length) % around.length;
+        g.walk.at = g.walk.at < 0
+            ? (step > 0 ? 0 : around.length - 1)
+            : (g.walk.at + step + around.length) % around.length;
         const next = around[g.walk.at];
         g.walk = { from: next.id(), at: -1 };
         return next;

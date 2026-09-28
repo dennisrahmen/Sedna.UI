@@ -58,9 +58,11 @@ function menus(g) {
     }
 
     function close(refocus) {
-        if (!menu || menu.hidden) return;
-        menu.hidden = true;
-        target = null;
+        if (!menu) return;
+        if (!menu.hidden) {
+            menu.hidden = true;
+            target = null;
+        }
         if (refocus) g.el.focus({ preventScroll: true });
     }
 
@@ -76,15 +78,34 @@ function menus(g) {
         else if (e.key === 'Tab') close(false);
     }
     const onOutside = e => { if (!menu.hidden && !menu.contains(e.target)) close(false); };
+    // Opened by the pointer, the menu has no focus, so Escape is heard on the document.
+    const onEscape = e => {
+        if (menu.hidden || e.key !== 'Escape' || menu.contains(e.target)) return;
+        close(g.el.contains(document.activeElement) || document.activeElement === document.body);
+        e.preventDefault();
+    };
+    // A scroll or a move of the view takes the record from under the menu.
+    const onScroll = e => { if (!menu.hidden && !menu.contains(e.target)) close(false); };
+    const onViewport = () => { if (!menu.hidden && !picking) close(false); };
+    // After the item's own action has read the menu's record, not before.
+    let picking = false;
     const onPick = e => {
         const item = e.target.closest('.menu-item, [role="menuitem"]');
-        if (item && menu.contains(item)) setTimeout(() => close(true), 0);
+        if (!item || !menu.contains(item)) return;
+        picking = true;
+        setTimeout(() => {
+            picking = false;
+            close(true);
+        }, 0);
     };
 
     if (menu) {
         menu.addEventListener('keydown', onKey);
         menu.addEventListener('click', onPick);
         document.addEventListener('pointerdown', onOutside, true);
+        document.addEventListener('keydown', onEscape);
+        window.addEventListener('scroll', onScroll, true);
+        g.cy.on('pan zoom', onViewport);
     }
 
     return {
@@ -97,6 +118,9 @@ function menus(g) {
             menu.removeEventListener('keydown', onKey);
             menu.removeEventListener('click', onPick);
             document.removeEventListener('pointerdown', onOutside, true);
+            document.removeEventListener('keydown', onEscape);
+            window.removeEventListener('scroll', onScroll, true);
+            g.cy.off('pan zoom', onViewport);
         },
     };
 }

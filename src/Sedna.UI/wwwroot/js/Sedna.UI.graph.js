@@ -848,7 +848,7 @@ const springs = (eles, count, spacing, overrides = {}) => eles.layout({
 
 /* Hop rings first, then springs — every run starts from the same place, so the force
    pass only pushes overlaps apart instead of finding a shape from noise. */
-async function rings(visible, options, spacing) {
+async function rings(visible, options, spacing, box) {
     const nodes = visible.nodes().filter(n => !n.isParent());
     const maxDegree = Math.max(1, ...nodes.map(n => n.data('degree') || 0));
     const centre = visible.nodes('.focus').nonempty() ? visible.nodes('.focus') : visible.nodes('[?root]');
@@ -862,6 +862,7 @@ async function rings(visible, options, spacing) {
         animate: false,
         avoidOverlap: true,
         minNodeSpacing: 30 * spacing,
+        boundingBox: box,
         concentric: n => (centre.nonempty() ? 10 - (hops.get(n.id()) ?? 9) : Math.round(6 * (n.data('degree') || 0) / maxDegree)),
         levelWidth: () => 1,
     }).run();
@@ -984,17 +985,17 @@ async function arrangeWith(cy, name, options, frame) {
             }
             return;
         case 'rings':
-            await rings(visible, options, spacing);
+            await rings(visible, options, spacing, frameBox);
             stretch(visible, aspect);
             return;
         case 'islands':
             cy.startBatch();
             try {
-                if (await islands(cy, visible, aspect, spacing)) return;
+                if (await islands(cy, visible, aspect, spacing, frameBox)) return;
             } finally {
                 cy.endBatch();
             }
-            await rings(visible, options, spacing);
+            await rings(visible, options, spacing, frameBox);
             stretch(visible, aspect);
             return;
         case 'force':
@@ -1004,11 +1005,11 @@ async function arrangeWith(cy, name, options, frame) {
                 return;
             }
             if (visible.nodes('.focus').nonempty() || visible.nodes('[?root]').nonempty()) {
-                await rings(visible, options, spacing);
+                await rings(visible, options, spacing, frameBox);
             } else {
                 await settled(visible.layout({
                     name: 'concentric', fit: false, animate: false, avoidOverlap: true, minNodeSpacing: 24 * spacing,
-                    concentric: n => n.data('degree') || 0, levelWidth: () => 2,
+                    boundingBox: frameBox, concentric: n => n.data('degree') || 0, levelWidth: () => 2,
                 }));
                 await settled(springs(visible, count, spacing));
             }
@@ -1078,7 +1079,7 @@ function restoreRandom() {
    shared library — is put between them, where its neighbours are.
    ─────────────────────────────────────────────────────────────────────────── */
 
-async function islands(cy, visible, aspect, spacing) {
+async function islands(cy, visible, aspect, spacing, box) {
     const nodes = visible.nodes().filter(n => !n.isParent());
     const gap = 36 * spacing;
 
@@ -1727,10 +1728,14 @@ function minimap(g, canvas) {
         if (!timer) timer = setTimeout(draw, 32);
     };
 
+    // From the pointer to the drawing, through the canvas's content box — its border is not
+    // part of what was drawn, and a pixel there is a pixel of error, magnified by the zoom.
     const toModel = e => {
         const r = canvas.getBoundingClientRect();
-        const dpr = canvas.width / Math.max(r.width, 1);
-        return { x: ((e.clientX - r.left) * dpr - ox) / scale, y: ((e.clientY - r.top) * dpr - oy) / scale };
+        const dpr = canvas.width / Math.max(canvas.clientWidth, 1);
+        const px = (e.clientX - r.left - canvas.clientLeft) * dpr;
+        const py = (e.clientY - r.top - canvas.clientTop) * dpr;
+        return { x: (px - ox) / scale, y: (py - oy) / scale };
     };
     const centreOn = e => {
         const m = toModel(e);
@@ -1740,6 +1745,8 @@ function minimap(g, canvas) {
 
     const onDown = e => {
         if (e.button !== 0) return;
+        dirty = true;
+        draw();
         dragging = true;
         canvas.setPointerCapture?.(e.pointerId);
         g.touched = true;
@@ -2025,7 +2032,9 @@ function keyboard(g) {
             });
         if (!around.length) return null;
         g.walk = g.walk && g.walk.from === from.id() ? g.walk : { from: from.id(), at: -1 };
-        g.walk.at = (g.walk.at + step + around.length) % around.length;
+        g.walk.at = g.walk.at < 0
+            ? (step > 0 ? 0 : around.length - 1)
+            : (g.walk.at + step + around.length) % around.length;
         const next = around[g.walk.at];
         g.walk = { from: next.id(), at: -1 };
         return next;
@@ -2197,9 +2206,11 @@ function menus(g) {
     }
 
     function close(refocus) {
-        if (!menu || menu.hidden) return;
-        menu.hidden = true;
-        target = null;
+        if (!menu) return;
+        if (!menu.hidden) {
+            menu.hidden = true;
+            target = null;
+        }
         if (refocus) g.el.focus({ preventScroll: true });
     }
 
@@ -2215,15 +2226,34 @@ function menus(g) {
         else if (e.key === 'Tab') close(false);
     }
     const onOutside = e => { if (!menu.hidden && !menu.contains(e.target)) close(false); };
+    // Opened by the pointer, the menu has no focus, so Escape is heard on the document.
+    const onEscape = e => {
+        if (menu.hidden || e.key !== 'Escape' || menu.contains(e.target)) return;
+        close(g.el.contains(document.activeElement) || document.activeElement === document.body);
+        e.preventDefault();
+    };
+    // A scroll or a move of the view takes the record from under the menu.
+    const onScroll = e => { if (!menu.hidden && !menu.contains(e.target)) close(false); };
+    const onViewport = () => { if (!menu.hidden && !picking) close(false); };
+    // After the item's own action has read the menu's record, not before.
+    let picking = false;
     const onPick = e => {
         const item = e.target.closest('.menu-item, [role="menuitem"]');
-        if (item && menu.contains(item)) setTimeout(() => close(true), 0);
+        if (!item || !menu.contains(item)) return;
+        picking = true;
+        setTimeout(() => {
+            picking = false;
+            close(true);
+        }, 0);
     };
 
     if (menu) {
         menu.addEventListener('keydown', onKey);
         menu.addEventListener('click', onPick);
         document.addEventListener('pointerdown', onOutside, true);
+        document.addEventListener('keydown', onEscape);
+        window.addEventListener('scroll', onScroll, true);
+        g.cy.on('pan zoom', onViewport);
     }
 
     return {
@@ -2236,6 +2266,9 @@ function menus(g) {
             menu.removeEventListener('keydown', onKey);
             menu.removeEventListener('click', onPick);
             document.removeEventListener('pointerdown', onOutside, true);
+            document.removeEventListener('keydown', onEscape);
+            window.removeEventListener('scroll', onScroll, true);
+            g.cy.off('pan zoom', onViewport);
         },
     };
 }
@@ -2978,11 +3011,11 @@ async function collapsible(g) {
         zIndex: 2,
     });
     g.cy.on('expandcollapse.aftercollapse', 'node', e => {
-        g.emit('sedna-graph-collapse', { id: e.target.id(), label: e.target.data('label') });
+        if (!g.quietFolds) g.emit('sedna-graph-collapse', { id: e.target.id(), label: e.target.data('label') });
         afterStructure(g);
     });
     g.cy.on('expandcollapse.afterexpand', 'node', e => {
-        g.emit('sedna-graph-expand', { id: e.target.id(), label: e.target.data('label') });
+        if (!g.quietFolds) g.emit('sedna-graph-expand', { id: e.target.id(), label: e.target.data('label') });
         afterStructure(g);
     });
     return g.ec;
@@ -3303,9 +3336,14 @@ async function arrange(g, animate) {
     const moving = cy.nodes().not('.hidden').filter(n => !n.isParent());
     const before = animate && cy.container() && moving.length <= 600 && !reducedMotion() && document.visibilityState === 'visible'
         ? new Map(moving.map(n => [n.id(), Object.assign({}, n.position())])) : null;
+    unzoomed(g);
+    // Mounted before the first layout, not after: cytoscape's springs and rings size their
+    // box from the container, and a drawing made headless could never be arranged back to.
+    // The filter has already hidden what will not be shown, so only that is prepared, and
+    // the app's .graph-wait covers the canvas until the state leaves loading.
+    mount(g);
     await arrangeWith(cy, g.options.layout, g.options, g.el);
     if (run !== g.arranging || g.disposed) return;
-    mount(g);
     if (before) {
         const after = new Map(moving.map(n => [n.id(), Object.assign({}, n.position())]));
         if (!g.touched) fitView(g, null, true);
@@ -3329,6 +3367,15 @@ async function arrange(g, animate) {
         g.minimap?.now();
         if (g.hullsOn) drawHulls(g);
     }
+}
+
+/* A dot is held at a readable screen size by shrinking it in the drawing as the zoom grows,
+   and a layout measures records — so it is handed their own size first, and the view puts
+   the zoom back when it settles. Otherwise arranging zoomed in is a different drawing. */
+function unzoomed(g) {
+    if (g.step === 1) return;
+    g.step = 1;
+    g.cy.batch(() => g.cy.elements().data('zoom', 1));
 }
 
 function mount(g) {
@@ -3391,6 +3438,7 @@ async function setData(g, data, opts = {}) {
         opts = Object.assign({}, opts, { relayout: true });
     }
     const folded = foldedIds(g);
+    g.quietFolds = true;
     if (g.ec && folded.length) g.ec.expandAll({ animate: false, fisheye: false });
     g.model = normalise(data);
     const els = toElements(g);
@@ -3437,16 +3485,28 @@ async function setData(g, data, opts = {}) {
     if (opts.relayout || (!opts.quiet && (many || (shapeMatters && (addedNodes.nonempty() || removed.nodes().nonempty()))))) {
         await arrange(g, !first);
     } else if (addedNodes.nonempty() && g.options.layout !== 'preset') {
-        const around = addedNodes.union(addedNodes.neighborhood()).not('.hidden');
-        const still = cy.nodes().not(around);
-        still.lock();
-        try {
-            await settled(springs(around.union(around.edgesWith(around)), around.nodes().length, SPACING[g.options.spacing] || 1, { numIter: 300 }));
-        } finally {
-            still.unlock();
+        // A record in a group cannot be laid out without its group, so a compound drawing
+        // is laid out whole; the springs make room around new records everywhere else.
+        const compound = addedNodes.some(n => n.isChild() || n.isParent());
+        if (compound) {
+            await arrange(g, true);
+        } else {
+            unzoomed(g);
+            const around = addedNodes.union(addedNodes.neighborhood()).not('.hidden');
+            const still = cy.nodes().not(around);
+            still.lock();
+            try {
+                await settled(springs(around.union(around.edgesWith(around)), around.nodes().length, SPACING[g.options.spacing] || 1, { numIter: 300 }));
+            } catch (e) {
+                report(e);
+                still.unlock();
+                await arrange(g, true);
+            } finally {
+                still.unlock();
+            }
+            settle(g);
+            g.minimap?.now();
         }
-        settle(g);
-        g.minimap?.now();
     } else {
         settle(g);
         g.minimap?.now();
@@ -3457,6 +3517,7 @@ async function setData(g, data, opts = {}) {
         const again = cy.collection(folded.map(id => cy.getElementById(id)).filter(n => n.nonempty())).union(arriving);
         if (again.nonempty()) g.ec.collapse(again, { animate: false, fisheye: false });
     }
+    g.quietFolds = false;
     if (g.hullsOn) drawHulls(g);
     if (g.selected && (g.selected.removed() || g.selected.hasClass('hidden'))) select(g, null);
     else showDetail(g);
@@ -3715,7 +3776,12 @@ async function plugins(g) {
     if (g.options.collapse || g.model.nodes.some(n => n.fields.collapsed !== undefined)) {
         jobs.push(collapsible(g).then(ec => {
             const folded = g.cy.nodes(':parent').filter(n => flag(n.data('fields')?.collapsed));
-            if (folded.nonempty()) ec.collapse(folded, { animate: false, fisheye: false });
+            g.quietFolds = true;
+            try {
+                if (folded.nonempty()) ec.collapse(folded, { animate: false, fisheye: false });
+            } finally {
+                g.quietFolds = false;
+            }
         }));
     }
     if (g.options.hulls) jobs.push(hulls(g, true).then(() => pressed('hulls', true)));

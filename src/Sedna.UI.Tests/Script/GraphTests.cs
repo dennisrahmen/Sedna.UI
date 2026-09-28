@@ -216,8 +216,9 @@ public class GraphTests : GraphTestBase
         await State(page, "g", "error");
         await Assertions.Expect(page.Locator("#g .graph-empty--error")).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator("#g .graph-wait")).ToBeHiddenAsync();
-        // Said in the console, with what went wrong.
-        Assert.Contains(Errors, e => e.Contains("/api/graph", StringComparison.Ordinal) && e.Contains("500", StringComparison.Ordinal));
+        // Said in the console, with what went wrong — as a warning: the app's endpoint failed,
+        // not the script.
+        Assert.Contains(Warnings, e => e.Contains("/api/graph", StringComparison.Ordinal) && e.Contains("500", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -758,7 +759,7 @@ public class GraphTests : GraphTestBase
         AssertQuiet();
     }
 
-    [Fact(Skip = GraphBugs.AddedChildCrashesSprings)]
+    [Fact]
     public async Task An_item_added_inside_a_group_is_drawn_inside_it()
     {
         if (NoBrowser) return;
