@@ -108,6 +108,11 @@ layout. The component takes `[CascadingParameter] SednaOverlay Overlay`, puts `i
 `<dialog>`, renders that dialog on its first render, and closes with `Overlay.CloseAsync(result)` or
 `Overlay.CancelAsync()`.
 
+A dialog holding unsaved work **asks before it closes**: put `data-close-guard @oncancel="Dismiss"` on
+the `<dialog>`, point its close buttons at the same `Dismiss`, and have it ask and then call
+`Overlay.CancelAsync()`. Escape then never closes the dialog by itself. Do not write
+`@oncancel:preventDefault` — Razor renders it as a literal attribute and the render throws.
+
 A tour step is `ISednaUi.FollowSpotlightAsync(hole, target, options)`; dispose the `SednaSpotlight` it
 returns when the step ends.
 

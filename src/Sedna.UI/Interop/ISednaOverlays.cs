@@ -35,6 +35,15 @@ namespace Sedna.UI;
 /// data has arrived — the dialog is opened as soon as the component has rendered once.
 /// </para>
 /// <para>
+/// A component holding unsaved work asks before it closes. <c>data-close-guard</c> on its
+/// dialog stops <kbd>Escape</kbd> and a swipe down on a <c>.sheet</c> from closing it and
+/// raises <c>cancel</c> instead; the handler asks and closes it with
+/// <see cref="SednaOverlay.CancelAsync"/>. Point the close buttons at the same handler:
+/// <code>
+/// &lt;dialog id="@Overlay.Id" class="modal" data-close-guard @oncancel="Dismiss"&gt;
+/// </code>
+/// </para>
+/// <para>
 /// Place <see cref="SednaOverlayHost"/> once, in the layout. Calling
 /// <see cref="ShowAsync{TComponent, TResult}"/> with no host rendered throws, because
 /// nothing would ever render the component and the call would never complete.

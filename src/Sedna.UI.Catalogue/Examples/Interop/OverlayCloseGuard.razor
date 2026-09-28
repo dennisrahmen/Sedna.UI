@@ -1,0 +1,20 @@
+@inject ISednaOverlays Overlays
+
+<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+    <button class="btn" type="button" @onclick="Reply">
+        <i class="ri-reply-line"></i> Reply on ORD-4209
+    </button>
+    <span class="badge">@_outcome</span>
+</div>
+
+@code {
+    private string _outcome = "nothing yet";
+
+    // ReplyToOrder asks before it closes with a message still unsent, so null here
+    // means nothing was written or the reader chose to discard it.
+    private async Task Reply()
+    {
+        var message = await Overlays.ShowAsync<ReplyToOrder, string>();
+        _outcome = message is null ? "not sent" : "sent";
+    }
+}

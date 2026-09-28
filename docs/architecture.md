@@ -484,7 +484,7 @@ Two things the flat list does not say:
 | `settings` | `load()`, `save(key, value)`, `apply()`, `onChange(fn)` → unsubscribe. Keys: `theme`, `variant`, `cvd`, `density`, `dir`, `lang` |
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally; `tips.setEnabled(bool)` switches them all, and is what `ISednaUi.SetTipsEnabledAsync` calls |
 | `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. The stack is a manual `popover` in the top layer, moved into the topmost open modal `<dialog>` while one is open. Returns its own remover, whose `id` names the toast; `timeout: 0` stays until dismissed; `dismissLabel` — or `configure({ toastDismissLabel })` — names the close button. `toast.show(message, options)` returns the id, `toast.dismiss(id)` removes it early, `toast.replace(id, message, options)` changes it in place or shows a new one when it has gone |
-| `modal` | The presenter for an app's own `<dialog>` — `.modal`, `.drawer`, `.sheet`, `.lightbox`. `show(id)` → `showModal()`, returning a promise of its `returnValue` once it closes, or `null` for a close without one; a second `show` on an open dialog joins the first wait. `close(id, value)` → `close(value)`. `idle(id)` resolves once a closed dialog's transition has finished. An id that is not a `<dialog>` warns in the console and resolves `null` — an exception crossing the interop boundary from a Blazor handler tears down the circuit |
+| `modal` | The presenter for an app's own `<dialog>` — `.modal`, `.drawer`, `.sheet`, `.lightbox`. `show(id)` → `showModal()`, returning a promise of its `returnValue` once it closes, or `null` for a close without one; a second `show` on an open dialog joins the first wait. `close(id, value)` → `close(value)`. `idle(id)` resolves once a closed dialog's transition has finished. An id that is not a `<dialog>` warns in the console and resolves `null` — an exception crossing the interop boundary from a Blazor handler tears down the circuit. `data-close-guard` on a `<dialog>` refuses its `cancel`, so no close request — Escape, a sheet swipe, a `request-close` command — closes it, and the app's `@oncancel` decides. The script refuses it because Razor renders `@oncancel:preventDefault` as a literal attribute. On an open modal it also turns Escape into `requestClose()`, whose `cancel` is always cancelable — Chromium otherwise stops honouring the refusal after a few presses without a click between. Escape another handler cancelled, or meant for an open popover, is left alone |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | — | `22-anchored.js` adds no member. It closes an open `.menu`, `.popover` or `.form-combo-panel` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |
 | — | `22-scroll-edge.js` adds no member. It marks every `.sedna-scroll-x` with `data-scroll-start` / `data-scroll-end` as it scrolls, which is what a pinned table column's edge shadow reads in an engine without `scroll-state()` container queries — WebKit — and agrees with the query where it exists |
@@ -511,14 +511,15 @@ Two things the flat list does not say:
 
 Several behaviours are delegated from `document`, so content rendered after load is covered without
 re-wiring: hover hints, `data-menu-toggle`, `data-combo`, `data-tabs`, `data-search`, `data-drag-zone`, `data-dropzone`,
-`data-sheet`, same-page fragment links, and `data-copy` / `data-copy-target`. The last two have no
+`data-sheet`, `data-close-guard`, same-page fragment links, and `data-copy` / `data-copy-target`. The last two have no
 member on the global — the attribute is the whole API. The outcome is `data-copied="ok"` or
 `"failed"` on the button for 1.4 seconds; the app's markup marks what shows at rest with
 `data-copied-hide` and what replaces it with `data-copied-show="ok"` / `"failed"`, and the stylesheet
 does the rest. The script never rewrites the button.
 
 `data-sheet` on a `<dialog class="sheet">` opts into dragging it down to dismiss: the sheet follows
-the pointer from the handle or the header, and closes past a quarter of its height or on a flick.
+the pointer from the handle or the header, and closes past a quarter of its height or on a flick —
+through `requestClose()`, so a sheet with `data-close-guard` springs back instead.
 It is `<dialog>`-only, because the `div` form's open state is a class the app owns. The handle stays
 unfocusable, so the drag is deliberately not a keyboard path — the close button is what makes a
 sheet dismissible.

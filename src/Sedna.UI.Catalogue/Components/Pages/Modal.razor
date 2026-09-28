@@ -72,6 +72,18 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.OverlayCloseGuard" Title="Asking before it closes" Demo="ex-demo--block" Companion="Interop/ReplyToOrder.razor">
+    <p>
+        <strong>Live — write something, then press <kbd>Escape</kbd>.</strong>
+        <code>data-close-guard</code> stops <kbd>Escape</kbd> closing a dialog that holds unsaved
+        work — and a swipe down on a <code>.sheet</code> — and raises <code>cancel</code> instead.
+        <code>@@oncancel</code> asks, then calls <code>Overlay.CancelAsync()</code>; point the close
+        button and Cancel at the same handler. It holds however often <kbd>Escape</kbd> is
+        pressed, which a dialog refusing <code>cancel</code> on its own does not: the browser gives
+        up on the refusal after a few presses in a row.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Modal.ScrollingBody" Title="Scrolling body" Demo="ex-demo--block">
     <p>
         <strong>The body scrolls on its own; there is nothing to add.</strong> The cap is
