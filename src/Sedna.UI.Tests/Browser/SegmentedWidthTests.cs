@@ -37,6 +37,32 @@ public class SegmentedWidthTests : ScriptTestBase
         Assert.Empty(errors);
     }
 
+    // A kind switch at the top of a capture dialog, whose body is a column: the shape
+    // several consuming apps wrote, and the one that made the bug look universal.
+    [Fact]
+    public async Task A_modal_body_that_is_a_column_does_not_stretch_it()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled($"""
+            <dialog class="modal" id="dlg">
+              <div class="modal-header"><h3>Capture</h3></div>
+              <div class="modal-body sedna-col sedna-gap-2" id="box">
+                <div class="segmented" id="seg" role="group" aria-label="Kind">{string.Format(Control, "c")}</div>
+                <div class="form-field"><label class="form-label" for="t">Title</label><input class="form-input" id="t"></div>
+              </div>
+            </dialog>
+            """);
+        await page.EvaluateAsync("() => document.getElementById('dlg').showModal()");
+
+        var widths = await page.EvaluateAsync<double[]>("""
+            () => ['box', 'seg', 't'].map(id => document.getElementById(id).getBoundingClientRect().width)
+            """);
+
+        Assert.True(widths[1] < widths[2] / 2,
+            $"The segmented control is {widths[1]}px wide beside a {widths[2]}px field in a {widths[0]}px body.");
+        Assert.Empty(errors);
+    }
+
     [Fact]
     public async Task A_filter_row_cell_still_fills()
     {
