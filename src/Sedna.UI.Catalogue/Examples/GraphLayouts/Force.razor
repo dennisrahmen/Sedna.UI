@@ -1,0 +1,61 @@
+<div class="graph-frame">
+    <div class="graph" data-graph id="layout-force" data-graph-edge-labels="none" aria-label="Which services use which shared libraries">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="storefront" data-kind="service" data-tone="2" data-icon="ri-store-2-line">Storefront</li>
+            <li data-node="checkout" data-kind="service" data-tone="2" data-icon="ri-secure-payment-line">Checkout</li>
+            <li data-node="payments" data-kind="service" data-tone="2" data-icon="ri-bank-card-line">Payments</li>
+            <li data-node="orders" data-kind="service" data-tone="2" data-icon="ri-file-list-3-line">Orders</li>
+            <li data-node="invoices" data-kind="service" data-tone="2" data-icon="ri-bill-line">Invoices</li>
+            <li data-node="search" data-kind="service" data-tone="2" data-icon="ri-search-line">Search</li>
+            <li data-node="indexer" data-kind="service" data-tone="2" data-icon="ri-refresh-line">Indexer</li>
+            <li data-node="returns" data-kind="service" data-tone="2" data-icon="ri-arrow-go-back-line">Returns</li>
+            <li data-node="mail" data-kind="service" data-tone="2" data-icon="ri-mail-send-line">Order mails</li>
+            <li data-node="reports" data-kind="service" data-tone="2" data-icon="ri-bar-chart-box-line">Reports</li>
+            <li data-node="http" data-kind="library" data-shape="square" data-tone="5">http-client</li>
+            <li data-node="auth" data-kind="library" data-shape="square" data-tone="5">auth-sdk</li>
+            <li data-node="metrics" data-kind="library" data-shape="square" data-tone="5">metrics</li>
+            <li data-node="retry" data-kind="library" data-shape="square" data-tone="5">retry-policy</li>
+            <li data-node="money" data-kind="library" data-shape="square" data-tone="5">money</li>
+            <li data-node="pdf" data-kind="library" data-shape="square" data-tone="5">pdf-render</li>
+            <li data-node="templates" data-kind="library" data-shape="square" data-tone="5">mail-templates</li>
+            <li data-node="analyzers" data-kind="library" data-shape="square" data-tone="5">text-analyzers</li>
+            <li data-node="images" data-kind="library" data-shape="square" data-tone="5">image-resize</li>
+            <li data-edge data-source="storefront" data-target="http">The storefront uses http-client</li>
+            <li data-edge data-source="storefront" data-target="auth">The storefront uses auth-sdk</li>
+            <li data-edge data-source="storefront" data-target="images">The storefront uses image-resize</li>
+            <li data-edge data-source="storefront" data-target="metrics">The storefront uses metrics</li>
+            <li data-edge data-source="checkout" data-target="http">Checkout uses http-client</li>
+            <li data-edge data-source="checkout" data-target="auth">Checkout uses auth-sdk</li>
+            <li data-edge data-source="checkout" data-target="money">Checkout uses money</li>
+            <li data-edge data-source="checkout" data-target="retry">Checkout uses retry-policy</li>
+            <li data-edge data-source="checkout" data-target="metrics">Checkout uses metrics</li>
+            <li data-edge data-source="payments" data-target="http">Payments uses http-client</li>
+            <li data-edge data-source="payments" data-target="money">Payments uses money</li>
+            <li data-edge data-source="payments" data-target="retry">Payments uses retry-policy</li>
+            <li data-edge data-source="payments" data-target="metrics">Payments uses metrics</li>
+            <li data-edge data-source="orders" data-target="money">Orders uses money</li>
+            <li data-edge data-source="orders" data-target="retry">Orders uses retry-policy</li>
+            <li data-edge data-source="orders" data-target="metrics">Orders uses metrics</li>
+            <li data-edge data-source="invoices" data-target="money">Invoices uses money</li>
+            <li data-edge data-source="invoices" data-target="pdf">Invoices uses pdf-render</li>
+            <li data-edge data-source="invoices" data-target="templates">Invoices uses mail-templates</li>
+            <li data-edge data-source="returns" data-target="money">Returns uses money</li>
+            <li data-edge data-source="returns" data-target="pdf">Returns uses pdf-render</li>
+            <li data-edge data-source="returns" data-target="auth">Returns uses auth-sdk</li>
+            <li data-edge data-source="mail" data-target="templates">Order mails uses mail-templates</li>
+            <li data-edge data-source="mail" data-target="retry">Order mails uses retry-policy</li>
+            <li data-edge data-source="search" data-target="analyzers">Search uses text-analyzers</li>
+            <li data-edge data-source="search" data-target="metrics">Search uses metrics</li>
+            <li data-edge data-source="indexer" data-target="analyzers">The indexer uses text-analyzers</li>
+            <li data-edge data-source="indexer" data-target="http">The indexer uses http-client</li>
+            <li data-edge data-source="reports" data-target="pdf">Reports uses pdf-render</li>
+            <li data-edge data-source="reports" data-target="money">Reports uses money</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch series-2"></span>Service</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-5"></span>Shared library</span>
+    </div>
+</div>

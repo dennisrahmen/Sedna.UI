@@ -1,0 +1,33 @@
+<div class="graph-frame">
+    <div class="card">
+        <div class="graph graph--sm" data-graph id="layout-pipeline" data-graph-layout="dagre" data-graph-direction="LR"
+             data-graph-nodes="box" data-graph-arrows="target" data-graph-curve="round-taxi" data-graph-edge-labels="none"
+             aria-label="Release 2.14.1, stage by stage">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="build" data-tone="go" data-icon="ri-hammer-line" data-meta="a3f9c1e · 3 min 12 s">Build</li>
+                <li data-node="lint" data-tone="go" data-icon="ri-checkbox-circle-line" data-meta="No warnings">Lint</li>
+                <li data-node="unit" data-tone="warn" data-icon="ri-flask-line" data-meta="Passed on retry">Unit tests</li>
+                <li data-node="scan" data-tone="go" data-icon="ri-shield-check-line" data-meta="No findings">Security scan</li>
+                <li data-node="package" data-tone="go" data-icon="ri-archive-2-line" data-meta="v2.14.1 · 84 MB">Package</li>
+                <li data-node="staging" data-tone="info" data-icon="ri-loader-4-line" data-meta="Smoke tests, 12 of 30">Staging</li>
+                <li data-node="production" data-muted data-icon="ri-rocket-2-line" data-meta="Needs approval">Production</li>
+                <li data-edge data-source="build" data-target="lint">The build is linted</li>
+                <li data-edge data-source="build" data-target="unit">The build is unit tested</li>
+                <li data-edge data-source="build" data-target="scan">The build is scanned for vulnerabilities</li>
+                <li data-edge data-source="lint" data-target="package">Lint must pass before packaging</li>
+                <li data-edge data-source="unit" data-target="package">Unit tests must pass before packaging</li>
+                <li data-edge data-source="scan" data-target="package">The security scan must pass before packaging</li>
+                <li data-edge data-source="package" data-target="staging">The package is deployed to staging and smoke tested</li>
+                <li data-edge data-source="staging" data-target="production" data-line="dashed">Staging is released to production once approved</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-go"></span>Passed</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-warn"></span>Passed on a retry</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-info"></span>Running</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded graph-swatch--muted series-muted"></span>Waiting</span>
+    </div>
+</div>

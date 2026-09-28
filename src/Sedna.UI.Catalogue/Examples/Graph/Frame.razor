@@ -1,0 +1,92 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <input class="form-input toolbar-input toolbar-input--wide" type="search" placeholder="Find a service"
+                   aria-label="Find a service" data-graph-search />
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} services · {edges} links"
+              data-graph-stats-match="{matches} of {nodes} services match"></span>
+    </div>
+    <div class="card">
+        <div class="graph" data-graph id="graph-platform" data-graph-arrows="target"
+             aria-label="Platform services and the calls between them">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="storefront" data-tone="1" data-icon="ri-store-2-line" data-meta="Commerce">Storefront</li>
+                <li data-node="catalogue" data-tone="1" data-icon="ri-book-shelf-line" data-meta="Commerce">Catalogue</li>
+                <li data-node="search" data-tone="1" data-icon="ri-search-line" data-meta="Commerce">Search</li>
+                <li data-node="cart" data-tone="1" data-icon="ri-shopping-cart-2-line" data-meta="Commerce">Cart</li>
+                <li data-node="checkout" data-tone="1" data-icon="ri-secure-payment-line" data-meta="Commerce">Checkout</li>
+                <li data-node="payments" data-tone="2" data-icon="ri-bank-card-line" data-meta="Payments">Payments</li>
+                <li data-node="fraud" data-tone="2" data-icon="ri-shield-check-line" data-meta="Payments">Fraud check</li>
+                <li data-node="ledger" data-tone="2" data-icon="ri-book-2-line" data-meta="Payments">Ledger</li>
+                <li data-node="invoices" data-tone="2" data-icon="ri-bill-line" data-meta="Payments">Invoices</li>
+                <li data-node="orders" data-tone="3" data-icon="ri-file-list-3-line" data-meta="Fulfilment">Orders</li>
+                <li data-node="stock" data-tone="3" data-icon="ri-stack-line" data-meta="Fulfilment">Stock</li>
+                <li data-node="warehouse" data-tone="3" data-icon="ri-building-3-line" data-meta="Fulfilment">Warehouse</li>
+                <li data-node="shipping" data-tone="3" data-icon="ri-truck-line" data-meta="Fulfilment">Shipping</li>
+                <li data-node="returns" data-tone="3" data-icon="ri-arrow-go-back-line" data-meta="Fulfilment">Returns</li>
+                <li data-node="identity" data-tone="4" data-icon="ri-fingerprint-line" data-meta="Platform">Identity</li>
+                <li data-node="notify" data-tone="4" data-icon="ri-notification-3-line" data-meta="Platform">Notifications</li>
+                <li data-node="audit" data-tone="4" data-icon="ri-file-shield-2-line" data-meta="Platform">Audit log</li>
+                <li data-node="flags" data-tone="4" data-icon="ri-toggle-line" data-meta="Platform">Feature flags</li>
+                <li data-edge data-source="storefront" data-target="catalogue" data-label="lists">The storefront lists products from the catalogue</li>
+                <li data-edge data-source="storefront" data-target="search" data-label="searches">The storefront searches with search</li>
+                <li data-edge data-source="search" data-target="catalogue" data-label="indexes" data-line="dashed">Search indexes the catalogue</li>
+                <li data-edge data-source="storefront" data-target="cart" data-label="fills">The storefront fills the cart</li>
+                <li data-edge data-source="cart" data-target="checkout" data-label="hands over">The cart hands over to checkout</li>
+                <li data-edge data-source="checkout" data-target="payments" data-label="charges">Checkout charges through payments</li>
+                <li data-edge data-source="checkout" data-target="orders" data-label="places">Checkout places the order</li>
+                <li data-edge data-source="payments" data-target="fraud" data-label="screens">Payments screens each charge with the fraud check</li>
+                <li data-edge data-source="payments" data-target="ledger" data-label="books">Payments books each charge in the ledger</li>
+                <li data-edge data-source="orders" data-target="invoices" data-label="bills" data-line="dashed">Orders bills through invoices</li>
+                <li data-edge data-source="invoices" data-target="ledger" data-label="books">Invoices books each invoice in the ledger</li>
+                <li data-edge data-source="orders" data-target="stock" data-label="reserves">Orders reserves the items in stock</li>
+                <li data-edge data-source="stock" data-target="warehouse" data-label="picks">Stock asks the warehouse to pick</li>
+                <li data-edge data-source="warehouse" data-target="shipping" data-label="hands over">The warehouse hands the parcel to shipping</li>
+                <li data-edge data-source="returns" data-target="stock" data-label="restocks">Returns puts items back in stock</li>
+                <li data-edge data-source="returns" data-target="payments" data-label="refunds">Returns refunds through payments</li>
+                <li data-edge data-source="storefront" data-target="identity" data-label="signs in">The storefront signs customers in with identity</li>
+                <li data-edge data-source="checkout" data-target="identity" data-label="verifies">Checkout verifies the customer with identity</li>
+                <li data-edge data-source="orders" data-target="notify" data-label="announces" data-line="dashed">Orders announces each change through notifications</li>
+                <li data-edge data-source="shipping" data-target="notify" data-label="announces" data-line="dashed">Shipping announces each parcel through notifications</li>
+                <li data-edge data-source="payments" data-target="audit" data-label="records" data-line="dashed">Payments records every charge in the audit log</li>
+                <li data-edge data-source="identity" data-target="audit" data-label="records" data-line="dashed">Identity records every sign-in in the audit log</li>
+                <li data-edge data-source="checkout" data-target="flags" data-label="reads">Checkout reads its feature flags</li>
+                <li data-edge data-source="storefront" data-target="flags" data-label="reads">The storefront reads its feature flags</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-tools" role="toolbar" aria-label="View">
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in"
+                        aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out"
+                        aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit"
+                        aria-label="Fit" data-tip="Fit everything"><i class="ri-focus-3-line"></i></button>
+                <span class="graph-tools-sep" aria-hidden="true"></span>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="arrange"
+                        aria-label="Arrange" data-tip="Arrange again"><i class="ri-magic-line"></i></button>
+                <span class="graph-tools-sep" aria-hidden="true"></span>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fullscreen"
+                        aria-pressed="false" aria-label="Full screen" data-tip="Full screen">
+                    <i class="ri-fullscreen-line graph-when-off"></i>
+                    <i class="ri-fullscreen-exit-line graph-when-on"></i>
+                </button>
+            </div>
+            <canvas class="graph-minimap" data-graph-minimap aria-hidden="true"></canvas>
+            <div class="graph-wait skeleton skeleton-block"></div>
+            <div class="graph-empty empty-state">
+                <svg class="state-art" aria-hidden="true"><use href="#nothing-yet" /></svg>
+                <span class="empty-state-title">No services registered</span>
+                <p>A service appears here once its first deployment reports in.</p>
+            </div>
+        </div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch series-1"></span>Commerce</span>
+        <span class="graph-key"><span class="graph-swatch series-2"></span>Payments</span>
+        <span class="graph-key"><span class="graph-swatch series-3"></span>Fulfilment</span>
+        <span class="graph-key"><span class="graph-swatch series-4"></span>Platform</span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow"></span>Calls, and waits for the answer</span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed graph-line--arrow"></span>Sends, and carries on</span>
+    </div>
+</div>

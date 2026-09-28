@@ -1,0 +1,46 @@
+<div class="graph-frame">
+    <div class="graph" data-graph id="layout-compound" data-graph-layout="fcose"
+         aria-label="Hosts, in the racks and the sites they stand in">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="north" data-tone="1">North site</li>
+            <li data-node="south" data-tone="2">South site</li>
+            <li data-node="rack-a1" data-parent="north" data-tone="1">Rack A1</li>
+            <li data-node="rack-a2" data-parent="north" data-tone="1">Rack A2</li>
+            <li data-node="rack-b1" data-parent="south" data-tone="2">Rack B1</li>
+            <li data-node="rack-b2" data-parent="south" data-tone="2">Rack B2</li>
+            <li data-node="web-01" data-parent="rack-a1" data-tone="1" data-meta="198.51.100.51">web-01</li>
+            <li data-node="web-02" data-parent="rack-a1" data-tone="1" data-meta="198.51.100.52">web-02</li>
+            <li data-node="api-01" data-parent="rack-a1" data-tone="1" data-meta="198.51.100.61">api-01</li>
+            <li data-node="src-db-14" data-parent="rack-a2" data-tone="1" data-shape="barrel" data-meta="198.51.100.21 · primary">src-db-14</li>
+            <li data-node="cache-01" data-parent="rack-a2" data-tone="1" data-meta="198.51.100.71">cache-01</li>
+            <li data-node="web-03" data-parent="rack-b1" data-tone="2" data-meta="198.51.100.53">web-03</li>
+            <li data-node="api-02" data-parent="rack-b1" data-tone="2" data-meta="198.51.100.62">api-02</li>
+            <li data-node="build-runner-04" data-parent="rack-b1" data-tone="2" data-meta="198.51.100.44">build-runner-04</li>
+            <li data-node="src-db-15" data-parent="rack-b2" data-tone="2" data-shape="barrel" data-meta="198.51.100.22 · replica">src-db-15</li>
+            <li data-node="backup-01" data-parent="rack-b2" data-tone="2" data-meta="198.51.100.81">backup-01</li>
+            <li data-node="lb" data-tone="muted" data-shape="diamond" data-meta="203.0.113.10">lb-01</li>
+            <li data-edge data-source="lb" data-target="web-01" data-label="traffic">lb-01 sends traffic to web-01</li>
+            <li data-edge data-source="lb" data-target="web-02" data-label="traffic">lb-01 sends traffic to web-02</li>
+            <li data-edge data-source="lb" data-target="web-03" data-label="traffic">lb-01 sends traffic to web-03</li>
+            <li data-edge data-source="web-01" data-target="api-01" data-label="calls">web-01 calls api-01</li>
+            <li data-edge data-source="web-02" data-target="api-01" data-label="calls">web-02 calls api-01</li>
+            <li data-edge data-source="web-03" data-target="api-02" data-label="calls">web-03 calls api-02</li>
+            <li data-edge data-source="api-01" data-target="src-db-14" data-label="writes">api-01 writes to src-db-14</li>
+            <li data-edge data-source="api-02" data-target="src-db-14" data-label="writes">api-02 writes to src-db-14</li>
+            <li data-edge data-source="api-01" data-target="cache-01" data-label="caches">api-01 caches in cache-01</li>
+            <li data-edge data-source="api-02" data-target="cache-01" data-label="caches">api-02 caches in cache-01</li>
+            <li data-edge data-source="src-db-14" data-target="src-db-15" data-line="dashed" data-label="replicates">src-db-14 replicates to src-db-15, across sites</li>
+            <li data-edge data-source="backup-01" data-target="src-db-15" data-label="nightly copy">backup-01 copies src-db-15 every night</li>
+            <li data-edge data-source="build-runner-04" data-target="api-02" data-line="dotted" data-label="deploys">build-runner-04 deploys to api-02</li>
+            <li data-edge data-source="build-runner-04" data-target="api-01" data-line="dotted" data-label="deploys">build-runner-04 deploys to api-01</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--group series-1"></span>North site</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--group series-2"></span>South site</span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed"></span>Replication</span>
+        <span class="graph-key"><span class="graph-line graph-line--dotted"></span>Deploys</span>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="graph-frame">
+    <div class="graph" data-graph id="graph-health" data-graph-arrows="target" aria-label="Service health, now">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="gateway" data-tone="go" data-icon="ri-door-open-line" data-meta="Healthy · 38 ms">Gateway</li>
+            <li data-node="storefront" data-tone="go" data-icon="ri-store-2-line" data-meta="Healthy · 112 ms">Storefront</li>
+            <li data-node="search" data-tone="go" data-icon="ri-search-line" data-meta="Healthy · 64 ms">Search</li>
+            <li data-node="recommend" data-tone="info" data-icon="ri-sparkling-line" data-meta="Deploying v4.2.0 · 3 of 5 pods">Recommendations</li>
+            <li data-node="checkout" data-tone="warn" data-icon="ri-secure-payment-line" data-meta="Slow · 2.4 s">Checkout</li>
+            <li data-node="payments" data-tone="warn" data-icon="ri-bank-card-line" data-meta="Slow · 2.1 s">Payments</li>
+            <li data-node="card-provider" data-tone="danger" data-shape="hexagon" data-icon="ri-global-line"
+                data-meta="Down since 09:42 · outside provider">Card provider</li>
+            <li data-node="orders" data-tone="go" data-icon="ri-file-list-3-line" data-meta="Healthy · 71 ms">Orders</li>
+            <li data-node="stock" data-tone="go" data-icon="ri-stack-line" data-meta="Healthy · 45 ms">Stock</li>
+            <li data-node="mail" data-tone="go" data-icon="ri-mail-send-line" data-meta="Healthy · queue empty">Order mails</li>
+            <li data-node="legacy-cart" data-muted data-icon="ri-shopping-cart-2-line" data-meta="Retired in March">Legacy cart</li>
+            <li data-edge data-source="gateway" data-target="storefront" data-label="routes">The gateway routes to the storefront</li>
+            <li data-edge data-source="storefront" data-target="search" data-label="calls">The storefront calls search</li>
+            <li data-edge data-source="storefront" data-target="recommend" data-label="calls">The storefront calls recommendations</li>
+            <li data-edge data-source="storefront" data-target="checkout" data-label="hands over">The storefront hands over to checkout</li>
+            <li data-edge data-source="checkout" data-target="payments" data-tone="warn" data-label="waits on">Checkout waits on payments</li>
+            <li data-edge data-source="payments" data-target="card-provider" data-tone="danger" data-line="dashed" data-label="cannot reach">Payments cannot reach the card provider</li>
+            <li data-edge data-source="checkout" data-target="orders" data-label="places">Checkout places the order</li>
+            <li data-edge data-source="orders" data-target="stock" data-label="reserves">Orders reserves stock</li>
+            <li data-edge data-source="orders" data-target="mail" data-label="confirms">Orders sends the confirmation</li>
+            <li data-edge data-source="gateway" data-target="legacy-cart" data-muted data-label="old route">The gateway still has a route to the legacy cart</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch series-go"></span>Healthy</span>
+        <span class="graph-key"><span class="graph-swatch series-info"></span>Deploying</span>
+        <span class="graph-key"><span class="graph-swatch series-warn"></span>Slow</span>
+        <span class="graph-key"><span class="graph-swatch series-danger"></span>Down</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--muted series-muted"></span>Retired</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon"></span>Outside provider</span>
+    </div>
+</div>

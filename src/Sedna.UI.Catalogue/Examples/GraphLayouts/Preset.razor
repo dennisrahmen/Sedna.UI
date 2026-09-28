@@ -1,0 +1,40 @@
+<div class="card">
+    <div class="graph" data-graph id="layout-preset" data-graph-layout="preset" data-graph-nodes="box"
+         data-graph-arrows="target" data-graph-edge-labels="none" data-graph-drag="false"
+         aria-label="The warehouse floor, and the way goods move across it">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="dock-1" data-x="0" data-y="0" data-tone="2" data-icon="ri-truck-line" data-meta="Inbound">Dock 1</li>
+            <li data-node="dock-2" data-x="0" data-y="150" data-tone="2" data-icon="ri-truck-line" data-meta="Inbound and returns">Dock 2</li>
+            <li data-node="receiving" data-x="180" data-y="75" data-tone="2" data-icon="ri-inbox-archive-line" data-meta="Count and label">Receiving</li>
+            <li data-node="quality" data-x="180" data-y="230" data-tone="6" data-icon="ri-search-eye-line" data-meta="One pallet in twenty">Quality check</li>
+            <li data-node="put-away" data-x="360" data-y="75" data-tone="2" data-icon="ri-stack-line" data-meta="To a free slot">Put-away</li>
+            <li data-node="aisle-a" data-x="550" data-y="-60" data-tone="4" data-icon="ri-layout-column-line" data-meta="Small parts">Aisle A</li>
+            <li data-node="aisle-b" data-x="550" data-y="30" data-tone="4" data-icon="ri-layout-column-line" data-meta="Fast movers">Aisle B</li>
+            <li data-node="aisle-c" data-x="550" data-y="120" data-tone="info" data-icon="ri-temp-cold-line" data-meta="Chilled, 2 to 6 °C">Aisle C</li>
+            <li data-node="aisle-d" data-x="550" data-y="210" data-tone="4" data-icon="ri-layout-column-line" data-meta="Bulky goods">Aisle D</li>
+            <li data-node="picking" data-x="740" data-y="75" data-tone="3" data-icon="ri-hand-coin-line" data-meta="Waves every 20 min">Picking</li>
+            <li data-node="packing" data-x="920" data-y="75" data-tone="3" data-icon="ri-gift-line" data-meta="6 stations">Packing</li>
+            <li data-node="dispatch" data-x="1100" data-y="75" data-tone="3" data-icon="ri-send-plane-line" data-meta="Carrier pick-up 16:00">Dispatch</li>
+            <li data-node="dock-3" data-x="1100" data-y="200" data-tone="3" data-icon="ri-truck-line" data-meta="Outbound">Dock 3</li>
+            <li data-edge data-source="dock-1" data-target="receiving">Goods from dock 1 go to receiving</li>
+            <li data-edge data-source="dock-2" data-target="receiving">Goods from dock 2 go to receiving</li>
+            <li data-edge data-source="dock-2" data-target="quality" data-line="dashed">Returns from dock 2 go to the quality check</li>
+            <li data-edge data-source="receiving" data-target="quality" data-line="dashed">Receiving sends a sample to the quality check</li>
+            <li data-edge data-source="receiving" data-target="put-away">Receiving hands over to put-away</li>
+            <li data-edge data-source="quality" data-target="put-away">Checked goods go to put-away</li>
+            <li data-edge data-source="put-away" data-target="aisle-a">Put-away stocks aisle A</li>
+            <li data-edge data-source="put-away" data-target="aisle-b">Put-away stocks aisle B</li>
+            <li data-edge data-source="put-away" data-target="aisle-c">Put-away stocks aisle C</li>
+            <li data-edge data-source="put-away" data-target="aisle-d">Put-away stocks aisle D</li>
+            <li data-edge data-source="aisle-a" data-target="picking">Picking takes from aisle A</li>
+            <li data-edge data-source="aisle-b" data-target="picking">Picking takes from aisle B</li>
+            <li data-edge data-source="aisle-c" data-target="picking">Picking takes from aisle C</li>
+            <li data-edge data-source="aisle-d" data-target="picking">Picking takes from aisle D</li>
+            <li data-edge data-source="picking" data-target="packing">Picking hands over to packing</li>
+            <li data-edge data-source="packing" data-target="dispatch">Packing hands over to dispatch</li>
+            <li data-edge data-source="dispatch" data-target="dock-3">Dispatch loads at dock 3</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>

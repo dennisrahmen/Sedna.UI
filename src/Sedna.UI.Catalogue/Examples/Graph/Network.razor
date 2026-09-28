@@ -1,0 +1,103 @@
+<div class="card">
+    <div class="graph graph--lg" data-graph id="graph-network" data-graph-edge-labels="none" aria-label="The office network, switch by switch">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="internet" data-shape="hexagon" data-tone="muted" data-icon="ri-global-line" data-meta="Uplink · 203.0.113.1">Internet</li>
+            <li data-node="fw-01" data-shape="octagon" data-tone="danger" data-icon="ri-shield-keyhole-line" data-meta="Firewall · 198.51.100.1">fw-01</li>
+            <li data-node="core-01" data-shape="square" data-tone="1" data-icon="ri-router-line" data-hub data-meta="Core switch">core-01</li>
+            <li data-node="core-02" data-shape="square" data-tone="1" data-icon="ri-router-line" data-hub data-meta="Core switch">core-02</li>
+            <li data-node="dist-01" data-shape="rounded" data-tone="2" data-meta="Distribution switch">dist-01</li>
+            <li data-node="dist-02" data-shape="rounded" data-tone="2" data-meta="Distribution switch">dist-02</li>
+            <li data-node="dist-03" data-shape="rounded" data-tone="2" data-meta="Distribution switch">dist-03</li>
+            <li data-node="dist-04" data-shape="rounded" data-tone="2" data-meta="Distribution switch">dist-04</li>
+            <li data-node="access-01" data-shape="rounded" data-tone="3" data-meta="Access switch · floor 1">access-01</li>
+            <li data-node="access-02" data-shape="rounded" data-tone="3" data-meta="Access switch · floor 1">access-02</li>
+            <li data-node="access-03" data-shape="rounded" data-tone="3" data-meta="Access switch · server room">access-03</li>
+            <li data-node="access-04" data-shape="rounded" data-tone="3" data-meta="Access switch · server room">access-04</li>
+            <li data-node="access-05" data-shape="rounded" data-tone="3" data-meta="Access switch · server room">access-05</li>
+            <li data-node="access-06" data-shape="rounded" data-tone="3" data-meta="Access switch · server room">access-06</li>
+            <li data-node="access-07" data-shape="rounded" data-tone="3" data-meta="Access switch · floor 2">access-07</li>
+            <li data-node="access-08" data-shape="rounded" data-tone="3" data-meta="Access switch · warehouse">access-08</li>
+            <li data-node="orders-console-01" data-tone="4" data-meta="198.51.100.31">orders-console-01</li>
+            <li data-node="orders-console-02" data-tone="4" data-meta="198.51.100.32">orders-console-02</li>
+            <li data-node="build-runner-01" data-tone="5" data-meta="198.51.100.41">build-runner-01</li>
+            <li data-node="build-runner-02" data-tone="5" data-meta="198.51.100.42">build-runner-02</li>
+            <li data-node="build-runner-03" data-tone="5" data-meta="198.51.100.43">build-runner-03</li>
+            <li data-node="build-runner-04" data-tone="5" data-meta="198.51.100.44">build-runner-04</li>
+            <li data-node="src-db-14" data-tone="6" data-meta="198.51.100.21">src-db-14</li>
+            <li data-node="src-db-15" data-tone="6" data-meta="198.51.100.22">src-db-15</li>
+            <li data-node="web-01" data-tone="4" data-meta="198.51.100.51">web-01</li>
+            <li data-node="web-02" data-tone="4" data-meta="198.51.100.52">web-02</li>
+            <li data-node="web-03" data-tone="4" data-meta="198.51.100.53">web-03</li>
+            <li data-node="api-01" data-tone="4" data-meta="198.51.100.61">api-01</li>
+            <li data-node="api-02" data-tone="4" data-meta="198.51.100.62">api-02</li>
+            <li data-node="cache-01" data-tone="6" data-meta="198.51.100.71">cache-01</li>
+            <li data-node="mq-01" data-tone="6" data-meta="198.51.100.72">mq-01</li>
+            <li data-node="backup-01" data-tone="6" data-meta="198.51.100.81">backup-01</li>
+            <li data-node="log-01" data-tone="6" data-meta="198.51.100.82">log-01</li>
+            <li data-node="scanner-hub-01" data-tone="4" data-meta="198.51.100.91">scanner-hub-01</li>
+            <li data-node="label-printer-02" data-tone="4" data-meta="198.51.100.92">label-printer-02</li>
+
+            <li data-edge data-source="internet" data-target="fw-01" data-weight="heavy">The internet uplink enters through fw-01</li>
+            <li data-edge data-source="fw-01" data-target="core-01" data-weight="heavy">fw-01 connects to core-01</li>
+            <li data-edge data-source="fw-01" data-target="core-02" data-weight="heavy">fw-01 connects to core-02</li>
+            <li data-edge data-source="core-01" data-target="core-02" data-weight="heavy">core-01 and core-02 are linked to each other</li>
+            <li data-edge data-source="core-01" data-target="dist-01">core-01 connects to dist-01</li>
+            <li data-edge data-source="core-02" data-target="dist-01" data-line="dashed">core-02 is the standby path to dist-01</li>
+            <li data-edge data-source="core-01" data-target="dist-02">core-01 connects to dist-02</li>
+            <li data-edge data-source="core-02" data-target="dist-02" data-line="dashed">core-02 is the standby path to dist-02</li>
+            <li data-edge data-source="core-02" data-target="dist-03">core-02 connects to dist-03</li>
+            <li data-edge data-source="core-01" data-target="dist-03" data-line="dashed">core-01 is the standby path to dist-03</li>
+            <li data-edge data-source="core-02" data-target="dist-04">core-02 connects to dist-04</li>
+            <li data-edge data-source="core-01" data-target="dist-04" data-line="dashed">core-01 is the standby path to dist-04</li>
+            <li data-edge data-source="dist-01" data-target="access-01">dist-01 connects to access-01</li>
+            <li data-edge data-source="dist-01" data-target="access-02">dist-01 connects to access-02</li>
+            <li data-edge data-source="dist-02" data-target="access-03">dist-02 connects to access-03</li>
+            <li data-edge data-source="dist-02" data-target="access-04">dist-02 connects to access-04</li>
+            <li data-edge data-source="dist-03" data-target="access-05">dist-03 connects to access-05</li>
+            <li data-edge data-source="dist-03" data-target="access-06">dist-03 connects to access-06</li>
+            <li data-edge data-source="dist-04" data-target="access-07">dist-04 connects to access-07</li>
+            <li data-edge data-source="dist-04" data-target="access-08">dist-04 connects to access-08</li>
+            <li data-edge data-source="access-01" data-target="orders-console-01">orders-console-01 is on access-01</li>
+            <li data-edge data-source="access-01" data-target="orders-console-02">orders-console-02 is on access-01</li>
+            <li data-edge data-source="access-02" data-target="build-runner-01">build-runner-01 is on access-02</li>
+            <li data-edge data-source="access-02" data-target="build-runner-02">build-runner-02 is on access-02</li>
+            <li data-edge data-source="access-02" data-target="build-runner-03">build-runner-03 is on access-02</li>
+            <li data-edge data-source="access-02" data-target="build-runner-04">build-runner-04 is on access-02</li>
+            <li data-edge data-source="access-03" data-target="src-db-14">src-db-14 is on access-03</li>
+            <li data-edge data-source="access-03" data-target="src-db-15">src-db-15 is on access-03</li>
+            <li data-edge data-source="access-04" data-target="web-01">web-01 is on access-04</li>
+            <li data-edge data-source="access-04" data-target="web-02">web-02 is on access-04</li>
+            <li data-edge data-source="access-04" data-target="web-03">web-03 is on access-04</li>
+            <li data-edge data-source="access-05" data-target="api-01">api-01 is on access-05</li>
+            <li data-edge data-source="access-05" data-target="api-02">api-02 is on access-05</li>
+            <li data-edge data-source="access-06" data-target="cache-01">cache-01 is on access-06</li>
+            <li data-edge data-source="access-06" data-target="mq-01">mq-01 is on access-06</li>
+            <li data-edge data-source="access-07" data-target="backup-01">backup-01 is on access-07</li>
+            <li data-edge data-source="access-07" data-target="log-01">log-01 is on access-07</li>
+            <li data-edge data-source="access-08" data-target="scanner-hub-01">scanner-hub-01 is on access-08</li>
+            <li data-edge data-source="access-08" data-target="label-printer-02">label-printer-02 is on access-08</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-tools graph-tools--start graph-tools--stack" role="toolbar" aria-label="Zoom">
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in"
+                    aria-label="Zoom in" data-tip="Zoom in"><i class="ri-add-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out"
+                    aria-label="Zoom out" data-tip="Zoom out"><i class="ri-subtract-line"></i></button>
+            <span class="graph-tools-sep" aria-hidden="true"></span>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit"
+                    aria-label="Fit" data-tip="Fit everything"><i class="ri-focus-3-line"></i></button>
+        </div>
+        <div class="graph-tools graph-tools--bottom" role="toolbar" aria-label="Drawing">
+            <button class="btn btn-ghost btn-sm" type="button" data-graph-action="arrange">
+                <i class="ri-magic-line"></i> Arrange
+            </button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fullscreen"
+                    aria-pressed="false" aria-label="Full screen" data-tip="Full screen">
+                <i class="ri-fullscreen-line graph-when-off"></i>
+                <i class="ri-fullscreen-exit-line graph-when-on"></i>
+            </button>
+        </div>
+        <canvas class="graph-minimap graph-minimap--start" data-graph-minimap aria-hidden="true"></canvas>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>
