@@ -131,12 +131,18 @@
        other — the segments of a stack bar, the lines of a legend. The brand first,
        then hues ordered so neighbours differ in hue and in lightness. A part that
        MEANS something takes a semantic family instead; the `.series-*` modifiers in
-       54-data-viz.css are the one place these are read. */
+       54-data-viz.css are the one place these are read.
+
+       The five hues fall into three close pairs — coral and orange, cyan and teal,
+       violet and indigo — so a pair is told apart by lightness, not by hue: cyan and
+       violet sit a step deeper than teal and indigo. At one step each, cyan read as
+       teal and violet as indigo. SeriesSeparationTests measures every pair, in both
+       variants; take a step it accepts, not one by eye. */
     --viz-1: var(--brand);
-    --viz-2: var(--cyan-400);
+    --viz-2: var(--cyan-600);
     --viz-3: var(--orange-400);
     --viz-4: var(--teal-400);
-    --viz-5: var(--violet-400);
+    --viz-5: var(--violet-500);
     --viz-6: var(--indigo-300);
     /* The previous value behind a compared bar — last month behind this month. A
        neutral rather than a seventh hue, because it stands behind whichever series the
