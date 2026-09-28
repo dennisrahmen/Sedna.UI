@@ -193,14 +193,17 @@ public class GraphInteropTests : BunitContext
         Assert.Null(await Graphs().ExportAsync(Id));
     }
 
+    // Owns the one stream it hands out, as a real reference does, and disposes it with itself.
     private sealed class Bytes(byte[] data) : IJSStreamReference
     {
+        private readonly MemoryStream _stream = new(data);
+
         public long Length => data.Length;
 
         public ValueTask<Stream> OpenReadStreamAsync(long maxAllowedSize = 512000, CancellationToken cancellationToken = default)
-            => ValueTask.FromResult<Stream>(new MemoryStream(data));
+            => ValueTask.FromResult<Stream>(_stream);
 
-        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+        public ValueTask DisposeAsync() => _stream.DisposeAsync();
     }
 
     [Fact]
