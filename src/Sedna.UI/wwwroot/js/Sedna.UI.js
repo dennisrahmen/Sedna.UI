@@ -5499,6 +5499,7 @@ window.sednaUi = window.sednaUi || {};
     }
 
     function start(el) {
+        el.__sednaGraphStarted = true;
         return load().then(function (m) { return m.attach(el); });
     }
 
@@ -5639,14 +5640,21 @@ window.sednaUi = window.sednaUi || {};
                 for (var j = 0; j < added.length; j++) {
                     if (added[j].nodeType === 1) scan(added[j]);
                 }
-                // One removed before it ever came near the viewport is no longer watched.
+                // One removed before it ever came near the viewport is no longer watched —
+                // and forgotten, so that if Blazor was only moving it, the insert that
+                // follows finds it again.
                 var removed = records[i].removedNodes;
                 for (var k = 0; k < removed.length && watching; k++) {
                     var gone = removed[k];
                     if (gone.nodeType !== 1) continue;
-                    if (gone.matches(SELECTOR)) watching.unobserve(gone);
+                    var graphs = gone.matches(SELECTOR) ? [gone] : [];
                     var inner = gone.querySelectorAll(SELECTOR);
-                    for (var m = 0; m < inner.length; m++) watching.unobserve(inner[m]);
+                    for (var m = 0; m < inner.length; m++) graphs.push(inner[m]);
+                    graphs.forEach(function (el) {
+                        if (el.__sednaGraphStarted) return;
+                        watching.unobserve(el);
+                        el.__sednaGraphSeen = false;
+                    });
                 }
                 if (records[i].removedNodes.length && !queued && loading) {
                     queued = true;
