@@ -1,0 +1,75 @@
+<div class="card">
+    <div class="card-head">
+        <strong>Spring catalogue launch</strong>
+        <span class="form-hint" data-graph-for="mind-map" data-graph-stats="{nodes} ideas"></span>
+    </div>
+    <div class="graph graph--lg" data-graph id="mind-map" data-graph-layout="rings" data-graph-edge-labels="none"
+         data-graph-spacing="compact" aria-label="Mind map of the spring catalogue launch" aria-roledescription="mind map">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="launch" data-tone="1" data-icon="ri-lightbulb-flash-line" data-weight="14" data-root>Spring catalogue launch</li>
+
+            <li data-node="audience" data-tone="2" data-icon="ri-group-line" data-weight="6" data-hub>Audience</li>
+            <li data-node="returning" data-tone="2">Returning customers</li>
+            <li data-node="gardeners" data-tone="2">Garden owners</li>
+            <li data-node="trade" data-tone="2">Trade buyers</li>
+
+            <li data-node="channels" data-tone="3" data-icon="ri-megaphone-line" data-weight="6" data-hub>Channels</li>
+            <li data-node="print" data-tone="3">Printed catalogue</li>
+            <li data-node="newsletter" data-tone="3">Newsletter</li>
+            <li data-node="banner" data-tone="3">Web shop banner</li>
+            <li data-node="posters" data-tone="3">In-store posters</li>
+
+            <li data-node="content" data-tone="4" data-icon="ri-image-line" data-weight="6" data-hub>Content</li>
+            <li data-node="photos" data-tone="4">Product photos</li>
+            <li data-node="care-guides" data-tone="4">Care guides</li>
+            <li data-node="price-list" data-tone="4">Price list</li>
+
+            <li data-node="timeline" data-tone="5" data-icon="ri-calendar-event-line" data-weight="6" data-hub>Timeline</li>
+            <li data-node="shoot" data-tone="5">Shoot in February</li>
+            <li data-node="to-print" data-tone="5">Print in March</li>
+            <li data-node="go-live" data-tone="5">Live on 1 April</li>
+
+            <li data-node="budget" data-tone="6" data-icon="ri-coins-line" data-weight="6" data-hub>Budget</li>
+            <li data-node="print-run" data-tone="6">Print run</li>
+            <li data-node="photography" data-tone="6">Photography</li>
+            <li data-node="paid-social" data-tone="6">Paid social</li>
+
+            <li data-node="risks" data-tone="warn" data-icon="ri-alert-line" data-weight="6" data-hub>Risks</li>
+            <li data-node="paper" data-tone="warn">Paper prices</li>
+            <li data-node="late-stock" data-tone="warn">Late stock</li>
+            <li data-node="weather" data-tone="warn">Rain on the shoot day</li>
+
+            <li data-edge data-source="launch" data-target="audience" data-weight="heavy" data-tone="2">The launch is aimed at an audience.</li>
+            <li data-edge data-source="launch" data-target="channels" data-weight="heavy" data-tone="3">The launch goes out through channels.</li>
+            <li data-edge data-source="launch" data-target="content" data-weight="heavy" data-tone="4">The launch needs content.</li>
+            <li data-edge data-source="launch" data-target="timeline" data-weight="heavy" data-tone="5">The launch follows a timeline.</li>
+            <li data-edge data-source="launch" data-target="budget" data-weight="heavy" data-tone="6">The launch has a budget.</li>
+            <li data-edge data-source="launch" data-target="risks" data-weight="heavy" data-tone="warn">The launch has risks.</li>
+            <li data-edge data-source="audience" data-target="returning" data-tone="2">One audience is returning customers.</li>
+            <li data-edge data-source="audience" data-target="gardeners" data-tone="2">One audience is garden owners.</li>
+            <li data-edge data-source="audience" data-target="trade" data-tone="2">One audience is trade buyers.</li>
+            <li data-edge data-source="channels" data-target="print" data-tone="3">One channel is the printed catalogue.</li>
+            <li data-edge data-source="channels" data-target="newsletter" data-tone="3">One channel is the newsletter.</li>
+            <li data-edge data-source="channels" data-target="banner" data-tone="3">One channel is a web shop banner.</li>
+            <li data-edge data-source="channels" data-target="posters" data-tone="3">One channel is in-store posters.</li>
+            <li data-edge data-source="content" data-target="photos" data-tone="4">The content includes product photos.</li>
+            <li data-edge data-source="content" data-target="care-guides" data-tone="4">The content includes care guides.</li>
+            <li data-edge data-source="content" data-target="price-list" data-tone="4">The content includes a price list.</li>
+            <li data-edge data-source="timeline" data-target="shoot" data-tone="5">The photo shoot is in February.</li>
+            <li data-edge data-source="timeline" data-target="to-print" data-tone="5">The files go to the printer in March.</li>
+            <li data-edge data-source="timeline" data-target="go-live" data-tone="5">The catalogue is live on 1 April.</li>
+            <li data-edge data-source="budget" data-target="print-run" data-tone="6">The budget covers the print run.</li>
+            <li data-edge data-source="budget" data-target="photography" data-tone="6">The budget covers photography.</li>
+            <li data-edge data-source="budget" data-target="paid-social" data-tone="6">The budget covers paid social.</li>
+            <li data-edge data-source="risks" data-target="paper" data-tone="warn">One risk is paper prices.</li>
+            <li data-edge data-source="risks" data-target="late-stock" data-tone="warn">One risk is late stock.</li>
+            <li data-edge data-source="risks" data-target="weather" data-tone="warn">One risk is rain on the shoot day.</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-tools" role="toolbar" aria-label="View">
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit to the frame" data-tip="Fit to the frame"><i class="ri-focus-3-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="export-png" data-graph-filename="spring-catalogue-launch" aria-label="Download as PNG" data-tip="Download as PNG"><i class="ri-image-line"></i></button>
+        </div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>

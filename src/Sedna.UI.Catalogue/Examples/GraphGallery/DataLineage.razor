@@ -1,0 +1,76 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="segmented segmented--sm" role="group" aria-label="Colour by">
+            <label class="segmented-option"><input type="radio" name="lineage-colour" value="tone" data-graph-option="colour" checked /> Layer</label>
+            <label class="segmented-option"><input type="radio" name="lineage-colour" value="freshness" data-graph-option="colour" /> Freshness</label>
+        </div>
+        <span class="toolbar-count">Last run today at 06:00</span>
+    </div>
+    <div class="graph card" data-graph id="lineage" data-graph-layout="dagre" data-graph-direction="LR" data-graph-nodes="box"
+         data-graph-curve="round-taxi" data-graph-arrows="target" data-graph-edge-labels="none"
+         aria-label="Data lineage from sources to reports" aria-roledescription="graph">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="orders-db" data-kind="source" data-tone="muted" data-tone-freshness="go" data-icon="ri-database-2-line" data-meta="src-db-14 · live">Orders database</li>
+            <li data-node="payments-export" data-kind="source" data-tone="muted" data-tone-freshness="go" data-icon="ri-file-list-3-line" data-meta="Daily file · 05:10">Payments export</li>
+            <li data-node="web-events" data-kind="source" data-tone="muted" data-tone-freshness="go" data-icon="ri-radar-line" data-meta="Event stream · live">Web analytics</li>
+            <li data-node="returns-feed" data-kind="source" data-tone="muted" data-tone-freshness="danger" data-icon="ri-file-damage-line" data-meta="Daily file · failed 05:40">Returns feed</li>
+
+            <li data-node="orders-clean" data-kind="staging" data-tone="6" data-tone-freshness="go" data-icon="ri-table-line" data-meta="Refreshed 06:02">orders_clean</li>
+            <li data-node="payments-clean" data-kind="staging" data-tone="6" data-tone-freshness="go" data-icon="ri-table-line" data-meta="Refreshed 06:03">payments_clean</li>
+            <li data-node="sessions-clean" data-kind="staging" data-tone="6" data-tone-freshness="go" data-icon="ri-table-line" data-meta="Refreshed 06:05">sessions_clean</li>
+            <li data-node="returns-clean" data-kind="staging" data-tone="6" data-tone-freshness="danger" data-icon="ri-table-line" data-meta="Not refreshed">returns_clean</li>
+
+            <li data-node="order-facts" data-kind="model" data-tone="2" data-tone-freshness="warn" data-icon="ri-function-line" data-meta="Partial · no returns">Order facts</li>
+            <li data-node="customers" data-kind="model" data-tone="2" data-tone-freshness="go" data-icon="ri-function-line" data-meta="Refreshed 06:09">Customer dimension</li>
+            <li data-node="sessions" data-kind="model" data-tone="2" data-tone-freshness="go" data-icon="ri-function-line" data-meta="Refreshed 06:11">Sessions by campaign</li>
+
+            <li data-node="sales-mart" data-kind="mart" data-tone="3" data-tone-freshness="warn" data-icon="ri-stack-line" data-meta="Partial">Sales mart</li>
+            <li data-node="marketing-mart" data-kind="mart" data-tone="3" data-tone-freshness="go" data-icon="ri-stack-line" data-meta="Refreshed 06:14">Marketing mart</li>
+
+            <li data-node="revenue-dashboard" data-kind="report" data-tone="5" data-tone-freshness="warn" data-icon="ri-dashboard-line" data-meta="Shows yesterday's returns">Daily revenue</li>
+            <li data-node="returns-report" data-kind="report" data-tone="5" data-tone-freshness="danger" data-icon="ri-bar-chart-box-line" data-meta="Out of date">Returns report</li>
+            <li data-node="campaign-report" data-kind="report" data-tone="5" data-tone-freshness="go" data-icon="ri-pie-chart-2-line" data-meta="Up to date">Campaign performance</li>
+
+            <li data-edge data-source="orders-db" data-target="orders-clean">The orders database is loaded into orders_clean.</li>
+            <li data-edge data-source="payments-export" data-target="payments-clean">The payments export is loaded into payments_clean.</li>
+            <li data-edge data-source="web-events" data-target="sessions-clean">Web analytics events are loaded into sessions_clean.</li>
+            <li data-edge data-source="returns-feed" data-target="returns-clean" data-tone="danger">The returns feed is loaded into returns_clean, and today's load failed.</li>
+            <li data-edge data-source="orders-clean" data-target="order-facts">orders_clean feeds order facts.</li>
+            <li data-edge data-source="payments-clean" data-target="order-facts">payments_clean feeds order facts.</li>
+            <li data-edge data-source="returns-clean" data-target="order-facts" data-tone="danger">returns_clean feeds order facts.</li>
+            <li data-edge data-source="orders-clean" data-target="customers">orders_clean feeds the customer dimension.</li>
+            <li data-edge data-source="sessions-clean" data-target="sessions">sessions_clean feeds sessions by campaign.</li>
+            <li data-edge data-source="order-facts" data-target="sales-mart">Order facts feed the sales mart.</li>
+            <li data-edge data-source="customers" data-target="sales-mart">The customer dimension feeds the sales mart.</li>
+            <li data-edge data-source="customers" data-target="marketing-mart">The customer dimension feeds the marketing mart.</li>
+            <li data-edge data-source="sessions" data-target="marketing-mart">Sessions by campaign feed the marketing mart.</li>
+            <li data-edge data-source="sales-mart" data-target="revenue-dashboard">The sales mart feeds the daily revenue dashboard.</li>
+            <li data-edge data-source="sales-mart" data-target="returns-report">The sales mart feeds the returns report.</li>
+            <li data-edge data-source="returns-clean" data-target="returns-report" data-tone="danger">returns_clean feeds the returns report directly.</li>
+            <li data-edge data-source="marketing-mart" data-target="campaign-report">The marketing mart feeds the campaign performance report.</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-tools" role="toolbar" aria-label="View">
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit to the frame" data-tip="Fit to the frame"><i class="ri-focus-3-line"></i></button>
+        </div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+        <p class="visually-hidden" data-graph-live aria-live="polite"
+           data-graph-announce="{label}, {kind}, {meta}. {links} links." data-graph-announce-select="{label} selected."></p>
+    </div>
+    <div class="sedna-row-wrap">
+        <div class="graph-legend" role="group" aria-label="Layers">
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-muted"></span> Source</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-6"></span> Staging</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-2"></span> Model</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-3"></span> Mart</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-5"></span> Report</span>
+        </div>
+        <div class="graph-legend sedna-push" role="group" aria-label="Freshness">
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-go"></span> Fresh</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-warn"></span> Partial</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-danger"></span> Failed or stale</span>
+        </div>
+    </div>
+</div>

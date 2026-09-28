@@ -1,0 +1,66 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <div class="segmented segmented--sm" role="group" aria-label="Direction">
+                <label class="segmented-option"><input type="radio" name="packages-direction" value="TB" data-graph-option="direction" checked /><span><i class="ri-arrow-down-line"></i> Top down</span></label>
+                <label class="segmented-option"><input type="radio" name="packages-direction" value="LR" data-graph-option="direction" /><span><i class="ri-arrow-right-line"></i> Left to right</span></label>
+            </div>
+            <label class="form-check"><input type="checkbox" data-graph-show="muted" checked /> Deprecated</label>
+            <button class="chip" type="button" data-graph-filter="scope" value="build" aria-pressed="true">Build-only</button>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} packages"></span>
+    </div>
+    <div class="graph graph--lg card" data-graph id="packages" data-graph-layout="dagre" data-graph-nodes="box"
+         data-graph-arrows="target" data-graph-edge-labels="none" aria-label="Dependency tree of the storefront package" aria-roledescription="graph">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="storefront-web" data-tone="1" data-icon="ri-store-2-line" data-meta="4.2.0" data-scope="runtime" data-root>storefront-web</li>
+            <li data-node="http-client" data-tone="2" data-meta="8.1.0" data-scope="runtime">http-client</li>
+            <li data-node="auth-client" data-tone="2" data-icon="ri-box-3-line" data-meta="3.4.1" data-scope="runtime">auth-client</li>
+            <li data-node="json-codec" data-tone="2" data-icon="ri-box-3-line" data-meta="13.0.3" data-scope="runtime">json-codec</li>
+            <li data-node="image-resize" data-tone="warn" data-icon="ri-box-3-line" data-meta="2.2.0 → 2.3.0" data-scope="runtime">image-resize</li>
+            <li data-node="date-format" data-tone="muted" data-icon="ri-box-3-line" data-meta="1.9.8 · deprecated" data-scope="runtime" data-muted>date-format</li>
+            <li data-node="test-runner" data-tone="2" data-icon="ri-box-3-line" data-meta="17.0.0" data-scope="build">test-runner</li>
+            <li data-node="retry-policy" data-tone="2" data-meta="7.3.0" data-scope="runtime">retry-policy</li>
+            <li data-node="log-core" data-tone="2" data-meta="6.1.0" data-scope="runtime">log-core</li>
+            <li data-node="crypto-kit" data-tone="danger" data-icon="ri-alert-line" data-meta="2.4.1 · advisory" data-scope="runtime">crypto-kit</li>
+            <li data-node="text-encoding" data-tone="2" data-meta="5.0.0" data-scope="runtime">text-encoding</li>
+            <li data-node="native-imaging" data-tone="2" data-meta="1.12.0" data-scope="runtime">native-imaging</li>
+            <li data-node="locale-data" data-tone="muted" data-meta="0.8.2 · deprecated" data-scope="runtime" data-muted>locale-data</li>
+            <li data-node="assert-kit" data-tone="2" data-meta="4.0.0" data-scope="build">assert-kit</li>
+            <li data-node="mock-kit" data-tone="2" data-meta="2.1.0" data-scope="build">mock-kit</li>
+
+            <li data-edge data-source="storefront-web" data-target="auth-client">storefront-web depends on auth-client 3.4.1.</li>
+            <li data-edge data-source="storefront-web" data-target="json-codec">storefront-web depends on json-codec 13.0.3.</li>
+            <li data-edge data-source="storefront-web" data-target="image-resize">storefront-web depends on image-resize 2.2.0; 2.3.0 is available.</li>
+            <li data-edge data-source="storefront-web" data-target="date-format" data-muted>storefront-web depends on date-format 1.9.8, which is deprecated.</li>
+            <li data-edge data-source="storefront-web" data-target="test-runner" data-line="dashed">storefront-web builds with test-runner 17.0.0.</li>
+            <li data-edge data-source="http-client" data-target="retry-policy">http-client depends on retry-policy 7.3.0.</li>
+            <li data-edge data-source="http-client" data-target="log-core">http-client depends on log-core 6.1.0.</li>
+            <li data-edge data-source="retry-policy" data-target="log-core">retry-policy depends on log-core 6.1.0.</li>
+            <li data-edge data-source="auth-client" data-target="http-client">auth-client depends on http-client 8.1.0.</li>
+            <li data-edge data-source="auth-client" data-target="crypto-kit" data-tone="danger">auth-client depends on crypto-kit 2.4.1, which has a published security advisory.</li>
+            <li data-edge data-source="json-codec" data-target="text-encoding">json-codec depends on text-encoding 5.0.0.</li>
+            <li data-edge data-source="image-resize" data-target="native-imaging">image-resize depends on native-imaging 1.12.0.</li>
+            <li data-edge data-source="date-format" data-target="locale-data" data-muted>date-format depends on locale-data 0.8.2, which is deprecated.</li>
+            <li data-edge data-source="test-runner" data-target="assert-kit" data-line="dashed">test-runner depends on assert-kit 4.0.0.</li>
+            <li data-edge data-source="test-runner" data-target="mock-kit" data-line="dashed">test-runner depends on mock-kit 2.1.0.</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-tools" role="toolbar" aria-label="View">
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit to the frame" data-tip="Fit to the frame"><i class="ri-focus-3-line"></i></button>
+        </div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+        <p class="visually-hidden" data-graph-live aria-live="polite"
+           data-graph-announce="{label} {meta}. {links} links." data-graph-announce-select="{label} selected."></p>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-2"></span> Up to date</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-warn"></span> Update available</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-danger"></span> Security advisory</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-muted"></span> Deprecated</span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow"></span> Depends on</span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed graph-line--arrow"></span> Build only</span>
+    </div>
+</div>
