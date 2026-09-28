@@ -109,8 +109,9 @@
     /* The toast stack's corner and the same arithmetic — see 38-toasts.css. A FAB
        lands on a phone by definition, so this is the one control in the library
        that would be under a thumb-height home indicator on every device that has
-       one. */
+       one. It rises above the frame's bottom bar the same way, too. */
     inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    inset-block-end: calc(var(--space-8) + anchor-size(--sedna-bottombar block, var(--safe-block-end)));
     inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
     z-index: 60;
     display: inline-flex;

@@ -57,13 +57,21 @@
    or a width of its own, or it shrinks to nothing — and it cannot restyle itself,
    which is why the steps are fixed lengths and not custom properties. A `.menu` or
    `.form-combo-panel` inside a panel still escapes the panel's edge:
-   `LayoutGridTests` opens one and clicks its last item. */
+   `LayoutGridTests` opens one and clicks its last item.
+
+   The 24 tracks stay at every width, so there are always 23 column gaps. At 16px
+   those come to 368px, wider than a phone's column: the tracks shrink to nothing
+   and a full-row child still overflows. The column gap is therefore capped at a
+   23rd of the grid's width. Above 30rem that never binds for the default gap or any
+   `.sedna-gap-N` step; below it every child takes the row, so a column gap is never
+   seen and shrinking it costs nothing. The row gap is untouched. */
 .sedna-grid-24 {
     --grid-gap: var(--space-7);
     container: sedna-grid-24 / inline-size;
     display: grid;
     grid-template-columns: repeat(24, minmax(0, 1fr));
     gap: var(--grid-gap);
+    column-gap: min(var(--grid-gap), 100% / 23);
 }
 /* :where() keeps the defaults at zero specificity, so every span class — and an app's
    own class on the child — beats them without a specificity race. `min-width: 0`

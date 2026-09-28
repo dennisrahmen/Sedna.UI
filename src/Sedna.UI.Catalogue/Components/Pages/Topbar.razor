@@ -18,8 +18,11 @@
 <CatExample TExample="Examples.Topbar.HeaderSearch" Title="Header search" Demo="ex-demo--block ex-demo--flush">
     <p>
         <strong>Live — type in it.</strong> <code>.search</code> goes at the start of the topbar,
-        after the nav toggles and before <code>.topbar-spacer</code>, and is hidden below 720px, so
-        an app needs another way in on a phone. <code>data-search</code> hands the box to
+        after the nav toggles and before <code>.topbar-spacer</code>, and is hidden below 720px.
+        <code>.topbar-btn--search</code> is the way in there: a topbar button that shows exactly
+        while the box is hidden and opens the app's own search &mdash; a page, a sheet, the palette.
+        Under <code>.layout--bottombar</code> it steps back below 560px, where the
+        <a href="/bottombar">bottom bar</a>'s end cell is the search. <code>data-search</code> hands the box to
         <code>sednaUi.search</code>, which ranks against the index the app registered, implements the
         keyboard and fills the result panel you wrote — below; narrow it with
         <code>style="--search-max: 340px"</code> on the box, and keep the input's placeholder —

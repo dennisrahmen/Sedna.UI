@@ -39,6 +39,14 @@
        20px is the gap the design wants from the edge, and the inset is how much of
        that edge the device has already taken. */
     inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    /* Above the frame's bottom bar while one shows, so a toast never covers its items.
+       The bar is the anchor (24-frame-bottombar.css names it) and its HEIGHT is the
+       offset: the frame's bar always sits on the viewport's bottom edge, and its height
+       already includes the inset it pads itself by. Not its position — under
+       .layout--flow the bar is sticky, and anchor() reads where it would be unstuck,
+       thousands of pixels down. With no bar, or one .layout--bottombar hides on a wide
+       screen, the fallback is the inset alone. */
+    inset-block-end: calc(var(--space-8) + anchor-size(--sedna-bottombar block, var(--safe-block-end)));
     inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
     z-index: 600;
     display: flex;
