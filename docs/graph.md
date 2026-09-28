@@ -245,7 +245,7 @@ Each loads the first time a graph uses it.
 - **Hierarchies** (cytoscape-dagre) and **compound springs** (cytoscape-fcose) — the `dagre` and
   `fcose` layouts.
 - **Export** — `export-svg` is Sedna.UI's own: each record a group with a `<title>`, the text as text,
-  every colour the one the canvas resolved. `export-png` is the engine's, at twice the resolution.
+  the outlines around groups included, every colour the one the canvas resolved. `export-png` is the engine's, at twice the resolution.
   Both export the whole drawing, not only the part in view. `data-graph-filename` names the file.
 
 ## Events
