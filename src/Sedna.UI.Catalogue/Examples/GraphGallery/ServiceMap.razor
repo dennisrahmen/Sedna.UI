@@ -1,0 +1,116 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters chip-set" role="group" aria-label="Teams">
+            <button class="chip" type="button" data-graph-filter="group" value="storefront" aria-pressed="true"><span class="graph-swatch series-1"></span> Storefront</button>
+            <button class="chip" type="button" data-graph-filter="group" value="checkout" aria-pressed="true"><span class="graph-swatch series-3"></span> Checkout</button>
+            <button class="chip" type="button" data-graph-filter="group" value="payments" aria-pressed="true"><span class="graph-swatch series-5"></span> Payments</button>
+            <button class="chip" type="button" data-graph-filter="group" value="fulfilment" aria-pressed="true"><span class="graph-swatch series-4"></span> Fulfilment</button>
+            <button class="chip" type="button" data-graph-filter="group" value="identity" aria-pressed="true"><span class="graph-swatch series-2"></span> Identity</button>
+        </div>
+        <div class="segmented segmented--sm" role="radiogroup" aria-label="Colour services by">
+            <label class="segmented-option"><input type="radio" name="service-map-colour" value="tone" data-graph-option="colour" checked /> Health</label>
+            <label class="segmented-option"><input type="radio" name="service-map-colour" value="team" data-graph-option="colour" /> Team</label>
+        </div>
+    </div>
+    <div class="graph graph--lg card" data-graph id="service-map" data-graph-layout="islands" data-graph-hulls data-graph-spacing="compact"
+         data-graph-arrows="target" aria-label="Service map by team, coloured by health" aria-roledescription="graph">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="gateway" data-kind="edge" data-shape="hexagon" data-icon="ri-door-open-line" data-tone="go" data-tone-team="muted" data-meta="Healthy · p95 38 ms" data-host="edge-gateway-01" data-hub>Edge gateway</li>
+
+            <li data-node="storefront" data-group="storefront" data-kind="team" data-shape="rounded" data-icon="ri-team-line" data-tone="1" data-meta="Owns 4 services">Storefront team</li>
+            <li data-node="web-shop" data-group="storefront" data-kind="service" data-icon="ri-store-2-line" data-tone="go" data-tone-team="1" data-meta="Healthy · p95 120 ms" data-host="shop-web-01">Web shop</li>
+            <li data-node="catalogue-api" data-group="storefront" data-kind="service" data-icon="ri-server-line" data-tone="go" data-tone-team="1" data-meta="Healthy · p95 64 ms" data-host="catalogue-api-02">Catalogue API</li>
+            <li data-node="search-index" data-group="storefront" data-kind="store" data-shape="square" data-icon="ri-search-line" data-tone="go" data-tone-team="1" data-meta="Healthy · p95 22 ms" data-host="search-03">Search index</li>
+            <li data-node="recommendations" data-group="storefront" data-kind="service" data-icon="ri-lightbulb-flash-line" data-tone="warn" data-tone-team="1" data-meta="Degraded · 3 % of requests fail" data-host="recs-worker-02" data-hub>Recommendations</li>
+
+            <li data-node="checkout" data-group="checkout" data-kind="team" data-shape="rounded" data-icon="ri-team-line" data-tone="3" data-meta="Owns 3 services">Checkout team</li>
+            <li data-node="checkout-api" data-group="checkout" data-kind="service" data-icon="ri-shopping-cart-2-line" data-tone="go" data-tone-team="3" data-meta="Healthy · p95 140 ms" data-host="checkout-api-01">Checkout API</li>
+            <li data-node="basket" data-group="checkout" data-kind="service" data-icon="ri-server-line" data-tone="go" data-tone-team="3" data-meta="Healthy · p95 31 ms" data-host="basket-02">Basket service</li>
+            <li data-node="pricing" data-group="checkout" data-kind="service" data-icon="ri-calculator-line" data-tone="go" data-tone-team="3" data-meta="Healthy · p95 47 ms" data-host="pricing-01">Pricing engine</li>
+
+            <li data-node="payments" data-group="payments" data-kind="team" data-shape="rounded" data-icon="ri-team-line" data-tone="5" data-meta="Owns 4 services">Payments team</li>
+            <li data-node="payments-api" data-group="payments" data-kind="service" data-icon="ri-bank-card-line" data-tone="go" data-tone-team="5" data-meta="Healthy · p95 210 ms" data-host="payments-api-01">Payments API</li>
+            <li data-node="fraud" data-group="payments" data-kind="service" data-icon="ri-shield-check-line" data-tone="warn" data-tone-team="5" data-meta="Degraded · p95 1.9 s" data-host="fraud-score-01" data-hub>Fraud scoring</li>
+            <li data-node="ledger" data-group="payments" data-kind="store" data-shape="square" data-icon="ri-database-2-line" data-tone="go" data-tone-team="5" data-meta="Healthy · replication lag 0 s" data-host="src-db-14">Ledger</li>
+            <li data-node="card-gateway" data-group="payments" data-kind="service" data-icon="ri-exchange-line" data-tone="go" data-tone-team="5" data-meta="Healthy · p95 380 ms" data-host="card-adapter-01">Card gateway adapter</li>
+
+            <li data-node="fulfilment" data-group="fulfilment" data-kind="team" data-shape="rounded" data-icon="ri-team-line" data-tone="4" data-meta="Owns 4 services">Fulfilment team</li>
+            <li data-node="orders-api" data-group="fulfilment" data-kind="service" data-icon="ri-server-line" data-tone="go" data-tone-team="4" data-meta="Healthy · p95 95 ms" data-host="orders-console-01">Orders API</li>
+            <li data-node="order-worker" data-group="fulfilment" data-kind="service" data-icon="ri-loop-right-line" data-tone="warn" data-tone-team="4" data-meta="Degraded · 1,240 messages waiting" data-host="orders-worker-03" data-hub>Order worker</li>
+            <li data-node="warehouse-sync" data-group="fulfilment" data-kind="service" data-icon="ri-swap-line" data-tone="danger" data-tone-team="4" data-meta="Down since 09:12" data-host="wh-sync-01" data-hub>Warehouse sync</li>
+            <li data-node="labels" data-group="fulfilment" data-kind="service" data-icon="ri-printer-line" data-tone="go" data-tone-team="4" data-meta="Healthy · p95 510 ms" data-host="labels-01">Shipping labels</li>
+
+            <li data-node="identity" data-group="identity" data-kind="team" data-shape="rounded" data-icon="ri-team-line" data-tone="2" data-meta="Owns 2 services">Identity team</li>
+            <li data-node="identity-api" data-group="identity" data-kind="service" data-icon="ri-key-2-line" data-tone="go" data-tone-team="2" data-meta="Healthy · p95 18 ms" data-host="identity-api-01">Identity API</li>
+            <li data-node="session-store" data-group="identity" data-kind="store" data-shape="square" data-icon="ri-database-2-line" data-tone="go" data-tone-team="2" data-meta="Healthy · 42 % memory" data-host="session-cache-02">Session store</li>
+
+            <li data-edge data-source="storefront" data-target="web-shop" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The storefront team owns the web shop.</li>
+            <li data-edge data-source="storefront" data-target="catalogue-api" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The storefront team owns the catalogue API.</li>
+            <li data-edge data-source="storefront" data-target="search-index" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The storefront team owns the search index.</li>
+            <li data-edge data-source="storefront" data-target="recommendations" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The storefront team owns recommendations.</li>
+            <li data-edge data-source="checkout" data-target="checkout-api" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The checkout team owns the checkout API.</li>
+            <li data-edge data-source="checkout" data-target="basket" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The checkout team owns the basket service.</li>
+            <li data-edge data-source="checkout" data-target="pricing" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The checkout team owns the pricing engine.</li>
+            <li data-edge data-source="payments" data-target="payments-api" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The payments team owns the payments API.</li>
+            <li data-edge data-source="payments" data-target="fraud" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The payments team owns fraud scoring.</li>
+            <li data-edge data-source="payments" data-target="ledger" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The payments team owns the ledger.</li>
+            <li data-edge data-source="payments" data-target="card-gateway" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The payments team owns the card gateway adapter.</li>
+            <li data-edge data-source="fulfilment" data-target="orders-api" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The fulfilment team owns the orders API.</li>
+            <li data-edge data-source="fulfilment" data-target="order-worker" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The fulfilment team owns the order worker.</li>
+            <li data-edge data-source="fulfilment" data-target="warehouse-sync" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The fulfilment team owns warehouse sync.</li>
+            <li data-edge data-source="fulfilment" data-target="labels" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The fulfilment team owns shipping labels.</li>
+            <li data-edge data-source="identity" data-target="identity-api" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The identity team owns the identity API.</li>
+            <li data-edge data-source="identity" data-target="session-store" data-kind="owns" data-label="owns" data-line="dotted" data-arrow="none" data-weight="light">The identity team owns the session store.</li>
+
+            <li data-edge data-source="gateway" data-target="web-shop" data-kind="calls" data-label="routes">The edge gateway routes shoppers to the web shop.</li>
+            <li data-edge data-source="gateway" data-target="checkout-api" data-kind="calls" data-label="routes">The edge gateway routes to the checkout API.</li>
+            <li data-edge data-source="gateway" data-target="identity-api" data-kind="calls" data-label="signs in">The edge gateway signs shoppers in through the identity API.</li>
+            <li data-edge data-source="web-shop" data-target="catalogue-api" data-kind="calls" data-label="reads">The web shop reads products from the catalogue API.</li>
+            <li data-edge data-source="web-shop" data-target="recommendations" data-kind="calls" data-label="asks" data-tone="warn">The web shop asks recommendations for suggestions.</li>
+            <li data-edge data-source="web-shop" data-target="basket" data-kind="calls" data-label="adds to">The web shop adds items to the basket service.</li>
+            <li data-edge data-source="catalogue-api" data-target="search-index" data-kind="calls" data-label="queries">The catalogue API queries the search index.</li>
+            <li data-edge data-source="recommendations" data-target="catalogue-api" data-kind="calls" data-label="reads">Recommendations read products from the catalogue API.</li>
+            <li data-edge data-source="checkout-api" data-target="basket" data-kind="calls" data-label="reads">The checkout API reads the basket.</li>
+            <li data-edge data-source="checkout-api" data-target="pricing" data-kind="calls" data-label="prices">The checkout API prices the basket with the pricing engine.</li>
+            <li data-edge data-source="pricing" data-target="catalogue-api" data-kind="calls" data-label="reads">The pricing engine reads list prices from the catalogue API.</li>
+            <li data-edge data-source="checkout-api" data-target="identity-api" data-kind="calls" data-label="verifies">The checkout API verifies the shopper with the identity API.</li>
+            <li data-edge data-source="checkout-api" data-target="payments-api" data-kind="calls" data-label="charges" data-weight="heavy">The checkout API charges the card through the payments API.</li>
+            <li data-edge data-source="checkout-api" data-target="orders-api" data-kind="calls" data-label="places" data-weight="heavy">The checkout API places the order with the orders API.</li>
+            <li data-edge data-source="payments-api" data-target="fraud" data-kind="calls" data-label="scores" data-tone="warn">The payments API scores every charge with fraud scoring.</li>
+            <li data-edge data-source="payments-api" data-target="ledger" data-kind="calls" data-label="books">The payments API books every charge into the ledger.</li>
+            <li data-edge data-source="payments-api" data-target="card-gateway" data-kind="calls" data-label="authorises">The payments API authorises cards through the card gateway adapter.</li>
+            <li data-edge data-source="orders-api" data-target="order-worker" data-kind="calls" data-label="queues" data-line="dashed">The orders API queues each order for the order worker.</li>
+            <li data-edge data-source="order-worker" data-target="warehouse-sync" data-kind="calls" data-label="sends" data-tone="danger">The order worker sends picking lists to warehouse sync.</li>
+            <li data-edge data-source="order-worker" data-target="labels" data-kind="calls" data-label="prints">The order worker prints shipping labels.</li>
+            <li data-edge data-source="identity-api" data-target="session-store" data-kind="calls" data-label="stores">The identity API stores sessions in the session store.</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-tools" role="toolbar" aria-label="View">
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit to the frame" data-tip="Fit to the frame"><i class="ri-focus-3-line"></i></button>
+            <span class="graph-tools-sep"></span>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="hulls" aria-pressed="true" aria-label="Outline teams" data-tip="Outline teams"><i class="ri-shape-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fullscreen" aria-pressed="false" aria-label="Full screen" data-tip="Full screen">
+                <i class="ri-fullscreen-line graph-when-off"></i><i class="ri-fullscreen-exit-line graph-when-on"></i>
+            </button>
+        </div>
+        <div class="graph-tip" data-graph-tip hidden>
+            <span class="graph-tip-head"><i data-graph-icon aria-hidden="true"></i><span class="graph-tip-title" data-graph-field="label"></span></span>
+            <span class="graph-tip-meta" data-graph-field="meta"></span>
+            <span class="graph-tip-ref" data-graph-field="host"></span>
+        </div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+        <p class="visually-hidden" data-graph-live aria-live="polite"
+           data-graph-announce="{label}, {meta}. {links} links." data-graph-announce-select="{label} selected."></p>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch series-go"></span> Healthy</span>
+        <span class="graph-key"><span class="graph-swatch series-warn"></span> Degraded</span>
+        <span class="graph-key"><span class="graph-swatch series-danger"></span> Down</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-muted"></span> Data store</span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow"></span> Calls</span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed graph-line--arrow"></span> Queues</span>
+        <span class="graph-key"><span class="graph-line graph-line--dotted"></span> Owned by the team</span>
+    </div>
+</div>

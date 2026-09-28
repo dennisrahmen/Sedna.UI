@@ -1,0 +1,48 @@
+<div class="card">
+    <div class="card-head">
+        <strong>Order lifecycle</strong>
+        <span class="badge badge-info">This order is packed</span>
+    </div>
+    <div class="graph graph--sm" data-graph id="order-states" data-graph-layout="dagre" data-graph-direction="LR" data-graph-nodes="box"
+         data-graph-arrows="target" data-graph-edge-labels="always" data-graph-drag="false"
+         aria-label="Order lifecycle: the states an order moves through" aria-roledescription="state diagram">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="start" data-display="dot" data-tone="muted" data-weight="0">Start</li>
+            <li data-node="placed" data-tone="6" data-meta="Awaiting payment">Placed</li>
+            <li data-node="payment-failed" data-tone="danger" data-icon="ri-error-warning-line" data-meta="Card declined">Payment failed</li>
+            <li data-node="paid" data-tone="6">Paid</li>
+            <li data-node="packed" data-tone="4" data-meta="In the warehouse" data-root>Packed</li>
+            <li data-node="shipped" data-tone="4">Shipped</li>
+            <li data-node="delivered" data-tone="go">Delivered</li>
+            <li data-node="refused" data-tone="warn" data-meta="Back to the warehouse">Refused</li>
+            <li data-node="cancelled" data-display="dot" data-tone="muted" data-weight="0">Cancelled</li>
+            <li data-node="closed" data-display="dot" data-tone="go" data-weight="0">Closed</li>
+
+            <li data-edge data-source="start" data-target="placed" data-label="place">An order starts when it is placed.</li>
+            <li data-edge data-source="placed" data-target="paid" data-label="pay">A placed order is paid.</li>
+            <li data-edge data-source="placed" data-target="payment-failed" data-label="decline" data-tone="danger">A placed order fails when the card is declined.</li>
+            <li data-edge data-source="payment-failed" data-target="placed" data-label="retry" data-line="dashed">A failed payment can be retried, which places the order again.</li>
+            <li data-edge data-source="payment-failed" data-target="cancelled" data-label="time out" data-line="dashed">A failed payment that is not retried within a day cancels the order, which ends it.</li>
+            <li data-edge data-source="paid" data-target="packed" data-label="pack">A paid order is packed.</li>
+            <li data-edge data-source="packed" data-target="shipped" data-label="ship">A packed order is shipped.</li>
+            <li data-edge data-source="shipped" data-target="delivered" data-label="deliver">A shipped order is delivered.</li>
+            <li data-edge data-source="shipped" data-target="refused" data-label="refuse" data-line="dashed">A shipped order is refused when nobody accepts it at the door.</li>
+            <li data-edge data-source="delivered" data-target="closed" data-label="close">A delivered order is closed after 30 days, which ends it.</li>
+            <li data-edge data-source="refused" data-target="closed" data-label="refund">A refused order is closed once it is refunded.</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+        <p class="visually-hidden" data-graph-live aria-live="polite"
+           data-graph-announce="{label}. {meta}. {links} transitions." data-graph-announce-select="{label} selected."></p>
+    </div>
+    <div class="card-foot card-foot--start">
+        <div class="graph-legend">
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-6"></span> Payment</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-4"></span> Fulfilment</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-danger"></span> Failure</span>
+            <span class="graph-key"><span class="graph-swatch series-muted"></span> Start or end</span>
+            <span class="graph-key"><span class="graph-line graph-line--arrow"></span> Normal path</span>
+            <span class="graph-key"><span class="graph-line graph-line--dashed graph-line--arrow"></span> Exception</span>
+        </div>
+    </div>
+</div>

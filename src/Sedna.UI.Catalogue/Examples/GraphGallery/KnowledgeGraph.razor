@@ -1,0 +1,162 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <div class="input-group toolbar-input">
+                <span class="input-affix"><i class="ri-search-line"></i></span>
+                <input class="form-input" type="search" placeholder="Search" aria-label="Search the knowledge graph" data-graph-search />
+            </div>
+            <label class="form-check"><input type="checkbox" data-graph-show="muted" checked /> Done tasks</label>
+        </div>
+        <span class="toolbar-count" data-graph-stats="{nodes} records · {edges} links" data-graph-stats-match="{matches} of {nodes} records match"></span>
+    </div>
+    <div class="chip-set" role="group" aria-label="Show kinds">
+        <button class="chip" type="button" data-graph-filter="kind" value="note" aria-pressed="true"><span class="graph-swatch graph-swatch--rounded series-2"></span> Notes</button>
+        <button class="chip" type="button" data-graph-filter="kind" value="task" aria-pressed="true"><span class="graph-swatch graph-swatch--diamond series-3"></span> Tasks</button>
+        <button class="chip" type="button" data-graph-filter="kind" value="person" aria-pressed="true"><span class="graph-swatch series-5"></span> People</button>
+        <button class="chip" type="button" data-graph-filter="kind" value="tag" aria-pressed="true"><span class="graph-swatch graph-swatch--tag series-6"></span> Tags</button>
+    </div>
+    <div class="sedna-split">
+        <div class="graph card" data-graph id="knowledge" data-graph-layout="islands"
+             aria-label="Knowledge graph of three projects" aria-roledescription="graph">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="catalogue" data-group="catalogue" data-kind="project" data-shape="hexagon" data-icon="ri-folder-3-line" data-tone="1" data-meta="Project · due 1 April">Spring catalogue</li>
+                <li data-node="kickoff" data-group="catalogue" data-kind="note" data-shape="rounded" data-tone="2" data-meta="Note · 12 January" data-tags="print budget">Kick-off notes</li>
+                <li data-node="shoot-brief" data-group="catalogue" data-kind="note" data-shape="rounded" data-tone="2" data-meta="Note · 3 February">Photo shoot brief</li>
+                <li data-node="print-schedule" data-group="catalogue" data-kind="note" data-shape="rounded" data-tone="2" data-meta="Note · 9 February" data-tags="print">Print schedule</li>
+                <li data-node="book-photographer" data-group="catalogue" data-kind="task" data-shape="diamond" data-tone="3" data-meta="Task · done 5 February" data-muted>Book the photographer</li>
+                <li data-node="approve-layout" data-group="catalogue" data-kind="task" data-shape="diamond" data-tone="3" data-meta="Task · due 6 March">Approve the layout</li>
+                <li data-node="send-to-printer" data-group="catalogue" data-kind="task" data-shape="diamond" data-tone="3" data-meta="Task · due 14 March" data-tags="print">Send files to the printer</li>
+
+                <li data-node="warehouse" data-group="warehouse" data-kind="project" data-shape="hexagon" data-icon="ri-folder-3-line" data-tone="1" data-meta="Project · due 30 May">Warehouse move</li>
+                <li data-node="floor-plan" data-group="warehouse" data-kind="note" data-shape="rounded" data-tone="2" data-meta="Note · 20 February">Floor plan, second draft</li>
+                <li data-node="forklift-quotes" data-group="warehouse" data-kind="note" data-shape="rounded" data-tone="2" data-meta="Note · 24 February" data-tags="budget">Forklift rental quotes</li>
+                <li data-node="moving-checklist" data-group="warehouse" data-kind="note" data-shape="rounded" data-tone="2" data-meta="Note · 2 March" data-tags="logistics">Moving weekend checklist</li>
+                <li data-node="order-racking" data-group="warehouse" data-kind="task" data-shape="diamond" data-tone="3" data-meta="Task · due 20 March" data-tags="budget">Order new racking</li>
+                <li data-node="label-bays" data-group="warehouse" data-kind="task" data-shape="diamond" data-tone="3" data-meta="Task · due 10 May" data-tags="logistics">Label the bays</li>
+                <li data-node="move-slow-sellers" data-group="warehouse" data-kind="task" data-shape="diamond" data-tone="3" data-meta="Task · done 1 March" data-muted>Move slow sellers first</li>
+
+                <li data-node="suppliers" data-group="suppliers" data-kind="project" data-shape="hexagon" data-icon="ri-folder-3-line" data-tone="1" data-meta="Project · ongoing">Supplier onboarding</li>
+                <li data-node="supplier-checklist" data-group="suppliers" data-kind="note" data-shape="rounded" data-tone="2" data-meta="Note · 15 January">Supplier checklist</li>
+                <li data-node="contract-template" data-group="suppliers" data-kind="note" data-shape="rounded" data-tone="2" data-meta="Note · 18 January" data-tags="legal">Contract template</li>
+                <li data-node="sign-contract" data-group="suppliers" data-kind="task" data-shape="diamond" data-tone="3" data-meta="Task · due 28 February" data-tags="legal">Sign the framework contract</li>
+                <li data-node="supplier-accounts" data-group="suppliers" data-kind="task" data-shape="diamond" data-tone="3" data-meta="Task · due 7 March">Set up supplier accounts</li>
+                <li data-node="collect-certificates" data-group="suppliers" data-kind="task" data-shape="diamond" data-tone="3" data-meta="Task · done 2 February" data-muted>Collect safety certificates</li>
+
+                <li data-node="alex" data-kind="person" data-tone="5" data-icon="ri-user-line" data-meta="Person · Managing director">Alex Fischer</li>
+                <li data-node="priya" data-kind="person" data-tone="5" data-icon="ri-user-line" data-meta="Person · Engineering">Priya Nair</li>
+                <li data-node="jordan" data-kind="person" data-tone="5" data-icon="ri-user-line" data-meta="Person · Operations">Jordan Weiss</li>
+                <li data-node="rin" data-kind="person" data-tone="5" data-icon="ri-user-line" data-meta="Person · Design">Rin Nakamura</li>
+                <li data-node="tomas" data-kind="person" data-tone="5" data-icon="ri-user-line" data-meta="Person · Logistics">Tomás Ferreira</li>
+
+                <li data-node="tag-print" data-kind="tag" data-shape="tag" data-tone="6" data-meta="Tag">print</li>
+                <li data-node="tag-budget" data-kind="tag" data-shape="tag" data-tone="6" data-meta="Tag">budget</li>
+                <li data-node="tag-logistics" data-kind="tag" data-shape="tag" data-tone="6" data-meta="Tag">logistics</li>
+                <li data-node="tag-legal" data-kind="tag" data-shape="tag" data-tone="6" data-meta="Tag">legal</li>
+
+                <li data-edge data-source="kickoff" data-target="catalogue" data-kind="filed" data-label="filed under">The kick-off notes are filed under the spring catalogue.</li>
+                <li data-edge data-source="shoot-brief" data-target="catalogue" data-kind="filed" data-label="filed under">The photo shoot brief is filed under the spring catalogue.</li>
+                <li data-edge data-source="print-schedule" data-target="catalogue" data-kind="filed" data-label="filed under">The print schedule is filed under the spring catalogue.</li>
+                <li data-edge data-source="book-photographer" data-target="catalogue" data-kind="filed" data-label="filed under">Booking the photographer is filed under the spring catalogue.</li>
+                <li data-edge data-source="approve-layout" data-target="catalogue" data-kind="filed" data-label="filed under">Approving the layout is filed under the spring catalogue.</li>
+                <li data-edge data-source="send-to-printer" data-target="catalogue" data-kind="filed" data-label="filed under">Sending files to the printer is filed under the spring catalogue.</li>
+                <li data-edge data-source="floor-plan" data-target="warehouse" data-kind="filed" data-label="filed under">The floor plan is filed under the warehouse move.</li>
+                <li data-edge data-source="forklift-quotes" data-target="warehouse" data-kind="filed" data-label="filed under">The forklift quotes are filed under the warehouse move.</li>
+                <li data-edge data-source="moving-checklist" data-target="warehouse" data-kind="filed" data-label="filed under">The moving weekend checklist is filed under the warehouse move.</li>
+                <li data-edge data-source="order-racking" data-target="warehouse" data-kind="filed" data-label="filed under">Ordering new racking is filed under the warehouse move.</li>
+                <li data-edge data-source="label-bays" data-target="warehouse" data-kind="filed" data-label="filed under">Labelling the bays is filed under the warehouse move.</li>
+                <li data-edge data-source="move-slow-sellers" data-target="warehouse" data-kind="filed" data-label="filed under">Moving slow sellers is filed under the warehouse move.</li>
+                <li data-edge data-source="supplier-checklist" data-target="suppliers" data-kind="filed" data-label="filed under">The supplier checklist is filed under supplier onboarding.</li>
+                <li data-edge data-source="contract-template" data-target="suppliers" data-kind="filed" data-label="filed under">The contract template is filed under supplier onboarding.</li>
+                <li data-edge data-source="sign-contract" data-target="suppliers" data-kind="filed" data-label="filed under">Signing the framework contract is filed under supplier onboarding.</li>
+                <li data-edge data-source="supplier-accounts" data-target="suppliers" data-kind="filed" data-label="filed under">Setting up supplier accounts is filed under supplier onboarding.</li>
+                <li data-edge data-source="collect-certificates" data-target="suppliers" data-kind="filed" data-label="filed under">Collecting safety certificates is filed under supplier onboarding.</li>
+
+                <li data-edge data-source="approve-layout" data-target="print-schedule" data-kind="mentions" data-label="described in">Approving the layout is described in the print schedule.</li>
+                <li data-edge data-source="send-to-printer" data-target="print-schedule" data-kind="mentions" data-label="described in">Sending files to the printer is described in the print schedule.</li>
+                <li data-edge data-source="book-photographer" data-target="shoot-brief" data-kind="mentions" data-label="described in">Booking the photographer is described in the photo shoot brief.</li>
+                <li data-edge data-source="order-racking" data-target="floor-plan" data-kind="mentions" data-label="described in">Ordering new racking is described in the floor plan.</li>
+                <li data-edge data-source="label-bays" data-target="moving-checklist" data-kind="mentions" data-label="described in">Labelling the bays is described in the moving weekend checklist.</li>
+                <li data-edge data-source="sign-contract" data-target="contract-template" data-kind="mentions" data-label="described in">Signing the framework contract is described in the contract template.</li>
+                <li data-edge data-source="supplier-accounts" data-target="supplier-checklist" data-kind="mentions" data-label="described in">Setting up supplier accounts is described in the supplier checklist.</li>
+                <li data-edge data-source="kickoff" data-target="floor-plan" data-kind="mentions" data-label="links to">The kick-off notes link to the floor plan, because the catalogue shoot uses the new warehouse.</li>
+
+                <li data-edge data-source="kickoff" data-target="alex" data-kind="author" data-label="written by">Alex Fischer wrote the kick-off notes.</li>
+                <li data-edge data-source="shoot-brief" data-target="rin" data-kind="author" data-label="written by">Rin Nakamura wrote the photo shoot brief.</li>
+                <li data-edge data-source="floor-plan" data-target="tomas" data-kind="author" data-label="written by">Tomás Ferreira wrote the floor plan.</li>
+                <li data-edge data-source="supplier-checklist" data-target="jordan" data-kind="author" data-label="written by">Jordan Weiss wrote the supplier checklist.</li>
+                <li data-edge data-source="approve-layout" data-target="alex" data-kind="assigned" data-label="assigned to">Approving the layout is assigned to Alex Fischer.</li>
+                <li data-edge data-source="send-to-printer" data-target="rin" data-kind="assigned" data-label="assigned to">Sending files to the printer is assigned to Rin Nakamura.</li>
+                <li data-edge data-source="book-photographer" data-target="rin" data-kind="assigned" data-label="assigned to">Booking the photographer was assigned to Rin Nakamura.</li>
+                <li data-edge data-source="order-racking" data-target="tomas" data-kind="assigned" data-label="assigned to">Ordering new racking is assigned to Tomás Ferreira.</li>
+                <li data-edge data-source="label-bays" data-target="jordan" data-kind="assigned" data-label="assigned to">Labelling the bays is assigned to Jordan Weiss.</li>
+                <li data-edge data-source="move-slow-sellers" data-target="tomas" data-kind="assigned" data-label="assigned to">Moving slow sellers was assigned to Tomás Ferreira.</li>
+                <li data-edge data-source="sign-contract" data-target="alex" data-kind="assigned" data-label="assigned to">Signing the framework contract is assigned to Alex Fischer.</li>
+                <li data-edge data-source="supplier-accounts" data-target="priya" data-kind="assigned" data-label="assigned to">Setting up supplier accounts is assigned to Priya Nair.</li>
+                <li data-edge data-source="collect-certificates" data-target="jordan" data-kind="assigned" data-label="assigned to">Collecting safety certificates was assigned to Jordan Weiss.</li>
+
+                <li data-edge data-source="kickoff" data-target="tag-print" data-kind="tagged" data-label="tagged" data-line="dotted">The kick-off notes are tagged print.</li>
+                <li data-edge data-source="kickoff" data-target="tag-budget" data-kind="tagged" data-label="tagged" data-line="dotted">The kick-off notes are tagged budget.</li>
+                <li data-edge data-source="print-schedule" data-target="tag-print" data-kind="tagged" data-label="tagged" data-line="dotted">The print schedule is tagged print.</li>
+                <li data-edge data-source="send-to-printer" data-target="tag-print" data-kind="tagged" data-label="tagged" data-line="dotted">Sending files to the printer is tagged print.</li>
+                <li data-edge data-source="forklift-quotes" data-target="tag-budget" data-kind="tagged" data-label="tagged" data-line="dotted">The forklift quotes are tagged budget.</li>
+                <li data-edge data-source="order-racking" data-target="tag-budget" data-kind="tagged" data-label="tagged" data-line="dotted">Ordering new racking is tagged budget.</li>
+                <li data-edge data-source="moving-checklist" data-target="tag-logistics" data-kind="tagged" data-label="tagged" data-line="dotted">The moving weekend checklist is tagged logistics.</li>
+                <li data-edge data-source="label-bays" data-target="tag-logistics" data-kind="tagged" data-label="tagged" data-line="dotted">Labelling the bays is tagged logistics.</li>
+                <li data-edge data-source="contract-template" data-target="tag-legal" data-kind="tagged" data-label="tagged" data-line="dotted">The contract template is tagged legal.</li>
+                <li data-edge data-source="sign-contract" data-target="tag-legal" data-kind="tagged" data-label="tagged" data-line="dotted">Signing the framework contract is tagged legal.</li>
+            </ul>
+            <div class="graph-canvas"></div>
+            <div class="graph-tools" role="toolbar" aria-label="View">
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit to the frame" data-tip="Fit to the frame"><i class="ri-focus-3-line"></i></button>
+                <span class="graph-tools-sep"></span>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="reset" aria-label="Reset the view and the filters" data-tip="Reset"><i class="ri-restart-line"></i></button>
+            </div>
+            <div class="menu graph-menu" data-graph-menu role="menu" hidden>
+                <span class="menu-label" data-graph-field="label"></span>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-3-line"></i> Only its neighbourhood</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-apps-2-line"></i> Everything again</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="hide"><i class="ri-eye-off-line"></i> Hide it</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="show-all"><i class="ri-eye-line"></i> Show what I hid</button>
+            </div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+            <p class="visually-hidden" data-graph-live aria-live="polite"
+               data-graph-announce="{label}, {meta}. {links} links." data-graph-announce-select="{label} selected. Its links are listed beside the graph."></p>
+        </div>
+        <aside class="card card--fill sedna-split-aside graph-detail" data-graph-detail hidden aria-label="Selected record">
+            <div class="card-head">
+                <strong data-graph-field="label"></strong>
+                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="clear" aria-label="Close the panel"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="card-body">
+                <p class="form-hint" data-graph-field="meta"></p>
+                <ul class="list" data-graph-neighbours>
+                    <template data-graph-neighbour>
+                        <li>
+                            <button class="list-row" type="button" data-graph-action="select">
+                                <span class="list-main">
+                                    <span class="list-title" data-graph-field="label"></span>
+                                    <span class="list-sub">
+                                        <span class="graph-direction" aria-hidden="true"><i class="ri-arrow-right-line graph-direction-out"></i><i class="ri-arrow-left-line graph-direction-in"></i><i class="ri-arrow-left-right-line graph-direction-both"></i></span>
+                                        <span data-graph-link></span>
+                                    </span>
+                                </span>
+                            </button>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+            <div class="card-foot card-foot--start">
+                <button class="btn btn-sm" type="button" data-graph-action="focus"><i class="ri-focus-3-line"></i> Neighbourhood</button>
+                <button class="btn btn-ghost btn-sm" type="button" data-graph-action="unfocus">Everything</button>
+            </div>
+        </aside>
+    </div>
+    <div class="graph-legend">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-1"></span> Project</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-3 graph-swatch--muted"></span> Done task</span>
+        <span class="graph-key"><span class="graph-line"></span> Filed under, written by, assigned to</span>
+        <span class="graph-key"><span class="graph-line graph-line--dotted"></span> Tagged</span>
+    </div>
+</div>
