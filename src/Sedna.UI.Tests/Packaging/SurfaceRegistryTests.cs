@@ -235,6 +235,8 @@ public class SurfaceRegistryTests
         // downloads its engine. The main script imports the surface's module by relative URL when
         // one is shown; only that module imports the engine.
         var mainJs = File.ReadAllText(Assets.JsPath);
+        Assert.Matches(@"new URL\(\s*spec\.module,\s*here", mainJs);
+        Assert.Contains("import(url)", mainJs, StringComparison.Ordinal);
         var hostPage = File.ReadAllText(Path.Combine(Assets.RepoRoot, "docs", "getting-started.md"));
         var problems = new List<string>();
         foreach (var s in Surfaces.All.Where(s => s.Engine is not null))
@@ -263,8 +265,9 @@ public class SurfaceRegistryTests
                 continue;
             }
 
-            if (!Regex.IsMatch(mainJs, $@"new URL\(\s*'{Regex.Escape(module)}'") || !mainJs.Contains("import(", StringComparison.Ordinal))
-                problems.Add($"{s.Name}: Sedna.UI.js does not import {module} by relative URL");
+            // Named to the shared loader (42-surfaces.js), which imports it relative to the script.
+            if (!Regex.IsMatch(mainJs, $@"module:\s*'{Regex.Escape(module)}'"))
+                problems.Add($"{s.Name}: Sedna.UI.js does not hand {module} to the surface loader");
             if (hostPage.Contains(module, StringComparison.Ordinal))
                 problems.Add($"{s.Name}: getting-started.md puts {module} on the host page");
             if (!File.ReadAllText(modulePath).Contains("../" + libPath, StringComparison.Ordinal))

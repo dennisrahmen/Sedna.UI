@@ -15,18 +15,11 @@
        <div class="graph-canvas"></div>
      </div>
 
-   What it owns:
-     * finding graphs — on load, after every render that adds one, and lazily: a graph
-       starts when it comes within a screen of the viewport, unless it carries
-       `data-graph-eager`;
-     * disposing a graph whose element has left the document, so a Blazor navigation
-       does not leave an engine running for a page that is gone;
-     * waiting on a prerendered Blazor page. Interactive rendering replaces the markup
-       the server prerendered, element for element, once the circuit or the WebAssembly
-       runtime has started — so a graph drawn before that would be drawn twice, and
-       flash its wait in between. When the page carries Blazor's interactive markers,
-       graphs start only once Sedna.UI.lib.module.js reports that Blazor has started
-       and the replaced markup has settled, or after a few seconds regardless;
+   Finding graphs, starting one when it comes within a screen of the viewport (or at
+   once with `data-graph-eager`), waiting on a prerendered Blazor page and disposing one
+   whose element has gone are the shared surface loader's (42-surfaces.js). This part
+   owns:
+     * a graph's role and tab stop, the moment it is found;
      * delegating the controls — `data-graph-action`, `data-graph-filter`,
        `data-graph-show`, `data-graph-search`, `data-graph-option` — from document, so a
        control rendered after load needs no wiring. Which graph a control drives: the
@@ -39,39 +32,21 @@
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
-    // Read while this script is running: currentScript is null once it has finished,
-    // and the module is found relative to wherever the app serves this file from.
-    var here = (function () {
-        try { return document.currentScript && document.currentScript.src ? document.currentScript.src : null; }
-        catch (e) { return null; }
-    })();
-
-    var loading = null;
-
-    function load() {
-        if (!loading) {
-            var url = new URL('Sedna.UI.graph.js', here || document.baseURI).href;
-            loading = import(url).catch(function (e) {
-                loading = null;
-                throw e;
-            });
-        }
-        return loading;
-    }
-
     var SELECTOR = '[data-graph]';
     var CONTROLS = '[data-graph-action],[data-graph-filter],[data-graph-show],[data-graph-search],[data-graph-option]';
 
-    var watching = typeof IntersectionObserver === 'function'
-        ? new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    watching.unobserve(entry.target);
-                    start(entry.target);
-                }
-            });
-        }, { rootMargin: '100% 0px' })
-        : null;
+    var graphs = ui._.surface({
+        name: 'graph',
+        selector: SELECTOR,
+        module: 'Sedna.UI.graph.js',
+        eager: 'data-graph-eager',
+        // Its role and its tab stop at once, even while held: an accessible name on an
+        // element with no role is prohibited, and a graph below the fold starts late.
+        found: function (el) {
+            if (!el.hasAttribute('role')) el.setAttribute('role', 'application');
+            if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+        }
+    });
 
     // The graph a control drives: named by data-graph-for on it or on a container
     // around it — a panel, a toolbar — else the one it sits in, else the one in the
@@ -90,104 +65,18 @@
         return frame ? frame.querySelector(SELECTOR) : null;
     }
 
-    function start(el) {
-        el.__sednaGraphStarted = true;
-        return load().then(function (m) { return m.attach(el); });
-    }
-
-    // Held while a prerendered Blazor page waits for its interactive render; see above.
-    var held = false;
-    var holdTimer = 0;
-
-    function interactiveMarkers() {
-        try {
-            var walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_COMMENT);
-            for (var c = walker.nextNode(); c; c = walker.nextNode()) {
-                if (c.data.indexOf('Blazor:') === 0 && /"type":"(server|webassembly|auto)"/.test(c.data)) return true;
-            }
-        } catch (e) { /* no walker: nothing to wait for */ }
-        return false;
-    }
-
-    function release() {
-        if (!held) return;
-        clearTimeout(holdTimer);
-        // The replaced markup is inserted in batches; start once the document has been
-        // quiet for a moment, so a graph is drawn once, in the element that stays.
-        var quiet = 0, since = Date.now();
-        var settle = new MutationObserver(function () {
-            clearTimeout(quiet);
-            quiet = setTimeout(done, 60);
-            if (Date.now() - since > 1000) done();
-        });
-        function done() {
-            if (!held) return;
-            held = false;
-            settle.disconnect();
-            clearTimeout(quiet);
-            scan(document);
-        }
-        settle.observe(document.documentElement, { childList: true, subtree: true });
-        quiet = setTimeout(done, 60);
-    }
-
-    function scan(root) {
-        var found = [];
-        if (root.matches && root.matches(SELECTOR)) found.push(root);
-        if (root.querySelectorAll) {
-            var inner = root.querySelectorAll(SELECTOR);
-            for (var i = 0; i < inner.length; i++) found.push(inner[i]);
-        }
-        // Its role and its tab stop at once, even while held: an accessible name on an
-        // element with no role is prohibited, and a graph below the fold starts late.
-        found.forEach(function (el) {
-            if (!el.hasAttribute('role')) el.setAttribute('role', 'application');
-            if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
-        });
-        if (held) return;
-        found.forEach(function (el) {
-            if (el.__sednaGraphSeen) return;
-            el.__sednaGraphSeen = true;
-            if (watching && !el.hasAttribute('data-graph-eager')) watching.observe(el);
-            else start(el).catch(report);
-        });
-    }
-
-    function report(e) {
-        try { console.error('Sedna.UI graph:', e); } catch (x) { /* ignore */ }
-    }
-
     ui.graph = {
         /* Called by Sedna.UI.lib.module.js once Blazor has started. Nothing else needs to. */
-        release: release,
+        release: graphs.release,
 
         /* Starts every graph in `root` (the document by default) that has not been
            started — at once, rather than when it scrolls near. Returns a promise of
            how many it started. */
-        init: function (root) {
-            var list = [];
-            var host = root || document;
-            if (host.matches && host.matches(SELECTOR)) list.push(host);
-            var inner = host.querySelectorAll ? host.querySelectorAll(SELECTOR) : [];
-            for (var i = 0; i < inner.length; i++) list.push(inner[i]);
-            return Promise.all(list.map(function (el) {
-                el.__sednaGraphSeen = true;
-                if (watching) watching.unobserve(el);
-                return start(el);
-            })).then(function (graphs) { return graphs.length; });
-        },
+        init: graphs.init,
 
         /* The engine's handle for a graph — an element, or its id — starting it if it
            has not started. The handle's members are listed in docs/architecture.md. */
-        get: function (target) {
-            var el = typeof target === 'string' ? document.getElementById(target) : target;
-            if (!el || !el.matches || !el.matches(SELECTOR)) {
-                return Promise.reject(new Error('No [data-graph] element: ' + target));
-            }
-            el.__sednaGraphSeen = true;
-            if (watching) watching.unobserve(el);
-            return start(el);
-        },
+        get: graphs.get,
 
         /* The ISednaGraph bridge. `method` is one of the handle's data-in, data-out
            members; the result is plain data or null. An id with no graph behind it
@@ -200,10 +89,10 @@
                 try { console.warn('Sedna.UI graph: no [data-graph] element with id "' + id + '".'); } catch (e) { /* ignore */ }
                 return Promise.resolve(none);
             }
-            return this.get(el)
+            return graphs.get(el)
                 .then(function (graph) { return graph.invoke(method, args || []); })
                 .catch(function (e) {
-                    report(e);
+                    graphs.report(e);
                     return none;
                 });
         }
@@ -221,57 +110,10 @@
         if (e.type === 'click' && (c.tagName === 'INPUT' || c.tagName === 'SELECT' || c.tagName === 'TEXTAREA')) return;
         var el = graphOf(c);
         if (!el) return;
-        ui.graph.get(el).then(function (graph) { graph.control(c, e.type); }).catch(report);
+        graphs.get(el).then(function (graph) { graph.control(c, e.type); }).catch(graphs.report);
     }
     document.addEventListener('click', control);
     document.addEventListener('change', control);
     document.addEventListener('input', control);
-
-    function boot() {
-        if (interactiveMarkers()) {
-            held = true;
-            holdTimer = setTimeout(release, 4000);
-        }
-        scan(document);
-        if (typeof MutationObserver !== 'function') return;
-        // A graph rendered later is found by the render that added it; one removed is
-        // disposed by the render that removed it — checked on a timer, not at once,
-        // because Blazor moves an element by removing and re-inserting it.
-        var queued = false;
-        new MutationObserver(function (records) {
-            for (var i = 0; i < records.length; i++) {
-                var added = records[i].addedNodes;
-                for (var j = 0; j < added.length; j++) {
-                    if (added[j].nodeType === 1) scan(added[j]);
-                }
-                // One removed before it ever came near the viewport is no longer watched —
-                // and forgotten, so that if Blazor was only moving it, the insert that
-                // follows finds it again.
-                var removed = records[i].removedNodes;
-                for (var k = 0; k < removed.length && watching; k++) {
-                    var gone = removed[k];
-                    if (gone.nodeType !== 1) continue;
-                    var graphs = gone.matches(SELECTOR) ? [gone] : [];
-                    var inner = gone.querySelectorAll(SELECTOR);
-                    for (var m = 0; m < inner.length; m++) graphs.push(inner[m]);
-                    graphs.forEach(function (el) {
-                        if (el.__sednaGraphStarted) return;
-                        watching.unobserve(el);
-                        el.__sednaGraphSeen = false;
-                    });
-                }
-                if (records[i].removedNodes.length && !queued && loading) {
-                    queued = true;
-                    setTimeout(function () {
-                        queued = false;
-                        loading.then(function (m) { m.sweep(); }).catch(function () { /* nothing to sweep */ });
-                    }, 0);
-                }
-            }
-        }).observe(document.documentElement, { childList: true, subtree: true });
-    }
-
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-    else boot();
 
 })(window.sednaUi);
