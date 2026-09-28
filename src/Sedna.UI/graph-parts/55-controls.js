@@ -236,13 +236,14 @@ async function option(g, name, value) {
         case 'spacing': o.spacing = value; g.touched = false; await arrange(g, true); break;
         case 'nodes':
             o.nodes = value === 'box' ? 'box' : 'dot';
+            followEdgeLabels(o);
             measureBoxes(g);
             restyle(g);
             g.touched = false;
             await arrange(g, true);
             break;
         case 'labels': o.labels = value; restyle(g); declutter(g); break;
-        case 'edge-labels': o.edgeLabels = value; restyle(g); break;
+        case 'edge-labels': o.edgeLabels = value; o.edgeLabelsChosen = true; restyle(g); break;
         case 'colour': case 'color': o.colourBy = value || 'tone'; restyle(g); break;
         case 'curve': o.curve = value; restyle(g); break;
         case 'arrows': o.arrows = value; restyle(g); break;

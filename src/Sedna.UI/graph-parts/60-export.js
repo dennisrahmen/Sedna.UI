@@ -181,7 +181,7 @@ function svgOf(g, ground) {
     for (const e of visible.edges().toArray()) {
         const colour = e.style('line-color');
         const width = e.numericStyle('width');
-        const opacity = e.numericStyle('opacity');
+        const opacity = e.numericStyle('opacity') * e.numericStyle('line-opacity');
         const dash = e.style('line-style') === 'dashed' ? ' stroke-dasharray="6 4"' : e.style('line-style') === 'dotted' ? ' stroke-dasharray="1.5 3.5" stroke-linecap="round"' : '';
         const geo = edgePath(e);
         const size = (5 + width * 2.5) * e.numericStyle('arrow-scale');

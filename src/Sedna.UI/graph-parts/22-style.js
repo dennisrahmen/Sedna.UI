@@ -202,7 +202,8 @@ function styleFor(colours, icons, options, extra) {
                 'target-arrow-shape': e => arrowOf(e, 'target'),
                 'source-arrow-shape': e => arrowOf(e, 'source'),
                 'arrow-scale': options.nodes === 'box' ? 0.9 : 0.7,
-                'opacity': options.nodes === 'box' ? 0.8 : 0.4,
+                // The line fades, not the label on it — arrowheads fade with the line.
+                'line-opacity': options.nodes === 'box' ? 0.8 : 0.4,
                 'label': edgeLabel,
                 'font-size': e => (options.nodes === 'box' ? 11 : 10 / zoomOf(e)),
                 'font-family': p.font,
@@ -216,20 +217,20 @@ function styleFor(colours, icons, options, extra) {
                 'transition-duration': reducedMotion() ? 0 : 160,
             },
         },
-        { selector: 'edge[?muted]', style: { 'opacity': 0.2 } },
+        { selector: 'edge[?muted]', style: { 'line-opacity': 0.2 } },
         // A bridge between two islands is the quietest line on the map until its record is pointed at.
-        { selector: 'edge[?across]', style: { 'opacity': options.nodes === 'box' ? 0.5 : 0.16 } },
+        { selector: 'edge[?across]', style: { 'line-opacity': options.nodes === 'box' ? 0.5 : 0.16 } },
 
         { selector: '.hidden', style: { 'display': 'none' } },
         { selector: '.dim', style: { 'opacity': 0.1, 'text-opacity': 0 } },
         { selector: 'node.lit', style: { 'color': p.fg, 'label': nameOf, 'z-index': 10 } },
         {
             selector: 'edge.lit',
-            style: { 'opacity': 1, 'width': e => Math.max(2, (e.data('weight') || 1) * 1.6) * held(e), 'label': e => (options.edgeLabels === 'none' ? '' : e.data('label') || ''), 'z-index': 10 },
+            style: { 'line-opacity': 1, 'width': e => Math.max(2, (e.data('weight') || 1) * 1.6) * held(e), 'label': e => (options.edgeLabels === 'none' ? '' : e.data('label') || ''), 'z-index': 10 },
         },
         { selector: 'node.match', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.accent, 'color': p.fg, 'label': nameOf } },
         { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'label': nameOf } },
-        { selector: 'edge:selected', style: { 'opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
+        { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
         // The keyboard's place: a ring outside the record, in the focus ring's colour.
         { selector: 'node.keyed', style: { 'outline-width': n => (box(n) ? 3 : 3 * held(n)), 'label': nameOf, 'color': p.fg, 'z-index': 20 } },
         { selector: '.entering', style: { 'opacity': 0 } },
@@ -237,7 +238,7 @@ function styleFor(colours, icons, options, extra) {
         // Drawing a link (cytoscape-edgehandles): the line follows the pointer in the brand colour.
         { selector: '.eh-handle', style: { 'width': 10, 'height': 10, 'shape': 'ellipse', 'background-color': p.brand, 'border-width': 0, 'label': '', 'background-image': 'none' } },
         { selector: '.eh-source, .eh-target', style: { 'border-width': 3, 'border-color': p.brand } },
-        { selector: '.eh-preview, .eh-ghost-edge', style: { 'line-color': p.brand, 'target-arrow-color': p.brand, 'target-arrow-shape': 'triangle', 'line-style': 'dashed', 'opacity': 1, 'width': 2 } },
+        { selector: '.eh-preview, .eh-ghost-edge', style: { 'line-color': p.brand, 'target-arrow-color': p.brand, 'target-arrow-shape': 'triangle', 'line-style': 'dashed', 'line-opacity': 1, 'width': 2 } },
         { selector: '.eh-ghost-edge.eh-preview-active', style: { 'opacity': 0 } },
         { selector: '.eh-ghost-node', style: { 'width': 1, 'height': 1, 'opacity': 0, 'label': '' } },
     ].concat(resolveRules(extra, colours));

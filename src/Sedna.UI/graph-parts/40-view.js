@@ -21,10 +21,12 @@ function fitView(g, eles, animate) {
     const box = nodes.boundingBox({ includeLabels: g.options.nodes === 'box', includeOverlays: false });
     // Room at the sides for half a name, which runs out either side of its record, and
     // below for one line of it.
-    const labelRoom = g.options.nodes === 'box' ? 48 : LABEL_MAX_PX + 32;
+    // Room at the sides for half a name and below for a line of it — never more than a
+    // fifth of a narrow frame, where the drawing would otherwise shrink to a speck.
+    const labelRoom = Math.min(g.options.nodes === 'box' ? 48 : LABEL_MAX_PX + 32, cy.width() * 0.2);
     const room = {
         w: Math.max(cy.width() - labelRoom, cy.width() / 2),
-        h: Math.max(cy.height() - (g.options.nodes === 'box' ? 48 : 88), cy.height() / 2),
+        h: Math.max(cy.height() - Math.min(g.options.nodes === 'box' ? 48 : 88, cy.height() * 0.2), cy.height() / 2),
     };
     const ceiling = g.options.nodes === 'box' ? 1.1 : 1.25;
     const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), ceiling));

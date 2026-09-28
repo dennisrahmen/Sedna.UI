@@ -121,13 +121,28 @@ async function arrangeWith(cy, name, options, frame) {
     const box = options.nodes === 'box' || visible.nodes('[display = "box"]').nonempty();
     const count = visible.nodes().length;
     const aspect = aspectOf(frame);
+    // The box a layout that fills one is given: the frame's, since the first drawing is made
+    // before the engine has a canvas to measure — scaled up with the crowd, so a large graph
+    // is not packed into the pixels of the frame. `turned` is the same box on its side.
+    const scale = Math.max(1, Math.sqrt(count / 30));
+    const fw = (frame && frame.clientWidth) || 900, fh = (frame && frame.clientHeight) || 500;
+    const frameBox = { x1: 0, y1: 0, w: fw * scale * spacing, h: fh * scale * spacing };
+    const turned = { x1: 0, y1: 0, w: frameBox.h, h: frameBox.w };
 
     switch (name) {
         case 'preset': {
             const placed = visible.nodes().filter(n => n.data('x') !== null && n.data('x') !== undefined);
             cy.batch(() => placed.forEach(n => n.position({ x: n.data('x'), y: n.data('y') })));
             const loose = visible.nodes().not(placed).filter(n => !n.isParent());
-            if (loose.nonempty()) await settled(springs(visible, count, spacing, { randomize: false }));
+            if (loose.nonempty()) {
+                // The placed records stay where the app put them; the springs place the rest.
+                placed.lock();
+                try {
+                    await settled(springs(visible, count, spacing, { randomize: false }));
+                } finally {
+                    placed.unlock();
+                }
+            }
             return;
         }
         case 'grid':
@@ -137,6 +152,7 @@ async function arrangeWith(cy, name, options, frame) {
                 fit: false,
                 animate: false,
                 avoidOverlap: true,
+                boundingBox: frameBox,
                 spacingFactor: spacing * (box ? 1.1 : 1.25),
                 sort: (a, b) => (b.data('degree') || 0) - (a.data('degree') || 0) || byId(a, b),
                 ...(name === 'grid' ? { condense: true } : {}),
@@ -148,6 +164,7 @@ async function arrangeWith(cy, name, options, frame) {
                 fit: false,
                 animate: false,
                 avoidOverlap: true,
+                boundingBox: frameBox,
                 minNodeSpacing: (box ? 24 : 18) * spacing,
                 concentric: n => n.data('root') ? 1e6 : (n.data('degree') || 0),
                 levelWidth: nodes => Math.max(1, nodes.maxDegree() / 4),
@@ -159,6 +176,7 @@ async function arrangeWith(cy, name, options, frame) {
                 name: 'breadthfirst',
                 fit: false,
                 animate: false,
+                boundingBox: direction === 'LR' || direction === 'RL' ? turned : frameBox,
                 directed: true,
                 roots: roots.nonempty() ? roots : undefined,
                 spacingFactor: spacing * (box ? 1 : 1.2),

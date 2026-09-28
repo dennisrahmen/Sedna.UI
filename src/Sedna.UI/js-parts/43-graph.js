@@ -142,6 +142,10 @@
         found.forEach(function (el) {
             if (el.__sednaGraphSeen) return;
             el.__sednaGraphSeen = true;
+            // Its role and its tab stop now, not when it starts: an accessible name on an
+            // element with no role is prohibited, and a graph below the fold starts late.
+            if (!el.hasAttribute('role')) el.setAttribute('role', 'application');
+            if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
             if (watching && !el.hasAttribute('data-graph-eager')) watching.observe(el);
             else start(el).catch(report);
         });

@@ -63,9 +63,15 @@ function readOptions(el, given) {
         o.layout = 'force';
     }
     o.direction = DIRECTIONS[o.direction] || 'TB';
-    o.edgeLabels = o.edgeLabels || (o.nodes === 'box' ? 'always' : 'hover');
+    // Chosen, or following the drawing: boxes write their links' labels, dots only when lit.
+    o.edgeLabelsChosen = !!o.edgeLabels;
+    followEdgeLabels(o);
     o.curve = o.curve || 'bezier';
     return o;
+}
+
+function followEdgeLabels(o) {
+    if (!o.edgeLabelsChosen) o.edgeLabels = o.nodes === 'box' ? 'always' : 'hover';
 }
 
 // The view options a control that is already on at the start asks for — a checked
@@ -79,9 +85,13 @@ function optionsFromControls(g) {
         const key = { layout: 'layout', direction: 'direction', spacing: 'spacing', labels: 'labels', colour: 'colourBy',
             color: 'colourBy', 'edge-labels': 'edgeLabels', curve: 'curve', nodes: 'nodes', arrows: 'arrows' }[name];
         const attr = 'data-graph-' + (name === 'colour' || name === 'color' ? 'colour' : name);
-        if (key && !g.el.hasAttribute(attr) && !(key in (g.given || {}))) g.options[key] = c.value;
+        if (key && !g.el.hasAttribute(attr) && !(key in (g.given || {}))) {
+            g.options[key] = key === 'nodes' ? (c.value === 'box' ? 'box' : 'dot') : c.value;
+            if (key === 'edgeLabels') g.options.edgeLabelsChosen = true;
+        }
         if (name === 'depth') g.depth = Math.max(1, Math.min(Number(c.value) || 1, 6));
     }
+    followEdgeLabels(g.options);
 }
 
 let boxCtx = null;
@@ -589,7 +599,7 @@ async function start(g) {
             raw = await fetchData(g.options.src);
         } catch (e) {
             g.failed = true;
-            report(e);
+            warnOnce('src:' + g.options.src, e.message);
         }
     }
     raw = raw || { nodes: [], edges: [] };
@@ -773,7 +783,7 @@ function makeApi(g) {
                 data = await fetchData(g.options.src);
             } catch (e) {
                 g.failed = true;
-                report(e);
+                try { console.warn('Sedna.UI graph: ' + e.message); } catch (x) { /* ignore */ }
                 changed(g);
                 return stats(g);
             }

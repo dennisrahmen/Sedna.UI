@@ -8854,12 +8854,32 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
     padding: var(--space-7);
     overflow: auto;
 }
-.graph-frame:fullscreen .graph,
-.graph-frame:fullscreen .sedna-split:has(> .graph, > * > .graph) {
-    flex: 1;
+/* Everything between the frame and the graph — a card, its body, a split — grows into
+   the screen, so the graph takes whatever the toolbar and the legend leave, however deep
+   the app nested it. A split stays a row; its side panel stretches with the graph. */
+.graph-frame:fullscreen :has(.graph):not(.sedna-split, .sedna-split > *) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+/* A column of a split keeps the split's own sharing of the width and stretches to its
+   height, which it gets from the row. */
+.graph-frame:fullscreen .sedna-split > :has(.graph) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.graph-frame:fullscreen .sedna-split:has(.graph) {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.graph-frame:fullscreen .graph {
+    flex: 1 1 auto;
     min-height: 0;
     height: auto;
 }
+.graph-frame:fullscreen .graph-detail { max-height: none; }
 .graph:fullscreen {
     height: 100dvh;
     border-radius: 0;

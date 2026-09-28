@@ -712,7 +712,8 @@ function styleFor(colours, icons, options, extra) {
                 'target-arrow-shape': e => arrowOf(e, 'target'),
                 'source-arrow-shape': e => arrowOf(e, 'source'),
                 'arrow-scale': options.nodes === 'box' ? 0.9 : 0.7,
-                'opacity': options.nodes === 'box' ? 0.8 : 0.4,
+                // The line fades, not the label on it — arrowheads fade with the line.
+                'line-opacity': options.nodes === 'box' ? 0.8 : 0.4,
                 'label': edgeLabel,
                 'font-size': e => (options.nodes === 'box' ? 11 : 10 / zoomOf(e)),
                 'font-family': p.font,
@@ -726,20 +727,20 @@ function styleFor(colours, icons, options, extra) {
                 'transition-duration': reducedMotion() ? 0 : 160,
             },
         },
-        { selector: 'edge[?muted]', style: { 'opacity': 0.2 } },
+        { selector: 'edge[?muted]', style: { 'line-opacity': 0.2 } },
         // A bridge between two islands is the quietest line on the map until its record is pointed at.
-        { selector: 'edge[?across]', style: { 'opacity': options.nodes === 'box' ? 0.5 : 0.16 } },
+        { selector: 'edge[?across]', style: { 'line-opacity': options.nodes === 'box' ? 0.5 : 0.16 } },
 
         { selector: '.hidden', style: { 'display': 'none' } },
         { selector: '.dim', style: { 'opacity': 0.1, 'text-opacity': 0 } },
         { selector: 'node.lit', style: { 'color': p.fg, 'label': nameOf, 'z-index': 10 } },
         {
             selector: 'edge.lit',
-            style: { 'opacity': 1, 'width': e => Math.max(2, (e.data('weight') || 1) * 1.6) * held(e), 'label': e => (options.edgeLabels === 'none' ? '' : e.data('label') || ''), 'z-index': 10 },
+            style: { 'line-opacity': 1, 'width': e => Math.max(2, (e.data('weight') || 1) * 1.6) * held(e), 'label': e => (options.edgeLabels === 'none' ? '' : e.data('label') || ''), 'z-index': 10 },
         },
         { selector: 'node.match', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.accent, 'color': p.fg, 'label': nameOf } },
         { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'label': nameOf } },
-        { selector: 'edge:selected', style: { 'opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
+        { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
         // The keyboard's place: a ring outside the record, in the focus ring's colour.
         { selector: 'node.keyed', style: { 'outline-width': n => (box(n) ? 3 : 3 * held(n)), 'label': nameOf, 'color': p.fg, 'z-index': 20 } },
         { selector: '.entering', style: { 'opacity': 0 } },
@@ -747,7 +748,7 @@ function styleFor(colours, icons, options, extra) {
         // Drawing a link (cytoscape-edgehandles): the line follows the pointer in the brand colour.
         { selector: '.eh-handle', style: { 'width': 10, 'height': 10, 'shape': 'ellipse', 'background-color': p.brand, 'border-width': 0, 'label': '', 'background-image': 'none' } },
         { selector: '.eh-source, .eh-target', style: { 'border-width': 3, 'border-color': p.brand } },
-        { selector: '.eh-preview, .eh-ghost-edge', style: { 'line-color': p.brand, 'target-arrow-color': p.brand, 'target-arrow-shape': 'triangle', 'line-style': 'dashed', 'opacity': 1, 'width': 2 } },
+        { selector: '.eh-preview, .eh-ghost-edge', style: { 'line-color': p.brand, 'target-arrow-color': p.brand, 'target-arrow-shape': 'triangle', 'line-style': 'dashed', 'line-opacity': 1, 'width': 2 } },
         { selector: '.eh-ghost-edge.eh-preview-active', style: { 'opacity': 0 } },
         { selector: '.eh-ghost-node', style: { 'width': 1, 'height': 1, 'opacity': 0, 'label': '' } },
     ].concat(resolveRules(extra, colours));
@@ -877,13 +878,28 @@ async function arrangeWith(cy, name, options, frame) {
     const box = options.nodes === 'box' || visible.nodes('[display = "box"]').nonempty();
     const count = visible.nodes().length;
     const aspect = aspectOf(frame);
+    // The box a layout that fills one is given: the frame's, since the first drawing is made
+    // before the engine has a canvas to measure — scaled up with the crowd, so a large graph
+    // is not packed into the pixels of the frame. `turned` is the same box on its side.
+    const scale = Math.max(1, Math.sqrt(count / 30));
+    const fw = (frame && frame.clientWidth) || 900, fh = (frame && frame.clientHeight) || 500;
+    const frameBox = { x1: 0, y1: 0, w: fw * scale * spacing, h: fh * scale * spacing };
+    const turned = { x1: 0, y1: 0, w: frameBox.h, h: frameBox.w };
 
     switch (name) {
         case 'preset': {
             const placed = visible.nodes().filter(n => n.data('x') !== null && n.data('x') !== undefined);
             cy.batch(() => placed.forEach(n => n.position({ x: n.data('x'), y: n.data('y') })));
             const loose = visible.nodes().not(placed).filter(n => !n.isParent());
-            if (loose.nonempty()) await settled(springs(visible, count, spacing, { randomize: false }));
+            if (loose.nonempty()) {
+                // The placed records stay where the app put them; the springs place the rest.
+                placed.lock();
+                try {
+                    await settled(springs(visible, count, spacing, { randomize: false }));
+                } finally {
+                    placed.unlock();
+                }
+            }
             return;
         }
         case 'grid':
@@ -893,6 +909,7 @@ async function arrangeWith(cy, name, options, frame) {
                 fit: false,
                 animate: false,
                 avoidOverlap: true,
+                boundingBox: frameBox,
                 spacingFactor: spacing * (box ? 1.1 : 1.25),
                 sort: (a, b) => (b.data('degree') || 0) - (a.data('degree') || 0) || byId(a, b),
                 ...(name === 'grid' ? { condense: true } : {}),
@@ -904,6 +921,7 @@ async function arrangeWith(cy, name, options, frame) {
                 fit: false,
                 animate: false,
                 avoidOverlap: true,
+                boundingBox: frameBox,
                 minNodeSpacing: (box ? 24 : 18) * spacing,
                 concentric: n => n.data('root') ? 1e6 : (n.data('degree') || 0),
                 levelWidth: nodes => Math.max(1, nodes.maxDegree() / 4),
@@ -915,6 +933,7 @@ async function arrangeWith(cy, name, options, frame) {
                 name: 'breadthfirst',
                 fit: false,
                 animate: false,
+                boundingBox: direction === 'LR' || direction === 'RL' ? turned : frameBox,
                 directed: true,
                 roots: roots.nonempty() ? roots : undefined,
                 spacingFactor: spacing * (box ? 1 : 1.2),
@@ -1285,10 +1304,12 @@ function fitView(g, eles, animate) {
     const box = nodes.boundingBox({ includeLabels: g.options.nodes === 'box', includeOverlays: false });
     // Room at the sides for half a name, which runs out either side of its record, and
     // below for one line of it.
-    const labelRoom = g.options.nodes === 'box' ? 48 : LABEL_MAX_PX + 32;
+    // Room at the sides for half a name and below for a line of it — never more than a
+    // fifth of a narrow frame, where the drawing would otherwise shrink to a speck.
+    const labelRoom = Math.min(g.options.nodes === 'box' ? 48 : LABEL_MAX_PX + 32, cy.width() * 0.2);
     const room = {
         w: Math.max(cy.width() - labelRoom, cy.width() / 2),
-        h: Math.max(cy.height() - (g.options.nodes === 'box' ? 48 : 88), cy.height() / 2),
+        h: Math.max(cy.height() - Math.min(g.options.nodes === 'box' ? 48 : 88, cy.height() * 0.2), cy.height() / 2),
     };
     const ceiling = g.options.nodes === 'box' ? 1.1 : 1.25;
     const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), ceiling));
@@ -2583,13 +2604,14 @@ async function option(g, name, value) {
         case 'spacing': o.spacing = value; g.touched = false; await arrange(g, true); break;
         case 'nodes':
             o.nodes = value === 'box' ? 'box' : 'dot';
+            followEdgeLabels(o);
             measureBoxes(g);
             restyle(g);
             g.touched = false;
             await arrange(g, true);
             break;
         case 'labels': o.labels = value; restyle(g); declutter(g); break;
-        case 'edge-labels': o.edgeLabels = value; restyle(g); break;
+        case 'edge-labels': o.edgeLabels = value; o.edgeLabelsChosen = true; restyle(g); break;
         case 'colour': case 'color': o.colourBy = value || 'tone'; restyle(g); break;
         case 'curve': o.curve = value; restyle(g); break;
         case 'arrows': o.arrows = value; restyle(g); break;
@@ -2821,7 +2843,7 @@ function svgOf(g, ground) {
     for (const e of visible.edges().toArray()) {
         const colour = e.style('line-color');
         const width = e.numericStyle('width');
-        const opacity = e.numericStyle('opacity');
+        const opacity = e.numericStyle('opacity') * e.numericStyle('line-opacity');
         const dash = e.style('line-style') === 'dashed' ? ' stroke-dasharray="6 4"' : e.style('line-style') === 'dotted' ? ' stroke-dasharray="1.5 3.5" stroke-linecap="round"' : '';
         const geo = edgePath(e);
         const size = (5 + width * 2.5) * e.numericStyle('arrow-scale');
@@ -3101,9 +3123,15 @@ function readOptions(el, given) {
         o.layout = 'force';
     }
     o.direction = DIRECTIONS[o.direction] || 'TB';
-    o.edgeLabels = o.edgeLabels || (o.nodes === 'box' ? 'always' : 'hover');
+    // Chosen, or following the drawing: boxes write their links' labels, dots only when lit.
+    o.edgeLabelsChosen = !!o.edgeLabels;
+    followEdgeLabels(o);
     o.curve = o.curve || 'bezier';
     return o;
+}
+
+function followEdgeLabels(o) {
+    if (!o.edgeLabelsChosen) o.edgeLabels = o.nodes === 'box' ? 'always' : 'hover';
 }
 
 // The view options a control that is already on at the start asks for — a checked
@@ -3117,9 +3145,13 @@ function optionsFromControls(g) {
         const key = { layout: 'layout', direction: 'direction', spacing: 'spacing', labels: 'labels', colour: 'colourBy',
             color: 'colourBy', 'edge-labels': 'edgeLabels', curve: 'curve', nodes: 'nodes', arrows: 'arrows' }[name];
         const attr = 'data-graph-' + (name === 'colour' || name === 'color' ? 'colour' : name);
-        if (key && !g.el.hasAttribute(attr) && !(key in (g.given || {}))) g.options[key] = c.value;
+        if (key && !g.el.hasAttribute(attr) && !(key in (g.given || {}))) {
+            g.options[key] = key === 'nodes' ? (c.value === 'box' ? 'box' : 'dot') : c.value;
+            if (key === 'edgeLabels') g.options.edgeLabelsChosen = true;
+        }
         if (name === 'depth') g.depth = Math.max(1, Math.min(Number(c.value) || 1, 6));
     }
+    followEdgeLabels(g.options);
 }
 
 let boxCtx = null;
@@ -3627,7 +3659,7 @@ async function start(g) {
             raw = await fetchData(g.options.src);
         } catch (e) {
             g.failed = true;
-            report(e);
+            warnOnce('src:' + g.options.src, e.message);
         }
     }
     raw = raw || { nodes: [], edges: [] };
@@ -3811,7 +3843,7 @@ function makeApi(g) {
                 data = await fetchData(g.options.src);
             } catch (e) {
                 g.failed = true;
-                report(e);
+                try { console.warn('Sedna.UI graph: ' + e.message); } catch (x) { /* ignore */ }
                 changed(g);
                 return stats(g);
             }
