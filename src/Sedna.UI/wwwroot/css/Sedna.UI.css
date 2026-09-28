@@ -8914,6 +8914,8 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
         white-space: normal;
         color: var(--fg-soft);
     }
+    /* A link written with no sentence of its own has nothing to read. */
+    .graph-data :empty { display: none; }
 }
 
 /* On paper the drawing is the point: the controls laid over it are left behind. */
