@@ -111,7 +111,7 @@ On the `[data-graph]` element:
 | `data-graph-focus`, `data-graph-focus-depth` | an id, 1–6 | Start on one record's neighbourhood. |
 | `data-graph-connect`, `data-graph-collapse`, `data-graph-hulls` | — | Start with a plugin on; see [Plugins](#plugins). |
 | `data-graph-managed` | — | Keep a link the reader drew, for a page with no app behind it. |
-| `data-graph-renderer` | `auto` (default), `canvas`, `webgl` | `auto` switches to WebGL past 6 000 elements. |
+| `data-graph-renderer` | `canvas` (default), `webgl` | WebGL is faster for many thousands of elements on a real GPU, and is still experimental in the engine: choose it for a very large graph and check it on the hardware the app runs on. |
 
 ## The frame
 
@@ -127,14 +127,14 @@ On the `[data-graph]` element:
             </div>
             <canvas class="graph-minimap" data-graph-minimap aria-hidden="true"></canvas>
         </div>
-        <aside class="card sedna-split-aside graph-detail" data-graph-detail hidden>…</aside>
+        <aside class="card card--fill sedna-split-aside graph-detail" data-graph-detail hidden>…</aside>
     </div>
 </div>
 ```
 
 | Class | |
 |---|---|
-| `.graph` | The frame around the canvas: `--graph-height` (26rem), `--sm`, `--lg`, `--fill` (its container's height), `--viewport` (what the viewport has left). |
+| `.graph` | The frame around the canvas: `--graph-height` (26rem), `--sm`, `--lg`, `--fill` (its container's height), `--viewport` (what the viewport has left). `--graph-height` set on the `.graph-frame` sizes the graph and its side panel together. |
 | `.graph-canvas` | What the engine draws into. |
 | `.graph-data` | The records as markup, visually hidden. |
 | `.graph-tools` | The toolbar on the canvas: top right; `--start`, `--bottom`, `--stack`; `.graph-tools-sep` between groups. A toggle's two icons are `.graph-when-off` and `.graph-when-on`. |
@@ -147,7 +147,7 @@ On the `[data-graph]` element:
 | `.graph-swatch` | A record's key, in a `.series-*` colour: `--square`, `--rounded`, `--diamond`, `--triangle`, `--hexagon`, `--star`, `--tag`, `--muted`, `--group`. |
 | `.graph-line` | A link's key: `--dashed`, `--dotted`, `--light`, `--heavy`, `--arrow`. |
 | `.graph-frame` | A graph with what goes around it — what full screen takes. |
-| `.graph-detail` | The side panel: as tall as the graph, scrolling. |
+| `.graph-detail` | The side panel: as tall as the graph and no taller. On a `.card.card--fill` its head and foot stay and its body scrolls. |
 | `.graph-direction` | A neighbour's direction in the panel: `-out`, `-in`, `-both` icons, one shown. |
 
 **The graph is one stop in the tab order**, with a ring drawn inside its frame. It gets
@@ -162,7 +162,7 @@ inside, else the one in its `[data-graph-frame]`.
 
 | Attribute | On | |
 |---|---|---|
-| `data-graph-action="…"` | a button | `zoom-in`, `zoom-out`, `fit`, `arrange`, `fullscreen`, `export-png`, `export-svg`, `reset`, `select`, `focus`, `unfocus`, `open`, `clear`, `hide`, `show-all`, `expand`, `collapse`, `expand-all`, `collapse-all`, `connect`, `hulls`. An action on one record takes its `value`, else the menu's record, else the selection. |
+| `data-graph-action="…"` | a button | `zoom-in`, `zoom-out`, `fit`, `arrange`, `fullscreen`, `export-png`, `export-svg`, `reset`, `select`, `focus`, `unfocus`, `open`, `clear`, `hide`, `show-all`, `expand`, `collapse`, `expand-all`, `collapse-all`, `connect`, `hulls`, `reload`. An action on one record takes its `value`, else the menu's record, else the selection. |
 | `data-graph-filter="field"` | a chip or a select | A chip — a checkbox, or a `button` with `aria-pressed` — **hides its value while it is off**. A select or radios **choose** one, and `""` chooses all. `edge.kind` filters links. |
 | `data-graph-show="muted"` / `"isolated"` | a checkbox or toggle | Show muted records / records with no visible link. |
 | `data-graph-search` | a text field | Marks matches as it is typed in. |
@@ -224,6 +224,7 @@ hides, because where a record sits among the others is what the graph is for.
 | `fcose` | Springs that also lay out nested groups. A plugin. |
 | `grid`, `circle` | Busiest first. |
 | `preset` | Where `data-x` and `data-y` put each record. |
+| any other name | A cytoscape layout of that name, when one is registered on the engine the handle's `cy` exposes. |
 
 Every layout is deterministic: the drawing a reader learned yesterday is the one that comes back.
 
@@ -279,6 +280,8 @@ Stats are `{ nodes, edges, matches, totalNodes, totalEdges, selected }`. A recor
 | `export('svg' \| 'png')` | A `Blob` of the whole drawing. |
 | `download(format, filename)` | |
 | `collapse(id?)`, `expand(id?)`, `connect(on)`, `hulls(on)` | |
+| `style(rules)` | The app's own engine rules — `[{ selector, style }]` in cytoscape's style language — on top of the library's and kept across every repaint. A value written `var(--token)` is resolved through the theme like every other colour. |
+| `reload()` | Fetches `data-graph-src` again and shows what changed; also the `reload` action. |
 | `stats()`, `ready()` | |
 | `cy` | The engine itself. Its API is cytoscape's and is **not versioned by Sedna.UI** — reach for it for what this does not offer. |
 | `destroy()` | |
@@ -315,7 +318,7 @@ document is taken down with it.
 
 `SetDataAsync`, `FilterAsync`, `SearchAsync`, `SelectAsync`, `FocusAsync`, `LayoutAsync`,
 `SetOptionAsync`, `FitAsync`, `ZoomAsync`, `ExportAsync` (a `data:` URL), `DownloadAsync`,
-`CollapseAsync`, `ExpandAsync`, `SetDrawingAsync`, `SetHullsAsync`, `StatsAsync`. A graph that is not
+`CollapseAsync`, `ExpandAsync`, `SetDrawingAsync`, `SetHullsAsync`, `ReloadAsync`, `StatsAsync`. A graph that is not
 in the page answers null with a console warning, never an exception into the circuit.
 
 `@onsedna-graph-select`, `-open`, `-hover`, `-context`, `-connect`, `-expand`, `-collapse`, `-change`

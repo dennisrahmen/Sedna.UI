@@ -544,7 +544,22 @@ function nodeTone(n, options) {
     return tokenOfTone(alt ?? n.data('tone') ?? (n.data('muted') ? 'muted' : '1'));
 }
 
-function styleFor(colours, icons, options) {
+/* An app's own rules on top of the library's — `graph.style([...])`. A value written
+   `var(--token)` is resolved through the same probe as everything else, so an app's rule
+   follows the theme too; any other value is handed to the engine as it is. */
+function resolveRules(rules, colours) {
+    const resolve = v => {
+        if (typeof v !== 'string') return v;
+        const m = /^var\((--[a-z0-9-]+)\)$/i.exec(v.trim());
+        return m ? colours.token(m[1], v) : v;
+    };
+    return (rules || []).map(r => ({
+        selector: r.selector,
+        style: Object.fromEntries(Object.entries(r.style || {}).map(([k, v]) => [k, resolve(v)])),
+    }));
+}
+
+function styleFor(colours, icons, options, extra) {
     const p = palette(colours);
     const c = (token, fallback) => colours.token(token, fallback);
     const toneColour = n => c(nodeTone(n, options), p.line);
@@ -735,7 +750,7 @@ function styleFor(colours, icons, options) {
         { selector: '.eh-preview, .eh-ghost-edge', style: { 'line-color': p.brand, 'target-arrow-color': p.brand, 'target-arrow-shape': 'triangle', 'line-style': 'dashed', 'opacity': 1, 'width': 2 } },
         { selector: '.eh-ghost-edge.eh-preview-active', style: { 'opacity': 0 } },
         { selector: '.eh-ghost-node', style: { 'width': 1, 'height': 1, 'opacity': 0, 'label': '' } },
-    ];
+    ].concat(resolveRules(extra, colours));
 }
 
 /* ── 30-layouts.js ──────────────────────────────────────────────── */
@@ -753,6 +768,10 @@ function styleFor(colours, icons, options) {
      fcose        fast springs that also lay out nested groups (plugin)
      grid, circle
      preset       where `data-x` / `data-y` put each record
+
+   Any other name is run as a cytoscape layout of that name, if one is registered —
+   an extension an app added through the handle's `cy` (`cytoscape.use` on the engine it
+   exposes) — with its own defaults. An unknown name draws `force`, and says so once.
 
    Every run is deterministic — ordered by degree and id, never by chance — so the
    drawing a reader learned yesterday is the one that comes back today.
@@ -786,6 +805,12 @@ function plugin(name) {
 }
 
 const LAYOUT_NAMES = ['force', 'islands', 'rings', 'concentric', 'tree', 'dagre', 'fcose', 'grid', 'circle', 'preset'];
+
+// A layout name this graph can draw: one of ours, or one registered with the engine.
+function knownLayout(name) {
+    if (LAYOUT_NAMES.includes(name)) return true;
+    try { return !!cytoscape('layout', name); } catch (e) { return false; }
+}
 const DIRECTIONS = { TB: 'TB', LR: 'LR', BT: 'BT', RL: 'RL', down: 'TB', right: 'LR', up: 'BT', left: 'RL' };
 const SPACING = { compact: 0.7, normal: 1, loose: 1.45 };
 
@@ -955,6 +980,10 @@ async function arrangeWith(cy, name, options, frame) {
             return;
         case 'force':
         default:
+            if (!LAYOUT_NAMES.includes(name) && knownLayout(name)) {
+                await settled(visible.layout({ name, fit: false, animate: false }));
+                return;
+            }
             if (visible.nodes('.focus').nonempty() || visible.nodes('[?root]').nonempty()) {
                 await rings(visible, options, spacing);
             } else {
@@ -1402,6 +1431,12 @@ function light(g, node) {
         if (g.options.nodes !== 'box') near.edges().data('zoom', g.step);
     });
     g.lit = near;
+    // The outlines around groups step back with everything else that is not lit.
+    const hullLayer = g.bb && g.bb.layer && g.bb.layer.node;
+    if (hullLayer) {
+        hullLayer.style.transition = reducedMotion() ? '' : 'opacity 160ms';
+        hullLayer.style.opacity = near.empty() ? '' : '0.35';
+    }
 }
 
 /* What should be lit when nothing is being pointed at: the keyboard's record, else the
@@ -1820,7 +1855,8 @@ function tips(g) {
             }
             const d = ele.data();
             const words = ele.isNode() ? [d.label, d.meta].filter(Boolean).join(' — ') : d.label;
-            if (words && window.sednaUi?.tips?.at) window.sednaUi.tips.at(rectOf(ele), words, ele.isNode() ? 'bottom' : 'top');
+            // Above the record: its name is written beneath it, and a bubble below would cover it.
+            if (words && window.sednaUi?.tips?.at) window.sednaUi.tips.at(rectOf(ele), words, 'top');
         };
         if (now) go();
         else timer = setTimeout(go, 120);
@@ -2314,7 +2350,7 @@ function showDetail(g) {
      data-graph-action="…"     a button: zoom-in, zoom-out, fit, arrange, fullscreen,
                                export-png, export-svg, reset, select, focus, unfocus,
                                open, clear, hide, show-all, expand, collapse,
-                               expand-all, collapse-all, connect, hulls. An action on
+                               expand-all, collapse-all, connect, hulls, reload. An action on
                                one record takes its `value`, else the selection.
      data-graph-filter="kind"  a chip — a checkbox, or a toggle button with aria-pressed
                                — hides its `value` while it is off; a select or radios
@@ -2517,6 +2553,7 @@ async function act(g, action, value, c) {
         case 'collapse-all': return collapseGroups(g, 'collapse', null);
         case 'connect': return connect(g, c ? c.getAttribute('aria-pressed') === 'true' : !g.drawing);
         case 'hulls': return hulls(g, c ? c.getAttribute('aria-pressed') === 'true' : !g.hullsOn);
+        case 'reload': return g.api.reload();
         default:
             warnOnce('action:' + action, `"${action}" is not a graph action.`);
     }
@@ -2526,7 +2563,7 @@ async function option(g, name, value) {
     const o = g.options;
     switch (name) {
         case 'layout':
-            if (!LAYOUT_NAMES.includes(value)) return warnOnce('layout:' + value, `"${value}" is not a layout.`);
+            if (!knownLayout(value)) return warnOnce('layout:' + value, `"${value}" is not a layout.`);
             o.layout = value;
             g.touched = false;
             restyle(g);
@@ -3027,7 +3064,7 @@ function readOptions(el, given) {
         hover: d.graphHover || 'light',
         select: d.graphSelect || 'single',
         drag: d.graphDrag !== 'false',
-        renderer: d.graphRenderer || 'auto',
+        renderer: d.graphRenderer === 'webgl' ? 'webgl' : 'canvas',
         src: d.graphSrc || null,
         focus: d.graphFocus || null,
         depth: Number(d.graphFocusDepth) || 1,
@@ -3038,7 +3075,7 @@ function readOptions(el, given) {
         hulls: has('hulls'),
     };
     Object.assign(o, given || {});
-    if (!LAYOUT_NAMES.includes(o.layout)) {
+    if (!knownLayout(o.layout)) {
         warnOnce('layout:' + o.layout, `"${o.layout}" is not a layout; using force.`);
         o.layout = 'force';
     }
@@ -3160,7 +3197,7 @@ function nodeDetail(ele, extra) {
 }
 
 function restyle(g) {
-    g.cy.style(styleFor(g.colours, g.icons, g.options));
+    g.cy.style(styleFor(g.colours, g.icons, g.options, g.extraStyle));
 }
 
 function changed(g) {
@@ -3231,6 +3268,19 @@ async function arrange(g, animate) {
 function mount(g) {
     const cy = g.cy;
     if (cy.container()) return;
+    // Which renderer is decided here, once the records are known — a deferred graph has
+    // none when it is made. cytoscape reads its renderer hints from the options it was
+    // made with when it mounts, so the hint is set on them; the vendored version is pinned.
+    // WebGL is cytoscape's newer renderer: faster on a real GPU for many thousands of
+    // elements, and still marked experimental upstream — so it is the app's choice,
+    // `data-graph-renderer="webgl"`, never switched on by a count.
+    const count = cy.elements().length;
+    const webgl = g.options.renderer === 'webgl';
+    try {
+        cy._private.options.webgl = webgl;
+        cy._private.options.textureOnViewport = !webgl && count > 1500;
+        cy._private.options.hideEdgesOnViewport = !webgl && count > 5000;
+    } catch (e) { /* an engine that moved its options: the canvas renderer, as made */ }
     cy.mount(g.host);
     // Where cytoscape registers an instance made with a container, which mounting does
     // not: devtools, and the browser tests, find the graph there.
@@ -3531,12 +3581,11 @@ async function start(g) {
     if (g.disposed) return;
 
     const count = g.model.nodes.length + g.model.edges.length;
-    const webgl = g.options.renderer === 'webgl' || (g.options.renderer === 'auto' && count > 6000);
     g.cy = cytoscape({
         headless: true,
         styleEnabled: true,
         elements: toElements(g),
-        style: styleFor(g.colours, g.icons, g.options),
+        style: styleFor(g.colours, g.icons, g.options, g.extraStyle),
         minZoom: 0.05,
         maxZoom: g.options.nodes === 'box' ? 4 : 8,
         boxSelectionEnabled: false,
@@ -3548,7 +3597,6 @@ async function start(g) {
         // every line again each frame, and leave the edges out entirely past that.
         textureOnViewport: count > 1500,
         hideEdgesOnViewport: count > 5000,
-        renderer: webgl ? { name: 'canvas', webgl: true } : undefined,
     });
     g.cy.scratch('_sedna', g);
 
@@ -3636,6 +3684,7 @@ async function invoke(g, method, args) {
         case 'connect': await api.connect(a[0] !== false); return null;
         case 'hulls': await api.hulls(a[0] !== false); return null;
         case 'stats': return stats(g);
+        case 'reload': return api.reload();
         default:
             warnOnce('invoke:' + method, `"${method}" is not a graph method.`);
             return null;
@@ -3678,7 +3727,7 @@ function makeApi(g) {
         },
         layout: async (name, opts) => {
             if (name) {
-                if (!LAYOUT_NAMES.includes(name)) return warnOnce('layout:' + name, `"${name}" is not a layout.`);
+                if (!knownLayout(name)) return warnOnce('layout:' + name, `"${name}" is not a layout.`);
                 g.options.layout = name;
             }
             for (const k of ['direction', 'spacing']) if (opts && opts[k]) g.options[k] = k === 'direction' ? (DIRECTIONS[opts[k]] || 'TB') : opts[k];
@@ -3693,6 +3742,19 @@ function makeApi(g) {
         },
         zoom: factor => zoomBy(g, factor),
         option: (name, value) => option(g, name, value),
+        /* The app's own engine rules, on top of the library's and kept across every
+           repaint: [{ selector, style }], a colour written as 'var(--token)'. Replaces
+           what an earlier call set. */
+        style: rules => {
+            g.extraStyle = Array.isArray(rules) ? rules : [];
+            restyle(g);
+        },
+        /* Fetches data-graph-src again and shows what changed. */
+        reload: async () => {
+            if (!g.options.src) return stats(g);
+            await setData(g, await fetchData(g.options.src));
+            return stats(g);
+        },
         export: format => exportImage(g, format === 'png' ? 'png' : 'svg'),
         download: (format, filename) => download(g, format === 'png' ? 'png' : 'svg', filename),
         collapse: id => collapseGroups(g, 'collapse', id ? g.cy.getElementById(String(id)) : null),

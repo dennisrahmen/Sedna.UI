@@ -5,7 +5,7 @@
      data-graph-action="…"     a button: zoom-in, zoom-out, fit, arrange, fullscreen,
                                export-png, export-svg, reset, select, focus, unfocus,
                                open, clear, hide, show-all, expand, collapse,
-                               expand-all, collapse-all, connect, hulls. An action on
+                               expand-all, collapse-all, connect, hulls, reload. An action on
                                one record takes its `value`, else the selection.
      data-graph-filter="kind"  a chip — a checkbox, or a toggle button with aria-pressed
                                — hides its `value` while it is off; a select or radios
@@ -208,6 +208,7 @@ async function act(g, action, value, c) {
         case 'collapse-all': return collapseGroups(g, 'collapse', null);
         case 'connect': return connect(g, c ? c.getAttribute('aria-pressed') === 'true' : !g.drawing);
         case 'hulls': return hulls(g, c ? c.getAttribute('aria-pressed') === 'true' : !g.hullsOn);
+        case 'reload': return g.api.reload();
         default:
             warnOnce('action:' + action, `"${action}" is not a graph action.`);
     }
@@ -217,7 +218,7 @@ async function option(g, name, value) {
     const o = g.options;
     switch (name) {
         case 'layout':
-            if (!LAYOUT_NAMES.includes(value)) return warnOnce('layout:' + value, `"${value}" is not a layout.`);
+            if (!knownLayout(value)) return warnOnce('layout:' + value, `"${value}" is not a layout.`);
             o.layout = value;
             g.touched = false;
             restyle(g);

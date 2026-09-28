@@ -30,6 +30,12 @@ function light(g, node) {
         if (g.options.nodes !== 'box') near.edges().data('zoom', g.step);
     });
     g.lit = near;
+    // The outlines around groups step back with everything else that is not lit.
+    const hullLayer = g.bb && g.bb.layer && g.bb.layer.node;
+    if (hullLayer) {
+        hullLayer.style.transition = reducedMotion() ? '' : 'opacity 160ms';
+        hullLayer.style.opacity = near.empty() ? '' : '0.35';
+    }
 }
 
 /* What should be lit when nothing is being pointed at: the keyboard's record, else the

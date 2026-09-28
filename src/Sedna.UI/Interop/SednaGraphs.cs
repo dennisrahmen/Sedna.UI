@@ -113,6 +113,10 @@ public sealed class SednaGraphs : ISednaGraphs
         => await Call<object?>(graphId, "hulls", cancellationToken, on);
 
     /// <inheritdoc />
+    public async Task<SednaGraphStats?> ReloadAsync(string graphId, CancellationToken cancellationToken = default)
+        => await Call<SednaGraphStats?>(graphId, "reload", cancellationToken);
+
+    /// <inheritdoc />
     public async Task<SednaGraphStats?> StatsAsync(string graphId, CancellationToken cancellationToken = default)
         => await Call<SednaGraphStats?>(graphId, "stats", cancellationToken);
 

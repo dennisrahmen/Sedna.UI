@@ -47,7 +47,7 @@ function readOptions(el, given) {
         hover: d.graphHover || 'light',
         select: d.graphSelect || 'single',
         drag: d.graphDrag !== 'false',
-        renderer: d.graphRenderer || 'auto',
+        renderer: d.graphRenderer === 'webgl' ? 'webgl' : 'canvas',
         src: d.graphSrc || null,
         focus: d.graphFocus || null,
         depth: Number(d.graphFocusDepth) || 1,
@@ -58,7 +58,7 @@ function readOptions(el, given) {
         hulls: has('hulls'),
     };
     Object.assign(o, given || {});
-    if (!LAYOUT_NAMES.includes(o.layout)) {
+    if (!knownLayout(o.layout)) {
         warnOnce('layout:' + o.layout, `"${o.layout}" is not a layout; using force.`);
         o.layout = 'force';
     }
@@ -180,7 +180,7 @@ function nodeDetail(ele, extra) {
 }
 
 function restyle(g) {
-    g.cy.style(styleFor(g.colours, g.icons, g.options));
+    g.cy.style(styleFor(g.colours, g.icons, g.options, g.extraStyle));
 }
 
 function changed(g) {
@@ -251,6 +251,19 @@ async function arrange(g, animate) {
 function mount(g) {
     const cy = g.cy;
     if (cy.container()) return;
+    // Which renderer is decided here, once the records are known — a deferred graph has
+    // none when it is made. cytoscape reads its renderer hints from the options it was
+    // made with when it mounts, so the hint is set on them; the vendored version is pinned.
+    // WebGL is cytoscape's newer renderer: faster on a real GPU for many thousands of
+    // elements, and still marked experimental upstream — so it is the app's choice,
+    // `data-graph-renderer="webgl"`, never switched on by a count.
+    const count = cy.elements().length;
+    const webgl = g.options.renderer === 'webgl';
+    try {
+        cy._private.options.webgl = webgl;
+        cy._private.options.textureOnViewport = !webgl && count > 1500;
+        cy._private.options.hideEdgesOnViewport = !webgl && count > 5000;
+    } catch (e) { /* an engine that moved its options: the canvas renderer, as made */ }
     cy.mount(g.host);
     // Where cytoscape registers an instance made with a container, which mounting does
     // not: devtools, and the browser tests, find the graph there.
@@ -551,12 +564,11 @@ async function start(g) {
     if (g.disposed) return;
 
     const count = g.model.nodes.length + g.model.edges.length;
-    const webgl = g.options.renderer === 'webgl' || (g.options.renderer === 'auto' && count > 6000);
     g.cy = cytoscape({
         headless: true,
         styleEnabled: true,
         elements: toElements(g),
-        style: styleFor(g.colours, g.icons, g.options),
+        style: styleFor(g.colours, g.icons, g.options, g.extraStyle),
         minZoom: 0.05,
         maxZoom: g.options.nodes === 'box' ? 4 : 8,
         boxSelectionEnabled: false,
@@ -568,7 +580,6 @@ async function start(g) {
         // every line again each frame, and leave the edges out entirely past that.
         textureOnViewport: count > 1500,
         hideEdgesOnViewport: count > 5000,
-        renderer: webgl ? { name: 'canvas', webgl: true } : undefined,
     });
     g.cy.scratch('_sedna', g);
 
@@ -656,6 +667,7 @@ async function invoke(g, method, args) {
         case 'connect': await api.connect(a[0] !== false); return null;
         case 'hulls': await api.hulls(a[0] !== false); return null;
         case 'stats': return stats(g);
+        case 'reload': return api.reload();
         default:
             warnOnce('invoke:' + method, `"${method}" is not a graph method.`);
             return null;
@@ -698,7 +710,7 @@ function makeApi(g) {
         },
         layout: async (name, opts) => {
             if (name) {
-                if (!LAYOUT_NAMES.includes(name)) return warnOnce('layout:' + name, `"${name}" is not a layout.`);
+                if (!knownLayout(name)) return warnOnce('layout:' + name, `"${name}" is not a layout.`);
                 g.options.layout = name;
             }
             for (const k of ['direction', 'spacing']) if (opts && opts[k]) g.options[k] = k === 'direction' ? (DIRECTIONS[opts[k]] || 'TB') : opts[k];
@@ -713,6 +725,19 @@ function makeApi(g) {
         },
         zoom: factor => zoomBy(g, factor),
         option: (name, value) => option(g, name, value),
+        /* The app's own engine rules, on top of the library's and kept across every
+           repaint: [{ selector, style }], a colour written as 'var(--token)'. Replaces
+           what an earlier call set. */
+        style: rules => {
+            g.extraStyle = Array.isArray(rules) ? rules : [];
+            restyle(g);
+        },
+        /* Fetches data-graph-src again and shows what changed. */
+        reload: async () => {
+            if (!g.options.src) return stats(g);
+            await setData(g, await fetchData(g.options.src));
+            return stats(g);
+        },
         export: format => exportImage(g, format === 'png' ? 'png' : 'svg'),
         download: (format, filename) => download(g, format === 'png' ? 'png' : 'svg', filename),
         collapse: id => collapseGroups(g, 'collapse', id ? g.cy.getElementById(String(id)) : null),

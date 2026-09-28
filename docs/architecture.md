@@ -21,8 +21,10 @@ renders?** Three kinds of code pass.
 | Presenter | Shows, hides and awaits markup the app wrote, adding no element of its own | `ShowModalAsync`, `ISednaOverlays` with `SednaOverlayHost`, `FollowSpotlightAsync` |
 | State helper | Computes what markup cannot express; pure, no interop | `ActiveLink`, `SednaSort`, `SednaPager`, `SednaTabs` |
 
-**The toast and the hover-hint bubble are the two exceptions**: neither has anything to author, so the
-script draws them. Nothing else is drawn by the library. Where the script renders rows from data, it
+**The toast, the hover-hint bubble and the graph's canvas are the three exceptions**: none has anything
+to author, so the library draws them — the graph engine paints only inside the app's `.graph-canvas`,
+and every toolbar, legend, tooltip, menu and panel around it is the app's markup, filled by the script.
+Nothing else is drawn by the library. Where the script renders rows from data, it
 clones the app's `<template>`, so every element and word on screen is the app's.
 
 Presenters are for overlays opened by app logic. A popover or a menu opened by its trigger's own
@@ -77,8 +79,9 @@ What the package ships that markup cannot express:
 | `ISednaUi` | Typed access to `sednaUi` — toasts, the dialog presenter, the spotlight, clipboard, settings, palette, search, the Markdown editor |
 | `ISednaSettings` | The applied appearance settings as state, with a `Changed` event |
 | `ISednaOverlays`, `SednaOverlay`, `SednaOverlayHost` | Presents an app component as a modal, drawer or sheet and returns the result it closed with |
+| `ISednaGraphs`, `SednaGraphData`, `SednaGraphNode`, `SednaGraphEdge`, `SednaGraphFilter`, `SednaGraphStats`, `SednaGraphTone`, `SednaGraphLayout` | Typed access to the graphs on a page by their element's id: records, filters, search, focus, layout, export — see [graph.md](graph.md) |
 | `AddSednaUi()` | Registers the above, scoped to the circuit |
-| `EventHandlers`, `SednaDropEventArgs`, `SednaDragEventArgs` | Makes `@onsedna-drop`, `@onsedna-dragstart` and `@onsedna-dragend` bindable with their data. The Razor compiler finds an event only through a class named exactly `EventHandlers`, in a namespace the component imports |
+| `EventHandlers`, `SednaDropEventArgs`, `SednaDragEventArgs`, `SednaGraphEventArgs`, `SednaGraphNodeEventArgs`, `SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs` | Makes `@onsedna-drop`, `@onsedna-dragstart`, `@onsedna-dragend` and the `@onsedna-graph-*` events bindable with their data. The Razor compiler finds an event only through a class named exactly `EventHandlers`, in a namespace the component imports |
 
 `ActiveLink` drops the query string and the fragment, treats a trailing slash as insignificant, and
 requires a prefix match to end on a path segment, so `/queue` does not light up on `/queue-archive`. The
@@ -426,6 +429,11 @@ A panel's primary action is a filled button in its semantic colour.
 A new overlay uses one of these values. `Every_z_index_comes_from_the_documented_scale` fails on any
 other, so adding a layer means adding it to this table first.
 
+**The graph uses the local values too**, inside its own frame: `0` for the canvas — a stacking context,
+so whatever z-index the engine and its plugins give their own layers stays inside it — `1` for the wait
+and the empty state that cover it, `2` for its toolbar and minimap, and `3` for the tooltip, the context
+menu and the keyboard's focus ring above everything else in the frame.
+
 **The local values are a scale of their own, and a sticky table uses three of them.** They order
 cells inside one table and never anything else: `1` is a pinned column's body cells, above the static
 cells they slide across; `2` is `.table--sticky`'s header row, above those; `3` is the corner cell of a
@@ -482,7 +490,7 @@ Two things the flat list does not say:
 |---|---|
 | `configure(options)` | Storage prefix, notification icon, language cookie, default theme name |
 | `settings` | `load()`, `save(key, value)`, `apply()`, `onChange(fn)` → unsubscribe. Keys: `theme`, `variant`, `cvd`, `density`, `dir`, `lang` |
-| `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally; `tips.setEnabled(bool)` switches them all, and is what `ISednaUi.SetTipsEnabledAsync` calls |
+| `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally; `tips.setEnabled(bool)` switches them all, and is what `ISednaUi.SetTipsEnabledAsync` calls. `tips.at(rect, text, pos)` shows the same bubble beside a rectangle that is no element — a record on the graph's canvas — and `tips.hide()` takes it down |
 | `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. The stack is a manual `popover` in the top layer, moved into the topmost open modal `<dialog>` while one is open. Returns its own remover, whose `id` names the toast; `timeout: 0` stays until dismissed; `dismissLabel` — or `configure({ toastDismissLabel })` — names the close button. `toast.show(message, options)` returns the id, `toast.dismiss(id)` removes it early, `toast.replace(id, message, options)` changes it in place or shows a new one when it has gone |
 | `modal` | The presenter for an app's own `<dialog>` — `.modal`, `.drawer`, `.sheet`, `.lightbox`. `show(id)` → `showModal()`, returning a promise of its `returnValue` once it closes, or `null` for a close without one; a second `show` on an open dialog joins the first wait. `close(id, value)` → `close(value)`. `idle(id)` resolves once a closed dialog's transition has finished. An id that is not a `<dialog>` warns in the console and resolves `null` — an exception crossing the interop boundary from a Blazor handler tears down the circuit. `data-close-guard` on a `<dialog>` refuses its `cancel`, so no close request — Escape, a sheet swipe, a `request-close` command — closes it, and the app's `@oncancel` decides. The script refuses it because Razor renders `@oncancel:preventDefault` as a literal attribute. On an open modal it also turns Escape into `requestClose()`, whose `cancel` is always cancelable — Chromium otherwise stops honouring the refusal after a few presses without a click between. Escape another handler cancelled, or meant for an open popover, is left alone |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
@@ -501,6 +509,7 @@ Two things the flat list does not say:
 | `codeBlock` | `toggle(block, expanded?)` — expands or collapses a `.code-block--clamped`. Delegated from `[data-code-expand]` |
 | — | `29-fragment.js` adds no member. A click on a link written as a bare fragment (`href="#main"`) whose target is on the page is cancelled, and the target is scrolled to and focused — under `<base href="/">` the link would otherwise open the start page, and Blazor's own same-page jump never moves focus. A modified click, a click another handler already cancelled, and a fragment naming no element are left alone. The address does not change |
 | `spotlight` | Tour geometry and the input model, not the sequence. `at(hole, target, { pad, include })` positions `.spotlight-hole` over an element, a list of them or a selector, and returns the rectangle — `null` when nothing visible is left; `tipAt(tip, rect, { placement, gap, margin, boundary })` places the bubble on any of the four sides, flips it when the side does not fit, clamps it into the viewport — or into `boundary` — and reports the side used; `follow(hole, target, opts)` keeps both attached across scroll, resize, re-render and a dialog opening or closing, returning `{ update, stop, side }`; `lock(opts)` / `unlock()` make the rest of the page inert and gate hover hints. A step whose target is inside an open modal `<dialog>` raises the hole and the bubble into the top layer after it and moves the bubble inside, and puts both back when the step leaves or the dialog closes. The steps, the copy and the order stay the app's |
+| `graph` | The graph's front door. It finds every `[data-graph]`, starts each as it comes within a screen of the viewport — importing `Sedna.UI.graph.js` and the engine, relative to itself, the first time — delegates the `data-graph-*` controls from `document`, and takes a graph down when its element leaves the document. `get(elOrId)` resolves the graph's handle, `init(root)` starts every graph in `root` at once, `invoke(id, method, args)` is the bridge `ISednaGraphs` calls, and `release()` — called by `Sedna.UI.lib.module.js` once Blazor has started — ends the wait on a prerendered page, where graphs are held so they are drawn once, in the markup the interactive render leaves. The handle, the controls and the events are in [graph.md](graph.md) |
 | `md` | Markdown editor: `init(root?)` wires every `.md-editor` in `root` (the document by default) and is idempotent per editor; `apply(textarea, cmd)`, `render(src)` |
 | `copyText`, `openTab`, `viewportWidth`, `scrollPageTop`, `timeZone` | Interop helpers. `scrollPageTop` resets `.page`, which is the only scroll container the frame has and therefore the one navigation leaves where it was. `timeZone()` reads the browser's IANA zone from `Intl` at call time — an id, never an offset, and null where the browser refuses |
 | `getItem`, `setItem` | `localStorage` access |
@@ -617,7 +626,7 @@ client honouring the read-only hint calls these without prompting.
 | `describe_class` | What the shipped stylesheet declares for a class, its layer, its modifiers, and the examples using it. |
 | `get_page` | Every example on one catalogue page, or the list of pages. |
 | `get_tokens` | The token export, as an ordered array of blocks. |
-| `get_integration_guide` | This repository's own documentation, verbatim: `host-page`, `branding`, `javascript`, `rules`. |
+| `get_integration_guide` | This repository's own documentation, verbatim: `host-page`, `branding`, `javascript`, `rules`, `graph`. |
 
 Nothing in the index is hand-listed. Examples come from the same embedded resources the pages render,
 classes from the stylesheet the app serves, docs from `docs/`.
@@ -708,6 +717,14 @@ grow the heap.
 
 Recorded so they are not re-opened from intuition.
 
+**The graph is loaded on demand, not with the script.** Measured on the shipped assets, the graph costs
+every page about 2.3KB of brotli in `Sedna.UI.js` — the front door — and about 2.5KB in the
+stylesheet. A page that shows a graph fetches `Sedna.UI.graph.js` (about 40KB) and the engine (about
+112KB) once, and each plugin — 4KB to 57KB — only when a graph first uses it. Bundled into
+`Sedna.UI.js`, the engine alone would have tripled what every page of every app downloads, for a
+feature most pages never show. The package carries all of it: about 380KB more `.nupkg`, none of which a
+page without a graph ever requests.
+
 **No minification.** Measured on the shipped assets: minifying the CSS and JS saves **4,360 brotli
 bytes**, about **2% of first load**. The .NET SDK already serves the stylesheet gzipped at 11,289
 bytes. The cost would be a build step, a second artefact to keep in step with the parts, and a
@@ -797,6 +814,8 @@ on a timer instead of not at all.
 - App-specific business UI — approval panels, SLA badges, tour overlays, page-specific grids.
 - MudBlazor, Syncfusion, Radzen, Tailwind.
 - Wrapping tables, forms or page content in components.
-- Library-drawn UI beyond the toast and the hover-hint bubble. A confirmation is an app-owned modal.
+- Library-drawn UI beyond the toast, the hover-hint bubble and the graph's canvas. A confirmation is an
+  app-owned modal.
+- A second graph or chart engine, and vendored code under a copyleft licence.
 - Loading anything from a remote URL at runtime. Everything the package needs, including the icon font,
   ships inside it.

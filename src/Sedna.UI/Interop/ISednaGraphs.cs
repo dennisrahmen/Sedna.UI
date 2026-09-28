@@ -112,6 +112,13 @@ public interface ISednaGraphs
     /// <summary>Switches the soft outlines around each <see cref="SednaGraphNode.Group"/>.</summary>
     Task SetHullsAsync(string graphId, bool on, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Fetches the graph's <c>data-graph-src</c> again and shows what changed, as
+    /// <see cref="SetDataAsync"/> does — for a map that follows data the app does not hold.
+    /// </summary>
+    /// <returns>What is on screen afterwards, or null when there is no such graph.</returns>
+    Task<SednaGraphStats?> ReloadAsync(string graphId, CancellationToken cancellationToken = default);
+
     /// <summary>What is on screen now.</summary>
     Task<SednaGraphStats?> StatsAsync(string graphId, CancellationToken cancellationToken = default);
 }

@@ -34,7 +34,22 @@ function nodeTone(n, options) {
     return tokenOfTone(alt ?? n.data('tone') ?? (n.data('muted') ? 'muted' : '1'));
 }
 
-function styleFor(colours, icons, options) {
+/* An app's own rules on top of the library's — `graph.style([...])`. A value written
+   `var(--token)` is resolved through the same probe as everything else, so an app's rule
+   follows the theme too; any other value is handed to the engine as it is. */
+function resolveRules(rules, colours) {
+    const resolve = v => {
+        if (typeof v !== 'string') return v;
+        const m = /^var\((--[a-z0-9-]+)\)$/i.exec(v.trim());
+        return m ? colours.token(m[1], v) : v;
+    };
+    return (rules || []).map(r => ({
+        selector: r.selector,
+        style: Object.fromEntries(Object.entries(r.style || {}).map(([k, v]) => [k, resolve(v)])),
+    }));
+}
+
+function styleFor(colours, icons, options, extra) {
     const p = palette(colours);
     const c = (token, fallback) => colours.token(token, fallback);
     const toneColour = n => c(nodeTone(n, options), p.line);
@@ -225,5 +240,5 @@ function styleFor(colours, icons, options) {
         { selector: '.eh-preview, .eh-ghost-edge', style: { 'line-color': p.brand, 'target-arrow-color': p.brand, 'target-arrow-shape': 'triangle', 'line-style': 'dashed', 'opacity': 1, 'width': 2 } },
         { selector: '.eh-ghost-edge.eh-preview-active', style: { 'opacity': 0 } },
         { selector: '.eh-ghost-node', style: { 'width': 1, 'height': 1, 'opacity': 0, 'label': '' } },
-    ];
+    ].concat(resolveRules(extra, colours));
 }

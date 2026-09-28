@@ -84,7 +84,8 @@ function tips(g) {
             }
             const d = ele.data();
             const words = ele.isNode() ? [d.label, d.meta].filter(Boolean).join(' — ') : d.label;
-            if (words && window.sednaUi?.tips?.at) window.sednaUi.tips.at(rectOf(ele), words, ele.isNode() ? 'bottom' : 'top');
+            // Above the record: its name is written beneath it, and a bubble below would cover it.
+            if (words && window.sednaUi?.tips?.at) window.sednaUi.tips.at(rectOf(ele), words, 'top');
         };
         if (now) go();
         else timer = setTimeout(go, 120);

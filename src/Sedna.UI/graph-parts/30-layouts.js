@@ -13,6 +13,10 @@
      grid, circle
      preset       where `data-x` / `data-y` put each record
 
+   Any other name is run as a cytoscape layout of that name, if one is registered —
+   an extension an app added through the handle's `cy` (`cytoscape.use` on the engine it
+   exposes) — with its own defaults. An unknown name draws `force`, and says so once.
+
    Every run is deterministic — ordered by degree and id, never by chance — so the
    drawing a reader learned yesterday is the one that comes back today.
 
@@ -45,6 +49,12 @@ function plugin(name) {
 }
 
 const LAYOUT_NAMES = ['force', 'islands', 'rings', 'concentric', 'tree', 'dagre', 'fcose', 'grid', 'circle', 'preset'];
+
+// A layout name this graph can draw: one of ours, or one registered with the engine.
+function knownLayout(name) {
+    if (LAYOUT_NAMES.includes(name)) return true;
+    try { return !!cytoscape('layout', name); } catch (e) { return false; }
+}
 const DIRECTIONS = { TB: 'TB', LR: 'LR', BT: 'BT', RL: 'RL', down: 'TB', right: 'LR', up: 'BT', left: 'RL' };
 const SPACING = { compact: 0.7, normal: 1, loose: 1.45 };
 
@@ -214,6 +224,10 @@ async function arrangeWith(cy, name, options, frame) {
             return;
         case 'force':
         default:
+            if (!LAYOUT_NAMES.includes(name) && knownLayout(name)) {
+                await settled(visible.layout({ name, fit: false, animate: false }));
+                return;
+            }
             if (visible.nodes('.focus').nonempty() || visible.nodes('[?root]').nonempty()) {
                 await rings(visible, options, spacing);
             } else {

@@ -8560,16 +8560,17 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
    paints a `data-tone="3"` record, in every theme.
 
    ── Height ──
-   A canvas has no height of its own, so the graph sets one: `--graph-height`, 26rem.
-   `--sm` and `--lg` are the two others; `.graph--fill` takes its container's height, for
-   a graph that IS the page — give the container one.
+   A canvas has no height of its own, so the graph sets one: `--graph-height`, 26rem by
+   default. `--sm` and `--lg` are the two others; `.graph--fill` takes its container's
+   height, for a graph that IS the page — give the container one. The side panel reads the
+   same property, so `--graph-height` set on the `.graph-frame` sizes the graph and its
+   panel together.
    ─────────────────────────────────────────────────────────────────────────── */
 .graph {
-    --graph-height: 26rem;
     position: relative;
     display: grid;
     grid-template: minmax(0, 1fr) / minmax(0, 1fr);
-    height: var(--graph-height);
+    height: var(--graph-height, 26rem);
     overflow: hidden;
     border-radius: inherit;
     /* No selection highlight across the toolbar and the labels while dragging the view. */
@@ -8865,11 +8866,10 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 }
 
 /* The selected record's panel beside the graph (`data-graph-detail`), as tall as the
-   graph and no taller: its head stays, and the list of neighbours scrolls. */
-.graph-detail {
-    max-height: var(--graph-height, 26rem);
-    overflow: auto;
-}
+   graph and no taller. On a `.card--fill` its head and foot stay and its body — the
+   record and its list of neighbours — scrolls, so selecting a busy record never pushes
+   the graph out of view. */
+.graph-detail { max-height: var(--graph-height, 26rem); }
 .graph-detail[hidden] { display: none; }
 /* A neighbour row's direction, from the data-graph-direction the script puts on the row.
    The row's template writes one icon for each, and the matching one shows:
@@ -8887,6 +8887,42 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 [data-graph-direction="out"] .graph-direction-out,
 [data-graph-direction="in"] .graph-direction-in,
 [data-graph-direction="both"] .graph-direction-both { display: inline; }
+
+/* ── Without scripting ─────────────────────────────────────────────────────────
+   Nothing in this library requires JavaScript, and a canvas cannot be drawn without
+   it — so with scripting off a graph is its list: the records and the sentences
+   linking them, readable, in place of a wait that would never end. A list the app
+   marked `hidden`, because the page says the same thing another way, stays hidden. */
+@media (scripting: none) {
+    .graph {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+    .graph-canvas,
+    .graph-wait,
+    .graph-tools,
+    .graph-minimap { display: none; }
+    .graph-data {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        padding: var(--space-5) var(--space-5) var(--space-5) var(--space-8);
+        overflow: visible;
+        clip-path: none;
+        white-space: normal;
+        color: var(--fg-soft);
+    }
+}
+
+/* On paper the drawing is the point: the controls laid over it are left behind. */
+@media print {
+    .graph-tools,
+    .graph-minimap,
+    .graph-tip,
+    .graph-menu { display: none; }
+}
 }
 
 /* ── 54-stat.css → @layer sedna.paint ──────────────────────────────────────────────── */

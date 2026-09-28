@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Verifies that a built .nupkg contains the CSS, the JS, the icons and the tokens
-# — and that it contains no catalogue.
+# Verifies that a built .nupkg contains the CSS, the JS, the icons, the tokens and
+# the graph engine — and that it contains no catalogue.
 #
 # This exists because static web assets have historically been dropped from
 # packages under some build configurations, and the failure is silent: the
@@ -49,6 +49,14 @@ REQUIRED=(
     "staticwebassets/lib/remixicon/remixicon.css"
     "staticwebassets/lib/remixicon/remixicon.woff2"
     "staticwebassets/lib/remixicon/LICENSE"
+    # The graph: the module Sedna.UI.js imports on demand, the engine it imports, one plugin
+    # and a licence. Neither is referenced by any app, so a missing one is only noticed when a
+    # page with a graph never draws.
+    "staticwebassets/js/Sedna.UI.graph.js"
+    "staticwebassets/lib/cytoscape/cytoscape.js"
+    "staticwebassets/lib/cytoscape/cytoscape-dagre.js"
+    "staticwebassets/lib/cytoscape/licenses/cytoscape.txt"
+    "staticwebassets/lib/cytoscape/VENDORED.txt"
     "README.md"
     "LICENSE"
     "THIRD-PARTY-NOTICES.md"

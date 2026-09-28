@@ -9,7 +9,9 @@ something, it is listed below and repeated in the class's own comment.
 ## What the library guarantees
 
 - **Nothing requires JavaScript.** Every class applies with scripting blocked or broken, including the
-  whole frame. The collapsed rail's tooltips are CSS; the user menu's state is C#.
+  whole frame. The collapsed rail's tooltips are CSS; the user menu's state is C#. The one surface that
+  cannot exist without a script — a graph's canvas — is replaced by the graph's own list of records and
+  links when scripting is off.
 - **No colour-only signals.** Every state that matters carries a second channel — a leading rule, a
   filled-versus-outlined marker, an arrow, an icon. Deltas are the clearest case: `--good` / `--bad`
   set the colour, and the arrow you put inside carries the direction.
@@ -50,7 +52,31 @@ something, it is listed below and repeated in the class's own comment.
 | `.skip-link` | `href="#main"`, and `tabindex="-1"` on `<main id="main">` so the jump moves focus rather than only scrolling. Under `<base href="/">` the jump needs `Sedna.UI.js` — see [getting started](getting-started.md#base-href) |
 | any icon-only button | `aria-label`, plus `data-tip` when the purpose is not obvious — and `.btn-icon`, which squares it to the shared control height instead of leaving a wide box around one glyph |
 | `data-drag-zone` | `tabindex="0"` on a whole item, or a real `<button>` as its `data-drag-handle`, with an `aria-label` naming what it moves; a `[data-drag-live]` region carrying the sentences a keyboard drag is announced in; and `aria-disabled="true"` on an item that cannot move. |
+| `.graph` | an `aria-label` naming what the graph shows; the `.graph-data` list written as sentences a screen reader reads out ("Orders API reads the orders database"), with `data-label` for the short word the canvas writes; a `[data-graph-live]` polite region carrying the sentences a keyboard move is announced in; `aria-label` and `data-tip` on every icon-only tool; and colour never the only carrier — a kind gets a shape, a link a line style and a label. `aria-roledescription="graph"` is yours to add in your own language. See **The graph** below. |
 | `.dropzone` | a real `<input type="file">` inside it. Drag and drop alone is unreachable by keyboard; `data-dropzone` adds the drag handling on top of the input, never instead of it. |
+
+## The graph
+
+A canvas is a picture to assistive technology, so the graph carries its content twice and its
+interaction once more:
+
+- **The records are text.** `.graph-data` is the graph's list, visually hidden and read in order; with
+  scripting off it is what the page shows. A side panel (`data-graph-detail`) lists the selected
+  record's neighbours as buttons, which is the graph's structure in a form a keyboard and a screen
+  reader both reach.
+- **The graph is one tab stop.** Inside it the arrow keys move a ring to the nearest record in that
+  direction, Page Down and Page Up walk the links, Home goes to the root, Space selects, Enter opens,
+  the context-menu key opens the app's menu, and + − 0 zoom and fit. It gets `tabindex="0"` and
+  `role="application"` unless the markup has its own — `application`, because a screen reader in browse
+  mode would otherwise take the arrow keys for itself.
+- **Every move is said in the app's words**, through the app's `[data-graph-live]` region and its
+  `data-graph-announce` template. The library writes no word of it.
+- **The ring is drawn in the focus ring's colour, inside the frame**, so a card that clips its content
+  does not clip it; in forced colours it is an outline, like every other ring.
+- **The canvas follows the theme and forced colours.** Every colour is a token read through the browser,
+  repainted when the variant, the colour-vision setting, the contrast setting or forced colours change.
+- **Motion is decoration.** Layout transitions and view animations are skipped under
+  `prefers-reduced-motion`, and the result is the same drawing.
 
 ## Three deliberate omissions
 
