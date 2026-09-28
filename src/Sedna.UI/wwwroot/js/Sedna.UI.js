@@ -5639,6 +5639,15 @@ window.sednaUi = window.sednaUi || {};
                 for (var j = 0; j < added.length; j++) {
                     if (added[j].nodeType === 1) scan(added[j]);
                 }
+                // One removed before it ever came near the viewport is no longer watched.
+                var removed = records[i].removedNodes;
+                for (var k = 0; k < removed.length && watching; k++) {
+                    var gone = removed[k];
+                    if (gone.nodeType !== 1) continue;
+                    if (gone.matches(SELECTOR)) watching.unobserve(gone);
+                    var inner = gone.querySelectorAll(SELECTOR);
+                    for (var m = 0; m < inner.length; m++) watching.unobserve(inner[m]);
+                }
                 if (records[i].removedNodes.length && !queued && loading) {
                     queued = true;
                     setTimeout(function () {
