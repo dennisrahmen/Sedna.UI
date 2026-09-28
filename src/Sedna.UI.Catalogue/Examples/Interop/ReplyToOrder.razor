@@ -1,0 +1,60 @@
+@* The app's own overlay component, holding work that is lost if it closes. Escape, the
+   close button and Cancel all end up in Dismiss: data-close-guard stops Escape closing
+   the dialog and raises cancel instead, so nothing closes until Dismiss says so. *@
+@inject ISednaUi Ui
+
+<dialog id="@Overlay.Id" class="modal" aria-labelledby="@($"{Overlay.Id}-title")"
+        data-close-guard @oncancel="Dismiss">
+    <div class="modal-header">
+        <h3 id="@($"{Overlay.Id}-title")">Reply on ORD-4209</h3>
+        <button class="modal-close" type="button" aria-label="Close" @onclick="Dismiss">
+            <i class="ri-close-line"></i>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="form-field">
+            <label class="form-label" for="@($"{Overlay.Id}-message")">Message to Alex Fischer</label>
+            <textarea class="form-input" id="@($"{Overlay.Id}-message")" rows="4"
+                      @bind="_message" @bind:event="oninput"></textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" @onclick="Dismiss">Cancel</button>
+        <button class="btn btn-primary" type="button" disabled="@IsEmpty"
+                @onclick="() => Overlay.CloseAsync(_message)">
+            <i class="ri-send-plane-line"></i> Send
+        </button>
+    </div>
+</dialog>
+
+@* The question is the app's markup too, opened over the reply. The safe choice comes
+   first, which is the one showModal() focuses. *@
+<dialog id="@($"{Overlay.Id}-discard")" class="modal modal-sm" aria-labelledby="@($"{Overlay.Id}-discard-title")">
+    <form method="dialog">
+        <div class="modal-header">
+            <h3 id="@($"{Overlay.Id}-discard-title")">Discard this reply?</h3>
+        </div>
+        <div class="modal-body">
+            <p>It has not been sent, and what you wrote is lost.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" value="keep">Keep writing</button>
+            <button class="btn btn-danger" value="discard">Discard</button>
+        </div>
+    </form>
+</dialog>
+
+@code {
+    private string _message = "";
+
+    [CascadingParameter] public SednaOverlay Overlay { get; set; } = default!;
+
+    private bool IsEmpty => string.IsNullOrWhiteSpace(_message);
+
+    // Nothing written closes at once; anything else asks first.
+    private async Task Dismiss()
+    {
+        if (IsEmpty || await Ui.ShowModalAsync($"{Overlay.Id}-discard") == "discard")
+            await Overlay.CancelAsync();
+    }
+}

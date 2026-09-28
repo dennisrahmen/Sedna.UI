@@ -69,11 +69,15 @@
         return sheet && sheet.hasAttribute('open') && grip.parentElement === sheet ? sheet : null;
     }
 
-    /* One task, three mutations, in this order — see the note above. */
+    /* One task, three mutations, in this order — see the note above. A dismissal is
+       a close request like Escape, so it raises `cancel` first: a sheet that asks
+       before closing (`data-close-guard` in 42-modal.js) stays open, and with the
+       transform already cleared that is the spring back. */
     function slideOut(sheet) {
         sheet.classList.remove(DRAGGING);   // the transition comes back…
         sheet.style.transform = '';         // …and the target becomes .sheet's own
-        sheet.close();                      //    translateY(100%), once [open] goes
+        if (typeof sheet.requestClose === 'function') sheet.requestClose();
+        else sheet.close();                 //    translateY(100%), once [open] goes
     }
 
     function springBack(sheet) {

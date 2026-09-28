@@ -4181,11 +4181,15 @@ window.sednaUi = window.sednaUi || {};
         return sheet && sheet.hasAttribute('open') && grip.parentElement === sheet ? sheet : null;
     }
 
-    /* One task, three mutations, in this order — see the note above. */
+    /* One task, three mutations, in this order — see the note above. A dismissal is
+       a close request like Escape, so it raises `cancel` first: a sheet that asks
+       before closing (`data-close-guard` in 42-modal.js) stays open, and with the
+       transform already cleared that is the spring back. */
     function slideOut(sheet) {
         sheet.classList.remove(DRAGGING);   // the transition comes back…
         sheet.style.transform = '';         // …and the target becomes .sheet's own
-        sheet.close();                      //    translateY(100%), once [open] goes
+        if (typeof sheet.requestClose === 'function') sheet.requestClose();
+        else sheet.close();                 //    translateY(100%), once [open] goes
     }
 
     function springBack(sheet) {
@@ -5217,6 +5221,25 @@ window.sednaUi = window.sednaUi || {};
    throw. The call sites are Blazor event handlers, where an exception crossing the
    interop boundary tears down the circuit — a wrong id should cost a line in the
    console, not the reader's page.
+
+   ASKING BEFORE IT CLOSES — data-close-guard. A dialog holding unsaved work does
+   not close on a close request — Escape, a swipe down on a `.sheet`, a
+   command="request-close" button. It raises `cancel`, the app asks, and the app
+   closes it. In Blazor that is one attribute and one handler:
+
+     <dialog id="reply" class="modal" data-close-guard @oncancel="Dismiss">
+
+   The script refuses the `cancel`, not the app, because Razor cannot: it writes
+   `@oncancel:preventDefault` out as a literal attribute, and the render throws.
+
+   Refusing is not enough on its own either. Chromium lets a page refuse a close
+   request only so often without a click or a keypress in between — Escape is not
+   one — and then fires a `cancel` it cannot cancel and closes the dialog anyway:
+   five Escapes in a row through a "discard this?" dialog closed the form under it.
+   On a guarded dialog Escape becomes requestClose(), whose `cancel` is always
+   cancelable, so the app is asked every time. Escape another handler already took
+   — a combo, a drag — and Escape meant for an open popover are left alone, exactly
+   as the platform would leave them.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -5327,6 +5350,41 @@ window.sednaUi = window.sednaUi || {};
             ]).then(function () { });
         }
     };
+
+    /* The guarded dialog this Escape would close, or null. Focus is inside the top
+       modal dialog, since everything else is inert — unless a re-render removed the
+       focused control and left focus on the body. With one modal open that one is
+       still the one Escape closes; with more, which is on top is not readable, and the
+       platform is left to it. */
+    function guardedTarget(target) {
+        var d = target instanceof Element ? target.closest('dialog') : null;
+        if (!d) {
+            var open = document.querySelectorAll('dialog:modal');
+            d = open.length === 1 ? open[0] : null;
+        }
+        return d && d.hasAttribute('data-close-guard') && d.matches(':modal') &&
+            typeof d.requestClose === 'function' ? d : null;
+    }
+
+    // Bubbling, so a combo or a drag that handles its own Escape has cancelled it first.
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
+        if (document.querySelector(':popover-open:not([popover="manual"])')) return;
+
+        var d = guardedTarget(e.target);
+        if (!d) return;
+
+        e.preventDefault();
+        d.requestClose();
+    });
+
+    // `cancel` does not bubble, so it is caught on the way down.
+    document.addEventListener('cancel', function (e) {
+        var d = e.target;
+        if (d instanceof Element && d.tagName === 'DIALOG' && d.hasAttribute('data-close-guard')) {
+            e.preventDefault();
+        }
+    }, true);
 
 })(window.sednaUi);
 
