@@ -42,12 +42,15 @@ Three kinds of code pass it, and they are the only kinds that may exist beside t
   page, as `aria-current`; `SednaSort` renders `aria-sort`, `SednaPager` picks the page numbers to show,
   `SednaTabs` renders a managed tablist's attributes. Pure functions, no interop, nothing held.
 
-**The toast and the hover-hint bubble are the two exceptions.** Neither has a form, a result or
-anything to author — a toast is one line the app passes in, a hint is the app's own `data-tip` text — so
-the library draws them: `51-toast.js` builds the toast and `20-tips.js` builds the one `.sedna-tip`
-bubble. They are named here so nobody removes them by this rule, and so nothing is added beside them.
-A confirmation dialog, the command palette and the header search's results were all once drawn by the
-script and were moved to app markup for exactly that.
+**The toast, the hover-hint bubble and the graph's canvas are the three exceptions.** None has a form,
+a result or anything to author — a toast is one line the app passes in, a hint is the app's own
+`data-tip` text, and a graph's canvas is a picture of the records the app lists — so the library draws
+them: `51-toast.js` builds the toast, `20-tips.js` builds the one `.sedna-tip` bubble, and the graph
+engine paints the canvas inside the app's `.graph-canvas`. Everything around that canvas — its toolbar,
+legend, filters, tooltip, menu, side panel and empty state — is the app's markup, which the script
+fills and places like any other. They are named here so nobody removes them by this rule, and so
+nothing is added beside them. A confirmation dialog, the command palette and the header search's
+results were all once drawn by the script and were moved to app markup for exactly that.
 
 **A list the script fills comes from the app's `<template>`.** Where the script renders rows from data —
 the palette's commands, the header search's results — the app writes the container and a `<template>`
@@ -75,15 +78,16 @@ keeps the function in a table keyed by it, as `watchSettings` does.
 **A call that waits on the reader passes a `CancellationToken`.** Blazor applies a one-minute timeout
 to every interop call that does not, so a dialog left open for a minute would throw into the app.
 
-The package is the stylesheet, the script, the icons, the token export, and the C# surface above:
-`ActiveLink`, `SednaSort`, `SednaPager`, `SednaTabs`, `ISednaUi`, `ISednaSettings`, `ISednaOverlays` and
-`AddSednaUi()`. Most of this library is CSS.
+The package is the stylesheet, the script, the icons, the token export, the graph engine, and the C#
+surface above: `ActiveLink`, `SednaSort`, `SednaPager`, `SednaTabs`, `ISednaUi`, `ISednaSettings`,
+`ISednaOverlays`, `ISednaGraphs` and `AddSednaUi()`. Most of this library is CSS.
 
 ## The stylesheet and the script are generated
 
-Edit `src/Sedna.UI/css-parts/*.css` or `js-parts/*.js`, then run `build/bundle-css.sh` /
-`build/bundle-js.sh`. Never edit `wwwroot/css/Sedna.UI.css` or `wwwroot/js/Sedna.UI.js` — both
-are generated, and a test fails if a bundle and its parts disagree.
+Edit `src/Sedna.UI/css-parts/*.css`, `js-parts/*.js` or `graph-parts/*.js`, then run
+`build/bundle-css.sh` / `build/bundle-js.sh`. Never edit `wwwroot/css/Sedna.UI.css`,
+`wwwroot/js/Sedna.UI.js` or `wwwroot/js/Sedna.UI.graph.js` — all three are generated, and a test fails
+if a bundle and its parts disagree.
 
 Parts are **discovered**, not listed: the generator reads the directory, so adding a file is the whole
 job and nothing can be left out. Order is the byte-ordinal filename order, which is why every part
@@ -93,6 +97,12 @@ carries an `NN-` prefix and the build fails without one. Conventions for writing
 One file of each ships. The parts sit outside `wwwroot` so they are not static web assets: an app has
 exactly one stylesheet path and one script path. Do not add a runtime loader for the parts — JS-injected
 CSS leaves content unstyled until scripts run, and `@import` serialises the requests.
+
+**The graph module is the one script an app never references.** `Sedna.UI.graph.js` is an ES module
+that `Sedna.UI.js` imports, relative to itself, the first time a page shows a `[data-graph]` — so a
+page without a graph never downloads it or the engine it imports, and the host page stays exactly as
+`docs/getting-started.md` writes it. It is generated from `graph-parts/` like the other two. Nothing
+else is loaded this way: a behaviour every page may need belongs in `Sedna.UI.js`.
 
 `Sedna.UI.boot.js` stays standalone. It runs in `<head>` before first paint; bundling it into the
 main script would defeat its purpose.
@@ -119,6 +129,12 @@ App-specific business UI stays in the app that owns it: its own workflow panels,
 guided tours, styling for a particular integration's output, page-specific grids. If a class knows
 what the app is *for*, it belongs to the app.
 
+**The graph is the one engine the library ships.** cytoscape.js and the plugins it loads on demand
+are vendored under `wwwroot/lib/cytoscape/` — see **The graph** below — because a relationship graph
+needs a layout engine, a renderer and hit testing that no amount of CSS provides, and every app that
+drew one wrote the same several hundred lines of interop. It is named here so it is not removed by the
+rule above, and so a second graph or chart engine is not added beside it.
+
 **Quill 2 is the one integration the library dresses.** `44-quill.css` skins the markup Quill
 generates inside `.editor`, as `Spillgebees.Blazor.RichTextEditor` renders it, so an app that needs a
 rich-text editor gets one that looks native without writing its own. The library references neither: the
@@ -134,8 +150,8 @@ Permanently out of scope:
 
   This bans components that **hide markup**. It does not ban components outright — see **Markup
   belongs to the app** above for the three kinds that are allowed.
-- Library-drawn UI beyond the toast and the hover-hint bubble: a confirmation, a prompt, an alert box
-  built by the script. The app writes it as a modal and a presenter shows it.
+- Library-drawn UI beyond the toast, the hover-hint bubble and the graph's canvas: a confirmation, a
+  prompt, an alert box built by the script. The app writes it as a modal and a presenter shows it.
 - **The package** loading anything from a remote URL at runtime. Everything it needs ships inside it,
   so no host outage can affect a customer site. The catalogue application is a web server, and that
   rule is about the package.
@@ -143,7 +159,12 @@ Permanently out of scope:
   only dependency and is unavoidable — `NavigationManager`, `NavLinkMatch` and `IJSRuntime` live there.
   A third-party package is the same exposure moved to build time: a supply-chain risk, a licence to
   audit, and a transitive version conflict in every consuming app. A test fails on one, and
-  `build/verify-package.sh` asserts the packed dependency list is exactly that one name.
+  `build/verify-package.sh` asserts the packed dependency list is exactly that one name. Vendored
+  browser code is not a package reference and is held to its own rules instead: Remix Icon under
+  **Icons**, the graph engine under **The graph** — pinned, checksummed, licence-checked, committed,
+  and loaded by nothing but the library's own code.
+- A second graph or chart engine, and any vendored code under a copyleft licence. cytoscape-svg is the
+  plugin this rules out today: it is GPL-3.0, and the graph's SVG export is Sedna.UI's own instead.
 - A second icon set. Remix Icon is bundled and is the only one. The state illustrations in
   `StateArt/Sedna.UI.states.svg` are not one: an icon set is a vocabulary a page draws from,
   and that file is thirteen fixed pictures of thirteen fixed states, embedded in the assembly and
@@ -253,9 +274,12 @@ src/
   Sedna.UI/
     css-parts/                        the stylesheet, authored as one short file per component
     js-parts/                         the script, authored as one short file per behaviour
+    graph-parts/                      the graph module, authored as one file per concern
     wwwroot/css/Sedna.UI.css      GENERATED by build/bundle-css.sh — do not edit
     wwwroot/js/Sedna.UI.js        GENERATED by build/bundle-js.sh — do not edit
+    wwwroot/js/Sedna.UI.graph.js  GENERATED by build/bundle-js.sh — imported by Sedna.UI.js on demand
     wwwroot/js/Sedna.UI.boot.js   pre-paint theme, loaded in <head>; standalone
+    wwwroot/lib/cytoscape/            VENDORED by build/vendor-cytoscape.sh — the graph engine and its plugins
     StateArt/…states.svg              the thirteen state illustrations, one <symbol> each; embedded, not shipped as a file
     Components/                       SednaBrandStyle, SednaStateArt (infrastructure) and SednaOverlayHost (presenter)
     wwwroot/tokens/…tokens.json       GENERATED by build/export-tokens.sh
@@ -311,7 +335,7 @@ implementation agreed with itself — and the CSSOM implementation immediately f
 the browser re-serialises the icon font's `:before` as `::before`, so a regex copied from the .NET side
 reported zero icons.
 
-Three directories carry their own `CLAUDE.md`, next to the files an agent will edit: `css-parts/`,
+These directories carry their own `CLAUDE.md`, next to the files an agent will edit: `graph-parts/`, `css-parts/`,
 `js-parts/` and `src/Sedna.UI.Catalogue/`. Read the local one before adding a file there — it holds
 the rules that only apply inside it, including which number prefix to choose and which names are
 already taken.
@@ -384,6 +408,34 @@ minor component. Two restrictions bind this repo directly: the icons may not be 
 standalone icon pack, and none of them may be used as a logo or app icon — which is why the brand assets
 in `assets/brand/` are bespoke rather than built from an icon.
 
+## The graph
+
+`[data-graph]` markup draws records and links on a canvas; the reference is `docs/graph.md`. The
+engine is [cytoscape.js](https://js.cytoscape.org/), vendored with its plugins by
+`build/vendor-cytoscape.sh` into `wwwroot/lib/cytoscape/`: each package pinned to a version and to the
+sha512 of its registry tarball, checked before anything is written, its licence copied beside it, and
+upstream's text shipped unchanged under a provenance header — an ES module as it is, a UMD or CommonJS
+build wrapped in a module scope. `VENDORED.txt` lists what is there. The output is committed, so the
+build needs no network. `--check` compares the committed files with a fresh vendor.
+
+After changing a version, update `THIRD-PARTY-NOTICES.md`; a test holds it against `VENDORED.txt`. Every
+package must be MIT, or a licence as permissive — the script stops on anything else, and a copyleft
+plugin is out of scope whatever it offers.
+
+- **Only the library imports the engine.** `Sedna.UI.graph.js` imports `lib/cytoscape/cytoscape.js` by
+  relative path, and a plugin the first time a graph needs it. An app reaches the engine through the
+  handle's `cy`, documented as unversioned, and never by importing a file under `lib/`.
+- **Colour comes from tokens, resolved in the browser.** A record's tone is a series name — the colour of
+  the `.series-*` class of the same name — and the script reads the token through a probe element, so
+  themes, the colour-vision setting and forced colours reach the canvas, and it repaints when they change.
+  No literal colour is ever handed to the engine.
+- **The canvas is the only thing painted.** A tooltip, a menu, a side panel, a legend, an announcement:
+  each is app markup the script fills with `textContent` and places, as the palette fills its rows.
+- **The keyboard is not optional.** The graph is one tab stop with arrow-key navigation between
+  records and announcements in the app's words; a change that leaves a record unreachable without a
+  pointer is a regression.
+- The minimap and the SVG export are Sedna.UI's own; the other plugins are upstream's, loaded on demand.
+
 ## Naming
 
 - CSS classes: semantic, lowercase-kebab, no app or vendor prefix. Library-owned utilities that need a
@@ -403,9 +455,11 @@ in `assets/brand/` are bespoke rather than built from an icon.
 
 `Sedna.UI.js` holds generic UI behaviour only: hover hints, theme settings, clipboard, notifications,
 toasts, the dialog presenter, delegated menus, tabs, combo fields, the command palette and the header
-search, drag and drop, and the Markdown editor. Drag and drop moves no node: it writes attributes and
-dispatches `sedna-drop`, and the app moves the item. `wwwroot/Sedna.UI.lib.module.js` is the Blazor
-initializer that gives those events their data in C#. App-specific interop stays in the app's own script. The member table is
+search, drag and drop, the Markdown editor, and the graph's front door, which imports the graph module
+when a page first shows a graph. Drag and drop moves no node: it writes attributes and dispatches
+`sedna-drop`, and the app moves the item; a link drawn on a graph is `sedna-graph-connect` the same way.
+`wwwroot/Sedna.UI.lib.module.js` is the Blazor initializer that gives those events their data in C#,
+and tells the graph when Blazor has started. App-specific interop stays in the app's own script. The member table is
 in `docs/architecture.md`, and the rules for crossing into .NET are **The interop boundary** above.
 
 - `palette` and `search` share one matcher, `ui._.score`. Do not write a second one.

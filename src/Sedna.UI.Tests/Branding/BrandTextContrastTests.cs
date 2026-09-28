@@ -105,6 +105,12 @@ public class BrandTextContrastTests
         [".chip--active"] = (Ink.Text, ["--brand-tint"]),
         [".chip--active i"] = (Ink.Icon, ["--brand-tint"]),
         [".chip--active .chip-dismiss"] = (Ink.Icon, ["--brand-tint"]),
+        // A <button> chip is chosen by aria-pressed alone — the graph's filter chips, which the
+        // script toggles.
+        ["button.chip[aria-pressed=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
+        ["button.chip[aria-pressed=\"true\"] i"] = (Ink.Icon, ["--brand-tint"]),
+        // A graph tool that is switched on — drawing links, outlines, full screen: an icon button.
+        [".graph-tools .btn[aria-pressed=\"true\"]"] = (Ink.Icon, ["--brand-tint"]),
         ["a.stat:hover .stat-value"] = (Ink.Text, []),
         [".page-link[aria-current=\"page\"]"] = (Ink.Text, ["--brand-tint"]),
         [".table th[aria-sort=\"ascending\"]"] = (Ink.Text, ["--table-head-bg"]),

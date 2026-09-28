@@ -80,14 +80,18 @@
 .chip-dismiss:hover { background: var(--bg-hover); color: var(--fg); }
 .chip-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 
-/* Chosen — a filter that is on, rather than one offered. */
-.chip--active {
+/* Chosen — a filter that is on, rather than one offered. A <button> chip whose
+   aria-pressed is "true" is chosen by that alone, so a script that toggles the state —
+   the graph's filter chips — changes the look with it. */
+.chip--active,
+button.chip[aria-pressed="true"] {
     background: var(--brand-tint);
     border-color: var(--brand-soft);
     color: var(--brand-text);
 }
 .chip--active i,
-.chip--active .chip-dismiss { color: var(--brand-text); }
+.chip--active .chip-dismiss,
+button.chip[aria-pressed="true"] i { color: var(--brand-text); }
 
 /* Not accepted — an address that is not one, a value the app rejected. Kept as a
    chip rather than thrown away, so the reader can see the typo and fix it. Pair it
@@ -102,8 +106,9 @@
 .chip--invalid .chip-dismiss { color: var(--danger-fg); }
 
 /* A chip that is a <button>: a filter offered and toggled in place, such as a log
-   level. `aria-pressed` carries the state for a screen reader and `.chip--active` the
-   look, so the two are set together. A button does not inherit the page's font. */
+   level. `aria-pressed` carries the state for a screen reader and, on a button, the
+   look as well; `.chip--active` is the look for a chip that is not a button. A button
+   does not inherit the page's font. */
 button.chip { font-family: inherit; cursor: pointer; }
 button.chip:hover { border-color: var(--border-hover); }
 button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
