@@ -73,7 +73,7 @@ function settle(g) {
     // A layout is running: it fits and settles the view itself when it has finished.
     if (g.laying) return;
     if (g.options.nodes !== 'box') {
-        const next = stepOf(cy.zoom());
+        const next = stepOf(Math.max(cy.zoom(), HOLD_FLOOR));
         if (next !== g.step) {
             // Link names that are always written are held at their size like record names;
             // otherwise only a lit link's name is showing.
@@ -143,7 +143,8 @@ function declutter(g) {
         const x = at.x * zoom + pan.x;
         const y = at.y * zoom + pan.y;
         const r = ((n.data('size') || 20) * held(n) * zoom) / 2;
-        const px = labelPx(n);
+        // On screen: below the floor, a name shrinks with the drawing.
+        const px = labelPx(n) * Math.min(1, zoom / (g.step || 1));
         const bold = n.data('hub') || n.data('root') || n.hasClass('focus');
         const w = Math.min(textWidth(n.data('label') || '', `${bold ? 600 : 400} ${px}px ${font}`), LABEL_MAX_PX) + 8;
         const box = side === 'right' ? { x1: x + r + 3, x2: x + r + 3 + w, y1: y - px * 0.85, y2: y + px * 0.85 }

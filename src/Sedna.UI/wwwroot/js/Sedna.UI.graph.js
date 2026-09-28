@@ -538,6 +538,11 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
    per state of an element's data, so the zoom reaches the style as data — `zoom`, in
    steps of a few percent (40-view.js) — rather than as a call to cy.zoom(). */
 const zoomOf = ele => ele.data('zoom') ?? 1;
+/* Names are held at their screen size down to this zoom, and shrink with the drawing below it,
+   as the dots do: a drawing seen from that far out is being read for its shape. Held all the way
+   down, names that do not fit the frame at any size grow the drawing that makes room for them,
+   and the zoom it is seen at falls, without end. A name too small to read is not drawn. */
+const HOLD_FLOOR = 0.4;
 const held = ele => (zoomOf(ele) <= 1 ? 1 : 1 / Math.pow(zoomOf(ele), 0.8));
 const LABEL_MAX_PX = 180;
 const labelPx = n => 10.5 + Math.min(n.data('degree') || 0, 14) * 0.2 + (n.data('hub') ? 1.5 : 0);
@@ -650,7 +655,7 @@ function styleFor(colours, icons, options, extra) {
                 'text-margin-y': n => 3 / zoomOf(n),
                 'text-wrap': 'ellipsis',
                 'text-max-width': n => LABEL_MAX_PX / zoomOf(n),
-                'min-zoomed-font-size': 0,
+                'min-zoomed-font-size': 6,
                 'text-outline-color': p.ground,
                 'text-outline-width': n => 0.22 * labelSize(n),
                 'text-outline-opacity': 0.95,
@@ -693,6 +698,7 @@ function styleFor(colours, icons, options, extra) {
                 'line-height': 1.35,
                 'text-outline-width': 0,
                 'outline-offset': 3,
+                'min-zoomed-font-size': 0,
             },
         },
         { selector: 'node[display = "box"][?muted]', style: { 'background-opacity': 0.6, 'border-opacity': 0.6, 'color': p.muted } },
@@ -1069,6 +1075,9 @@ async function arrangeWith(cy, name, options, frame) {
                 rankSep: (box ? 56 : 72) * spacing,
                 edgeSep: 12 * spacing,
                 ranker: 'network-simplex',
+                // How hard a link holds its ends in line: a light one — a dotted-line report,
+                // a see-also — gives way to the links the hierarchy is made of.
+                edgeWeight: e => e.data('weight') || 1,
                 nodeDimensionsIncludeLabels: !box,
                 // Each link's route through the ranks, kept for the stylesheet to draw.
                 useDagreEdgeControlPoints: true,
@@ -1541,7 +1550,7 @@ function settle(g) {
     // A layout is running: it fits and settles the view itself when it has finished.
     if (g.laying) return;
     if (g.options.nodes !== 'box') {
-        const next = stepOf(cy.zoom());
+        const next = stepOf(Math.max(cy.zoom(), HOLD_FLOOR));
         if (next !== g.step) {
             // Link names that are always written are held at their size like record names;
             // otherwise only a lit link's name is showing.
@@ -1611,7 +1620,8 @@ function declutter(g) {
         const x = at.x * zoom + pan.x;
         const y = at.y * zoom + pan.y;
         const r = ((n.data('size') || 20) * held(n) * zoom) / 2;
-        const px = labelPx(n);
+        // On screen: below the floor, a name shrinks with the drawing.
+        const px = labelPx(n) * Math.min(1, zoom / (g.step || 1));
         const bold = n.data('hub') || n.data('root') || n.hasClass('focus');
         const w = Math.min(textWidth(n.data('label') || '', `${bold ? 600 : 400} ${px}px ${font}`), LABEL_MAX_PX) + 8;
         const box = side === 'right' ? { x1: x + r + 3, x2: x + r + 3 + w, y1: y - px * 0.85, y2: y + px * 0.85 }
@@ -3737,7 +3747,7 @@ async function atScale(g, run) {
     for (let pass = 0; pass < 6; pass++) {
         const shown = cy.nodes().not('.hidden');
         if (shown.empty()) return;
-        const seen = stepOf(Math.min(1, fitOf(g, shown).zoom));
+        const seen = stepOf(Math.min(1, Math.max(HOLD_FLOOR, fitOf(g, shown).zoom)));
         if (seen >= g.step) return;
         g.step = seen;
         cy.batch(() => cy.elements().data('zoom', seen));

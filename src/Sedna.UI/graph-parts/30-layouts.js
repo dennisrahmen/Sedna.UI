@@ -239,6 +239,9 @@ async function arrangeWith(cy, name, options, frame) {
                 rankSep: (box ? 56 : 72) * spacing,
                 edgeSep: 12 * spacing,
                 ranker: 'network-simplex',
+                // How hard a link holds its ends in line: a light one — a dotted-line report,
+                // a see-also — gives way to the links the hierarchy is made of.
+                edgeWeight: e => e.data('weight') || 1,
                 nodeDimensionsIncludeLabels: !box,
                 // Each link's route through the ranks, kept for the stylesheet to draw.
                 useDagreEdgeControlPoints: true,

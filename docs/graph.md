@@ -85,7 +85,7 @@ with CSS alone: `[data-graph-colouring="status"] .legend-status`.
 | `data-kind` | `kind` | What an `edge.kind` filter names. |
 | `data-tone` | `tone` | As a record's. Default: the quiet border colour. |
 | `data-line` | `line` | `solid`, `dashed`, `dotted`. |
-| `data-weight` | `weight` | `light`, `normal`, `heavy`, or a number (1 is normal). |
+| `data-weight` | `weight` | `light`, `normal`, `heavy`, or a number (1 is normal): how thick it is drawn, and how hard it holds its ends together in a layout — in `dagre`, a `light` link gives way to the links the hierarchy is made of. |
 | `data-arrow` | `arrow` | `none`, `target`, `source`, `both`. Default: `data-graph-arrows`. |
 | `data-muted` | `muted` | Drawn quieter. |
 
@@ -216,7 +216,8 @@ record's tone.
 | — | Escape | Clear the selection, then the ring. |
 
 Names are placed the way a map places them: the most important first, and one that would run into a
-name already placed is left out. Zooming in makes room, so more appear. Search marks rather than
+name already placed is left out. Zooming in makes room, so more appear. A name keeps its size on screen
+down to a zoom of 0.4; further out it shrinks with the drawing, and one too small to read is not drawn. Search marks rather than
 hides, because where a record sits among the others is what the graph is for.
 
 ## Layouts

@@ -20,6 +20,11 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
    per state of an element's data, so the zoom reaches the style as data — `zoom`, in
    steps of a few percent (40-view.js) — rather than as a call to cy.zoom(). */
 const zoomOf = ele => ele.data('zoom') ?? 1;
+/* Names are held at their screen size down to this zoom, and shrink with the drawing below it,
+   as the dots do: a drawing seen from that far out is being read for its shape. Held all the way
+   down, names that do not fit the frame at any size grow the drawing that makes room for them,
+   and the zoom it is seen at falls, without end. A name too small to read is not drawn. */
+const HOLD_FLOOR = 0.4;
 const held = ele => (zoomOf(ele) <= 1 ? 1 : 1 / Math.pow(zoomOf(ele), 0.8));
 const LABEL_MAX_PX = 180;
 const labelPx = n => 10.5 + Math.min(n.data('degree') || 0, 14) * 0.2 + (n.data('hub') ? 1.5 : 0);
@@ -132,7 +137,7 @@ function styleFor(colours, icons, options, extra) {
                 'text-margin-y': n => 3 / zoomOf(n),
                 'text-wrap': 'ellipsis',
                 'text-max-width': n => LABEL_MAX_PX / zoomOf(n),
-                'min-zoomed-font-size': 0,
+                'min-zoomed-font-size': 6,
                 'text-outline-color': p.ground,
                 'text-outline-width': n => 0.22 * labelSize(n),
                 'text-outline-opacity': 0.95,
@@ -175,6 +180,7 @@ function styleFor(colours, icons, options, extra) {
                 'line-height': 1.35,
                 'text-outline-width': 0,
                 'outline-offset': 3,
+                'min-zoomed-font-size': 0,
             },
         },
         { selector: 'node[display = "box"][?muted]', style: { 'background-opacity': 0.6, 'border-opacity': 0.6, 'color': p.muted } },

@@ -334,7 +334,7 @@ async function atScale(g, run) {
     for (let pass = 0; pass < 6; pass++) {
         const shown = cy.nodes().not('.hidden');
         if (shown.empty()) return;
-        const seen = stepOf(Math.min(1, fitOf(g, shown).zoom));
+        const seen = stepOf(Math.min(1, Math.max(HOLD_FLOOR, fitOf(g, shown).zoom)));
         if (seen >= g.step) return;
         g.step = seen;
         cy.batch(() => cy.elements().data('zoom', seen));
