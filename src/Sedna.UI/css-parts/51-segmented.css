@@ -32,9 +32,16 @@
    box take, and it is what makes a segmented control in a toolbar the same height as
    the field and the button beside it. Without it the track measured 32px next to a
    36px field, and 35px when its options carried icons — so two segmented controls in
-   one bar did not even agree with each other. */
+   one bar did not even agree with each other.
+
+   `fit-content` because a column stretches its children whatever their display: in a
+   `.form-field`, a `.form-section` or a `.sedna-col`, an On/Off switch ran as wide as
+   the text input above it. A stretch only applies to an `auto` width, so a stated one
+   stops it. A filter-row cell, which wants the control to fill it, says so with its
+   own width. */
 .segmented {
     display: inline-flex;
+    width: fit-content;
     align-items: stretch;
     min-height: var(--control-height);
     padding: var(--space-1);
