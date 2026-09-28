@@ -215,12 +215,17 @@ public class ExampleSourceTests
         // URL that resolves the same wherever the markup is pasted.
         var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
 
-        var offenders = Regex.Matches(source, """(?:src|srcset)\s*=\s*["']([^"']+)["']""",
+        // The src attribute itself, not one whose name ends in it: `data-graph-src` names the
+        // app's own endpoint, which the reader writes, and is no asset of this site's. In a C#
+        // example a value that is a Razor expression — `src="@_picture"` — is whatever the
+        // component computes, a data: URL from ExportAsync, and names no file either.
+        var offenders = Regex.Matches(source, """(?<![\w-])(?:src|srcset)\s*=\s*["']([^"']+)["']""",
                 RegexOptions.IgnoreCase)
             .Select(m => m.Groups[1].Value)
             .Where(v => !v.StartsWith("_content/Sedna.UI/", StringComparison.OrdinalIgnoreCase)
                         && !v.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
-                        && !v.StartsWith("https://" + CatalogueAssets.PhotoHost, StringComparison.OrdinalIgnoreCase))
+                        && !v.StartsWith("https://" + CatalogueAssets.PhotoHost, StringComparison.OrdinalIgnoreCase)
+                        && !(IsInterop(path) && v.StartsWith('@')))
             .ToList();
 
         Assert.True(offenders.Count == 0,

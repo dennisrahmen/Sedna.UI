@@ -1,0 +1,102 @@
+@inject ISednaGraphs Graphs
+
+<div class="card">
+    <div class="card-head">
+        <div class="graph-legend">
+            @foreach (var kind in Kinds)
+            {
+                <label class="form-check">
+                    <input type="checkbox" @bind="_kinds[kind.Id]" @bind:after="Apply" />
+                    <span class="graph-key"><span class="graph-swatch @kind.Swatch"></span>@kind.Name</span>
+                </label>
+            }
+            <label class="switch"><input type="checkbox" @bind="_retired" @bind:after="Apply" /> Retired</label>
+        </div>
+        <select class="form-input form-select form-select-sm sedna-w-fit" aria-label="Team"
+                @bind="_team" @bind:after="Apply">
+            <option value="">Every team</option>
+            <option value="checkout">Checkout</option>
+            <option value="catalogue">Catalogue</option>
+            <option value="fulfilment">Fulfilment</option>
+        </select>
+    </div>
+    <div class="graph graph--sm" data-graph data-graph-deferred id="filtered-services" data-graph-layout="islands"
+         aria-label="Services by team">
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+        <div class="graph-empty graph-empty--filtered empty-state empty-state--bare">
+            <span class="empty-state-title">Nothing matches these filters</span>
+        </div>
+    </div>
+    <div class="card-foot card-foot--start">
+        <span class="form-hint">@(_stats is null ? "Loading…" : $"Showing {_stats.Nodes} of {_stats.TotalNodes} services")</span>
+    </div>
+</div>
+
+@code {
+    private const string Id = "filtered-services";
+
+    private sealed record Kind(string Id, string Name, string Swatch);
+
+    private static readonly Kind[] Kinds =
+    [
+        new("service", "Services", "series-2"),
+        new("store", "Stores", "series-4 graph-swatch--square"),
+        new("queue", "Queues", "series-5 graph-swatch--diamond"),
+    ];
+
+    private readonly Dictionary<string, bool> _kinds = Kinds.ToDictionary(k => k.Id, _ => true);
+    private bool _retired = true;
+    private string _team = "";
+    private SednaGraphStats? _stats;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        _stats = await Graphs.SetDataAsync(Id, Data);
+        StateHasChanged();
+    }
+
+    private async Task Apply() => _stats = await Graphs.FilterAsync(Id, new SednaGraphFilter
+    {
+        // A choice: a record in no team is not the team chosen, so it goes too.
+        Nodes = _team == "" ? null : new Dictionary<string, IReadOnlyList<string>> { ["group"] = [_team] },
+        // Switches turned off: they hide what they name, and a record with no kind stays.
+        Except = new Dictionary<string, IReadOnlyList<string>>
+        {
+            ["kind"] = [.. Kinds.Where(k => !_kinds[k.Id]).Select(k => k.Id)],
+        },
+        Muted = _retired,
+    });
+
+    private static readonly SednaGraphData Data = new(
+    [
+        Service("storefront", "Storefront", "checkout"),
+        Service("basket", "Basket", "checkout"),
+        Service("payments", "Payments", "checkout"),
+        Store("orders-db", "Orders database", "checkout"),
+        Service("search", "Search", "catalogue"),
+        Service("prices", "Prices", "catalogue"),
+        Store("search-index", "Search index", "catalogue"),
+        Service("legacy-prices", "Old price list", "catalogue") with { Muted = true },
+        Service("inventory", "Inventory", "fulfilment"),
+        Queue("picking", "Picking queue", "fulfilment"),
+        Store("stock-db", "Stock database", "fulfilment"),
+        new("identity", "Sign-in") { Icon = "ri-key-2-line", Meta = "Shared by every team" },
+    ],
+    [
+        new("storefront", "basket"), new("basket", "payments"), new("basket", "orders-db"),
+        new("storefront", "search"), new("search", "search-index"), new("search", "prices"),
+        new("legacy-prices", "prices"), new("basket", "inventory"), new("inventory", "stock-db"),
+        new("inventory", "picking"), new("storefront", "identity"), new("payments", "identity"),
+    ]);
+
+    private static SednaGraphNode Service(string id, string label, string team) =>
+        new(id, label) { Kind = "service", Group = team, Tone = SednaGraphTone.Series(2), Icon = "ri-server-line" };
+
+    private static SednaGraphNode Store(string id, string label, string team) =>
+        new(id, label) { Kind = "store", Group = team, Tone = SednaGraphTone.Series(4), Shape = SednaGraphShape.Square, Icon = "ri-database-2-line" };
+
+    private static SednaGraphNode Queue(string id, string label, string team) =>
+        new(id, label) { Kind = "queue", Group = team, Tone = SednaGraphTone.Series(5), Shape = SednaGraphShape.Diamond, Icon = "ri-inbox-line" };
+}

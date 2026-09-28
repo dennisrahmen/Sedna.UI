@@ -1,5 +1,207 @@
 @page "/graph-blazor"
 
 <CatHead Title="Graph in Blazor">
-    Being written.
+    A graph in a component is the same markup as on any other page. <code>ISednaGraphs</code> hands
+    it records and changes what it shows, and what the reader does comes back as
+    <code>@@onsedna-graph-*</code> events carrying plain data. The component keeps the records; the
+    drawing follows them.
 </CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-braces-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Register once, import the namespace, call after the first render</span>
+        <code>builder.Services.AddSednaUi()</code> registers <code>ISednaGraphs</code> with the rest of the
+        C# surface, and <code>@@using Sedna.UI</code> in <code>_Imports.razor</code> is what makes
+        <code>@@onsedna-graph-select</code> an attribute the compiler knows. Every member is one
+        JavaScript call, so <strong>none of them can run while the page prerenders</strong>: call them
+        from an event handler, or from <code>OnAfterRenderAsync(firstRender: true)</code>, once the
+        <code>[data-graph]</code> element is in the page. Each takes that element's id.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Interop.GraphFromCsharp" Title="Records from C#" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-graph-deferred</code> keeps the graph behind its <code>.graph-wait</code> until the first
+        <code>SetDataAsync</code>, instead of drawing an empty state while the circuit connects.
+        <code>OnAfterRenderAsync(firstRender)</code> is the first render with interop behind it, so that is
+        where the records are sent.
+    </p>
+    <p>
+        <code>SednaGraphNode</code> and <code>SednaGraphEdge</code> are the markup's attributes, typed:
+        <code>Tone</code> takes a <code>SednaGraphTone</code>, <code>Shape</code> and <code>Line</code>
+        are enums, and whatever is left unset does not cross the circuit. Every call answers with a
+        <code>SednaGraphStats</code> of what is on screen afterwards, or null when no graph has that id
+        &mdash; never an exception into the circuit.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.GraphEvents" Title="The reader's clicks as events" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; click a service, then double-click one.</strong>
+        <code>@@onsedna-graph-select</code> hands the handler a <code>SednaGraphNodeEventArgs</code>: the
+        record's id, label, kind, meta and tags, and its own fields. Markup fields arrive under the
+        browser's own names for them, so <code>data-on-call</code> is <code>Fields["onCall"]</code>. The
+        panel beside the graph is the component's markup, rendered from that; <code>--graph-height</code> on
+        the <code>.graph-frame</code> sizes the two together. <code>Id</code> is null when the selection is
+        cleared &mdash; by the reader, or by <code>SelectAsync</code> with a null id, which is what Clear
+        calls, so the panel only ever follows the graph.
+    </p>
+    <p>
+        <code>@@onsedna-graph-open</code> fires on a double-click or <kbd class="kbd">Enter</kbd>. Cancelled
+        with <code>:preventDefault</code>, the record's <code>data-href</code> is not followed, and opening
+        means whatever the app decides &mdash; a page, a drawer, or here a toast. <code>Keyboard</code>
+        says which way it came.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.GraphLiveUpdates" Title="Live updates" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; drag the Orders API somewhere, then open a warehouse.</strong> The component owns
+        the two lists; each control changes them and sends them whole. The script works out the difference:
+        what changed is restyled where it stands, what left goes, and a new record is put beside what it
+        links to, with only its neighbours moving to make room &mdash; everything else stays where the reader
+        left it, so a change made while they are looking does not rearrange the drawing under them.
+    </p>
+    <p>
+        A layout whose shape is the point, such as <code>dagre</code> or <code>grid</code>, runs again
+        instead. <code>relayout: true</code> lays out the whole drawing again in any layout.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.GraphFromRazorList" Title="Markup rendered by Razor" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; switch a stage on.</strong> The records are <code>li[data-node]</code> and
+        <code>li[data-edge]</code> written by a <code>@@foreach</code>, and there is no interop call at all:
+        the graph reads its list again after every render that changes it, so a switch is a re-render and
+        nothing else. <code>@@key</code> keeps each item the same element from one render to the next.
+    </p>
+    <p>
+        A link's text is the sentence a screen reader reads from the list;
+        <code>data-graph-edge-labels="none"</code> keeps it off the canvas.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.GraphDrawLinks" Title="Links the reader draws" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; switch on Draw links, then drag from one service to another.</strong>
+        <code>SetDrawingAsync</code> switches drawing on and off; <code>data-graph-connect</code> on the
+        element starts with it on. A link drawn arrives as <code>@@onsedna-graph-connect</code> with
+        <code>Source</code> and <code>Target</code>, and the line the reader drew is gone again at once:
+        the link is the app's to add, as a drop in a <a href="/drag-drop">drag-and-drop</a> list is.
+    </p>
+    <p>
+        The handler adds it to the component's list and sends the list again. Removing a chip takes the link
+        out the same way, so the drawing and the list cannot disagree.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.GraphFilters" Title="Filters from C#" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; choose a team, then switch a kind off.</strong> Controls bound with
+        <code>@@bind</code> and <code>@@bind:after</code> call <code>FilterAsync</code>, which answers what is
+        left on screen. The two halves of a <code>SednaGraphFilter</code> ask different questions.
+        <code>Nodes</code> is a choice: pick a team, and a service in no team is not what was picked, so
+        <em>Sign-in</em> goes too. <code>Except</code> is a switch turned off: it hides what it names and
+        nothing else, so <em>Sign-in</em>, which has no kind, stays.
+    </p>
+    <p>
+        A field is a record's property &mdash; <code>kind</code>, <code>group</code>, <code>tone</code>,
+        <code>tags</code> &mdash; or one of its <code>Fields</code>. Each call replaces the whole filter,
+        its <code>Focus</code> included, and controls with <code>data-graph-filter</code> in the page apply on
+        top of it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.GraphSearchFocusExport" Title="Search, focus and export" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>SearchAsync</code> marks the records whose name, id, meta, kind or tags contain every word, and
+        answers how many; a search marks rather than hides, because where a match sits is the point.
+        <code>FocusAsync</code> shows one record and its neighbours to a depth, and everything again with a
+        null id.
+    </p>
+    <p>
+        <code>ExportAsync</code> answers with the whole drawing, not only the part in view, as a
+        <code>data:</code> URL. The answer comes back through the circuit, and a SignalR message is limited
+        to 32&nbsp;KB unless the app raises <code>MaximumReceiveMessageSize</code>: a PNG, or the SVG of
+        more than a small graph, is over it and drops the connection. Keep it for a small picture the page
+        shows. <code>DownloadAsync</code> saves a file of any size in the browser, and only its name is sent.
+    </p>
+</CatExample>
+
+<h2 id="large-graphs">A large graph over a circuit <CatAnchor Id="large-graphs" /></h2>
+<p>
+    A list rendered by Razor lives in the circuit's render tree: every record is held in server memory for
+    as long as the reader stays, and every change is diffed and sent through it. That suits the few dozen
+    records a component edits. For more, send them with <code>SetDataAsync</code>, which crosses once per
+    change and leaves nothing in the render tree. For a graph the component only shows, let the browser
+    fetch it: <code>data-graph-src</code> names a URL that answers <code>{ nodes, edges }</code>, the same
+    <code>SednaGraphData</code>, and the records never pass through the circuit at all.
+    <code>ReloadAsync</code> fetches it again when the component learns the data changed, and the drawing
+    keeps its place as it does for <code>SetDataAsync</code>.
+</p>
+
+<CatSnippet Name="Interop/GraphSrcEndpoint.txt" Title="Records the browser fetches">
+    <p>
+        The endpoint is ordinary ASP.NET Core, so it is authorised like any other; the browser sends the
+        page's cookies with the request. Until the records arrive the wait shows, and if they cannot be read
+        the graph shows its <code>.graph-empty--error</code>.
+    </p>
+</CatSnippet>
+
+<h2 id="service">The service <CatAnchor Id="service" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Member</th><th>Does</th><th>Answers</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>SetDataAsync(id, data, relayout)</code></td><td>Replaces every record and link; the script works out what changed.</td><td>stats</td></tr>
+            <tr><td><code>FilterAsync(id, filter)</code></td><td>Narrows what is shown, replacing the last filter.</td><td>stats</td></tr>
+            <tr><td><code>SearchAsync(id, text)</code></td><td>Marks the matches and brings them into view; null or empty clears.</td><td>stats</td></tr>
+            <tr><td><code>SelectAsync(id, nodeId)</code></td><td>Selects and centres a record, or clears with null. Dispatches <code>sedna-graph-select</code>.</td><td>&mdash;</td></tr>
+            <tr><td><code>FocusAsync(id, nodeId, depth)</code></td><td>A record and its neighbours, 1 to 6 hops; everything again with null.</td><td>stats</td></tr>
+            <tr><td><code>LayoutAsync(id, layout, direction)</code></td><td>Lays out again, in a <code>SednaGraphLayout</code>.</td><td>&mdash;</td></tr>
+            <tr><td><code>SetOptionAsync(id, option, value)</code></td><td><code>labels</code>, <code>edge-labels</code>, <code>colour</code>, <code>nodes</code>, <code>curve</code>, <code>arrows</code>, <code>spacing</code>, <code>direction</code>, <code>layout</code>, <code>depth</code>.</td><td>&mdash;</td></tr>
+            <tr><td><code>FitAsync(id)</code>, <code>ZoomAsync(id, factor)</code></td><td>The view: everything in the frame, or a zoom about the middle.</td><td>&mdash;</td></tr>
+            <tr><td><code>ExportAsync(id, format)</code></td><td>The whole drawing as SVG or PNG, as a <code>data:</code> URL.</td><td>string</td></tr>
+            <tr><td><code>DownloadAsync(id, format, fileName)</code></td><td>Saves it as a file, in the browser.</td><td>&mdash;</td></tr>
+            <tr><td><code>CollapseAsync(id, groupId)</code>, <code>ExpandAsync(id, groupId)</code></td><td>Folds or unfolds a group, or every group with null.</td><td>stats</td></tr>
+            <tr><td><code>SetDrawingAsync(id, on)</code></td><td>Drawing links by dragging between records.</td><td>&mdash;</td></tr>
+            <tr><td><code>SetHullsAsync(id, on)</code></td><td>The outlines around each <code>Group</code>.</td><td>&mdash;</td></tr>
+            <tr><td><code>ReloadAsync(id)</code></td><td>Fetches <code>data-graph-src</code> again and shows what changed.</td><td>stats</td></tr>
+            <tr><td><code>StatsAsync(id)</code></td><td>What is on screen now.</td><td>stats</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    Stats are a <code>SednaGraphStats</code>: records and links on screen, search matches, records and links
+    in the data, and the selected record's id. Every member takes a <code>CancellationToken</code>, so a
+    layout of a large graph can outlast Blazor's one-minute default.
+</p>
+
+<h2 id="events">Events <CatAnchor Id="events" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Attribute</th><th>Arguments</th><th>When</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>@@onsedna-graph-ready</code></td><td><code>SednaGraphEventArgs</code></td><td>Once, when the graph has started &mdash; for a deferred graph, before its records arrive. The first <code>SetDataAsync</code> completes once they are drawn.</td></tr>
+            <tr><td><code>@@onsedna-graph-change</code></td><td><code>SednaGraphEventArgs</code></td><td>After new data, a filter, a search or a fold.</td></tr>
+            <tr><td><code>@@onsedna-graph-select</code></td><td><code>SednaGraphNodeEventArgs</code></td><td>A record selected; <code>Id</code> null when the selection is cleared.</td></tr>
+            <tr><td><code>@@onsedna-graph-open</code></td><td><code>SednaGraphNodeEventArgs</code></td><td>A double-click or <kbd class="kbd">Enter</kbd>. <code>:preventDefault</code> keeps <code>data-href</code> from being followed.</td></tr>
+            <tr><td><code>@@onsedna-graph-hover</code></td><td><code>SednaGraphNodeEventArgs</code></td><td>A record pointed at, or reached with the arrow keys.</td></tr>
+            <tr><td><code>@@onsedna-graph-context</code></td><td><code>SednaGraphContextEventArgs</code></td><td>A right click, a long press or the context-menu key, with <code>X</code> and <code>Y</code>. <code>:preventDefault</code> keeps the app's <code>[data-graph-menu]</code> shut.</td></tr>
+            <tr><td><code>@@onsedna-graph-connect</code></td><td><code>SednaGraphConnectEventArgs</code></td><td>A link drawn, from <code>Source</code> to <code>Target</code>.</td></tr>
+            <tr><td><code>@@onsedna-graph-expand</code>, <code>-collapse</code></td><td><code>SednaGraphNodeEventArgs</code></td><td>A group unfolded or folded.</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>
+    Every event carries plain values copied out of the record &mdash; strings, numbers and a dictionary of
+    its fields &mdash; and nothing that points back into the browser, so a handler can keep it, compare it
+    and render from it. The events are ordinary bubbling DOM events: one handler on a container hears every
+    graph inside it. Each is a message through the circuit, so bind <code>-hover</code> only where the server
+    needs to know what the pointer is over.
+</p>

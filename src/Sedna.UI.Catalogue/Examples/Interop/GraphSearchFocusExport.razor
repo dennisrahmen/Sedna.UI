@@ -1,0 +1,87 @@
+@inject ISednaGraphs Graphs
+
+<div class="card">
+    <div class="card-head">
+        <div class="toolbar-filters">
+            <input class="form-input form-input-sm toolbar-input" type="search" placeholder="Find a service"
+                   aria-label="Find a service" @bind="_query" @bind:event="oninput" @bind:after="Search" />
+            <select class="form-input form-select form-select-sm sedna-w-fit" aria-label="Show around"
+                    @bind="_focus" @bind:after="Focus">
+                <option value="">Everything</option>
+                @foreach (var service in Services)
+                {
+                    <option value="@service.Id">Around @service.Label</option>
+                }
+            </select>
+        </div>
+        <span class="form-hint text-nowrap">@_status</span>
+    </div>
+    <div class="graph graph--sm" data-graph data-graph-deferred id="explored-services" aria-label="Checkout services">
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="card-foot card-foot--start">
+        <button class="btn btn-sm" type="button" @onclick="Export"><i class="ri-image-line"></i> Picture</button>
+        <button class="btn btn-sm" type="button" @onclick="Download"><i class="ri-download-2-line"></i> Download PNG</button>
+        @if (_picture is not null)
+        {
+            <img class="sedna-push" src="@_picture" alt="The checkout services, as a picture" width="160" />
+        }
+    </div>
+</div>
+
+@code {
+    private const string Id = "explored-services";
+    private string _query = "";
+    private string _focus = "";
+    private string? _picture;
+    private string _status = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Graphs.SetDataAsync(Id, new SednaGraphData(Services, Calls));
+    }
+
+    // Marks rather than hides: where a match sits among the others is the point.
+    private async Task Search()
+    {
+        var shown = await Graphs.SearchAsync(Id, _query);
+        _status = _query.Trim() == "" || shown is null ? "" : $"{shown.Matches} found";
+    }
+
+    // One record and what it links to, or everything again.
+    private async Task Focus()
+    {
+        var shown = await Graphs.FocusAsync(Id, _focus == "" ? null : _focus, depth: 1);
+        _status = shown is null ? "" : $"{shown.Nodes} of {shown.TotalNodes} services shown";
+    }
+
+    // The whole drawing, not only the part in view, as a data: URL. It comes back through
+    // the circuit, so it is for a small picture the page shows; a file is DownloadAsync.
+    private async Task Export() => _picture = await Graphs.ExportAsync(Id, SednaGraphExport.Svg);
+
+    // A file is the browser's to save: nothing but the name crosses the circuit.
+    private Task Download() => Graphs.DownloadAsync(Id, SednaGraphExport.Png, "checkout-services");
+
+    private static readonly SednaGraphNode[] Services =
+    [
+        new("storefront", "Storefront") { Kind = "web", Icon = "ri-store-2-line", Tags = ["public"] },
+        new("basket", "Basket") { Kind = "service", Tone = SednaGraphTone.Series(2), Icon = "ri-shopping-cart-2-line" },
+        new("orders", "Orders API") { Kind = "service", Tone = SednaGraphTone.Series(2), Icon = "ri-server-line", Meta = "orders-console-01" },
+        new("payments", "Payments") { Kind = "service", Tone = SednaGraphTone.Series(2), Icon = "ri-bank-card-line", Tags = ["pci"] },
+        new("orders-db", "Orders database") { Kind = "store", Tone = SednaGraphTone.Series(4), Shape = SednaGraphShape.Square, Icon = "ri-database-2-line", Meta = "src-db-14" },
+        new("mail", "Order e-mails") { Kind = "service", Tone = SednaGraphTone.Series(5), Icon = "ri-mail-send-line" },
+        new("courier", "Courier gateway") { Kind = "external", Tone = SednaGraphTone.Muted, Shape = SednaGraphShape.Diamond, Icon = "ri-truck-line", Tags = ["public"] },
+    ];
+
+    private static readonly SednaGraphEdge[] Calls =
+    [
+        new("storefront", "basket") { Label = "calls" },
+        new("basket", "orders") { Label = "places" },
+        new("orders", "payments") { Label = "charges" },
+        new("orders", "orders-db") { Label = "writes" },
+        new("orders", "mail") { Label = "notifies" },
+        new("orders", "courier") { Label = "books", Line = SednaGraphLine.Dashed },
+    ];
+}

@@ -1,0 +1,23 @@
+// Program.cs — the records as JSON, the same SednaGraphData a call would send.
+// JsonSerializerOptions.Web writes the camelCase names the script reads, whatever the
+// app has done to its own JSON options.
+app.MapGet("/api/service-map", async (IServiceCatalog catalog) =>
+{
+    var services = await catalog.ListAsync();
+    return TypedResults.Json(new SednaGraphData(
+        [.. services.Select(s => new SednaGraphNode(s.Id, s.Name) { Kind = s.Kind, Group = s.Team })],
+        [.. services.SelectMany(s => s.Calls, (s, callee) => new SednaGraphEdge(s.Id, callee))]),
+        JsonSerializerOptions.Web);
+}).RequireAuthorization();
+
+@* ServiceMap.razor — markup only. The browser fetches the records itself, with the
+   page's cookies, and not one of them passes through the circuit. *@
+<div class="graph graph--viewport" data-graph data-graph-src="/api/service-map"
+     data-graph-layout="islands" id="service-map" aria-label="Every service, by team"
+     @onsedna-graph-open="Open" @onsedna-graph-open:preventDefault>
+    <div class="graph-canvas"></div>
+    <div class="graph-wait skeleton skeleton-block"></div>
+    <div class="graph-empty graph-empty--error empty-state">
+        <span class="empty-state-title">The service map could not be loaded</span>
+    </div>
+</div>

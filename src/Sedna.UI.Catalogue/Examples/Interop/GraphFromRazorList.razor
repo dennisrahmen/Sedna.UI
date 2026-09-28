@@ -1,0 +1,62 @@
+<div class="card">
+    <div class="card-head">
+        <strong>Release pipeline</strong>
+        <div class="card-head-right">
+            <label class="switch"><input type="checkbox" @bind="_scan" /> Security scan</label>
+            <label class="switch"><input type="checkbox" @bind="_loadTest" /> Load test</label>
+        </div>
+    </div>
+    <div class="graph graph--sm" data-graph id="release-pipeline" aria-label="The stages of a release"
+         data-graph-layout="dagre" data-graph-direction="LR" data-graph-nodes="box"
+         data-graph-arrows="target" data-graph-edge-labels="none">
+        <ul class="graph-data" data-graph-data>
+            @foreach (var stage in Stages)
+            {
+                <li @key="stage.Id" data-node="@stage.Id" data-tone="@stage.Tone" data-icon="@stage.Icon">@stage.Name</li>
+            }
+            @foreach (var (from, to) in Flow.Where(f => Stages.Any(s => s.Id == f.From) && Stages.Any(s => s.Id == f.To)))
+            {
+                <li @key="(from, to)" data-edge data-source="@from" data-target="@to">@Name(from), then @Name(to)</li>
+            }
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+</div>
+
+@code {
+    private bool _scan = true;
+    private bool _loadTest;
+
+    private sealed record Stage(string Id, string Name, string Tone, string Icon);
+
+    private static readonly Stage[] All =
+    [
+        new("build", "Build", "1", "ri-hammer-line"),
+        new("unit", "Unit tests", "3", "ri-test-tube-line"),
+        new("scan", "Security scan", "3", "ri-shield-check-line"),
+        new("package", "Package", "1", "ri-box-3-line"),
+        new("staging", "Deploy to staging", "2", "ri-rocket-line"),
+        new("smoke", "Smoke tests", "3", "ri-test-tube-line"),
+        new("load", "Load test", "3", "ri-pulse-line"),
+        new("production", "Deploy to production", "go", "ri-rocket-line"),
+    ];
+
+    private static readonly (string From, string To)[] Flow =
+    [
+        ("build", "unit"), ("build", "scan"), ("unit", "package"), ("scan", "package"),
+        ("package", "staging"), ("staging", "smoke"), ("staging", "load"),
+        ("smoke", "production"), ("load", "production"),
+    ];
+
+    // The optional stages are in the list only while their switch is on. The graph reads
+    // the list again after every render that changes it.
+    private IEnumerable<Stage> Stages => All.Where(s => s.Id switch
+    {
+        "scan" => _scan,
+        "load" => _loadTest,
+        _ => true,
+    });
+
+    private static string Name(string id) => All.First(s => s.Id == id).Name;
+}
