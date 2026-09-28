@@ -39,6 +39,7 @@ always the app's.
 |---|---|
 | [Getting started](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/getting-started.md) | Install, host-page setup, rebranding, icon font |
 | [Architecture](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/architecture.md) | The two tiers, the token contract, theming, z-order |
+| [Graph](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/graph.md) | Records and the links between them on a canvas: markup, controls, events, C# |
 | [Releasing](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/releasing.md) | SemVer rules, trusted publishing setup |
 | [Development](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/development.md) | Build, test, the guard tests, package verification |
 | [Consuming-app `CLAUDE.md`](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md) | Drop-in rules for an app that uses this |
