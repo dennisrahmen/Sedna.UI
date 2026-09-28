@@ -210,7 +210,7 @@ record's tone.
 | — | Page Down / Up | The next / previous linked record — walking the links. |
 | — | Home | The root, else the most connected record. |
 | click | Space | Select, or clear. |
-| double click | Enter | Open: `sedna-graph-open`, then `data-href`. |
+| double click | Enter | Open: `sedna-graph-open`, then `data-href`. On a group that folds, fold or unfold it. |
 | right click, long press | context-menu key, Shift + F10 | The menu. |
 | drag the background, wheel | Shift + arrows, + / −, 0 | Pan, zoom, fit. |
 | — | Escape | Clear the selection, then the ring. |

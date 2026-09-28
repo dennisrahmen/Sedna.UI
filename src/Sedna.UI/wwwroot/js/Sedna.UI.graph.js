@@ -461,6 +461,9 @@ function iconPainter(host) {
     let fontReady = null;
 
     function glyph(cls) {
+        // A probe out of the document has no style to read — its graph was taken down — and
+        // would call every class unknown.
+        if (!probe.isConnected) return null;
         if (!glyphs.has(cls)) {
             probe.className = cls;
             const style = getComputedStyle(probe, '::before');
@@ -539,6 +542,23 @@ const held = ele => (zoomOf(ele) <= 1 ? 1 : 1 / Math.pow(zoomOf(ele), 0.8));
 const LABEL_MAX_PX = 180;
 const labelPx = n => 10.5 + Math.min(n.data('degree') || 0, 14) * 0.2 + (n.data('hub') ? 1.5 : 0);
 const labelSize = n => labelPx(n) / zoomOf(n);
+
+/* How wide a line of text is in a font, measured by the browser once and remembered — the
+   declutter asks for every name each time the view settles. */
+let textCtx = null;
+const textWidths = new Map();
+function textWidth(text, font) {
+    const key = font + '\u0000' + text;
+    let w = textWidths.get(key);
+    if (w === undefined) {
+        textCtx = textCtx || document.createElement('canvas').getContext('2d');
+        textCtx.font = font;
+        w = textCtx.measureText(text).width;
+        if (textWidths.size > 5000) textWidths.clear();
+        textWidths.set(key, w);
+    }
+    return w;
+}
 const sizeOf = weight => Math.min(14 + 5 * Math.sqrt(Math.max(weight, 0)), 46);
 
 /* Where a dot's name goes. Beneath it, except in a hierarchy that runs sideways: there a
@@ -874,6 +894,7 @@ const byId = (a, b) => (a.id() < b.id() ? -1 : a.id() > b.id() ? 1 : 0);
 /* A layout run to its end. Without animation a layout finishes before run() returns,
    but that is its to decide. */
 const settled = layout => new Promise(resolve => {
+    if (layout.cy().destroyed()) return resolve();
     layout.one('layoutstop', resolve);
     layout.run();
 });
@@ -902,6 +923,7 @@ const springs = (eles, count, spacing, overrides = {}) => eles.layout({
 /* Hop rings first, then springs — every run starts from the same place, so the force
    pass only pushes overlaps apart instead of finding a shape from noise. */
 async function rings(visible, options, spacing, box) {
+    const names = options.labels === 'all' && options.nodes !== 'box';
     const nodes = visible.nodes().filter(n => !n.isParent());
     const maxDegree = Math.max(1, ...nodes.map(n => n.data('degree') || 0));
     const centre = visible.nodes('.focus').nonempty() ? visible.nodes('.focus') : visible.nodes('[?root]');
@@ -914,12 +936,20 @@ async function rings(visible, options, spacing, box) {
         fit: false,
         animate: false,
         avoidOverlap: true,
+        nodeDimensionsIncludeLabels: names,
         minNodeSpacing: 30 * spacing,
         boundingBox: box,
         concentric: n => (centre.nonempty() ? 10 - (hops.get(n.id()) ?? 9) : Math.round(6 * (n.data('degree') || 0) / maxDegree)),
         levelWidth: () => 1,
     }).run();
-    await settled(springs(visible, nodes.length, spacing));
+    // A gentle pass that only pushes overlaps apart, with the centre held where it is: a
+    // full spring run from here would reshape the rings into a blob.
+    centre.lock();
+    try {
+        await settled(springs(visible, nodes.length, spacing, { initialTemp: 30, numIter: 160, gravity: 0.1, nodeDimensionsIncludeLabels: names }));
+    } finally {
+        centre.unlock();
+    }
 }
 
 /* What the layout runs over: everything shown, parents included for the layouts that
@@ -932,6 +962,8 @@ async function arrangeWith(cy, name, options, frame) {
     const box = options.nodes === 'box' || visible.nodes('[display = "box"]').nonempty();
     const count = visible.nodes().length;
     const aspect = aspectOf(frame);
+    // Every name written, always: the layouts that can make room for names make it.
+    const names = options.labels === 'all' && !box;
     // The box a layout that fills one is given: the frame's, since the first drawing is made
     // before the engine has a canvas to measure — scaled up with the crowd, so a large graph
     // is not packed into the pixels of the frame. `turned` is the same box on its side.
@@ -949,7 +981,7 @@ async function arrangeWith(cy, name, options, frame) {
                 // The placed records stay where the app put them; the springs place the rest.
                 placed.lock();
                 try {
-                    await settled(springs(visible, count, spacing, { randomize: false }));
+                    await settled(springs(visible, count, spacing, { randomize: false, nodeDimensionsIncludeLabels: names }));
                 } finally {
                     placed.unlock();
                 }
@@ -963,6 +995,7 @@ async function arrangeWith(cy, name, options, frame) {
                 fit: false,
                 animate: false,
                 avoidOverlap: true,
+                nodeDimensionsIncludeLabels: names,
                 boundingBox: frameBox,
                 spacingFactor: spacing * (box ? 1.1 : 1.25),
                 sort: (a, b) => (b.data('degree') || 0) - (a.data('degree') || 0) || byId(a, b),
@@ -975,6 +1008,7 @@ async function arrangeWith(cy, name, options, frame) {
                 fit: false,
                 animate: false,
                 avoidOverlap: true,
+                nodeDimensionsIncludeLabels: names,
                 boundingBox: frameBox,
                 minNodeSpacing: (box ? 24 : 18) * spacing,
                 concentric: n => n.data('root') ? 1e6 : (n.data('degree') || 0),
@@ -1025,6 +1059,7 @@ async function arrangeWith(cy, name, options, frame) {
         }
         case 'dagre':
             await plugin('dagre');
+            if (cy.destroyed()) return;
             await settled(visible.layout({
                 name: 'dagre',
                 fit: false,
@@ -1077,7 +1112,7 @@ async function arrangeWith(cy, name, options, frame) {
                     name: 'concentric', fit: false, animate: false, avoidOverlap: true, minNodeSpacing: 24 * spacing,
                     boundingBox: frameBox, concentric: n => n.data('degree') || 0, levelWidth: () => 2,
                 }));
-                await settled(springs(visible, count, spacing));
+                await settled(springs(visible, count, spacing, { nodeDimensionsIncludeLabels: names }));
             }
             stretch(visible, aspect);
             return;
@@ -1085,8 +1120,10 @@ async function arrangeWith(cy, name, options, frame) {
 }
 
 /* fcose: springs that understand groups inside groups. Seeded, so the same graph comes out
-   the same way on every load, and measuring names where there are groups — a group is drawn
-   around its records' names, and two groups measured without them come out over each other. */
+   the same way on every load. Names are not measured here: a group is drawn around its
+   records' names, which are held at their screen size, so how much room they take depends
+   on the zoom the drawing ends up at — groups are pushed apart for that afterwards
+   (untangle, from atScale in 70-graph.js). */
 async function nestedSprings(visible, count, spacing, box) {
     await plugin('fcose');
     if (visible.cy().destroyed()) return;
@@ -1106,10 +1143,62 @@ async function nestedSprings(visible, count, spacing, box) {
             nestingFactor: 0.1,
             gravity: 0.25,
             numIter: 2500,
-            nodeDimensionsIncludeLabels: box || visible.nodes(':parent').nonempty(),
+            nodeDimensionsIncludeLabels: box,
         }));
     } finally {
         restoreRandom();
+    }
+    if (box) untangle(visible);
+}
+
+/* fcose keeps groups apart most of the time, not every time: two sibling groups — or a
+   group and a record beside it — can come out over each other. What overlaps is pushed
+   apart along the shorter way out, level by level from the innermost, so a group that
+   grew by making room inside it is then made room for among its own siblings. */
+function untangle(visible) {
+    const parents = visible.nodes(':parent');
+    if (parents.empty()) return;
+    const margin = 14;
+    const depthOf = n => n.ancestors().length;
+    const levels = new Map();
+    visible.nodes().forEach(n => {
+        const key = n.parent().nonempty() ? n.parent().id() : '';
+        if (!levels.has(key)) levels.set(key, { depth: n.parent().nonempty() ? depthOf(n.parent()) + 1 : 0, items: [] });
+        levels.get(key).items.push(n);
+    });
+    const order = [...levels.values()].filter(l => l.items.length > 1 && l.items.some(n => n.isParent()))
+        .sort((a, b) => b.depth - a.depth);
+    const move = (n, dx, dy) => (n.isParent() ? n.descendants().filter(d => !d.isParent()) : n).shift({ x: dx, y: dy });
+    // Not batched: a group's box is worked out from its records, and inside a batch it would
+    // still be the box from before they moved. Each level's boxes are read once, when the
+    // level below has finished, and followed by hand from there.
+    {
+        for (const level of order) {
+            const items = level.items.slice().sort(byId);
+            const boxes = items.map(n => n.boundingBox({ includeLabels: true, includeOverlays: false }));
+            for (let round = 0; round < 60; round++) {
+                let moved = false;
+                for (let i = 0; i < items.length; i++) {
+                    for (let j = i + 1; j < items.length; j++) {
+                        if (!items[i].isParent() && !items[j].isParent()) continue;
+                        const a = boxes[i], b = boxes[j];
+                        const ox = Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1) + margin;
+                        const oy = Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1) + margin;
+                        if (ox <= 0 || oy <= 0) continue;
+                        // Out along the shorter way, half each, away from each other.
+                        const ax = (a.x1 + a.x2) / 2, bx = (b.x1 + b.x2) / 2, ay = (a.y1 + a.y2) / 2, by = (b.y1 + b.y2) / 2;
+                        const [dx, dy] = ox < oy ? [(ax <= bx ? -1 : 1) * ox / 2, 0] : [0, (ay <= by ? -1 : 1) * oy / 2];
+                        move(items[i], dx, dy);
+                        move(items[j], -dx, -dy);
+                        for (const [k, s] of [[i, 1], [j, -1]]) {
+                            boxes[k] = { x1: boxes[k].x1 + s * dx, x2: boxes[k].x2 + s * dx, y1: boxes[k].y1 + s * dy, y2: boxes[k].y2 + s * dy };
+                        }
+                        moved = true;
+                    }
+                }
+                if (!moved) break;
+            }
+        }
     }
 }
 
@@ -1437,7 +1526,7 @@ function fitOf(g, nodes) {
    a new layout, the fit waits for them to land: fitting now would fit where they were. */
 function fitAll(g) {
     g.touched = false;
-    if (g.travelling) g.refit = true;
+    if (g.travelling || g.laying) g.refit = true;
     else fitView(g, null, true);
 }
 
@@ -1449,6 +1538,8 @@ const stepOf = zoom => Math.exp(Math.round(Math.log(zoom) / 0.07) * 0.07);
    restyling a thousand edges for nothing is the most expensive thing this could do. */
 function settle(g) {
     const cy = g.cy;
+    // A layout is running: it fits and settles the view itself when it has finished.
+    if (g.laying) return;
     if (g.options.nodes !== 'box') {
         const next = stepOf(cy.zoom());
         if (next !== g.step) {
@@ -1470,6 +1561,7 @@ const insists = n => n.data('root') || n.hasClass('focus') || n.hasClass('match'
    groups' own records, then the busiest. Quieter records give way to everything else. */
 const labelPriority = n => (insists(n) ? 1e6 : 0)
     + (n.data('hub') ? 2000 : 0)
+    + (n.data('marked') ? 800 : 0)
     + (n.isParent() ? 1500 : 0)
     + (n.data('degree') || 0)
     - (n.data('muted') ? 100 : 0);
@@ -1510,6 +1602,7 @@ function declutter(g) {
     const zoom = cy.zoom();
     const pan = cy.pan();
     const side = labelSide(g.options);
+    const font = g.colours.font();
     const show = [];
     const hide = [];
     const ranked = nodes.toArray().map(n => ({ n, rank: labelPriority(n) })).sort((a, b) => b.rank - a.rank);
@@ -1519,7 +1612,8 @@ function declutter(g) {
         const y = at.y * zoom + pan.y;
         const r = ((n.data('size') || 20) * held(n) * zoom) / 2;
         const px = labelPx(n);
-        const w = Math.min((n.data('label') || '').length * px * 0.6, LABEL_MAX_PX) + 10;
+        const bold = n.data('hub') || n.data('root') || n.hasClass('focus');
+        const w = Math.min(textWidth(n.data('label') || '', `${bold ? 600 : 400} ${px}px ${font}`), LABEL_MAX_PX) + 8;
         const box = side === 'right' ? { x1: x + r + 3, x2: x + r + 3 + w, y1: y - px * 0.85, y2: y + px * 0.85 }
             : side === 'left' ? { x1: x - r - 3 - w, x2: x - r - 3, y1: y - px * 0.85, y2: y + px * 0.85 }
                 : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2, y2: y + r + 2 + px * 1.7 };
@@ -1554,7 +1648,12 @@ function declutter(g) {
 
 function light(g, node) {
     const cy = g.cy;
-    const near = node && node.nonempty() ? node.closedNeighborhood().not('.hidden') : cy.collection();
+    let near = node && node.nonempty() ? node.closedNeighborhood() : cy.collection();
+    if (node && node.nonempty() && node.isParent()) {
+        const inside = node.descendants();
+        near = near.union(inside).union(inside.edgesWith(inside));
+    }
+    near = near.not('.hidden');
     const lit = g.lit || cy.collection();
     cy.batch(() => {
         if (near.empty()) {
@@ -2025,7 +2124,8 @@ function tips(g) {
      Page Down / Up     the next / previous record linked to this one — walking the links
      Home               the root, else the most connected record
      Space              select, or clear the selection
-     Enter              open it — `sedna-graph-open`, then its data-href
+     Enter              open it — `sedna-graph-open`, then its data-href — or fold or
+                        unfold it, when it is a group that folds
      Shift + arrows     move the view
      + / −   0          zoom in / out, fit everything
      Escape             clear the selection, then the ring
@@ -2061,12 +2161,7 @@ function keyboard(g) {
     if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
     if (!el.hasAttribute('role')) el.setAttribute('role', 'application');
 
-    const live = () => {
-        const inside = el.querySelector('[data-graph-live]');
-        if (inside) return inside;
-        const frame = el.closest('[data-graph-frame]');
-        return frame ? frame.querySelector('[data-graph-live]') : (el.id ? document.querySelector(`[data-graph-live][data-graph-for="${CSS.escape(el.id)}"]`) : null);
-    };
+    const live = () => scoped(g, '[data-graph-live]')[0] || null;
 
     function announce(ele, which) {
         const region = live();
@@ -2189,7 +2284,7 @@ function keyboard(g) {
                 }
                 break;
             case 'Enter':
-                if (g.keyed) open(g, g.keyed, true);
+                if (g.keyed && !toggleFold(g, g.keyed)) open(g, g.keyed, true);
                 break;
             case '+': case '=':
                 zoomBy(g, 1.25);
@@ -2439,17 +2534,7 @@ function context(g, ele, at) {
    `data-graph-detail` off: this is for a page with no app behind it.
    ─────────────────────────────────────────────────────────────────────────── */
 
-function detailPanels(g) {
-    const id = g.el.id;
-    const frame = g.el.closest('[data-graph-frame]');
-    const panels = new Set();
-    g.el.querySelectorAll('[data-graph-detail]').forEach(p => panels.add(p));
-    frame?.querySelectorAll('[data-graph-detail]').forEach(p => {
-        if (!p.getAttribute('data-graph-for') || p.getAttribute('data-graph-for') === id) panels.add(p);
-    });
-    if (id) document.querySelectorAll(`[data-graph-detail][data-graph-for="${CSS.escape(id)}"]`).forEach(p => panels.add(p));
-    return [...panels];
-}
+const detailPanels = g => scoped(g, '[data-graph-detail]');
 
 /* A record's fields into the app's slots — the tooltip's, the menu's and the panel's.
    Text only, never markup. A field the record does not have hides its slot, and what
@@ -2565,7 +2650,12 @@ function showDetail(g) {
 
 const CONTROL_SELECTOR = '[data-graph-action],[data-graph-filter],[data-graph-show],[data-graph-search],[data-graph-option]';
 
-function controlsOf(g) {
+/* The app's elements of one kind that belong to a graph — its controls, its stats, its
+   panel, its live region. One belongs to the graph that the nearest `data-graph-for`
+   around it names, else to the graph it is inside, else to the first graph in its
+   `[data-graph-frame]`; and everything inside an element that names the graph with
+   `data-graph-for` is the graph's, wherever that element is on the page. */
+function scoped(g, selector) {
     const found = new Set();
     const mine = c => {
         const named = c.closest('[data-graph-for]');
@@ -2576,14 +2666,18 @@ function controlsOf(g) {
         return !!frame && frame.querySelector('[data-graph]') === g.el;
     };
     const frame = g.el.closest('[data-graph-frame]');
-    (frame || g.el).querySelectorAll(CONTROL_SELECTOR).forEach(c => { if (mine(c)) found.add(c); });
+    (frame || g.el).querySelectorAll(selector).forEach(c => { if (mine(c)) found.add(c); });
     if (g.el.id) {
         document.querySelectorAll(`[data-graph-for="${CSS.escape(g.el.id)}"]`).forEach(scope => {
-            if (scope.matches(CONTROL_SELECTOR)) found.add(scope);
-            scope.querySelectorAll(CONTROL_SELECTOR).forEach(c => found.add(c));
+            if (scope.matches(selector)) found.add(scope);
+            scope.querySelectorAll(selector).forEach(c => { if (mine(c)) found.add(c); });
         });
     }
-    return [...found].filter(c => !c.closest('template') && !c.closest('[data-graph-row]'));
+    return [...found].filter(c => !c.closest('template'));
+}
+
+function controlsOf(g) {
+    return scoped(g, CONTROL_SELECTOR).filter(c => !c.closest('[data-graph-row]'));
 }
 
 const isToggle = c => c.tagName === 'BUTTON' && (c.hasAttribute('data-graph-filter') || c.hasAttribute('data-graph-show')
@@ -2657,11 +2751,7 @@ function filterFromControls(g) {
 }
 
 function writeStats(g, s) {
-    const out = [];
-    const frame = g.el.closest('[data-graph-frame]');
-    (frame || g.el).querySelectorAll('[data-graph-stats]').forEach(e => out.push(e));
-    if (g.el.id) document.querySelectorAll(`[data-graph-stats][data-graph-for="${CSS.escape(g.el.id)}"]`).forEach(e => out.push(e));
-    for (const el of new Set(out)) {
+    for (const el of scoped(g, '[data-graph-stats]')) {
         const template = el.getAttribute('data-graph-stats');
         if (!template) continue;
         // `data-graph-stats-match` replaces the sentence while a search is marking records.
@@ -3180,11 +3270,28 @@ async function collapsible(g) {
         expandCollapseCueSensitivity: 1,
         zIndex: 2,
     });
+    // The fold cue is drawn on the plugin's own canvas when a group is selected, and that
+    // canvas is cleared whenever the engine resizes — which it does on its own when any
+    // ancestor's attributes change. So the cue is drawn again once the resize has settled.
+    let cue = 0;
+    g.cy.on('resize', () => {
+        clearTimeout(cue);
+        cue = setTimeout(() => {
+            if (g.disposed) return;
+            const chosen = g.cy.nodes(':selected');
+            if (chosen.length === 1 && isGroup(chosen)) chosen.emit('select');
+        }, 320);
+    });
+    g.listeners.push(() => clearTimeout(cue));
     g.cy.on('expandcollapse.aftercollapse', 'node', e => {
         if (!g.quietFolds) g.emit('sedna-graph-collapse', { id: e.target.id(), label: e.target.data('label') });
         afterStructure(g);
     });
     g.cy.on('expandcollapse.afterexpand', 'node', e => {
+        // Folded records were out of the drawing while the view options and the zoom
+        // changed; they come back drawn as the rest are.
+        measureBoxes(g);
+        if (g.options.nodes !== 'box') g.cy.batch(() => e.target.union(e.target.descendants()).union(e.target.descendants().connectedEdges()).data('zoom', g.step));
         if (g.quietFolds) {
             afterStructure(g);
             return;
@@ -3212,6 +3319,18 @@ async function collapseGroups(g, mode, ele) {
     }
 }
 
+// A group that can fold or unfold: one drawn around its records, or one folded away.
+const isGroup = n => n.isParent() || n.hasClass('cy-expand-collapse-collapsed-node');
+
+// Folds an open group and unfolds a folded one.
+function toggleFold(g, n) {
+    if (!g.ec || !isGroup(n)) return false;
+    if (g.ec.isExpandable(n)) g.ec.expand(n);
+    else if (g.ec.isCollapsible(n)) g.ec.collapse(n);
+    else return false;
+    return true;
+}
+
 // The ids of the groups folded now, and every record hidden inside them.
 function foldedIds(g) {
     if (!g.ec) return [];
@@ -3228,7 +3347,7 @@ function afterStructure(g) {
 async function hulls(g, on) {
     g.hullsOn = !!on;
     if (!on) {
-        if (g.bb) g.bb.getPaths().slice().forEach(p => g.bb.removePath(p));
+        clearHulls(g);
         return;
     }
     await plugin('layers');
@@ -3237,10 +3356,19 @@ async function hulls(g, on) {
     drawHulls(g);
 }
 
+/* Every outline taken away. bubblesets leaves an empty object in each element's scratch as
+   it removes a path, and reads that as a cached measurement the next time a path covers
+   the element, which throws — so the scratch goes with the paths. */
+function clearHulls(g) {
+    if (!g.bb) return;
+    g.bb.getPaths().slice().forEach(p => g.bb.removePath(p));
+    if (!g.cy.destroyed()) g.cy.elements().removeScratch('bubbleSets');
+}
+
 function drawHulls(g) {
     if (!g.bb) return;
     const cy = g.cy;
-    g.bb.getPaths().slice().forEach(p => g.bb.removePath(p));
+    clearHulls(g);
     const shown = cy.nodes().not('.hidden').filter(n => !n.isParent() && n.data('group'));
     const groups = new Map();
     shown.forEach(n => {
@@ -3421,6 +3549,8 @@ function toElements(g) {
             // A group's own record also weighs what is filed under it, so it is its island's largest.
             size: sizeOf(n.weight ?? d + (groupSize.get(n.id) || 0) / 2),
             hub: n.hub || n.root || groupNames.has(n.id) || parents.has(n.id),
+            // The app's own data-hub, which outranks a record that is a hub by heading a group.
+            marked: !!n.hub,
             display,
             zoom: g.step || 1,
         }, display === 'box' ? boxMetrics(n, font) : { boxLabel: n.label, boxW: null, boxH: null });
@@ -3542,11 +3672,18 @@ async function arrange(g, animate) {
     // drawing measured with half its names would grow into itself once they came back.
     const quiet = cy.nodes('.unlabelled');
     if (quiet.nonempty()) cy.batch(() => quiet.removeClass('unlabelled'));
+    // A name's box is worked out when the canvas next draws it, so one that has just changed
+    // — shown again, or resized for a new zoom — is measured stale until its style is updated.
+    if (measuresNames(g)) cy.nodes().updateStyle();
+    // While a layout runs the view holds still: a resize that fitted and settled it now would
+    // hide names the layout is measuring and change the zoom it measures them at.
+    g.laying = (g.laying || 0) + 1;
     try {
         await arrangeWith(cy, g.options.layout, g.options, g.el);
         await atScale(g, run);
     } finally {
-        if (quiet.nonempty()) cy.batch(() => quiet.filter(n => n.inside()).addClass('unlabelled'));
+        g.laying--;
+        if (quiet.nonempty() && !cy.destroyed()) cy.batch(() => quiet.filter(n => n.inside()).addClass('unlabelled'));
     }
     if (run !== g.arranging || g.disposed) return;
     if (before) {
@@ -3577,21 +3714,40 @@ async function arrange(g, animate) {
 /* A name around dots is held at its screen size, so a drawing seen zoomed out has larger
    names in it than the one the layout measured — and where the layout made room for names,
    in a group's box or a layered hierarchy, they grow into their neighbours. So there the
-   layout runs again at the zoom the drawing will be seen at, until the two agree. */
+   layout runs again at the zoom the drawing will be seen at. */
+// Whether a layout of this graph makes room for its names: a layered one or one showing
+// every name lays them out, and groups are drawn around them.
+const measuresNames = g => g.options.nodes !== 'box'
+    && (g.options.layout === 'dagre' || g.options.labels === 'all' || g.cy.nodes(':parent').not('.hidden').nonempty());
+
 async function atScale(g, run) {
     const cy = g.cy;
-    if (g.options.nodes === 'box' || g.touched) return;
-    const measures = g.options.layout === 'dagre' || cy.nodes(':parent').not('.hidden').nonempty();
-    if (!measures) return;
-    for (let pass = 0; pass < 3; pass++) {
+    if (g.touched || !measuresNames(g)) return;
+    // The first drawing is made the moment the canvas is mounted, before the engine has
+    // measured its container.
+    cy.resize();
+    const visible = () => cy.elements().not('.hidden').not('.eh-ghost, .eh-preview, .eh-handle');
+    // With groups, the layout stands and only the groups move: each is pushed clear of its
+    // neighbours, its records' names measured at the zoom it will be seen at.
+    const grouped = g.options.layout !== 'dagre' && g.options.labels !== 'all';
+    if (grouped) untangle(visible());
+    // Only ever smaller: a drawing seen at the zoom it was measured at, or closer, has names
+    // no larger than were made room for — so each pass either settles it or measures again
+    // for a smaller zoom, and it cannot swing back and forth.
+    for (let pass = 0; pass < 6; pass++) {
         const shown = cy.nodes().not('.hidden');
         if (shown.empty()) return;
         const seen = stepOf(Math.min(1, fitOf(g, shown).zoom));
-        if (seen === g.step) return;
+        if (seen >= g.step) return;
         g.step = seen;
         cy.batch(() => cy.elements().data('zoom', seen));
-        await arrangeWith(cy, g.options.layout, g.options, g.el);
-        if (run !== g.arranging || g.disposed) return;
+        cy.nodes().updateStyle();
+        if (grouped) {
+            untangle(visible());
+        } else {
+            await arrangeWith(cy, g.options.layout, g.options, g.el);
+            if (run !== g.arranging || g.disposed) return;
+        }
     }
 }
 
@@ -3672,6 +3828,12 @@ async function setData(g, data, opts = {}) {
     const plugin = e => e.hasClass('eh-ghost') || e.hasClass('eh-handle') || e.hasClass('eh-preview') || e.hasClass('eh-ghost-edge');
     const removed = cy.elements().filter(e => !wanted.has(e.id()) && !plugin(e));
     const fresh = els.filter(e => cy.getElementById(e.data.id).empty());
+    // Removing a group removes what is inside it, so a record that stays is taken out of a
+    // group that goes before it does; the moves below put it where it now belongs.
+    const leaving = removed.nodes().filter(n => n.isParent());
+    if (leaving.nonempty()) {
+        leaving.children().filter(c => wanted.has(c.id()) && !leaving.contains(c)).forEach(c => c.move({ parent: null }));
+    }
     removed.remove();
     // New records first, placed beside what they link to — so an existing record can be
     // moved into a group that has only just arrived, and a new link has both its ends.
@@ -3813,8 +3975,13 @@ function wire(g) {
     });
     cy.on('mouseout', 'edge', () => g.tip.hide());
     // A pointer that leaves the canvas in one jump never passes a record's edge on the way
-    // out, so the canvas's own edge hides the tooltip too.
-    on(g.host, 'pointerleave', () => g.tip.hide());
+    // out, so the canvas's own edge ends the pointing too: the tooltip and the lighting.
+    on(g.host, 'pointerleave', () => {
+        g.tip.hide();
+        g.host.style.cursor = '';
+        clearTimeout(leaving);
+        if (!dragging && !g.disposed) light(g, resting(g));
+    });
     g.listeners.push(() => clearTimeout(leaving));
 
     cy.on('tap', 'node', event => {
@@ -3829,7 +3996,10 @@ function wire(g) {
         select(g, node);
     });
     cy.on('dbltap', 'node', event => {
-        if (g.options.open !== 'none' && !g.drawing && !event.target.isParent()) open(g, event.target, false);
+        if (g.drawing) return;
+        // A group that folds is folded or unfolded by a double click; any other record opens.
+        if (toggleFold(g, event.target)) return;
+        if (g.options.open !== 'none' && !event.target.isParent()) open(g, event.target, false);
     });
     cy.on('tap', event => {
         if (event.target !== cy) return;
@@ -3868,7 +4038,7 @@ function wire(g) {
         const before = was || { w: cy.width(), h: cy.height() };
         cy.resize();
         was = { w: cy.width(), h: cy.height() };
-        if (g.travelling) g.refit = true;
+        if (g.travelling || g.laying) g.refit = true;
         else if (!g.touched) fitView(g, null, false);
         else {
             cy.panBy({ x: (was.w - before.w) / 2, y: (was.h - before.h) / 2 });

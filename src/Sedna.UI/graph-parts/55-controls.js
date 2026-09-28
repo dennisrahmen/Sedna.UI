@@ -26,7 +26,12 @@
 
 const CONTROL_SELECTOR = '[data-graph-action],[data-graph-filter],[data-graph-show],[data-graph-search],[data-graph-option]';
 
-function controlsOf(g) {
+/* The app's elements of one kind that belong to a graph — its controls, its stats, its
+   panel, its live region. One belongs to the graph that the nearest `data-graph-for`
+   around it names, else to the graph it is inside, else to the first graph in its
+   `[data-graph-frame]`; and everything inside an element that names the graph with
+   `data-graph-for` is the graph's, wherever that element is on the page. */
+function scoped(g, selector) {
     const found = new Set();
     const mine = c => {
         const named = c.closest('[data-graph-for]');
@@ -37,14 +42,18 @@ function controlsOf(g) {
         return !!frame && frame.querySelector('[data-graph]') === g.el;
     };
     const frame = g.el.closest('[data-graph-frame]');
-    (frame || g.el).querySelectorAll(CONTROL_SELECTOR).forEach(c => { if (mine(c)) found.add(c); });
+    (frame || g.el).querySelectorAll(selector).forEach(c => { if (mine(c)) found.add(c); });
     if (g.el.id) {
         document.querySelectorAll(`[data-graph-for="${CSS.escape(g.el.id)}"]`).forEach(scope => {
-            if (scope.matches(CONTROL_SELECTOR)) found.add(scope);
-            scope.querySelectorAll(CONTROL_SELECTOR).forEach(c => found.add(c));
+            if (scope.matches(selector)) found.add(scope);
+            scope.querySelectorAll(selector).forEach(c => { if (mine(c)) found.add(c); });
         });
     }
-    return [...found].filter(c => !c.closest('template') && !c.closest('[data-graph-row]'));
+    return [...found].filter(c => !c.closest('template'));
+}
+
+function controlsOf(g) {
+    return scoped(g, CONTROL_SELECTOR).filter(c => !c.closest('[data-graph-row]'));
 }
 
 const isToggle = c => c.tagName === 'BUTTON' && (c.hasAttribute('data-graph-filter') || c.hasAttribute('data-graph-show')
@@ -118,11 +127,7 @@ function filterFromControls(g) {
 }
 
 function writeStats(g, s) {
-    const out = [];
-    const frame = g.el.closest('[data-graph-frame]');
-    (frame || g.el).querySelectorAll('[data-graph-stats]').forEach(e => out.push(e));
-    if (g.el.id) document.querySelectorAll(`[data-graph-stats][data-graph-for="${CSS.escape(g.el.id)}"]`).forEach(e => out.push(e));
-    for (const el of new Set(out)) {
+    for (const el of scoped(g, '[data-graph-stats]')) {
         const template = el.getAttribute('data-graph-stats');
         if (!template) continue;
         // `data-graph-stats-match` replaces the sentence while a search is marking records.

@@ -6,7 +6,8 @@
      Page Down / Up     the next / previous record linked to this one — walking the links
      Home               the root, else the most connected record
      Space              select, or clear the selection
-     Enter              open it — `sedna-graph-open`, then its data-href
+     Enter              open it — `sedna-graph-open`, then its data-href — or fold or
+                        unfold it, when it is a group that folds
      Shift + arrows     move the view
      + / −   0          zoom in / out, fit everything
      Escape             clear the selection, then the ring
@@ -42,12 +43,7 @@ function keyboard(g) {
     if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
     if (!el.hasAttribute('role')) el.setAttribute('role', 'application');
 
-    const live = () => {
-        const inside = el.querySelector('[data-graph-live]');
-        if (inside) return inside;
-        const frame = el.closest('[data-graph-frame]');
-        return frame ? frame.querySelector('[data-graph-live]') : (el.id ? document.querySelector(`[data-graph-live][data-graph-for="${CSS.escape(el.id)}"]`) : null);
-    };
+    const live = () => scoped(g, '[data-graph-live]')[0] || null;
 
     function announce(ele, which) {
         const region = live();
@@ -170,7 +166,7 @@ function keyboard(g) {
                 }
                 break;
             case 'Enter':
-                if (g.keyed) open(g, g.keyed, true);
+                if (g.keyed && !toggleFold(g, g.keyed)) open(g, g.keyed, true);
                 break;
             case '+': case '=':
                 zoomBy(g, 1.25);

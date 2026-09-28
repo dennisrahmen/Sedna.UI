@@ -1175,4 +1175,30 @@ public class GraphTests : GraphTestBase
         Assert.Contains(Warnings, w => w.Contains("\"no-such-method\" is not a graph method", StringComparison.Ordinal));
         AssertQuiet("not-here", "is not a graph method");
     }
+
+    [Fact]
+    public async Task A_group_removed_in_the_same_update_that_frees_its_records_keeps_the_records()
+    {
+        if (NoBrowser) return;
+        // Removing a group removes what is inside it, so the records that stay are taken out first.
+        var page = await OpenGraph(Graph(inside: """
+            <ul class="graph-data" data-graph-data>
+              <li data-node="team">Platform team</li>
+              <li data-node="runner" data-parent="team">build-runner-04</li>
+              <li data-node="db" data-parent="team">src-db-14</li>
+              <li data-node="web">orders-console-01</li>
+            </ul>
+            """));
+        await Ready(page);
+
+        var after = await page.EvaluateAsync<string[]>("""
+            async () => {
+                const g = await sednaUi.graph.get('g');
+                await g.set({ nodes: [{ id: 'runner', label: 'build-runner-04' }, { id: 'db', label: 'src-db-14' }, { id: 'web', label: 'orders-console-01' }], edges: [] });
+                return g.cy.nodes().map(n => n.id() + (n.isChild() ? '<' + n.parent().id() : '')).sort();
+            }
+            """);
+        Assert.Equal(["db", "runner", "web"], after);
+        AssertQuiet();
+    }
 }

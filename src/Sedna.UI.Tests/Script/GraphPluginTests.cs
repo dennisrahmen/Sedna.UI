@@ -609,4 +609,85 @@ public class GraphPluginTests : GraphTestBase
         Assert.Equal(new byte[] { 137, 80, 78, 71 }, bytes[..4]);
         AssertQuiet();
     }
+
+    // ── Outlines under a filter, folds and what comes back ────────────────────
+
+    [Fact]
+    public async Task Outlines_follow_a_filter_without_an_error()
+    {
+        if (NoBrowser) return;
+        // bubblesets leaves an empty object behind in each element as it removes an outline,
+        // and read it as a measurement on the next one.
+        var page = await OpenGraph(Graph(attrs: "data-graph-eager data-graph-hulls", inside: Services + """
+            <button class="chip" type="button" data-graph-filter="group" value="shop" aria-pressed="true" id="shop">Shop</button>
+            <button class="chip" type="button" data-graph-filter="kind" value="queue" aria-pressed="true" id="queues">Queues</button>
+            """));
+        await Ready(page);
+        await page.WaitForFunctionAsync("() => document.querySelectorAll('#g .graph-canvas svg path').length === 2");
+
+        await page.Locator("#queues").ClickAsync();
+        await page.Locator("#shop").ClickAsync();
+        await page.WaitForFunctionAsync("() => document.querySelectorAll('#g .graph-canvas svg path').length === 1");
+        await page.Locator("#shop").ClickAsync();
+        await page.WaitForFunctionAsync("() => document.querySelectorAll('#g .graph-canvas svg path').length === 2");
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task A_double_click_folds_a_group_and_unfolds_it_again()
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Graph(inside: Folding, attrs: "data-graph-eager data-graph-collapse"));
+        await Ready(page);
+
+        var inside = await page.EvaluateAsync<JsonElement>("""
+            () => { const r = document.querySelector('#g .graph-canvas').getBoundingClientRect();
+                    const b = cyOf('g').getElementById('team').renderedBoundingBox({ includeLabels: false });
+                    return { x: r.left + b.x1 + 5, y: r.top + b.y2 - 5 }; }
+            """);
+        await page.Mouse.DblClickAsync((float)inside.GetProperty("x").GetDouble(), (float)inside.GetProperty("y").GetDouble());
+        await page.WaitForFunctionAsync("() => cyOf('g').getElementById('team').hasClass('cy-expand-collapse-collapsed-node')");
+
+        var (x, y) = await PointOf(page, "team");
+        await page.Mouse.DblClickAsync(x, y);
+        await page.WaitForFunctionAsync("() => !cyOf('g').getElementById('team').hasClass('cy-expand-collapse-collapsed-node')");
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task A_record_back_from_a_fold_is_drawn_as_the_rest_are_now()
+    {
+        if (NoBrowser) return;
+        // Out of the drawing while the records were switched to boxes, it came back a dot.
+        var page = await OpenGraph(Graph(inside: Folding, attrs: "data-graph-eager data-graph-collapse"));
+        await Ready(page);
+        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.option('nodes', 'box'))");
+        await page.Locator("#expand-other").ClickAsync();
+        await page.WaitForFunctionAsync("() => cyOf('g').getElementById('pager').inside()");
+
+        Assert.Equal("box", await page.EvaluateAsync<string>("() => cyOf('g').getElementById('pager').data('display')"));
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task Unfolding_a_group_arranges_the_drawing_again_around_it()
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Graph(inside: Folding, attrs: "data-graph-eager data-graph-collapse"));
+        await Ready(page);
+        await page.Locator("#collapse-all").ClickAsync();
+        await page.WaitForFunctionAsync("() => cyOf('g').nodes('.cy-expand-collapse-collapsed-node').length === 2");
+        await page.Locator("#expand-all").ClickAsync();
+        await page.WaitForFunctionAsync("() => cyOf('g').nodes('.cy-expand-collapse-collapsed-node').length === 0");
+
+        await page.WaitForFunctionAsync("""
+            () => {
+                const cy = cyOf('g');
+                const a = cy.getElementById('team').boundingBox({ includeLabels: false });
+                const b = cy.getElementById('other').boundingBox({ includeLabels: false });
+                return !(a.x1 < b.x2 && b.x1 < a.x2 && a.y1 < b.y2 && b.y1 < a.y2);
+            }
+            """);
+        AssertQuiet();
+    }
 }

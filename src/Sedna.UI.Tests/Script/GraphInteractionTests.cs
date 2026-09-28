@@ -607,4 +607,106 @@ public class GraphInteractionTests : GraphTestBase
         Assert.Empty(await Log(page, "sedna-graph-ready"));
         AssertQuiet();
     }
+
+    // ── Leaving, groups, slots, separators ────────────────────────────────────
+
+    [Fact]
+    public async Task Leaving_the_canvas_in_one_jump_ends_the_lighting_and_the_tooltip()
+    {
+        if (NoBrowser) return;
+        // A pointer that leaves in one move never passes a record's edge on the way out.
+        var page = await OpenGraph(Framed());
+        await Ready(page);
+        await Hover(page, "api");
+        await Assertions.Expect(page.Locator("#tip")).ToBeVisibleAsync();
+        Assert.True(await page.EvaluateAsync<int>("() => cyOf('g').elements('.dim').length") > 0);
+
+        await page.Mouse.MoveAsync(2, 2);
+        await Assertions.Expect(page.Locator("#tip")).ToBeHiddenAsync();
+        await page.WaitForFunctionAsync("() => cyOf('g').elements('.dim, .lit').length === 0");
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task Pointing_at_a_group_lights_what_is_inside_it()
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Framed(inside: """
+            <ul class="graph-data" data-graph-data>
+              <li data-node="team">Platform team</li>
+              <li data-node="runner" data-parent="team">build-runner-04</li>
+              <li data-node="db" data-parent="team">src-db-14</li>
+              <li data-node="web">orders-console-01</li>
+              <li data-edge data-source="web" data-target="team"></li>
+            </ul>
+            """));
+        await Ready(page);
+        var edge = await page.EvaluateAsync<JsonElement>("""
+            () => { const cy = cyOf('g'); const r = document.querySelector('#g .graph-canvas').getBoundingClientRect();
+                    const b = cy.getElementById('team').renderedBoundingBox({ includeLabels: false });
+                    return { x: r.left + b.x1 + 4, y: r.top + (b.y1 + b.y2) / 2 }; }
+            """);
+        await page.Mouse.MoveAsync((float)edge.GetProperty("x").GetDouble(), (float)edge.GetProperty("y").GetDouble(), new() { Steps = 4 });
+        await page.WaitForFunctionAsync("() => cyOf('g').getElementById('team').hasClass('lit')");
+
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => cyOf('g').getElementById('team').descendants().filter(n => n.hasClass('dim')).length"));
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task A_label_written_beside_a_field_leaves_with_it()
+    {
+        if (NoBrowser) return;
+        // A value the record does not have takes its label with it: the <dt> before a <dd>
+        // slot, and anything marked data-graph-if with that field's name.
+        var page = await OpenGraph(Framed(inside: Services + """
+            <div class="graph-tip" data-graph-tip hidden id="tip2">
+              <dl><dt id="owner-term">Owner</dt><dd data-graph-field="owner" id="owner"></dd></dl>
+              <span data-graph-if="meta" id="host-row">Host <span data-graph-field="meta"></span></span>
+            </div>
+            """));
+        await Ready(page);
+
+        await Hover(page, "api");
+        await Assertions.Expect(page.Locator("#tip2")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("#owner-term")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("#host-row")).ToBeVisibleAsync();
+
+        await page.Mouse.MoveAsync(2, 2);
+        await Hover(page, "queue");
+        await Assertions.Expect(page.Locator("#tip2")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("#owner-term")).ToBeHiddenAsync();
+        await Assertions.Expect(page.Locator("#host-row")).ToBeHiddenAsync();
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task A_menu_shows_a_separator_only_between_items_that_are_showing()
+    {
+        if (NoBrowser) return;
+        // Opened on the background, the items that need a record hide — and the separator
+        // that stood between them and the rest has nothing left to separate.
+        var page = await OpenGraph(Framed(inside: Services + """
+            <div class="menu graph-menu" data-graph-menu role="menu" hidden id="menu2">
+              <button class="menu-item" role="menuitem" type="button" data-graph-action="open" data-graph-always id="m-open">Open</button>
+              <button class="menu-item" role="menuitem" type="button" data-graph-action="focus" id="m-focus">Show its neighbourhood</button>
+              <hr class="menu-sep" id="sep" />
+              <button class="menu-item" role="menuitem" type="button" data-graph-action="show-all" id="m-all">Show everything</button>
+            </div>
+            """));
+        await Ready(page);
+
+        var corner = await page.EvaluateAsync<JsonElement>(
+            "() => { const r = document.querySelector('#g .graph-canvas').getBoundingClientRect(); return { x: r.left + 6, y: r.top + 6 }; }");
+        await page.Mouse.ClickAsync((float)corner.GetProperty("x").GetDouble(), (float)corner.GetProperty("y").GetDouble(), new() { Button = MouseButton.Right });
+        await Assertions.Expect(page.Locator("#menu2")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("#m-all")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("#sep")).ToBeHiddenAsync();
+
+        await page.Keyboard.PressAsync("Escape");
+        await Click(page, "api", MouseButton.Right);
+        await Assertions.Expect(page.Locator("#m-focus")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("#sep")).ToBeVisibleAsync();
+        AssertQuiet();
+    }
 }

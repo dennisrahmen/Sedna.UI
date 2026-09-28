@@ -27,17 +27,7 @@
    `data-graph-detail` off: this is for a page with no app behind it.
    ─────────────────────────────────────────────────────────────────────────── */
 
-function detailPanels(g) {
-    const id = g.el.id;
-    const frame = g.el.closest('[data-graph-frame]');
-    const panels = new Set();
-    g.el.querySelectorAll('[data-graph-detail]').forEach(p => panels.add(p));
-    frame?.querySelectorAll('[data-graph-detail]').forEach(p => {
-        if (!p.getAttribute('data-graph-for') || p.getAttribute('data-graph-for') === id) panels.add(p);
-    });
-    if (id) document.querySelectorAll(`[data-graph-detail][data-graph-for="${CSS.escape(id)}"]`).forEach(p => panels.add(p));
-    return [...panels];
-}
+const detailPanels = g => scoped(g, '[data-graph-detail]');
 
 /* A record's fields into the app's slots — the tooltip's, the menu's and the panel's.
    Text only, never markup. A field the record does not have hides its slot, and what

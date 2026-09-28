@@ -11,7 +11,12 @@
 
 function light(g, node) {
     const cy = g.cy;
-    const near = node && node.nonempty() ? node.closedNeighborhood().not('.hidden') : cy.collection();
+    let near = node && node.nonempty() ? node.closedNeighborhood() : cy.collection();
+    if (node && node.nonempty() && node.isParent()) {
+        const inside = node.descendants();
+        near = near.union(inside).union(inside.edgesWith(inside));
+    }
+    near = near.not('.hidden');
     const lit = g.lit || cy.collection();
     cy.batch(() => {
         if (near.empty()) {

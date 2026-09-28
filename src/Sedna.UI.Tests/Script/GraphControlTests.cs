@@ -731,4 +731,71 @@ public class GraphControlTests : GraphTestBase
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('db').hasClass('hidden')");
         AssertQuiet();
     }
+
+    // ── Reset, the colouring, the root, the stats ─────────────────────────────
+
+    [Fact]
+    public async Task Reset_puts_back_the_view_options_as_well_as_the_controls()
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Framed("""
+            <label><input type="radio" name="by" data-graph-option="colour" value="tone" checked id="by-tone" /> Kind</label>
+            <label><input type="radio" name="by" data-graph-option="colour" value="team" id="by-team" /> Team</label>
+            <label><input type="radio" name="lay" data-graph-option="layout" value="force" checked /> Map</label>
+            <label><input type="radio" name="lay" data-graph-option="layout" value="grid" id="grid" /> Grid</label>
+            <button type="button" data-graph-action="reset" id="reset">Reset</button>
+            """));
+        await Ready(page);
+        Assert.Equal("tone", await page.Locator("#g").GetAttributeAsync("data-graph-colouring"));
+
+        await page.Locator("#by-team").CheckAsync();
+        await page.Locator("#grid").CheckAsync();
+        await page.WaitForFunctionAsync("() => document.getElementById('g').getAttribute('data-graph-colouring') === 'team'");
+
+        await page.Locator("#reset").ClickAsync();
+        // The radio and the drawing both: the colouring is the element's again, and so is the layout.
+        await page.WaitForFunctionAsync("() => document.getElementById('g').getAttribute('data-graph-colouring') === 'tone'");
+        Assert.True(await page.Locator("#by-tone").IsCheckedAsync());
+        var layoutIsBack = await page.EvaluateAsync<bool>("""
+            () => { const xs = new Set(cyOf('g').nodes().map(n => Math.round(n.position('x')))); return xs.size > 3; }
+            """);
+        Assert.True(layoutIsBack);
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task A_chip_hides_the_root_of_its_kind_like_any_other_record()
+    {
+        if (NoBrowser) return;
+        // The root is what the graph is about, but a legend key that is off means "not these".
+        var page = await OpenGraph(Framed("""
+            <button class="chip" type="button" data-graph-filter="kind" value="service" aria-pressed="true" id="services">Services</button>
+            """, inside: Services.Replace("data-node=\"api\"", "data-root data-node=\"api\"", StringComparison.Ordinal)));
+        await Ready(page);
+
+        await page.Locator("#services").ClickAsync();
+        await page.WaitForFunctionAsync("() => cyOf('g').getElementById('api').hasClass('hidden')");
+        Assert.DoesNotContain("web", await Shown(page));
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task Stats_inside_an_element_that_names_the_graph_are_kept_current()
+    {
+        if (NoBrowser) return;
+        // data-graph-for on a container is the same claim for everything in it — controls,
+        // stats, a panel — wherever the container is on the page.
+        var page = await OpenGraph("""
+            <section data-graph-for="g">
+              <button class="chip" type="button" data-graph-filter="group" value="orders" aria-pressed="true" id="orders">Orders</button>
+              <span data-graph-stats="{nodes} of {totalNodes}" id="stats"></span>
+            </section>
+            """ + Graph());
+        await Ready(page);
+        await Assertions.Expect(page.Locator("#stats")).ToHaveTextAsync("7 of 7");
+
+        await page.Locator("#orders").ClickAsync();
+        await Assertions.Expect(page.Locator("#stats")).ToHaveTextAsync("4 of 7");
+        AssertQuiet();
+    }
 }

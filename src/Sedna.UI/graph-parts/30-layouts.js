@@ -64,6 +64,7 @@ const byId = (a, b) => (a.id() < b.id() ? -1 : a.id() > b.id() ? 1 : 0);
 /* A layout run to its end. Without animation a layout finishes before run() returns,
    but that is its to decide. */
 const settled = layout => new Promise(resolve => {
+    if (layout.cy().destroyed()) return resolve();
     layout.one('layoutstop', resolve);
     layout.run();
 });
@@ -92,6 +93,7 @@ const springs = (eles, count, spacing, overrides = {}) => eles.layout({
 /* Hop rings first, then springs — every run starts from the same place, so the force
    pass only pushes overlaps apart instead of finding a shape from noise. */
 async function rings(visible, options, spacing, box) {
+    const names = options.labels === 'all' && options.nodes !== 'box';
     const nodes = visible.nodes().filter(n => !n.isParent());
     const maxDegree = Math.max(1, ...nodes.map(n => n.data('degree') || 0));
     const centre = visible.nodes('.focus').nonempty() ? visible.nodes('.focus') : visible.nodes('[?root]');
@@ -104,12 +106,20 @@ async function rings(visible, options, spacing, box) {
         fit: false,
         animate: false,
         avoidOverlap: true,
+        nodeDimensionsIncludeLabels: names,
         minNodeSpacing: 30 * spacing,
         boundingBox: box,
         concentric: n => (centre.nonempty() ? 10 - (hops.get(n.id()) ?? 9) : Math.round(6 * (n.data('degree') || 0) / maxDegree)),
         levelWidth: () => 1,
     }).run();
-    await settled(springs(visible, nodes.length, spacing));
+    // A gentle pass that only pushes overlaps apart, with the centre held where it is: a
+    // full spring run from here would reshape the rings into a blob.
+    centre.lock();
+    try {
+        await settled(springs(visible, nodes.length, spacing, { initialTemp: 30, numIter: 160, gravity: 0.1, nodeDimensionsIncludeLabels: names }));
+    } finally {
+        centre.unlock();
+    }
 }
 
 /* What the layout runs over: everything shown, parents included for the layouts that
@@ -122,6 +132,8 @@ async function arrangeWith(cy, name, options, frame) {
     const box = options.nodes === 'box' || visible.nodes('[display = "box"]').nonempty();
     const count = visible.nodes().length;
     const aspect = aspectOf(frame);
+    // Every name written, always: the layouts that can make room for names make it.
+    const names = options.labels === 'all' && !box;
     // The box a layout that fills one is given: the frame's, since the first drawing is made
     // before the engine has a canvas to measure — scaled up with the crowd, so a large graph
     // is not packed into the pixels of the frame. `turned` is the same box on its side.
@@ -139,7 +151,7 @@ async function arrangeWith(cy, name, options, frame) {
                 // The placed records stay where the app put them; the springs place the rest.
                 placed.lock();
                 try {
-                    await settled(springs(visible, count, spacing, { randomize: false }));
+                    await settled(springs(visible, count, spacing, { randomize: false, nodeDimensionsIncludeLabels: names }));
                 } finally {
                     placed.unlock();
                 }
@@ -153,6 +165,7 @@ async function arrangeWith(cy, name, options, frame) {
                 fit: false,
                 animate: false,
                 avoidOverlap: true,
+                nodeDimensionsIncludeLabels: names,
                 boundingBox: frameBox,
                 spacingFactor: spacing * (box ? 1.1 : 1.25),
                 sort: (a, b) => (b.data('degree') || 0) - (a.data('degree') || 0) || byId(a, b),
@@ -165,6 +178,7 @@ async function arrangeWith(cy, name, options, frame) {
                 fit: false,
                 animate: false,
                 avoidOverlap: true,
+                nodeDimensionsIncludeLabels: names,
                 boundingBox: frameBox,
                 minNodeSpacing: (box ? 24 : 18) * spacing,
                 concentric: n => n.data('root') ? 1e6 : (n.data('degree') || 0),
@@ -215,6 +229,7 @@ async function arrangeWith(cy, name, options, frame) {
         }
         case 'dagre':
             await plugin('dagre');
+            if (cy.destroyed()) return;
             await settled(visible.layout({
                 name: 'dagre',
                 fit: false,
@@ -267,7 +282,7 @@ async function arrangeWith(cy, name, options, frame) {
                     name: 'concentric', fit: false, animate: false, avoidOverlap: true, minNodeSpacing: 24 * spacing,
                     boundingBox: frameBox, concentric: n => n.data('degree') || 0, levelWidth: () => 2,
                 }));
-                await settled(springs(visible, count, spacing));
+                await settled(springs(visible, count, spacing, { nodeDimensionsIncludeLabels: names }));
             }
             stretch(visible, aspect);
             return;
@@ -275,8 +290,10 @@ async function arrangeWith(cy, name, options, frame) {
 }
 
 /* fcose: springs that understand groups inside groups. Seeded, so the same graph comes out
-   the same way on every load, and measuring names where there are groups — a group is drawn
-   around its records' names, and two groups measured without them come out over each other. */
+   the same way on every load. Names are not measured here: a group is drawn around its
+   records' names, which are held at their screen size, so how much room they take depends
+   on the zoom the drawing ends up at — groups are pushed apart for that afterwards
+   (untangle, from atScale in 70-graph.js). */
 async function nestedSprings(visible, count, spacing, box) {
     await plugin('fcose');
     if (visible.cy().destroyed()) return;
@@ -296,10 +313,62 @@ async function nestedSprings(visible, count, spacing, box) {
             nestingFactor: 0.1,
             gravity: 0.25,
             numIter: 2500,
-            nodeDimensionsIncludeLabels: box || visible.nodes(':parent').nonempty(),
+            nodeDimensionsIncludeLabels: box,
         }));
     } finally {
         restoreRandom();
+    }
+    if (box) untangle(visible);
+}
+
+/* fcose keeps groups apart most of the time, not every time: two sibling groups — or a
+   group and a record beside it — can come out over each other. What overlaps is pushed
+   apart along the shorter way out, level by level from the innermost, so a group that
+   grew by making room inside it is then made room for among its own siblings. */
+function untangle(visible) {
+    const parents = visible.nodes(':parent');
+    if (parents.empty()) return;
+    const margin = 14;
+    const depthOf = n => n.ancestors().length;
+    const levels = new Map();
+    visible.nodes().forEach(n => {
+        const key = n.parent().nonempty() ? n.parent().id() : '';
+        if (!levels.has(key)) levels.set(key, { depth: n.parent().nonempty() ? depthOf(n.parent()) + 1 : 0, items: [] });
+        levels.get(key).items.push(n);
+    });
+    const order = [...levels.values()].filter(l => l.items.length > 1 && l.items.some(n => n.isParent()))
+        .sort((a, b) => b.depth - a.depth);
+    const move = (n, dx, dy) => (n.isParent() ? n.descendants().filter(d => !d.isParent()) : n).shift({ x: dx, y: dy });
+    // Not batched: a group's box is worked out from its records, and inside a batch it would
+    // still be the box from before they moved. Each level's boxes are read once, when the
+    // level below has finished, and followed by hand from there.
+    {
+        for (const level of order) {
+            const items = level.items.slice().sort(byId);
+            const boxes = items.map(n => n.boundingBox({ includeLabels: true, includeOverlays: false }));
+            for (let round = 0; round < 60; round++) {
+                let moved = false;
+                for (let i = 0; i < items.length; i++) {
+                    for (let j = i + 1; j < items.length; j++) {
+                        if (!items[i].isParent() && !items[j].isParent()) continue;
+                        const a = boxes[i], b = boxes[j];
+                        const ox = Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1) + margin;
+                        const oy = Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1) + margin;
+                        if (ox <= 0 || oy <= 0) continue;
+                        // Out along the shorter way, half each, away from each other.
+                        const ax = (a.x1 + a.x2) / 2, bx = (b.x1 + b.x2) / 2, ay = (a.y1 + a.y2) / 2, by = (b.y1 + b.y2) / 2;
+                        const [dx, dy] = ox < oy ? [(ax <= bx ? -1 : 1) * ox / 2, 0] : [0, (ay <= by ? -1 : 1) * oy / 2];
+                        move(items[i], dx, dy);
+                        move(items[j], -dx, -dy);
+                        for (const [k, s] of [[i, 1], [j, -1]]) {
+                            boxes[k] = { x1: boxes[k].x1 + s * dx, x2: boxes[k].x2 + s * dx, y1: boxes[k].y1 + s * dy, y2: boxes[k].y2 + s * dy };
+                        }
+                        moved = true;
+                    }
+                }
+                if (!moved) break;
+            }
+        }
     }
 }
 

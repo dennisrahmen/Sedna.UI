@@ -74,11 +74,28 @@ async function collapsible(g) {
         expandCollapseCueSensitivity: 1,
         zIndex: 2,
     });
+    // The fold cue is drawn on the plugin's own canvas when a group is selected, and that
+    // canvas is cleared whenever the engine resizes — which it does on its own when any
+    // ancestor's attributes change. So the cue is drawn again once the resize has settled.
+    let cue = 0;
+    g.cy.on('resize', () => {
+        clearTimeout(cue);
+        cue = setTimeout(() => {
+            if (g.disposed) return;
+            const chosen = g.cy.nodes(':selected');
+            if (chosen.length === 1 && isGroup(chosen)) chosen.emit('select');
+        }, 320);
+    });
+    g.listeners.push(() => clearTimeout(cue));
     g.cy.on('expandcollapse.aftercollapse', 'node', e => {
         if (!g.quietFolds) g.emit('sedna-graph-collapse', { id: e.target.id(), label: e.target.data('label') });
         afterStructure(g);
     });
     g.cy.on('expandcollapse.afterexpand', 'node', e => {
+        // Folded records were out of the drawing while the view options and the zoom
+        // changed; they come back drawn as the rest are.
+        measureBoxes(g);
+        if (g.options.nodes !== 'box') g.cy.batch(() => e.target.union(e.target.descendants()).union(e.target.descendants().connectedEdges()).data('zoom', g.step));
         if (g.quietFolds) {
             afterStructure(g);
             return;
@@ -106,6 +123,18 @@ async function collapseGroups(g, mode, ele) {
     }
 }
 
+// A group that can fold or unfold: one drawn around its records, or one folded away.
+const isGroup = n => n.isParent() || n.hasClass('cy-expand-collapse-collapsed-node');
+
+// Folds an open group and unfolds a folded one.
+function toggleFold(g, n) {
+    if (!g.ec || !isGroup(n)) return false;
+    if (g.ec.isExpandable(n)) g.ec.expand(n);
+    else if (g.ec.isCollapsible(n)) g.ec.collapse(n);
+    else return false;
+    return true;
+}
+
 // The ids of the groups folded now, and every record hidden inside them.
 function foldedIds(g) {
     if (!g.ec) return [];
@@ -122,7 +151,7 @@ function afterStructure(g) {
 async function hulls(g, on) {
     g.hullsOn = !!on;
     if (!on) {
-        if (g.bb) g.bb.getPaths().slice().forEach(p => g.bb.removePath(p));
+        clearHulls(g);
         return;
     }
     await plugin('layers');
@@ -131,10 +160,19 @@ async function hulls(g, on) {
     drawHulls(g);
 }
 
+/* Every outline taken away. bubblesets leaves an empty object in each element's scratch as
+   it removes a path, and reads that as a cached measurement the next time a path covers
+   the element, which throws — so the scratch goes with the paths. */
+function clearHulls(g) {
+    if (!g.bb) return;
+    g.bb.getPaths().slice().forEach(p => g.bb.removePath(p));
+    if (!g.cy.destroyed()) g.cy.elements().removeScratch('bubbleSets');
+}
+
 function drawHulls(g) {
     if (!g.bb) return;
     const cy = g.cy;
-    g.bb.getPaths().slice().forEach(p => g.bb.removePath(p));
+    clearHulls(g);
     const shown = cy.nodes().not('.hidden').filter(n => !n.isParent() && n.data('group'));
     const groups = new Map();
     shown.forEach(n => {

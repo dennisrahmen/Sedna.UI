@@ -146,6 +146,8 @@ function toElements(g) {
             // A group's own record also weighs what is filed under it, so it is its island's largest.
             size: sizeOf(n.weight ?? d + (groupSize.get(n.id) || 0) / 2),
             hub: n.hub || n.root || groupNames.has(n.id) || parents.has(n.id),
+            // The app's own data-hub, which outranks a record that is a hub by heading a group.
+            marked: !!n.hub,
             display,
             zoom: g.step || 1,
         }, display === 'box' ? boxMetrics(n, font) : { boxLabel: n.label, boxW: null, boxH: null });
@@ -267,11 +269,18 @@ async function arrange(g, animate) {
     // drawing measured with half its names would grow into itself once they came back.
     const quiet = cy.nodes('.unlabelled');
     if (quiet.nonempty()) cy.batch(() => quiet.removeClass('unlabelled'));
+    // A name's box is worked out when the canvas next draws it, so one that has just changed
+    // — shown again, or resized for a new zoom — is measured stale until its style is updated.
+    if (measuresNames(g)) cy.nodes().updateStyle();
+    // While a layout runs the view holds still: a resize that fitted and settled it now would
+    // hide names the layout is measuring and change the zoom it measures them at.
+    g.laying = (g.laying || 0) + 1;
     try {
         await arrangeWith(cy, g.options.layout, g.options, g.el);
         await atScale(g, run);
     } finally {
-        if (quiet.nonempty()) cy.batch(() => quiet.filter(n => n.inside()).addClass('unlabelled'));
+        g.laying--;
+        if (quiet.nonempty() && !cy.destroyed()) cy.batch(() => quiet.filter(n => n.inside()).addClass('unlabelled'));
     }
     if (run !== g.arranging || g.disposed) return;
     if (before) {
@@ -302,21 +311,40 @@ async function arrange(g, animate) {
 /* A name around dots is held at its screen size, so a drawing seen zoomed out has larger
    names in it than the one the layout measured — and where the layout made room for names,
    in a group's box or a layered hierarchy, they grow into their neighbours. So there the
-   layout runs again at the zoom the drawing will be seen at, until the two agree. */
+   layout runs again at the zoom the drawing will be seen at. */
+// Whether a layout of this graph makes room for its names: a layered one or one showing
+// every name lays them out, and groups are drawn around them.
+const measuresNames = g => g.options.nodes !== 'box'
+    && (g.options.layout === 'dagre' || g.options.labels === 'all' || g.cy.nodes(':parent').not('.hidden').nonempty());
+
 async function atScale(g, run) {
     const cy = g.cy;
-    if (g.options.nodes === 'box' || g.touched) return;
-    const measures = g.options.layout === 'dagre' || cy.nodes(':parent').not('.hidden').nonempty();
-    if (!measures) return;
-    for (let pass = 0; pass < 3; pass++) {
+    if (g.touched || !measuresNames(g)) return;
+    // The first drawing is made the moment the canvas is mounted, before the engine has
+    // measured its container.
+    cy.resize();
+    const visible = () => cy.elements().not('.hidden').not('.eh-ghost, .eh-preview, .eh-handle');
+    // With groups, the layout stands and only the groups move: each is pushed clear of its
+    // neighbours, its records' names measured at the zoom it will be seen at.
+    const grouped = g.options.layout !== 'dagre' && g.options.labels !== 'all';
+    if (grouped) untangle(visible());
+    // Only ever smaller: a drawing seen at the zoom it was measured at, or closer, has names
+    // no larger than were made room for — so each pass either settles it or measures again
+    // for a smaller zoom, and it cannot swing back and forth.
+    for (let pass = 0; pass < 6; pass++) {
         const shown = cy.nodes().not('.hidden');
         if (shown.empty()) return;
         const seen = stepOf(Math.min(1, fitOf(g, shown).zoom));
-        if (seen === g.step) return;
+        if (seen >= g.step) return;
         g.step = seen;
         cy.batch(() => cy.elements().data('zoom', seen));
-        await arrangeWith(cy, g.options.layout, g.options, g.el);
-        if (run !== g.arranging || g.disposed) return;
+        cy.nodes().updateStyle();
+        if (grouped) {
+            untangle(visible());
+        } else {
+            await arrangeWith(cy, g.options.layout, g.options, g.el);
+            if (run !== g.arranging || g.disposed) return;
+        }
     }
 }
 
@@ -397,6 +425,12 @@ async function setData(g, data, opts = {}) {
     const plugin = e => e.hasClass('eh-ghost') || e.hasClass('eh-handle') || e.hasClass('eh-preview') || e.hasClass('eh-ghost-edge');
     const removed = cy.elements().filter(e => !wanted.has(e.id()) && !plugin(e));
     const fresh = els.filter(e => cy.getElementById(e.data.id).empty());
+    // Removing a group removes what is inside it, so a record that stays is taken out of a
+    // group that goes before it does; the moves below put it where it now belongs.
+    const leaving = removed.nodes().filter(n => n.isParent());
+    if (leaving.nonempty()) {
+        leaving.children().filter(c => wanted.has(c.id()) && !leaving.contains(c)).forEach(c => c.move({ parent: null }));
+    }
     removed.remove();
     // New records first, placed beside what they link to — so an existing record can be
     // moved into a group that has only just arrived, and a new link has both its ends.
@@ -538,8 +572,13 @@ function wire(g) {
     });
     cy.on('mouseout', 'edge', () => g.tip.hide());
     // A pointer that leaves the canvas in one jump never passes a record's edge on the way
-    // out, so the canvas's own edge hides the tooltip too.
-    on(g.host, 'pointerleave', () => g.tip.hide());
+    // out, so the canvas's own edge ends the pointing too: the tooltip and the lighting.
+    on(g.host, 'pointerleave', () => {
+        g.tip.hide();
+        g.host.style.cursor = '';
+        clearTimeout(leaving);
+        if (!dragging && !g.disposed) light(g, resting(g));
+    });
     g.listeners.push(() => clearTimeout(leaving));
 
     cy.on('tap', 'node', event => {
@@ -554,7 +593,10 @@ function wire(g) {
         select(g, node);
     });
     cy.on('dbltap', 'node', event => {
-        if (g.options.open !== 'none' && !g.drawing && !event.target.isParent()) open(g, event.target, false);
+        if (g.drawing) return;
+        // A group that folds is folded or unfolded by a double click; any other record opens.
+        if (toggleFold(g, event.target)) return;
+        if (g.options.open !== 'none' && !event.target.isParent()) open(g, event.target, false);
     });
     cy.on('tap', event => {
         if (event.target !== cy) return;
@@ -593,7 +635,7 @@ function wire(g) {
         const before = was || { w: cy.width(), h: cy.height() };
         cy.resize();
         was = { w: cy.width(), h: cy.height() };
-        if (g.travelling) g.refit = true;
+        if (g.travelling || g.laying) g.refit = true;
         else if (!g.touched) fitView(g, null, false);
         else {
             cy.panBy({ x: (was.w - before.w) / 2, y: (was.h - before.h) / 2 });

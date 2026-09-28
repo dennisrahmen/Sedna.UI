@@ -58,7 +58,7 @@ function fitOf(g, nodes) {
    a new layout, the fit waits for them to land: fitting now would fit where they were. */
 function fitAll(g) {
     g.touched = false;
-    if (g.travelling) g.refit = true;
+    if (g.travelling || g.laying) g.refit = true;
     else fitView(g, null, true);
 }
 
@@ -70,6 +70,8 @@ const stepOf = zoom => Math.exp(Math.round(Math.log(zoom) / 0.07) * 0.07);
    restyling a thousand edges for nothing is the most expensive thing this could do. */
 function settle(g) {
     const cy = g.cy;
+    // A layout is running: it fits and settles the view itself when it has finished.
+    if (g.laying) return;
     if (g.options.nodes !== 'box') {
         const next = stepOf(cy.zoom());
         if (next !== g.step) {
@@ -91,6 +93,7 @@ const insists = n => n.data('root') || n.hasClass('focus') || n.hasClass('match'
    groups' own records, then the busiest. Quieter records give way to everything else. */
 const labelPriority = n => (insists(n) ? 1e6 : 0)
     + (n.data('hub') ? 2000 : 0)
+    + (n.data('marked') ? 800 : 0)
     + (n.isParent() ? 1500 : 0)
     + (n.data('degree') || 0)
     - (n.data('muted') ? 100 : 0);
@@ -131,6 +134,7 @@ function declutter(g) {
     const zoom = cy.zoom();
     const pan = cy.pan();
     const side = labelSide(g.options);
+    const font = g.colours.font();
     const show = [];
     const hide = [];
     const ranked = nodes.toArray().map(n => ({ n, rank: labelPriority(n) })).sort((a, b) => b.rank - a.rank);
@@ -140,7 +144,8 @@ function declutter(g) {
         const y = at.y * zoom + pan.y;
         const r = ((n.data('size') || 20) * held(n) * zoom) / 2;
         const px = labelPx(n);
-        const w = Math.min((n.data('label') || '').length * px * 0.6, LABEL_MAX_PX) + 10;
+        const bold = n.data('hub') || n.data('root') || n.hasClass('focus');
+        const w = Math.min(textWidth(n.data('label') || '', `${bold ? 600 : 400} ${px}px ${font}`), LABEL_MAX_PX) + 8;
         const box = side === 'right' ? { x1: x + r + 3, x2: x + r + 3 + w, y1: y - px * 0.85, y2: y + px * 0.85 }
             : side === 'left' ? { x1: x - r - 3 - w, x2: x - r - 3, y1: y - px * 0.85, y2: y + px * 0.85 }
                 : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2, y2: y + r + 2 + px * 1.7 };

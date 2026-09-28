@@ -24,6 +24,23 @@ const held = ele => (zoomOf(ele) <= 1 ? 1 : 1 / Math.pow(zoomOf(ele), 0.8));
 const LABEL_MAX_PX = 180;
 const labelPx = n => 10.5 + Math.min(n.data('degree') || 0, 14) * 0.2 + (n.data('hub') ? 1.5 : 0);
 const labelSize = n => labelPx(n) / zoomOf(n);
+
+/* How wide a line of text is in a font, measured by the browser once and remembered — the
+   declutter asks for every name each time the view settles. */
+let textCtx = null;
+const textWidths = new Map();
+function textWidth(text, font) {
+    const key = font + '\u0000' + text;
+    let w = textWidths.get(key);
+    if (w === undefined) {
+        textCtx = textCtx || document.createElement('canvas').getContext('2d');
+        textCtx.font = font;
+        w = textCtx.measureText(text).width;
+        if (textWidths.size > 5000) textWidths.clear();
+        textWidths.set(key, w);
+    }
+    return w;
+}
 const sizeOf = weight => Math.min(14 + 5 * Math.sqrt(Math.max(weight, 0)), 46);
 
 /* Where a dot's name goes. Beneath it, except in a hierarchy that runs sideways: there a

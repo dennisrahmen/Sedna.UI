@@ -18,6 +18,9 @@ function iconPainter(host) {
     let fontReady = null;
 
     function glyph(cls) {
+        // A probe out of the document has no style to read — its graph was taken down — and
+        // would call every class unknown.
+        if (!probe.isConnected) return null;
         if (!glyphs.has(cls)) {
             probe.className = cls;
             const style = getComputedStyle(probe, '::before');
