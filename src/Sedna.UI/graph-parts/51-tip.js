@@ -71,6 +71,7 @@ function tips(g) {
     }
 
     function show(ele, now) {
+        if (!ele || ele.empty() || ele.removed()) return hide();
         clearTimeout(timer);
         showing = ele;
         const go = () => {

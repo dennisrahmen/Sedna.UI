@@ -188,12 +188,18 @@
            warns and resolves null rather than throwing: an exception crossing the
            interop boundary from a Blazor handler tears the circuit down. */
         invoke: function (id, method, args) {
+            var none = method === 'export' ? new Uint8Array(0) : null;
             var el = document.getElementById(id);
             if (!el || !el.matches(SELECTOR)) {
                 try { console.warn('Sedna.UI graph: no [data-graph] element with id "' + id + '".'); } catch (e) { /* ignore */ }
-                return Promise.resolve(null);
+                return Promise.resolve(none);
             }
-            return this.get(el).then(function (graph) { return graph.invoke(method, args || []); });
+            return this.get(el)
+                .then(function (graph) { return graph.invoke(method, args || []); })
+                .catch(function (e) {
+                    report(e);
+                    return none;
+                });
         }
     };
 

@@ -85,9 +85,23 @@ public sealed class SednaGraphs : ISednaGraphs
     }
 
     /// <inheritdoc />
-    public async Task<string?> ExportAsync(string graphId, SednaGraphExport format = SednaGraphExport.Svg,
-        CancellationToken cancellationToken = default)
-        => await Call<string?>(graphId, "export", cancellationToken, Name(format));
+    public async Task<byte[]?> ExportAsync(string graphId, SednaGraphExport format = SednaGraphExport.Svg,
+        long maxBytes = 50_000_000, CancellationToken cancellationToken = default)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxBytes);
+
+        // A stream rather than a return value: a picture of a few records is already past a
+        // Blazor Server circuit's default message size, and a call over it never completes.
+        var reference = await Call<IJSStreamReference>(graphId, "export", cancellationToken, Name(format));
+        await using (reference)
+        {
+            if (reference.Length == 0) return null;
+            await using var stream = await reference.OpenReadStreamAsync(maxBytes, cancellationToken);
+            using var bytes = new MemoryStream((int)Math.Min(reference.Length, int.MaxValue));
+            await stream.CopyToAsync(bytes, cancellationToken);
+            return bytes.ToArray();
+        }
+    }
 
     /// <inheritdoc />
     public async Task DownloadAsync(string graphId, SednaGraphExport format = SednaGraphExport.Svg, string? fileName = null,

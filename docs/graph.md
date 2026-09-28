@@ -317,7 +317,7 @@ document is taken down with it.
 ```
 
 `SetDataAsync`, `FilterAsync`, `SearchAsync`, `SelectAsync`, `FocusAsync`, `LayoutAsync`,
-`SetOptionAsync`, `FitAsync`, `ZoomAsync`, `ExportAsync` (a `data:` URL), `DownloadAsync`,
+`SetOptionAsync`, `FitAsync`, `ZoomAsync`, `ExportAsync` (the file's bytes, streamed — no circuit message-size limit applies), `DownloadAsync`,
 `CollapseAsync`, `ExpandAsync`, `SetDrawingAsync`, `SetHullsAsync`, `ReloadAsync`, `StatsAsync`. A graph that is not
 in the page answers null with a console warning, never an exception into the circuit.
 

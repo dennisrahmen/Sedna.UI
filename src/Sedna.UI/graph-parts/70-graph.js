@@ -187,7 +187,9 @@ function changed(g) {
     const s = stats(g);
     const empty = g.model.nodes.length === 0;
     // Still waiting for the records a call will bring: the wait stays up, not "empty".
-    if (!g.awaiting) g.el.setAttribute('data-graph-state', empty ? 'empty' : s.nodes === 0 ? 'filtered' : 'ready');
+    // Data that could not be read is the error state until it can.
+    if (g.failed) g.el.setAttribute('data-graph-state', 'error');
+    else if (!g.awaiting) g.el.setAttribute('data-graph-state', empty ? 'empty' : s.nodes === 0 ? 'filtered' : 'ready');
     writeStats(g, s);
     g.emit('sedna-graph-change', s);
     return s;
@@ -239,7 +241,18 @@ async function arrange(g, animate) {
         if (!g.touched) fitView(g, null, true);
         cy.batch(() => moving.forEach(n => { if (before.has(n.id())) n.position(before.get(n.id())); }));
         moving.forEach(n => n.animate({ position: after.get(n.id()) }, { duration: 380, easing: 'ease-in-out-cubic' }));
-        setTimeout(() => { if (!g.disposed) { settle(g); g.minimap?.now(); if (g.hullsOn) drawHulls(g); } }, 420);
+        // While the records travel, a frame that changes size only resizes; it fits once
+        // they have landed, to where they landed.
+        g.travelling = true;
+        setTimeout(() => {
+            g.travelling = false;
+            if (g.disposed) return;
+            if (g.refit && !g.touched) fitView(g, null, false);
+            g.refit = false;
+            settle(g);
+            g.minimap?.now();
+            if (g.hullsOn) drawHulls(g);
+        }, 420);
     } else {
         if (!g.touched) fitView(g, null, false);
         else settle(g);
@@ -300,8 +313,10 @@ async function setData(g, data, opts = {}) {
     await g.started;
     if (g.disposed) return;
     const cy = g.cy;
-    if (g.awaiting) {
-        // The first records of a deferred graph: a first drawing, laid out whole.
+    const first = g.awaiting;
+    if (first) {
+        // The first records of a deferred graph: a first drawing, laid out whole, and
+        // not animated — there is no earlier drawing for the records to travel from.
         g.awaiting = false;
         opts = Object.assign({}, opts, { relayout: true });
     }
@@ -350,7 +365,7 @@ async function setData(g, data, opts = {}) {
     const shapeMatters = ['dagre', 'tree', 'grid', 'circle', 'concentric', 'fcose'].includes(g.options.layout);
     const many = addedNodes.length > Math.max(3, 0.25 * cy.nodes().length);
     if (opts.relayout || (!opts.quiet && (many || (shapeMatters && (addedNodes.nonempty() || removed.nodes().nonempty()))))) {
-        await arrange(g, true);
+        await arrange(g, !first);
     } else if (addedNodes.nonempty() && g.options.layout !== 'preset') {
         const around = addedNodes.union(addedNodes.neighborhood()).not('.hidden');
         const still = cy.nodes().not(around);
@@ -366,14 +381,17 @@ async function setData(g, data, opts = {}) {
         settle(g);
         g.minimap?.now();
     }
-    if (g.ec && folded.length) {
-        const again = cy.collection(folded.map(id => cy.getElementById(id)).filter(n => n.nonempty()));
+    const arriving = addedNodes.filter(n => n.isParent() && flag(n.data('fields')?.collapsed));
+    if (arriving.nonempty() && !g.ec) await collapsible(g).catch(report);
+    if (g.ec) {
+        const again = cy.collection(folded.map(id => cy.getElementById(id)).filter(n => n.nonempty())).union(arriving);
         if (again.nonempty()) g.ec.collapse(again, { animate: false, fisheye: false });
     }
     if (g.hullsOn) drawHulls(g);
     if (g.selected && (g.selected.removed() || g.selected.hasClass('hidden'))) select(g, null);
     else showDetail(g);
-    changed(g);
+    const s = changed(g);
+    if (first) g.emit('sedna-graph-ready', s);
 }
 
 function repaint(g) {
@@ -477,8 +495,10 @@ function wire(g) {
     // it — the view follows the frame. A click on a record is not moving the view.
     cy.on('dragpan scrollzoom pinchzoom', () => { g.touched = true; });
     // A click on the canvas puts focus on the graph, so the keys carry on from there —
-    // without the focus ring, which is for the keyboard.
-    on(g.host, 'pointerdown', () => { if (document.activeElement !== el) el.focus({ preventScroll: true }); });
+    // without the focus ring, which is for the keyboard. On the way up, not down: the
+    // engine blurs whatever is focused when a press starts on its canvas.
+    on(g.host, 'pointerdown', () => { g.pointerAt = Date.now(); });
+    on(g.host, 'pointerup', () => { if (document.activeElement !== el) el.focus({ preventScroll: true }); });
 
     // A frame that changes size — a panel opening beside it, a window resized — keeps the
     // point the reader was looking at in the middle, rather than pinned to the top left.
@@ -488,7 +508,8 @@ function wire(g) {
         const before = was || { w: cy.width(), h: cy.height() };
         cy.resize();
         was = { w: cy.width(), h: cy.height() };
-        if (!g.touched) fitView(g, null, false);
+        if (g.travelling) g.refit = true;
+        else if (!g.touched) fitView(g, null, false);
         else {
             cy.panBy({ x: (was.w - before.w) / 2, y: (was.h - before.h) / 2 });
             settle(g);
@@ -562,7 +583,16 @@ async function start(g) {
     // `data-graph-deferred`: the records arrive by call — graph.set, ISednaGraph.SetDataAsync —
     // and the wait stays up until they do, rather than an empty state flashing first.
     g.awaiting = g.options.deferred && !g.given.data;
-    const raw = g.given.data || readMarkup(el) || (g.options.src ? await fetchData(g.options.src) : null) || { nodes: [], edges: [] };
+    let raw = g.given.data || readMarkup(el);
+    if (!raw && g.options.src) {
+        try {
+            raw = await fetchData(g.options.src);
+        } catch (e) {
+            g.failed = true;
+            report(e);
+        }
+    }
+    raw = raw || { nodes: [], edges: [] };
     g.model = normalise(raw);
     if (g.model.nodes.some(n => n.icon)) await Promise.race([g.icons.ready(), new Promise(r => setTimeout(r, 1500))]);
     if (g.disposed) return;
@@ -605,7 +635,7 @@ async function start(g) {
     changed(g);
     await plugins(g);
     if (g.disposed) return;
-    g.emit('sedna-graph-ready', stats(g));
+    if (!g.awaiting) g.emit('sedna-graph-ready', stats(g));
 }
 
 async function plugins(g) {
@@ -658,13 +688,10 @@ async function invoke(g, method, args) {
         case 'zoom': api.zoom(Number(a[0]) || 1); return null;
         case 'option': await api.option(a[0], a[1]); return stats(g);
         case 'export': {
+            // Bytes, not a data: URL: .NET reads them as a stream, which no message-size
+            // limit applies to — a PNG of a few records is already past a circuit's default.
             const blob = await api.export(a[0] === 'png' ? 'png' : 'svg');
-            return new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = () => resolve(null);
-                reader.readAsDataURL(blob);
-            });
+            return new Uint8Array(await blob.arrayBuffer());
         }
         case 'download': await api.download(a[0] === 'png' ? 'png' : 'svg', a[1] || null); return null;
         case 'collapse': await api.collapse(a[0] || null); return stats(g);
@@ -691,7 +718,8 @@ function makeApi(g) {
         filter: async spec => {
             g.baseFilter = Object.assign({}, spec || {});
             g.hiddenIds.clear();
-            g.focusId = spec && spec.focus ? String(spec.focus) : null;
+            // The focus is its own question: a filter that does not name one keeps it.
+            if (spec && 'focus' in spec) g.focusId = spec.focus ? String(spec.focus) : null;
             if (spec && spec.depth) g.depth = Number(spec.depth) || g.depth;
             delete g.baseFilter.focus;
             delete g.baseFilter.depth;
@@ -740,7 +768,18 @@ function makeApi(g) {
         /* Fetches data-graph-src again and shows what changed. */
         reload: async () => {
             if (!g.options.src) return stats(g);
-            await setData(g, await fetchData(g.options.src));
+            let data;
+            try {
+                data = await fetchData(g.options.src);
+            } catch (e) {
+                g.failed = true;
+                report(e);
+                changed(g);
+                return stats(g);
+            }
+            const recovering = g.failed;
+            g.failed = false;
+            await setData(g, data, { relayout: recovering });
             return stats(g);
         },
         export: format => exportImage(g, format === 'png' ? 'png' : 'svg'),

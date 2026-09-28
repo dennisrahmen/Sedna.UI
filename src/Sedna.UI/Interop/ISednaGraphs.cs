@@ -82,10 +82,17 @@ public interface ISednaGraphs
     /// <summary>Zooms by <paramref name="factor"/> about the middle — 1.25 in, 0.8 out.</summary>
     Task ZoomAsync(string graphId, double factor, CancellationToken cancellationToken = default);
 
-    /// <summary>The whole drawing as a picture.</summary>
-    /// <returns>A <c>data:</c> URL of the SVG or PNG, or null when there is no such graph.</returns>
-    Task<string?> ExportAsync(string graphId, SednaGraphExport format = SednaGraphExport.Svg,
-        CancellationToken cancellationToken = default);
+    /// <summary>The whole drawing as a picture — every record on screen, not only the part in view.</summary>
+    /// <param name="graphId">The <c>[data-graph]</c> element's id.</param>
+    /// <param name="format">SVG (<c>image/svg+xml</c>) or PNG (<c>image/png</c>).</param>
+    /// <param name="maxBytes">
+    /// The largest picture accepted. The bytes are streamed rather than sent as one message, so a
+    /// Blazor Server circuit's message-size limit does not apply; this is the ceiling instead.
+    /// </param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>The file's bytes, or null when there is no such graph.</returns>
+    Task<byte[]?> ExportAsync(string graphId, SednaGraphExport format = SednaGraphExport.Svg,
+        long maxBytes = 50_000_000, CancellationToken cancellationToken = default);
 
     /// <summary>Downloads the whole drawing as a file, as the export buttons do.</summary>
     /// <param name="graphId">The <c>[data-graph]</c> element's id.</param>

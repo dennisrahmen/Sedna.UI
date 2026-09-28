@@ -90,7 +90,7 @@ function keyboard(g) {
         if (p.x < ext.x1 + mx || p.x > ext.x2 - mx || p.y < ext.y1 + my || p.y > ext.y2 - my) {
             cy.stop();
             if (reducedMotion() || document.visibilityState !== 'visible') cy.center(g.keyed);
-            else cy.animate({ center: { eles: g.keyed } }, { duration: 180, complete: () => g.tip.show(g.keyed, true) });
+            else cy.animate({ center: { eles: g.keyed } }, { duration: 180, complete: () => { if (g.keyed) g.tip.show(g.keyed, true); } });
         }
         g.tip.show(g.keyed, true);
         if (say) announce(g.keyed, 'focus');
@@ -200,7 +200,8 @@ function keyboard(g) {
 
     function onFocus() {
         // Only for the keyboard: a click that focuses the graph has already chosen a record.
-        if (!g.keyed && el.matches(':focus-visible')) key(start());
+        const pointer = Date.now() - (g.pointerAt || 0) < 800;
+        if (!g.keyed && !pointer && el.matches(':focus-visible')) key(start());
     }
     function onBlur(e) {
         if (e.relatedTarget && el.contains(e.relatedTarget)) return;
