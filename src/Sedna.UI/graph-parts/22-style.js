@@ -26,6 +26,13 @@ const labelPx = n => 10.5 + Math.min(n.data('degree') || 0, 14) * 0.2 + (n.data(
 const labelSize = n => labelPx(n) / zoomOf(n);
 const sizeOf = weight => Math.min(14 + 5 * Math.sqrt(Math.max(weight, 0)), 46);
 
+/* Where a dot's name goes. Beneath it, except in a hierarchy that runs sideways: there a
+   level is a column, a name beneath its record would make every column as tall as its
+   records and their names, and beside it — towards the next level — is where the room is. */
+const labelSide = options => (options.nodes !== 'box' && (options.layout === 'tree' || options.layout === 'dagre')
+    ? options.direction === 'LR' ? 'right' : options.direction === 'RL' ? 'left' : 'bottom'
+    : 'bottom');
+
 /* Which tone a record wears: the one for the colouring the reader chose
    (`data-graph-colour="team"` reads `data-tone-team`), else its own, else the brand. */
 function nodeTone(n, options) {
@@ -66,7 +73,23 @@ function styleFor(colours, icons, options, extra) {
         return icons.image(cls, box(n) ? toneColour(n) : p.ground, 32) || 'none';
     };
     const lineStyle = e => (e.data('line') === 'dotted' ? 'dotted' : e.data('line') === 'dashed' ? 'dashed' : 'solid');
+    // A layered layout knows where each link has to go to pass the ranks between its ends;
+    // its route is drawn unless the app chose a curve. Read from where the layout left it.
+    const routed = options.layout === 'dagre' && !options.curveChosen;
+    const route = routed ? {
+        'curve-style': 'unbundled-bezier',
+        'control-point-weights': e => e.scratch('controlPointWeights') || [0.5],
+        'control-point-distances': e => e.scratch('controlPointDistances') || [0],
+        'edge-distances': 'intersection',
+    } : {};
     const edgeLabel = options.edgeLabels === 'always' ? (e => e.data('label') || '') : '';
+    const side = labelSide(options);
+    const beside = side === 'bottom' ? {} : {
+        'text-valign': 'center',
+        'text-halign': side,
+        'text-margin-y': 0,
+        'text-margin-x': n => (side === 'right' ? 4 : -4) / zoomOf(n),
+    };
 
     return [
         {
@@ -101,6 +124,7 @@ function styleFor(colours, icons, options, extra) {
                 'outline-width': 0,
                 'outline-color': p.ring,
                 'outline-offset': 2,
+                ...beside,
             },
         },
         { selector: 'node[?hub]', style: { 'font-weight': 600, 'color': p.fg } },
@@ -137,7 +161,8 @@ function styleFor(colours, icons, options, extra) {
             },
         },
         { selector: 'node[display = "box"][?muted]', style: { 'background-opacity': 0.6, 'border-opacity': 0.6, 'color': p.muted } },
-        // A group that holds records — a compound node. A whisper of its tone, its name at the top.
+        // A group that holds records — a compound node. A whisper of its tone, its name at the top,
+        // held at a screen size around dots like the names inside it.
         {
             selector: ':parent',
             style: {
@@ -161,6 +186,11 @@ function styleFor(colours, icons, options, extra) {
                 'text-background-opacity': 0.9,
                 'text-background-padding': 3,
                 'text-background-shape': 'round-rectangle',
+                ...(options.nodes === 'box' ? {} : {
+                    'font-size': n => 12 / zoomOf(n),
+                    'text-margin-y': n => -6 / zoomOf(n),
+                    'text-background-padding': n => 3 / zoomOf(n),
+                }),
             },
         },
         // A group folded away (expand-collapse): its name inside, dashed, holding its count.
@@ -215,8 +245,12 @@ function styleFor(colours, icons, options, extra) {
                 'text-rotation': options.nodes === 'box' ? 'none' : 'autorotate',
                 'transition-property': 'opacity',
                 'transition-duration': reducedMotion() ? 0 : 160,
+                ...route,
             },
         },
+        // The links of a folded group, redrawn to it: straight, so every link between the same
+        // two ends is one line rather than a fan of parallel curves.
+        { selector: 'edge.cy-expand-collapse-meta-edge', style: { 'curve-style': 'straight' } },
         { selector: 'edge[?muted]', style: { 'line-opacity': 0.2 } },
         // A bridge between two islands is the quietest line on the map until its record is pointed at.
         { selector: 'edge[?across]', style: { 'line-opacity': options.nodes === 'box' ? 0.5 : 0.16 } },
@@ -228,7 +262,21 @@ function styleFor(colours, icons, options, extra) {
             selector: 'edge.lit',
             style: { 'line-opacity': 1, 'width': e => Math.max(2, (e.data('weight') || 1) * 1.6) * held(e), 'label': e => (options.edgeLabels === 'none' ? '' : e.data('label') || ''), 'z-index': 10 },
         },
-        { selector: 'node.match', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.accent, 'color': p.fg, 'label': nameOf } },
+        {
+            // A match: a ring in the text colour, which stands out on every tone, inside a halo
+            // in the accent, which stands out on the ground — so it reads whatever the tone.
+            selector: 'node.match',
+            style: {
+                'border-width': n => (box(n) ? 2.5 : 2.5 * held(n)),
+                'border-color': p.fg,
+                'underlay-color': p.accent,
+                'underlay-opacity': 0.55,
+                'underlay-padding': n => (box(n) ? 5 : 6 * held(n)),
+                'underlay-shape': n => (box(n) ? 'round-rectangle' : 'ellipse'),
+                'color': p.fg,
+                'label': nameOf,
+            },
+        },
         { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'label': nameOf } },
         { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
         // The keyboard's place: a ring outside the record, in the focus ring's colour.

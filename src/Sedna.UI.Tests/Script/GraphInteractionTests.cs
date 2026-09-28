@@ -313,8 +313,12 @@ public class GraphInteractionTests : GraphTestBase
         await Ready(page);
 
         var (x, y) = await PointOf(page, "api");
+        // Listening before the double click, and for the navigation rather than the next
+        // page's load: the fixture answers every path at once, so a wait started afterwards
+        // can begin after the navigation has already happened.
+        var navigated = page.WaitForURLAsync("**/records/api", new() { WaitUntil = WaitUntilState.Commit });
         await page.Mouse.DblClickAsync(x, y);
-        await page.WaitForURLAsync("**/records/api");
+        await navigated;
     }
 
     [Fact]

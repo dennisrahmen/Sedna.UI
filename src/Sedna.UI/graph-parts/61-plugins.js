@@ -79,8 +79,17 @@ async function collapsible(g) {
         afterStructure(g);
     });
     g.cy.on('expandcollapse.afterexpand', 'node', e => {
-        if (!g.quietFolds) g.emit('sedna-graph-expand', { id: e.target.id(), label: e.target.data('label') });
+        if (g.quietFolds) {
+            afterStructure(g);
+            return;
+        }
+        g.emit('sedna-graph-expand', { id: e.target.id(), label: e.target.data('label') });
         afterStructure(g);
+        // Unfolded where it was folded from, over whatever the drawing put there since: the
+        // drawing is arranged again around it, once, however many groups opened at once —
+        // after the plugin's own unfolding has finished moving them, or it moves them back.
+        clearTimeout(g.unfolding);
+        g.unfolding = setTimeout(() => { if (!g.disposed) arrange(g, true).catch(report); }, reducedMotion() ? 0 : 300);
     });
     return g.ec;
 }
@@ -146,7 +155,10 @@ function drawHulls(g) {
             tone = [...count.entries()].sort((a, b) => b[1] - a[1])[0][0];
         }
         const colour = g.colours.token(tone, palette(g.colours).line);
+        // Routed through lines of its own between members that no link joins, so a group
+        // spread across the drawing is still one outline, not none.
         g.bb.addPath(nodes, nodes.edgesWith(nodes).not('.hidden'), all.not(nodes), {
+            virtualEdges: true,
             style: { fill: withAlpha(colour, 0.12), stroke: withAlpha(colour, 0.55), strokeWidth: '1.5' },
         });
     }

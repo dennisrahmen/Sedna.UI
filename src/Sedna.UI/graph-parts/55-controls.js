@@ -185,7 +185,7 @@ async function act(g, action, value, c) {
     switch (action) {
         case 'zoom-in': return zoomBy(g, 1.3);
         case 'zoom-out': return zoomBy(g, 1 / 1.3);
-        case 'fit': g.touched = false; return fitView(g, null, true);
+        case 'fit': return fitAll(g);
         case 'arrange': return arrange(g, true);
         case 'fullscreen': return fullscreen(g, c);
         case 'export-png': return download(g, 'png', c?.getAttribute('data-graph-filename'));
@@ -243,7 +243,14 @@ async function option(g, name, value) {
             await arrange(g, true);
             break;
         case 'labels': o.labels = value; restyle(g); declutter(g); break;
-        case 'edge-labels': o.edgeLabels = value; o.edgeLabelsChosen = true; restyle(g); break;
+        case 'edge-labels':
+            o.edgeLabels = value;
+            o.edgeLabelsChosen = true;
+            // Names written on every link are held at their size from now on, so the links
+            // take the zoom they have been skipping.
+            g.cy.batch(() => g.cy.edges().data('zoom', g.step));
+            restyle(g);
+            break;
         case 'colour': case 'color': o.colourBy = value || 'tone'; restyle(g); break;
         case 'curve': o.curve = value; restyle(g); break;
         case 'arrows': o.arrows = value; restyle(g); break;
@@ -257,17 +264,37 @@ async function option(g, name, value) {
     changed(g);
 }
 
+/* Everything back as it was first drawn: the controls, and what they changed — the
+   filter, the focus, the search, the view options, the outlines, drawing mode and the
+   folds the data started with. */
 async function reset(g) {
     restoreControls(g);
     g.hiddenIds.clear();
     g.focusId = g.options.focus || null;
-    g.depth = g.options.depth;
+    g.depth = g.startDepth || g.options.depth;
     g.query = '';
     select(g, null);
+    const start = g.startView || {};
+    const boxesChanged = start.nodes !== g.options.nodes;
+    Object.assign(g.options, start);
+    if (boxesChanged) measureBoxes(g);
+    restyle(g);
+    if (!!g.hullsOn !== !!g.options.hulls) await hulls(g, g.options.hulls);
+    if (!!g.drawing !== !!g.options.connect) await connect(g, g.options.connect);
+    if (g.ec) {
+        const cy = g.cy;
+        g.quietFolds = true;
+        try {
+            g.ec.expandAll({ animate: false, fisheye: false });
+            const folded = cy.nodes(':parent').filter(n => flag(n.data('fields')?.collapsed));
+            if (folded.nonempty()) g.ec.collapse(folded, { animate: false, fisheye: false });
+        } finally {
+            g.quietFolds = false;
+        }
+    }
+    g.touched = false;
     await refilter(g, true);
     search(g, '', false);
-    g.touched = false;
-    fitView(g, null, true);
     changed(g);
 }
 

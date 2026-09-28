@@ -29,17 +29,7 @@ function tips(g) {
 
     function fill(tip, ele) {
         const data = ele.data();
-        tip.querySelectorAll('[data-graph-field]').forEach(slot => {
-            const v = valueOf(data, slot.getAttribute('data-graph-field'));
-            const s = Array.isArray(v) ? v.join(', ') : v === undefined || v === null ? '' : String(v);
-            slot.textContent = s;
-            slot.hidden = s === '';
-        });
-        tip.querySelectorAll('[data-graph-icon]').forEach(i => {
-            if (i.__base === undefined) i.__base = i.className;
-            i.className = (i.__base + ' ' + (data.icon || '')).trim();
-            i.hidden = !data.icon;
-        });
+        fillSlots(tip, data);
         tip.setAttribute('data-graph-tone', data.tone || '');
     }
 

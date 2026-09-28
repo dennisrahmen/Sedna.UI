@@ -73,7 +73,9 @@ function applyFilter(g, spec) {
     const cy = g.cy;
     const f = filterOf(spec);
     g.filter = spec || {};
-    const pinned = n => n.data('root') || n.id() === f.focus;
+    // The focus is what the reader is looking at, so a filter never takes it away. A root
+    // is kept only from being hidden as unlinked — a chip that is off hides it like any record.
+    const pinned = n => n.id() === f.focus;
     cy.batch(() => {
         cy.elements().removeClass('hidden focus');
         cy.nodes().filter(n => !pinned(n) && (
@@ -88,7 +90,7 @@ function applyFilter(g, spec) {
             || !passes(e, f.edges, f.edgesExcept)
             || e.source().hasClass('hidden') || e.target().hasClass('hidden')).addClass('hidden');
         if (!f.isolated) {
-            cy.nodes().not('.hidden').filter(n => !n.isParent() && !pinned(n)
+            cy.nodes().not('.hidden').filter(n => !n.isParent() && !pinned(n) && !n.data('root')
                 && n.connectedEdges().not('.hidden').empty()).addClass('hidden');
             cy.nodes(':parent').not('.hidden').filter(p => p.descendants().not('.hidden').empty()).addClass('hidden');
         }
@@ -103,6 +105,7 @@ function applyFilter(g, spec) {
     });
     if (g.selected && g.selected.hasClass('hidden')) select(g, null);
     if (g.keyed && g.keyed.hasClass('hidden')) g.keyed = null;
+    if (g.tip?.showing && (g.tip.showing.removed() || g.tip.showing.hasClass('hidden'))) g.tip.hide();
 }
 
 function searchText(n) {

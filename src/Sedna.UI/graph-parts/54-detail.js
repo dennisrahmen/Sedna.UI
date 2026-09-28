@@ -39,16 +39,27 @@ function detailPanels(g) {
     return [...panels];
 }
 
+/* A record's fields into the app's slots — the tooltip's, the menu's and the panel's.
+   Text only, never markup. A field the record does not have hides its slot, and what
+   belongs to the slot with it: the `<dt>` before a `<dd>` slot, and any element with
+   `data-graph-if="field"`, which is how a label written beside a value leaves with it. */
+const textOf = v => (Array.isArray(v) ? v.join(', ') : v === undefined || v === null ? '' : String(v));
+
 function fillSlots(root, data) {
+    const own = el => !el.closest('template');
     root.querySelectorAll('[data-graph-field]').forEach(slot => {
-        if (slot.closest('template')) return;
-        const v = valueOf(data, slot.getAttribute('data-graph-field'));
-        const s = Array.isArray(v) ? v.join(', ') : v === undefined || v === null ? '' : String(v);
+        if (!own(slot)) return;
+        const s = textOf(valueOf(data, slot.getAttribute('data-graph-field')));
         slot.textContent = s;
         slot.hidden = s === '';
+        const term = slot.tagName === 'DD' ? slot.previousElementSibling : null;
+        if (term && term.tagName === 'DT') term.hidden = s === '';
+    });
+    root.querySelectorAll('[data-graph-if]').forEach(el => {
+        if (own(el)) el.hidden = textOf(valueOf(data, el.getAttribute('data-graph-if'))) === '';
     });
     root.querySelectorAll('[data-graph-icon]').forEach(i => {
-        if (i.closest('template')) return;
+        if (!own(i)) return;
         if (i.__base === undefined) i.__base = i.className;
         i.className = (i.__base + ' ' + (data.icon || '')).trim();
         i.hidden = !data.icon;

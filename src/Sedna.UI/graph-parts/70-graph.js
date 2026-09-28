@@ -66,9 +66,15 @@ function readOptions(el, given) {
     // Chosen, or following the drawing: boxes write their links' labels, dots only when lit.
     o.edgeLabelsChosen = !!o.edgeLabels;
     followEdgeLabels(o);
+    o.curveChosen = !!o.curve;
     o.curve = o.curve || 'bezier';
     return o;
 }
+
+/* The options a reader can change, as they were when the graph was first drawn — what
+   Reset puts back. */
+const VIEW_OPTIONS = ['layout', 'direction', 'spacing', 'nodes', 'labels', 'edgeLabels', 'edgeLabelsChosen', 'colourBy', 'curve', 'arrows'];
+const viewOf = o => Object.fromEntries(VIEW_OPTIONS.map(k => [k, o[k]]));
 
 function followEdgeLabels(o) {
     if (!o.edgeLabelsChosen) o.edgeLabels = o.nodes === 'box' ? 'always' : 'hover';
@@ -191,6 +197,13 @@ function nodeDetail(ele, extra) {
 
 function restyle(g) {
     g.cy.style(styleFor(g.colours, g.icons, g.options, g.extraStyle));
+    colouring(g);
+}
+
+// The colouring on show, for the stylesheet: an app's legend for each colouring can
+// follow it with CSS alone — `[data-graph-colouring="status"]`.
+function colouring(g) {
+    g.el.setAttribute('data-graph-colouring', g.options.colourBy || 'tone');
 }
 
 function changed(g) {
@@ -249,7 +262,17 @@ async function arrange(g, animate) {
     // The filter has already hidden what will not be shown, so only that is prepared, and
     // the app's .graph-wait covers the canvas until the state leaves loading.
     mount(g);
-    await arrangeWith(cy, g.options.layout, g.options, g.el);
+    // A layout that makes room for names measures every name, not just the ones the
+    // declutter is showing now: which those are depends on where the records were, and a
+    // drawing measured with half its names would grow into itself once they came back.
+    const quiet = cy.nodes('.unlabelled');
+    if (quiet.nonempty()) cy.batch(() => quiet.removeClass('unlabelled'));
+    try {
+        await arrangeWith(cy, g.options.layout, g.options, g.el);
+        await atScale(g, run);
+    } finally {
+        if (quiet.nonempty()) cy.batch(() => quiet.filter(n => n.inside()).addClass('unlabelled'));
+    }
     if (run !== g.arranging || g.disposed) return;
     if (before) {
         const after = new Map(moving.map(n => [n.id(), Object.assign({}, n.position())]));
@@ -273,6 +296,27 @@ async function arrange(g, animate) {
         else settle(g);
         g.minimap?.now();
         if (g.hullsOn) drawHulls(g);
+    }
+}
+
+/* A name around dots is held at its screen size, so a drawing seen zoomed out has larger
+   names in it than the one the layout measured — and where the layout made room for names,
+   in a group's box or a layered hierarchy, they grow into their neighbours. So there the
+   layout runs again at the zoom the drawing will be seen at, until the two agree. */
+async function atScale(g, run) {
+    const cy = g.cy;
+    if (g.options.nodes === 'box' || g.touched) return;
+    const measures = g.options.layout === 'dagre' || cy.nodes(':parent').not('.hidden').nonempty();
+    if (!measures) return;
+    for (let pass = 0; pass < 3; pass++) {
+        const shown = cy.nodes().not('.hidden');
+        if (shown.empty()) return;
+        const seen = stepOf(Math.min(1, fitOf(g, shown).zoom));
+        if (seen === g.step) return;
+        g.step = seen;
+        cy.batch(() => cy.elements().data('zoom', seen));
+        await arrangeWith(cy, g.options.layout, g.options, g.el);
+        if (run !== g.arranging || g.disposed) return;
     }
 }
 
@@ -493,6 +537,9 @@ function wire(g) {
         g.tip.show(event.target);
     });
     cy.on('mouseout', 'edge', () => g.tip.hide());
+    // A pointer that leaves the canvas in one jump never passes a record's edge on the way
+    // out, so the canvas's own edge hides the tooltip too.
+    on(g.host, 'pointerleave', () => g.tip.hide());
     g.listeners.push(() => clearTimeout(leaving));
 
     cy.on('tap', 'node', event => {
@@ -615,8 +662,11 @@ async function start(g) {
     g.colours = colourReader(el);
     g.icons = iconPainter(el);
     optionsFromControls(g);
+    g.startView = viewOf(g.options);
+    colouring(g);
     g.focusId = g.options.focus;
     g.depth = g.depth || g.options.depth;
+    g.startDepth = g.depth;
 
     // `data-graph-deferred`: the records arrive by call — graph.set, ISednaGraph.SetDataAsync —
     // and the wait stays up until they do, rather than an empty state flashing first.
@@ -703,6 +753,7 @@ function dispose(g) {
     g.disposed = true;
     graphs.delete(g.el);
     clearTimeout(g.typing);
+    clearTimeout(g.unfolding);
     g.listeners.splice(0).forEach(off => { try { off(); } catch (e) { /* ignore */ } });
     g.observers.splice(0).forEach(o => o.disconnect());
     g.keys?.destroy();
@@ -715,6 +766,7 @@ function dispose(g) {
     g.colours?.remove();
     g.icons?.remove();
     g.el.removeAttribute('data-graph-state');
+    g.el.removeAttribute('data-graph-colouring');
 }
 
 async function invoke(g, method, args) {
@@ -795,10 +847,7 @@ function makeApi(g) {
             await arrange(g, true);
             changed(g);
         },
-        fit: () => {
-            g.touched = false;
-            fitView(g, null, true);
-        },
+        fit: () => fitAll(g),
         zoom: factor => zoomBy(g, factor),
         option: (name, value) => option(g, name, value),
         /* The app's own engine rules, on top of the library's and kept across every

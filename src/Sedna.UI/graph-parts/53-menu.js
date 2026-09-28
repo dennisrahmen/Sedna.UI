@@ -32,13 +32,7 @@ function menus(g) {
         g.tip.hide();
         target = ele;
         menu.setAttribute('data-graph-target', ele ? ele.id() : '');
-        const data = ele ? ele.data() : {};
-        menu.querySelectorAll('[data-graph-field]').forEach(slot => {
-            const v = valueOf(data, slot.getAttribute('data-graph-field'));
-            const s = Array.isArray(v) ? v.join(', ') : v === undefined || v === null ? '' : String(v);
-            slot.textContent = s;
-            slot.hidden = s === '';
-        });
+        fillSlots(menu, ele ? ele.data() : {});
         // An item that needs a record, or a group, hides itself where there is none.
         menu.querySelectorAll('[data-graph-action]').forEach(item => {
             const a = item.getAttribute('data-graph-action');
@@ -47,6 +41,7 @@ function menus(g) {
                 : a === 'collapse' ? ele && g.ec && g.ec.isCollapsible(ele) : true;
             item.hidden = (needs && !ele) || !group || (a === 'open' && ele && !ele.data('href') && !item.hasAttribute('data-graph-always'));
         });
+        tidy();
         menu.hidden = false;
         const stage = g.el.getBoundingClientRect();
         const m = menu.getBoundingClientRect();
@@ -55,6 +50,25 @@ function menus(g) {
         if (y + m.height > stage.height - 6) y = Math.max(6, at.y - m.height);
         menu.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
         if (keyboard) items()[0]?.focus();
+    }
+
+    // A separator only between two things that are showing: none first, none last, never two
+    // in a row — the items around one hide by record, so which of them is left changes.
+    function tidy() {
+        const isSep = el => el.matches('.menu-sep, hr, [role="separator"]');
+        let before = false, pending = null;
+        for (const el of menu.children) {
+            if (isSep(el)) {
+                el.hidden = true;
+                if (before) pending = el;
+                before = false;
+                continue;
+            }
+            if (el.hidden || el.tagName === 'TEMPLATE') continue;
+            if (pending) pending.hidden = false;
+            pending = null;
+            before = true;
+        }
     }
 
     function close(refocus) {

@@ -227,8 +227,13 @@ function svgOf(g, ground) {
                 parts.push(`<text x="${num(tx)}" y="${num(top)}" text-anchor="middle" dominant-baseline="middle" font-size="${num(size)}" font-weight="${weight}" fill="${colour}">`
                     + lines.map((l, i) => `<tspan x="${num(tx)}" y="${num(top + i * lh)}">${esc(l)}</tspan>`).join('') + '</text>');
             } else {
-                const ty = p.y + nh / 2 + n.numericStyle('text-margin-y') + size;
-                parts.push(`<text x="${num(p.x)}" y="${num(ty)}" text-anchor="middle" font-size="${num(size)}" font-weight="${weight}" fill="${colour}" stroke="${ground}" stroke-width="${num(size * 0.22 * 2)}" stroke-linejoin="round" paint-order="stroke">${esc(label)}</text>`);
+                // Beneath the record, or beside it where the stylesheet put it there.
+                const halign = n.style('text-halign');
+                const beside = n.style('text-valign') === 'center' && (halign === 'right' || halign === 'left');
+                const tx = beside ? p.x + (halign === 'right' ? 1 : -1) * nw / 2 + n.numericStyle('text-margin-x') : p.x;
+                const ty = beside ? p.y : p.y + nh / 2 + n.numericStyle('text-margin-y') + size;
+                const anchor = beside ? (halign === 'right' ? 'start' : 'end') : 'middle';
+                parts.push(`<text x="${num(tx)}" y="${num(ty)}" text-anchor="${anchor}"${beside ? ' dominant-baseline="middle"' : ''} font-size="${num(size)}" font-weight="${weight}" fill="${colour}" stroke="${ground}" stroke-width="${num(size * 0.22 * 2)}" stroke-linejoin="round" paint-order="stroke">${esc(label)}</text>`);
             }
         }
         parts.push('</g>');

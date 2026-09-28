@@ -45,6 +45,10 @@ first time one comes within a screen of the viewport. A page without a graph nev
 are no records, `.graph-empty--filtered` when the filters hide every one and `.graph-empty--error`
 when the data could not be read.
 
+`data-graph-colouring` on the element names the colouring on show — `tone`, or the `<name>` of the
+`data-tone-<name>` a control or a call switched to — so an app shows the legend for each colouring
+with CSS alone: `[data-graph-colouring="status"] .legend-status`.
+
 ### Records
 
 | Attribute | JSON / C# | What it does |
@@ -171,21 +175,25 @@ inside, else the one in its `[data-graph-frame]`.
 
 A toggle `button` is flipped by the script, so its `aria-pressed` is the script's; a checkbox, a
 radio, a select and a text field keep their native state, which a Blazor binding can own. A
-`button.chip` with `aria-pressed="true"` looks chosen by itself. Reset puts every control back as it
-was first drawn.
+`button.chip` with `aria-pressed="true"` looks chosen by itself. Reset puts back everything as it was
+first drawn: every control, and what the controls and calls changed — the filter, the focus, the
+search, the layout, the colouring and the other view options, the outlines, drawing mode and the folds
+the data started with.
 
 ### Filling the app's markup
 
 Every `[data-graph-field="name"]` inside the tooltip, the menu and the side panel gets the record's
-value of that field as text — never as markup — and one the record lacks is hidden.
-`[data-graph-icon]` takes the record's icon class. `data-graph-tone` on the filled element carries the
+value of that field as text — never as markup — and one the record lacks is hidden, together with what
+belongs to it: the `<dt>` before a `<dd>` slot, and any element marked `data-graph-if="name"`, which is
+how a label written beside a value leaves with it. `[data-graph-icon]` takes the record's icon class. `data-graph-tone` on the filled element carries the
 record's tone.
 
 - **Tooltip** — `[data-graph-tip]` inside the graph; `[data-graph-tip="edge"]` for links. Without one,
   the library's hover-hint bubble says the record's name and `meta`.
 - **Menu** — `[data-graph-menu]` on a `.menu` inside the graph, opened by a right click, a long press or
   the context-menu key. Its `data-graph-action` items act on that record, and an item that does not
-  apply hides itself — `open` without a `data-href`, `expand` on a record that is no folded group.
+  apply hides itself — `open` without a `data-href`, `expand` on a record that is no folded group. A
+  `.menu-sep` shows only between two things that are showing.
 - **Side panel** — `[data-graph-detail]`, shown while a record is selected. Rows are cloned from its
   `<template data-graph-neighbour>`, one per neighbour, each with `data-graph-direction` (`out`, `in`,
   `both`); `[data-graph-link]` takes the link's label, and a row's `data-graph-action` acts on that
@@ -220,13 +228,18 @@ hides, because where a record sits among the others is what the graph is for.
 | `rings` | Hops around the root or the focus. |
 | `concentric` | The most connected in the middle. |
 | `tree` | Breadth-first from the roots, in `data-graph-direction`. |
-| `dagre` | A layered hierarchy — an org chart, a flow, a dependency tree. A plugin. |
+| `dagre` | A layered hierarchy — an org chart, a flow, a dependency tree. Each link is drawn along the route the layout found through the ranks between its ends, unless `data-graph-curve` chooses a curve. A plugin. |
 | `fcose` | Springs that also lay out nested groups. A plugin. |
 | `grid`, `circle` | Busiest first. |
 | `preset` | Where `data-x` and `data-y` put each record. |
 | any other name | A cytoscape layout of that name, when one is registered on the engine the handle's `cy` exposes. |
 
 Every layout is deterministic: the drawing a reader learned yesterday is the one that comes back.
+
+In a `tree` or `dagre` that runs sideways — `LR`, `RL` — a dot's name is written beside it, towards the
+next level, rather than beneath it. Where a layout makes room for names — groups, `dagre` — it is run
+at the zoom the drawing will be seen at, because a name is held at its screen size and is larger in a
+drawing seen zoomed out. Unfolding a group arranges the drawing again around it.
 
 ## Plugins
 

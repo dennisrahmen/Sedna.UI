@@ -172,19 +172,44 @@ async function arrangeWith(cy, name, options, frame) {
             }).run();
             return;
         case 'tree': {
+            // breadthfirst spreads each level across its box and the levels down it, so the
+            // box decides the drawing. It is sized from the tree — how many levels, how many
+            // records in the widest — and from what a record needs beside and after it, which
+            // depends on which way the tree runs: a name is wide and one line tall.
             const roots = visible.nodes('[?root]');
-            visible.layout({
+            const run = bb => visible.layout({
                 name: 'breadthfirst',
                 fit: false,
                 animate: false,
-                boundingBox: direction === 'LR' || direction === 'RL' ? turned : frameBox,
+                boundingBox: bb,
                 directed: true,
                 roots: roots.nonempty() ? roots : undefined,
-                spacingFactor: spacing * (box ? 1 : 1.2),
+                spacingFactor: 1,
                 avoidOverlap: true,
                 grid: false,
                 circle: false,
             }).run();
+            run(frameBox);
+            const leaves = visible.nodes().filter(n => !n.isParent());
+            const levels = new Map();
+            leaves.forEach(n => {
+                const y = Math.round(n.position('y'));
+                levels.set(y, (levels.get(y) || 0) + 1);
+            });
+            const widest = Math.max(1, ...levels.values());
+            const sideways = direction === 'LR' || direction === 'RL';
+            const boxW = box ? Math.max(...leaves.map(n => n.data('boxW') || 120)) : 0;
+            const boxH = box ? Math.max(...leaves.map(n => n.data('boxH') || 36)) : 0;
+            // A sideways tree writes its names beside its dots (labelSide), so a record needs
+            // a line's height beside it and a name's width after it.
+            const beside = (box ? (sideways ? boxH + 20 : boxW + 28) : (sideways ? 30 : 112)) * (1 + (spacing - 1) * 0.5);
+            const after = (box ? (sideways ? boxW + 72 : boxH + 64) : (sideways ? 190 : 92)) * spacing;
+            const across = widest * beside;
+            // The levels are spread as far as the frame's shape allows, so the drawing fills it
+            // rather than sitting in a band across its middle.
+            const shape = sideways ? 1 / aspect : aspect;
+            const down = Math.max(Math.max(1, levels.size) * after, Math.min(across / shape, Math.max(1, levels.size) * after * 2.2));
+            run({ x1: 0, y1: 0, w: across, h: down });
             orient(visible, direction);
             return;
         }
@@ -200,32 +225,13 @@ async function arrangeWith(cy, name, options, frame) {
                 edgeSep: 12 * spacing,
                 ranker: 'network-simplex',
                 nodeDimensionsIncludeLabels: !box,
+                // Each link's route through the ranks, kept for the stylesheet to draw.
+                useDagreEdgeControlPoints: true,
             }));
+            visible.edges().updateStyle();
             return;
         case 'fcose':
-            await plugin('fcose');
-            // Seeded, so the same graph comes out the same way on every load.
-            seeded();
-            try {
-                await settled(visible.layout({
-                    name: 'fcose',
-                    quality: count > 800 ? 'draft' : 'default',
-                    randomize: true,
-                    animate: false,
-                    fit: false,
-                    nodeRepulsion: () => 6500 * spacing,
-                    idealEdgeLength: () => (box ? 90 : 70) * spacing,
-                    nodeSeparation: 75 * spacing,
-                    packComponents: true,
-                    tile: true,
-                    nestingFactor: 0.1,
-                    gravity: 0.25,
-                    numIter: 2500,
-                    nodeDimensionsIncludeLabels: box,
-                }));
-            } finally {
-                restoreRandom();
-            }
+            await nestedSprings(visible, count, spacing, box);
             return;
         case 'rings':
             await rings(visible, options, spacing, frameBox);
@@ -247,6 +253,13 @@ async function arrangeWith(cy, name, options, frame) {
                 await settled(visible.layout({ name, fit: false, animate: false }));
                 return;
             }
+            // Groups drawn around their records (data-parent) are fcose's to lay out: cose
+            // leaves a record outside a group lying across the group's edge.
+            if (visible.nodes(':parent').nonempty()) {
+                await nestedSprings(visible, count, spacing, box);
+                stretch(visible, aspect);
+                return;
+            }
             if (visible.nodes('.focus').nonempty() || visible.nodes('[?root]').nonempty()) {
                 await rings(visible, options, spacing, frameBox);
             } else {
@@ -258,6 +271,35 @@ async function arrangeWith(cy, name, options, frame) {
             }
             stretch(visible, aspect);
             return;
+    }
+}
+
+/* fcose: springs that understand groups inside groups. Seeded, so the same graph comes out
+   the same way on every load, and measuring names where there are groups — a group is drawn
+   around its records' names, and two groups measured without them come out over each other. */
+async function nestedSprings(visible, count, spacing, box) {
+    await plugin('fcose');
+    if (visible.cy().destroyed()) return;
+    seeded();
+    try {
+        await settled(visible.layout({
+            name: 'fcose',
+            quality: count > 800 ? 'draft' : 'default',
+            randomize: true,
+            animate: false,
+            fit: false,
+            nodeRepulsion: () => 6500 * spacing,
+            idealEdgeLength: () => (box ? 90 : 70) * spacing,
+            nodeSeparation: 75 * spacing,
+            packComponents: true,
+            tile: true,
+            nestingFactor: 0.1,
+            gravity: 0.25,
+            numIter: 2500,
+            nodeDimensionsIncludeLabels: box || visible.nodes(':parent').nonempty(),
+        }));
+    } finally {
+        restoreRandom();
     }
 }
 

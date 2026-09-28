@@ -18,19 +18,7 @@ function fitView(g, eles, animate) {
     const nodes = (eles || cy.elements().not('.hidden')).nodes();
     if (nodes.length === 0) return;
     cy.resize();
-    const box = nodes.boundingBox({ includeLabels: g.options.nodes === 'box', includeOverlays: false });
-    // Room at the sides for half a name, which runs out either side of its record, and
-    // below for one line of it.
-    // Room at the sides for half a name and below for a line of it — never more than a
-    // fifth of a narrow frame, where the drawing would otherwise shrink to a speck.
-    const labelRoom = Math.min(g.options.nodes === 'box' ? 48 : LABEL_MAX_PX + 32, cy.width() * 0.2);
-    const room = {
-        w: Math.max(cy.width() - labelRoom, cy.width() / 2),
-        h: Math.max(cy.height() - Math.min(g.options.nodes === 'box' ? 48 : 88, cy.height() * 0.2), cy.height() / 2),
-    };
-    const ceiling = g.options.nodes === 'box' ? 1.1 : 1.25;
-    const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), ceiling));
-    const pan = { x: cy.width() / 2 - zoom * (box.x1 + box.w / 2), y: cy.height() / 2 - zoom * (box.y1 + box.h / 2) };
+    const { zoom, pan } = fitOf(g, nodes);
     cy.stop();
     // Not waited for: an animation runs on animation frames, which a tab that is not
     // painted never gets. The names are placed again when the zoom comes to rest.
@@ -40,6 +28,38 @@ function fitView(g, eles, animate) {
         cy.viewport({ zoom, pan });
         settle(g);
     }
+}
+
+/* The zoom and pan that show these records whole, with room for their names. */
+function fitOf(g, nodes) {
+    const cy = g.cy;
+    const box = nodes.boundingBox({ includeLabels: g.options.nodes === 'box', includeOverlays: false });
+    // Room for the names, which are held at a screen size and so are not in the drawing's
+    // box: beneath a record, half a name either side and a line below it; beside one, a
+    // name's width on that side — never more than a fraction of a narrow frame, where the
+    // drawing would otherwise shrink to a speck.
+    const side = g.options.nodes === 'box' ? null : labelSide(g.options);
+    const sideRoom = side && side !== 'bottom' ? Math.min(LABEL_MAX_PX * 0.8 + 16, cy.width() * 0.3) : 0;
+    const labelRoom = g.options.nodes === 'box' ? Math.min(48, cy.width() * 0.2)
+        : sideRoom || Math.min(LABEL_MAX_PX + 32, cy.width() * 0.2);
+    const room = {
+        w: Math.max(cy.width() - labelRoom, cy.width() / 2),
+        h: Math.max(cy.height() - Math.min(g.options.nodes === 'box' ? 48 : sideRoom ? 32 : 88, cy.height() * 0.2), cy.height() / 2),
+    };
+    const ceiling = g.options.nodes === 'box' ? 1.1 : 1.25;
+    const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), ceiling));
+    // Names on one side: the drawing moves over by half their room, so they have all of it.
+    const shift = side === 'right' ? -sideRoom / 2 : side === 'left' ? sideRoom / 2 : 0;
+    const pan = { x: cy.width() / 2 + shift - zoom * (box.x1 + box.w / 2), y: cy.height() / 2 - zoom * (box.y1 + box.h / 2) };
+    return { zoom, pan };
+}
+
+/* The whole drawing, from a button or a call. While the records are still travelling to
+   a new layout, the fit waits for them to land: fitting now would fit where they were. */
+function fitAll(g) {
+    g.touched = false;
+    if (g.travelling) g.refit = true;
+    else fitView(g, null, true);
 }
 
 const stepOf = zoom => Math.exp(Math.round(Math.log(zoom) / 0.07) * 0.07);
@@ -53,7 +73,9 @@ function settle(g) {
     if (g.options.nodes !== 'box') {
         const next = stepOf(cy.zoom());
         if (next !== g.step) {
-            const edges = Math.max(next, g.step) > 1 ? cy.edges() : cy.edges('.lit');
+            // Link names that are always written are held at their size like record names;
+            // otherwise only a lit link's name is showing.
+            const edges = Math.max(next, g.step) > 1 || g.options.edgeLabels === 'always' ? cy.edges() : cy.edges('.lit');
             g.step = next;
             cy.batch(() => cy.nodes().union(edges).data('zoom', g.step));
         }
@@ -108,6 +130,7 @@ function declutter(g) {
     // whenever the view settles, and a label's box follows from its length and size.
     const zoom = cy.zoom();
     const pan = cy.pan();
+    const side = labelSide(g.options);
     const show = [];
     const hide = [];
     const ranked = nodes.toArray().map(n => ({ n, rank: labelPriority(n) })).sort((a, b) => b.rank - a.rank);
@@ -118,7 +141,9 @@ function declutter(g) {
         const r = ((n.data('size') || 20) * held(n) * zoom) / 2;
         const px = labelPx(n);
         const w = Math.min((n.data('label') || '').length * px * 0.6, LABEL_MAX_PX) + 10;
-        const box = { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2, y2: y + r + 2 + px * 1.7 };
+        const box = side === 'right' ? { x1: x + r + 3, x2: x + r + 3 + w, y1: y - px * 0.85, y2: y + px * 0.85 }
+            : side === 'left' ? { x1: x - r - 3 - w, x2: x - r - 3, y1: y - px * 0.85, y2: y + px * 0.85 }
+                : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2, y2: y + r + 2 + px * 1.7 };
         // A name written across a record hides it — but only a record that outranks it
         // is kept clear: in a crowd a hub's name over a leaf is the map, and a leaf's
         // name over a hub is the hairball.
