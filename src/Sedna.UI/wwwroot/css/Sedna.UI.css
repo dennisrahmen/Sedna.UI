@@ -3461,6 +3461,11 @@ a.topbar-version--pre:hover {
     background: var(--brand);
 }
 
+/* The frame's own bar is the anchor the toast stack and a .fab rise above. Only the
+   bar in the documented place, as the last child of the shell's .content: a bar drawn
+   inside a page — a demo, a preview — must not pull every toast up to it. */
+.layout > .content > .bottombar { anchor-name: --sedna-bottombar; }
+
 /* .page pads its own bottom edge clear of the home indicator, because it is normally
    what reaches the device's edge. With a bottom bar below it, the bar does that
    instead, and the page keeps only its gutter. */
@@ -4427,6 +4432,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
        20px is the gap the design wants from the edge, and the inset is how much of
        that edge the device has already taken. */
     inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    /* Above the frame's bottom bar while one shows, so a toast never covers its items.
+       The bar is the anchor (24-frame-bottombar.css names it) and its HEIGHT is the
+       offset: the frame's bar always sits on the viewport's bottom edge, and its height
+       already includes the inset it pads itself by. Not its position — under
+       .layout--flow the bar is sticky, and anchor() reads where it would be unstuck,
+       thousands of pixels down. With no bar, or one .layout--bottombar hides on a wide
+       screen, the fallback is the inset alone. */
+    inset-block-end: calc(var(--space-8) + anchor-size(--sedna-bottombar block, var(--safe-block-end)));
     inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
     z-index: 600;
     display: flex;
@@ -10392,8 +10405,9 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
     /* The toast stack's corner and the same arithmetic — see 38-toasts.css. A FAB
        lands on a phone by definition, so this is the one control in the library
        that would be under a thumb-height home indicator on every device that has
-       one. */
+       one. It rises above the frame's bottom bar the same way, too. */
     inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    inset-block-end: calc(var(--space-8) + anchor-size(--sedna-bottombar block, var(--safe-block-end)));
     inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
     z-index: 60;
     display: inline-flex;

@@ -277,6 +277,11 @@
     background: var(--brand);
 }
 
+/* The frame's own bar is the anchor the toast stack and a .fab rise above. Only the
+   bar in the documented place, as the last child of the shell's .content: a bar drawn
+   inside a page — a demo, a preview — must not pull every toast up to it. */
+.layout > .content > .bottombar { anchor-name: --sedna-bottombar; }
+
 /* .page pads its own bottom edge clear of the home indicator, because it is normally
    what reaches the device's edge. With a bottom bar below it, the bar does that
    instead, and the page keeps only its gutter. */
