@@ -20,14 +20,14 @@ what it names.
 | Hover hint | drawn | [architecture.md](architecture.md#javascript) | `17-frame-hover-hints.css` | `js-parts/20-tips.js` | — | `/hover-hints` |
 | Markdown preview | drawn | [architecture.md](architecture.md#javascript) | `44-markdown.css` | `js-parts/30-markdown.js` | — | `/markdown` |
 | Graph | shipped | [graph.md](graph.md) | `54-graph.css` | `js-parts/43-graph.js`, `graph-parts/` | `wwwroot/lib/cytoscape/` | `/graph` |
-| Rich-text editor | styled | [surfaces.md](#rich-text-editor) | `44-quill.css` | — | — | `/editor` |
+| Rich-text editor | shipped | [editor.md](editor.md) | `44-rich-text.css` | `js-parts/44-editor.js`, `editor-parts/` | `wwwroot/lib/quill/` | `/editor` |
 
 **Delivery** is how the surface reaches a page:
 
 - **drawn** — the library's own script draws it, with no engine behind it.
-- **shipped** — the library ships an engine, vendored under `wwwroot/lib/`, and loads it on demand.
-- **styled** — the app installs the engine; the library styles what the engine renders and ships
-  none of its code.
+- **shipped** — the library ships an engine, vendored under `wwwroot/lib/` by a `build/vendor-*.sh`
+  script, and loads it on demand through its own ES module — generated from `<name>-parts/` — which
+  the shared loader in `js-parts/42-surfaces.js` imports the first time a page shows one.
 
 A surface's **catalogue** route is its page; a page whose route extends it (`/graph-layouts`) belongs
 to it too. Every one of those pages carries the tier 3 badge, and no other page does.
@@ -74,12 +74,3 @@ A new surface is the owner's decision, not a pull request's. Once agreed:
 4. Give it a catalogue page with the tier 3 badge.
 
 `CLAUDE.md` does not change: it points here.
-
-## Rich-text editor
-
-Quill 2 is the one editor engine the library dresses. `44-quill.css` styles the markup Quill generates
-inside `.editor`, as the app's editor component renders it, so an app that needs rich text gets an
-editor that looks native without writing its own skin. The app installs the component and does not link
-its stylesheet; the catalogue references it to show and test the skin on the real component, pinned to
-one version. The toolbar is the app's own `.editor-toolbar` of `.btn` buttons carrying Quill's `ql-*`
-classes. See the catalogue's `/editor` page for the markup.

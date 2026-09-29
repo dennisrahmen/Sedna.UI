@@ -7,8 +7,8 @@
    data, so `@onsedna-drop` in a component receives a SednaDropEventArgs, and
    `@onsedna-graph-select` a SednaGraphNodeEventArgs, rather than an empty EventArgs.
    The events themselves are ordinary bubbling DOM events, and a page with no Blazor on
-   it listens to them with addEventListener. And it tells the graph when Blazor has
-   started, so a graph on a prerendered page is drawn once, in the markup the
+   it listens to them with addEventListener. And it tells the graph and the editor when
+   Blazor has started, so one on a prerendered page starts once, in the markup the
    interactive render leaves, rather than in the prerendered markup it replaces.
    Nothing here calls into .NET.
 
@@ -19,6 +19,7 @@ const events = [
     'sedna-dragstart', 'sedna-drop', 'sedna-dragend',
     'sedna-graph-ready', 'sedna-graph-change', 'sedna-graph-select', 'sedna-graph-open', 'sedna-graph-hover',
     'sedna-graph-context', 'sedna-graph-connect', 'sedna-graph-expand', 'sedna-graph-collapse',
+    'sedna-editor-ready', 'sedna-editor-change',
 ];
 
 let registered = false;
@@ -34,9 +35,11 @@ function register(blazor) {
 }
 
 function started() {
-    // The graph's front door holds graphs only on a page carrying interactive markers,
-    // and releases itself after a few seconds if this is never called.
+    // The surface loader holds graphs and editors only on a page carrying interactive
+    // markers, and releases itself after a few seconds if this is never called. One hold
+    // serves every surface; each front door hands out the same release.
     window.sednaUi?.graph?.release?.();
+    window.sednaUi?.editor?.release?.();
 }
 
 // A Blazor Web App calls the first; a standalone Blazor Server or WebAssembly app, the

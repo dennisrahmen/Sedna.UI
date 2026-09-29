@@ -17,8 +17,8 @@ internal static class McpInstructions
         <AppShell>, and no component wrapper of any kind. Build a page by copying markup from
         this catalogue and applying the classes.
 
-        The library draws only its tier 3 surfaces — a toast, a hover hint, a graph — and every
-        control, menu, panel and legend around one is markup the app writes. A confirmation is a
+        The library draws only its tier 3 surfaces — a toast, a hover hint, a graph, a rich-text
+        editor — and every control, menu, panel and legend around one is markup the app writes. A confirmation is a
         <dialog class="modal"> the app writes and awaits with ISednaUi.ShowModalAsync; a modal,
         drawer or sheet that is its own component is presented with ISednaOverlays.
 

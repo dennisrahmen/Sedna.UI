@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Verifies that a built .nupkg contains the CSS, the JS, the icons, the tokens and
-# the graph engine — and that it contains no catalogue.
+# the engines of the surfaces that ship one — and that it contains no catalogue.
 #
 # This exists because static web assets have historically been dropped from
 # packages under some build configurations, and the failure is silent: the
@@ -57,6 +57,11 @@ REQUIRED=(
     "staticwebassets/lib/cytoscape/cytoscape-dagre.js"
     "staticwebassets/lib/cytoscape/licenses/cytoscape.txt"
     "staticwebassets/lib/cytoscape/VENDORED.txt"
+    # The rich-text editor: its module, the engine it imports, and the engine's licences.
+    "staticwebassets/js/Sedna.UI.editor.js"
+    "staticwebassets/lib/quill/quill.js"
+    "staticwebassets/lib/quill/licenses/quill.txt"
+    "staticwebassets/lib/quill/VENDORED.txt"
     "README.md"
     "LICENSE"
     "THIRD-PARTY-NOTICES.md"

@@ -25,7 +25,7 @@ and that nobody should restyle per project.
 
 **The paint** — tables, forms, cards, badges, buttons, alerts — is what a page puts inside it.
 
-**The surfaces** — a toast, a hover hint, a graph — are what the library draws, because there is
+**The surfaces** — a toast, a hover hint, a graph, a rich-text editor — are what the library draws, because there is
 nothing for the app to write. Everything around one is paint.
 
 **The frame and the paint are semantic CSS classes.** Pages write plain, open HTML and apply them, so there is no
@@ -43,6 +43,8 @@ always the app's.
 | [Getting started](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/getting-started.md) | Install, host-page setup, rebranding, icon font |
 | [Architecture](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/architecture.md) | The three tiers, the token contract, theming, z-order |
 | [Graph](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/graph.md) | Records and the links between them on a canvas: markup, controls, events, C# |
+| [Rich-text editor](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/editor.md) | Formatted text posted as HTML from a textarea: markup, toolbar, value, events, C# |
+| [Surfaces](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/surfaces.md) | Tier 3: what the library draws, and the contract each surface meets |
 | [Releasing](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/releasing.md) | SemVer rules, trusted publishing setup |
 | [Development](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/development.md) | Build, test, the guard tests, package verification |
 | [Consuming-app `CLAUDE.md`](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md) | Drop-in rules for an app that uses this |

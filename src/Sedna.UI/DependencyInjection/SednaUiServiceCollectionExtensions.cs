@@ -16,8 +16,9 @@ public static class SednaUiServiceCollectionExtensions
     /// <summary>
     /// Adds <see cref="ISednaUi"/>, the typed wrapper over the browser API,
     /// <see cref="ISednaSettings"/>, the applied appearance settings as bindable state,
-    /// <see cref="ISednaOverlays"/>, the presenter for app components shown as overlays, and
-    /// <see cref="ISednaGraphs"/>, typed access to the graphs on a page.
+    /// <see cref="ISednaOverlays"/>, the presenter for app components shown as overlays,
+    /// <see cref="ISednaGraphs"/>, typed access to the graphs on a page, and
+    /// <see cref="ISednaEditors"/>, typed access to its rich-text editors.
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configure">Optional: the options to push with <see cref="ISednaUi.ConfigureAsync"/>.</param>
@@ -49,6 +50,7 @@ public static class SednaUiServiceCollectionExtensions
         services.TryAddScoped<ISednaSettings, SednaSettings>();
         services.TryAddScoped<ISednaOverlays, SednaOverlays>();
         services.TryAddScoped<ISednaGraphs, SednaGraphs>();
+        services.TryAddScoped<ISednaEditors, SednaEditors>();
 
         return services;
     }

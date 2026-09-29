@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
-# Generates the two shipped scripts from their parts:
+# Generates the shipped scripts from their parts:
 #
-#   src/Sedna.UI/js-parts/     → wwwroot/js/Sedna.UI.js        the classic script every page loads
-#   src/Sedna.UI/graph-parts/  → wwwroot/js/Sedna.UI.graph.js  the ES module the graph imports on demand
+#   src/Sedna.UI/js-parts/      → wwwroot/js/Sedna.UI.js         the classic script every page loads
+#   src/Sedna.UI/graph-parts/   → wwwroot/js/Sedna.UI.graph.js   the ES module a graph imports on demand
+#   src/Sedna.UI/editor-parts/  → wwwroot/js/Sedna.UI.editor.js  the ES module an editor imports on demand
 #
 # Mirrors build/bundle-css.sh: the parts are DISCOVERED, never listed anywhere, so
 # adding a file to either directory puts it in the next build and there is no manifest
@@ -15,12 +16,13 @@
 #     1x  settings
 #     2x  behaviour attached to the document (hover hints, menus, tabs, …)
 #     3x  the Markdown editor
-#     4x  interop helpers and presenters, and the graph's front door
+#     4x  interop helpers and presenters, the surface loader, and the graph's and the
+#         editor's front doors
 #     5x  notifications and the audio ping
 #
-#   graph-parts/  — see src/Sedna.UI/graph-parts/CLAUDE.md
+#   graph-parts/, editor-parts/  — see the CLAUDE.md in each
 #     00  the imports, and nothing else
-#     1x–8x  the engine, one concern a file
+#     1x–8x  the surface, one concern a file
 #     99  the exports, and nothing else
 #
 # Each js-part is a self-contained IIFE that extends window.sednaUi, so a part is a
@@ -28,7 +30,7 @@
 # outside NuGet. Order still matters: 00-core.js creates the global and the shared
 # internals every other part reads.
 #
-# The graph parts are one ES module cut into files: they share its top-level scope,
+# A surface's parts are one ES module cut into files: they share its top-level scope,
 # so only 00 may import and only 99 may export, which this script checks.
 #
 # Why one file ships rather than N script tags:
@@ -38,11 +40,11 @@
 #   * wwwroot/js/Sedna.UI.js is a pinned path that consuming apps hard-code
 #     (ShippedAssetsTests asserts it). js-parts/ sits outside wwwroot, so the parts
 #     are not static web assets and there is exactly one script path to reference.
-#     The graph module is not referenced by any app at all: Sedna.UI.js imports it,
-#     relative to itself, the first time a page shows a graph.
+#     A surface's module is not referenced by any app at all: Sedna.UI.js imports it,
+#     relative to itself, the first time a page shows that surface.
 #
-# Usage:  build/bundle-js.sh          # regenerate both
-#         build/bundle-js.sh --check  # fail if either is out of date
+# Usage:  build/bundle-js.sh          # regenerate all three
+#         build/bundle-js.sh --check  # fail if any is out of date
 #
 set -euo pipefail
 
@@ -145,5 +147,6 @@ bundle() {
 
 bundle "$ROOT/src/Sedna.UI/js-parts"    "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.js"       script
 bundle "$ROOT/src/Sedna.UI/graph-parts" "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.graph.js" module
+bundle "$ROOT/src/Sedna.UI/editor-parts" "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.editor.js" module
 
 exit "$failed"

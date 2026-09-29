@@ -1,0 +1,22 @@
+<div class="form-field">
+    <label class="form-label" for="note-value">Handover note</label>
+    <div class="editor" data-editor id="note">
+        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+            <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold" data-tip="Bold · Ctrl+B"><i class="ri-bold"></i></button>
+            <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="italic" aria-label="Italic" data-tip="Italic · Ctrl+I"><i class="ri-italic"></i></button>
+            <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="underline" aria-label="Underline" data-tip="Underline · Ctrl+U"><i class="ri-underline"></i></button>
+            <span class="editor-sep" role="separator"></span>
+            <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list" data-tip="Bulleted list"><i class="ri-list-unordered"></i></button>
+            <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="ordered" aria-label="Numbered list" data-tip="Numbered list"><i class="ri-list-ordered"></i></button>
+            <span class="editor-sep" role="separator"></span>
+            <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="link" aria-label="Link" data-tip="Link · Ctrl+K"><i class="ri-link"></i></button>
+        </div>
+        <div class="editor-body prose" data-editor-body></div>
+        <div class="editor-link" data-editor-link hidden>
+            <input class="form-input" type="url" data-editor-link-url aria-label="Address" placeholder="https://" />
+            <button class="btn btn-sm" type="button" data-editor-link-save>Save</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-editor-link-remove>Remove</button>
+        </div>
+        <textarea id="note-value" name="note" data-editor-value hidden placeholder="What the next shift needs to know">&lt;p&gt;&lt;strong&gt;Three of five lines are reserved&lt;/strong&gt; in the west warehouse.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Hold the other two for stock, checked every hour.&lt;/li&gt;&lt;li&gt;Alex Fischer owns the reservation until Monday.&lt;/li&gt;&lt;/ul&gt;</textarea>
+    </div>
+</div>

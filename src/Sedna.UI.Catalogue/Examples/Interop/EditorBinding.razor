@@ -1,0 +1,56 @@
+@inject ISednaEditors Editors
+
+<div class="sedna-stack">
+    <div class="editor" data-editor id="reply" @onsedna-editor-change="Changed" @onsedna-editor-ready="Changed">
+        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+            <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+            <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="italic" aria-label="Italic"><i class="ri-italic"></i></button>
+            <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list"><i class="ri-list-unordered"></i></button>
+        </div>
+        <div class="editor-body prose" data-editor-body></div>
+        @* The value is the textarea's, bound like any other field. *@
+        <textarea data-editor-value hidden aria-label="Reply to the customer" placeholder="Write a reply"
+                  @bind="_reply" @bind:event="oninput"></textarea>
+    </div>
+
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <button class="btn btn-sm" type="button" @onclick="Sign"><i class="ri-quill-pen-line"></i> Sign it</button>
+            <button class="btn btn-sm" type="button" @onclick="UseTemplate"><i class="ri-file-text-line"></i> Use the template</button>
+            <button class="btn btn-ghost btn-sm" type="button" @onclick="Clear">Clear</button>
+        </div>
+        <span class="toolbar-count">@_length characters</span>
+        <button class="btn btn-go btn-sm" type="button" disabled="@_empty">Send</button>
+    </div>
+
+    @* What the field holds — what a form would post and the component would save. *@
+    <div class="code-block">
+        <div class="code-block-head"><span>The bound value</span></div>
+        <pre><code>@(string.IsNullOrEmpty(_reply) ? "(empty)" : _reply)</code></pre>
+    </div>
+</div>
+
+@code {
+    private string _reply = "<p>Thanks for your order. It leaves the warehouse on <strong>Tuesday</strong>.</p>";
+    private int _length;
+    private bool _empty = true;
+
+    private void Changed(SednaEditorEventArgs e)
+    {
+        _length = e.Length;
+        _empty = e.IsEmpty;
+    }
+
+    // A change made in C# is a change to the field: the editor follows the binding.
+    private void UseTemplate() =>
+        _reply = "<p>Thanks for getting in touch.</p><ul><li>What happened</li><li>What we will do</li></ul>";
+
+    // What a binding cannot do — type at the reader's caret — is one call.
+    private async Task Sign() => await Editors.InsertTextAsync("reply", " — Alex Fischer, Northwind Retail");
+
+    private async Task Clear()
+    {
+        await Editors.SetHtmlAsync("reply", string.Empty);
+        await Editors.FocusAsync("reply");
+    }
+}

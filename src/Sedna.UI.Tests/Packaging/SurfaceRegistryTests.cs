@@ -14,7 +14,7 @@ namespace Sedna.UI.Tests;
 /// </remarks>
 public class SurfaceRegistryTests
 {
-    private static readonly string[] Deliveries = ["drawn", "shipped", "styled"];
+    private static readonly string[] Deliveries = ["drawn", "shipped"];
 
     /// <summary>
     /// Elements a script outside tier 3 may create, because a reader never sees one: an anchor
@@ -96,8 +96,7 @@ public class SurfaceRegistryTests
     [Fact]
     public void The_delivery_decides_what_a_row_carries()
     {
-        // drawn: the library's script and nothing behind it. shipped: an engine as well. styled: the
-        // app brings the engine, so the library carries a stylesheet and none of the engine's code.
+        // drawn: the library's script and nothing behind it. shipped: an engine as well.
         var problems = new List<string>();
         foreach (var s in Surfaces.All)
         {
@@ -108,9 +107,6 @@ public class SurfaceRegistryTests
                     break;
                 case "shipped" when s.Scripts.Count == 0 || s.Engine is null:
                     problems.Add($"{s.Name}: a shipped surface has a script and an engine");
-                    break;
-                case "styled" when s.Scripts.Count != 0 || s.Engine is not null:
-                    problems.Add($"{s.Name}: a styled surface ships a stylesheet and no code");
                     break;
             }
         }

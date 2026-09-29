@@ -1,48 +1,129 @@
 @page "/editor"
 
-<CatHead Title="Rich-text editor chrome" Tier="@CatHead.Tier3">
-    The frame, the toolbar and the body for an editor your app brings — TipTap, Quill, ProseMirror or a
-    plain <code>contenteditable</code>. Not an editor: the document model, the sanitiser and the
-    security surface stay with the editor you chose.
+<CatHead Title="Rich-text editor" Tier="@CatHead.Tier3">
+    A document a reader writes with formatting &mdash; a note, a description, a reply &mdash; posted as
+    HTML. Your markup is the frame, the toolbar, the link form and a <code>&lt;textarea&gt;</code> that
+    holds the value; the library ships the engine and loads it the first time a page shows an editor.
 </CatHead>
 
-<CatExample TExample="Examples.Editor.EditorChrome" Title="Around an editor" Demo="ex-demo--block">
+<CatExample TExample="Examples.Editor.Note" Title="An editor" Demo="ex-demo--block ex-demo--pad">
     <p>
-        <strong>Live — type in it.</strong> <code>.editor</code> is the frame and takes a focused field's
-        ring while anything inside has focus. <code>.editor-toolbar</code> is a wrapping row of
-        <code>.btn-ghost.btn-icon.btn-sm</code> with <code>.editor-sep</code> between groups, and a mark
-        that is on is <code>aria-pressed="true"</code> — the attribute your editor already reports, which
-        the toolbar colours. <code>.editor-body</code> is where the editor mounts and what scrolls, capped
-        by <code>--editor-max-height</code>; add <code>.prose</code> to it so what is typed looks like
-        what is later rendered. For Markdown, the library's own <a href="/markdown">editor</a> is the
-        better fit.
+        <strong>Live &mdash; type, format, add a link with <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">K</kbd>.</strong>
+        <code>[data-editor]</code> on the <code>.editor</code> frame makes it one. The document is edited in
+        <code>[data-editor-body]</code>; put <code>.prose</code> on it so what is typed looks like what is later
+        shown. <code>textarea[data-editor-value]</code> is the field: the editor loads from it and writes every
+        change back to it, as HTML, so a form posts it and a Blazor binding reads it. Keep it
+        <code>hidden</code>. The editable element takes the textarea's label, its placeholder and its state.
+    </p>
+    <p>
+        A button with <code>data-editor-format</code> toggles its format on the selection and shows, with
+        <code>aria-pressed</code>, what the text under the caret has. A button pressed with the pointer leaves
+        the focus and the selection in the document.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Integrations.QuillEditor" Title="Quill, through Spillgebees.Blazor.RichTextEditor" Demo="ex-demo--block">
+<CatExample TExample="Examples.Editor.Everything" Title="Every control" Demo="ex-demo--block ex-demo--pad">
     <p>
-        <strong>Live — type, format, add a link.</strong> The one editor the library dresses. The
-        app adds the <a href="https://www.nuget.org/packages/Spillgebees.Blazor.RichTextEditor">Spillgebees.Blazor.RichTextEditor</a>
-        package itself &mdash; Sedna.UI references nothing third-party &mdash; and hands the chrome's
-        classes to the component: <code>.editor</code> as <code>ContainerClass</code>,
-        <code>.editor-toolbar</code> through <code>ToolbarOptions</code>, and
-        <code>.editor-body.prose</code> as <code>EditorContainerClass</code>. The toolbar is the
-        app's own: <code>.btn-ghost.btn-icon.btn-sm</code> buttons carrying Quill's
-        <code>ql-*</code> class, which Quill fills with its icon and marks
-        <code>aria-pressed</code>.
+        <strong>The formats an editor accepts are the ones its toolbar offers.</strong> Paste a page in here:
+        what it had beyond these is cut away, so the document never holds what the reader could not have
+        written. A format with a <code>value</code> sets that value &mdash; a heading level, a kind of list,
+        an alignment &mdash; and a <code>&lt;select&gt;</code> sets the option chosen, with
+        <code>""</code> for a paragraph. <code>data-editor-action</code> buttons undo, redo, indent,
+        outdent and clear the formatting; undo and redo are <code>disabled</code> while there is nothing to do.
     </p>
     <p>
-        <strong>Prefer buttons to Quill's pickers.</strong> A <code>&lt;select class="ql-header"&gt;</code>
-        is dressed too &mdash; Quill turns it into a dropdown labelled with the app's option text &mdash;
-        but the label Quill builds is a <code>role="button"</code> with no accessible name, and Quill
-        copies the select's <code>aria-label</code> onto an element that may not carry one. A button per
-        value, as here, has neither problem.
-    </p>
-    <p>
-        <strong>Do not link the package's stylesheet.</strong> It is unlayered, so it would beat
-        every rule the library has; the library carries what Quill needs to work. The link
-        tooltip's words come from <code>--editor-link-open</code>, <code>--editor-link-edit</code>,
-        <code>--editor-link-save</code> and <code>--editor-link-remove</code>, set on any ancestor
-        in the app's language. Built and tested against version 3.0.0 of the package (Quill 2).
+        The toolbar is one tab stop: <kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd>, <kbd class="kbd">Home</kbd>
+        and <kbd class="kbd">End</kbd> move between its buttons, <kbd class="kbd">Alt</kbd> + <kbd class="kbd">F10</kbd>
+        in the document goes to it and <kbd class="kbd">Esc</kbd> comes back. <kbd class="kbd">Tab</kbd> in the
+        document leaves it, as from a textarea &mdash; except in a list or a code block, where it indents.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.Editor.Comment" Title="A short one" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Four buttons, four formats: a comment cannot be given a heading or a list, however it is pasted in.
+        <code>--editor-max-height</code> on the frame caps how tall the document grows before it scrolls, and
+        the textarea's <code>placeholder</code> is what an empty one says.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Editor.ReadOnly" Title="Read-only" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>readonly</code> or <code>disabled</code> on the textarea stops the editing, dims the toolbar and
+        marks the document <code>aria-readonly</code>. The editor follows the attribute when it changes, so a
+        Blazor binding to <code>disabled</code> needs no call.
+    </p>
+</CatExample>
+
+<h2 id="link-form">The link form <CatAnchor Id="link-form" /></h2>
+<p class="cat-lede">
+    Your own form, written once inside the editor as <code>.editor-link[data-editor-link]</code>, which the
+    script opens beneath the text it is for &mdash; from a <code>data-editor-format="link"</code> button or
+    <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">K</kbd>. It is filled with the address of the link under
+    the caret, and <code>[data-editor-link-remove]</code> shows only then. <kbd class="kbd">Enter</kbd> saves,
+    <kbd class="kbd">Esc</kbd> closes, and <code>[data-editor-link-cancel]</code> closes too. With no text
+    selected, the address is written as the link's text. Only <code>http</code>, <code>https</code>,
+    <code>mailto</code>, <code>tel</code> and <code>sms</code> addresses are kept.
+</p>
+
+<CatSnippet Name="Editor/InAForm.html" Title="In a form">
+    <p>
+        The textarea is the field, so a form works as it would with a textarea: it posts the document under the
+        textarea's <code>name</code>, a reset puts it back, and without the script the textarea shows in the frame
+        instead, still posting. <code>required</code> is held by the editor, because a browser refuses to submit
+        over a hidden field it cannot focus: an empty one stops the submit, is marked <code>aria-invalid</code>
+        and takes the focus. The HTML is the editor's own, cut down to the formats it accepts &mdash; a
+        convenience, not a sanitiser: what arrives at the server is still the server's to check.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.Interop.EditorBinding" Title="In Blazor" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; type, then use the template.</strong> <code>@@bind</code> on the textarea is the whole
+        binding: the editor sends the textarea's <code>input</code> at each change and <code>change</code> when
+        it loses the focus after one, so <code>@@bind</code> and <code>@@bind:event="oninput"</code> both work,
+        and a value set in C# is loaded into the document. <code>@@onsedna-editor-change</code> adds the text,
+        its length and whether it is empty, for a counter or a send button that waits for something to send.
+    </p>
+    <p>
+        <code>ISednaEditors</code>, registered by <code>AddSednaUi()</code>, is for what a binding cannot do &mdash;
+        type at the reader's caret, focus the document, switch it off &mdash; by the editor element's id. None of
+        it runs while the page prerenders: call it from a handler, or after the first render.
+    </p>
+</CatExample>
+
+<h2 id="controls">Controls <CatAnchor Id="controls" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead><tr><th>Control</th><th>Does</th></tr></thead>
+        <tbody>
+            <tr><td><code>data-editor-format="bold"</code>, <code>italic</code>, <code>underline</code>, <code>strike</code>, <code>code</code></td><td>Toggles the format on the selection.</td></tr>
+            <tr><td><code>data-editor-format="script"</code> with <code>value="sub"</code> or <code>"super"</code></td><td>Subscript, superscript.</td></tr>
+            <tr><td><code>data-editor-format="header"</code> with <code>value="1"</code>&ndash;<code>"6"</code>, or on a <code>&lt;select&gt;</code></td><td>A heading level; <code>""</code> is a paragraph.</td></tr>
+            <tr><td><code>data-editor-format="list"</code> with <code>value="bullet"</code>, <code>"ordered"</code> or <code>"check"</code></td><td>A list.</td></tr>
+            <tr><td><code>data-editor-format="blockquote"</code>, <code>"code-block"</code></td><td>A quote, a code block.</td></tr>
+            <tr><td><code>data-editor-format="align"</code> with <code>value="center"</code>, <code>"right"</code> or <code>"justify"</code></td><td>Alignment; no value is the start edge.</td></tr>
+            <tr><td><code>data-editor-format="link"</code></td><td>Opens the link form.</td></tr>
+            <tr><td><code>data-editor-action="undo"</code>, <code>"redo"</code>, <code>"indent"</code>, <code>"outdent"</code>, <code>"clean"</code></td><td>Undo, redo, one level in or out, and removing the formatting from the selection.</td></tr>
+            <tr><td><code>data-editor-formats="bold italic link"</code> on the editor</td><td>The formats it accepts, instead of the ones its toolbar offers.</td></tr>
+            <tr><td><code>data-editor-eager</code> on the editor</td><td>Starts it at once, rather than when it scrolls near.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="events">Events <CatAnchor Id="events" /></h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead><tr><th>Event</th><th>Detail</th></tr></thead>
+        <tbody>
+            <tr><td><code>sedna-editor-ready</code></td><td><code>{ html, text, length, isEmpty }</code>, once the document has loaded.</td></tr>
+            <tr><td><code>sedna-editor-change</code></td><td>The same, after each change.</td></tr>
+            <tr><td>the textarea's <code>input</code>, <code>change</code></td><td>As a textarea sends them: at each change, and when the focus leaves after one.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<p class="cat-lede">
+    <code>data-editor-state</code> on the editor is <code>loading</code>, then <code>ready</code>, or
+    <code>error</code> when the markup has no textarea or no body. The reference is <code>docs/editor.md</code>.
+</p>

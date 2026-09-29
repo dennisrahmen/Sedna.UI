@@ -40,6 +40,8 @@
     border-bottom: 1px solid var(--divider);
 }
 .editor-toolbar [aria-pressed="true"] { background: var(--brand-tint); color: var(--brand-text); }
+/* A select in the toolbar — a text style — is as wide as its words, not the row. */
+.editor-toolbar .form-select { inline-size: auto; flex: none; }
 .editor-sep {
     align-self: stretch;
     inline-size: 1px;

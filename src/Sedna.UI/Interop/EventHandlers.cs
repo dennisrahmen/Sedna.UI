@@ -6,7 +6,8 @@ namespace Sedna.UI;
 /// Makes the events <c>Sedna.UI.js</c> dispatches bindable from Razor, with their data:
 /// drag and drop — <c>@onsedna-drop</c>, <c>@onsedna-dragstart</c>, <c>@onsedna-dragend</c> — and
 /// the graph — <c>@onsedna-graph-select</c>, <c>-open</c>, <c>-hover</c>, <c>-context</c>,
-/// <c>-connect</c>, <c>-expand</c>, <c>-collapse</c>, <c>-change</c> and <c>-ready</c>.
+/// <c>-connect</c>, <c>-expand</c>, <c>-collapse</c>, <c>-change</c> and <c>-ready</c> — and the
+/// rich-text editor — <c>@onsedna-editor-change</c> and <c>@onsedna-editor-ready</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -33,6 +34,8 @@ namespace Sedna.UI;
 [EventHandler("onsedna-graph-connect", typeof(SednaGraphConnectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-graph-expand", typeof(SednaGraphNodeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-graph-collapse", typeof(SednaGraphNodeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-editor-ready", typeof(SednaEditorEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-editor-change", typeof(SednaEditorEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 public static class EventHandlers
 {
 }

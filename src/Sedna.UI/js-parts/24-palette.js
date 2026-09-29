@@ -263,6 +263,9 @@
         // sniffing the platform: a Mac user on an external PC keyboard uses Ctrl.
         if (e.key !== 'k' && e.key !== 'K') return;
         if (!e.ctrlKey && !e.metaKey) return;
+        // Something with the focus took the key first — the rich-text editor's link form, a
+        // field of the app's own — and the palette leaves it that key.
+        if (e.defaultPrevented) return;
         if (!commands.length) return;      // nothing registered: leave the browser's own binding alone
         // Nor with no palette to open: swallowing the key for a warning helps nobody.
         if (!document.querySelector('dialog[data-palette]')) return;
