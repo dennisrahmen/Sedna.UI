@@ -31,7 +31,9 @@
      40-interop.js
      41-spotlight.js
      42-modal.js
+     42-surfaces.js
      43-graph.js
+     44-editor.js
      50-notify.js
      51-toast.js
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -2398,6 +2400,9 @@ window.sednaUi = window.sednaUi || {};
         // sniffing the platform: a Mac user on an external PC keyboard uses Ctrl.
         if (e.key !== 'k' && e.key !== 'K') return;
         if (!e.ctrlKey && !e.metaKey) return;
+        // Something with the focus took the key first — the rich-text editor's link form, a
+        // field of the app's own — and the palette leaves it that key.
+        if (e.defaultPrevented) return;
         if (!commands.length) return;      // nothing registered: leave the browser's own binding alone
         // Nor with no palette to open: swallowing the key for a warning helps nobody.
         if (!document.querySelector('dialog[data-palette]')) return;
@@ -5405,6 +5410,216 @@ window.sednaUi = window.sednaUi || {};
 
 })(window.sednaUi);
 
+/* ── 42-surfaces.js ──────────────────────────────────────────────── */
+/* ── Loading a tier 3 surface's module ───────────────────────────────────────
+   What every shipped surface's front door needs, once. A surface with an engine — the
+   graph, the rich-text editor — keeps the engine out of this script: its front door
+   finds the app's elements and imports the surface's own module, beside this file, the
+   first time one of them is about to be seen. A page that shows none never downloads
+   the engine, and nothing is added to the host page.
+
+     var graphs = ui._.surface({
+         selector: '[data-graph]',          what the app writes
+         module: 'Sedna.UI.graph.js',       the ES module beside this file; it exports attach and sweep
+         eager: 'data-graph-eager',         start at once rather than when scrolled near
+         found: function (el) { … }         runs as soon as an element is seen, even while held
+     });
+     graphs.get(el) → a promise of the module's handle, starting it if need be
+
+   What it owns, for every surface registered:
+     * finding elements — on load, after every render that adds one, and lazily: one
+       starts when it comes within a screen of the viewport, unless it is eager;
+     * disposing one whose element has left the document (the module's `sweep`), so a
+       Blazor navigation does not leave an engine running for a page that is gone;
+     * waiting on a prerendered Blazor page. Interactive rendering replaces the markup
+       the server prerendered, element for element, once the circuit or the WebAssembly
+       runtime has started — so a surface started before that would start twice, in
+       markup about to go. When the page carries Blazor's interactive markers, surfaces
+       start only once Sedna.UI.lib.module.js calls `release`, and the replaced markup
+       has settled, or after a few seconds regardless.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    // Read while this script is running: currentScript is null once it has finished,
+    // and a module is found relative to wherever the app serves this file from.
+    var here = (function () {
+        try { return document.currentScript && document.currentScript.src ? document.currentScript.src : null; }
+        catch (e) { return null; }
+    })();
+
+    var surfaces = [];
+    var held = false;
+    var holdTimer = 0;
+    var booted = false;
+
+    function interactiveMarkers() {
+        try {
+            var walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_COMMENT);
+            for (var c = walker.nextNode(); c; c = walker.nextNode()) {
+                if (c.data.indexOf('Blazor:') === 0 && /"type":"(server|webassembly|auto)"/.test(c.data)) return true;
+            }
+        } catch (e) { /* no walker: nothing to wait for */ }
+        return false;
+    }
+
+    function release() {
+        if (!held) return;
+        clearTimeout(holdTimer);
+        // The replaced markup is inserted in batches; start once the document has been
+        // quiet for a moment, so a surface starts once, in the element that stays.
+        var quiet = 0, since = Date.now();
+        var settle = new MutationObserver(function () {
+            clearTimeout(quiet);
+            quiet = setTimeout(done, 60);
+            if (Date.now() - since > 1000) done();
+        });
+        function done() {
+            if (!held) return;
+            held = false;
+            settle.disconnect();
+            clearTimeout(quiet);
+            surfaces.forEach(function (s) { s.scan(document); });
+        }
+        settle.observe(document.documentElement, { childList: true, subtree: true });
+        quiet = setTimeout(done, 60);
+    }
+
+    function boot() {
+        if (booted) return;
+        booted = true;
+        if (interactiveMarkers()) {
+            held = true;
+            holdTimer = setTimeout(release, 4000);
+        }
+        surfaces.forEach(function (s) { s.scan(document); });
+        if (typeof MutationObserver !== 'function') return;
+        // One rendered later is found by the render that added it; one removed is
+        // disposed by the render that removed it — checked on a timer, not at once,
+        // because Blazor moves an element by removing and re-inserting it.
+        new MutationObserver(function (records) {
+            for (var i = 0; i < records.length; i++) {
+                var added = records[i].addedNodes;
+                for (var j = 0; j < added.length; j++) {
+                    if (added[j].nodeType === 1) surfaces.forEach(function (s) { s.scan(added[j]); });
+                }
+                var removed = records[i].removedNodes;
+                for (var k = 0; k < removed.length; k++) {
+                    if (removed[k].nodeType === 1) surfaces.forEach(function (s) { s.forget(removed[k]); });
+                }
+                if (removed.length) surfaces.forEach(function (s) { s.sweepSoon(); });
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    }
+
+    function surface(spec) {
+        var loading = null;
+        var seen = '__sednaSeen:' + spec.module;
+        var started = '__sednaStarted:' + spec.module;
+        var queued = false;
+
+        function load() {
+            if (!loading) {
+                var url = new URL(spec.module, here || document.baseURI).href;
+                loading = import(url).catch(function (e) {
+                    loading = null;
+                    throw e;
+                });
+            }
+            return loading;
+        }
+
+        var watching = typeof IntersectionObserver === 'function'
+            ? new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        watching.unobserve(entry.target);
+                        start(entry.target).catch(report);
+                    }
+                });
+            }, { rootMargin: '100% 0px' })
+            : null;
+
+        function start(el) {
+            el[started] = true;
+            return load().then(function (m) { return m.attach(el); });
+        }
+
+        function report(e) {
+            try { console.error('Sedna.UI ' + (spec.name || spec.module) + ':', e); } catch (x) { /* ignore */ }
+        }
+
+        function within(root) {
+            var found = [];
+            if (root.matches && root.matches(spec.selector)) found.push(root);
+            if (root.querySelectorAll) {
+                var inner = root.querySelectorAll(spec.selector);
+                for (var i = 0; i < inner.length; i++) found.push(inner[i]);
+            }
+            return found;
+        }
+
+        var self = {
+            load: load,
+            report: report,
+            scan: function (root) {
+                var found = within(root);
+                if (spec.found) found.forEach(spec.found);
+                if (held) return;
+                found.forEach(function (el) {
+                    if (el[seen]) return;
+                    el[seen] = true;
+                    if (watching && !(spec.eager && el.hasAttribute(spec.eager))) watching.observe(el);
+                    else start(el).catch(report);
+                });
+            },
+            // One removed before it ever came near the viewport is no longer watched — and
+            // forgotten, so that if Blazor was only moving it, the insert that follows finds it.
+            forget: function (root) {
+                if (!watching) return;
+                within(root).forEach(function (el) {
+                    if (el[started]) return;
+                    watching.unobserve(el);
+                    el[seen] = false;
+                });
+            },
+            sweepSoon: function () {
+                if (queued || !loading) return;
+                queued = true;
+                setTimeout(function () {
+                    queued = false;
+                    loading.then(function (m) { m.sweep(); }).catch(function () { /* nothing to sweep */ });
+                }, 0);
+            },
+            /* A promise of the handle for an element or an id, starting it if need be. */
+            get: function (target) {
+                var el = typeof target === 'string' ? document.getElementById(target) : target;
+                if (!el || !el.matches || !el.matches(spec.selector)) {
+                    return Promise.reject(new Error('No ' + spec.selector + ' element: ' + target));
+                }
+                el[seen] = true;
+                if (watching) watching.unobserve(el);
+                return start(el);
+            },
+            /* Starts every one in `root` (the document by default) at once, rather than
+               when it scrolls near. A promise of how many. */
+            init: function (root) {
+                var list = within(root || document);
+                return Promise.all(list.map(self.get)).then(function (all) { return all.length; });
+            },
+            release: release
+        };
+        surfaces.push(self);
+        if (booted) self.scan(document);
+        return self;
+    }
+
+    ui._.surface = surface;
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+    else setTimeout(boot, 0);
+
+})(window.sednaUi);
+
 /* ── 43-graph.js ──────────────────────────────────────────────── */
 /* ── The graph's front door (data-graph) ───────────────────────────────────────
    Every page loads this; almost none of them has a graph. So this part is small and
@@ -5423,18 +5638,11 @@ window.sednaUi = window.sednaUi || {};
        <div class="graph-canvas"></div>
      </div>
 
-   What it owns:
-     * finding graphs — on load, after every render that adds one, and lazily: a graph
-       starts when it comes within a screen of the viewport, unless it carries
-       `data-graph-eager`;
-     * disposing a graph whose element has left the document, so a Blazor navigation
-       does not leave an engine running for a page that is gone;
-     * waiting on a prerendered Blazor page. Interactive rendering replaces the markup
-       the server prerendered, element for element, once the circuit or the WebAssembly
-       runtime has started — so a graph drawn before that would be drawn twice, and
-       flash its wait in between. When the page carries Blazor's interactive markers,
-       graphs start only once Sedna.UI.lib.module.js reports that Blazor has started
-       and the replaced markup has settled, or after a few seconds regardless;
+   Finding graphs, starting one when it comes within a screen of the viewport (or at
+   once with `data-graph-eager`), waiting on a prerendered Blazor page and disposing one
+   whose element has gone are the shared surface loader's (42-surfaces.js). This part
+   owns:
+     * a graph's role and tab stop, the moment it is found;
      * delegating the controls — `data-graph-action`, `data-graph-filter`,
        `data-graph-show`, `data-graph-search`, `data-graph-option` — from document, so a
        control rendered after load needs no wiring. Which graph a control drives: the
@@ -5447,39 +5655,21 @@ window.sednaUi = window.sednaUi || {};
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
-    // Read while this script is running: currentScript is null once it has finished,
-    // and the module is found relative to wherever the app serves this file from.
-    var here = (function () {
-        try { return document.currentScript && document.currentScript.src ? document.currentScript.src : null; }
-        catch (e) { return null; }
-    })();
-
-    var loading = null;
-
-    function load() {
-        if (!loading) {
-            var url = new URL('Sedna.UI.graph.js', here || document.baseURI).href;
-            loading = import(url).catch(function (e) {
-                loading = null;
-                throw e;
-            });
-        }
-        return loading;
-    }
-
     var SELECTOR = '[data-graph]';
     var CONTROLS = '[data-graph-action],[data-graph-filter],[data-graph-show],[data-graph-search],[data-graph-option]';
 
-    var watching = typeof IntersectionObserver === 'function'
-        ? new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    watching.unobserve(entry.target);
-                    start(entry.target);
-                }
-            });
-        }, { rootMargin: '100% 0px' })
-        : null;
+    var graphs = ui._.surface({
+        name: 'graph',
+        selector: SELECTOR,
+        module: 'Sedna.UI.graph.js',
+        eager: 'data-graph-eager',
+        // Its role and its tab stop at once, even while held: an accessible name on an
+        // element with no role is prohibited, and a graph below the fold starts late.
+        found: function (el) {
+            if (!el.hasAttribute('role')) el.setAttribute('role', 'application');
+            if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+        }
+    });
 
     // The graph a control drives: named by data-graph-for on it or on a container
     // around it — a panel, a toolbar — else the one it sits in, else the one in the
@@ -5498,104 +5688,18 @@ window.sednaUi = window.sednaUi || {};
         return frame ? frame.querySelector(SELECTOR) : null;
     }
 
-    function start(el) {
-        el.__sednaGraphStarted = true;
-        return load().then(function (m) { return m.attach(el); });
-    }
-
-    // Held while a prerendered Blazor page waits for its interactive render; see above.
-    var held = false;
-    var holdTimer = 0;
-
-    function interactiveMarkers() {
-        try {
-            var walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_COMMENT);
-            for (var c = walker.nextNode(); c; c = walker.nextNode()) {
-                if (c.data.indexOf('Blazor:') === 0 && /"type":"(server|webassembly|auto)"/.test(c.data)) return true;
-            }
-        } catch (e) { /* no walker: nothing to wait for */ }
-        return false;
-    }
-
-    function release() {
-        if (!held) return;
-        clearTimeout(holdTimer);
-        // The replaced markup is inserted in batches; start once the document has been
-        // quiet for a moment, so a graph is drawn once, in the element that stays.
-        var quiet = 0, since = Date.now();
-        var settle = new MutationObserver(function () {
-            clearTimeout(quiet);
-            quiet = setTimeout(done, 60);
-            if (Date.now() - since > 1000) done();
-        });
-        function done() {
-            if (!held) return;
-            held = false;
-            settle.disconnect();
-            clearTimeout(quiet);
-            scan(document);
-        }
-        settle.observe(document.documentElement, { childList: true, subtree: true });
-        quiet = setTimeout(done, 60);
-    }
-
-    function scan(root) {
-        var found = [];
-        if (root.matches && root.matches(SELECTOR)) found.push(root);
-        if (root.querySelectorAll) {
-            var inner = root.querySelectorAll(SELECTOR);
-            for (var i = 0; i < inner.length; i++) found.push(inner[i]);
-        }
-        // Its role and its tab stop at once, even while held: an accessible name on an
-        // element with no role is prohibited, and a graph below the fold starts late.
-        found.forEach(function (el) {
-            if (!el.hasAttribute('role')) el.setAttribute('role', 'application');
-            if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
-        });
-        if (held) return;
-        found.forEach(function (el) {
-            if (el.__sednaGraphSeen) return;
-            el.__sednaGraphSeen = true;
-            if (watching && !el.hasAttribute('data-graph-eager')) watching.observe(el);
-            else start(el).catch(report);
-        });
-    }
-
-    function report(e) {
-        try { console.error('Sedna.UI graph:', e); } catch (x) { /* ignore */ }
-    }
-
     ui.graph = {
         /* Called by Sedna.UI.lib.module.js once Blazor has started. Nothing else needs to. */
-        release: release,
+        release: graphs.release,
 
         /* Starts every graph in `root` (the document by default) that has not been
            started — at once, rather than when it scrolls near. Returns a promise of
            how many it started. */
-        init: function (root) {
-            var list = [];
-            var host = root || document;
-            if (host.matches && host.matches(SELECTOR)) list.push(host);
-            var inner = host.querySelectorAll ? host.querySelectorAll(SELECTOR) : [];
-            for (var i = 0; i < inner.length; i++) list.push(inner[i]);
-            return Promise.all(list.map(function (el) {
-                el.__sednaGraphSeen = true;
-                if (watching) watching.unobserve(el);
-                return start(el);
-            })).then(function (graphs) { return graphs.length; });
-        },
+        init: graphs.init,
 
         /* The engine's handle for a graph — an element, or its id — starting it if it
            has not started. The handle's members are listed in docs/architecture.md. */
-        get: function (target) {
-            var el = typeof target === 'string' ? document.getElementById(target) : target;
-            if (!el || !el.matches || !el.matches(SELECTOR)) {
-                return Promise.reject(new Error('No [data-graph] element: ' + target));
-            }
-            el.__sednaGraphSeen = true;
-            if (watching) watching.unobserve(el);
-            return start(el);
-        },
+        get: graphs.get,
 
         /* The ISednaGraph bridge. `method` is one of the handle's data-in, data-out
            members; the result is plain data or null. An id with no graph behind it
@@ -5608,10 +5712,10 @@ window.sednaUi = window.sednaUi || {};
                 try { console.warn('Sedna.UI graph: no [data-graph] element with id "' + id + '".'); } catch (e) { /* ignore */ }
                 return Promise.resolve(none);
             }
-            return this.get(el)
+            return graphs.get(el)
                 .then(function (graph) { return graph.invoke(method, args || []); })
                 .catch(function (e) {
-                    report(e);
+                    graphs.report(e);
                     return none;
                 });
         }
@@ -5629,58 +5733,71 @@ window.sednaUi = window.sednaUi || {};
         if (e.type === 'click' && (c.tagName === 'INPUT' || c.tagName === 'SELECT' || c.tagName === 'TEXTAREA')) return;
         var el = graphOf(c);
         if (!el) return;
-        ui.graph.get(el).then(function (graph) { graph.control(c, e.type); }).catch(report);
+        graphs.get(el).then(function (graph) { graph.control(c, e.type); }).catch(graphs.report);
     }
     document.addEventListener('click', control);
     document.addEventListener('change', control);
     document.addEventListener('input', control);
 
-    function boot() {
-        if (interactiveMarkers()) {
-            held = true;
-            holdTimer = setTimeout(release, 4000);
-        }
-        scan(document);
-        if (typeof MutationObserver !== 'function') return;
-        // A graph rendered later is found by the render that added it; one removed is
-        // disposed by the render that removed it — checked on a timer, not at once,
-        // because Blazor moves an element by removing and re-inserting it.
-        var queued = false;
-        new MutationObserver(function (records) {
-            for (var i = 0; i < records.length; i++) {
-                var added = records[i].addedNodes;
-                for (var j = 0; j < added.length; j++) {
-                    if (added[j].nodeType === 1) scan(added[j]);
-                }
-                // One removed before it ever came near the viewport is no longer watched —
-                // and forgotten, so that if Blazor was only moving it, the insert that
-                // follows finds it again.
-                var removed = records[i].removedNodes;
-                for (var k = 0; k < removed.length && watching; k++) {
-                    var gone = removed[k];
-                    if (gone.nodeType !== 1) continue;
-                    var graphs = gone.matches(SELECTOR) ? [gone] : [];
-                    var inner = gone.querySelectorAll(SELECTOR);
-                    for (var m = 0; m < inner.length; m++) graphs.push(inner[m]);
-                    graphs.forEach(function (el) {
-                        if (el.__sednaGraphStarted) return;
-                        watching.unobserve(el);
-                        el.__sednaGraphSeen = false;
-                    });
-                }
-                if (records[i].removedNodes.length && !queued && loading) {
-                    queued = true;
-                    setTimeout(function () {
-                        queued = false;
-                        loading.then(function (m) { m.sweep(); }).catch(function () { /* nothing to sweep */ });
-                    }, 0);
-                }
-            }
-        }).observe(document.documentElement, { childList: true, subtree: true });
-    }
+})(window.sednaUi);
 
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-    else boot();
+/* ── 44-editor.js ──────────────────────────────────────────────── */
+/* ── The rich-text editor's front door (data-editor) ──────────────────────────
+   Every page loads this; few have an editor. So this part holds no engine: the shared
+   surface loader (42-surfaces.js) finds the app's `[data-editor]` elements and imports
+   the editor module — Sedna.UI.editor.js, beside this file — the first time one of
+   them is about to be seen, or at once with `data-editor-eager`. Until then, and on a
+   page without the script, the app's textarea holds the value and the form posts it.
+
+     <div class="editor" data-editor id="note">
+       <div class="editor-toolbar" role="toolbar" aria-label="Formatting">…</div>
+       <div class="editor-body prose" data-editor-body></div>
+       <textarea name="note" data-editor-value hidden aria-label="Note"></textarea>
+     </div>
+
+   What it owns: `sednaUi.editor` — the handle for an editor, and the bridge
+   ISednaEditors calls. Everything else is the module's.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var SELECTOR = '[data-editor]';
+
+    var editors = ui._.surface({
+        name: 'editor',
+        selector: SELECTOR,
+        module: 'Sedna.UI.editor.js',
+        eager: 'data-editor-eager'
+    });
+
+    ui.editor = {
+        /* Called by Sedna.UI.lib.module.js once Blazor has started. Nothing else needs to. */
+        release: editors.release,
+
+        /* Starts every editor in `root` (the document by default) at once. A promise of
+           how many. */
+        init: editors.init,
+
+        /* The handle for an editor — an element, or its id — starting it if need be. Its
+           members are listed in docs/architecture.md. */
+        get: editors.get,
+
+        /* The ISednaEditors bridge. `method` is one of the handle's data-in, data-out
+           members; the result is plain data or null. An id with no editor behind it warns
+           and resolves null rather than throwing into a Blazor circuit. */
+        invoke: function (id, method, args) {
+            var el = document.getElementById(id);
+            if (!el || !el.matches(SELECTOR)) {
+                try { console.warn('Sedna.UI editor: no [data-editor] element with id "' + id + '".'); } catch (e) { /* ignore */ }
+                return Promise.resolve(null);
+            }
+            return editors.get(el)
+                .then(function (editor) { return editor.invoke(method, args || []); })
+                .catch(function (e) {
+                    editors.report(e);
+                    return null;
+                });
+        }
+    };
 
 })(window.sednaUi);
 

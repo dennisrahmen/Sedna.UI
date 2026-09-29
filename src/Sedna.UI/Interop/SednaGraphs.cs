@@ -79,7 +79,8 @@ public sealed class SednaGraphs : ISednaGraphs
     /// <inheritdoc />
     public async Task ZoomAsync(string graphId, double factor, CancellationToken cancellationToken = default)
     {
-        if (!(factor > 0) || double.IsInfinity(factor))
+        // NaN compares false with everything, so it is refused by name rather than by `<= 0`.
+        if (!double.IsFinite(factor) || factor <= 0)
             throw new ArgumentOutOfRangeException(nameof(factor), factor, "A zoom factor is a positive number.");
         await Call<object?>(graphId, "zoom", cancellationToken, factor);
     }

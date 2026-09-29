@@ -10,8 +10,8 @@ Only some of them ship inside the package. The distinction matters for anyone au
 |---|---|---|
 | Remix Icon | **yes** | `_content/Sedna.UI/lib/remixicon/` |
 | cytoscape.js and the graph's plugins | **yes** | `_content/Sedna.UI/lib/cytoscape/` |
+| Quill and what its build bundles | **yes** | `_content/Sedna.UI/lib/quill/` |
 | `ModelContextProtocol.AspNetCore` | no — the catalogue application only | published in its container image |
-| `Spillgebees.Blazor.RichTextEditor`, with Quill | no — the catalogue application only | published in its container image |
 | Outfit | no — a design asset, never loaded as a UI face | `assets/brand/font/` |
 
 ## Remix Icon
@@ -104,6 +104,36 @@ of it.
 `cytoscape-svg` is licensed under GPL-3.0, which an Apache-2.0 package cannot carry without passing its
 terms on to every app that installs it. The graph's SVG export is Sedna.UI's own code instead.
 
+## The rich-text editor's engine
+
+The rich-text editor (`[data-editor]`, see [`docs/editor.md`](docs/editor.md)) edits its document with
+Quill. Quill's browser build bundles the packages below it; each one's licence text ships in
+[`src/Sedna.UI/wwwroot/lib/quill/licenses/`](src/Sedna.UI/wwwroot/lib/quill/licenses/). They are vendored
+by [`build/vendor-quill.sh`](build/vendor-quill.sh) the same way as the graph engine — pinned to a version
+and the sha512 of its tarball, Quill's build shipped unchanged under a provenance header, wrapped in a
+module scope — and the versions below are held against `VENDORED.txt` by a test.
+
+| Package | Version | Licence | Copyright | In the build |
+|---|---|---|---|---|
+| quill | 2.0.3 | BSD-3-Clause | Copyright (c) 2017-2024, Slab; Copyright (c) 2014, Jason Chen; Copyright (c) 2013, salesforce.com | the editor |
+| parchment | 3.0.0 | BSD-3-Clause | Copyright (c) 2015-2021, Jason Chen | bundled inside quill |
+| quill-delta | 5.1.0 | BSD-3-Clause | Copyright (c) 2022, Slab, Inc. | bundled inside quill |
+| eventemitter3 | 5.0.1 | MIT | Copyright (c) 2014 Arnout Kazemier | bundled inside quill |
+| lodash-es | 4.17.21 | MIT | Copyright OpenJS Foundation and other contributors | bundled inside quill |
+| fast-diff | 1.3.0 | Apache-2.0 | Jason Chen | bundled inside quill |
+| lodash.clonedeep | 4.5.0 | MIT | Copyright jQuery Foundation and other contributors | bundled inside quill |
+| lodash.isequal | 4.5.0 | MIT | Copyright JS Foundation and other contributors | bundled inside quill |
+
+quill-delta's `package.json` says MIT; the licence file its package ships is BSD-3-Clause, and that file
+is what is carried here.
+
+### What this means if you use Sedna.UI
+
+Nothing is required of you beyond what the three licences ask of anyone redistributing the files: the
+package carries each notice and licence text, served from `_content/Sedna.UI/lib/quill/licenses/`, and
+the BSD-3-Clause licences' one extra condition — not to use the authors' names to endorse a product —
+binds how you advertise, not how you ship. A page without an editor loads none of it.
+
 ## Catalogue application dependencies
 
 These are **not redistributed in the NuGet package**. They are dependencies of the hosted catalogue
@@ -112,12 +142,6 @@ application (`src/Sedna.UI.Catalogue`), whose container image is published.
 | Package | Licence | Source |
 |---|---|---|
 | `ModelContextProtocol.AspNetCore` | Apache-2.0 | <https://github.com/modelcontextprotocol/csharp-sdk> |
-| `Spillgebees.Blazor.RichTextEditor` | MIT | <https://github.com/Spillgebees/Blazor.RichTextEditor> |
-| `BlazorComponentUtilities` (its dependency) | MIT | <https://github.com/EdCharbeneau/BlazorComponentUtilities> |
-| Quill 2 (bundled in its script) | BSD-3-Clause | <https://github.com/slab/quill> |
-
-The library's stylesheet dresses the markup Quill generates, but ships no Quill code and references
-neither package: an app that wants the editor adds `Spillgebees.Blazor.RichTextEditor` itself.
 
 The library itself takes exactly one dependency, `Microsoft.AspNetCore.Components.Web`, and
 `build/verify-package.sh` fails if the packed dependency list is anything else.

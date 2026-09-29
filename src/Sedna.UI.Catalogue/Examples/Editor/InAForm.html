@@ -1,0 +1,18 @@
+<form method="post" action="/notes">
+  <div class="form-field">
+    <label class="form-label" for="summary-value">Summary</label>
+    <div class="editor" data-editor id="summary">
+      <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list"><i class="ri-list-unordered"></i></button>
+      </div>
+      <div class="editor-body prose" data-editor-body></div>
+      <!-- The field: posted as "summary", required, and shown in the frame when there is no script. -->
+      <textarea id="summary-value" name="summary" data-editor-value hidden required
+                aria-describedby="summary-hint"></textarea>
+    </div>
+    <span class="form-hint" id="summary-hint">What changed, in a sentence or two.</span>
+  </div>
+  <button class="btn btn-go" type="submit">Save</button>
+  <button class="btn btn-ghost" type="reset">Start again</button>
+</form>

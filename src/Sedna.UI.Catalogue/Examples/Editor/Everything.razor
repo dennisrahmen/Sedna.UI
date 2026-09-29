@@ -1,0 +1,42 @@
+<div class="editor" data-editor id="article" style="--editor-max-height: 22rem">
+    <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-action="undo" aria-label="Undo" data-tip="Undo · Ctrl+Z"><i class="ri-arrow-go-back-line"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-action="redo" aria-label="Redo" data-tip="Redo · Ctrl+Y"><i class="ri-arrow-go-forward-line"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <select class="form-select form-select-sm" data-editor-format="header" aria-label="Text style">
+            <option value="">Paragraph</option>
+            <option value="2">Heading</option>
+            <option value="3">Subheading</option>
+        </select>
+        <span class="editor-sep" role="separator"></span>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold" data-tip="Bold · Ctrl+B"><i class="ri-bold"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="italic" aria-label="Italic" data-tip="Italic · Ctrl+I"><i class="ri-italic"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="underline" aria-label="Underline" data-tip="Underline · Ctrl+U"><i class="ri-underline"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="strike" aria-label="Strikethrough" data-tip="Strikethrough"><i class="ri-strikethrough"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="code" aria-label="Code" data-tip="Code"><i class="ri-code-line"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list" data-tip="Bulleted list"><i class="ri-list-unordered"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="ordered" aria-label="Numbered list" data-tip="Numbered list"><i class="ri-list-ordered"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="check" aria-label="Checklist" data-tip="Checklist"><i class="ri-list-check-3"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-action="outdent" aria-label="Outdent" data-tip="Outdent · Shift+Tab"><i class="ri-indent-decrease"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-action="indent" aria-label="Indent" data-tip="Indent · Tab"><i class="ri-indent-increase"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="blockquote" aria-label="Quote" data-tip="Quote"><i class="ri-double-quotes-l"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="code-block" aria-label="Code block" data-tip="Code block"><i class="ri-code-box-line"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="align" aria-label="Align to the start" data-tip="Align to the start"><i class="ri-align-left"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="align" value="center" aria-label="Centre" data-tip="Centre"><i class="ri-align-center"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="align" value="right" aria-label="Align to the end" data-tip="Align to the end"><i class="ri-align-right"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="link" aria-label="Link" data-tip="Link · Ctrl+K"><i class="ri-link"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-action="clean" aria-label="Clear formatting" data-tip="Clear formatting"><i class="ri-format-clear"></i></button>
+    </div>
+    <div class="editor-body prose" data-editor-body></div>
+    <div class="editor-link" data-editor-link hidden>
+        <input class="form-input" type="url" data-editor-link-url aria-label="Address" placeholder="https://" />
+        <button class="btn btn-sm" type="button" data-editor-link-save>Save</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-editor-link-remove>Remove</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-editor-link-cancel>Cancel</button>
+    </div>
+    <textarea name="article" data-editor-value hidden aria-label="Release note">&lt;h2&gt;Faster checkout&lt;/h2&gt;&lt;p&gt;The payment step now keeps the basket while a card is &lt;em&gt;confirmed&lt;/em&gt;, so a slow bank no longer empties it. See the &lt;a href="/help/checkout"&gt;checkout guide&lt;/a&gt;.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Saved cards load before the form.&lt;/li&gt;&lt;li&gt;An expired card says so at once.&lt;/li&gt;&lt;/ul&gt;&lt;blockquote&gt;A retry keeps the reader where they were.&lt;/blockquote&gt;&lt;pre&gt;checkout.retry = "keep-basket"&lt;/pre&gt;</textarea>
+</div>

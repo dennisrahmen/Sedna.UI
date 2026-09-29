@@ -6,6 +6,19 @@
 # web UI leaves no trace in the repository, and the next person cannot tell a
 # considered decision from an unread alert.
 
+paths-ignore:
+  # Vendored engines — cytoscape.js and its plugins, Quill — are upstream's text, shipped
+  # byte for byte under a provenance header by build/vendor-*.sh, and edited by nobody
+  # here: an alert in one is upstream's to fix, and a fix here would be overwritten by the
+  # next vendor. What is ours about them — pinned versions, checksums, licences, relative
+  # imports — is held by VendoredEngineTests and SurfaceRegistryTests.
+  - src/Sedna.UI/wwwroot/lib
+  # A surface module's parts are one ES module cut into files that share its top-level
+  # scope, so each read alone looks full of unused imports and functions. The generated
+  # module under wwwroot/js/ is analysed instead — what ships.
+  - src/Sedna.UI/graph-parts
+  - src/Sedna.UI/editor-parts
+
 query-filters:
   # `cs/path-combine` warns that Path.Combine silently drops its earlier
   # arguments when a later one is an absolute path. Every call in this repository

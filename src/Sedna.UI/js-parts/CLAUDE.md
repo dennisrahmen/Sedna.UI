@@ -25,7 +25,8 @@ entire purpose.
 
 Each part is a self-contained IIFE that extends the one global, so **a part is a valid script on its
 own** — take `00-core.js` plus that part to use one feature outside NuGet. `00-core.js` must come
-first: it creates the global and the shared internals every other part reads.
+first: it creates the global and the shared internals every other part reads. A shipped surface's front
+door — `43-graph.js`, `44-editor.js` — also needs `42-surfaces.js`, the loader it registers with.
 
 ## Adding a part
 
