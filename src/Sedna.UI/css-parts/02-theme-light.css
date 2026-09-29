@@ -71,7 +71,7 @@
 
     --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
     --go-border: var(--green-300);
-    --go-fg:     var(--green-700);
+    --go-fg:     var(--green-800);
     /* Two steps down: a 400 on a white canvas is a pastel, and a pastel bar is
        neither the brand's weight nor readable against the track. Nothing lighter
        than 600 clears 3:1 on white, so each close pair separates downwards: cyan and
@@ -119,13 +119,15 @@
     --badge-orange-fg:     var(--orange-700);
     --badge-teal-bg:     rgba(20, 184, 166, 0.08);    /* teal-500 */
     --badge-teal-border: var(--teal-300);
-    --badge-teal-fg:     var(--teal-700);
+    --badge-teal-fg:     var(--teal-800);
 
     /* The severity ramp, on a light canvas. The ladder is the same shape — an
        opaque step 1, then tints weakening 0.22 → 0.18 → 0.14 → 0.10 — carried
        at higher alphas because a tint has less room to read against white.
        Step 1 takes crimson-700 for the same reason --danger-solid does: 4.61:1
-       for white in both variants. */
+       for white in both variants. Each step's text is one step darker than its
+       solid, because it is read on its own tint, not on the canvas —
+       BadgeContrastTests measures it there. */
     --sev-1-solid:  var(--crimson-700);
     --sev-1-bg:     var(--crimson-700);
     --sev-1-border: var(--crimson-700);
@@ -134,17 +136,17 @@
     --sev-2-solid:  var(--orange-700);
     --sev-2-bg:     rgba(218, 133, 46, 0.22);   /* orange-500 */
     --sev-2-border: var(--orange-300);
-    --sev-2-fg:     var(--orange-700);
+    --sev-2-fg:     var(--orange-800);
 
     --sev-3-solid:  var(--amber-600);
     --sev-3-bg:     rgba(245, 158, 11, 0.18);   /* amber-500 */
     --sev-3-border: var(--amber-300);
-    --sev-3-fg:     var(--amber-700);
+    --sev-3-fg:     var(--amber-800);
 
     --sev-4-solid:  var(--orbit-600);
     --sev-4-bg:     rgba(89, 195, 255, 0.14);   /* orbit-400 */
     --sev-4-border: var(--orbit-300);
-    --sev-4-fg:     var(--orbit-700);
+    --sev-4-fg:     var(--orbit-800);
 
     --sev-5-solid:  var(--slate-500);
     --sev-5-bg:     rgba(148, 163, 184, 0.1);   /* slate-400 */

@@ -483,20 +483,25 @@ having to answer for it separately.
 Every text token was measured against the surface it renders on. Body and label pairs meet or exceed
 **WCAG 2.1 AA (4.5:1)**; icon-only and non-text tokens meet **3:1**.
 
-The lowest passing values in the system:
+The lowest passing values in the system. A badge's text is measured on its own tint over the canvas,
+which is where it reads lowest — a tint darkens the light canvas it sits on:
 
 | Pair | Ratio |
 |---|---|
+| `.badge-cyan` text on its tint, light canvas | 4.52 |
 | White on `--brand` | 4.55 |
-| `--go-fg` on light canvas | 4.62 |
-| `--teal-fg` on light canvas | 4.69 |
-| `--cyan-fg` on light canvas | 4.76 |
+| `.badge-info` text on its tint, light canvas (and `.badge-go` in colour-blind light) | 4.56 |
+| `.badge-danger` text on its tint, light canvas | 4.60 |
+| `.badge` (`--muted` on `--badge-bg`), dark card | 4.61 |
 | `--accent` on light canvas | 4.80 |
 | White on `--go-solid` | 4.83 |
 
-These six sit closest to the floor. **Do not lighten any of them without re-measuring.** If you need
+These sit closest to the floor. **Do not lighten any of them without re-measuring.** If you need
 headroom, take the next darker ramp step rather than adjusting by eye. A theme generated from anchors
 inherits this constraint — the generator has to hit the same boundary, not approximate it.
+
+`BadgeContrastTests` measures every badge's text on its own tint over `--bg` and `--card-bg`, in every
+palette — dark and light, colour-blind and high contrast — and every built-in theme.
 
 **Brand text takes `--brand-text`, and nothing else.** `--brand-soft` is the display strength — icon,
 spinner arc, focus border, where 3:1 applies — and in the light variant it is the step solved for
