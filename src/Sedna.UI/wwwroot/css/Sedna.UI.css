@@ -45,7 +45,7 @@
      42-state-art.css
      43-content-grids.css
      44-markdown.css
-     44-quill.css
+     44-rich-text.css
      45-form-controls.css
      46-form-layout.css
      47-form-file.css
@@ -5284,6 +5284,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     border-bottom: 1px solid var(--divider);
 }
 .editor-toolbar [aria-pressed="true"] { background: var(--brand-tint); color: var(--brand-text); }
+/* A select in the toolbar — a text style — is as wide as its words, not the row. */
+.editor-toolbar .form-select { inline-size: auto; flex: none; }
 .editor-sep {
     align-self: stretch;
     inline-size: 1px;
@@ -5408,57 +5410,42 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
 }
 
-/* ── 44-quill.css → @layer sedna.paint ──────────────────────────────────────────────── */
+/* ── 44-rich-text.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
-/* ── Quill, inside the editor chrome ────────────────────────────────────────
-   The one editor engine the library dresses: Quill 2, as the Blazor component
-   Spillgebees.Blazor.RichTextEditor renders it. The library references neither — an
-   app that wants the editor adds the package, and this part is what makes the result
-   look like the rest of the app. CLAUDE.md names it as an exception to "no styling
-   for a particular integration" and says why a second engine is not added beside it.
+/* ── The rich-text editor ─────────────────────────────────────────────────────
+   The library's rich-text editor, a tier 3 surface: `[data-editor]` inside the `.editor`
+   chrome (44-markdown.css), driven by the editor module and the Quill it ships. The app
+   writes the frame, the toolbar, the link form and the textarea that holds the value;
+   Quill writes the document inside `.editor-body`, and this part dresses what it writes.
+   docs/editor.md is the reference.
 
-   The app writes the chrome's classes onto the component and its own toolbar:
+   Every rule is scoped to `.editor`, so a page using Quill some other way is untouched.
+   Quill's own stylesheet is not needed and is not shipped: what Quill needs to work is
+   here, with the look.
 
-     <RichTextEditor @bind-Content="content"
-                     ContainerClass="editor"
-                     ToolbarOptions="new() { ToolbarContainerClass = &quot;editor-toolbar&quot; }"
-                     EditorContainerClass="editor-body prose"
-                     Placeholder="Write the handover note">
-       <ToolbarContent>
-         <button class="btn btn-ghost btn-icon btn-sm ql-bold" type="button" aria-label="Bold"></button>
-         <span class="editor-sep" role="separator"></span>
-         …
-       </ToolbarContent>
-     </RichTextEditor>
-
-   and does NOT link the package's own stylesheet. That file is unlayered, so every
-   rule in it would outrank every rule here whatever the specificity; this part carries
-   the few rules Quill needs to work as well as the look.
-
-   Quill fills each `ql-*` button with its own 18-unit SVG and reports the state on
-   `aria-pressed`, which `.editor-toolbar` already colours. Every rule is scoped to
-   `.editor`, so an app using Quill with its own theme elsewhere is untouched.
-
-   The words are the app's. The link tooltip's labels come from four custom properties
-   the app sets on the editor or any ancestor, in its own language:
-
-     --editor-link-open: "Open"   --editor-link-edit: "Edit"
-     --editor-link-save: "Save"   --editor-link-remove: "Remove"
-
-   and a picker item's label is the text of the `<option>` the app wrote, which Quill
-   copies to `data-label`. They are declared empty on the root element rather than on
-   `.editor`, where they would hide the value an ancestor set. */
-:where(html) {
-    --editor-link-open: "";
-    --editor-link-edit: "";
-    --editor-link-save: "";
-    --editor-link-remove: "";
+   Without the script the textarea shows in the frame instead, and the form still posts
+   it. */
+.editor { position: relative; }
+@media (scripting: none) {
+    .editor :is(.editor-toolbar, .editor-body, [data-editor-link]) { display: none; }
+    .editor textarea[data-editor-value] {
+        display: block;
+        box-sizing: border-box;
+        inline-size: 100%;
+        min-block-size: 160px;
+        padding: var(--space-5) var(--space-6);
+        border: none;
+        background: transparent;
+        color: var(--fg);
+        font: inherit;
+        resize: vertical;
+    }
 }
 
 /* ── The editable area ──────────────────────────────────────────────────────
-   The component puts `.editor-body` on Quill's container, which also holds the link
-   tooltip. A container that scrolls would clip the tooltip at its edge, so the scroll
-   moves one level in, to `.ql-editor`, and the container stays a positioned box. */
+   Quill makes `.editor-body` its container and writes the document into a `.ql-editor`
+   inside it. The scroll moves one level in, to `.ql-editor`, so the container stays a
+   box that does not scroll. */
 .editor .ql-container {
     position: relative;
     box-sizing: border-box;
@@ -5495,7 +5482,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     overflow-y: hidden;
 }
 .editor .ql-hidden { display: none; }
-/* Quill's words for an empty editor are the component's `Placeholder`. */
+/* The words for an empty editor are the textarea's `placeholder`. */
 .editor .ql-editor.ql-blank::before {
     content: attr(data-placeholder);
     position: absolute;
@@ -5639,150 +5626,27 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .editor .ql-editor .ql-code-block-container .ql-ui { top: var(--space-2); inset-inline-end: var(--space-2); }
 .editor .ql-editor a { color: var(--accent); text-decoration: underline; }
 
-/* ── The toolbar ────────────────────────────────────────────────────────────
-   Quill's icons are strokes and fills in its own classes; they take the button's
-   colour, so a pressed, hovered or disabled button needs nothing more. */
-.editor-toolbar button > svg {
-    display: block;
-    width: 1.25em;
-    height: 1.25em;
-}
-.editor-toolbar .ql-stroke {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-.editor-toolbar .ql-stroke-miter { fill: none; stroke: currentColor; stroke-width: 2; stroke-miterlimit: 10; }
-.editor-toolbar :is(.ql-fill, .ql-stroke.ql-fill) { fill: currentColor; }
-.editor-toolbar :is(.ql-thin, .ql-stroke.ql-thin) { stroke-width: 1; }
-.editor-toolbar .ql-even { fill-rule: evenodd; }
-.editor-toolbar .ql-transparent { opacity: 0.4; }
-/* The direction button carries two icons and shows the one for the other way. */
-.editor-toolbar .ql-direction svg:last-child { display: none; }
-.editor-toolbar .ql-direction[aria-pressed="true"] svg:first-child { display: none; }
-.editor-toolbar .ql-direction[aria-pressed="true"] svg:last-child { display: block; }
-
-/* A `<select class="ql-header">` becomes a picker: Quill hides the select and builds a
-   label and a list of items from its options. Here it is a ghost control with a
-   dropdown panel, on the dropdown rung of the z-index scale. */
-.editor-toolbar .ql-picker {
-    position: relative;
-    display: inline-flex;
-    height: var(--control-height-sm);
-    font-size: var(--text-3);
-    color: var(--fg);
-}
-.editor-toolbar .ql-picker-label {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    height: 100%;
-    padding: 0 var(--space-3) 0 var(--space-5);
-    border-radius: var(--radius-control);
-    cursor: pointer;
-    white-space: nowrap;
-}
-.editor-toolbar .ql-picker-label:hover,
-.editor-toolbar .ql-picker.ql-expanded .ql-picker-label { background: var(--bg-hover); }
-.editor-toolbar .ql-picker-label > svg { width: 1.25em; height: 1.25em; }
-.editor-toolbar :is(.ql-picker-label, .ql-picker-item)[data-label]::before { content: attr(data-label); }
-.editor-toolbar .ql-picker-options {
-    display: none;
+/* ── The link form ──────────────────────────────────────────────────────────
+   The app's form for a link's address, `[data-editor-link]`, which the script opens
+   beneath the text it is for and places with a transform. A dropdown panel, on the
+   dropdown rung of the z-index scale. */
+.editor-link {
     position: absolute;
-    top: 100%;
+    inset-block-start: 0;
     inset-inline-start: 0;
-    z-index: 550;
-    min-width: 100%;
-    margin-top: var(--space-1);
-    padding: var(--space-2);
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-surface);
-    box-shadow: var(--shadow-dropdown);
-    white-space: nowrap;
-}
-.editor-toolbar .ql-picker.ql-expanded .ql-picker-options { display: block; }
-.editor-toolbar .ql-picker-item {
-    display: block;
-    padding: var(--space-3) var(--space-5);
-    border-radius: var(--radius-inner);
-    color: var(--fg);
-    cursor: pointer;
-}
-.editor-toolbar .ql-picker-item:hover { background: var(--bg-hover); }
-.editor-toolbar .ql-picker-item.ql-selected { background: var(--brand-tint); color: var(--brand-text); }
-/* A colour picker's items are swatches Quill paints with the option's value. */
-.editor-toolbar .ql-color-picker.ql-expanded .ql-picker-options {
-    display: grid;
-    grid-template-columns: repeat(7, var(--space-8));
-    gap: var(--space-1);
-}
-.editor-toolbar .ql-color-picker .ql-picker-item {
-    width: var(--space-8);
-    height: var(--space-8);
-    padding: 0;
-    border: 1px solid var(--border);
-}
-.editor-toolbar .ql-color-picker .ql-picker-item.ql-selected { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.editor-toolbar .ql-icon-picker .ql-picker-item > svg { display: block; width: 1.25em; height: 1.25em; }
-
-/* ── The link tooltip ───────────────────────────────────────────────────────
-   Quill's own popup for a link: the address, and edit / save / remove. It is a
-   dropdown panel on the same rung as a picker, and its words are the app's custom
-   properties, declared empty at the top of this part. */
-.editor .ql-tooltip {
-    position: absolute;
     z-index: 550;
     display: flex;
     align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+    padding: var(--space-3);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
-    color: var(--fg);
-    font-size: var(--text-3);
-    white-space: nowrap;
-    transform: translateY(var(--space-4));
 }
-.editor .ql-tooltip.ql-flip { transform: translateY(calc(var(--space-4) * -1)); }
-.editor .ql-tooltip.ql-hidden { display: none; }
-.editor .ql-tooltip::before { content: var(--editor-link-open); color: var(--muted); }
-.editor .ql-tooltip a { cursor: pointer; text-decoration: none; }
-.editor .ql-tooltip a.ql-preview {
-    max-width: 16rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--accent);
-}
-.editor .ql-tooltip :is(a.ql-action, a.ql-remove) {
-    color: var(--fg-soft);
-    font-weight: 500;
-}
-.editor .ql-tooltip :is(a.ql-action, a.ql-remove):hover { color: var(--fg); }
-.editor .ql-tooltip a.ql-action::after { content: var(--editor-link-edit); }
-.editor .ql-tooltip a.ql-remove::before { content: var(--editor-link-remove); }
-.editor .ql-tooltip input[type="text"] {
-    display: none;
-    box-sizing: border-box;
-    width: 16rem;
-    height: var(--control-height-sm);
-    padding: 0 var(--space-4);
-    font: inherit;
-    color: var(--fg);
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-control);
-    outline: none;
-}
-.editor .ql-tooltip input[type="text"]:focus { border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
-.editor .ql-tooltip.ql-editing::before,
-.editor .ql-tooltip.ql-editing :is(a.ql-preview, a.ql-remove) { display: none; }
-.editor .ql-tooltip.ql-editing input[type="text"] { display: block; }
-.editor .ql-tooltip.ql-editing a.ql-action::after { content: var(--editor-link-save); }
+.editor-link[hidden],
+.editor-link [hidden] { display: none; }
+.editor-link .form-input { inline-size: 16rem; }
 }
 
 /* ── 45-form-controls.css → @layer sedna.paint ──────────────────────────────────────────────── */

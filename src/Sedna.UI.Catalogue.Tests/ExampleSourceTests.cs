@@ -43,18 +43,17 @@ public class ExampleSourceTests
     public static TheoryData<string> AllExamples() => Files("*");
 
     /// <summary>
-    /// The two folders where an example is allowed to be Razor.
+    /// The one folder where an example is allowed to be Razor.
     /// </summary>
     /// <remarks>
-    /// An example that demonstrates the C# wrappers or the active-link helper
-    /// (<c>Interop</c>), or a third-party component the catalogue references to show the
-    /// library's skin on it (<c>Integrations</c>), cannot be plain HTML — the thing being
-    /// shown <i>is</i> C#. Razor is then the correct form for a reader to copy, so the
-    /// exemption is real rather than a loophole. They are named folders so they cannot be
-    /// reached for by accident, and <see cref="Only_an_interop_example_contains_Razor_syntax"/>
-    /// asserts from both sides that they are used for nothing else.
+    /// An example that demonstrates the C# surface — the services, the state helpers, a
+    /// binding — cannot be plain HTML: the thing being shown <i>is</i> C#. Razor is then the
+    /// correct form for a reader to copy, so the exemption is real rather than a loophole. It
+    /// is a named folder so it cannot be reached for by accident, and
+    /// <see cref="Only_an_interop_example_contains_Razor_syntax"/> asserts from both sides that
+    /// it is used for nothing else.
     /// </remarks>
-    private static readonly string[] RazorFolders = ["Interop", "Integrations"];
+    private static readonly string[] RazorFolders = ["Interop"];
 
     private static bool IsInterop(string path) =>
         RazorFolders.Any(f => path.StartsWith(f + Path.DirectorySeparatorChar, StringComparison.Ordinal));

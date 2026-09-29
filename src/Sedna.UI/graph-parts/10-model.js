@@ -87,7 +87,6 @@ function text(value) {
 }
 
 const camel = s => String(s).replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
-const kebab = s => String(s).replace(/[A-Z]/g, c => '-' + c.toLowerCase());
 
 function listOf(value) {
     if (value === undefined || value === null || value === '') return [];

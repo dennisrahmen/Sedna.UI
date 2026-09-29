@@ -1,0 +1,15 @@
+<div class="editor" data-editor id="comment" style="--editor-max-height: 10rem">
+    <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold" data-tip="Bold · Ctrl+B"><i class="ri-bold"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="italic" aria-label="Italic" data-tip="Italic · Ctrl+I"><i class="ri-italic"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="code" aria-label="Code" data-tip="Code"><i class="ri-code-line"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="link" aria-label="Link" data-tip="Link · Ctrl+K"><i class="ri-link"></i></button>
+    </div>
+    <div class="editor-body prose" data-editor-body></div>
+    <div class="editor-link" data-editor-link hidden>
+        <input class="form-input" type="url" data-editor-link-url aria-label="Address" placeholder="https://" />
+        <button class="btn btn-sm" type="button" data-editor-link-save>Save</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-editor-link-remove>Remove</button>
+    </div>
+    <textarea name="comment" data-editor-value hidden aria-label="Comment" placeholder="Add a comment"></textarea>
+</div>

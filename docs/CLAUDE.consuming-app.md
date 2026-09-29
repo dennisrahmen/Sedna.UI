@@ -173,6 +173,17 @@ library ships the engine and loads it itself; the host page needs nothing added.
   `data-graph-src` or `SetDataAsync` rather than a Razor-rendered list.
 - **A link the reader draws is yours to add** (`@onsedna-graph-connect`), as a drop is.
 
+### Rich-text editors
+
+- **The value is a `textarea[data-editor-value]`** inside `[data-editor]`. Bind it with `@bind` like any
+  textarea, post it with a form, validate it on the server — the editor writes clean HTML to it, but that
+  is not a sanitiser.
+- **The toolbar is your markup**: buttons with `data-editor-format` or `data-editor-action`. The formats
+  the toolbar offers are the only ones the document accepts, pasted text included.
+- **Do not install another editor package, and do not load Quill yourself.** The library ships Quill and
+  loads it on demand; see `docs/editor.md`.
+- **From C#, `ISednaEditors`** — only for what a binding cannot do, such as typing at the caret.
+
 ### Icons
 
 Remix Icon is bundled in the package. Link `_content/Sedna.UI/lib/remixicon/remixicon.css` and use

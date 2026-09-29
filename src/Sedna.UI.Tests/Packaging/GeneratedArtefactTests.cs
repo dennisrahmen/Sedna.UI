@@ -87,6 +87,11 @@ public class GeneratedArtefactTests
             Path.Combine(Assets.ProjectDir, "wwwroot", "js", "Sedna.UI.graph.js"), "build/bundle-js.sh");
 
     [Fact]
+    public void The_editor_module_matches_its_parts()
+        => AssertBundleMatchesParts("editor-parts", "*.js",
+            Path.Combine(Assets.ProjectDir, "wwwroot", "js", "Sedna.UI.editor.js"), "build/bundle-js.sh");
+
+    [Fact]
     public void The_shipped_stylesheet_matches_its_parts()
         => AssertBundleMatchesParts("css-parts", "*.css", Assets.CssPath, "build/bundle-css.sh");
 
