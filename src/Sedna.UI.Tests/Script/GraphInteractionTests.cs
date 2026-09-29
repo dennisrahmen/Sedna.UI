@@ -359,11 +359,13 @@ public class GraphInteractionTests : GraphTestBase
         await Assertions.Expect(page.Locator("#tip-owner")).ToHaveTextAsync("Alex Fischer");
         Assert.Equal("ri-fw ri-server-line", await page.Locator("#tip-icon").GetAttributeAsync("class"));
         Assert.Equal("2", await page.Locator("#tip").GetAttributeAsync("data-graph-tone"));
-        // Its neighbourhood is lit; the rest is dimmed.
-        var opacity = await Eval<double[]>(page,
-            "() => ['api', 'db', 'web', 'archive'].map(id => cyOf('g').getElementById(id).numericStyle('opacity'))");
-        Assert.Equal([1d, 1d, 1d], opacity[..3]);
-        Assert.True(opacity[3] < 0.5, $"A record outside the neighbourhood kept an opacity of {opacity[3]}.");
+        // Its neighbourhood is lit and drawn over the veil; the rest stays under it, its name hushed.
+        var lit = await Eval<bool[]>(page,
+            "() => ['api', 'db', 'web', 'archive'].map(id => cyOf('g').getElementById(id).hasClass('lit'))");
+        Assert.Equal([true, true, true, false], lit);
+        Assert.Equal("1", await Eval<string>(page, "() => document.querySelector('#g [data-graph-veil]').style.opacity"));
+        Assert.Equal(0d, await Eval<double>(page, "() => cyOf('g').getElementById('archive').numericStyle('text-opacity')"));
+        Assert.Equal(1d, await Eval<double>(page, "() => cyOf('g').getElementById('db').numericStyle('text-opacity')"));
         // Placed inside the frame, beside the record.
         Assert.True(await Eval<bool>(page, """
             () => { const t = document.getElementById('tip').getBoundingClientRect(), g = document.getElementById('g').getBoundingClientRect();
@@ -619,11 +621,14 @@ public class GraphInteractionTests : GraphTestBase
         await Ready(page);
         await Hover(page, "api");
         await Assertions.Expect(page.Locator("#tip")).ToBeVisibleAsync();
-        Assert.True(await page.EvaluateAsync<int>("() => cyOf('g').elements('.dim').length") > 0);
+        // The rest is dimmed by the veil over the drawing, the neighbourhood drawn on it.
+        Assert.True(await page.EvaluateAsync<int>("() => cyOf('g').elements('.lit').length") > 0);
+        Assert.Equal("1", await page.EvaluateAsync<string>("() => document.querySelector('#g [data-graph-veil]').style.opacity"));
 
         await page.Mouse.MoveAsync(2, 2);
         await Assertions.Expect(page.Locator("#tip")).ToBeHiddenAsync();
-        await page.WaitForFunctionAsync("() => cyOf('g').elements('.dim, .lit').length === 0");
+        await page.WaitForFunctionAsync("() => cyOf('g').elements('.lit').length === 0");
+        Assert.Equal("0", await page.EvaluateAsync<string>("() => document.querySelector('#g [data-graph-veil]').style.opacity"));
         AssertQuiet();
     }
 
@@ -649,7 +654,7 @@ public class GraphInteractionTests : GraphTestBase
         await page.Mouse.MoveAsync((float)edge.GetProperty("x").GetDouble(), (float)edge.GetProperty("y").GetDouble(), new() { Steps = 4 });
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('team').hasClass('lit')");
 
-        Assert.Equal(0, await page.EvaluateAsync<int>("() => cyOf('g').getElementById('team').descendants().filter(n => n.hasClass('dim')).length"));
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => cyOf('g').getElementById('team').descendants().filter(n => !n.hasClass('lit')).length"));
         AssertQuiet();
     }
 

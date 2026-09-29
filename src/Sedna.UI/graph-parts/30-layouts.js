@@ -57,9 +57,29 @@ function knownLayout(name) {
 }
 const DIRECTIONS = { TB: 'TB', LR: 'LR', BT: 'BT', RL: 'RL', down: 'TB', right: 'LR', up: 'BT', left: 'RL' };
 const SPACING = { compact: 0.7, normal: 1, loose: 1.45 };
+// A direction or a spacing as written — a name, an alias or a number — in the form a layout takes.
+const directionOf = value => own(DIRECTIONS, value) || 'TB';
+const spacingOf = value => own(SPACING, value) ?? (Number(value) || 1);
 
 const golden = Math.PI * (3 - Math.sqrt(5));
+// The largest of a value over many: a loop, since spreading a large graph's records into
+// Math.max's arguments overflows the stack.
+const most = (items, value, floor = -Infinity) => {
+    let m = floor;
+    const take = item => { m = Math.max(m, value(item)); };
+    if (typeof items.forEach === 'function') items.forEach(take);
+    else for (const item of items) take(item);
+    return m;
+};
 const byId = (a, b) => (a.id() < b.id() ? -1 : a.id() > b.id() ? 1 : 0);
+
+/* Records held still for a layout: those not locked already, so what is let go afterwards
+   is only what this locked — never a record the app locked through the handle. */
+const holding = nodes => {
+    const free = nodes.filter(n => !n.locked());
+    free.lock();
+    return free;
+};
 
 /* A layout run to its end. Without animation a layout finishes before run() returns,
    but that is its to decide. */
@@ -95,7 +115,7 @@ const springs = (eles, count, spacing, overrides = {}) => eles.layout({
 async function rings(visible, options, spacing, box) {
     const names = options.labels === 'all' && options.nodes !== 'box';
     const nodes = visible.nodes().filter(n => !n.isParent());
-    const maxDegree = Math.max(1, ...nodes.map(n => n.data('degree') || 0));
+    const maxDegree = most(nodes, n => n.data('degree') || 0, 1);
     const centre = visible.nodes('.focus').nonempty() ? visible.nodes('.focus') : visible.nodes('[?root]');
     const hops = new Map();
     if (centre.nonempty()) {
@@ -114,11 +134,11 @@ async function rings(visible, options, spacing, box) {
     }).run();
     // A gentle pass that only pushes overlaps apart, with the centre held where it is: a
     // full spring run from here would reshape the rings into a blob.
-    centre.lock();
+    const held = holding(centre);
     try {
         await settled(springs(visible, nodes.length, spacing, { initialTemp: 30, numIter: 160, gravity: 0.1, nodeDimensionsIncludeLabels: names }));
     } finally {
-        centre.unlock();
+        held.unlock();
     }
 }
 
@@ -127,8 +147,12 @@ async function rings(visible, options, spacing, box) {
 async function arrangeWith(cy, name, options, frame) {
     const visible = cy.elements().not('.hidden').not('.eh-ghost, .eh-preview, .eh-handle');
     if (visible.nodes().length === 0) return;
-    const spacing = SPACING[options.spacing] ?? (Number(options.spacing) || 1);
-    const direction = DIRECTIONS[options.direction] || 'TB';
+    // A record a filter has just shown again keeps the style it was hidden with until its
+    // style is next asked for, and a layout reads its size without asking — as a point one
+    // pixel wide, which it then packs on top of its neighbours. Asked for here.
+    visible.nodes().forEach(n => { n.pstyle('display'); });
+    const spacing = spacingOf(options.spacing);
+    const direction = directionOf(options.direction);
     const box = options.nodes === 'box' || visible.nodes('[display = "box"]').nonempty();
     const count = visible.nodes().length;
     const aspect = aspectOf(frame);
@@ -148,11 +172,11 @@ async function arrangeWith(cy, name, options, frame) {
             const loose = visible.nodes().not(placed).filter(n => !n.isParent());
             if (loose.nonempty()) {
                 // The placed records stay where the app put them; the springs place the rest.
-                placed.lock();
+                const held = holding(placed);
                 try {
                     await settled(springs(visible, count, spacing, { randomize: false, nodeDimensionsIncludeLabels: names }));
                 } finally {
-                    placed.unlock();
+                    held.unlock();
                 }
             }
             return;
@@ -209,10 +233,10 @@ async function arrangeWith(cy, name, options, frame) {
                 const y = Math.round(n.position('y'));
                 levels.set(y, (levels.get(y) || 0) + 1);
             });
-            const widest = Math.max(1, ...levels.values());
+            const widest = most(levels.values(), v => v, 1);
             const sideways = direction === 'LR' || direction === 'RL';
-            const boxW = box ? Math.max(...leaves.map(n => n.data('boxW') || 120)) : 0;
-            const boxH = box ? Math.max(...leaves.map(n => n.data('boxH') || 36)) : 0;
+            const boxW = box ? most(leaves, n => n.data('boxW') || 120) : 0;
+            const boxH = box ? most(leaves, n => n.data('boxH') || 36) : 0;
             // A sideways tree writes its names beside its dots (labelSide), so a record needs
             // a line's height beside it and a name's width after it.
             const beside = (box ? (sideways ? boxH + 20 : boxW + 28) : (sideways ? 30 : 112)) * (1 + (spacing - 1) * 0.5);

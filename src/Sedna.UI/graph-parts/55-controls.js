@@ -237,7 +237,7 @@ async function option(g, name, value) {
             restyle(g);
             await arrange(g, true);
             break;
-        case 'direction': o.direction = value; g.touched = false; restyle(g); await arrange(g, true); break;
+        case 'direction': o.direction = directionOf(value); g.touched = false; restyle(g); await arrange(g, true); break;
         case 'spacing': o.spacing = value; g.touched = false; await arrange(g, true); break;
         case 'nodes':
             o.nodes = value === 'box' ? 'box' : 'dot';
@@ -257,7 +257,8 @@ async function option(g, name, value) {
             restyle(g);
             break;
         case 'colour': case 'color': o.colourBy = value || 'tone'; restyle(g); break;
-        case 'curve': o.curve = value; restyle(g); break;
+        // Chosen by the reader, so drawn even over the route a layered layout found.
+        case 'curve': o.curve = value || 'bezier'; o.curveChosen = !!value; restyle(g); break;
         case 'arrows': o.arrows = value; restyle(g); break;
         case 'depth':
             g.depth = Math.max(1, Math.min(Number(value) || 1, 6));
@@ -311,7 +312,7 @@ async function focusOn(g, id) {
 function centreOn(g, ele) {
     const cy = g.cy;
     cy.stop();
-    if (reducedMotion() || document.visibilityState !== 'visible') cy.center(ele);
+    if (!glides(g)) cy.center(ele);
     else cy.animate({ center: { eles: ele } }, { duration: 220, easing: 'ease-out-cubic', complete: () => settle(g) });
 }
 
@@ -319,6 +320,8 @@ function centreOn(g, ele) {
    when the app wrote one, so its toolbar and panel come along — else the graph. */
 function fullscreen(g, button) {
     const frame = g.el.closest('[data-graph-frame]') || g.el;
-    if (document.fullscreenElement) document.exitFullscreen?.();
+    // Out of full screen when this graph has it; into it otherwise, even from another
+    // element's — the browser hands full screen over.
+    if (document.fullscreenElement === frame) document.exitFullscreen?.();
     else frame.requestFullscreen?.().catch(() => button?.setAttribute('aria-pressed', 'false'));
 }

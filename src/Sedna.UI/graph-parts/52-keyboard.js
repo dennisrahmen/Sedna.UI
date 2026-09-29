@@ -85,7 +85,7 @@ function keyboard(g) {
         const mx = ext.w * 0.12, my = ext.h * 0.12;
         if (p.x < ext.x1 + mx || p.x > ext.x2 - mx || p.y < ext.y1 + my || p.y > ext.y2 - my) {
             cy.stop();
-            if (reducedMotion() || document.visibilityState !== 'visible') cy.center(g.keyed);
+            if (!glides(g)) cy.center(g.keyed);
             else cy.animate({ center: { eles: g.keyed } }, { duration: 180, complete: () => { if (g.keyed) g.tip.show(g.keyed, true); } });
         }
         g.tip.show(g.keyed, true);
@@ -227,7 +227,7 @@ function zoomBy(g, factor) {
     const level = Math.max(cy.minZoom(), Math.min(cy.maxZoom(), cy.zoom() * factor));
     const centre = g.keyed && g.keyed.nonempty() ? g.keyed.renderedPosition() : { x: cy.width() / 2, y: cy.height() / 2 };
     cy.stop();
-    if (reducedMotion() || document.visibilityState !== 'visible') {
+    if (!glides(g)) {
         cy.zoom({ level, renderedPosition: centre });
         settle(g);
     } else {

@@ -13,6 +13,48 @@
    shared library — is put between them, where its neighbours are.
    ─────────────────────────────────────────────────────────────────────────── */
 
+/* The records of each connected part of the drawing, parents left out — by joining the ends
+   of every link, which a large graph does in one pass rather than a search per part. */
+function componentsOf(visible) {
+    const up = new Map();
+    const root = id => {
+        let r = id;
+        while (up.get(r) !== r) r = up.get(r);
+        for (let x = id; up.get(x) !== r;) { const next = up.get(x); up.set(x, r); x = next; }
+        return r;
+    };
+    visible.nodes().forEach(n => { up.set(n.id(), n.id()); });
+    visible.edges().forEach(e => {
+        const a = e.data('source'), b = e.data('target');
+        if (!up.has(a) || !up.has(b)) return;
+        const ra = root(a), rb = root(b);
+        if (ra !== rb) up.set(ra, rb);
+    });
+    const parts = new Map();
+    visible.nodes().forEach(n => {
+        if (n.isParent()) return;
+        const r = root(n.id());
+        if (!parts.has(r)) parts.set(r, []);
+        parts.get(r).push(n);
+    });
+    return parts.values();
+}
+
+/* Everything an island's shape is made from: its records in the order they are seeded, how
+   large and how linked each is, its own links and their weights, and the spacing. */
+function shapeKey(group, own, spacing) {
+    const parts = [spacing];
+    for (const n of group) {
+        const d = n.data();
+        parts.push(d.id, d.size, d.degree, d.display === 'box' ? d.boxW + 'x' + d.boxH : '');
+    }
+    own.forEach(e => {
+        const d = e.data();
+        parts.push(d.id, d.source, d.target, d.weight, d.across ? 1 : 0);
+    });
+    return parts.join('\u0001');
+}
+
 async function islands(cy, visible, aspect, spacing, box) {
     const nodes = visible.nodes().filter(n => !n.isParent());
     const gap = 36 * spacing;
@@ -41,52 +83,38 @@ async function islands(cy, visible, aspect, spacing, box) {
         }
     });
 
+    // An island's shape depends on nothing but its own records and links, so one that has
+    // not changed since the last run comes out exactly as it did then — and is put back as
+    // it was rather than sprung again. A filter that hides one group, or new data in one
+    // island, re-lays out that island and packs the rest.
+    const g = cy.scratch('_sedna');
+    const shapes = g ? (g.islandShapes = g.islandShapes || new Map()) : new Map();
+    const seen = new Set();
+
     // Each island on its own: seeded on a sunflower spiral, its heart at the centre,
     // then its own springs with the bridges left out. One run an island rather than one
     // over everything: cose weighs every record against every other in its run, so
     // twenty islands of thirty cost a twentieth of one run over six hundred.
-    const list = [];
-    const inside = cy.collection();
-    for (const [id, group] of members) {
-        group.sort((a, b) => (a.id() === id ? -1 : b.id() === id ? 1 : (b.data('degree') || 0) - (a.data('degree') || 0) || byId(a, b)));
+    const shape = async (key, group) => {
+        const eles = cy.collection(group);
+        const own = eles.edgesWith(eles).not('.hidden');
+        const sign = shapeKey(group, own, spacing);
+        const kept = shapes.get(key) || [];
+        const known = kept.find(k => k.sign === sign);
+        seen.add(key);
+        if (known) {
+            cy.batch(() => group.forEach(n => n.position(known.at.get(n.id()))));
+            return eles;
+        }
         group.forEach((n, i) => {
             const r = gap * Math.sqrt(i);
             n.position({ x: r * Math.cos(i * golden), y: r * Math.sin(i * golden) });
         });
-        const eles = cy.collection(group);
-        const own = eles.edgesWith(eles).not('.hidden');
-        inside.merge(own);
         if (group.length > 2 && own.nonempty()) await settled(springs(eles.union(own), group.length, spacing, { numIter: 400 }));
-        const heart = cy.getElementById(id);
-        const cluster = group[0].data('cluster') ?? (heart.nonempty() ? heart.data('cluster') : null) ?? '';
-        list.push({ id, eles, cluster });
-    }
-
-    // A cluster no group reaches — records linked only among themselves — is an island of
-    // its own, rather than waiting for neighbours that will never be placed.
-    const orphans = new Set();
-    for (const part of visible.components()) {
-        const parted = part.nodes().filter(n => !n.isParent());
-        if (parted.length > 1 && parted.every(n => !home.has(n.id()))) {
-            const group = parted.toArray().sort((a, b) => (b.data('degree') || 0) - (a.data('degree') || 0) || byId(a, b));
-            group.forEach((n, i) => {
-                const r = gap * Math.sqrt(i);
-                n.position({ x: r * Math.cos(i * golden), y: r * Math.sin(i * golden) });
-                orphans.add(n.id());
-            });
-            const eles = cy.collection(group);
-            const own = eles.edgesWith(eles).not('.hidden');
-            inside.merge(own);
-            if (group.length > 2) await settled(springs(eles.union(own), group.length, spacing, { numIter: 400 }));
-            list.push({ id: group[0].id(), eles, cluster: '' });
-        }
-    }
-
-    // cose packs whatever is not connected on its own terms, so a record with no link
-    // inside its island would be sent away from it. It is put back, round the shore.
-    list.forEach(i => {
-        const tied = i.eles.filter(n => n.connectedEdges().intersection(inside).nonempty());
-        const loose = i.eles.not(tied);
+        // cose packs whatever is not connected on its own terms, so a record with no link
+        // inside its island would be sent away from it. It is put back, round the shore.
+        const tied = eles.filter(n => n.connectedEdges().intersection(own).nonempty());
+        const loose = eles.not(tied);
         if (loose.nonempty()) {
             const core = tied.nonempty() ? tied.boundingBox({ includeLabels: false }) : { x1: 0, y1: 0, w: 0, h: 0 };
             const cx = core.x1 + core.w / 2;
@@ -97,8 +125,34 @@ async function islands(cy, visible, aspect, spacing, box) {
                 n.position({ x: cx + r * Math.cos(j * golden), y: cy0 + r * Math.sin(j * golden) });
             });
         }
-        i.box = i.eles.boundingBox({ includeLabels: false });
-    });
+        // The last two shapes: a chip turned off and on again finds the island it had.
+        shapes.set(key, [{ sign, at: new Map(group.map(n => [n.id(), Object.assign({}, n.position())])) }, ...kept].slice(0, 2));
+        return eles;
+    };
+
+    const list = [];
+    for (const [id, group] of members) {
+        group.sort((a, b) => (a.id() === id ? -1 : b.id() === id ? 1 : (b.data('degree') || 0) - (a.data('degree') || 0) || byId(a, b)));
+        const eles = await shape('group:' + id, group);
+        const heart = cy.getElementById(id);
+        const cluster = group[0].data('cluster') ?? (heart.nonempty() ? heart.data('cluster') : null) ?? '';
+        list.push({ id, eles, cluster });
+    }
+
+    // A cluster no group reaches — records linked only among themselves — is an island of
+    // its own, rather than waiting for neighbours that will never be placed.
+    const orphans = new Set();
+    for (const parted of componentsOf(visible)) {
+        if (parted.length > 1 && parted.every(n => !home.has(n.id()))) {
+            const group = parted.sort((a, b) => (b.data('degree') || 0) - (a.data('degree') || 0) || byId(a, b));
+            group.forEach(n => orphans.add(n.id()));
+            const eles = await shape('part:' + group[0].id(), group);
+            list.push({ id: group[0].id(), eles, cluster: '' });
+        }
+    }
+    // What is no island any more is forgotten.
+    for (const key of [...shapes.keys()]) if (!seen.has(key)) shapes.delete(key);
+    list.forEach(i => { i.box = i.eles.boundingBox({ includeLabels: false }); });
 
     // Packed in rows: a cluster's islands together, the biggest cluster first, rows as
     // wide as the frame is for its height — tried, not guessed, since islands differ.
@@ -127,7 +181,7 @@ async function islands(cy, visible, aspect, spacing, box) {
         list.forEach(i => put(i.eles, i.box));
         return { put, scale: Math.min(aspect / Math.max(width, 1), 1 / Math.max(y + rowHeight, 1)) };
     };
-    const widest = Math.max(...list.map(i => i.box.w), 1);
+    const widest = most(list, i => i.box.w, 1);
     const total = list.reduce((sum, i) => sum + i.box.w + gap * 2, 0);
     let rowWidth = widest;
     for (let k = 0, best = 0; k <= 48; k++) {

@@ -45,6 +45,8 @@ const SHAPES = {
 };
 
 const LINES = new Set(['solid', 'dashed', 'dotted']);
+// A lookup that answers only for its own keys: `data-tone="constructor"` is not a tone.
+const own = (table, key) => (Object.hasOwn(table, key) ? table[key] : undefined);
 const ARROWS = new Set(['none', 'target', 'source', 'both']);
 const WEIGHTS = { light: 0.6, thin: 0.6, normal: 1, heavy: 2, strong: 2, bold: 2.6 };
 
@@ -58,14 +60,14 @@ function warnOnce(key, message) {
 function toneOf(value) {
     if (value === undefined || value === null || value === '') return null;
     const t = String(value).trim();
-    if (TONE_TOKENS[t]) return t;
-    if (/^series-/.test(t) && TONE_TOKENS[t.slice(7)]) return t.slice(7);
+    if (own(TONE_TOKENS, t)) return t;
+    if (/^series-/.test(t) && own(TONE_TOKENS, t.slice(7))) return t.slice(7);
     if (/^--[a-z0-9-]+$/i.test(t)) return t;
     warnOnce('tone:' + t, `"${t}" is not a tone. Use 1–6, go, warn, danger, info, muted, brand, accent, or a token name.`);
     return null;
 }
 
-const tokenOfTone = tone => (tone ? (TONE_TOKENS[tone] || tone) : null);
+const tokenOfTone = tone => (tone ? (own(TONE_TOKENS, tone) || tone) : null);
 
 function flag(value) {
     if (value === true || value === false) return value;
@@ -112,7 +114,7 @@ function node(raw) {
         if (!NODE_KEYS.has(k) && (typeof v !== 'object' || v === null)) fields[k] = v;
     }
     const shape = text(raw.shape);
-    if (shape && !SHAPES[shape]) warnOnce('shape:' + shape, `"${shape}" is not a shape; drawing a circle.`);
+    if (shape && !own(SHAPES, shape)) warnOnce('shape:' + shape, `"${shape}" is not a shape; drawing a circle.`);
     const display = text(raw.display);
     return {
         id,
@@ -120,7 +122,7 @@ function node(raw) {
         kind: text(raw.kind),
         tone: toneOf(raw.tone),
         tones,
-        shape: shape ? (SHAPES[shape] || null) : null,
+        shape: shape ? (own(SHAPES, shape) || null) : null,
         icon: text(raw.icon),
         group: text(raw.group),
         cluster: text(raw.cluster),
@@ -166,7 +168,7 @@ function edge(raw, seen) {
         kind: text(raw.kind),
         tone: toneOf(raw.tone),
         line: line && LINES.has(line) ? line : 'solid',
-        weight: typeof w === 'string' && WEIGHTS[w] ? WEIGHTS[w] : (number(w) ?? 1),
+        weight: typeof w === 'string' && own(WEIGHTS, w) ? WEIGHTS[w] : (number(w) ?? 1),
         arrow: arrow && ARROWS.has(arrow) ? arrow : null,
         muted: flag(raw.muted),
         fields,
@@ -243,7 +245,8 @@ function readList(el) {
 function fromElement(li, isEdge) {
     const raw = {};
     for (const [k, v] of Object.entries(li.dataset)) {
-        if (k.startsWith('tone') && k.length > 4) {
+        // data-tone-<name> is a colouring; data-toner is a field of the app's own.
+        if (/^tone[A-Z]/.test(k)) {
             raw.tones = raw.tones || {};
             raw.tones[k.charAt(4).toLowerCase() + k.slice(5)] = v;
             continue;

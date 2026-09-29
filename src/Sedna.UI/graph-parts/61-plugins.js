@@ -162,11 +162,17 @@ async function hulls(g, on) {
 
 /* Every outline taken away. bubblesets leaves an empty object in each element's scratch as
    it removes a path, and reads that as a cached measurement the next time a path covers
-   the element, which throws — so the scratch goes with the paths. */
+   the element, which throws — so the scratch goes with the paths. Deleted from the scratch
+   itself: the engine's removeScratch restyles every element it is called on, and this runs
+   whenever the outlines are drawn again. */
 function clearHulls(g) {
     if (!g.bb) return;
     g.bb.getPaths().slice().forEach(p => g.bb.removePath(p));
-    if (!g.cy.destroyed()) g.cy.elements().removeScratch('bubbleSets');
+    if (g.cy.destroyed()) return;
+    g.cy.elements().forEach(e => {
+        const scratch = e.scratch();
+        if (scratch && 'bubbleSets' in scratch) delete scratch.bubbleSets;
+    });
 }
 
 function drawHulls(g) {

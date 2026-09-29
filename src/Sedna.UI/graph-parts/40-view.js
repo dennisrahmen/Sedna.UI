@@ -22,7 +22,7 @@ function fitView(g, eles, animate) {
     cy.stop();
     // Not waited for: an animation runs on animation frames, which a tab that is not
     // painted never gets. The names are placed again when the zoom comes to rest.
-    if (animate && !reducedMotion() && document.visibilityState === 'visible') {
+    if (animate && glides(g)) {
         cy.animate({ zoom, pan }, { duration: 260, easing: 'ease-out-cubic', complete: () => settle(g) });
     } else {
         cy.viewport({ zoom, pan });
@@ -64,25 +64,65 @@ function fitAll(g) {
 
 const stepOf = zoom => Math.exp(Math.round(Math.log(zoom) / 0.07) * 0.07);
 
-/* After anything that moves records or the view: the zoom handed to the elements as
-   data, then the names placed for it. An edge takes it only where it changes something
-   — above 1, where widths are held, and on a lit edge, whose label is showing — because
-   restyling a thousand edges for nothing is the most expensive thing this could do. */
+/* The part of the drawing kept current: the view, and as much again on every side, so a
+   short pan finds its names already placed. What lies further out is brought up to date
+   when the view comes near it. */
+function nearView(cy) {
+    const e = cy.extent();
+    return { x1: e.x1 - e.w, x2: e.x2 + e.w, y1: e.y1 - e.h, y2: e.y2 + e.h };
+}
+const inBox = (p, b) => p.x >= b.x1 && p.x <= b.x2 && p.y >= b.y1 && p.y <= b.y2;
+
+/* The zoom handed to the elements as data. An element takes it only where it changes
+   something. Below a zoom of 1 nothing is held but names — a record's and a link's — so
+   there only what shows a name takes it: a record whose name the declutter placed, one
+   that is lit, and a link whose label is showing; a name the declutter hid catches up
+   when it is shown (`named`). Above 1 sizes are held too, and everything takes it.
+   Restyling is the most expensive thing this module does, so only what is near the view
+   is restyled unless `all` asks for the whole drawing — an export, which draws what is
+   off screen too. What is hidden takes it when it is shown, as a filter lays it out. */
+function rezoom(g, all) {
+    const cy = g.cy;
+    if (g.options.nodes === 'box') return;
+    const step = g.step;
+    const box = all ? null : nearView(cy);
+    const labelled = g.options.edgeLabels === 'always';
+    const stale = [];
+    cy.nodes().forEach(n => {
+        const z = n.data('zoom');
+        if (z === step || n.hasClass('hidden') || (box && !inBox(n.position(), box))) return;
+        if (step <= 1 && (z ?? 1) <= 1 && n.hasClass('unlabelled') && !n.hasClass('lit')) return;
+        // A box is drawn at the zoom like a diagram: nothing in it is held.
+        if (!n.isParent() && n.data('display') === 'box') return;
+        stale.push(n);
+    });
+    cy.edges().forEach(e => {
+        const z = e.data('zoom');
+        if (z === step || e.hasClass('hidden') || !(step > 1 || z > 1 || labelled || e.hasClass('lit'))) return;
+        if (!box || inBox(e.source().position(), box) || inBox(e.target().position(), box)) stale.push(e);
+    });
+    if (stale.length) cy.batch(() => cy.collection(stale).data('zoom', step));
+}
+
+/* Names shown again, with the zoom they were let off while hidden — in the batch that
+   shows them, so each is restyled once. */
+function named(g, nodes) {
+    const stale = nodes.filter(n => n.data('zoom') !== g.step);
+    if (stale.nonempty()) stale.data('zoom', g.step);
+    nodes.removeClass('unlabelled');
+}
+
+/* After anything that moves records or the view: the zoom handed to the elements, then
+   the names placed for it. */
 function settle(g) {
     const cy = g.cy;
     // A layout is running: it fits and settles the view itself when it has finished.
     if (g.laying) return;
-    if (g.options.nodes !== 'box') {
-        const next = stepOf(Math.max(cy.zoom(), HOLD_FLOOR));
-        if (next !== g.step) {
-            // Link names that are always written are held at their size like record names;
-            // otherwise only a lit link's name is showing.
-            const edges = Math.max(next, g.step) > 1 || g.options.edgeLabels === 'always' ? cy.edges() : cy.edges('.lit');
-            g.step = next;
-            cy.batch(() => cy.nodes().union(edges).data('zoom', g.step));
-        }
-    }
+    if (g.options.nodes !== 'box') g.step = stepOf(Math.max(cy.zoom(), HOLD_FLOOR));
+    rezoom(g, false);
     declutter(g);
+    const pan = cy.pan();
+    g.settledAt = { zoom: cy.zoom(), x: pan.x, y: pan.y };
     g.minimap?.draw();
 }
 
@@ -98,18 +138,27 @@ const labelPriority = n => (insists(n) ? 1e6 : 0)
     + (n.data('degree') || 0)
     - (n.data('muted') ? 100 : 0);
 
-function declutter(g) {
+function declutter(g, all) {
+    placeNames(g, all);
+    // A name that has just been given room is hushed if the veil is over it.
+    if (g.veil && (g.veil.up || (g.hushed && g.hushed.nonempty()))) hush(g);
+}
+
+function placeNames(g, all) {
     const cy = g.cy;
-    const nodes = cy.nodes().not('.hidden').filter(n => (n.data('display') || g.options.nodes) !== 'box' && !n.isParent());
+    // Only what is near the view: a name far off screen is placed when the view reaches it.
+    const box = cy.container() && !all ? nearView(cy) : null;
+    const nodes = cy.nodes().filter(n => !n.hasClass('hidden') && (n.data('display') || g.options.nodes) !== 'box'
+        && !n.isParent() && (!box || inBox(n.position(), box)));
     if (nodes.empty()) return;
     if (g.options.labels === 'all') {
-        cy.batch(() => nodes.removeClass('unlabelled'));
+        cy.batch(() => named(g, nodes.filter('.unlabelled')));
         return;
     }
     if (g.options.labels === 'none') {
         cy.batch(() => {
-            nodes.filter(insists).removeClass('unlabelled');
-            nodes.filter(n => !insists(n)).addClass('unlabelled');
+            named(g, nodes.filter(n => insists(n) && n.hasClass('unlabelled')));
+            nodes.filter(n => !insists(n) && !n.hasClass('unlabelled')).addClass('unlabelled');
         });
         return;
     }
@@ -146,7 +195,7 @@ function declutter(g) {
         // On screen: below the floor, a name shrinks with the drawing.
         const px = labelPx(n) * Math.min(1, zoom / (g.step || 1));
         const bold = n.data('hub') || n.data('root') || n.hasClass('focus');
-        const w = Math.min(textWidth(n.data('label') || '', `${bold ? 600 : 400} ${px}px ${font}`), LABEL_MAX_PX) + 8;
+        const w = Math.min(textWidth(n.data('label') || '', bold ? 600 : 400, px, font), LABEL_MAX_PX) + 8;
         const box = side === 'right' ? { x1: x + r + 3, x2: x + r + 3 + w, y1: y - px * 0.85, y2: y + px * 0.85 }
             : side === 'left' ? { x1: x - r - 3 - w, x2: x - r - 3, y1: y - px * 0.85, y2: y + px * 0.85 }
                 : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2, y2: y + r + 2 + px * 1.7 };
@@ -161,7 +210,7 @@ function declutter(g) {
     }
     if (show.length || hide.length) {
         cy.batch(() => {
-            cy.collection(show).removeClass('unlabelled');
+            named(g, cy.collection(show));
             cy.collection(hide).addClass('unlabelled');
         });
     }
