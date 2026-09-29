@@ -22,6 +22,22 @@ internal static class Tokens
     /// <summary>The light variant: bare <c>:root</c> with the light block over it.</summary>
     public const string Light = "light";
 
+    /// <summary>Dark with <c>data-cvd="1"</c>, the colour-blind palette.</summary>
+    public const string DarkColourBlind = "dark cvd";
+
+    /// <summary>Light with <c>data-cvd="1"</c>.</summary>
+    public const string LightColourBlind = "light cvd";
+
+    /// <summary>Dark with <c>data-contrast="more"</c>.</summary>
+    public const string DarkContrast = "dark contrast";
+
+    /// <summary>Light with <c>data-contrast="more"</c>.</summary>
+    public const string LightContrast = "light contrast";
+
+    /// <summary>Every palette a reader can select, in the order a test reports them.</summary>
+    public static string[] Palettes { get; } =
+        [Dark, Light, DarkColourBlind, LightColourBlind, DarkContrast, LightContrast];
+
     private static readonly Regex Declaration = new(
         @"(?<name>--[a-z0-9-]+)\s*:\s*(?<value>[^;}]+)", RegexOptions.Compiled);
 
@@ -123,10 +139,24 @@ internal static class Tokens
              over.B * alpha + under.B * (1 - alpha));
     }
 
-    private static IEnumerable<string> Selectors(string variant) =>
-        variant == Light
-            ? [":root", ":root[data-variant=\"light\"]"]
-            : [":root"];
+    /// <summary>
+    /// The token blocks one palette applies, in cascade order: bare <c>:root</c>, then the
+    /// one-attribute blocks in source order (light, colour-blind, contrast), then the
+    /// two-attribute blocks, which outrank them all.
+    /// </summary>
+    private static IEnumerable<string> Selectors(string variant)
+    {
+        var light = variant.StartsWith(Light, StringComparison.Ordinal);
+        var cvd = variant.EndsWith(" cvd", StringComparison.Ordinal);
+        var contrast = variant.EndsWith(" contrast", StringComparison.Ordinal);
+
+        yield return ":root";
+        if (light) yield return ":root[data-variant=\"light\"]";
+        if (cvd) yield return ":root[data-cvd=\"1\"]";
+        if (contrast) yield return ":root[data-contrast=\"more\"]";
+        if (light && cvd) yield return ":root[data-variant=\"light\"][data-cvd=\"1\"]";
+        if (light && contrast) yield return ":root[data-variant=\"light\"][data-contrast=\"more\"]";
+    }
 
     /// <summary>One token as an RGB triple, asserting it ends at a hex literal.</summary>
     public static (double R, double G, double B) Rgb(Dictionary<string, string> tokens, string name)
