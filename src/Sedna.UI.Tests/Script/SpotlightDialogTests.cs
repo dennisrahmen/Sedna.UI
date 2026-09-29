@@ -66,6 +66,25 @@ public class SpotlightDialogTests : ScriptTestBase
 
     private static Task<int> Hits(IPage page) => page.EvaluateAsync<int>("() => window.hits || 0");
 
+    /// <summary>
+    /// Opens the dialog and completes once it is at rest: its <c>toggle</c> has been
+    /// dispatched and its entrance animation has finished.
+    /// </summary>
+    /// <remarks>
+    /// The animation moves every control in the dialog for its whole duration, so a
+    /// step placed during it is placed again when it ends. A test that acts on the
+    /// bubble before then is racing that second placement.
+    /// </remarks>
+    private static Task OpenPanel(IPage page) => page.EvaluateAsync("""
+        () => new Promise(done => {
+            const d = document.getElementById('panel');
+            d.addEventListener('toggle', () => Promise.all(
+                d.getAnimations().map(a => a.finished.catch(() => { }))).then(() => done()),
+                { once: true });
+            sednaUi.modal.show('panel');
+        })
+        """);
+
     // Which control answered last, so a forced click that landed somewhere else names
     // the element it hit rather than reporting an off-by-one.
     private static Task<string> Last(IPage page) =>
@@ -81,7 +100,7 @@ public class SpotlightDialogTests : ScriptTestBase
         // moved into the dialog rather than merely raised above it.
         var (page, errors) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
+        await OpenPanel(page);
         await page.EvaluateAsync(
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { tip: '#tip' })");
 
@@ -89,7 +108,7 @@ public class SpotlightDialogTests : ScriptTestBase
             "() => document.getElementById('tip').closest('dialog').id"));
 
         // A real click, not a forced one: what is being tested is hit-testing.
-        await page.Locator("#next").ClickAsync(new() { Timeout = 4000 });
+        await page.Locator("#next").ClickAsync();
         Assert.Equal(1, await Hits(page));
 
         // And the keyboard, which inertness takes away just as completely.
@@ -165,7 +184,7 @@ public class SpotlightDialogTests : ScriptTestBase
         // backdrop div the app started with.
         var (page, errors) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
+        await OpenPanel(page);
         await page.EvaluateAsync(
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { tip: '#tip' })");
 
@@ -214,7 +233,7 @@ public class SpotlightDialogTests : ScriptTestBase
         // everything else in the dialog does not, and typing survives.
         var (page, errors) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
+        await OpenPanel(page);
         // Placed below the anchor, which is the bottom of the dialog: a bubble over the
         // controls this test force-clicks would take the clicks itself, and the count
         // would be right for the wrong reason.
@@ -225,7 +244,7 @@ public class SpotlightDialogTests : ScriptTestBase
             """);
 
         // The bubble, by a real click — it is the one thing the lock must never take.
-        await page.Locator("#next").ClickAsync(new() { Timeout = 4000 });
+        await page.Locator("#next").ClickAsync();
         // The live anchor. Forced, because the guard is what has to refuse or allow the
         // click, and Playwright's actionability check would not get past
         // pointer-events: none to let it try.
@@ -321,6 +340,35 @@ public class SpotlightDialogTests : ScriptTestBase
             null, new() { Timeout = 4_000 });
         Assert.NotEqual("none", await page.EvaluateAsync<string>(
             "() => document.getElementById('hole').style.display"));
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_step_placed_while_the_dialog_animates_in_comes_to_rest_on_its_target()
+    {
+        if (NoBrowser) return;
+        // The dialog's entrance animation moves the target for its whole duration and
+        // fires neither scroll, resize nor a mutation, so the placement the dialog's
+        // `toggle` causes lands mid-flight. Without a placement when the animation ends,
+        // the step rests wherever that one caught the target — a few pixels off, by an
+        // amount that depends on how busy the machine was.
+        var (page, errors) = await OpenStyled(Stage);
+
+        await page.EvaluateAsync(
+            "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { tip: '#tip', pad: 0 })");
+        await OpenPanel(page);
+
+        // The written values rather than the measured box: the hole slides between
+        // placements, and the assertion is about where it was sent.
+        await page.WaitForFunctionAsync("""
+            () => {
+                const h = document.getElementById('hole').style;
+                const t = document.getElementById('key-name').getBoundingClientRect();
+                return Math.abs(parseFloat(h.top) - t.top) <= 1
+                    && Math.abs(parseFloat(h.left) - t.left) <= 1;
+            }
+            """, null, new() { Timeout = 4_000 });
 
         Assert.Empty(errors);
     }
