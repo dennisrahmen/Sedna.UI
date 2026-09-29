@@ -214,11 +214,7 @@ public sealed class SednaTheme
             // for the same reason as Forest's — see BrandTextContrastFloor.
             coral: SednaRamp.FromAnchor("#2563eb", 500,
                 contrastSolvedStep: new ContrastSolvedStep(600, OnSolidWhite, BrandTextContrastFloor)),
-            // accent/info, moved off the brand hue. Its 700 step is the light variant's --info-fg
-            // and --accent, read on the info tint — solved against that tint, as the brand's 600
-            // is against white; see InfoTintOnLightCanvas.
-            orbit: SednaRamp.FromAnchor("#0ea5b7", 400,
-                contrastSolvedStep: new ContrastSolvedStep(700, InfoTintOnLightCanvas, BrandTextContrastFloor)),
+            orbit: SednaRamp.FromAnchor("#0ea5b7", 400), // accent/info, moved off the brand hue
             navy: sedna.Navy,
             green: sedna.Green,
             amber: sedna.Amber,
@@ -288,14 +284,6 @@ public sealed class SednaTheme
 
     /// <summary>What <c>--on-solid</c> always resolves to, in every theme — see <c>01-tokens.css</c>.</summary>
     private const string OnSolidWhite = "#ffffff";
-
-    /// <summary>
-    /// The light variant's <c>--info-bg</c> tint composited over its <c>--bg</c> — the darkest
-    /// surface <c>--info-fg</c> is read on. A tint is an <c>rgba</c> literal in the stylesheet and
-    /// no theme moves it, so this holds for every theme that keeps Sedna's slate.
-    /// <c>TintedTextContrastTests</c> measures the real composite, so a change to either fails there.
-    /// </summary>
-    private const string InfoTintOnLightCanvas = "#ebf6fc";
 
     /// <summary>
     /// The white-text contrast floor a generated theme's brand step (<c>coral-600</c>, what

@@ -618,7 +618,7 @@
     --sev-2-solid:  var(--orange-700);
     --sev-2-bg:     rgba(245, 158, 75, 0.28);   /* orange-400 */
     --sev-2-border: var(--orange-700);
-    --sev-2-fg:     var(--orange-300);
+    --sev-2-fg:     var(--orange-200);
 
     --sev-3-solid:  var(--amber-600);
     --sev-3-bg:     rgba(245, 158, 11, 0.2);    /* amber-500 */
@@ -633,7 +633,7 @@
     --sev-5-solid:  var(--slate-400);
     --sev-5-bg:     rgba(148, 163, 184, 0.08);  /* slate-400 */
     --sev-5-border: var(--slate-700);
-    --sev-5-fg:     var(--slate-400);
+    --sev-5-fg:     var(--slate-300);
 
     /* ── Component surfaces ─────────────────────────────────────────────── */
     --badge-bg:      rgba(255, 255, 255, 0.07);
@@ -977,7 +977,7 @@
 
     --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
     --warn-border: var(--amber-300);
-    --warn-fg:     var(--amber-700);
+    --warn-fg:     var(--amber-800);
 
     /* The hover and active tints and the strong border take the same steps as the
        dark theme, scaled for a light surface. All four move together: a tint
@@ -988,12 +988,12 @@
     --danger-bg-active:     rgba(199, 34, 104, 0.2);     /* crimson-700 */
     --danger-border:        var(--crimson-300);
     --danger-border-strong: var(--crimson-700);
-    --danger-fg:            var(--crimson-700);
+    --danger-fg:            var(--crimson-800);
     --danger-ring:          rgba(199, 34, 104, 0.35);    /* crimson-700 */
 
     --info-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
     --info-border: var(--orbit-300);
-    --info-fg:     var(--orbit-700);
+    --info-fg:     var(--orbit-800);
     --info-solid:  var(--orbit-700);
     --info-ring:   rgba(89, 195, 255, 0.4);     /* orbit-400 */
 
@@ -1003,7 +1003,7 @@
 
     --badge-cyan-bg:     rgba(34, 211, 238, 0.08);    /* cyan-400 */
     --badge-cyan-border: var(--cyan-300);
-    --badge-cyan-fg:     var(--cyan-700);
+    --badge-cyan-fg:     var(--cyan-800);
     --badge-orange-bg:     rgba(245, 158, 75, 0.08);    /* orange-400 */
     --badge-orange-border: var(--orange-300);
     --badge-orange-fg:     var(--orange-700);
@@ -1131,7 +1131,7 @@
 :root[data-variant="light"][data-cvd="1"] {
     --go-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
     --go-border: var(--orbit-300);
-    --go-fg:     var(--orbit-700);
+    --go-fg:     var(--orbit-800);
     --danger-fg: var(--crimson-800);
 
     --sev-2-bg:     rgba(117, 75, 211, 0.22);   /* violet-700 */
@@ -3730,7 +3730,7 @@ a.topbar-version--pre:hover {
     border-radius: var(--radius-pill);
     font-size: var(--text-2);
     padding: var(--space-1) var(--space-4);
-    color: var(--muted);
+    color: var(--fg-soft);
     line-height: 1.45;
     white-space: nowrap;
     vertical-align: middle;
