@@ -76,32 +76,38 @@ function applyFilter(g, spec) {
     // The focus is what the reader is looking at, so a filter never takes it away. A root
     // is kept only from being hidden as unlinked — a chip that is off hides it like any record.
     const pinned = n => n.id() === f.focus;
+    // Worked out in a set first, and only what changes is restyled: a chip that hides a
+    // tenth of a large graph touches that tenth, not every element twice.
+    const hidden = new Set();
+    const shown = ele => !hidden.has(ele);
+    const nodes = cy.nodes();
+    nodes.forEach(n => {
+        if (!pinned(n) && (f.hide.has(n.id()) || !passes(n, f.nodes, f.except) || (!f.muted && n.data('muted')))) hidden.add(n);
+    });
+    // A group hidden takes its members with it; a member that survived keeps its group.
+    nodes.forEach(n => { if (hidden.has(n) && n.isParent()) n.descendants().forEach(d => hidden.add(d)); });
+    nodes.forEach(n => { if (!hidden.has(n) && n.isChild()) n.ancestors().forEach(a => hidden.delete(a)); });
+    cy.edges().forEach(e => {
+        if (f.hide.has(e.id()) || !passes(e, f.edges, f.edgesExcept) || hidden.has(e.source()[0]) || hidden.has(e.target()[0])) hidden.add(e);
+    });
+    if (!f.isolated) {
+        nodes.forEach(n => {
+            if (shown(n) && !n.isParent() && !pinned(n) && !n.data('root') && !n.connectedEdges().some(shown)) hidden.add(n);
+        });
+        nodes.forEach(p => { if (shown(p) && p.isParent() && !p.descendants().some(shown)) hidden.add(p); });
+    }
+    const focus = f.focus ? cy.getElementById(f.focus) : null;
+    const focused = focus && focus.nonempty() && shown(focus[0]) ? focus : cy.collection();
+    if (focused.nonempty()) {
+        let reach = focused;
+        for (let i = 0; i < f.depth; i++) reach = reach.union(reach.neighborhood().filter(shown));
+        const keep = reach.union(reach.nodes().edgesWith(reach.nodes()).filter(shown)).union(reach.ancestors());
+        cy.elements().forEach(e => { if (!keep.has(e)) hidden.add(e); });
+    }
     cy.batch(() => {
-        cy.elements().removeClass('hidden focus');
-        cy.nodes().filter(n => !pinned(n) && (
-            f.hide.has(n.id())
-            || !passes(n, f.nodes, f.except)
-            || (!f.muted && n.data('muted')))).addClass('hidden');
-        // A group hidden takes its members with it; a member that survived keeps its group.
-        cy.nodes('.hidden').descendants().addClass('hidden');
-        cy.nodes().not('.hidden').ancestors().removeClass('hidden');
-        cy.edges().filter(e =>
-            f.hide.has(e.id())
-            || !passes(e, f.edges, f.edgesExcept)
-            || e.source().hasClass('hidden') || e.target().hasClass('hidden')).addClass('hidden');
-        if (!f.isolated) {
-            cy.nodes().not('.hidden').filter(n => !n.isParent() && !pinned(n) && !n.data('root')
-                && n.connectedEdges().not('.hidden').empty()).addClass('hidden');
-            cy.nodes(':parent').not('.hidden').filter(p => p.descendants().not('.hidden').empty()).addClass('hidden');
-        }
-        const focus = f.focus ? cy.getElementById(f.focus) : null;
-        if (focus && focus.nonempty() && !focus.hasClass('hidden')) {
-            focus.addClass('focus');
-            let reach = focus;
-            for (let i = 0; i < f.depth; i++) reach = reach.union(reach.neighborhood().not('.hidden'));
-            const keep = reach.union(reach.nodes().edgesWith(reach.nodes()).not('.hidden')).union(reach.ancestors());
-            cy.elements().not(keep).addClass('hidden');
-        }
+        cy.elements().filter(e => hidden.has(e) !== e.hasClass('hidden')).toggleClass('hidden');
+        cy.nodes('.focus').not(focused).removeClass('focus');
+        focused.not('.focus').addClass('focus');
     });
     if (g.selected && g.selected.hasClass('hidden')) select(g, null);
     if (g.keyed && g.keyed.hasClass('hidden')) g.keyed = null;
@@ -117,16 +123,19 @@ function search(g, text, fit = true) {
     const cy = g.cy;
     const words = String(text ?? '').trim().toLowerCase().split(/\s+/).filter(Boolean);
     g.query = words.join(' ');
+    // Only what starts or stops matching is restyled: a query refined a letter at a time
+    // over a large graph otherwise marks every match again on every letter.
+    const matches = words.length
+        ? cy.nodes().filter(n => {
+            if (n.hasClass('hidden')) return false;
+            const hay = searchText(n);
+            return words.every(w => hay.includes(w));
+        })
+        : cy.collection();
     cy.batch(() => {
-        cy.nodes('.match').removeClass('match');
-        if (words.length) {
-            cy.nodes().not('.hidden').filter(n => {
-                const hay = searchText(n);
-                return words.every(w => hay.includes(w));
-            }).addClass('match');
-        }
+        cy.nodes('.match').not(matches).removeClass('match');
+        matches.not('.match').addClass('match');
     });
-    const matches = cy.nodes('.match');
     if (fit && matches.nonempty()) fitView(g, matches.closedNeighborhood().not('.hidden'), true);
     else declutter(g);
     return matches;

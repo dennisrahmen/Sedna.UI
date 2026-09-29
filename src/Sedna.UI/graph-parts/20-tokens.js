@@ -64,6 +64,20 @@ function colourReader(host) {
             return cache.get('@font');
         },
         clear: () => cache.clear(),
+        /* Every colour read so far, read again: whether any of them changed. The page's
+           <html> changes attributes for many reasons besides the theme — a dialog locking
+           the scroll, a class an app toggles — and repainting a large graph for nothing
+           restyles every element in it. */
+        refresh() {
+            const before = new Map(cache);
+            cache.clear();
+            let moved = false;
+            for (const [key, value] of before) {
+                const now = key === '@ground' ? this.ground(null) : key === '@font' ? this.font() : this.token(key, null);
+                if ((now ?? null) !== (value ?? null)) moved = true;
+            }
+            return moved;
+        },
         remove: () => probe.remove(),
         probe,
     };

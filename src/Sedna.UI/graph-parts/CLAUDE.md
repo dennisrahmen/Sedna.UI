@@ -61,7 +61,16 @@ one page never share anything but the caches in `pluginLoads` and `warned`.
 - **Every layout run is deterministic.** Order by degree then id; seed anything random (`seeded()`).
   The drawing a reader learned yesterday must be the one that comes back.
 - **Restyle only what changed.** A class set on an element is a restyle of it, which over a large
-  graph is the most expensive thing this can do. Batch (`cy.batch`) and diff (`light`, `declutter`).
+  graph is the most expensive thing this can do. Batch (`cy.batch`) and diff (`light`, `declutter`,
+  `applyFilter`, `setData`). The engine's other setters restyle too — `data`, `scratch`,
+  `removeScratch`, `lock`, `unlock`, `select` — so call them only on what changes, and never on the
+  whole graph for a reader's action. `GraphScaleTests` counts restyles and fails on one that does.
+- **No reader's action restyles the whole graph.** Lighting dims under the veil (`41-light.js`)
+  and restyles only the neighbourhood; never dim by class where the veil is up. The zoom reaches
+  what is near the view (`rezoom`) and names are placed near it (`declutter`); what needs the
+  whole drawing current — an export — calls `rezoom(g, true)` and `declutter(g, true)` first.
+  Changing what is raised (`z-index`) reorders the engine's whole stack, so nothing the pointer
+  does may change it while the veil is up.
 - **An exception crossing into Blazor tears down the circuit.** `invoke` answers null and warns for
   anything it cannot do; a plugin that fails to load is reported and the graph keeps drawing.
 - **Name nothing real** — see the root `CLAUDE.md`. The module ships to every app that installs the

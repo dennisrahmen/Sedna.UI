@@ -16,6 +16,13 @@
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* Whether the view may glide to where it is going rather than go there. Not for a reader who
+   asked for less motion, not in a tab nobody is looking at — and not in a drawing so large
+   that the engine draws only a few frames of the glide: a view that stalls and then jumps is
+   worse than one that jumps. */
+const GLIDE_LIMIT = 12000;
+const glides = g => !reducedMotion() && document.visibilityState === 'visible' && g.cy.elements().length <= GLIDE_LIMIT;
+
 /* Sizes that are held on screen, whatever the zoom. cytoscape works a style out once
    per state of an element's data, so the zoom reaches the style as data — `zoom`, in
    steps of a few percent (40-view.js) — rather than as a call to cy.zoom(). */
@@ -27,24 +34,28 @@ const zoomOf = ele => ele.data('zoom') ?? 1;
 const HOLD_FLOOR = 0.4;
 const held = ele => (zoomOf(ele) <= 1 ? 1 : 1 / Math.pow(zoomOf(ele), 0.8));
 const LABEL_MAX_PX = 180;
+// A dot's name smaller than this on screen is not drawn at all.
+const MIN_NAME_PX = 6;
 const labelPx = n => 10.5 + Math.min(n.data('degree') || 0, 14) * 0.2 + (n.data('hub') ? 1.5 : 0);
 const labelSize = n => labelPx(n) / zoomOf(n);
 
-/* How wide a line of text is in a font, measured by the browser once and remembered — the
-   declutter asks for every name each time the view settles. */
+/* How wide a line of text is at a size, measured by the browser once and remembered — the
+   declutter asks for every name each time the view settles. A name is measured once per
+   weight, at a size of 100, and scaled: a width grows with the size, and a name kept per
+   size would be measured again at every step of the zoom. */
 let textCtx = null;
 const textWidths = new Map();
-function textWidth(text, font) {
-    const key = font + '\u0000' + text;
+function textWidth(text, weight, px, family) {
+    const key = weight + family + '\u0000' + text;
     let w = textWidths.get(key);
     if (w === undefined) {
         textCtx = textCtx || document.createElement('canvas').getContext('2d');
-        textCtx.font = font;
+        textCtx.font = `${weight} 100px ${family}`;
         w = textCtx.measureText(text).width;
-        if (textWidths.size > 5000) textWidths.clear();
+        if (textWidths.size > 50000) textWidths.clear();
         textWidths.set(key, w);
     }
-    return w;
+    return w * px / 100;
 }
 const sizeOf = weight => Math.min(14 + 5 * Math.sqrt(Math.max(weight, 0)), 46);
 
@@ -85,16 +96,12 @@ function styleFor(colours, icons, options, extra) {
     const box = n => (n.data('display') || options.nodes) === 'box';
     const nameOf = n => (box(n) ? n.data('boxLabel') : n.data('label')) || '';
     const edgeTone = e => c(tokenOfTone(e.data('tone')), p.line);
-    const arrowOf = (e, end) => {
-        const a = e.data('arrow') || options.arrows;
-        return a === 'both' || a === end ? 'triangle' : 'none';
-    };
-    const iconFor = n => {
-        const cls = n.data('icon');
-        if (!cls) return 'none';
-        return icons.image(cls, box(n) ? toneColour(n) : p.ground, 32) || 'none';
-    };
-    const lineStyle = e => (e.data('line') === 'dotted' ? 'dotted' : e.data('line') === 'dashed' ? 'dashed' : 'solid');
+    const arrows = a => ({
+        'target-arrow-shape': a === 'both' || a === 'target' ? 'triangle' : 'none',
+        'source-arrow-shape': a === 'both' || a === 'source' ? 'triangle' : 'none',
+    });
+    const iconFor = n => icons.image(n.data('icon'), box(n) ? toneColour(n) : p.ground, 32) || 'none';
+    const dots = options.nodes !== 'box';
     // A layered layout knows where each link has to go to pass the ranks between its ends;
     // its route is drawn unless the app chose a curve. Read from where the layout left it.
     const routed = options.layout === 'dagre' && !options.curveChosen;
@@ -104,7 +111,15 @@ function styleFor(colours, icons, options, extra) {
         'control-point-distances': e => e.scratch('controlPointDistances') || [0],
         'edge-distances': 'intersection',
     } : {};
-    const edgeLabel = options.edgeLabels === 'always' ? (e => e.data('label') || '') : '';
+    // A link's name, held at its screen size around dots like a record's.
+    const edgeName = dots ? {
+        'font-size': e => 10 / zoomOf(e),
+        'text-background-padding': e => 2 / zoomOf(e),
+    } : {};
+    // What is lit is raised above the rest only where the rest is dimmed by class. Under the
+    // veil the lit records are drawn again on top of it, and raising them would reorder the
+    // engine's whole stack, which it then draws again from scratch.
+    const raise = z => (options.veil === false ? { 'z-index': z } : {});
     const side = labelSide(options);
     const beside = side === 'bottom' ? {} : {
         'text-valign': 'center',
@@ -113,16 +128,19 @@ function styleFor(colours, icons, options, extra) {
         'text-margin-x': n => (side === 'right' ? 4 : -4) / zoomOf(n),
     };
 
+    /* Every function below is called for every element it applies to, each time that element
+       is restyled; a plain value is worked out once. So a value most elements share is plain,
+       and a selector — `[?icon]`, `[line = "dashed"]` — gives the others theirs. A `data()`
+       value only ever sits behind a selector that says the element has that field: the engine
+       warns about one that meets an element without it. */
     return [
         {
             selector: 'node',
             style: {
-                'shape': n => n.data('shape') || 'ellipse',
+                'shape': 'ellipse',
                 'background-color': toneColour,
-                'background-image': iconFor,
+                'background-image': 'none',
                 'background-fit': 'none',
-                'background-width': n => (n.data('size') || 20) * held(n) * 0.56,
-                'background-height': n => (n.data('size') || 20) * held(n) * 0.56,
                 'background-image-containment': 'inside',
                 'background-clip': 'none',
                 'width': n => (n.data('size') || 20) * held(n),
@@ -137,7 +155,7 @@ function styleFor(colours, icons, options, extra) {
                 'text-margin-y': n => 3 / zoomOf(n),
                 'text-wrap': 'ellipsis',
                 'text-max-width': n => LABEL_MAX_PX / zoomOf(n),
-                'min-zoomed-font-size': 6,
+                'min-zoomed-font-size': MIN_NAME_PX,
                 'text-outline-color': p.ground,
                 'text-outline-width': n => 0.22 * labelSize(n),
                 'text-outline-opacity': 0.95,
@@ -149,6 +167,15 @@ function styleFor(colours, icons, options, extra) {
                 ...beside,
             },
         },
+        { selector: 'node[?shape]', style: { 'shape': 'data(shape)' } },
+        {
+            selector: 'node[?icon]',
+            style: {
+                'background-image': iconFor,
+                'background-width': n => (n.data('size') || 20) * held(n) * 0.56,
+                'background-height': n => (n.data('size') || 20) * held(n) * 0.56,
+            },
+        },
         { selector: 'node[?hub]', style: { 'font-weight': 600, 'color': p.fg } },
         // Settled or less important records stay on the map, quieter: they explain how something got here.
         { selector: 'node[?muted]', style: { 'background-opacity': 0.45, 'color': p.muted } },
@@ -156,7 +183,7 @@ function styleFor(colours, icons, options, extra) {
             // A box: the name inside, sized to fit, an icon before it. Drawn at the zoom like a diagram is.
             selector: 'node[display = "box"]',
             style: {
-                'shape': n => n.data('shape') || 'round-rectangle',
+                'shape': 'round-rectangle',
                 'label': nameOf,
                 'width': n => n.data('boxW') || 120,
                 'height': n => n.data('boxH') || 36,
@@ -183,6 +210,7 @@ function styleFor(colours, icons, options, extra) {
                 'min-zoomed-font-size': 0,
             },
         },
+        { selector: 'node[display = "box"][?shape]', style: { 'shape': 'data(shape)' } },
         { selector: 'node[display = "box"][?muted]', style: { 'background-opacity': 0.6, 'border-opacity': 0.6, 'color': p.muted } },
         // A group that holds records — a compound node. A whisper of its tone, its name at the top,
         // held at a screen size around dots like the names inside it.
@@ -247,23 +275,22 @@ function styleFor(colours, icons, options, extra) {
                 'curve-style': options.curve,
                 'taxi-direction': options.direction === 'LR' || options.direction === 'RL' ? 'horizontal' : 'vertical',
                 'taxi-turn': '50%',
-                'line-color': edgeTone,
-                'line-style': lineStyle,
-                'line-dash-pattern': e => (e.data('line') === 'dotted' ? [1.5, 3.5] : [6, 4]),
-                'target-arrow-color': edgeTone,
-                'source-arrow-color': edgeTone,
-                'target-arrow-shape': e => arrowOf(e, 'target'),
-                'source-arrow-shape': e => arrowOf(e, 'source'),
+                'line-color': p.line,
+                'line-style': 'solid',
+                'line-dash-pattern': [6, 4],
+                'target-arrow-color': p.line,
+                'source-arrow-color': p.line,
+                ...arrows(options.arrows),
                 'arrow-scale': options.nodes === 'box' ? 0.9 : 0.7,
                 // The line fades, not the label on it — arrowheads fade with the line.
                 'line-opacity': options.nodes === 'box' ? 0.8 : 0.4,
-                'label': edgeLabel,
-                'font-size': e => (options.nodes === 'box' ? 11 : 10 / zoomOf(e)),
+                'label': '',
+                'font-size': dots ? 10 : 11,
                 'font-family': p.font,
                 'color': p.soft,
                 'text-background-color': p.ground,
                 'text-background-opacity': 0.92,
-                'text-background-padding': e => 2 / (options.nodes === 'box' ? 1 : zoomOf(e)),
+                'text-background-padding': 2,
                 'text-background-shape': 'round-rectangle',
                 'text-rotation': options.nodes === 'box' ? 'none' : 'autorotate',
                 'transition-property': 'opacity',
@@ -271,6 +298,11 @@ function styleFor(colours, icons, options, extra) {
                 ...route,
             },
         },
+        { selector: 'edge[?tone]', style: { 'line-color': edgeTone, 'target-arrow-color': edgeTone, 'source-arrow-color': edgeTone } },
+        { selector: 'edge[line = "dashed"]', style: { 'line-style': 'dashed' } },
+        { selector: 'edge[line = "dotted"]', style: { 'line-style': 'dotted', 'line-dash-pattern': [1.5, 3.5] } },
+        ...['none', 'target', 'source', 'both'].map(a => ({ selector: `edge[arrow = "${a}"]`, style: arrows(a) })),
+        ...(options.edgeLabels === 'always' ? [{ selector: 'edge[?label]', style: { 'label': 'data(label)', ...edgeName } }] : []),
         // The links of a folded group, redrawn to it: straight, so every link between the same
         // two ends is one line rather than a fan of parallel curves.
         { selector: 'edge.cy-expand-collapse-meta-edge', style: { 'curve-style': 'straight' } },
@@ -280,11 +312,14 @@ function styleFor(colours, icons, options, extra) {
 
         { selector: '.hidden', style: { 'display': 'none' } },
         { selector: '.dim', style: { 'opacity': 0.1, 'text-opacity': 0 } },
-        { selector: 'node.lit', style: { 'color': p.fg, 'label': nameOf, 'z-index': 10 } },
+        // A name under the veil (41-light.js): hidden, as a dimmed one is.
+        { selector: '.hushed', style: { 'text-opacity': 0 } },
+        { selector: 'node.lit', style: { 'color': p.fg, 'label': nameOf, ...raise(10) } },
         {
             selector: 'edge.lit',
-            style: { 'line-opacity': 1, 'width': e => Math.max(2, (e.data('weight') || 1) * 1.6) * held(e), 'label': e => (options.edgeLabels === 'none' ? '' : e.data('label') || ''), 'z-index': 10 },
+            style: { 'line-opacity': 1, 'width': e => Math.max(2, (e.data('weight') || 1) * 1.6) * held(e), ...raise(10) },
         },
+        ...(options.edgeLabels === 'none' ? [] : [{ selector: 'edge.lit[?label]', style: { 'label': 'data(label)', ...edgeName } }]),
         {
             // A match: a ring in the text colour, which stands out on every tone, inside a halo
             // in the accent, which stands out on the ground — so it reads whatever the tone.
@@ -303,7 +338,7 @@ function styleFor(colours, icons, options, extra) {
         { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'label': nameOf } },
         { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
         // The keyboard's place: a ring outside the record, in the focus ring's colour.
-        { selector: 'node.keyed', style: { 'outline-width': n => (box(n) ? 3 : 3 * held(n)), 'label': nameOf, 'color': p.fg, 'z-index': 20 } },
+        { selector: 'node.keyed', style: { 'outline-width': n => (box(n) ? 3 : 3 * held(n)), 'label': nameOf, 'color': p.fg, ...raise(20) } },
         { selector: '.entering', style: { 'opacity': 0 } },
 
         // Drawing a link (cytoscape-edgehandles): the line follows the pointer in the brand colour.

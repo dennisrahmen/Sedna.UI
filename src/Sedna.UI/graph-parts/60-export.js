@@ -17,6 +17,10 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 
 async function exportImage(g, format) {
     const ground = palette(g.colours).ground;
+    // The whole drawing, so what is off screen is brought up to the zoom and the names of
+    // what is on it, which the view keeps current only near itself.
+    rezoom(g, true);
+    declutter(g, true);
     if (format === 'png') {
         return g.cy.png({ output: 'blob-promise', bg: ground, full: true, scale: 2, maxWidth: 8000, maxHeight: 8000 });
     }
@@ -32,6 +36,10 @@ async function download(g, format, filename) {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
+
+// An element as it rests: the dimming around a lit neighbourhood is the reader's pointer,
+// not the drawing.
+const opacityOf = ele => (ele.hasClass('dim') ? 1 : ele.numericStyle('opacity'));
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const num = n => (Math.round(n * 100) / 100).toString();
@@ -181,7 +189,7 @@ function svgOf(g, ground) {
     for (const e of visible.edges().toArray()) {
         const colour = e.style('line-color');
         const width = e.numericStyle('width');
-        const opacity = e.numericStyle('opacity') * e.numericStyle('line-opacity');
+        const opacity = opacityOf(e) * e.numericStyle('line-opacity');
         const dash = e.style('line-style') === 'dashed' ? ' stroke-dasharray="6 4"' : e.style('line-style') === 'dotted' ? ' stroke-dasharray="1.5 3.5" stroke-linecap="round"' : '';
         const geo = edgePath(e);
         const size = (5 + width * 2.5) * e.numericStyle('arrow-scale');
@@ -204,7 +212,7 @@ function svgOf(g, ground) {
         const stroke = n.style('border-color');
         const bw = n.numericStyle('border-width');
         const attrs = `fill="${fill}" fill-opacity="${num(n.numericStyle('background-opacity'))}" stroke="${stroke}" stroke-width="${num(bw)}"`;
-        const parts = [`<g class="graph-record" opacity="${num(n.numericStyle('opacity'))}"><title>${esc([n.data('label'), n.data('meta')].filter(Boolean).join(' — '))}</title>`];
+        const parts = [`<g class="graph-record" opacity="${num(opacityOf(n))}"><title>${esc([n.data('label'), n.data('meta')].filter(Boolean).join(' — '))}</title>`];
         parts.push(shapeSvg(n.style('shape'), p.x, p.y, nw, nh, attrs));
         const icon = n.data('icon') ? g.icons.image(n.data('icon'), box ? stroke : ground, 32) : null;
         if (icon) {

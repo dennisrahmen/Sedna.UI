@@ -353,6 +353,19 @@ setting, the contrast setting, forced colours and an app's own brand all reach i
 whenever any of them changes. A label's outline is whatever the graph sits on. Colour is never the
 only carrier: give kinds a shape, links a line style and a label.
 
+## Large graphs
+
+- **Reading costs what is lit and what is in view**, not the size of the graph: pointing, selecting,
+  the keyboard, the search, zooming and panning touch the neighbourhood and the part of the drawing
+  near the view. Names and sizes further off are brought up to date when the view reaches them.
+- **Arranging costs the whole drawing**: the first drawing, a filter, a layout, a direction or
+  spacing, and new data that brings more than a few records lay the drawing out again. For thousands
+  of records use `islands`, and give records a `data-group`.
+- **Records arrive by `data-graph-src` or a call** rather than as a list Razor renders — see
+  [C#](#c) — and a record whose data did not change is not redrawn when new data arrives.
+- **A very large graph on a real GPU** can use `data-graph-renderer="webgl"`; check it on the
+  hardware the app runs on.
+
 ## Engine and plugins
 
 Vendored under `wwwroot/lib/cytoscape/` by `build/vendor-cytoscape.sh`, pinned by version and sha512,

@@ -37,7 +37,22 @@ function minimap(g, canvas) {
         ctx.clearRect(0, 0, buffer.width, buffer.height);
         const nodes = cy.nodes().not('.hidden').filter(n => !n.isParent() && !n.hasClass('eh-ghost') && !n.hasClass('eh-handle'));
         if (nodes.empty()) return;
-        const bb = nodes.boundingBox({ includeLabels: false, includeOverlays: false });
+        // The drawing's bounds from where its records are and how wide the model says they
+        // are: asking the engine for a box would work out every record's style first.
+        const bb = { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity };
+        nodes.forEach(n => {
+            const { x, y } = n.position();
+            const d = n.data();
+            const box = (d.display || g.options.nodes) === 'box';
+            const hw = (box ? d.boxW || 120 : (d.size || 20) * held(n)) / 2;
+            const hh = box ? (d.boxH || 36) / 2 : hw;
+            if (x - hw < bb.x1) bb.x1 = x - hw;
+            if (x + hw > bb.x2) bb.x2 = x + hw;
+            if (y - hh < bb.y1) bb.y1 = y - hh;
+            if (y + hh > bb.y2) bb.y2 = y + hh;
+        });
+        bb.w = bb.x2 - bb.x1;
+        bb.h = bb.y2 - bb.y1;
         const pad = 8 * dpr;
         scale = Math.min((buffer.width - pad * 2) / Math.max(bb.w, 1), (buffer.height - pad * 2) / Math.max(bb.h, 1));
         ox = pad + (buffer.width - pad * 2 - bb.w * scale) / 2 - bb.x1 * scale;
@@ -58,20 +73,39 @@ function minimap(g, canvas) {
             ctx.stroke();
         }
         ctx.globalAlpha = 1;
+        // A record's colour is its tone's, which is what the canvas painted it — read from
+        // the model rather than asked of the engine's style, record by record — unless the
+        // app's own rules may have painted it something else.
+        const own = g.extraStyle && g.extraStyle.length;
+        const toneOf = n => (own
+            ? n.style(n.isParent() || (n.data('display') || g.options.nodes) === 'box' ? 'border-color' : 'background-color')
+            : g.colours.token(nodeTone(n, g.options), p.line));
         cy.nodes(':parent').not('.hidden').forEach(parent => {
             const b = parent.boundingBox({ includeLabels: false });
-            ctx.fillStyle = withAlpha(parent.style('border-color'), 0.12);
+            ctx.fillStyle = withAlpha(toneOf(parent), 0.12);
             ctx.fillRect(ox + b.x1 * scale, oy + b.y1 * scale, b.w * scale, b.h * scale);
         });
+        // One path per colour and strength, rather than a fill per record.
+        const runs = new Map();
         nodes.forEach(n => {
             const pos = n.position();
-            const r = Math.max(1.5 * dpr, Math.min(n.width() * scale / 2, 6 * dpr));
-            ctx.globalAlpha = n.hasClass('dim') ? 0.25 : n.data('muted') ? 0.5 : 1;
-            ctx.fillStyle = (n.data('display') || g.options.nodes) === 'box' ? n.style('border-color') : n.style('background-color');
-            ctx.beginPath();
-            ctx.arc(ox + pos.x * scale, oy + pos.y * scale, r, 0, Math.PI * 2);
-            ctx.fill();
+            const box = (n.data('display') || g.options.nodes) === 'box';
+            const width = box ? (n.data('boxW') || 120) : (n.data('size') || 20) * held(n);
+            const r = Math.max(1.5 * dpr, Math.min(width * scale / 2, 6 * dpr));
+            const alpha = n.hasClass('dim') ? 0.25 : n.data('muted') ? 0.5 : 1;
+            const colour = toneOf(n);
+            const key = colour + '|' + alpha;
+            let run = runs.get(key);
+            if (!run) runs.set(key, (run = { colour, alpha, path: new Path2D() }));
+            const x = ox + pos.x * scale, y = oy + pos.y * scale;
+            run.path.moveTo(x + r, y);
+            run.path.arc(x, y, r, 0, Math.PI * 2);
         });
+        for (const run of runs.values()) {
+            ctx.globalAlpha = run.alpha;
+            ctx.fillStyle = run.colour;
+            ctx.fill(run.path);
+        }
         ctx.globalAlpha = 1;
     }
 

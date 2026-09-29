@@ -62,7 +62,7 @@ function readOptions(el, given) {
         warnOnce('layout:' + o.layout, `"${o.layout}" is not a layout; using force.`);
         o.layout = 'force';
     }
-    o.direction = DIRECTIONS[o.direction] || 'TB';
+    o.direction = directionOf(o.direction);
     // Chosen, or following the drawing: boxes write their links' labels, dots only when lit.
     o.edgeLabelsChosen = !!o.edgeLabels;
     followEdgeLabels(o);
@@ -73,7 +73,7 @@ function readOptions(el, given) {
 
 /* The options a reader can change, as they were when the graph was first drawn — what
    Reset puts back. */
-const VIEW_OPTIONS = ['layout', 'direction', 'spacing', 'nodes', 'labels', 'edgeLabels', 'edgeLabelsChosen', 'colourBy', 'curve', 'arrows'];
+const VIEW_OPTIONS = ['layout', 'direction', 'spacing', 'nodes', 'labels', 'edgeLabels', 'edgeLabelsChosen', 'colourBy', 'curve', 'curveChosen', 'arrows'];
 const viewOf = o => Object.fromEntries(VIEW_OPTIONS.map(k => [k, o[k]]));
 
 function followEdgeLabels(o) {
@@ -92,8 +92,14 @@ function optionsFromControls(g) {
             color: 'colourBy', 'edge-labels': 'edgeLabels', curve: 'curve', nodes: 'nodes', arrows: 'arrows' }[name];
         const attr = 'data-graph-' + (name === 'colour' || name === 'color' ? 'colour' : name);
         if (key && !g.el.hasAttribute(attr) && !(key in (g.given || {}))) {
-            g.options[key] = key === 'nodes' ? (c.value === 'box' ? 'box' : 'dot') : c.value;
+            g.options[key] = key === 'nodes' ? (c.value === 'box' ? 'box' : 'dot') : key === 'direction' ? directionOf(c.value) : c.value;
             if (key === 'edgeLabels') g.options.edgeLabelsChosen = true;
+            // A curve the reader chose is drawn, even over the route a layered layout found;
+            // an empty choice is the layout's own.
+            if (key === 'curve') {
+                g.options.curveChosen = !!c.value;
+                g.options.curve = c.value || 'bezier';
+            }
         }
         if (name === 'depth') g.depth = Math.max(1, Math.min(Number(c.value) || 1, 6));
     }
@@ -173,7 +179,9 @@ function measureBoxes(g) {
         const model = byId.get(n.id());
         if (!model) return;
         const mode = model.display || g.options.nodes;
-        n.data(Object.assign({ display: mode }, mode === 'box' ? boxMetrics(model, font) : { boxLabel: model.label }));
+        const next = Object.assign({ display: mode }, mode === 'box' ? boxMetrics(model, font) : { boxLabel: model.label });
+        // Only what changed: this runs on every unfolding, and data set is a restyle.
+        if (!sameData(n.data(), next)) n.data(next);
     }));
 }
 
@@ -197,8 +205,19 @@ function nodeDetail(ele, extra) {
     }, extra || {});
 }
 
-function restyle(g) {
-    g.cy.style(styleFor(g.colours, g.icons, g.options, g.extraStyle));
+/* The engine's stylesheet built again — a restyle of every element, so only when something
+   it is built from has changed: one of the options it reads, the app's own rules, or a
+   colour (`force`, from a repaint). Laying the drawing out again, or changing an option the
+   stylesheet does not read, restyles nothing. */
+const STYLE_OPTIONS = ['nodes', 'layout', 'direction', 'curve', 'curveChosen', 'edgeLabels', 'arrows', 'colourBy', 'veil'];
+const styleKeyOf = o => STYLE_OPTIONS.map(k => String(o[k])).join('|');
+
+function restyle(g, force) {
+    const key = styleKeyOf(g.options);
+    if (force || key !== g.styleKey) {
+        g.styleKey = key;
+        g.cy.style(styleFor(g.colours, g.icons, g.options, g.extraStyle));
+    }
     colouring(g);
 }
 
@@ -267,11 +286,13 @@ async function arrange(g, animate) {
     // A layout that makes room for names measures every name, not just the ones the
     // declutter is showing now: which those are depends on where the records were, and a
     // drawing measured with half its names would grow into itself once they came back.
-    const quiet = cy.nodes('.unlabelled');
+    // Any other layout measures no name, and is not made to restyle the hidden ones twice.
+    const measuring = measuresNames(g);
+    const quiet = measuring ? cy.nodes('.unlabelled') : cy.collection();
     if (quiet.nonempty()) cy.batch(() => quiet.removeClass('unlabelled'));
     // A name's box is worked out when the canvas next draws it, so one that has just changed
     // — shown again, or resized for a new zoom — is measured stale until its style is updated.
-    if (measuresNames(g)) cy.nodes().updateStyle();
+    if (measuring) cy.nodes().updateStyle();
     // While a layout runs the view holds still: a resize that fitted and settled it now would
     // hide names the layout is measuring and change the zoom it measures them at.
     g.laying = (g.laying || 0) + 1;
@@ -352,9 +373,14 @@ async function atScale(g, run) {
    and a layout measures records — so it is handed their own size first, and the view puts
    the zoom back when it settles. Otherwise arranging zoomed in is a different drawing. */
 function unzoomed(g) {
-    if (g.step === 1) return;
     g.step = 1;
-    g.cy.batch(() => g.cy.elements().data('zoom', 1));
+    // Records only — a link's width is nothing a layout measures, and the view gives links
+    // their zoom back when it settles. Below a zoom of 1 only a name's size differs, so a
+    // record is reset there only for a layout that measures names. Not only when the step
+    // was elsewhere: what was off screen may still hold an older zoom.
+    const names = measuresNames(g);
+    const stale = g.cy.nodes().filter(n => (names ? n.data('zoom') !== 1 : n.data('zoom') > 1));
+    if (stale.nonempty()) g.cy.batch(() => stale.data('zoom', 1));
 }
 
 function mount(g) {
@@ -377,6 +403,8 @@ function mount(g) {
     // Where cytoscape registers an instance made with a container, which mounting does
     // not: devtools, and the browser tests, find the graph there.
     g.host._cyreg = Object.assign({}, g.host._cyreg, { cy });
+    // How lighting will dim, decided before the first drawing rather than at the first hover.
+    veilOf(g);
     const canvas = g.el.querySelector('[data-graph-minimap]');
     if (canvas) g.minimap = minimap(g, canvas);
 }
@@ -387,17 +415,44 @@ async function fetchData(url) {
     return response.json();
 }
 
-function positionNear(g, id, i) {
-    const cy = g.cy;
-    const next = g.model.edges.filter(e => e.source === id || e.target === id).map(e => (e.source === id ? e.target : e.source));
-    const placed = next.map(o => cy.getElementById(o)).filter(o => o.nonempty() && o.inside());
-    if (placed.length) {
-        const x = placed.reduce((s, o) => s + o.position('x'), 0) / placed.length;
-        const y = placed.reduce((s, o) => s + o.position('y'), 0) / placed.length;
-        return { x: x + 40 * Math.cos((i + 1) * golden), y: y + 40 * Math.sin((i + 1) * golden) };
+/* Whether an element's data already says everything `next` does. */
+function sameData(had, next) {
+    for (const k in next) {
+        const a = had[k], b = next[k];
+        if (a === b) continue;
+        if (a && b && typeof a === 'object' && typeof b === 'object') {
+            if (JSON.stringify(a) !== JSON.stringify(b)) return false;
+            continue;
+        }
+        // An absent value and a null one draw the same.
+        if ((a ?? null) !== (b ?? null)) return false;
     }
-    const bb = cy.nodes().not('.hidden').boundingBox({ includeLabels: false });
-    return { x: (Number.isFinite(bb.x2) ? bb.x2 : 0) + 60, y: (Number.isFinite(bb.y1) ? bb.y1 : 0) + 40 * i };
+    return true;
+}
+
+/* Where records that have just arrived are put: beside what they link to that is already
+   drawn, else in a column beside the drawing. Worked out for all of them at once — one
+   pass over the links, one measurement of the drawing — rather than a pass per record. */
+function positionsNear(g, ids) {
+    const cy = g.cy;
+    const fresh = new Set(ids);
+    const next = new Map();
+    for (const e of g.model.edges) {
+        if (fresh.has(e.source)) (next.get(e.source) || next.set(e.source, []).get(e.source)).push(e.target);
+        if (fresh.has(e.target)) (next.get(e.target) || next.set(e.target, []).get(e.target)).push(e.source);
+    }
+    let bb = null;
+    let loose = 0;
+    return ids.map((id, i) => {
+        const placed = (next.get(id) || []).map(o => cy.getElementById(o)).filter(o => o.nonempty() && o.inside());
+        if (placed.length) {
+            const x = placed.reduce((s, o) => s + o.position('x'), 0) / placed.length;
+            const y = placed.reduce((s, o) => s + o.position('y'), 0) / placed.length;
+            return { x: x + 40 * Math.cos((i + 1) * golden), y: y + 40 * Math.sin((i + 1) * golden) };
+        }
+        bb = bb || cy.nodes().not('.hidden').boundingBox({ includeLabels: false });
+        return { x: (Number.isFinite(bb.x2) ? bb.x2 : 0) + 60, y: (Number.isFinite(bb.y1) ? bb.y1 : 0) + 40 * loose++ };
+    });
 }
 
 /* New data for a drawing that stands. What stayed keeps its place; what changed is
@@ -434,9 +489,10 @@ async function setData(g, data, opts = {}) {
     removed.remove();
     // New records first, placed beside what they link to — so an existing record can be
     // moved into a group that has only just arrived, and a new link has both its ends.
+    const freshNodes = fresh.filter(e => e.group === 'nodes');
+    const near = positionsNear(g, freshNodes.filter(e => !e.position).map(e => e.data.id));
     let i = 0;
-    const addedNodes = cy.add(fresh.filter(e => e.group === 'nodes')
-        .map(e => Object.assign(e, { position: e.position || positionNear(g, e.data.id, i++) })));
+    const addedNodes = cy.add(freshNodes.map(e => Object.assign(e, { position: e.position || near[i++] })));
     cy.batch(() => {
         els.forEach(e => {
             const ex = cy.getElementById(e.data.id);
@@ -455,13 +511,19 @@ async function setData(g, data, opts = {}) {
                 delete d.target;
             }
             delete d.id;
-            target.data(d);
+            // The zoom is the view's to keep, not the data's.
+            delete d.zoom;
+            // Setting data restyles the element, so only an element whose data changed is
+            // given it: new data for a large graph restyles what changed, not all of it.
+            if (target !== ex || !sameData(ex.data(), d)) target.data(d);
         });
     });
     const added = addedNodes.union(cy.add(fresh.filter(e => e.group === 'edges')));
-    if (!reducedMotion()) {
+    // A few arrivals fade in where the reader is looking. A first drawing, or a crowd, just
+    // appears: fading every element is a restyle of each one on every frame of the fade.
+    if (!reducedMotion() && !first && added.length <= 240) {
         added.addClass('entering');
-        setTimeout(() => added.removeClass('entering'), 30);
+        setTimeout(() => { if (!g.disposed) added.removeClass('entering'); }, 30);
     }
     applyFilter(g, filterFromControls(g).spec);
     if (g.query) search(g, g.query, false);
@@ -477,17 +539,15 @@ async function setData(g, data, opts = {}) {
             await arrange(g, true);
         } else {
             unzoomed(g);
+            // Only what arrived and what it links to are sprung; the rest is not in the run,
+            // so it stays where it is without being locked — locking restyles every record it
+            // touches, and unlocking afterwards would free what the app itself had locked.
             const around = addedNodes.union(addedNodes.neighborhood()).not('.hidden');
-            const still = cy.nodes().not(around);
-            still.lock();
             try {
-                await settled(springs(around.union(around.edgesWith(around)), around.nodes().length, SPACING[g.options.spacing] || 1, { numIter: 300 }));
+                await settled(springs(around.union(around.edgesWith(around)), around.nodes().length, spacingOf(g.options.spacing), { numIter: 300 }));
             } catch (e) {
                 report(e);
-                still.unlock();
                 await arrange(g, true);
-            } finally {
-                still.unlock();
             }
             settle(g);
             g.minimap?.now();
@@ -512,9 +572,10 @@ async function setData(g, data, opts = {}) {
 
 function repaint(g) {
     if (g.disposed || !g.cy) return;
-    g.colours.clear();
+    // Nothing the drawing is painted with changed: nothing to restyle.
+    if (!g.colours.refresh()) return;
     g.icons.clear();
-    restyle(g);
+    restyle(g, true);
     if (g.hullsOn) drawHulls(g);
     if (g.ec) {
         const p = palette(g.colours);
@@ -532,13 +593,21 @@ function wire(g) {
         g.listeners.push(() => target.removeEventListener(type, fn, opts));
     };
 
-    // Names are placed again once the wheel rests, not while it turns: restyling every
-    // record mid-gesture is what made zooming stutter. A timer rather than an animation
-    // frame: a frame never comes for a tab that is not being painted.
+    // Names are placed again once the view rests, not while it moves: restyling records
+    // mid-gesture is what made zooming stutter. A pan settles too, since what is kept
+    // current is what is near the view. A timer rather than an animation frame: a frame
+    // never comes for a tab that is not being painted.
     let pending = 0;
-    cy.on('zoom', () => {
+    cy.on('viewport', () => {
         clearTimeout(pending);
-        pending = setTimeout(() => { pending = 0; if (!g.disposed) settle(g); }, 140);
+        pending = setTimeout(() => {
+            pending = 0;
+            if (g.disposed) return;
+            // Settled already where it came to rest — by a fit, a zoom button or a key.
+            const at = g.settledAt, pan = cy.pan();
+            if (at && at.zoom === cy.zoom() && at.x === pan.x && at.y === pan.y) return;
+            settle(g);
+        }, 140);
     });
     g.listeners.push(() => clearTimeout(pending));
 
@@ -659,9 +728,14 @@ function wire(g) {
     }
     g.listeners.push(() => clearTimeout(paint));
 
+    let wasFull = false;
     on(document, 'fullscreenchange', () => {
         const frame = el.closest('[data-graph-frame]') || el;
         const full = document.fullscreenElement === frame;
+        // Another element — a video, another graph — entering or leaving full screen is
+        // not this graph's business, and must not throw away the view the reader made.
+        if (!full && !wasFull) return;
+        wasFull = full;
         controlsOf(g).filter(c => c.getAttribute('data-graph-action') === 'fullscreen')
             .forEach(c => c.setAttribute('aria-pressed', full ? 'true' : 'false'));
         setTimeout(() => {
@@ -746,6 +820,7 @@ async function start(g) {
         hideEdgesOnViewport: count > 5000,
     });
     g.cy.scratch('_sedna', g);
+    g.styleKey = styleKeyOf(g.options);
 
     g.tip = tips(g);
     g.menu = menus(g);
@@ -804,6 +879,7 @@ function dispose(g) {
     g.tip?.hide();
     try { g.eh?.destroy(); } catch (e) { /* ignore */ }
     try { g.bb?.destroy(); } catch (e) { /* ignore */ }
+    try { g.veil?.destroy(); } catch (e) { /* ignore */ }
     try { g.cy?.destroy(); } catch (e) { /* ignore */ }
     g.colours?.remove();
     g.icons?.remove();
@@ -883,7 +959,7 @@ function makeApi(g) {
                 if (!knownLayout(name)) return warnOnce('layout:' + name, `"${name}" is not a layout.`);
                 g.options.layout = name;
             }
-            for (const k of ['direction', 'spacing']) if (opts && opts[k]) g.options[k] = k === 'direction' ? (DIRECTIONS[opts[k]] || 'TB') : opts[k];
+            for (const k of ['direction', 'spacing']) if (opts && opts[k]) g.options[k] = k === 'direction' ? directionOf(opts[k]) : opts[k];
             g.touched = false;
             restyle(g);
             await arrange(g, true);
@@ -897,7 +973,7 @@ function makeApi(g) {
            what an earlier call set. */
         style: rules => {
             g.extraStyle = Array.isArray(rules) ? rules : [];
-            restyle(g);
+            restyle(g, true);
         },
         /* Fetches data-graph-src again and shows what changed. */
         reload: async () => {
