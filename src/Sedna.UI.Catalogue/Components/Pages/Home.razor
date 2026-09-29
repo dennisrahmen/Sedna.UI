@@ -1,14 +1,13 @@
 @page "/"
 @using Sedna.UI.Catalogue.Navigation
-@inject IJSRuntime Js
 
-<PageTitle>Sedna.UI catalogue</PageTitle>
+<PageTitle>@SiteMeta.HomeTitle</PageTitle>
 
 <div class="cat-hero">
     <span class="cat-hero-logo cat-mark cat-mark--hero"></span>
     <div class="cat-hero-text">
         <h1>Sedna.UI</h1>
-        <p>One design-token contract. Semantic CSS. Consistent Blazor apps.</p>
+        <p>@SiteMeta.Tagline</p>
     </div>
 </div>
 
@@ -20,24 +19,61 @@
     <CatLink Class="btn btn-lg" Href="@CatalogueLinks.NuGet"><i class="ri-box-3-line"></i> NuGet</CatLink>
 </div>
 
-@* Read from the stylesheet the browser loaded, never typed. Three implementations derive
-   these independently — the CSSOM here, build/css-inventory.sh with sed, and .NET regex
-   in the tests. *@
-<div class="cat-facts">
-    <div class="cat-fact"><strong>@Figure(_inventory?.Tokens)</strong><span>design tokens</span></div>
-    <div class="cat-fact"><strong>@Figure(_inventory?.Classes)</strong><span>CSS classes</span></div>
-    <div class="cat-fact"><strong>@Figure(_inventory?.Icons)</strong><span>bundled icons</span></div>
-    <div class="cat-fact"><strong>@ThirdParty</strong><span>third-party dependencies</span></div>
-</div>
-
-<div class="callout callout-info">
-    <i class="ri-robot-2-line"></i>
-    <div class="callout-body">
-        <span class="callout-title">For an AI agent, add the <a href="/mcp-server">MCP server</a></span>
-        It searches this catalogue, returns the exact markup for an example, and says which release
-        first shipped a class.
+@* Why this and not a component library or utility CSS — the same argument, in the same
+   order, as the opening of README.md. The MCP server is one of the four points rather
+   than a callout beside them, because an agent writing the app is what the library is for. *@
+<div class="cat-pitch">
+    <p class="cat-pitch-lede">
+        Every component library gets you to ninety percent. The last ten is the button the component
+        has no parameter for, and it is where you copy the component&rsquo;s markup out and rebuild it
+        yourself. <strong>Sedna.UI starts you at a hundred.</strong>
+    </p>
+    <div class="cat-points">
+        <div class="cat-point">
+            <span class="cat-tile-ic"><i class="ri-code-s-slash-line"></i></span>
+            <div class="cat-point-text">
+                <strong>The markup is yours</strong>
+                <span>
+                    Plain, open HTML with semantic classes, from the first line. The package ships what
+                    sits underneath: the stylesheet, a design-token contract, the icons and the script.
+                </span>
+            </div>
+        </div>
+        <div class="cat-point">
+            <span class="cat-tile-ic"><i class="ri-cursor-line"></i></span>
+            <div class="cat-point-text">
+                <strong>The behaviour comes with it</strong>
+                <span>
+                    Menus, tabs, popovers and the command palette work from attributes on your own
+                    markup, and a small C# surface opens the dialogs your app writes.
+                </span>
+            </div>
+        </div>
+        <div class="cat-point">
+            <span class="cat-tile-ic"><i class="ri-robot-2-line"></i></span>
+            <div class="cat-point-text">
+                <strong>Built to be written by an agent</strong>
+                <span>
+                    Add the <a href="/mcp-server">MCP server</a> &mdash; one URL, and your agent searches
+                    this catalogue, copies the exact markup, and checks which release first shipped a class.
+                </span>
+            </div>
+        </div>
+        <div class="cat-point">
+            <span class="cat-tile-ic"><i class="ri-shield-check-line"></i></span>
+            <div class="cat-point-text">
+                <strong>A system, not a starter kit</strong>
+                <span>
+                    Every colour through a token, every class on a page here, and this site built with the
+                    library itself &mdash; down to the graph and the rich-text editor.
+                </span>
+            </div>
+        </div>
     </div>
 </div>
+
+@* The pitch above is about the library; everything below is the catalogue. *@
+<hr class="cat-divider" />
 
 @foreach (var heading in Headings)
 {
@@ -61,8 +97,6 @@
 }
 
 @code {
-    private Inventory? _inventory;
-
     // One heading per group, and one more per section a group carries — the reference
     // pages under Start are their own row of tiles rather than tiles among the start pages.
     private static IEnumerable<(string Title, List<CataloguePage> Pages)> Headings =>
@@ -70,27 +104,4 @@
             new[] { (Title: group, Pages: CataloguePages.InGroup(group).Where(p => p.Route != "/" && p.Section is null).ToList()) }
                 .Concat(CataloguePages.SectionsOf(group)
                     .Select(section => (Title: section, Pages: CataloguePages.InGroup(group).Where(p => p.Section == section).ToList()))));
-
-    private sealed record Inventory(int Tokens, int Classes, int Icons);
-
-    // Derived, not typed: every assembly this one references that is neither the
-    // framework nor its own. PackageConfigTests reads the csproj and asserts the same
-    // thing from the other end.
-    private static int ThirdParty =>
-        typeof(ActiveLink).Assembly.GetReferencedAssemblies()
-            .Count(a => a.Name is { } n
-                        && !n.StartsWith("Microsoft.", StringComparison.Ordinal)
-                        && !n.StartsWith("System.", StringComparison.Ordinal)
-                        && n != "netstandard");
-
-    private static string Figure(int? value) =>
-        value is null ? "—" : value.Value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-
-        _inventory = await Js.InvokeAsync<Inventory>("sednaUiCatalogue.readInventory");
-        StateHasChanged();
-    }
 }

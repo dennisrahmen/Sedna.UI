@@ -161,6 +161,11 @@ app.MapMcp("/mcp")
     .RequireCors("mcp")
     .DisableAntiforgery();
 
+// For crawlers, both derived from the page registry: a new page is listed the moment
+// it is registered, and the canonical host is written in one place.
+app.MapGet("/sitemap.xml", () => Results.Text(SiteMeta.SitemapXml(), "application/xml"));
+app.MapGet("/robots.txt", () => Results.Text(SiteMeta.RobotsTxt(), "text/plain"));
+
 // The static catalogue's URLs, kept alive because published links outlive a site's
 // structure: nuget.org, the README and the docs all point at /catalogue/*.html.
 // Driven from the registry, so a new page cannot forget its redirect.

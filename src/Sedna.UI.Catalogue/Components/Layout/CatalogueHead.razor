@@ -1,0 +1,79 @@
+@* What a search engine and a link preview read: the description, the canonical
+   address, Open Graph and the X card, the page's JSON-LD, and the icons a phone or a
+   result page shows. All of it from SiteMeta, which reads the page registry — so a
+   new page is described the moment it is registered.
+
+   HeadContent from the layout rather than lines in App.razor, because App.razor is
+   the getting-started block verbatim. It is in the prerendered HTML, which is the
+   only copy a crawler or a preview fetcher reads. An address that is no registered
+   page — the not-found page, the error page — is marked noindex and gets no
+   canonical, rather than one pointing at a page that does not exist. *@
+@implements IDisposable
+@inject NavigationManager Nav
+
+<HeadContent>
+    @if (_page is { } page)
+    {
+        var url = SiteMeta.Canonical(page.Route);
+        var title = SiteMeta.Title(page);
+        var description = SiteMeta.Description(page);
+
+        <meta name="description" content="@description" />
+        <link rel="canonical" href="@url" />
+
+        <meta property="og:type" content="@(page.Route == "/" ? "website" : "article")" />
+        <meta property="og:site_name" content="@SiteMeta.Name" />
+        <meta property="og:locale" content="en_GB" />
+        <meta property="og:title" content="@title" />
+        <meta property="og:description" content="@description" />
+        <meta property="og:url" content="@url" />
+        <meta property="og:image" content="@SiteMeta.Image" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="@SiteMeta.ImageWidth" />
+        <meta property="og:image:height" content="@SiteMeta.ImageHeight" />
+        <meta property="og:image:alt" content="@SiteMeta.ImageAlt" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="@title" />
+        <meta name="twitter:description" content="@description" />
+        <meta name="twitter:image" content="@SiteMeta.Image" />
+        <meta name="twitter:image:alt" content="@SiteMeta.ImageAlt" />
+
+        @* The whole element as markup: the Razor compiler refuses a <script> written in
+           a component. The serializer escapes <, so the JSON cannot close the element. *@
+        @((MarkupString)$"<script type=\"application/ld+json\">{SiteMeta.StructuredData(page)}</script>")
+    }
+    else
+    {
+        <meta name="robots" content="noindex" />
+    }
+
+    @* The tile, not the bare mark: a result page, a home screen and a share sheet each
+       put it on a background this page does not choose. *@
+    <link rel="icon" type="image/png" sizes="256x256" href="brand/sedna-ui-tile-256.png" />
+    <link rel="apple-touch-icon" href="brand/sedna-ui-tile-256.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#0F172A" />
+</HeadContent>
+
+@code {
+    private CataloguePage? _page;
+
+    protected override void OnInitialized()
+    {
+        _page = PageAtCurrentAddress();
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+
+    // Its own subscription: the layout re-renders on navigation, but a parent's
+    // StateHasChanged does not reach a child whose parameters are unchanged.
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _page = PageAtCurrentAddress();
+        StateHasChanged();
+    }
+
+    private CataloguePage? PageAtCurrentAddress() => SiteMeta.PageAt(Nav.ToBaseRelativePath(Nav.Uri));
+}

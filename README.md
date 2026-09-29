@@ -1,4 +1,4 @@
-![Sedna.UI — one design-token contract. Semantic CSS. Consistent Blazor apps.](https://raw.githubusercontent.com/dennisrahmen/Sedna.UI/main/assets/brand/sedna-ui-social-preview.png)
+![Sedna.UI — semantic CSS for Blazor, built to be written by an agent.](https://raw.githubusercontent.com/dennisrahmen/Sedna.UI/main/assets/brand/sedna-ui-social-preview.png)
 
 [![Release](https://img.shields.io/github/actions/workflow/status/dennisrahmen/Sedna.UI/release.yml?logo=github&style=flat-square&label=release)](https://github.com/dennisrahmen/Sedna.UI/actions/workflows/release.yml)
 [![Catalogue](https://img.shields.io/badge/catalogue-browse-FF6B4A?style=flat-square&logo=github)](https://www.sedna-ui.com/)
@@ -10,9 +10,28 @@
 
 # Sedna.UI
 
-**One design-token contract. Semantic CSS. Consistent Blazor apps.**
+**Semantic CSS for Blazor, built to be written by an agent.**
 
-A shared UI layer for .NET 10 / Blazor apps.
+Every component library gets you to ninety percent. The last ten is the button the component has no
+parameter for, and it is where you copy the component's markup out and rebuild it yourself. One line of
+component is also a few hundred lines of HTML that neither you nor your agent can see without reading
+its source.
+
+**Sedna.UI starts you at a hundred.** The markup is yours from the first line: plain, open HTML with
+semantic classes. The package ships what sits underneath — the stylesheet, a design-token contract, the
+icons and the script.
+
+**Classes, and the behaviour with them.** Utility CSS leaves every dropdown and dialog to you. Here
+menus, tabs, popovers and the command palette work from attributes on your own markup, a toast is one
+call, and a small C# surface opens the dialogs your app writes and awaits their result.
+
+**Your agent reads the catalogue you do.** One MCP URL, `https://www.sedna-ui.com/mcp`, and an agent
+can search every class, copy the exact markup, and check which release introduced it before using it.
+
+**A system, not a starter kit.** Every colour resolves through a token, every class has a catalogue page
+of copy-pasteable HTML, and the catalogue is itself a Blazor app built with the library — so an example
+that renders correctly there renders correctly in yours. The graph and the rich-text editor are held to
+the same rules.
 
 ```bash
 dotnet add package Sedna.UI
@@ -51,12 +70,10 @@ always the app's.
 | [Migrating from DR.Simple_UI](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/migrating-to-sedna-ui.md) | Upgrading from the old package ID and brand |
 
 **The catalogue** — every class with a page of copy-pasteable HTML, at
-**[www.sedna-ui.com](https://www.sedna-ui.com/)**. It is a Blazor app built with this
-library, so an example that renders correctly there renders correctly in yours.
+**[www.sedna-ui.com](https://www.sedna-ui.com/)**.
 
-**An MCP server for AI agents** — `https://www.sedna-ui.com/mcp`. One URL, and an agent can
-search the catalogue, read what a class does and copy the exact markup. Every result names the release
-that introduced it, so an agent can check before copying something the installed version does not have.
+**The MCP server** — `https://www.sedna-ui.com/mcp`, with its tools and client setup on
+[the MCP server page](https://www.sedna-ui.com/mcp-server).
 
 ## Versioning
 
