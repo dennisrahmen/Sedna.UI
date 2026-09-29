@@ -173,6 +173,128 @@ public class GraphInteractionTests : GraphTestBase
         AssertQuiet();
     }
 
+    /// <summary>
+    /// The catalogue's explorer markup — a split of the graph's card and a filling side
+    /// panel — with a record whose neighbours are far taller than any screen.
+    /// </summary>
+    private static string Explorer()
+    {
+        var spokes = Enumerable.Range(1, 40).ToArray();
+        var data = "<ul class=\"graph-data\" data-graph-data><li data-node=\"hub\">Orders API</li>"
+            + string.Concat(spokes.Select(i => $"<li data-node=\"n{i}\">Record {i}</li>"))
+            + string.Concat(spokes.Select(i => $"<li data-edge data-source=\"hub\" data-target=\"n{i}\"></li>"))
+            + "</ul>";
+        return $"""
+            <div class="graph-frame" data-graph-frame style="--graph-height: 20rem">
+              <div class="toolbar">
+                <button class="btn btn-sm" type="button" data-graph-action="fullscreen" aria-pressed="false" id="full">Full screen</button>
+              </div>
+              <div class="sedna-split">
+                <div class="card" id="graph-card">
+                  {Graph(inside: data)}
+                </div>
+                <aside class="card card--fill sedna-split-aside graph-detail" data-graph-detail hidden id="panel">
+                  <div class="card-head"><strong data-graph-field="label"></strong></div>
+                  <div class="card-body" id="panel-body">
+                    <ul class="list" data-graph-neighbours>
+                      <template data-graph-neighbour>
+                        <li><div class="list-row"><button class="btn-bare list-title" type="button" data-graph-action="select" data-graph-field="label"></button></div></li>
+                      </template>
+                    </ul>
+                  </div>
+                  <div class="card-foot"><button class="btn btn-sm" type="button" data-graph-action="clear">Close</button></div>
+                </aside>
+              </div>
+            </div>
+            """;
+    }
+
+    private sealed record FrameLayout(
+        bool Full, bool FrameScrolls, double ContentBottom, double CardBottom, double CardHeight,
+        double PanelTop, double PanelBottom, double PanelHeight, bool BodyScrolls,
+        double GraphHeight, double CanvasHeight, double Drawn);
+
+    private static async Task<FrameLayout> LayoutOf(IPage page) =>
+        (await Eval<JsonElement>(page, LayoutScript)).Deserialize<FrameLayout>(JsonSerializerOptions.Web)!;
+
+    private const string LayoutScript = """
+        () => {
+            const frame = document.querySelector('[data-graph-frame]');
+            const box = s => document.querySelector(s).getBoundingClientRect();
+            const body = document.querySelector('#panel-body');
+            return {
+                full: document.fullscreenElement === frame,
+                frameScrolls: frame.scrollHeight > frame.clientHeight,
+                contentBottom: frame.getBoundingClientRect().bottom - parseFloat(getComputedStyle(frame).paddingBottom),
+                cardBottom: box('#graph-card').bottom,
+                cardHeight: box('#graph-card').height,
+                panelTop: box('#panel').top,
+                panelBottom: box('#panel').bottom,
+                panelHeight: box('#panel').height,
+                bodyScrolls: body.scrollHeight > body.clientHeight,
+                graphHeight: box('#g').height,
+                canvasHeight: document.querySelector('#g .graph-canvas').clientHeight,
+                drawn: cyOf('g').height(),
+            };
+        }
+        """;
+
+    private static async Task<FrameLayout> GoFullScreen(IPage page)
+    {
+        // A real click: the browser grants full screen only to a user's gesture.
+        await page.Locator("#full").ClickAsync();
+        await page.WaitForFunctionAsync("() => document.fullscreenElement !== null");
+        // The graph redraws at its new size a moment after the change.
+        await page.WaitForFunctionAsync(
+            "() => cyOf('g').height() === document.querySelector('#g .graph-canvas').clientHeight");
+        return await LayoutOf(page);
+    }
+
+    [Fact]
+    public async Task In_full_screen_the_side_panel_is_held_to_the_graphs_row_whatever_it_holds()
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Explorer());
+        await Ready(page);
+        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.select('hub'))");
+        await Assertions.Expect(page.Locator("#panel")).ToBeVisibleAsync();
+
+        // On the page, the panel is as tall as the graph and its body scrolls.
+        var onPage = await LayoutOf(page);
+        Assert.True(onPage.PanelHeight <= onPage.GraphHeight + 1, $"panel {onPage.PanelHeight} over graph {onPage.GraphHeight}");
+        Assert.True(onPage.BodyScrolls);
+
+        // Beside the graph: one row, as tall as the screen leaves it, the panel held to it.
+        var wide = await GoFullScreen(page);
+        Assert.True(wide.Full);
+        Assert.False(wide.FrameScrolls, "the frame scrolls");
+        Assert.Equal(wide.ContentBottom, wide.CardBottom, 1.0);
+        Assert.Equal(wide.ContentBottom, wide.PanelBottom, 1.0);
+        Assert.Equal(wide.CardHeight, wide.PanelHeight, 1.0);
+        Assert.True(wide.BodyScrolls, "the panel's body does not scroll");
+        Assert.True(wide.GraphHeight > onPage.GraphHeight, $"graph {wide.GraphHeight} did not grow");
+        Assert.Equal(wide.CanvasHeight, wide.Drawn, 1.0);
+
+        // Leaving gives the page's layout back.
+        await page.EvaluateAsync("() => document.exitFullscreen()");
+        await page.WaitForFunctionAsync("() => document.fullscreenElement === null");
+        var back = await LayoutOf(page);
+        Assert.Equal(onPage.GraphHeight, back.GraphHeight, 1.0);
+        Assert.True(back.PanelHeight <= back.GraphHeight + 1, $"panel {back.PanelHeight} over graph {back.GraphHeight}");
+
+        // Stacked on a narrow screen: the graph and the panel share it, and both stay on it.
+        await page.SetViewportSizeAsync(480, 800);
+        var narrow = await GoFullScreen(page);
+        Assert.True(narrow.Full);
+        Assert.False(narrow.FrameScrolls, "the frame scrolls");
+        Assert.True(narrow.PanelTop >= narrow.CardBottom, "the split did not stack");
+        Assert.Equal(narrow.ContentBottom, narrow.PanelBottom, 1.0);
+        Assert.True(narrow.BodyScrolls, "the panel's body does not scroll");
+        Assert.True(narrow.GraphHeight > 200, $"graph {narrow.GraphHeight} squeezed out");
+        Assert.Equal(narrow.CanvasHeight, narrow.Drawn, 1.0);
+        AssertQuiet();
+    }
+
     [Fact]
     public async Task With_data_graph_select_none_a_click_selects_nothing()
     {

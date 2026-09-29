@@ -151,7 +151,7 @@ On the `[data-graph]` element:
 | `.graph-swatch` | A record's key, in a `.series-*` colour: `--square`, `--rounded`, `--diamond`, `--triangle`, `--hexagon`, `--star`, `--tag`, `--muted`, `--group`. |
 | `.graph-line` | A link's key: `--dashed`, `--dotted`, `--light`, `--heavy`, `--arrow`. |
 | `.graph-frame` | A graph with what goes around it — what full screen takes. |
-| `.graph-detail` | The side panel: as tall as the graph and no taller. On a `.card.card--fill` its head and foot stay and its body scrolls. |
+| `.graph-detail` | The side panel: as tall as the graph and no taller, in full screen as well. On a `.card.card--fill` its head and foot stay and its body scrolls. |
 | `.graph-direction` | A neighbour's direction in the panel: `-out`, `-in`, `-both` icons, one shown. |
 
 **The graph is one stop in the tab order**, with a ring drawn inside its frame. It gets
