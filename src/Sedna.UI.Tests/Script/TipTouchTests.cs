@@ -48,9 +48,17 @@ public class TipTouchTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open(Body);
 
+        // The hold is 300ms of real time, so on a loaded machine the round trips between
+        // the press and the release can outlast it and turn the tap into a hold. The page
+        // clock is paused, so the press lasts exactly as long as the test runs it for.
+        await page.Clock.InstallAsync(new() { TimeDate = new DateTime(2030, 1, 1) });
+        await page.Clock.PauseAtAsync(new DateTime(2030, 1, 1, 0, 0, 1));
+
         await Pointer(page, "pointerdown");
-        await page.WaitForTimeoutAsync(120);
+        await page.Clock.RunForAsync(120);
         await Pointer(page, "pointerup");
+        // Well past the hold: the release has to have cancelled it, not merely beaten it.
+        await page.Clock.RunForAsync(1000);
 
         // Nothing from the hold path: the press was too short. (Focus after the click
         // below may show the hint, as it does for a mouse — that is the focus path.)
