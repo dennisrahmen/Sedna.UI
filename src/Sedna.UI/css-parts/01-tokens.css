@@ -134,10 +134,10 @@
        54-data-viz.css are the one place these are read.
 
        The five hues fall into three close pairs — coral and orange, cyan and teal,
-       violet and indigo — so a pair is told apart by lightness, not by hue: cyan and
-       violet sit a step deeper than teal and indigo. At one step each, cyan read as
-       teal and violet as indigo. SeriesSeparationTests measures every pair, in both
-       variants; take a step it accepts, not one by eye. */
+       violet and indigo — so a pair is told apart by lightness, not by hue. Here cyan
+       and violet sit deeper than teal and indigo; the light block has its own order.
+       SeriesSeparationTests measures every pair, in both variants and every built-in
+       theme; take a step it accepts, not one by eye. */
     --viz-1: var(--brand);
     --viz-2: var(--cyan-600);
     --viz-3: var(--orange-400);

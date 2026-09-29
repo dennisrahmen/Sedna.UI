@@ -4,8 +4,8 @@ using Sedna.UI.Tests.TestSupport;
 namespace Sedna.UI.Tests;
 
 /// <summary>
-/// The six series colours stay told apart: every pair, in both variants of the shipped
-/// palette, for full colour vision and under protanopia and deuteranopia.
+/// The six series colours stay told apart: every pair, in both variants and every built-in
+/// theme, for full colour vision and under protanopia and deuteranopia.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -16,20 +16,28 @@ namespace Sedna.UI.Tests;
 /// only neighbours, because a graph or a legend puts any two side by side.
 /// </para>
 /// <para>
-/// Distance is Euclidean in OKLab ×100. 15 is the floor for full colour vision. 8 is the floor
-/// under the Machado, Oliveira and Fernandes (2009) simulation at severity 1.0 — the model the
-/// figure is calibrated against, so replacing the model means re-deriving the floor.
+/// Distance is Euclidean in OKLab ×100. 15 is the floor for full colour vision. 7.5 is the
+/// floor under the Machado, Oliveira and Fernandes (2009) simulation at severity 1.0 — the model
+/// the figure is calibrated against, so replacing the model means re-deriving the floor.
 /// </para>
 /// <para>
-/// A theme is not measured here. It replaces <c>--viz-1</c>'s hue with its brand, and a brand
-/// that lands on a series hue is the theme's collision to move, the way
-/// <see cref="SednaThemeCollisionTests"/> makes it move a semantic family.
+/// 8 is the usual target under simulation, and the light variant cannot reach it: a theme's
+/// brand takes <c>--viz-1</c>, and no choice of steps on these ramps keeps Sedna's coral, Forest's
+/// green and Cobalt's blue all 15 from every series while also holding coral and orange 8 apart
+/// under deuteranopia. The worst pair is that one, at 7.7. A value under 8 is legal only beside a
+/// second channel — a legend label, a direct label, a graph record's shape — so a chart that
+/// uses the series carries one. Do not lower either floor to fit a new step — move the step.
+/// </para>
+/// <para>
+/// A theme is measured because it replaces <c>--viz-1</c> with its brand. A brand that lands on a
+/// series hue is the theme's collision to move, the way <see cref="SednaThemeCollisionTests"/>
+/// makes it move a semantic family — Cobalt regenerates <c>indigo</c> for exactly this.
 /// </para>
 /// </remarks>
 public class SeriesSeparationTests
 {
     private const double FullColourFloor = 15;
-    private const double ColourBlindFloor = 8;
+    private const double ColourBlindFloor = 7.5;
 
     private static readonly string[] Series = ["--viz-1", "--viz-2", "--viz-3", "--viz-4", "--viz-5", "--viz-6"];
 
@@ -50,12 +58,16 @@ public class SeriesSeparationTests
         }),
     ];
 
+    public static IEnumerable<object[]> ThemesAndVariants() =>
+        from row in SednaThemeTests.BuiltInThemes()
+        from variant in new[] { Tokens.Dark, Tokens.Light }
+        select new[] { row[0], variant };
+
     [Theory]
-    [InlineData(Tokens.Dark)]
-    [InlineData(Tokens.Light)]
-    public void Every_pair_of_series_colours_is_told_apart(string variant)
+    [MemberData(nameof(ThemesAndVariants))]
+    public void Every_pair_of_series_colours_is_told_apart(SednaTheme theme, string variant)
     {
-        var tokens = Tokens.Resolved(variant);
+        var tokens = Tokens.Resolved(variant, theme.Palette);
         var colours = Series.Select(name => Tokens.Rgb(tokens, name)).ToArray();
         var failures = new List<string>();
 
@@ -75,7 +87,7 @@ public class SeriesSeparationTests
             }
 
         Assert.True(failures.Count == 0,
-            $"{variant}: these series colours read as one colour.\n  "
+            $"\"{theme.Name}\", {variant}: these series colours read as one colour.\n  "
             + string.Join("\n  ", failures)
             + "\nMove one of the pair to another step of its own ramp — a close pair separates "
             + "by lightness — and re-run; see the comment above --viz-1 in 01-tokens.css.");

@@ -981,12 +981,14 @@ public class GraphTests : GraphTestBase
         Assert.Equal(dark[1], dark[0]);
         Assert.Equal(dark[3], dark[2]);
 
+        // Waits on tone 4, not tone 2: a series may keep its colour across variants — tone 2 is
+        // cyan-600 in both — so only a tone the light block moves can show the repaint.
         await page.EvaluateAsync("() => sednaUi.settings.save('variant', 'light')");
         await page.WaitForFunctionAsync(
-            "c => flat(cyOf('g').getElementById('api').style('background-color')) !== c", dark[0]);
+            "c => flat(cyOf('g').getElementById('db').style('background-color')) !== c", dark[2]);
 
         var light = await Eval<string[]>(page, ToneColours);
-        Assert.NotEqual(dark[1], light[1]);
+        Assert.NotEqual(dark[3], light[3]);
         Assert.Equal(light[1], light[0]);
         Assert.Equal(light[3], light[2]);
         AssertQuiet();
