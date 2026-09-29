@@ -192,8 +192,15 @@ public sealed class SednaTheme
     /// and <c>--info-solid</c> were both <c>#2563eb</c>-adjacent). <c>orbit</c> — which carries
     /// both <c>--accent</c> and <c>--info-*</c> — is therefore regenerated from a teal-cyan
     /// anchor instead, 36.42° from the brand at its closest referenced step and no closer than
-    /// 54.75° to any other family. Every other slot is Sedna's own ramp, unchanged.
+    /// 54.75° to any other family.
     /// See <c>SednaThemeCollisionTests</c> for the measurement this asserts on every build.
+    /// </para>
+    /// <para>
+    /// <b>Why <c>indigo</c> moves.</b> The brand is <c>--viz-1</c>, the first series colour, and
+    /// in the light variant it sat at indigo-600's lightness 14° from its hue — series 1 and
+    /// series 6 read as one colour (OKLab ΔE 10.0). No hue near blue clears it, so indigo is
+    /// regenerated at an orchid 315°, which also colours inline code in this theme.
+    /// <c>SeriesSeparationTests</c> measures it. Every other slot is Sedna's own ramp, unchanged.
     /// </para>
     /// </remarks>
     public static SednaTheme Cobalt { get; } = BuildCobalt();
@@ -216,7 +223,7 @@ public sealed class SednaTheme
             cyan: sedna.Cyan,
             orange: sedna.Orange,
             teal: sedna.Teal,
-            indigo: sedna.Indigo);
+            indigo: SednaRamp.FromAnchor("#c47ee2", 500, SupportSteps)); // series 6 and inline code, moved off the brand hue
 
         return new SednaTheme("cobalt", palette);
     }

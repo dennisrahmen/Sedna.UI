@@ -72,16 +72,17 @@
     --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
     --go-border: var(--green-300);
     --go-fg:     var(--green-700);
-    /* Two steps down: a 400 on a white canvas is a pastel, and a pastel bar is
-       neither the brand's weight nor readable against the track. Nothing lighter
-       than 600 clears 3:1 on white, so each close pair separates downwards: cyan and
-       violet to 800, and orange to 900, because at 600 it sits at the brand's own
-       lightness and deuteranopia leaves the two one brown. */
-    --viz-2: var(--cyan-800);
-    --viz-3: var(--orange-900);
-    --viz-4: var(--teal-600);
-    --viz-5: var(--violet-800);
-    --viz-6: var(--indigo-600);
+    /* Nothing lighter than 600 clears 3:1 on white, so every series sits between 600
+       and 900, and each close pair separates downwards from the brand's own 600.
+       Only cyan stays level with the brand: a theme's brand takes --viz-1, and
+       whatever hue it lands on — Forest's green, Cobalt's blue — has to leave room,
+       which puts teal and violet at 900, orange at 800 and indigo at 700.
+       SeriesSeparationTests measures it for every built-in theme. */
+    --viz-2: var(--cyan-600);
+    --viz-3: var(--orange-800);
+    --viz-4: var(--teal-900);
+    --viz-5: var(--violet-900);
+    --viz-6: var(--indigo-700);
     --viz-previous: var(--slate-500);
     --on-viz: var(--white);
 
