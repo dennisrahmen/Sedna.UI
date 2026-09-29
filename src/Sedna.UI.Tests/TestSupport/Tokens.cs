@@ -103,10 +103,16 @@ internal static class Tokens
     /// <c>color-mix(in srgb, var(--x) N%, transparent)</c> and <c>rgba(r, g, b, a)</c>.
     /// </remarks>
     public static (double R, double G, double B) Over(
-        Dictionary<string, string> tokens, string overlayToken, string canvasToken)
-    {
-        var canvas = Rgb(tokens, canvasToken);
+        Dictionary<string, string> tokens, string overlayToken, string canvasToken) =>
+        Over(tokens, overlayToken, Rgb(tokens, canvasToken));
 
+    /// <summary>
+    /// The same, over a colour already painted — a tint on a tint, such as inline <c>code</c> in a
+    /// <c>.callout</c>, whose <c>--surface-soft</c> is itself a wash over the canvas.
+    /// </summary>
+    public static (double R, double G, double B) Over(
+        Dictionary<string, string> tokens, string overlayToken, (double R, double G, double B) canvas)
+    {
         Assert.True(tokens.TryGetValue(overlayToken, out var value), $"{overlayToken} is not declared.");
 
         var mix = Regex.Match(value!,

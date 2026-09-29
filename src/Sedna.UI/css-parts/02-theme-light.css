@@ -161,7 +161,7 @@
     --skeleton-sheen: rgba(15, 23, 42, 0.11);    /* slate-900 */
     --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */
     --btn-active-bg: var(--slate-300);
-    --code-fg:       var(--indigo-700);
+    --code-fg:       var(--indigo-800);
     --code-bg:       rgba(90, 97, 191, 0.08);    /* indigo-700 */
     --backdrop:      color-mix(in srgb, var(--slate-900) 35%, transparent);
     --overlay:       color-mix(in srgb, var(--slate-50) 66%, transparent);
