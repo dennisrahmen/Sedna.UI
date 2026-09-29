@@ -8746,6 +8746,13 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
     flex-direction: column;
     min-height: 0;
 }
+/* A split wraps, and a row of a wrapping flex container is as tall as the tallest thing
+   in it — a side panel listing forty neighbours would take the row, and the graph beside
+   it, off the screen. Size containment leaves every column without a height of its own,
+   so the rows share the split's height instead: beside the graph the panel is held to
+   the graph's row and its `.card--fill` body scrolls, and stacked the two share the
+   screen. */
+.graph-frame:fullscreen .sedna-split:has(.graph) > * { contain: size; }
 .graph-frame:fullscreen .sedna-split:has(.graph) {
     flex: 1 1 auto;
     min-height: 0;
