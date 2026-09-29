@@ -139,25 +139,40 @@
 
 .cat-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 4px; }
 
-.cat-facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
-    margin: 26px 0 8px;
+/* ── Pitch (overview page) ────────────────────────────────────────────────── */
+.cat-pitch { margin: 30px 0 8px; }
+.cat-pitch-lede {
+    margin: 0 0 16px;
+    font-size: 16px;
+    line-height: 1.65;
 }
-.cat-fact {
-    padding: 12px 14px;
+/* Two by two, never three and one; a single column once two would be cramped. */
+.cat-points {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+/* A point is not a link, so it takes the tile's icon and none of its lift. */
+.cat-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--card-bg);
 }
-.cat-fact strong {
-    display: block;
-    font-size: 20px;
-    line-height: 1.2;
-    font-variant-numeric: tabular-nums;
+.cat-point-text { min-width: 0; line-height: 1.5; }
+.cat-point-text > strong { display: block; margin-bottom: 3px; }
+.cat-point-text > span { font-size: 13px; color: var(--muted); }
+
+/* Between the pitch and the tiles: full width, where the hero's rule is a short accent. */
+.cat-divider {
+    height: 0;
+    margin: 34px 0 26px;
+    border: none;
+    border-top: 1px solid var(--border);
 }
-.cat-fact span { font-size: 12px; color: var(--muted); }
 
 /* ── Overview tiles ───────────────────────────────────────────────────────── */
 .cat-tiles {
@@ -405,7 +420,7 @@
     .cat-hero-logo, .cat-mark--hero { width: 60px; height: 60px; }
     .cat-hero-text h1 { font-size: 24px; }
     .cat-hero-text { min-width: 0; }
-    .cat-tiles { grid-template-columns: 1fr; }
+    .cat-tiles, .cat-points { grid-template-columns: 1fr; }
     .cat-main { padding-bottom: 48px; }
     .ex-demo { padding: 14px; }
 }
@@ -413,7 +428,6 @@
 @media (max-width: 560px) {
     .cat-head { flex-direction: column; gap: 6px; }
     .cat-tier { margin-top: 0; }
-    .cat-facts { grid-template-columns: 1fr 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -94,6 +94,12 @@ survives re-renders by construction.
 - **An unknown address renders `Components/Pages/NotFound.razor`** with a 404, through the router's
   `NotFoundPage` and `UseStatusCodePagesWithReExecute`. Its route is `CataloguePages.NotFoundRoute` and
   it is not in `All`; `NotFoundTests` covers it.
+- **A page's search and preview metadata comes from the registry.** `Navigation/SiteMeta.cs` derives
+  the description, canonical, Open Graph and X card, JSON-LD, `/sitemap.xml` and `/robots.txt` from
+  `CataloguePages`; `Components/Layout/CatalogueHead.razor` writes them into the head. **A page's
+  `Blurb` is its search description** — one sentence, short enough that `SiteMetaTests` keeps the result
+  under 160 characters. An address that is no registered page is `noindex`. Nothing is hand-listed, so
+  registering a page is the whole job.
 - **`z-index` comes from the documented scale** in `docs/architecture.md`, here too.
 - **One remote host, and only for a photograph.** `images.unsplash.com`, named once in
   `CatalogueAssets.PhotoHost` and allowed in a page and in an example. Nothing else, and nothing at

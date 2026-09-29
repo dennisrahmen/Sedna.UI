@@ -32,7 +32,9 @@
        as literals in Sedna.UI.css — so this is invisible until that page's switch
        is used. *@
     <SednaBrandStyle />
-    <HeadOutlet />
+    @* Interactive, like the router: a static outlet keeps the first page's title,
+       description and canonical through every navigation the router makes. *@
+    <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 <body>
     @* The state illustrations, written into the page once so a .state-art's <use>

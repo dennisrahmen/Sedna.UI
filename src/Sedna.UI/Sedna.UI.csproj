@@ -25,8 +25,8 @@
     <Authors>Dennis Rahmen</Authors>
     <Company>Dennis Rahmen</Company>
     <Copyright>Copyright (c) Dennis Rahmen</Copyright>
-    <Description>Shared Blazor UI layer: one design-token contract plus semantic CSS classes for page content. Rebrand a whole app by redefining a handful of CSS variables.</Description>
-    <PackageTags>blazor;razor;css;design-system;design-tokens;ui;aspnetcore</PackageTags>
+    <Description>Semantic CSS for Blazor, built to be written by an agent. You write plain HTML with semantic classes; the package ships the stylesheet, a design-token contract, the icons and the script, and an MCP server at sedna-ui.com hands your agent the exact markup.</Description>
+    <PackageTags>blazor;razor;css;design-system;design-tokens;ui;aspnetcore;mcp;ai-agents</PackageTags>
     <!-- Apache-2.0 over MIT for its explicit patent grant (§3): every
          contributor licenses their patents to every user, and that binds
          outside pull requests to this public repo too. MIT is silent on

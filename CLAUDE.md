@@ -320,7 +320,7 @@ documented block to copy, and `HostPageTests` keeps that block correct by execut
 catalogue's own host page **is** that block.
 
 **Do not state a count of anything in prose.** File counts, class counts and token counts go stale in
-silence, and all three figures on the catalogue landing page were wrong at some point. Where a number
+silence, and every figure the catalogue landing page once showed was wrong at some point. Where a number
 matters it is **calculated**, never typed:
 
 - `build/css-inventory.sh` is the one implementation of "what does this stylesheet declare". Both
@@ -334,13 +334,6 @@ matters it is **calculated**, never typed:
   that merge the hosted site reads the release's own copy — `release.yml` attaches the history
   computed at the tag to every GitHub release, and the catalogue fetches it at runtime
   (`ReleasedHistory`) to fill in what its embedded copy still calls unreleased.
-
-The landing page's figures are computed at runtime by the browser's own CSS parser
-(`sednaUiCatalogue.readInventory`), and a test compares them against a .NET regex over the same
-file. **That duplication is the point:** every one of those figures was wrong while a single
-implementation agreed with itself — and the CSSOM implementation immediately found a fourth, because
-the browser re-serialises the icon font's `:before` as `::before`, so a regex copied from the .NET side
-reported zero icons.
 
 These directories carry their own `CLAUDE.md`, next to the files an agent will edit: `graph-parts/`, `editor-parts/`, `css-parts/`,
 `js-parts/` and `src/Sedna.UI.Catalogue/`. Read the local one before adding a file there — it holds

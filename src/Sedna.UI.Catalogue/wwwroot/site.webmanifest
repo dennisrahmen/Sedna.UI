@@ -1,0 +1,14 @@
+{
+  "name": "Sedna.UI catalogue",
+  "short_name": "Sedna.UI",
+  "description": "Semantic CSS for Blazor, built to be written by an agent.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
+  "icons": [
+    { "src": "brand/sedna-ui-tile-256.png", "sizes": "256x256", "type": "image/png" },
+    { "src": "brand/sedna-ui-tile-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

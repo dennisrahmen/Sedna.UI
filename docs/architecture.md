@@ -687,9 +687,9 @@ while it was fully available from C#.
 The C# history has two implementations on purpose. `build/api-inventory.sh` parses source, because
 reflecting over an old tag's surface would mean building that tag once per CI run for ever; the
 catalogue reflects over the assembly it actually references, which is exact but only for HEAD. Neither
-alone is trustworthy, so `McpApiHistoryTests` holds the two against each other — the same reason the
-landing page's figures are measured twice. There is still no version history for the *script's* own
-surface; a JavaScript snippet is dated by its classes and its file, and that is the gap.
+alone is trustworthy, so `McpApiHistoryTests` holds the two against each other. There is still no
+version history for the *script's* own surface; a JavaScript snippet is dated by its classes and its
+file, and that is the gap.
 
 `meta.commit` is baked at image build time from `-p:SourceRevisionId`, and falls back to `SOURCE_COMMIT`
 or `RAILWAY_GIT_COMMIT_SHA` in the environment. Never a runtime `git` call — `.git` is excluded from the
