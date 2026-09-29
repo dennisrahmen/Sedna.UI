@@ -293,7 +293,7 @@ public sealed class SednaTheme
     /// The light variant's <c>--info-bg</c> tint composited over its <c>--bg</c> — the darkest
     /// surface <c>--info-fg</c> is read on. A tint is an <c>rgba</c> literal in the stylesheet and
     /// no theme moves it, so this holds for every theme that keeps Sedna's slate.
-    /// <c>BadgeContrastTests</c> measures the real composite, so a change to either fails there.
+    /// <c>TintedTextContrastTests</c> measures the real composite, so a change to either fails there.
     /// </summary>
     private const string InfoTintOnLightCanvas = "#ebf6fc";
 

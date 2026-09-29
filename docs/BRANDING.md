@@ -500,8 +500,11 @@ These sit closest to the floor. **Do not lighten any of them without re-measurin
 headroom, take the next darker ramp step rather than adjusting by eye. A theme generated from anchors
 inherits this constraint — the generator has to hit the same boundary, not approximate it.
 
-`BadgeContrastTests` measures every badge's text on its own tint over `--bg` and `--card-bg`, in every
-palette — dark and light, colour-blind and high contrast — and every built-in theme.
+`TintedTextContrastTests` measures every badge's text on its own tint over `--bg` and `--card-bg`, in
+every palette — dark and light, colour-blind and high contrast — and every built-in theme. It measures
+inline `code` on its tint wherever running text is set: both canvases, a hovered row (`--bg-hover`) and a
+`.callout`, whose `--surface-soft` is a second wash under the tint. In light, `--code-fg` is step 800 for
+those last two.
 
 **Brand text takes `--brand-text`, and nothing else.** `--brand-soft` is the display strength — icon,
 spinner arc, focus border, where 3:1 applies — and in the light variant it is the step solved for
