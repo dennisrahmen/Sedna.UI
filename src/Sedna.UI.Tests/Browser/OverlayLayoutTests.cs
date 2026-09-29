@@ -322,9 +322,8 @@ public class OverlayLayoutTests : ScriptTestBase
     /// A second (0,3,1) selector pair with the same problem, and one the first test
     /// cannot reach: a closed <c>&lt;dialog&gt;</c> is <c>display: none</c>, so there
     /// is no box and no resolved percentage to read. So this measures the transition
-    /// in flight instead — <c>--motion-mid</c> is stretched to four seconds and the
-    /// panel is sampled while it is still almost entirely at its start value. That is
-    /// the behaviour a reader sees, which is the thing worth pinning.
+    /// instead, held at its first frame — the value <c>@starting-style</c> gave it, and
+    /// the place a reader sees the sheet come from.
     /// </remarks>
     [Theory]
     [InlineData("ltr")]
@@ -332,8 +331,10 @@ public class OverlayLayoutTests : ScriptTestBase
     public async Task A_dialog_sheet_opens_from_the_bottom_edge(string dir)
     {
         if (NoBrowser) return;
+        // Long enough that the transition is still running however slowly the run gets to
+        // it. A four-second one could finish on a loaded machine before it was read.
         var (page, errors) = await OpenStyled(
-            Panels, extraHead: "<style>:root { --motion-mid: 4s }</style>");
+            Panels, extraHead: "<style>:root { --motion-mid: 600s }</style>");
 
         await page.EvaluateAsync("(dir) => { document.documentElement.dir = dir; }", dir);
         await page.ClickAsync("button:has-text('Sheet')");
@@ -342,20 +343,30 @@ public class OverlayLayoutTests : ScriptTestBase
         // identity — a pass or a failure decided by a race rather than by the rule.
         await page.WaitForFunctionAsync("() => document.getElementById('sheet').open");
 
+        // Paused and sought to zero, so what is read is the start value itself rather than
+        // wherever the easing had got to by the time this ran. No transform transition at
+        // all is what a missing @starting-style looks like, and reads as the identity.
         var m = await page.EvaluateAsync<double[]>(
             @"() => {
-                const t = getComputedStyle(document.getElementById('sheet')).transform;
-                if (t === 'none') return [0, 0];
+                const el = document.getElementById('sheet');
+                const slide = el.getAnimations().find(a => a.transitionProperty === 'transform');
+                if (!slide) return [0, 0, el.offsetHeight];
+                slide.pause();
+                slide.currentTime = 0;
+                const t = getComputedStyle(el).transform;
+                if (t === 'none') return [0, 0, el.offsetHeight];
                 const n = t.slice(t.indexOf('(') + 1, -1).split(',').map(parseFloat);
-                return [n[4], n[5]];
+                return [n[4], n[5], el.offsetHeight];
             }");
 
         Assert.True(m[1] > 1,
-            $"dir={dir}: the sheet is at ({m[0]}, {m[1]})px a moment into a four-second open. It has "
-            + "to still be below the viewport — 0 means no @starting-style applied at all.");
-        Assert.True(Math.Abs(m[0]) < Math.Abs(m[1]),
-            $"dir={dir}: the sheet is opening at ({m[0]}, {m[1]})px — mostly sideways. The "
+            $"dir={dir}: the sheet opens from ({m[0]}, {m[1]})px. It has to start below the "
+            + "viewport — 0 means no @starting-style applied at all.");
+        Assert.True(Math.Abs(m[0]) < 1,
+            $"dir={dir}: the sheet opens from ({m[0]}, {m[1]})px — sideways. The "
             + "@starting-style rule for the drawer's inline axis is winning against the sheet's.");
+        // The full height, as for the div form, or the sheet's top edge shows as it opens.
+        Assert.Equal(m[2], m[1], 1);
 
         Assert.Empty(errors);
     }
