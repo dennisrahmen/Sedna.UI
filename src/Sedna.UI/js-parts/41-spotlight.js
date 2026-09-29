@@ -475,7 +475,10 @@
 
            A <dialog> is the case none of those three cover, which is why its own events
            are listened for as well: opening one with showModal() moves nothing in the
-           tree, changes an attribute, and fires neither scroll nor resize. */
+           tree, changes an attribute, and fires neither scroll nor resize. Nor does its
+           entrance animation, which moves the target for its whole duration — so the end
+           of a dialog's animation or transition re-places too, or the step would rest
+           wherever the last placement happened to catch it mid-flight. */
         follow: function (hole, target, options) {
             var opts = options || {};
             var lockOpts = opts.lock === true ? {} : (opts.lock || null);
@@ -509,8 +512,8 @@
             }
 
             /* Capture, because neither `toggle` nor `close` bubbles. Our own raised
-               panels fire `toggle` too and re-placing on those would loop, so only a
-               dialog's counts. */
+               panels fire `toggle` too, and the hole fires `transitionend` as it slides;
+               re-placing on those would loop, so only a dialog's counts. */
             function onDialog(e) {
                 if (e.target && e.target.tagName === 'DIALOG') schedule();
             }
@@ -526,6 +529,8 @@
                     window.removeEventListener('resize', schedule);
                     document.removeEventListener('toggle', onDialog, true);
                     document.removeEventListener('close', onDialog, true);
+                    document.removeEventListener('animationend', onDialog, true);
+                    document.removeEventListener('transitionend', onDialog, true);
                     if (observer) { observer.disconnect(); observer = null; }
                     if (lockOpts) ui.spotlight.unlock();
                     var box = one(hole);
@@ -543,6 +548,8 @@
             window.addEventListener('resize', schedule);
             document.addEventListener('toggle', onDialog, true);
             document.addEventListener('close', onDialog, true);
+            document.addEventListener('animationend', onDialog, true);
+            document.addEventListener('transitionend', onDialog, true);
             observer = new MutationObserver(schedule);
             observer.observe(root, { childList: true, subtree: true });
             place();
