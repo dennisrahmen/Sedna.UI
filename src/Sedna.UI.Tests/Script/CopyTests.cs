@@ -33,23 +33,40 @@ public class CopyTests : ScriptTestBase
 
         await page.EvaluateAsync("""
             () => {
+                const c = document.getElementById('c');
                 window.childChanges = 0;
                 new MutationObserver(r => window.childChanges += r.length)
-                    .observe(document.getElementById('c'), { childList: true, subtree: true, characterData: true });
+                    .observe(c, { childList: true, subtree: true, characterData: true });
+                // Every write of the outcome, including one that sets the value it already
+                // holds: the only sign that a second click's flash has landed.
+                window.marks = 0;
+                new MutationObserver(r => window.marks += r.length)
+                    .observe(c, { attributes: true, attributeFilter: ['data-copied'] });
             }
             """);
 
+        // The mark is set once the clipboard write resolves, not on the click, so each
+        // click is followed by a wait for its own mark. Without it a slow write lands the
+        // second flash after the clock has run, and re-marks the button the test has just
+        // watched being restored.
         await page.Locator("#c").ClickAsync();
-        await page.WaitForFunctionAsync("() => document.getElementById('c').dataset.copied === 'ok'");
+        await page.WaitForFunctionAsync("() => window.marks === 1");
+        await page.Clock.RunForAsync(700);
+
         // A second click mid-flash restarts the window rather than ending it early.
         await page.Locator("#c").ClickAsync();
+        await page.WaitForFunctionAsync("() => window.marks === 2");
 
         Assert.Equal("orders-console-01", await page.EvaluateAsync<string>(
             "() => navigator.clipboard.readText()"));
         // innerText, which is what is rendered: textContent would include the hidden words.
         Assert.Equal("Kopiert", await page.EvaluateAsync<string>("() => document.getElementById('c').innerText.trim()"));
 
-        await page.Clock.RunForAsync(1400);
+        // 1400ms after the first click, which is when its own timer would have ended it.
+        await page.Clock.RunForAsync(700);
+        Assert.Equal("ok", await page.GetAttributeAsync("#c", "data-copied"));
+
+        await page.Clock.RunForAsync(700);
 
         Assert.Equal("Kopieren", await page.EvaluateAsync<string>("() => document.getElementById('c').innerText.trim()"));
         Assert.Null(await page.GetAttributeAsync("#c", "data-copied"));
