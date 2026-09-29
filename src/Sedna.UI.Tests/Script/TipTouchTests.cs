@@ -48,16 +48,16 @@ public class TipTouchTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open(Body);
 
-        // The hold is 300ms of page time. In real time, 120ms plus two round trips could
-        // outlast it on a loaded machine, and the "tap" became a hold. With the clock
-        // paused the press lasts exactly as long as the test says.
+        // The hold is 300ms of real time, so on a loaded machine the round trips between
+        // the press and the release can outlast it and turn the tap into a hold. The page
+        // clock is paused, so the press lasts exactly as long as the test runs it for.
         await page.Clock.InstallAsync(new() { TimeDate = new DateTime(2030, 1, 1) });
         await page.Clock.PauseAtAsync(new DateTime(2030, 1, 1, 0, 0, 1));
 
         await Pointer(page, "pointerdown");
         await page.Clock.RunForAsync(120);
         await Pointer(page, "pointerup");
-        // Well past the hold, so the timer is shown to be cancelled, not merely not due.
+        // Well past the hold: the release has to have cancelled it, not merely beaten it.
         await page.Clock.RunForAsync(1000);
 
         // Nothing from the hold path: the press was too short. (Focus after the click
