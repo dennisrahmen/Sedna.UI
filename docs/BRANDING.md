@@ -483,16 +483,15 @@ having to answer for it separately.
 Every text token was measured against the surface it renders on. Body and label pairs meet or exceed
 **WCAG 2.1 AA (4.5:1)**; icon-only and non-text tokens meet **3:1**.
 
-The lowest passing values in the system. A badge's text is measured on its own tint over the canvas,
-which is where it reads lowest — a tint darkens the light canvas it sits on:
+The lowest passing values in the system. A badge's text is measured on its own tint, and reads lowest
+on a hovered row, where the tint sits on `--bg-hover`:
 
 | Pair | Ratio |
 |---|---|
-| `.badge-cyan` text on its tint, light canvas | 4.52 |
 | White on `--brand` | 4.55 |
-| `.badge-info` text on its tint, light canvas (and `.badge-go` in colour-blind light) | 4.56 |
-| `.badge-danger` text on its tint, light canvas | 4.60 |
-| `.badge` (`--muted` on `--badge-bg`), dark card | 4.61 |
+| `.badge-orange` text on its tint, hovered row, light | 4.60 |
+| `.badge-secret` text on its tint, hovered row, light | 4.68 |
+| `.badge-sev-2` text on its tint, hovered row, colour-blind dark | 4.75 |
 | `--accent` on light canvas | 4.80 |
 | White on `--go-solid` | 4.83 |
 
@@ -500,8 +499,8 @@ These sit closest to the floor. **Do not lighten any of them without re-measurin
 headroom, take the next darker ramp step rather than adjusting by eye. A theme generated from anchors
 inherits this constraint — the generator has to hit the same boundary, not approximate it.
 
-`TintedTextContrastTests` measures every badge's text on its own tint over `--bg` and `--card-bg`, in
-every palette — dark and light, colour-blind and high contrast — and every built-in theme. It measures
+`TintedTextContrastTests` measures every badge's text on its own tint over `--bg`, `--card-bg` and a
+hovered row (`--bg-hover`), in every palette — dark and light, colour-blind and high contrast — and every built-in theme. It measures
 inline `code` on its tint wherever running text is set: both canvases, a hovered row (`--bg-hover`) and a
 `.callout`, whose `--surface-soft` is a second wash under the tint. In light, `--code-fg` is step 800 for
 those last two.

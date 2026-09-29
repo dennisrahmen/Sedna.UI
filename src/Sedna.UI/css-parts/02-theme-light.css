@@ -88,7 +88,7 @@
 
     --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
     --warn-border: var(--amber-300);
-    --warn-fg:     var(--amber-700);
+    --warn-fg:     var(--amber-800);
 
     /* The hover and active tints and the strong border take the same steps as the
        dark theme, scaled for a light surface. All four move together: a tint
@@ -99,12 +99,12 @@
     --danger-bg-active:     rgba(199, 34, 104, 0.2);     /* crimson-700 */
     --danger-border:        var(--crimson-300);
     --danger-border-strong: var(--crimson-700);
-    --danger-fg:            var(--crimson-700);
+    --danger-fg:            var(--crimson-800);
     --danger-ring:          rgba(199, 34, 104, 0.35);    /* crimson-700 */
 
     --info-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
     --info-border: var(--orbit-300);
-    --info-fg:     var(--orbit-700);
+    --info-fg:     var(--orbit-800);
     --info-solid:  var(--orbit-700);
     --info-ring:   rgba(89, 195, 255, 0.4);     /* orbit-400 */
 
@@ -114,7 +114,7 @@
 
     --badge-cyan-bg:     rgba(34, 211, 238, 0.08);    /* cyan-400 */
     --badge-cyan-border: var(--cyan-300);
-    --badge-cyan-fg:     var(--cyan-700);
+    --badge-cyan-fg:     var(--cyan-800);
     --badge-orange-bg:     rgba(245, 158, 75, 0.08);    /* orange-400 */
     --badge-orange-border: var(--orange-300);
     --badge-orange-fg:     var(--orange-700);

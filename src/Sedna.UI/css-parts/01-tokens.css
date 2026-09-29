@@ -274,7 +274,7 @@
     --sev-2-solid:  var(--orange-700);
     --sev-2-bg:     rgba(245, 158, 75, 0.28);   /* orange-400 */
     --sev-2-border: var(--orange-700);
-    --sev-2-fg:     var(--orange-300);
+    --sev-2-fg:     var(--orange-200);
 
     --sev-3-solid:  var(--amber-600);
     --sev-3-bg:     rgba(245, 158, 11, 0.2);    /* amber-500 */
@@ -289,7 +289,7 @@
     --sev-5-solid:  var(--slate-400);
     --sev-5-bg:     rgba(148, 163, 184, 0.08);  /* slate-400 */
     --sev-5-border: var(--slate-700);
-    --sev-5-fg:     var(--slate-400);
+    --sev-5-fg:     var(--slate-300);
 
     /* ── Component surfaces ─────────────────────────────────────────────── */
     --badge-bg:      rgba(255, 255, 255, 0.07);
