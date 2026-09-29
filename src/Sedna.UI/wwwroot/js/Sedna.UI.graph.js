@@ -145,7 +145,6 @@ function text(value) {
 }
 
 const camel = s => String(s).replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
-const kebab = s => String(s).replace(/[A-Z]/g, c => '-' + c.toLowerCase());
 
 function listOf(value) {
     if (value === undefined || value === null || value === '') return [];
@@ -365,12 +364,10 @@ function colourReader(host) {
     function rgba(value, fallback) {
         if (!value || value === 'transparent') return fallback;
         if (/^rgba?\(/.test(value) && !/\//.test(value)) return value;
-        // Reset to nothing first: a value the canvas cannot parse leaves the previous fill
-        // in place, and reads back as transparent — so as the fallback — rather than as
-        // whatever was painted last.
+        // A value the canvas cannot parse would leave the previous fill in place; it is
+        // painted as transparent instead, which reads back as the fallback.
         ctx.clearRect(0, 0, 1, 1);
-        ctx.fillStyle = 'transparent';
-        ctx.fillStyle = value;
+        ctx.fillStyle = CSS.supports('color', value) ? value : 'transparent';
         ctx.fillRect(0, 0, 1, 1);
         const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
         if (a === 0) return fallback;
@@ -972,11 +969,10 @@ async function arrangeWith(cy, name, options, frame) {
     const names = options.labels === 'all' && !box;
     // The box a layout that fills one is given: the frame's, since the first drawing is made
     // before the engine has a canvas to measure — scaled up with the crowd, so a large graph
-    // is not packed into the pixels of the frame. `turned` is the same box on its side.
+    // is not packed into the pixels of the frame.
     const scale = Math.max(1, Math.sqrt(count / 30));
     const fw = (frame && frame.clientWidth) || 900, fh = (frame && frame.clientHeight) || 500;
     const frameBox = { x1: 0, y1: 0, w: fw * scale * spacing, h: fh * scale * spacing };
-    const turned = { x1: 0, y1: 0, w: frameBox.h, h: frameBox.w };
 
     switch (name) {
         case 'preset': {

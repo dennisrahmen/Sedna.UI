@@ -136,11 +136,10 @@ async function arrangeWith(cy, name, options, frame) {
     const names = options.labels === 'all' && !box;
     // The box a layout that fills one is given: the frame's, since the first drawing is made
     // before the engine has a canvas to measure — scaled up with the crowd, so a large graph
-    // is not packed into the pixels of the frame. `turned` is the same box on its side.
+    // is not packed into the pixels of the frame.
     const scale = Math.max(1, Math.sqrt(count / 30));
     const fw = (frame && frame.clientWidth) || 900, fh = (frame && frame.clientHeight) || 500;
     const frameBox = { x1: 0, y1: 0, w: fw * scale * spacing, h: fh * scale * spacing };
-    const turned = { x1: 0, y1: 0, w: frameBox.h, h: frameBox.w };
 
     switch (name) {
         case 'preset': {

@@ -28,7 +28,6 @@
 
 const FORMATS = ['bold', 'italic', 'underline', 'strike', 'code', 'script', 'link',
     'header', 'list', 'blockquote', 'code-block', 'align', 'indent'];
-const ACTIONS = ['undo', 'redo', 'clean', 'indent', 'outdent'];
 const CONTROL = '[data-editor-format],[data-editor-action]';
 
 const warned = new Set();
