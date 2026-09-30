@@ -305,7 +305,6 @@ assets/brand/                         icon, logo, favicon, social preview
 build/api-inventory.sh                lists the public C# surface — the C# half of css-inventory.sh
 build/verify-package.sh               unpacks the .nupkg and asserts its contents
 docs/                                 long-form documentation
-railway.json                          deploy configuration, reviewable in a pull request
 ```
 
 All four projects live under `src/`. Tests sit beside the project they test, and

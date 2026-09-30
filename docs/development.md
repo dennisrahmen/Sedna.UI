@@ -305,8 +305,8 @@ Then <http://localhost:5199/>. It project-references the library, so `build/bund
 rebuild of the library is the whole edit loop — no pack, no restore.
 
 Deployed to Railway from every push to `main`, built from `src/Sedna.UI.Catalogue/Dockerfile`
-with the **repository root** as the build context. `railway.json` holds the configuration. CI builds
-the image on every run but never pushes it.
+with the **repository root** as the build context. The deploy settings live on the Railway service;
+`docs/releasing.md` lists them. CI builds the image on every run but never pushes it.
 
 ## The MCP server
 

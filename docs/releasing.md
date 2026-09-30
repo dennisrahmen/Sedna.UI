@@ -123,8 +123,20 @@ long-lived API key is stored in the repository.
 
 The catalogue is an application, not a static site: `src/Sedna.UI.Catalogue`, containerised from
 `src/Sedna.UI.Catalogue/Dockerfile` and deployed to Railway at
-<https://www.sedna-ui.com/>. `railway.json` at the repository root holds the build and deploy
-configuration, so it is reviewable in a pull request rather than living only in a dashboard.
+<https://www.sedna-ui.com/>. The build and deploy settings live on the Railway service `catalogue`,
+not in the repository — Railway stops reading `railway.json` on 2026-12-01. They are:
+
+| Setting | Value |
+|---|---|
+| Builder | Dockerfile, `src/Sedna.UI.Catalogue/Dockerfile`, repository root as the build context |
+| Watch paths | `src/Sedna.UI/**`, `src/Sedna.UI.Catalogue/**`, `docs/**`, `global.json` |
+| Healthcheck | `/health`, 120 s timeout |
+| Restart policy | on failure, 5 retries |
+| Replicas | 1 |
+| Overlap | 20 s |
+
+A change to a path the build reads outside those four watch paths does not deploy until the next change
+inside them; add it to the watch paths on the service.
 
 **The site deploys from every push to `main`; the package ships from a `v*` tag.** That split is
 deliberate. The hosted catalogue's whole contract is that it shows `main` — a class that exists on
