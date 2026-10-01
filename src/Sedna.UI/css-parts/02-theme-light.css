@@ -157,6 +157,9 @@
     --badge-bg:      rgba(15, 23, 42, 0.04);    /* slate-900 */
     --table-head-bg: rgba(15, 23, 42, 0.03);    /* slate-900 */
 
+    /* Orbit Blue at full strength is too pale to read as a line on white; the orbit
+       takes the step that holds 3:1 against the light card. */
+    --agent-to:       var(--orbit-600);
     --skeleton-bg:    rgba(15, 23, 42, 0.06);    /* slate-900 */
     --skeleton-sheen: rgba(15, 23, 42, 0.11);    /* slate-900 */
     --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */

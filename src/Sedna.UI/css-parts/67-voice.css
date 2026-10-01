@@ -1,0 +1,73 @@
+/* ── Voice ────────────────────────────────────────────────────────────────────
+   A spoken conversation with an agent. The app owns the microphone and the audio; it
+   writes one number, `--level` from 0 to 1, on whatever should follow the sound —
+   the avatar, the orb, Mochi, the bars, the mic button — and they all move with it.
+
+     <div class="voice-session">
+       <div class="voice-stage"><span class="agent-avatar agent-avatar--hero" data-state="speaking" style="--level: .4"></span></div>
+       <span class="voice-who">Ops agent</span>
+       <p class="voice-caption" aria-live="polite">Done. It now starts at <span class="voice-caption-interim">03:30</span></p>
+       <span class="voice-bars" aria-hidden="true"><i></i>…</span>
+       <div class="voice-controls">
+         <button class="btn btn-mic" type="button" data-state="listening" aria-label="Mute"><i class="ri-mic-fill"></i></button>
+         …
+       </div>
+     </div>
+
+   `.voice-caption-interim` is the words the recogniser may still change.
+   `.voice-bars` is the agent's voice; `.voice-bars--mine` the reader's. A recorded clip
+   is `.audio-wave`, not this — bars here follow a live level, not a stored one.
+   `.btn-mic[data-state]` — listening, muted — on any `.btn`; listening rings out with
+   `--level`.
+   ─────────────────────────────────────────────────────────────────────────── */
+.voice-session {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-9);
+    padding: var(--space-11) var(--space-8) var(--space-10);
+    text-align: center;
+}
+.voice-stage { display: grid; place-items: center; inline-size: 220px; block-size: 220px; max-inline-size: 100%; }
+.voice-who { font-size: var(--text-2); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.voice-caption {
+    max-inline-size: 30ch;
+    min-block-size: calc(2 * 1.45em);
+    margin: 0;
+    font-size: var(--text-8);
+    line-height: 1.45;
+    text-wrap: balance;
+}
+.voice-caption-interim { color: var(--muted); }
+.voice-controls { display: flex; align-items: center; gap: var(--space-6); }
+.voice-controls > .btn { inline-size: var(--control-height-lg); min-height: var(--control-height-lg); padding: 0; border-radius: 50%; justify-content: center; }
+.voice-controls > .btn i { font-size: var(--text-8); }
+
+.voice-bars { display: inline-flex; align-items: center; gap: var(--space-1); block-size: 28px; }
+.voice-bars > i {
+    --bar: 0.6;
+    inline-size: 3px;
+    block-size: min(100%, calc(4px + var(--level, 0) * var(--bar) * 130%));
+    border-radius: var(--radius-pill);
+    background: var(--agent-to);
+    transition: block-size 80ms linear;
+}
+/* A fixed shape across the bars, so one level reads as a voice and not a meter. */
+.voice-bars > i:nth-child(7n+1) { --bar: 0.42; }
+.voice-bars > i:nth-child(7n+2) { --bar: 0.78; }
+.voice-bars > i:nth-child(7n+3) { --bar: 1; }
+.voice-bars > i:nth-child(7n+4) { --bar: 0.64; }
+.voice-bars > i:nth-child(7n+5) { --bar: 0.9; }
+.voice-bars > i:nth-child(7n+6) { --bar: 0.5; }
+.voice-bars > i:nth-child(7n+7) { --bar: 0.3; }
+.voice-bars--mine > i { background: var(--brand-soft); }
+
+.btn-mic { border-radius: 50%; transition: box-shadow 80ms linear, background var(--motion-fast), color var(--motion-fast); }
+.btn-mic[data-state="listening"],
+.btn-mic[data-state="listening"]:hover {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--on-solid);
+    box-shadow: 0 0 0 calc(2px + var(--level, 0) * 8px) var(--brand-tint-strong);
+}
+.btn-mic[data-state="muted"],
+.btn-mic[data-state="muted"]:hover { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }

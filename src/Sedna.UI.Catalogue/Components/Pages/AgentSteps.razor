@@ -1,0 +1,56 @@
+@page "/agent-steps"
+
+<CatHead Title="Steps and approvals">
+    What an agent thought, which tools it ran, what it means to do next, and what it asks permission
+    for. The person stays in charge: every step can be opened and read, and nothing that writes happens
+    before somebody says yes. All of it is markup the app writes, in the app's words, with no script.
+</CatHead>
+
+<CatExample TExample="Examples.AgentSteps.Reasoning" Title="Reasoning" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>details.reasoning</code> folds away the thinking behind an answer. It is a native
+        <code>&lt;details&gt;</code>, so it opens from the keyboard and with scripting off;
+        <code>.reasoning-chevron</code> turns as it opens, and <code>.reasoning-body</code> hangs the text
+        off a rule under it. The summary says how long the agent thought, which is what most readers want
+        to know without opening it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentSteps.Steps" Title="Steps" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>ol.agent-steps</code> is the tool calls behind an answer, in order. Each <code>&lt;li&gt;</code>
+        carries <code>data-state</code> &mdash; <code>pending</code>, <code>running</code>,
+        <code>done</code> or <code>failed</code>, the same words as <a href="/collections"><code>.steps</code></a>
+        &mdash; an <code>.agent-step-icon</code>, and a <code>details.agent-step</code> that opens on what
+        the step sent and what came back. <code>.agent-step-meta</code> is the count and the time, on the
+        end. A running step's marker is a small <a href="/orb">orb</a>.
+    </p>
+    <p>
+        <strong>Show the call, not a description of it.</strong> The <code>.code-block</code> inside is
+        what lets a reader check the agent's work; a failed step keeps the error in its own words.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentSteps.Plan" Title="Plan" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>ul.agent-plan</code> is what the agent means to do and how far it got: <code>data-state</code>
+        on each item is <code>done</code>, <code>current</code> or <code>skipped</code>, or nothing for a
+        step still to come. Mark the current one <code>aria-current="step"</code> too. A
+        <a href="/progress"><code>.progress</code></a> above it gives the same count at a glance.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentSteps.Approval" Title="Asking before it acts" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.agent-approval</code> on a <a href="/card"><code>.card</code></a> is the agent asking
+        permission. <code>.agent-approval-change</code> is the change itself &mdash; what, from, to &mdash;
+        and chips under it say what kind of change it is. Approve is <code>.btn-go</code>, because it
+        lets the action out; taking control back is <code>.btn-warn</code>; deny is quiet. The library's
+        own meanings, so an approval reads the same as every other outward action in the app.
+    </p>
+    <p>
+        Once the reader answers, <code>data-state="approved"</code> or <code>"denied"</code> swaps
+        <code>.agent-approval-actions</code> for <code>.agent-approval-result</code>, which names who
+        answered and when. Keep an undo there while the change can still be taken back.
+    </p>
+</CatExample>

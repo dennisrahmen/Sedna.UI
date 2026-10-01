@@ -40,6 +40,10 @@ library stylesheet, and the `<base>` must come before all of them.
 reference — the only kind every engine colours from the page. See
 [State art](https://www.sedna-ui.com/state-art).
 
+An app that shows [Mochi](https://www.sedna-ui.com/mochi), the agent's character, adds
+`<SednaMochi />` beside `<SednaStateArt />` for the same reason: its sprite is in the page once, and a
+`.mochi` anywhere in the app references it.
+
 `Sedna.UI.boot.js` applies the stored theme name and variant before first paint. Load it in
 `<head>`.
 

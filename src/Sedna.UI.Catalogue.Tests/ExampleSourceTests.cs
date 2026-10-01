@@ -249,9 +249,10 @@ public class ExampleSourceTests
             .ToHashSet(StringComparer.Ordinal);
 
         // A <use> naming one of the shipped drawings is the one fragment that resolves
-        // in every app, because SednaStateArt puts those ids on every page.
-        foreach (Match m in Regex.Matches(SednaStateArt.Sprite, "<symbol id=\"([a-z-]+)\""))
-            ids.Add(m.Groups[1].Value);
+        // in every app, because SednaStateArt and SednaMochi put those ids on the page.
+        foreach (var sprite in new[] { SednaStateArt.Sprite, SednaMochi.Sprite })
+            foreach (Match m in Regex.Matches(sprite, "<symbol id=\"([a-z-]+)\""))
+                ids.Add(m.Groups[1].Value);
 
         var dangling = Regex.Matches(source, """href\s*=\s*"#([^"]+)""")
             .Select(m => m.Groups[1].Value)

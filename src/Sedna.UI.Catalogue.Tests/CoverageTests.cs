@@ -26,7 +26,10 @@ namespace Sedna.UI.Catalogue.Tests;
 /// <para>
 /// The <c>ql-</c> classes are skipped: they are the markup Quill writes inside the
 /// editor's <c>.editor-body</c>, which <c>44-rich-text.css</c> dresses and an app never
-/// writes.
+/// writes. The <c>sedna-mochi-</c> classes are skipped for the same reason: they are the
+/// parts of Mochi's drawing, inside the sprite <c>SednaMochi</c> writes, and an app
+/// writes <c>.mochi</c> and its attributes, never a part. <c>MochiSpriteTests</c> holds
+/// them to the stylesheet in both directions instead.
 /// </para>
 /// <para>
 /// A stricter version of this, asserting every class is <i>rendered or printed</i>
@@ -52,10 +55,11 @@ public class CoverageTests
                 .OrderBy(p => p, StringComparer.Ordinal)
                 .Select(File.ReadAllText));
 
-        // A `ql-` class is markup Quill writes inside the editor, and the stylesheet dresses.
-        // The app never writes one.
+        // A `ql-` class is markup Quill writes inside the editor, and a `sedna-mochi-` class
+        // is a part of Mochi's sprite; the stylesheet dresses both and the app writes neither.
         var missing = Declared()
             .Where(name => !name.StartsWith("ql-", StringComparison.Ordinal))
+            .Where(name => !name.StartsWith("sedna-mochi-", StringComparison.Ordinal))
             .Where(name => !haystack.Contains(name, StringComparison.Ordinal))
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToList();

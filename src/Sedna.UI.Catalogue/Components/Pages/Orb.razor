@@ -1,0 +1,95 @@
+@page "/orb"
+
+<CatHead Title="Orb" Tier="@CatHead.Tier3">
+    What an agent is doing, drawn: an orbit around a focal body, like the mark, that moves the way the
+    work does. The app writes one span with a name and changes one attribute; the library draws the
+    canvas inside it. Nothing around an orb is the library's &mdash; the label beside it, the pill it
+    sits in and the button that stops the work are the app's own markup.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-planet-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Nothing goes in the host page</span>
+        <code>Sedna.UI.js</code> finds every <code>[data-orb]</code> and imports its drawing the first
+        time one comes within a screen of the viewport, so a page without an orb never downloads it.
+        Every attribute, size and colour role is in <code>docs/orb.md</code>.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Orb.States" Title="States" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-orb</code> names what the agent is doing, and changing it is the whole API: the drawing
+        changes with it. <code>waiting</code>, <code>error</code> and <code>done</code> are the three a
+        reader acts on, and pick their own colour family &mdash; warn, danger and go &mdash; so they are
+        not mistaken for work still running.
+    </p>
+    <p>
+        <strong>The name is the app's.</strong> The orb draws no words; <code>aria-label</code> is its
+        text alternative, and <code>role="img"</code> is added for you if it is missing. Name what the
+        reader would want to hear, not the attribute: &ldquo;Waiting for your approval&rdquo;, not
+        &ldquo;waiting&rdquo;.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Orb.Activities" Title="Activities" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        What the agent is busy with, where the state alone would say only &ldquo;working&rdquo;:
+        <code>solving</code>, <code>writing</code>, <code>connecting</code>, <code>planning</code>,
+        <code>shaping</code>, <code>reading</code>, <code>remembering</code>, <code>syncing</code> and
+        <code>analyzing</code>. The same attribute and the same three drawings by size.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Orb.Sizes" Title="Sizes" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.orb--xs</code> (16px), <code>--sm</code> (20px), the bare <code>.orb</code> (32px),
+        <code>--md</code> (48px), <code>--lg</code> (64px), <code>--xl</code> (96px) and
+        <code>--hero</code> (220px); <code>--orb-size</code> sets any other. <strong>The same scene is
+        drawn three ways rather than scaled</strong>, like the brand mark: below 28px the orbits are
+        solid lines, because dots that small read as noise; from 28px they are dots; from 72px finer and
+        denser.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Orb.Hero" Title="Where a page waits on the agent" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.orb--hero</code> for the one thing on screen while the agent works, a voice session or a
+        first answer. Pair it with a line in the app's words.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Orb.Tones" Title="Tones" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-orb-tone</code> re-points the three colour roles: <code>brand</code> for the app's own
+        brand colour, <code>mono</code> for a dense table where colour would compete, and
+        <code>go</code>, <code>warn</code> and <code>danger</code> for a state the app wants to stress.
+        Without one, an orb is in the agent colours, <code>--agent-from</code> and
+        <code>--agent-to</code>. Every colour is read through the element in the browser, so a theme,
+        the colour-blind palette, contrast and forced colours all reach the canvas.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Orb.Inline" Title="In a line of text" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.orb--inline</code> takes the size of the text around it and sits on its x-height.
+    </p>
+</CatExample>
+
+<h2 id="voice">Following a voice</h2>
+<p>
+    <code>listening</code> and <code>speaking</code> follow <code>--level</code>, from 0 to 1, read from
+    the orb or any element above it. It is the same number the app writes for the
+    <a href="/voice">voice</a> bars, the mic button, an <a href="/agent-avatar">agent avatar</a> and
+    <a href="/mochi">Mochi</a>, so one write moves everything that shows the voice. Without one they
+    move gently on their own.
+</p>
+
+<h2 id="motion">Motion</h2>
+<p>
+    An orb draws one still frame the moment it starts, at the point in its state where the drawing says
+    what it is: the tick drawn, the scan part way across. After that one clock draws every orb on screen
+    while the tab is visible. Under <code>prefers-reduced-motion</code> the still frame is all there is,
+    and a change of state draws a new one. With scripting off, the span is a still focal body inside
+    one orbit &mdash; something is there, and it is an agent.
+</p>

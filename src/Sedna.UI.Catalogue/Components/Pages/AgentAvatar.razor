@@ -1,0 +1,65 @@
+@page "/agent-avatar"
+
+<CatHead Title="Agent avatars">
+    Who an agent is: a sphere lit from inside, in one of six identity tones, drawn in CSS with no image
+    and no script, so it is there in the first paint and follows the theme. The tone stays fixed for an
+    agent; its state changes how the sphere moves, never its colour. For an agent with a face, see
+    <a href="/mochi">Mochi</a>.
+</CatHead>
+
+<CatExample TExample="Examples.AgentAvatar.Roster" Title="A roster of agents" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.agent-avatar</code> wherever a person's <a href="/avatar"><code>.avatar</code></a> would
+        go: a list row, a chat message, a card head. It is never the only thing that names the agent
+        &mdash; the name beside it is &mdash; so <code>aria-label</code> repeats the name for a reader
+        who lands on the image alone. The <a href="/agent-status">status pill</a> says what the agent is
+        doing; the sphere only moves with it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentAvatar.Tones" Title="Tones" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-tone</code> picks one of six: <code>sedna</code>, the default, in the two colours of
+        the mark; <code>aurora</code>, <code>ember</code>, <code>orbit</code>, <code>nebula</code> and
+        <code>glacier</code>. <strong>Give each agent one tone and keep it</strong>: the tone is how a
+        reader tells two agents apart in a long thread, so it is identity, not state.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentAvatar.States" Title="States" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-state</code> changes the motion: <code>thinking</code> turns faster,
+        <code>working</code> wears a pulsing ring, <code>listening</code> and <code>speaking</code>
+        follow <code>--level</code>, and <code>offline</code> is grey and still. With no state the
+        sphere turns slowly. Under <code>prefers-reduced-motion</code> every state is still, and the
+        ring and glow stay as the cue.
+    </p>
+    <p>
+        <code>--level</code>, from 0 to 1, is the number the app's audio code writes &mdash; on the
+        avatar or any element above it, so one write on a <a href="/voice">voice session</a> moves the
+        avatar, the bars and the mic button together. The two here are fixed so the page holds still.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentAvatar.Sizes" Title="Sizes" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.agent-avatar--xs</code> (20px), <code>--sm</code> (24px), the bare
+        <code>.agent-avatar</code> (32px), <code>--lg</code> (40px), <code>--xl</code> (56px),
+        <code>--2xl</code> (96px) and <code>--hero</code> (200px).
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentAvatar.WithPeople" Title="Beside people" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        In an <a href="/avatar"><code>.avatar-group</code></a>, write <code>class="avatar
+        agent-avatar"</code>: the group's size, overlap and cut-out apply, and the sphere fills the
+        circle. An agent on a ticket is then counted with the people on it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentAvatar.Hero" Title="Where the agent is the page" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.agent-avatar--hero</code> for a voice call or a first-run screen, where the agent is the
+        one thing to look at.
+    </p>
+</CatExample>

@@ -1,0 +1,174 @@
+/* ── Agent steps ──────────────────────────────────────────────────────────────
+   What an agent thought, which tools it ran, what it intends to do, and what it asks
+   permission for. All of it markup the app writes, in the app's words.
+
+   ── Reasoning ──
+   The thinking behind an answer, folded away. A native <details>, so it opens from the
+   keyboard and with no script.
+     <details class="reasoning">
+       <summary><i class="ri-arrow-right-s-line reasoning-chevron"></i>Thought for 4 s</summary>
+       <div class="reasoning-body"><p>…</p></div>
+     </details>
+
+   ── Steps ──
+   The tool calls behind an answer, in order, each a <details> that opens on its input
+   and output. `data-state` on each <li> — pending, running, done, failed — the same
+   vocabulary as `.steps`. A 20px marker column with a 2px connector centred under it.
+     <ol class="agent-steps">
+       <li data-state="done">
+         <span class="agent-step-icon"><i class="ri-check-line"></i></span>
+         <details class="agent-step">
+           <summary><span class="agent-step-label"><i class="ri-search-line"></i>Searched the runbook</span>
+                    <span class="agent-step-meta">4 results · 1.2 s</span></summary>
+           <pre class="code-block"><code>…</code></pre>
+         </details>
+       </li>
+     </ol>
+
+   ── Plan ──
+   What the agent means to do and how far it got: `data-state` on each <li> — done,
+   current, skipped, or none for one still to come.
+
+   ── Approval ──
+   The agent asks before it acts. `.agent-approval` on a `.card`; `data-state="approved"`
+   or `"denied"` once the reader has answered, which swaps the actions for the result
+   line. Approve is `.btn-go` — it lets the action out — and taking control back is
+   `.btn-warn`, the library's own meanings for both.
+   ─────────────────────────────────────────────────────────────────────────── */
+.reasoning { font-size: var(--text-4); }
+.reasoning > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    inline-size: fit-content;
+    block-size: 22px;
+    color: var(--muted);
+    cursor: pointer;
+    list-style: none;
+    transition: color var(--motion-fast);
+}
+.reasoning > summary::-webkit-details-marker { display: none; }
+.reasoning > summary:hover { color: var(--fg); }
+.reasoning > summary:focus-visible { outline: 2px solid var(--brand-ring-soft); outline-offset: 2px; border-radius: var(--radius-small); }
+.reasoning-chevron { inline-size: 20px; text-align: center; font-size: var(--text-6); transition: rotate var(--motion-fast); }
+.reasoning[open] .reasoning-chevron { rotate: 90deg; }
+.reasoning-body {
+    margin-block: var(--space-4) var(--space-2);
+    margin-inline-start: calc(var(--space-5) - 1px);
+    padding-inline-start: calc(var(--space-7) + 1px);
+    border-inline-start: 2px solid var(--border);
+    color: var(--muted);
+    line-height: 1.65;
+}
+.reasoning-body > p { margin: 0 0 var(--space-4); }
+.reasoning-body > p:last-child { margin: 0; }
+
+.agent-steps { --step-icon: 20px; list-style: none; margin: 0; padding: 0; font-size: var(--text-4); }
+.agent-steps > li { position: relative; padding-inline-start: calc(var(--step-icon) + var(--space-4)); padding-block-end: var(--space-5); }
+.agent-steps > li:last-child { padding-block-end: 0; }
+.agent-steps > li:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 9px;
+    inset-block: 24px 4px;
+    inline-size: 2px;
+    border-radius: 1px;
+    background: var(--border);
+}
+.agent-step-icon {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 1px;
+    display: grid;
+    place-items: center;
+    inline-size: var(--step-icon);
+    block-size: var(--step-icon);
+    border-radius: 50%;
+    background: var(--surface-strong);
+    color: var(--muted);
+    box-shadow: inset 0 0 0 1px var(--border);
+    font-size: var(--text-3);
+    line-height: 1;
+}
+.agent-steps > li[data-state="done"]    .agent-step-icon { background: var(--go-bg); color: var(--go-fg); box-shadow: none; }
+.agent-steps > li[data-state="failed"]  .agent-step-icon { background: var(--danger-bg); color: var(--danger-fg); box-shadow: none; }
+.agent-steps > li[data-state="running"] .agent-step-icon { background: none; box-shadow: none; }
+.agent-steps > li[data-state="pending"] { color: var(--muted); }
+.agent-step > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-block-size: 22px;
+    cursor: pointer;
+    list-style: none;
+}
+.agent-step > summary::-webkit-details-marker { display: none; }
+.agent-step-label { display: flex; align-items: center; gap: var(--space-3); min-inline-size: 0; }
+.agent-step-label > i { color: var(--muted); font-size: var(--text-5); }
+.agent-step-meta { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.agent-step > .code-block { margin-block-start: var(--space-4); }
+
+.agent-plan { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); font-size: var(--text-4); }
+.agent-plan > li { display: flex; align-items: center; gap: var(--space-5); min-block-size: 20px; }
+.agent-plan-mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 20px;
+    block-size: 20px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px var(--border-strong);
+    font-size: var(--text-3);
+    line-height: 1;
+}
+.agent-plan > li[data-state="done"] { color: var(--muted); }
+.agent-plan > li[data-state="done"] .agent-plan-mark { background: var(--go-solid); color: var(--on-solid); box-shadow: none; }
+.agent-plan > li[data-state="current"] { color: var(--fg); font-weight: 600; }
+.agent-plan > li[data-state="current"] .agent-plan-mark { box-shadow: none; }
+.agent-plan > li[data-state="skipped"] { color: var(--muted); }
+.agent-plan > li[data-state="skipped"] .agent-plan-label { text-decoration: line-through; }
+.agent-plan > li[data-state="skipped"] .agent-plan-mark { box-shadow: inset 0 0 0 1.5px var(--border); }
+
+.agent-approval { border-color: var(--warn-border); }
+.agent-approval-head { display: flex; align-items: center; gap: var(--space-5); min-inline-size: 0; }
+.agent-approval-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: var(--radius-panel);
+    background: var(--warn-bg);
+    color: var(--warn-fg);
+    font-size: var(--text-8);
+}
+.agent-approval-title { display: grid; gap: var(--space-1); min-inline-size: 0; }
+.agent-approval-title > strong { font-size: var(--text-5); }
+.agent-approval-title > span { color: var(--muted); font-size: var(--text-3); }
+/* One change the agent wants to make: what, from, to. */
+.agent-approval-change {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    background: var(--surface-soft);
+    font-size: var(--text-4);
+    font-variant-numeric: tabular-nums;
+}
+.agent-approval-change > :first-child { color: var(--muted); font-family: var(--font-mono); font-size: var(--text-3); overflow-wrap: anywhere; }
+.agent-approval-change > s,
+.agent-approval-change > i { color: var(--muted); }
+.agent-approval-change > strong { color: var(--fg); }
+.agent-approval-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); inline-size: 100%; }
+.agent-approval-result { display: none; align-items: center; gap: var(--space-3); inline-size: 100%; font-size: var(--text-4); font-weight: 600; }
+.agent-approval[data-state] .agent-approval-actions { display: none; }
+.agent-approval[data-state] .agent-approval-result { display: flex; }
+.agent-approval[data-state="approved"] { border-color: var(--go-border); }
+.agent-approval[data-state="approved"] .agent-approval-result { color: var(--go-fg); }
+.agent-approval[data-state="approved"] .agent-approval-icon { background: var(--go-bg); color: var(--go-fg); }
+.agent-approval[data-state="denied"] { border-color: var(--border); }
+.agent-approval[data-state="denied"] .agent-approval-result { color: var(--muted); }
+.agent-approval[data-state="denied"] .agent-approval-icon { background: var(--surface-strong); color: var(--muted); }

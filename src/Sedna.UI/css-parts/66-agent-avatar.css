@@ -1,0 +1,95 @@
+/* ── Agent avatar ─────────────────────────────────────────────────────────────
+   Who an agent is: a sphere lit from inside, in one of six identity tones. Pure CSS —
+   no image and no script — so it is there in the first paint and follows the theme.
+
+     <span class="agent-avatar" data-tone="aurora" role="img" aria-label="Research agent"></span>
+
+   Tones: sedna (the default), aurora, ember, orbit, nebula, glacier.
+   States change how it moves, never its colour: thinking spins faster, working wears
+   a pulsing ring, listening and speaking follow `--level` (0–1, written by the app's
+   own audio code), offline is grey and still.
+
+   Beside a person it is still a circle, so it fits an `.avatar-group`: write
+   `class="avatar agent-avatar"` and the group's overlap and cut-out apply.
+
+   An avatar is never the only carrier of a name — the same rule as `.avatar`.
+   ─────────────────────────────────────────────────────────────────────────── */
+.agent-avatar {
+    --size: var(--avatar-size, 32px);
+    --spin: 18s;
+    --flow: 7s;
+    --c1: var(--agent-sedna-1);
+    --c2: var(--agent-sedna-2);
+    --c3: var(--agent-sedna-3);
+    --c-glow: var(--agent-sedna-glow);
+    position: relative;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--size);
+    block-size: var(--size);
+    vertical-align: middle;
+    border-radius: 50%;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--c2);
+    transition: box-shadow 80ms linear, filter var(--motion-mid), opacity var(--motion-mid);
+}
+/* The fluid: three lights turning slowly inside the sphere. */
+.agent-avatar::before {
+    content: '';
+    position: absolute;
+    inset: -30%;
+    background:
+        radial-gradient(circle at 30% 28%, var(--c1) 0, transparent 36%),
+        radial-gradient(circle at 72% 70%, var(--c3) 0, transparent 40%),
+        conic-gradient(from 40deg, var(--c2), var(--c1), var(--c3), var(--c2), var(--c3), var(--c1), var(--c2));
+    filter: blur(calc(var(--size) * 0.13)) saturate(1.15);
+    scale: calc(1 + var(--level, 0) * 0.22);
+    animation: agent-avatar-swirl var(--spin) linear infinite, agent-avatar-flow var(--flow) ease-in-out infinite alternate;
+    transition: scale 80ms linear;
+}
+/* The glass: a highlight up and to the left, the edge falling away. */
+.agent-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 24%, var(--agent-sphere-gloss) 0, transparent 30%),
+        radial-gradient(circle at 50% 46%, transparent 56%, var(--agent-sphere-shade) 100%);
+    box-shadow: inset 0 0 0 1px var(--agent-sphere-rim);
+}
+@keyframes agent-avatar-swirl { to { rotate: 1turn; } }
+@keyframes agent-avatar-flow  { to { translate: 6% -4%; } }
+
+.agent-avatar--xs   { --size: 20px; }
+.agent-avatar--sm   { --size: 24px; }
+.agent-avatar--lg   { --size: 40px; }
+.agent-avatar--xl   { --size: 56px; }
+.agent-avatar--2xl  { --size: 96px; }
+.agent-avatar--hero { --size: 200px; }
+
+.agent-avatar[data-tone="aurora"]  { --c1: var(--agent-aurora-1);  --c2: var(--agent-aurora-2);  --c3: var(--agent-aurora-3);  --c-glow: var(--agent-aurora-glow); }
+.agent-avatar[data-tone="ember"]   { --c1: var(--agent-ember-1);   --c2: var(--agent-ember-2);   --c3: var(--agent-ember-3);   --c-glow: var(--agent-ember-glow); }
+.agent-avatar[data-tone="orbit"]   { --c1: var(--agent-orbit-1);   --c2: var(--agent-orbit-2);   --c3: var(--agent-orbit-3);   --c-glow: var(--agent-orbit-glow); }
+.agent-avatar[data-tone="nebula"]  { --c1: var(--agent-nebula-1);  --c2: var(--agent-nebula-2);  --c3: var(--agent-nebula-3);  --c-glow: var(--agent-nebula-glow); }
+.agent-avatar[data-tone="glacier"] { --c1: var(--agent-glacier-1); --c2: var(--agent-glacier-2); --c3: var(--agent-glacier-3); --c-glow: var(--agent-glacier-glow); }
+
+.agent-avatar[data-state="thinking"] { --spin: 3.2s; }
+.agent-avatar[data-state="listening"] {
+    --spin: 9s;
+    box-shadow: 0 0 0 calc(2px + var(--level, 0) * var(--size) * 0.06) var(--agent-sphere-ring);
+}
+.agent-avatar[data-state="speaking"] {
+    --spin: 7s;
+    box-shadow: 0 0 calc(var(--size) * (0.08 + var(--level, 0) * 0.28)) calc(var(--level, 0) * var(--size) * 0.04) var(--c-glow);
+}
+.agent-avatar[data-state="working"] {
+    --spin: 5s;
+    outline: 2px solid var(--agent-sphere-halo);
+    outline-offset: 2px;
+    animation: agent-avatar-ring var(--pulse-duration) ease-in-out infinite;
+}
+@keyframes agent-avatar-ring { 50% { outline-color: var(--agent-sphere-ring); } }
+.agent-avatar[data-state="offline"] { filter: grayscale(1); opacity: 0.55; }
+.agent-avatar[data-state="offline"]::before { animation-play-state: paused; }

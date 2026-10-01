@@ -111,6 +111,8 @@ public class BrandTextContrastTests
         ["button.chip[aria-pressed=\"true\"] i"] = (Ink.Icon, ["--brand-tint"]),
         // A graph tool that is switched on — drawing links, outlines, full screen: an icon button.
         [".graph-tools .btn[aria-pressed=\"true\"]"] = (Ink.Icon, ["--brand-tint"]),
+        // A rating the reader gave an agent's answer: a ghost icon button, on the thread's ground.
+        [".chat-feedback > .btn[aria-pressed=\"true\"]"] = (Ink.Icon, []),
         ["a.stat:hover .stat-value"] = (Ink.Text, []),
         [".page-link[aria-current=\"page\"]"] = (Ink.Text, ["--brand-tint"]),
         [".table th[aria-sort=\"ascending\"]"] = (Ink.Text, ["--table-head-bg"]),

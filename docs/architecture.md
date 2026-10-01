@@ -24,7 +24,7 @@ renders?** Three kinds of code pass.
 
 | Kind | What it does | In the package |
 |---|---|---|
-| Infrastructure component | Emits no UI | `SednaBrandStyle`, the palette CSS (see [Branding](#branding)); `SednaStateArt`, the [state illustrations](#state-illustrations) as a hidden sprite |
+| Infrastructure component | Emits no UI | `SednaBrandStyle`, the palette CSS (see [Branding](#branding)); `SednaStateArt`, the [state illustrations](#state-illustrations) as a hidden sprite; `SednaMochi`, [Mochi](#mochi) the same way |
 | Presenter | Shows, hides and awaits markup the app wrote, adding no element of its own | `ShowModalAsync`, `ISednaOverlays` with `SednaOverlayHost`, `FollowSpotlightAsync` |
 | State helper | Computes what markup cannot express; pure, no interop | `ActiveLink`, `SednaSort`, `SednaPager`, `SednaTabs` |
 
@@ -518,6 +518,7 @@ Two things the flat list does not say:
 | `spotlight` | Tour geometry and the input model, not the sequence. `at(hole, target, { pad, include })` positions `.spotlight-hole` over an element, a list of them or a selector, and returns the rectangle — `null` when nothing visible is left; `tipAt(tip, rect, { placement, gap, margin, boundary })` places the bubble on any of the four sides, flips it when the side does not fit, clamps it into the viewport — or into `boundary` — and reports the side used; `follow(hole, target, opts)` keeps both attached across scroll, resize, re-render and a dialog opening or closing, returning `{ update, stop, side }`; `lock(opts)` / `unlock()` make the rest of the page inert and gate hover hints. A step whose target is inside an open modal `<dialog>` raises the hole and the bubble into the top layer after it and moves the bubble inside, and puts both back when the step leaves or the dialog closes. The steps, the copy and the order stay the app's |
 | `graph` | The graph's front door. It finds every `[data-graph]`, starts each as it comes within a screen of the viewport — importing `Sedna.UI.graph.js` and the engine, relative to itself, the first time — delegates the `data-graph-*` controls from `document`, and takes a graph down when its element leaves the document. `get(elOrId)` resolves the graph's handle, `init(root)` starts every graph in `root` at once, `invoke(id, method, args)` is the bridge `ISednaGraphs` calls, and `release()` — called by `Sedna.UI.lib.module.js` once Blazor has started — ends the wait on a prerendered page, where graphs are held so they are drawn once, in the markup the interactive render leaves. The handle, the controls and the events are in [graph.md](graph.md) |
 | `editor` | The rich-text editor's front door: `get(el or id)` resolves the editor's handle — `state()`, `html()`, `set(html)`, `insert(text)`, `focus()`, `enable(on)`, `quill`, `destroy()` — starting it if need be; `init(root?)` starts every editor in `root` at once; `invoke(id, method, args)` is the `ISednaEditors` bridge. See `docs/editor.md` |
+| — | `45-orb.js` adds no member. It is the orb's front door: it registers `[data-orb]` with the surface loader, which imports `Sedna.UI.orb.js` the first time a page shows one, and gives each orb `role="img"` the moment it is found. The app's `aria-label` names it, and its attributes drive it — see [orb.md](orb.md) |
 | — | `42-surfaces.js` adds no public member. It is the loader every shipped surface's front door registers with — `ui._.surface(spec)` — which finds the surface's elements, holds them on a prerendered Blazor page until `Sedna.UI.lib.module.js` releases it, imports the surface's module relative to this script as one comes within a screen of the viewport, and disposes one whose element has gone |
 | `md` | Markdown editor: `init(root?)` wires every `.md-editor` in `root` (the document by default) and is idempotent per editor; `apply(textarea, cmd)`, `render(src)` |
 | `copyText`, `openTab`, `viewportWidth`, `scrollPageTop`, `timeZone` | Interop helpers. `scrollPageTop` resets `.page`, which is the only scroll container the frame has and therefore the one navigation leaves where it was. `timeZone()` reads the browser's IANA zone from `Intl` at call time — an id, never an offset, and null where the browser refuses |
@@ -620,6 +621,60 @@ The same three steps, as font sizes — `--sm` at `--text-10`, the bare class at
 `StateSpriteTests` guards it: well-formed XML, no `--` in a comment (which breaks the whole file, not one
 drawing), no literal colour, one shared `viewBox`, and the id list in `42-state-art.css` matching the
 symbols. `ShippedPathTests` and `build/verify-package.sh` pin the path.
+
+## Mochi
+
+`SednaMochi`, placed once at the top of `<body>` in an app that shows Mochi, writes one `<symbol>` into
+the page: the agent's character, rigged. A page draws it with a same-document `<use>`:
+
+```html
+<span class="mochi" data-action="wave" data-mood="happy" role="img" aria-label="Ops agent, waving">
+    <svg viewBox="0 0 160 160" aria-hidden="true"><use href="#sedna-mochi" /></svg>
+</span>
+```
+
+It is delivered as the state illustrations are and for the same reasons — in the page, because an
+external `<use>` inherits nothing in WebKit, and embedded in the assembly rather than a static web
+asset. It is one fixed character the library owns, not a set an app picks between, so it is not a
+second icon set either.
+
+**A rig, not a set of pictures.** The drawing has joints — arms that turn at the shoulder and reach,
+legs that bend at the knee or step at the hip, a body that leans, a face of separate parts — and every
+joint is a group the stylesheet moves through a custom property. `data-action`, `data-mood`,
+`data-tone` and `data-perch` on the host set those properties, they inherit into the `<use>` tree, and
+each part reads its own, so a change eases the joints into the new pose instead of swapping a drawing.
+A class rule reaches a cloned part as it reaches the original; an ancestor selector cannot, which is
+why every rule on a sprite part names that part's own class.
+
+**Arms keep to a side.** An arm's angle eases the short way round, so each arm has a range its angles
+stay in — left 90°–280°, right −100°–90°, the front hands their own — and an eased change never swings
+through the body. `MochiRigTests` reads every angle the stylesheet sets and holds it to its range.
+
+**Perches.** Mochi and the element it perches on share a `.mochi-host`. Each perch puts one fixed line
+of the 160-unit drawing on one edge — the seat on the top edge (`sit`), the peeking edge on it (`peek`,
+`look`), the feet on the bottom edge (`stand`), the grip under it (`hang`), the side edge (`side`) —
+so placing is a fraction of `--size` and meets the edge exactly at every size. What is behind the
+element is clipped with an `inset()` on the drawing's own view box, the same line the perch places.
+`point` stands beside the element the app names with `position-anchor`, its fingertip on that element's
+edge — CSS anchor positioning, no script.
+
+**Colour.** The sprite writes no colour and no style. Mochi's own colours are tier 2 tokens holding
+literals rather than palette steps: a theme replaces the palette, and Mochi is not the brand — it stays
+pink in Forest.
+
+**Motion.** Pose changes ride `--motion-slow`, and the face and the legs cross-fade on
+`--motion-fast` — a slow cross-fade shows two faces at once. The loops are the drawing's own, with
+their durations in longhands, as the state illustrations' are. Every loop and every eased change has a
+counterpart in the reduced-motion block: Mochi still changes pose, face and props, at once, and nothing
+loops. In a right-to-left page the drawing turns to face the inline end, in `70-rtl.css`.
+
+`MochiSpriteTests` guards the file as `StateSpriteTests` guards the illustrations — well-formed XML,
+no `--` in a comment, no colour, no style — and holds its parts and the rules in `68-mochi.css` to each
+other in both directions. `MochiRigTests` holds the documented vocabulary, the arm ranges and the perch
+lines. `MochiTests` measures each perch against a real card in the browser, reads a pose change and a
+mood change mid-transition, and walks every combination of perch, action and mood under reduced motion
+against the rig's invariants: one face, one mouth, hands on the edge they hold, nothing in front of a
+card that should be behind it.
 
 ## The MCP server
 
