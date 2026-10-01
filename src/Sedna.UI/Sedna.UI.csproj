@@ -73,6 +73,7 @@
        document of their own: no inherited colour, no custom properties, black. -->
   <ItemGroup>
     <EmbeddedResource Include="StateArt\Sedna.UI.states.svg" LogicalName="Sedna.UI.states.svg" />
+    <EmbeddedResource Include="StateArt\Sedna.UI.mochi.svg" LogicalName="Sedna.UI.mochi.svg" />
   </ItemGroup>
 
   <!-- So SednaRampGenerationTests can call the internal Oklch conversion directly, rather than

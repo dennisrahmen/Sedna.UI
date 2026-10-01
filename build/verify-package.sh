@@ -62,6 +62,8 @@ REQUIRED=(
     "staticwebassets/lib/quill/quill.js"
     "staticwebassets/lib/quill/licenses/quill.txt"
     "staticwebassets/lib/quill/VENDORED.txt"
+    # The orb: its module, which Sedna.UI.js imports the first time a page shows one.
+    "staticwebassets/js/Sedna.UI.orb.js"
     "README.md"
     "LICENSE"
     "THIRD-PARTY-NOTICES.md"

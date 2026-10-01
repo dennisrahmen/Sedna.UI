@@ -1,0 +1,49 @@
+<div class="sedna-row-wrap sedna-gap-3" style="align-items: start">
+    <div class="card agent-approval" style="width: 380px">
+        <div class="card-head">
+            <div class="agent-approval-head">
+                <span class="agent-approval-icon"><i class="ri-shield-check-line"></i></span>
+                <span class="agent-approval-title"><strong>Change a schedule</strong><span>Ops agent asks before it writes</span></span>
+            </div>
+        </div>
+        <div class="card-body sedna-col sedna-gap-3">
+            <div class="agent-approval-change"><span>src-db-14 &middot; vacuum.start</span><s>02:00</s><i class="ri-arrow-right-line" aria-label="to" role="img"></i><strong>03:30</strong></div>
+            <div class="chip-set">
+                <span class="chip"><i class="ri-edit-line"></i><span class="chip-label">Writes 1 setting</span></span>
+                <span class="chip"><i class="ri-loop-left-line"></i><span class="chip-label">Reversible</span></span>
+            </div>
+        </div>
+        <div class="card-foot">
+            <div class="agent-approval-actions">
+                <button class="btn btn-ghost" type="button">Deny</button>
+                <button class="btn btn-warn sedna-push" type="button">Take over</button>
+                <button class="btn btn-go" type="button"><i class="ri-check-line"></i>Approve</button>
+            </div>
+            <div class="agent-approval-result">
+                <i class="ri-checkbox-circle-fill"></i><span>Approved by Alex Fischer</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card agent-approval" data-state="approved" style="width: 380px">
+        <div class="card-head">
+            <div class="agent-approval-head">
+                <span class="agent-approval-icon"><i class="ri-shield-check-line"></i></span>
+                <span class="agent-approval-title"><strong>Change a schedule</strong><span>Ops agent asks before it writes</span></span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="agent-approval-change"><span>src-db-14 &middot; vacuum.start</span><s>02:00</s><i class="ri-arrow-right-line" aria-label="to" role="img"></i><strong>03:30</strong></div>
+        </div>
+        <div class="card-foot">
+            <div class="agent-approval-actions">
+                <button class="btn btn-ghost" type="button">Deny</button>
+                <button class="btn btn-go" type="button"><i class="ri-check-line"></i>Approve</button>
+            </div>
+            <div class="agent-approval-result">
+                <i class="ri-checkbox-circle-fill"></i><span>Approved by Alex Fischer at 09:31</span>
+                <button class="btn btn-sm btn-ghost sedna-push" type="button">Undo</button>
+            </div>
+        </div>
+    </div>
+</div>

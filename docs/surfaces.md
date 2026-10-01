@@ -21,10 +21,14 @@ what it names.
 | Markdown preview | drawn | [architecture.md](architecture.md#javascript) | `44-markdown.css` | `js-parts/30-markdown.js` | — | `/markdown` |
 | Graph | shipped | [graph.md](graph.md) | `54-graph.css` | `js-parts/43-graph.js`, `graph-parts/` | `wwwroot/lib/cytoscape/` | `/graph` |
 | Rich-text editor | shipped | [editor.md](editor.md) | `44-rich-text.css` | `js-parts/44-editor.js`, `editor-parts/` | `wwwroot/lib/quill/` | `/editor` |
+| Orb | drawn | [orb.md](orb.md) | `66-orb.css` | `js-parts/45-orb.js`, `orb-parts/` | — | `/orb` |
 
 **Delivery** is how the surface reaches a page:
 
-- **drawn** — the library's own script draws it, with no engine behind it.
+- **drawn** — the library's own script draws it, with no engine behind it. When the drawing is more
+  than a page could afford to carry on the chance it shows one, it is its own ES module — generated from
+  `<name>-parts/` — loaded on demand through `js-parts/42-surfaces.js` exactly as a shipped surface's is;
+  the orb is drawn this way.
 - **shipped** — the library ships an engine, vendored under `wwwroot/lib/` by a `build/vendor-*.sh`
   script, and loads it on demand through its own ES module — generated from `<name>-parts/` — which
   the shared loader in `js-parts/42-surfaces.js` imports the first time a page shows one.

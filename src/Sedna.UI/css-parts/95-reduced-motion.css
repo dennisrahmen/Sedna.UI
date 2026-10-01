@@ -141,6 +141,111 @@
     .chat-typing > i:nth-child(3) { animation: none; }
     .chat-actions    { transition: none; }
 
+    /* 66 — an agent's signals hold still. The shimmer stops where it is, the sphere
+       stops turning, the reasoning and the steps open at once. Nothing is lost: the
+       label still says what the agent is doing, and the orb draws a still frame of
+       the state on its own. */
+    .text-shimmer { animation: none; }
+    .agent-avatar,
+    .agent-avatar::before,
+    .agent-avatar[data-state="working"] { animation: none; transition: none; }
+    .reasoning > summary,
+    .reasoning-chevron { transition: none; }
+
+    /* 67 — the caret is a steady bar, links and the prompt change state at once,
+       and the voice bars stand at their level instead of easing to it. */
+    .chat-bubble--streaming > :last-child::after { animation: none; }
+    .citation,
+    .source-card,
+    .chat-composer--prompt { transition: none; }
+    .voice-bars > i,
+    .btn-mic { transition: none; }
+
+    /* 68 — Mochi holds its pose. Every action, mood and perch still changes the
+       drawing — arms, face, props — but at once, and nothing loops. */
+    .sedna-mochi-ground,
+    .sedna-mochi-seat,
+    .sedna-mochi-finger,
+    .sedna-mochi-glow,
+    .sedna-mochi-screen,
+    .sedna-mochi-part,
+    .sedna-mochi-legs-stand,
+    .sedna-mochi-legs-sit,
+    .sedna-mochi-grip-l,
+    .sedna-mochi-grip-r,
+    .sedna-mochi-grip-side,
+    .sedna-mochi-grip-hl,
+    .sedna-mochi-grip-hr,
+    .sedna-mochi-place,
+    .sedna-mochi-rig,
+    .sedna-mochi-lean,
+    .sedna-mochi-tilt,
+    .sedna-mochi-breathe,
+    .sedna-mochi-eyes,
+    .sedna-mochi-scan,
+    .sedna-mochi-blink,
+    .sedna-mochi-talk,
+    .sedna-mochi-leg-l,
+    .sedna-mochi-leg-r,
+    .sedna-mochi-foot-l,
+    .sedna-mochi-foot-r,
+    .sedna-mochi-shin-l,
+    .sedna-mochi-shin-r,
+    .sedna-mochi-arm-bl,
+    .sedna-mochi-arm-br,
+    .sedna-mochi-arm-fl,
+    .sedna-mochi-arm-fr,
+    .sedna-mochi-seg-bl,
+    .sedna-mochi-seg-br,
+    .sedna-mochi-seg-fl,
+    .sedna-mochi-seg-fr,
+    .sedna-mochi-reach-bl,
+    .sedna-mochi-reach-br,
+    .sedna-mochi-reach-fl,
+    .sedna-mochi-reach-fr,
+    .sedna-mochi-hand-bl,
+    .sedna-mochi-hand-br,
+    .sedna-mochi-act-bl,
+    .sedna-mochi-act-br,
+    .sedna-mochi-tap-fl,
+    .sedna-mochi-tap-fr,
+    .sedna-mochi-bubble,
+    .sedna-mochi-bubble-2,
+    .sedna-mochi-bubble-3,
+    .sedna-mochi-confetti,
+    .sedna-mochi-delay-1,
+    .sedna-mochi-delay-2,
+    .sedna-mochi-delay-3,
+    .sedna-mochi-delay-4,
+    .sedna-mochi-delay-5,
+    .sedna-mochi-sweat,
+    .sedna-mochi-z,
+    .sedna-mochi-z-2,
+    .sedna-mochi-z-3,
+    .sedna-mochi-arc,
+    .sedna-mochi-arc-2,
+    .sedna-mochi-pop,
+    .sedna-mochi-check,
+    .sedna-mochi-heart,
+    .sedna-mochi-float-heart,
+    .sedna-mochi-float-heart-2,
+    .sedna-mochi-float-heart-3 { animation: none; transition: none; }
+
+    /* 69 — the beam is still: both its colours round the whole edge, the glow at
+       rest. The fill under it stays the element's own. */
+    .beam,
+    .beam:hover,
+    .beam:focus,
+    .beam:focus-within,
+    .beam--glow,
+    .beam--glow:focus,
+    .beam--glow:focus-within {
+        background:
+            linear-gradient(var(--beam-fill), var(--beam-fill)) padding-box,
+            linear-gradient(90deg, var(--agent-from), var(--agent-to)) border-box;
+        animation: none;
+    }
+
     /* 54 — a bar, a segment or a meter fill lands at its value instead of growing
        to it. The value was never the motion. */
     .bar-list-fill,

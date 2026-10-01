@@ -1,0 +1,104 @@
+/* ── Agent activity ───────────────────────────────────────────────────────────
+   Signals that an agent is working and roughly on what, and how far to trust what it
+   gave back. The beam that runs a busy element's border is `.beam`, in 69-beam.css —
+   last in the paint layer, because it draws over the element's own background.
+
+   ── Shimmer ──
+   Words still being decided: a light passing along the text.
+     <span class="text-shimmer">Thinking</span>
+
+   ── Status ──
+   What the agent is doing now: an orb (or Mochi), a label in the app's words, the time
+   it has been running and, at the large size, a stop button.
+     <span class="agent-status">
+       <span class="orb" data-orb="searching"></span>
+       <span class="agent-status-label text-shimmer">Searching the runbook</span>
+       <span class="agent-status-time">0:07</span>
+     </span>
+   The orb sits concentric with the pill's rounded end at every height: inset by
+   (height - border - orb) / 2 on every side. A stop button at the end does the same.
+
+   ── Disclosure and certainty ──
+   `.badge-ai` says a piece of content was generated. `.confidence[data-level]` (1–3)
+   says how sure the agent is, in bars and in the app's words beside them.
+   `.context-ring` shows how much of a context window is used, from `--value` (0–100).
+   `.skeleton--agent` is a placeholder the agent is filling.
+   ─────────────────────────────────────────────────────────────────────────── */
+.text-shimmer {
+    background: linear-gradient(90deg, var(--muted) 0 38%, var(--fg) 50%, var(--muted) 62% 100%) 0 0 / 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: text-shimmer var(--shimmer-duration) linear infinite;
+}
+@keyframes text-shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+.agent-status {
+    --status-h: 32px;
+    --status-orb: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    block-size: var(--status-h);
+    max-inline-size: 100%;
+    padding-inline: calc((var(--status-h) - var(--status-orb)) / 2 - 1px) var(--space-7);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface-raised-1);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    line-height: 1;
+    white-space: nowrap;
+}
+.agent-status > .orb { --orb-size: var(--status-orb); }
+.agent-status-label { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; padding-block: var(--space-1); }
+.agent-status-time { color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+.agent-status:has(> .btn:last-child) { padding-inline-end: calc((var(--status-h) - var(--control-height-sm)) / 2 - 1px); }
+.agent-status > .btn { border-radius: 50%; }
+.agent-status--lg { --status-h: 44px; --status-orb: 32px; gap: var(--space-6); font-size: var(--text-6); }
+.agent-status--xl { --status-h: 64px; --status-orb: 48px; gap: var(--space-7); padding-inline-end: var(--space-10); font-size: var(--text-8); }
+.agent-status--warn { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-fg); }
+
+.badge-ai {
+    background: var(--agent-tint);
+    border-color: var(--agent-edge);
+    color: var(--fg-soft);
+}
+.badge-ai > i { color: var(--agent-from); }
+
+.confidence { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); color: var(--muted); line-height: 1; }
+.confidence-bars { display: inline-flex; align-items: flex-end; gap: var(--space-1); block-size: 12px; }
+.confidence-bars > i { inline-size: 3px; border-radius: 1px; background: var(--border-strong); }
+.confidence-bars > i:nth-child(1) { block-size: 5px; }
+.confidence-bars > i:nth-child(2) { block-size: 8px; }
+.confidence-bars > i:nth-child(3) { block-size: 12px; }
+.confidence[data-level="1"] .confidence-bars > i:nth-child(-n+1) { background: var(--warn-fg); }
+.confidence[data-level="2"] .confidence-bars > i:nth-child(-n+2) { background: var(--info-fg); }
+.confidence[data-level="3"] .confidence-bars > i:nth-child(-n+3) { background: var(--go-fg); }
+
+/* The ring is a conic fill masked to an annulus; the mask needs only an opaque
+   colour, and the element's own text colour is one. Pair it with role="meter". */
+.context-ring {
+    --value: 0;
+    --ring: var(--agent-to);
+    --ring-size: 20px;
+    --ring-width: 3px;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--ring-size);
+    block-size: var(--ring-size);
+    border-radius: 50%;
+    background: conic-gradient(var(--ring) calc(var(--value) * 1%), var(--surface-strong) 0);
+    mask: radial-gradient(farthest-side, transparent calc(100% - var(--ring-width) - 0.5px), currentColor calc(100% - var(--ring-width)));
+}
+.context-ring--warn   { --ring: var(--warn-fg); }
+.context-ring--danger { --ring: var(--danger-fg); }
+.context-ring--lg { --ring-size: 56px; --ring-width: 5px; }
+
+.skeleton--agent {
+    background-image: linear-gradient(90deg,
+        var(--skeleton-bg) 0%,
+        var(--agent-skeleton-cool) 40%,
+        var(--agent-skeleton-warm) 60%,
+        var(--skeleton-bg) 100%);
+}

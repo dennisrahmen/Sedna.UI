@@ -1,0 +1,80 @@
+@page "/agent-status"
+
+<CatHead Title="Work in flight">
+    That an agent is busy, and roughly with what: one status pill, a beam on whatever it is working on,
+    shimmer on words it is still deciding. Then, once the work is back, what to make of it &mdash; a mark
+    that says it was generated, how sure the agent is, and how much room it has left.
+</CatHead>
+
+<CatExample TExample="Examples.AgentStatus.Pills" Title="The status pill" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.agent-status</code> holds an <a href="/orb">orb</a>, an <code>.agent-status-label</code>
+        in the app's words and, if the wait is long enough to be worth counting, an
+        <code>.agent-status-time</code>. The orb sits concentric with the pill's rounded end at every
+        height. Put <code>.text-shimmer</code> on the label while the agent is still at it and take it
+        off when it stops; <code>.agent-status--warn</code> is the one that waits on the reader.
+    </p>
+    <p>
+        <strong>Say what it is doing, not that it is doing something.</strong> &ldquo;Searching
+        docs.example.com&rdquo; tells a reader whether to wait; &ldquo;Working&hellip;&rdquo; does not. Put the
+        pill in an <code>aria-live="polite"</code> region if a change of label should be announced.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentStatus.Sizes" Title="Sizes, and a way to stop" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.agent-status--lg</code> (44px) and <code>--xl</code> (64px) for where a page waits on the
+        agent; the bare pill beside a record. <code>--status-h</code> and <code>--status-orb</code> set
+        any other height. A small ghost icon button last in the pill is inset to match its end &mdash;
+        give long work a way to stop.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentStatus.Beam" Title="The beam" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.beam</code> runs a light round the edge of whatever the agent is busy with: the card it is
+        summarising, the field it is filling, the button that started the work. It is drawn on the
+        element's own border, so it needs no wrapper, works on an <code>&lt;input&gt;</code> and inside a
+        card that clips, and keeps the focus edge and ring. <code>.beam--glow</code> adds a breathing
+        glow, <code>.beam--slow</code> halves the speed, and <code>--beam-duration</code> is one turn.
+        Remove the class when the work is done.
+    </p>
+    <p>
+        Under <code>prefers-reduced-motion</code> the beam stands still as a two-colour edge, so the
+        element still reads as the busy one.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentStatus.Shimmer" Title="Shimmer and placeholders" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.text-shimmer</code> is words still being decided: a light passing through the text, in the
+        text's own colour. <code>.skeleton--agent</code> is the agent's version of a
+        <a href="/skeleton">skeleton</a> &mdash; the same shapes, warmed by the agent colours, for an
+        answer that is being written rather than fetched. Mark the region <code>aria-busy</code> as any
+        skeleton.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentStatus.Generated" Title="What came back" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.badge-ai</code> marks content an agent generated, beside a person's in the same list.
+        Write the word; the sparkle is decoration.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentStatus.Confidence" Title="Confidence" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.confidence</code> with <code>data-level</code> 1, 2 or 3 fills that many bars &mdash; go when
+        high, info in the middle, warn when low. <strong>The words carry it</strong>: the bars are
+        <code>aria-hidden</code>, and a low score says what to do about it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentStatus.ContextRing" Title="The context ring" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.context-ring</code> is how much of something is used, as a ring filled to
+        <code>--value</code> (0 to 100) &mdash; an agent's context window, a quota. <code>--warn</code> and
+        <code>--danger</code> when it is nearly full, <code>--lg</code> beside a figure. It is a
+        <code>role="meter"</code>, with the value written again in <code>aria-valuenow</code>.
+    </p>
+</CatExample>

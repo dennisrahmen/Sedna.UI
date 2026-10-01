@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="sedna-sprite" aria-hidden="true" focusable="false">
+<!--
+  Sedna.UI — Mochi, the agent's character.
+
+  One rigged drawing on a 160 unit grid, written into the page by SednaMochi and
+  referenced from markup as a use of sedna-mochi. The character, its shapes and its
+  clay shading come from the Mochi design system; the rig, the actions, the moods,
+  the tones and the perches are in css‑parts/68‑mochi.css.
+
+  An XML comment may not contain two hyphens in a row, so no custom property and no
+  modifier is written out here. They are named in the stylesheet instead.
+
+  Rules this file keeps:
+
+  · NO COLOUR AND NO STYLE IS WRITTEN HERE. Every coloured part carries a class the
+    stylesheet declares, and the gradients and the clay filter read theirs through
+    classes on their stops and floods. The only attributes that are not geometry
+    point at this file's own paint servers and filters.
+  · A JOINT IS A GROUP. An arm is a group turned at the shoulder, holding a segment
+    and a group that reaches along it to the hand; a leg turns at the hip and its foot
+    turns back; a shin swings at the knee. The stylesheet moves the groups and never
+    the shapes inside them, so every pose is the same drawing.
+  · The lines a perch places are fixed: the seat at y 120, the peeking edge at y 104,
+    the feet at y 154, the hanging grip at y 30, the side edge at x 60. Moving any of
+    them moves where Mochi meets a card.
+-->
+  <defs>
+    <radialGradient id="sedna-mochi-sheen" cx="38%" cy="30%" r="85%"><stop offset="0" class="sedna-mochi-sheen-hi"/><stop offset="0.58" class="sedna-mochi-sheen-mid"/><stop offset="1" class="sedna-mochi-sheen-lo"/></radialGradient>
+    <radialGradient id="sedna-mochi-legs" cx="38%" cy="30%" r="85%"><stop offset="0" class="sedna-mochi-leg-hi"/><stop offset="0.6" class="sedna-mochi-leg-mid"/><stop offset="1" class="sedna-mochi-leg-lo"/></radialGradient>
+    <filter id="sedna-mochi-clay" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="blur"/>
+      <feOffset in="blur" dx="-6" dy="-8" result="up"/><feComposite in="SourceAlpha" in2="up" operator="out" result="rim"/>
+      <feFlood class="sedna-mochi-shadow-flood" flood-opacity="0.3"/><feComposite in2="rim" operator="in" result="shade"/>
+      <feOffset in="blur" dx="4.2" dy="5.6" result="down"/><feComposite in="SourceAlpha" in2="down" operator="out" result="lip"/>
+      <feFlood class="sedna-mochi-light-flood" flood-opacity="0.4"/><feComposite in2="lip" operator="in" result="light"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/><feMergeNode in="light"/></feMerge>
+    </filter>
+    <filter id="sedna-mochi-clay-small" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur"/>
+      <feOffset in="blur" dx="-2.2" dy="-3" result="up"/><feComposite in="SourceAlpha" in2="up" operator="out" result="rim"/>
+      <feFlood class="sedna-mochi-shadow-flood" flood-opacity="0.28"/><feComposite in2="rim" operator="in" result="shade"/>
+      <feOffset in="blur" dx="1.54" dy="2.1" result="down"/><feComposite in="SourceAlpha" in2="down" operator="out" result="lip"/>
+      <feFlood class="sedna-mochi-light-flood" flood-opacity="0.35"/><feComposite in2="lip" operator="in" result="light"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/><feMergeNode in="light"/></feMerge>
+    </filter>
+    <filter id="sedna-mochi-glow-filter" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="sedna-mochi-ao" x="-50%" y="-100%" width="200%" height="300%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="sedna-mochi-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2"/></filter>
+  </defs>
+  <symbol id="sedna-mochi" viewBox="0 0 160 160" overflow="visible">
+    <ellipse class="sedna-mochi-ground" cx="80" cy="154" rx="34" ry="3.5" filter="url(#sedna-mochi-ao)"/>
+    <ellipse class="sedna-mochi-seat" cx="80" cy="122" rx="42" ry="4" filter="url(#sedna-mochi-ao)"/>
+    <g class="sedna-mochi-clip">
+    <g class="sedna-mochi-place"><g class="sedna-mochi-rig">
+      <g class="sedna-mochi-legs-stand">
+        <g class="sedna-mochi-leg-l"><rect x="64" y="108" width="12" height="38" rx="6" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/><g class="sedna-mochi-foot-l"><rect x="61" y="142" width="18" height="12" rx="6" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/></g></g>
+        <g class="sedna-mochi-leg-r"><rect x="84" y="108" width="12" height="38" rx="6" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/><g class="sedna-mochi-foot-r"><rect x="81" y="142" width="18" height="12" rx="6" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/></g></g>
+        <ellipse class="sedna-mochi-ao" cx="80" cy="112" rx="24" ry="4" filter="url(#sedna-mochi-ao)"/>
+      </g>
+      <g class="sedna-mochi-legs-sit">
+        <ellipse cx="66.5" cy="114" rx="7.5" ry="8.5" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/>
+        <g class="sedna-mochi-shin-l"><ellipse class="sedna-mochi-drop sedna-mochi-drop--long" cx="66" cy="134" rx="6" ry="11" filter="url(#sedna-mochi-soft)"/><rect x="58" y="120" width="10" height="21" rx="5" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/><rect x="54.5" y="136" width="17" height="11" rx="5.5" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/></g>
+        <circle cx="63" cy="121" r="7" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/>
+        <ellipse cx="93.5" cy="114" rx="7.5" ry="8.5" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/>
+        <g class="sedna-mochi-shin-r"><ellipse class="sedna-mochi-drop sedna-mochi-drop--long" cx="100" cy="134" rx="6" ry="11" filter="url(#sedna-mochi-soft)"/><rect x="92" y="120" width="10" height="21" rx="5" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/><rect x="88.5" y="136" width="17" height="11" rx="5.5" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/></g>
+        <circle cx="97" cy="121" r="7" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/>
+      </g>
+      <g class="sedna-mochi-arm-bl"><g class="sedna-mochi-act-bl"><rect class="sedna-mochi-seg sedna-mochi-seg-bl" x="0" y="-5" height="10" rx="5"/><g class="sedna-mochi-reach-bl"><g class="sedna-mochi-hand-bl"><circle class="sedna-mochi-palm" r="7.5" filter="url(#sedna-mochi-clay-small)"/><circle r="7.5" fill="url(#sedna-mochi-sheen)"/></g></g></g></g>
+      <g class="sedna-mochi-arm-br"><g class="sedna-mochi-act-br"><rect class="sedna-mochi-seg sedna-mochi-seg-br" x="0" y="-5" height="10" rx="5"/><g class="sedna-mochi-reach-br"><circle class="sedna-mochi-finger" cx="8" cy="-0.6" r="3.4" filter="url(#sedna-mochi-clay-small)"/><g class="sedna-mochi-hand-br"><circle class="sedna-mochi-palm" r="7.5" filter="url(#sedna-mochi-clay-small)"/><circle r="7.5" fill="url(#sedna-mochi-sheen)"/></g></g></g></g>
+      <g class="sedna-mochi-lean"><g class="sedna-mochi-tilt"><g class="sedna-mochi-breathe">
+        <path class="sedna-mochi-body" d="M36 120 C36 70 54 40 80 40 C106 40 124 70 124 120 Z" filter="url(#sedna-mochi-clay)"/><path d="M36 120 C36 70 54 40 80 40 C106 40 124 70 124 120 Z" fill="url(#sedna-mochi-sheen)"/>
+        <g class="sedna-mochi-eyes"><g class="sedna-mochi-scan">
+          <g class="sedna-mochi-blink">
+            <g class="sedna-mochi-part sedna-mochi-e-open"><ellipse class="sedna-mochi-ink" cx="67" cy="78" rx="6" ry="7.5"/><ellipse class="sedna-mochi-ink" cx="93" cy="78" rx="6" ry="7.5"/><circle class="sedna-mochi-shine" cx="69" cy="75" r="1.8"/><circle class="sedna-mochi-shine" cx="95" cy="75" r="1.8"/></g>
+            <g class="sedna-mochi-part sedna-mochi-e-wide"><ellipse class="sedna-mochi-ink" cx="67" cy="78" rx="7.5" ry="9"/><ellipse class="sedna-mochi-ink" cx="93" cy="78" rx="7.5" ry="9"/><circle class="sedna-mochi-shine" cx="69.5" cy="74.5" r="2.4"/><circle class="sedna-mochi-shine" cx="95.5" cy="74.5" r="2.4"/><circle class="sedna-mochi-shine" cx="64.5" cy="81.5" r="1.1"/><circle class="sedna-mochi-shine" cx="90.5" cy="81.5" r="1.1"/></g>
+            <g class="sedna-mochi-part sedna-mochi-e-wink"><ellipse class="sedna-mochi-ink" cx="67" cy="78" rx="6" ry="7.5"/><circle class="sedna-mochi-shine" cx="69" cy="75" r="1.8"/></g>
+          </g>
+          <g class="sedna-mochi-part sedna-mochi-e-happy"><path class="sedna-mochi-lid" d="M61 80 Q67 72 73 80 M87 80 Q93 72 99 80"/></g>
+          <g class="sedna-mochi-part sedna-mochi-e-closed"><path class="sedna-mochi-lid" d="M61 78 Q67 83 73 78 M87 78 Q93 83 99 78"/></g>
+          <g class="sedna-mochi-part sedna-mochi-e-wink"><path class="sedna-mochi-lid" d="M87 80 Q93 72 99 80"/></g>
+          <g class="sedna-mochi-part sedna-mochi-e-love"><g transform="translate(67 78) scale(1.25)"><path class="sedna-mochi-heart" d="M0 4.6 C-5.8 0.6 -6.4 -4.6 -3.2 -5.4 C-1.4 -5.8 -0.2 -4.6 0 -3.4 C0.2 -4.6 1.4 -5.8 3.2 -5.4 C6.4 -4.6 5.8 0.6 0 4.6 Z"/></g><g transform="translate(93 78) scale(1.25)"><path class="sedna-mochi-heart" d="M0 4.6 C-5.8 0.6 -6.4 -4.6 -3.2 -5.4 C-1.4 -5.8 -0.2 -4.6 0 -3.4 C0.2 -4.6 1.4 -5.8 3.2 -5.4 C6.4 -4.6 5.8 0.6 0 4.6 Z"/></g></g>
+        </g></g>
+        <g class="sedna-mochi-part sedna-mochi-brow-worry"><path class="sedna-mochi-line" d="M59 68 L71 64 M89 64 L101 68"/></g>
+        <g class="sedna-mochi-part sedna-mochi-brow-focus"><path class="sedna-mochi-line" d="M60 65 L72 68 M88 68 L100 65"/></g>
+        <g class="sedna-mochi-part sedna-mochi-cheeks"><ellipse class="sedna-mochi-blush" cx="57" cy="87" rx="6" ry="3.5" filter="url(#sedna-mochi-soft)"/><ellipse class="sedna-mochi-blush" cx="103" cy="87" rx="6" ry="3.5" filter="url(#sedna-mochi-soft)"/></g>
+        <g class="sedna-mochi-part sedna-mochi-m-smile"><path class="sedna-mochi-line" d="M76 89 Q80 93 84 89"/></g>
+        <g class="sedna-mochi-part sedna-mochi-m-grin"><path class="sedna-mochi-grin" d="M73 88 Q80 99 87 88 Z"/><ellipse class="sedna-mochi-tongue" cx="80" cy="93.5" rx="3.5" ry="2"/></g>
+        <g class="sedna-mochi-part sedna-mochi-m-flat"><path class="sedna-mochi-line" d="M77 90 L83 90"/></g>
+        <g class="sedna-mochi-part sedna-mochi-m-frown"><path class="sedna-mochi-line" d="M75 92 Q80 87.5 85 92"/></g>
+        <g class="sedna-mochi-part sedna-mochi-m-o"><ellipse class="sedna-mochi-ink" cx="80" cy="91" rx="3.2" ry="3.8"/></g>
+        <g class="sedna-mochi-part sedna-mochi-m-o-small"><ellipse class="sedna-mochi-ink" cx="80" cy="90" rx="1.8" ry="2.2"/></g>
+        <g class="sedna-mochi-part sedna-mochi-m-cat"><path class="sedna-mochi-line" d="M74 89 Q77 92.5 80 89 Q83 92.5 86 89"/></g>
+        <g class="sedna-mochi-part sedna-mochi-m-talk"><g class="sedna-mochi-talk"><ellipse class="sedna-mochi-ink" cx="80" cy="91" rx="3.8" ry="3.8"/><ellipse class="sedna-mochi-tongue" cx="80" cy="93.2" rx="2.4" ry="1.3"/></g></g>
+        <path class="sedna-mochi-band" d="M41 82 C41 30 119 30 119 82"/>
+        <rect class="sedna-mochi-glow" x="31" y="72" width="13" height="22" rx="6"/><rect class="sedna-mochi-glow" x="116" y="72" width="13" height="22" rx="6"/>
+        <rect class="sedna-mochi-cup" x="31" y="72" width="13" height="22" rx="6" filter="url(#sedna-mochi-clay-small)"/><rect x="31" y="72" width="13" height="22" rx="6" fill="url(#sedna-mochi-sheen)"/>
+        <rect class="sedna-mochi-cup" x="116" y="72" width="13" height="22" rx="6" filter="url(#sedna-mochi-clay-small)"/><rect x="116" y="72" width="13" height="22" rx="6" fill="url(#sedna-mochi-sheen)"/>
+        <path class="sedna-mochi-boom" d="M38 92 Q42 104 60 102"/>
+        <circle cx="62" cy="102" r="4" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/>
+      </g></g></g>
+    </g></g>
+    <g class="sedna-mochi-place"><g class="sedna-mochi-rig">
+      <g class="sedna-mochi-p-think"><circle class="sedna-mochi-bubble" cx="124" cy="46" r="3.5"/><circle class="sedna-mochi-bubble sedna-mochi-bubble-2" cx="134" cy="34" r="5"/><circle class="sedna-mochi-bubble sedna-mochi-bubble-3" cx="146" cy="20" r="7"/></g>
+      <g class="sedna-mochi-p-confetti"><circle class="sedna-mochi-confetti sedna-mochi-confetti-a" cx="40" cy="46" r="3"/><rect class="sedna-mochi-confetti sedna-mochi-confetti-b sedna-mochi-delay-1" x="115" y="38" width="6" height="4" rx="1"/><circle class="sedna-mochi-confetti sedna-mochi-confetti-c sedna-mochi-delay-2" cx="56" cy="28" r="3"/><rect class="sedna-mochi-confetti sedna-mochi-confetti-d sedna-mochi-delay-3" x="101" y="22" width="6" height="4" rx="1"/><circle class="sedna-mochi-confetti sedna-mochi-confetti-b sedna-mochi-delay-4" cx="30" cy="70" r="3"/><rect class="sedna-mochi-confetti sedna-mochi-confetti-c sedna-mochi-delay-1" x="129" y="62" width="6" height="4" rx="1"/><circle class="sedna-mochi-confetti sedna-mochi-confetti-e sedna-mochi-delay-5" cx="86" cy="18" r="2.4"/></g>
+      <g class="sedna-mochi-p-sweat"><path class="sedna-mochi-sweat" d="M126 50 q6 9 0 12 q-6 -3 0 -12 Z"/></g>
+      <g class="sedna-mochi-p-zzz"><path class="sedna-mochi-z" d="M110 46 h7 l-7 7 h7"/><path class="sedna-mochi-z sedna-mochi-z-2" d="M110 46 h9 l-9 9 h9"/><path class="sedna-mochi-z sedna-mochi-z-3" d="M110 46 h11 l-11 11 h11"/></g>
+      <g class="sedna-mochi-p-waves"><path class="sedna-mochi-arc" d="M138 72 Q143 83 138 94"/><path class="sedna-mochi-arc sedna-mochi-arc-2" d="M145 66 Q152 83 145 100"/></g>
+      <g class="sedna-mochi-p-pop"><path class="sedna-mochi-pop" d="M42 42 L35 34 M80 28 L80 18 M118 42 L125 34"/></g>
+      <g class="sedna-mochi-p-check"><g class="sedna-mochi-check"><circle class="sedna-mochi-check-bg" cx="130" cy="46" r="11"/><path class="sedna-mochi-check-mark" d="M125 46.5 L128.6 50 L135.2 42.6"/></g></g>
+      <g class="sedna-mochi-p-hearts"><g transform="translate(122 54) scale(0.9)"><path class="sedna-mochi-float-heart" d="M0 4.6 C-5.8 0.6 -6.4 -4.6 -3.2 -5.4 C-1.4 -5.8 -0.2 -4.6 0 -3.4 C0.2 -4.6 1.4 -5.8 3.2 -5.4 C6.4 -4.6 5.8 0.6 0 4.6 Z"/></g><g transform="translate(132 62) scale(0.7)"><path class="sedna-mochi-float-heart sedna-mochi-float-heart-2" d="M0 4.6 C-5.8 0.6 -6.4 -4.6 -3.2 -5.4 C-1.4 -5.8 -0.2 -4.6 0 -3.4 C0.2 -4.6 1.4 -5.8 3.2 -5.4 C6.4 -4.6 5.8 0.6 0 4.6 Z"/></g><g transform="translate(116 44) scale(0.75)"><path class="sedna-mochi-float-heart sedna-mochi-float-heart-3" d="M0 4.6 C-5.8 0.6 -6.4 -4.6 -3.2 -5.4 C-1.4 -5.8 -0.2 -4.6 0 -3.4 C0.2 -4.6 1.4 -5.8 3.2 -5.4 C6.4 -4.6 5.8 0.6 0 4.6 Z"/></g></g>
+    </g></g>
+    </g>
+    <g class="sedna-mochi-place"><g class="sedna-mochi-rig">
+      <g class="sedna-mochi-p-laptop"><rect x="54" y="94" width="52" height="24" rx="4" fill="url(#sedna-mochi-legs)" filter="url(#sedna-mochi-clay-small)"/><circle class="sedna-mochi-screen" cx="80" cy="106" r="3" filter="url(#sedna-mochi-glow-filter)"/><rect class="sedna-mochi-deck" x="50" y="116" width="60" height="5" rx="2"/></g>
+      <g class="sedna-mochi-arm-fl"><rect class="sedna-mochi-seg sedna-mochi-seg-fl" x="0" y="-5" height="10" rx="5"/><g class="sedna-mochi-reach-fl"><g class="sedna-mochi-tap-fl"><ellipse class="sedna-mochi-drop sedna-mochi-drop-fl" cx="0" cy="6" rx="8" ry="2.5" filter="url(#sedna-mochi-soft)"/><circle class="sedna-mochi-palm" r="8" filter="url(#sedna-mochi-clay-small)"/><circle r="8" fill="url(#sedna-mochi-sheen)"/></g></g></g>
+      <g class="sedna-mochi-arm-fr"><rect class="sedna-mochi-seg sedna-mochi-seg-fr" x="0" y="-5" height="10" rx="5"/><g class="sedna-mochi-reach-fr"><g class="sedna-mochi-tap-fr"><ellipse class="sedna-mochi-drop sedna-mochi-drop-fr" cx="0" cy="6" rx="8" ry="2.5" filter="url(#sedna-mochi-soft)"/><circle class="sedna-mochi-palm" r="8" filter="url(#sedna-mochi-clay-small)"/><circle r="8" fill="url(#sedna-mochi-sheen)"/></g></g></g>
+    </g></g>
+  <g class="sedna-mochi-grip-l"><ellipse class="sedna-mochi-drop" cx="54" cy="110" rx="8" ry="2.5" filter="url(#sedna-mochi-soft)"/><circle class="sedna-mochi-palm" cx="54" cy="104" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="54" cy="104" r="8" fill="url(#sedna-mochi-sheen)"/></g>
+  <g class="sedna-mochi-grip-r"><ellipse class="sedna-mochi-drop" cx="106" cy="110" rx="8" ry="2.5" filter="url(#sedna-mochi-soft)"/><circle class="sedna-mochi-palm" cx="106" cy="104" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="106" cy="104" r="8" fill="url(#sedna-mochi-sheen)"/></g>
+  <g class="sedna-mochi-grip-side"><ellipse class="sedna-mochi-drop" cx="61" cy="102" rx="7.5" ry="2.5" filter="url(#sedna-mochi-soft)"/><circle class="sedna-mochi-palm" cx="61" cy="96" r="7.5" filter="url(#sedna-mochi-clay-small)"/><circle cx="61" cy="96" r="7.5" fill="url(#sedna-mochi-sheen)"/></g>
+  <g class="sedna-mochi-grip-hl"><circle class="sedna-mochi-palm" cx="52" cy="30" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="52" cy="30" r="8" fill="url(#sedna-mochi-sheen)"/></g>
+  <g class="sedna-mochi-grip-hr"><circle class="sedna-mochi-palm" cx="108" cy="30" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="108" cy="30" r="8" fill="url(#sedna-mochi-sheen)"/></g>
+  </symbol>
+</svg>

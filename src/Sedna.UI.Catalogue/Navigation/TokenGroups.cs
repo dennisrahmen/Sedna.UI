@@ -11,7 +11,7 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// </param>
 /// <param name="Note">
 /// One sentence under the heading, for a group whose printed values would otherwise
-/// read as broken. Only the safe-area group needs one.
+/// read as broken: the safe-area group, and the voice level, which is unset on purpose.
 /// </param>
 internal sealed record TokenGroup(
     string Name,
@@ -152,6 +152,7 @@ internal static class TokenGroups
         new("Motion", [
             "--motion-fast", "--motion-mid", "--motion-slow",
             "--spin-duration", "--progress-duration", "--skeleton-duration", "--pulse-duration",
+            "--shimmer-duration", "--caret-duration", "--beam-duration",
         ], Swatch: false),
 
         new("Density and metrics", [
@@ -180,6 +181,46 @@ internal static class TokenGroups
         // brand, then hues ordered so neighbours differ. Remapped two steps darker in
         // the light theme, where a 400 is a pastel.
         new("Data visualisation", ["--viz-1", "--viz-2", "--viz-3", "--viz-4", "--viz-5", "--viz-6", "--viz-previous"]),
+
+        // The agent parts: the two bodies of the mark that the orb, the beam and the shimmer
+        // draw with, then the roles derived from them.
+        new("Agents", [
+            "--agent-from", "--agent-to", "--agent-trail", "--agent-tint", "--agent-edge",
+            "--agent-beam-tail", "--agent-glow", "--agent-glow-dim",
+            "--agent-skeleton-cool", "--agent-skeleton-warm",
+        ]),
+
+        // An agent avatar's six tones, three lights and a glow each, and the glass over them.
+        new("Agent avatar tones", [
+            "--agent-sedna-1", "--agent-sedna-2", "--agent-sedna-3",
+            "--agent-aurora-1", "--agent-aurora-2", "--agent-aurora-3",
+            "--agent-ember-1", "--agent-ember-2", "--agent-ember-3",
+            "--agent-orbit-1", "--agent-orbit-2", "--agent-orbit-3",
+            "--agent-nebula-1", "--agent-nebula-2", "--agent-nebula-3",
+            "--agent-glacier-1", "--agent-glacier-2", "--agent-glacier-3",
+            "--agent-sedna-glow", "--agent-aurora-glow", "--agent-ember-glow",
+            "--agent-orbit-glow", "--agent-nebula-glow", "--agent-glacier-glow",
+            "--agent-sphere-gloss", "--agent-sphere-shade", "--agent-sphere-rim",
+            "--agent-sphere-ring", "--agent-sphere-halo",
+        ]),
+
+        // The number the app's audio code writes; declared only so it inherits.
+        new("Voice level", ["--level"], Swatch: false,
+            Note: "Unset until the app writes one, from 0 to 1, on any element above the parts that follow it."),
+
+        // Mochi keeps its own colours under every theme: a character that turned grey in
+        // the light theme would be a different character.
+        new("Mochi tones", [
+            "--mochi-pink", "--mochi-pink-limb", "--mochi-mint", "--mochi-mint-limb",
+            "--mochi-sky", "--mochi-sky-limb", "--mochi-lemon", "--mochi-lemon-limb",
+            "--mochi-lilac", "--mochi-lilac-limb", "--mochi-coral", "--mochi-coral-limb",
+        ]),
+        new("Mochi details", [
+            "--mochi-ink", "--mochi-band", "--mochi-leg-hi", "--mochi-leg-mid", "--mochi-leg-lo",
+            "--mochi-blush", "--mochi-tongue", "--mochi-shade", "--mochi-light", "--mochi-dark",
+            "--mochi-bubble", "--mochi-bubble-edge", "--mochi-sweat", "--mochi-zzz",
+            "--mochi-deck", "--mochi-spark",
+        ]),
 
         // Not colours and not sizes: two values the library needs because the browser
         // draws something we cannot reach. `--color-scheme` goes on <html> and is what

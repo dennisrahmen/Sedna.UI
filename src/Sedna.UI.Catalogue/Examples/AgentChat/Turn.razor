@@ -1,0 +1,90 @@
+<div class="card" style="max-width: 680px">
+    <div class="card-head">
+        <span class="sedna-row sedna-gap-2"><span class="agent-avatar agent-avatar--sm" role="img" aria-label="Ops agent"></span><strong>Ops agent</strong></span>
+        <span class="card-head-right sedna-row sedna-gap-2">
+            <span class="context-ring" style="--value: 38" role="meter" aria-valuenow="38" aria-valuemin="0" aria-valuemax="100" aria-label="Context used"></span>
+            <span class="text-muted text-sm text-nums">76k / 200k</span>
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="chat" role="log" aria-live="polite" aria-label="Conversation with Ops agent">
+            <div class="chat-message chat-message--mine">
+                <div class="chat-body">
+                    <div class="chat-bubble">Why did the EU-West order sync fail last night?</div>
+                    <div class="chat-meta"><time class="chat-time" datetime="2026-09-14T09:12">09:12</time></div>
+                </div>
+            </div>
+
+            <div class="chat-message chat-message--agent">
+                <span class="agent-avatar" role="img" aria-label="Ops agent"></span>
+                <div class="chat-body">
+                    <div class="chat-meta"><span class="chat-author">Ops agent</span><time class="chat-time" datetime="2026-09-14T09:12">09:12</time></div>
+
+                    <details class="reasoning">
+                        <summary><i class="ri-arrow-right-s-line reasoning-chevron"></i>Thought for 4 s</summary>
+                        <div class="reasoning-body"><p>The sync log for that window comes first. If the sync timed out, something else held the tables.</p></div>
+                    </details>
+
+                    <ol class="agent-steps">
+                        <li data-state="done">
+                            <span class="agent-step-icon"><i class="ri-check-line"></i></span>
+                            <details class="agent-step">
+                                <summary><span class="agent-step-label"><i class="ri-file-text-line"></i>Read 3 log files on build-runner-04</span><span class="agent-step-meta">2.4 s</span></summary>
+                                <pre class="code-block"><code>02:14:07 sync  ERROR  timed out after 600 s waiting for lock on orders</code></pre>
+                            </details>
+                        </li>
+                        <li data-state="done">
+                            <span class="agent-step-icon"><i class="ri-check-line"></i></span>
+                            <details class="agent-step">
+                                <summary><span class="agent-step-label"><i class="ri-database-2-line"></i>Queried src-db-14 for locks held over 60 s</span><span class="agent-step-meta">1 row &middot; 0.8 s</span></summary>
+                                <pre class="code-block"><code>SELECT relation, mode, duration FROM lock_history WHERE duration &gt; interval '60 s';</code></pre>
+                            </details>
+                        </li>
+                    </ol>
+
+                    <div class="chat-bubble">
+                        <p>The sync timed out at 02:14 waiting for a lock on the orders table<button class="citation" type="button" popovertarget="turn-source-1" aria-label="Source 1">1</button>. The nightly vacuum on src-db-14 held it from 02:00 to 02:25<button class="citation" type="button" popovertarget="turn-source-2" aria-label="Source 2">2</button>.</p>
+                        <p>Moving the vacuum to 03:30, after the sync window, would keep the two apart.</p>
+                    </div>
+                    <div class="popover" id="turn-source-1" popover>
+                        <strong class="popover-title">runbook.example.com</strong>
+                        <p>Order sync: timeouts and retries</p>
+                    </div>
+                    <div class="popover" id="turn-source-2" popover>
+                        <strong class="popover-title">build-runner-04</strong>
+                        <p>sync.log, 02:00 to 02:30</p>
+                    </div>
+
+                    <div class="citation-sources">
+                        <a class="source-card" href="#">
+                            <span class="source-card-host"><span class="source-card-n">1</span>runbook.example.com</span>
+                            <span class="source-card-title">Order sync: timeouts and retries</span>
+                        </a>
+                        <a class="source-card" href="#">
+                            <span class="source-card-host"><span class="source-card-n">2</span>build-runner-04</span>
+                            <span class="source-card-title">sync.log, 02:00 to 02:30</span>
+                        </a>
+                    </div>
+
+                    <div class="chat-feedback" role="toolbar" aria-label="Answer actions">
+                        <button class="btn btn-sm btn-ghost btn-icon" type="button" aria-label="Copy"><i class="ri-file-copy-line"></i></button>
+                        <button class="btn btn-sm btn-ghost btn-icon" type="button" aria-label="Regenerate"><i class="ri-refresh-line"></i></button>
+                        <button class="btn btn-sm btn-ghost btn-icon" type="button" aria-label="Good answer" aria-pressed="true"><i class="ri-thumb-up-fill"></i></button>
+                        <button class="btn btn-sm btn-ghost btn-icon" type="button" aria-label="Bad answer" aria-pressed="false"><i class="ri-thumb-down-line"></i></button>
+                        <span class="chat-feedback-sep" aria-hidden="true"></span>
+                        <span class="chat-versions">
+                            <button class="btn btn-sm btn-ghost btn-icon" type="button" aria-label="Previous version"><i class="ri-arrow-left-s-line"></i></button>
+                            2 / 2
+                            <button class="btn btn-sm btn-ghost btn-icon" type="button" aria-label="Next version" disabled><i class="ri-arrow-right-s-line"></i></button>
+                        </span>
+                    </div>
+
+                    <div class="chat-quick-replies">
+                        <button class="chip" type="button">Draft the change</button>
+                        <button class="chip" type="button">Show me the lock</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

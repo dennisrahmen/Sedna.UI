@@ -1,0 +1,68 @@
+@page "/voice"
+
+<CatHead Title="Voice">
+    A spoken conversation with an agent. The app owns the microphone, the audio and the recogniser; the
+    library paints what they report. <strong>One number connects them</strong>: the app writes
+    <code>--level</code>, from 0 to 1, and the avatar, the <a href="/orb">orb</a>,
+    <a href="/mochi">Mochi</a>, the bars and the mic button all move with it.
+</CatHead>
+
+<div class="callout callout-info">
+    <i class="ri-voice-ai-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Writing the level</span>
+        Read the loudness from an <code>AnalyserNode</code> on each animation frame, smooth it, and write it
+        with <code>element.style.setProperty('--level', value)</code> on the session &mdash; once, on the
+        element above everything that follows it. The examples here hold a fixed level so the page stays
+        still. Under <code>prefers-reduced-motion</code> the bars and the button stand at the level
+        instead of easing to it, and the orb holds a still frame.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Voice.Session" Title="A voice session" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.voice-session</code> centres the call: <code>.voice-stage</code> holds the one thing to look
+        at &mdash; an <a href="/agent-avatar"><code>.agent-avatar--hero</code></a>, an
+        <code>.orb--hero</code> or Mochi &mdash; then <code>.voice-who</code>, the
+        <code>.voice-caption</code>, the bars and <code>.voice-controls</code>. The caption is
+        <code>aria-live="polite"</code>, so what the agent says is also read out to a reader who cannot
+        hear it.
+    </p>
+    <p>
+        <code>.voice-caption-interim</code> is the words the recogniser may still change: muted until they
+        settle, so a correction does not look like the agent changing its mind.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Voice.Listening" Title="Listening" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        While the reader speaks, the stage shows the agent listening and the bars are
+        <code>.voice-bars--mine</code>, in the brand colour, so it is clear whose voice is moving them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Voice.MicButton" Title="The mic button" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.btn-mic</code> on any <code>.btn</code>, round. <code>data-state="listening"</code> fills it
+        and rings it out with <code>--level</code>; <code>"muted"</code> paints it in danger. With no
+        microphone, disable it and say why nearby. Change the <code>aria-label</code> with the state &mdash;
+        it names what pressing does next.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Voice.Bars" Title="Live bars" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.voice-bars</code> is a live voice, as many <code>&lt;i&gt;</code> as fit; each bar has its
+        own share of the level, so the row reads as a voice rather than a meter. It is decoration:
+        <code>aria-hidden</code>. A recorded clip is <a href="/audio"><code>.audio-wave</code></a>, which
+        draws a stored waveform rather than a live level.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Voice.Transcript" Title="The transcript" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A <a href="/chat"><code>.chat--flat</code></a> beside the call, with the time into the call in
+        <code>.chat-time</code>. The line still being recognised ends in
+        <code>.voice-caption-interim</code>.
+    </p>
+</CatExample>

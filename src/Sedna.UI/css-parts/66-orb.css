@@ -1,0 +1,64 @@
+/* ── Orb ──────────────────────────────────────────────────────────────────────
+   What an agent is doing, drawn. A tier 3 surface (docs/surfaces.md, docs/orb.md):
+   the app writes one span and changes one attribute, and the library's own module
+   draws the state on a canvas it adds inside.
+
+     <span class="orb orb--lg" data-orb="thinking" role="img" aria-label="Thinking"></span>
+
+   States — what condition the agent is in: idle, thinking, searching, working,
+   listening, speaking, waiting, error, done.
+   Activities — what it is busy with: solving, writing, connecting, planning,
+   shaping, reading, remembering, syncing, analyzing.
+
+   Every state is an orbit around a focal body, the picture the Sedna mark is. Three
+   drawings by size, not one scaled: below 28px the orbits are solid lines, from there
+   dots, finer from 72px.
+
+   ── Colour ──
+   Three roles, read by the script through the element itself, so the variant, the
+   colour-vision and contrast settings, forced colours and an app's brand all reach the
+   canvas. `waiting`, `error` and `done` pick their own family; `data-orb-tone`
+   overrides any state.
+
+   ── Without the script ──
+   The span is a still focal body inside one orbit: something is there and it is an
+   agent, which is what the reader needs before the canvas arrives.
+   ─────────────────────────────────────────────────────────────────────────── */
+.orb {
+    --orb-size: 32px;
+    --orb-body:  var(--agent-from);
+    --orb-dot:   var(--agent-to);
+    --orb-trail: var(--agent-trail);
+    position: relative;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--orb-size);
+    block-size: var(--orb-size);
+    vertical-align: middle;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--orb-body) 0 18%, transparent 19%);
+    box-shadow: inset 0 0 0 1px var(--orb-trail);
+}
+/* The drawing has arrived: the fallback steps aside for the canvas. */
+.orb:has(> canvas) { background: none; box-shadow: none; }
+.orb > canvas { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
+
+.orb--xs   { --orb-size: 16px; }
+.orb--sm   { --orb-size: 20px; }
+.orb--md   { --orb-size: 48px; }
+.orb--lg   { --orb-size: 64px; }
+.orb--xl   { --orb-size: 96px; }
+.orb--hero { --orb-size: 220px; }
+/* In a line of text: the orb's centre on the text's x-height, at the text's size. */
+.orb--inline { --orb-size: 1.15em; vertical-align: -0.22em; }
+
+/* Three states mean something the families already say. */
+.orb[data-orb="waiting"] { --orb-body: var(--warn-fg);   --orb-dot: var(--warn-fg); }
+.orb[data-orb="error"]   { --orb-body: var(--danger-fg); --orb-dot: var(--danger-fg); }
+.orb[data-orb="done"]    { --orb-body: var(--go-fg);     --orb-dot: var(--go-fg); }
+/* Later than the states, so an explicit tone wins. */
+.orb[data-orb-tone="brand"]  { --orb-body: var(--agent-from); --orb-dot: var(--agent-from); }
+.orb[data-orb-tone="mono"]   { --orb-body: var(--fg);         --orb-dot: var(--fg); }
+.orb[data-orb-tone="go"]     { --orb-body: var(--go-fg);      --orb-dot: var(--go-fg); }
+.orb[data-orb-tone="warn"]   { --orb-body: var(--warn-fg);    --orb-dot: var(--warn-fg); }
+.orb[data-orb-tone="danger"] { --orb-body: var(--danger-fg);  --orb-dot: var(--danger-fg); }

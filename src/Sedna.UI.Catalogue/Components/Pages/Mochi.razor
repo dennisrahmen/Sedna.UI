@@ -1,0 +1,224 @@
+@page "/mochi"
+
+<CatHead Title="Mochi">
+    The agent's character: one rigged drawing with arms that turn at the shoulder, legs that bend and
+    step, and a face with its own parts. An action eases Mochi into a pose, a mood sets the face, a tone
+    picks the colours, and a perch puts it on a card &mdash; sitting on it, peeking over it, hanging from
+    it. The app writes a span and three or four attributes; the drawing is the library's.
+</CatHead>
+
+<CatSnippet Name="Mochi/Use.html" Title="Putting it on a page">
+    <p>
+        <code>&lt;SednaMochi /&gt;</code> once in the host page, beside
+        <a href="/state-art"><code>&lt;SednaStateArt /&gt;</code></a>, writes the drawing into the document
+        for the same reason the state illustrations are written there: a same-document
+        <code>&lt;use&gt;</code> is the only kind every engine colours from the page. Every
+        <code>.mochi</code> then references <code>#sedna-mochi</code>. The name is the app's
+        <code>aria-label</code>; say who the agent is and, where it matters, what it is doing.
+    </p>
+</CatSnippet>
+
+<section class="cat-ex" id="playground-section">
+    <h2 id="playground"><CatTitle Text="Playground" /><CatAnchor Id="playground" /></h2>
+    <p>
+        Change the attributes and watch the joints ease from one pose into the next. Mood
+        <code>auto</code> keeps the face the action brings.
+    </p>
+    <div class="ex-demo ex-demo--block ex-demo--pad">
+        <div class="sedna-row-wrap sedna-gap-3" style="align-items: start; column-gap: var(--space-11)">
+            <div style="flex: 0 1 360px; padding-block: 104px 120px; padding-inline-end: 96px">
+                <div class="mochi-host">
+                    <div class="card">
+                        <div class="card-head"><strong>Order sync</strong><span class="badge badge-go">Healthy</span></div>
+                        <div class="card-body">
+                            <div class="kv"><span class="k">Last run</span><span class="v">09:30</span></div>
+                            <div class="kv"><span class="k">Duration</span><span class="v">4 min 12 s</span></div>
+                        </div>
+                        <div class="card-foot">
+                            <button class="btn btn-sm btn-go sedna-push" type="button" style="anchor-name: --mochi-playground">Run now</button>
+                        </div>
+                    </div>
+                    <span class="mochi" id="mochi-playground" data-perch="@(_perch == "none" ? null : _perch)" data-action="@_action"
+                          data-mood="@(_mood == "auto" ? null : _mood)" data-tone="@(_tone == "pink" ? null : _tone)"
+                          data-facing="@(_perch == "point" ? "start" : null)"
+                          style="@(_perch == "point" ? "position-anchor: --mochi-playground" : null)"
+                          role="img" aria-label="Ops agent">
+                        <svg viewBox="0 0 160 160" aria-hidden="true"><use href="#sedna-mochi" /></svg>
+                    </span>
+                </div>
+            </div>
+            <div class="sedna-col sedna-gap-4" style="flex: 1 1 320px; min-width: 0">
+                @foreach (var (name, values, current, set) in Controls)
+                {
+                    <div class="sedna-col sedna-gap-2">
+                        <span class="form-label">@name</span>
+                        <div class="chip-set" role="group" aria-label="@name">
+                            @foreach (var value in values)
+                            {
+                                <button class="chip" type="button" aria-pressed="@(value == current() ? "true" : "false")"
+                                        @onclick="() => set(value)">@value</button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <CatCode Source="@Markup" Label="Playground — markup" />
+</section>
+
+<CatExample TExample="Examples.Mochi.Hello" Title="One Mochi" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.mochi</code> is 112px; <code>--size</code> sets any other. Without an attribute Mochi
+        stands, breathes and blinks.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.Actions" Title="Actions" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-action</code> is what the agent is doing: <code>idle</code>, <code>wave</code>,
+        <code>point</code>, <code>think</code>, <code>work</code>, <code>talk</code>, <code>listen</code>,
+        <code>celebrate</code>, <code>oops</code>, <code>sleep</code>, <code>surprised</code>,
+        <code>done</code> and <code>love</code>. Each brings a pose, a face and sometimes a prop &mdash; a
+        thought bubble, a laptop, confetti. <code>think</code>, <code>work</code>, <code>listen</code> and
+        <code>sleep</code> are done sitting down.
+    </p>
+    <p>
+        <strong>Changing it eases the joints</strong> from the old pose into the new one rather than swapping
+        a picture, so set it as the agent's work moves on. <code>talk</code> opens the mouth by
+        <code>--level</code>, the number the app's audio code writes for <a href="/voice">voice</a>, and
+        chatters gently without one.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.Moods" Title="Moods" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-mood</code> sets the face alone, over whatever the action chose: <code>neutral</code>,
+        <code>happy</code>, <code>excited</code>, <code>surprised</code>, <code>curious</code>,
+        <code>focused</code>, <code>worried</code>, <code>sleepy</code>, <code>love</code> and
+        <code>wink</code>. Leave it off and the action brings its own. Eyes, brows, mouth and cheeks
+        cross-fade.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.Tones" Title="Tones" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-tone</code> picks the body, the limbs and a headset in a colour that goes with them:
+        <code>pink</code>, the default, <code>mint</code>, <code>sky</code>, <code>lemon</code>,
+        <code>lilac</code> and <code>coral</code>. Like an <a href="/agent-avatar">agent avatar's</a>
+        tone, it is identity: give each agent one and keep it. Mochi keeps its colours under every theme
+        &mdash; the <code>--mochi-*</code> tokens on the <a href="/tokens">Tokens</a> page.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.Sizes" Title="Sizes, and a bust" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.mochi--sm</code> (64px), <code>--md</code> (88px), the bare <code>.mochi</code> (112px),
+        <code>--lg</code> (140px) and <code>.mochi--xl</code> (220px), for a page that is mostly Mochi. <code>.mochi--bust</code> with
+        <code>viewBox="24 30 112 112"</code> on the <code>&lt;svg&gt;</code> is head and shoulders in a
+        circle, for where an <a href="/avatar">avatar</a> would go.
+    </p>
+</CatExample>
+
+<h2 id="perches">Perches</h2>
+<CatExample TExample="Examples.Mochi.Perches" Title="On a card" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Mochi and the element it perches on share a <code>.mochi-host</code>; <code>data-perch</code> on the
+        Mochi says where. Each perch puts one line of the drawing on one edge of the element, so the seat,
+        the hands and the feet meet the edge exactly at any size: <code>sit</code> on the top edge,
+        <code>peek</code> and <code>look</code> over it, <code>side</code> from behind the end edge,
+        <code>stand</code> on the bottom edge and <code>hang</code> from it. What would be behind the
+        element is clipped away on the drawing's own grid, along the same line, and the hands that hold
+        the edge are drawn in front of it.
+    </p>
+    <p>
+        <code>--perch-inset</code> on the Mochi moves it along its edge &mdash; 24px from the end by
+        default. Leave room for it: a perch draws outside the element, and the host does not grow.
+        <code>wave</code> or <code>point</code> on <code>peek</code>, <code>look</code> or <code>hang</code>
+        lets go with one hand.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.Point" Title="Pointing at something" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-perch="point"</code> stands Mochi beside whatever the app names as its anchor, with
+        its fingertip on the anchor's edge and centred on it. Give the target an
+        <code>anchor-name</code> and the Mochi the matching <code>position-anchor</code>; CSS anchor
+        positioning does the rest, with no script, and the finger follows the target if it moves.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.PointFacing" Title="Pointing from the other side" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-facing="start"</code> turns Mochi round, to point from after the target instead of
+        before it. In a right-to-left page the two sides swap with everything else.
+    </p>
+</CatExample>
+
+<h2 id="in-context">In context</h2>
+<CatExample TExample="Examples.Mochi.InChat" Title="In a conversation" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A <code>.mochi--bust</code> takes the avatar's place in a <a href="/chat">chat</a>. Set it to
+        <code>talk</code> on the message being spoken, and back to <code>idle</code> when it is done.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.Empty" Title="On an empty state" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Mochi asleep on an <a href="/empty-state">empty state</a> says the agent has nothing to do,
+        without a sentence about it. <code>--perch-inset</code> centres it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.Notices" Title="Beside a notice" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        One Mochi per row of a <a href="/list">list</a> of what the agents finished, got stuck on or are
+        waiting for. The words carry the news; Mochi carries how it feels.
+    </p>
+</CatExample>
+
+<h2 id="motion">Motion</h2>
+<p>
+    Every pose change eases on the joints, and every action has a loop of its own &mdash; a wave, a bounce,
+    feet kicking while it hangs. Pose changes ride <code>--motion-slow</code>, so an app that slows or
+    stops its motion slows or stops them too. Under <code>prefers-reduced-motion</code> Mochi still
+    changes pose, face and props, but at once, and nothing loops.
+</p>
+
+@code {
+    private static readonly string[] Perches = ["none", "sit", "peek", "look", "side", "stand", "hang", "point"];
+    private static readonly string[] ActionNames = ["idle", "wave", "point", "think", "work", "talk", "listen", "celebrate", "oops", "sleep", "surprised", "done", "love"];
+    private static readonly string[] MoodNames = ["auto", "neutral", "happy", "excited", "surprised", "curious", "focused", "worried", "sleepy", "love", "wink"];
+    private static readonly string[] ToneNames = ["pink", "mint", "sky", "lemon", "lilac", "coral"];
+
+    private string _perch = "sit";
+    private string _action = "idle";
+    private string _mood = "auto";
+    private string _tone = "pink";
+
+    private IEnumerable<(string Name, string[] Values, Func<string> Current, Action<string> Set)> Controls =>
+    [
+        ("Perch", Perches, () => _perch, v => _perch = v),
+        ("Action", ActionNames, () => _action, v => _action = v),
+        ("Mood", MoodNames, () => _mood, v => _mood = v),
+        ("Tone", ToneNames, () => _tone, v => _tone = v),
+    ];
+
+    /// <summary>The markup the playground is showing, as an app would write it.</summary>
+    private string Markup
+    {
+        get
+        {
+            var attrs = new List<string>();
+            if (_perch != "none") attrs.Add($"data-perch=\"{_perch}\"");
+            if (_perch == "point") attrs.Add("data-facing=\"start\"");
+            attrs.Add($"data-action=\"{_action}\"");
+            if (_mood != "auto") attrs.Add($"data-mood=\"{_mood}\"");
+            if (_tone != "pink") attrs.Add($"data-tone=\"{_tone}\"");
+            var style = _perch == "point" ? " style=\"position-anchor: --run-now\"" : "";
+            return $"<span class=\"mochi\" {string.Join(" ", attrs)}{style} role=\"img\" aria-label=\"Ops agent\">\n"
+                + "    <svg viewBox=\"0 0 160 160\" aria-hidden=\"true\"><use href=\"#sedna-mochi\" /></svg>\n"
+                + "</span>";
+        }
+    }
+}

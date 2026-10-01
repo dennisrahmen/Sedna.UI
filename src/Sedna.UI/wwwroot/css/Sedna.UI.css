@@ -74,11 +74,19 @@
      64-media-player.css
      64-palette-spotlight.css
      65-popover.css
+     66-agent-activity.css
+     66-agent-avatar.css
+     66-agent-steps.css
      66-calendar.css
      66-chat.css
+     66-orb.css
      66-status-indicator.css
+     67-agent-chat.css
      67-output.css
+     67-voice.css
      68-guard.css
+     68-mochi.css
+     69-beam.css
      69-timeline.css
      70-rtl.css
      71-forced-colors.css
@@ -798,6 +806,9 @@
     --progress-duration: 1.1s;
     --skeleton-duration: 1.4s;
     --pulse-duration:    1.6s;
+    --shimmer-duration:  2.2s;   /* .text-shimmer, words an agent is still deciding */
+    --caret-duration:    1s;     /* the caret on a streaming answer */
+    --beam-duration:     3s;     /* one turn of a .beam; --slow doubles it */
 
     /* ── Corner rounding ────────────────────────────────────────────────────
        Named by role rather than by size, because "square off the controls" is the
@@ -841,6 +852,77 @@
        every line inside and aligns the row's slots to the first line; set on one
        `.list-title` or `.list-sub` it shapes that line alone. */
     --list-lines: 1;
+
+    /* ── Agents ─────────────────────────────────────────────────────────────
+       The two bodies of the Sedna mark: Sedna Red is the focal body, Orbit Blue the
+       orbit. The orb, the beam, the shimmer and the reasoning all draw with these two,
+       so a theme that re-points them re-colours every agent part at once. */
+    --agent-from:  var(--coral-500);
+    --agent-to:    var(--orbit-400);
+    /* The voice level, 0 to 1, that the app's audio code writes on any element: the
+       orb, the avatar, the bars, the mic button and Mochi below it all follow it.
+       Unset here, on purpose — with no level an orb moves on its own and every other
+       part reads silence. */
+    --level: initial;
+    /* The orb's orbit paths: the page's own text colour, faint. */
+    --agent-trail: color-mix(in srgb, var(--fg) 30%, transparent);
+    --agent-tint:  color-mix(in srgb, var(--agent-to) 12%, transparent);
+    --agent-edge:  color-mix(in srgb, var(--agent-to) 35%, transparent);
+    /* The beam: a warm tail running into the orbit's blue, and the breath of its glow. */
+    --agent-beam-tail: color-mix(in srgb, var(--agent-from) 85%, transparent);
+    --agent-glow:      color-mix(in srgb, var(--agent-to) 55%, transparent);
+    --agent-glow-dim:  color-mix(in srgb, var(--agent-to) 25%, transparent);
+    /* A placeholder the agent is filling: the skeleton, warmed at its sheen. */
+    --agent-skeleton-cool: color-mix(in srgb, var(--agent-to) 24%, var(--skeleton-bg));
+    --agent-skeleton-warm: color-mix(in srgb, var(--agent-from) 24%, var(--skeleton-bg));
+    /* An agent avatar's sphere: three stops per identity tone, lit from inside, and the
+       glow a speaking sphere gives off in its own colour. */
+    --agent-sedna-1:   var(--coral-400);  --agent-sedna-2:   var(--violet-500); --agent-sedna-3:   var(--orbit-400);
+    --agent-aurora-1:  var(--teal-300);   --agent-aurora-2:  var(--cyan-600);   --agent-aurora-3:  var(--violet-400);
+    --agent-ember-1:   var(--amber-300);  --agent-ember-2:   var(--coral-500);  --agent-ember-3:   var(--crimson-600);
+    --agent-orbit-1:   var(--orbit-200);  --agent-orbit-2:   var(--orbit-500);  --agent-orbit-3:   var(--indigo-600);
+    --agent-nebula-1:  var(--violet-300); --agent-nebula-2:  var(--indigo-500); --agent-nebula-3:  var(--coral-400);
+    --agent-glacier-1: var(--slate-100);  --agent-glacier-2: var(--orbit-300);  --agent-glacier-3: var(--slate-500);
+    --agent-sedna-glow:   color-mix(in srgb, var(--violet-500) 55%, transparent);
+    --agent-aurora-glow:  color-mix(in srgb, var(--cyan-600) 55%, transparent);
+    --agent-ember-glow:   color-mix(in srgb, var(--coral-500) 55%, transparent);
+    --agent-orbit-glow:   color-mix(in srgb, var(--orbit-500) 55%, transparent);
+    --agent-nebula-glow:  color-mix(in srgb, var(--indigo-500) 55%, transparent);
+    --agent-glacier-glow: color-mix(in srgb, var(--orbit-300) 55%, transparent);
+    --agent-sphere-gloss: color-mix(in srgb, var(--white) 42%, transparent);
+    --agent-sphere-shade: color-mix(in srgb, var(--black) 26%, transparent);
+    --agent-sphere-rim:   color-mix(in srgb, var(--white) 14%, transparent);
+    --agent-sphere-ring:  color-mix(in srgb, var(--agent-to) 30%, transparent);
+    --agent-sphere-halo:  color-mix(in srgb, var(--agent-to) 70%, transparent);
+
+    /* ── Mochi ──────────────────────────────────────────────────────────────
+       The agent's character keeps its own colours under every theme and both
+       variants: a theme replaces the palette, and Mochi is not the brand. So these
+       are literals in this tier rather than palette steps a theme would swap — pink
+       Mochi stays pink in Forest. Each tone is a body and the limb a shade darker;
+       the headset takes the complementary tone. */
+    --mochi-pink:  rgb(244, 166, 188); --mochi-pink-limb:  rgb(227, 141, 166);
+    --mochi-mint:  rgb(142, 209, 176); --mochi-mint-limb:  rgb(116, 188, 153);
+    --mochi-sky:   rgb(157, 184, 242); --mochi-sky-limb:   rgb(129, 157, 219);
+    --mochi-lemon: rgb(255, 210, 122); --mochi-lemon-limb: rgb(237, 185, 86);
+    --mochi-lilac: rgb(198, 173, 238); --mochi-lilac-limb: rgb(171, 143, 218);
+    --mochi-coral: rgb(255, 154, 130); --mochi-coral-limb: rgb(240, 124, 99);
+    --mochi-ink:     rgb(42, 39, 51);
+    --mochi-band:    rgb(58, 64, 82);
+    --mochi-leg-hi:  rgb(74, 81, 100);
+    --mochi-leg-mid: rgb(52, 58, 75);
+    --mochi-leg-lo:  rgb(38, 42, 54);
+    --mochi-blush:   rgb(242, 143, 170);
+    --mochi-tongue:  rgb(240, 122, 151);
+    --mochi-shade:   rgb(27, 21, 48);
+    --mochi-light:   var(--white);
+    --mochi-dark:    var(--black);
+    --mochi-bubble:  var(--white);
+    --mochi-bubble-edge: rgb(217, 210, 214);
+    --mochi-sweat:   rgb(169, 210, 242);
+    --mochi-zzz:     rgb(154, 144, 176);
+    --mochi-deck:    rgb(90, 97, 117);
+    --mochi-spark:   rgb(255, 200, 92);
 
     /* ── Metrics ────────────────────────────────────────────────────────── */
     --page-max: 1800px;    /* content column cap on ultra-wide screens */
@@ -1046,6 +1128,9 @@
     --badge-bg:      rgba(15, 23, 42, 0.04);    /* slate-900 */
     --table-head-bg: rgba(15, 23, 42, 0.03);    /* slate-900 */
 
+    /* Orbit Blue at full strength is too pale to read as a line on white; the orbit
+       takes the step that holds 3:1 against the light card. */
+    --agent-to:       var(--orbit-600);
     --skeleton-bg:    rgba(15, 23, 42, 0.06);    /* slate-900 */
     --skeleton-sheen: rgba(15, 23, 42, 0.11);    /* slate-900 */
     --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */
@@ -12703,6 +12788,391 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .popover--flush > .table tr:last-child > td { border-bottom: none; }
 }
 
+/* ── 66-agent-activity.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Agent activity ───────────────────────────────────────────────────────────
+   Signals that an agent is working and roughly on what, and how far to trust what it
+   gave back. The beam that runs a busy element's border is `.beam`, in 69-beam.css —
+   last in the paint layer, because it draws over the element's own background.
+
+   ── Shimmer ──
+   Words still being decided: a light passing along the text.
+     <span class="text-shimmer">Thinking</span>
+
+   ── Status ──
+   What the agent is doing now: an orb (or Mochi), a label in the app's words, the time
+   it has been running and, at the large size, a stop button.
+     <span class="agent-status">
+       <span class="orb" data-orb="searching"></span>
+       <span class="agent-status-label text-shimmer">Searching the runbook</span>
+       <span class="agent-status-time">0:07</span>
+     </span>
+   The orb sits concentric with the pill's rounded end at every height: inset by
+   (height - border - orb) / 2 on every side. A stop button at the end does the same.
+
+   ── Disclosure and certainty ──
+   `.badge-ai` says a piece of content was generated. `.confidence[data-level]` (1–3)
+   says how sure the agent is, in bars and in the app's words beside them.
+   `.context-ring` shows how much of a context window is used, from `--value` (0–100).
+   `.skeleton--agent` is a placeholder the agent is filling.
+   ─────────────────────────────────────────────────────────────────────────── */
+.text-shimmer {
+    background: linear-gradient(90deg, var(--muted) 0 38%, var(--fg) 50%, var(--muted) 62% 100%) 0 0 / 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: text-shimmer var(--shimmer-duration) linear infinite;
+}
+@keyframes text-shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+.agent-status {
+    --status-h: 32px;
+    --status-orb: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    block-size: var(--status-h);
+    max-inline-size: 100%;
+    padding-inline: calc((var(--status-h) - var(--status-orb)) / 2 - 1px) var(--space-7);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface-raised-1);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    line-height: 1;
+    white-space: nowrap;
+}
+.agent-status > .orb { --orb-size: var(--status-orb); }
+.agent-status-label { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; padding-block: var(--space-1); }
+.agent-status-time { color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+.agent-status:has(> .btn:last-child) { padding-inline-end: calc((var(--status-h) - var(--control-height-sm)) / 2 - 1px); }
+.agent-status > .btn { border-radius: 50%; }
+.agent-status--lg { --status-h: 44px; --status-orb: 32px; gap: var(--space-6); font-size: var(--text-6); }
+.agent-status--xl { --status-h: 64px; --status-orb: 48px; gap: var(--space-7); padding-inline-end: var(--space-10); font-size: var(--text-8); }
+.agent-status--warn { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-fg); }
+
+.badge-ai {
+    background: var(--agent-tint);
+    border-color: var(--agent-edge);
+    color: var(--fg-soft);
+}
+.badge-ai > i { color: var(--agent-from); }
+
+.confidence { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); color: var(--muted); line-height: 1; }
+.confidence-bars { display: inline-flex; align-items: flex-end; gap: var(--space-1); block-size: 12px; }
+.confidence-bars > i { inline-size: 3px; border-radius: 1px; background: var(--border-strong); }
+.confidence-bars > i:nth-child(1) { block-size: 5px; }
+.confidence-bars > i:nth-child(2) { block-size: 8px; }
+.confidence-bars > i:nth-child(3) { block-size: 12px; }
+.confidence[data-level="1"] .confidence-bars > i:nth-child(-n+1) { background: var(--warn-fg); }
+.confidence[data-level="2"] .confidence-bars > i:nth-child(-n+2) { background: var(--info-fg); }
+.confidence[data-level="3"] .confidence-bars > i:nth-child(-n+3) { background: var(--go-fg); }
+
+/* The ring is a conic fill masked to an annulus; the mask needs only an opaque
+   colour, and the element's own text colour is one. Pair it with role="meter". */
+.context-ring {
+    --value: 0;
+    --ring: var(--agent-to);
+    --ring-size: 20px;
+    --ring-width: 3px;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--ring-size);
+    block-size: var(--ring-size);
+    border-radius: 50%;
+    background: conic-gradient(var(--ring) calc(var(--value) * 1%), var(--surface-strong) 0);
+    mask: radial-gradient(farthest-side, transparent calc(100% - var(--ring-width) - 0.5px), currentColor calc(100% - var(--ring-width)));
+}
+.context-ring--warn   { --ring: var(--warn-fg); }
+.context-ring--danger { --ring: var(--danger-fg); }
+.context-ring--lg { --ring-size: 56px; --ring-width: 5px; }
+
+.skeleton--agent {
+    background-image: linear-gradient(90deg,
+        var(--skeleton-bg) 0%,
+        var(--agent-skeleton-cool) 40%,
+        var(--agent-skeleton-warm) 60%,
+        var(--skeleton-bg) 100%);
+}
+}
+
+/* ── 66-agent-avatar.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Agent avatar ─────────────────────────────────────────────────────────────
+   Who an agent is: a sphere lit from inside, in one of six identity tones. Pure CSS —
+   no image and no script — so it is there in the first paint and follows the theme.
+
+     <span class="agent-avatar" data-tone="aurora" role="img" aria-label="Research agent"></span>
+
+   Tones: sedna (the default), aurora, ember, orbit, nebula, glacier.
+   States change how it moves, never its colour: thinking spins faster, working wears
+   a pulsing ring, listening and speaking follow `--level` (0–1, written by the app's
+   own audio code), offline is grey and still.
+
+   Beside a person it is still a circle, so it fits an `.avatar-group`: write
+   `class="avatar agent-avatar"` and the group's overlap and cut-out apply.
+
+   An avatar is never the only carrier of a name — the same rule as `.avatar`.
+   ─────────────────────────────────────────────────────────────────────────── */
+.agent-avatar {
+    --size: var(--avatar-size, 32px);
+    --spin: 18s;
+    --flow: 7s;
+    --c1: var(--agent-sedna-1);
+    --c2: var(--agent-sedna-2);
+    --c3: var(--agent-sedna-3);
+    --c-glow: var(--agent-sedna-glow);
+    position: relative;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--size);
+    block-size: var(--size);
+    vertical-align: middle;
+    border-radius: 50%;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--c2);
+    transition: box-shadow 80ms linear, filter var(--motion-mid), opacity var(--motion-mid);
+}
+/* The fluid: three lights turning slowly inside the sphere. */
+.agent-avatar::before {
+    content: '';
+    position: absolute;
+    inset: -30%;
+    background:
+        radial-gradient(circle at 30% 28%, var(--c1) 0, transparent 36%),
+        radial-gradient(circle at 72% 70%, var(--c3) 0, transparent 40%),
+        conic-gradient(from 40deg, var(--c2), var(--c1), var(--c3), var(--c2), var(--c3), var(--c1), var(--c2));
+    filter: blur(calc(var(--size) * 0.13)) saturate(1.15);
+    scale: calc(1 + var(--level, 0) * 0.22);
+    animation: agent-avatar-swirl var(--spin) linear infinite, agent-avatar-flow var(--flow) ease-in-out infinite alternate;
+    transition: scale 80ms linear;
+}
+/* The glass: a highlight up and to the left, the edge falling away. */
+.agent-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 24%, var(--agent-sphere-gloss) 0, transparent 30%),
+        radial-gradient(circle at 50% 46%, transparent 56%, var(--agent-sphere-shade) 100%);
+    box-shadow: inset 0 0 0 1px var(--agent-sphere-rim);
+}
+@keyframes agent-avatar-swirl { to { rotate: 1turn; } }
+@keyframes agent-avatar-flow  { to { translate: 6% -4%; } }
+
+.agent-avatar--xs   { --size: 20px; }
+.agent-avatar--sm   { --size: 24px; }
+.agent-avatar--lg   { --size: 40px; }
+.agent-avatar--xl   { --size: 56px; }
+.agent-avatar--2xl  { --size: 96px; }
+.agent-avatar--hero { --size: 200px; }
+
+.agent-avatar[data-tone="aurora"]  { --c1: var(--agent-aurora-1);  --c2: var(--agent-aurora-2);  --c3: var(--agent-aurora-3);  --c-glow: var(--agent-aurora-glow); }
+.agent-avatar[data-tone="ember"]   { --c1: var(--agent-ember-1);   --c2: var(--agent-ember-2);   --c3: var(--agent-ember-3);   --c-glow: var(--agent-ember-glow); }
+.agent-avatar[data-tone="orbit"]   { --c1: var(--agent-orbit-1);   --c2: var(--agent-orbit-2);   --c3: var(--agent-orbit-3);   --c-glow: var(--agent-orbit-glow); }
+.agent-avatar[data-tone="nebula"]  { --c1: var(--agent-nebula-1);  --c2: var(--agent-nebula-2);  --c3: var(--agent-nebula-3);  --c-glow: var(--agent-nebula-glow); }
+.agent-avatar[data-tone="glacier"] { --c1: var(--agent-glacier-1); --c2: var(--agent-glacier-2); --c3: var(--agent-glacier-3); --c-glow: var(--agent-glacier-glow); }
+
+.agent-avatar[data-state="thinking"] { --spin: 3.2s; }
+.agent-avatar[data-state="listening"] {
+    --spin: 9s;
+    box-shadow: 0 0 0 calc(2px + var(--level, 0) * var(--size) * 0.06) var(--agent-sphere-ring);
+}
+.agent-avatar[data-state="speaking"] {
+    --spin: 7s;
+    box-shadow: 0 0 calc(var(--size) * (0.08 + var(--level, 0) * 0.28)) calc(var(--level, 0) * var(--size) * 0.04) var(--c-glow);
+}
+.agent-avatar[data-state="working"] {
+    --spin: 5s;
+    outline: 2px solid var(--agent-sphere-halo);
+    outline-offset: 2px;
+    animation: agent-avatar-ring var(--pulse-duration) ease-in-out infinite;
+}
+@keyframes agent-avatar-ring { 50% { outline-color: var(--agent-sphere-ring); } }
+.agent-avatar[data-state="offline"] { filter: grayscale(1); opacity: 0.55; }
+.agent-avatar[data-state="offline"]::before { animation-play-state: paused; }
+}
+
+/* ── 66-agent-steps.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Agent steps ──────────────────────────────────────────────────────────────
+   What an agent thought, which tools it ran, what it intends to do, and what it asks
+   permission for. All of it markup the app writes, in the app's words.
+
+   ── Reasoning ──
+   The thinking behind an answer, folded away. A native <details>, so it opens from the
+   keyboard and with no script.
+     <details class="reasoning">
+       <summary><i class="ri-arrow-right-s-line reasoning-chevron"></i>Thought for 4 s</summary>
+       <div class="reasoning-body"><p>…</p></div>
+     </details>
+
+   ── Steps ──
+   The tool calls behind an answer, in order, each a <details> that opens on its input
+   and output. `data-state` on each <li> — pending, running, done, failed — the same
+   vocabulary as `.steps`. A 20px marker column with a 2px connector centred under it.
+     <ol class="agent-steps">
+       <li data-state="done">
+         <span class="agent-step-icon"><i class="ri-check-line"></i></span>
+         <details class="agent-step">
+           <summary><span class="agent-step-label"><i class="ri-search-line"></i>Searched the runbook</span>
+                    <span class="agent-step-meta">4 results · 1.2 s</span></summary>
+           <pre class="code-block"><code>…</code></pre>
+         </details>
+       </li>
+     </ol>
+
+   ── Plan ──
+   What the agent means to do and how far it got: `data-state` on each <li> — done,
+   current, skipped, or none for one still to come.
+
+   ── Approval ──
+   The agent asks before it acts. `.agent-approval` on a `.card`; `data-state="approved"`
+   or `"denied"` once the reader has answered, which swaps the actions for the result
+   line. Approve is `.btn-go` — it lets the action out — and taking control back is
+   `.btn-warn`, the library's own meanings for both.
+   ─────────────────────────────────────────────────────────────────────────── */
+.reasoning { font-size: var(--text-4); }
+.reasoning > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    inline-size: fit-content;
+    block-size: 22px;
+    color: var(--muted);
+    cursor: pointer;
+    list-style: none;
+    transition: color var(--motion-fast);
+}
+.reasoning > summary::-webkit-details-marker { display: none; }
+.reasoning > summary:hover { color: var(--fg); }
+.reasoning > summary:focus-visible { outline: 2px solid var(--brand-ring-soft); outline-offset: 2px; border-radius: var(--radius-small); }
+.reasoning-chevron { inline-size: 20px; text-align: center; font-size: var(--text-6); transition: rotate var(--motion-fast); }
+.reasoning[open] .reasoning-chevron { rotate: 90deg; }
+.reasoning-body {
+    margin-block: var(--space-4) var(--space-2);
+    margin-inline-start: calc(var(--space-5) - 1px);
+    padding-inline-start: calc(var(--space-7) + 1px);
+    border-inline-start: 2px solid var(--border);
+    color: var(--muted);
+    line-height: 1.65;
+}
+.reasoning-body > p { margin: 0 0 var(--space-4); }
+.reasoning-body > p:last-child { margin: 0; }
+
+.agent-steps { --step-icon: 20px; list-style: none; margin: 0; padding: 0; font-size: var(--text-4); }
+.agent-steps > li { position: relative; padding-inline-start: calc(var(--step-icon) + var(--space-4)); padding-block-end: var(--space-5); }
+.agent-steps > li:last-child { padding-block-end: 0; }
+.agent-steps > li:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 9px;
+    inset-block: 24px 4px;
+    inline-size: 2px;
+    border-radius: 1px;
+    background: var(--border);
+}
+.agent-step-icon {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 1px;
+    display: grid;
+    place-items: center;
+    inline-size: var(--step-icon);
+    block-size: var(--step-icon);
+    border-radius: 50%;
+    background: var(--surface-strong);
+    color: var(--muted);
+    box-shadow: inset 0 0 0 1px var(--border);
+    font-size: var(--text-3);
+    line-height: 1;
+}
+.agent-steps > li[data-state="done"]    .agent-step-icon { background: var(--go-bg); color: var(--go-fg); box-shadow: none; }
+.agent-steps > li[data-state="failed"]  .agent-step-icon { background: var(--danger-bg); color: var(--danger-fg); box-shadow: none; }
+.agent-steps > li[data-state="running"] .agent-step-icon { background: none; box-shadow: none; }
+.agent-steps > li[data-state="pending"] { color: var(--muted); }
+.agent-step > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-block-size: 22px;
+    cursor: pointer;
+    list-style: none;
+}
+.agent-step > summary::-webkit-details-marker { display: none; }
+.agent-step-label { display: flex; align-items: center; gap: var(--space-3); min-inline-size: 0; }
+.agent-step-label > i { color: var(--muted); font-size: var(--text-5); }
+.agent-step-meta { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.agent-step > .code-block { margin-block-start: var(--space-4); }
+
+.agent-plan { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); font-size: var(--text-4); }
+.agent-plan > li { display: flex; align-items: center; gap: var(--space-5); min-block-size: 20px; }
+.agent-plan-mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 20px;
+    block-size: 20px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px var(--border-strong);
+    font-size: var(--text-3);
+    line-height: 1;
+}
+.agent-plan > li[data-state="done"] { color: var(--muted); }
+.agent-plan > li[data-state="done"] .agent-plan-mark { background: var(--go-solid); color: var(--on-solid); box-shadow: none; }
+.agent-plan > li[data-state="current"] { color: var(--fg); font-weight: 600; }
+.agent-plan > li[data-state="current"] .agent-plan-mark { box-shadow: none; }
+.agent-plan > li[data-state="skipped"] { color: var(--muted); }
+.agent-plan > li[data-state="skipped"] .agent-plan-label { text-decoration: line-through; }
+.agent-plan > li[data-state="skipped"] .agent-plan-mark { box-shadow: inset 0 0 0 1.5px var(--border); }
+
+.agent-approval { border-color: var(--warn-border); }
+.agent-approval-head { display: flex; align-items: center; gap: var(--space-5); min-inline-size: 0; }
+.agent-approval-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: var(--radius-panel);
+    background: var(--warn-bg);
+    color: var(--warn-fg);
+    font-size: var(--text-8);
+}
+.agent-approval-title { display: grid; gap: var(--space-1); min-inline-size: 0; }
+.agent-approval-title > strong { font-size: var(--text-5); }
+.agent-approval-title > span { color: var(--muted); font-size: var(--text-3); }
+/* One change the agent wants to make: what, from, to. */
+.agent-approval-change {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    background: var(--surface-soft);
+    font-size: var(--text-4);
+    font-variant-numeric: tabular-nums;
+}
+.agent-approval-change > :first-child { color: var(--muted); font-family: var(--font-mono); font-size: var(--text-3); overflow-wrap: anywhere; }
+.agent-approval-change > s,
+.agent-approval-change > i { color: var(--muted); }
+.agent-approval-change > strong { color: var(--fg); }
+.agent-approval-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); inline-size: 100%; }
+.agent-approval-result { display: none; align-items: center; gap: var(--space-3); inline-size: 100%; font-size: var(--text-4); font-weight: 600; }
+.agent-approval[data-state] .agent-approval-actions { display: none; }
+.agent-approval[data-state] .agent-approval-result { display: flex; }
+.agent-approval[data-state="approved"] { border-color: var(--go-border); }
+.agent-approval[data-state="approved"] .agent-approval-result { color: var(--go-fg); }
+.agent-approval[data-state="approved"] .agent-approval-icon { background: var(--go-bg); color: var(--go-fg); }
+.agent-approval[data-state="denied"] { border-color: var(--border); }
+.agent-approval[data-state="denied"] .agent-approval-result { color: var(--muted); }
+.agent-approval[data-state="denied"] .agent-approval-icon { background: var(--surface-strong); color: var(--muted); }
+}
+
 /* ── 66-calendar.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Calendar ───────────────────────────────────────────────────────────────
@@ -14199,6 +14669,74 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 }
 }
 
+/* ── 66-orb.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Orb ──────────────────────────────────────────────────────────────────────
+   What an agent is doing, drawn. A tier 3 surface (docs/surfaces.md, docs/orb.md):
+   the app writes one span and changes one attribute, and the library's own module
+   draws the state on a canvas it adds inside.
+
+     <span class="orb orb--lg" data-orb="thinking" role="img" aria-label="Thinking"></span>
+
+   States — what condition the agent is in: idle, thinking, searching, working,
+   listening, speaking, waiting, error, done.
+   Activities — what it is busy with: solving, writing, connecting, planning,
+   shaping, reading, remembering, syncing, analyzing.
+
+   Every state is an orbit around a focal body, the picture the Sedna mark is. Three
+   drawings by size, not one scaled: below 28px the orbits are solid lines, from there
+   dots, finer from 72px.
+
+   ── Colour ──
+   Three roles, read by the script through the element itself, so the variant, the
+   colour-vision and contrast settings, forced colours and an app's brand all reach the
+   canvas. `waiting`, `error` and `done` pick their own family; `data-orb-tone`
+   overrides any state.
+
+   ── Without the script ──
+   The span is a still focal body inside one orbit: something is there and it is an
+   agent, which is what the reader needs before the canvas arrives.
+   ─────────────────────────────────────────────────────────────────────────── */
+.orb {
+    --orb-size: 32px;
+    --orb-body:  var(--agent-from);
+    --orb-dot:   var(--agent-to);
+    --orb-trail: var(--agent-trail);
+    position: relative;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--orb-size);
+    block-size: var(--orb-size);
+    vertical-align: middle;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--orb-body) 0 18%, transparent 19%);
+    box-shadow: inset 0 0 0 1px var(--orb-trail);
+}
+/* The drawing has arrived: the fallback steps aside for the canvas. */
+.orb:has(> canvas) { background: none; box-shadow: none; }
+.orb > canvas { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
+
+.orb--xs   { --orb-size: 16px; }
+.orb--sm   { --orb-size: 20px; }
+.orb--md   { --orb-size: 48px; }
+.orb--lg   { --orb-size: 64px; }
+.orb--xl   { --orb-size: 96px; }
+.orb--hero { --orb-size: 220px; }
+/* In a line of text: the orb's centre on the text's x-height, at the text's size. */
+.orb--inline { --orb-size: 1.15em; vertical-align: -0.22em; }
+
+/* Three states mean something the families already say. */
+.orb[data-orb="waiting"] { --orb-body: var(--warn-fg);   --orb-dot: var(--warn-fg); }
+.orb[data-orb="error"]   { --orb-body: var(--danger-fg); --orb-dot: var(--danger-fg); }
+.orb[data-orb="done"]    { --orb-body: var(--go-fg);     --orb-dot: var(--go-fg); }
+/* Later than the states, so an explicit tone wins. */
+.orb[data-orb-tone="brand"]  { --orb-body: var(--agent-from); --orb-dot: var(--agent-from); }
+.orb[data-orb-tone="mono"]   { --orb-body: var(--fg);         --orb-dot: var(--fg); }
+.orb[data-orb-tone="go"]     { --orb-body: var(--go-fg);      --orb-dot: var(--go-fg); }
+.orb[data-orb-tone="warn"]   { --orb-body: var(--warn-fg);    --orb-dot: var(--warn-fg); }
+.orb[data-orb-tone="danger"] { --orb-body: var(--danger-fg);  --orb-dot: var(--danger-fg); }
+}
+
 /* ── 66-status-indicator.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Status indicator ───────────────────────────────────────────────────────
@@ -14279,6 +14817,156 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 }
 .stale i { font-size: var(--text-3); }
 .stale--warn { color: var(--warn-fg); }
+}
+
+/* ── 67-agent-chat.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Agent chat ───────────────────────────────────────────────────────────────
+   The existing `.chat`, extended for an agent's turn: prose on the canvas instead of a
+   bubble, an answer that streams, where the answer came from, what the reader can do
+   with it, and a composer sized for asking rather than chatting.
+
+     <div class="chat-message chat-message--agent">
+       <span class="agent-avatar" role="img" aria-label="Ops agent"></span>
+       <div class="chat-body">
+         <div class="chat-meta"><span class="chat-author">Ops agent</span><time class="chat-time">09:12</time></div>
+         <details class="reasoning">…</details>
+         <ol class="agent-steps">…</ol>
+         <div class="chat-bubble chat-bubble--streaming"><p>The sync stopped at 02:14<button class="citation" …>1</button>…</p></div>
+         <div class="citation-sources"><a class="source-card" …>…</a></div>
+         <div class="chat-feedback" role="toolbar" aria-label="Answer actions">…</div>
+       </div>
+     </div>
+
+   ── Streaming ──
+   `.chat-bubble--streaming` while text is still arriving: a caret after the last block.
+   The app appends the text; remove the class when the answer is complete.
+
+   ── Citations ──
+   `.citation` is a numbered button inline in the answer that opens a `.popover` on the
+   source — a native `popover`, opened by `popovertarget`, so it needs no script.
+   `.citation-sources` lists the sources under the answer as `.source-card` links.
+
+   ── Feedback ──
+   `.chat-feedback` is the row of actions under an answer: copy, regenerate, a rating
+   (`aria-pressed`), and `.chat-versions` to page between regenerated answers. Its first
+   icon's glyph lines up with the text edge above it.
+
+   ── The prompt ──
+   `.chat-composer--prompt` is a `.chat-composer` drawn as one rounded field, with
+   `.chat-composer-tools` under the text for attachments, toggles and a model choice,
+   and `.chat-composer-send` holding the send button at the end. Put `.beam` on the
+   composer while an answer is being written.
+   ─────────────────────────────────────────────────────────────────────────── */
+.chat-message--agent { max-width: 100%; align-items: flex-start; gap: var(--space-6); }
+.chat-message--agent > .agent-avatar { --size: 28px; }
+.chat-message--agent > .chat-body { flex: 1; gap: var(--space-5); }
+.chat-message--agent > .chat-body > .chat-meta:first-child { min-block-size: 28px; padding-inline: 0; }
+.chat-message--agent .chat-bubble {
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    font-size: var(--text-5);
+    line-height: 1.65;
+}
+.chat-message--agent .chat-bubble > p { margin: 0 0 var(--space-5); }
+.chat-message--agent .chat-bubble > p:last-child { margin-block-end: 0; }
+.chat-bubble--streaming > :last-child::after {
+    content: '';
+    display: inline-block;
+    inline-size: 2px;
+    block-size: 1.1em;
+    margin-inline-start: var(--space-1);
+    vertical-align: -0.18em;
+    border-radius: 1px;
+    background: var(--agent-to);
+    animation: chat-caret var(--caret-duration) steps(1) infinite;
+}
+@keyframes chat-caret { 50% { opacity: 0; } }
+
+.chat-feedback {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    margin-inline-start: calc((var(--control-height-sm) - var(--text-4)) / -2);
+}
+.chat-feedback > .btn { color: var(--muted); }
+.chat-feedback > .btn:hover { color: var(--fg); }
+.chat-feedback > .btn[aria-pressed="true"] { color: var(--brand-text); }
+.chat-feedback-sep { inline-size: 1px; block-size: 16px; margin-inline: var(--space-4); background: var(--border); }
+.chat-versions { display: inline-flex; align-items: center; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+
+.citation {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: 18px;
+    block-size: 18px;
+    margin-inline: var(--space-1);
+    padding: 0 var(--space-2);
+    vertical-align: 1px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--surface-strong);
+    color: var(--fg-soft);
+    font: 600 var(--text-1) / 1 var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+.citation:hover,
+.citation:focus-visible { background: var(--agent-tint); color: var(--accent); outline: none; }
+.citation-sources { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-4); }
+.source-card {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    background: var(--surface-soft);
+    color: var(--fg);
+    font-size: var(--text-3);
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+}
+.source-card:hover { border-color: var(--border-hover); background: var(--surface-strong); text-decoration: none; }
+.source-card-host { display: flex; align-items: center; gap: var(--space-3); color: var(--muted); min-inline-size: 0; }
+.source-card-n {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 16px;
+    block-size: 16px;
+    border-radius: var(--radius-small);
+    background: var(--surface-strong);
+    color: var(--fg-soft);
+    font-size: var(--text-1);
+    font-weight: 600;
+    line-height: 1;
+}
+.source-card-title { font-size: var(--text-4); font-weight: 600; line-height: 1.35; }
+
+.chat-composer--prompt {
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-panel);
+    background: var(--surface-raised-2);
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.chat-composer--prompt:focus-within { border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
+.chat-composer--prompt .chat-composer-row > .form-input,
+.chat-composer--prompt .chat-composer-row > .form-input:focus {
+    min-height: var(--control-height-lg);
+    padding: var(--space-3) var(--space-4);
+    border: 0;
+    background: none;
+    box-shadow: none;
+    font-size: var(--text-6);
+}
+.chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
+.chat-composer-send > .btn { border-radius: 50%; }
 }
 
 /* ── 67-output.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -14561,6 +15249,83 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .output-panel:not(:has(> .output[data-follow-paused])) > .output-jump { display: none; }
 }
 
+/* ── 67-voice.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Voice ────────────────────────────────────────────────────────────────────
+   A spoken conversation with an agent. The app owns the microphone and the audio; it
+   writes one number, `--level` from 0 to 1, on whatever should follow the sound —
+   the avatar, the orb, Mochi, the bars, the mic button — and they all move with it.
+
+     <div class="voice-session">
+       <div class="voice-stage"><span class="agent-avatar agent-avatar--hero" data-state="speaking" style="--level: .4"></span></div>
+       <span class="voice-who">Ops agent</span>
+       <p class="voice-caption" aria-live="polite">Done. It now starts at <span class="voice-caption-interim">03:30</span></p>
+       <span class="voice-bars" aria-hidden="true"><i></i>…</span>
+       <div class="voice-controls">
+         <button class="btn btn-mic" type="button" data-state="listening" aria-label="Mute"><i class="ri-mic-fill"></i></button>
+         …
+       </div>
+     </div>
+
+   `.voice-caption-interim` is the words the recogniser may still change.
+   `.voice-bars` is the agent's voice; `.voice-bars--mine` the reader's. A recorded clip
+   is `.audio-wave`, not this — bars here follow a live level, not a stored one.
+   `.btn-mic[data-state]` — listening, muted — on any `.btn`; listening rings out with
+   `--level`.
+   ─────────────────────────────────────────────────────────────────────────── */
+.voice-session {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-9);
+    padding: var(--space-11) var(--space-8) var(--space-10);
+    text-align: center;
+}
+.voice-stage { display: grid; place-items: center; inline-size: 220px; block-size: 220px; max-inline-size: 100%; }
+.voice-who { font-size: var(--text-2); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.voice-caption {
+    max-inline-size: 30ch;
+    min-block-size: calc(2 * 1.45em);
+    margin: 0;
+    font-size: var(--text-8);
+    line-height: 1.45;
+    text-wrap: balance;
+}
+.voice-caption-interim { color: var(--muted); }
+.voice-controls { display: flex; align-items: center; gap: var(--space-6); }
+.voice-controls > .btn { inline-size: var(--control-height-lg); min-height: var(--control-height-lg); padding: 0; border-radius: 50%; justify-content: center; }
+.voice-controls > .btn i { font-size: var(--text-8); }
+
+.voice-bars { display: inline-flex; align-items: center; gap: var(--space-1); block-size: 28px; }
+.voice-bars > i {
+    --bar: 0.6;
+    inline-size: 3px;
+    block-size: min(100%, calc(4px + var(--level, 0) * var(--bar) * 130%));
+    border-radius: var(--radius-pill);
+    background: var(--agent-to);
+    transition: block-size 80ms linear;
+}
+/* A fixed shape across the bars, so one level reads as a voice and not a meter. */
+.voice-bars > i:nth-child(7n+1) { --bar: 0.42; }
+.voice-bars > i:nth-child(7n+2) { --bar: 0.78; }
+.voice-bars > i:nth-child(7n+3) { --bar: 1; }
+.voice-bars > i:nth-child(7n+4) { --bar: 0.64; }
+.voice-bars > i:nth-child(7n+5) { --bar: 0.9; }
+.voice-bars > i:nth-child(7n+6) { --bar: 0.5; }
+.voice-bars > i:nth-child(7n+7) { --bar: 0.3; }
+.voice-bars--mine > i { background: var(--brand-soft); }
+
+.btn-mic { border-radius: 50%; transition: box-shadow 80ms linear, background var(--motion-fast), color var(--motion-fast); }
+.btn-mic[data-state="listening"],
+.btn-mic[data-state="listening"]:hover {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--on-solid);
+    box-shadow: 0 0 0 calc(2px + var(--level, 0) * 8px) var(--brand-tint-strong);
+}
+.btn-mic[data-state="muted"],
+.btn-mic[data-state="muted"]:hover { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }
+}
+
 /* ── 68-guard.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Guard ──────────────────────────────────────────────────────────────────
@@ -14639,6 +15404,492 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     color: var(--muted);
     font-size: var(--text-8);
 }
+}
+
+/* ── 68-mochi.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Mochi ────────────────────────────────────────────────────────────────────
+   The agent's character: one rigged drawing, from the sprite `SednaMochi` writes into
+   the page once, like the state illustrations. The app writes a span and three or four
+   attributes; the drawing is the library's.
+
+     <SednaMochi />            once, at the top of <body>
+     …
+     <span class="mochi" data-action="wave" data-mood="happy" role="img" aria-label="Ops agent, waving">
+       <svg viewBox="0 0 160 160" aria-hidden="true"><use href="#sedna-mochi" /></svg>
+     </span>
+
+   Actions: idle, wave, point, think, work, talk, listen, celebrate, oops, sleep,
+   surprised, done, love.
+   Moods: neutral, happy, excited, surprised, curious, focused, worried, sleepy, love,
+   wink.
+   Tones: pink, mint, sky, lemon, lilac, coral.
+   Perches: sit, peek, look, side, stand, hang, point.
+
+   ── A rig, not a set of pictures ──
+   The drawing has joints: arms that turn at the shoulder and reach, legs that bend at
+   the knee or step at the hip, a body that leans, a face with its own parts. Every
+   attribute sets custom properties on the host, they inherit into the `<use>` tree, and
+   each part reads its own — so changing an action eases the joints into the new pose
+   instead of swapping a drawing. An action brings a face; `data-mood` replaces it.
+   `data-action="talk"` owns the mouth whatever the mood, and opens it by `--level`
+   (0–1, written by the app's audio code).
+
+   ── Arms ──
+   Each arm is an angle from the shoulder and a reach. An arm behind the body (`b`) and
+   a hand in front of it (`f`) are separate parts, because a hand resting on a seat or
+   on a chin is in front of the body and an arm waving is behind it. Every angle an arm
+   takes lies in that arm's own range — the left arm 90°–280°, the right −100°–90°,
+   the front left 0°–90°, the front right −45°–190° — so an eased change always swings
+   the natural way round and never through the body. MochiRigTests holds every value
+   to its range.
+
+   ── Perches ──
+   Mochi and the element it perches on share a `.mochi-host`. Each perch puts one line
+   of the 160-unit drawing on one edge of the element, so placing is a fraction of
+   `--size` and the meeting is exact at any size: the seat (y 120) on the top edge for
+   `sit`; the peeking edge (y 104) on it for `peek` and `look`, with the rest of the
+   body clipped as if behind; the feet (y 154) on the bottom edge for `stand`; the grip
+   (y 30) on the bottom edge for `hang`; the side edge (x 60) for `side`. `point` stands
+   beside whatever the app names as its anchor, fingertip on its edge. `--perch-inset`
+   moves a perch along its edge. What is behind the element is clipped away on the
+   drawing's own grid — an `inset()` on the view box — so the edge it hides behind is
+   the same line the perch places.
+
+   ── Motion ──
+   Pose changes ride `--motion-slow`; the face and the legs cross-fade on `--motion-fast`,
+   because a slow cross-fade shows two faces at once. The loops are the drawing's own,
+   their durations in longhands, as the state illustrations' are. Reduced motion keeps
+   every change and drops every loop. In RTL the drawing turns to face the inline end —
+   see 70-rtl.css.
+
+   ── Colour ──
+   The sprite writes no colour and no style; every part is a `.sedna-mochi-*` class
+   here. Mochi keeps its own colours under every theme — see the Mochi tokens.
+   ─────────────────────────────────────────────────────────────────────────── */
+.mochi {
+    --size: 112px;
+    --perch-inset: 24px;
+    --mochi-body: var(--mochi-pink);
+    --mochi-limb: var(--mochi-pink-limb);
+    --mochi-cup:  var(--mochi-mint);
+    /* Where the body sits in its box, how it leans, and what hides it. */
+    --px: 0px; --py: 0px; --prot: 0deg; --pivot-y: 120px; --lean: 0deg; --clip: none;
+    --legs-stand: 1; --legs-sit: 0; --g-stand: 1; --g-sit: 0; --leg-l: 0deg; --leg-r: 0deg;
+    /* Arms: angle from the shoulder, reach, shown, hand shown. */
+    --bl-a: 113deg; --bl-l: 15px; --bl-on: 1; --bl-hand: 1;
+    --br-a: 67deg;  --br-l: 15px; --br-on: 1; --br-hand: 1;
+    --fl-a: 58deg;  --fl-l: 22px; --fl-on: 0; --fl-drop: 1; --fl-seg: 0;
+    --fr-a: 122deg; --fr-l: 22px; --fr-on: 0; --fr-drop: 1; --fr-seg: 0;
+    --grip-l: 0; --grip-r: 0; --grip-side: 0; --grip-hl: 0; --grip-hr: 0;
+    --finger: 0; --cup-glow: 0;
+    /* The face. */
+    --look-x: 0px; --look-y: 0px;
+    --e-open: 1; --e-wide: 0; --e-happy: 0; --e-closed: 0; --e-love: 0; --e-wink: 0;
+    --brow-worry: 0; --brow-focus: 0;
+    --m-smile: 1; --m-grin: 0; --m-flat: 0; --m-frown: 0; --m-o: 0; --m-o-small: 0; --m-cat: 0; --m-talk: 0;
+    --cheeks: 0.5;
+    /* Motion: which loop each part runs. */
+    /* Pose changes ride the motion scale; the loops are the drawing's own. */
+    --pose-d: calc(var(--motion-slow) * 2); --reach-d: calc(var(--motion-slow) * 2.2); --look-d: calc(var(--motion-slow) * 1.6);
+    --a-place: none; --a-place-d: 3.2s;
+    --a-rig: none; --a-rig-d: 1s; --a-ground: none;
+    --a-lean: none;
+    --a-tilt: none; --a-tilt-d: 3s;
+    --a-breathe: sedna-mochi-breathe; --a-breathe-d: 3.4s;
+    --a-bl: none; --a-br: none; --a-arm-d: 1s;
+    --a-swing: none; --a-kick: none; --a-tap: none; --a-scan: none; --a-chatter: none;
+    /* Props. */
+    --p-think: none; --p-laptop: none; --p-confetti: none; --p-sweat: none; --p-zzz: none;
+    --p-waves: none; --p-pop: none; --p-check: none; --p-hearts: none;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--size);
+    block-size: var(--size);
+    vertical-align: middle;
+}
+.mochi > svg { display: block; inline-size: 100%; block-size: 100%; overflow: visible; }
+.mochi--sm { --size: 64px; }
+.mochi--md { --size: 88px; }
+.mochi--lg { --size: 140px; }
+.mochi--xl { --size: 220px; }
+/* Head and shoulders, for an avatar: the app writes viewBox="24 30 112 112". */
+.mochi--bust > svg { overflow: hidden; border-radius: 50%; }
+
+/* ── Tones ── */
+.mochi[data-tone="mint"]  { --mochi-body: var(--mochi-mint);  --mochi-limb: var(--mochi-mint-limb);  --mochi-cup: var(--mochi-pink); }
+.mochi[data-tone="sky"]   { --mochi-body: var(--mochi-sky);   --mochi-limb: var(--mochi-sky-limb);   --mochi-cup: var(--mochi-lemon); }
+.mochi[data-tone="lemon"] { --mochi-body: var(--mochi-lemon); --mochi-limb: var(--mochi-lemon-limb); --mochi-cup: var(--mochi-sky); }
+.mochi[data-tone="lilac"] { --mochi-body: var(--mochi-lilac); --mochi-limb: var(--mochi-lilac-limb); --mochi-cup: var(--mochi-mint); }
+.mochi[data-tone="coral"] { --mochi-body: var(--mochi-coral); --mochi-limb: var(--mochi-coral-limb); --mochi-cup: var(--agent-to); }
+
+/* ── Sitting: chosen by the perch, or by an action Mochi does sitting down ── */
+.mochi:where([data-perch="sit"], [data-action="think"], [data-action="work"], [data-action="listen"], [data-action="sleep"]):where(:not([data-perch="stand"], [data-perch="side"], [data-perch="point"], [data-perch="hang"])) {
+    --legs-stand: 0; --legs-sit: 1; --g-stand: 0; --g-sit: 1;
+    --bl-on: 0; --br-on: 0; --fl-on: 1; --fr-on: 1;
+    --a-swing: sedna-mochi-swing;
+}
+
+/* ── Actions ── */
+.mochi[data-action="wave"]      { --br-on: 1; --fr-on: 0; --br-a: -53deg; --br-l: 30px; --a-br: sedna-mochi-wave; --a-arm-d: 0.9s; --a-tilt: sedna-mochi-lean; --a-tilt-d: 1.8s; --m-smile: 0; --m-grin: 1; --cheeks: 0.8; }
+.mochi[data-action="point"]     { --br-on: 1; --fr-on: 0; --br-a: -14deg; --br-l: 25px; --finger: 1; --a-br: sedna-mochi-jab; --a-arm-d: 1.4s; --look-x: 3px; --a-tilt: sedna-mochi-lean; --a-tilt-d: 2.8s; }
+.mochi[data-action="think"]     { --fr-on: 1; --br-on: 0; --fr-a: 189deg; --fr-l: 26px; --fr-seg: 1; --fr-drop: 0; --look-x: -2px; --look-y: -3px; --m-smile: 0; --m-flat: 1; --p-think: inline; --a-tilt: sedna-mochi-ponder; --a-tilt-d: 4.2s; }
+.mochi[data-action="work"]      { --fl-on: 1; --fr-on: 1; --bl-on: 0; --br-on: 0; --fl-a: 49deg; --fl-l: 18px; --fr-a: 131deg; --fr-l: 18px; --fl-drop: 0; --fr-drop: 0; --a-tap: sedna-mochi-tap; --a-swing: none; --look-y: 3px; --p-laptop: inline; }
+.mochi[data-action="talk"]      { --a-chatter: sedna-mochi-chatter; --a-tilt: sedna-mochi-chat; --a-tilt-d: 2.4s; --cheeks: 0.7; }
+.mochi[data-action="listen"]    { --fr-on: 1; --br-on: 0; --fr-a: -45deg; --fr-l: 12px; --fr-seg: 1; --fr-drop: 0; --cup-glow: 1; --p-waves: inline; --look-x: 2px; --a-tilt: sedna-mochi-listen; --a-tilt-d: 3.2s; }
+.mochi[data-action="celebrate"] { --bl-on: 1; --br-on: 1; --fl-on: 0; --fr-on: 0; --bl-a: 238deg; --bl-l: 30px; --br-a: -58deg; --br-l: 30px; --a-bl: sedna-mochi-pump-l; --a-br: sedna-mochi-pump-r; --a-arm-d: 1s; --a-rig: sedna-mochi-jump; --a-rig-d: 1s; --a-ground: sedna-mochi-ground-jump; --p-confetti: inline; --e-open: 0; --e-happy: 1; --m-smile: 0; --m-grin: 1; --cheeks: 1; }
+.mochi[data-action="oops"]      { --bl-a: 97deg; --bl-l: 16px; --br-a: 83deg; --br-l: 16px; --brow-worry: 1; --m-smile: 0; --m-frown: 1; --cheeks: 0.3; --p-sweat: inline; --a-tilt: sedna-mochi-wobble; --a-tilt-d: 2.8s; }
+.mochi[data-action="sleep"]     { --e-open: 0; --e-closed: 1; --m-smile: 0; --m-o-small: 1; --cheeks: 0.65; --p-zzz: inline; --a-breathe: sedna-mochi-snooze; --a-breathe-d: 4.2s; --a-swing: none; }
+.mochi[data-action="surprised"] { --bl-on: 1; --br-on: 1; --fl-on: 0; --fr-on: 0; --bl-a: 221deg; --bl-l: 18px; --br-a: -41deg; --br-l: 18px; --e-open: 0; --e-wide: 1; --m-smile: 0; --m-o: 1; --cheeks: 0.3; --p-pop: inline; --a-rig: sedna-mochi-startle; --a-rig-d: 2.6s; }
+.mochi[data-action="done"]      { --e-open: 0; --e-happy: 1; --m-smile: 0; --m-grin: 1; --cheeks: 0.9; --p-check: inline; --a-rig: sedna-mochi-nod; --a-rig-d: 2.6s; }
+.mochi[data-action="love"]      { --e-open: 0; --e-love: 1; --m-smile: 0; --m-cat: 1; --cheeks: 1; --p-hearts: inline; --a-tilt: sedna-mochi-sway; --a-tilt-d: 2.8s; }
+/* Celebrating on a seat is a bounce in it, not a jump off it. */
+.mochi[data-perch="sit"][data-action="celebrate"] { --a-rig: sedna-mochi-seat-bounce; --a-ground: none; }
+
+/* ── Moods: the face alone, over whatever the action chose ── */
+.mochi[data-mood] {
+    --e-open: 1; --e-wide: 0; --e-happy: 0; --e-closed: 0; --e-love: 0; --e-wink: 0; --brow-worry: 0; --brow-focus: 0;
+    --m-smile: 1; --m-grin: 0; --m-flat: 0; --m-frown: 0; --m-o: 0; --m-o-small: 0; --m-cat: 0; --cheeks: 0.5;
+}
+.mochi[data-mood="happy"]     { --e-open: 0; --e-happy: 1; --m-smile: 0; --m-grin: 1; --cheeks: 0.9; }
+.mochi[data-mood="excited"]   { --e-open: 0; --e-wide: 1; --m-smile: 0; --m-grin: 1; --cheeks: 1; }
+.mochi[data-mood="surprised"] { --e-open: 0; --e-wide: 1; --m-smile: 0; --m-o: 1; --cheeks: 0.3; }
+.mochi[data-mood="curious"]   { --look-x: 2px; --look-y: -2px; --m-smile: 0; --m-o-small: 1; --cheeks: 0.6; }
+.mochi[data-mood="focused"]   { --brow-focus: 1; --m-smile: 0; --m-flat: 1; --cheeks: 0.3; }
+.mochi[data-mood="worried"]   { --brow-worry: 1; --m-smile: 0; --m-frown: 1; --cheeks: 0.2; }
+.mochi[data-mood="sleepy"]    { --e-open: 0; --e-closed: 1; --m-smile: 0; --m-o-small: 1; --cheeks: 0.6; }
+.mochi[data-mood="love"]      { --e-open: 0; --e-love: 1; --m-smile: 0; --m-cat: 1; --cheeks: 1; }
+.mochi[data-mood="wink"]      { --e-open: 0; --e-wink: 1; --m-smile: 0; --m-cat: 1; --cheeks: 0.9; }
+/* Talking owns the mouth, whatever the mood. */
+.mochi[data-action="talk"] { --m-smile: 0; --m-grin: 0; --m-flat: 0; --m-frown: 0; --m-o: 0; --m-o-small: 0; --m-cat: 0; --m-talk: 1; }
+
+/* ── Perches ── */
+.mochi-host { position: relative; isolation: isolate; }
+.mochi[data-perch] { position: absolute; z-index: 1; pointer-events: none; }
+/* The seat on the top edge, feet dangling in front. */
+.mochi[data-perch="sit"] { inset-block-start: calc(var(--size) * -0.75); inset-inline-end: var(--perch-inset); }
+/* Behind the top edge: only what is above it shows, hands on the edge. Look leans in
+   further and reads what is below. Waving or pointing lets go with one hand. */
+.mochi[data-perch="peek"],
+.mochi[data-perch="look"] {
+    inset-block-start: calc(var(--size) * -0.65);
+    inset-inline-end: var(--perch-inset);
+    --clip: inset(-80px -80px 56px -80px) view-box; --py: 16px; --grip-l: 1; --grip-r: 1;
+    --bl-on: 0; --br-on: 0; --fl-on: 0; --fr-on: 0; --legs-stand: 0; --legs-sit: 0; --g-stand: 0; --g-sit: 0;
+    --a-rig: none; --a-ground: none; --p-laptop: none;
+}
+.mochi[data-perch="look"] { --py: 7px; --prot: -4deg; --look-y: 4px; --a-scan: sedna-mochi-read; }
+.mochi[data-perch="peek"][data-action="wave"],
+.mochi[data-perch="look"][data-action="wave"] { --grip-r: 0; --br-on: 1; --br-a: -48deg; --br-l: 42px; }
+.mochi[data-perch="peek"][data-action="point"],
+.mochi[data-perch="look"][data-action="point"] { --grip-r: 0; --br-on: 1; }
+/* Feet on the bottom edge. */
+.mochi[data-perch="stand"] { inset-block-end: calc(var(--size) * -0.0375); inset-inline-end: var(--perch-inset); }
+/* Behind the side edge, leaning out: the body skews so the feet stay flat, one leg
+   steps out from behind, and a hand holds the edge. The hand in front of the body
+   would cross the card, so it stays behind it, and so does a laptop. */
+.mochi[data-perch="side"] {
+    inset-block-end: calc(var(--size) * -0.0375);
+    inset-inline-start: calc(100% - var(--size) * 0.375);
+    --clip: inset(-80px -80px -80px 60px) view-box; --px: -18px; --lean: -10deg; --a-lean: sedna-mochi-peek-out;
+    --leg-l: 5deg; --leg-r: -12deg; --grip-side: 1; --bl-on: 0; --fl-on: 0; --look-x: 3px;
+    --a-rig: none; --a-ground: none; --p-laptop: none;
+}
+/* Nothing to work on from behind a card: the hands come away from the keys. */
+.mochi[data-perch="side"][data-action="work"] { --fr-on: 0; --br-on: 1; --a-tap: none; }
+/* Hanging from the bottom edge by both hands, swinging a little, feet kicking. Waving
+   or pointing lets go with one. */
+.mochi[data-perch="hang"] {
+    inset-block-start: calc(100% - var(--size) * 0.1875);
+    inset-inline-end: var(--perch-inset);
+    --clip: inset(28px -80px -80px -80px) view-box; --pivot-y: 30px; --a-place: sedna-mochi-hang;
+    --legs-stand: 1; --legs-sit: 0; --g-stand: 0; --g-sit: 0; --a-kick: sedna-mochi-kick;
+    --bl-on: 1; --br-on: 1; --fl-on: 0; --fr-on: 0; --bl-hand: 0; --br-hand: 0; --grip-hl: 1; --grip-hr: 1; --finger: 0;
+    --bl-a: 279.7deg; --bl-l: 71px; --br-a: -99.7deg; --br-l: 71px;
+    --a-rig: none; --a-ground: none; --a-bl: none; --a-br: none; --p-laptop: none;
+}
+.mochi[data-perch="hang"][data-action="wave"] { --grip-hr: 0; --br-hand: 1; --br-a: -40deg; --br-l: 34px; --a-br: sedna-mochi-wave; }
+.mochi[data-perch="hang"][data-action="point"] { --grip-hr: 0; --br-hand: 1; --finger: 1; --br-a: -14deg; --br-l: 25px; --a-br: sedna-mochi-jab; }
+/* Beside the element the app names with `position-anchor`, fingertip on its edge. */
+.mochi[data-perch="point"] {
+    inset-inline-end: calc(anchor(start) + 4px - var(--size) * 0.03);
+    inset-block-start: calc(anchor(center) - var(--size) * 0.569);
+}
+.mochi[data-perch="point"][data-facing="start"] {
+    inset-inline-end: auto;
+    inset-inline-start: calc(anchor(end) + 4px - var(--size) * 0.03);
+}
+.mochi[data-facing="start"] > svg { transform: scaleX(-1); }
+
+/* ── The sprite's parts ─────────────────────────────────────────────────────── */
+.sedna-mochi-body  { fill: var(--mochi-body); }
+.sedna-mochi-palm  { fill: var(--mochi-body); }
+.sedna-mochi-seg   { fill: var(--mochi-limb); }
+.sedna-mochi-cup   { fill: var(--mochi-cup); }
+.sedna-mochi-sheen-hi  { stop-color: var(--mochi-light); stop-opacity: 0.34; }
+.sedna-mochi-sheen-mid { stop-color: var(--mochi-light); stop-opacity: 0; }
+.sedna-mochi-sheen-lo  { stop-color: var(--mochi-dark); stop-opacity: 0.1; }
+.sedna-mochi-leg-hi    { stop-color: var(--mochi-leg-hi); }
+.sedna-mochi-leg-mid   { stop-color: var(--mochi-leg-mid); }
+.sedna-mochi-leg-lo    { stop-color: var(--mochi-leg-lo); }
+.sedna-mochi-shadow-flood { flood-color: var(--mochi-shade); }
+.sedna-mochi-light-flood  { flood-color: var(--mochi-light); }
+.sedna-mochi-band  { fill: none; stroke: var(--mochi-band); stroke-width: 5; }
+.sedna-mochi-boom  { fill: none; stroke: var(--mochi-band); stroke-width: 3; stroke-linecap: round; }
+.sedna-mochi-ink   { fill: var(--mochi-ink); }
+.sedna-mochi-grin  { fill: var(--mochi-ink); stroke: var(--mochi-ink); stroke-width: 1.5; stroke-linejoin: round; }
+.sedna-mochi-line  { fill: none; stroke: var(--mochi-ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.sedna-mochi-lid   { fill: none; stroke: var(--mochi-ink); stroke-width: 3.2; stroke-linecap: round; }
+.sedna-mochi-shine { fill: var(--mochi-light); opacity: 0.85; }
+.sedna-mochi-blush { fill: var(--mochi-blush); opacity: 0.5; }
+.sedna-mochi-tongue { fill: var(--mochi-tongue); }
+.sedna-mochi-drop  { fill: var(--mochi-shade); opacity: 0.22; }
+.sedna-mochi-drop--long { opacity: 0.14; }
+.sedna-mochi-ao    { fill: var(--mochi-shade); opacity: 0.35; }
+.sedna-mochi-ground { fill: var(--mochi-shade); opacity: calc(var(--g-stand) * 0.2); transform-origin: 80px 154px; animation: var(--a-ground) var(--a-rig-d) cubic-bezier(.45, 0, .55, 1) infinite; transition: opacity var(--motion-slow); }
+.sedna-mochi-seat  { fill: var(--mochi-shade); opacity: calc(var(--g-sit) * 0.18); transition: opacity var(--motion-slow); }
+.sedna-mochi-finger { fill: var(--mochi-body); opacity: var(--finger); transition: opacity var(--motion-mid); }
+.sedna-mochi-glow  { fill: none; stroke: var(--mochi-cup); stroke-width: 3; opacity: calc(var(--cup-glow) * 0.55); transition: opacity var(--motion-slow); animation: sedna-mochi-glow ease-in-out infinite; animation-duration: 1.4s; }
+.sedna-mochi-screen { fill: var(--mochi-cup); animation: sedna-mochi-screen ease-in-out infinite; animation-duration: 1.6s; }
+.sedna-mochi-deck  { fill: var(--mochi-deck); }
+/* A face or a pair of legs changes quickly: a slow cross-fade shows both at once. */
+.sedna-mochi-part  { transition: opacity var(--motion-fast) ease; }
+
+/* Which part shows. */
+.sedna-mochi-e-open     { opacity: var(--e-open); }
+.sedna-mochi-e-wide     { opacity: var(--e-wide); }
+.sedna-mochi-e-happy    { opacity: var(--e-happy); }
+.sedna-mochi-e-closed   { opacity: var(--e-closed); }
+.sedna-mochi-e-love     { opacity: var(--e-love); }
+.sedna-mochi-e-wink     { opacity: var(--e-wink); }
+.sedna-mochi-brow-worry { opacity: var(--brow-worry); }
+.sedna-mochi-brow-focus { opacity: var(--brow-focus); }
+.sedna-mochi-cheeks     { opacity: var(--cheeks); }
+.sedna-mochi-m-smile    { opacity: var(--m-smile); }
+.sedna-mochi-m-grin     { opacity: var(--m-grin); }
+.sedna-mochi-m-flat     { opacity: var(--m-flat); }
+.sedna-mochi-m-frown    { opacity: var(--m-frown); }
+.sedna-mochi-m-o        { opacity: var(--m-o); }
+.sedna-mochi-m-o-small  { opacity: var(--m-o-small); }
+.sedna-mochi-m-cat      { opacity: var(--m-cat); }
+.sedna-mochi-m-talk     { opacity: var(--m-talk); }
+.sedna-mochi-legs-stand { opacity: var(--legs-stand); transition: opacity var(--motion-fast); }
+.sedna-mochi-legs-sit   { opacity: var(--legs-sit); transition: opacity var(--motion-fast); }
+.sedna-mochi-grip-l     { opacity: var(--grip-l); transition: opacity var(--motion-slow); }
+.sedna-mochi-grip-r     { opacity: var(--grip-r); transition: opacity var(--motion-slow); }
+.sedna-mochi-grip-side  { opacity: var(--grip-side); transition: opacity var(--motion-slow); }
+.sedna-mochi-grip-hl    { opacity: var(--grip-hl); transition: opacity var(--motion-slow); }
+.sedna-mochi-grip-hr    { opacity: var(--grip-hr); transition: opacity var(--motion-slow); }
+.sedna-mochi-p-think    { display: var(--p-think); }
+.sedna-mochi-p-laptop   { display: var(--p-laptop); }
+.sedna-mochi-p-confetti { display: var(--p-confetti); }
+.sedna-mochi-p-sweat    { display: var(--p-sweat); }
+.sedna-mochi-p-zzz      { display: var(--p-zzz); }
+.sedna-mochi-p-waves    { display: var(--p-waves); }
+.sedna-mochi-p-pop      { display: var(--p-pop); }
+.sedna-mochi-p-check    { display: var(--p-check); }
+.sedna-mochi-p-hearts   { display: var(--p-hearts); }
+
+/* The body in its box: where it sits, and what hides it. */
+.sedna-mochi-clip  { clip-path: var(--clip); }
+.sedna-mochi-place {
+    transform: translate(var(--px), var(--py)) rotate(var(--prot));
+    transform-origin: 80px var(--pivot-y);
+    transition: transform var(--pose-d) cubic-bezier(.34, 1.25, .5, 1);
+    animation: var(--a-place) var(--a-place-d) cubic-bezier(.45, 0, .55, 1) infinite;
+}
+.sedna-mochi-rig     { transform-origin: 80px 154px; animation: var(--a-rig) var(--a-rig-d) cubic-bezier(.45, 0, .55, 1) infinite; }
+.sedna-mochi-lean    { transform: skewX(var(--lean)); transform-origin: 80px 120px; transition: transform var(--pose-d) cubic-bezier(.34, 1.25, .5, 1); animation: var(--a-lean) cubic-bezier(.45, 0, .55, 1) infinite; animation-duration: 4.4s; }
+.sedna-mochi-tilt    { transform-origin: 80px 120px; animation: var(--a-tilt) var(--a-tilt-d) cubic-bezier(.45, 0, .55, 1) infinite; }
+.sedna-mochi-breathe { transform-origin: 80px 120px; animation: var(--a-breathe) var(--a-breathe-d) cubic-bezier(.45, 0, .55, 1) infinite; }
+.sedna-mochi-eyes    { transform: translate(var(--look-x), var(--look-y)); transition: transform var(--look-d) cubic-bezier(.34, 1.3, .5, 1); }
+.sedna-mochi-scan    { animation: var(--a-scan) cubic-bezier(.45, 0, .55, 1) infinite; animation-duration: 3.6s; }
+.sedna-mochi-blink   { transform-origin: 80px 78px; animation: sedna-mochi-blink ease-in-out infinite; animation-duration: 5.2s; }
+/* The level opens the mouth; the chatter shapes syllables over it, so a voice with no
+   level still talks. */
+.sedna-mochi-talk    { transform-origin: 80px 88px; transform: scale(1, calc(0.35 + var(--level, 0.45) * 1.1)); transition: transform 80ms linear; animation: var(--a-chatter) ease-in-out infinite; animation-duration: 0.9s; }
+
+/* The standing legs step at the hip; each foot turns back so its sole stays flat. */
+.sedna-mochi-leg-l  { rotate: var(--leg-l); transform-origin: 70px 110px; transition: rotate var(--pose-d) cubic-bezier(.34, 1.25, .5, 1); animation: var(--a-kick) cubic-bezier(.45, 0, .55, 1) infinite; animation-duration: 1.8s; }
+.sedna-mochi-leg-r  { rotate: var(--leg-r); transform-origin: 90px 110px; transition: rotate var(--pose-d) cubic-bezier(.34, 1.25, .5, 1); animation: var(--a-kick) cubic-bezier(.45, 0, .55, 1) infinite; animation-duration: 1.8s; animation-delay: -0.9s; }
+.sedna-mochi-foot-l { rotate: calc(var(--leg-l) * -1); transform-origin: 70px 148px; transition: rotate var(--pose-d) cubic-bezier(.34, 1.25, .5, 1); }
+.sedna-mochi-foot-r { rotate: calc(var(--leg-r) * -1); transform-origin: 90px 148px; transition: rotate var(--pose-d) cubic-bezier(.34, 1.25, .5, 1); }
+.sedna-mochi-shin-l { transform-origin: 63px 121px; animation: var(--a-swing) cubic-bezier(.45, 0, .55, 1) infinite; animation-duration: 2.8s; }
+.sedna-mochi-shin-r { transform-origin: 97px 121px; animation: var(--a-swing) cubic-bezier(.45, 0, .55, 1) infinite; animation-duration: 2.8s; animation-delay: -1.4s; }
+
+/* An arm: its angle at the shoulder, its reach, whether it shows. */
+.sedna-mochi-arm-bl { transform: translate(40px, 100px) rotate(var(--bl-a)); opacity: var(--bl-on); }
+.sedna-mochi-arm-br { transform: translate(120px, 100px) rotate(var(--br-a)); opacity: var(--br-on); }
+.sedna-mochi-arm-fl { transform: translate(40px, 100px) rotate(var(--fl-a)); opacity: var(--fl-on); }
+.sedna-mochi-arm-fr { transform: translate(120px, 100px) rotate(var(--fr-a)); opacity: var(--fr-on); }
+.sedna-mochi-arm-bl,
+.sedna-mochi-arm-br,
+.sedna-mochi-arm-fl,
+.sedna-mochi-arm-fr { transition: transform var(--reach-d) cubic-bezier(.34, 1.3, .5, 1), opacity var(--motion-mid) ease; }
+.sedna-mochi-seg-bl { width: var(--bl-l); }
+.sedna-mochi-seg-br { width: var(--br-l); }
+.sedna-mochi-seg-fl { width: var(--fl-l); opacity: var(--fl-seg); }
+.sedna-mochi-seg-fr { width: var(--fr-l); opacity: var(--fr-seg); }
+.sedna-mochi-seg-bl,
+.sedna-mochi-seg-br,
+.sedna-mochi-seg-fl,
+.sedna-mochi-seg-fr { transition: width var(--reach-d) cubic-bezier(.34, 1.3, .5, 1), opacity var(--motion-mid) ease; }
+.sedna-mochi-reach-bl { transform: translateX(var(--bl-l)); }
+.sedna-mochi-reach-br { transform: translateX(var(--br-l)); }
+/* A front hand stays upright, so its shadow falls below it at any angle. */
+.sedna-mochi-reach-fl { transform: translateX(var(--fl-l)) rotate(calc(var(--fl-a) * -1)); }
+.sedna-mochi-reach-fr { transform: translateX(var(--fr-l)) rotate(calc(var(--fr-a) * -1)); }
+.sedna-mochi-reach-bl,
+.sedna-mochi-reach-br,
+.sedna-mochi-reach-fl,
+.sedna-mochi-reach-fr { transition: transform var(--reach-d) cubic-bezier(.34, 1.3, .5, 1); }
+.sedna-mochi-hand-bl { opacity: var(--bl-hand); transition: opacity var(--motion-mid) ease; }
+.sedna-mochi-hand-br { opacity: var(--br-hand); transition: opacity var(--motion-mid) ease; }
+.sedna-mochi-drop-fl { opacity: calc(var(--fl-drop) * 0.22); }
+.sedna-mochi-drop-fr { opacity: calc(var(--fr-drop) * 0.22); }
+.sedna-mochi-act-bl { animation: var(--a-bl) var(--a-arm-d) cubic-bezier(.45, 0, .55, 1) infinite; }
+.sedna-mochi-act-br { animation: var(--a-br) var(--a-arm-d) cubic-bezier(.45, 0, .55, 1) infinite; }
+.sedna-mochi-tap-fl { animation: var(--a-tap) ease-in-out infinite; animation-duration: 0.34s; }
+.sedna-mochi-tap-fr { animation: var(--a-tap) ease-in-out infinite; animation-duration: 0.34s; animation-delay: -0.17s; }
+
+/* Props. */
+.sedna-mochi-bubble   { fill: var(--mochi-bubble); stroke: var(--mochi-bubble-edge); stroke-width: 1.5; transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-bubble cubic-bezier(.34, 1.4, .5, 1) infinite; animation-duration: 2.8s; }
+.sedna-mochi-bubble-2 { animation-delay: 0.18s; }
+.sedna-mochi-bubble-3 { animation-delay: 0.36s; }
+.sedna-mochi-confetti { transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-confetti cubic-bezier(.3, .7, .4, 1) infinite; animation-duration: 1.6s; }
+.sedna-mochi-confetti-a { fill: var(--mochi-mint); }
+.sedna-mochi-confetti-b { fill: var(--mochi-spark); }
+.sedna-mochi-confetti-c { fill: var(--mochi-sky); }
+.sedna-mochi-confetti-d { fill: var(--mochi-blush); }
+.sedna-mochi-confetti-e { fill: var(--mochi-lilac); }
+.sedna-mochi-delay-1 { animation-delay: 0.2s; }
+.sedna-mochi-delay-2 { animation-delay: 0.45s; }
+.sedna-mochi-delay-3 { animation-delay: 0.65s; }
+.sedna-mochi-delay-4 { animation-delay: 0.85s; }
+.sedna-mochi-delay-5 { animation-delay: 1.05s; }
+.sedna-mochi-sweat { fill: var(--mochi-sweat); animation: sedna-mochi-sweat cubic-bezier(.5, 0, .75, 1) infinite; animation-duration: 2.8s; }
+.sedna-mochi-z     { fill: none; stroke: var(--mochi-zzz); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-z cubic-bezier(.3, .6, .5, 1) infinite; animation-duration: 3.6s; }
+.sedna-mochi-z-2   { animation-delay: 1.2s; }
+.sedna-mochi-z-3   { animation-delay: 2.4s; }
+.sedna-mochi-arc   { fill: none; stroke: var(--mochi-cup); stroke-width: 2.6; stroke-linecap: round; animation: sedna-mochi-arc ease-out infinite; animation-duration: 1.5s; }
+.sedna-mochi-arc-2 { animation-delay: 0.25s; }
+.sedna-mochi-pop   { stroke: var(--mochi-ink); stroke-width: 3; stroke-linecap: round; transform-origin: 80px 60px; animation: sedna-mochi-pop cubic-bezier(.34, 1.4, .5, 1) infinite; animation-duration: 2.6s; }
+.sedna-mochi-check { transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-check cubic-bezier(.34, 1.5, .5, 1) infinite; animation-duration: 2.6s; }
+.sedna-mochi-check-bg   { fill: var(--go-solid); }
+.sedna-mochi-check-mark { fill: none; stroke: var(--on-solid); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+.sedna-mochi-heart      { fill: var(--mochi-tongue); transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-beat ease-in-out infinite; animation-duration: 0.9s; }
+.sedna-mochi-float-heart   { fill: var(--mochi-tongue); transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-heart ease-out infinite; animation-duration: 2.6s; }
+.sedna-mochi-float-heart-2 { animation-delay: 0.85s; }
+.sedna-mochi-float-heart-3 { animation-delay: 1.7s; }
+
+@keyframes sedna-mochi-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.016, 0.984); } }
+@keyframes sedna-mochi-snooze  { 0%, 100% { transform: scale(1, 1) translateY(0); } 50% { transform: scale(1.035, 0.965) translateY(1px); } }
+@keyframes sedna-mochi-chatter { 0%, 100% { scale: 1 0.7; } 22% { scale: 1 1.15; } 40% { scale: 1 0.75; } 62% { scale: 1 1.05; } 80% { scale: 1 0.85; } }
+@keyframes sedna-mochi-blink   { 0%, 45%, 49%, 100% { transform: scaleY(1); } 47% { transform: scaleY(0.08); } }
+@keyframes sedna-mochi-lean    { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(2.5deg); } }
+@keyframes sedna-mochi-ponder  { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-3deg); } }
+@keyframes sedna-mochi-chat    { 0%, 100% { transform: rotate(0deg) translateY(0); } 25% { transform: rotate(-1.5deg) translateY(-0.6px); } 75% { transform: rotate(1.5deg) translateY(-0.6px); } }
+@keyframes sedna-mochi-listen  { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(4deg); } }
+@keyframes sedna-mochi-wobble  { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@keyframes sedna-mochi-sway    { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes sedna-mochi-wave    { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-20deg); } }
+@keyframes sedna-mochi-jab     { 0%, 60%, 100% { transform: translateX(0); } 20% { transform: translateX(4px); } 35% { transform: translateX(0); } 45% { transform: translateX(2.5px); } }
+@keyframes sedna-mochi-pump-l  { 0%, 100% { transform: rotate(0deg); } 40% { transform: rotate(14deg); } }
+@keyframes sedna-mochi-pump-r  { 0%, 100% { transform: rotate(0deg); } 40% { transform: rotate(-14deg); } }
+@keyframes sedna-mochi-jump    { 0%, 100% { transform: translateY(0) scale(1, 1); } 12% { transform: translateY(0) scale(1.07, 0.92); } 40% { transform: translateY(-17px) scale(0.96, 1.05); } 64% { transform: translateY(0) scale(1.06, 0.94); } 78% { transform: translateY(0) scale(0.99, 1.01); } }
+@keyframes sedna-mochi-ground-jump { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.08); } 40% { transform: scale(0.62); opacity: 0.08; } 64% { transform: scale(1.08); } }
+@keyframes sedna-mochi-seat-bounce { 0%, 100% { transform: translateY(0) scale(1, 1); } 30% { transform: translateY(-5px) scale(0.98, 1.02); } 60% { transform: translateY(0) scale(1.03, 0.97); } }
+@keyframes sedna-mochi-startle { 0%, 100% { transform: translateY(0) scale(1, 1); } 6% { transform: translateY(-7px) scale(0.96, 1.05); } 14% { transform: translateY(0) scale(1.04, 0.96); } 22% { transform: translateY(0) scale(1, 1); } }
+@keyframes sedna-mochi-nod     { 0%, 50%, 100% { transform: translateY(0); } 12%, 36% { transform: translateY(2.5px) scale(1.02, 0.98); } 24% { transform: translateY(0); } }
+@keyframes sedna-mochi-swing   { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(11deg); } }
+@keyframes sedna-mochi-kick    { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(8deg); } }
+@keyframes sedna-mochi-hang    { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes sedna-mochi-peek-out { 0%, 100% { transform: skewX(-7deg); } 45%, 70% { transform: skewX(-13deg); } }
+@keyframes sedna-mochi-tap     { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.6px); } }
+@keyframes sedna-mochi-read    { 0%, 100% { transform: translateX(-2.5px); } 40% { transform: translateX(2.5px); } 48% { transform: translateX(2.5px) translateY(0.6px); } 56% { transform: translateX(-2.5px) translateY(0.6px); } }
+@keyframes sedna-mochi-glow    { 50% { stroke-width: 6; } }
+@keyframes sedna-mochi-screen  { 50% { opacity: 0.45; } }
+@keyframes sedna-mochi-beat    { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.16); } }
+@keyframes sedna-mochi-bubble  { 0% { transform: scale(0); opacity: 0; } 14%, 78% { transform: scale(1); opacity: 1; } 92%, 100% { transform: scale(0.6); opacity: 0; } }
+@keyframes sedna-mochi-confetti { 0% { transform: translateY(8px) scale(0.3) rotate(0deg); opacity: 0; } 18% { opacity: 1; } 55% { transform: translateY(-8px) scale(1) rotate(150deg); opacity: 1; } 100% { transform: translateY(14px) scale(0.9) rotate(290deg); opacity: 0; } }
+@keyframes sedna-mochi-sweat   { 0% { transform: translateY(-4px); opacity: 0; } 18% { opacity: 1; } 100% { transform: translateY(12px); opacity: 0; } }
+@keyframes sedna-mochi-z       { 0% { transform: translate(0, 6px) scale(0.6); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(8px, -16px) scale(1.15); opacity: 0; } }
+@keyframes sedna-mochi-arc     { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes sedna-mochi-pop     { 0% { transform: scale(0.5); opacity: 0; } 8% { transform: scale(1.12); opacity: 1; } 18% { transform: scale(1); opacity: 1; } 40%, 100% { transform: scale(1.06); opacity: 0; } }
+@keyframes sedna-mochi-check   { 0% { transform: scale(0); } 12% { transform: scale(1.18); } 20%, 100% { transform: scale(1); } }
+@keyframes sedna-mochi-heart   { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { transform: translate(-2px, -6px) scale(1); opacity: 1; } 100% { transform: translate(5px, -28px) scale(0.9); opacity: 0; } }
+
+/* In a status pill, Mochi's head and shoulders take the orb's place. */
+.agent-status > .mochi { --size: calc(var(--status-orb) + 6px); margin-block: -3px; }
+}
+
+/* ── 69-beam.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Beam ─────────────────────────────────────────────────────────────────────
+   A light running round the edge of whatever an agent is busy with: a card it is
+   summarising, the field it is filling, the composer while an answer is written, the
+   button that started the work.
+
+     <div class="card beam">…</div>
+     <input class="form-input beam beam--glow" …>
+
+   Drawn on the element's own border box — a fill over the padding box, the moving
+   light under it in the border box, the border colour under that — so it needs no
+   pseudo-element: it works on an <input>, inside an `overflow: hidden` card, and over
+   the focus edge and ring. That is also why this part comes after every component it
+   paints over: the beam replaces the element's background, and an earlier part would
+   lose to the element's own rule. What sits under the beam is the element's fill, re-stated per
+   component below.
+
+   `.beam--glow` adds a breathing glow; `.beam--slow` halves the speed. One turn is
+   `--beam-duration`. Remove the class
+   when the work is done. Reduced motion shows the beam's two colours, still, round the
+   whole edge.
+   ─────────────────────────────────────────────────────────────────────────── */
+@property --beam-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+.beam,
+.beam:hover,
+.beam:focus,
+.beam:focus-within {
+    --beam-fill: var(--surface-raised-1);
+    --beam-edge: var(--border);
+    border-color: transparent;
+    background:
+        linear-gradient(var(--beam-fill), var(--beam-fill)) padding-box,
+        conic-gradient(from var(--beam-angle),
+            transparent 0turn 0.55turn,
+            var(--agent-beam-tail) 0.8turn,
+            var(--agent-to) 0.94turn,
+            transparent 1turn) border-box,
+        linear-gradient(var(--beam-edge), var(--beam-edge)) border-box;
+    animation: beam-turn calc(var(--beam-duration) * var(--beam-pace)) linear infinite;
+}
+.beam:focus,
+.beam:focus-within { --beam-edge: var(--brand-soft); }
+/* Alone, so `--slow` after it wins on hover and focus too. */
+.beam { --beam-pace: 1; }
+.beam--slow { --beam-pace: 2; }
+.beam--glow {
+    box-shadow: 0 0 18px -4px var(--agent-glow-dim);
+    animation: beam-turn calc(var(--beam-duration) * var(--beam-pace)) linear infinite, beam-breathe calc(var(--beam-duration) * 0.8) ease-in-out infinite alternate;
+}
+.beam--glow:focus,
+.beam--glow:focus-within {
+    box-shadow: 0 0 0 2px var(--brand-glow), 0 0 18px -4px var(--agent-glow-dim);
+    animation: beam-turn calc(var(--beam-duration) * var(--beam-pace)) linear infinite, beam-breathe-focus calc(var(--beam-duration) * 0.8) ease-in-out infinite alternate;
+}
+@keyframes beam-turn          { to { --beam-angle: 360deg; } }
+@keyframes beam-breathe       { to { box-shadow: 0 0 18px -4px var(--agent-glow); } }
+@keyframes beam-breathe-focus { to { box-shadow: 0 0 0 2px var(--brand-glow), 0 0 18px -4px var(--agent-glow); } }
+
+/* What sits under the beam is the element's own fill. */
+.form-input.beam,
+.form-input.beam:focus             { --beam-fill: var(--bg); }
+.btn.beam                          { --beam-fill: var(--bg-elevated); }
+.btn.beam:hover                    { --beam-fill: var(--bg-hover); --beam-edge: var(--border-strong); }
+.chat-composer--prompt.beam,
+.chat-composer--prompt.beam:focus-within { --beam-fill: var(--surface-raised-2); }
 }
 
 /* ── 69-timeline.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -14941,13 +16192,15 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    on <html> with no rules at all.
    `No_physical_direction_properties_without_a_justification` keeps it that way.
 
-   What lands here is the residue that logical properties cannot express, of which
-   there are exactly two kinds:
+   What lands here is the residue that logical properties cannot express, of these
+   kinds:
 
      1. `transform: translateX()` does not flip. There is no logical translate, so
         anything that moves a thing along the inline axis needs its sign inverted.
      2. `background-position` has no logical form. A percentage is always measured
         from the physical left edge.
+     3. A drawing has a front. Mochi faces the inline end; its perches are placed
+        with logical insets and land on the right side, and the drawing turns with them.
 
    Both are real gaps in CSS rather than shortcuts taken here, which is why each one
    is named individually instead of being covered by a sweeping rule.
@@ -15050,6 +16303,12 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    the rail. `position-area: inline-end` and `align-self: anchor-center` are both
    logical and resolve against the writing mode, and the offset is a
    `margin-inline-start`. */
+
+/* 68 — Mochi faces the inline end, so in RTL the drawing turns round, and one that
+   was turned to face the start turns back. The clip and the grips are inside the
+   drawing and turn with it, so a perch still meets the same edge. */
+[dir="rtl"] .mochi > svg { transform: scaleX(-1); }
+[dir="rtl"] .mochi[data-facing="start"] > svg { transform: none; }
 }
 
 /* ── 71-forced-colors.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -15797,6 +17056,111 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     .chat-typing > i:nth-child(2) { animation: none; }
     .chat-typing > i:nth-child(3) { animation: none; }
     .chat-actions    { transition: none; }
+
+    /* 66 — an agent's signals hold still. The shimmer stops where it is, the sphere
+       stops turning, the reasoning and the steps open at once. Nothing is lost: the
+       label still says what the agent is doing, and the orb draws a still frame of
+       the state on its own. */
+    .text-shimmer { animation: none; }
+    .agent-avatar,
+    .agent-avatar::before,
+    .agent-avatar[data-state="working"] { animation: none; transition: none; }
+    .reasoning > summary,
+    .reasoning-chevron { transition: none; }
+
+    /* 67 — the caret is a steady bar, links and the prompt change state at once,
+       and the voice bars stand at their level instead of easing to it. */
+    .chat-bubble--streaming > :last-child::after { animation: none; }
+    .citation,
+    .source-card,
+    .chat-composer--prompt { transition: none; }
+    .voice-bars > i,
+    .btn-mic { transition: none; }
+
+    /* 68 — Mochi holds its pose. Every action, mood and perch still changes the
+       drawing — arms, face, props — but at once, and nothing loops. */
+    .sedna-mochi-ground,
+    .sedna-mochi-seat,
+    .sedna-mochi-finger,
+    .sedna-mochi-glow,
+    .sedna-mochi-screen,
+    .sedna-mochi-part,
+    .sedna-mochi-legs-stand,
+    .sedna-mochi-legs-sit,
+    .sedna-mochi-grip-l,
+    .sedna-mochi-grip-r,
+    .sedna-mochi-grip-side,
+    .sedna-mochi-grip-hl,
+    .sedna-mochi-grip-hr,
+    .sedna-mochi-place,
+    .sedna-mochi-rig,
+    .sedna-mochi-lean,
+    .sedna-mochi-tilt,
+    .sedna-mochi-breathe,
+    .sedna-mochi-eyes,
+    .sedna-mochi-scan,
+    .sedna-mochi-blink,
+    .sedna-mochi-talk,
+    .sedna-mochi-leg-l,
+    .sedna-mochi-leg-r,
+    .sedna-mochi-foot-l,
+    .sedna-mochi-foot-r,
+    .sedna-mochi-shin-l,
+    .sedna-mochi-shin-r,
+    .sedna-mochi-arm-bl,
+    .sedna-mochi-arm-br,
+    .sedna-mochi-arm-fl,
+    .sedna-mochi-arm-fr,
+    .sedna-mochi-seg-bl,
+    .sedna-mochi-seg-br,
+    .sedna-mochi-seg-fl,
+    .sedna-mochi-seg-fr,
+    .sedna-mochi-reach-bl,
+    .sedna-mochi-reach-br,
+    .sedna-mochi-reach-fl,
+    .sedna-mochi-reach-fr,
+    .sedna-mochi-hand-bl,
+    .sedna-mochi-hand-br,
+    .sedna-mochi-act-bl,
+    .sedna-mochi-act-br,
+    .sedna-mochi-tap-fl,
+    .sedna-mochi-tap-fr,
+    .sedna-mochi-bubble,
+    .sedna-mochi-bubble-2,
+    .sedna-mochi-bubble-3,
+    .sedna-mochi-confetti,
+    .sedna-mochi-delay-1,
+    .sedna-mochi-delay-2,
+    .sedna-mochi-delay-3,
+    .sedna-mochi-delay-4,
+    .sedna-mochi-delay-5,
+    .sedna-mochi-sweat,
+    .sedna-mochi-z,
+    .sedna-mochi-z-2,
+    .sedna-mochi-z-3,
+    .sedna-mochi-arc,
+    .sedna-mochi-arc-2,
+    .sedna-mochi-pop,
+    .sedna-mochi-check,
+    .sedna-mochi-heart,
+    .sedna-mochi-float-heart,
+    .sedna-mochi-float-heart-2,
+    .sedna-mochi-float-heart-3 { animation: none; transition: none; }
+
+    /* 69 — the beam is still: both its colours round the whole edge, the glow at
+       rest. The fill under it stays the element's own. */
+    .beam,
+    .beam:hover,
+    .beam:focus,
+    .beam:focus-within,
+    .beam--glow,
+    .beam--glow:focus,
+    .beam--glow:focus-within {
+        background:
+            linear-gradient(var(--beam-fill), var(--beam-fill)) padding-box,
+            linear-gradient(90deg, var(--agent-from), var(--agent-to)) border-box;
+        animation: none;
+    }
 
     /* 54 — a bar, a segment or a meter fill lands at its value instead of growing
        to it. The value was never the motion. */

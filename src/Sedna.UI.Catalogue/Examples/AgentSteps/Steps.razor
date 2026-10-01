@@ -1,0 +1,38 @@
+<ol class="agent-steps" style="max-width: 560px">
+    <li data-state="done">
+        <span class="agent-step-icon"><i class="ri-check-line"></i></span>
+        <details class="agent-step">
+            <summary><span class="agent-step-label"><i class="ri-search-line"></i>Searched the runbook for &ldquo;sync timeout&rdquo;</span><span class="agent-step-meta">4 results &middot; 1.2 s</span></summary>
+            <pre class="code-block"><code>search(index: "runbook", query: "sync timeout", limit: 4)</code></pre>
+        </details>
+    </li>
+    <li data-state="done">
+        <span class="agent-step-icon"><i class="ri-check-line"></i></span>
+        <details class="agent-step" open>
+            <summary><span class="agent-step-label"><i class="ri-file-text-line"></i>Read 3 log files on build-runner-04</span><span class="agent-step-meta">2.4 s</span></summary>
+            <pre class="code-block"><code>02:14:07 sync  ERROR  timed out after 600 s waiting for lock on orders
+02:25:31 maint INFO   vacuum finished on orders (681 s)</code></pre>
+        </details>
+    </li>
+    <li data-state="failed">
+        <span class="agent-step-icon"><i class="ri-close-line"></i></span>
+        <details class="agent-step">
+            <summary><span class="agent-step-label"><i class="ri-terminal-box-line"></i>Opened a shell on orders-console-01</span><span class="agent-step-meta">Permission denied</span></summary>
+            <pre class="code-block"><code>ssh orders-console-01: the agent's role may not open a shell here</code></pre>
+        </details>
+    </li>
+    <li data-state="running">
+        <span class="agent-step-icon"><span class="orb orb--sm" data-orb="working" role="img" aria-label="Running"></span></span>
+        <details class="agent-step">
+            <summary><span class="agent-step-label"><i class="ri-database-2-line"></i>Querying src-db-14 for locks held over 60 s</span><span class="agent-step-meta">0.8 s</span></summary>
+            <pre class="code-block"><code>SELECT relation, mode, duration FROM lock_history WHERE duration &gt; interval '60 s';</code></pre>
+        </details>
+    </li>
+    <li data-state="pending">
+        <span class="agent-step-icon"></span>
+        <details class="agent-step">
+            <summary><span class="agent-step-label"><i class="ri-edit-line"></i>Draft a new maintenance window</span></summary>
+            <p class="text-muted text-sm">Not started.</p>
+        </details>
+    </li>
+</ol>

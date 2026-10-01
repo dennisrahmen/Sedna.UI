@@ -1,0 +1,146 @@
+/* ── Agent chat ───────────────────────────────────────────────────────────────
+   The existing `.chat`, extended for an agent's turn: prose on the canvas instead of a
+   bubble, an answer that streams, where the answer came from, what the reader can do
+   with it, and a composer sized for asking rather than chatting.
+
+     <div class="chat-message chat-message--agent">
+       <span class="agent-avatar" role="img" aria-label="Ops agent"></span>
+       <div class="chat-body">
+         <div class="chat-meta"><span class="chat-author">Ops agent</span><time class="chat-time">09:12</time></div>
+         <details class="reasoning">…</details>
+         <ol class="agent-steps">…</ol>
+         <div class="chat-bubble chat-bubble--streaming"><p>The sync stopped at 02:14<button class="citation" …>1</button>…</p></div>
+         <div class="citation-sources"><a class="source-card" …>…</a></div>
+         <div class="chat-feedback" role="toolbar" aria-label="Answer actions">…</div>
+       </div>
+     </div>
+
+   ── Streaming ──
+   `.chat-bubble--streaming` while text is still arriving: a caret after the last block.
+   The app appends the text; remove the class when the answer is complete.
+
+   ── Citations ──
+   `.citation` is a numbered button inline in the answer that opens a `.popover` on the
+   source — a native `popover`, opened by `popovertarget`, so it needs no script.
+   `.citation-sources` lists the sources under the answer as `.source-card` links.
+
+   ── Feedback ──
+   `.chat-feedback` is the row of actions under an answer: copy, regenerate, a rating
+   (`aria-pressed`), and `.chat-versions` to page between regenerated answers. Its first
+   icon's glyph lines up with the text edge above it.
+
+   ── The prompt ──
+   `.chat-composer--prompt` is a `.chat-composer` drawn as one rounded field, with
+   `.chat-composer-tools` under the text for attachments, toggles and a model choice,
+   and `.chat-composer-send` holding the send button at the end. Put `.beam` on the
+   composer while an answer is being written.
+   ─────────────────────────────────────────────────────────────────────────── */
+.chat-message--agent { max-width: 100%; align-items: flex-start; gap: var(--space-6); }
+.chat-message--agent > .agent-avatar { --size: 28px; }
+.chat-message--agent > .chat-body { flex: 1; gap: var(--space-5); }
+.chat-message--agent > .chat-body > .chat-meta:first-child { min-block-size: 28px; padding-inline: 0; }
+.chat-message--agent .chat-bubble {
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    font-size: var(--text-5);
+    line-height: 1.65;
+}
+.chat-message--agent .chat-bubble > p { margin: 0 0 var(--space-5); }
+.chat-message--agent .chat-bubble > p:last-child { margin-block-end: 0; }
+.chat-bubble--streaming > :last-child::after {
+    content: '';
+    display: inline-block;
+    inline-size: 2px;
+    block-size: 1.1em;
+    margin-inline-start: var(--space-1);
+    vertical-align: -0.18em;
+    border-radius: 1px;
+    background: var(--agent-to);
+    animation: chat-caret var(--caret-duration) steps(1) infinite;
+}
+@keyframes chat-caret { 50% { opacity: 0; } }
+
+.chat-feedback {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    margin-inline-start: calc((var(--control-height-sm) - var(--text-4)) / -2);
+}
+.chat-feedback > .btn { color: var(--muted); }
+.chat-feedback > .btn:hover { color: var(--fg); }
+.chat-feedback > .btn[aria-pressed="true"] { color: var(--brand-text); }
+.chat-feedback-sep { inline-size: 1px; block-size: 16px; margin-inline: var(--space-4); background: var(--border); }
+.chat-versions { display: inline-flex; align-items: center; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+
+.citation {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: 18px;
+    block-size: 18px;
+    margin-inline: var(--space-1);
+    padding: 0 var(--space-2);
+    vertical-align: 1px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--surface-strong);
+    color: var(--fg-soft);
+    font: 600 var(--text-1) / 1 var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+.citation:hover,
+.citation:focus-visible { background: var(--agent-tint); color: var(--accent); outline: none; }
+.citation-sources { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-4); }
+.source-card {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    background: var(--surface-soft);
+    color: var(--fg);
+    font-size: var(--text-3);
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+}
+.source-card:hover { border-color: var(--border-hover); background: var(--surface-strong); text-decoration: none; }
+.source-card-host { display: flex; align-items: center; gap: var(--space-3); color: var(--muted); min-inline-size: 0; }
+.source-card-n {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 16px;
+    block-size: 16px;
+    border-radius: var(--radius-small);
+    background: var(--surface-strong);
+    color: var(--fg-soft);
+    font-size: var(--text-1);
+    font-weight: 600;
+    line-height: 1;
+}
+.source-card-title { font-size: var(--text-4); font-weight: 600; line-height: 1.35; }
+
+.chat-composer--prompt {
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-panel);
+    background: var(--surface-raised-2);
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.chat-composer--prompt:focus-within { border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
+.chat-composer--prompt .chat-composer-row > .form-input,
+.chat-composer--prompt .chat-composer-row > .form-input:focus {
+    min-height: var(--control-height-lg);
+    padding: var(--space-3) var(--space-4);
+    border: 0;
+    background: none;
+    box-shadow: none;
+    font-size: var(--text-6);
+}
+.chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
+.chat-composer-send > .btn { border-radius: 50%; }

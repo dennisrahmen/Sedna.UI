@@ -35,6 +35,8 @@ internal static class CataloguePages
     public const string Labels = "Labels";
     /// <summary>Content the app did not author: media, prose, Markdown.</summary>
     public const string Content = "Content";
+    /// <summary>What an agent is, what it is doing, and talking to it.</summary>
+    public const string Agents = "Agents";
     public const string Feedback = "Feedback";
     public const string Overlays = "Overlays";
     public const string Utilities = "Utilities";
@@ -249,6 +251,28 @@ internal static class CataloguePages
             "Bubbles, groups, replies, reactions and emoji, the composer, and the launcher with its flyover.",
             "chat message bubble thread conversation group reply quote mention reaction emoji picker typing seen read receipt composer attachment launcher flyover widget support messenger"),
 
+        new("/orb", Agents, "Orb", "ri-planet-line",
+            "What an agent is doing, drawn as an orbit that moves the way the work does.",
+            "orb data-orb thinking searching working listening speaking waiting error done solving writing connecting planning shaping reading remembering syncing analyzing canvas ai agent state indicator voice level"),
+        new("/agent-status", Agents, "Work in flight", "ri-loader-2-line",
+            "That an agent is busy and with what: the status pill, the beam, shimmer, and what came back.",
+            "agent-status pill beam border glow shimmer text-shimmer skeleton badge-ai generated confidence context-ring context window token meter busy loading ai"),
+        new("/agent-avatar", Agents, "Agent avatars", "ri-robot-2-line",
+            "Who an agent is: a sphere lit from inside, in one of six tones, that moves with its state.",
+            "agent-avatar bot avatar sphere tone aurora ember orbit nebula glacier sedna thinking working listening speaking offline identity ai assistant"),
+        new("/mochi", Agents, "Mochi", "ri-emotion-happy-line",
+            "The agent's character, rigged: actions, moods and tones, perched on a card or pointing at a control.",
+            "mochi mascot character bot avatar sprite SednaMochi action mood tone perch sit peek look side stand hang point anchor wave think celebrate sleep talk bust cute"),
+        new("/agent-steps", Agents, "Steps and approvals", "ri-list-check-3",
+            "What an agent thought, which tools it ran, its plan, and the permission it asks for.",
+            "reasoning thought chain of thought tool call steps agent-steps plan todo approval permission human in the loop approve deny take over undo"),
+        new("/agent-chat", Agents, "Asking an agent", "ri-chat-ai-line",
+            "An agent's turn in a chat: reasoning, steps, a streamed answer, citations, feedback and the prompt.",
+            "agent chat assistant answer stream streaming caret citation source footnote feedback thumbs regenerate versions prompt composer model toggle copilot ai"),
+        new("/voice", Agents, "Voice", "ri-voice-ai-line",
+            "A spoken conversation with an agent: the stage, live captions, the bars and the mic button.",
+            "voice call speech microphone mic mute listening speaking caption transcript level audio bars waveform realtime"),
+
         new("/alert", Feedback, "Alerts", "ri-error-warning-line",
             "Inline banners for a state that persists while the page is open.",
             "banner inline warning danger info"),
@@ -323,7 +347,7 @@ internal static class CataloguePages
 
     /// <summary>The group names, in the order the sidebar's rail shows them.</summary>
     public static IReadOnlyList<string> Groups { get; } =
-        [Start, Frame, Structure, Actions, Forms, Data, Labels, Content, Feedback, Overlays, Utilities];
+        [Start, Frame, Structure, Actions, Forms, Data, Labels, Content, Agents, Feedback, Overlays, Utilities];
 
     /// <summary>
     /// The icon each group carries in the sidebar's area rail. <c>NavigationTests</c>
@@ -340,6 +364,7 @@ internal static class CataloguePages
             [Data] = "ri-database-2-line",
             [Labels] = "ri-price-tag-3-line",
             [Content] = "ri-file-text-line",
+            [Agents] = "ri-sparkling-2-line",
             [Feedback] = "ri-notification-3-line",
             [Overlays] = "ri-stack-line",
             [Utilities] = "ri-tools-line",

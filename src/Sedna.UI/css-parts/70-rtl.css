@@ -5,13 +5,15 @@
    on <html> with no rules at all.
    `No_physical_direction_properties_without_a_justification` keeps it that way.
 
-   What lands here is the residue that logical properties cannot express, of which
-   there are exactly two kinds:
+   What lands here is the residue that logical properties cannot express, of these
+   kinds:
 
      1. `transform: translateX()` does not flip. There is no logical translate, so
         anything that moves a thing along the inline axis needs its sign inverted.
      2. `background-position` has no logical form. A percentage is always measured
         from the physical left edge.
+     3. A drawing has a front. Mochi faces the inline end; its perches are placed
+        with logical insets and land on the right side, and the drawing turns with them.
 
    Both are real gaps in CSS rather than shortcuts taken here, which is why each one
    is named individually instead of being covered by a sweeping rule.
@@ -114,3 +116,9 @@
    the rail. `position-area: inline-end` and `align-self: anchor-center` are both
    logical and resolve against the writing mode, and the offset is a
    `margin-inline-start`. */
+
+/* 68 — Mochi faces the inline end, so in RTL the drawing turns round, and one that
+   was turned to face the start turns back. The clip and the grips are inside the
+   drawing and turn with it, so a perch still meets the same edge. */
+[dir="rtl"] .mochi > svg { transform: scaleX(-1); }
+[dir="rtl"] .mochi[data-facing="start"] > svg { transform: none; }

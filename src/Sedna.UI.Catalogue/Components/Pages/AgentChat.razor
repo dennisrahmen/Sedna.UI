@@ -1,0 +1,59 @@
+@page "/agent-chat"
+
+<CatHead Title="Asking an agent">
+    The <a href="/chat">chat</a>, extended for an agent's turn: what it thought, which tools it ran, an
+    answer that streams in, where the answer came from, and what the reader can do with it next. The
+    composer is sized for asking rather than chatting. Every word is the app's, and none of it needs a
+    script.
+</CatHead>
+
+<CatExample TExample="Examples.AgentChat.Turn" Title="An agent's turn" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.chat-message--agent</code> sets the answer as prose on the thread's ground rather than in a
+        bubble: an agent's answer is read like a document, and a bubble around four paragraphs and a code
+        block reads as a wall. The reader's own messages stay <code>--mine</code> bubbles. Inside the
+        body, in order: <a href="/agent-steps"><code>details.reasoning</code></a>, the
+        <a href="/agent-steps"><code>.agent-steps</code></a> it took, the answer, its sources, and what to
+        do next.
+    </p>
+    <p>
+        <code>.citation</code> is a numbered button inline in the answer, opening a
+        <a href="/popover"><code>.popover</code></a> on the source through <code>popovertarget</code>, so it
+        needs no script. Give each an <code>aria-label</code>; the digit alone reads as a number.
+        <code>.citation-sources</code> lists the same sources under the answer as <code>.source-card</code>
+        links, with <code>.source-card-n</code> matching the citation.
+    </p>
+    <p>
+        <code>.chat-feedback</code> is the row under the answer: copy, regenerate, a rating with
+        <code>aria-pressed</code>, and <code>.chat-versions</code> to page between regenerated answers. Its
+        first glyph lines up with the text above it. <a href="/chat"><code>.chat-quick-replies</code></a>
+        offers the likely next questions.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentChat.Streaming" Title="While the answer streams" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.chat-bubble--streaming</code> puts a caret after the last block while text is still arriving.
+        The app appends the text and removes the class when the answer is complete; mark the bubble
+        <code>aria-busy</code> meanwhile, so a screen reader in the log waits for the whole answer rather
+        than reading every word as it lands. An <a href="/agent-status">agent status</a> under it says what
+        the agent is doing.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentChat.Prompt" Title="The prompt" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.chat-composer--prompt</code> draws a <a href="/chat"><code>.chat-composer</code></a> as one
+        rounded field: the text on top, <code>.chat-composer-tools</code> under it for attachments, toggles
+        as <code>button.chip</code> with <code>aria-pressed</code>, and a model choice, and
+        <code>.chat-composer-send</code> holding the send button at the end. The field's focus ring is the
+        composer's, so the whole box lights up as one control.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentChat.PromptBusy" Title="While the agent writes" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Put <a href="/agent-status"><code>.beam</code></a> on the composer while an answer is being written,
+        and swap send for stop. The reader can keep typing the next question.
+    </p>
+</CatExample>
