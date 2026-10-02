@@ -23,13 +23,11 @@ public class CopyTests : ScriptTestBase
         if (NoBrowser) return;
         // The script used to swap the button's content for an English "Copied": drawing
         // markup inside an element the app owns, which a framework can revert mid-flash.
-        var page = await Open(Button, head: StylesheetTag);
-
+        //
         // The confirmation is a 1400ms real-time window, so on a loaded machine two
         // ClickAsync round trips can straddle it. The page clock is paused, so the restore
         // fires only when the test runs it, however slowly the clicks arrive.
-        await page.Clock.InstallAsync(new() { TimeDate = new DateTime(2030, 1, 1) });
-        await page.Clock.PauseAtAsync(new DateTime(2030, 1, 1, 0, 0, 1));
+        var page = await Open(Button, head: StylesheetTag, clockPausedAt: new DateTime(2030, 1, 1));
 
         await page.EvaluateAsync("""
             () => {

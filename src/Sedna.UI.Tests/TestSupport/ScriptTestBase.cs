@@ -66,6 +66,12 @@ public abstract class ScriptTestBase : BrowserTestBase
     /// Runs on the page before it navigates: where a console listener goes when what is
     /// under test happens while the page loads.
     /// </param>
+    /// <param name="clockPausedAt">
+    /// The page clock, installed and paused at this instant before the page exists, so a
+    /// timer fires only when the test runs the clock. Installed on an open page instead,
+    /// the clock runs in real time until the pause lands, and a pause target a loaded
+    /// machine has already passed throws "Cannot fast-forward to the past".
+    /// </param>
     protected async Task<IPage> Open(
         string body,
         string head = "",
@@ -77,7 +83,8 @@ public abstract class ScriptTestBase : BrowserTestBase
         ReducedMotion? reducedMotion = null,
         ForcedColors? forcedColors = null,
         IReadOnlyDictionary<string, Served>? serve = null,
-        Action<IPage>? beforeLoad = null)
+        Action<IPage>? beforeLoad = null,
+        DateTime? clockPausedAt = null)
     {
         var context = await Browser!.NewContextAsync(new()
         {
@@ -97,6 +104,14 @@ public abstract class ScriptTestBase : BrowserTestBase
             var json = JsonSerializer.Serialize(storage);
             await context.AddInitScriptAsync(
                 $"try {{ const s = {json}; for (const k in s) localStorage.setItem(k, s[k]); }} catch (e) {{}}");
+        }
+
+        // With no page yet there is no running clock to fast-forward: the page replays
+        // install-then-pause as it loads, and is paused from its first script on.
+        if (clockPausedAt is { } at)
+        {
+            await context.Clock.InstallAsync(new() { TimeDate = at });
+            await context.Clock.PauseAtAsync(at);
         }
 
         var page = await context.NewPageAsync();
