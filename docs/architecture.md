@@ -519,6 +519,7 @@ Two things the flat list does not say:
 | `graph` | The graph's front door. It finds every `[data-graph]`, starts each as it comes within a screen of the viewport — importing `Sedna.UI.graph.js` and the engine, relative to itself, the first time — delegates the `data-graph-*` controls from `document`, and takes a graph down when its element leaves the document. `get(elOrId)` resolves the graph's handle, `init(root)` starts every graph in `root` at once, `invoke(id, method, args)` is the bridge `ISednaGraphs` calls, and `release()` — called by `Sedna.UI.lib.module.js` once Blazor has started — ends the wait on a prerendered page, where graphs are held so they are drawn once, in the markup the interactive render leaves. The handle, the controls and the events are in [graph.md](graph.md) |
 | `editor` | The rich-text editor's front door: `get(el or id)` resolves the editor's handle — `state()`, `html()`, `set(html)`, `insert(text)`, `focus()`, `enable(on)`, `quill`, `destroy()` — starting it if need be; `init(root?)` starts every editor in `root` at once; `invoke(id, method, args)` is the `ISednaEditors` bridge. See `docs/editor.md` |
 | — | `45-orb.js` adds no member. It is the orb's front door: it registers `[data-orb]` with the surface loader, which imports `Sedna.UI.orb.js` the first time a page shows one, and gives each orb `role="img"` the moment it is found. The app's `aria-label` names it, and its attributes drive it — see [orb.md](orb.md) |
+| — | `46-mochi.js` adds no member. It watches every `.mochi` and marks one more than a little way out of the viewport `data-mochi-away`, which holds all its loops and skips rendering the drawing until it comes back — a drawing nobody can see costs nothing. Mochi needs no script; without this one, its loops simply run |
 | — | `42-surfaces.js` adds no public member. It is the loader every shipped surface's front door registers with — `ui._.surface(spec)` — which finds the surface's elements, holds them on a prerendered Blazor page until `Sedna.UI.lib.module.js` releases it, imports the surface's module relative to this script as one comes within a screen of the viewport, and disposes one whose element has gone |
 | `md` | Markdown editor: `init(root?)` wires every `.md-editor` in `root` (the document by default) and is idempotent per editor; `apply(textarea, cmd)`, `render(src)` |
 | `copyText`, `openTab`, `viewportWidth`, `scrollPageTop`, `timeZone` | Interop helpers. `scrollPageTop` resets `.page`, which is the only scroll container the frame has and therefore the one navigation leaves where it was. `timeZone()` reads the browser's IANA zone from `Intl` at call time — an id, never an offset, and null where the browser refuses |
@@ -663,7 +664,14 @@ literals rather than palette steps: a theme replaces the palette, and Mochi is n
 pink in Forest.
 
 **Motion.** Pose changes ride `--motion-slow`, and the face and the legs cross-fade on
-`--motion-fast` — a slow cross-fade shows two faces at once. The loops are the drawing's own, with
+`--motion-fast` — a slow cross-fade shows two faces at once.
+
+**What a frame costs.** Every loop repaints the clay drawing, so a loop runs only while it shows:
+every loop's name is a custom property that only a `.mochi` sets, which keeps the sprite's own copy —
+in every page, seen by nobody — and every hidden prop still. At rest a Mochi runs two loops, a blink
+and a breath, and the breath is sampled a few times a second rather than eased every frame, because it
+moves the drawing by under two percent. Out of view, `46-mochi.js` holds them all and the drawing is not rendered, because a page pays every frame for every clay part of every drawing it holds, seen or not. `MochiTests` counts
+the loops in each case. The loops are the drawing's own, with
 their durations in longhands, as the state illustrations' are. Every loop and every eased change has a
 counterpart in the reduced-motion block: Mochi still changes pose, face and props, at once, and nothing
 loops. In a right-to-left page the drawing turns to face the inline end, in `70-rtl.css`.

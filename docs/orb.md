@@ -59,7 +59,8 @@ screen of the viewport, and disposes one whose element has gone. On a prerendere
 for the interactive render, as every surface does.
 
 An orb draws one still frame the moment it starts. After that a single clock draws every orb on screen
-while the tab is visible; under `prefers-reduced-motion` the still frame is all there is, and a change
+while the tab is visible, within a frame budget: below 72px at most thirty times a second, where a dot
+moves well under a pixel a frame, and the finest drawing at most sixty, whatever the display's rate; under `prefers-reduced-motion` the still frame is all there is, and a change
 of state draws a new one.
 
 ## Without the script

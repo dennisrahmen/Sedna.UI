@@ -147,8 +147,7 @@
        the state on its own. */
     .text-shimmer { animation: none; }
     .agent-avatar,
-    .agent-avatar::before,
-    .agent-avatar[data-state="working"] { animation: none; transition: none; }
+    .agent-avatar::before { animation: none; transition: none; }
     .reasoning > summary,
     .reasoning-chevron { transition: none; }
 

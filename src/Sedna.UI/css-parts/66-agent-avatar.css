@@ -5,8 +5,8 @@
      <span class="agent-avatar" data-tone="aurora" role="img" aria-label="Research agent"></span>
 
    Tones: sedna (the default), aurora, ember, orbit, nebula, glacier.
-   States change how it moves, never its colour: thinking spins faster, working wears
-   a pulsing ring, listening and speaking follow `--level` (0–1, written by the app's
+   States change how it moves, never its colour: thinking spins faster, working spins
+   faster still inside a ring, listening and speaking follow `--level` (0–1, written by the app's
    own audio code), offline is grey and still.
 
    Beside a person it is still a circle, so it fits an `.avatar-group`: write
@@ -84,12 +84,13 @@
     --spin: 7s;
     box-shadow: 0 0 calc(var(--size) * (0.08 + var(--level, 0) * 0.28)) calc(var(--level, 0) * var(--size) * 0.04) var(--c-glow);
 }
+/* The ring holds still: an outline cannot be animated off the main thread, and a
+   pulsing one cost more than the rest of the avatar together. The faster swirl is the
+   motion. */
 .agent-avatar[data-state="working"] {
     --spin: 5s;
-    outline: 2px solid var(--agent-sphere-halo);
+    outline: 2px solid var(--agent-sphere-ring);
     outline-offset: 2px;
-    animation: agent-avatar-ring var(--pulse-duration) ease-in-out infinite;
 }
-@keyframes agent-avatar-ring { 50% { outline-color: var(--agent-sphere-ring); } }
 .agent-avatar[data-state="offline"] { filter: grayscale(1); opacity: 0.55; }
 .agent-avatar[data-state="offline"]::before { animation-play-state: paused; }

@@ -142,12 +142,19 @@ function channels(css) {
     return [d[0], d[1], d[2], d[3] / 255];
 }
 
-/** Reads the orb's three roles. Called when it starts and whenever anything that colours it changes. */
+/**
+ * Reads the orb's three roles. Called when it starts and whenever anything that colours
+ * it changes — never per frame. Each role keeps its channels, for the core's glow, and
+ * the opaque colour as a string, which the renderer hands the canvas as it is: a string
+ * built and parsed per dot was most of a frame's script.
+ */
 function readColours(o) {
     const probe = o.probe, style = getComputedStyle(probe), out = {};
     for (const role of ROLES) {
         probe.style.color = `var(--orb-${role})`;
-        out[role] = channels(style.color);
+        const c = channels(style.color);
+        c.css = `rgb(${c[0]},${c[1]},${c[2]})`;
+        out[role] = c;
     }
     o.colours = out;
 }
@@ -466,13 +473,14 @@ function draw(o, t) {
 
     const R = P * 0.46, C = P / 2, colours = o.colours;
     const unit = Math.pow(size / 64, 0.6) * dpr;
-    const paint = (key, a) => {
-        const c = colours[key];
-        ctx.globalAlpha = Math.max(0, Math.min(1, c[3] * a));
-        return `rgb(${c[0]},${c[1]},${c[2]})`;
-    };
+    // The canvas parses a colour each time one is set, so a colour is set only when the
+    // role changes, and the fade is the alpha alone.
+    let fill = '', stroke = '';
+    const alpha = (key, a) => { ctx.globalAlpha = Math.max(0, Math.min(1, colours[key][3] * a)); };
     const disc = (x, y, r, key, a) => {
-        ctx.fillStyle = paint(key, a);
+        alpha(key, a);
+        const css = colours[key].css;
+        if (css !== fill) { ctx.fillStyle = css; fill = css; }
         ctx.beginPath();
         ctx.arc(C + x * R, C + y * R, r, 0, TAU);
         ctx.fill();
@@ -486,6 +494,7 @@ function draw(o, t) {
             glow.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
             ctx.globalAlpha = 1;
             ctx.fillStyle = glow;
+            fill = '';
             ctx.beginPath();
             ctx.arc(C, C, rr * 2.6, 0, TAU);
             ctx.fill();
@@ -503,7 +512,8 @@ function draw(o, t) {
             ctx.lineCap = p.closed ? 'butt' : 'round';
             for (let k = 0; k < last;) {
                 const level = step(k);
-                ctx.strokeStyle = paint(p.key, level);
+                alpha(p.key, level);
+                if (colours[p.key].css !== stroke) { stroke = colours[p.key].css; ctx.strokeStyle = stroke; }
                 ctx.beginPath();
                 ctx.moveTo(C + p.pts[k][0] * R, C + p.pts[k][1] * R);
                 let j = k;
@@ -553,7 +563,8 @@ function levelOf(o, t) {
    `attach` starts one: a canvas inside the element, sized to it at the device's pixel
    ratio (capped at 2), a probe for its colours, and a still frame at once. From there
    one shared clock draws every orb that is on screen, while the tab is visible and the
-   reader allows motion. What changes an orb is watched, never polled:
+   reader allows motion — within a frame budget by size, below. What changes an orb is
+   watched, never polled:
 
      * `data-orb` and `data-orb-tone` on the element — a new state restarts its clock,
        so `done` draws its tick from the start;
@@ -589,6 +600,12 @@ function resize(o) {
     stillFrame(o);
 }
 
+// A frame budget by drawing, whatever the display's rate: below 72px a dot moves well
+// under a pixel a frame at sixty, so those draw thirty times a second; the finest
+// drawing sixty. The slack absorbs a frame that arrives a little early.
+const INTERVAL = [1 / 30, 1 / 30, 1 / 60];
+const SLACK = 0.004;
+
 function tick(ms) {
     frame = 0;
     if (still()) return;
@@ -596,8 +613,10 @@ function tick(ms) {
     let any = false;
     for (const o of orbs) {
         if (!o.visible) continue;
-        draw(o, t);
         any = true;
+        if (t - o.drawn < INTERVAL[lodFor(o.size)] - SLACK) continue;
+        o.drawn = t;
+        draw(o, t);
     }
     if (any) frame = requestAnimationFrame(tick);
 }
@@ -665,7 +684,7 @@ function attach(el) {
         ctx: canvas.getContext('2d'),
         state: el.getAttribute('data-orb'),
         since: now(),
-        size: 0, dpr: 1, visible: true, colours: null,
+        size: 0, dpr: 1, visible: true, colours: null, drawn: -Infinity,
     };
     o.handle = {
         element: el,

@@ -148,6 +148,37 @@ public class OrbTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task A_small_orb_draws_half_as_often_as_a_large_one()
+    {
+        if (NoBrowser) return;
+        // Below 72px a dot moves well under a pixel a frame, so those orbs draw at most
+        // thirty times a second; the finest drawing at most sixty — on any display. Counted
+        // by the canvas being cleared, which is the first thing every frame of an orb does.
+        var page = await OpenOrb("""
+            <span class="orb" id="small" data-orb="searching" data-orb-eager style="--orb-size: 32px" aria-label="Searching"></span>
+            <span class="orb" id="large" data-orb="searching" data-orb-eager style="--orb-size: 96px" aria-label="Searching"></span>
+            """);
+        await Drawn(page, "#small");
+        await Drawn(page, "#large");
+
+        var counts = await page.EvaluateAsync<int[]>("""
+            async () => {
+                const clear = CanvasRenderingContext2D.prototype.clearRect;
+                const seen = new Map();
+                CanvasRenderingContext2D.prototype.clearRect = function (...a) { seen.set(this.canvas, (seen.get(this.canvas) || 0) + 1); return clear.apply(this, a); };
+                await new Promise(r => setTimeout(r, 1000));
+                CanvasRenderingContext2D.prototype.clearRect = clear;
+                return ['#small', '#large'].map(id => seen.get(document.querySelector(id + ' > canvas')) || 0);
+            }
+            """);
+
+        // A ratio rather than two rates, so a slow machine dropping frames does not fail it.
+        Assert.True(counts[0] > 0 && counts[0] <= 34, $"The small orb drew {counts[0]} times in a second.");
+        Assert.True(counts[1] <= 64, $"The large orb drew {counts[1]} times in a second.");
+        Assert.True(counts[0] * 1.6 <= counts[1], $"The small orb drew {counts[0]} times and the large {counts[1]}.");
+    }
+
+    [Fact]
     public async Task An_orb_whose_element_has_gone_is_let_go()
     {
         if (NoBrowser) return;

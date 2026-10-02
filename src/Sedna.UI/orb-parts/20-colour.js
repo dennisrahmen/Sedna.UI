@@ -21,12 +21,19 @@ function channels(css) {
     return [d[0], d[1], d[2], d[3] / 255];
 }
 
-/** Reads the orb's three roles. Called when it starts and whenever anything that colours it changes. */
+/**
+ * Reads the orb's three roles. Called when it starts and whenever anything that colours
+ * it changes — never per frame. Each role keeps its channels, for the core's glow, and
+ * the opaque colour as a string, which the renderer hands the canvas as it is: a string
+ * built and parsed per dot was most of a frame's script.
+ */
 function readColours(o) {
     const probe = o.probe, style = getComputedStyle(probe), out = {};
     for (const role of ROLES) {
         probe.style.color = `var(--orb-${role})`;
-        out[role] = channels(style.color);
+        const c = channels(style.color);
+        c.css = `rgb(${c[0]},${c[1]},${c[2]})`;
+        out[role] = c;
     }
     o.colours = out;
 }
