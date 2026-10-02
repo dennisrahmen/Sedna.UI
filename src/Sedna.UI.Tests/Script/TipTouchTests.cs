@@ -46,13 +46,10 @@ public class TipTouchTests : ScriptTestBase
     public async Task A_tap_acts_and_shows_nothing()
     {
         if (NoBrowser) return;
-        var page = await Open(Body);
-
         // The hold is 300ms of real time, so on a loaded machine the round trips between
         // the press and the release can outlast it and turn the tap into a hold. The page
         // clock is paused, so the press lasts exactly as long as the test runs it for.
-        await page.Clock.InstallAsync(new() { TimeDate = new DateTime(2030, 1, 1) });
-        await page.Clock.PauseAtAsync(new DateTime(2030, 1, 1, 0, 0, 1));
+        var page = await Open(Body, clockPausedAt: new DateTime(2030, 1, 1));
 
         await Pointer(page, "pointerdown");
         await page.Clock.RunForAsync(120);
