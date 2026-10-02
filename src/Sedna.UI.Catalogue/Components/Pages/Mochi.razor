@@ -114,9 +114,9 @@
 <CatExample TExample="Examples.Mochi.Sizes" Title="Sizes, and a bust" Demo="ex-demo--block ex-demo--pad">
     <p>
         <code>.mochi--sm</code> (64px), <code>--md</code> (88px), the bare <code>.mochi</code> (112px),
-        <code>--lg</code> (140px) and <code>.mochi--xl</code> (220px), for a page that is mostly Mochi. <code>.mochi--bust</code> with
-        <code>viewBox="24 30 112 112"</code> on the <code>&lt;svg&gt;</code> is head and shoulders in a
-        circle, for where an <a href="/avatar">avatar</a> would go.
+        <code>--lg</code> (140px) and <code>.mochi--xl</code> (220px), for a page that is mostly Mochi.
+        <code>.mochi--bust</code> is head and shoulders in a circle of <code>--size</code>, for where an
+        <a href="/avatar">avatar</a> would go &mdash; the same markup, cut in CSS.
     </p>
 </CatExample>
 
@@ -183,6 +183,12 @@
     feet kicking while it hangs. Pose changes ride <code>--motion-slow</code>, so an app that slows or
     stops its motion slows or stops them too. Under <code>prefers-reduced-motion</code> Mochi still
     changes pose, face and props, but at once, and nothing loops.
+</p>
+<p>
+    A Mochi out of view costs nothing: <code>Sedna.UI.js</code> marks it <code>data-mochi-away</code>, and
+    it holds still and is not drawn until it comes back, so a page can show as many as it likes. At rest
+    a Mochi in view runs two loops, a blink and a breath; an action adds its own, and a prop's loop runs
+    only while the prop shows.
 </p>
 
 @code {

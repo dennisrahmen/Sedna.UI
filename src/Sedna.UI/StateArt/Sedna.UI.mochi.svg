@@ -118,7 +118,7 @@
   <g class="sedna-mochi-grip-l"><ellipse class="sedna-mochi-drop" cx="54" cy="110" rx="8" ry="2.5" filter="url(#sedna-mochi-soft)"/><circle class="sedna-mochi-palm" cx="54" cy="104" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="54" cy="104" r="8" fill="url(#sedna-mochi-sheen)"/></g>
   <g class="sedna-mochi-grip-r"><ellipse class="sedna-mochi-drop" cx="106" cy="110" rx="8" ry="2.5" filter="url(#sedna-mochi-soft)"/><circle class="sedna-mochi-palm" cx="106" cy="104" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="106" cy="104" r="8" fill="url(#sedna-mochi-sheen)"/></g>
   <g class="sedna-mochi-grip-side"><ellipse class="sedna-mochi-drop" cx="61" cy="102" rx="7.5" ry="2.5" filter="url(#sedna-mochi-soft)"/><circle class="sedna-mochi-palm" cx="61" cy="96" r="7.5" filter="url(#sedna-mochi-clay-small)"/><circle cx="61" cy="96" r="7.5" fill="url(#sedna-mochi-sheen)"/></g>
-  <g class="sedna-mochi-grip-hl"><circle class="sedna-mochi-palm" cx="52" cy="30" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="52" cy="30" r="8" fill="url(#sedna-mochi-sheen)"/></g>
-  <g class="sedna-mochi-grip-hr"><circle class="sedna-mochi-palm" cx="108" cy="30" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="108" cy="30" r="8" fill="url(#sedna-mochi-sheen)"/></g>
+  <g class="sedna-mochi-grip-hl"><circle class="sedna-mochi-palm" cx="36" cy="30" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="36" cy="30" r="8" fill="url(#sedna-mochi-sheen)"/></g>
+  <g class="sedna-mochi-grip-hr"><circle class="sedna-mochi-palm" cx="124" cy="30" r="8" filter="url(#sedna-mochi-clay-small)"/><circle cx="124" cy="30" r="8" fill="url(#sedna-mochi-sheen)"/></g>
   </symbol>
 </svg>

@@ -227,6 +227,27 @@ public class MochiTests : ScriptTestBase
         Assert.InRange(Math.Abs(D(finger, "y") - D(target, "y")), 0, 4);
     }
 
+    [Theory]
+    [InlineData(28)]
+    [InlineData(44)]
+    public async Task A_bust_is_the_face_in_a_circle_of_its_size(int size)
+    {
+        if (NoBrowser) return;
+        // The same markup as a whole Mochi. A <use> of a symbol is scaled to whatever
+        // view box its <svg> has, so a bust cut with a view box drew the whole figure,
+        // shrunk, in the corner — the cut has to be the stylesheet's.
+        var page = await OpenMochi($"""<span class="mochi mochi--bust" id="m" style="--size: {size}px" role="img" aria-label="Ops agent">{Svg}</span>""");
+        var box = await CardBox(page, "m");
+        var eyes = await Box(page, ".sedna-mochi-e-open");
+        var feet = await Box(page, ".sedna-mochi-ground");
+
+        Assert.Equal(size, D(box, "right") - D(box, "left"), 0);
+        Assert.InRange(D(eyes, "x"), D(box, "left"), D(box, "right"));
+        Assert.InRange(D(eyes, "y"), D(box, "top"), D(box, "bottom"));
+        Assert.True(D(feet, "y") > D(box, "bottom"), "The feet are inside the bust.");
+        Assert.Equal("hidden", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('m')).overflow"));
+    }
+
     // ── Changing pose ─────────────────────────────────────────────────────────
 
     [Fact]
@@ -288,6 +309,95 @@ public class MochiTests : ScriptTestBase
         Assert.True(fade[0] >= 0, "Changing the mood started no fade on the mouth.");
         Assert.InRange(fade[0], 0.05, 0.95);
         Assert.Equal(1, fade[1], 2);
+    }
+
+    // ── What a frame costs ────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task The_sprite_runs_no_loop_of_its_own()
+    {
+        if (NoBrowser) return;
+        // SednaMochi writes the drawing into every page of an app, most of which show no
+        // Mochi. Every part of it is in the document and styled, so a loop named outright
+        // ran in the hidden copy on every page for ever — and a page spent its frames on
+        // a drawing nobody could see. Every loop's name is a custom property only a
+        // .mochi sets.
+        var page = await Open($"<main>No Mochi here.</main>{Sprite}", head: StylesheetTag, reducedMotion: ReducedMotion.NoPreference);
+
+        var running = await page.EvaluateAsync<string[]>(
+            "() => document.getAnimations().map(a => a.animationName + ' @' + a.effect.target.getAttribute('class'))");
+
+        Assert.True(running.Length == 0, "The sprite runs: " + string.Join(", ", running.Distinct()));
+    }
+
+    [Fact]
+    public async Task A_resting_mochi_runs_only_its_breath_and_its_blink()
+    {
+        if (NoBrowser) return;
+        // A prop that is hidden, a glow at nought, a heart for an eye that is not shown:
+        // each still repainted the clay drawing every frame while it ran.
+        var page = await OpenMochi("""<span class="mochi" id="m" role="img" aria-label="Ops agent">""" + Svg + "</span>", reduced: false);
+
+        var running = await page.EvaluateAsync<string[]>("""
+            () => document.getAnimations()
+                .filter(a => a.playState === 'running' && a.effect.target.closest('#m'))
+                .map(a => a.animationName)
+            """);
+
+        Assert.Equal(["sedna-mochi-blink", "sedna-mochi-breathe"], running.Distinct().Order().ToArray());
+    }
+
+    [Theory]
+    [InlineData("think", "sedna-mochi-bubble")]
+    [InlineData("work", "sedna-mochi-screen")]
+    [InlineData("celebrate", "sedna-mochi-confetti")]
+    [InlineData("oops", "sedna-mochi-sweat")]
+    [InlineData("sleep", "sedna-mochi-z")]
+    [InlineData("listen", "sedna-mochi-arc")]
+    [InlineData("listen", "sedna-mochi-glow")]
+    [InlineData("surprised", "sedna-mochi-pop")]
+    [InlineData("done", "sedna-mochi-check")]
+    [InlineData("love", "sedna-mochi-heart")]
+    [InlineData("love", "sedna-mochi-beat")]
+    public async Task An_action_runs_its_prop_s_loop(string action, string loop)
+    {
+        if (NoBrowser) return;
+        var page = await OpenMochi($"""<span class="mochi" id="m" data-action="{action}" role="img" aria-label="Ops agent">""" + Svg + "</span>", reduced: false);
+
+        var running = await page.EvaluateAsync<string[]>("""
+            () => document.getAnimations().filter(a => a.playState === 'running' && a.effect.target.closest('#m')).map(a => a.animationName)
+            """);
+
+        Assert.Contains(loop, running);
+    }
+
+    [Fact]
+    public async Task A_mochi_out_of_view_holds_every_loop()
+    {
+        if (NoBrowser) return;
+        var page = await OpenMochi("""
+            <span class="mochi" id="m" data-action="celebrate" role="img" aria-label="Ops agent">
+            """ + Svg + "</span>", reduced: false);
+
+        static string Running() => """
+            () => document.getAnimations().filter(a => a.effect.target.closest('#m') && a.playState === 'running').length
+            """;
+        Assert.True(await page.EvaluateAsync<int>(Running()) > 0, "Nothing ran while in view.");
+
+        // Pushed far below the fold: marked away, and every loop holds.
+        await page.EvaluateAsync("() => document.getElementById('m').style.marginTop = '5000px'");
+        await page.WaitForFunctionAsync("() => document.getElementById('m').hasAttribute('data-mochi-away')");
+        // Held, and not drawn at all: the browser skips the drawing, so its parts are not
+        // even styled — the loops cannot step. The span keeps its size, so nothing around
+        // it moves. (A browser without content-visibility still holds the loops.)
+        Assert.Equal("paused", (await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('m')).getPropertyValue('--play')")).Trim());
+        Assert.Equal("hidden", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('m')).contentVisibility"));
+        Assert.Equal(112, await page.EvaluateAsync<double>("() => document.getElementById('m').getBoundingClientRect().width"), 0);
+
+        // Back in view: it moves again.
+        await page.EvaluateAsync("() => document.getElementById('m').style.marginTop = '0'");
+        await page.WaitForFunctionAsync("() => !document.getElementById('m').hasAttribute('data-mochi-away')");
+        Assert.True(await page.EvaluateAsync<int>(Running()) > 0, "It did not move again once back in view.");
     }
 
     [Fact]

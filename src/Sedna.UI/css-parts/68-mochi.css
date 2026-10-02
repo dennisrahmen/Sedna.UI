@@ -47,8 +47,12 @@
    the same line the perch places.
 
    ── Motion ──
-   Pose changes ride `--motion-slow`; the face and the legs cross-fade on `--motion-fast`,
-   because a slow cross-fade shows two faces at once. The loops are the drawing's own,
+   Every loop repaints the clay drawing, so a loop runs only while it shows: its name is
+   a custom property only a .mochi sets, so the sprite's own copy and a hidden prop never
+   run one, and 46-mochi.js holds them all while the Mochi is out of view. At rest there
+   are two, a blink and a sampled breath. Pose changes ride `--motion-slow`; the face and
+   the legs cross-fade on `--motion-fast`, because a slow cross-fade shows two faces at
+   once. The loops are the drawing's own,
    their durations in longhands, as the state illustrations' are. Reduced motion keeps
    every change and drops every loop. In RTL the drawing turns to face the inline end —
    see 70-rtl.css.
@@ -89,6 +93,15 @@
     --a-breathe: sedna-mochi-breathe; --a-breathe-d: 3.4s;
     --a-bl: none; --a-br: none; --a-arm-d: 1s;
     --a-swing: none; --a-kick: none; --a-tap: none; --a-scan: none; --a-chatter: none;
+    /* A loop runs only while its part shows, and only inside a .mochi: every loop's name is
+       one of these, so the sprite's own copy of the drawing, which nobody sees, never runs
+       one, and neither does a prop that is hidden. A running loop costs a frame's work
+       whether or not anything shows. */
+    --a-glow: none; --a-heart: none; --a-blink: sedna-mochi-blink;
+    --a-screen: none; --a-bubble: none; --a-confetti: none; --a-sweat: none; --a-z: none;
+    --a-arc: none; --a-pop: none; --a-check: none; --a-float: none;
+    /* Paused while out of view — 46-mochi.js sets data-mochi-away. */
+    --play: running;
     /* Props. */
     --p-think: none; --p-laptop: none; --p-confetti: none; --p-sweat: none; --p-zzz: none;
     --p-waves: none; --p-pop: none; --p-check: none; --p-hearts: none;
@@ -103,8 +116,16 @@
 .mochi--md { --size: 88px; }
 .mochi--lg { --size: 140px; }
 .mochi--xl { --size: 220px; }
-/* Head and shoulders, for an avatar: the app writes viewBox="24 30 112 112". */
-.mochi--bust > svg { overflow: hidden; border-radius: 50%; }
+/* Head and shoulders in a circle, for where an avatar goes: the same markup, the
+   drawing enlarged and cut to the square from 30 to 130 across and down —
+   the dome, the headset and the face, on a disc of its own like any avatar. */
+.mochi--bust { overflow: hidden; border-radius: 50%; background: var(--surface-strong); }
+.mochi--bust > svg {
+    inline-size: calc(var(--size) * 160 / 100);
+    block-size: calc(var(--size) * 160 / 100);
+    margin-inline-start: calc(var(--size) * -30 / 100);
+    margin-block-start: calc(var(--size) * -30 / 100);
+}
 
 /* ── Tones ── */
 .mochi[data-tone="mint"]  { --mochi-body: var(--mochi-mint);  --mochi-limb: var(--mochi-mint-limb);  --mochi-cup: var(--mochi-pink); }
@@ -123,22 +144,22 @@
 /* ── Actions ── */
 .mochi[data-action="wave"]      { --br-on: 1; --fr-on: 0; --br-a: -53deg; --br-l: 30px; --a-br: sedna-mochi-wave; --a-arm-d: 0.9s; --a-tilt: sedna-mochi-lean; --a-tilt-d: 1.8s; --m-smile: 0; --m-grin: 1; --cheeks: 0.8; }
 .mochi[data-action="point"]     { --br-on: 1; --fr-on: 0; --br-a: -14deg; --br-l: 25px; --finger: 1; --a-br: sedna-mochi-jab; --a-arm-d: 1.4s; --look-x: 3px; --a-tilt: sedna-mochi-lean; --a-tilt-d: 2.8s; }
-.mochi[data-action="think"]     { --fr-on: 1; --br-on: 0; --fr-a: 189deg; --fr-l: 26px; --fr-seg: 1; --fr-drop: 0; --look-x: -2px; --look-y: -3px; --m-smile: 0; --m-flat: 1; --p-think: inline; --a-tilt: sedna-mochi-ponder; --a-tilt-d: 4.2s; }
-.mochi[data-action="work"]      { --fl-on: 1; --fr-on: 1; --bl-on: 0; --br-on: 0; --fl-a: 49deg; --fl-l: 18px; --fr-a: 131deg; --fr-l: 18px; --fl-drop: 0; --fr-drop: 0; --a-tap: sedna-mochi-tap; --a-swing: none; --look-y: 3px; --p-laptop: inline; }
+.mochi[data-action="think"]     { --a-bubble: sedna-mochi-bubble; --fr-on: 1; --br-on: 0; --fr-a: 189deg; --fr-l: 26px; --fr-seg: 1; --fr-drop: 0; --look-x: -2px; --look-y: -3px; --m-smile: 0; --m-flat: 1; --p-think: inline; --a-tilt: sedna-mochi-ponder; --a-tilt-d: 4.2s; }
+.mochi[data-action="work"]      { --a-screen: sedna-mochi-screen; --fl-on: 1; --fr-on: 1; --bl-on: 0; --br-on: 0; --fl-a: 49deg; --fl-l: 18px; --fr-a: 131deg; --fr-l: 18px; --fl-drop: 0; --fr-drop: 0; --a-tap: sedna-mochi-tap; --a-swing: none; --look-y: 3px; --p-laptop: inline; }
 .mochi[data-action="talk"]      { --a-chatter: sedna-mochi-chatter; --a-tilt: sedna-mochi-chat; --a-tilt-d: 2.4s; --cheeks: 0.7; }
-.mochi[data-action="listen"]    { --fr-on: 1; --br-on: 0; --fr-a: -45deg; --fr-l: 12px; --fr-seg: 1; --fr-drop: 0; --cup-glow: 1; --p-waves: inline; --look-x: 2px; --a-tilt: sedna-mochi-listen; --a-tilt-d: 3.2s; }
-.mochi[data-action="celebrate"] { --bl-on: 1; --br-on: 1; --fl-on: 0; --fr-on: 0; --bl-a: 238deg; --bl-l: 30px; --br-a: -58deg; --br-l: 30px; --a-bl: sedna-mochi-pump-l; --a-br: sedna-mochi-pump-r; --a-arm-d: 1s; --a-rig: sedna-mochi-jump; --a-rig-d: 1s; --a-ground: sedna-mochi-ground-jump; --p-confetti: inline; --e-open: 0; --e-happy: 1; --m-smile: 0; --m-grin: 1; --cheeks: 1; }
-.mochi[data-action="oops"]      { --bl-a: 97deg; --bl-l: 16px; --br-a: 83deg; --br-l: 16px; --brow-worry: 1; --m-smile: 0; --m-frown: 1; --cheeks: 0.3; --p-sweat: inline; --a-tilt: sedna-mochi-wobble; --a-tilt-d: 2.8s; }
-.mochi[data-action="sleep"]     { --e-open: 0; --e-closed: 1; --m-smile: 0; --m-o-small: 1; --cheeks: 0.65; --p-zzz: inline; --a-breathe: sedna-mochi-snooze; --a-breathe-d: 4.2s; --a-swing: none; }
-.mochi[data-action="surprised"] { --bl-on: 1; --br-on: 1; --fl-on: 0; --fr-on: 0; --bl-a: 221deg; --bl-l: 18px; --br-a: -41deg; --br-l: 18px; --e-open: 0; --e-wide: 1; --m-smile: 0; --m-o: 1; --cheeks: 0.3; --p-pop: inline; --a-rig: sedna-mochi-startle; --a-rig-d: 2.6s; }
-.mochi[data-action="done"]      { --e-open: 0; --e-happy: 1; --m-smile: 0; --m-grin: 1; --cheeks: 0.9; --p-check: inline; --a-rig: sedna-mochi-nod; --a-rig-d: 2.6s; }
-.mochi[data-action="love"]      { --e-open: 0; --e-love: 1; --m-smile: 0; --m-cat: 1; --cheeks: 1; --p-hearts: inline; --a-tilt: sedna-mochi-sway; --a-tilt-d: 2.8s; }
+.mochi[data-action="listen"]    { --a-glow: sedna-mochi-glow; --a-arc: sedna-mochi-arc; --fr-on: 1; --br-on: 0; --fr-a: -45deg; --fr-l: 12px; --fr-seg: 1; --fr-drop: 0; --cup-glow: 1; --p-waves: inline; --look-x: 2px; --a-tilt: sedna-mochi-listen; --a-tilt-d: 3.2s; }
+.mochi[data-action="celebrate"] { --a-confetti: sedna-mochi-confetti; --bl-on: 1; --br-on: 1; --fl-on: 0; --fr-on: 0; --bl-a: 238deg; --bl-l: 30px; --br-a: -58deg; --br-l: 30px; --a-bl: sedna-mochi-pump-l; --a-br: sedna-mochi-pump-r; --a-arm-d: 1s; --a-rig: sedna-mochi-jump; --a-rig-d: 1s; --a-ground: sedna-mochi-ground-jump; --p-confetti: inline; --e-open: 0; --e-happy: 1; --m-smile: 0; --m-grin: 1; --cheeks: 1; }
+.mochi[data-action="oops"]      { --a-sweat: sedna-mochi-sweat; --bl-a: 97deg; --bl-l: 16px; --br-a: 83deg; --br-l: 16px; --brow-worry: 1; --m-smile: 0; --m-frown: 1; --cheeks: 0.3; --p-sweat: inline; --a-tilt: sedna-mochi-wobble; --a-tilt-d: 2.8s; }
+.mochi[data-action="sleep"]     { --a-z: sedna-mochi-z; --a-blink: none; --e-open: 0; --e-closed: 1; --m-smile: 0; --m-o-small: 1; --cheeks: 0.65; --p-zzz: inline; --a-breathe: sedna-mochi-snooze; --a-breathe-d: 4.2s; --a-swing: none; }
+.mochi[data-action="surprised"] { --a-pop: sedna-mochi-pop; --bl-on: 1; --br-on: 1; --fl-on: 0; --fr-on: 0; --bl-a: 221deg; --bl-l: 18px; --br-a: -41deg; --br-l: 18px; --e-open: 0; --e-wide: 1; --m-smile: 0; --m-o: 1; --cheeks: 0.3; --p-pop: inline; --a-rig: sedna-mochi-startle; --a-rig-d: 2.6s; }
+.mochi[data-action="done"]      { --a-check: sedna-mochi-check; --e-open: 0; --e-happy: 1; --m-smile: 0; --m-grin: 1; --cheeks: 0.9; --p-check: inline; --a-rig: sedna-mochi-nod; --a-rig-d: 2.6s; }
+.mochi[data-action="love"]      { --a-float: sedna-mochi-heart; --a-heart: sedna-mochi-beat; --e-open: 0; --e-love: 1; --m-smile: 0; --m-cat: 1; --cheeks: 1; --p-hearts: inline; --a-tilt: sedna-mochi-sway; --a-tilt-d: 2.8s; }
 /* Celebrating on a seat is a bounce in it, not a jump off it. */
 .mochi[data-perch="sit"][data-action="celebrate"] { --a-rig: sedna-mochi-seat-bounce; --a-ground: none; }
 
 /* ── Moods: the face alone, over whatever the action chose ── */
 .mochi[data-mood] {
-    --e-open: 1; --e-wide: 0; --e-happy: 0; --e-closed: 0; --e-love: 0; --e-wink: 0; --brow-worry: 0; --brow-focus: 0;
+    --e-open: 1; --e-wide: 0; --e-happy: 0; --e-closed: 0; --e-love: 0; --e-wink: 0; --brow-worry: 0; --brow-focus: 0; --a-heart: none; --a-blink: sedna-mochi-blink;
     --m-smile: 1; --m-grin: 0; --m-flat: 0; --m-frown: 0; --m-o: 0; --m-o-small: 0; --m-cat: 0; --cheeks: 0.5;
 }
 .mochi[data-mood="happy"]     { --e-open: 0; --e-happy: 1; --m-smile: 0; --m-grin: 1; --cheeks: 0.9; }
@@ -147,8 +168,8 @@
 .mochi[data-mood="curious"]   { --look-x: 2px; --look-y: -2px; --m-smile: 0; --m-o-small: 1; --cheeks: 0.6; }
 .mochi[data-mood="focused"]   { --brow-focus: 1; --m-smile: 0; --m-flat: 1; --cheeks: 0.3; }
 .mochi[data-mood="worried"]   { --brow-worry: 1; --m-smile: 0; --m-frown: 1; --cheeks: 0.2; }
-.mochi[data-mood="sleepy"]    { --e-open: 0; --e-closed: 1; --m-smile: 0; --m-o-small: 1; --cheeks: 0.6; }
-.mochi[data-mood="love"]      { --e-open: 0; --e-love: 1; --m-smile: 0; --m-cat: 1; --cheeks: 1; }
+.mochi[data-mood="sleepy"]    { --a-blink: none; --e-open: 0; --e-closed: 1; --m-smile: 0; --m-o-small: 1; --cheeks: 0.6; }
+.mochi[data-mood="love"]      { --a-heart: sedna-mochi-beat; --e-open: 0; --e-love: 1; --m-smile: 0; --m-cat: 1; --cheeks: 1; }
 .mochi[data-mood="wink"]      { --e-open: 0; --e-wink: 1; --m-smile: 0; --m-cat: 1; --cheeks: 0.9; }
 /* Talking owns the mouth, whatever the mood. */
 .mochi[data-action="talk"] { --m-smile: 0; --m-grin: 0; --m-flat: 0; --m-frown: 0; --m-o: 0; --m-o-small: 0; --m-cat: 0; --m-talk: 1; }
@@ -166,7 +187,7 @@
     inset-inline-end: var(--perch-inset);
     --clip: inset(-80px -80px 56px -80px) view-box; --py: 16px; --grip-l: 1; --grip-r: 1;
     --bl-on: 0; --br-on: 0; --fl-on: 0; --fr-on: 0; --legs-stand: 0; --legs-sit: 0; --g-stand: 0; --g-sit: 0;
-    --a-rig: none; --a-ground: none; --p-laptop: none;
+    --a-rig: none; --a-ground: none; --p-laptop: none; --a-screen: none;
 }
 .mochi[data-perch="look"] { --py: 7px; --prot: -4deg; --look-y: 4px; --a-scan: sedna-mochi-read; }
 .mochi[data-perch="peek"][data-action="wave"],
@@ -183,7 +204,7 @@
     inset-inline-start: calc(100% - var(--size) * 0.375);
     --clip: inset(-80px -80px -80px 60px) view-box; --px: -18px; --lean: -10deg; --a-lean: sedna-mochi-peek-out;
     --leg-l: 5deg; --leg-r: -12deg; --grip-side: 1; --bl-on: 0; --fl-on: 0; --look-x: 3px;
-    --a-rig: none; --a-ground: none; --p-laptop: none;
+    --a-rig: none; --a-ground: none; --p-laptop: none; --a-screen: none;
 }
 /* Nothing to work on from behind a card: the hands come away from the keys. */
 .mochi[data-perch="side"][data-action="work"] { --fr-on: 0; --br-on: 1; --a-tap: none; }
@@ -195,8 +216,8 @@
     --clip: inset(28px -80px -80px -80px) view-box; --pivot-y: 30px; --a-place: sedna-mochi-hang;
     --legs-stand: 1; --legs-sit: 0; --g-stand: 0; --g-sit: 0; --a-kick: sedna-mochi-kick;
     --bl-on: 1; --br-on: 1; --fl-on: 0; --fr-on: 0; --bl-hand: 0; --br-hand: 0; --grip-hl: 1; --grip-hr: 1; --finger: 0;
-    --bl-a: 279.7deg; --bl-l: 71px; --br-a: -99.7deg; --br-l: 71px;
-    --a-rig: none; --a-ground: none; --a-bl: none; --a-br: none; --p-laptop: none;
+    --bl-a: 266.7deg; --bl-l: 70px; --br-a: -86.7deg; --br-l: 70px;
+    --a-rig: none; --a-ground: none; --a-bl: none; --a-br: none; --p-laptop: none; --a-screen: none;
 }
 .mochi[data-perch="hang"][data-action="wave"] { --grip-hr: 0; --br-hand: 1; --br-a: -40deg; --br-l: 34px; --a-br: sedna-mochi-wave; }
 .mochi[data-perch="hang"][data-action="point"] { --grip-hr: 0; --br-hand: 1; --finger: 1; --br-a: -14deg; --br-l: 25px; --a-br: sedna-mochi-jab; }
@@ -239,8 +260,8 @@
 .sedna-mochi-ground { fill: var(--mochi-shade); opacity: calc(var(--g-stand) * 0.2); transform-origin: 80px 154px; animation: var(--a-ground) var(--a-rig-d) cubic-bezier(.45, 0, .55, 1) infinite; transition: opacity var(--motion-slow); }
 .sedna-mochi-seat  { fill: var(--mochi-shade); opacity: calc(var(--g-sit) * 0.18); transition: opacity var(--motion-slow); }
 .sedna-mochi-finger { fill: var(--mochi-body); opacity: var(--finger); transition: opacity var(--motion-mid); }
-.sedna-mochi-glow  { fill: none; stroke: var(--mochi-cup); stroke-width: 3; opacity: calc(var(--cup-glow) * 0.55); transition: opacity var(--motion-slow); animation: sedna-mochi-glow ease-in-out infinite; animation-duration: 1.4s; }
-.sedna-mochi-screen { fill: var(--mochi-cup); animation: sedna-mochi-screen ease-in-out infinite; animation-duration: 1.6s; }
+.sedna-mochi-glow  { fill: none; stroke: var(--mochi-cup); stroke-width: 4.5; opacity: calc(var(--cup-glow) * 0.55); transition: opacity var(--motion-slow); animation: var(--a-glow) ease-in-out infinite; animation-duration: 1.4s; }
+.sedna-mochi-screen { fill: var(--mochi-cup); animation: var(--a-screen) ease-in-out infinite; animation-duration: 1.6s; }
 .sedna-mochi-deck  { fill: var(--mochi-deck); }
 /* A face or a pair of legs changes quickly: a slow cross-fade shows both at once. */
 .sedna-mochi-part  { transition: opacity var(--motion-fast) ease; }
@@ -291,10 +312,10 @@
 .sedna-mochi-rig     { transform-origin: 80px 154px; animation: var(--a-rig) var(--a-rig-d) cubic-bezier(.45, 0, .55, 1) infinite; }
 .sedna-mochi-lean    { transform: skewX(var(--lean)); transform-origin: 80px 120px; transition: transform var(--pose-d) cubic-bezier(.34, 1.25, .5, 1); animation: var(--a-lean) cubic-bezier(.45, 0, .55, 1) infinite; animation-duration: 4.4s; }
 .sedna-mochi-tilt    { transform-origin: 80px 120px; animation: var(--a-tilt) var(--a-tilt-d) cubic-bezier(.45, 0, .55, 1) infinite; }
-.sedna-mochi-breathe { transform-origin: 80px 120px; animation: var(--a-breathe) var(--a-breathe-d) cubic-bezier(.45, 0, .55, 1) infinite; }
+.sedna-mochi-breathe { transform-origin: 80px 120px; animation: var(--a-breathe) var(--a-breathe-d) steps(1, end) infinite; }
 .sedna-mochi-eyes    { transform: translate(var(--look-x), var(--look-y)); transition: transform var(--look-d) cubic-bezier(.34, 1.3, .5, 1); }
 .sedna-mochi-scan    { animation: var(--a-scan) cubic-bezier(.45, 0, .55, 1) infinite; animation-duration: 3.6s; }
-.sedna-mochi-blink   { transform-origin: 80px 78px; animation: sedna-mochi-blink ease-in-out infinite; animation-duration: 5.2s; }
+.sedna-mochi-blink   { transform-origin: 80px 78px; animation: var(--a-blink) ease-in-out infinite; animation-duration: 5.2s; }
 /* The level opens the mouth; the chatter shapes syllables over it, so a voice with no
    level still talks. */
 .sedna-mochi-talk    { transform-origin: 80px 88px; transform: scale(1, calc(0.35 + var(--level, 0.45) * 1.1)); transition: transform 80ms linear; animation: var(--a-chatter) ease-in-out infinite; animation-duration: 0.9s; }
@@ -343,10 +364,10 @@
 .sedna-mochi-tap-fr { animation: var(--a-tap) ease-in-out infinite; animation-duration: 0.34s; animation-delay: -0.17s; }
 
 /* Props. */
-.sedna-mochi-bubble   { fill: var(--mochi-bubble); stroke: var(--mochi-bubble-edge); stroke-width: 1.5; transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-bubble cubic-bezier(.34, 1.4, .5, 1) infinite; animation-duration: 2.8s; }
+.sedna-mochi-bubble   { fill: var(--mochi-bubble); stroke: var(--mochi-bubble-edge); stroke-width: 1.5; transform-box: fill-box; transform-origin: 50% 50%; animation: var(--a-bubble) cubic-bezier(.34, 1.4, .5, 1) infinite; animation-duration: 2.8s; }
 .sedna-mochi-bubble-2 { animation-delay: 0.18s; }
 .sedna-mochi-bubble-3 { animation-delay: 0.36s; }
-.sedna-mochi-confetti { transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-confetti cubic-bezier(.3, .7, .4, 1) infinite; animation-duration: 1.6s; }
+.sedna-mochi-confetti { transform-box: fill-box; transform-origin: 50% 50%; animation: var(--a-confetti) cubic-bezier(.3, .7, .4, 1) infinite; animation-duration: 1.6s; }
 .sedna-mochi-confetti-a { fill: var(--mochi-mint); }
 .sedna-mochi-confetti-b { fill: var(--mochi-spark); }
 .sedna-mochi-confetti-c { fill: var(--mochi-sky); }
@@ -357,23 +378,62 @@
 .sedna-mochi-delay-3 { animation-delay: 0.65s; }
 .sedna-mochi-delay-4 { animation-delay: 0.85s; }
 .sedna-mochi-delay-5 { animation-delay: 1.05s; }
-.sedna-mochi-sweat { fill: var(--mochi-sweat); animation: sedna-mochi-sweat cubic-bezier(.5, 0, .75, 1) infinite; animation-duration: 2.8s; }
-.sedna-mochi-z     { fill: none; stroke: var(--mochi-zzz); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-z cubic-bezier(.3, .6, .5, 1) infinite; animation-duration: 3.6s; }
+.sedna-mochi-sweat { fill: var(--mochi-sweat); animation: var(--a-sweat) cubic-bezier(.5, 0, .75, 1) infinite; animation-duration: 2.8s; }
+.sedna-mochi-z     { fill: none; stroke: var(--mochi-zzz); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transform-box: fill-box; transform-origin: 50% 50%; animation: var(--a-z) cubic-bezier(.3, .6, .5, 1) infinite; animation-duration: 3.6s; }
 .sedna-mochi-z-2   { animation-delay: 1.2s; }
 .sedna-mochi-z-3   { animation-delay: 2.4s; }
-.sedna-mochi-arc   { fill: none; stroke: var(--mochi-cup); stroke-width: 2.6; stroke-linecap: round; animation: sedna-mochi-arc ease-out infinite; animation-duration: 1.5s; }
+.sedna-mochi-arc   { fill: none; stroke: var(--mochi-cup); stroke-width: 2.6; stroke-linecap: round; animation: var(--a-arc) ease-out infinite; animation-duration: 1.5s; }
 .sedna-mochi-arc-2 { animation-delay: 0.25s; }
-.sedna-mochi-pop   { stroke: var(--mochi-ink); stroke-width: 3; stroke-linecap: round; transform-origin: 80px 60px; animation: sedna-mochi-pop cubic-bezier(.34, 1.4, .5, 1) infinite; animation-duration: 2.6s; }
-.sedna-mochi-check { transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-check cubic-bezier(.34, 1.5, .5, 1) infinite; animation-duration: 2.6s; }
+.sedna-mochi-pop   { stroke: var(--mochi-ink); stroke-width: 3; stroke-linecap: round; transform-origin: 80px 60px; animation: var(--a-pop) cubic-bezier(.34, 1.4, .5, 1) infinite; animation-duration: 2.6s; }
+.sedna-mochi-check { transform-box: fill-box; transform-origin: 50% 50%; animation: var(--a-check) cubic-bezier(.34, 1.5, .5, 1) infinite; animation-duration: 2.6s; }
 .sedna-mochi-check-bg   { fill: var(--go-solid); }
 .sedna-mochi-check-mark { fill: none; stroke: var(--on-solid); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
-.sedna-mochi-heart      { fill: var(--mochi-tongue); transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-beat ease-in-out infinite; animation-duration: 0.9s; }
-.sedna-mochi-float-heart   { fill: var(--mochi-tongue); transform-box: fill-box; transform-origin: 50% 50%; animation: sedna-mochi-heart ease-out infinite; animation-duration: 2.6s; }
+.sedna-mochi-heart      { fill: var(--mochi-tongue); transform-box: fill-box; transform-origin: 50% 50%; animation: var(--a-heart) ease-in-out infinite; animation-duration: 0.9s; }
+.sedna-mochi-float-heart   { fill: var(--mochi-tongue); transform-box: fill-box; transform-origin: 50% 50%; animation: var(--a-float) ease-out infinite; animation-duration: 2.6s; }
 .sedna-mochi-float-heart-2 { animation-delay: 0.85s; }
 .sedna-mochi-float-heart-3 { animation-delay: 1.7s; }
 
-@keyframes sedna-mochi-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.016, 0.984); } }
-@keyframes sedna-mochi-snooze  { 0%, 100% { transform: scale(1, 1) translateY(0); } 50% { transform: scale(1.035, 0.965) translateY(1px); } }
+/* Breathing is sampled, not eased: the body scales by under two percent, so a held
+   value a few times a second reads as smooth, and the clay drawing is repainted that
+   often instead of every frame. */
+/* ── Out of view, nothing is drawn ──
+   46-mochi.js marks a Mochi that has left the viewport `data-mochi-away`: every loop
+   holds where it is, and the drawing is not rendered at all until it comes back. The
+   span keeps its size, so nothing moves; but a page of Mochi otherwise paid, every
+   frame, for every clay part of every drawing it had, seen or not. Without the script,
+   they all run. */
+.mochi[data-mochi-away] { --play: paused; content-visibility: hidden; }
+.sedna-mochi-ground,
+.sedna-mochi-glow,
+.sedna-mochi-screen,
+.sedna-mochi-place,
+.sedna-mochi-rig,
+.sedna-mochi-lean,
+.sedna-mochi-tilt,
+.sedna-mochi-breathe,
+.sedna-mochi-scan,
+.sedna-mochi-blink,
+.sedna-mochi-talk,
+.sedna-mochi-leg-l,
+.sedna-mochi-leg-r,
+.sedna-mochi-shin-l,
+.sedna-mochi-shin-r,
+.sedna-mochi-act-bl,
+.sedna-mochi-act-br,
+.sedna-mochi-tap-fl,
+.sedna-mochi-tap-fr,
+.sedna-mochi-bubble,
+.sedna-mochi-confetti,
+.sedna-mochi-sweat,
+.sedna-mochi-z,
+.sedna-mochi-arc,
+.sedna-mochi-pop,
+.sedna-mochi-check,
+.sedna-mochi-heart,
+.sedna-mochi-float-heart { animation-play-state: var(--play); }
+
+@keyframes sedna-mochi-breathe { 0% { transform: scale(1, 1); } 4.1667% { transform: scale(1.0003, 0.9997); } 8.3333% { transform: scale(1.0011, 0.9989); } 12.5% { transform: scale(1.0023, 0.9977); } 16.6667% { transform: scale(1.004, 0.996); } 20.8333% { transform: scale(1.0059, 0.9941); } 25% { transform: scale(1.008, 0.992); } 29.1667% { transform: scale(1.0101, 0.9899); } 33.3333% { transform: scale(1.012, 0.988); } 37.5% { transform: scale(1.0137, 0.9863); } 41.6667% { transform: scale(1.0149, 0.9851); } 45.8333% { transform: scale(1.0157, 0.9843); } 50% { transform: scale(1.016, 0.984); } 54.1667% { transform: scale(1.0157, 0.9843); } 58.3333% { transform: scale(1.0149, 0.9851); } 62.5% { transform: scale(1.0137, 0.9863); } 66.6667% { transform: scale(1.012, 0.988); } 70.8333% { transform: scale(1.0101, 0.9899); } 75% { transform: scale(1.008, 0.992); } 79.1667% { transform: scale(1.0059, 0.9941); } 83.3333% { transform: scale(1.004, 0.996); } 87.5% { transform: scale(1.0023, 0.9977); } 91.6667% { transform: scale(1.0011, 0.9989); } 95.8333% { transform: scale(1.0003, 0.9997); } 100% { transform: scale(1, 1); } }
+@keyframes sedna-mochi-snooze { 0% { transform: scale(1, 1) translateY(0px); } 3.125% { transform: scale(1.0003, 0.9997) translateY(0.0096px); } 6.25% { transform: scale(1.0013, 0.9987) translateY(0.0381px); } 9.375% { transform: scale(1.0029, 0.9971) translateY(0.0843px); } 12.5% { transform: scale(1.0051, 0.9949) translateY(0.1464px); } 15.625% { transform: scale(1.0078, 0.9922) translateY(0.2222px); } 18.75% { transform: scale(1.0108, 0.9892) translateY(0.3087px); } 21.875% { transform: scale(1.0141, 0.9859) translateY(0.4025px); } 25% { transform: scale(1.0175, 0.9825) translateY(0.5px); } 28.125% { transform: scale(1.0209, 0.9791) translateY(0.5975px); } 31.25% { transform: scale(1.0242, 0.9758) translateY(0.6913px); } 34.375% { transform: scale(1.0272, 0.9728) translateY(0.7778px); } 37.5% { transform: scale(1.0299, 0.9701) translateY(0.8536px); } 40.625% { transform: scale(1.0321, 0.9679) translateY(0.9157px); } 43.75% { transform: scale(1.0337, 0.9663) translateY(0.9619px); } 46.875% { transform: scale(1.0347, 0.9653) translateY(0.9904px); } 50% { transform: scale(1.035, 0.965) translateY(1px); } 53.125% { transform: scale(1.0347, 0.9653) translateY(0.9904px); } 56.25% { transform: scale(1.0337, 0.9663) translateY(0.9619px); } 59.375% { transform: scale(1.0321, 0.9679) translateY(0.9157px); } 62.5% { transform: scale(1.0299, 0.9701) translateY(0.8536px); } 65.625% { transform: scale(1.0272, 0.9728) translateY(0.7778px); } 68.75% { transform: scale(1.0242, 0.9758) translateY(0.6913px); } 71.875% { transform: scale(1.0209, 0.9791) translateY(0.5975px); } 75% { transform: scale(1.0175, 0.9825) translateY(0.5px); } 78.125% { transform: scale(1.0141, 0.9859) translateY(0.4025px); } 81.25% { transform: scale(1.0108, 0.9892) translateY(0.3087px); } 84.375% { transform: scale(1.0078, 0.9922) translateY(0.2222px); } 87.5% { transform: scale(1.0051, 0.9949) translateY(0.1464px); } 90.625% { transform: scale(1.0029, 0.9971) translateY(0.0843px); } 93.75% { transform: scale(1.0013, 0.9987) translateY(0.0381px); } 96.875% { transform: scale(1.0003, 0.9997) translateY(0.0096px); } 100% { transform: scale(1, 1) translateY(0px); } }
 @keyframes sedna-mochi-chatter { 0%, 100% { scale: 1 0.7; } 22% { scale: 1 1.15; } 40% { scale: 1 0.75; } 62% { scale: 1 1.05; } 80% { scale: 1 0.85; } }
 @keyframes sedna-mochi-blink   { 0%, 45%, 49%, 100% { transform: scaleY(1); } 47% { transform: scaleY(0.08); } }
 @keyframes sedna-mochi-lean    { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(2.5deg); } }
@@ -397,7 +457,7 @@
 @keyframes sedna-mochi-peek-out { 0%, 100% { transform: skewX(-7deg); } 45%, 70% { transform: skewX(-13deg); } }
 @keyframes sedna-mochi-tap     { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.6px); } }
 @keyframes sedna-mochi-read    { 0%, 100% { transform: translateX(-2.5px); } 40% { transform: translateX(2.5px); } 48% { transform: translateX(2.5px) translateY(0.6px); } 56% { transform: translateX(-2.5px) translateY(0.6px); } }
-@keyframes sedna-mochi-glow    { 50% { stroke-width: 6; } }
+@keyframes sedna-mochi-glow    { 50% { opacity: calc(var(--cup-glow) * 0.22); } }
 @keyframes sedna-mochi-screen  { 50% { opacity: 0.45; } }
 @keyframes sedna-mochi-beat    { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.16); } }
 @keyframes sedna-mochi-bubble  { 0% { transform: scale(0); opacity: 0; } 14%, 78% { transform: scale(1); opacity: 1; } 92%, 100% { transform: scale(0.6); opacity: 0; } }

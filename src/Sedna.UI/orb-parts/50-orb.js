@@ -2,7 +2,8 @@
    `attach` starts one: a canvas inside the element, sized to it at the device's pixel
    ratio (capped at 2), a probe for its colours, and a still frame at once. From there
    one shared clock draws every orb that is on screen, while the tab is visible and the
-   reader allows motion. What changes an orb is watched, never polled:
+   reader allows motion — within a frame budget by size, below. What changes an orb is
+   watched, never polled:
 
      * `data-orb` and `data-orb-tone` on the element — a new state restarts its clock,
        so `done` draws its tick from the start;
@@ -38,6 +39,12 @@ function resize(o) {
     stillFrame(o);
 }
 
+// A frame budget by drawing, whatever the display's rate: below 72px a dot moves well
+// under a pixel a frame at sixty, so those draw thirty times a second; the finest
+// drawing sixty. The slack absorbs a frame that arrives a little early.
+const INTERVAL = [1 / 30, 1 / 30, 1 / 60];
+const SLACK = 0.004;
+
 function tick(ms) {
     frame = 0;
     if (still()) return;
@@ -45,8 +52,10 @@ function tick(ms) {
     let any = false;
     for (const o of orbs) {
         if (!o.visible) continue;
-        draw(o, t);
         any = true;
+        if (t - o.drawn < INTERVAL[lodFor(o.size)] - SLACK) continue;
+        o.drawn = t;
+        draw(o, t);
     }
     if (any) frame = requestAnimationFrame(tick);
 }
@@ -114,7 +123,7 @@ function attach(el) {
         ctx: canvas.getContext('2d'),
         state: el.getAttribute('data-orb'),
         since: now(),
-        size: 0, dpr: 1, visible: true, colours: null,
+        size: 0, dpr: 1, visible: true, colours: null, drawn: -Infinity,
     };
     o.handle = {
         element: el,

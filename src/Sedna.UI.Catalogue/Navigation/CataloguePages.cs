@@ -262,7 +262,7 @@ internal static class CataloguePages
             "agent-avatar bot avatar sphere tone aurora ember orbit nebula glacier sedna thinking working listening speaking offline identity ai assistant"),
         new("/mochi", Agents, "Mochi", "ri-emotion-happy-line",
             "The agent's character, rigged: actions, moods and tones, perched on a card or pointing at a control.",
-            "mochi mascot character bot avatar sprite SednaMochi action mood tone perch sit peek look side stand hang point anchor wave think celebrate sleep talk bust cute"),
+            "mochi mascot character bot avatar sprite SednaMochi action mood tone perch perched sit sits sitting peek peeking look side stand standing hang hangs hanging point pointing anchor wave think celebrate sleep talk bust cute"),
         new("/agent-steps", Agents, "Steps and approvals", "ri-list-check-3",
             "What an agent thought, which tools it ran, its plan, and the permission it asks for.",
             "reasoning thought chain of thought tool call steps agent-steps plan todo approval permission human in the loop approve deny take over undo"),
