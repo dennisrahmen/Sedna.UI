@@ -44,7 +44,8 @@
    beside whatever the app names as its anchor, fingertip on its edge. `--perch-inset`
    moves a perch along its edge. What is behind the element is clipped away on the
    drawing's own grid — an `inset()` on the view box — so the edge it hides behind is
-   the same line the perch places.
+   the same line the perch places. A host is any element: `.mochi-host--inline` fits one
+   to a button, and a divider's host is its line.
 
    ── Motion ──
    Every loop repaints the clay drawing, so a loop runs only while it shows: its name is
@@ -231,6 +232,24 @@
     inset-inline-start: calc(anchor(end) + 4px - var(--size) * 0.03);
 }
 .mochi[data-facing="start"] > svg { transform: scaleX(-1); }
+
+/* ── Any element ──
+   A host is whatever box it wraps, so a field, a search box or a table perches like a
+   card. Three hosts need more than that. */
+/* An inline host shrinks to a button, a badge or a fixed-width field, and centres Mochi
+   on it: 24px from the end of something narrower than Mochi is off its end. */
+.mochi-host--inline { display: inline-block; vertical-align: middle; }
+.mochi-host--inline > .mochi[data-perch] { --perch-inset: calc(50% - var(--size) / 2); }
+/* A divider's margin moves to its host, so the host is the rule itself and its edges are
+   the line — in a flex column too, where a child's margin does not collapse through. */
+.mochi-host:has(> :is(.divider, .divider-labelled)) { margin-block: var(--space-8); }
+.mochi-host > :is(.divider, .divider-labelled) { margin-block: 0; }
+/* A labelled divider's line runs through the middle of its label, not along an edge, so
+   sitting, standing and hanging meet the middle. A hairline has nothing to hide behind:
+   peek, look and side are for a box. */
+.mochi-host:has(> .divider-labelled) > .mochi[data-perch="sit"]   { inset-block-start: calc(50% - var(--size) * 0.75); }
+.mochi-host:has(> .divider-labelled) > .mochi[data-perch="stand"] { inset-block-end: calc(50% - var(--size) * 0.0375); }
+.mochi-host:has(> .divider-labelled) > .mochi[data-perch="hang"]  { inset-block-start: calc(50% - var(--size) * 0.1875); }
 
 /* ── The sprite's parts ─────────────────────────────────────────────────────── */
 .sedna-mochi-body  { fill: var(--mochi-body); }
