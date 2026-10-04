@@ -830,8 +830,8 @@
 .workflow-branch:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):has(~ .workflow-branch):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):not(:first-child)::after,
 .workflow-branch:is(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(~ .workflow-branch > .workflow-path > :first-child[data-state="running"])):not(:first-child)::after,
 .workflow-branch:not([data-state="skipped"]):not([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):not(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch:not([data-state="skipped"]))):not(:first-child)::after {
-    --workflow-way-over: linear-gradient(transparent, var(--workflow-under-in)) var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
-    --workflow-over-at: var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r));
+    --workflow-way-over: radial-gradient(circle at calc(var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-way-r)))) 0, transparent var(--workflow-way-r), var(--workflow-under-in) hypot(var(--workflow-way-ri), var(--workflow-way-fade))) var(--workflow-start-side) 0 bottom calc(var(--workflow-way-r) - var(--workflow-way-fade)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
+    --workflow-over-at: var(--workflow-start-side) 0 bottom calc(var(--workflow-way-r) - var(--workflow-way-fade));
 }
 /* In a fork that opens a branch, the bracket comes down from the outer one: no curve
    out of a line, and it starts under the line of the branch it opens. */
@@ -876,8 +876,8 @@
 }
 :where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:is(:has(> .workflow-path > :last-child[data-state="done"])):has(~ .workflow-branch):not(:has(~ .workflow-branch > .workflow-path > :last-child[data-state="done"])):not(:first-child) > .workflow-path::before,
 :where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not([data-state="skipped"]):not(:has(> .workflow-path > :last-child[data-state="done"])):has(~ .workflow-branch):not(:has(~ .workflow-branch:not([data-state="skipped"]))):not(:first-child) > .workflow-path::before {
-    --workflow-way-over: linear-gradient(transparent, var(--workflow-under-out)) var(--workflow-end-side) 0 top calc(100% - var(--workflow-way-r)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
-    --workflow-over-at: var(--workflow-end-side) 0 top calc(100% - var(--workflow-way-r));
+    --workflow-way-over: radial-gradient(circle at calc(var(--workflow-wire) - var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) - var(--workflow-way-r)))) 0, transparent var(--workflow-way-r), var(--workflow-under-out) hypot(var(--workflow-way-ri), var(--workflow-way-fade))) var(--workflow-end-side) 0 bottom calc(var(--workflow-way-r) - var(--workflow-way-fade)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
+    --workflow-over-at: var(--workflow-end-side) 0 bottom calc(var(--workflow-way-r) - var(--workflow-way-fade));
 }
 :where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path::after {
     --workflow-stream-at: calc(-1 * (var(--workflow-gap) / 2 - var(--workflow-curve)));
@@ -1265,6 +1265,13 @@
         inset-inline-end: auto;
         inline-size: var(--workflow-wire);
     }
+    /* The ways start where the wire into the fork ends, and two edges meeting on a
+       fractional pixel leave a dark seam: the wire runs on a pixel under them. */
+    .workflow > .workflow-fork::before,
+    .workflow-path > .workflow-fork::before {
+        inset-block-end: calc(100% - 1px);
+        block-size: calc(var(--workflow-gap) + 1px);
+    }
 
     /* An end and a word start where a node does, and the rail runs through them. */
     .workflow-end,
@@ -1317,8 +1324,8 @@
     .workflow-branch:is(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(~ .workflow-branch > .workflow-path > :first-child[data-state="running"]))::before,
     .workflow-branch:not([data-state="skipped"]):not([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):not(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch:not([data-state="skipped"])))::before,
     .workflow-fork:not(:last-child) > .workflow-branch:last-child:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(> .workflow-path > :first-child[data-state="running"]))::before {
-        --workflow-way-over: linear-gradient(transparent, var(--workflow-under-in)) var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
-        --workflow-over-at: var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r));
+        --workflow-way-over: radial-gradient(circle at calc(var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-way-r)))) 0, transparent var(--workflow-way-r), var(--workflow-under-in) hypot(var(--workflow-way-ri), var(--workflow-way-fade))) var(--workflow-start-side) 0 bottom calc(var(--workflow-way-r) - var(--workflow-way-fade)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
+        --workflow-over-at: var(--workflow-start-side) 0 bottom calc(var(--workflow-way-r) - var(--workflow-way-fade));
     }
     .workflow-fork:not(:last-child) > .workflow-branch:last-child:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(> .workflow-path > :first-child[data-state="running"])) { --workflow-stub-in: 1; }
     :where(.workflow-branch)::before { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), arc to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-wire)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-wire)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 100%, line to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) 100%, arc to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-r) var(--workflow-cw), close, move to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), close); }
@@ -1330,8 +1337,8 @@
     }
     .workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > :first-child[data-state="running"]):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(~ .workflow-branch > .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch)::before,
     .workflow-fork:not(:last-child):not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > :first-child[data-state="running"]):last-child::before {
-        --workflow-way-over: linear-gradient(transparent, var(--workflow-under-in)) var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
-        --workflow-over-at: var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r));
+        --workflow-way-over: radial-gradient(circle at calc(var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-way-r)))) 0, transparent var(--workflow-way-r), var(--workflow-under-in) hypot(var(--workflow-way-ri), var(--workflow-way-fade))) var(--workflow-start-side) 0 bottom calc(var(--workflow-way-r) - var(--workflow-way-fade)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
+        --workflow-over-at: var(--workflow-start-side) 0 bottom calc(var(--workflow-way-r) - var(--workflow-way-fade));
     }
     /* A fork that opens a branch takes its rail from the end of that branch's line. */
     .workflow-branch:has(> .workflow-path > .workflow-fork:first-child)::before {

@@ -237,6 +237,8 @@
        a still line in the light's colour, as `--flow-off` draws it; the mark keeps the
        coloured quarter that says busy, and a waiting step's mark stays lit. */
     .workflow-node { transition: none; }
+    /* On the diagram too, so every line that fades into the light fades into this one. */
+    .workflow { --workflow-comet: transparent; --workflow-flow-base: var(--workflow-flow); }
     .workflow-step[data-state="running"] > .workflow-node::before,
     .workflow-step[data-state="waiting"] > .workflow-node::before { animation: none; }
     :is(.workflow, .workflow-path) > .workflow-step[data-state="running"]:not(.workflow-branch > .workflow-path > :first-child, .workflow-loop > .workflow-path > :first-child, .workflow-fork + *)::before,

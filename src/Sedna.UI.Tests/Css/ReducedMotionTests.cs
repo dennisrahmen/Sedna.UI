@@ -104,7 +104,9 @@ public class ReducedMotionTests
             }
         }
 
-        var stale = Selectors(Assets.StripComments(ReadPart(Part)))
+        // A rule that only restates tokens switches nothing off and claims nothing: the
+        // workflow's still light is a colour every line fading into it has to agree on.
+        var stale = Selectors(Assets.StripComments(ReadPart(Part)), offSwitchesOnly: true)
             .Except(declared, StringComparer.Ordinal)
             .OrderBy(s => s, StringComparer.Ordinal)
             .ToList();
@@ -128,14 +130,18 @@ public class ReducedMotionTests
     /// <summary>
     /// Every selector inside the reduced-motion media block, split and normalised.
     /// </summary>
-    private static HashSet<string> Selectors(string css) =>
+    private static HashSet<string> Selectors(string css, bool offSwitchesOnly = false) =>
         Assets.MediaBlocks(css)
             .Where(m => m.Condition.Contains("prefers-reduced-motion", StringComparison.Ordinal))
             .SelectMany(m => Assets.TopLevelRules(m.Body))
+            .Where(r => !offSwitchesOnly || !OnlyTokens(r.Body))
             .SelectMany(r => r.Selector.Split(','))
             .Select(Normalise)
             .Where(s => s.Length > 0)
             .ToHashSet(StringComparer.Ordinal);
+
+    private static bool OnlyTokens(string body) =>
+        body.Split(';').Select(d => d.Trim()).Where(d => d.Length > 0).All(d => d.StartsWith("--", StringComparison.Ordinal));
 
     private static string Normalise(string selector) => Assets.Squash(selector);
 

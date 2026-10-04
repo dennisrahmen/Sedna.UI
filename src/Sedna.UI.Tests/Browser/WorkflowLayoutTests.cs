@@ -251,7 +251,7 @@ public class WorkflowLayoutTests : ScriptTestBase
         // A finished branch over the light below it: its own line runs on down the bracket
         // and fades into the light's — a gradient, not an edge.
         Assert.Equal("1", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('f1')).getPropertyValue('--workflow-stub-in').trim()"));
-        Assert.StartsWith("linear-gradient(rgba(0, 0, 0, 0), ", await page.EvaluateAsync<string>(Paint("f1")), StringComparison.Ordinal);
+        Assert.StartsWith("radial-gradient(", await page.EvaluateAsync<string>(Paint("f1")), StringComparison.Ordinal);
         // The branch at work over one not reached: the same, into the quiet line.
         Assert.Equal("1", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('f2')).getPropertyValue('--workflow-stub-in').trim()"));
         // The last branch has nothing below: no transition.
@@ -262,6 +262,48 @@ public class WorkflowLayoutTests : ScriptTestBase
         var bend = await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('f2'), '::before').backgroundImage");
         Assert.StartsWith("conic-gradient(", bend, StringComparison.Ordinal);
         Assert.Contains(go, bend, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task A_branch_s_line_reaches_its_curve_before_it_fades_into_the_one_below(bool down, bool reduce)
+    {
+        if (NoBrowser) return;
+        var page = await OpenRun($"""
+            <ol class="workflow{(down ? " workflow--down" : "")}" id="wf">
+                <li class="workflow-step" data-state="done">{Node("t", "Ticket")}</li>
+                <li class="workflow-fork">
+                    <div class="workflow-branch" id="f0"><ol class="workflow-path"><li class="workflow-step" data-state="done">{Node("f0n", "Done first")}</li></ol></div>
+                    <div class="workflow-branch" id="f1"><ol class="workflow-path"><li class="workflow-step" data-state="done">{Node("f1n", "Done too")}</li></ol></div>
+                    <div class="workflow-branch" id="f2"><ol class="workflow-path"><li class="workflow-step" data-state="running">{Node("f2n", "At work")}</li></ol></div>
+                </li>
+                <li class="workflow-step">{Node("u", "Update")}</li>
+            </ol>
+            <span id="probe"></span>
+            """, motion: reduce ? ReducedMotion.Reduce : ReducedMotion.NoPreference);
+        var pseudo = down ? "::before" : "::after";
+        var fade = await page.EvaluateAsync<string[]>($$"""
+            () => {
+                const s = getComputedStyle(document.getElementById('f1'), '{{pseudo}}');
+                const r = document.createElement('div');
+                r.style.height = 'calc(var(--workflow-curve) + var(--workflow-wire) / 2)';
+                document.getElementById('wf').append(r);
+                const radius = r.offsetHeight + 'px';
+                r.remove();
+                return [s.backgroundImage, s.backgroundPositionY.split(',')[0].trim(), s.backgroundSize.split(',')[0].trim().split(' ')[1], radius];
+            }
+            """);
+        // The fade lies beside the curve, from where the curve leaves the bracket to the
+        // branch's line, so the line runs into its curve in its own colour.
+        Assert.StartsWith("radial-gradient(", fade[0], StringComparison.Ordinal);
+        Assert.Equal("100%", fade[1]);
+        Assert.Equal(fade[3], fade[2]);
+        // Into the light below, still or moving, in the colour that light is drawn in.
+        var light = await page.EvaluateAsync<string>($"() => colour('{(reduce ? "--flow-light" : "--flow-line")}')");
+        Assert.Contains(light, fade[0], StringComparison.Ordinal);
     }
 
     [Fact]
@@ -655,7 +697,8 @@ public class WorkflowLayoutTests : ScriptTestBase
         Assert.True(Math.Abs(way[0] + 1 - rail) < 0.6, $"The way into a branch comes down at {way[0] + 1}, the rail is at {rail}.");
         Assert.True(Math.Abs(way[1] - await Eval(page, "() => box('dn1').x")) < 0.6, "The way into a branch does not reach its node.");
         Assert.True(Math.Abs(way[3] - 1 - await Eval(page, "() => port('dn1')")) < 0.6, "The way into a branch is off its head's line.");
-        Assert.True(Math.Abs(way[2] - await Eval(page, "() => box('df', '::before').bottom")) < 0.6, "The way into a branch does not start at the wire into the fork.");
+        // The wire into the fork runs on a pixel under the ways, so no seam opens between them.
+        Assert.True(Math.Abs(way[2] + 1 - await Eval(page, "() => box('df', '::before').bottom")) < 0.6, "The way into a branch does not start at the wire into the fork.");
         Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('dn1-step'), '::before').content"));
         // A branch's word sits on that line.
         Assert.True(Math.Abs(await Eval(page, "() => box('dl0', '::before').bottom") - 1 - await Eval(page, "() => box('dl0-label').cy")) < 0.6, "A branch's word is off its line.");
@@ -713,7 +756,7 @@ public class WorkflowLayoutTests : ScriptTestBase
         // The branch at work's way runs from the wire into the fork down the rail and
         // along its line to its node, in one piece, and moves; no other branch's does.
         var way = await page.EvaluateAsync<double[]>($"() => {{ const b = box('b{running}', '::before'); return [b.y, b.bottom, b.right]; }}");
-        Assert.True(Math.Abs(way[0] - await Eval(page, "() => box('df', '::before').bottom")) < 0.6, "The way does not start at the wire into the fork.");
+        Assert.True(Math.Abs(way[0] + 1 - await Eval(page, "() => box('df', '::before').bottom")) < 0.6, "The way does not start at the wire into the fork.");
         Assert.True(Math.Abs(way[1] - 1 - await Eval(page, $"() => port('bn{running}')")) < 0.6, "The way does not turn on its branch's line.");
         Assert.True(Math.Abs(way[2] - await Eval(page, $"() => box('bn{running}').x")) < 0.6, "The way does not reach its branch's node.");
         var moving = await page.EvaluateAsync<string[]>("""
