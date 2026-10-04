@@ -52,7 +52,7 @@ and all three are in `sedna.paint`. `64` holds `64-files.css`, `64-lightbox.css`
 `44-markdown.css`, whose `.editor` chrome it builds on. Chat reuses `.file-item` and `.audio-wave` from earlier parts
 and adds only its bubble context, so it stays after them. The agent parts share `66`–`69` the same way:
 `66-agent-*.css` and `66-orb.css` stand alone; `67-agent-chat.css` builds on `66-chat.css` and
-`67-voice.css` on `.audio-wave`, so both come after them; `68-mochi.css` beside `68-guard.css`; and
+`67-voice.css` on `.audio-wave`, so both come after them; `68-mochi.css` beside `68-guard.css`, and `68-workflow.css` after them — it builds on `.orb`, `.confidence` and `.meter` and draws its running step's edge itself; and
 `69-beam.css` after every component whose background it replaces — `.card`, `.form-input`, `.btn`, the
 composer — which is why it is not numbered lower. `70`–`72` are RTL, forced colours and print, which must stay after
 every component.

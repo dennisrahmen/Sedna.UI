@@ -1,0 +1,30 @@
+<div style="max-width: 380px; margin-inline: auto">
+    <ol class="workflow workflow--down workflow--sm" tabindex="0" aria-label="Card terminals down at store 14, on a phone">
+      <li class="workflow-step" data-state="done"><span class="workflow-end"><i class="ri-phone-line"></i>Call in</span></li>
+      <li class="workflow-step" data-state="done">
+        <article class="workflow-node workflow-node--agent"><header class="workflow-node-head"><span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-user-search-line"></i></span><span class="workflow-node-title">Identify the caller</span><span class="workflow-node-meta">Alex Fischer, store 14</span></header></article>
+      </li>
+      <li class="workflow-loop" data-state="done">
+        <ol class="workflow-path">
+          <li class="workflow-step" data-state="done"><article class="workflow-node workflow-node--agent"><header class="workflow-node-head"><span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-question-answer-line"></i></span><span class="workflow-node-title">Ask</span><span class="workflow-node-meta">Voice agent</span></header></article></li>
+          <li class="workflow-step" data-state="done"><article class="workflow-node"><header class="workflow-node-head"><span class="workflow-node-icon series-4"><i class="ri-book-2-line"></i></span><span class="workflow-node-title">Look it up</span><span class="workflow-node-meta">Runbook</span></header></article></li>
+        </ol>
+        <span class="workflow-loop-count"><i class="ri-repeat-line"></i>2</span>
+      </li>
+      <li class="workflow-fork workflow-fork--decision">
+        <div class="workflow-branch" data-state="skipped"><span class="workflow-label">Fixed</span><ol class="workflow-path"><li class="workflow-step"><span class="workflow-end"><i class="ri-chat-check-line"></i>Confirm and close</span></li></ol></div>
+        <div class="workflow-branch" data-state="taken"><span class="workflow-label">Not fixed</span><ol class="workflow-path">
+          <li class="workflow-step" data-state="done"><article class="workflow-node"><header class="workflow-node-head"><span class="workflow-node-icon series-2"><i class="ri-coupon-3-line"></i></span><span class="workflow-node-title">Create a ticket</span><span class="workflow-node-meta">T-48213</span></header></article></li>
+        </ol></div>
+      </li>
+      <li class="workflow-fork">
+        <div class="workflow-branch"><ol class="workflow-path"><li class="workflow-step" data-state="done"><article class="workflow-node workflow-node--agent"><header class="workflow-node-head"><span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-scales-3-line"></i></span><span class="workflow-node-title">Assess severity</span><span class="workflow-node-meta">P1</span></header></article></li></ol></div>
+        <div class="workflow-branch"><ol class="workflow-path"><li class="workflow-step" data-state="running"><article class="workflow-node workflow-node--agent"><header class="workflow-node-head"><span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-price-tag-3-line"></i></span><span class="workflow-node-title">Categorise</span><span class="workflow-node-meta">Agent</span></header></article></li></ol></div>
+      </li>
+      <li class="workflow-step" data-state="next">
+        <span class="workflow-label">3 checks</span>
+        <article class="workflow-node workflow-node--agent"><header class="workflow-node-head"><span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-route-line"></i></span><span class="workflow-node-title">Decide where it goes</span><span class="workflow-node-meta">Agent</span></header></article>
+      </li>
+      <li class="workflow-step"><span class="workflow-end"><i class="ri-flag-line"></i>Handed over</span></li>
+    </ol>
+</div>

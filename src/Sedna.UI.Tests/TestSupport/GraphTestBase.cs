@@ -49,14 +49,19 @@ public abstract class GraphTestBase : ScriptTestBase
             const p = cyOf(id).getElementById(node).renderedPosition();
             return { x: host.left + p.x, y: host.top + p.y };
         };
-        // What an element with this colour paints, as the rgb() the engine reports.
+        // What an element with this colour paints, as the rgb() the engine reports. An rgb()
+        // or rgba() is read as it is, as the engine reads it: a translucent one painted and
+        // read back loses a step to premultiplied alpha — Linux's forced-colour Highlight is.
         window.paintOf = css => {
             const probe = document.createElement('span');
             probe.style.color = css;
             document.body.appendChild(probe);
-            const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
-            c.fillStyle = getComputedStyle(probe).color;
+            const value = getComputedStyle(probe).color;
             probe.remove();
+            const plain = /^rgba?\(\s*(\d+),\s*(\d+),\s*(\d+)\s*(,[^)]*)?\)$/.exec(value);
+            if (plain) return `rgb(${plain[1]},${plain[2]},${plain[3]})`;
+            const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+            c.fillStyle = value;
             c.fillRect(0, 0, 1, 1);
             const [r, g, b] = c.getImageData(0, 0, 1, 1).data;
             return `rgb(${r},${g},${b})`;

@@ -44,6 +44,8 @@ internal static class CataloguePages
     public const string Reference = "Reference";
     /// <summary>The section of Data that holds the graph's pages: one family, too big for one page.</summary>
     public const string Graph = "Graph";
+    /// <summary>The section of Data that holds the workflow diagram's pages.</summary>
+    public const string Workflow = "Workflow";
 
     /// <summary>
     /// The page every unknown address renders. Deliberately not in <see cref="All"/>:
@@ -209,12 +211,21 @@ internal static class CataloguePages
             Section: Graph),
         new("/graph-gallery", Data, "Graph gallery", "ri-gallery-view-2",
             "Whole graphs for real jobs: an org chart, a service map, a network, a knowledge graph, a workflow, a large map.",
-            "gallery recipe example org chart service map dependency network topology rack knowledge graph workflow state machine lineage mind map blast radius large performance",
+            "gallery recipe example org chart service map dependency network topology rack knowledge graph workflow state machine lineage mind map blast radius large performance automation flow run state data-state running waiting done failed skipped next pipeline graph-line--flow",
             Section: Graph),
         new("/graph-blazor", Data, "Graph in Blazor", "ri-code-box-line",
             "Records from C#, the reader's clicks as events, live updates, drawn links and filters from a component.",
-            "blazor csharp c# ISednaGraphs SetDataAsync FilterAsync onsedna-graph-select onsedna-graph-connect SednaGraphData SednaGraphNode SednaGraphEdge deferred live update circuit",
+            "blazor csharp c# ISednaGraphs SetDataAsync FilterAsync onsedna-graph-select onsedna-graph-connect SednaGraphData SednaGraphNode SednaGraphEdge SednaGraphState deferred live update circuit run state step workflow",
             Section: Graph),
+
+        new("/workflow", Data, "Workflow", "ri-flow-chart",
+            "A run through a process as a diagram: steps, parallel branches, decisions, loops, and the step at work.",
+            "workflow flow process pipeline run automation diagram node step wire connector fork branch parallel join decision loop retry state running waiting done failed skipped next taken trail data-follow workflow-node workflow-step workflow-fork workflow-branch workflow-path workflow-loop workflow-label workflow-end workflow-decision confidence score option chosen rejected agent",
+            Section: Workflow),
+        new("/workflow-run", Data, "Watching a run", "ri-play-list-2-line",
+            "A run followed live from C#: the overview for the room, every step under it, the call and the decisions.",
+            "live run presentation demo voice call transcript ticket triage on call page escalate events webhook callback automation http blazor csharp state overview stages",
+            Section: Workflow),
 
         new("/badge", Labels, "Badges", "ri-price-tag-3-line",
             "Semantic pills in three sizes, plus three categorical hues.",

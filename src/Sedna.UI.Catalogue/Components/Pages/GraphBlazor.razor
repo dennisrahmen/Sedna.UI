@@ -69,6 +69,19 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.GraphRunLive" Title="A run, step by step" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; press Step, or Run.</strong> The component keeps where the run has got to and
+        sends every record again with its <code>State</code>, a <code>SednaGraphState</code>; the links carry
+        none and are drawn in their targets' states. Only the records whose state changed, and the links into
+        them, are redrawn, and nothing is laid out again, so a step the reader is watching stays where it is.
+    </p>
+    <p>
+        A record with no <code>State</code> is a step the run has not reached, and is sent without one. The
+        record in <code>@@onsedna-graph-select</code> carries its <code>State</code> back.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Interop.GraphFromRazorList" Title="Markup rendered by Razor" Demo="ex-demo--block ex-demo--pad">
     <p>
         <strong>Live &mdash; switch a stage on.</strong> The records are <code>li[data-node]</code> and

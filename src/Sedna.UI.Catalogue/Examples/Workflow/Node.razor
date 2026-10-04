@@ -1,0 +1,48 @@
+<ol class="workflow" tabindex="0" aria-label="Four nodes, from the least to the most a node can carry">
+    <li class="workflow-step" data-state="done">
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon series-2"><i class="ri-coupon-3-line"></i></span>
+                <span class="workflow-node-title">Create a ticket</span>
+            </header>
+        </article>
+    </li>
+    <li class="workflow-step" data-state="done">
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon series-4"><i class="ri-book-2-line"></i></span>
+                <span class="workflow-node-title">Check the runbook</span>
+                <span class="workflow-node-meta">Knowledge base &middot; 0.6 s</span>
+            </header>
+            <p class="workflow-node-now">No fix on record for &ldquo;host unreachable&rdquo; at a single store.</p>
+        </article>
+    </li>
+    <li class="workflow-step" data-state="running">
+        <article class="workflow-node workflow-node--agent">
+            <header class="workflow-node-head">
+                <span class="orb" data-orb="analyzing" role="img" aria-label="Analysing"></span>
+                <span class="workflow-node-title">Read the store's link</span>
+                <span class="workflow-node-meta">Agent &middot; 0:09</span>
+            </header>
+            <p class="workflow-node-now text-shimmer">Comparing packet loss with the other stores in the region</p>
+            <div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Stores compared"><div class="progress-bar" style="width: 60%"></div></div>
+            <div class="workflow-node-foot">
+                <span>12 of 20 stores</span>
+                <span class="sedna-push">orders-console-01</span>
+            </div>
+        </article>
+    </li>
+    <li class="workflow-step">
+        <article class="workflow-node workflow-node--agent">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-quill-pen-line"></i></span>
+                <span class="workflow-node-title">Write the summary</span>
+                <span class="workflow-node-meta">Agent</span>
+            </header>
+            <div class="chip-set">
+                <span class="chip"><span class="chip-label">Ticket</span></span>
+                <span class="chip"><span class="chip-label">Call transcript</span></span>
+            </div>
+        </article>
+    </li>
+</ol>

@@ -122,3 +122,30 @@
    drawing and turn with it, so a perch still meets the same edge. */
 [dir="rtl"] .mochi > svg { transform: scaleX(-1); }
 [dir="rtl"] .mochi[data-facing="start"] > svg { transform: none; }
+
+/* 68 — a workflow's ways and its light run towards the inline end, but a mask, a
+   gradient and a background are placed from the left whatever the direction. The
+   sides they are placed from, the corners a curve turns about, and the angles the
+   light runs at all swap. */
+[dir="rtl"] .workflow {
+    --workflow-dir-x: -1;
+    --workflow-start-x: 100%;
+    --workflow-end-x: 0%;
+    --workflow-start-side: right;
+    --workflow-end-side: left;
+    --workflow-mirror: 1;
+    --workflow-cw: ccw;
+    --workflow-ccw: cw;
+    --workflow-seam-a: 270deg;
+    --workflow-seam-b: 90deg;
+    --workflow-seam-c: 180deg;
+    --workflow-seam-d: 0deg;
+    --workflow-seam-ac-p0: 50deg;
+    --workflow-seam-ac-p1: 90deg;
+    --workflow-seam-ac-t1: 90deg;
+    --workflow-seam-bd-p0: 0deg;
+    --workflow-seam-bd-p1: 40deg;
+    --workflow-seam-bd-t1: 90deg;
+    --workflow-flow-ahead: 225deg;
+    --workflow-flow-up: 315deg;
+}

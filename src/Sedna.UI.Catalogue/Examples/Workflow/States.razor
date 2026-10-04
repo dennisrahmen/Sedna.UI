@@ -1,0 +1,69 @@
+<div class="sedna-col sedna-gap-3">
+    <ol class="workflow workflow--sm" tabindex="0" aria-label="States of a step that has been reached">
+        <li class="workflow-step" data-state="done">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon series-go"><i class="ri-check-line"></i></span>
+                    <span class="workflow-node-title">Done</span>
+                    <span class="workflow-node-meta">done</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="waiting">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon series-warn"><i class="ri-user-voice-line"></i></span>
+                    <span class="workflow-node-title">Waiting</span>
+                    <span class="workflow-node-meta">waiting</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="running">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon series-2"><i class="ri-loader-4-line"></i></span>
+                    <span class="workflow-node-title">Running</span>
+                    <span class="workflow-node-meta">running</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="failed">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon series-danger"><i class="ri-error-warning-line"></i></span>
+                    <span class="workflow-node-title">Failed</span>
+                    <span class="workflow-node-meta">failed</span>
+                </header>
+            </article>
+        </li>
+    </ol>
+    <ol class="workflow workflow--sm" tabindex="0" aria-label="States of a step that has not been reached">
+        <li class="workflow-step" data-state="next">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon"><i class="ri-arrow-right-line"></i></span>
+                    <span class="workflow-node-title">Next</span>
+                    <span class="workflow-node-meta">next</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon"><i class="ri-time-line"></i></span>
+                    <span class="workflow-node-title">Not reached</span>
+                    <span class="workflow-node-meta">no data-state</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="skipped">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon"><i class="ri-skip-forward-line"></i></span>
+                    <span class="workflow-node-title">Skipped</span>
+                    <span class="workflow-node-meta">skipped</span>
+                </header>
+            </article>
+        </li>
+    </ol>
+</div>

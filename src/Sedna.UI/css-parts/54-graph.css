@@ -310,6 +310,24 @@
     border-block: 4px solid transparent;
     border-inline-start: 6px solid currentColor;
 }
+/* A link a run is sending data along, as the canvas draws it: dashes in the agent colour,
+   moving the way the data goes. The dashes are a mask over a line of their own, so they
+   survive forced colours, and the arrowhead stays whole beside them. */
+.graph-line--flow {
+    color: var(--agent-to);
+    border-block-start-color: transparent;
+}
+.graph-line--flow::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: -2px;
+    border-block-start: 2px solid currentColor;
+    mask: repeating-linear-gradient(to right, currentColor 0 6px, transparent 6px 10px) 0 0 / 10px 100%;
+    animation: sedna-graph-flow var(--progress-duration) linear infinite;
+}
+.graph-line--flow:dir(rtl)::before { animation-direction: reverse; }
+@keyframes sedna-graph-flow { to { mask-position: 10px 0; } }
 
 /* ── The frame ─────────────────────────────────────────────────────────────────
    `.graph-frame` holds a graph with its toolbar, legend and side panel. Full screen

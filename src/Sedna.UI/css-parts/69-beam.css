@@ -1,65 +1,43 @@
 /* ── Beam ─────────────────────────────────────────────────────────────────────
-   A light running round the edge of whatever an agent is busy with: a card it is
-   summarising, the field it is filling, the composer while an answer is written, the
-   button that started the work.
+   An edge in both of the agent's colours round whatever an agent is busy with: a card
+   it is summarising, the field it is filling, the composer while an answer is written,
+   the button that started the work.
 
      <div class="card beam">…</div>
      <input class="form-input beam beam--glow" …>
 
-   Drawn on the element's own border box — a fill over the padding box, the moving
-   light under it in the border box, the border colour under that — so it needs no
-   pseudo-element: it works on an <input>, inside an `overflow: hidden` card, and over
-   the focus edge and ring. That is also why this part comes after every component it
-   paints over: the beam replaces the element's background, and an earlier part would
-   lose to the element's own rule. What sits under the beam is the element's fill, re-stated per
-   component below.
+   Drawn on the element's own border box — a fill over the padding box, the colours
+   under it in the border box — so it needs no pseudo-element: it works on an <input>,
+   inside an `overflow: hidden` card, and under the focus ring. That is also why this
+   part comes after every component it paints over: the beam replaces the element's
+   background, and an earlier part would lose to the element's own rule. What sits under
+   the beam is the element's fill, re-stated per component below.
 
-   `.beam--glow` adds a breathing glow; `.beam--slow` halves the speed. One turn is
-   `--beam-duration`. Remove the class
-   when the work is done. Reduced motion shows the beam's two colours, still, round the
-   whole edge.
+   It holds still. A light turning round the edge is a property animated on the main
+   thread, which restyles and repaints the element on every frame: three of them kept a
+   fifth of a processor busy for as long as they were shown. What moves while an agent
+   works is the orb and the shimmer beside it.
+
+   `.beam--glow` adds a glow round it. Remove the class when the work is done.
    ─────────────────────────────────────────────────────────────────────────── */
-@property --beam-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-
 .beam,
 .beam:hover,
 .beam:focus,
 .beam:focus-within {
     --beam-fill: var(--surface-raised-1);
-    --beam-edge: var(--border);
     border-color: transparent;
     background:
         linear-gradient(var(--beam-fill), var(--beam-fill)) padding-box,
-        conic-gradient(from var(--beam-angle),
-            transparent 0turn 0.55turn,
-            var(--agent-beam-tail) 0.8turn,
-            var(--agent-to) 0.94turn,
-            transparent 1turn) border-box,
-        linear-gradient(var(--beam-edge), var(--beam-edge)) border-box;
-    animation: beam-turn calc(var(--beam-duration) * var(--beam-pace)) linear infinite;
+        linear-gradient(90deg, var(--agent-from), var(--agent-to)) border-box;
 }
-.beam:focus,
-.beam:focus-within { --beam-edge: var(--brand-soft); }
-/* Alone, so `--slow` after it wins on hover and focus too. */
-.beam { --beam-pace: 1; }
-.beam--slow { --beam-pace: 2; }
-.beam--glow {
-    box-shadow: 0 0 18px -4px var(--agent-glow-dim);
-    animation: beam-turn calc(var(--beam-duration) * var(--beam-pace)) linear infinite, beam-breathe calc(var(--beam-duration) * 0.8) ease-in-out infinite alternate;
-}
+.beam--glow { box-shadow: 0 0 18px -4px var(--agent-glow-dim); }
 .beam--glow:focus,
-.beam--glow:focus-within {
-    box-shadow: 0 0 0 2px var(--brand-glow), 0 0 18px -4px var(--agent-glow-dim);
-    animation: beam-turn calc(var(--beam-duration) * var(--beam-pace)) linear infinite, beam-breathe-focus calc(var(--beam-duration) * 0.8) ease-in-out infinite alternate;
-}
-@keyframes beam-turn          { to { --beam-angle: 360deg; } }
-@keyframes beam-breathe       { to { box-shadow: 0 0 18px -4px var(--agent-glow); } }
-@keyframes beam-breathe-focus { to { box-shadow: 0 0 0 2px var(--brand-glow), 0 0 18px -4px var(--agent-glow); } }
+.beam--glow:focus-within { box-shadow: 0 0 0 2px var(--brand-glow), 0 0 18px -4px var(--agent-glow-dim); }
 
 /* What sits under the beam is the element's own fill. */
 .form-input.beam,
 .form-input.beam:focus             { --beam-fill: var(--bg); }
 .btn.beam                          { --beam-fill: var(--bg-elevated); }
-.btn.beam:hover                    { --beam-fill: var(--bg-hover); --beam-edge: var(--border-strong); }
+.btn.beam:hover                    { --beam-fill: var(--bg-hover); }
 .chat-composer--prompt.beam,
 .chat-composer--prompt.beam:focus-within { --beam-fill: var(--surface-raised-2); }

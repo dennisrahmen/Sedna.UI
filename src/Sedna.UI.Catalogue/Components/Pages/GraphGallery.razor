@@ -99,6 +99,22 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.GraphGallery.AutomationRun" Title="An automation flow, mid-run" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A flow as an automation tool exports it, drawn with <code>dagre</code> across, and a run on top of it:
+        <code>data-state</code> on each record says how far the run has got. Set it on records only &mdash; a
+        link takes its target's state, so data flowing into the step that is running marches along its link.
+        The chat and phone branches were not taken, and a link out of a skipped step is skipped too, so they
+        stay quiet all the way into <em>Classify</em> while the link from the email runs.
+    </p>
+    <p>
+        The state is drawn around a record and its tone is left alone, so the step kinds stay readable as the
+        run moves through them. Say the state in words as well &mdash; here in <code>data-meta</code>, which the
+        box, the tooltip and the announcement repeat. Re-render the list with new states, or send them with
+        <a href="/graph-blazor"><code>SetDataAsync</code></a>, and only what changed is redrawn, where it stands.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.GraphGallery.DependencyTree" Title="A dependency tree" Demo="ex-demo--block ex-demo--pad">
     <p>
         Versions in <code>data-meta</code>, deprecated packages <code>data-muted</code> behind a
@@ -178,6 +194,7 @@
         <tr><td>What is inside what</td><td><code>fcose</code>, <code>data-parent</code></td><td>Dots</td><td>Fold buttons, search by address</td></tr>
         <tr><td>How things relate, to explore</td><td><code>islands</code></td><td>Dots</td><td>Kind chips, search, side panel, menu</td></tr>
         <tr><td>How something moves between states</td><td><code>dagre</code> across</td><td>Boxes, labelled links</td><td>Legend</td></tr>
+        <tr><td>How far a run has got</td><td><code>dagre</code> across</td><td>Boxes, <code>data-state</code></td><td>Two legends, full screen</td></tr>
         <tr><td>What depends on what</td><td><code>dagre</code></td><td>Boxes</td><td>Direction, deprecated, chips</td></tr>
         <tr><td>Where data comes from</td><td><code>dagre</code> across, <code>round-taxi</code></td><td>Boxes</td><td>Colour switch, two legends</td></tr>
         <tr><td>One topic and its ideas</td><td><code>rings</code></td><td>Dots</td><td>Nothing</td></tr>

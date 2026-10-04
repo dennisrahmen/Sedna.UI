@@ -1,0 +1,55 @@
+<section class="card" id="wall-screen" aria-label="Store 14, live">
+    <div class="card-head">
+        <span class="agent-status agent-status--xl" role="status">
+            <span class="orb" data-orb="waiting" role="img" aria-label="Waiting"></span>
+            <span class="agent-status-label">Waiting for Rin Nakamura to acknowledge</span>
+            <span class="agent-status-time">3:12</span>
+        </span>
+        <button class="btn btn-sm btn-ghost" type="button" data-fullscreen aria-controls="wall-screen" aria-pressed="false">
+            <i class="ri-fullscreen-line"></i>Full screen
+        </button>
+    </div>
+    <ol class="workflow workflow--xl workflow--fill workflow--focus" tabindex="0" aria-label="Card terminals down at store 14: where the request is now">
+        <li class="workflow-step" data-state="done">
+            <article class="workflow-node workflow-node--agent">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-customer-service-2-line"></i></span>
+                    <span class="workflow-node-title">Call</span>
+                    <span class="workflow-node-meta">2:41 <span class="visually-hidden">Done.</span></span>
+                </header>
+                <p class="workflow-node-now">The voice agent could not fix it on the phone.</p>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="done">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon series-2"><i class="ri-coupon-3-line"></i></span>
+                    <span class="workflow-node-title">Ticket</span>
+                    <span class="workflow-node-meta">T-48213 <span class="visually-hidden">Done.</span></span>
+                </header>
+                <p class="workflow-node-now">P1, store link, two related stores.</p>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="done">
+            <article class="workflow-node workflow-node--agent">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-route-line"></i></span>
+                    <span class="workflow-node-title">Decision</span>
+                    <span class="workflow-node-meta">Page on call <span class="visually-hidden">Done.</span></span>
+                </header>
+                <p class="workflow-node-now">An outage, not a fault: worth waking someone for.</p>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="waiting">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="avatar">RN</span>
+                    <span class="workflow-node-title">On call</span>
+                    <span class="workflow-node-meta">Rin Nakamura <span class="visually-hidden">Waiting.</span></span>
+                </header>
+                <p class="workflow-node-now">Paged at 21:43 on the phone and by text. Escalates to the team lead at 21:58.</p>
+                <div class="progress" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" aria-label="Time until it escalates"><div class="progress-bar" style="width: 40%"></div></div>
+            </article>
+        </li>
+    </ol>
+</section>

@@ -1,0 +1,198 @@
+@page "/workflow"
+
+<CatHead Title="Workflow">
+    A run through a process, drawn as a diagram: what has happened, what is happening now, what comes
+    next, and which way each decision went. Every node is markup the app writes, so a node can carry
+    anything else in the library &mdash; an orb, a confidence, a progress bar, the caller's words. The
+    wires between them are drawn from the structure and take their state from the step they lead into,
+    so the app writes one attribute per step and nothing at all on a wire. No script.
+</CatHead>
+
+<CatExample TExample="Examples.Workflow.Run" Title="A run" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <code>ol.workflow</code> is the run, each <code>li.workflow-step</code> one step holding a
+        <code>.workflow-node</code>, and an <code>li.workflow-fork</code> a place where the run splits into
+        <code>.workflow-branch</code>es, each with its own <code>ol.workflow-path</code>. The structure is
+        the diagram: the list a screen reader walks is the same list the wires are drawn from.
+    </p>
+    <p>
+        <strong>The trail is the story.</strong> Wires behind the step at work are solid go, the wire into it
+        carries a moving light, and the ones ahead are quiet &mdash; so a reader sees where the run has been
+        and where it is without reading a node. A diagram wider than its container scrolls, so it takes
+        <code>tabindex="0"</code> for the keyboard, and <code>data-follow</code> keeps the step at work in
+        view: the diagram scrolls to it as states change, lets go when the reader scrolls away, and takes
+        up again when they scroll back.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.States" Title="The state of a step" Demo="ex-demo--block">
+    <p>
+        <code>data-state</code> on the <code>&lt;li&gt;</code> &mdash; <code>done</code>,
+        <code>waiting</code>, <code>running</code>, <code>failed</code>, <code>next</code> or
+        <code>skipped</code>, and nothing at all for a step not reached yet. Put it on the step, never the
+        node: the wire into the step reads it too. <code>waiting</code> is a step that has been reached and
+        is held up by someone outside the run &mdash; a caller answering, a person approving &mdash; which is
+        a different thing to tell a reader from a step still working.
+    </p>
+    <p>
+        <strong>The paint is not the words.</strong> A screen reader hears the list, not the tick, so say the
+        state in the meta line or in a <code>.visually-hidden</code> span, as the first example does.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Looks" Title="The step at work" Demo="ex-demo--block">
+    <p>
+        A step at work wears one of three looks, chosen on its node: its edge in the light&rsquo;s colour
+        with a ring, by default; <code>.workflow-node--glow</code>, the same edge with a glow; or
+        <code>.workflow-node--agent</code>, the agent&rsquo;s two colours and glow, for a step an agent is
+        doing. Put the class on the node whatever its state &mdash; the look shows only while the step is
+        at work, so an app writes it once, from what the step is, and never from where the run is.
+    </p>
+    <p>
+        The wires never wear the agent&rsquo;s colours. What runs along them is data, whichever kind of step
+        sent it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Node" Title="What a node carries" Demo="ex-demo--block">
+    <p>
+        <code>.workflow-node-head</code> is the one fixed part: whatever leads it &mdash; a
+        <code>.workflow-node-icon</code> tile, an <a href="/orb"><code>.orb</code></a>, an
+        <a href="/avatar"><code>.avatar</code></a> &mdash; then <code>.workflow-node-title</code> and
+        <code>.workflow-node-meta</code>. A <code>.series-*</code> class on the tile colours it, and
+        <code>.workflow-node-icon--agent</code> paints it in the agent's colours, so the steps an agent
+        takes stand apart from the ones a tool does.
+    </p>
+    <p>
+        Everything after the head is the node's body, spaced for you: <code>.workflow-node-now</code> for
+        what it is doing in a line or two &mdash; with <a href="/agent-status"><code>.text-shimmer</code></a>
+        while the words are still a guess &mdash; a <a href="/progress"><code>.progress</code></a>, chips, a
+        <a href="/agent-status"><code>.confidence</code></a>, and <code>.workflow-node-foot</code> for the
+        small print. Every wire meets the head's centre line, so nodes of any height still join in a
+        straight line.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Parallel" Title="Steps that run side by side" Demo="ex-demo--block">
+    <p>
+        A <code>.workflow-fork</code> followed by a step joins again: the bracket on the right gathers its
+        branches into the next step, and a short branch's wire runs on to meet it. Nothing is written on a
+        bracket. The piece down to each branch lights once that branch has been reached, and the piece
+        back up once its last step is done, so a reader can see which branch the join is still waiting for.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Decision" Title="A decision" Demo="ex-demo--block">
+    <p>
+        <code>.workflow-fork--decision</code> is a fork where one branch is chosen. Mark it
+        <code>data-state="taken"</code> and the others <code>data-state="skipped"</code>: a skipped branch
+        goes quiet, dashed and grey, with no state written on any step inside it. A
+        <code>.workflow-label</code> first in a branch is the case it is for, on its wire.
+    </p>
+    <p>
+        A fork that ends its path does not join; each branch ends where its last step does. Before the
+        choice is made, leave both branches unmarked.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Loop" Title="Steps that repeat" Demo="ex-demo--block">
+    <p>
+        <code>li.workflow-loop</code> holds the path that repeats &mdash; a turn of a conversation, a retry
+        &mdash; and draws the way back under it. <code>.workflow-loop-count</code> on the way back says how
+        many times, in your words. <code>data-state</code> on the loop colours the way back, and the steps
+        inside take their own: show the turn in progress, not every turn so far.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Labels" Title="Starts, ends and what was handed on" Demo="ex-demo--block">
+    <p>
+        <code>.workflow-end</code> stands in for a node where a run starts or stops; done, it turns go. A
+        <code>.workflow-label</code> first in a step is what was passed along the wire into it &mdash; a
+        transcript, a ticket number, three articles &mdash; which is often the one thing a reader wants to
+        know about a hand-off.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Down" Title="Top to bottom" Demo="ex-demo--block">
+    <p>
+        <code>.workflow--down</code> runs the diagram down the page for a phone, a tablet held upright or a side
+        panel. Nodes take the width they are given, and the wire runs down a rail through their icons. A fork
+        hangs its branches off the rail, indented like a tree, and the rail runs on past them to the next
+        step; a loop draws its way back up its right-hand side. The markup is the same as across &mdash; only
+        the class differs.
+    </p>
+    <p>
+        <code>.workflow--auto</code> is across on a wide screen and down below 640px, so one diagram serves a
+        desk and a phone; the <a href="/workflow-run">live run</a>&rsquo;s detail uses it. With
+        <code>data-follow</code> in a box of fixed height, a diagram run down keeps the step at work in view
+        by scrolling down instead of across.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Flow" Title="How much moves" Demo="ex-demo--block">
+    <p>
+        One streak of light at a time leaves the step before the one at work and runs the whole way into it
+        &mdash; down a fork&rsquo;s bracket into every branch at work, up a join&rsquo;s bracket from every
+        branch into the step after it &mdash; at one speed, round every bend, in one piece. The step at work
+        is what the reader watches, so the light stays quiet. <code>.workflow--flow-off</code> stills it to
+        a lit line.
+    </p>
+    <p>
+        <code>--workflow-flow-speed</code> makes it slower or faster (<code>0.5</code> is half the pace) and
+        <code>--workflow-flow-packets</code> sparser or denser at the same pace (<code>2</code> is twice as
+        many). Set them on the diagram. The <a href="/workflow-run">live run</a> has a control for each.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Stages" Title="An overview" Demo="ex-demo--block">
+    <p>
+        The same classes at another height. A handful of stages, each standing for a diagram of its own, is
+        how a run reads to someone who will never open a step: <code>.workflow--lg</code> sizes everything
+        up for a room, and <code>.workflow--fill</code> shares the width out so the overview fits instead of
+        scrolling. <code>.workflow--sm</code> is the other way, for a diagram in a panel, and
+        <code>.workflow--xl</code> further still, for a wall screen. A single node can be widened with
+        <code>--workflow-node</code> on its step.
+    </p>
+    <p>
+        <code>.workflow--focus</code> is for showing rather than reading: every step keeps only its head
+        except the one at work, which opens wider with everything in it. Write the detail into every node;
+        the diagram shows it for the step that is happening. The <a href="/workflow-run">wall screen</a> is
+        the two together.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Release" Title="A run that is no agent's" Demo="ex-demo--block">
+    <p>
+        Nothing in a workflow is about agents. A release, a production line, a delivery, an onboarding
+        &mdash; any run of steps with states is drawn the same way. The trail and the light are knobs on the
+        <code>.workflow</code>: <code>--workflow-trail</code> for the way the run went, and
+        <code>--workflow-flow</code>, <code>--workflow-flow-line</code>, <code>--workflow-flow-tint</code> and
+        <code>--workflow-flow-glow</code> for the data flowing into the step at work and that step&rsquo;s
+        edge. Set them from tokens, as here in the brand&rsquo;s colours.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Why" Title="Why it chose" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>ol.workflow-decision</code> is the options a step weighed, a <a href="/bars"><code>.meter</code></a>
+        each, the score, and <code>.workflow-decision-why</code> under it. <code>data-state="chosen"</code>
+        ticks the winner; <code>"rejected"</code> quiets the rest but keeps them readable, because why the
+        others lost is half of the explanation. Pair it with the <a href="/agent-steps"><code>.reasoning</code></a>
+        behind it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Workflow.Detail" Title="A step and what it did" Demo="ex-demo--block">
+    <p>
+        A node that opens its detail is a <code>&lt;button class="workflow-node"&gt;</code> with spans inside,
+        and <code>aria-pressed="true"</code> on the one on show. The detail is your own panel beside the
+        diagram &mdash; a <a href="/grid"><code>.sedna-split</code></a> stacks it underneath when the room
+        runs out &mdash; holding whatever explains the step: what it read, what it weighed, the tools it ran.
+    </p>
+    <p>
+        <code>.workflow--grid</code> dots the canvas and <code>.workflow--center</code> centres a diagram
+        narrower than its container. For a graph too large to write by hand &mdash; a flow generated from an
+        automation's own definition &mdash; the <a href="/graph-gallery">graph</a> draws the same states on a
+        canvas.
+    </p>
+</CatExample>

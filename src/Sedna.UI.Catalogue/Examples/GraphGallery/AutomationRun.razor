@@ -1,0 +1,79 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <strong>Support intake</strong>
+        <span class="badge badge-info"><i class="ri-loader-4-line"></i> Running</span>
+        <span class="toolbar-count">Started 09:14:02 by a webhook</span>
+    </div>
+    <div class="graph card" data-graph id="support-run" data-graph-layout="dagre" data-graph-direction="LR" data-graph-nodes="box"
+         data-graph-arrows="target" data-graph-edge-labels="none" data-graph-spacing="compact" data-graph-drag="false"
+         aria-label="Support intake automation, run in progress" aria-roledescription="automation flow">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="webhook" data-kind="trigger" data-tone="1" data-icon="ri-webhook-line" data-state="done" data-meta="Done · POST /hooks/support">Webhook</li>
+            <li data-node="parse" data-kind="data" data-tone="2" data-icon="ri-code-s-slash-line" data-state="done" data-meta="Done in 12 ms">Parse payload</li>
+            <li data-node="lookup" data-kind="data" data-tone="2" data-icon="ri-user-search-line" data-state="done" data-meta="Done · Northwind Retail">Find the caller</li>
+            <li data-node="channel" data-kind="logic" data-tone="6" data-icon="ri-git-branch-line" data-state="done" data-meta="Done · email">Which channel?</li>
+            <li data-node="email" data-kind="data" data-tone="2" data-icon="ri-mail-line" data-state="done" data-meta="Done in 40 ms">Clean the email</li>
+            <li data-node="chat" data-kind="data" data-tone="2" data-icon="ri-chat-3-line" data-state="skipped" data-meta="Skipped">Chat transcript</li>
+            <li data-node="phone" data-kind="data" data-tone="2" data-icon="ri-phone-line" data-state="skipped" data-meta="Skipped">Transcribe call</li>
+            <li data-node="order" data-kind="action" data-tone="3" data-icon="ri-question-answer-line" data-state="waiting" data-meta="Waiting for a reply">Ask for the order</li>
+            <li data-node="classify" data-kind="ai" data-tone="5" data-icon="ri-sparkling-2-line" data-state="running" data-meta="Running · 4 s">Classify (AI)</li>
+            <li data-node="summarise" data-kind="ai" data-tone="5" data-icon="ri-quill-pen-line" data-state="done" data-meta="Done in 2.1 s">Summarise (AI)</li>
+            <li data-node="merge" data-kind="logic" data-tone="6" data-icon="ri-git-merge-line" data-state="next" data-meta="Up next">Merge</li>
+            <li data-node="ticket" data-kind="action" data-tone="3" data-icon="ri-ticket-2-line" data-meta="Not reached">Create ticket</li>
+            <li data-node="urgent" data-kind="logic" data-tone="6" data-icon="ri-git-branch-line" data-meta="Not reached">Urgent?</li>
+            <li data-node="page" data-kind="action" data-tone="3" data-icon="ri-alarm-warning-line" data-meta="Not reached">Page on-call</li>
+            <li data-node="queue" data-kind="action" data-tone="3" data-icon="ri-inbox-line" data-meta="Not reached">Queue it</li>
+            <li data-node="reply" data-kind="action" data-tone="3" data-icon="ri-reply-line" data-meta="Not reached">Reply to caller</li>
+
+            <li data-edge data-source="webhook" data-target="parse">The webhook's payload is parsed.</li>
+            <li data-edge data-source="parse" data-target="lookup">The parsed payload names the caller, who is looked up.</li>
+            <li data-edge data-source="lookup" data-target="channel">The run branches on the channel the request came in by.</li>
+            <li data-edge data-source="channel" data-target="email">An email is cleaned of signatures and quoted replies.</li>
+            <li data-edge data-source="channel" data-target="chat">A chat has its transcript joined.</li>
+            <li data-edge data-source="channel" data-target="phone">A call is transcribed.</li>
+            <li data-edge data-source="lookup" data-target="order">A caller with no order number is asked for one.</li>
+            <li data-edge data-source="email" data-target="classify">The cleaned email is classified by urgency and topic.</li>
+            <li data-edge data-source="email" data-target="summarise">The cleaned email is summarised.</li>
+            <li data-edge data-source="chat" data-target="classify">A chat transcript would be classified.</li>
+            <li data-edge data-source="phone" data-target="classify">A call transcript would be classified.</li>
+            <li data-edge data-source="classify" data-target="merge">The classification is merged with the rest.</li>
+            <li data-edge data-source="summarise" data-target="merge">The summary is merged with the rest.</li>
+            <li data-edge data-source="order" data-target="merge">The caller's reply is merged with the rest.</li>
+            <li data-edge data-source="merge" data-target="ticket">A ticket is created from what was merged.</li>
+            <li data-edge data-source="ticket" data-target="urgent">The run branches on urgency.</li>
+            <li data-edge data-source="urgent" data-target="page">An urgent ticket pages the on-call engineer.</li>
+            <li data-edge data-source="urgent" data-target="queue">Any other ticket joins the support queue.</li>
+            <li data-edge data-source="ticket" data-target="reply">The caller is told the ticket's number.</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <div class="graph-tools" role="toolbar" aria-label="View">
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit to the frame" data-tip="Fit to the frame"><i class="ri-focus-3-line"></i></button>
+            <span class="graph-tools-sep"></span>
+            <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fullscreen" aria-pressed="false" aria-label="Full screen" data-tip="Full screen">
+                <i class="ri-fullscreen-line graph-when-off"></i><i class="ri-fullscreen-exit-line graph-when-on"></i>
+            </button>
+        </div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+        <p class="visually-hidden" data-graph-live aria-live="polite"
+           data-graph-announce="{label}, {meta}. {links} links." data-graph-announce-select="{label} selected."></p>
+    </div>
+    <div class="sedna-row-wrap">
+        <div class="graph-legend" role="group" aria-label="Steps">
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-1"></span> Trigger</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-2"></span> Data</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-5"></span> AI</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-6"></span> Logic</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-3"></span> Action</span>
+        </div>
+        <div class="graph-legend sedna-push" role="group" aria-label="This run">
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-go"></span> Done</span>
+            <span class="graph-key"><span class="graph-line graph-line--flow graph-line--arrow"></span> Running</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--group series-warn"></span> Waiting</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--group series-1"></span> Next</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--group series-muted"></span> Skipped</span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-danger"></span> Failed</span>
+        </div>
+    </div>
+</div>

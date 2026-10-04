@@ -225,6 +225,14 @@
     --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
     --info-ring:    rgba(89, 195, 255, 0.5);     /* orbit-400 — its glow */
 
+    /* Data in motion: the light running into a .workflow's step at work, the line it
+       runs on, and that step's ring and glow. The info colours, so every theme moves
+       them with info; forced colours points the light at Highlight. */
+    --flow-light: var(--info-fg);
+    --flow-line:  var(--info-border);
+    --flow-tint:  var(--info-bg);
+    --flow-glow:  var(--info-ring);
+
     --secret-bg:     color-mix(in srgb, var(--violet-600) 12%, transparent);
     --secret-border: var(--violet-800);
     --secret-fg:     var(--violet-300);
@@ -456,7 +464,7 @@
     --pulse-duration:    1.6s;
     --shimmer-duration:  2.2s;   /* .text-shimmer, words an agent is still deciding */
     --caret-duration:    1s;     /* the caret on a streaming answer */
-    --beam-duration:     3s;     /* one turn of a .beam; --slow doubles it */
+    --flow-duration:     1.6s;   /* a .workflow streak, one spacing along its way */
 
     /* ── Corner rounding ────────────────────────────────────────────────────
        Named by role rather than by size, because "square off the controls" is the
@@ -516,8 +524,7 @@
     --agent-trail: color-mix(in srgb, var(--fg) 30%, transparent);
     --agent-tint:  color-mix(in srgb, var(--agent-to) 12%, transparent);
     --agent-edge:  color-mix(in srgb, var(--agent-to) 35%, transparent);
-    /* The beam: a warm tail running into the orbit's blue, and the breath of its glow. */
-    --agent-beam-tail: color-mix(in srgb, var(--agent-from) 85%, transparent);
+    /* A glow in the orbit's blue: full round a step at work, dim round a .beam. */
     --agent-glow:      color-mix(in srgb, var(--agent-to) 55%, transparent);
     --agent-glow-dim:  color-mix(in srgb, var(--agent-to) 25%, transparent);
     /* A placeholder the agent is filling: the skeleton, warmed at its sheen. */

@@ -1,6 +1,6 @@
 /* ── Agent activity ───────────────────────────────────────────────────────────
    Signals that an agent is working and roughly on what, and how far to trust what it
-   gave back. The beam that runs a busy element's border is `.beam`, in 69-beam.css —
+   gave back. The beam that marks a busy element's border is `.beam`, in 69-beam.css —
    last in the paint layer, because it draws over the element's own background.
 
    ── Shimmer ──

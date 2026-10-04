@@ -115,6 +115,13 @@ public sealed record SednaGraphNode(string Id, string Label)
     public SednaGraphDisplay? Display { get; init; }
 
     /// <summary>
+    /// Where a run has got to on this record — drawn on its border, a ring and a halo, so it keeps
+    /// its <see cref="Tone"/>. Unset is a step the run has not reached yet.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SednaGraphState? State { get; init; }
+
+    /// <summary>
     /// The app's own fields, by name — what a filter, a tooltip slot (<c>data-graph-field="owner"</c>)
     /// and an announcement (<c>{owner}</c>) can name, and what the events carry back.
     /// </summary>
@@ -158,6 +165,13 @@ public sealed record SednaGraphEdge(string Source, string Target)
     /// <summary>Drawn quieter.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Muted { get; init; }
+
+    /// <summary>
+    /// Where a run has got to on this link. Unset, it is drawn in its <see cref="Target"/> record's
+    /// <see cref="SednaGraphNode.State"/>, so an app normally sets state on records only.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SednaGraphState? State { get; init; }
 
     /// <summary>The app's own fields, by name.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -320,6 +334,36 @@ public enum SednaGraphDisplay
 
     /// <summary>Its name inside a box: a diagram of a few dozen, where each record is read.</summary>
     [JsonStringEnumMemberName("box")] Box,
+}
+
+/// <summary>
+/// Where a run has got to on a record or a link: <c>data-state</c>. A record with none is a step the
+/// run has not reached yet.
+/// </summary>
+/// <remarks>
+/// Never shown by colour alone: a running record breathes, a waiting, next or skipped one is dashed,
+/// and a failed one is heavier.
+/// </remarks>
+[JsonConverter(typeof(JsonStringEnumConverter<SednaGraphState>))]
+public enum SednaGraphState
+{
+    /// <summary>The step that runs next: a dashed border in the brand colour.</summary>
+    [JsonStringEnumMemberName("next")] Next,
+
+    /// <summary>Working now: a ring in the agent colour and a halo that breathes. A link into it carries moving dashes.</summary>
+    [JsonStringEnumMemberName("running")] Running,
+
+    /// <summary>Reached, and waiting on something outside the run — a person, a reply: a dashed ring in the warning colour.</summary>
+    [JsonStringEnumMemberName("waiting")] Waiting,
+
+    /// <summary>Finished: a ring in the go colour.</summary>
+    [JsonStringEnumMemberName("done")] Done,
+
+    /// <summary>Failed: a heavier ring in the danger colour.</summary>
+    [JsonStringEnumMemberName("failed")] Failed,
+
+    /// <summary>A branch the run did not take: drawn quieter, with a dashed border.</summary>
+    [JsonStringEnumMemberName("skipped")] Skipped,
 }
 
 /// <summary>What <see cref="ISednaGraphs.ExportAsync"/> writes.</summary>

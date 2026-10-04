@@ -1,0 +1,123 @@
+<div class="card">
+    <div class="card-head">
+        <strong>T-48213 &middot; Card terminals down at store 14</strong>
+        <span class="agent-status"><span class="orb" data-orb="thinking" role="img" aria-label="Thinking"></span><span class="agent-status-label text-shimmer">Deciding where it goes</span><span class="agent-status-time">0:04</span></span>
+    </div>
+    <ol class="workflow workflow--grid" tabindex="0" data-follow aria-label="Ticket T-48213, from the call to the engineer on call">
+        <li class="workflow-step" data-state="done">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon series-2"><i class="ri-coupon-3-line"></i></span>
+                    <span class="workflow-node-title">Ticket created</span>
+                    <span class="workflow-node-meta">By the voice agent &middot; 09:41 <span class="visually-hidden">Done.</span></span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-fork">
+            <div class="workflow-branch">
+                <ol class="workflow-path">
+                    <li class="workflow-step" data-state="done">
+                        <article class="workflow-node workflow-node--agent">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-scales-3-line"></i></span>
+                                <span class="workflow-node-title">Assess severity</span>
+                                <span class="workflow-node-meta">Agent &middot; 2.1 s <span class="visually-hidden">Done.</span></span>
+                            </header>
+                            <span class="confidence" data-level="3"><span class="confidence-bars"><i></i><i></i><i></i></span>P1, sure</span>
+                        </article>
+                    </li>
+                </ol>
+            </div>
+            <div class="workflow-branch">
+                <ol class="workflow-path">
+                    <li class="workflow-step" data-state="done">
+                        <article class="workflow-node workflow-node--agent">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-price-tag-3-line"></i></span>
+                                <span class="workflow-node-title">Categorise</span>
+                                <span class="workflow-node-meta">Agent &middot; 1.4 s <span class="visually-hidden">Done.</span></span>
+                            </header>
+                            <span class="confidence" data-level="2"><span class="confidence-bars"><i></i><i></i><i></i></span>Network &rsaquo; Store link, fairly sure</span>
+                        </article>
+                    </li>
+                </ol>
+            </div>
+            <div class="workflow-branch">
+                <ol class="workflow-path">
+                    <li class="workflow-step" data-state="done">
+                        <article class="workflow-node">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon series-4"><i class="ri-git-merge-line"></i></span>
+                                <span class="workflow-node-title">Find related</span>
+                                <span class="workflow-node-meta">Search &middot; 0.8 s <span class="visually-hidden">Done.</span></span>
+                            </header>
+                        </article>
+                    </li>
+                    <li class="workflow-step" data-state="done">
+                        <span class="workflow-label">2 matches</span>
+                        <article class="workflow-node workflow-node--agent">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-links-line"></i></span>
+                                <span class="workflow-node-title">Link the pattern</span>
+                                <span class="workflow-node-meta">Agent &middot; 1.9 s <span class="visually-hidden">Done.</span></span>
+                            </header>
+                            <p class="workflow-node-now">Stores 9 and 21 reported the same in the last 15 minutes.</p>
+                        </article>
+                    </li>
+                </ol>
+            </div>
+        </li>
+        <li class="workflow-step" data-state="running">
+            <article class="workflow-node workflow-node--agent">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-route-line"></i></span>
+                    <span class="workflow-node-title">Decide where it goes</span>
+                    <span class="workflow-node-meta">Agent &middot; 0:04 <span class="visually-hidden">Running.</span></span>
+                </header>
+                <p class="workflow-node-now text-shimmer">Weighing the on-call rota against the outage pattern</p>
+            </article>
+        </li>
+        <li class="workflow-fork workflow-fork--decision">
+            <div class="workflow-branch">
+                <span class="workflow-label">Urgent</span>
+                <ol class="workflow-path">
+                    <li class="workflow-step" data-state="next">
+                        <article class="workflow-node">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon series-danger"><i class="ri-alarm-warning-line"></i></span>
+                                <span class="workflow-node-title">Page on call</span>
+                                <span class="workflow-node-meta">Push to the rota <span class="visually-hidden">Next.</span></span>
+                            </header>
+                        </article>
+                    </li>
+                </ol>
+            </div>
+            <div class="workflow-branch">
+                <span class="workflow-label">Can wait</span>
+                <ol class="workflow-path">
+                    <li class="workflow-step">
+                        <article class="workflow-node">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon series-3"><i class="ri-inbox-archive-line"></i></span>
+                                <span class="workflow-node-title">Queue for the morning</span>
+                                <span class="workflow-node-meta">Network team</span>
+                            </header>
+                        </article>
+                    </li>
+                </ol>
+            </div>
+        </li>
+        <li class="workflow-step">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon series-2"><i class="ri-edit-box-line"></i></span>
+                    <span class="workflow-node-title">Update the ticket</span>
+                    <span class="workflow-node-meta">Priority, category, summary</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step">
+            <span class="workflow-end"><i class="ri-flag-line"></i>Handed over</span>
+        </li>
+    </ol>
+</div>

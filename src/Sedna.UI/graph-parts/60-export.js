@@ -211,9 +211,18 @@ function svgOf(g, ground) {
         const fill = n.style('background-color');
         const stroke = n.style('border-color');
         const bw = n.numericStyle('border-width');
-        const attrs = `fill="${fill}" fill-opacity="${num(n.numericStyle('background-opacity'))}" stroke="${stroke}" stroke-width="${num(bw)}"`;
+        const dashed = n.style('border-style') === 'dashed' ? ' stroke-dasharray="5 3"' : '';
+        const attrs = `fill="${fill}" fill-opacity="${num(n.numericStyle('background-opacity'))}" stroke="${stroke}" stroke-opacity="${num(n.numericStyle('border-opacity'))}" stroke-width="${num(bw)}"${dashed}`;
         const parts = [`<g class="graph-record" opacity="${num(opacityOf(n))}"><title>${esc([n.data('label'), n.data('meta')].filter(Boolean).join(' — '))}</title>`];
         parts.push(shapeSvg(n.style('shape'), p.x, p.y, nw, nh, attrs));
+        // A run's ring, outside the record (43-run.js) — but not the keyboard's, which is the reader's place.
+        const ring = n.hasClass('keyed') ? 0 : n.numericStyle('outline-width');
+        if (ring > 0 && n.numericStyle('outline-opacity') > 0) {
+            const grow = bw + ring + n.numericStyle('outline-offset');
+            const ringDash = n.style('outline-style') === 'dashed' ? ' stroke-dasharray="4 2"' : '';
+            parts.push(shapeSvg(n.style('shape'), p.x, p.y, nw + grow, nh + grow,
+                `class="graph-ring" fill="none" stroke="${n.style('outline-color')}" stroke-width="${num(ring)}"${ringDash}`));
+        }
         const icon = n.data('icon') ? g.icons.image(n.data('icon'), box ? stroke : ground, 32) : null;
         if (icon) {
             // A box's icon sits 12px in from its left edge (background-position-x); a dot's is centred.

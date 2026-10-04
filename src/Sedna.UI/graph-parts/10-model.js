@@ -10,8 +10,8 @@
      3. a call    graph.set({ nodes, edges }) from script; ISednaGraph.SetDataAsync.
 
    A node:  { id, label, kind, tone, tones, shape, icon, group, cluster, parent,
-              weight, muted, root, hub, href, meta, tags, x, y, display, fields }
-   An edge: { id, source, target, label, kind, tone, line, weight, arrow, muted, fields }
+              weight, muted, root, hub, href, meta, tags, x, y, display, state, fields }
+   An edge: { id, source, target, label, kind, tone, line, weight, arrow, muted, state, fields }
 
    In markup each is the attribute of the same name — `data-tone="3"`, `data-muted` —
    and the element's text is its label unless `data-label` says otherwise, so the list
@@ -49,6 +49,8 @@ const LINES = new Set(['solid', 'dashed', 'dotted']);
 const own = (table, key) => (Object.hasOwn(table, key) ? table[key] : undefined);
 const ARROWS = new Set(['none', 'target', 'source', 'both']);
 const WEIGHTS = { light: 0.6, thin: 0.6, normal: 1, heavy: 2, strong: 2, bold: 2.6 };
+// Where a run has got to (43-run.js). A record with none is a step the run has not reached.
+const STATES = new Set(['next', 'running', 'waiting', 'done', 'failed', 'skipped']);
 
 let warned = new Set();
 function warnOnce(key, message) {
@@ -68,6 +70,14 @@ function toneOf(value) {
 }
 
 const tokenOfTone = tone => (tone ? (own(TONE_TOKENS, tone) || tone) : null);
+
+function stateOf(value) {
+    const s = text(value);
+    if (!s) return null;
+    if (STATES.has(s)) return s;
+    warnOnce('state:' + s, `"${s}" is not a run state. Use next, running, waiting, done, failed or skipped.`);
+    return null;
+}
 
 function flag(value) {
     if (value === true || value === false) return value;
@@ -97,9 +107,9 @@ function listOf(value) {
 }
 
 const NODE_KEYS = new Set(['id', 'node', 'label', 'kind', 'tone', 'tones', 'shape', 'icon', 'group', 'cluster',
-    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'fields']);
+    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'state', 'fields']);
 const EDGE_KEYS = new Set(['id', 'edge', 'source', 'target', 'label', 'kind', 'tone', 'line', 'weight', 'arrow',
-    'muted', 'fields']);
+    'muted', 'state', 'fields']);
 
 function node(raw) {
     const id = text(raw.id ?? raw.node);
@@ -137,6 +147,7 @@ function node(raw) {
         x: number(raw.x),
         y: number(raw.y),
         display: display === 'box' || display === 'dot' ? display : null,
+        state: stateOf(raw.state),
         fields,
     };
 }
@@ -171,6 +182,7 @@ function edge(raw, seen) {
         weight: typeof w === 'string' && own(WEIGHTS, w) ? WEIGHTS[w] : (number(w) ?? 1),
         arrow: arrow && ARROWS.has(arrow) ? arrow : null,
         muted: flag(raw.muted),
+        state: stateOf(raw.state),
         fields,
     };
 }

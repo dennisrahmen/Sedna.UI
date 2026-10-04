@@ -1,0 +1,59 @@
+<ol class="workflow workflow--sm" tabindex="0" aria-label="Release 2.14.1, stage by stage"
+    style="--workflow-trail: var(--info-solid); --workflow-flow: var(--brand-soft); --workflow-flow-line: var(--brand-tint-strong); --workflow-flow-tint: var(--brand-tint); --workflow-flow-glow: var(--brand-glow)">
+    <li class="workflow-step" data-state="done">
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon series-1"><i class="ri-hammer-line"></i></span>
+                <span class="workflow-node-title">Build</span>
+                <span class="workflow-node-meta">a3f9c1e &middot; 3:12</span>
+            </header>
+        </article>
+    </li>
+    <li class="workflow-fork">
+        <div class="workflow-branch">
+            <ol class="workflow-path">
+                <li class="workflow-step" data-state="done">
+                    <article class="workflow-node">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon series-4"><i class="ri-flask-line"></i></span>
+                            <span class="workflow-node-title">Unit tests</span>
+                            <span class="workflow-node-meta">1,204 passed</span>
+                        </header>
+                    </article>
+                </li>
+            </ol>
+        </div>
+        <div class="workflow-branch">
+            <ol class="workflow-path">
+                <li class="workflow-step" data-state="done">
+                    <article class="workflow-node">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon series-4"><i class="ri-shield-check-line"></i></span>
+                            <span class="workflow-node-title">Security scan</span>
+                            <span class="workflow-node-meta">No findings</span>
+                        </header>
+                    </article>
+                </li>
+            </ol>
+        </div>
+    </li>
+    <li class="workflow-step" data-state="running">
+        <span class="workflow-label">v2.14.1</span>
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon series-3"><i class="ri-rocket-2-line"></i></span>
+                <span class="workflow-node-title">Deploy to staging</span>
+                <span class="workflow-node-meta">12 of 30 smoke tests</span>
+            </header>
+        </article>
+    </li>
+    <li class="workflow-step">
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon series-3"><i class="ri-earth-line"></i></span>
+                <span class="workflow-node-title">Production</span>
+                <span class="workflow-node-meta">Needs approval</span>
+            </header>
+        </article>
+    </li>
+</ol>

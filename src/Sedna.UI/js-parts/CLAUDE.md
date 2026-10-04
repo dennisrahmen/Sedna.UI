@@ -58,7 +58,9 @@ member at load time.
 **The `2x` band is full**, so it holds two parts numbered `20`: `20-select.js` then `20-tips.js`.
 Ordering still works — the generator sorts by filename, and `s` precedes `t` — and nothing in the band
 depends on load order anyway. Renumbering to make room would move every part after it, which is a
-change to nine files to avoid a duplicate digit.
+change to nine files to avoid a duplicate digit. `27` holds two the same way: `27-output.js` and
+`27-workflow.js`, which keep a pane and a diagram on what is happening now and share the `data-follow`
+switch and the `sedna-follow` event.
 
 ## `ui._` is private
 

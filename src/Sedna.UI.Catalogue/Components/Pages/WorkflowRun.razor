@@ -1,0 +1,71 @@
+@page "/workflow-run"
+
+<CatHead Title="Watching a run">
+    A run followed as it happens: an overview of its stages for the people who will never open a step,
+    every step under it, the conversation the run started with, and why each decision went the way it did.
+    The automation sends an event each time something changes; the app keeps the latest state of each
+    step and binds it to <code>data-state</code>. Everything on screen is the
+    <a href="/workflow">workflow</a> markup and the rest of the library &mdash; nothing here is drawn by
+    a script.
+</CatHead>
+
+<CatExample TExample="Examples.Interop.WorkflowLiveRun" Title="A support call, from the phone to the engineer on call" Demo="ex-demo--block">
+    <p>
+        Press play. A caller reports that no card terminal in their store works; the voice agent asks,
+        listens, looks it up and tries a fix, turn by turn, then opens a ticket and reads the number back.
+        Three checks triage the ticket side by side, the agent weighs where it goes and pages the engineer
+        on call, and the run waits for them to acknowledge before it hands over. Step through it one event at
+        a time to tell the story at your own pace.
+    </p>
+    <p>
+        <strong>Two diagrams of one run.</strong> The overview is five steps, <code>.workflow--fill</code> so
+        it fits; the detail is <code>.workflow--sm</code> with <code>data-follow</code>, so it scrolls to
+        the step at work as the run moves. Both are the same markup with a different state dictionary
+        behind them, and a stage's state is simply set alongside its steps'.
+    </p>
+    <p>
+        <strong>The component holds only what arrived.</strong> A dictionary of step to state and one of
+        step to its meta line; <code>S("assess")</code> is bound to that step's <code>data-state</code>,
+        and a step nobody has mentioned renders no attribute at all, which is the state for a step not
+        reached. The script here plays the events back on a timer; an app receives them.
+    </p>
+    <p>
+        <strong>How much moves is the reader&rsquo;s choice.</strong> The controls above the card set
+        <code>.workflow--flow-off</code> on both diagrams, and
+        <code>--workflow-flow-speed</code> and <code>--workflow-flow-packets</code> in their
+        <code>style</code>.
+    </p>
+    <p>
+        <strong>Nothing here is a component.</strong> The card, the status, both diagrams, the transcript, the
+        decision and the log are the library&rsquo;s classes on the app&rsquo;s own markup, so a different
+        screen is a different arrangement of the same parts &mdash; the wall screen below is one.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.WorkflowRun.WallScreen" Title="On a wall screen or a tablet" Demo="ex-demo--block">
+    <p>
+        The same run, shown rather than read: <code>.workflow--xl</code> for the back of the room,
+        <code>.workflow--fill</code> so the stages fit the screen, and <code>.workflow--focus</code> so only the
+        step at work opens &mdash; the others keep their heads and the detail every node carries stays out of
+        the way until its step is the one happening. The status above it is an
+        <a href="/agent-status"><code>.agent-status--xl</code></a>. For a screen bigger still, scale the frame
+        with <code>zoom</code> rather than restating sizes: every wire, bracket and mark is arithmetic on the
+        same numbers, so it all grows together.
+    </p>
+    <p>
+        <strong>Full screen is a button.</strong> <code>data-fullscreen</code> on a button puts the element
+        its <code>aria-controls</code> names into full screen, or the whole page without one, and keeps its
+        <code>aria-pressed</code> right however the reader leaves. Make that element a surface &mdash; here a
+        <code>.card</code> &mdash; because full screen shows it alone on a black backdrop. On a kiosk or a TV
+        that boots into the browser, the page is already the whole screen and needs no button at all.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Interop/WorkflowEvents.txt" Title="Receiving the events">
+    <p>
+        The automation tells the app what it is doing with an HTTP step after each node &mdash; the step&rsquo;s
+        id, its new state, and a line for the meta. The endpoint checks the automation&rsquo;s key and hands
+        the event to a singleton; every component showing that run applies it on its own circuit. Nothing
+        about the diagram crosses the wire but those three fields.
+    </p>
+</CatSnippet>

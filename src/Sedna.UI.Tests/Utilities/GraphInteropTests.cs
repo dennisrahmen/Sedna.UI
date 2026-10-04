@@ -295,6 +295,7 @@ public class GraphInteropTests : BunitContext
             X = 10,
             Y = -20,
             Display = SednaGraphDisplay.Box,
+            State = SednaGraphState.Running,
             Fields = new Dictionary<string, string?> { ["owner"] = "Alex Fischer", ["teamLead"] = "Priya Nair", ["pager"] = null },
         };
 
@@ -312,6 +313,7 @@ public class GraphInteropTests : BunitContext
         Assert.Equal("2", (string?)json["tone"]);
         Assert.Equal("rounded", (string?)json["shape"]);
         Assert.Equal("box", (string?)json["display"]);
+        Assert.Equal("running", (string?)json["state"]);
         Assert.Equal(2.5, (double?)json["weight"]);
         Assert.Equal(-20, (double?)json["y"]);
         Assert.Equal(["critical", "eu"], json["tags"]!.AsArray().Select(t => (string?)t));
@@ -371,6 +373,7 @@ public class GraphInteropTests : BunitContext
             Weight = 2,
             Arrow = SednaGraphArrow.Both,
             Muted = true,
+            State = SednaGraphState.Skipped,
             Fields = new Dictionary<string, string?> { ["protocol"] = "https" },
         };
 
@@ -382,7 +385,36 @@ public class GraphInteropTests : BunitContext
         Assert.Equal("dashed", (string?)json["line"]);
         Assert.Equal("both", (string?)json["arrow"]);
         Assert.Equal("warn", (string?)json["tone"]);
+        Assert.Equal("skipped", (string?)json["state"]);
         Assert.True((bool?)json["muted"]);
+    }
+
+    [Fact]
+    public void A_state_travels_as_its_lowercase_word_and_only_when_set()
+    {
+        var sent = Sent(new SednaGraphData(
+            [new SednaGraphNode("parse", "Parse the payload") { State = SednaGraphState.Done }, new SednaGraphNode("ticket", "Create a ticket")],
+            [new SednaGraphEdge("parse", "ticket"), new SednaGraphEdge("ticket", "parse") { State = SednaGraphState.Failed }]));
+
+        Assert.Equal("done", (string?)sent.Data["nodes"]![0]!["state"]);
+        Assert.Equal("failed", (string?)sent.Data["edges"]![1]!["state"]);
+        // A step the run has not reached says nothing, and a link without a state of its own
+        // follows its target in the script: neither sends the key.
+        Assert.False(sent.Data["nodes"]![1]!.AsObject().ContainsKey("state"));
+        Assert.False(sent.Data["edges"]![0]!.AsObject().ContainsKey("state"));
+    }
+
+    [Fact]
+    public void Every_state_is_one_the_model_accepts()
+    {
+        var states = SetValues("STATES");
+
+        // Both directions: a state the model draws that C# cannot name is one an app has to send
+        // as a string, and a C# name the model refuses is drawn as not reached, with a warning.
+        Assert.Equal(states.Order(StringComparer.Ordinal),
+            Enum.GetValues<SednaGraphState>().Select(Name).Order(StringComparer.Ordinal));
+        // node() and edge() both read it through stateOf, which refuses anything else.
+        Assert.Equal(2, Regex.Matches(GraphModule, @"state: stateOf\(raw\.state\)").Count);
     }
 
     [Fact]
@@ -510,7 +542,7 @@ public class GraphInteropTests : BunitContext
         var e = JsonSerializer.Deserialize<SednaGraphNodeEventArgs>(
             """
             {"id":"orders-api","label":"Orders API","kind":"service","group":"orders","cluster":null,
-             "parent":"checkout","meta":"orders-console-01","href":"/services/orders-api","tone":"2",
+             "parent":"checkout","meta":"orders-console-01","href":"/services/orders-api","tone":"2","state":"waiting",
              "tags":["critical","eu"],"fields":{"owner":"Alex Fischer","collapsed":"true","pager":null},
              "keyboard":true}
             """, Wire)!;
@@ -518,6 +550,7 @@ public class GraphInteropTests : BunitContext
         Assert.Equal("orders-api", e.Id);
         Assert.Equal("Orders API", e.Label);
         Assert.Equal("checkout", e.Parent);
+        Assert.Equal(SednaGraphState.Waiting, e.State);
         Assert.Equal(["critical", "eu"], e.Tags);
         Assert.Equal("Alex Fischer", e.Fields["owner"]);
         Assert.Null(e.Fields["pager"]);
@@ -528,9 +561,12 @@ public class GraphInteropTests : BunitContext
     public void A_cleared_selection_and_a_fold_read_as_node_event_args()
     {
         var cleared = JsonSerializer.Deserialize<SednaGraphNodeEventArgs>("""{"id":null}""", Wire)!;
-        var folded = JsonSerializer.Deserialize<SednaGraphNodeEventArgs>("""{"id":"checkout","label":"Checkout"}""", Wire)!;
+        // nodeDetail() sends `state: null` for a record the run has not reached.
+        var folded = JsonSerializer.Deserialize<SednaGraphNodeEventArgs>("""{"id":"checkout","label":"Checkout","state":null}""", Wire)!;
 
         Assert.Null(cleared.Id);
+        Assert.Null(cleared.State);
+        Assert.Null(folded.State);
         Assert.Empty(cleared.Tags);
         Assert.Empty(cleared.Fields);
         Assert.Equal("checkout", folded.Id);

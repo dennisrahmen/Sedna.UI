@@ -73,6 +73,7 @@ with CSS alone: `[data-graph-colouring="status"] .legend-status`.
 | `data-tags` | `tags` | Space-separated; a filter matches any one. |
 | `data-x`, `data-y` | `x`, `y` | A position, for the `preset` layout. |
 | `data-display` | `display` | `dot` or `box`, whatever the graph draws the rest as. |
+| `data-state` | `state` | Where a run has got to: `next`, `running`, `waiting`, `done`, `failed`, `skipped`. None is a step not reached yet. See [A run](#a-run). |
 | any other `data-*` | `fields` | The app's own field — a filter, a tooltip slot and an announcement can name it. |
 
 ### Links
@@ -88,6 +89,7 @@ with CSS alone: `[data-graph-colouring="status"] .legend-status`.
 | `data-weight` | `weight` | `light`, `normal`, `heavy`, or a number (1 is normal): how thick it is drawn, and how hard it holds its ends together in a layout — in `dagre`, a `light` link gives way to the links the hierarchy is made of. |
 | `data-arrow` | `arrow` | `none`, `target`, `source`, `both`. Default: `data-graph-arrows`. |
 | `data-muted` | `muted` | Drawn quieter. |
+| `data-state` | `state` | As a record's. Default: `skipped` out of a skipped record, else its target record's state. |
 
 A link whose end is not a record, a duplicate id and a cycle of parents are dropped with a console
 warning rather than failing the graph.
@@ -150,6 +152,7 @@ On the `[data-graph]` element:
 | `.graph-legend`, `.graph-key` | A row of keys. |
 | `.graph-swatch` | A record's key, in a `.series-*` colour: `--square`, `--rounded`, `--diamond`, `--triangle`, `--hexagon`, `--star`, `--tag`, `--muted`, `--group`. |
 | `.graph-line` | A link's key: `--dashed`, `--dotted`, `--light`, `--heavy`, `--arrow`. |
+| `.graph-line--flow` | The key for a running link: dashes in the agent colour, moving towards the arrowhead; still under reduced motion. |
 | `.graph-frame` | A graph with what goes around it — what full screen takes. |
 | `.graph-detail` | The side panel: as tall as the graph and no taller, in full screen as well. On a `.card.card--fill` its head and foot stay and its body scrolls. |
 | `.graph-direction` | A neighbour's direction in the panel: `-out`, `-in`, `-both` icons, one shown. |
@@ -262,6 +265,51 @@ Each loads the first time a graph uses it.
   the outlines around groups included, every colour the one the canvas resolved. `export-png` is the engine's, at twice the resolution.
   Both export the whole drawing, not only the part in view. `data-graph-filename` names the file.
 
+## A run
+
+A graph shows a run live — an automation flow, a pipeline, an approval chain. Draw the flow as one:
+`data-graph-layout="dagre"`, `data-graph-direction="LR"`, `data-graph-nodes="box"`,
+`data-graph-arrows="target"`. Give each record the state the run has reached in `data-state`:
+
+| State | Drawn |
+|---|---|
+| none | Not reached yet: drawn as without a run. |
+| `next` | Runs next: a dashed border in the brand colour. |
+| `running` | Working now: a ring in the agent colour, and a halo that breathes. |
+| `waiting` | Reached, and waiting on something outside the run — a person, a reply: a dashed ring in the warning colour. |
+| `done` | Finished: a ring in the go colour. |
+| `failed` | A heavier ring in the danger colour. |
+| `skipped` | A branch the run did not take: quieter, with a dashed border. |
+
+```html
+<li data-node="classify" data-icon="ri-sparkling-2-line" data-state="running" data-meta="Running">Classify with AI</li>
+<li data-node="summarise" data-icon="ri-quill-pen-line" data-state="done" data-meta="Done in 1.2 s">Summarise with AI</li>
+<li data-edge data-source="email" data-target="classify">The cleaned email is classified</li>
+<li data-node="chat" data-icon="ri-chat-3-line" data-state="skipped">Join the chat transcript</li>
+<li data-edge data-source="chat" data-target="classify">A chat transcript would be classified</li>
+```
+
+- **A record keeps its tone, its fill and its icon.** The state is drawn on its border, a ring outside
+  it and a halo.
+- **A link takes its target's state**, so set states on records and the links follow. A link into a
+  running record is drawn in the agent colour with dashes moving from its source to its target; into a
+  waiting or a done one, solid in the go colour; into a failed one, in the danger colour; into the next
+  one, dashed; into a skipped one, dashed and quiet. A link out of a skipped record is skipped too, so a
+  branch not taken stays quiet all the way to where the branches meet. A link's own `data-state` wins.
+- **New states are new data.** Send the whole list again — `set()`, `SetDataAsync`, a render that
+  changes the list — and only the records and links whose state changed are restyled. Nothing is laid
+  out again.
+- **What moves is decoration.** The halo and the dashes stand still under `prefers-reduced-motion` and in
+  a tab nobody is looking at, and move at the theme's `--progress-duration` and `--pulse-duration`.
+- **Colour is never the only carrier.** A running record breathes, `waiting`, `next` and `skipped` are
+  dashed, and `failed` is heavier. Say the state in words as well: in `data-meta`, which a box writes under
+  its name, and so in the tooltip, the search and the announcements.
+- **The legend is the app's markup**: a `.graph-swatch` for each state on screen, and
+  `<span class="graph-line graph-line--flow graph-line--arrow">` for a running link.
+
+`state` is a field like any other: a filter, a tooltip slot and the record in every event carry it. In
+C#, `State` on `SednaGraphNode` and `SednaGraphEdge` takes a `SednaGraphState`.
+
 ## Events
 
 Bubbling from the `[data-graph]` element, with plain data in `detail`:
@@ -278,7 +326,7 @@ Bubbling from the `[data-graph]` element, with plain data in `detail`:
 | `sedna-graph-expand`, `-collapse` | `{ id, label }` | |
 
 Stats are `{ nodes, edges, matches, totalNodes, totalEdges, selected }`. A record is
-`{ id, label, kind, group, cluster, parent, meta, href, tone, tags, fields, keyboard }`.
+`{ id, label, kind, group, cluster, parent, meta, href, tone, state, tags, fields, keyboard }`.
 
 ## Script
 
@@ -337,7 +385,9 @@ in the page answers null with a console warning, never an exception into the cir
 
 `@onsedna-graph-select`, `-open`, `-hover`, `-context`, `-connect`, `-expand`, `-collapse`, `-change`
 and `-ready` are bindable with `@using Sedna.UI`, with `SednaGraphNodeEventArgs`,
-`SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs` and `SednaGraphEventArgs`.
+`SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs` and `SednaGraphEventArgs`. A record's
+`State` — a `SednaGraphState`, sent only when set — travels on `SednaGraphNode` and `SednaGraphEdge`
+and comes back on `SednaGraphNodeEventArgs`.
 
 **A large graph over Blazor Server** is best served by `data-graph-src`, which the browser fetches
 itself, or by `SetDataAsync`; a list rendered by Razor is held in the circuit's render tree and

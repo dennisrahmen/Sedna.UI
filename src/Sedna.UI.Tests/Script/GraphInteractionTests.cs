@@ -63,7 +63,7 @@ public class GraphInteractionTests : GraphTestBase
         """;
 
     private static readonly string[] RecordKeys =
-        ["cluster", "fields", "group", "href", "id", "keyboard", "kind", "label", "meta", "parent", "tags", "tone"];
+        ["cluster", "fields", "group", "href", "id", "keyboard", "kind", "label", "meta", "parent", "state", "tags", "tone"];
 
     private static async Task Click(IPage page, string node, MouseButton button = MouseButton.Left)
     {
@@ -105,6 +105,8 @@ public class GraphInteractionTests : GraphTestBase
         Assert.Equal("orders-console-01", d.GetProperty("meta").GetString());
         Assert.Equal("/records/api", d.GetProperty("href").GetString());
         Assert.Equal("2", d.GetProperty("tone").GetString());
+        // Not in a run: a step not reached, as null.
+        Assert.Equal(JsonValueKind.Null, d.GetProperty("state").ValueKind);
         Assert.Equal(0, d.GetProperty("tags").GetArrayLength());
         Assert.Equal("Alex Fischer", d.GetProperty("fields").GetProperty("owner").GetString());
         Assert.False(d.GetProperty("keyboard").GetBoolean());
