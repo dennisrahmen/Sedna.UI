@@ -1,0 +1,40 @@
+<ol class="workflow workflow--sm" tabindex="0" aria-label="Troubleshooting with the caller, one question at a time">
+    <li class="workflow-step" data-state="done">
+        <span class="workflow-end"><i class="ri-phone-line"></i>Call in</span>
+    </li>
+    <li class="workflow-loop" data-state="running">
+        <ol class="workflow-path">
+            <li class="workflow-step" data-state="done">
+                <article class="workflow-node workflow-node--agent">
+                    <header class="workflow-node-head">
+                        <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-question-answer-line"></i></span>
+                        <span class="workflow-node-title">Ask</span>
+                        <span class="workflow-node-meta">&ldquo;Is the router lit?&rdquo;</span>
+                    </header>
+                </article>
+            </li>
+            <li class="workflow-step" data-state="waiting">
+                <article class="workflow-node">
+                    <header class="workflow-node-head">
+                        <span class="workflow-node-icon series-warn"><i class="ri-user-voice-line"></i></span>
+                        <span class="workflow-node-title">Listen</span>
+                        <span class="workflow-node-meta">Waiting for the caller</span>
+                    </header>
+                </article>
+            </li>
+            <li class="workflow-step">
+                <article class="workflow-node">
+                    <header class="workflow-node-head">
+                        <span class="workflow-node-icon series-4"><i class="ri-book-2-line"></i></span>
+                        <span class="workflow-node-title">Check the runbook</span>
+                        <span class="workflow-node-meta">Knowledge base</span>
+                    </header>
+                </article>
+            </li>
+        </ol>
+        <span class="workflow-loop-count"><i class="ri-repeat-line"></i>Turn 2</span>
+    </li>
+    <li class="workflow-step">
+        <span class="workflow-end"><i class="ri-flag-line"></i>Fixed, or a ticket</span>
+    </li>
+</ol>

@@ -1,0 +1,70 @@
+<ol class="workflow workflow--sm" tabindex="0" aria-label="Triage: three checks run side by side, then the ticket is updated">
+    <li class="workflow-step" data-state="done">
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon series-2"><i class="ri-coupon-3-line"></i></span>
+                <span class="workflow-node-title">Ticket created</span>
+                <span class="workflow-node-meta">T-48213</span>
+            </header>
+        </article>
+    </li>
+    <li class="workflow-fork">
+        <div class="workflow-branch">
+            <ol class="workflow-path">
+                <li class="workflow-step" data-state="done">
+                    <article class="workflow-node workflow-node--agent">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-scales-3-line"></i></span>
+                            <span class="workflow-node-title">Assess severity</span>
+                            <span class="workflow-node-meta">P1 &middot; done</span>
+                        </header>
+                    </article>
+                </li>
+            </ol>
+        </div>
+        <div class="workflow-branch">
+            <ol class="workflow-path">
+                <li class="workflow-step" data-state="done">
+                    <article class="workflow-node">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon series-4"><i class="ri-git-merge-line"></i></span>
+                            <span class="workflow-node-title">Find related</span>
+                            <span class="workflow-node-meta">2 matches &middot; done</span>
+                        </header>
+                    </article>
+                </li>
+                <li class="workflow-step" data-state="running">
+                    <article class="workflow-node workflow-node--agent">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-links-line"></i></span>
+                            <span class="workflow-node-title">Link the pattern</span>
+                            <span class="workflow-node-meta">Agent &middot; running</span>
+                        </header>
+                    </article>
+                </li>
+            </ol>
+        </div>
+        <div class="workflow-branch">
+            <ol class="workflow-path">
+                <li class="workflow-step" data-state="done">
+                    <article class="workflow-node workflow-node--agent">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-price-tag-3-line"></i></span>
+                            <span class="workflow-node-title">Categorise</span>
+                            <span class="workflow-node-meta">Store link &middot; done</span>
+                        </header>
+                    </article>
+                </li>
+            </ol>
+        </div>
+    </li>
+    <li class="workflow-step">
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon series-2"><i class="ri-edit-box-line"></i></span>
+                <span class="workflow-node-title">Update the ticket</span>
+                <span class="workflow-node-meta">Waits for all three</span>
+            </header>
+        </article>
+    </li>
+</ol>

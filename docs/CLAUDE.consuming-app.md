@@ -173,6 +173,38 @@ library ships the engine and loads it itself; the host page needs nothing added.
   `data-graph-src` or `SetDataAsync` rather than a Razor-rendered list.
 - **A link the reader draws is yours to add** (`@onsedna-graph-connect`), as a drop is.
 
+### Workflows
+
+A run through a process — an automation, an agent's work, a release — is an `ol.workflow` copied from
+the catalogue's Workflow pages. It is markup and classes; no script draws it.
+
+- **State goes on the step.** `data-state` on the `li.workflow-step` — `next`, `running`, `waiting`,
+  `done`, `failed`, `skipped`, or none for a step not reached — never on the node and never on a wire:
+  every wire takes the state of the step it leads into. A decision's branches take `data-state="taken"`
+  or `"skipped"`.
+- **Keep the latest state of each step and bind it.** Each event the automation sends updates a
+  dictionary of step to state, and the markup binds `data-state="@S("step-id")"`; a step nobody has
+  mentioned renders no attribute. The catalogue's "Watching a run" page is the pattern.
+- **Say the state in words** — the meta line or a `.visually-hidden` span. The tick and the light are
+  paint, and a screen reader hears the list.
+- **Write the structure, not positions.** A fork holds branches, a branch holds a path, a loop holds the
+  path it repeats; the connectors are drawn from that. A flow too large to write by hand — generated from
+  the automation's own definition — is a graph with `data-state` on its records instead.
+- **A diagram that scrolls takes `tabindex="0"`**, so the keyboard can reach it, and `data-follow` keeps
+  the step at work in view in one wider than its container.
+- **On a phone or a tablet held upright** the diagram runs down: `--down`, or `--auto` to run across on
+  a wide screen and down below 640px. Same markup either way.
+- **Showing rather than reading** — a wall screen, a tablet — is `--xl` or `--lg`, `--fill` and
+  `--focus` (only the step at work opens), with a `data-fullscreen` button. Other colours are
+  `--workflow-trail` and `--workflow-flow`/`-line`/`-tint`/`-glow`, set from tokens; never restyle the
+  classes.
+- **An agent's step** carries `.workflow-node--agent` on its node, whatever its state, and wears the
+  agent's colours while it is at work; `.workflow-node--glow` is a plain step with a glow. The wires
+  never take the agent's colours.
+- **Too much movement** is `--flow-off` (a still, lit line). `--workflow-flow-speed` and
+  `--workflow-flow-packets`, set on the diagram, make it slower or faster and sparser or denser; `1` is
+  the default for both.
+
 ### Rich-text editors
 
 - **The value is a `textarea[data-editor-value]`** inside `[data-editor]`. Bind it with `@bind` like any

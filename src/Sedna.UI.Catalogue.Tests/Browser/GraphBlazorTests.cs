@@ -277,6 +277,45 @@ public class GraphBlazorTests(CatalogueAppFixture app)
     }
 
     [Fact]
+    public async Task A_run_stepped_from_csharp_is_drawn_where_it_stands_and_the_links_follow_their_targets()
+    {
+        if (app.NoBrowser) return;
+        var page = await Open();
+        await Ready(page, "order-run");
+        var demo = Example(page, "order-run");
+        const string graph = "order-run";
+        const string state = "id => document.getElementById('order-run').querySelector('.graph-canvas')._cyreg.cy.getElementById(id)";
+        const string positions = "Object.fromEntries(cy.nodes().map(n => [n.id(), n.position()]))";
+
+        Assert.Equal("next", await Cy<string>(page, graph, "cy.getElementById('received').data('state')"));
+        var before = await Cy<Dictionary<string, Dictionary<string, double>>>(page, graph, positions);
+
+        var step = demo.GetByRole(AriaRole.Button, new() { Name = "Step" });
+        await step.ClickAsync();
+        await page.WaitForFunctionAsync($"() => ({state})('received').data('state') === 'running'", null, new() { Timeout = 5_000 });
+        await step.ClickAsync();
+        await page.WaitForFunctionAsync($"() => ({state})('stock').data('state') === 'running'", null, new() { Timeout = 5_000 });
+        await demo.GetByText("1 of 8 steps done").WaitForAsync(new() { Timeout = 5_000 });
+
+        // The links carry no state of their own and take their targets'.
+        Assert.Null(await Cy<string?>(page, graph, "cy.getElementById('received→stock').data('state')"));
+        Assert.Equal("running", await Cy<string>(page, graph, "cy.getElementById('received→stock').data('run')"));
+        // A step is new data, not a new drawing: nothing moved.
+        var after = await Cy<Dictionary<string, Dictionary<string, double>>>(page, graph, positions);
+        foreach (var (id, at) in before)
+        {
+            Assert.Equal(at["x"], after[id]["x"], 0.5);
+            Assert.Equal(at["y"], after[id]["y"], 0.5);
+        }
+
+        await demo.GetByRole(AriaRole.Button, new() { Name = "Reset" }).ClickAsync();
+        await page.WaitForFunctionAsync($"() => ({state})('stock').data('state') === null", null, new() { Timeout = 5_000 });
+        Assert.Equal("next", await Cy<string>(page, graph, "cy.getElementById('received').data('state')"));
+
+        await page.Context.CloseAsync();
+    }
+
+    [Fact]
     public async Task Collapsed_sent_by_a_call_starts_the_group_folded()
     {
         if (app.NoBrowser) return;

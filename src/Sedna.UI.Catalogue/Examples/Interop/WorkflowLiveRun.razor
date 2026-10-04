@@ -1,0 +1,538 @@
+@implements IDisposable
+
+@* How much of the flow shows: the reader's choice, applied to both diagrams. *@
+<div class="toolbar">
+    <div class="toolbar-filters">
+        <div class="segmented segmented--sm" role="group" aria-label="Whether the light runs">
+            @foreach (var (value, text) in Lights)
+            {
+                <label class="segmented-option">
+                    <input type="radio" name="workflow-run-light" value="@value" checked="@(_light == value)" @onchange="() => _light = value" />
+                    <span>@text</span>
+                </label>
+            }
+        </div>
+        <div class="segmented segmented--sm" role="group" aria-label="How fast the light runs">
+            @foreach (var (value, text) in Speeds)
+            {
+                <label class="segmented-option">
+                    <input type="radio" name="workflow-run-speed" value="@value" checked="@(_speed == value)" disabled="@Still" @onchange="() => _speed = value" />
+                    <span>@text</span>
+                </label>
+            }
+        </div>
+        <div class="segmented segmented--sm" role="group" aria-label="How close together the streaks of light run">
+            @foreach (var (value, text) in Packets)
+            {
+                <label class="segmented-option">
+                    <input type="radio" name="workflow-run-packets" value="@value" checked="@(_packets == value)" disabled="@Still" @onchange="() => _packets = value" />
+                    <span>@text</span>
+                </label>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-head">
+        <strong>Card terminals down at store 14</strong>
+        <div class="card-head-right">
+            <span class="agent-status" role="status">
+                <span class="orb" data-orb="@_orb" role="img" aria-label="@_orb"></span>
+                <span class="agent-status-label @(_playing ? "text-shimmer" : null)">@_now</span>
+                <span class="agent-status-time">@Elapsed</span>
+            </span>
+            <button class="btn btn-sm" type="button" @onclick="Toggle">
+                <i class="@(_playing ? "ri-pause-fill" : "ri-play-fill")"></i>@PlayLabel
+            </button>
+            <button class="btn btn-sm btn-ghost btn-icon" type="button" @onclick="Step" disabled="@(_playing || Finished)"
+                    aria-label="Next event" data-tip="Next event"><i class="ri-skip-forward-line"></i></button>
+            <button class="btn btn-sm btn-ghost btn-icon" type="button" @onclick="Reset" disabled="@(_next == 0)"
+                    aria-label="Start again" data-tip="Start again"><i class="ri-restart-line"></i></button>
+        </div>
+    </div>
+
+    @* The overview: one node per stage, for the people who will never open a step. *@
+    <ol class="workflow workflow--fill @Flow" style="@FlowKnobs" tabindex="0" aria-label="Where the request is now">
+        <li class="workflow-step" data-state="@S("call")">
+            <article class="workflow-node workflow-node--agent">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-customer-service-2-line"></i></span>
+                    <span class="workflow-node-title">Call<span class="visually-hidden">@W("call")</span></span>
+                    <span class="workflow-node-meta">@M("call", "Voice agent")</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="@S("ticket")">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon series-2"><i class="ri-coupon-3-line"></i></span>
+                    <span class="workflow-node-title">Ticket<span class="visually-hidden">@W("ticket")</span></span>
+                    <span class="workflow-node-meta">@M("ticket", "Not yet")</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="@S("triage")">
+            <article class="workflow-node workflow-node--agent">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-scales-3-line"></i></span>
+                    <span class="workflow-node-title">Triage<span class="visually-hidden">@W("triage")</span></span>
+                    <span class="workflow-node-meta">@M("triage", "Agent")</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="@S("decision")">
+            <article class="workflow-node workflow-node--agent">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-route-line"></i></span>
+                    <span class="workflow-node-title">Decision<span class="visually-hidden">@W("decision")</span></span>
+                    <span class="workflow-node-meta">@M("decision", "Agent")</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-step" data-state="@S("oncall")">
+            <article class="workflow-node">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon series-danger"><i class="ri-alarm-warning-line"></i></span>
+                    <span class="workflow-node-title">On call<span class="visually-hidden">@W("oncall")</span></span>
+                    <span class="workflow-node-meta">@M("oncall", "Network team")</span>
+                </header>
+            </article>
+        </li>
+    </ol>
+
+    @* Every step, under the overview. data-follow keeps the one at work in view. *@
+    <ol class="workflow workflow--sm workflow--grid workflow--auto @Flow" style="@FlowKnobs" tabindex="0" data-follow aria-label="Every step of the request">
+        <li class="workflow-step" data-state="@S("in")">
+            <span class="workflow-end"><i class="ri-phone-line"></i>Call in<span class="visually-hidden">@W("in")</span></span>
+        </li>
+        <li class="workflow-step" data-state="@S("identify")">
+            <article class="workflow-node workflow-node--agent">
+                <header class="workflow-node-head">
+                    <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-user-search-line"></i></span>
+                    <span class="workflow-node-title">Identify the caller<span class="visually-hidden">@W("identify")</span></span>
+                    <span class="workflow-node-meta">@M("identify", "Voice agent")</span>
+                </header>
+            </article>
+        </li>
+        <li class="workflow-loop" data-state="@S("talk")">
+            <ol class="workflow-path">
+                <li class="workflow-step" data-state="@S("ask")">
+                    <article class="workflow-node workflow-node--agent">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-question-answer-line"></i></span>
+                            <span class="workflow-node-title">Ask<span class="visually-hidden">@W("ask")</span></span>
+                            <span class="workflow-node-meta">Voice agent</span>
+                        </header>
+                    </article>
+                </li>
+                <li class="workflow-step" data-state="@S("listen")">
+                    <article class="workflow-node">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon series-warn"><i class="ri-user-voice-line"></i></span>
+                            <span class="workflow-node-title">Listen<span class="visually-hidden">@W("listen")</span></span>
+                            <span class="workflow-node-meta">@(S("listen") == "waiting" ? "Waiting for the caller" : "The caller")</span>
+                        </header>
+                    </article>
+                </li>
+                <li class="workflow-step" data-state="@S("lookup")">
+                    <article class="workflow-node">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon series-4"><i class="ri-book-2-line"></i></span>
+                            <span class="workflow-node-title">Look it up<span class="visually-hidden">@W("lookup")</span></span>
+                            <span class="workflow-node-meta">@M("lookup", "Runbook, monitoring")</span>
+                        </header>
+                    </article>
+                </li>
+            </ol>
+            <span class="workflow-loop-count"><i class="ri-repeat-line"></i>Turn @_turn</span>
+        </li>
+        <li class="workflow-fork workflow-fork--decision">
+            <div class="workflow-branch" data-state="@S("fixed")">
+                <span class="workflow-label">Fixed</span>
+                <ol class="workflow-path">
+                    <li class="workflow-step">
+                        <span class="workflow-end"><i class="ri-chat-check-line"></i>Confirm and close</span>
+                    </li>
+                </ol>
+            </div>
+            <div class="workflow-branch" data-state="@S("unfixed")">
+                <span class="workflow-label">Not fixed</span>
+                <ol class="workflow-path">
+                    <li class="workflow-step" data-state="@S("create")">
+                        <article class="workflow-node">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon series-2"><i class="ri-coupon-3-line"></i></span>
+                                <span class="workflow-node-title">Create a ticket<span class="visually-hidden">@W("create")</span></span>
+                                <span class="workflow-node-meta">@M("create", "Ticketing")</span>
+                            </header>
+                        </article>
+                    </li>
+                    <li class="workflow-step" data-state="@S("readback")">
+                        <article class="workflow-node workflow-node--agent">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-voiceprint-line"></i></span>
+                                <span class="workflow-node-title">Read the number back<span class="visually-hidden">@W("readback")</span></span>
+                                <span class="workflow-node-meta">Voice agent</span>
+                            </header>
+                        </article>
+                    </li>
+                    <li class="workflow-fork">
+                        <div class="workflow-branch">
+                            <ol class="workflow-path">
+                                <li class="workflow-step" data-state="@S("assess")">
+                                    <article class="workflow-node workflow-node--agent">
+                                        <header class="workflow-node-head">
+                                            <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-scales-3-line"></i></span>
+                                            <span class="workflow-node-title">Assess severity<span class="visually-hidden">@W("assess")</span></span>
+                                            <span class="workflow-node-meta">@M("assess", "Agent")</span>
+                                        </header>
+                                    </article>
+                                </li>
+                            </ol>
+                        </div>
+                        <div class="workflow-branch">
+                            <ol class="workflow-path">
+                                <li class="workflow-step" data-state="@S("categorise")">
+                                    <article class="workflow-node workflow-node--agent">
+                                        <header class="workflow-node-head">
+                                            <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-price-tag-3-line"></i></span>
+                                            <span class="workflow-node-title">Categorise<span class="visually-hidden">@W("categorise")</span></span>
+                                            <span class="workflow-node-meta">@M("categorise", "Agent")</span>
+                                        </header>
+                                    </article>
+                                </li>
+                            </ol>
+                        </div>
+                        <div class="workflow-branch">
+                            <ol class="workflow-path">
+                                <li class="workflow-step" data-state="@S("related")">
+                                    <article class="workflow-node">
+                                        <header class="workflow-node-head">
+                                            <span class="workflow-node-icon series-4"><i class="ri-git-merge-line"></i></span>
+                                            <span class="workflow-node-title">Find related<span class="visually-hidden">@W("related")</span></span>
+                                            <span class="workflow-node-meta">@M("related", "Search")</span>
+                                        </header>
+                                    </article>
+                                </li>
+                                <li class="workflow-step" data-state="@S("pattern")">
+                                    <article class="workflow-node workflow-node--agent">
+                                        <header class="workflow-node-head">
+                                            <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-links-line"></i></span>
+                                            <span class="workflow-node-title">Link the pattern<span class="visually-hidden">@W("pattern")</span></span>
+                                            <span class="workflow-node-meta">@M("pattern", "Agent")</span>
+                                        </header>
+                                    </article>
+                                </li>
+                            </ol>
+                        </div>
+                    </li>
+                    <li class="workflow-step" data-state="@S("route")">
+                        <article class="workflow-node workflow-node--agent">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-route-line"></i></span>
+                                <span class="workflow-node-title">Decide where it goes<span class="visually-hidden">@W("route")</span></span>
+                                <span class="workflow-node-meta">@M("route", "Agent")</span>
+                            </header>
+                        </article>
+                    </li>
+                    <li class="workflow-fork workflow-fork--decision">
+                        <div class="workflow-branch" data-state="@S("urgent")">
+                            <span class="workflow-label">Urgent</span>
+                            <ol class="workflow-path">
+                                <li class="workflow-step" data-state="@S("page")">
+                                    <article class="workflow-node">
+                                        <header class="workflow-node-head">
+                                            <span class="workflow-node-icon series-danger"><i class="ri-alarm-warning-line"></i></span>
+                                            <span class="workflow-node-title">Page on call<span class="visually-hidden">@W("page")</span></span>
+                                            <span class="workflow-node-meta">@M("page", "Push to the rota")</span>
+                                        </header>
+                                    </article>
+                                </li>
+                            </ol>
+                        </div>
+                        <div class="workflow-branch" data-state="@S("later")">
+                            <span class="workflow-label">Can wait</span>
+                            <ol class="workflow-path">
+                                <li class="workflow-step">
+                                    <article class="workflow-node">
+                                        <header class="workflow-node-head">
+                                            <span class="workflow-node-icon series-3"><i class="ri-inbox-archive-line"></i></span>
+                                            <span class="workflow-node-title">Queue for the morning</span>
+                                            <span class="workflow-node-meta">Network team</span>
+                                        </header>
+                                    </article>
+                                </li>
+                            </ol>
+                        </div>
+                    </li>
+                    <li class="workflow-step" data-state="@S("update")">
+                        <article class="workflow-node">
+                            <header class="workflow-node-head">
+                                <span class="workflow-node-icon series-2"><i class="ri-edit-box-line"></i></span>
+                                <span class="workflow-node-title">Update the ticket<span class="visually-hidden">@W("update")</span></span>
+                                <span class="workflow-node-meta">@M("update", "Priority, category, summary")</span>
+                            </header>
+                        </article>
+                    </li>
+                    <li class="workflow-step" data-state="@S("end")">
+                        <span class="workflow-end"><i class="ri-flag-line"></i>Handed over<span class="visually-hidden">@W("end")</span></span>
+                    </li>
+                </ol>
+            </div>
+        </li>
+    </ol>
+
+    <div class="card-body sedna-grid sedna-grid--lg">
+        <section class="card">
+            <div class="card-head">
+                <strong>The call</strong>
+                <span class="health-badge @(OnTheLine ? "health-badge--live" : "health-badge--idle")"><span class="health-dot"></span>@(OnTheLine ? "On the line" : _said.Count == 0 ? "No call yet" : "Ended")</span>
+            </div>
+            <div class="chat chat--flat sedna-scroll" role="log" aria-label="Call transcript" style="max-height: 300px">
+                @foreach (var line in _said)
+                {
+                    <div class="chat-message">
+                        @if (line.Agent)
+                        {
+                            <span class="agent-avatar agent-avatar--sm" role="img" aria-label="Voice agent"></span>
+                        }
+                        else
+                        {
+                            <span class="avatar avatar-sm">AF</span>
+                        }
+                        <div class="chat-body">
+                            <div class="chat-meta"><span class="chat-author">@(line.Agent ? "Voice agent" : "Alex Fischer")</span><time class="chat-time">@line.At</time></div>
+                            <div class="chat-bubble">@line.Text</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+        <section class="card">
+            <div class="card-head">
+                <strong>Where the ticket goes</strong>
+                @if (_options is not null)
+                {
+                    <span class="badge badge-ai"><i class="ri-sparkling-2-line"></i>@(_decided ? "Decided by the agent" : "Weighing")</span>
+                }
+            </div>
+            <div class="card-body">
+                @if (_options is null)
+                {
+                    <p class="text-muted text-sm">Nothing to decide until there is a ticket.</p>
+                }
+                else
+                {
+                    <ol class="workflow-decision" aria-label="Options the agent weighed">
+                        @foreach (var option in _options)
+                        {
+                            <li data-state="@(_decided ? (option.Chosen ? "chosen" : "rejected") : null)">
+                                <span class="workflow-decision-option">@option.Name</span>
+                                <span class="meter"><span class="meter-fill" style="--value: @(option.Score)%"></span></span>
+                                <span class="workflow-decision-score">@((option.Score / 100.0).ToString("0.00"))</span>
+                                @if (_decided)
+                                {
+                                    <span class="workflow-decision-why">@option.Why</span>
+                                }
+                            </li>
+                        }
+                    </ol>
+                }
+            </div>
+        </section>
+    </div>
+
+    <div class="card-body">
+        <div class="output-head"><i class="ri-webhook-line"></i>What the automation sent</div>
+        <ul class="output output--columns output--dense" data-follow aria-label="Events from the automation" style="max-height: 168px">
+            @foreach (var e in _log)
+            {
+                <li class="output-line"><span class="output-time">@e.At</span><span class="output-level">@e.Kind</span><span class="output-source">@e.Step</span><span class="output-msg">@e.What</span></li>
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    // What the automation has said so far. Each event it sends — a step's state, a line
+    // of the call, a decision — is applied here, and Blazor renders the difference.
+    // In an app the events arrive from the automation's HTTP step; here a script plays
+    // them back on a timer.
+    private readonly Dictionary<string, string> _state = [];
+    private readonly Dictionary<string, string> _meta = [];
+    private readonly List<Said> _said = [];
+    private readonly List<Sent> _log = [];
+    private Option[]? _options;
+    private bool _decided;
+    private int _turn = 1;
+    private string _now = "Waiting for a call";
+    private string _orb = "idle";
+    private int _elapsed;
+    private int _next;
+    private bool _playing;
+    private CancellationTokenSource? _run;
+    private string _light = "on";
+    private string _speed = "1";
+    private string _packets = "1";
+
+    private static readonly (string Value, string Text)[] Lights = [("on", "Moving"), ("off", "Still")];
+    private static readonly (string Value, string Text)[] Speeds = [("0.5", "Slow"), ("1", "Normal"), ("2", "Fast")];
+    private static readonly (string Value, string Text)[] Packets = [("0.5", "Sparse"), ("1", "Normal"), ("2", "Dense")];
+
+    private bool Still => _light == "off";
+    private string? Flow => Still ? "workflow--flow-off" : null;
+    private string FlowKnobs => $"--workflow-flow-speed: {_speed}; --workflow-flow-packets: {_packets}";
+
+    private sealed record Said(bool Agent, string At, string Text);
+    private sealed record Sent(string At, string Kind, string Step, string What);
+    private sealed record Option(string Name, int Score, bool Chosen, string Why);
+
+    private string? S(string step) => _state.GetValueOrDefault(step);
+    private string M(string step, string otherwise) => _meta.GetValueOrDefault(step) ?? otherwise;
+
+    // The state in words, for a screen reader: the tick and the light are paint.
+    private string W(string step) => S(step) switch
+    {
+        "running" => ", working now",
+        "waiting" => ", waiting",
+        "done" => ", done",
+        "failed" => ", failed",
+        "next" => ", next",
+        _ => "",
+    };
+    private bool Finished => _next == Script.Length;
+    private bool OnTheLine => S("call") == "running";
+    private string Elapsed => $"{_elapsed / 60000}:{_elapsed / 1000 % 60:00}";
+    private string Clock => TimeSpan.FromHours(21).Add(TimeSpan.FromMilliseconds(_elapsed * 2)).ToString(@"hh\:mm\:ss");
+    private string PlayLabel => _playing ? "Pause" : Finished ? "Play again" : _next == 0 ? "Play" : "Resume";
+
+    // The automation's events, in order, with the time since the one before.
+    private (int Wait, Action Apply)[] Script => _script ??=
+    [
+        (600, () => { Set("in", "done"); Set("call", "running"); Set("identify", "running"); Now("Answering the call", "speaking");
+                      Say(true, "Service desk, this is the virtual agent. Who am I speaking with?"); }),
+        (2600, () => Say(false, "Alex Fischer, store 14 at Northwind Retail. None of our card terminals work.")),
+        (1800, () => { Meta("identify", "Alex Fischer, store 14"); Set("identify", "done"); Set("talk", "running"); Set("ask", "running");
+                       Now("Asking what the terminals show", "speaking"); }),
+        (1200, () => { Say(true, "I'm sorry to hear that. What do the terminals show on screen?"); Set("ask", "done"); Set("listen", "waiting");
+                       Now("Listening to the caller", "listening"); }),
+        (2800, () => { Say(false, "“Host unreachable.” All four of them."); Set("listen", "done"); Set("lookup", "running");
+                       Now("Checking the runbook and the store's link", "searching"); }),
+        (2200, () => { Meta("lookup", "Link drops 38% of packets"); Set("lookup", "done"); _turn = 2; Set("ask", "running");
+                       Set("listen", null); Set("lookup", null); Now("Suggesting a fix", "speaking"); }),
+        (1200, () => { Say(true, "Could you restart the router in the back office? It's the box with the blue lights."); Set("ask", "done");
+                       Set("listen", "waiting"); Now("Waiting while the caller restarts the router", "waiting"); }),
+        (3400, () => { Say(false, "Done. It's back up, but the terminals still say the same."); Set("listen", "done"); Set("lookup", "running");
+                       Now("Checking the link again", "searching"); }),
+        (1800, () => { Meta("lookup", "Still down after a restart"); Set("lookup", "done"); Set("talk", "done");
+                       Set("fixed", "skipped"); Set("unfixed", "taken"); Set("ticket", "running"); Set("create", "running"); Now("Opening a ticket", "writing"); }),
+        (1600, () => { Meta("create", "T-48213"); Meta("ticket", "T-48213"); Set("create", "done"); Set("ticket", "done"); Set("readback", "running");
+                       Now("Reading the number back", "speaking");
+                       Say(true, "I couldn't fix this on the phone, so I've opened ticket T-48213 — that's T, four, eight, two, one, three. An engineer will call you back."); }),
+        (3600, () => { Say(false, "Thanks, that helps."); Set("readback", "done"); Meta("call", "2:41 with the caller"); Set("call", "done");
+                       Set("triage", "running"); Set("assess", "running"); Set("categorise", "running"); Set("related", "running"); Now("Triaging T-48213", "analyzing"); }),
+        (1400, () => { Meta("categorise", "Store link, fairly sure"); Set("categorise", "done"); }),
+        (900, () => { Meta("related", "2 matches"); Set("related", "done"); Set("pattern", "running"); Now("Looking for a pattern", "analyzing"); }),
+        (900, () => { Meta("assess", "P1, sure"); Set("assess", "done"); }),
+        (1500, () => { Meta("pattern", "Stores 9 and 21 too"); Set("pattern", "done"); Meta("triage", "P1, store link"); Set("triage", "done");
+                       Set("decision", "running"); Set("route", "running"); Now("Deciding where it goes", "thinking"); Weigh(); }),
+        (2800, () => { _decided = true; Meta("route", "Page on call, 0.86"); Set("route", "done"); Meta("decision", "Page on call"); Set("decision", "done");
+                       Set("urgent", "taken"); Set("later", "skipped"); Set("oncall", "running"); Set("page", "running"); Now("Paging the on-call engineer", "working"); }),
+        (1500, () => { Meta("page", "Waiting for Rin"); Meta("oncall", "Paging Rin Nakamura"); Set("page", "waiting"); Set("oncall", "waiting");
+                       Now("Waiting for Rin Nakamura to acknowledge", "waiting"); }),
+        (3200, () => { Meta("page", "Acknowledged"); Set("page", "done"); Set("update", "running"); Now("Updating the ticket", "writing"); }),
+        (1500, () => { Meta("update", "P1, store link, summary"); Set("update", "done"); Set("end", "done"); Meta("oncall", "Rin Nakamura"); Set("oncall", "done");
+                       Now("Handed over to Rin Nakamura", "done"); }),
+    ];
+    private (int Wait, Action Apply)[]? _script;
+
+    private void Set(string step, string? state)
+    {
+        if (state is null) _state.Remove(step); else _state[step] = state;
+        _log.Add(new(Clock, "STATE", step, state ?? "reset"));
+    }
+
+    private void Meta(string step, string text) => _meta[step] = text;
+
+    private void Say(bool agent, string text)
+    {
+        _said.Add(new(agent, Elapsed, text));
+        _log.Add(new(Clock, "SAID", agent ? "agent" : "caller", text));
+    }
+
+    private void Now(string text, string orb) => (_now, _orb) = (text, orb);
+
+    private void Weigh()
+    {
+        _options =
+        [
+            new("Page the on-call engineer", 86, true, "Three stores in one region within 15 minutes, out of hours: an outage, not a fault."),
+            new("Queue for the network team", 31, false, "The team starts at 07:00; the tills would be down for nine hours."),
+            new("Close as a known issue", 8, false, "Nothing on record matches."),
+        ];
+        _log.Add(new(Clock, "WEIGH", "route", "3 options"));
+    }
+
+    private async Task Toggle()
+    {
+        if (_playing)
+        {
+            _run?.Cancel();
+            return;
+        }
+        if (Finished) Reset();
+
+        _playing = true;
+        _run = new CancellationTokenSource();
+        var token = _run.Token;
+        try
+        {
+            while (!Finished)
+            {
+                await Task.Delay(Script[_next].Wait, token);
+                Advance();
+                StateHasChanged();
+            }
+        }
+        catch (TaskCanceledException) { }
+        finally
+        {
+            _playing = false;
+            if (_orb != "done" && Finished) _orb = "done";
+        }
+    }
+
+    private void Step()
+    {
+        if (!Finished) Advance();
+    }
+
+    private void Advance()
+    {
+        _elapsed += Script[_next].Wait;
+        Script[_next].Apply();
+        _next++;
+    }
+
+    private void Reset()
+    {
+        _run?.Cancel();
+        _state.Clear();
+        _meta.Clear();
+        _said.Clear();
+        _log.Clear();
+        _options = null;
+        _decided = false;
+        _turn = 1;
+        _elapsed = 0;
+        _next = 0;
+        Now("Waiting for a call", "idle");
+    }
+
+    public void Dispose()
+    {
+        _run?.Cancel();
+        _run?.Dispose();
+    }
+}

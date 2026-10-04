@@ -24,7 +24,7 @@
      sedna-graph-expand, sedna-graph-collapse   { id }
 
    A record's detail is { id, label, kind, group, cluster, parent, meta, href, tone,
-   tags, fields, keyboard }.
+   state, tags, fields, keyboard }.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const graphs = new Map();
@@ -127,8 +127,9 @@ function boxMetrics(node, font) {
 }
 
 /* The model as cytoscape elements, with what is worked out from the whole graph: each
-   record's degree, its size, whether it heads a group, a box's measurements, and
-   whether a link crosses between islands. */
+   record's degree, its size, whether it heads a group, a box's measurements, whether a
+   link crosses between islands, and the state of a run it is drawn in — its own, else
+   skipped when it leaves a step that was skipped, else its target's. */
 function toElements(g) {
     const { nodes, edges } = g.model;
     const degree = new Map();
@@ -166,7 +167,11 @@ function toElements(g) {
         const s = byId.get(e.source), t = byId.get(e.target);
         out.push({
             group: 'edges',
-            data: Object.assign({}, e, { across: !!(s.group && t.group && s.group !== t.group), zoom: g.step || 1 }),
+            data: Object.assign({}, e, {
+                across: !!(s.group && t.group && s.group !== t.group),
+                run: e.state || (s.state === 'skipped' ? 'skipped' : t.state) || null,
+                zoom: g.step || 1,
+            }),
         });
     }
     return out;
@@ -199,6 +204,7 @@ function nodeDetail(ele, extra) {
         meta: d.meta ?? null,
         href: d.href ?? null,
         tone: d.tone ?? null,
+        state: d.state ?? null,
         tags: d.tags || [],
         fields,
         keyboard: false,
@@ -566,6 +572,7 @@ async function setData(g, data, opts = {}) {
     if (g.hullsOn) drawHulls(g);
     if (g.selected && (g.selected.removed() || g.selected.hasClass('hidden'))) select(g, null);
     else showDetail(g);
+    flow(g);
     const s = changed(g);
     if (first) g.emit('sedna-graph-ready', s);
 }
@@ -576,6 +583,8 @@ function repaint(g) {
     if (!g.colours.refresh()) return;
     g.icons.clear();
     restyle(g, true);
+    // A theme may set the durations a run moves at.
+    flow(g);
     if (g.hullsOn) drawHulls(g);
     if (g.ec) {
         const p = palette(g.colours);
@@ -728,6 +737,15 @@ function wire(g) {
     }
     g.listeners.push(() => clearTimeout(paint));
 
+    // A run's motion (43-run.js) stops in a tab nobody is looking at and for a reader who
+    // asked for less, and starts again when either changes back.
+    on(document, 'visibilitychange', () => flow(g));
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const moved = () => flow(g);
+    calm.addEventListener('change', moved);
+    g.listeners.push(() => calm.removeEventListener('change', moved));
+    g.listeners.push(() => clearTimeout(g.flowing));
+
     let wasFull = false;
     on(document, 'fullscreenchange', () => {
         const frame = el.closest('[data-graph-frame]') || el;
@@ -837,6 +855,7 @@ async function start(g) {
     // The drawing is shown now; what a plugin adds arrives a moment later, rather than
     // holding the whole graph behind its wait while a plugin downloads.
     showDetail(g);
+    flow(g);
     changed(g);
     await plugins(g);
     if (g.disposed) return;

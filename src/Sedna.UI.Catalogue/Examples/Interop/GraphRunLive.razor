@@ -1,0 +1,137 @@
+@inject ISednaGraphs Graphs
+@implements IDisposable
+
+<div class="card">
+    <div class="graph graph--sm" data-graph data-graph-deferred id="order-run" data-graph-layout="dagre" data-graph-direction="LR"
+         data-graph-nodes="box" data-graph-arrows="target" data-graph-edge-labels="none" data-graph-drag="false"
+         aria-label="An order's approval run, step by step">
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="card-foot card-foot--start">
+        <button class="btn btn-sm btn-primary" type="button" @onclick="Run" disabled="@(_run is not null || Finished)">
+            <i class="ri-play-line"></i> Run
+        </button>
+        <button class="btn btn-sm" type="button" @onclick="Step" disabled="@(_run is not null || Finished)">
+            <i class="ri-skip-forward-line"></i> Step
+        </button>
+        <button class="btn btn-sm" type="button" @onclick="Reset" disabled="@(_step == 0 && _run is null)">
+            <i class="ri-restart-line"></i> Reset
+        </button>
+        <span class="form-hint sedna-push" role="status">@_status</span>
+    </div>
+</div>
+
+@code {
+    private const string Id = "order-run";
+
+    private static readonly SednaGraphNode[] Steps =
+    [
+        new("received", "Order received") { Kind = "trigger", Icon = "ri-shopping-cart-2-line" },
+        new("stock", "Check stock") { Kind = "check", Tone = SednaGraphTone.Series(2), Icon = "ri-stack-line" },
+        new("credit", "Check credit") { Kind = "check", Tone = SednaGraphTone.Series(2), Icon = "ri-bank-card-line" },
+        new("in-stock", "In stock?") { Kind = "decision", Tone = SednaGraphTone.Series(6), Icon = "ri-route-line" },
+        new("approval", "Manager approval") { Kind = "person", Tone = SednaGraphTone.Series(5), Icon = "ri-user-follow-line" },
+        new("reserve", "Reserve stock") { Kind = "action", Tone = SednaGraphTone.Series(3), Icon = "ri-archive-line" },
+        new("back-order", "Back-order") { Kind = "action", Tone = SednaGraphTone.Series(3), Icon = "ri-time-line" },
+        new("confirm", "Confirm the order") { Kind = "action", Tone = SednaGraphTone.Series(3), Icon = "ri-mail-send-line" },
+    ];
+
+    // No state on a link: each one is drawn in its target's.
+    private static readonly SednaGraphEdge[] Links =
+    [
+        new("received", "stock"),
+        new("received", "credit"),
+        new("stock", "in-stock"),
+        new("credit", "approval"),
+        new("in-stock", "reserve") { Label = "yes" },
+        new("in-stock", "back-order") { Label = "no" },
+        new("reserve", "confirm"),
+        new("approval", "confirm"),
+    ];
+
+    // What each step of the run changes. A record keeps its state until a later step changes it.
+    private static readonly Dictionary<string, SednaGraphState>[] Changes =
+    [
+        new() { ["received"] = SednaGraphState.Next },
+        new() { ["received"] = SednaGraphState.Running },
+        new() { ["received"] = SednaGraphState.Done, ["stock"] = SednaGraphState.Running, ["credit"] = SednaGraphState.Running },
+        new() { ["stock"] = SednaGraphState.Done, ["in-stock"] = SednaGraphState.Running },
+        new()
+        {
+            ["credit"] = SednaGraphState.Done, ["approval"] = SednaGraphState.Waiting, ["in-stock"] = SednaGraphState.Done,
+            ["reserve"] = SednaGraphState.Running, ["back-order"] = SednaGraphState.Skipped,
+        },
+        new() { ["reserve"] = SednaGraphState.Done, ["confirm"] = SednaGraphState.Next },
+        new() { ["approval"] = SednaGraphState.Done, ["confirm"] = SednaGraphState.Running },
+        new() { ["confirm"] = SednaGraphState.Done },
+    ];
+
+    private readonly Dictionary<string, SednaGraphState> _states = [];
+    private int _step;
+    private CancellationTokenSource? _run;
+    private string _status = "Loading…";
+
+    private bool Finished => _step == Changes.Length - 1;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Show(0);
+        StateHasChanged();
+    }
+
+    private Task Step() => Show(_step + 1);
+
+    // Steps on its own until the run is finished, or Reset stops it.
+    private async Task Run()
+    {
+        _run = new CancellationTokenSource();
+        var token = _run.Token;
+        try
+        {
+            while (!Finished)
+            {
+                await Task.Delay(1200, token);
+                await Show(_step + 1);
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        finally
+        {
+            _run?.Dispose();
+            _run = null;
+        }
+    }
+
+    private Task Reset()
+    {
+        _run?.Cancel();
+        return Show(0);
+    }
+
+    // Every record and link again, each record with its state. Only what changed is redrawn, where it stands.
+    private async Task Show(int step)
+    {
+        if (step == 0) _states.Clear();
+        _step = step;
+        foreach (var (id, state) in Changes[step]) _states[id] = state;
+
+        var nodes = Steps.Select(s => s with { State = _states.TryGetValue(s.Id, out var state) ? state : null }).ToList();
+        await Graphs.SetDataAsync(Id, new SednaGraphData(nodes, Links));
+
+        var done = _states.Count(s => s.Value == SednaGraphState.Done);
+        var skipped = _states.Count(s => s.Value == SednaGraphState.Skipped);
+        var waiting = Steps.Where(s => _states.TryGetValue(s.Id, out var state) && state == SednaGraphState.Waiting).Select(s => s.Label).ToList();
+        _status = $"{done} of {Steps.Length - skipped} steps done" + (waiting.Count > 0 ? $" · waiting on {string.Join(", ", waiting)}" : "");
+    }
+
+    public void Dispose()
+    {
+        _run?.Cancel();
+        _run?.Dispose();
+    }
+}

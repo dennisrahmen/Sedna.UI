@@ -237,14 +237,30 @@ public class GraphControlTests : GraphTestBase
         await Ready(page);
         await ClearLog(page);
 
-        await page.Locator("#find").PressSequentiallyAsync("orders data", new() { Delay = 30 });
+        // Eleven keystrokes, each an input event, typed in one go: no gap between them for
+        // a busy machine to stretch past the pause, so the count below is exact. Real keys
+        // with a delay between them were searched again whenever the test runner stalled.
+        // Until the pause, nothing has been searched for.
+        Assert.Equal(0, await Eval<int>(page, """
+            async () => {
+                const find = document.getElementById('find');
+                find.focus();
+                for (const key of 'orders data') {
+                    find.value += key;
+                    find.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                // Let every keystroke reach the graph; its pause has only just begun.
+                await new Promise(resolve => setTimeout(resolve, 0));
+                return graphLog.filter(l => l.name === 'sedna-graph-change').length;
+            }
+            """));
         await Heard(page, "sedna-graph-change");
         await page.WaitForTimeoutAsync(300);
 
-        // Eleven keys: one search, or a couple on a machine slow enough to pause mid-word.
+        // Then one search, for all of it.
         var changes = await Log(page, "sedna-graph-change");
-        Assert.InRange(changes.Count, 1, 3);
-        Assert.Equal(1, changes[^1].Detail.GetProperty("matches").GetInt32());
+        Assert.Single(changes);
+        Assert.Equal(1, changes[0].Detail.GetProperty("matches").GetInt32());
         Assert.Equal(["db"], await Eval<string[]>(page, "() => cyOf('g').nodes('.match').map(n => n.id())"));
         AssertQuiet();
     }

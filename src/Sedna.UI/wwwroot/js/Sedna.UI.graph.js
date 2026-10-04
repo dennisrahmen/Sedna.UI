@@ -17,6 +17,7 @@
      40-view.js
      41-light.js
      42-filter.js
+     43-run.js
      50-minimap.js
      51-tip.js
      52-keyboard.js
@@ -68,8 +69,8 @@ import cytoscape from '../lib/cytoscape/cytoscape.js';
      3. a call    graph.set({ nodes, edges }) from script; ISednaGraph.SetDataAsync.
 
    A node:  { id, label, kind, tone, tones, shape, icon, group, cluster, parent,
-              weight, muted, root, hub, href, meta, tags, x, y, display, fields }
-   An edge: { id, source, target, label, kind, tone, line, weight, arrow, muted, fields }
+              weight, muted, root, hub, href, meta, tags, x, y, display, state, fields }
+   An edge: { id, source, target, label, kind, tone, line, weight, arrow, muted, state, fields }
 
    In markup each is the attribute of the same name — `data-tone="3"`, `data-muted` —
    and the element's text is its label unless `data-label` says otherwise, so the list
@@ -107,6 +108,8 @@ const LINES = new Set(['solid', 'dashed', 'dotted']);
 const own = (table, key) => (Object.hasOwn(table, key) ? table[key] : undefined);
 const ARROWS = new Set(['none', 'target', 'source', 'both']);
 const WEIGHTS = { light: 0.6, thin: 0.6, normal: 1, heavy: 2, strong: 2, bold: 2.6 };
+// Where a run has got to (43-run.js). A record with none is a step the run has not reached.
+const STATES = new Set(['next', 'running', 'waiting', 'done', 'failed', 'skipped']);
 
 let warned = new Set();
 function warnOnce(key, message) {
@@ -126,6 +129,14 @@ function toneOf(value) {
 }
 
 const tokenOfTone = tone => (tone ? (own(TONE_TOKENS, tone) || tone) : null);
+
+function stateOf(value) {
+    const s = text(value);
+    if (!s) return null;
+    if (STATES.has(s)) return s;
+    warnOnce('state:' + s, `"${s}" is not a run state. Use next, running, waiting, done, failed or skipped.`);
+    return null;
+}
 
 function flag(value) {
     if (value === true || value === false) return value;
@@ -155,9 +166,9 @@ function listOf(value) {
 }
 
 const NODE_KEYS = new Set(['id', 'node', 'label', 'kind', 'tone', 'tones', 'shape', 'icon', 'group', 'cluster',
-    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'fields']);
+    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'state', 'fields']);
 const EDGE_KEYS = new Set(['id', 'edge', 'source', 'target', 'label', 'kind', 'tone', 'line', 'weight', 'arrow',
-    'muted', 'fields']);
+    'muted', 'state', 'fields']);
 
 function node(raw) {
     const id = text(raw.id ?? raw.node);
@@ -195,6 +206,7 @@ function node(raw) {
         x: number(raw.x),
         y: number(raw.y),
         display: display === 'box' || display === 'dot' ? display : null,
+        state: stateOf(raw.state),
         fields,
     };
 }
@@ -229,6 +241,7 @@ function edge(raw, seen) {
         weight: typeof w === 'string' && own(WEIGHTS, w) ? WEIGHTS[w] : (number(w) ?? 1),
         arrow: arrow && ARROWS.has(arrow) ? arrow : null,
         muted: flag(raw.muted),
+        state: stateOf(raw.state),
         fields,
     };
 }
@@ -628,6 +641,10 @@ function styleFor(colours, icons, options, extra) {
     const box = n => (n.data('display') || options.nodes) === 'box';
     const nameOf = n => (box(n) ? n.data('boxLabel') : n.data('label')) || '';
     const edgeTone = e => c(tokenOfTone(e.data('tone')), p.line);
+    const edgeWidth = e => (e.data('weight') || 1) * held(e) * (options.nodes === 'box' ? 1.25 : 1);
+    // A run's colours (43-run.js): the agent's for what is running now, the semantic ones for the rest.
+    const run = { agent: c('--agent-to', p.brand), go: c('--go-solid', p.line), warn: c('--warn-solid', p.line), danger: c('--danger-solid', p.line) };
+    const lineIn = colour => ({ 'line-color': colour, 'target-arrow-color': colour, 'source-arrow-color': colour });
     const arrows = a => ({
         'target-arrow-shape': a === 'both' || a === 'target' ? 'triangle' : 'none',
         'source-arrow-shape': a === 'both' || a === 'source' ? 'triangle' : 'none',
@@ -800,10 +817,58 @@ function styleFor(colours, icons, options, extra) {
             selector: 'node[?root], node.focus',
             style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'font-weight': 600, 'label': nameOf },
         },
+        /* A run (43-run.js): drawn on the border, a ring outside it and a halo — never the fill, so
+           a record keeps its tone — and never by colour alone: what is running breathes, what is
+           waiting, next or skipped is dashed, and what failed is heavier. */
+        {
+            selector: 'node[state = "next"]',
+            style: {
+                'border-style': 'dashed',
+                'border-dash-pattern': [5, 3],
+                'border-color': p.brand,
+                'border-opacity': 0.6,
+                'border-width': n => (box(n) ? 2 : 2 * held(n)),
+            },
+        },
+        {
+            // The branch not taken: quieter, as a muted record is, and dashed.
+            selector: 'node[state = "skipped"]',
+            style: {
+                'border-style': 'dashed',
+                'border-dash-pattern': [5, 3],
+                'border-color': n => (box(n) ? toneColour(n) : p.line),
+                'border-opacity': 0.6,
+                'background-opacity': n => (box(n) ? 0.6 : 0.45),
+                'color': p.muted,
+            },
+        },
+        {
+            selector: 'node[state = "running"], node[state = "waiting"], node[state = "done"], node[state = "failed"]',
+            style: {
+                'outline-width': n => (box(n) ? 2 : 2 * held(n)),
+                'outline-offset': n => (box(n) ? 3 : 2 * held(n)),
+                'outline-opacity': 1,
+                'outline-style': 'solid',
+            },
+        },
+        {
+            selector: 'node[state = "running"]',
+            style: {
+                'outline-color': run.agent,
+                'underlay-color': run.agent,
+                // `breath` is the run's timer; without it — reduced motion, a hidden tab — the halo rests half lit.
+                'underlay-opacity': n => 0.08 + 0.22 * (n.data('breath') ?? 0.5),
+                'underlay-padding': n => (box(n) ? 9 : 9 * held(n)),
+                'underlay-shape': n => (box(n) ? 'round-rectangle' : 'ellipse'),
+            },
+        },
+        { selector: 'node[state = "waiting"]', style: { 'outline-color': run.warn, 'outline-style': 'dashed' } },
+        { selector: 'node[state = "done"]', style: { 'outline-color': run.go } },
+        { selector: 'node[state = "failed"]', style: { 'outline-color': run.danger, 'outline-width': n => (box(n) ? 3.5 : 3.5 * held(n)) } },
         {
             selector: 'edge',
             style: {
-                'width': e => (e.data('weight') || 1) * held(e) * (options.nodes === 'box' ? 1.25 : 1),
+                'width': edgeWidth,
                 'curve-style': options.curve,
                 'taxi-direction': options.direction === 'LR' || options.direction === 'RL' ? 'horizontal' : 'vertical',
                 'taxi-turn': '50%',
@@ -841,6 +906,27 @@ function styleFor(colours, icons, options, extra) {
         { selector: 'edge[?muted]', style: { 'line-opacity': 0.2 } },
         // A bridge between two islands is the quietest line on the map until its record is pointed at.
         { selector: 'edge[?across]', style: { 'line-opacity': options.nodes === 'box' ? 0.5 : 0.16 } },
+        // A run's links: each in its target's state unless it has its own (43-run.js).
+        { selector: 'edge[run = "next"]', style: { 'line-style': 'dashed', 'line-dash-pattern': [6, 4], ...lineIn(p.brand), 'line-opacity': 0.5 } },
+        {
+            selector: 'edge[run = "skipped"]',
+            style: { 'line-style': 'dashed', 'line-dash-pattern': [6, 4], ...lineIn(p.line), 'line-opacity': options.nodes === 'box' ? 0.35 : 0.2 },
+        },
+        // The way the run went: data arrived where it waits as much as where it was done with.
+        { selector: 'edge[run = "waiting"], edge[run = "done"]', style: { 'line-style': 'solid', ...lineIn(run.go), 'line-opacity': 1 } },
+        { selector: 'edge[run = "failed"]', style: { 'line-style': 'solid', ...lineIn(run.danger), 'line-opacity': 1, 'width': e => 1.5 * edgeWidth(e) } },
+        {
+            // Data flowing now: dashes the run's timer moves from the source to the target.
+            selector: 'edge[run = "running"]',
+            style: {
+                'line-style': 'dashed',
+                'line-dash-pattern': FLOW_DASH,
+                'line-dash-offset': e => e.data('dash') ?? 0,
+                ...lineIn(run.agent),
+                'line-opacity': 1,
+                'width': e => 1.5 * edgeWidth(e),
+            },
+        },
 
         { selector: '.hidden', style: { 'display': 'none' } },
         { selector: '.dim', style: { 'opacity': 0.1, 'text-opacity': 0 } },
@@ -869,8 +955,19 @@ function styleFor(colours, icons, options, extra) {
         },
         { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'label': nameOf } },
         { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
-        // The keyboard's place: a ring outside the record, in the focus ring's colour.
-        { selector: 'node.keyed', style: { 'outline-width': n => (box(n) ? 3 : 3 * held(n)), 'label': nameOf, 'color': p.fg, ...raise(20) } },
+        // The keyboard's place: a ring outside the record, in the focus ring's colour — over a run's ring.
+        {
+            selector: 'node.keyed',
+            style: {
+                'outline-width': n => (box(n) ? 3 : 3 * held(n)),
+                'outline-color': p.ring,
+                'outline-style': 'solid',
+                'outline-opacity': 1,
+                'label': nameOf,
+                'color': p.fg,
+                ...raise(20),
+            },
+        },
         { selector: '.entering', style: { 'opacity': 0 } },
 
         // Drawing a link (cytoscape-edgehandles): the line follows the pointer in the brand colour.
@@ -2188,6 +2285,85 @@ function stats(g) {
         totalEdges: g.model.edges.length,
         selected: g.selected && g.selected.nonempty() ? g.selected.id() : null,
     };
+}
+
+/* ── 43-run.js ──────────────────────────────────────────────── */
+/* ── A run ────────────────────────────────────────────────────────────────────
+   A workflow run, shown live on any graph. `data-state` on a record says where the run
+   has got to — next, running, waiting, done, failed or skipped — and a record with none
+   has not been reached yet. A link takes its target's state, so an app sets state on its
+   records and the links follow; a link's own `data-state` wins. The state a link is drawn
+   in is its `run` (toElements, 70-graph.js).
+
+   The state is drawn on the border, a ring outside it and a halo (22-style.js), never on
+   the fill, so a record keeps its tone. Two things move, and both are decoration: the halo
+   of a running record breathes, and the dashes on a running link march from its source to
+   its target. One timer per graph moves them and restyles only what is running, so a run
+   on a large graph costs what is running rather than the size of the drawing. It stands
+   still under prefers-reduced-motion, in a tab nobody is looking at, and when the theme
+   sets its durations to 0s; the pace is the theme's own — `--progress-duration` for a dash
+   to travel its length and its gap, `--pulse-duration` for one breath.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const FLOW_TICK = 50;
+const FLOW_DASH = [6, 4];
+const FLOW_PERIOD = FLOW_DASH[0] + FLOW_DASH[1];
+
+// A duration token as the theme sets it — `1.1s`, `300ms` — in milliseconds; 0 if it says nothing.
+function durationOf(g, token) {
+    const m = /^(\d*\.?\d+)(ms|s)$/.exec(getComputedStyle(g.el).getPropertyValue(token).trim());
+    return m ? Number(m[1]) * (m[2] === 's' ? 1000 : 1) : 0;
+}
+
+// What a run moves: the records running now, and the links data is flowing along.
+const runningOf = g => g.cy.elements('node[state = "running"], edge[run = "running"]');
+
+// Back at rest: the dashes where they started, the halo half lit. Only what moved is
+// touched. Removing data does not always restyle what the removed data was read by, so
+// the link could stand still mid-dash; what rested is restyled outright.
+function rest(g, eles) {
+    const moved = eles.filter(e => !e.removed() && (e.data('dash') !== undefined || e.data('breath') !== undefined));
+    if (moved.empty()) return;
+    g.cy.batch(() => moved.removeData('dash breath'));
+    moved.updateStyle();
+}
+
+/* Starts, keeps or stops a run's motion: after new data, and when the tab, the reader's
+   motion setting or the theme changes. */
+function flow(g) {
+    const cy = g.cy;
+    if (!cy || g.disposed || cy.destroyed()) return;
+    const now = runningOf(g);
+    rest(g, (g.running || cy.collection()).not(now));
+    g.running = now;
+    const pace = { dash: durationOf(g, '--progress-duration'), breath: durationOf(g, '--pulse-duration') };
+    const still = now.empty() || reducedMotion() || document.visibilityState !== 'visible' || !cy.container()
+        || (pace.dash <= 0 && pace.breath <= 0);
+    if (still) {
+        clearTimeout(g.flowing);
+        g.flowing = 0;
+        rest(g, now);
+        return;
+    }
+    g.pace = pace;
+    if (g.flowing) return;
+    const begun = Date.now();
+    const tick = () => {
+        g.flowing = 0;
+        if (g.disposed || cy.destroyed()) return;
+        const t = Date.now() - begun;
+        const { dash, breath } = g.pace;
+        // What a filter hides waits until it is shown again.
+        const shown = g.running.filter(e => !e.removed() && !e.hasClass('hidden'));
+        const links = shown.edges(), records = shown.nodes();
+        cy.batch(() => {
+            // A dash pattern runs from the source; a falling offset moves it towards the target.
+            if (dash > 0 && links.nonempty()) links.data('dash', -(((t / dash) * FLOW_PERIOD) % FLOW_PERIOD));
+            if (breath > 0 && records.nonempty()) records.data('breath', (1 - Math.cos((2 * Math.PI * t) / breath)) / 2);
+        });
+        g.flowing = setTimeout(tick, FLOW_TICK);
+    };
+    tick();
 }
 
 /* ── 50-minimap.js ──────────────────────────────────────────────── */
@@ -3556,9 +3732,18 @@ function svgOf(g, ground) {
         const fill = n.style('background-color');
         const stroke = n.style('border-color');
         const bw = n.numericStyle('border-width');
-        const attrs = `fill="${fill}" fill-opacity="${num(n.numericStyle('background-opacity'))}" stroke="${stroke}" stroke-width="${num(bw)}"`;
+        const dashed = n.style('border-style') === 'dashed' ? ' stroke-dasharray="5 3"' : '';
+        const attrs = `fill="${fill}" fill-opacity="${num(n.numericStyle('background-opacity'))}" stroke="${stroke}" stroke-opacity="${num(n.numericStyle('border-opacity'))}" stroke-width="${num(bw)}"${dashed}`;
         const parts = [`<g class="graph-record" opacity="${num(opacityOf(n))}"><title>${esc([n.data('label'), n.data('meta')].filter(Boolean).join(' — '))}</title>`];
         parts.push(shapeSvg(n.style('shape'), p.x, p.y, nw, nh, attrs));
+        // A run's ring, outside the record (43-run.js) — but not the keyboard's, which is the reader's place.
+        const ring = n.hasClass('keyed') ? 0 : n.numericStyle('outline-width');
+        if (ring > 0 && n.numericStyle('outline-opacity') > 0) {
+            const grow = bw + ring + n.numericStyle('outline-offset');
+            const ringDash = n.style('outline-style') === 'dashed' ? ' stroke-dasharray="4 2"' : '';
+            parts.push(shapeSvg(n.style('shape'), p.x, p.y, nw + grow, nh + grow,
+                `class="graph-ring" fill="none" stroke="${n.style('outline-color')}" stroke-width="${num(ring)}"${ringDash}`));
+        }
         const icon = n.data('icon') ? g.icons.image(n.data('icon'), box ? stroke : ground, 32) : null;
         if (icon) {
             // A box's icon sits 12px in from its left edge (background-position-x); a dot's is centred.
@@ -3836,7 +4021,7 @@ function drawHulls(g) {
      sedna-graph-expand, sedna-graph-collapse   { id }
 
    A record's detail is { id, label, kind, group, cluster, parent, meta, href, tone,
-   tags, fields, keyboard }.
+   state, tags, fields, keyboard }.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const graphs = new Map();
@@ -3939,8 +4124,9 @@ function boxMetrics(node, font) {
 }
 
 /* The model as cytoscape elements, with what is worked out from the whole graph: each
-   record's degree, its size, whether it heads a group, a box's measurements, and
-   whether a link crosses between islands. */
+   record's degree, its size, whether it heads a group, a box's measurements, whether a
+   link crosses between islands, and the state of a run it is drawn in — its own, else
+   skipped when it leaves a step that was skipped, else its target's. */
 function toElements(g) {
     const { nodes, edges } = g.model;
     const degree = new Map();
@@ -3978,7 +4164,11 @@ function toElements(g) {
         const s = byId.get(e.source), t = byId.get(e.target);
         out.push({
             group: 'edges',
-            data: Object.assign({}, e, { across: !!(s.group && t.group && s.group !== t.group), zoom: g.step || 1 }),
+            data: Object.assign({}, e, {
+                across: !!(s.group && t.group && s.group !== t.group),
+                run: e.state || (s.state === 'skipped' ? 'skipped' : t.state) || null,
+                zoom: g.step || 1,
+            }),
         });
     }
     return out;
@@ -4011,6 +4201,7 @@ function nodeDetail(ele, extra) {
         meta: d.meta ?? null,
         href: d.href ?? null,
         tone: d.tone ?? null,
+        state: d.state ?? null,
         tags: d.tags || [],
         fields,
         keyboard: false,
@@ -4378,6 +4569,7 @@ async function setData(g, data, opts = {}) {
     if (g.hullsOn) drawHulls(g);
     if (g.selected && (g.selected.removed() || g.selected.hasClass('hidden'))) select(g, null);
     else showDetail(g);
+    flow(g);
     const s = changed(g);
     if (first) g.emit('sedna-graph-ready', s);
 }
@@ -4388,6 +4580,8 @@ function repaint(g) {
     if (!g.colours.refresh()) return;
     g.icons.clear();
     restyle(g, true);
+    // A theme may set the durations a run moves at.
+    flow(g);
     if (g.hullsOn) drawHulls(g);
     if (g.ec) {
         const p = palette(g.colours);
@@ -4540,6 +4734,15 @@ function wire(g) {
     }
     g.listeners.push(() => clearTimeout(paint));
 
+    // A run's motion (43-run.js) stops in a tab nobody is looking at and for a reader who
+    // asked for less, and starts again when either changes back.
+    on(document, 'visibilitychange', () => flow(g));
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const moved = () => flow(g);
+    calm.addEventListener('change', moved);
+    g.listeners.push(() => calm.removeEventListener('change', moved));
+    g.listeners.push(() => clearTimeout(g.flowing));
+
     let wasFull = false;
     on(document, 'fullscreenchange', () => {
         const frame = el.closest('[data-graph-frame]') || el;
@@ -4649,6 +4852,7 @@ async function start(g) {
     // The drawing is shown now; what a plugin adds arrives a moment later, rather than
     // holding the whole graph behind its wait while a plugin downloads.
     showDetail(g);
+    flow(g);
     changed(g);
     await plugins(g);
     if (g.disposed) return;

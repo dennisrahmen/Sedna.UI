@@ -1,0 +1,50 @@
+<ol class="workflow workflow--sm" tabindex="0" aria-label="The agent could not fix it on the call, so it opened a ticket">
+    <li class="workflow-step" data-state="done">
+        <article class="workflow-node workflow-node--agent">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-question-line"></i></span>
+                <span class="workflow-node-title">Fixed on the call?</span>
+                <span class="workflow-node-meta">No &middot; still down</span>
+            </header>
+        </article>
+    </li>
+    <li class="workflow-fork workflow-fork--decision">
+        <div class="workflow-branch" data-state="skipped">
+            <span class="workflow-label">Yes</span>
+            <ol class="workflow-path">
+                <li class="workflow-step">
+                    <article class="workflow-node">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon series-go"><i class="ri-chat-check-line"></i></span>
+                            <span class="workflow-node-title">Confirm and close</span>
+                            <span class="workflow-node-meta">Not taken</span>
+                        </header>
+                    </article>
+                </li>
+            </ol>
+        </div>
+        <div class="workflow-branch" data-state="taken">
+            <span class="workflow-label">No</span>
+            <ol class="workflow-path">
+                <li class="workflow-step" data-state="done">
+                    <article class="workflow-node">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon series-2"><i class="ri-coupon-3-line"></i></span>
+                            <span class="workflow-node-title">Open a ticket</span>
+                            <span class="workflow-node-meta">T-48213 &middot; done</span>
+                        </header>
+                    </article>
+                </li>
+                <li class="workflow-step" data-state="running">
+                    <article class="workflow-node workflow-node--agent">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-voiceprint-line"></i></span>
+                            <span class="workflow-node-title">Read it back</span>
+                            <span class="workflow-node-meta">Voice agent &middot; speaking</span>
+                        </header>
+                    </article>
+                </li>
+            </ol>
+        </div>
+    </li>
+</ol>

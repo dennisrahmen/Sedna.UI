@@ -1,0 +1,65 @@
+// Program.cs — the automation's HTTP step posts one event each time something changes:
+//   POST /runs/48213/events   { "step": "assess", "state": "done", "meta": "P1, sure" }
+// Its key is checked before the body is used.
+builder.Services.AddSingleton<RunFeed>();
+
+app.MapPost("/runs/{run}/events", (string run, RunEvent e, HttpRequest request, RunFeed feed, IConfiguration config) =>
+{
+    var key = Encoding.UTF8.GetBytes(request.Headers["X-Automation-Key"].ToString());
+    var expected = Encoding.UTF8.GetBytes(config["Automation:Key"] ?? "");
+    if (expected.Length == 0 || !CryptographicOperations.FixedTimeEquals(key, expected)) return Results.Unauthorized();
+
+    feed.Publish(run, e);
+    return Results.Accepted();
+});
+
+// RunFeed.cs — one event in, every page showing that run told.
+public sealed record RunEvent(string Step, string? State, string? Meta);
+
+public sealed class RunFeed
+{
+    public event Action<string, RunEvent>? Received;
+    public void Publish(string run, RunEvent e) => Received?.Invoke(run, e);
+}
+
+@* RunView.razor — the markup of the live run, with each data-state bound to what arrived. *@
+@inject RunFeed Feed
+@implements IDisposable
+
+<ol class="workflow" tabindex="0" data-follow aria-label="Ticket @Run">
+    <li class="workflow-step" data-state="@S("assess")">
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon workflow-node-icon--agent"><i class="ri-scales-3-line"></i></span>
+                <span class="workflow-node-title">Assess severity</span>
+                <span class="workflow-node-meta">@M("assess", "Agent")</span>
+            </header>
+        </article>
+    </li>
+    …
+</ol>
+
+@code {
+    [Parameter] public string Run { get; set; } = "";
+
+    private readonly Dictionary<string, string> _state = [];
+    private readonly Dictionary<string, string> _meta = [];
+    private string? S(string step) => _state.GetValueOrDefault(step);
+    private string M(string step, string otherwise) => _meta.GetValueOrDefault(step) ?? otherwise;
+
+    protected override void OnInitialized() => Feed.Received += OnEvent;
+
+    // The feed calls on the request's thread; the change is applied on the circuit's.
+    private void OnEvent(string run, RunEvent e)
+    {
+        if (run != Run) return;
+        _ = InvokeAsync(() =>
+        {
+            if (e.State is null) _state.Remove(e.Step); else _state[e.Step] = e.State;
+            if (e.Meta is not null) _meta[e.Step] = e.Meta;
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose() => Feed.Received -= OnEvent;
+}

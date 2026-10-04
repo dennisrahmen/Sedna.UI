@@ -65,6 +65,9 @@ public class SednaGraphNodeEventArgs : EventArgs
     /// <summary>Its tone.</summary>
     public string? Tone { get; set; }
 
+    /// <summary>Where a run has got to on it, or null for a step not reached yet.</summary>
+    public SednaGraphState? State { get; set; }
+
     /// <summary>Its tags.</summary>
     public string[] Tags { get; set; } = [];
 

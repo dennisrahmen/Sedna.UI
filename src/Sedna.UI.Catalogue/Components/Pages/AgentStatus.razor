@@ -32,16 +32,16 @@
 
 <CatExample TExample="Examples.AgentStatus.Beam" Title="The beam" Demo="ex-demo--block ex-demo--pad">
     <p>
-        <code>.beam</code> runs a light round the edge of whatever the agent is busy with: the card it is
-        summarising, the field it is filling, the button that started the work. It is drawn on the
-        element's own border, so it needs no wrapper, works on an <code>&lt;input&gt;</code> and inside a
-        card that clips, and keeps the focus edge and ring. <code>.beam--glow</code> adds a breathing
-        glow, <code>.beam--slow</code> halves the speed, and <code>--beam-duration</code> is one turn.
-        Remove the class when the work is done.
+        <code>.beam</code> puts an edge in both of the agent's colours round whatever the agent is busy
+        with: the card it is summarising, the field it is filling, the button that started the work. It
+        is drawn on the element's own border, so it needs no wrapper, works on an
+        <code>&lt;input&gt;</code> and inside a card that clips, and keeps the focus ring.
+        <code>.beam--glow</code> adds a glow round it. Remove the class when the work is done.
     </p>
     <p>
-        Under <code>prefers-reduced-motion</code> the beam stands still as a two-colour edge, so the
-        element still reads as the busy one.
+        The edge holds still, and the orb and the shimmer beside it are what move: a light turning round
+        an element's border is repainted on every frame, and a page of them kept a processor busy for as
+        long as they were shown.
     </p>
 </CatExample>
 

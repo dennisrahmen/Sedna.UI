@@ -86,6 +86,7 @@
      67-voice.css
      68-guard.css
      68-mochi.css
+     68-workflow.css
      69-beam.css
      69-timeline.css
      70-rtl.css
@@ -577,6 +578,14 @@
     --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
     --info-ring:    rgba(89, 195, 255, 0.5);     /* orbit-400 — its glow */
 
+    /* Data in motion: the light running into a .workflow's step at work, the line it
+       runs on, and that step's ring and glow. The info colours, so every theme moves
+       them with info; forced colours points the light at Highlight. */
+    --flow-light: var(--info-fg);
+    --flow-line:  var(--info-border);
+    --flow-tint:  var(--info-bg);
+    --flow-glow:  var(--info-ring);
+
     --secret-bg:     color-mix(in srgb, var(--violet-600) 12%, transparent);
     --secret-border: var(--violet-800);
     --secret-fg:     var(--violet-300);
@@ -808,7 +817,7 @@
     --pulse-duration:    1.6s;
     --shimmer-duration:  2.2s;   /* .text-shimmer, words an agent is still deciding */
     --caret-duration:    1s;     /* the caret on a streaming answer */
-    --beam-duration:     3s;     /* one turn of a .beam; --slow doubles it */
+    --flow-duration:     1.6s;   /* a .workflow streak, one spacing along its way */
 
     /* ── Corner rounding ────────────────────────────────────────────────────
        Named by role rather than by size, because "square off the controls" is the
@@ -868,8 +877,7 @@
     --agent-trail: color-mix(in srgb, var(--fg) 30%, transparent);
     --agent-tint:  color-mix(in srgb, var(--agent-to) 12%, transparent);
     --agent-edge:  color-mix(in srgb, var(--agent-to) 35%, transparent);
-    /* The beam: a warm tail running into the orbit's blue, and the breath of its glow. */
-    --agent-beam-tail: color-mix(in srgb, var(--agent-from) 85%, transparent);
+    /* A glow in the orbit's blue: full round a step at work, dim round a .beam. */
     --agent-glow:      color-mix(in srgb, var(--agent-to) 55%, transparent);
     --agent-glow-dim:  color-mix(in srgb, var(--agent-to) 25%, transparent);
     /* A placeholder the agent is filling: the skeleton, warmed at its sheen. */
@@ -8798,6 +8806,24 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
     border-block: 4px solid transparent;
     border-inline-start: 6px solid currentColor;
 }
+/* A link a run is sending data along, as the canvas draws it: dashes in the agent colour,
+   moving the way the data goes. The dashes are a mask over a line of their own, so they
+   survive forced colours, and the arrowhead stays whole beside them. */
+.graph-line--flow {
+    color: var(--agent-to);
+    border-block-start-color: transparent;
+}
+.graph-line--flow::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: -2px;
+    border-block-start: 2px solid currentColor;
+    mask: repeating-linear-gradient(to right, currentColor 0 6px, transparent 6px 10px) 0 0 / 10px 100%;
+    animation: sedna-graph-flow var(--progress-duration) linear infinite;
+}
+.graph-line--flow:dir(rtl)::before { animation-direction: reverse; }
+@keyframes sedna-graph-flow { to { mask-position: 10px 0; } }
 
 /* ── The frame ─────────────────────────────────────────────────────────────────
    `.graph-frame` holds a graph with its toolbar, legend and side panel. Full screen
@@ -12792,7 +12818,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 @layer sedna.paint {
 /* ── Agent activity ───────────────────────────────────────────────────────────
    Signals that an agent is working and roughly on what, and how far to trust what it
-   gave back. The beam that runs a busy element's border is `.beam`, in 69-beam.css —
+   gave back. The beam that marks a busy element's border is `.beam`, in 69-beam.css —
    last in the paint layer, because it draws over the element's own background.
 
    ── Shimmer ──
@@ -15884,71 +15910,1565 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .agent-status > .mochi { --size: calc(var(--status-orb) + 6px); margin-block: -3px; }
 }
 
+/* ── 68-workflow.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Workflow ─────────────────────────────────────────────────────────────────
+   A run through the steps of a process, drawn as a diagram: what has happened, what
+   is happening now, what comes next, which way each decision went, and where the
+   work was handed on. An automation working a ticket, an agent on a call, a release
+   moving through its stages. Every node is markup the app writes, so a node can hold
+   anything else in the library — an orb, a confidence, a meter, the caller's words —
+   and the connectors between them are drawn by this part from the structure alone.
+
+     <ol class="workflow" aria-label="Support call">
+       <li class="workflow-step" data-state="done">
+         <article class="workflow-node">
+           <header class="workflow-node-head">
+             <span class="workflow-node-icon series-2"><i class="ri-phone-line"></i></span>
+             <span class="workflow-node-title">Call answered</span>
+             <span class="workflow-node-meta">Voice agent · 0:04</span>
+           </header>
+         </article>
+       </li>
+       <li class="workflow-fork">
+         <div class="workflow-branch">
+           <ol class="workflow-path"><li class="workflow-step">…</li></ol>
+         </div>
+         <div class="workflow-branch">…</div>
+       </li>
+       <li class="workflow-step" data-state="running">…</li>
+     </ol>
+
+   The root `ol.workflow` is a path; a step is an `li.workflow-step` holding one
+   `.workflow-node` (or a `.workflow-end`); a fork is an `li.workflow-fork` whose
+   `.workflow-branch`es each hold an `ol.workflow-path` and run side by side; a loop
+   is an `li.workflow-loop` holding the path it repeats. Paths nest, so a branch can
+   fork again: a fork that opens a branch hangs its own branches off the same
+   bracket, and one that ends a branch of a fork that joins joins with it. Begin the
+   run itself with a step or an end, not a fork.
+
+   States: next, running, waiting, done, failed, skipped.
+
+   `data-state` on the step — never on the node — and absent while the step has not
+   been reached:
+
+     next      the step that runs next                   dashed edge
+     running   working now                              its edge lit, a turning mark
+     waiting   reached, and waiting on someone outside    dashed warn edge, a pulsing mark
+     done      finished                                  a tick
+     failed    stopped with an error                     a cross, a danger edge
+     skipped   not run — a branch not taken              quiet, dashed
+
+   The state is drawn, never written. Say it in words as well, in the meta line or a
+   `.visually-hidden` span, because a screen reader hears the list and not the paint.
+
+   ── The connectors ──
+   Every wire takes the state of the step it leads INTO. Nothing is set on a wire:
+
+     pending   a quiet line
+     running   data flowing: a streak of light runs the whole way in, from the
+               step before — down a fork's bracket into every branch at work, up a
+               join's bracket from every branch into the step after it — at one
+               speed, round every bend, without a joint
+     waiting, done, failed
+               the way the run went — the trail, a solid line, so the path behind
+               the step at work reads as one
+     next      dashed
+     skipped   dashed and quieter
+
+   A fork's brackets work the same out from the branches: the bracket down to a
+   branch lights once that branch is reached, the bracket back up once its last step
+   is done. `.workflow-fork--decision` is a fork where one branch is chosen — a
+   diamond where it splits — and the branch it chose carries `data-state="taken"`,
+   the others `data-state="skipped"`, which quiets every step in them with no state
+   written on each. A fork followed by a step joins again; a fork that ends a path
+   does not.
+
+   Branches: taken, skipped.
+
+   `.workflow-label` is a word on a wire: first in a branch, it is the case that
+   branch is for ("Known issue", "No match"); first in a step, it is what was handed
+   on ("T-48213", "3 articles").
+
+   ── Geometry ──
+   One line runs through every row: `--workflow-port`, measured from the top of the
+   row to the centre of the node's head, is where every wire, label, end and bracket
+   meets a node, so a tall node and a short one still join in a straight line. Every
+   offset below is arithmetic on six numbers — the head, the padding, the wire, the
+   gap, the space between branches and the curve — and none is typed twice. A
+   bracket sits half a gap out from the branches, so a fork costs no more room than
+   a step: one gap from the step before it to the first node of every branch.
+
+   A bracket leaves the line through the fork's heads in a square T, flush under it,
+   and meets every branch but the last in one too, the way a bus is drawn; its one
+   curve is into the last branch. A line of one colour never bends out of another.
+
+   A wire is a box of the wire's height, painted; a branch's way in or out is drawn in
+   borders. Wires sit at `z-index: 1`
+   — local stacking, not a rung on the scale — so where a curve leaves a wire, the
+   wire is drawn over the start of the curve and a fork's bracket peels off a straight
+   line rather than notching it. A dashed wire is painted over the surface it sits on,
+   so a line behind it cannot show through the gaps between dashes.
+
+   ── Sizes and showing ──
+   `--sm` for a diagram in a panel, `--lg` for a few big stages read from across a
+   room — the overview of a run, as a step's detail is the diagram under it — and
+   `--xl` for a wall screen read from the back of it. A single node can be widened
+   with `style="--workflow-node: 18rem"` on its step.
+
+   `--focus` is for showing rather than reading: every step but the one at work
+   shows its head alone, and the step at work opens, wider, with everything in it.
+   Put the detail you want shown in each node; only the step at work shows it.
+
+   ── How much moves ──
+   One streak at a time leaves the step before the one at work and runs into it.
+   `--flow-off` stills it to a lit line. `--workflow-flow-speed` and
+   `--workflow-flow-packets` make it slower or faster, and sparser or denser at the
+   same pace.
+
+   ── The step at work ──
+   Its node wears one of three looks: its edge in the light's colour with a ring
+   (the default), `.workflow-node--glow` with a glow instead, or
+   `.workflow-node--agent` in the agent's colours, for a step an agent is doing. The
+   class goes on the node whatever its state; the look shows only while it is at
+   work.
+
+   ── Colour ──
+   The trail is `--workflow-trail` (the go colour). The light is `--workflow-flow`
+   on `--workflow-flow-line`, and the step at work's ring and glow are
+   `--workflow-flow-tint` and `--workflow-flow-glow` (the `--flow-*` tokens). Set them
+   on the `.workflow` from tokens, as any knob is set.
+
+   ── The canvas ──
+   `.workflow` scrolls sideways when the run is wider than its container, so give it
+   `tabindex="0"`: a scroll container a keyboard cannot reach is a part of the page a
+   keyboard cannot read. Its ring is drawn inside it. With
+   `data-follow`, Sedna.UI.js keeps the step at work in view as the run moves on,
+   until the reader scrolls away from it. `--grid` dots the canvas, `--center`
+   centres a diagram narrower than its container, and `--fill` shares the width out
+   between the steps, so an overview of a few stages fits instead of scrolling.
+   ─────────────────────────────────────────────────────────────────────────── */
+.workflow {
+    --workflow-node: 232px;
+    --workflow-head: 36px;
+    --workflow-pad: var(--space-6);
+    --workflow-wire: 2px;
+    --workflow-gap: calc(var(--space-11) + var(--space-4));
+    --workflow-lanes: var(--space-9);
+    --workflow-curve: 10px;
+    --workflow-mark: 18px;
+    --workflow-drop: var(--space-11);
+    --workflow-pill: 22px;
+    --workflow-end: 30px;
+    /* The centre of the head, from the top of the row: the node's 1px border, its
+       padding, half its head. Every wire is hung on this line. */
+    --workflow-port: calc(1px + var(--workflow-pad) + var(--workflow-head) / 2);
+    --workflow-lead: 0px;
+    /* What the canvas is painted on: a dashed wire and a label are backed with it. */
+    --workflow-surface: var(--surface-here, var(--bg));
+    /* The colours: the trail behind the step at work, and the data on its way into
+       it — a light on a line, and the step at work's edge and ring. */
+    --workflow-trail: var(--go-solid);
+    --workflow-flow: var(--flow-light);
+    --workflow-flow-line: var(--flow-line);
+    --workflow-flow-tint: var(--flow-tint);
+    --workflow-flow-glow: var(--flow-glow);
+    /* Which way the run goes: along the inline axis (1 0) or down the block axis
+       (0 1), and which way the inline axis runs — 1, or -1 on a right-to-left page.
+       The dashes turn with these, and the sides and angles below are the same
+       facts for the light. */
+    --workflow-axis-x: 1;
+    --workflow-axis-y: 0;
+    --workflow-dir-x: 1;
+    --workflow-dash-angle: calc(90deg * var(--workflow-axis-x) + 180deg * var(--workflow-axis-y));
+    --workflow-start-x: 0%;
+    --workflow-end-x: 100%;
+    --workflow-start-side: left;
+    --workflow-end-side: right;
+    --workflow-mirror: 0;
+    --workflow-cw: cw;
+    --workflow-ccw: ccw;
+    /* Where each curve's transition starts, round its centre — out of the line, off
+       the bracket, up into it, into the line on — and which end of it the line is
+       at: the start for out of the line and up into the bracket, the end for the
+       others. Solid while the curve overlaps the line, then fading into its own. */
+    --workflow-seam-a: 0deg;
+    --workflow-seam-b: 180deg;
+    --workflow-seam-c: 90deg;
+    --workflow-seam-d: 270deg;
+    --workflow-seam-ac-p0: 0deg;
+    --workflow-seam-ac-p1: 40deg;
+    --workflow-seam-ac-t1: 90deg;
+    --workflow-seam-bd-p0: 50deg;
+    --workflow-seam-bd-p1: 90deg;
+    --workflow-seam-bd-t1: 90deg;
+    --workflow-over-at: 0 0;
+    /* The light. Data leaves a step as a short streak and runs at one speed along
+       every way into the step at work, round each bend, the whole way from the step
+       before it. It is painted as a field across the page — a streak every period,
+       on lines where along-plus-down is constant — and each piece of wire shows the
+       field where it lies. A way that only ever runs along and down, or along and
+       up, then carries one streak from end to end, round its bends, without a joint.
+       A way out of a step starts its field at that step, so a streak leaves it as
+       one; a way into a join ends its field at the step after it, so the streaks of
+       every branch arrive there as one. */
+    --workflow-flow-ahead: 135deg;
+    --workflow-flow-up: 45deg;
+    --workflow-flow-spacing: 240px;
+    --workflow-flow-comet: 40px;
+    --workflow-flow-speed: 1;
+    --workflow-flow-packets: 1;
+    --workflow-flow-period: calc(var(--workflow-flow-spacing) / var(--workflow-flow-packets));
+    --workflow-flow-duration: calc(var(--flow-duration) / var(--workflow-flow-speed) / var(--workflow-flow-packets));
+    --workflow-flow-play: running;
+    --workflow-comet: var(--workflow-flow);
+    --workflow-flow-base: var(--workflow-flow-line);
+    /* Along the gradient line a period is shorter by √2, because the field is laid
+       at 45° to every wire. */
+    --workflow-comet-end: calc(var(--workflow-flow-period) * 0.70711);
+    --workflow-comet-head: calc(var(--workflow-comet-end) - 1px);
+    --workflow-comet-tail: calc((var(--workflow-flow-period) - var(--workflow-flow-comet)) * 0.70711);
+    /* Where a piece of wire takes the field from: the angle, the side and offset of
+       the field's start, and which way a period moves it. A plain wire's field
+       starts where the wire does. */
+    --workflow-stream-angle: var(--workflow-flow-ahead);
+    --workflow-stream-side: var(--workflow-start-side);
+    --workflow-stream-at: 0px;
+    --workflow-stream-step: var(--workflow-flow-period);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--workflow-gap);
+    margin: 0;
+    padding: var(--space-9);
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    /* The wires' z-index stays inside the diagram. */
+    isolation: isolate;
+}
+.workflow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.workflow--grid {
+    background-image: radial-gradient(circle, var(--border) 1px, transparent 1.5px);
+    background-size: 16px 16px;
+    background-attachment: local;
+}
+.workflow--center { justify-content: safe center; }
+/* Each step takes an equal share of the width and its node fills it: an overview of a
+   few stages that fits its container rather than scrolling. No step shrinks below
+   three quarters of a node, where its name would no longer fit; past that it scrolls. */
+.workflow.workflow--fill > li { flex: 1 1 0; min-inline-size: calc(var(--workflow-node) * 0.75); }
+.workflow.workflow--fill > li > .workflow-node { inline-size: 100%; }
+/* How much moves. `--flow-off`: nothing; the way into the step at work is a still
+   line in the light's colour. Slower or faster is `--workflow-flow-speed` (1 is the
+   token's pace, 0.5 half of it), and fewer or more streaks is
+   `--workflow-flow-packets` (2 is twice as many, at the same pace). Set both on the
+   diagram itself, where the period is worked out. */
+.workflow--flow-off {
+    --workflow-comet: transparent;
+    --workflow-flow-base: var(--workflow-flow);
+    --workflow-flow-play: paused;
+}
+
+.workflow--sm {
+    --workflow-node: 184px;
+    --workflow-head: 28px;
+    --workflow-pad: var(--space-4);
+    --workflow-gap: var(--space-10);
+    --workflow-lanes: var(--space-7);
+    --workflow-curve: 8px;
+    --workflow-mark: 14px;
+    --workflow-drop: var(--space-10);
+}
+.workflow--xl {
+    --workflow-node: 360px;
+    --workflow-head: 64px;
+    --workflow-pad: var(--space-9);
+    --workflow-wire: 4px;
+    --workflow-gap: calc(var(--space-11) * 2);
+    --workflow-lanes: var(--space-11);
+    --workflow-curve: 20px;
+    --workflow-mark: 30px;
+    --workflow-drop: calc(var(--space-11) + var(--space-9));
+    --workflow-pill: 32px;
+    --workflow-end: 48px;
+    --workflow-flow-spacing: 400px;
+    --workflow-flow-comet: 72px;
+}
+.workflow--lg {
+    --workflow-node: 288px;
+    --workflow-head: 48px;
+    --workflow-pad: var(--space-7);
+    --workflow-gap: calc(var(--space-11) + var(--space-9));
+    --workflow-lanes: var(--space-10);
+    --workflow-curve: 14px;
+    --workflow-mark: 22px;
+}
+
+.workflow-path {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--workflow-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* ── The wire into each step ──────────────────────────────────────────────────
+   Owned by the <li> it leads into, and painted from two custom properties the
+   step's state sets — its colour, and the paint made of it. Every owner declares the pending values itself, so a step
+   inside a fork or a loop never inherits the state of the one around it. */
+.workflow > li,
+.workflow-path > li,
+.workflow-branch {
+    --workflow-wire-colour: var(--border-strong);
+    --workflow-wire-paint: linear-gradient(var(--workflow-wire-colour), var(--workflow-wire-colour));
+}
+.workflow > li,
+.workflow-path > li {
+    position: relative;
+    flex: none;
+}
+.workflow > li::before,
+.workflow-path > li::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset-inline-end: 100%;
+    inset-block-start: calc(var(--workflow-port) - var(--workflow-wire) / 2);
+    inline-size: var(--workflow-gap);
+    block-size: var(--workflow-wire);
+    background: var(--workflow-wire-paint);
+}
+.workflow > li:first-child::before { content: none; }
+.workflow-path > li:first-child::before { inline-size: var(--workflow-lead); }
+/* Run down, the rail after a fork is the wire into the step after it, drawn by the
+   fork's last branch: it is painted from the same two properties, set from the
+   step's state by the same rules. */
+.workflow-branch:last-child::after {
+    --workflow-wire-colour: var(--border-strong);
+    --workflow-wire-paint: linear-gradient(var(--workflow-wire-colour), var(--workflow-wire-colour));
+}
+
+.workflow > [data-state="waiting"],
+.workflow > [data-state="done"],
+.workflow > [data-state="failed"],
+.workflow-path > [data-state="waiting"],
+.workflow-path > [data-state="done"],
+.workflow-path > [data-state="failed"],
+.workflow-fork:has(+ .workflow-step:is([data-state="waiting"], [data-state="done"], [data-state="failed"])) > .workflow-branch:last-child::after {
+    --workflow-wire-colour: var(--workflow-trail);
+}
+.workflow > [data-state="next"],
+.workflow-path > [data-state="next"],
+.workflow-fork:has(+ .workflow-step[data-state="next"]) > .workflow-branch:last-child::after {
+    --workflow-wire-colour: var(--border-hover);
+    --workflow-wire-paint:
+        repeating-linear-gradient(var(--workflow-dash-angle), var(--workflow-wire-colour) 0 6px, transparent 6px 11px),
+        linear-gradient(var(--workflow-surface), var(--workflow-surface));
+}
+.workflow > [data-state="skipped"],
+.workflow-path > [data-state="skipped"],
+.workflow-fork:has(+ .workflow-step[data-state="skipped"]) > .workflow-branch:last-child::after {
+    --workflow-wire-colour: var(--border);
+    --workflow-wire-paint:
+        repeating-linear-gradient(var(--workflow-dash-angle), var(--workflow-wire-colour) 0 4px, transparent 4px 9px),
+        linear-gradient(var(--workflow-surface), var(--workflow-surface));
+}
+/* Data on its way into the step at work: the line the light runs on. The light itself
+   is laid over it under "The light" below. */
+.workflow > [data-state="running"],
+.workflow-path > [data-state="running"],
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:last-child::after {
+    --workflow-wire-colour: var(--workflow-flow-base);
+}
+/* Into a fork or a loop the data has already gone: the light is on the way into the
+   step inside it that is at work. */
+.workflow > :is(.workflow-fork, .workflow-loop)[data-state="running"],
+.workflow-path > :is(.workflow-fork, .workflow-loop)[data-state="running"] {
+    --workflow-wire-colour: var(--workflow-trail);
+}
+
+/* ── A step ───────────────────────────────────────────────────────────────── */
+.workflow-step {
+    display: flex;
+    align-items: flex-start;
+    column-gap: var(--space-7);
+}
+
+/* ── The node ───────────────────────────────────────────────────────────────
+   A card of fixed width with a head on the port line. The head is the icon, the
+   title and a meta line; anything after it is the body, spaced by the node's gap.
+   The state mark is the node's own ::before (the disc) and ::after (the glyph),
+   hung on the port line at the inline end of the head. */
+.workflow-node {
+    --surface-here: var(--surface-raised-1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    inline-size: var(--workflow-node);
+    padding: var(--workflow-pad);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    background: var(--surface-here);
+    color: var(--fg);
+    font: inherit;
+    font-size: var(--text-4);
+    line-height: 1.45;
+    text-align: start;
+    text-decoration: none;
+    box-shadow: var(--workflow-ring, 0 0 transparent), var(--workflow-glow, 0 0 transparent);
+    transition: border-color var(--motion-fast), box-shadow var(--motion-mid);
+}
+.card .workflow-node { --surface-here: var(--surface-raised-2); }
+.card .card .workflow-node { --surface-here: var(--surface-raised-3); --muted: var(--fg-soft); }
+
+/* A node that opens something — the step's detail beside the diagram — is a
+   <button> or an <a>, with spans inside. Pressed is the one on show. */
+:is(a, button).workflow-node { cursor: pointer; }
+:is(a, button).workflow-node:hover { border-color: var(--border-hover); }
+:is(a, button).workflow-node:focus-visible { outline: none; --workflow-ring: 0 0 0 2px var(--brand-ring-soft); }
+.workflow-node[aria-pressed="true"] { --workflow-ring: 0 0 0 2px var(--brand); }
+
+.workflow-node-head {
+    display: grid;
+    grid-template-columns: var(--workflow-head) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
+    column-gap: var(--space-5);
+    min-block-size: var(--workflow-head);
+    padding-inline-end: calc(var(--workflow-mark) + var(--space-4));
+}
+/* Whatever leads the head — an icon tile, an orb, an avatar — fills the first column. */
+.workflow-node-head > * { grid-column: 1; grid-row: 1 / -1; align-self: start; justify-self: center; }
+.workflow-node-head > .orb { --orb-size: var(--workflow-head); }
+.workflow-node-head > .avatar { --avatar-size: var(--workflow-head); }
+.workflow-node-title {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: stretch;
+    color: var(--fg);
+    font-size: var(--text-5);
+    font-weight: 600;
+    line-height: 20px;
+    overflow-wrap: break-word;
+}
+.workflow-node-meta {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: stretch;
+    /* Clipped across for the ellipsis, never down: a tight line still keeps its
+       descenders. */
+    overflow-x: clip;
+    color: var(--muted);
+    font-size: var(--text-3);
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.workflow-node-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: var(--workflow-head);
+    block-size: var(--workflow-head);
+    border-radius: var(--radius-surface);
+    font-size: var(--text-8);
+    line-height: 1;
+}
+/* The tile is its own colour, faint: the glyph's currentColor at low opacity under it,
+   as a sparkline's area is under its line. */
+.workflow-node-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0.14;
+}
+.workflow-node-icon > * { position: relative; }
+/* Neutral until a `.series-*` on the tile names its colour — at no weight, so the
+   series class wins wherever it sits in the stylesheet. */
+:where(.workflow-node-icon) { color: var(--fg-soft); }
+/* An agent's step, in the agent's colours. */
+.workflow-node-icon--agent {
+    background: linear-gradient(135deg, var(--agent-from), var(--agent-to));
+    color: var(--on-solid);
+}
+.workflow-node-icon--agent::before { content: none; }
+
+/* What the step is doing now, in a line or two. Give it `.text-shimmer` while the
+   words are still the agent's guess. */
+.workflow-node-now {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    font-size: var(--text-3);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+/* At no weight, so `.text-shimmer`'s clear text still lets its light through. */
+:where(.workflow-node-now) { color: var(--fg-soft); }
+.workflow-node-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+    padding-block-start: var(--space-4);
+    border-block-start: 1px solid var(--border);
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── The state mark ───────────────────────────────────────────────────────── */
+.workflow-node::before,
+.workflow-node::after {
+    content: '';
+    position: absolute;
+    box-sizing: border-box;
+    inset-block-start: calc(var(--workflow-port) - 1px - var(--workflow-mark) / 2);
+    inset-inline-end: var(--workflow-pad);
+    inline-size: var(--workflow-mark);
+    block-size: var(--workflow-mark);
+    border-radius: 50%;
+}
+.workflow-node::before { border: 2px solid var(--border-strong); }
+
+.workflow-step[data-state="next"] > .workflow-node::before { border-color: var(--brand-soft); box-shadow: 0 0 0 3px var(--brand-glow); }
+.workflow-step[data-state="next"] > .workflow-node::after {
+    background: radial-gradient(circle, var(--brand-soft) 0 3px, transparent 3.5px);
+}
+.workflow-step[data-state="running"] > .workflow-node::before {
+    border-color: var(--workflow-flow-line);
+    border-block-start-color: var(--workflow-flow);
+    animation: sedna-spin var(--spin-duration) linear infinite;
+}
+.workflow-step[data-state="running"] > .workflow-node--agent::before {
+    border-color: var(--agent-edge);
+    border-block-start-color: var(--agent-to);
+}
+.workflow-step[data-state="waiting"] > .workflow-node::before {
+    border-color: var(--warn-solid);
+    background: var(--warn-solid);
+    animation: sedna-pulse var(--pulse-duration) ease-in-out infinite;
+}
+/* Two bars: paused, not stopped. */
+.workflow-step[data-state="waiting"] > .workflow-node::after {
+    background:
+        linear-gradient(var(--on-solid), var(--on-solid)) calc(50% - 2px) 50% / 2px 40% no-repeat,
+        linear-gradient(var(--on-solid), var(--on-solid)) calc(50% + 2px) 50% / 2px 40% no-repeat;
+}
+.workflow-step[data-state="done"] > .workflow-node::before { border-color: var(--go-solid); background: var(--go-solid); }
+.workflow-step[data-state="failed"] > .workflow-node::before { border-color: var(--danger-solid); background: var(--danger-solid); }
+/* The cross: two bars, turned. */
+.workflow-step[data-state="failed"] > .workflow-node::after {
+    background:
+        linear-gradient(var(--on-solid), var(--on-solid)) 50% 50% / 2px 50% no-repeat,
+        linear-gradient(var(--on-solid), var(--on-solid)) 50% 50% / 50% 2px no-repeat;
+    rotate: 45deg;
+}
+.workflow-step[data-state="skipped"] > .workflow-node::before,
+.workflow-branch[data-state="skipped"] .workflow-node::before { border-color: var(--border); }
+.workflow-step[data-state="skipped"] > .workflow-node::after,
+.workflow-branch[data-state="skipped"] .workflow-node::after {
+    background: linear-gradient(var(--muted), var(--muted)) 50% 50% / 40% 2px no-repeat;
+}
+
+/* The tick is a turned corner, and a tick reads the same either way round, so it is
+   drawn on physical sides and is not mirrored for a right-to-left page. Narrower than
+   the disc, so a node's is pulled in to the disc's centre and lifted to sit there. */
+.workflow-step[data-state="done"] > .workflow-node::after,
+.workflow-decision > [data-state="chosen"]::after {
+    inline-size: calc(var(--workflow-mark) * 0.28);
+    block-size: calc(var(--workflow-mark) * 0.5);
+    border-radius: 0;
+    /* rtl-ok: a tick is not directional, so its two strokes stay physical. */
+    border-right: 2px solid var(--on-solid);
+    border-bottom: 2px solid var(--on-solid);
+    rotate: 45deg;
+}
+.workflow-step[data-state="done"] > .workflow-node::after {
+    margin-inline-end: calc(var(--workflow-mark) * 0.36);
+    margin-block-start: calc(var(--workflow-mark) * 0.2);
+}
+
+/* ── The node in each state ───────────────────────────────────────────────── */
+.workflow-step[data-state="next"] > .workflow-node {
+    border-style: dashed;
+    border-color: var(--brand-soft);
+}
+/* The step at work, in one of three looks the node chooses, so an agent's step can
+   look like one and a plain step does not:
+
+     (none)                 its edge in the light's colour, and a ring of its tint
+     .workflow-node--glow   the same edge, and a glow round it instead of the ring
+     .workflow-node--agent  its edge in both of the agent's colours, and the agent's glow
+
+   Each holds still, and the mark turns: a turning edge is a property animated on the
+   main thread, which restyles and repaints the node on every frame and cost a run on
+   screen a sixth of a processor, where the mark turns on the compositor for nothing.
+   The agent's edge is drawn on the node's own border box — a fill over the padding
+   box, the colours under it. A look is only worn while the step is at work. */
+.workflow-step[data-state="running"] > .workflow-node {
+    --workflow-glow: 0 0 0 3px var(--workflow-flow-tint);
+    border-color: var(--workflow-flow);
+}
+.workflow-step[data-state="running"] > .workflow-node--glow {
+    --workflow-glow: 0 0 22px -4px var(--workflow-flow-glow);
+}
+.workflow-step[data-state="running"] > .workflow-node--agent {
+    --workflow-glow: 0 0 0 3px var(--agent-tint), 0 8px 28px -10px var(--agent-glow);
+    border-color: transparent;
+    background:
+        linear-gradient(var(--surface-here), var(--surface-here)) padding-box,
+        linear-gradient(90deg, var(--agent-from), var(--agent-to)) border-box;
+}
+.workflow-step[data-state="waiting"] > .workflow-node {
+    border-style: dashed;
+    border-color: var(--warn-border);
+}
+.workflow-step[data-state="failed"] > .workflow-node {
+    border-color: var(--danger-border);
+    background: linear-gradient(var(--danger-bg), var(--danger-bg)), var(--surface-here);
+}
+.workflow-step[data-state="skipped"] > .workflow-node,
+.workflow-branch[data-state="skipped"] .workflow-node {
+    border-style: dashed;
+    color: var(--muted);
+}
+.workflow-step[data-state="skipped"] .workflow-node-title,
+.workflow-branch[data-state="skipped"] .workflow-node-title { color: var(--muted); font-weight: 500; }
+.workflow-step[data-state="skipped"] .workflow-node-head > :first-child,
+.workflow-branch[data-state="skipped"] .workflow-node-head > :first-child { opacity: 0.55; filter: grayscale(1); }
+
+/* ── An end ─────────────────────────────────────────────────────────────────
+   Where a run starts or stops: a pill on the port line instead of a node. */
+.workflow-end {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    block-size: var(--workflow-end);
+    margin-block-start: calc(var(--workflow-port) - var(--workflow-end) / 2);
+    padding-inline: var(--space-6);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--workflow-surface);
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.workflow-end > i { color: var(--muted); font-size: var(--text-5); }
+.workflow-step[data-state="done"] > .workflow-end { border-color: var(--go-border); background: var(--go-bg); color: var(--go-fg); }
+.workflow-step[data-state="done"] > .workflow-end > i { color: currentColor; }
+.workflow-step[data-state="failed"] > .workflow-end { border-color: var(--danger-border); background: var(--danger-bg); color: var(--danger-fg); }
+.workflow-branch[data-state="skipped"] .workflow-end { border-style: dashed; border-color: var(--border); color: var(--muted); }
+
+/* ── A word on a wire ─────────────────────────────────────────────────────────
+   A pill on the port line, with the wire running into it and out of it. In a step
+   it sits before the node; in a branch, before the branch's path. */
+.workflow-label {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    block-size: var(--workflow-pill);
+    margin-block-start: calc(var(--workflow-port) - var(--workflow-pill) / 2);
+    padding-inline: var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--workflow-surface);
+    color: var(--fg-soft);
+    font-size: var(--text-2);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.workflow-label > i { font-size: var(--text-3); }
+.workflow-label::before,
+.workflow-label::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset-block-start: calc(50% - var(--workflow-wire) / 2);
+    block-size: var(--workflow-wire);
+    background: var(--workflow-wire-paint);
+}
+.workflow-label::before { content: none; }
+.workflow-label::after { inset-inline-start: calc(100% + 1px); inline-size: var(--space-7); }
+
+/* ── A fork ─────────────────────────────────────────────────────────────────
+   The branches stack, and the wire into the fork stops at the bracket, half a gap
+   out. Each branch draws the whole of its own way in and its own way out, because a
+   branch cannot see how tall the others are, but it can see the fork:
+
+     in    the first branch: the wire into the fork, straight on from the bracket;
+           any other: from under that line down the bracket to its own line, into it
+           in a T, or a curve for the last branch, and along it to where it begins
+     out   from its last step along its line to the bracket, and for any but the
+           first, up it to the line through the fork's heads — which the first
+           branch's way out is — and on to the step after the fork
+
+   The ways of the branches below one run over its own, so the bracket is where they
+   lie together, and each way is one piece the light can run along without a joint.
+   A branch is not positioned, so what it draws is placed in the fork: from the fork's
+   line down to its own, found by anchoring to the branch, whose name each branch
+   keeps to itself.
+
+   Each way is drawn in borders, so its corners are the browser's own. */
+.workflow-fork {
+    display: flex;
+    flex-direction: column;
+    gap: var(--workflow-lanes);
+}
+.workflow > .workflow-fork::before,
+.workflow-path > .workflow-fork::before {
+    /* Over every way's T under it, as the way the run went is. */
+    z-index: 2;
+    inset-inline-end: calc(100% + var(--workflow-gap) / 2);
+    inline-size: calc(var(--workflow-gap) / 2);
+}
+/* A fork that opens a branch hangs its branches off the bracket that branch hangs
+   from: it starts where the branch's first step would, so its bracket falls on the
+   outer one, and it needs no wire of its own. */
+.workflow-path > .workflow-fork:first-child::before { content: none; }
+/* After a join, the wire into the next step starts at the join's bracket. */
+.workflow-fork + li::before { inline-size: calc(var(--workflow-gap) / 2); }
+.workflow-fork--decision::after {
+    content: '';
+    position: absolute;
+    z-index: 3;
+    box-sizing: border-box;
+    inset-inline-start: calc(var(--workflow-gap) / -2 - 6px);
+    inset-block-start: calc(var(--workflow-port) - 6px);
+    inline-size: 12px;
+    block-size: 12px;
+    border: 2px solid var(--workflow-wire-colour);
+    background: var(--workflow-surface);
+    rotate: 45deg;
+}
+
+.workflow-branch {
+    /* The branch's own line, from its top: through the heads of its first steps. */
+    --workflow-line: var(--workflow-port);
+    --workflow-lead: 0px;
+    /* How each way is drawn while the data is not on it — the colour, the line, and
+       how high it lies — set from the branch's state below. */
+    --workflow-in: var(--border-strong);
+    --workflow-in-z: 1;
+    --workflow-out: var(--border-strong);
+    --workflow-out-z: 1;
+    /* What a transition fades from, and whether the branch's own line runs on into
+       the bracket below, both set from the branches after it below. */
+    --workflow-under-in: transparent;
+    --workflow-under-out: transparent;
+    --workflow-stub-in: 0;
+    --workflow-stub-out: 0;
+    anchor-name: --workflow-branch;
+    anchor-scope: --workflow-branch, --workflow-last;
+    display: flex;
+    align-items: flex-start;
+    column-gap: var(--space-7);
+}
+.workflow-branch > .workflow-path { position: static; flex: 1; }
+.workflow-branch > .workflow-path > :last-child { anchor-name: --workflow-last; }
+
+/* The ways are drawn in borders' places: every corner is a curve, out of the line
+   through the fork's heads, into every branch, and back up and into the line on.
+
+   Where a curve leaves or joins a line of another colour, the two change over by a
+   transition rather than an edge. If the line it leaves lies over its way, the curve
+   starts in the line's colour while the two still overlap and fades into its own along
+   its length. If its own way lies over the line — the branch was reached and the ones
+   after it were not — its line runs on a little down the bracket instead and fades
+   there into theirs, and the curve is its own colour throughout.
+
+   Each way is a box with transparent borders where its line runs, painted underneath
+   and cut to that line by one path, so a curve and its transition are one shape; a
+   dashed way keeps its dashed borders. The boxes of a way share one field for the
+   light. */
+.workflow-branch::before,
+.workflow-branch:not(:first-child)::after,
+:where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch > .workflow-path::before,
+:where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path::after {
+    --workflow-way-r: calc(var(--workflow-curve) + var(--workflow-wire) / 2);
+    --workflow-way-ri: calc(var(--workflow-curve) - var(--workflow-wire) / 2);
+    /* As far as the box reaches below the curve's start: to the branch's line. */
+    --workflow-way-fade: var(--workflow-way-r);
+    content: '';
+    position: absolute;
+    box-sizing: border-box;
+    border-width: 0;
+    background-origin: border-box;
+}
+/* In: the curve out of the line into the bracket, and the bracket down to the branch's
+   line, round into it and along it. The first branch's way is that line run straight
+   on from the bracket. */
+.workflow-branch::before,
+.workflow-branch:not(:first-child)::after {
+    z-index: var(--workflow-in-z);
+}
+.workflow-branch::before {
+    --workflow-stream-at: calc(var(--workflow-curve) - var(--workflow-gap) / 2);
+    --workflow-way-over: conic-gradient(from var(--workflow-seam-a) at calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 100%, transparent 0, var(--workflow-trunk) var(--workflow-seam-ac-p0), var(--workflow-trunk) var(--workflow-seam-ac-p1), transparent var(--workflow-seam-ac-t1), transparent 0);
+    inset-inline-end: calc(100% + var(--workflow-gap) / 2 - var(--workflow-wire) / 2);
+    inset-block-start: calc(var(--workflow-port) - var(--workflow-wire) / 2);
+    inline-size: var(--workflow-way-r);
+    block-size: var(--workflow-way-r);
+    border-block-start-width: var(--workflow-wire);
+    border-inline-end-width: var(--workflow-wire);
+    border-start-end-radius: var(--workflow-way-r);
+}
+.workflow-branch:first-child::before {
+    --workflow-stream-at: calc(var(--workflow-gap) / -2);
+    --workflow-way-over: none;
+    inset-inline-end: 100%;
+    inline-size: calc(var(--workflow-gap) / 2);
+    block-size: var(--workflow-wire);
+    border-inline-end-width: 0;
+    border-radius: 0;
+}
+.workflow-branch:not(:first-child)::after {
+    --workflow-stream-at: calc(-1 * (var(--workflow-gap) / 2 + var(--workflow-curve)));
+    --workflow-way-over: conic-gradient(from var(--workflow-seam-b) at calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-way-r)), transparent 0, var(--workflow-under-in) var(--workflow-seam-bd-p0), var(--workflow-under-in) var(--workflow-seam-bd-p1), transparent var(--workflow-seam-bd-t1), transparent 0);
+    inset-inline-end: 100%;
+    inline-size: calc(var(--workflow-gap) / 2 + var(--workflow-wire) / 2);
+    inset-block: calc(var(--workflow-port) + var(--workflow-curve)) calc(anchor(--workflow-branch top) - var(--workflow-line) - var(--workflow-wire) / 2);
+    border-inline-start-width: var(--workflow-wire);
+    border-block-end-width: var(--workflow-wire);
+    border-end-start-radius: var(--workflow-way-r);
+}
+.workflow-branch:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):has(~ .workflow-branch):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):not(:first-child)::after,
+.workflow-branch:is(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(~ .workflow-branch > .workflow-path > :first-child[data-state="running"])):not(:first-child)::after,
+.workflow-branch:not([data-state="skipped"]):not([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):not(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch:not([data-state="skipped"]))):not(:first-child)::after {
+    --workflow-way-over: linear-gradient(transparent, var(--workflow-under-in)) var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
+    --workflow-over-at: var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r));
+}
+/* In a fork that opens a branch, the bracket comes down from the outer one: no curve
+   out of a line, and it starts under the line of the branch it opens. */
+.workflow-path > .workflow-fork:first-child > .workflow-branch:not(:first-child)::before { content: none; }
+.workflow-path > .workflow-fork:first-child > .workflow-branch:not(:first-child)::after {
+    --workflow-stream-at: calc(-1 * (var(--workflow-gap) / 2 + var(--workflow-wire) / 2));
+    inset-block-start: calc(var(--workflow-port) + var(--workflow-wire) / 2);
+}
+
+/* Out: only where the fork joins again — a fork followed by a step, or one that ends
+   a branch of such a fork, whose branches join with it. From the branch's last step
+   — never under it — along its line, round and up the bracket, and round into the
+   line on; the first branch's is one straight line. While the data is on them the
+   first runs on over the wire after the join to the step after the fork, where the
+   light on them ends, along and up. */
+:where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch > .workflow-path::before,
+:where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path::after {
+    --workflow-stream-angle: var(--workflow-flow-up);
+    --workflow-stream-side: var(--workflow-end-side);
+    --workflow-stream-at: 0px;
+    --workflow-stream-step: calc(-1 * var(--workflow-flow-period));
+    z-index: var(--workflow-out-z);
+}
+:where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch > .workflow-path::before {
+    --workflow-way-over: none;
+    inset-inline-start: anchor(--workflow-last end);
+    inset-inline-end: calc(var(--workflow-gap) / -2);
+    inset-block-start: calc(var(--workflow-port) - var(--workflow-wire) / 2);
+    block-size: var(--workflow-wire);
+    border-block-start-width: var(--workflow-wire);
+}
+:where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path::before {
+    --workflow-stream-at: calc(-1 * (var(--workflow-gap) / 2 + var(--workflow-curve)));
+    --workflow-way-over: conic-gradient(from var(--workflow-seam-c) at calc(100% - var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-way-r)))) calc(100% - var(--workflow-way-r)), transparent 0, var(--workflow-under-out) var(--workflow-seam-ac-p0), var(--workflow-under-out) var(--workflow-seam-ac-p1), transparent var(--workflow-seam-ac-t1), transparent 0);
+    inset-inline-end: calc(-1 * (var(--workflow-gap) / 2 + var(--workflow-wire) / 2));
+    inset-block: calc(var(--workflow-port) + var(--workflow-curve)) calc(anchor(--workflow-last top) - var(--workflow-line) - var(--workflow-wire) / 2);
+    block-size: auto;
+    border-block-start-width: 0;
+    border-block-end-width: var(--workflow-wire);
+    border-inline-end-width: var(--workflow-wire);
+    border-end-end-radius: var(--workflow-way-r);
+}
+:where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:is(:has(> .workflow-path > :last-child[data-state="done"])):has(~ .workflow-branch):not(:has(~ .workflow-branch > .workflow-path > :last-child[data-state="done"])):not(:first-child) > .workflow-path::before,
+:where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not([data-state="skipped"]):not(:has(> .workflow-path > :last-child[data-state="done"])):has(~ .workflow-branch):not(:has(~ .workflow-branch:not([data-state="skipped"]))):not(:first-child) > .workflow-path::before {
+    --workflow-way-over: linear-gradient(transparent, var(--workflow-under-out)) var(--workflow-end-side) 0 top calc(100% - var(--workflow-way-r)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
+    --workflow-over-at: var(--workflow-end-side) 0 top calc(100% - var(--workflow-way-r));
+}
+:where(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path::after {
+    --workflow-stream-at: calc(-1 * (var(--workflow-gap) / 2 - var(--workflow-curve)));
+    --workflow-way-over: conic-gradient(from var(--workflow-seam-d) at calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 100%, transparent 0, var(--workflow-joined) var(--workflow-seam-bd-p0), var(--workflow-joined) var(--workflow-seam-bd-p1), transparent var(--workflow-seam-bd-t1), transparent 0);
+    inset-inline-end: calc(-1 * (var(--workflow-gap) / 2 + var(--workflow-curve)));
+    inset-block-start: calc(var(--workflow-port) - var(--workflow-wire) / 2);
+    inline-size: var(--workflow-way-r);
+    block-size: var(--workflow-way-r);
+    border-block-start-width: var(--workflow-wire);
+    border-inline-start-width: var(--workflow-wire);
+    border-start-start-radius: var(--workflow-way-r);
+}
+
+/* How a way is painted while the data is not on it, at no weight, so the light always
+   lies over it: a solid way in its colour, cut to its line; a dashed one in its own
+   dashed borders. */
+:where(.workflow-branch)::before,
+:where(.workflow-branch:not(:first-child))::after,
+:where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch > .workflow-path)::before,
+:where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path)::after {
+    border-style: solid;
+    border-color: transparent;
+}
+:where(.workflow-branch)::before,
+:where(.workflow-branch:not(:first-child))::after {
+    background: var(--workflow-way-over), linear-gradient(var(--workflow-in), var(--workflow-in));
+}
+:where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch > .workflow-path)::before,
+:where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path)::after {
+    background: var(--workflow-way-over), linear-gradient(var(--workflow-out), var(--workflow-out));
+}
+:where(.workflow-branch:not(:first-child))::before { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 0, arc to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 100% of var(--workflow-way-r) var(--workflow-cw), line to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) 100%, arc to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) var(--workflow-wire) of var(--workflow-way-ri) var(--workflow-ccw), close); }
+:where(.workflow-branch:not(:first-child))::after { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), arc to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-wire)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-wire)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 100%, line to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) 100%, arc to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-r) var(--workflow-cw), close, move to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), close); }
+:where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path)::before { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-wire)), line to calc(100% - var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-way-r)))) calc(100% - var(--workflow-wire)), arc to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) 0, line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 0, line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-way-r)), arc to calc(100% - var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-way-r)))) 100% of var(--workflow-way-r) var(--workflow-cw), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 100%, close, move to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-way-r)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-out)), line to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-out)), close); }
+:where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path)::after { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 100%, arc to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 0 of var(--workflow-way-r) var(--workflow-cw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) var(--workflow-wire), arc to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 100% of var(--workflow-way-ri) var(--workflow-ccw), close); }
+:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]))::before,
+:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]):not(:first-child))::after {
+    border-style: dashed;
+    border-color: var(--workflow-in);
+    background: none;
+    clip-path: none;
+}
+:where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch[data-state="skipped"] > .workflow-path)::before,
+:where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch[data-state="skipped"]:not(:first-child) > .workflow-path)::after {
+    border-style: dashed;
+    border-color: var(--workflow-out);
+    background: none;
+    clip-path: none;
+}
+
+/* ── Which way the run went through a fork ──────────────────────────────────
+   In: the branch was taken, or its first step has been reached. Out: its last step
+   is done. The wire into the fork lights once any branch is reached. Where ways share
+   the bracket they lie 0 skipped, 1 not reached, 2 the light, 3 the way the run went,
+   with the decision's diamond over all of them: the way to a branch that has
+   finished is the trail all the way down, and the light into a branch still at work
+   shows only from where its way leaves the last finished one.
+
+   A transition takes the colour of the line its curve leaves or joins: out of the
+   fork's line, the line as it is drawn; off the bracket into a branch, or up into it,
+   the bracket below, which is the highest way of the branches after it; into the line
+   on, the wire after the join. */
+.workflow-fork {
+    --workflow-trunk: var(--workflow-wire-colour);
+    --workflow-joined: var(--border-strong);
+}
+.workflow-fork:has(> .workflow-branch > .workflow-path > :first-child[data-state="running"]):not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) {
+    --workflow-trunk: var(--workflow-flow-base);
+}
+.workflow-fork:has(+ .workflow-step:is([data-state="waiting"], [data-state="done"], [data-state="failed"])) { --workflow-joined: var(--workflow-trail); }
+.workflow-fork:has(+ .workflow-step[data-state="next"]) { --workflow-joined: var(--border-hover); }
+.workflow-fork:has(+ .workflow-step[data-state="skipped"]) { --workflow-joined: var(--border); }
+.workflow-fork:has(+ .workflow-step[data-state="running"]) { --workflow-joined: var(--workflow-flow-base); }
+.workflow-fork:has(> .workflow-branch[data-state="taken"]),
+.workflow-fork:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="running"], [data-state="waiting"], [data-state="done"], [data-state="failed"])) {
+    --workflow-wire-colour: var(--workflow-trail);
+}
+.workflow-branch[data-state="skipped"],
+.workflow-branch[data-state="skipped"] li {
+    --workflow-wire-colour: var(--border);
+    --workflow-wire-paint:
+        repeating-linear-gradient(var(--workflow-dash-angle), var(--workflow-wire-colour) 0 4px, transparent 4px 9px),
+        linear-gradient(var(--workflow-surface), var(--workflow-surface));
+}
+.workflow-branch[data-state="skipped"] {
+    --workflow-in: var(--border);
+    --workflow-out: var(--border);
+    --workflow-in-z: 0;
+    --workflow-out-z: 0;
+}
+.workflow-branch:has(> .workflow-path > :first-child[data-state="next"]) {
+    --workflow-in: var(--border-hover);
+}
+.workflow-branch[data-state="taken"],
+.workflow-branch:has(> .workflow-path > :first-child:is([data-state="running"], [data-state="waiting"], [data-state="done"], [data-state="failed"])) {
+    --workflow-wire-colour: var(--workflow-trail);
+}
+.workflow-branch:is(
+    [data-state="taken"],
+    :has(> .workflow-path > :first-child:is([data-state="running"], [data-state="waiting"], [data-state="done"], [data-state="failed"])),
+    :has(> .workflow-path > .workflow-fork:first-child > .workflow-branch[data-state="taken"]),
+    :has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child:is([data-state="running"], [data-state="waiting"], [data-state="done"], [data-state="failed"]))
+) {
+    --workflow-in: var(--workflow-trail);
+    --workflow-in-z: 3;
+}
+.workflow-branch:has(> .workflow-path > :last-child[data-state="done"]) {
+    --workflow-out: var(--workflow-trail);
+    --workflow-out-z: 3;
+}
+/* The bracket below a branch: the highest of the ways after it, in and out. A branch
+   whose own way lies over theirs runs its line on into them; see above. */
+.workflow-branch:has(~ .workflow-branch[data-state="skipped"]) { --workflow-under-in: var(--border); --workflow-under-out: var(--border); }
+.workflow-branch:has(~ .workflow-branch:not([data-state="skipped"])) { --workflow-under-in: var(--border-strong); --workflow-under-out: var(--border-strong); }
+.workflow-branch:has(~ .workflow-branch > .workflow-path > :first-child[data-state="next"]) { --workflow-under-in: var(--border-hover); }
+.workflow-branch:has(~ .workflow-branch > .workflow-path > :first-child[data-state="running"]) { --workflow-under-in: var(--workflow-flow-base); }
+.workflow-branch:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])),
+.workflow-branch:has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])) { --workflow-under-in: var(--workflow-trail); }
+.workflow-branch:has(~ .workflow-branch > .workflow-path > :last-child[data-state="done"]) { --workflow-under-out: var(--workflow-trail); }
+.workflow-branch:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):has(~ .workflow-branch):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))),
+.workflow-branch:is(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(~ .workflow-branch > .workflow-path > :first-child[data-state="running"])),
+.workflow-branch:not([data-state="skipped"]):not([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):not(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch:not([data-state="skipped"]))) { --workflow-stub-in: 1; }
+.workflow-branch:is(:has(> .workflow-path > :last-child[data-state="done"])):has(~ .workflow-branch):not(:has(~ .workflow-branch > .workflow-path > :last-child[data-state="done"])),
+.workflow-branch:not([data-state="skipped"]):not(:has(> .workflow-path > :last-child[data-state="done"])):has(~ .workflow-branch):not(:has(~ .workflow-branch:not([data-state="skipped"]))) { --workflow-stub-out: 1; }
+
+.workflow-branch[data-state="taken"] > .workflow-label { border-color: var(--go-border); color: var(--go-fg); }
+.workflow-branch[data-state="skipped"] > .workflow-label { border-style: dashed; border-color: var(--border); color: var(--muted); }
+/* A branch's first step at work: the word on the branch's wire carries the light. */
+.workflow-branch:has(> .workflow-path > :first-child[data-state="running"]) > .workflow-label {
+    --workflow-wire-colour: var(--workflow-flow-base);
+}
+
+/* ── A loop ─────────────────────────────────────────────────────────────────
+   The steps that repeat until something is true — a conversation turn, a retry —
+   with the way back drawn under them: down after the last, back along the bottom,
+   up into the first. `.workflow-loop-count` on the way back says how many times,
+   in the app's words. `data-state` on the loop colours the way back. */
+.workflow-loop {
+    --workflow-lead: calc(var(--workflow-gap) / 2);
+    --workflow-loop-colour: var(--border-strong);
+    display: flex;
+    align-items: flex-start;
+    padding-inline: calc(var(--workflow-gap) / 2);
+    padding-block-end: var(--workflow-drop);
+}
+.workflow-loop[data-state="running"],
+.workflow-loop[data-state="waiting"] { --workflow-loop-colour: var(--workflow-flow); }
+.workflow-loop[data-state="done"] { --workflow-loop-colour: var(--workflow-trail); }
+.workflow-loop[data-state="failed"] { --workflow-loop-colour: var(--danger-solid); }
+.workflow-loop::after {
+    content: '';
+    position: absolute;
+    box-sizing: border-box;
+    inset-inline: calc(var(--workflow-gap) / 4 - var(--workflow-wire) / 2);
+    inset-block: calc(var(--workflow-port) + var(--workflow-wire) / 2) calc(var(--workflow-drop) / 2 - var(--workflow-wire) / 2);
+    border: var(--workflow-wire) dashed var(--workflow-loop-colour);
+    border-block-start: none;
+    border-end-start-radius: calc(var(--workflow-curve) + var(--workflow-wire) / 2);
+    border-end-end-radius: calc(var(--workflow-curve) + var(--workflow-wire) / 2);
+}
+/* The wire on from the last step to the loop's end. */
+.workflow-loop > .workflow-path::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 100%;
+    inset-block-start: calc(var(--workflow-port) - var(--workflow-wire) / 2);
+    inline-size: calc(var(--workflow-gap) / 2);
+    block-size: var(--workflow-wire);
+    background: var(--workflow-loop-colour);
+}
+.workflow-loop-count {
+    position: absolute;
+    z-index: 2;
+    inset-inline: 0;
+    inset-block-end: calc(var(--workflow-drop) / 2 - var(--workflow-pill) / 2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    inline-size: fit-content;
+    block-size: var(--workflow-pill);
+    margin-inline: auto;
+    padding-inline: var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--workflow-surface);
+    color: var(--fg-soft);
+    font-size: var(--text-2);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.workflow-loop-count > i { color: var(--muted); font-size: var(--text-3); }
+
+/* ── The light ──────────────────────────────────────────────────────────────
+   Data on its way into the step at work: a streak of light along the whole way in,
+   at one speed, laid over the line it runs on. Only the way into a step at work
+   carries it, in the pieces it can ride without a joint:
+
+     into a step               the wire into it, and the word on it
+     into a branch's first     the wire into the fork and the branch's way in, which
+                               share one field from the step before the fork, so
+                               the light runs on down the bracket and splits there
+                               into every branch at work
+     into the step after a join  the way out of every branch not skipped, which share
+                               one field ending at that step, so the light of every
+                               branch arrives there as one
+     into a loop, out of one   the wire runs on over the loop's edge, in one piece
+
+   The field is one tile a period square, moved a period along per duration. */
+.workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before {
+    inset-inline-end: calc(100% - var(--workflow-gap) / 2);
+    inline-size: calc(var(--workflow-gap) * 1.5);
+}
+.workflow-loop + .workflow-step[data-state="running"]::before { inline-size: calc(var(--workflow-gap) * 1.5); }
+
+:is(.workflow, .workflow-path) > .workflow-step[data-state="running"]:not(.workflow-branch > .workflow-path > :first-child, .workflow-loop > .workflow-path > :first-child, .workflow-fork + *)::before,
+.workflow-step[data-state="running"] > .workflow-label::after,
+.workflow-branch:has(> .workflow-path > :first-child[data-state="running"]) > .workflow-label::after,
+.workflow-fork:has(> .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+.workflow-fork:has(> .workflow-branch > .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+.workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:last-child::after,
+.workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::before,
+.workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+.workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::after,
+.workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::after,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after {
+    background:
+        var(--workflow-way-over, none),
+        repeating-linear-gradient(var(--workflow-stream-angle), transparent 0 var(--workflow-comet-tail), var(--workflow-comet) var(--workflow-comet-head), transparent var(--workflow-comet-end))
+            var(--workflow-stream-side) var(--workflow-stream-at) top 0 / var(--workflow-flow-period) var(--workflow-flow-period),
+        linear-gradient(var(--workflow-flow-base), var(--workflow-flow-base));
+    animation: workflow-flow var(--workflow-flow-duration) linear infinite var(--workflow-flow-play);
+}
+/* A way carries the light under its transparent border, cut to its line like its
+   paint. It lies over every way in its bracket but one the run has already gone down.
+   Its seam stays over the light only where the line it leaves is not the light: the
+   wire into a fork, still once a branch has finished. */
+.workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::before,
+.workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+.workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::after,
+.workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::after,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after {
+    z-index: 2;
+    background-origin: border-box;
+}
+.workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::before,
+.workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after {
+    --workflow-way-over: none;
+}
+/* The first branch's way out runs on over the wire after the join, to the step. */
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:first-child:not([data-state="skipped"]) > .workflow-path::before,
+.workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:first-child:not([data-state="skipped"]) > .workflow-path::before {
+    inset-inline-end: calc(-1 * var(--workflow-gap));
+}
+.workflow-fork:has(> .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+.workflow-fork:has(> .workflow-branch > .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before {
+    z-index: 3;
+}
+/* Once a branch has finished, the data went down the wire into the fork long ago:
+   that wire is the trail, still, and the light into a branch still at work starts
+   where its way leaves the finished ones'. */
+.workflow-fork:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))::before {
+    z-index: 3;
+    background: var(--workflow-wire-paint);
+    animation: none;
+}
+/* Across, the last branch's second box is part of its way in, not the rail on to the
+   step after the fork that it is when the diagram runs down. */
+@container not style(--workflow-axis: down) {
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:last-child:not(:first-child)::after {
+        background: var(--workflow-way-over), linear-gradient(var(--workflow-in), var(--workflow-in));
+        animation: none;
+    }
+}
+@keyframes workflow-flow {
+    from { background-position: var(--workflow-over-at), var(--workflow-stream-side) var(--workflow-stream-at) top 0, 0 0; }
+    to { background-position: var(--workflow-over-at), var(--workflow-stream-side) calc(var(--workflow-stream-at) + var(--workflow-stream-step)) top 0, 0 0; }
+}
+
+
+/* ── Sizes ────────────────────────────────────────────────────────────────── */
+.workflow--sm .workflow-node-title { font-size: var(--text-4); line-height: 16px; }
+.workflow--sm .workflow-node-meta { font-size: var(--text-2); line-height: 12px; }
+.workflow--sm .workflow-node-icon { font-size: var(--text-6); }
+.workflow--sm .workflow-node { gap: var(--space-4); font-size: var(--text-3); }
+.workflow--lg .workflow-node-title { font-size: var(--text-7); line-height: 26px; }
+.workflow--lg .workflow-node-meta { font-size: var(--text-4); line-height: 22px; }
+.workflow--lg .workflow-node-icon { font-size: var(--text-9); border-radius: var(--radius-panel); }
+.workflow--lg .workflow-node { gap: var(--space-6); font-size: var(--text-5); }
+.workflow--xl .workflow-node-title { font-size: var(--text-10); line-height: 36px; }
+.workflow--xl .workflow-node-meta { font-size: var(--text-7); line-height: 28px; }
+.workflow--xl .workflow-node-icon { font-size: var(--text-10); border-radius: var(--radius-panel); }
+.workflow--xl .workflow-node { gap: var(--space-7); font-size: var(--text-7); }
+.workflow--xl .workflow-node-now { font-size: var(--text-6); }
+.workflow--xl :is(.workflow-label, .workflow-loop-count) { padding-inline: var(--space-6); font-size: var(--text-4); }
+.workflow--xl .workflow-end { padding-inline: var(--space-8); font-size: var(--text-6); }
+
+/* ── Out of view ─────────────────────────────────────────────────────────────
+   Whenever anything in a diagram moves, the browser repaints the whole of it, so a
+   run of a few hundred steps spent most of every frame on the parts nobody could see.
+   27-workflow.js marks each part of a diagram — a step, a fork, a loop — that is well
+   out of view with data-workflow-away, and the browser skips rendering it until it
+   comes back, at the size it last had. A part in view is never contained, so nothing
+   opened from a node is clipped. */
+.workflow > li { contain-intrinsic-size: auto none; }
+.workflow > [data-workflow-away] { content-visibility: auto; }
+
+/* ── Showing the step at work ───────────────────────────────────────────────
+   `--focus`: every step but the one at work keeps its head alone, and the one at
+   work opens half again as wide with all of it — for a wall screen or a tablet in a
+   room, where the run is shown rather than read. In `--fill` it takes a double share
+   of the width instead. */
+.workflow--focus .workflow-step:not([data-state="running"]):not([data-state="waiting"]) > .workflow-node > :not(.workflow-node-head) { display: none; }
+.workflow--focus:not(.workflow--fill) .workflow-step:is([data-state="running"], [data-state="waiting"]) > .workflow-node { inline-size: calc(var(--workflow-node) * 1.5); }
+.workflow.workflow--focus.workflow--fill > :is([data-state="running"], [data-state="waiting"]) { flex-grow: 2; }
+
+/* ── Top to bottom ──────────────────────────────────────────────────────────
+   `--down` runs the diagram down the page instead of across it — for a phone, a
+   tablet held upright, a side panel. Every node takes the width it is given, and the
+   wire between two steps runs down a rail through the centre of their icons. A fork
+   hangs its branches off that rail, indented, the way a tree is drawn: the rail runs
+   on past them to the next step, and each branch is joined to it by a short line
+   into its first node. A loop draws its way back up its right-hand side.
+
+   `--auto` is `--down` where the screen is narrow — under 640px — and across
+   everywhere else, so one diagram serves a phone and a desk.
+
+   Down is the one direction the parts are drawn in twice; everything else is the
+   same rules turned by the three axis numbers on `.workflow`. The rules for what is
+   inside the diagram answer a container style query, so `--down` and `--auto` set
+   one property and the query does the rest. */
+.workflow--down {
+    --workflow-axis: down;
+    --workflow-axis-x: 0;
+    --workflow-axis-y: 1;
+    --workflow-node: 100%;
+    --workflow-gap: var(--space-9);
+    --workflow-drop: calc(var(--space-11) + var(--space-7));
+    --workflow-indent: calc(var(--workflow-port) + var(--space-9));
+    flex-direction: column;
+    align-items: stretch;
+}
+@media (max-width: 640px) {
+    .workflow--auto {
+        --workflow-axis: down;
+        --workflow-axis-x: 0;
+        --workflow-axis-y: 1;
+            --workflow-node: 100%;
+        --workflow-gap: var(--space-9);
+        --workflow-drop: calc(var(--space-11) + var(--space-7));
+        --workflow-indent: calc(var(--workflow-port) + var(--space-9));
+            flex-direction: column;
+        align-items: stretch;
+    }
+}
+@container style(--workflow-axis: down) {
+    .workflow-path { flex-direction: column; align-items: stretch; }
+    .workflow-step { flex-direction: column; align-items: stretch; row-gap: var(--space-5); }
+    .workflow-node { max-inline-size: 100%; }
+    .workflow.workflow--fill > li { flex: none; min-inline-size: 0; }
+
+    /* The wire into a step comes down the rail from the step above. */
+    .workflow > li::before,
+    .workflow-path > li::before {
+        inset-inline: calc(var(--workflow-port) - var(--workflow-wire) / 2) auto;
+        inset-block: auto 100%;
+        inline-size: var(--workflow-wire);
+        block-size: var(--workflow-gap);
+    }
+    .workflow-path > li:first-child::before { block-size: var(--workflow-lead); }
+    .workflow > .workflow-fork::before,
+    .workflow-path > .workflow-fork::before,
+    .workflow-fork + li::before {
+        inset-inline-end: auto;
+        inline-size: var(--workflow-wire);
+    }
+
+    /* An end and a word start where a node does, and the rail runs through them. */
+    .workflow-end,
+    .workflow-step > .workflow-label {
+        align-self: flex-start;
+        margin-block-start: 0;
+    }
+    .workflow-label::after {
+        inset-inline-start: calc(var(--workflow-port) - 1px - var(--workflow-wire) / 2);
+        inset-block-start: calc(100% + 1px);
+        inline-size: var(--workflow-wire);
+        block-size: var(--space-5);
+    }
+
+    /* A fork: its branches indented off the rail. Each branch's way in comes down the
+       rail from the wire into the fork and turns along its own line into the branch —
+       a plain T, or a curve where the rail ends, at the last branch of a fork that
+       ends the diagram — so the ways of the branches below one run over its own, and
+       the light comes down the rail in one piece and turns into every branch at work.
+       The last branch carries the rail on below its line to the step after the fork,
+       as that step's wire. A branch's line is its word's, when it has one. */
+    .workflow-branch {
+        flex-direction: column;
+        align-items: stretch;
+        row-gap: var(--space-5);
+        padding-inline-start: var(--workflow-indent);
+    }
+    .workflow-branch:has(> .workflow-label) { --workflow-line: calc(var(--workflow-pill) / 2); }
+    .workflow-branch > .workflow-path { flex: none; }
+    /* The way in is one box: down the rail and round into the branch. */
+    .workflow-branch::before,
+    .workflow-branch:first-child::before,
+    .workflow-branch:not(:first-child)::before,
+    .workflow-path > .workflow-fork:first-child > .workflow-branch:not(:first-child)::before {
+        --workflow-stream-at: calc(-1 * var(--workflow-gap));
+        --workflow-way-over: conic-gradient(from var(--workflow-seam-b) at calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-way-r)), transparent 0, var(--workflow-under-in) var(--workflow-seam-bd-p0), var(--workflow-under-in) var(--workflow-seam-bd-p1), transparent var(--workflow-seam-bd-t1), transparent 0);
+        --workflow-over-at: 0 0;
+        content: '';
+        inset-inline: calc(var(--workflow-port) - var(--workflow-wire) / 2) auto;
+        inline-size: calc(var(--workflow-indent) - var(--workflow-port) + var(--workflow-wire) / 2);
+        inset-block: 0 calc(anchor(--workflow-branch top) - var(--workflow-line) - var(--workflow-wire) / 2);
+        block-size: auto;
+        border-width: 0;
+        border-inline-start-width: var(--workflow-wire);
+        border-block-end-width: var(--workflow-wire);
+        border-radius: 0;
+        border-end-start-radius: var(--workflow-way-r);
+    }
+    .workflow-branch:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):has(~ .workflow-branch):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])))::before,
+    .workflow-branch:is(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(~ .workflow-branch > .workflow-path > :first-child[data-state="running"]))::before,
+    .workflow-branch:not([data-state="skipped"]):not([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))):not(:has(> .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch):not(:has(~ .workflow-branch:not([data-state="skipped"])))::before,
+    .workflow-fork:not(:last-child) > .workflow-branch:last-child:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(> .workflow-path > :first-child[data-state="running"]))::before {
+        --workflow-way-over: linear-gradient(transparent, var(--workflow-under-in)) var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
+        --workflow-over-at: var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r));
+    }
+    .workflow-fork:not(:last-child) > .workflow-branch:last-child:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(> .workflow-path > :first-child[data-state="running"])) { --workflow-stub-in: 1; }
+    :where(.workflow-branch)::before { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), arc to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-wire)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-wire)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 100%, line to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) 100%, arc to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-r) var(--workflow-cw), close, move to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), close); }
+    :where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]))::before { clip-path: none; }
+    /* Down, the light's transition still comes from the rail it leaves below. */
+    .workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before {
+        --workflow-way-over: conic-gradient(from var(--workflow-seam-b) at calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-way-r)), transparent 0, var(--workflow-under-in) var(--workflow-seam-bd-p0), var(--workflow-under-in) var(--workflow-seam-bd-p1), transparent var(--workflow-seam-bd-t1), transparent 0);
+    }
+    .workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > :first-child[data-state="running"]):not(:has(~ .workflow-branch[data-state="taken"] > .workflow-path > :first-child:not([data-state="running"])), :has(~ .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(~ .workflow-branch > .workflow-path > :first-child[data-state="running"])):has(~ .workflow-branch)::before,
+    .workflow-fork:not(:last-child):not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > :first-child[data-state="running"]):last-child::before {
+        --workflow-way-over: linear-gradient(transparent, var(--workflow-under-in)) var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r)) / var(--workflow-wire) var(--workflow-way-fade) no-repeat;
+        --workflow-over-at: var(--workflow-start-side) 0 top calc(100% - var(--workflow-way-r));
+    }
+    /* A fork that opens a branch takes its rail from the end of that branch's line. */
+    .workflow-branch:has(> .workflow-path > .workflow-fork:first-child)::before {
+        inline-size: calc(var(--workflow-indent) + var(--workflow-wire) / 2);
+    }
+    .workflow-path > .workflow-fork:first-child > .workflow-branch:nth-child(n)::before {
+        inset-block-start: calc(var(--workflow-port) - var(--workflow-wire) / 2);
+    }
+    /* The rail runs on below the last branch, from where its curve leaves it, to the
+       step after the fork as that step's wire: drawn by that branch alone, and what
+       the last branch's transition fades into. */
+    .workflow-branch:not(:first-child)::after { content: none; }
+    .workflow-branch:last-child::after,
+    .workflow-branch:last-child:not(:first-child)::after {
+        --workflow-stream-at: 0px;
+        --workflow-way-over: none;
+        --workflow-over-at: 0 0;
+        content: '';
+        z-index: 1;
+        inset-inline: calc(var(--workflow-port) - var(--workflow-wire) / 2) auto;
+        inline-size: var(--workflow-wire);
+        inset-block: calc(anchor(--workflow-branch top) + var(--workflow-line) - var(--workflow-curve)) 0;
+        block-size: auto;
+        border: 0;
+        border-radius: 0;
+        clip-path: none;
+        background: var(--workflow-wire-paint);
+    }
+    /* It is no part of the way into the last branch, whatever that branch's state. */
+    .workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::after,
+    .workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::after {
+        z-index: 1;
+        border: 0;
+        clip-path: none;
+        background: var(--workflow-wire-paint);
+        animation: none;
+    }
+    .workflow-fork + .workflow-step::before { content: none; }
+    .workflow-fork:has(+ .workflow-step) > .workflow-branch:last-child::after { inset-block-end: calc(-1 * var(--workflow-gap)); }
+    /* Before another fork or a loop, the rail on is the way the run went once a branch
+       has finished; the wire into what follows takes it from there. */
+    .workflow-fork:has(+ :is(.workflow-fork, .workflow-loop)):has(> .workflow-branch > .workflow-path > :last-child[data-state="done"]) > .workflow-branch:last-child::after {
+        --workflow-wire-colour: var(--workflow-trail);
+    }
+    .workflow-fork:last-child > .workflow-branch:last-child::after { content: none; }
+    .workflow-fork:not(:last-child) > .workflow-branch:last-child { --workflow-under-in: var(--border-strong); }
+    .workflow-fork:has(+ .workflow-step:is([data-state="waiting"], [data-state="done"], [data-state="failed"])) > .workflow-branch:last-child,
+    .workflow-fork:has(+ :is(.workflow-fork, .workflow-loop)):has(> .workflow-branch > .workflow-path > :last-child[data-state="done"]) > .workflow-branch:last-child { --workflow-under-in: var(--workflow-trail); }
+    .workflow-fork:has(+ .workflow-step[data-state="next"]) > .workflow-branch:last-child { --workflow-under-in: var(--border-hover); }
+    .workflow-fork:has(+ .workflow-step[data-state="skipped"]) > .workflow-branch:last-child { --workflow-under-in: var(--border); }
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:last-child { --workflow-under-in: var(--workflow-flow-base); }
+    /* No join across: the rail runs on. Those pieces are taken away at a weight above
+       every rule that draws them. */
+    .workflow-branch:nth-child(n):nth-child(n):nth-child(n) > .workflow-path::before,
+    .workflow-branch:nth-child(n):nth-child(n):nth-child(n) > .workflow-path::after { content: none; }
+    /* The way in reaches the branch's first node, or its word, itself. */
+    .workflow-branch > .workflow-path > li:first-child::before { content: none; }
+    /* A branch's word sits on its line, and its step hangs below it. */
+    .workflow-branch > .workflow-label { align-self: flex-start; margin-block-start: 0; }
+
+    /* The wire into a loop, and out of one, is the rail; it runs on over nothing. */
+    .workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-loop + .workflow-step[data-state="running"]::before {
+        inset-inline-end: auto;
+        inline-size: var(--workflow-wire);
+    }
+
+    .workflow-fork--decision::after {
+        inset-inline-start: calc(var(--workflow-port) - 6px);
+        inset-block-start: calc(var(--workflow-gap) / -2 - 6px);
+    }
+
+    /* A loop: down its steps, and back up its right-hand side. */
+    .workflow-loop {
+        --workflow-lead: 0px;
+        flex-direction: column;
+        align-items: stretch;
+        padding-inline: 0 var(--workflow-drop);
+        padding-block-end: 0;
+    }
+    .workflow-loop::after {
+        inset-inline: auto calc(var(--workflow-drop) / 2 - var(--workflow-wire) / 2);
+        inset-block: calc(var(--workflow-port) - var(--workflow-wire) / 2);
+        inline-size: calc(var(--workflow-drop) / 2 + var(--workflow-wire) / 2);
+        border: var(--workflow-wire) dashed var(--workflow-loop-colour);
+        border-inline-start: 0;
+        border-radius: 0;
+        border-start-end-radius: calc(var(--workflow-curve) + var(--workflow-wire) / 2);
+        border-end-end-radius: calc(var(--workflow-curve) + var(--workflow-wire) / 2);
+    }
+    .workflow-loop > .workflow-path::after { content: none; }
+    .workflow-loop-count {
+        inset-inline: auto calc(var(--workflow-drop) / 2);
+        inset-block: 0;
+        margin-block: auto;
+        margin-inline: 0;
+        translate: calc(50% * var(--workflow-dir-x)) 0;
+    }
+}
+
+/* ── A decision ─────────────────────────────────────────────────────────────
+   The options a step weighed, how each scored, which it chose and why. Inside a
+   node, beside the diagram, or anywhere a decision is explained.
+
+     <ol class="workflow-decision" aria-label="Where the ticket goes">
+       <li data-state="chosen">
+         <span class="workflow-decision-option">Page the on-call engineer</span>
+         <span class="meter"><span class="meter-fill" style="--value: 86%"></span></span>
+         <span class="workflow-decision-score">0.86</span>
+         <span class="workflow-decision-why">Three callers, one site, out of hours</span>
+       </li>
+       <li data-state="rejected">…</li>
+     </ol>
+
+   Options: chosen, rejected.
+
+   `data-state` on each option, or none while it is still being weighed. The chosen
+   one is ticked and its meter is go; a rejected one goes quiet but stays readable,
+   because why the others lost is half of the explanation. Say which was chosen in
+   words too — the option's own text, or a `.visually-hidden` "chosen". Every option
+   shares one set of columns, so the meters and the scores line up down the list. */
+.workflow-decision {
+    --workflow-mark: 16px;
+    display: grid;
+    grid-template-columns: var(--workflow-mark) minmax(0, 1fr) minmax(48px, 28%) auto;
+    column-gap: var(--space-5);
+    row-gap: var(--space-6);
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-4);
+}
+.workflow-decision > li {
+    display: grid;
+    grid-column: span 4;
+    grid-template-columns: subgrid;
+    row-gap: var(--space-1);
+    align-items: center;
+}
+/* The mark: the disc and the glyph share the first cell. */
+.workflow-decision > li::before,
+.workflow-decision > li::after {
+    content: '';
+    box-sizing: border-box;
+    grid-column: 1;
+    grid-row: 1;
+    place-self: center;
+    inline-size: var(--workflow-mark);
+    block-size: var(--workflow-mark);
+    border-radius: 50%;
+}
+.workflow-decision > li::before { border: 2px solid var(--border-strong); }
+.workflow-decision > [data-state="chosen"]::before { border-color: var(--go-solid); background: var(--go-solid); }
+.workflow-decision > [data-state="chosen"]::after { translate: 0 -1px; }
+.workflow-decision > [data-state="rejected"] { color: var(--muted); }
+.workflow-decision > [data-state="rejected"]::before { border-color: var(--border); }
+.workflow-decision-option { grid-column: 2; grid-row: 1; min-inline-size: 0; overflow-wrap: anywhere; }
+.workflow-decision > [data-state="chosen"] .workflow-decision-option { font-weight: 600; }
+.workflow-decision > li > .meter { grid-column: 3; grid-row: 1; block-size: 6px; }
+.workflow-decision > li > .meter > .meter-fill { color: var(--info-solid); }
+.workflow-decision > [data-state="chosen"] > .meter > .meter-fill { color: var(--go-solid); }
+.workflow-decision > [data-state="rejected"] > .meter > .meter-fill { color: var(--border-strong); }
+.workflow-decision-score {
+    grid-column: 4;
+    grid-row: 1;
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+}
+.workflow-decision > [data-state="rejected"] .workflow-decision-score { color: var(--muted); }
+.workflow-decision-why {
+    grid-column: 2 / -1;
+    grid-row: 2;
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+}
+
 /* ── 69-beam.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Beam ─────────────────────────────────────────────────────────────────────
-   A light running round the edge of whatever an agent is busy with: a card it is
-   summarising, the field it is filling, the composer while an answer is written, the
-   button that started the work.
+   An edge in both of the agent's colours round whatever an agent is busy with: a card
+   it is summarising, the field it is filling, the composer while an answer is written,
+   the button that started the work.
 
      <div class="card beam">…</div>
      <input class="form-input beam beam--glow" …>
 
-   Drawn on the element's own border box — a fill over the padding box, the moving
-   light under it in the border box, the border colour under that — so it needs no
-   pseudo-element: it works on an <input>, inside an `overflow: hidden` card, and over
-   the focus edge and ring. That is also why this part comes after every component it
-   paints over: the beam replaces the element's background, and an earlier part would
-   lose to the element's own rule. What sits under the beam is the element's fill, re-stated per
-   component below.
+   Drawn on the element's own border box — a fill over the padding box, the colours
+   under it in the border box — so it needs no pseudo-element: it works on an <input>,
+   inside an `overflow: hidden` card, and under the focus ring. That is also why this
+   part comes after every component it paints over: the beam replaces the element's
+   background, and an earlier part would lose to the element's own rule. What sits under
+   the beam is the element's fill, re-stated per component below.
 
-   `.beam--glow` adds a breathing glow; `.beam--slow` halves the speed. One turn is
-   `--beam-duration`. Remove the class
-   when the work is done. Reduced motion shows the beam's two colours, still, round the
-   whole edge.
+   It holds still. A light turning round the edge is a property animated on the main
+   thread, which restyles and repaints the element on every frame: three of them kept a
+   fifth of a processor busy for as long as they were shown. What moves while an agent
+   works is the orb and the shimmer beside it.
+
+   `.beam--glow` adds a glow round it. Remove the class when the work is done.
    ─────────────────────────────────────────────────────────────────────────── */
-@property --beam-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-
 .beam,
 .beam:hover,
 .beam:focus,
 .beam:focus-within {
     --beam-fill: var(--surface-raised-1);
-    --beam-edge: var(--border);
     border-color: transparent;
     background:
         linear-gradient(var(--beam-fill), var(--beam-fill)) padding-box,
-        conic-gradient(from var(--beam-angle),
-            transparent 0turn 0.55turn,
-            var(--agent-beam-tail) 0.8turn,
-            var(--agent-to) 0.94turn,
-            transparent 1turn) border-box,
-        linear-gradient(var(--beam-edge), var(--beam-edge)) border-box;
-    animation: beam-turn calc(var(--beam-duration) * var(--beam-pace)) linear infinite;
+        linear-gradient(90deg, var(--agent-from), var(--agent-to)) border-box;
 }
-.beam:focus,
-.beam:focus-within { --beam-edge: var(--brand-soft); }
-/* Alone, so `--slow` after it wins on hover and focus too. */
-.beam { --beam-pace: 1; }
-.beam--slow { --beam-pace: 2; }
-.beam--glow {
-    box-shadow: 0 0 18px -4px var(--agent-glow-dim);
-    animation: beam-turn calc(var(--beam-duration) * var(--beam-pace)) linear infinite, beam-breathe calc(var(--beam-duration) * 0.8) ease-in-out infinite alternate;
-}
+.beam--glow { box-shadow: 0 0 18px -4px var(--agent-glow-dim); }
 .beam--glow:focus,
-.beam--glow:focus-within {
-    box-shadow: 0 0 0 2px var(--brand-glow), 0 0 18px -4px var(--agent-glow-dim);
-    animation: beam-turn calc(var(--beam-duration) * var(--beam-pace)) linear infinite, beam-breathe-focus calc(var(--beam-duration) * 0.8) ease-in-out infinite alternate;
-}
-@keyframes beam-turn          { to { --beam-angle: 360deg; } }
-@keyframes beam-breathe       { to { box-shadow: 0 0 18px -4px var(--agent-glow); } }
-@keyframes beam-breathe-focus { to { box-shadow: 0 0 0 2px var(--brand-glow), 0 0 18px -4px var(--agent-glow); } }
+.beam--glow:focus-within { box-shadow: 0 0 0 2px var(--brand-glow), 0 0 18px -4px var(--agent-glow-dim); }
 
 /* What sits under the beam is the element's own fill. */
 .form-input.beam,
 .form-input.beam:focus             { --beam-fill: var(--bg); }
 .btn.beam                          { --beam-fill: var(--bg-elevated); }
-.btn.beam:hover                    { --beam-fill: var(--bg-hover); --beam-edge: var(--border-strong); }
+.btn.beam:hover                    { --beam-fill: var(--bg-hover); }
 .chat-composer--prompt.beam,
 .chat-composer--prompt.beam:focus-within { --beam-fill: var(--surface-raised-2); }
 }
@@ -16370,6 +17890,33 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    drawing and turn with it, so a perch still meets the same edge. */
 [dir="rtl"] .mochi > svg { transform: scaleX(-1); }
 [dir="rtl"] .mochi[data-facing="start"] > svg { transform: none; }
+
+/* 68 — a workflow's ways and its light run towards the inline end, but a mask, a
+   gradient and a background are placed from the left whatever the direction. The
+   sides they are placed from, the corners a curve turns about, and the angles the
+   light runs at all swap. */
+[dir="rtl"] .workflow {
+    --workflow-dir-x: -1;
+    --workflow-start-x: 100%;
+    --workflow-end-x: 0%;
+    --workflow-start-side: right;
+    --workflow-end-side: left;
+    --workflow-mirror: 1;
+    --workflow-cw: ccw;
+    --workflow-ccw: cw;
+    --workflow-seam-a: 270deg;
+    --workflow-seam-b: 90deg;
+    --workflow-seam-c: 180deg;
+    --workflow-seam-d: 0deg;
+    --workflow-seam-ac-p0: 50deg;
+    --workflow-seam-ac-p1: 90deg;
+    --workflow-seam-ac-t1: 90deg;
+    --workflow-seam-bd-p0: 0deg;
+    --workflow-seam-bd-p1: 40deg;
+    --workflow-seam-bd-t1: 90deg;
+    --workflow-flow-ahead: 225deg;
+    --workflow-flow-up: 315deg;
+}
 }
 
 /* ── 71-forced-colors.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -16438,6 +17985,8 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
         --danger-solid: CanvasText; --danger-bg: Canvas; --danger-fg: CanvasText;
         --danger-border: CanvasText; --danger-border-strong: CanvasText;
         --info-bg: Canvas;   --info-border: CanvasText;   --info-fg: CanvasText;
+        /* Data on its way into the step at work is the other thing it points at. */
+        --flow-light: Highlight; --flow-line: CanvasText; --flow-tint: Canvas; --flow-glow: Canvas;
         --presence-out-of-office: CanvasText;
         /* The nested card levels are palette steps, not aliases of --card-bg, and a
            presence mark knocks its glyph out in --surface-here — which on a raised card
@@ -16459,6 +18008,9 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
         --tip-bg: Canvas;
         --tip-border: CanvasText;
         --tip-fg: CanvasText;
+        /* An agent at work is the one thing the mode should still point at. */
+        --agent-from: Highlight;
+        --agent-to: Highlight;
     }
 
     /* Focus rings. Every one in this library is a box-shadow, and box-shadow is not
@@ -16499,7 +18051,9 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     .media-transcript-time:focus-visible,
     .drag-item:focus-visible,
     .drag-handle:focus-visible,
-    :is(a, button).list-row:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+    :is(a, button).list-row:focus-visible,
+    :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+    .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
     .graph:focus-visible::after { outline: 2px solid CanvasText; outline-offset: -2px; }
 
@@ -16520,7 +18074,8 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     .swatch[aria-pressed="true"],
     .cal-day:is([aria-pressed="true"], [aria-selected="true"], [aria-current="date"]),
     .cal-pick:is([aria-pressed="true"], [aria-current]:not([aria-current="false"])),
-    .editor-toolbar [aria-pressed="true"] { outline: 1px solid Highlight; }
+    .editor-toolbar [aria-pressed="true"],
+    .workflow-node[aria-pressed="true"] { outline: 1px solid Highlight; }
 
     /* A chat bubble is nothing but a background; without a line around it a
        thread is a column of text with no turns in it. */
@@ -16544,6 +18099,20 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     .th-filter--active::after,
     .avatar-presence::after,
     .timeline > li::before { forced-color-adjust: none; }
+
+    /* A workflow's wires are the diagram: each is a painted box, and forced colours
+       would paint every one Canvas and leave the nodes floating apart. They opt out
+       and keep their tokens, which are the user's palette — the trail CanvasText, the
+       light Highlight through the flow colours above. */
+    .workflow > li::before,
+    .workflow-path > li::before,
+    .workflow-label::before,
+    .workflow-label::after,
+    .workflow-branch::before,
+    .workflow-branch::after,
+    .workflow-branch > .workflow-path::before,
+    .workflow-branch > .workflow-path::after,
+    .workflow-loop > .workflow-path::after { forced-color-adjust: none; }
 
     /* A bar is nothing but a background, and so is a meter's mark: forced colours
        paints every one of them Canvas, on a Canvas track, and the chart is blank. The
@@ -17068,6 +18637,9 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
     .tab              { transition: none; }   /* 50 */
     a.stat            { transition: none; }   /* 54 */
+    /* 54 — a running link's key holds its dashes still; they still say "running". */
+    .graph-line--flow::before,
+    .graph-line--flow:dir(rtl)::before { animation: none; }
     /* 66 — the dot keeps its colour and the word keeps saying the state; only the
        pulse stops. Nothing is lost, because the pulse was never the only signal. */
     .health-badge--live .health-dot,
@@ -17207,18 +18779,29 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     .sedna-mochi-float-heart-2,
     .sedna-mochi-float-heart-3 { animation: none; transition: none; }
 
-    /* 69 — the beam is still: both its colours round the whole edge, the glow at
-       rest. The fill under it stays the element's own. */
-    .beam,
-    .beam:hover,
-    .beam:focus,
-    .beam:focus-within,
-    .beam--glow,
-    .beam--glow:focus,
-    .beam--glow:focus-within {
-        background:
-            linear-gradient(var(--beam-fill), var(--beam-fill)) padding-box,
-            linear-gradient(90deg, var(--agent-from), var(--agent-to)) border-box;
+    /* 68 — a workflow holds still and loses nothing. The way into the step at work is
+       a still line in the light's colour, as `--flow-off` draws it; the mark keeps the
+       coloured quarter that says busy, and a waiting step's mark stays lit. */
+    .workflow-node { transition: none; }
+    .workflow-step[data-state="running"] > .workflow-node::before,
+    .workflow-step[data-state="waiting"] > .workflow-node::before { animation: none; }
+    :is(.workflow, .workflow-path) > .workflow-step[data-state="running"]:not(.workflow-branch > .workflow-path > :first-child, .workflow-loop > .workflow-path > :first-child, .workflow-fork + *)::before,
+    .workflow-step[data-state="running"] > .workflow-label::after,
+    .workflow-branch:has(> .workflow-path > :first-child[data-state="running"]) > .workflow-label::after,
+    .workflow-fork:has(> .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-fork:has(> .workflow-branch > .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:last-child::after,
+    .workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::after,
+    .workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::after,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after {
+        --workflow-comet: transparent;
+        --workflow-flow-base: var(--workflow-flow);
         animation: none;
     }
 

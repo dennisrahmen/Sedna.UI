@@ -152,7 +152,7 @@ internal static class TokenGroups
         new("Motion", [
             "--motion-fast", "--motion-mid", "--motion-slow",
             "--spin-duration", "--progress-duration", "--skeleton-duration", "--pulse-duration",
-            "--shimmer-duration", "--caret-duration", "--beam-duration",
+            "--shimmer-duration", "--caret-duration", "--flow-duration",
         ], Swatch: false),
 
         new("Density and metrics", [
@@ -182,11 +182,15 @@ internal static class TokenGroups
         // the light theme, where a 400 is a pastel.
         new("Data visualisation", ["--viz-1", "--viz-2", "--viz-3", "--viz-4", "--viz-5", "--viz-6", "--viz-previous"]),
 
+        // A workflow's light: the streak running into the step at work, the line under
+        // it, and the step's ring and glow — aliases of the info colours.
+        new("Data in motion", ["--flow-light", "--flow-line", "--flow-tint", "--flow-glow"]),
+
         // The agent parts: the two bodies of the mark that the orb, the beam and the shimmer
         // draw with, then the roles derived from them.
         new("Agents", [
             "--agent-from", "--agent-to", "--agent-trail", "--agent-tint", "--agent-edge",
-            "--agent-beam-tail", "--agent-glow", "--agent-glow-dim",
+            "--agent-glow", "--agent-glow-dim",
             "--agent-skeleton-cool", "--agent-skeleton-warm",
         ]),
 

@@ -96,6 +96,10 @@ function styleFor(colours, icons, options, extra) {
     const box = n => (n.data('display') || options.nodes) === 'box';
     const nameOf = n => (box(n) ? n.data('boxLabel') : n.data('label')) || '';
     const edgeTone = e => c(tokenOfTone(e.data('tone')), p.line);
+    const edgeWidth = e => (e.data('weight') || 1) * held(e) * (options.nodes === 'box' ? 1.25 : 1);
+    // A run's colours (43-run.js): the agent's for what is running now, the semantic ones for the rest.
+    const run = { agent: c('--agent-to', p.brand), go: c('--go-solid', p.line), warn: c('--warn-solid', p.line), danger: c('--danger-solid', p.line) };
+    const lineIn = colour => ({ 'line-color': colour, 'target-arrow-color': colour, 'source-arrow-color': colour });
     const arrows = a => ({
         'target-arrow-shape': a === 'both' || a === 'target' ? 'triangle' : 'none',
         'source-arrow-shape': a === 'both' || a === 'source' ? 'triangle' : 'none',
@@ -268,10 +272,58 @@ function styleFor(colours, icons, options, extra) {
             selector: 'node[?root], node.focus',
             style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'font-weight': 600, 'label': nameOf },
         },
+        /* A run (43-run.js): drawn on the border, a ring outside it and a halo — never the fill, so
+           a record keeps its tone — and never by colour alone: what is running breathes, what is
+           waiting, next or skipped is dashed, and what failed is heavier. */
+        {
+            selector: 'node[state = "next"]',
+            style: {
+                'border-style': 'dashed',
+                'border-dash-pattern': [5, 3],
+                'border-color': p.brand,
+                'border-opacity': 0.6,
+                'border-width': n => (box(n) ? 2 : 2 * held(n)),
+            },
+        },
+        {
+            // The branch not taken: quieter, as a muted record is, and dashed.
+            selector: 'node[state = "skipped"]',
+            style: {
+                'border-style': 'dashed',
+                'border-dash-pattern': [5, 3],
+                'border-color': n => (box(n) ? toneColour(n) : p.line),
+                'border-opacity': 0.6,
+                'background-opacity': n => (box(n) ? 0.6 : 0.45),
+                'color': p.muted,
+            },
+        },
+        {
+            selector: 'node[state = "running"], node[state = "waiting"], node[state = "done"], node[state = "failed"]',
+            style: {
+                'outline-width': n => (box(n) ? 2 : 2 * held(n)),
+                'outline-offset': n => (box(n) ? 3 : 2 * held(n)),
+                'outline-opacity': 1,
+                'outline-style': 'solid',
+            },
+        },
+        {
+            selector: 'node[state = "running"]',
+            style: {
+                'outline-color': run.agent,
+                'underlay-color': run.agent,
+                // `breath` is the run's timer; without it — reduced motion, a hidden tab — the halo rests half lit.
+                'underlay-opacity': n => 0.08 + 0.22 * (n.data('breath') ?? 0.5),
+                'underlay-padding': n => (box(n) ? 9 : 9 * held(n)),
+                'underlay-shape': n => (box(n) ? 'round-rectangle' : 'ellipse'),
+            },
+        },
+        { selector: 'node[state = "waiting"]', style: { 'outline-color': run.warn, 'outline-style': 'dashed' } },
+        { selector: 'node[state = "done"]', style: { 'outline-color': run.go } },
+        { selector: 'node[state = "failed"]', style: { 'outline-color': run.danger, 'outline-width': n => (box(n) ? 3.5 : 3.5 * held(n)) } },
         {
             selector: 'edge',
             style: {
-                'width': e => (e.data('weight') || 1) * held(e) * (options.nodes === 'box' ? 1.25 : 1),
+                'width': edgeWidth,
                 'curve-style': options.curve,
                 'taxi-direction': options.direction === 'LR' || options.direction === 'RL' ? 'horizontal' : 'vertical',
                 'taxi-turn': '50%',
@@ -309,6 +361,27 @@ function styleFor(colours, icons, options, extra) {
         { selector: 'edge[?muted]', style: { 'line-opacity': 0.2 } },
         // A bridge between two islands is the quietest line on the map until its record is pointed at.
         { selector: 'edge[?across]', style: { 'line-opacity': options.nodes === 'box' ? 0.5 : 0.16 } },
+        // A run's links: each in its target's state unless it has its own (43-run.js).
+        { selector: 'edge[run = "next"]', style: { 'line-style': 'dashed', 'line-dash-pattern': [6, 4], ...lineIn(p.brand), 'line-opacity': 0.5 } },
+        {
+            selector: 'edge[run = "skipped"]',
+            style: { 'line-style': 'dashed', 'line-dash-pattern': [6, 4], ...lineIn(p.line), 'line-opacity': options.nodes === 'box' ? 0.35 : 0.2 },
+        },
+        // The way the run went: data arrived where it waits as much as where it was done with.
+        { selector: 'edge[run = "waiting"], edge[run = "done"]', style: { 'line-style': 'solid', ...lineIn(run.go), 'line-opacity': 1 } },
+        { selector: 'edge[run = "failed"]', style: { 'line-style': 'solid', ...lineIn(run.danger), 'line-opacity': 1, 'width': e => 1.5 * edgeWidth(e) } },
+        {
+            // Data flowing now: dashes the run's timer moves from the source to the target.
+            selector: 'edge[run = "running"]',
+            style: {
+                'line-style': 'dashed',
+                'line-dash-pattern': FLOW_DASH,
+                'line-dash-offset': e => e.data('dash') ?? 0,
+                ...lineIn(run.agent),
+                'line-opacity': 1,
+                'width': e => 1.5 * edgeWidth(e),
+            },
+        },
 
         { selector: '.hidden', style: { 'display': 'none' } },
         { selector: '.dim', style: { 'opacity': 0.1, 'text-opacity': 0 } },
@@ -337,8 +410,19 @@ function styleFor(colours, icons, options, extra) {
         },
         { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'label': nameOf } },
         { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
-        // The keyboard's place: a ring outside the record, in the focus ring's colour.
-        { selector: 'node.keyed', style: { 'outline-width': n => (box(n) ? 3 : 3 * held(n)), 'label': nameOf, 'color': p.fg, ...raise(20) } },
+        // The keyboard's place: a ring outside the record, in the focus ring's colour — over a run's ring.
+        {
+            selector: 'node.keyed',
+            style: {
+                'outline-width': n => (box(n) ? 3 : 3 * held(n)),
+                'outline-color': p.ring,
+                'outline-style': 'solid',
+                'outline-opacity': 1,
+                'label': nameOf,
+                'color': p.fg,
+                ...raise(20),
+            },
+        },
         { selector: '.entering', style: { 'opacity': 0 } },
 
         // Drawing a link (cytoscape-edgehandles): the line follows the pointer in the brand colour.

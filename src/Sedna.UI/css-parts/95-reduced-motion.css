@@ -91,6 +91,9 @@
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
     .tab              { transition: none; }   /* 50 */
     a.stat            { transition: none; }   /* 54 */
+    /* 54 — a running link's key holds its dashes still; they still say "running". */
+    .graph-line--flow::before,
+    .graph-line--flow:dir(rtl)::before { animation: none; }
     /* 66 — the dot keeps its colour and the word keeps saying the state; only the
        pulse stops. Nothing is lost, because the pulse was never the only signal. */
     .health-badge--live .health-dot,
@@ -230,18 +233,29 @@
     .sedna-mochi-float-heart-2,
     .sedna-mochi-float-heart-3 { animation: none; transition: none; }
 
-    /* 69 — the beam is still: both its colours round the whole edge, the glow at
-       rest. The fill under it stays the element's own. */
-    .beam,
-    .beam:hover,
-    .beam:focus,
-    .beam:focus-within,
-    .beam--glow,
-    .beam--glow:focus,
-    .beam--glow:focus-within {
-        background:
-            linear-gradient(var(--beam-fill), var(--beam-fill)) padding-box,
-            linear-gradient(90deg, var(--agent-from), var(--agent-to)) border-box;
+    /* 68 — a workflow holds still and loses nothing. The way into the step at work is
+       a still line in the light's colour, as `--flow-off` draws it; the mark keeps the
+       coloured quarter that says busy, and a waiting step's mark stays lit. */
+    .workflow-node { transition: none; }
+    .workflow-step[data-state="running"] > .workflow-node::before,
+    .workflow-step[data-state="waiting"] > .workflow-node::before { animation: none; }
+    :is(.workflow, .workflow-path) > .workflow-step[data-state="running"]:not(.workflow-branch > .workflow-path > :first-child, .workflow-loop > .workflow-path > :first-child, .workflow-fork + *)::before,
+    .workflow-step[data-state="running"] > .workflow-label::after,
+    .workflow-branch:has(> .workflow-path > :first-child[data-state="running"]) > .workflow-label::after,
+    .workflow-fork:has(> .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-fork:has(> .workflow-branch > .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:last-child::after,
+    .workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before,
+    .workflow-branch:has(> .workflow-path > :first-child[data-state="running"])::after,
+    .workflow-branch:has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::after,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::before,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after,
+    .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:not([data-state="skipped"]) > .workflow-path > .workflow-fork:last-child > .workflow-branch:not([data-state="skipped"]) > .workflow-path::after {
+        --workflow-comet: transparent;
+        --workflow-flow-base: var(--workflow-flow);
         animation: none;
     }
 

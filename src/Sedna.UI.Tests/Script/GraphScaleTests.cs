@@ -162,6 +162,37 @@ public class GraphScaleTests : GraphTestBase
     }
 
     [Fact]
+    public async Task A_run_moving_on_restyles_the_records_it_moves_and_the_links_into_them()
+    {
+        if (NoBrowser) return;
+        var page = await Large();
+        var all = await Elements(page);
+        var before = await Positions(page);
+
+        // The same records with three states set: a run moving through a large map.
+        await page.EvaluateAsync("""
+            async () => {
+                const g = await sednaUi.graph.get('g');
+                const d = window.graphData;
+                const states = { 'team-4': 'done', 't4-1': 'running', 't4-2': 'next' };
+                await g.set({ nodes: d.nodes.map(n => (states[n.id] ? Object.assign({}, n, { state: states[n.id] }) : n)), edges: d.edges });
+            }
+            """);
+        await page.WaitForTimeoutAsync(400);
+
+        // The three records, and the links into them, which take their state.
+        var expected = await page.EvaluateAsync<int>(
+            "() => cyOf('g').$('#team-4, #t4-1, #t4-2').union(cyOf('g').$('#team-4, #t4-1, #t4-2').incomers('edge')).length");
+        Assert.Equal(expected, await page.EvaluateAsync<int>("() => changedData"));
+        var restyled = await page.EvaluateAsync<int>("() => restyled");
+        Assert.True(restyled < all / 20, $"Three new states restyled {restyled} of {all} elements.");
+        // Nothing was laid out again.
+        var after = await Positions(page);
+        Assert.All(before, p => Assert.Equal(p.Value, after[p.Key]));
+        AssertQuiet();
+    }
+
+    [Fact]
     public async Task A_view_that_rests_restyles_what_is_near_it_not_what_is_far_away()
     {
         if (NoBrowser) return;
