@@ -377,6 +377,15 @@ and a reversed ramp ships a hover state lighter than its resting state. `exactAn
 lightness comes from the measured surface profile, and `exactAnchor: true` pins a mandated grey —
 `SednaRamp.Surface("#7B7B7A", anchorStep: 500, exactAnchor: true)` — under the same fit rule.
 
+`exactAnchor` keeps the colour the ramp is generated from, so its hue and chroma reach every step.
+When the hue comes from one colour and an exact step from another — a neutral canvas and a logo grey
+with a trace of warmth — generate from the first and pin the second with `WithStep`, which replaces
+one step and nothing else, under the same fit rule:
+
+```csharp
+var slate = SednaRamp.Surface("#171717").WithStep(500, "#7B7B7A");
+```
+
 Register themes and emit the palette CSS:
 
 ```csharp

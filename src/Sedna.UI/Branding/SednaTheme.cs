@@ -58,11 +58,7 @@ public sealed class SednaTheme
     private static SednaTheme BuildSedna()
     {
         var palette = new SednaPalette(
-            slate: Ramp(
-                (50, "#f8fafc"), (100, "#eef4fb"), (200, "#dde7f3"), (300, "#c8d5e5"),
-                (400, "#94a3b8"), (500, "#707e93"), (600, "#515e72"), (700, "#354255"),
-                (750, "#2a3649"), (800, "#1e293b"), (850, "#162033"), (900, "#0f172a"),
-                (925, "#0a1225"), (950, "#04071b")),
+            slate: new SednaRamp(SednaSlate.Steps),
             coral: Ramp(
                 (50, "#fff4f1"), (100, "#ffe9e3"), (200, "#ffd1c5"), (300, "#ffb4a0"),
                 (400, "#ff8f74"), (500, "#ff6b4a"), (600, "#d73f1a"), (700, "#be2e06"),
@@ -134,9 +130,7 @@ public sealed class SednaTheme
     /// <c>--surface-chrome</c>, <c>--surface-content</c>, all three
     /// <c>--surface-raised-*</c> levels, the three border roles and the three text roles.
     /// A theme that recoloured its buttons and kept Deep Space behind them was showing a
-    /// reader the smaller half of what theming reaches. Declared after
-    /// <see cref="Sedna"/> for the reason <see cref="Graphite"/> gives:
-    /// <see cref="SednaRamp.Surface"/> measures its profile from Sedna's own slate ramp.
+    /// reader the smaller half of what theming reaches.
     /// </para>
     /// </remarks>
     public static SednaTheme Forest { get; } = BuildForest();
@@ -242,11 +236,6 @@ public sealed class SednaTheme
     /// <see cref="SednaRamp.FromAnchor"/>'s curve is fit to brand hues and puts step 900 at more
     /// than half lightness. <see cref="SednaRamp.Surface"/> is that way, and these two themes are
     /// the proof it works end to end.
-    /// </para>
-    /// <para>
-    /// Declared after <see cref="Sedna"/> on purpose: <see cref="SednaRamp.Surface"/> measures
-    /// its profile from Sedna's slate ramp, and static field initialisers run in declaration
-    /// order.
     /// </para>
     /// <para>
     /// The elevation ladder follows automatically. <c>--surface-raised-1/-2/-3</c> resolve

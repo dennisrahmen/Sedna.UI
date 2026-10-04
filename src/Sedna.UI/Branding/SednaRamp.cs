@@ -48,6 +48,50 @@ public sealed class SednaRamp
         _steps = builder.ToImmutable();
     }
 
+    private SednaRamp(ImmutableSortedDictionary<int, string> steps) => _steps = steps;
+
+    /// <summary>
+    /// This ramp with one step replaced by <paramref name="hex"/>, verbatim — for a colour a
+    /// design manual fixes at a step of a ramp that takes its hue from somewhere else.
+    /// </summary>
+    /// <param name="step">A step this ramp already defines.</param>
+    /// <param name="hex">The <c>#rrggbb</c> colour to keep at <paramref name="step"/>.</param>
+    /// <remarks>
+    /// <para>
+    /// The <c>exactAnchor</c> parameter of <see cref="FromAnchor"/> and <see cref="Surface"/> pins
+    /// the colour the ramp is generated from, so its hue and chroma reach every step. This pins a
+    /// colour into a ramp generated from another one, and nothing else moves:
+    /// </para>
+    /// <code>
+    /// // Hue-free from the canvas; the logo grey kept at 500 without tinting the other steps.
+    /// var slate = SednaRamp.Surface("#171717").WithStep(500, "#7B7B7A");
+    /// </code>
+    /// <para>
+    /// The colour has to fit its step, under the same rule as <c>exactAnchor</c>: darker than the
+    /// step above it and lighter than the step below, or the semantic tier would read a hover
+    /// state lighter than its resting state.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">This ramp does not define <paramref name="step"/>.</exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="hex"/> is not a colour, or does not fit <paramref name="step"/>. The message
+    /// names the step it does fit.
+    /// </exception>
+    public SednaRamp WithStep(int step, string hex)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(hex);
+        if (!_steps.ContainsKey(step))
+            throw new ArgumentOutOfRangeException(nameof(step), step,
+                $"This ramp has no step {step} to replace. Defined steps: {string.Join(", ", _steps.Keys)}.");
+
+        // Measured before the replacement: "fits step N" means where this ramp put that lightness.
+        var lightness = _steps.ToDictionary(s => s.Key, s => Oklch.FromHex(s.Value).L);
+        var replaced = _steps.SetItem(step, NormaliseHex(hex));
+        AssertAnchorFitsItsStep(replaced, step, hex, lightness, $"WithStep cannot keep {hex}", nameof(hex));
+
+        return new SednaRamp(replaced);
+    }
+
     /// <summary>
     /// Generates a full ramp from one anchor colour, per <c>docs/BRANDING.md</c> §2.1: a
     /// lightness curve shared by every hue, and a chroma bell that peaks at the anchor.
@@ -223,7 +267,8 @@ public sealed class SednaRamp
     /// </remarks>
     private static void AssertAnchorFitsItsStep(
         IReadOnlyDictionary<int, string> ramp, int anchorStep, string anchorHex,
-        IReadOnlyDictionary<int, double> curve)
+        IReadOnlyDictionary<int, double> curve,
+        string? subject = null, string paramName = "exactAnchor")
     {
         var ordered = ramp.Keys.OrderBy(s => s).ToList();
         var at = ordered.IndexOf(anchorStep);
@@ -245,12 +290,12 @@ public sealed class SednaRamp
 
         var clash = above ?? below;
         throw new ArgumentException(
-            $"exactAnchor cannot keep {anchorHex} at step {anchorStep}: its lightness "
+            $"{subject ?? $"exactAnchor cannot keep {anchorHex}"} at step {anchorStep}: its lightness "
             + $"({anchorL:0.000}) is on the wrong side of step {clash} "
             + $"({Oklch.FromHex(ramp[clash!.Value]).L:0.000}), which would leave the ramp "
             + $"non-monotonic — the semantic tier reads neighbouring steps as hover and active "
             + $"states of one another. This colour fits step {fits}.",
-            "exactAnchor");
+            paramName);
     }
 
     /// <summary>The eleven steps coral, orbit and navy use, and the default for <see cref="FromAnchor"/>.</summary>
@@ -309,16 +354,21 @@ public sealed class SednaRamp
     /// </para>
     /// <para>
     /// <b>The profile is measured, not typed.</b> Both curves are read at first use from
-    /// <see cref="SednaTheme.Sedna"/>'s own slate ramp through <see cref="Oklch.FromHex"/>, so
+    /// Sedna's own slate ramp — the one <see cref="SednaTheme.Sedna"/> ships — through
+    /// <see cref="Oklch.FromHex"/>, so
     /// they cannot drift from the ramp they describe and no fourteen numbers are retyped here.
     /// Chroma is scaled by the anchor's own chroma at its step, so a pure grey anchor produces a
     /// pure grey ramp and Sedna's own canvas colour reproduces Sedna's slate — which
     /// <c>SurfaceRampTests</c> asserts step by step.
     /// </para>
     /// <para>
-    /// The one ordering constraint: this reads <see cref="SednaTheme.Sedna"/>, so a theme whose
-    /// own static initialiser calls it must be declared after that property. Lazy, so nothing
-    /// pays for it until a theme generates a base.
+    /// Callable first, from anywhere, including a theme's own static initialiser: the profile is
+    /// read from the slate literals and not through <see cref="SednaTheme"/>.
+    /// </para>
+    /// <para>
+    /// A ramp with <b>two sources</b> — hue from a neutral canvas, one step from a design manual
+    /// whose grey carries a trace of chroma — is <c>Surface(canvas).WithStep(step, grey)</c>.
+    /// <paramref name="exactAnchor"/> would take that trace of chroma as the hue of every step.
     /// </para>
     /// </remarks>
     public static SednaRamp Surface(string anchorHex, int anchorStep = 900, bool exactAnchor = false)
@@ -362,7 +412,7 @@ public sealed class SednaRamp
     private static readonly Lazy<IReadOnlyDictionary<int, (double L, double C, double H)>> SurfaceProfile =
         new(() =>
         {
-            var slate = SednaTheme.Sedna.Palette.Slate;
+            var slate = SednaSlate.Steps;
             var profile = new Dictionary<int, (double L, double C, double H)>(SurfaceSteps.Count);
 
             foreach (var step in SurfaceSteps)
