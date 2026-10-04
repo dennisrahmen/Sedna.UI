@@ -3,8 +3,8 @@
 <CatHead Title="Mochi">
     The agent's character: one rigged drawing with arms that turn at the shoulder, legs that bend and
     step, and a face with its own parts. An action eases Mochi into a pose, a mood sets the face, a tone
-    picks the colours, and a perch puts it on a card &mdash; sitting on it, peeking over it, hanging from
-    it. The app writes a span and three or four attributes; the drawing is the library's.
+    picks the colours, and a perch puts it on a card, a divider, a field or a button &mdash; sitting on
+    it, peeking over it, hanging from it. The app writes a span and three or four attributes; the drawing is the library's.
 </CatHead>
 
 <CatSnippet Name="Mochi/Use.html" Title="Putting it on a page">
@@ -136,6 +136,33 @@
         default. Leave room for it: a perch draws outside the element, and the host does not grow.
         <code>wave</code> or <code>point</code> on <code>peek</code>, <code>look</code> or <code>hang</code>
         lets go with one hand.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.Dividers" Title="On a divider" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A <a href="/structure"><code>.divider</code></a> in a <code>.mochi-host</code> is a line to
+        <code>sit</code> on, <code>stand</code> on or <code>hang</code> from. The divider's margin moves to
+        the host, so the host's edges are the line itself, and on a <code>.divider-labelled</code> Mochi meets
+        the line through the middle of the label, not the label's edge.
+    </p>
+    <p>
+        <strong>A hairline has nothing to hide behind</strong>, so <code>peek</code>, <code>look</code> and
+        <code>side</code> are for a box: on a line they show half a Mochi cut off by thin air. Leave room
+        above a sitting Mochi and below a hanging one; the text beside a divider does not move for it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Mochi.Controls" Title="On a field, a search box or a button" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A host is whatever box it wraps, so every perch works on a <a href="/form-text">field</a> or a
+        <a href="/topbar">search box</a> as it does on a card. Wrap the control alone, not its label, so the
+        edges are the control's.
+    </p>
+    <p>
+        A <a href="/button">button</a> is inline, and a plain host is a block as wide as the row, so Mochi
+        would perch at the row's far end. <code>.mochi-host--inline</code> shrinks the host to the button
+        and centres Mochi on it; <code>--perch-inset</code> still moves it.
     </p>
 </CatExample>
 

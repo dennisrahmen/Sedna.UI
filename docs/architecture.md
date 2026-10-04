@@ -662,6 +662,9 @@ of the 160-unit drawing on one edge — the seat on the top edge (`sit`), the pe
 `look`), the feet on the bottom edge (`stand`), the grip under it (`hang`), the side edge (`side`) —
 so placing is a fraction of `--size` and meets the edge exactly at every size. What is behind the
 element is clipped with an `inset()` on the drawing's own view box, the same line the perch places.
+A host is any element. `.mochi-host--inline` shrinks one to a button and centres Mochi on it; a
+divider's host takes the divider's margin, so its edges are the line, and on `.divider-labelled` the
+perches that meet a line meet the one through the label's middle.
 `point` stands beside the element the app names with `position-anchor`, its fingertip on that element's
 edge — CSS anchor positioning, no script.
 
@@ -685,7 +688,7 @@ loops. In a right-to-left page the drawing turns to face the inline end, in `70-
 `MochiSpriteTests` guards the file as `StateSpriteTests` guards the illustrations — well-formed XML,
 no `--` in a comment, no colour, no style — and holds its parts and the rules in `68-mochi.css` to each
 other in both directions. `MochiRigTests` holds the documented vocabulary, the arm ranges and the perch
-lines. `MochiTests` measures each perch against a real card in the browser, reads a pose change and a
+lines. `MochiTests` measures each perch against a real card, a divider and a button in the browser, reads a pose change and a
 mood change mid-transition, and walks every combination of perch, action and mood under reduced motion
 against the rig's invariants: one face, one mouth, hands on the edge they hold, nothing in front of a
 card that should be behind it.

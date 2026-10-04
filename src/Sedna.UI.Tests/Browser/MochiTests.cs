@@ -161,6 +161,85 @@ public class MochiTests : ScriptTestBase
         Assert.InRange(D(hand, "x") - edge, -2, 2);
     }
 
+    /// <summary>
+    /// Where a perch meets a line: the seat's line, the feet's or the hands', in page
+    /// space. The seat's shadow is drawn two units under the seat.
+    /// </summary>
+    private static async Task<double> Meeting(IPage page, string perch, int size) => perch switch
+    {
+        "sit" => D(await Box(page, ".sedna-mochi-seat"), "y") - 2.0 / 160 * size,
+        "stand" => D(await Box(page, ".sedna-mochi-ground"), "y"),
+        _ => D(await Box(page, ".sedna-mochi-grip-hl .sedna-mochi-palm"), "y"),
+    };
+
+    [Theory]
+    [InlineData("divider", "sit", false)]
+    [InlineData("divider", "stand", false)]
+    [InlineData("divider", "hang", false)]
+    [InlineData("divider", "sit", true)]
+    [InlineData("divider", "hang", true)]
+    [InlineData("divider-labelled", "sit", false)]
+    [InlineData("divider-labelled", "stand", false)]
+    [InlineData("divider-labelled", "hang", false)]
+    [InlineData("divider-labelled", "sit", true)]
+    public async Task A_divider_is_a_line_to_sit_stand_or_hang_on(string divider, string perch, bool flexColumn)
+    {
+        if (NoBrowser) return;
+        // In a flex column a child's margin does not collapse through its host, so a host
+        // that left the divider its margin would put the edge a margin away from the line.
+        var rule = divider == "divider"
+            ? """<hr class="divider" id="rule" />"""
+            : """<div class="divider-labelled" id="rule">Earlier today</div>""";
+        var column = flexColumn ? "display: flex; flex-direction: column" : "";
+        var page = await OpenMochi($"""
+            <div style="width: 480px; {column}">
+                <p>Three runs since 03:30, all on time.</p>
+                <div class="mochi-host">
+                    {rule}
+                    <span class="mochi" id="m" data-perch="{perch}" style="--size: 112px" role="img" aria-label="Ops agent">{Svg}</span>
+                </div>
+                <p>Two approvals are waiting for you.</p>
+            </div>
+            """);
+
+        // The line is the rule's own border, or, labelled, the one through the label's middle.
+        var box = await CardBox(page, "rule");
+        var line = divider == "divider" ? D(box, "top") : D(box, "y");
+        Assert.InRange(await Meeting(page, perch, 112) - line, -1.5, 1.5);
+
+        // The divider keeps the space it had: its margin moved to the host, not away.
+        var gap = await page.EvaluateAsync<double>("""
+            () => { const p = document.querySelector('p'), r = document.getElementById('rule');
+                    return r.getBoundingClientRect().top - p.getBoundingClientRect().bottom; }
+            """);
+        Assert.True(gap > 16, $"The divider lost its margin: {gap}px above it.");
+    }
+
+    [Theory]
+    [InlineData("sit")]
+    [InlineData("stand")]
+    [InlineData("hang")]
+    public async Task An_inline_host_fits_a_button_and_centres_mochi_on_it(string perch)
+    {
+        if (NoBrowser) return;
+        var page = await OpenMochi($"""
+            <div style="width: 640px">
+                <span class="mochi-host mochi-host--inline" id="host">
+                    <button class="btn" id="target" type="button">Approve the change</button>
+                    <span class="mochi" id="m" data-perch="{perch}" style="--size: 88px" role="img" aria-label="Ops agent">{Svg}</span>
+                </span>
+            </div>
+            """);
+        var host = await CardBox(page, "host");
+        var target = await CardBox(page, "target");
+        var mochi = await CardBox(page, "m");
+
+        Assert.InRange(D(host, "right") - D(target, "right"), -1, 1);
+        Assert.InRange(D(mochi, "x") - D(target, "x"), -1, 1);
+        var edge = perch == "sit" ? D(target, "top") : D(target, "bottom");
+        Assert.InRange(await Meeting(page, perch, 88) - edge, -1.5, 1.5);
+    }
+
     [Theory]
     [InlineData("peek", 0, -1)]
     [InlineData("look", 0, -1)]
