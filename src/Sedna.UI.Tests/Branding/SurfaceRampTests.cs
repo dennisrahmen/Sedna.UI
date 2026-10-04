@@ -1,3 +1,4 @@
+using System.Runtime.Loader;
 using System.Text.RegularExpressions;
 using Sedna.UI.Tests.TestSupport;
 
@@ -115,6 +116,80 @@ public class SurfaceRampTests
 
         Assert.Contains("non-monotonic", error.Message, StringComparison.Ordinal);
         Assert.Contains("fits step", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Surface_can_be_the_first_call_an_app_makes()
+    {
+        // This process initialised SednaTheme long ago, so the call order is only observable in
+        // a fresh load of the assembly. The built-in themes call Surface from SednaTheme's static
+        // initialiser; Surface reading its profile through SednaTheme made that a cycle.
+        var context = new AssemblyLoadContext(nameof(Surface_can_be_the_first_call_an_app_makes), isCollectible: true);
+        try
+        {
+            var fresh = context.LoadFromAssemblyPath(typeof(SednaRamp).Assembly.Location);
+            var surface = fresh.GetType(typeof(SednaRamp).FullName!)!
+                .GetMethod(nameof(SednaRamp.Surface))!;
+
+            var ramp = surface.Invoke(null, ["#18181b", 900, false]);
+
+            Assert.NotNull(ramp);
+        }
+        finally
+        {
+            context.Unload();
+        }
+    }
+
+    [Fact]
+    public void WithStep_keeps_a_mandated_grey_without_tinting_the_rest()
+    {
+        // Two sources: hue from a pure canvas, one exact step from a design manual whose grey
+        // carries a trace of warm chroma. exactAnchor would spread that trace over every step.
+        const string LogoGrey = "#7b7b7a";
+
+        var canvas = SednaRamp.Surface("#171717");
+        var pinned = canvas.WithStep(500, LogoGrey);
+
+        Assert.Equal(LogoGrey, pinned[500], StringComparer.OrdinalIgnoreCase);
+
+        foreach (var step in SednaRamp.SurfaceSteps.Where(s => s != 500))
+        {
+            Assert.Equal(canvas[step], pinned[step], StringComparer.OrdinalIgnoreCase);
+            Assert.True(Channels(pinned[step]).Distinct().Count() == 1,
+                $"slate-{step} = {pinned[step]} is tinted; the canvas it was generated from is hue-free.");
+        }
+
+        var luminance = SednaRamp.SurfaceSteps.Select(step => Luminance(pinned[step])).ToList();
+        for (var i = 1; i < luminance.Count; i++)
+            Assert.True(luminance[i] < luminance[i - 1],
+                $"slate-{SednaRamp.SurfaceSteps[i]} is not darker than slate-{SednaRamp.SurfaceSteps[i - 1]}.");
+
+        // A ramp is a value: the one WithStep was called on is unchanged.
+        Assert.NotEqual(LogoGrey, canvas[500], StringComparer.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void WithStep_rejects_a_colour_that_does_not_fit_its_step()
+    {
+        var error = Assert.Throws<ArgumentException>(
+            () => SednaRamp.Surface("#171717").WithStep(900, "#d4d4d4"));
+
+        Assert.Equal("hex", error.ParamName);
+        Assert.Contains("WithStep cannot keep #d4d4d4", error.Message, StringComparison.Ordinal);
+        Assert.Contains("non-monotonic", error.Message, StringComparison.Ordinal);
+        Assert.Contains("fits step", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void WithStep_replaces_a_step_and_never_adds_one()
+    {
+        // A step the ramp does not define has no neighbours to be checked against, and the
+        // stylesheet would never read it.
+        var error = Assert.Throws<ArgumentOutOfRangeException>(
+            () => SednaRamp.Surface("#171717").WithStep(825, "#333333"));
+
+        Assert.Equal("step", error.ParamName);
     }
 
     [Theory]

@@ -353,6 +353,10 @@ var palette = new SednaPalette(
 `SednaTheme.Forest` moves its base and its brand together, from `SednaRamp.Surface("#101b0d")`.
 Both are registered on the catalogue so the switch can be seen.
 
+A grey the design fixes at one step goes in with `WithStep`, which replaces that step and leaves
+the hue the ramp was generated from on every other — `SednaRamp.Surface("#171717").WithStep(500,
+"#7B7B7A")`. It is rejected, naming the step it does fit, when it would reverse the ramp.
+
 Three things to know:
 
 - **`Surface` is not `FromAnchor`.** `FromAnchor`'s lightness curve is fit to brand hues and puts

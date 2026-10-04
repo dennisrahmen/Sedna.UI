@@ -18,6 +18,7 @@ paths-ignore:
   # module under wwwroot/js/ is analysed instead — what ships.
   - src/Sedna.UI/graph-parts
   - src/Sedna.UI/editor-parts
+  - src/Sedna.UI/orb-parts
 
 query-filters:
   # `cs/path-combine` warns that Path.Combine silently drops its earlier

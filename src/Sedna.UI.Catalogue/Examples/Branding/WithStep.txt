@@ -1,0 +1,11 @@
+// A ramp with two sources: its hue from one colour, one exact step from another.
+// Here the base is hue-free from a neutral canvas, and the design manual fixes a
+// logo grey at step 500 that carries a trace of warmth.
+var slate = SednaRamp.Surface("#171717").WithStep(500, "#7B7B7A");
+
+// slate[500] is "#7b7b7a" exactly; every other step is the one Surface generated.
+// exactAnchor would instead make the logo grey the ramp's anchor, and its warmth
+// would tint every step.
+
+// The same fit rule as exactAnchor: a colour lighter than the step above it or
+// darker than the step below is rejected, naming the step it does fit.

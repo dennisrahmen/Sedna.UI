@@ -18,7 +18,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// and never wait for the circuit.
 /// </remarks>
 [Collection(CatalogueAppCollection.Name)]
-public partial class SiteMetaTests(CatalogueAppFixture app)
+public class SiteMetaTests(CatalogueAppFixture app)
 {
     public static TheoryData<string> Routes() => RoutedPages.AsTheoryData();
 
@@ -38,7 +38,7 @@ public partial class SiteMetaTests(CatalogueAppFixture app)
         Assert.Empty(Metas(html, "name", "robots"));
 
         // One block, and valid JSON: a parse error drops the page's rich result silently.
-        var ld = Assert.Single(JsonLd().Matches(html)).Groups["json"].Value;
+        var ld = Assert.Single(JsonLd.Matches(html)).Groups["json"].Value;
         using var doc = JsonDocument.Parse(ld);
         Assert.Equal("https://schema.org", doc.RootElement.GetProperty("@context").GetString());
     }
@@ -115,23 +115,20 @@ public partial class SiteMetaTests(CatalogueAppFixture app)
     }
 
     private static List<string> Metas(string html, string attribute, string name) =>
-        MetaTag().Matches(html)
+        MetaTag.Matches(html)
             .Where(m => m.Groups["attr"].Value == attribute && m.Groups["name"].Value == name)
             .Select(m => WebUtility.HtmlDecode(m.Groups["content"].Value))
             .ToList();
 
     private static List<string> Links(string html, string rel) =>
-        LinkTag().Matches(html)
+        LinkTag.Matches(html)
             .Where(m => m.Groups["rel"].Value == rel)
             .Select(m => WebUtility.HtmlDecode(m.Groups["href"].Value))
             .ToList();
 
-    [GeneratedRegex(""""<meta (?<attr>name|property)="(?<name>[^"]+)" content="(?<content>[^"]*)"""")]
-    private static partial Regex MetaTag();
+    private static readonly Regex MetaTag = new(""""<meta (?<attr>name|property)="(?<name>[^"]+)" content="(?<content>[^"]*)"""");
 
-    [GeneratedRegex(""""<link rel="(?<rel>[^"]+)" href="(?<href>[^"]*)"""")]
-    private static partial Regex LinkTag();
+    private static readonly Regex LinkTag = new(""""<link rel="(?<rel>[^"]+)" href="(?<href>[^"]*)"""");
 
-    [GeneratedRegex("""<script type="application/ld\+json">(?<json>.*?)</script>""", RegexOptions.Singleline)]
-    private static partial Regex JsonLd();
+    private static readonly Regex JsonLd = new("""<script type="application/ld\+json">(?<json>.*?)</script>""", RegexOptions.Singleline);
 }
