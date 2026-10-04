@@ -135,8 +135,8 @@ function channels(css) {
         pixel.canvas.width = pixel.canvas.height = 1;
     }
     pixel.clearRect(0, 0, 1, 1);
-    pixel.fillStyle = 'transparent';
-    pixel.fillStyle = css;
+    // A colour the canvas cannot parse is ignored, not cleared, and would paint the last role's.
+    pixel.fillStyle = CSS.supports('color', css) ? css : 'transparent';
     pixel.fillRect(0, 0, 1, 1);
     const d = pixel.getImageData(0, 0, 1, 1).data;
     return [d[0], d[1], d[2], d[3] / 255];
