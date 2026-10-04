@@ -6446,6 +6446,20 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    focus-within says exactly what is meant with less machinery. */
 .dropzone:focus-within { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 
+/* One row, one control high: the zone under a reply or comment composer, where a
+   full-height panel would outweigh the text field it serves. Icon and label sit on
+   one line at `.btn-sm`'s size; the behaviour and the states are the same zone's. */
+.dropzone--sm {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-3);
+    min-height: var(--control-height-sm);
+    padding: var(--space-2) var(--space-5);
+    border-radius: var(--radius-control);
+    font-size: var(--text-3);
+}
+.dropzone--sm i { font-size: var(--text-4); }
+
 /* ── File list ──────────────────────────────────────────────────────────────
    What was attached, and how to remove it. A real <ul>, so the count is announced.
    The size is monospace so a column of them lines up. */
