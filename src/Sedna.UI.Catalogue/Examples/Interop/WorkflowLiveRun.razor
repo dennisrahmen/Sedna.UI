@@ -484,23 +484,29 @@
         if (Finished) Reset();
 
         _playing = true;
-        _run = new CancellationTokenSource();
-        var token = _run.Token;
+        using var run = new CancellationTokenSource();
+        _run = run;
         try
         {
-            while (!Finished)
+            while (!Finished && await Delay(Script[_next].Wait, run.Token))
             {
-                await Task.Delay(Script[_next].Wait, token);
                 Advance();
                 StateHasChanged();
             }
         }
-        catch (TaskCanceledException) { }
         finally
         {
+            _run = null;
             _playing = false;
             if (_orb != "done" && Finished) _orb = "done";
         }
+    }
+
+    // Waits, and answers false rather than throwing once the wait is cancelled.
+    private static async Task<bool> Delay(int milliseconds, CancellationToken token)
+    {
+        await Task.Delay(milliseconds, token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+        return !token.IsCancellationRequested;
     }
 
     private void Step()
@@ -530,9 +536,5 @@
         Now("Waiting for a call", "idle");
     }
 
-    public void Dispose()
-    {
-        _run?.Cancel();
-        _run?.Dispose();
-    }
+    public void Dispose() => _run?.Cancel();
 }

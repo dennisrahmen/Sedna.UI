@@ -86,25 +86,27 @@
     // Steps on its own until the run is finished, or Reset stops it.
     private async Task Run()
     {
-        _run = new CancellationTokenSource();
-        var token = _run.Token;
+        using var run = new CancellationTokenSource();
+        _run = run;
         try
         {
-            while (!Finished)
+            while (!Finished && await Delay(1200, run.Token))
             {
-                await Task.Delay(1200, token);
                 await Show(_step + 1);
                 StateHasChanged();
             }
         }
-        catch (OperationCanceledException)
-        {
-        }
         finally
         {
-            _run?.Dispose();
             _run = null;
         }
+    }
+
+    // Waits, and answers false rather than throwing once the wait is cancelled.
+    private static async Task<bool> Delay(int milliseconds, CancellationToken token)
+    {
+        await Task.Delay(milliseconds, token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+        return !token.IsCancellationRequested;
     }
 
     private Task Reset()
@@ -129,9 +131,5 @@
         _status = $"{done} of {Steps.Length - skipped} steps done" + (waiting.Count > 0 ? $" · waiting on {string.Join(", ", waiting)}" : "");
     }
 
-    public void Dispose()
-    {
-        _run?.Cancel();
-        _run?.Dispose();
-    }
+    public void Dispose() => _run?.Cancel();
 }
