@@ -1,0 +1,83 @@
+@inject ISednaUi Ui
+
+<div class="sedna-stack">
+    <div class="md-editor" data-md-view="write">
+        <div class="md-toolbar">
+            <button class="md-tool" type="button" data-md-cmd="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+            <button class="md-tool" type="button" data-md-cmd="italic" aria-label="Italic"><i class="ri-italic"></i></button>
+            @* Not a data-md-cmd: the editor leaves this one to the app. *@
+            <button class="md-tool" type="button" aria-label="Link to an order" data-tip="Link to an order"
+                    @onclick="PickOrder"><i class="ri-links-line"></i></button>
+            <div class="segmented" role="group" aria-label="Editor view">
+                <label class="segmented-option">
+                    <input type="radio" data-md-tab="write" checked /> Write</label>
+                <label class="segmented-option">
+                    <input type="radio" data-md-tab="preview" /> Preview</label>
+            </div>
+        </div>
+        <textarea class="form-input md-input" data-md-input rows="5" aria-label="Handover note"
+                  @ref="_note" @bind="_text" @bind:event="oninput"></textarea>
+        <div class="markdown-body md-preview" data-md-preview></div>
+    </div>
+
+    <div class="code-block">
+        <div class="code-block-head"><span>The bound value</span></div>
+        <pre><code>@_text</code></pre>
+    </div>
+</div>
+
+@* The picker is the app's own modal. Each row is a dialog-method submitter, so the
+   order it names becomes the dialog's returnValue. *@
+<dialog id="pick-order" class="modal modal-sm" aria-labelledby="pick-order-title">
+    <form method="dialog">
+        <div class="modal-header">
+            <h3 id="pick-order-title">Link to an order</h3>
+        </div>
+        <div class="modal-body">
+            <ul class="list">
+                @foreach (var order in _orders)
+                {
+                    <li>
+                        <button class="list-row" value="@order.Id">
+                            <span class="list-main">
+                                <span class="list-title">@order.Title</span>
+                                <span class="list-sub">@order.Id</span>
+                            </span>
+                        </button>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" value="">Cancel</button>
+        </div>
+    </form>
+</dialog>
+
+@code {
+    private readonly (string Id, string Title)[] _orders =
+    [
+        ("ORD-4204", "Replacement headset for the front desk"),
+        ("ORD-4209", "Five monitors for the second floor"),
+        ("ORD-4215", "Spare toner, returned damaged"),
+    ];
+
+    private ElementReference _note;
+    private string _text = "Picked up from the morning shift. Still open: ";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Ui.InitMarkdownAsync();
+    }
+
+    // The textarea keeps its caret while the dialog has focus, so the link lands
+    // where the reader left off — not at the end, which is all a binding can do.
+    private async Task PickOrder()
+    {
+        var id = await Ui.ShowModalAsync("pick-order");
+        var order = _orders.FirstOrDefault(o => o.Id == id);
+        if (order.Id is null) return;
+
+        await Ui.InsertMarkdownAsync(_note, $"[{order.Id}](https://example.com/orders/{order.Id})");
+    }
+}

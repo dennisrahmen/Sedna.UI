@@ -69,7 +69,20 @@
                                  data-theme-default="@SednaOptions.Default"></script>
 
                        ISednaUi.ConfigureAsync() pushes the same value to the main
-                       script, so the two agree once the circuit is up. */
+                       script, so the two agree once the circuit is up.
+   data-app-attrs      The app's OWN preferences to apply before first paint, as a
+                       whitespace-separated list of names: data-app-attrs="mochi".
+                       For each name, a value stored under "<prefix><name>" is
+                       written to <html data-app-<name>="<value>">, so the app's
+                       stylesheet can select on it — on a page no circuit ever
+                       reaches, such as a statically rendered error page, as much
+                       as on any other. Nothing stored writes no attribute. A name
+                       must match ^[a-z][a-z0-9-]*$ and any other is ignored; a
+                       value is only ever an attribute value.
+
+                       The app stores the value with sednaUi.settings.save(name,
+                       value) or ISednaUi.SaveSettingAsync, and the main script's
+                       settings.apply() keeps the attribute in step from then on. */
 (function () {
     var el = document.currentScript;
     var prefix = (el && el.dataset.prefix) || 'sedna.';
@@ -77,6 +90,7 @@
     var tzCookie = (el && el.dataset.tzCookie) || '';
     var fallback = (el && el.dataset.variantDefault) || 'dark';
     var themeFallback = (el && el.dataset.themeDefault) || 'sedna';
+    var appNames = ((el && el.dataset.appAttrs) || '').split(/\s+/);
 
     try {
         var get = function (k) { return localStorage.getItem(prefix + k); };
@@ -123,6 +137,21 @@
         }
     } catch (e) {
         /* storage blocked — first paint falls back to the dark default */
+    }
+
+    /* The app's own preferences, in their own try so a failure in the library's
+       settings above cannot take them down with it. The name is validated before it
+       is used in a key or an attribute name, and the stored value is only ever an
+       attribute value — never markup, never code. */
+    try {
+        for (var i = 0; i < appNames.length; i++) {
+            var name = appNames[i];
+            if (!/^[a-z][a-z0-9-]*$/.test(name)) continue;
+            var stored = localStorage.getItem(prefix + name);
+            if (stored !== null) document.documentElement.setAttribute('data-app-' + name, stored);
+        }
+    } catch (e) {
+        /* storage blocked — the app's stylesheet falls back to its own default */
     }
 
     /* The browser's time zone, in its own try so a blocked localStorage above does

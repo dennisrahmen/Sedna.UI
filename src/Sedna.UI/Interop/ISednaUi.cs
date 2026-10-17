@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+
 namespace Sedna.UI;
 
 /// <summary>
@@ -166,6 +168,31 @@ public interface ISednaUi
     /// </remarks>
     Task InitMarkdownAsync();
 
+    /// <summary>
+    /// Replaces the selection in a <c>.md-editor</c>'s textarea with <paramref name="text"/>
+    /// and leaves the caret right after it.
+    /// </summary>
+    /// <param name="textarea">The editor's <c>[data-md-input]</c> textarea, captured with <c>@ref</c>.</param>
+    /// <param name="text">
+    /// The text to insert, exactly as given — a Markdown link the app built from its own
+    /// picker, a snippet, a signature. Nothing is wrapped or escaped.
+    /// </param>
+    /// <returns>A task that completes once the text is in the field.</returns>
+    /// <remarks>
+    /// <para>
+    /// What a binding cannot do: assigning the bound field replaces the whole value and
+    /// puts the caret at the end, where this types at the reader's caret. The edit then
+    /// reaches the field the way a toolbar command does — a bubbling <c>input</c> event,
+    /// which <c>@bind:event="oninput"</c> picks up — and focus returns to the textarea.
+    /// </para>
+    /// <para>
+    /// Call it after a dialog opened from the editor's toolbar closes: a textarea keeps its
+    /// selection while focus is elsewhere, so the text lands where the caret was rather than
+    /// at the end. With no selection it inserts at the caret.
+    /// </para>
+    /// </remarks>
+    Task InsertMarkdownAsync(ElementReference textarea, string text);
+
     /// <summary>Reads the stored theme, variant, colour-blind, density, direction and language settings.</summary>
     /// <returns>The settings currently applied.</returns>
     Task<SednaUiSettings> LoadSettingsAsync();
@@ -173,7 +200,10 @@ public interface ISednaUi
     /// <summary>
     /// Stores one setting and applies it immediately.
     /// </summary>
-    /// <param name="key">One of <c>theme</c>, <c>variant</c>, <c>cvd</c>, <c>density</c>, <c>lang</c>.</param>
+    /// <param name="key">
+    /// One of <c>theme</c>, <c>variant</c>, <c>cvd</c>, <c>density</c>, <c>lang</c>, or a name
+    /// listed in the boot script's <c>data-app-attrs</c>.
+    /// </param>
     /// <param name="value">
     /// <c>theme</c> takes a theme name (nothing stored falls back to
     /// <see cref="SednaUiOptions.Default"/>);
@@ -181,6 +211,8 @@ public interface ISednaUi
     /// <c>prefers-color-scheme</c> live; <c>cvd</c> takes <c>1</c> or anything else
     /// for off; <c>density</c> takes <c>compact</c> or anything else for the
     /// default; <c>lang</c> takes a two-letter code.
+    /// A name the boot script's <c>data-app-attrs</c> lists is the app's own preference: it is
+    /// stored under the same prefix and mirrored to <c>&lt;html data-app-&lt;name&gt;&gt;</c>.
     /// </param>
     /// <returns>A task that completes once the setting is stored and applied.</returns>
     Task SaveSettingAsync(string key, string value);

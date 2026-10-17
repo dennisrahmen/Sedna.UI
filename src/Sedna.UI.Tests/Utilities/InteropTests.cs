@@ -1,4 +1,5 @@
 using Bunit;
+using Microsoft.AspNetCore.Components;
 using Sedna.UI.Tests.TestSupport;
 using Microsoft.JSInterop;
 
@@ -100,6 +101,21 @@ public class InteropTests : BunitContext
         Assert.Equal(expected, ((IDictionary<string, object?>)Only("sednaUi.toast.show").Arguments[1]!)["kind"]);
         // .toast-go, .toast-warn, .toast-danger, .toast-info all exist.
         Assert.Contains($".toast-{expected}", Assets.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task InsertMarkdown_hands_the_textarea_and_the_text_to_the_editor()
+    {
+        JSInterop.SetupVoid("sednaUi.md.insert", _ => true).SetVoidResult();
+        var textarea = new ElementReference("note");
+
+        await Wrapper().InsertMarkdownAsync(textarea, "[ORD-4204](https://example.com/orders/ORD-4204)");
+
+        var call = Only("sednaUi.md.insert");
+        // The element itself, which the runtime turns into the DOM node; the text exactly
+        // as given, with nothing wrapped or escaped on the way.
+        Assert.Equal("note", Assert.IsType<ElementReference>(call.Arguments[0]).Id);
+        Assert.Equal("[ORD-4204](https://example.com/orders/ORD-4204)", call.Arguments[1]);
     }
 
     [Fact]

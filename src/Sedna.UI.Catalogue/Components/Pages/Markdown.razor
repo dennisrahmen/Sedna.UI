@@ -49,6 +49,20 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.MarkdownLinkPicker" Title="Inserting at the caret" Demo="ex-demo--block">
+    <p>
+        <strong>Live below</strong> — put the caret somewhere in the note, then link an order. The
+        picker is the app's own <a href="/modal"><code>.modal</code></a>, awaited with
+        <code>ShowModalAsync</code>, and <code>ISednaUi.InsertMarkdownAsync(textarea, text)</code>
+        puts what it returns where the caret was: the selection is replaced, the caret lands after
+        the text, focus returns to the textarea, and the bound value follows through the same
+        <code>input</code> event a toolbar command fires. Assigning the bound field instead would
+        put the text at the end. A textarea keeps its selection while a dialog has focus, so
+        nothing has to be remembered across the picker. From script, it is
+        <code>sednaUi.md.insert(textarea, text)</code>.
+    </p>
+</CatExample>
+
 <div class="callout callout-danger">
     <i class="ri-shield-check-line"></i>
     <div class="callout-body">

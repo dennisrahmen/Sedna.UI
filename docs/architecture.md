@@ -273,6 +273,10 @@ Two consequences for a rule that sets a control's height:
 - `Sedna.UI.boot.js` applies them from `localStorage` before first paint.
 - `sednaUi.settings.save('variant', 'light')` (or `'theme'`, `'cvd'`, `'density'`) updates them at
   runtime.
+- **An app's own preferences ride along.** The boot tag's `data-app-attrs="mochi"` names them;
+  `boot.js` writes `<prefix>mochi` to `<html data-app-mochi>` before first paint, and
+  `settings.apply()` keeps the attribute in step — set from storage, removed when nothing is stored.
+  Names are validated to `^[a-z][a-z0-9-]*$`; the value is only ever an attribute value.
 - **`ISednaSettings` is the C# view of the same state** — `Current`, setters, and a `Changed` event.
   `StartAsync()` in `OnAfterRenderAsync(firstRender)` reads the browser and subscribes; the service
   never writes the attributes itself, so `sednaUi.settings.apply()` stays the only writer. The case
@@ -536,7 +540,7 @@ Two things the flat list does not say:
 | — | `45-orb.js` adds no member. It is the orb's front door: it registers `[data-orb]` with the surface loader, which imports `Sedna.UI.orb.js` the first time a page shows one, and gives each orb `role="img"` the moment it is found. The app's `aria-label` names it, and its attributes drive it — see [orb.md](orb.md) |
 | — | `46-mochi.js` adds no member. It watches every `.mochi` and marks one more than a little way out of the viewport `data-mochi-away`, which holds all its loops and skips rendering the drawing until it comes back — a drawing nobody can see costs nothing. Mochi needs no script; without this one, its loops simply run |
 | — | `42-surfaces.js` adds no public member. It is the loader every shipped surface's front door registers with — `ui._.surface(spec)` — which finds the surface's elements, holds them on a prerendered Blazor page until `Sedna.UI.lib.module.js` releases it, imports the surface's module relative to this script as one comes within a screen of the viewport, and disposes one whose element has gone |
-| `md` | Markdown editor: `init(root?)` wires every `.md-editor` in `root` (the document by default) and is idempotent per editor; `apply(textarea, cmd)`, `render(src)` |
+| `md` | Markdown editor: `init(root?)` wires every `.md-editor` in `root` (the document by default) and is idempotent per editor; `apply(textarea, cmd)` runs a toolbar command on the selection; `insert(textarea, text)` replaces the selection with the app's own text — a link from its picker — and leaves the caret after it. Both fire a bubbling `input` event, which `@bind:event="oninput"` picks up, and return focus to the textarea. A textarea keeps its selection while focus is elsewhere, so `insert` called after a dialog from the toolbar closes lands where the caret was. `render(src)` |
 | `copyText`, `openTab`, `viewportWidth`, `scrollPageTop`, `timeZone` | Interop helpers. `scrollPageTop` resets `.page`, which is the only scroll container the frame has and therefore the one navigation leaves where it was. `timeZone()` reads the browser's IANA zone from `Intl` at call time — an id, never an offset, and null where the browser refuses |
 | `getItem`, `setItem` | `localStorage` access |
 | `watchSettings`, `unwatchSettings` | The Blazor bridge for `settings.onChange`: takes a `DotNetObjectReference` and returns an id to unwatch with. `ISednaSettings` is the C# side; nothing else should call these |
@@ -684,6 +688,12 @@ pink in Forest.
 **Motion.** Pose changes ride `--motion-slow`, and the face and the legs cross-fade on
 `--motion-fast` — a slow cross-fade shows two faces at once.
 
+**Holding still.** `.mochi--still` keeps a Mochi on the page without moving. It sets `--loops`, which
+every looping part reads as its iteration count, to `0`, so each part rests on its pose and every prop
+shows whole; pose, face and prop changes are transitions and still ease in. It is a property of its own
+rather than `--play`, the one `46-mochi.js` holds while a Mochi is out of view, so coming back into view
+cannot start a still Mochi moving. An app never sets `--play` or `--loops` itself.
+
 **What a frame costs.** Every loop repaints the clay drawing, so a loop runs only while it shows:
 every loop's name is a custom property that only a `.mochi` sets, which keeps the sprite's own copy —
 in every page, seen by nobody — and every hidden prop still. At rest a Mochi runs two loops, a blink
@@ -698,7 +708,7 @@ loops. In a right-to-left page the drawing turns to face the inline end, in `70-
 no `--` in a comment, no colour, no style — and holds its parts and the rules in `68-mochi.css` to each
 other in both directions. `MochiRigTests` holds the documented vocabulary, the arm ranges and the perch
 lines. `MochiTests` measures each perch against a real card, a divider and a button in the browser, reads a pose change and a
-mood change mid-transition, and walks every combination of perch, action and mood under reduced motion
+mood change mid-transition, holds a still Mochi still in and out of view, and walks every combination of perch, action and mood under reduced motion
 against the rig's invariants: one face, one mouth, hands on the edge they hold, nothing in front of a
 card that should be behind it.
 

@@ -218,6 +218,12 @@ window.sednaUi = window.sednaUi || {};
    whichever side the OS happens to be on right now. matchMedia is guarded: it is
    missing in some embedded webviews, and an exception there must not stop the
    theme applying.
+
+   The app's own preferences ride along. The boot script's data-app-attrs names
+   them, and for each one apply() writes the value stored under that name to
+   <html data-app-<name>> — or removes the attribute when nothing is stored — so a
+   save('mochi', 'off') moves the attribute the boot script stamped before first
+   paint. The list is read off the boot script's own tag, so it is written once.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -226,6 +232,15 @@ window.sednaUi = window.sednaUi || {};
 
     function systemPrefersLight() {
         return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+    }
+
+    // The names data-app-attrs lists, cut down to the same safe token the boot
+    // script accepts. A name is used in a storage key and an attribute name, so
+    // anything else is ignored rather than escaped.
+    function appNames() {
+        var tag = document.querySelector('script[data-app-attrs]');
+        var list = ((tag && tag.getAttribute('data-app-attrs')) || '').split(/\s+/);
+        return list.filter(function (name) { return /^[a-z][a-z0-9-]*$/.test(name); });
     }
 
     // Who wants to know when the applied settings change. Plain functions, so this
@@ -297,6 +312,12 @@ window.sednaUi = window.sednaUi || {};
             // says so in its own markup and this leaves it alone.
             var dir = g('dir');
             if (dir === 'rtl' || dir === 'ltr') root.dir = dir;
+
+            appNames().forEach(function (name) {
+                var value = g(name);
+                if (value === null) root.removeAttribute('data-app-' + name);
+                else root.setAttribute('data-app-' + name, value);
+            });
 
             // Last, so a listener that reads the document sees the attributes this
             // call has already written rather than the ones it is replacing.
@@ -4640,6 +4661,8 @@ window.sednaUi = window.sednaUi || {};
    inside it, or with an editor to wire exactly that one — an app renders editors and
    then calls init(), and does not have to know how many there are or hold a reference
    to each. From C#: ISednaUi.InitMarkdownAsync().
+
+   insert() puts the app's own text at the caret — from C#, ISednaUi.InsertMarkdownAsync().
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -4752,6 +4775,28 @@ window.sednaUi = window.sednaUi || {};
                 case 'link':   wrap('[', '](https://)', 'link text'); break;
                 default: return;
             }
+            ta.dispatchEvent(new Event('input', { bubbles: true }));
+            ta.focus();
+        },
+
+        // Replace the current selection with `text` — a link from the app's own picker, a
+        // snippet, a mention — leave the caret right after it, and fire the input event so
+        // the binding captures the new value. The same edit apply() makes, without a
+        // command's wrapping.
+        //
+        // It works while focus is elsewhere, which is the usual case: the picker is a
+        // dialog opened from the toolbar, and the textarea has been blurred by the time
+        // the app has its answer. A textarea keeps selectionStart/selectionEnd across a
+        // blur, so the text lands where the caret was, and nothing is stored here to make
+        // that true. The one thing that moves the caret is assigning a DIFFERENT value
+        // while focus is away; assigning the same value, which is what a Blazor re-render
+        // after the input event does, leaves it where it was.
+        insert: function (ta, text) {
+            if (!ta || typeof ta.selectionStart !== 'number') return;
+            text = text == null ? '' : String(text);
+            var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+            ta.value = v.slice(0, s) + text + v.slice(e);
+            ta.selectionStart = ta.selectionEnd = s + text.length;
             ta.dispatchEvent(new Event('input', { bubbles: true }));
             ta.focus();
         },
