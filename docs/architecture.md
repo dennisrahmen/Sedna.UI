@@ -684,6 +684,12 @@ pink in Forest.
 **Motion.** Pose changes ride `--motion-slow`, and the face and the legs cross-fade on
 `--motion-fast` — a slow cross-fade shows two faces at once.
 
+**Holding still.** `.mochi--still` keeps a Mochi on the page without moving. It sets `--loops`, which
+every looping part reads as its iteration count, to `0`, so each part rests on its pose and every prop
+shows whole; pose, face and prop changes are transitions and still ease in. It is a property of its own
+rather than `--play`, the one `46-mochi.js` holds while a Mochi is out of view, so coming back into view
+cannot start a still Mochi moving. An app never sets `--play` or `--loops` itself.
+
 **What a frame costs.** Every loop repaints the clay drawing, so a loop runs only while it shows:
 every loop's name is a custom property that only a `.mochi` sets, which keeps the sprite's own copy —
 in every page, seen by nobody — and every hidden prop still. At rest a Mochi runs two loops, a blink
@@ -698,7 +704,7 @@ loops. In a right-to-left page the drawing turns to face the inline end, in `70-
 no `--` in a comment, no colour, no style — and holds its parts and the rules in `68-mochi.css` to each
 other in both directions. `MochiRigTests` holds the documented vocabulary, the arm ranges and the perch
 lines. `MochiTests` measures each perch against a real card, a divider and a button in the browser, reads a pose change and a
-mood change mid-transition, and walks every combination of perch, action and mood under reduced motion
+mood change mid-transition, holds a still Mochi still in and out of view, and walks every combination of perch, action and mood under reduced motion
 against the rig's invariants: one face, one mouth, hands on the edge they hold, nothing in front of a
 card that should be behind it.
 

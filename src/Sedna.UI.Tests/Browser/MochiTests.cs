@@ -479,11 +479,105 @@ public class MochiTests : ScriptTestBase
         Assert.True(await page.EvaluateAsync<int>(Running()) > 0, "It did not move again once back in view.");
     }
 
-    [Fact]
-    public async Task Under_reduced_motion_nothing_loops_and_every_change_lands_at_once()
+    // ── Holding still ─────────────────────────────────────────────────────────
+
+    /// <summary>How many loops are stepping inside #m right now.</summary>
+    private const string Running = """
+        () => document.getAnimations().filter(a => a.playState === 'running' && a.effect.target.closest('#m')).length
+        """;
+
+    /// <summary>The most loops stepping inside #m on any frame across half a second.</summary>
+    private const string RunningOverTime = """
+        async () => {
+            let most = 0;
+            const t0 = performance.now();
+            while (performance.now() - t0 < 500) {
+                await new Promise(r => requestAnimationFrame(r));
+                most = Math.max(most, document.getAnimations().filter(a => a.playState === 'running' && a.effect.target.closest('#m')).length);
+            }
+            return most;
+        }
+        """;
+
+    [Theory]
+    [InlineData("idle")]
+    [InlineData("wave")]
+    [InlineData("think")]
+    [InlineData("celebrate")]
+    public async Task A_still_mochi_runs_no_loop_and_shows_its_prop_whole(string action)
     {
         if (NoBrowser) return;
-        var page = await OpenMochi("""<span class="mochi" id="m" data-perch="hang" data-action="wave" role="img" aria-label="Ops agent">""" + Svg + "</span>");
+        var page = await OpenMochi($"""<span class="mochi mochi--still" id="m" data-action="{action}" role="img" aria-label="Ops agent">""" + Svg + "</span>", reduced: false);
+
+        // A loop with a delay waits it out before it ends, so give the longest one time.
+        await page.WaitForFunctionAsync($"() => ({Running})() === 0", null, new() { Timeout = 5000 });
+        Assert.Equal(0, await page.EvaluateAsync<int>(RunningOverTime));
+
+        // Paused on its first frame, a prop's loop would hold it unseen — a bubble at
+        // scale 0. A still Mochi shows the prop as it is drawn.
+        if (action == "think")
+        {
+            Assert.Equal(1, await page.EvaluateAsync<double>(
+                "() => Number(getComputedStyle(document.querySelector('#m .sedna-mochi-bubble')).opacity)"), 2);
+        }
+    }
+
+    [Fact]
+    public async Task A_still_mochi_stays_still_after_leaving_and_coming_back_into_view()
+    {
+        if (NoBrowser) return;
+        var page = await OpenMochi("""<span class="mochi mochi--still" id="m" data-action="idle" role="img" aria-label="Ops agent">""" + Svg + "</span>", reduced: false);
+        await page.WaitForFunctionAsync($"() => ({Running})() === 0", null, new() { Timeout = 5000 });
+
+        // Out of view the script holds every loop; back in view it lets them go. A still
+        // Mochi has none to let go.
+        await page.EvaluateAsync("() => document.getElementById('m').style.marginTop = '5000px'");
+        await page.WaitForFunctionAsync("() => document.getElementById('m').hasAttribute('data-mochi-away')");
+        await page.EvaluateAsync("() => document.getElementById('m').style.marginTop = '0'");
+        await page.WaitForFunctionAsync("() => !document.getElementById('m').hasAttribute('data-mochi-away')");
+
+        Assert.Equal("running", (await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('m')).getPropertyValue('--play')")).Trim());
+        Assert.Equal(0, await page.EvaluateAsync<int>(RunningOverTime));
+    }
+
+    [Fact]
+    public async Task A_still_mochi_still_eases_into_a_new_pose()
+    {
+        if (NoBrowser) return;
+        var page = await OpenMochi("""<span class="mochi mochi--still" id="m" data-action="idle" role="img" aria-label="Ops agent">""" + Svg + "</span>", reduced: false);
+
+        // The same change A_new_action_eases_the_arm_the_short_way_round reads: idle's
+        // 67° to the wave's −53°, through the angles between — and the wave itself does
+        // not start.
+        var angles = await page.EvaluateAsync<double[]>("""
+            async () => {
+                const arm = document.querySelector('#m .sedna-mochi-arm-br');
+                const angle = () => { const m = new DOMMatrix(getComputedStyle(arm).transform); return Math.atan2(m.b, m.a) * 180 / Math.PI; };
+                const out = [angle()];
+                document.getElementById('m').dataset.action = 'wave';
+                const t0 = performance.now();
+                while (performance.now() - t0 < 1100) {
+                    await new Promise(r => requestAnimationFrame(r));
+                    out.push(angle());
+                }
+                return out;
+            }
+            """);
+
+        Assert.InRange(angles[0], 66, 68);
+        Assert.InRange(angles[^1], -54, -52);
+        Assert.True(angles.Count(a => a < 60 && a > -45) >= 3,
+            "A still Mochi jumped to the new pose instead of easing: " + string.Join(", ", angles.Select(a => a.ToString("0"))));
+        Assert.Equal(0, await page.EvaluateAsync<int>(Running));
+    }
+
+    [Theory]
+    [InlineData("mochi")]
+    [InlineData("mochi mochi--still")]
+    public async Task Under_reduced_motion_nothing_loops_and_every_change_lands_at_once(string classes)
+    {
+        if (NoBrowser) return;
+        var page = await OpenMochi($"""<span class="{classes}" id="m" data-perch="hang" data-action="wave" role="img" aria-label="Ops agent">""" + Svg + "</span>");
 
         var moving = await page.EvaluateAsync<string[]>("""
             () => [...document.querySelectorAll('#m [class*="sedna-mochi-"]')]
