@@ -9047,6 +9047,37 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
 .stat--unavailable .stat-delta,
 .stat--unavailable .stat-target { visibility: hidden; }
 
+/* ── Tone ───────────────────────────────────────────────────────────────────
+   A figure that has crossed a threshold: spend past a soft limit, a disk nearly full,
+   an error rate over its budget. `--warn` and `--danger` tint the tile and colour the
+   value. Pick the tone by the threshold the figure crossed, not by which way it moved —
+   that is the delta's job.
+
+   The tint reaches past the tile's track by its own negative margin, so the label and
+   the value sit exactly where an untoned neighbour's do and the row keeps its height.
+   It reaches less than half the narrowest gap, so two toned tiles side by side never
+   touch. The edge is a border, so forced-colors mode keeps it when the tint is
+   flattened. `.stat.stat--*` outranks `a.stat`, so a linked tile takes the same box. */
+.stat.stat--warn,
+.stat.stat--danger {
+    padding: calc(var(--space-3) - 1px);
+    margin: calc(var(--space-3) * -1);
+    border: 1px solid transparent;
+    border-radius: var(--radius-surface);
+}
+.card-body > .stat-row > .stat.stat--warn,
+.card-body > .stat-row > .stat.stat--danger {
+    padding-block: calc(var(--space-2) + var(--space-3) - 1px);
+}
+.stat--warn   { background: var(--warn-bg);   border-color: var(--warn-border); }
+.stat--danger { background: var(--danger-bg); border-color: var(--danger-border-strong); }
+.stat--warn .stat-value,
+a.stat--warn:hover .stat-value   { color: var(--warn-fg); }
+.stat--danger .stat-value,
+a.stat--danger:hover .stat-value { color: var(--danger-fg); }
+a.stat--warn:hover   { background: var(--warn-bg-hover); }
+a.stat--danger:hover { background: var(--danger-bg-hover); }
+
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
    it is given, so it behaves correctly inside a narrow column too. */
 .stat-row {
@@ -9093,6 +9124,14 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
 .card-body > .stat-row > a.stat::before {
     inset-block: var(--space-4);
     inset-inline-start: calc(var(--space-5) - var(--space-7));
+}
+/* A toned tile's box reaches past its track by its tint; the rule does not. */
+.stat-row--divided > .stat.stat--warn::before,
+.stat-row--divided > .stat.stat--danger::before,
+.card-body > .stat-row > .stat.stat--warn::before,
+.card-body > .stat-row > .stat.stat--danger::before {
+    inset-block: calc(var(--space-3) - 1px);
+    inset-inline-start: calc(var(--space-3) - 1px - var(--space-7));
 }
 }
 
@@ -15507,8 +15546,9 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    are two, a blink and a sampled breath. Pose changes ride `--motion-slow`; the face and
    the legs cross-fade on `--motion-fast`, because a slow cross-fade shows two faces at
    once. The loops are the drawing's own,
-   their durations in longhands, as the state illustrations' are. Reduced motion keeps
-   every change and drops every loop. In RTL the drawing turns to face the inline end —
+   their durations in longhands, as the state illustrations' are. `.mochi--still` drops
+   every loop and keeps every eased change; reduced motion keeps every change and drops
+   every loop and every ease. In RTL the drawing turns to face the inline end —
    see 70-rtl.css.
 
    ── Colour ──
@@ -15556,6 +15596,8 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     --a-arc: none; --a-pop: none; --a-check: none; --a-float: none;
     /* Paused while out of view — 46-mochi.js sets data-mochi-away. */
     --play: running;
+    /* How many times a loop runs: none at all on a .mochi--still. */
+    --loops: infinite;
     /* Props. */
     --p-think: none; --p-laptop: none; --p-confetti: none; --p-sweat: none; --p-zzz: none;
     --p-waves: none; --p-pop: none; --p-check: none; --p-hearts: none;
@@ -15570,6 +15612,11 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .mochi--md { --size: 88px; }
 .mochi--lg { --size: 140px; }
 .mochi--xl { --size: 220px; }
+/* Present, not moving: every loop runs no times, so each part rests on its pose and
+   every prop shows whole. Pose, face and prop changes still ease — they are
+   transitions, not loops — and `talk` still opens the mouth by `--level`. It is a
+   property of its own, not `--play`, so coming back into view cannot start it. */
+.mochi--still { --loops: 0; }
 /* Head and shoulders in a circle, for where an avatar goes: the same markup, the
    drawing enlarged and cut to the square from 30 to 130 across and down —
    the dome, the headset and the face, on a disc of its own like any avatar. */
@@ -15902,7 +15949,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .sedna-mochi-pop,
 .sedna-mochi-check,
 .sedna-mochi-heart,
-.sedna-mochi-float-heart { animation-play-state: var(--play); }
+.sedna-mochi-float-heart { animation-play-state: var(--play); animation-iteration-count: var(--loops); }
 
 @keyframes sedna-mochi-breathe { 0% { transform: scale(1, 1); } 4.1667% { transform: scale(1.0003, 0.9997); } 8.3333% { transform: scale(1.0011, 0.9989); } 12.5% { transform: scale(1.0023, 0.9977); } 16.6667% { transform: scale(1.004, 0.996); } 20.8333% { transform: scale(1.0059, 0.9941); } 25% { transform: scale(1.008, 0.992); } 29.1667% { transform: scale(1.0101, 0.9899); } 33.3333% { transform: scale(1.012, 0.988); } 37.5% { transform: scale(1.0137, 0.9863); } 41.6667% { transform: scale(1.0149, 0.9851); } 45.8333% { transform: scale(1.0157, 0.9843); } 50% { transform: scale(1.016, 0.984); } 54.1667% { transform: scale(1.0157, 0.9843); } 58.3333% { transform: scale(1.0149, 0.9851); } 62.5% { transform: scale(1.0137, 0.9863); } 66.6667% { transform: scale(1.012, 0.988); } 70.8333% { transform: scale(1.0101, 0.9899); } 75% { transform: scale(1.008, 0.992); } 79.1667% { transform: scale(1.0059, 0.9941); } 83.3333% { transform: scale(1.004, 0.996); } 87.5% { transform: scale(1.0023, 0.9977); } 91.6667% { transform: scale(1.0011, 0.9989); } 95.8333% { transform: scale(1.0003, 0.9997); } 100% { transform: scale(1, 1); } }
 @keyframes sedna-mochi-snooze { 0% { transform: scale(1, 1) translateY(0px); } 3.125% { transform: scale(1.0003, 0.9997) translateY(0.0096px); } 6.25% { transform: scale(1.0013, 0.9987) translateY(0.0381px); } 9.375% { transform: scale(1.0029, 0.9971) translateY(0.0843px); } 12.5% { transform: scale(1.0051, 0.9949) translateY(0.1464px); } 15.625% { transform: scale(1.0078, 0.9922) translateY(0.2222px); } 18.75% { transform: scale(1.0108, 0.9892) translateY(0.3087px); } 21.875% { transform: scale(1.0141, 0.9859) translateY(0.4025px); } 25% { transform: scale(1.0175, 0.9825) translateY(0.5px); } 28.125% { transform: scale(1.0209, 0.9791) translateY(0.5975px); } 31.25% { transform: scale(1.0242, 0.9758) translateY(0.6913px); } 34.375% { transform: scale(1.0272, 0.9728) translateY(0.7778px); } 37.5% { transform: scale(1.0299, 0.9701) translateY(0.8536px); } 40.625% { transform: scale(1.0321, 0.9679) translateY(0.9157px); } 43.75% { transform: scale(1.0337, 0.9663) translateY(0.9619px); } 46.875% { transform: scale(1.0347, 0.9653) translateY(0.9904px); } 50% { transform: scale(1.035, 0.965) translateY(1px); } 53.125% { transform: scale(1.0347, 0.9653) translateY(0.9904px); } 56.25% { transform: scale(1.0337, 0.9663) translateY(0.9619px); } 59.375% { transform: scale(1.0321, 0.9679) translateY(0.9157px); } 62.5% { transform: scale(1.0299, 0.9701) translateY(0.8536px); } 65.625% { transform: scale(1.0272, 0.9728) translateY(0.7778px); } 68.75% { transform: scale(1.0242, 0.9758) translateY(0.6913px); } 71.875% { transform: scale(1.0209, 0.9791) translateY(0.5975px); } 75% { transform: scale(1.0175, 0.9825) translateY(0.5px); } 78.125% { transform: scale(1.0141, 0.9859) translateY(0.4025px); } 81.25% { transform: scale(1.0108, 0.9892) translateY(0.3087px); } 84.375% { transform: scale(1.0078, 0.9922) translateY(0.2222px); } 87.5% { transform: scale(1.0051, 0.9949) translateY(0.1464px); } 90.625% { transform: scale(1.0029, 0.9971) translateY(0.0843px); } 93.75% { transform: scale(1.0013, 0.9987) translateY(0.0381px); } 96.875% { transform: scale(1.0003, 0.9997) translateY(0.0096px); } 100% { transform: scale(1, 1) translateY(0px); } }
