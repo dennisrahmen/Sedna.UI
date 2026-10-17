@@ -120,6 +120,20 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Mochi.Still" Title="Holding still" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.mochi--still</code> keeps Mochi on the page without moving: no breath, no blink, no wave,
+        and every prop shown whole &mdash; the thought bubble stays up. It is the calm setting for an app
+        that lets the reader choose how lively the agent is. Pose, face and prop changes still ease in,
+        so keep setting <code>data-action</code> and <code>data-mood</code> as the work moves on.
+    </p>
+    <p>
+        Use the class rather than pausing the loops yourself. Out of view <code>Sedna.UI.js</code> holds
+        every Mochi's loops and lets them go again when it comes back; a still Mochi stays still either way.
+        Under <code>prefers-reduced-motion</code> every Mochi holds still and its changes land at once.
+    </p>
+</CatExample>
+
 <h2 id="perches">Perches</h2>
 <CatExample TExample="Examples.Mochi.Perches" Title="On a card" Demo="ex-demo--block ex-demo--pad">
     <p>
@@ -208,8 +222,9 @@
 <p>
     Every pose change eases on the joints, and every action has a loop of its own &mdash; a wave, a bounce,
     feet kicking while it hangs. Pose changes ride <code>--motion-slow</code>, so an app that slows or
-    stops its motion slows or stops them too. Under <code>prefers-reduced-motion</code> Mochi still
-    changes pose, face and props, but at once, and nothing loops.
+    stops its motion slows or stops them too. <code>.mochi--still</code> drops the loops and keeps the
+    eased changes. Under <code>prefers-reduced-motion</code> Mochi still changes pose, face and props, but
+    at once, and nothing loops.
 </p>
 <p>
     A Mochi out of view costs nothing: <code>Sedna.UI.js</code> marks it <code>data-mochi-away</code>, and
