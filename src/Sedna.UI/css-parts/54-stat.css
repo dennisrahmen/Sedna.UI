@@ -149,6 +149,8 @@ a.stat--danger:hover { background: var(--danger-bg-hover); }
 .stat-row--divided > .stat,
 .card-body > .stat-row > .stat { position: relative; }
 .card-body > .stat-row > .stat { padding-block: var(--space-2); }
+/* A linked tile keeps its negative margin, so its padding has to give that back too. */
+.card-body > .stat-row > a.stat { padding-block: calc(var(--space-2) + var(--space-4)); }
 /* A border rather than a background, so forced-colors mode keeps it. */
 .stat-row--divided > .stat::before,
 .card-body > .stat-row > .stat::before {
