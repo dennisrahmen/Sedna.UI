@@ -179,7 +179,7 @@ internal static class CataloguePages
             "sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num pinned frozen pin-start pin-end column width min-width shrink fit prose control actions group grouped rowgroup tr-group SednaSort AriaSort Toggle tr-filter filter row per column filtered col-filtered th-filter th-filter--active form-trigger input-clear multi-select checkboxes selected range date boolean yes no any reset all admin grid tr-empty tr-busy empty nothing found no results refreshing colspan"),
         new("/stat", Data, "Stats", "ri-numbers-line",
             "One number that matters, which way it moved, and what it is measured against.",
-            "kpi number metric delta tile target unavailable dashboard stat--sm small value timestamp date"),
+            "kpi number metric delta tile target unavailable dashboard stat--sm small value timestamp date stat--warn stat--danger tone threshold limit budget quota over warning danger"),
         new("/bars", Data, "Bars and meters", "ri-bar-chart-horizontal-line",
             "A list of bars to compare a few values, one bar split into parts, and a value against its thresholds.",
             "bar chart bar-list stack-bar stacked segment share percent meter gauge threshold mark scale series colour legend compare comparison previous last year last month delta"),
