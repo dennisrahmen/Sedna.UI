@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace Sedna.UI;
@@ -73,6 +74,10 @@ public sealed class SednaUi : ISednaUi
     /// <inheritdoc />
     public Task InitMarkdownAsync()
         => _js.InvokeVoidAsync("sednaUi.md.init").AsTask();
+
+    /// <inheritdoc />
+    public Task InsertMarkdownAsync(ElementReference textarea, string text)
+        => _js.InvokeVoidAsync("sednaUi.md.insert", textarea, text).AsTask();
 
     /// <inheritdoc />
     public Task<SednaUiSettings> LoadSettingsAsync()

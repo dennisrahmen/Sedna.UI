@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+
 namespace Sedna.UI;
 
 /// <summary>
@@ -165,6 +167,31 @@ public interface ISednaUi
     /// </para>
     /// </remarks>
     Task InitMarkdownAsync();
+
+    /// <summary>
+    /// Replaces the selection in a <c>.md-editor</c>'s textarea with <paramref name="text"/>
+    /// and leaves the caret right after it.
+    /// </summary>
+    /// <param name="textarea">The editor's <c>[data-md-input]</c> textarea, captured with <c>@ref</c>.</param>
+    /// <param name="text">
+    /// The text to insert, exactly as given — a Markdown link the app built from its own
+    /// picker, a snippet, a signature. Nothing is wrapped or escaped.
+    /// </param>
+    /// <returns>A task that completes once the text is in the field.</returns>
+    /// <remarks>
+    /// <para>
+    /// What a binding cannot do: assigning the bound field replaces the whole value and
+    /// puts the caret at the end, where this types at the reader's caret. The edit then
+    /// reaches the field the way a toolbar command does — a bubbling <c>input</c> event,
+    /// which <c>@bind:event="oninput"</c> picks up — and focus returns to the textarea.
+    /// </para>
+    /// <para>
+    /// Call it after a dialog opened from the editor's toolbar closes: a textarea keeps its
+    /// selection while focus is elsewhere, so the text lands where the caret was rather than
+    /// at the end. With no selection it inserts at the caret.
+    /// </para>
+    /// </remarks>
+    Task InsertMarkdownAsync(ElementReference textarea, string text);
 
     /// <summary>Reads the stored theme, variant, colour-blind, density, direction and language settings.</summary>
     /// <returns>The settings currently applied.</returns>

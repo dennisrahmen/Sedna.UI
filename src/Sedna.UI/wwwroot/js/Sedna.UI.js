@@ -4640,6 +4640,8 @@ window.sednaUi = window.sednaUi || {};
    inside it, or with an editor to wire exactly that one — an app renders editors and
    then calls init(), and does not have to know how many there are or hold a reference
    to each. From C#: ISednaUi.InitMarkdownAsync().
+
+   insert() puts the app's own text at the caret — from C#, ISednaUi.InsertMarkdownAsync().
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -4752,6 +4754,28 @@ window.sednaUi = window.sednaUi || {};
                 case 'link':   wrap('[', '](https://)', 'link text'); break;
                 default: return;
             }
+            ta.dispatchEvent(new Event('input', { bubbles: true }));
+            ta.focus();
+        },
+
+        // Replace the current selection with `text` — a link from the app's own picker, a
+        // snippet, a mention — leave the caret right after it, and fire the input event so
+        // the binding captures the new value. The same edit apply() makes, without a
+        // command's wrapping.
+        //
+        // It works while focus is elsewhere, which is the usual case: the picker is a
+        // dialog opened from the toolbar, and the textarea has been blurred by the time
+        // the app has its answer. A textarea keeps selectionStart/selectionEnd across a
+        // blur, so the text lands where the caret was, and nothing is stored here to make
+        // that true. The one thing that moves the caret is assigning a DIFFERENT value
+        // while focus is away; assigning the same value, which is what a Blazor re-render
+        // after the input event does, leaves it where it was.
+        insert: function (ta, text) {
+            if (!ta || typeof ta.selectionStart !== 'number') return;
+            text = text == null ? '' : String(text);
+            var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+            ta.value = v.slice(0, s) + text + v.slice(e);
+            ta.selectionStart = ta.selectionEnd = s + text.length;
             ta.dispatchEvent(new Event('input', { bubbles: true }));
             ta.focus();
         },
