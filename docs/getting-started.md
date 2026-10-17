@@ -165,6 +165,34 @@ names a theme no block answers to.
 `ISednaUi.ConfigureAsync()` pushes the same value to `Sedna.UI.js`, so the two agree once the circuit
 is up. An app calling neither keeps today's behaviour: `sedna` in both scripts.
 
+### An app's own preference
+
+`data-app-attrs` lists preferences of the app's own that the boot script applies before first paint,
+as whitespace-separated names. For each name, a value stored under `<prefix><name>` — `sedna.mochi`
+by default — is written to `<html data-app-<name>="<value>">`:
+
+```html
+<script src="_content/Sedna.UI/js/Sedna.UI.boot.js" data-app-attrs="mochi"></script>
+```
+
+```css
+/* the app's own stylesheet, on the app's own element */
+:root[data-app-mochi="off"] .app-companion { display: none; }
+```
+
+It is for a page no circuit reaches — a statically rendered error page behind `UseExceptionHandler`, say —
+which would otherwise paint the app's default and never correct it.
+
+- **Nothing stored, no attribute.** Style the default without the attribute and the stored choice
+  with it.
+- **A name is a lowercase token**, `^[a-z][a-z0-9-]*$`. Any other name is ignored. The value is
+  written as an attribute value and nothing else.
+- **Store it through the library**: `sednaUi.settings.save('mochi', 'off')` or
+  `Ui.SaveSettingAsync("mochi", "off")`. Both write `<prefix>mochi` and apply it, and `apply()` keeps
+  every listed attribute in step with storage — it removes the attribute when the key is gone. An app
+  writing the key some other way sets the attribute itself.
+- The prefix is `data-prefix`, the same as for the library's own settings.
+
 ### The browser's time zone
 
 `data-tz-cookie` names a cookie, and the boot script writes the browser's IANA zone to it before first

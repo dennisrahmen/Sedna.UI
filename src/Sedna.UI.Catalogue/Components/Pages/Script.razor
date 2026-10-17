@@ -50,6 +50,22 @@
     </p>
 </CatSnippet>
 
+<CatSnippet Name="Script/AppAttrs.html" Title="An app's own preference">
+    <p>
+        <code>data-app-attrs</code> lists the app's own preferences, separated by spaces. For each
+        name, <code>boot.js</code> writes the value stored under <code>sedna.&lt;name&gt;</code> to
+        <code>&lt;html data-app-&lt;name&gt;&gt;</code> before first paint, so the app's stylesheet
+        selects <code>:root[data-app-mochi="off"]</code> on a statically rendered error page as on
+        any other. Nothing stored writes no attribute, and a name that is not a lowercase token is
+        ignored.
+    </p>
+    <p>
+        Store the value with <code>sednaUi.settings.save('mochi', 'off')</code> or
+        <code>SaveSettingAsync</code>, and <code>settings.apply()</code> keeps the attribute in step.
+        An app that writes the key some other way sets the attribute itself.
+    </p>
+</CatSnippet>
+
 
 <CatExample TExample="Examples.Script.Toasts" Title="Toasts" Demo="ex-demo--block">
     <p>

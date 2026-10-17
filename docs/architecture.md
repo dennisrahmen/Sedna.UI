@@ -273,6 +273,10 @@ Two consequences for a rule that sets a control's height:
 - `Sedna.UI.boot.js` applies them from `localStorage` before first paint.
 - `sednaUi.settings.save('variant', 'light')` (or `'theme'`, `'cvd'`, `'density'`) updates them at
   runtime.
+- **An app's own preferences ride along.** The boot tag's `data-app-attrs="mochi"` names them;
+  `boot.js` writes `<prefix>mochi` to `<html data-app-mochi>` before first paint, and
+  `settings.apply()` keeps the attribute in step — set from storage, removed when nothing is stored.
+  Names are validated to `^[a-z][a-z0-9-]*$`; the value is only ever an attribute value.
 - **`ISednaSettings` is the C# view of the same state** — `Current`, setters, and a `Changed` event.
   `StartAsync()` in `OnAfterRenderAsync(firstRender)` reads the browser and subscribes; the service
   never writes the attributes itself, so `sednaUi.settings.apply()` stays the only writer. The case

@@ -71,6 +71,22 @@ public class ScriptContractTests
         Assert.Contains("key('variant')", main, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void The_boot_script_and_the_main_script_accept_the_same_app_attribute_names()
+    {
+        // data-app-attrs is read twice: boot.js stamps the attributes before first paint
+        // and settings.apply() keeps them in step. A name one accepts and the other
+        // rejects would be stamped on load and then never updated, or the reverse.
+        var boot = StripJsComments(File.ReadAllText(Assets.BootJsPath));
+        var main = StripJsComments(File.ReadAllText(Assets.JsPath));
+        const string pattern = "/^[a-z][a-z0-9-]*$/";
+
+        Assert.Contains(pattern, boot, StringComparison.Ordinal);
+        Assert.Contains(pattern, main, StringComparison.Ordinal);
+        Assert.Contains("'data-app-' + name", boot, StringComparison.Ordinal);
+        Assert.Contains("'data-app-' + name", main, StringComparison.Ordinal);
+    }
+
     /// <summary>
     /// Removes JS comments. The line-comment rule skips a <c>//</c> preceded by a
     /// colon so URLs inside string literals survive.

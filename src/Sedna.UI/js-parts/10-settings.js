@@ -15,6 +15,12 @@
    whichever side the OS happens to be on right now. matchMedia is guarded: it is
    missing in some embedded webviews, and an exception there must not stop the
    theme applying.
+
+   The app's own preferences ride along. The boot script's data-app-attrs names
+   them, and for each one apply() writes the value stored under that name to
+   <html data-app-<name>> — or removes the attribute when nothing is stored — so a
+   save('mochi', 'off') moves the attribute the boot script stamped before first
+   paint. The list is read off the boot script's own tag, so it is written once.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -23,6 +29,15 @@
 
     function systemPrefersLight() {
         return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+    }
+
+    // The names data-app-attrs lists, cut down to the same safe token the boot
+    // script accepts. A name is used in a storage key and an attribute name, so
+    // anything else is ignored rather than escaped.
+    function appNames() {
+        var tag = document.querySelector('script[data-app-attrs]');
+        var list = ((tag && tag.getAttribute('data-app-attrs')) || '').split(/\s+/);
+        return list.filter(function (name) { return /^[a-z][a-z0-9-]*$/.test(name); });
     }
 
     // Who wants to know when the applied settings change. Plain functions, so this
@@ -94,6 +109,12 @@
             // says so in its own markup and this leaves it alone.
             var dir = g('dir');
             if (dir === 'rtl' || dir === 'ltr') root.dir = dir;
+
+            appNames().forEach(function (name) {
+                var value = g(name);
+                if (value === null) root.removeAttribute('data-app-' + name);
+                else root.setAttribute('data-app-' + name, value);
+            });
 
             // Last, so a listener that reads the document sees the attributes this
             // call has already written rather than the ones it is replacing.
