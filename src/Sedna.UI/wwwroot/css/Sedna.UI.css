@@ -9047,6 +9047,37 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
 .stat--unavailable .stat-delta,
 .stat--unavailable .stat-target { visibility: hidden; }
 
+/* ── Tone ───────────────────────────────────────────────────────────────────
+   A figure that has crossed a threshold: spend past a soft limit, a disk nearly full,
+   an error rate over its budget. `--warn` and `--danger` tint the tile and colour the
+   value. Pick the tone by the threshold the figure crossed, not by which way it moved —
+   that is the delta's job.
+
+   The tint reaches past the tile's track by its own negative margin, so the label and
+   the value sit exactly where an untoned neighbour's do and the row keeps its height.
+   It reaches less than half the narrowest gap, so two toned tiles side by side never
+   touch. The edge is a border, so forced-colors mode keeps it when the tint is
+   flattened. `.stat.stat--*` outranks `a.stat`, so a linked tile takes the same box. */
+.stat.stat--warn,
+.stat.stat--danger {
+    padding: calc(var(--space-3) - 1px);
+    margin: calc(var(--space-3) * -1);
+    border: 1px solid transparent;
+    border-radius: var(--radius-surface);
+}
+.card-body > .stat-row > .stat.stat--warn,
+.card-body > .stat-row > .stat.stat--danger {
+    padding-block: calc(var(--space-2) + var(--space-3) - 1px);
+}
+.stat--warn   { background: var(--warn-bg);   border-color: var(--warn-border); }
+.stat--danger { background: var(--danger-bg); border-color: var(--danger-border-strong); }
+.stat--warn .stat-value,
+a.stat--warn:hover .stat-value   { color: var(--warn-fg); }
+.stat--danger .stat-value,
+a.stat--danger:hover .stat-value { color: var(--danger-fg); }
+a.stat--warn:hover   { background: var(--warn-bg-hover); }
+a.stat--danger:hover { background: var(--danger-bg-hover); }
+
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
    it is given, so it behaves correctly inside a narrow column too. */
 .stat-row {
@@ -9091,6 +9122,14 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
 .card-body > .stat-row > a.stat::before {
     inset-block: var(--space-4);
     inset-inline-start: calc(var(--space-5) - var(--space-7));
+}
+/* A toned tile's box reaches past its track by its tint; the rule does not. */
+.stat-row--divided > .stat.stat--warn::before,
+.stat-row--divided > .stat.stat--danger::before,
+.card-body > .stat-row > .stat.stat--warn::before,
+.card-body > .stat-row > .stat.stat--danger::before {
+    inset-block: calc(var(--space-3) - 1px);
+    inset-inline-start: calc(var(--space-3) - 1px - var(--space-7));
 }
 }
 
