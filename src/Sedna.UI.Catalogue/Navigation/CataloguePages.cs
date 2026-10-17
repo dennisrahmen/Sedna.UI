@@ -254,7 +254,7 @@ internal static class CataloguePages
             "prose article body measure foreign contain sanitized html redacted secret masked"),
         new("/markdown", Content, "Markdown", "ri-markdown-line",
             "Rendered Markdown, and an editor with a live preview.",
-            "md-editor preview render markdown-body"),
+            "md-editor preview render markdown-body insert caret cursor link picker"),
         new("/editor", Content, "Rich-text editor", "ri-edit-box-line",
             "Formatted text a reader writes, posted as HTML from a textarea.",
             "editor data-editor editor-toolbar editor-sep editor-body editor-link rich text wysiwyg quill html textarea bind toolbar aria-pressed link bold list heading"),
