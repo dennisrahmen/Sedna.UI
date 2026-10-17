@@ -2808,6 +2808,7 @@
     "Prose/Foreign": "0.14.0",
     "Prose/Prose": "0.14.0",
     "Prose/Redacted": "0.14.0",
+    "Script/AppAttrs": null,
     "Script/CopyWithoutHandler": "0.14.0",
     "Script/DelegatedMenu": "0.2.0",
     "Script/DelegatedTabs": "0.2.0",

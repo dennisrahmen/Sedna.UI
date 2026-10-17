@@ -200,7 +200,10 @@ public interface ISednaUi
     /// <summary>
     /// Stores one setting and applies it immediately.
     /// </summary>
-    /// <param name="key">One of <c>theme</c>, <c>variant</c>, <c>cvd</c>, <c>density</c>, <c>lang</c>.</param>
+    /// <param name="key">
+    /// One of <c>theme</c>, <c>variant</c>, <c>cvd</c>, <c>density</c>, <c>lang</c>, or a name
+    /// listed in the boot script's <c>data-app-attrs</c>.
+    /// </param>
     /// <param name="value">
     /// <c>theme</c> takes a theme name (nothing stored falls back to
     /// <see cref="SednaUiOptions.Default"/>);
@@ -208,6 +211,8 @@ public interface ISednaUi
     /// <c>prefers-color-scheme</c> live; <c>cvd</c> takes <c>1</c> or anything else
     /// for off; <c>density</c> takes <c>compact</c> or anything else for the
     /// default; <c>lang</c> takes a two-letter code.
+    /// A name the boot script's <c>data-app-attrs</c> lists is the app's own preference: it is
+    /// stored under the same prefix and mirrored to <c>&lt;html data-app-&lt;name&gt;&gt;</c>.
     /// </param>
     /// <returns>A task that completes once the setting is stored and applied.</returns>
     Task SaveSettingAsync(string key, string value);
