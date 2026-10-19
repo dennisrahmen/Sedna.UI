@@ -165,6 +165,20 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Graph.WallScreen" Title="A few records on a wall screen" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A fit stops a little past full size, so a handful of records in a big frame stay small and close
+        together. On a screen read from across a room, <code>data-graph-fit-max</code> lets the fit zoom
+        further &mdash; to <code>3</code> here &mdash; and spread them over the frame. Names stay the size
+        they are on any other graph.
+    </p>
+    <p>
+        An app that scales its whole frame with CSS <code>zoom</code> for a big screen gets a sharp canvas:
+        the graph draws at the screen's pixel ratio times that zoom. A tap or a click focuses the graph
+        without its ring, which comes back at the first key.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Graph.Network" Title="A large graph" Demo="ex-demo--block ex-demo--pad">
     <p>
         A <code>.graph--lg</code> network, with its tools where a map keeps them.
@@ -320,6 +334,7 @@
             <tr><td><code>data-graph-open</code>, <code>data-graph-wheel</code></td><td><code>dbltap</code> <code>tap</code> <code>none</code>; <code>focus</code> <code>always</code> <code>none</code>.</td></tr>
             <tr><td><code>data-graph-hover</code>, <code>data-graph-select</code>, <code>data-graph-drag</code></td><td><code>none</code> keeps the drawing still under the pointer; <code>none</code> turns selection off; <code>false</code> pins the records.</td></tr>
             <tr><td><code>data-graph-deferred</code>, <code>data-graph-src</code>, <code>data-graph-eager</code></td><td>Records by a call; records fetched as JSON; start at once rather than when scrolled near.</td></tr>
+            <tr><td><code>data-graph-fit-max</code></td><td>How far a fit may zoom in, e.g. <code>3</code>; <code>1.25</code> for dots and <code>1.1</code> for boxes unless set.</td></tr>
             <tr><td><code>data-graph-renderer</code></td><td><code>canvas</code>, the default, or <code>webgl</code> for a very large graph &mdash; check it on the hardware the app runs on.</td></tr>
         </tbody>
     </table>

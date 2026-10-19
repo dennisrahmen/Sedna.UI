@@ -121,10 +121,12 @@ public abstract class GraphTestBase : ScriptTestBase
         bool reduceMotion = true,
         ForcedColors? forcedColors = null,
         IReadOnlyDictionary<string, Served>? serve = null,
-        ColorScheme colorScheme = ColorScheme.Light)
+        ColorScheme colorScheme = ColorScheme.Light,
+        bool hasTouch = false)
     {
         return await Open(body, head: StylesheetTag + Probe + head,
             colorScheme: colorScheme,
+            hasTouch: hasTouch,
             reducedMotion: reduceMotion ? ReducedMotion.Reduce : ReducedMotion.NoPreference,
             forcedColors: forcedColors,
             serve: serve,

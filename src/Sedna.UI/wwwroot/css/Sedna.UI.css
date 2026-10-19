@@ -8568,9 +8568,11 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 
 /* The graph is one stop in the tab order; the arrow keys move between records inside
    it. Its ring is drawn inside the frame, above the canvas, so a card around the graph
-   that clips its content does not clip the ring as well. */
+   that clips its content does not clip the ring as well. A focus the pointer gave it —
+   `data-graph-pointer`, which the script takes off at the first key — has no ring: the
+   browser cannot tell it from a keyboard's, and rings a tap on a touch screen. */
 .graph:focus { outline: none; }
-.graph:focus-visible::after {
+.graph:focus-visible:not([data-graph-pointer])::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -18144,7 +18146,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
-    .graph:focus-visible::after { outline: 2px solid CanvasText; outline-offset: -2px; }
+    .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
 
     /* Selected and current states are backgrounds, which are flattened away. An
        outline is what is left that the mode still paints. */

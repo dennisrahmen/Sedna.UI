@@ -117,6 +117,7 @@ On the `[data-graph]` element:
 | `data-graph-focus`, `data-graph-focus-depth` | an id, 1–6 | Start on one record's neighbourhood. |
 | `data-graph-connect`, `data-graph-collapse`, `data-graph-hulls` | — | Start with a plugin on; see [Plugins](#plugins). |
 | `data-graph-managed` | — | Keep a link the reader drew, for a page with no app behind it. |
+| `data-graph-fit-max` | a zoom, e.g. `3` | How far a fit may zoom in: `1.25` for dots and `1.1` for boxes unless set. Raise it for a few records on a screen read from across a room. |
 | `data-graph-renderer` | `canvas` (default), `webgl` | WebGL is faster for many thousands of elements on a real GPU, and is still experimental in the engine: choose it for a very large graph and check it on the hardware the app runs on. |
 
 ## The frame
@@ -160,6 +161,8 @@ On the `[data-graph]` element:
 **The graph is one stop in the tab order**, with a ring drawn inside its frame. It gets
 `tabindex="0"` and `role="application"` unless the app wrote its own; its name —
 `aria-label` — and `aria-roledescription`, if the word "graph" should be said, are the app's.
+A click or a tap on the canvas focuses the graph without the ring: the script sets
+`data-graph-pointer` on the element and takes it off at the first key or when the focus leaves.
 
 ## Controls
 
