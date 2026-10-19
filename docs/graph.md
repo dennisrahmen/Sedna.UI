@@ -118,6 +118,8 @@ On the `[data-graph]` element:
 | `data-graph-connect`, `data-graph-collapse`, `data-graph-hulls` | — | Start with a plugin on; see [Plugins](#plugins). |
 | `data-graph-managed` | — | Keep a link the reader drew, for a page with no app behind it. |
 | `data-graph-fit-max` | a zoom, e.g. `3` | How far a fit may zoom in: `1.25` for dots and `1.1` for boxes unless set. Raise it for a few records on a screen read from across a room. |
+| `data-graph-scale` | a number above 0, e.g. `2` | The same drawing that many times bigger: names, records, lines and the gaps between them together, for a screen read from across a room. Multiplies the fit's ceiling and the zoom range with them. `1` unless set. |
+| `data-graph-hold` | — | Names keep their size on screen however far the drawing is zoomed out, rather than shrinking below a zoom of 0.4. For a small graph only: in a large one, names that do not fit push the drawing further out. |
 | `data-graph-renderer` | `canvas` (default), `webgl` | WebGL is faster for many thousands of elements on a real GPU, and is still experimental in the engine: choose it for a very large graph and check it on the hardware the app runs on. |
 
 ## The frame
@@ -223,7 +225,7 @@ record's tone.
 
 Names are placed the way a map places them: the most important first, and one that would run into a
 name already placed is left out. Zooming in makes room, so more appear. A name keeps its size on screen
-down to a zoom of 0.4; further out it shrinks with the drawing, and one too small to read is not drawn. Search marks rather than
+down to a zoom of 0.4 — or at any zoom with `data-graph-hold` — and further out it shrinks with the drawing, and one too small to read is not drawn. Search marks rather than
 hides, because where a record sits among the others is what the graph is for.
 
 ## Layouts

@@ -84,7 +84,7 @@ function hush(g) {
             if (n.hasClass('hidden') || kept.has(n) || !inBox(n.position(), box)) return;
             const dot = !n.isParent() && (n.data('display') || g.options.nodes) !== 'box';
             // A dot's name too small to be drawn needs no hushing: far out, that is nearly all of them.
-            if (dot && (n.hasClass('unlabelled') && !insists(n) || labelSize(n) * zoom < MIN_NAME_PX)) return;
+            if (dot && (n.hasClass('unlabelled') && !insists(n) || labelSize(n) * zoom < MIN_NAME_PX * g.options.scale)) return;
             want.push(n);
         });
         if (g.options.edgeLabels === 'always') {

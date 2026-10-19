@@ -169,8 +169,9 @@
     <p>
         A fit stops a little past full size, so a handful of records in a big frame stay small and close
         together. On a screen read from across a room, <code>data-graph-fit-max</code> lets the fit zoom
-        further &mdash; to <code>3</code> here &mdash; and spread them over the frame. Names stay the size
-        they are on any other graph.
+        further and spread them over the frame, and <code>data-graph-scale</code> draws the same drawing
+        bigger &mdash; names, records and lines together, <code>1.5</code> times here, the fit's ceiling of
+        <code>2</code> with them.
     </p>
     <p>
         An app that scales its whole frame with CSS <code>zoom</code> for a big screen gets a sharp canvas:
@@ -335,6 +336,8 @@
             <tr><td><code>data-graph-hover</code>, <code>data-graph-select</code>, <code>data-graph-drag</code></td><td><code>none</code> keeps the drawing still under the pointer; <code>none</code> turns selection off; <code>false</code> pins the records.</td></tr>
             <tr><td><code>data-graph-deferred</code>, <code>data-graph-src</code>, <code>data-graph-eager</code></td><td>Records by a call; records fetched as JSON; start at once rather than when scrolled near.</td></tr>
             <tr><td><code>data-graph-fit-max</code></td><td>How far a fit may zoom in, e.g. <code>3</code>; <code>1.25</code> for dots and <code>1.1</code> for boxes unless set.</td></tr>
+            <tr><td><code>data-graph-scale</code></td><td>The same drawing that many times bigger, e.g. <code>2</code>: names, records, lines and the gaps between them together, and the fit's ceiling with them.</td></tr>
+            <tr><td><code>data-graph-hold</code></td><td>Names keep their size on screen however far the drawing is zoomed out &mdash; for a small graph.</td></tr>
             <tr><td><code>data-graph-renderer</code></td><td><code>canvas</code>, the default, or <code>webgl</code> for a very large graph &mdash; check it on the hardware the app runs on.</td></tr>
         </tbody>
     </table>
