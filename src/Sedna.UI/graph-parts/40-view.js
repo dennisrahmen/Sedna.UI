@@ -11,6 +11,11 @@
 
    `data-graph-labels`: auto (that), all (every name, always), none (a name only on the
    record being pointed at, selected, matched or focused).
+
+   `data-graph-scale` draws the same drawing bigger, for a screen read from across a room:
+   the view works in the drawing's own zoom — the engine's divided by the scale — and every
+   length on screen it reasons about, a name's room, a record's gap, the fit's ceiling, is
+   the scale times its length without one.
    ─────────────────────────────────────────────────────────────────────────── */
 
 function fitView(g, eles, animate) {
@@ -30,21 +35,28 @@ function fitView(g, eles, animate) {
     }
 }
 
+/* The drawing's own zoom: the engine's, divided by `data-graph-scale`. */
+const ownZoom = g => g.cy.zoom() / g.options.scale;
+
+/* The lowest zoom a name is held at: the floor, or all the way down when the app holds it. */
+const holdFloor = g => (g.options.hold ? MIN_ZOOM : HOLD_FLOOR);
+
 /* The zoom and pan that show these records whole, with room for their names. */
 function fitOf(g, nodes) {
     const cy = g.cy;
+    const s = g.options.scale;
     const box = nodes.boundingBox({ includeLabels: g.options.nodes === 'box', includeOverlays: false });
     // Room for the names, which are held at a screen size and so are not in the drawing's
     // box: beneath a record, half a name either side and a line below it; beside one, a
     // name's width on that side — never more than a fraction of a narrow frame, where the
     // drawing would otherwise shrink to a speck.
     const side = g.options.nodes === 'box' ? null : labelSide(g.options);
-    const sideRoom = side && side !== 'bottom' ? Math.min(LABEL_MAX_PX * 0.8 + 16, cy.width() * 0.3) : 0;
-    const labelRoom = g.options.nodes === 'box' ? Math.min(48, cy.width() * 0.2)
-        : sideRoom || Math.min(LABEL_MAX_PX + 32, cy.width() * 0.2);
+    const sideRoom = side && side !== 'bottom' ? Math.min((LABEL_MAX_PX * 0.8 + 16) * s, cy.width() * 0.3) : 0;
+    const labelRoom = g.options.nodes === 'box' ? Math.min(48 * s, cy.width() * 0.2)
+        : sideRoom || Math.min((LABEL_MAX_PX + 32) * s, cy.width() * 0.2);
     const room = {
         w: Math.max(cy.width() - labelRoom, cy.width() / 2),
-        h: Math.max(cy.height() - Math.min(g.options.nodes === 'box' ? 48 : sideRoom ? 32 : 88, cy.height() * 0.2), cy.height() / 2),
+        h: Math.max(cy.height() - Math.min((g.options.nodes === 'box' ? 48 : sideRoom ? 32 : 88) * s, cy.height() * 0.2), cy.height() / 2),
     };
     const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), fitCeiling(g)));
     // Names on one side: the drawing moves over by half their room, so they have all of it.
@@ -55,11 +67,12 @@ function fitOf(g, nodes) {
 
 /* How far a fit may zoom in: a little past full size, so a few records are not blown up
    to fill the frame. `data-graph-fit-max` raises it for a frame seen from across a room —
-   a wall screen showing a handful of records — and never past the engine's own limit. */
+   a wall screen showing a handful of records — and never past the engine's own limit.
+   Either is the drawing's own zoom, so `data-graph-scale` multiplies it. */
 function fitCeiling(g) {
     const asked = g.options.fitMax;
     const ceiling = asked > 0 ? asked : g.options.nodes === 'box' ? 1.1 : 1.25;
-    return Math.min(ceiling, g.cy.maxZoom());
+    return Math.min(ceiling * g.options.scale, g.cy.maxZoom());
 }
 
 /* How many device pixels one CSS pixel of the frame covers: the screen's ratio times the
@@ -136,7 +149,7 @@ function settle(g) {
     const cy = g.cy;
     // A layout is running: it fits and settles the view itself when it has finished.
     if (g.laying) return;
-    if (g.options.nodes !== 'box') g.step = stepOf(Math.max(cy.zoom(), HOLD_FLOOR));
+    if (g.options.nodes !== 'box') g.step = stepOf(Math.max(ownZoom(g), holdFloor(g)));
     rezoom(g, false);
     declutter(g);
     const pan = cy.pan();
@@ -180,7 +193,8 @@ function placeNames(g, all) {
         });
         return;
     }
-    const cell = 80;
+    const s = g.options.scale;
+    const cell = 80 * s;
     const grid = new Map();
     const cells = (b, fn) => {
         for (let gx = Math.floor(b.x1 / cell); gx <= Math.floor(b.x2 / cell); gx++) {
@@ -211,12 +225,12 @@ function placeNames(g, all) {
         const y = at.y * zoom + pan.y;
         const r = ((n.data('size') || 20) * held(n) * zoom) / 2;
         // On screen: below the floor, a name shrinks with the drawing.
-        const px = labelPx(n) * Math.min(1, zoom / (g.step || 1));
+        const px = labelPx(n) * s * Math.min(1, zoom / s / (g.step || 1));
         const bold = n.data('hub') || n.data('root') || n.hasClass('focus');
-        const w = Math.min(textWidth(n.data('label') || '', bold ? 600 : 400, px, font), LABEL_MAX_PX) + 8;
-        const box = side === 'right' ? { x1: x + r + 3, x2: x + r + 3 + w, y1: y - px * 0.85, y2: y + px * 0.85 }
-            : side === 'left' ? { x1: x - r - 3 - w, x2: x - r - 3, y1: y - px * 0.85, y2: y + px * 0.85 }
-                : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2, y2: y + r + 2 + px * 1.7 };
+        const w = Math.min(textWidth(n.data('label') || '', bold ? 600 : 400, px, font), LABEL_MAX_PX * s) + 8 * s;
+        const box = side === 'right' ? { x1: x + r + 3 * s, x2: x + r + 3 * s + w, y1: y - px * 0.85, y2: y + px * 0.85 }
+            : side === 'left' ? { x1: x - r - 3 * s - w, x2: x - r - 3 * s, y1: y - px * 0.85, y2: y + px * 0.85 }
+                : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2 * s, y2: y + r + 2 * s + px * 1.7 };
         // A name written across a record hides it — but only a record that outranks it
         // is kept clear: in a crowd a hub's name over a leaf is the map, and a leaf's
         // name over a hub is the hairball.

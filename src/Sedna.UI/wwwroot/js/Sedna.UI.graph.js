@@ -572,13 +572,18 @@ const glides = g => !reducedMotion() && document.visibilityState === 'visible' &
 
 /* Sizes that are held on screen, whatever the zoom. cytoscape works a style out once
    per state of an element's data, so the zoom reaches the style as data — `zoom`, in
-   steps of a few percent (40-view.js) — rather than as a call to cy.zoom(). */
+   steps of a few percent (40-view.js) — rather than as a call to cy.zoom(). It is the
+   drawing's own zoom, the engine's divided by `data-graph-scale`: everything held on
+   screen — a dot, a name, a line — is then the scale times its size without one. */
 const zoomOf = ele => ele.data('zoom') ?? 1;
 /* Names are held at their screen size down to this zoom, and shrink with the drawing below it,
    as the dots do: a drawing seen from that far out is being read for its shape. Held all the way
    down, names that do not fit the frame at any size grow the drawing that makes room for them,
-   and the zoom it is seen at falls, without end. A name too small to read is not drawn. */
+   and the zoom it is seen at falls, without end — `data-graph-hold` asks for that anyway, for a
+   graph small enough that it never happens. A name too small to read is not drawn. */
 const HOLD_FLOOR = 0.4;
+// The engine's zoom range, at a scale of 1.
+const MIN_ZOOM = 0.05;
 const held = ele => (zoomOf(ele) <= 1 ? 1 : 1 / Math.pow(zoomOf(ele), 0.8));
 const LABEL_MAX_PX = 180;
 // A dot's name smaller than this on screen is not drawn at all.
@@ -706,7 +711,7 @@ function styleFor(colours, icons, options, extra) {
                 'text-margin-y': n => 3 / zoomOf(n),
                 'text-wrap': 'ellipsis',
                 'text-max-width': n => LABEL_MAX_PX / zoomOf(n),
-                'min-zoomed-font-size': MIN_NAME_PX,
+                'min-zoomed-font-size': MIN_NAME_PX * options.scale,
                 'text-outline-color': p.ground,
                 'text-outline-width': n => 0.22 * labelSize(n),
                 'text-outline-opacity': 0.95,
@@ -1713,6 +1718,11 @@ async function islands(cy, visible, aspect, spacing, box) {
 
    `data-graph-labels`: auto (that), all (every name, always), none (a name only on the
    record being pointed at, selected, matched or focused).
+
+   `data-graph-scale` draws the same drawing bigger, for a screen read from across a room:
+   the view works in the drawing's own zoom — the engine's divided by the scale — and every
+   length on screen it reasons about, a name's room, a record's gap, the fit's ceiling, is
+   the scale times its length without one.
    ─────────────────────────────────────────────────────────────────────────── */
 
 function fitView(g, eles, animate) {
@@ -1732,21 +1742,28 @@ function fitView(g, eles, animate) {
     }
 }
 
+/* The drawing's own zoom: the engine's, divided by `data-graph-scale`. */
+const ownZoom = g => g.cy.zoom() / g.options.scale;
+
+/* The lowest zoom a name is held at: the floor, or all the way down when the app holds it. */
+const holdFloor = g => (g.options.hold ? MIN_ZOOM : HOLD_FLOOR);
+
 /* The zoom and pan that show these records whole, with room for their names. */
 function fitOf(g, nodes) {
     const cy = g.cy;
+    const s = g.options.scale;
     const box = nodes.boundingBox({ includeLabels: g.options.nodes === 'box', includeOverlays: false });
     // Room for the names, which are held at a screen size and so are not in the drawing's
     // box: beneath a record, half a name either side and a line below it; beside one, a
     // name's width on that side — never more than a fraction of a narrow frame, where the
     // drawing would otherwise shrink to a speck.
     const side = g.options.nodes === 'box' ? null : labelSide(g.options);
-    const sideRoom = side && side !== 'bottom' ? Math.min(LABEL_MAX_PX * 0.8 + 16, cy.width() * 0.3) : 0;
-    const labelRoom = g.options.nodes === 'box' ? Math.min(48, cy.width() * 0.2)
-        : sideRoom || Math.min(LABEL_MAX_PX + 32, cy.width() * 0.2);
+    const sideRoom = side && side !== 'bottom' ? Math.min((LABEL_MAX_PX * 0.8 + 16) * s, cy.width() * 0.3) : 0;
+    const labelRoom = g.options.nodes === 'box' ? Math.min(48 * s, cy.width() * 0.2)
+        : sideRoom || Math.min((LABEL_MAX_PX + 32) * s, cy.width() * 0.2);
     const room = {
         w: Math.max(cy.width() - labelRoom, cy.width() / 2),
-        h: Math.max(cy.height() - Math.min(g.options.nodes === 'box' ? 48 : sideRoom ? 32 : 88, cy.height() * 0.2), cy.height() / 2),
+        h: Math.max(cy.height() - Math.min((g.options.nodes === 'box' ? 48 : sideRoom ? 32 : 88) * s, cy.height() * 0.2), cy.height() / 2),
     };
     const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), fitCeiling(g)));
     // Names on one side: the drawing moves over by half their room, so they have all of it.
@@ -1757,11 +1774,12 @@ function fitOf(g, nodes) {
 
 /* How far a fit may zoom in: a little past full size, so a few records are not blown up
    to fill the frame. `data-graph-fit-max` raises it for a frame seen from across a room —
-   a wall screen showing a handful of records — and never past the engine's own limit. */
+   a wall screen showing a handful of records — and never past the engine's own limit.
+   Either is the drawing's own zoom, so `data-graph-scale` multiplies it. */
 function fitCeiling(g) {
     const asked = g.options.fitMax;
     const ceiling = asked > 0 ? asked : g.options.nodes === 'box' ? 1.1 : 1.25;
-    return Math.min(ceiling, g.cy.maxZoom());
+    return Math.min(ceiling * g.options.scale, g.cy.maxZoom());
 }
 
 /* How many device pixels one CSS pixel of the frame covers: the screen's ratio times the
@@ -1838,7 +1856,7 @@ function settle(g) {
     const cy = g.cy;
     // A layout is running: it fits and settles the view itself when it has finished.
     if (g.laying) return;
-    if (g.options.nodes !== 'box') g.step = stepOf(Math.max(cy.zoom(), HOLD_FLOOR));
+    if (g.options.nodes !== 'box') g.step = stepOf(Math.max(ownZoom(g), holdFloor(g)));
     rezoom(g, false);
     declutter(g);
     const pan = cy.pan();
@@ -1882,7 +1900,8 @@ function placeNames(g, all) {
         });
         return;
     }
-    const cell = 80;
+    const s = g.options.scale;
+    const cell = 80 * s;
     const grid = new Map();
     const cells = (b, fn) => {
         for (let gx = Math.floor(b.x1 / cell); gx <= Math.floor(b.x2 / cell); gx++) {
@@ -1913,12 +1932,12 @@ function placeNames(g, all) {
         const y = at.y * zoom + pan.y;
         const r = ((n.data('size') || 20) * held(n) * zoom) / 2;
         // On screen: below the floor, a name shrinks with the drawing.
-        const px = labelPx(n) * Math.min(1, zoom / (g.step || 1));
+        const px = labelPx(n) * s * Math.min(1, zoom / s / (g.step || 1));
         const bold = n.data('hub') || n.data('root') || n.hasClass('focus');
-        const w = Math.min(textWidth(n.data('label') || '', bold ? 600 : 400, px, font), LABEL_MAX_PX) + 8;
-        const box = side === 'right' ? { x1: x + r + 3, x2: x + r + 3 + w, y1: y - px * 0.85, y2: y + px * 0.85 }
-            : side === 'left' ? { x1: x - r - 3 - w, x2: x - r - 3, y1: y - px * 0.85, y2: y + px * 0.85 }
-                : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2, y2: y + r + 2 + px * 1.7 };
+        const w = Math.min(textWidth(n.data('label') || '', bold ? 600 : 400, px, font), LABEL_MAX_PX * s) + 8 * s;
+        const box = side === 'right' ? { x1: x + r + 3 * s, x2: x + r + 3 * s + w, y1: y - px * 0.85, y2: y + px * 0.85 }
+            : side === 'left' ? { x1: x - r - 3 * s - w, x2: x - r - 3 * s, y1: y - px * 0.85, y2: y + px * 0.85 }
+                : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2 * s, y2: y + r + 2 * s + px * 1.7 };
         // A name written across a record hides it — but only a record that outranks it
         // is kept clear: in a crowd a hub's name over a leaf is the map, and a leaf's
         // name over a hub is the hairball.
@@ -2023,7 +2042,7 @@ function hush(g) {
             if (n.hasClass('hidden') || kept.has(n) || !inBox(n.position(), box)) return;
             const dot = !n.isParent() && (n.data('display') || g.options.nodes) !== 'box';
             // A dot's name too small to be drawn needs no hushing: far out, that is nearly all of them.
-            if (dot && (n.hasClass('unlabelled') && !insists(n) || labelSize(n) * zoom < MIN_NAME_PX)) return;
+            if (dot && (n.hasClass('unlabelled') && !insists(n) || labelSize(n) * zoom < MIN_NAME_PX * g.options.scale)) return;
             want.push(n);
         });
         if (g.options.edgeLabels === 'always') {
@@ -4070,6 +4089,8 @@ function readOptions(el, given) {
         focus: d.graphFocus || null,
         depth: Number(d.graphFocusDepth) || 1,
         fitMax: fitMaxOf(d.graphFitMax),
+        scale: scaleOf(d.graphScale),
+        hold: has('hold'),
         managed: has('managed'),
         deferred: has('deferred'),
         connect: has('connect'),
@@ -4097,6 +4118,15 @@ function fitMaxOf(value) {
     if (Number.isFinite(n) && n > 0) return n;
     warnOnce('fit-max:' + value, `data-graph-fit-max "${value}" is not a zoom above 0; the fit keeps its own ceiling.`);
     return null;
+}
+
+/* `data-graph-scale`: how many times its size the drawing is drawn, above 0 — or 1. */
+function scaleOf(value) {
+    if (value === undefined || value === '') return 1;
+    const n = Number(value);
+    if (Number.isFinite(n) && n > 0) return n;
+    warnOnce('scale:' + value, `data-graph-scale "${value}" is not a number above 0; the graph is drawn at its own size.`);
+    return 1;
 }
 
 /* The options a reader can change, as they were when the graph was first drawn — what
@@ -4389,7 +4419,7 @@ async function atScale(g, run) {
     for (let pass = 0; pass < 6; pass++) {
         const shown = cy.nodes().not('.hidden');
         if (shown.empty()) return;
-        const seen = stepOf(Math.min(1, Math.max(HOLD_FLOOR, fitOf(g, shown).zoom)));
+        const seen = stepOf(Math.min(1, Math.max(holdFloor(g), fitOf(g, shown).zoom / g.options.scale)));
         if (seen >= g.step) return;
         g.step = seen;
         cy.batch(() => cy.elements().data('zoom', seen));
@@ -4886,8 +4916,9 @@ async function start(g) {
         styleEnabled: true,
         elements: toElements(g),
         style: styleFor(g.colours, g.icons, g.options, g.extraStyle),
-        minZoom: 0.05,
-        maxZoom: g.options.nodes === 'box' ? 4 : 8,
+        // The same range of the drawing's own zoom at any scale.
+        minZoom: MIN_ZOOM * g.options.scale,
+        maxZoom: (g.options.nodes === 'box' ? 4 : 8) * g.options.scale,
         boxSelectionEnabled: false,
         selectionType: 'single',
         autoungrabify: !g.options.drag,

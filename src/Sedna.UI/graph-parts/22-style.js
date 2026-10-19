@@ -25,13 +25,18 @@ const glides = g => !reducedMotion() && document.visibilityState === 'visible' &
 
 /* Sizes that are held on screen, whatever the zoom. cytoscape works a style out once
    per state of an element's data, so the zoom reaches the style as data — `zoom`, in
-   steps of a few percent (40-view.js) — rather than as a call to cy.zoom(). */
+   steps of a few percent (40-view.js) — rather than as a call to cy.zoom(). It is the
+   drawing's own zoom, the engine's divided by `data-graph-scale`: everything held on
+   screen — a dot, a name, a line — is then the scale times its size without one. */
 const zoomOf = ele => ele.data('zoom') ?? 1;
 /* Names are held at their screen size down to this zoom, and shrink with the drawing below it,
    as the dots do: a drawing seen from that far out is being read for its shape. Held all the way
    down, names that do not fit the frame at any size grow the drawing that makes room for them,
-   and the zoom it is seen at falls, without end. A name too small to read is not drawn. */
+   and the zoom it is seen at falls, without end — `data-graph-hold` asks for that anyway, for a
+   graph small enough that it never happens. A name too small to read is not drawn. */
 const HOLD_FLOOR = 0.4;
+// The engine's zoom range, at a scale of 1.
+const MIN_ZOOM = 0.05;
 const held = ele => (zoomOf(ele) <= 1 ? 1 : 1 / Math.pow(zoomOf(ele), 0.8));
 const LABEL_MAX_PX = 180;
 // A dot's name smaller than this on screen is not drawn at all.
@@ -159,7 +164,7 @@ function styleFor(colours, icons, options, extra) {
                 'text-margin-y': n => 3 / zoomOf(n),
                 'text-wrap': 'ellipsis',
                 'text-max-width': n => LABEL_MAX_PX / zoomOf(n),
-                'min-zoomed-font-size': MIN_NAME_PX,
+                'min-zoomed-font-size': MIN_NAME_PX * options.scale,
                 'text-outline-color': p.ground,
                 'text-outline-width': n => 0.22 * labelSize(n),
                 'text-outline-opacity': 0.95,

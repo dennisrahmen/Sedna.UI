@@ -52,6 +52,8 @@ function readOptions(el, given) {
         focus: d.graphFocus || null,
         depth: Number(d.graphFocusDepth) || 1,
         fitMax: fitMaxOf(d.graphFitMax),
+        scale: scaleOf(d.graphScale),
+        hold: has('hold'),
         managed: has('managed'),
         deferred: has('deferred'),
         connect: has('connect'),
@@ -79,6 +81,15 @@ function fitMaxOf(value) {
     if (Number.isFinite(n) && n > 0) return n;
     warnOnce('fit-max:' + value, `data-graph-fit-max "${value}" is not a zoom above 0; the fit keeps its own ceiling.`);
     return null;
+}
+
+/* `data-graph-scale`: how many times its size the drawing is drawn, above 0 — or 1. */
+function scaleOf(value) {
+    if (value === undefined || value === '') return 1;
+    const n = Number(value);
+    if (Number.isFinite(n) && n > 0) return n;
+    warnOnce('scale:' + value, `data-graph-scale "${value}" is not a number above 0; the graph is drawn at its own size.`);
+    return 1;
 }
 
 /* The options a reader can change, as they were when the graph was first drawn — what
@@ -371,7 +382,7 @@ async function atScale(g, run) {
     for (let pass = 0; pass < 6; pass++) {
         const shown = cy.nodes().not('.hidden');
         if (shown.empty()) return;
-        const seen = stepOf(Math.min(1, Math.max(HOLD_FLOOR, fitOf(g, shown).zoom)));
+        const seen = stepOf(Math.min(1, Math.max(holdFloor(g), fitOf(g, shown).zoom / g.options.scale)));
         if (seen >= g.step) return;
         g.step = seen;
         cy.batch(() => cy.elements().data('zoom', seen));
@@ -868,8 +879,9 @@ async function start(g) {
         styleEnabled: true,
         elements: toElements(g),
         style: styleFor(g.colours, g.icons, g.options, g.extraStyle),
-        minZoom: 0.05,
-        maxZoom: g.options.nodes === 'box' ? 4 : 8,
+        // The same range of the drawing's own zoom at any scale.
+        minZoom: MIN_ZOOM * g.options.scale,
+        maxZoom: (g.options.nodes === 'box' ? 4 : 8) * g.options.scale,
         boxSelectionEnabled: false,
         selectionType: 'single',
         autoungrabify: !g.options.drag,
