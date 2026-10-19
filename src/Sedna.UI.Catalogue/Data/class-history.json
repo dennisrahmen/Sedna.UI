@@ -2616,6 +2616,7 @@
     "Graph/Small": "0.20.0",
     "Graph/Tones": "0.20.0",
     "Graph/Waiting": "0.20.0",
+    "Graph/WallScreen": null,
     "GraphExploring/ChooseOne": "0.20.0",
     "GraphExploring/ColourBy": "0.20.0",
     "GraphExploring/ContextMenu": "0.20.0",

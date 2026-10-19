@@ -1,0 +1,15 @@
+<div class="graph graph--lg" data-graph id="graph-wall" data-graph-fit-max="3" data-graph-wheel="none" aria-label="What the call has noted so far">
+    <ul class="graph-data" data-graph-data>
+        <li data-node="call" data-root data-tone="2" data-icon="ri-phone-line" data-meta="Call">Incoming call</li>
+        <li data-node="caller" data-tone="3" data-icon="ri-user-line" data-meta="Person">Alex Fischer</li>
+        <li data-node="problem" data-tone="5" data-icon="ri-error-warning-line" data-meta="Problem">Printer offline</li>
+        <li data-node="ticket" data-tone="4" data-icon="ri-ticket-line" data-meta="Ticket">New ticket</li>
+        <li data-node="priority" data-tone="1" data-icon="ri-flag-line" data-meta="Decision">Priority 3</li>
+        <li data-edge data-source="call" data-target="caller" data-label="from">The call is from Alex Fischer</li>
+        <li data-edge data-source="call" data-target="problem" data-label="about">The call is about an offline printer</li>
+        <li data-edge data-source="problem" data-target="ticket" data-label="filed as">The problem is filed as a new ticket</li>
+        <li data-edge data-source="ticket" data-target="priority" data-label="set to">The ticket is set to priority 3</li>
+    </ul>
+    <div class="graph-canvas"></div>
+    <div class="graph-wait skeleton skeleton-block"></div>
+</div>

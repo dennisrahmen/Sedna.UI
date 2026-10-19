@@ -516,14 +516,16 @@ function iconPainter(host) {
         // A data: URL of the glyph in `colour`, square, `px` CSS pixels at device resolution.
         image(cls, colour, px = 32) {
             if (!cls) return null;
-            const key = cls + '|' + colour + '|' + px;
+            // Drawn at the frame's own resolution, CSS zoom included, and twice that again
+            // for a record the reader zooms into.
+            const scale = Math.min(Math.max(pixelRatioOf(host), 1), 3) * 2;
+            const key = cls + '|' + colour + '|' + px + '|' + scale;
             if (images.has(key)) return images.get(key);
             const g = glyph(cls);
             if (!g) {
                 images.set(key, null);
                 return null;
             }
-            const scale = Math.min(Math.max(window.devicePixelRatio || 1, 1), 3) * 2;
             const size = Math.round(px * scale);
             const canvas = document.createElement('canvas');
             canvas.width = canvas.height = size;
@@ -1746,12 +1748,30 @@ function fitOf(g, nodes) {
         w: Math.max(cy.width() - labelRoom, cy.width() / 2),
         h: Math.max(cy.height() - Math.min(g.options.nodes === 'box' ? 48 : sideRoom ? 32 : 88, cy.height() * 0.2), cy.height() / 2),
     };
-    const ceiling = g.options.nodes === 'box' ? 1.1 : 1.25;
-    const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), ceiling));
+    const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), fitCeiling(g)));
     // Names on one side: the drawing moves over by half their room, so they have all of it.
     const shift = side === 'right' ? -sideRoom / 2 : side === 'left' ? sideRoom / 2 : 0;
     const pan = { x: cy.width() / 2 + shift - zoom * (box.x1 + box.w / 2), y: cy.height() / 2 - zoom * (box.y1 + box.h / 2) };
     return { zoom, pan };
+}
+
+/* How far a fit may zoom in: a little past full size, so a few records are not blown up
+   to fill the frame. `data-graph-fit-max` raises it for a frame seen from across a room —
+   a wall screen showing a handful of records — and never past the engine's own limit. */
+function fitCeiling(g) {
+    const asked = g.options.fitMax;
+    const ceiling = asked > 0 ? asked : g.options.nodes === 'box' ? 1.1 : 1.25;
+    return Math.min(ceiling, g.cy.maxZoom());
+}
+
+/* How many device pixels one CSS pixel of the frame covers: the screen's ratio times the
+   zoom the page set on the frame or above it. An app that scales a wall screen with CSS
+   `zoom` would otherwise get a canvas drawn at the screen's ratio and stretched. Held to 3,
+   or the screen's own ratio where that is higher — never below what the screen asks for. */
+function pixelRatioOf(el) {
+    const screen = window.devicePixelRatio || 1;
+    const zoom = el && el.currentCSSZoom > 0 ? el.currentCSSZoom : 1;
+    return Math.min(screen * zoom, Math.max(screen, 3));
 }
 
 /* The whole drawing, from a button or a call. While the records are still travelling to
@@ -2390,7 +2410,7 @@ function minimap(g, canvas) {
     let scale = 1, ox = 0, oy = 0, dirty = true, timer = 0, dragging = false;
 
     function measure() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 3);
+        const dpr = Math.min(pixelRatioOf(canvas), 3);
         const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
         const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
         if (canvas.width !== w || canvas.height !== h) {
@@ -2566,8 +2586,9 @@ function minimap(g, canvas) {
     const onRecords = () => soon(true);
     cy.on('viewport', onViewport);
     cy.on('position add remove', onRecords);
+    // In device pixels, so a CSS zoom or a move to another screen draws it again too.
     const size = new ResizeObserver(() => soon(true));
-    size.observe(canvas);
+    try { size.observe(canvas, { box: 'device-pixel-content-box' }); } catch (e) { size.observe(canvas); }
 
     return {
         draw: () => soon(true),
@@ -4048,6 +4069,7 @@ function readOptions(el, given) {
         src: d.graphSrc || null,
         focus: d.graphFocus || null,
         depth: Number(d.graphFocusDepth) || 1,
+        fitMax: fitMaxOf(d.graphFitMax),
         managed: has('managed'),
         deferred: has('deferred'),
         connect: has('connect'),
@@ -4066,6 +4088,15 @@ function readOptions(el, given) {
     o.curveChosen = !!o.curve;
     o.curve = o.curve || 'bezier';
     return o;
+}
+
+/* `data-graph-fit-max`: a zoom above 0, or nothing — the drawing's own ceiling. */
+function fitMaxOf(value) {
+    if (value === undefined || value === '') return null;
+    const n = Number(value);
+    if (Number.isFinite(n) && n > 0) return n;
+    warnOnce('fit-max:' + value, `data-graph-fit-max "${value}" is not a zoom above 0; the fit keeps its own ceiling.`);
+    return null;
 }
 
 /* The options a reader can change, as they were when the graph was first drawn — what
@@ -4401,6 +4432,7 @@ function mount(g) {
         cy._private.options.webgl = webgl;
         cy._private.options.textureOnViewport = !webgl && count > 1500;
         cy._private.options.hideEdgesOnViewport = !webgl && count > 5000;
+        cy._private.options.pixelRatio = pixelRatioOf(g.host);
     } catch (e) { /* an engine that moved its options: the canvas renderer, as made */ }
     cy.mount(g.host);
     // Where cytoscape registers an instance made with a container, which mounting does
@@ -4698,9 +4730,21 @@ function wire(g) {
     cy.on('dragpan scrollzoom pinchzoom', () => { g.touched = true; });
     // A click on the canvas puts focus on the graph, so the keys carry on from there —
     // without the focus ring, which is for the keyboard. On the way up, not down: the
-    // engine blurs whatever is focused when a press starts on its canvas.
+    // engine blurs whatever is focused when a press starts on its canvas. The engine takes
+    // the press for itself, so the browser never learns a pointer chose this focus and
+    // rings it as a keyboard's — after a finger's tap on a touch screen too. So the focus
+    // is marked as the pointer's, `data-graph-pointer`, and the stylesheet leaves the ring
+    // off until a key is pressed or the focus leaves.
+    const pointed = yes => {
+        if (yes !== el.hasAttribute('data-graph-pointer')) el.toggleAttribute('data-graph-pointer', yes);
+    };
     on(g.host, 'pointerdown', () => { g.pointerAt = Date.now(); });
-    on(g.host, 'pointerup', () => { if (document.activeElement !== el) el.focus({ preventScroll: true }); });
+    on(g.host, 'pointerup', () => {
+        if (document.activeElement !== el) el.focus({ preventScroll: true });
+        pointed(document.activeElement === el);
+    });
+    on(el, 'keydown', e => { if (!['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) pointed(false); });
+    on(el, 'focusout', e => { if (!el.contains(e.relatedTarget)) pointed(false); });
 
     // A frame that changes size — a panel opening beside it, a window resized — keeps the
     // point the reader was looking at in the middle, rather than pinned to the top left.
@@ -4719,6 +4763,26 @@ function wire(g) {
     });
     size.observe(g.host);
     g.observers.push(size);
+
+    // The canvas is drawn at as many pixels as the frame covers on the screen: the screen's
+    // ratio times any CSS zoom above it. Either changes with nothing resized — a window moved
+    // to another screen, an app scaling its frame — and both change the frame's size in
+    // device pixels, which is what this watches. The engine reads the screen's ratio alone.
+    const sharp = new ResizeObserver(() => {
+        if (!cy.container() || g.disposed) return;
+        const r = cy.renderer();
+        const ratio = pixelRatioOf(g.host);
+        if (!r || r.forcedPixelRatio === ratio) return;
+        r.forcedPixelRatio = ratio;
+        cy.resize();
+        // An icon is a picture drawn at a resolution: drawn again at the new one.
+        if (g.model?.nodes.some(n => n.icon)) {
+            g.icons.clear();
+            restyle(g, true);
+        }
+    });
+    try { sharp.observe(g.host, { box: 'device-pixel-content-box' }); } catch (e) { sharp.observe(g.host); }
+    g.observers.push(sharp);
 
     // The theme is the library's to change at any moment — variant, colour vision,
     // contrast — and the canvas is the one surface CSS cannot reach.

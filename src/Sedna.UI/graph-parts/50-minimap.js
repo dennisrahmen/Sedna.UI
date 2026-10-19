@@ -21,7 +21,7 @@ function minimap(g, canvas) {
     let scale = 1, ox = 0, oy = 0, dirty = true, timer = 0, dragging = false;
 
     function measure() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 3);
+        const dpr = Math.min(pixelRatioOf(canvas), 3);
         const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
         const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
         if (canvas.width !== w || canvas.height !== h) {
@@ -197,8 +197,9 @@ function minimap(g, canvas) {
     const onRecords = () => soon(true);
     cy.on('viewport', onViewport);
     cy.on('position add remove', onRecords);
+    // In device pixels, so a CSS zoom or a move to another screen draws it again too.
     const size = new ResizeObserver(() => soon(true));
-    size.observe(canvas);
+    try { size.observe(canvas, { box: 'device-pixel-content-box' }); } catch (e) { size.observe(canvas); }
 
     return {
         draw: () => soon(true),

@@ -46,14 +46,16 @@ function iconPainter(host) {
         // A data: URL of the glyph in `colour`, square, `px` CSS pixels at device resolution.
         image(cls, colour, px = 32) {
             if (!cls) return null;
-            const key = cls + '|' + colour + '|' + px;
+            // Drawn at the frame's own resolution, CSS zoom included, and twice that again
+            // for a record the reader zooms into.
+            const scale = Math.min(Math.max(pixelRatioOf(host), 1), 3) * 2;
+            const key = cls + '|' + colour + '|' + px + '|' + scale;
             if (images.has(key)) return images.get(key);
             const g = glyph(cls);
             if (!g) {
                 images.set(key, null);
                 return null;
             }
-            const scale = Math.min(Math.max(window.devicePixelRatio || 1, 1), 3) * 2;
             const size = Math.round(px * scale);
             const canvas = document.createElement('canvas');
             canvas.width = canvas.height = size;

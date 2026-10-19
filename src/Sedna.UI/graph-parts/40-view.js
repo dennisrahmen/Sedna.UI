@@ -46,12 +46,30 @@ function fitOf(g, nodes) {
         w: Math.max(cy.width() - labelRoom, cy.width() / 2),
         h: Math.max(cy.height() - Math.min(g.options.nodes === 'box' ? 48 : sideRoom ? 32 : 88, cy.height() * 0.2), cy.height() / 2),
     };
-    const ceiling = g.options.nodes === 'box' ? 1.1 : 1.25;
-    const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), ceiling));
+    const zoom = Math.max(cy.minZoom(), Math.min(room.w / Math.max(box.w, 1), room.h / Math.max(box.h, 1), fitCeiling(g)));
     // Names on one side: the drawing moves over by half their room, so they have all of it.
     const shift = side === 'right' ? -sideRoom / 2 : side === 'left' ? sideRoom / 2 : 0;
     const pan = { x: cy.width() / 2 + shift - zoom * (box.x1 + box.w / 2), y: cy.height() / 2 - zoom * (box.y1 + box.h / 2) };
     return { zoom, pan };
+}
+
+/* How far a fit may zoom in: a little past full size, so a few records are not blown up
+   to fill the frame. `data-graph-fit-max` raises it for a frame seen from across a room —
+   a wall screen showing a handful of records — and never past the engine's own limit. */
+function fitCeiling(g) {
+    const asked = g.options.fitMax;
+    const ceiling = asked > 0 ? asked : g.options.nodes === 'box' ? 1.1 : 1.25;
+    return Math.min(ceiling, g.cy.maxZoom());
+}
+
+/* How many device pixels one CSS pixel of the frame covers: the screen's ratio times the
+   zoom the page set on the frame or above it. An app that scales a wall screen with CSS
+   `zoom` would otherwise get a canvas drawn at the screen's ratio and stretched. Held to 3,
+   or the screen's own ratio where that is higher — never below what the screen asks for. */
+function pixelRatioOf(el) {
+    const screen = window.devicePixelRatio || 1;
+    const zoom = el && el.currentCSSZoom > 0 ? el.currentCSSZoom : 1;
+    return Math.min(screen * zoom, Math.max(screen, 3));
 }
 
 /* The whole drawing, from a button or a call. While the records are still travelling to
