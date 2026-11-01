@@ -7,7 +7,8 @@ namespace Sedna.UI;
 /// drag and drop — <c>@onsedna-drop</c>, <c>@onsedna-dragstart</c>, <c>@onsedna-dragend</c> — and
 /// the graph — <c>@onsedna-graph-select</c>, <c>-open</c>, <c>-hover</c>, <c>-context</c>,
 /// <c>-connect</c>, <c>-expand</c>, <c>-collapse</c>, <c>-change</c> and <c>-ready</c> — and the
-/// rich-text editor — <c>@onsedna-editor-change</c> and <c>@onsedna-editor-ready</c>.
+/// rich-text editor — <c>@onsedna-editor-change</c>, <c>@onsedna-editor-ready</c> and
+/// <c>@onsedna-editor-media</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -36,6 +37,7 @@ namespace Sedna.UI;
 [EventHandler("onsedna-graph-collapse", typeof(SednaGraphNodeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-editor-ready", typeof(SednaEditorEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-editor-change", typeof(SednaEditorEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-editor-media", typeof(SednaEditorMediaEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
 public static class EventHandlers
 {
 }

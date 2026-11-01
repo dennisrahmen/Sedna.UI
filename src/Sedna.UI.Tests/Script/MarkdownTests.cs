@@ -74,6 +74,71 @@ public class MarkdownTests : ScriptTestBase
             "() => [...document.querySelectorAll('#out script')].map(s => s.textContent)"));
     }
 
+    [Fact]
+    public async Task An_image_is_an_img_with_its_description_and_an_underscore_in_its_address_survives()
+    {
+        if (NoBrowser) return;
+        // Emphasis runs after the image is set aside, so _week_12_ in a file name stays a file name.
+        var page = await Render(Fixture, "Before ![Orders by _week_](/charts/orders_week_12.png?a=1&b=2) after");
+
+        Assert.Equal(
+            ["/charts/orders_week_12.png?a=1&b=2", "Orders by _week_", "lazy"],
+            await page.EvaluateAsync<string[]>(
+                "() => { const i = document.querySelector('#out p img'); return [i.getAttribute('src'), i.alt, i.loading]; }"));
+        Assert.Equal(["src", "alt", "loading"],
+            await page.EvaluateAsync<string[]>("() => [...document.querySelector('#out img').attributes].map(a => a.name)"));
+    }
+
+    [Theory]
+    [InlineData("https://example.com/tour.mp4")]
+    [InlineData("/media/tour.webm?v=2")]
+    [InlineData("clips/tour.MOV")]
+    public async Task The_address_of_a_video_file_is_a_video_with_controls_that_never_plays_by_itself(string url)
+    {
+        if (NoBrowser) return;
+        var page = await Render(Fixture, $"![A tour of the queue]({url})");
+
+        Assert.Equal(
+            [url, "A tour of the queue", "true", "false"],
+            await page.EvaluateAsync<string[]>("""
+                () => { const v = document.querySelector('#out video');
+                        return [v.getAttribute('src'), v.getAttribute('aria-label'), String(v.controls), String(v.autoplay)]; }
+                """));
+        Assert.Null(await page.EvaluateAsync<string?>("() => document.querySelector('#out img')?.outerHTML ?? null"));
+    }
+
+    [Theory]
+    [InlineData("javascript:boom")]
+    [InlineData("data:image/png;base64,AAAA")]
+    public async Task An_image_from_an_address_with_another_scheme_is_its_description(string url)
+    {
+        if (NoBrowser) return;
+        var page = await Render(Fixture, $"![the chart]({url})");
+
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => document.querySelectorAll('#out img, #out video').length"));
+        Assert.Equal("the chart", await page.EvaluateAsync<string>("() => document.querySelector('#out p').textContent"));
+    }
+
+    [Fact]
+    public async Task An_image_source_cannot_break_out_of_its_attribute()
+    {
+        if (NoBrowser) return;
+        var page = await Render(Fixture, """![x"onerror="boom](https://example.com/a.png"onerror=boom)""");
+
+        Assert.Equal(["src", "alt", "loading"],
+            await page.EvaluateAsync<string[]>("() => [...document.querySelector('#out img').attributes].map(a => a.name)"));
+    }
+
+    [Fact]
+    public async Task Image_syntax_inside_a_code_span_stays_text()
+    {
+        if (NoBrowser) return;
+        var page = await Render(Fixture, "Write `![alt](/a.png)` for a picture.");
+
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => document.querySelectorAll('#out img').length"));
+        Assert.Equal("![alt](/a.png)", await page.EvaluateAsync<string>("() => document.querySelector('#out code').textContent"));
+    }
+
     /// <summary>Renders <paramref name="markdown"/> and injects it into the fixture.</summary>
     /// <remarks>
     /// The markdown is passed as an argument rather than interpolated into the script, so

@@ -20,10 +20,15 @@ const VALUE = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'va
 
 /* The document as HTML. An empty document is the empty string, not an empty paragraph.
    Quill writes every space in the semantic HTML as a non-breaking one; a lone one is
-   put back as a space, and a run keeps all but its first, so it still shows as a run. */
+   put back as a space, and a run keeps all but its first, so it still shows as a run.
+   A document that ends in a video has an empty line after it, which Quill must hold and
+   the reader did not write: it is left out, so a value ending in a video loads and is
+   written back as it was. */
 function htmlOf(quill) {
     if (quill.getLength() <= 1 && !quill.getContents().ops.some(op => typeof op.insert === 'object')) return '';
-    return quill.getSemanticHTML().replace(/(?:&nbsp;)+/g, run => ' ' + '&nbsp;'.repeat(run.length / 6 - 1));
+    return quill.getSemanticHTML()
+        .replace(/(?:&nbsp;)+/g, run => ' ' + '&nbsp;'.repeat(run.length / 6 - 1))
+        .replace(/(<\/video>)<p><\/p>$/, '$1');
 }
 
 function stateOf(e) {

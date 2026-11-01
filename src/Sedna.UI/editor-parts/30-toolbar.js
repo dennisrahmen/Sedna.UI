@@ -27,6 +27,8 @@ function reflect(e) {
     for (const c of e.controls) {
         const name = c.getAttribute('data-editor-format');
         if (name) {
+            // Inserting an image or a video is an act, not a state of the text: no aria-pressed.
+            if (MEDIA.includes(name)) continue;
             if (c.tagName === 'SELECT') {
                 const now = format[name];
                 c.value = now === undefined || now === false || now === null ? '' : String(now);
@@ -55,6 +57,7 @@ function applyFormat(e, c) {
     const q = e.quill;
     const name = c.getAttribute('data-editor-format');
     if (name === 'link') return openLink(e);
+    if (MEDIA.includes(name)) return openMedia(e, name);
     const range = q.getSelection(true);
     if (!range) return;
     if (c.tagName === 'SELECT') {

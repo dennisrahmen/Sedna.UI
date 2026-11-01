@@ -1,7 +1,7 @@
 /* ── An editor ────────────────────────────────────────────────────────────────
    One `[data-editor]` element, from its markup to a document being edited:
 
-     1. its textarea, body, toolbar and link form, from the markup;
+     1. its textarea, body, toolbar, link form and media form, from the markup;
      2. Quill, made in the body, accepting the formats the toolbar offers, with no toolbar
         or theme of its own — the app's toolbar is the toolbar;
      3. the document loaded from the textarea, and every change written back to it;
@@ -12,6 +12,7 @@
 
      sedna-editor-ready    { html, text, length, isEmpty }
      sedna-editor-change   the same, after each change
+     sedna-editor-media    { kind, src, alt }, cancelable, before the media form opens
 
    and the textarea's own `input` and `change`, which is what `@bind` listens to.
    ─────────────────────────────────────────────────────────────────────────── */
@@ -55,12 +56,12 @@ function describe(e) {
 }
 
 function start(e) {
-    const { value, body, toolbar, link } = readMarkup(e.el);
+    const { value, body, toolbar, link, media } = readMarkup(e.el);
     if (!value || !body) {
         e.el.setAttribute('data-editor-state', 'error');
         throw new Error('a [data-editor] element needs a <textarea data-editor-value> and a <div class="editor-body"> inside it.');
     }
-    Object.assign(e, { value, body, toolbar, link, controls: controlsOf(e.el) });
+    Object.assign(e, { value, body, toolbar, link, media, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
 
     e.quill = new Quill(body, {
@@ -68,6 +69,8 @@ function start(e) {
         modules: {
             toolbar: false,
             history: { delay: 800, maxStack: 200, userOnly: true },
+            clipboard: { matchers: MEDIA_MATCHERS },
+            uploader: NO_UPLOAD,
             keyboard: {
                 bindings: {
                     toolbar: { key: 'F10', altKey: true, handler: () => toToolbar(e) },
@@ -86,6 +89,7 @@ function start(e) {
     describe(e);
     wireToolbar(e);
     wireLink(e);
+    wireMedia(e);
 
     const q = e.quill;
     q.on('text-change', () => written(e));
@@ -137,6 +141,11 @@ function makeApi(e) {
             e.quill.setSelection(range.index + String(text ?? '').length, 0, 'silent');
             return stateOf(e);
         },
+        /* An image or a video where the caret was — or in place of the one it is on — with
+           its description. Null, and nothing inserted, when the editor does not take that
+           kind or the address is not http, https or relative. */
+        insertImage: (url, alt) => insertMedia(e, 'image', url, alt, takeMediaRange(e)),
+        insertVideo: (url, label) => insertMedia(e, 'video', url, label, takeMediaRange(e)),
         focus: () => e.quill.focus(),
         enable: on => {
             e.value.disabled = on === false;
@@ -154,6 +163,8 @@ function invoke(e, method, args) {
         case 'state': return api.state();
         case 'set': return api.set(a[0]);
         case 'insert': return api.insert(a[0]);
+        case 'image': return api.insertImage(a[0], a[1]);
+        case 'video': return api.insertVideo(a[0], a[1]);
         case 'focus': api.focus(); return null;
         case 'enable': api.enable(a[0] !== false); return null;
         default:
@@ -167,7 +178,8 @@ function attach(el) {
     let e = editors.get(el);
     if (!e) {
         e = { el, written: [], cleanups: [], disposed: false, changed: false, loading: false, lastRange: null };
-        e.emit = (name, detail) => el.dispatchEvent(new CustomEvent(name, { bubbles: true, detail }));
+        // False when a cancelable event was cancelled.
+        e.emit = (name, detail, cancelable) => el.dispatchEvent(new CustomEvent(name, { bubbles: true, cancelable: !!cancelable, detail }));
         e.api = makeApi(e);
         editors.set(el, e);
         try {

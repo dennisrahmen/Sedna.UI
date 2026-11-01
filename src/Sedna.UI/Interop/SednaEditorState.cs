@@ -29,3 +29,25 @@ public sealed class SednaEditorEventArgs : EventArgs
     /// <summary>Whether the document is empty.</summary>
     public bool IsEmpty { get; set; }
 }
+
+/// <summary>
+/// An image or a video control was used: <c>sedna-editor-media</c>, sent before the editor opens the
+/// app's media form.
+/// </summary>
+/// <remarks>
+/// An app that opens its own dialog instead — one with an upload in it — cancels the event with
+/// <c>@onsedna-editor-media:preventDefault</c>, and answers with
+/// <see cref="ISednaEditors.InsertImageAsync"/> or <see cref="ISednaEditors.InsertVideoAsync"/>, which
+/// put the media where the caret was.
+/// </remarks>
+public sealed class SednaEditorMediaEventArgs : EventArgs
+{
+    /// <summary><c>image</c> or <c>video</c>.</summary>
+    public string Kind { get; set; } = string.Empty;
+
+    /// <summary>The address of the image or video the caret is on, or the empty string for a new one.</summary>
+    public string Src { get; set; } = string.Empty;
+
+    /// <summary>Its description — an image's <c>alt</c>, a video's <c>aria-label</c> — or the empty string.</summary>
+    public string Alt { get; set; } = string.Empty;
+}

@@ -40,13 +40,12 @@ function openLink(e) {
     if (url) url.value = existing ? existing.href : '';
     if (remove) remove.hidden = !existing;
     panel.hidden = false;
-    placeLink(e, existing || range);
+    place(e, panel, existing || range);
     (url || panel).focus({ preventScroll: true });
 }
 
-// Beneath the text it is for, inside the editor's frame.
-function placeLink(e, range) {
-    const panel = e.link;
+// A form beneath the text it is for, inside the editor's frame: the link form, the media form.
+function place(e, panel, range) {
     const bounds = e.quill.getBounds(range.index, range.length);
     if (!bounds) return;
     const frame = e.el.getBoundingClientRect();

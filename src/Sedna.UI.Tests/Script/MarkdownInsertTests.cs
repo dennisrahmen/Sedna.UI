@@ -139,6 +139,35 @@ public class MarkdownInsertTests : ScriptTestBase
         Assert.Equal("See, the order. Thanks.", (await Read(page)).Value);
     }
 
+    [Theory]
+    [InlineData("image")]
+    [InlineData("video")]
+    public async Task The_image_and_video_commands_wrap_the_selection_as_its_description(string cmd)
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor();
+
+        await page.EvaluateAsync("() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(4, 13); }");
+        await page.EvaluateAsync("c => sednaUi.md.apply(document.getElementById('ta'), c)", cmd);
+
+        var (value, start, end) = await Read(page);
+        Assert.Equal("See ![the order](https://). Thanks.", value);
+        Assert.Equal("the order", value[start..end]);
+    }
+
+    [Fact]
+    public async Task An_uploaded_picture_inserted_at_the_caret_shows_in_the_preview()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor();
+
+        await page.EvaluateAsync("() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(14, 14); }");
+        await Insert(page, "\n\n![The damaged box](/uploads/box_front.jpg)\n\n");
+
+        Assert.Equal("/uploads/box_front.jpg",
+            await page.EvaluateAsync<string>("() => document.querySelector('#preview img').getAttribute('src')"));
+    }
+
     private async Task<IPage> OpenEditor()
     {
         var page = await Open(Fixture);
