@@ -11,6 +11,9 @@
    to each. From C#: ISednaUi.InitMarkdownAsync().
 
    insert() puts the app's own text at the caret — from C#, ISednaUi.InsertMarkdownAsync().
+   An image is `![description](address)`; the same syntax with the address of a video file
+   — .mp4, .m4v, .mov, .webm or .ogv — is a video the browser plays, with controls. An app
+   that uploads a picture inserts that text, with the address it uploaded to.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -121,6 +124,8 @@
                 case 'ol':     linePrefix('1. '); break;
                 case 'quote':  linePrefix('> '); break;
                 case 'link':   wrap('[', '](https://)', 'link text'); break;
+                case 'image':  wrap('![', '](https://)', 'image description'); break;
+                case 'video':  wrap('![', '](https://)', 'video description'); break;
                 default: return;
             }
             ta.dispatchEvent(new Event('input', { bubbles: true }));
@@ -151,7 +156,7 @@
 
         // Minimal, self-contained Markdown → HTML. HTML is escaped FIRST; only a
         // fixed set of block/inline constructs is re-introduced, and link hrefs
-        // are scheme-checked. Not a spec-complete parser — enough for authored
+        // and image and video sources are scheme-checked. Not a spec-complete parser — enough for authored
         // prose, and safe enough that its output can be injected.
         //
         // esc() escapes the double quote as well, so its output is safe in an
@@ -171,7 +176,16 @@
             });
             var inline = function (t) {
                 t = esc(t);
-                t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+                // A code span, then an image or a video, is held aside as a numbered placeholder
+                // between two NUL characters until the end, so nothing below formats what a code
+                // span says or reaches into an address with an underscore in it.
+                var held = [];
+                var hold = function (html) {
+                    held.push(html);
+                    return '\u0000' + (held.length - 1) + '\u0000';
+                };
+                t = t.replace(/`([^`]+)`/g, function (_, code) { return hold('<code>' + code + '</code>'); });
+                t = t.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_, alt, url) { return hold(mediaHtml(alt, url)); });
                 t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 t = t.replace(/_([^_]+)_/g, '<em>$1</em>');
                 // The whole line went through esc() above, so `url` is already escaped
@@ -181,7 +195,18 @@
                     var safe = /^(https?:|mailto:|\/)/i.test(url) ? url : '#';
                     return '<a href="' + safe + '" target="_blank" rel="noopener">' + txt + '</a>';
                 });
-                return t;
+                return t.replace(/\u0000(\d+)\u0000/g, function (_, i) { return held[+i] || ''; });
+            };
+            // `alt` and `url` are already escaped, as the whole line is. The source is kept only
+            // when it is http, https or relative — no scheme before its first / ? or # — and an
+            // image whose source is not kept is its description, as text.
+            var mediaHtml = function (alt, url) {
+                if (!/^(https?:|[^:\/?#]*(?:[\/?#]|$))/i.test(url)) return alt;
+                if (/\.(mp4|m4v|mov|webm|ogv)$/i.test(url.split(/[?#]/)[0])) {
+                    return '<video controls preload="metadata" src="' + url + '"' +
+                        (alt ? ' aria-label="' + alt + '"' : '') + '></video>';
+                }
+                return '<img src="' + url + '" alt="' + alt + '" loading="lazy">';
             };
             var out = [], list = null;
             var closeList = function () { if (list) { out.push('</' + list + '>'); list = null; } };

@@ -131,7 +131,7 @@
     background: var(--surface-raised-2);
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.chat-composer--prompt:focus-within { border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
+.chat-composer--prompt:focus-within { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
 .chat-composer--prompt .chat-composer-row > .form-input,
 .chat-composer--prompt .chat-composer-row > .form-input:focus {
     min-height: var(--control-height-lg);

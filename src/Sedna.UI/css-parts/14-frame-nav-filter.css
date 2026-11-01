@@ -44,7 +44,7 @@
     padding: var(--space-2) var(--space-4);
     padding-inline-start: calc(var(--space-4) + var(--text-5) + var(--space-3));
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     color: var(--fg);
     font-family: inherit;
@@ -52,10 +52,10 @@
     line-height: 1.4;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.nav-filter-input::placeholder { color: var(--muted); }
+.nav-filter-input::placeholder { color: var(--placeholder); }
 .nav-filter-input:focus {
     outline: none;
-    border-color: var(--brand-soft);
+    border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
 

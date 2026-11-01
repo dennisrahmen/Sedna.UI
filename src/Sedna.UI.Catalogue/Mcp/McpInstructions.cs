@@ -18,9 +18,15 @@ internal static class McpInstructions
         this catalogue and applying the classes.
 
         The library draws only its tier 3 surfaces — a toast, a hover hint, a graph, a rich-text
-        editor — and every control, menu, panel and legend around one is markup the app writes. A confirmation is a
-        <dialog class="modal"> the app writes and awaits with ISednaUi.ShowModalAsync; a modal,
-        drawer or sheet that is its own component is presented with ISednaOverlays.
+        editor — and every control, menu, panel and legend around one is markup the app writes.
+
+        Dialogs take one of two routes, decided by where the dialog's markup lives. A small
+        dialog that is part of a page's own markup — a confirmation, a one-field prompt — is a
+        <dialog class="modal" id="..."> written in that page and awaited with
+        ISednaUi.ShowModalAsync(id). A modal, drawer or sheet with a .razor file of its own — its
+        own parameters, state or validation, or opened from more than one page — is presented
+        with ISednaOverlays.ShowAsync<TComponent, TResult>, with one <SednaOverlayHost /> in the
+        layout. Never render such a component inline in a page and open it through a @ref.
 
         Use search first, then get_example for the exact markup. Do not write shared-UI markup
         from memory, and do not invent class names: a class that is not in the stylesheet does

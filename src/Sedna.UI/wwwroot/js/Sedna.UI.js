@@ -1163,6 +1163,9 @@ window.sednaUi = window.sednaUi || {};
    already handles:
 
      Enter on an option        clicks it
+     Enter on a group action   clicks it
+     a data-combo-toggle-group action clicked
+                               clicks each row of its group that has to change
      Backspace, twice          clicks the last chip's .chip-dismiss
      free entry committed      one `change` on the input per entry, then clears it
      the list scrolled down    clicks the .form-combo-more after it
@@ -1175,8 +1178,9 @@ window.sednaUi = window.sednaUi || {};
 
    What it DOES write is attributes the app never renders: aria-expanded and
    aria-activedescendant on the input, `hidden` on a filtered option, data-active
-   on the keyboard's option, data-armed on a chip. None of those is in Blazor's
-   render tree, so a diff never reverts them. The match highlight is painted
+   on the keyboard's option or group action, data-armed on a chip, and
+   data-all-selected on a group heading whose every row is selected. None of
+   those is in Blazor's render tree, so a diff never reverts them. The match highlight is painted
    through the CSS Custom Highlight API and touches no text node at all.
 
    data-combo-managed is for a page with no app behind it — a static form, this
@@ -1235,10 +1239,69 @@ window.sednaUi = window.sednaUi || {};
         return list ? toArray(list.querySelectorAll('.form-combo-option')) : [];
     }
 
+    function enabled(option) { return option.getAttribute('aria-disabled') !== 'true'; }
+    function selected(option) { return option.getAttribute('aria-selected') === 'true'; }
+
     function reachable(host) {
-        return options(host).filter(function (o) {
-            return !o.hidden && o.getAttribute('aria-disabled') !== 'true';
+        return options(host).filter(function (o) { return !o.hidden && enabled(o); });
+    }
+
+    /* Where the arrow keys stop, in document order: every reachable option, and the
+       action in each group heading that is on screen. An action is never where the
+       keyboard starts — settle() picks from the options — so Enter straight after
+       opening never ticks a whole group. */
+    function stops(host) {
+        var list = listOf(host);
+        if (!list) return [];
+        return toArray(list.querySelectorAll('.form-combo-option, .form-combo-group-action')).filter(function (el) {
+            if (el.classList.contains('form-combo-option')) return !el.hidden && enabled(el);
+            var heading = el.closest('.form-combo-group');
+            return !el.disabled && !(heading && heading.hidden);
         });
+    }
+
+    // ── Groups ─────────────────────────────────────────────────────────────────
+
+    /* A group is its heading and the options after it, up to the next heading. */
+    function rowsOf(heading) {
+        var rows = [];
+        for (var next = heading.nextElementSibling; next && !next.classList.contains('form-combo-group'); next = next.nextElementSibling) {
+            if (next.classList.contains('form-combo-option')) rows.push(next);
+        }
+        return rows;
+    }
+
+    function multiselectable(host) {
+        var list = listOf(host);
+        return !!list && list.getAttribute('aria-multiselectable') === 'true';
+    }
+
+    /* data-all-selected on each heading whose every enabled row is selected, which
+       is what picks the label a group action shows. Rows hidden by the query count:
+       the action is about the group, not about what the query left. */
+    function mark(host) {
+        if (!multiselectable(host)) return;
+        toArray(listOf(host).querySelectorAll('.form-combo-group')).forEach(function (heading) {
+            var rows = rowsOf(heading).filter(enabled);
+            var all = rows.length > 0 && rows.every(selected);
+            if (heading.hasAttribute('data-all-selected') !== all) {
+                if (all) heading.setAttribute('data-all-selected', '');
+                else heading.removeAttribute('data-all-selected');
+            }
+        });
+    }
+
+    /* Selects every enabled row of the group, or, when every one already is,
+       deselects them all — by clicking each row that has to change, so the app's
+       own click handler on an option is all it takes, and a managed field selects
+       them through the same path a pointer does. */
+    function toggleGroup(host, action) {
+        var heading = action.closest('.form-combo-group');
+        if (!heading || !multiselectable(host)) return;
+        var rows = rowsOf(heading).filter(enabled);
+        var all = rows.length > 0 && rows.every(selected);
+        rows.forEach(function (o) { if (selected(o) === all) o.click(); });
+        mark(host);
     }
 
     function chips(host) {
@@ -1302,6 +1365,7 @@ window.sednaUi = window.sednaUi || {};
                 if (heading && heading.hidden === any) heading.hidden = !any;
             }
         }
+        mark(host);
         paint(host);
     }
 
@@ -1369,13 +1433,14 @@ window.sednaUi = window.sednaUi || {};
 
     function activeOf(host) {
         var list = listOf(host);
-        return list ? list.querySelector('.form-combo-option[data-active]') : null;
+        return list ? list.querySelector('.form-combo-option[data-active], .form-combo-group-action[data-active]') : null;
     }
 
+    /* `option` is an option or a group action: both are where the keyboard can be. */
     function setActive(host, option, scroll) {
-        var input = inputOf(host);
-        options(host).forEach(function (o) {
-            if (o !== option && o.hasAttribute('data-active')) o.removeAttribute('data-active');
+        var input = inputOf(host), list = listOf(host);
+        if (list) toArray(list.querySelectorAll('[data-active]')).forEach(function (o) {
+            if (o !== option) o.removeAttribute('data-active');
         });
 
         if (!option) {
@@ -1392,7 +1457,7 @@ window.sednaUi = window.sednaUi || {};
        has none until an arrow key picks one, so Enter adds what was typed. */
     function settle(host, fresh) {
         var active = activeOf(host), rows = reachable(host);
-        if (!fresh && active && rows.indexOf(active) >= 0) { setActive(host, active); return; }
+        if (!fresh && active && stops(host).indexOf(active) >= 0) { setActive(host, active); return; }
         if (modeOf(host) === 'free') { setActive(host, null); return; }
 
         var chosen = rows.filter(function (o) { return o.getAttribute('aria-selected') === 'true'; })[0];
@@ -1400,7 +1465,7 @@ window.sednaUi = window.sednaUi || {};
     }
 
     function move(host, step) {
-        var rows = reachable(host);
+        var rows = stops(host);
         if (!rows.length) return;
         var at = rows.indexOf(activeOf(host));
         var to = at < 0 ? (step > 0 ? 0 : rows.length - 1) : Math.max(0, Math.min(rows.length - 1, at + step));
@@ -1517,7 +1582,7 @@ window.sednaUi = window.sednaUi || {};
     function picked(host, option) {
         if (option.getAttribute('aria-disabled') === 'true') return;
         var input = inputOf(host);
-        if (managed(host)) selectManaged(host, option);
+        if (managed(host)) { selectManaged(host, option); mark(host); }
 
         if (modeOf(host) === 'multi') {
             setActive(host, option);
@@ -1663,6 +1728,16 @@ window.sednaUi = window.sednaUi || {};
 
         var option = e.target.closest('.form-combo-option');
         if (option && host.contains(option)) { picked(host, option); return; }
+
+        /* A group heading's action. Without data-combo-toggle-group it is the app's
+           button, and this only keeps the keyboard on it. */
+        var action = e.target.closest('.form-combo-group-action');
+        if (action && host.contains(action)) {
+            if (action.hasAttribute('data-combo-toggle-group')) toggleGroup(host, action);
+            if (isOpen(host)) setActive(host, action);
+            input.focus();
+            return;
+        }
 
         var dismiss = e.target.closest('.chip-dismiss');
         if (dismiss && dismiss.closest('.form-combo-box')) {
@@ -1847,6 +1922,9 @@ window.sednaUi = window.sednaUi || {};
        open are looked at, so a page with none open pays one query per mutation
        batch. `hidden` and data-active are attributes, which this does not observe,
        so nothing here re-triggers it. */
+    /* A heading's data-all-selected follows its rows' aria-selected, which an app's
+       render changes without adding or removing a node — so that one attribute is
+       observed too, and a batch that changed nothing else only re-marks the field. */
     if (typeof MutationObserver === 'function') {
         new MutationObserver(function (records) {
             var focused = document.activeElement;
@@ -1858,14 +1936,28 @@ window.sednaUi = window.sednaUi || {};
             var openInputs = document.querySelectorAll('[data-combo] .form-combo-input[aria-expanded="true"]');
             for (var i = 0; i < openInputs.length; i++) {
                 var host = hostOf(openInputs[i]);
-                var touched = records.some(function (r) { return host.contains(r.target); });
-                if (!touched) continue;
+                var mine = records.filter(function (r) { return host.contains(r.target); });
+                if (!mine.length) continue;
+                if (mine.every(function (r) { return r.type === 'attributes'; })) { mark(host); continue; }
                 filter(host);
                 settle(host);
                 requestMore(host);
             }
-        }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+        }).observe(document.documentElement, {
+            childList: true, subtree: true, characterData: true,
+            attributes: true, attributeFilter: ['aria-selected']
+        });
     }
+
+    /* A list that is open from the start — `.form-combo--inline` — shows its group
+       actions' labels before anything has been opened or rendered. */
+    function markAll() {
+        toArray(document.querySelectorAll('[data-combo]')).forEach(function (host) {
+            if (host.querySelector('.form-combo-group-action')) mark(host);
+        });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', markAll);
+    else markAll();
 
 })(window.sednaUi);
 
@@ -4116,14 +4208,26 @@ window.sednaUi = window.sednaUi || {};
         } catch (e) { /* the mark still says it */ }
     }
 
+    /* The zoom between the diagram's own pixels and the viewport's. `currentCSSZoom` where
+       the browser has it; otherwise the drawn width over the laid-out one. */
+    function zoomOf(canvas, box) {
+        var z = canvas.currentCSSZoom;
+        if (z > 0) return z;
+        return canvas.offsetWidth > 0 && box.width > 0 ? box.width / canvas.offsetWidth : 1;
+    }
+
     function centre(canvas, smooth) {
         var state = canvas[STATE];
         var step = stepAtWork(canvas);
         if (!state || !step) return;
         var box = canvas.getBoundingClientRect();
         var node = nodeOf(step).getBoundingClientRect();
-        var dx = (node.left + node.width / 2) - (box.left + box.width / 2);
-        var dy = (node.top + node.height / 2) - (box.top + box.height / 2);
+        // The rects are in the viewport's pixels and the scroll offset is in the diagram's
+        // own, so under a CSS `zoom` on it or above it — the way a wall screen is scaled —
+        // the distance is divided back by that zoom, or the step overshoots by its factor.
+        var zoom = zoomOf(canvas, box);
+        var dx = ((node.left + node.width / 2) - (box.left + box.width / 2)) / zoom;
+        var dy = ((node.top + node.height / 2) - (box.top + box.height / 2)) / zoom;
         var smoothly = smooth && !reducedMotion();
         var left = canvas.scrollLeft, top = canvas.scrollTop;
         // To a place, not by an amount: a smooth scrollBy adds onto one still under way, so
@@ -4663,6 +4767,9 @@ window.sednaUi = window.sednaUi || {};
    to each. From C#: ISednaUi.InitMarkdownAsync().
 
    insert() puts the app's own text at the caret — from C#, ISednaUi.InsertMarkdownAsync().
+   An image is `![description](address)`; the same syntax with the address of a video file
+   — .mp4, .m4v, .mov, .webm or .ogv — is a video the browser plays, with controls. An app
+   that uploads a picture inserts that text, with the address it uploaded to.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -4773,6 +4880,8 @@ window.sednaUi = window.sednaUi || {};
                 case 'ol':     linePrefix('1. '); break;
                 case 'quote':  linePrefix('> '); break;
                 case 'link':   wrap('[', '](https://)', 'link text'); break;
+                case 'image':  wrap('![', '](https://)', 'image description'); break;
+                case 'video':  wrap('![', '](https://)', 'video description'); break;
                 default: return;
             }
             ta.dispatchEvent(new Event('input', { bubbles: true }));
@@ -4803,7 +4912,7 @@ window.sednaUi = window.sednaUi || {};
 
         // Minimal, self-contained Markdown → HTML. HTML is escaped FIRST; only a
         // fixed set of block/inline constructs is re-introduced, and link hrefs
-        // are scheme-checked. Not a spec-complete parser — enough for authored
+        // and image and video sources are scheme-checked. Not a spec-complete parser — enough for authored
         // prose, and safe enough that its output can be injected.
         //
         // esc() escapes the double quote as well, so its output is safe in an
@@ -4823,7 +4932,16 @@ window.sednaUi = window.sednaUi || {};
             });
             var inline = function (t) {
                 t = esc(t);
-                t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+                // A code span, then an image or a video, is held aside as a numbered placeholder
+                // between two NUL characters until the end, so nothing below formats what a code
+                // span says or reaches into an address with an underscore in it.
+                var held = [];
+                var hold = function (html) {
+                    held.push(html);
+                    return '\u0000' + (held.length - 1) + '\u0000';
+                };
+                t = t.replace(/`([^`]+)`/g, function (_, code) { return hold('<code>' + code + '</code>'); });
+                t = t.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_, alt, url) { return hold(mediaHtml(alt, url)); });
                 t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 t = t.replace(/_([^_]+)_/g, '<em>$1</em>');
                 // The whole line went through esc() above, so `url` is already escaped
@@ -4833,7 +4951,18 @@ window.sednaUi = window.sednaUi || {};
                     var safe = /^(https?:|mailto:|\/)/i.test(url) ? url : '#';
                     return '<a href="' + safe + '" target="_blank" rel="noopener">' + txt + '</a>';
                 });
-                return t;
+                return t.replace(/\u0000(\d+)\u0000/g, function (_, i) { return held[+i] || ''; });
+            };
+            // `alt` and `url` are already escaped, as the whole line is. The source is kept only
+            // when it is http, https or relative — no scheme before its first / ? or # — and an
+            // image whose source is not kept is its description, as text.
+            var mediaHtml = function (alt, url) {
+                if (!/^(https?:|[^:\/?#]*(?:[\/?#]|$))/i.test(url)) return alt;
+                if (/\.(mp4|m4v|mov|webm|ogv)$/i.test(url.split(/[?#]/)[0])) {
+                    return '<video controls preload="metadata" src="' + url + '"' +
+                        (alt ? ' aria-label="' + alt + '"' : '') + '></video>';
+                }
+                return '<img src="' + url + '" alt="' + alt + '" loading="lazy">';
             };
             var out = [], list = null;
             var closeList = function () { if (list) { out.push('</' + list + '>'); list = null; } };

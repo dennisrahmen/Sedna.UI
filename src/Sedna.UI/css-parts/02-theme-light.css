@@ -60,6 +60,9 @@
        it — --brand-text — loses contrast as this rises. The strong tint is bounded by
        that pairing in either variant; BrandTextContrastTests is the measurement. */
     --brand-tint-strong: color-mix(in srgb, var(--brand) 20%, transparent);
+    /* The fill already clears 3:1 against a white card — it is solved for white text —
+       so the edge is the fill and nothing changes here. */
+    --brand-edge: var(--brand);
     --accent:     var(--orbit-700);
 
     --sidebar-bg:     var(--white);
@@ -69,7 +72,7 @@
        hover has to go darker; the dark theme's value goes lighter. */
     --sidebar-hover:  var(--slate-100);
 
-    --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
+    --go-bg:     color-mix(in srgb, var(--green-500) 10%, transparent);
     --go-border: var(--green-300);
     --go-fg:     var(--green-800);
     /* Nothing lighter than 600 clears 3:1 on white, so every series sits between 600
@@ -86,7 +89,7 @@
     --viz-previous: var(--slate-500);
     --on-viz: var(--white);
 
-    --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
+    --warn-bg:     color-mix(in srgb, var(--amber-500) 10%, transparent);
     --warn-border: var(--amber-300);
     --warn-fg:     var(--amber-800);
 
@@ -94,31 +97,31 @@
        dark theme, scaled for a light surface. All four move together: a tint
        remapped without its hover pair jumps between two unrelated reds. */
     --danger-solid: var(--crimson-700);
-    --danger-bg:            rgba(199, 34, 104, 0.08);    /* crimson-700 */
-    --danger-bg-hover:      rgba(199, 34, 104, 0.14);    /* crimson-700 */
-    --danger-bg-active:     rgba(199, 34, 104, 0.2);     /* crimson-700 */
+    --danger-bg:            color-mix(in srgb, var(--crimson-700) 8%, transparent);
+    --danger-bg-hover:      color-mix(in srgb, var(--crimson-700) 14%, transparent);
+    --danger-bg-active:     color-mix(in srgb, var(--crimson-700) 20%, transparent);
     --danger-border:        var(--crimson-300);
     --danger-border-strong: var(--crimson-700);
     --danger-fg:            var(--crimson-800);
-    --danger-ring:          rgba(199, 34, 104, 0.35);    /* crimson-700 */
+    --danger-ring:          color-mix(in srgb, var(--crimson-700) 35%, transparent);
 
-    --info-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
+    --info-bg:     color-mix(in srgb, var(--orbit-400) 8%, transparent);
     --info-border: var(--orbit-300);
     --info-fg:     var(--orbit-800);
     --info-solid:  var(--orbit-700);
-    --info-ring:   rgba(89, 195, 255, 0.4);     /* orbit-400 */
+    --info-ring:   color-mix(in srgb, var(--orbit-400) 40%, transparent);
 
     --secret-bg:     color-mix(in srgb, var(--violet-600) 8%, transparent);
     --secret-border: var(--violet-300);
     --secret-fg:     var(--violet-700);
 
-    --badge-cyan-bg:     rgba(34, 211, 238, 0.08);    /* cyan-400 */
+    --badge-cyan-bg:     color-mix(in srgb, var(--cyan-400) 8%, transparent);
     --badge-cyan-border: var(--cyan-300);
     --badge-cyan-fg:     var(--cyan-800);
-    --badge-orange-bg:     rgba(245, 158, 75, 0.08);    /* orange-400 */
+    --badge-orange-bg:     color-mix(in srgb, var(--orange-400) 8%, transparent);
     --badge-orange-border: var(--orange-300);
     --badge-orange-fg:     var(--orange-700);
-    --badge-teal-bg:     rgba(20, 184, 166, 0.08);    /* teal-500 */
+    --badge-teal-bg:     color-mix(in srgb, var(--teal-500) 8%, transparent);
     --badge-teal-border: var(--teal-300);
     --badge-teal-fg:     var(--teal-800);
 
@@ -135,22 +138,22 @@
     --sev-1-fg:     var(--on-solid);
 
     --sev-2-solid:  var(--orange-700);
-    --sev-2-bg:     rgba(218, 133, 46, 0.22);   /* orange-500 */
+    --sev-2-bg:     color-mix(in srgb, var(--orange-500) 22%, transparent);
     --sev-2-border: var(--orange-300);
     --sev-2-fg:     var(--orange-800);
 
     --sev-3-solid:  var(--amber-600);
-    --sev-3-bg:     rgba(245, 158, 11, 0.18);   /* amber-500 */
+    --sev-3-bg:     color-mix(in srgb, var(--amber-500) 18%, transparent);
     --sev-3-border: var(--amber-300);
     --sev-3-fg:     var(--amber-800);
 
     --sev-4-solid:  var(--orbit-600);
-    --sev-4-bg:     rgba(89, 195, 255, 0.14);   /* orbit-400 */
+    --sev-4-bg:     color-mix(in srgb, var(--orbit-400) 14%, transparent);
     --sev-4-border: var(--orbit-300);
     --sev-4-fg:     var(--orbit-800);
 
     --sev-5-solid:  var(--slate-500);
-    --sev-5-bg:     rgba(148, 163, 184, 0.1);   /* slate-400 */
+    --sev-5-bg:     color-mix(in srgb, var(--slate-400) 10%, transparent);
     --sev-5-border: var(--slate-300);
     --sev-5-fg:     var(--slate-600);
 
@@ -165,7 +168,7 @@
     --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */
     --btn-active-bg: var(--slate-300);
     --code-fg:       var(--indigo-800);
-    --code-bg:       rgba(90, 97, 191, 0.08);    /* indigo-700 */
+    --code-bg:       color-mix(in srgb, var(--indigo-700) 8%, transparent);
     --backdrop:      color-mix(in srgb, var(--slate-900) 35%, transparent);
     --overlay:       color-mix(in srgb, var(--slate-50) 66%, transparent);
     --spotlight-dim: color-mix(in srgb, var(--slate-900) 42%, transparent);

@@ -51,10 +51,10 @@
 .tab:hover { color: var(--fg); background: var(--surface-soft); text-decoration: none; }
 .tab:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .tab:disabled,
-.tab[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
+.tab[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 .tab--active,
-.tab[aria-selected="true"] { color: var(--brand-text); border-bottom-color: var(--brand); }
+.tab[aria-selected="true"] { color: var(--brand-text); border-bottom-color: var(--tab-indicator); }
 .tab--active:hover,
 .tab[aria-selected="true"]:hover { color: var(--brand-text); background: none; }
 

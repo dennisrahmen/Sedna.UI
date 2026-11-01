@@ -43,6 +43,10 @@ public class EditorInteropTests : BunitContext
         // Null empties the document: the script reads "" as nothing, and null would be "null".
         new("SetHtmlAsync, emptied", e => e.SetHtmlAsync(Id, null), "set", """[""]"""),
         new("InsertTextAsync", e => e.InsertTextAsync(Id, " — Alex"), "insert", """[" — Alex"]"""),
+        new("InsertImageAsync", e => e.InsertImageAsync(Id, "/uploads/a.png", "A chart"), "image", """["/uploads/a.png","A chart"]"""),
+        // No description is the empty string, as the script reads it.
+        new("InsertImageAsync, no description", e => e.InsertImageAsync(Id, "/uploads/a.png"), "image", """["/uploads/a.png",""]"""),
+        new("InsertVideoAsync", e => e.InsertVideoAsync(Id, "https://example.com/a.mp4", "A tour"), "video", """["https://example.com/a.mp4","A tour"]"""),
         new("FocusAsync", e => e.FocusAsync(Id), "focus", "[]"),
         new("SetEnabledAsync", e => e.SetEnabledAsync(Id, false), "enable", "[false]"),
     ];
@@ -136,7 +140,33 @@ public class EditorInteropTests : BunitContext
         Assert.Equal(
             handlers.Keys.Where(k => k.StartsWith("sedna-editor-", StringComparison.Ordinal)).Order(StringComparer.Ordinal),
             dispatched);
-        Assert.All(dispatched, name => Assert.Equal(typeof(SednaEditorEventArgs), handlers[name].EventArgsType));
+        Assert.All(dispatched, name => Assert.Equal(
+            name == "sedna-editor-media" ? typeof(SednaEditorMediaEventArgs) : typeof(SednaEditorEventArgs),
+            handlers[name].EventArgsType));
+        // The media event is the one an app cancels, to open its own dialog instead of the form.
+        Assert.True(handlers["sedna-editor-media"].EnablePreventDefault);
+    }
+
+    [Fact]
+    public void The_media_events_detail_reads_as_media_event_args()
+    {
+        var e = JsonSerializer.Deserialize<SednaEditorMediaEventArgs>(
+            """{"kind":"image","src":"/a.png","alt":"A chart"}""", Wire)!;
+        Assert.Equal(("image", "/a.png", "A chart"), (e.Kind, e.Src, e.Alt));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("  ")]
+    [InlineData(null)]
+    public async Task A_media_address_is_required(string? url)
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+        var editors = Editors();
+
+        await Assert.ThrowsAnyAsync<ArgumentException>(() => editors.InsertImageAsync(Id, url!));
+        await Assert.ThrowsAnyAsync<ArgumentException>(() => editors.InsertVideoAsync(Id, url!));
+        Assert.Empty(JSInterop.Invocations);
     }
 
     private sealed class WireRuntime : JSRuntime

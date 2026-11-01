@@ -415,7 +415,7 @@
 :is(a, button).workflow-node { cursor: pointer; }
 :is(a, button).workflow-node:hover { border-color: var(--border-hover); }
 :is(a, button).workflow-node:focus-visible { outline: none; --workflow-ring: 0 0 0 2px var(--brand-ring-soft); }
-.workflow-node[aria-pressed="true"] { --workflow-ring: 0 0 0 2px var(--brand); }
+.workflow-node[aria-pressed="true"] { --workflow-ring: 0 0 0 2px var(--selected); }
 
 .workflow-node-head {
     display: grid;

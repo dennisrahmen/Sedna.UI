@@ -68,8 +68,8 @@
         <thead><tr><th>Member</th><th>Shown on</th></tr></thead>
         <tbody>
             <tr><td><code>Nav.CssClass</code>, <code>Nav.AriaCurrent</code>, <code>ActiveLink.IsActive</code></td><td><a href="/nav">Sidebar and nav</a> — which link is the current page, and which group is open</td></tr>
-            <tr><td><code>ShowModalAsync</code>, <code>CloseModalAsync</code></td><td><a href="/modal">Modal</a> — awaiting a dialog you wrote, a confirmation included</td></tr>
-            <tr><td><code>ISednaOverlays</code>, <code>SednaOverlayHost</code></td><td><a href="/drawer">Drawers and sheets</a> — a modal, drawer or sheet that is its own component, with a typed result</td></tr>
+            <tr><td><code>ShowModalAsync</code>, <code>CloseModalAsync</code></td><td><a href="/modal#opening-one-from-c">Modal</a> — awaiting a <code>&lt;dialog&gt;</code> written in the page's own markup, such as a confirmation</td></tr>
+            <tr><td><code>ISednaOverlays</code>, <code>SednaOverlayHost</code></td><td><a href="/modal#a-modal-that-is-its-own-component">Modal</a> and <a href="/drawer#a-drawer-as-its-own-component">drawers and sheets</a> — a modal, drawer or sheet that is its own component, with a typed result. A dialog with a <code>.razor</code> file of its own goes this way, not inline in the page</td></tr>
             <tr><td><code>SetTipsEnabledAsync</code></td><td><a href="/hover-hints">Hover hints</a> — switching every hint off from a setting</td></tr>
             <tr><td><code>FollowSpotlightAsync</code></td><td><a href="/spotlight">Spotlight</a> — a tour step that stays attached to its target</td></tr>
             <tr><td><code>InitMarkdownAsync</code></td><td><a href="/markdown">Markdown</a> — wiring the editor after first render</td></tr>

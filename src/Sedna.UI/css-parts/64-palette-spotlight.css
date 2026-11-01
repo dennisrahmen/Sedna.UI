@@ -51,7 +51,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     font-size: var(--text-6);
 }
 .palette-input:focus { outline: none; }
-.palette-input::placeholder { color: var(--border-strong); }
+.palette-input::placeholder { color: var(--placeholder); }
 
 .palette-list { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-3); margin: 0; list-style: none; }
 .palette-item {
@@ -143,7 +143,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
         width var(--motion-slow) ease,
         height var(--motion-slow) ease;
 }
-.spotlight-ring { box-shadow: 0 0 0 100vmax var(--spotlight-dim), 0 0 0 2px var(--brand); }
+.spotlight-ring { box-shadow: 0 0 0 100vmax var(--spotlight-dim), 0 0 0 2px var(--selected); }
 
 /* The explanatory bubble. Positioned by the app beside the hole. */
 .spotlight-tip {

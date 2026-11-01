@@ -347,4 +347,4 @@
 .series-warn   { color: var(--warn-solid); }
 .series-danger { color: var(--danger-solid); }
 .series-info   { color: var(--info-solid); }
-.series-muted  { color: var(--border-strong); }
+.series-muted  { color: var(--muted); }

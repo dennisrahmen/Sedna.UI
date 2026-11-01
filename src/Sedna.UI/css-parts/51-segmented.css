@@ -90,7 +90,7 @@
    this size. The elevated surface against the inset track is enough. */
 .segmented-option:has(input:checked) { background: var(--bg-elevated); color: var(--fg); }
 .segmented-option:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.segmented-option:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
+.segmented-option:has(input:disabled) { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 /* The same three tiers as the button and the text input, off the same tokens, so a
    toolbar row agrees at every size.

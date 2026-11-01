@@ -26,7 +26,7 @@
 const TONE_TOKENS = {
     '1': '--viz-1', '2': '--viz-2', '3': '--viz-3', '4': '--viz-4', '5': '--viz-5', '6': '--viz-6',
     go: '--go-solid', warn: '--warn-solid', danger: '--danger-solid', info: '--info-solid',
-    muted: '--border-strong', brand: '--brand', accent: '--accent',
+    muted: '--muted', brand: '--brand', accent: '--accent',
 };
 
 /* Friendly names first, then cytoscape's own, which are accepted as they are. The

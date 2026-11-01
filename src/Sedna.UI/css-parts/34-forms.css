@@ -34,7 +34,7 @@
     min-height: var(--control-height);
     padding: var(--space-3) var(--space-5);
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     color: var(--fg);
     font-size: var(--text-4);
@@ -46,10 +46,10 @@
 .form-input:focus,
 .form-select:focus {
     outline: none;
-    border-color: var(--brand-soft);
+    border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
-.form-input::placeholder { color: var(--border-strong); }
+.form-input::placeholder { color: var(--placeholder); }
 
 /* ── A text area's resize grip ────────────────────────────────────
    Vertical is the DEFAULT rather than a class, because the failure is horizontal:
@@ -93,7 +93,7 @@ textarea.form-input::-webkit-resizer {
     min-height: var(--control-height);
     padding: var(--space-3) var(--space-5);
     background: var(--surface-soft);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     font-size: var(--text-4);
 }
@@ -150,7 +150,7 @@ textarea.form-input::-webkit-resizer {
    The `:has()` is what lets one rule cover the checkbox and the radio without either
    knowing about the other. */
 .form-check:has(input:disabled) { color: var(--muted); cursor: not-allowed; }
-.form-check input:disabled { opacity: 0.45; cursor: not-allowed; }
+.form-check input:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 .form-input:disabled,
 .form-select:disabled,

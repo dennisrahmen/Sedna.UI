@@ -226,7 +226,7 @@
 .chat-reaction:hover { border-color: var(--border-strong); }
 .chat-reaction[aria-pressed="true"] {
     background: var(--brand-tint);
-    border-color: var(--brand);
+    border-color: var(--selected);
     color: var(--brand-text);
 }
 .chat-reaction:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }

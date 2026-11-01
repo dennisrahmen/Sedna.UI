@@ -90,6 +90,15 @@ A `data-copy` button carries its own feedback: `data-copied-hide` on what shows 
 
 ### Dialogs are the platform's, not a div
 
+**Pick the route by where the dialog's markup lives.**
+
+- **A few lines of a page's own markup** — a confirmation, a one-field prompt, reading and writing that
+  page's fields: a `<dialog class="modal" id="…">` in the page, awaited with `ISednaUi.ShowModalAsync(id)`.
+- **A `.razor` file of its own** — its own parameters, state, loading or validation, or opened from more
+  than one page: `ISednaOverlays.ShowAsync<TComponent, TResult>`, with one `<SednaOverlayHost />` in the
+  layout. Never render such a component inline in a page and open it through a `@ref`: it renders on
+  every visit, its state outlives each opening, and each page repeats the wiring the host already does.
+
 Put an app's own modal in a `<dialog class="modal">` with an `id`, and open it with
 `ISednaUi.ShowModalAsync(id)`. That is the whole reason the member exists: the top layer, a focus trap,
 Escape-to-close and inert content behind come from the browser, and a `.modal-backdrop` div behind an
@@ -139,7 +148,7 @@ layout at the seam instead.
 Where a library class has one value an app reasonably wants to change, that value is a custom property
 on the element, not a class to override. `--toolbar-input-width`, `--search-max`, `--modal-max-height`,
 `--scroll-max`, `--skeleton-height`, `--page-gap`, `--sidebar-width`, `--nav-indent`,
-`--prose-measure`, `--deck-height`,
+`--prose-measure`, `--deck-height`, `--form-combo-panel-width`,
 `--col-control-min` / `--col-control-max`, `--col-prose-min` / `--col-prose-max`. Set one inline —
 `style="--search-max: 340px"` — rather than declaring `max-width` for a library class, which the
 section below is about. If the number you need has no knob, that is a request for the library.

@@ -12,12 +12,12 @@
     display: flex; align-items: center; gap: var(--space-5);
     padding: 0 var(--space-7);
     background: none; border: none; cursor: pointer;
-    color: var(--fg); white-space: nowrap;
+    color: var(--topbar-fg); white-space: nowrap;
 }
-.user-trigger:hover { background: var(--bg-hover); text-decoration: none; }
+.user-trigger:hover { background: var(--topbar-hover); text-decoration: none; }
 .user-info  { display: flex; flex-direction: column; align-items: flex-start; }
 .user-name  { font-size: var(--text-4); font-weight: 500; line-height: 1.2; }
-.user-email { font-size: var(--text-2); color: var(--muted); line-height: 1.2; }
+.user-email { font-size: var(--text-2); color: var(--topbar-muted); line-height: 1.2; }
 .user-avatar {
     width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
     display: inline-flex; align-items: center; justify-content: center;
@@ -26,11 +26,11 @@
 .user-signout {
     display: inline-flex; align-items: center; justify-content: center;
     width: 46px; flex-shrink: 0;
-    color: var(--muted); font-size: var(--text-8); text-decoration: none;
+    color: var(--topbar-muted); font-size: var(--text-8); text-decoration: none;
     transition: background var(--motion-fast), color var(--motion-fast);
 }
 .user-signout:hover, .user-signout:focus, .user-signout:hover:focus {
-    background: var(--bg-hover); color: var(--fg); text-decoration: none;
+    background: var(--topbar-hover); color: var(--topbar-fg); text-decoration: none;
 }
 
 /* ── The widget's dropdown ──────────────────────────────────────────────────
@@ -48,6 +48,9 @@
    right: above everything else in the header, and still covered by a modal backdrop
    opened from inside it. */
 .user-widget > .menu {
+    /* The page's ink, not the header's: the panel is a surface of its own, and a header
+       painted with --topbar-fg would otherwise hand white text to a white panel. */
+    color: var(--fg);
     position: absolute;
     top: calc(100% + var(--space-2));
     inset-inline-end: 0;

@@ -65,11 +65,11 @@ button.list-row:active { background: var(--btn-active-bg); }
 /* The treatment `.menu-item` and `.btn` use. `pointer-events: none` is what stops a
    disabled row still taking the hover fill. */
 button.list-row:disabled,
-button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+button.list-row[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; pointer-events: none; }
 .list-row[aria-current="true"],
 .list-row[aria-selected="true"] {
     background: var(--brand-tint);
-    box-shadow: inset 3px 0 0 var(--brand);
+    box-shadow: inset 3px 0 0 var(--selected);
 }
 
 /* The dominant field and its supporting line. min-width: 0 is what lets the
@@ -145,11 +145,11 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 .list--cards > li > .list-row:is([aria-current="true"], [aria-selected="true"]):hover {
     background-color: var(--surface-here);
     background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
-    border-color: var(--brand);
-    box-shadow: inset 0 0 0 1px var(--brand);
+    border-color: var(--selected);
+    box-shadow: inset 0 0 0 1px var(--selected);
 }
 .list--cards > li > :is(a, button).list-row:is([aria-current="true"], [aria-selected="true"]):focus-visible {
-    box-shadow: inset 0 0 0 1px var(--brand), inset 0 0 0 3px var(--brand-ring-soft);
+    box-shadow: inset 0 0 0 1px var(--selected), inset 0 0 0 3px var(--brand-ring-soft);
 }
 
 /* In a card the list keeps the card's gutter round the whole stack, and the rows go

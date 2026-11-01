@@ -180,7 +180,7 @@
     outline: none;
     box-shadow: 0 0 0 2px var(--brand-ring-check);
 }
-.switch input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.45; }
+.switch input[type="checkbox"]:disabled { cursor: not-allowed; opacity: var(--disabled-opacity); }
 .switch:has(input:disabled) { cursor: not-allowed; color: var(--muted); }
 
 /* ── Label and hint ─────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@
     block-size: var(--control-height);
     padding: var(--space-1);
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     cursor: pointer;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
@@ -214,8 +214,8 @@
 .form-color.form-input-sm { inline-size: var(--control-height-sm); block-size: var(--control-height-sm); }
 .form-color.form-input-lg { inline-size: var(--control-height-lg); block-size: var(--control-height-lg); }
 .form-color:hover { border-color: var(--border-hover); }
-.form-color:focus-visible { outline: none; border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
-.form-color:disabled { cursor: not-allowed; opacity: 0.45; }
+.form-color:focus-visible { outline: none; border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
+.form-color:disabled { cursor: not-allowed; opacity: var(--disabled-opacity); }
 .form-color::-webkit-color-swatch-wrapper { padding: 0; }
 .form-color::-webkit-color-swatch { border: none; border-radius: calc(var(--radius-control) - 2px); }
 .form-color::-moz-color-swatch { border: none; border-radius: calc(var(--radius-control) - 2px); }

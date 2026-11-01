@@ -24,13 +24,13 @@
     display: flex;
     flex-direction: column;
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     --surface-here: var(--bg);
     --editor-max-height: 480px;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.editor:focus-within { border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
+.editor:focus-within { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
 .editor-toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -157,6 +157,8 @@
     padding: var(--space-5) var(--space-6); overflow-x: auto; margin: 0.6em 0;
 }
 .markdown-body pre code { background: none; border: none; padding: 0; }
+/* An image or a video in the text is never wider than it, and keeps its proportions. */
+.markdown-body :is(img, video) { max-inline-size: 100%; block-size: auto; border-radius: var(--radius-inner); }
 .markdown-body blockquote {
     border-inline-start: 3px solid var(--border);
     margin: 0.6em 0; padding: 0.2em 0 0.2em 0.8em;

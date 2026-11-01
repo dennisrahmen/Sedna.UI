@@ -12,10 +12,10 @@
     --go-solid:  var(--orbit-700);
     --go-hover:  var(--orbit-800);
     --go-active: var(--orbit-900);
-    --go-bg:     rgba(89, 195, 255, 0.14);    /* orbit-400 */
+    --go-bg:     color-mix(in srgb, var(--orbit-400) 14%, transparent);
     --go-border: var(--orbit-800);
     --go-fg:     var(--orbit-300);
-    --go-ring:   rgba(89, 195, 255, 0.5);     /* orbit-400 */
+    --go-ring:   color-mix(in srgb, var(--orbit-400) 50%, transparent);
 
     /* Added for SednaUI: separate danger from the coral brand by lightness. */
     --danger-solid: var(--crimson-800);
@@ -37,17 +37,17 @@
     --sev-1-border: var(--crimson-800);
 
     --sev-2-solid:  var(--violet-700);
-    --sev-2-bg:     rgba(162, 131, 255, 0.28);  /* violet-500 */
+    --sev-2-bg:     color-mix(in srgb, var(--violet-500) 28%, transparent);
     --sev-2-border: var(--violet-700);
     --sev-2-fg:     var(--violet-300);
 }
 :root[data-variant="light"][data-cvd="1"] {
-    --go-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
+    --go-bg:     color-mix(in srgb, var(--orbit-400) 8%, transparent);
     --go-border: var(--orbit-300);
     --go-fg:     var(--orbit-800);
     --danger-fg: var(--crimson-800);
 
-    --sev-2-bg:     rgba(117, 75, 211, 0.22);   /* violet-700 */
+    --sev-2-bg:     color-mix(in srgb, var(--violet-700) 22%, transparent);
     --sev-2-border: var(--violet-300);
     --sev-2-fg:     var(--violet-800);
 }

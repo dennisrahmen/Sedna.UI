@@ -39,6 +39,18 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Markdown.MdMedia" Title="Images and videos" Demo="ex-demo--block">
+    <p>
+        <strong>Live below</strong> &mdash; switch to Preview. <code>![description](address)</code> is an image,
+        and the same with the address of a video file &mdash; <code>.mp4</code>, <code>.m4v</code>,
+        <code>.mov</code>, <code>.webm</code> or <code>.ogv</code> &mdash; is a video with controls that never
+        plays by itself. <code>data-md-cmd="image"</code> and <code>"video"</code> wrap the selection as the
+        description. Only <code>http</code>, <code>https</code> and relative addresses are kept; any other is
+        written as its description. An app that uploads a picture inserts the text with the address it uploaded
+        to, through <code>ISednaUi.InsertMarkdownAsync(textarea, text)</code> &mdash; the way <em>Inserting at the caret</em> below inserts a link.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Markdown.EditorField" Title="As a form field" Demo="ex-demo--block">
     <p>
         <strong>Live below.</strong> The editor in place: a <code>.form-label</code> pointing at the
@@ -69,7 +81,8 @@
         <span class="callout-title">Sanitise server-side as well</span>
         <code>sednaUi.md.render()</code> escapes all HTML <em>first</em> and only re-introduces a fixed
         set of constructs, with link hrefs restricted to <code>http:</code>, <code>https:</code>,
-        <code>mailto:</code> and root-relative paths. It is not a spec-complete parser: for untrusted
+        <code>mailto:</code> and root-relative paths, and image and video sources to <code>http:</code>,
+        <code>https:</code> and relative ones. It is not a spec-complete parser: for untrusted
         input rendered to other users, sanitise server-side as well.
     </div>
 </div>

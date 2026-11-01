@@ -15,6 +15,32 @@
     </div>
 </div>
 
+<div class="callout callout-warn">
+    <i class="ri-signpost-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Two routes: pick by where the dialog's markup lives</span>
+        <ul>
+            <li>
+                <strong>A few lines of this page's own markup</strong> — a confirmation, a one-field
+                prompt, reading and writing this page's fields: write the
+                <code>&lt;dialog class="modal" id="…"&gt;</code> in the page and await
+                <code>ISednaUi.ShowModalAsync(id)</code>. See
+                <a href="/modal#opening-one-from-c">Opening one from C#</a>.
+            </li>
+            <li>
+                <strong>Its own <code>.razor</code> file</strong> — its own parameters, state, loading or
+                validation, or opened from more than one page: present it with
+                <code>ISednaOverlays.ShowAsync&lt;TComponent, TResult&gt;</code>, with one
+                <code>&lt;SednaOverlayHost /&gt;</code> in the layout. See
+                <a href="/modal#a-modal-that-is-its-own-component">A modal that is its own component</a>.
+            </li>
+        </ul>
+        Do not render a dialog component inline in a page and open it through an <code>@@ref</code>:
+        it is rendered on every visit whether it is opened or not, its state outlives each opening,
+        and every page that uses it repeats the wiring the host already does.
+    </div>
+</div>
+
 <CatExample TExample="Examples.Modal.DialogModal" Title="A real modal" Demo="ex-demo--block">
     <p>
         <strong>Live — open it.</strong> The whole panel is wrapped in
@@ -32,6 +58,8 @@
         <code>IJSRuntime</code>. It completes when the dialog closes, with its
         <code>returnValue</code> — what <code>CloseModalAsync(id, returnValue)</code> passed, or
         <code>null</code> for <kbd>Escape</kbd> — so the result reads as ordinary C# control flow.
+        This route is for a dialog that is part of the page's own markup; a dialog with a file of its
+        own is the next example.
     </p>
     <p>
         <strong>Both</strong> routes out call <code>CloseModalAsync</code>, and the form is a plain
@@ -41,6 +69,24 @@
         does not navigate. Submit and it is cancelled with it, so the dialog stays open and nothing is
         logged. Handling it in C# is the honest shape here anyway — the work can fail, and a dialog
         that has already closed cannot show why.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.ModalFromComponent" Title="A modal that is its own component" Demo="ex-demo--block" Companion="Interop/EditWebhook.razor">
+    <p>
+        <strong>Live — open it.</strong> An edit form, a wizard, anything with its own parameters,
+        state or validation is a component of its own, and
+        <code>ISednaOverlays.ShowAsync&lt;TComponent, TResult&gt;</code> presents it: it renders the
+        component into the one <code>&lt;SednaOverlayHost /&gt;</code> in your layout, opens the
+        <code>&lt;dialog class="modal"&gt;</code> the component wrote, and completes with the typed
+        result it closed with — <code>Overlay.CloseAsync(result)</code>, or <code>null</code> for
+        <kbd>Escape</kbd> and <code>Overlay.CancelAsync()</code>. The page that opens it renders
+        nothing for it, and the component is removed when it closes, so every opening starts fresh.
+    </p>
+    <p>
+        The component takes a cascading <code>SednaOverlay</code>, puts its <code>Id</code> on the
+        <code>&lt;dialog&gt;</code>, and renders that dialog on its first render. The same call
+        presents a <a href="/drawer#a-drawer-as-its-own-component">drawer or a sheet</a>.
     </p>
 </CatExample>
 
@@ -96,8 +142,10 @@
 
 <CatExample TExample="Examples.Modal.Widths" Title="Widths" Demo="ex-demo--block">
     <p>
-        <code>.modal-sm</code> is 360px and <code>.modal-lg</code> is 760px, against the default
-        480px. Pick by how wide the content has to be, not by how important the dialog is.
+        <code>.modal-sm</code> is 360px, <code>.modal-lg</code> 760px and <code>.modal-xl</code> 1140px,
+        against the default 480px; <code>.modal-full</code> takes the window's width less a margin at
+        each side and the safe-area insets. Pick by how wide the content has to be, not by how
+        important the dialog is.
     </p>
 </CatExample>
 

@@ -275,7 +275,7 @@ function styleFor(colours, icons, options, extra) {
         { selector: 'node.unlabelled', style: { 'label': '' } },
         {
             selector: 'node[?root], node.focus',
-            style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'font-weight': 600, 'label': nameOf },
+            style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.selected, 'color': p.fg, 'font-weight': 600, 'label': nameOf },
         },
         /* A run (43-run.js): drawn on the border, a ring outside it and a halo — never the fill, so
            a record keeps its tone — and never by colour alone: what is running breathes, what is
@@ -413,8 +413,8 @@ function styleFor(colours, icons, options, extra) {
                 'label': nameOf,
             },
         },
-        { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'label': nameOf } },
-        { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
+        { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.selected, 'color': p.fg, 'label': nameOf } },
+        { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.selected, 'target-arrow-color': p.selected, 'source-arrow-color': p.selected } },
         // The keyboard's place: a ring outside the record, in the focus ring's colour — over a run's ring.
         {
             selector: 'node.keyed',

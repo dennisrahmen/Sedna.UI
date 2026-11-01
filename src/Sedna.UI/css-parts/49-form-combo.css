@@ -15,6 +15,7 @@
        .form-combo-panel              the drop-down
          .form-combo-head             optional count or "Clear all" line
          .form-combo-list             role="listbox"
+           .form-combo-group          a heading; may hold one .form-combo-group-action
            .form-combo-option         role="option", aria-selected
          .form-combo-empty            shown by CSS when no option is visible
 
@@ -47,7 +48,7 @@
        border. */
     padding: var(--space-1) var(--space-2);
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     color: var(--fg);
     cursor: text;
@@ -56,7 +57,7 @@
 }
 .form-combo-box:hover { border-color: var(--border-hover); }
 .form-combo-box:focus-within {
-    border-color: var(--brand-soft);
+    border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
 /* Invalid and disabled are the INPUT's attributes, which is where a screen reader
@@ -91,7 +92,7 @@
     font: inherit;
     font-size: var(--text-4);
 }
-.form-combo-input::placeholder { color: var(--border-strong); }
+.form-combo-input::placeholder { color: var(--placeholder); }
 .form-combo-input:disabled { cursor: not-allowed; }
 
 /* ── Single select: the value under the input ─────────────────────────────
@@ -214,7 +215,18 @@
    scale. Fixed rather than absolute for the reason `.menu` is: an absolutely
    positioned panel is clipped by, and scrolls, the nearest scroll container —
    a combo in a drawer or a scrolling form lost the bottom of its list.
-   22-anchored.js closes it on a scroll that moves the box. */
+   22-anchored.js closes it on a scroll that moves the box.
+
+   `--form-combo-panel-width` is the panel's width, a knob on the field in the
+   shape of `--toolbar-input-width`: `style="--form-combo-panel-width: 28rem"`
+   opens a list wider than a narrow form column's field. Unset, it is the box's
+   width. Whatever it is set to, the panel is never narrower than the box and
+   never wider than the viewport less a gutter on each side.
+
+   A panel wider than the room beside it opens towards the side that has room:
+   it lines up with the box's inline-start edge and grows towards the end, and
+   flips to the box's end edge, growing back towards the start, when the end
+   side is too short — as `.menu` does. Neither side measured in JavaScript. */
 .form-combo-panel {
     display: none;
     position: fixed;
@@ -222,9 +234,10 @@
     position-area: block-end span-inline-end;
     justify-self: start;
     align-self: start;
-    width: anchor-size(width);
-    min-width: 14rem;
-    position-try-fallbacks: flip-block;
+    width: var(--form-combo-panel-width, anchor-size(width));
+    min-width: max(anchor-size(width), 14rem);
+    max-width: calc(100vw - 2 * var(--space-7));
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     position-visibility: anchors-visible;
     margin-block-start: var(--space-2);
     padding: var(--space-2);
@@ -236,6 +249,21 @@
     z-index: 550;
 }
 .form-combo:has(> .form-combo-box > .form-combo-input[aria-expanded="true"]) > .form-combo-panel { display: block; }
+
+/* `.form-combo--fit` sizes the panel to its longest row, so a long name is read
+   whole rather than cut — up to 36rem, past which a row is cut again. Never
+   narrower than the box, and never past the viewport. */
+.form-combo--fit { --form-combo-panel-width: max-content; }
+.form-combo--fit > .form-combo-panel { max-width: min(36rem, 100vw - 2 * var(--space-7)); }
+
+/* `.form-combo--wrap` lets an option's text run onto a second line instead of
+   ending in an ellipsis — for a phone, where even the widest panel is too narrow
+   to tell apart two names that differ only at the end. A word longer than the
+   row breaks anywhere. */
+.form-combo--wrap .form-combo-option-text {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
 
 /* `.form-combo--inline` keeps the list open under the field, in the flow — for a
    picker that is the whole content of a drawer or a popover, where a drop-down
@@ -366,6 +394,9 @@
     white-space: nowrap;
 }
 .form-combo-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
     padding: var(--space-4) var(--space-4) var(--space-2);
     color: var(--muted);
     font-size: var(--text-1);
@@ -373,6 +404,55 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
+
+/* ── One action in a group heading ────────────────────────────────────────
+   The group's name on the left, a small button on the right — typically
+   "Select all" for the group in a multiselect:
+
+     .form-combo-group                     role="presentation"
+       span                                the name
+       button.form-combo-group-action      tabindex="-1"; data-combo-toggle-group
+
+   Set in the panel's own case and size rather than the heading's small
+   capitals, as the "Clear all" in `.form-combo-head` is. Focus stays in the input
+   as for an option: the arrow keys stop on the action between the rows, and
+   23-combo.js marks it with data-active and points aria-activedescendant at it.
+
+   With data-combo-toggle-group the script clicks every row of the group that
+   is not already in the state the action is asking for, so an option's own click
+   handler is the whole integration. It also writes data-all-selected on the
+   heading while every enabled row under it is selected, which picks the label
+   the action shows: `.form-combo-group-pick` until then, `.form-combo-group-unpick`
+   once the group is full. A page that renders its one label from its own state
+   needs neither span. */
+.form-combo-group-action {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    margin-block: calc(-1 * var(--space-2));
+    padding: var(--space-2) var(--space-3);
+    background: none;
+    border: 0;
+    border-radius: var(--radius-small);
+    color: var(--brand-text);
+    font: inherit;
+    font-size: var(--text-2);
+    font-weight: 500;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+.form-combo-group-action:hover { text-decoration: underline; }
+.form-combo-group-action[data-active] {
+    background: var(--bg-hover);
+    box-shadow: 0 0 0 2px var(--brand-ring-soft);
+}
+.form-combo-group-action:disabled {
+    color: var(--muted);
+    text-decoration: none;
+    cursor: default;
+}
+.form-combo-group[data-all-selected] .form-combo-group-pick,
+.form-combo-group:not([data-all-selected]) .form-combo-group-unpick { display: none; }
 
 /* What the query matched, painted through the CSS Custom Highlight API — the
    script registers ranges and never touches the text nodes, which Blazor holds
