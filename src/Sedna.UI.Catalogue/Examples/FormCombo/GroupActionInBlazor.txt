@@ -1,0 +1,29 @@
+<div class="form-combo-list" id="templates-list" role="listbox" aria-multiselectable="true" aria-label="Task templates">
+    @foreach (var group in _all.GroupBy(t => t.Group))
+    {
+        <div class="form-combo-group" role="presentation">
+            <span id="templates-@group.Key.Id">@group.Key.Name</span>
+            @* data-combo-toggle-group: the script clicks each row of the group that has to
+               change, so Toggle below is the whole integration. It also marks the heading
+               data-all-selected, which picks the label. *@
+            <button class="form-combo-group-action" type="button" tabindex="-1" id="templates-@group.Key.Id-all"
+                    aria-labelledby="templates-@group.Key.Id-all templates-@group.Key.Id" data-combo-toggle-group>
+                <span class="form-combo-group-pick">Select all</span>
+                <span class="form-combo-group-unpick">Clear</span>
+            </button>
+        </div>
+        @foreach (var template in group)
+        {
+            <div class="form-combo-option" role="option" id="templates-@template.Id" data-value="@template.Id"
+                 aria-selected="@(_picked.Contains(template) ? "true" : "false")"
+                 @onclick="() => Toggle(template)">@template.Name</div>
+        }
+    }
+</div>
+
+@code {
+    private void Toggle(TaskTemplate template)
+    {
+        if (!_picked.Remove(template)) _picked.Add(template);
+    }
+}

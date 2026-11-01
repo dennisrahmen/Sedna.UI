@@ -148,7 +148,7 @@ layout at the seam instead.
 Where a library class has one value an app reasonably wants to change, that value is a custom property
 on the element, not a class to override. `--toolbar-input-width`, `--search-max`, `--modal-max-height`,
 `--scroll-max`, `--skeleton-height`, `--page-gap`, `--sidebar-width`, `--nav-indent`,
-`--prose-measure`, `--deck-height`,
+`--prose-measure`, `--deck-height`, `--form-combo-panel-width`,
 `--col-control-min` / `--col-control-max`, `--col-prose-min` / `--col-prose-max`. Set one inline —
 `style="--search-max: 340px"` — rather than declaring `max-width` for a library class, which the
 section below is about. If the number you need has no knob, that is a request for the library.
