@@ -414,6 +414,10 @@ The palette shifted; the transparency did not.
 | In-card overlay | 66% | 66% |
 | Spotlight dim | 62% | 42% |
 | Scroll edge fade | 30% | 16% |
+| Disabled control (`--disabled-opacity`) | 40% | 40% |
+
+The status, severity, badge and inline-code tints are written as `color-mix()` of their ramp step
+at these alphas, so a theme that replaces a ramp carries the tint with it.
 
 ### 5.3 Spacing, type, controls, motion
 
@@ -445,7 +449,7 @@ mark's logic work. The orbit has one focus.
 **Colour is never the only signal.** Every status carries an icon and a label as well as a hue.
 Badges pair tint with text. Table rows use tint plus a left border.
 
-**Buttons.** Primary is filled `--brand`. Neutral is `--bg-elevated` with `--border`. Destructive is
+**Buttons.** Primary is filled `--brand`, edged in `--brand-edge`. Neutral is `--bg-elevated` with `--border`. Destructive is
 outlined by default; only a modal's confirm may be filled. Never a filled primary beside a filled
 destructive (§3.3).
 
@@ -525,6 +529,15 @@ text sitting on it, in whichever variant.
 
 `BrandTextContrastTests` measures every rule in the sheet that paints in a brand colour, against each
 surface the library paints, in both variants, for the built-in themes and for a generated one.
+
+**Quiet text is still text.** A placeholder, an empty editor's prompt, an unavailable stat's dash, a
+muted series and a disabled drag handle take `--placeholder` or `--muted` — text roles — and never a
+border step, which is only held to 3:1. `PlaceholderContrastTests` reads the colour each of those
+rules paints and measures it on `--bg`, `--card-bg` and `--bg-elevated` in every palette and theme.
+
+**A filled button's boundary is not its label.** `--brand` is solved for white text on it and lands
+under 3:1 against the dark card, so `.btn-primary` is edged in `--brand-edge`, the display strength.
+`ButtonEdgeContrastTests` measures whichever of fill and edge stands out more, on every surface.
 
 `TokenTierTests.A_near_floor_pair_still_clears_AA` re-measures these on every build, resolving each
 token through the palette to the literal it ends at. It was proved able to fail by setting `--brand`

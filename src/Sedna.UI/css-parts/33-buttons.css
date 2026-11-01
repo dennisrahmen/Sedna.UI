@@ -36,7 +36,7 @@
 .btn:hover         { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
 .btn:active        { background: var(--btn-active-bg); }
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.btn:disabled      { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+.btn:disabled      { opacity: var(--disabled-opacity); cursor: not-allowed; pointer-events: none; }
 
 /* Three tiers. Each sets its height from the matching token and scales its padding,
    text and icon with it. */
@@ -45,9 +45,9 @@
 .btn-lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
 .btn-lg i { font-size: var(--text-8); }
 
-.btn-primary        { background: var(--brand); border-color: var(--brand); color: var(--on-solid); }
-.btn-primary:hover  { background: var(--brand-hover); border-color: var(--brand-hover); }
-.btn-primary:active { background: var(--brand-active); border-color: var(--brand-active); }
+.btn-primary        { background: var(--brand); border-color: var(--brand-edge); color: var(--on-solid); }
+.btn-primary:hover  { background: var(--brand-hover); }
+.btn-primary:active { background: var(--brand-active); }
 .btn-primary:focus-visible { box-shadow: 0 0 0 2px var(--brand-ring); }
 
 .btn-go        { background: var(--go-solid); border-color: var(--go-solid); color: var(--on-solid); }

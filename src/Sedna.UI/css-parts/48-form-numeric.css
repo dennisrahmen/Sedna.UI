@@ -49,7 +49,7 @@
 .form-range:focus-visible { outline: none; }
 .form-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--brand-ring-check); }
 .form-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--brand-ring-check); }
-.form-range:disabled { opacity: 0.45; cursor: not-allowed; }
+.form-range:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 /* The value readout beside a range. Tabular and fixed-width, so the track does not
    shift as the number's width changes while dragging. */

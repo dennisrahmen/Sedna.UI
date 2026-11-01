@@ -44,7 +44,7 @@ internal static class TokenGroups
         new("Typography", ["--font-sans", "--font-mono"], Swatch: false),
 
         new("Surfaces, text, lines", [
-            "--bg", "--bg-elevated", "--bg-hover", "--fg", "--fg-soft", "--muted",
+            "--bg", "--bg-elevated", "--bg-hover", "--fg", "--fg-soft", "--muted", "--placeholder",
             "--border", "--border-strong", "--border-hover", "--divider", "--card-bg",
             "--surface-soft", "--surface-strong", "--on-solid", "--on-viz", "--redacted",
         ]),
@@ -58,7 +58,7 @@ internal static class TokenGroups
             "--brand", "--brand-hover", "--brand-active", "--brand-soft", "--brand-text",
             "--brand-tint", "--brand-tint-strong",
             "--brand-ring", "--brand-ring-soft", "--brand-ring-check",
-            "--brand-glow", "--accent",
+            "--brand-glow", "--brand-edge", "--accent",
             // The accent inside a state illustration. It lives with the brand tokens
             // because that is what it points at by default; .empty-state--failed moves
             // it into the danger ramp for its own subtree.
@@ -68,10 +68,26 @@ internal static class TokenGroups
             "--state-motion",
         ]),
 
+        // The mark on the one chosen, and the line under where you are. Both point at the
+        // brand until an app separates them — a red ring on a red-brand status board reads
+        // as "failed".
+        new("Selection", ["--selected", "--tab-indicator"]),
+
+        // The edge of every box a reader types or picks into, at rest and focused, apart
+        // from --border so fields can be firmed up without firming up every divider.
+        new("Fields", ["--field-border", "--field-border-focus"]),
+
+        // How far a disabled control fades. A number, not a colour.
+        new("Disabled", ["--disabled-opacity"], Swatch: false),
+
         new("Sidebar", [
             "--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-active",
             "--sidebar-hover",
         ]),
+
+        // The header's surface and what is drawn straight on it. Aliases of the roles it
+        // always used, so a brand-coloured header is four tokens and no rule.
+        new("Topbar", ["--topbar-bg", "--topbar-fg", "--topbar-muted", "--topbar-hover"]),
 
         new("Status — go (sends outward)", [
             "--go-solid", "--go-hover", "--go-active", "--go-bg", "--go-border", "--go-fg",

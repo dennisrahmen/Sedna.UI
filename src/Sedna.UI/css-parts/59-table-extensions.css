@@ -121,7 +121,7 @@
    vertical dividers rather than one leading edge. It cannot go on the <tr>: a
    row's box is not painted when the table's borders are collapsed. */
 .table tbody tr[aria-selected="true"] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--brand);
+    box-shadow: inset 3px 0 0 var(--selected);
 }
 
 /* ── Pinned columns ─────────────────────────────────────────────────────────
@@ -499,7 +499,7 @@
 /* The selection marker is an inset shadow, and the pinned cell's box-shadow would
    replace it — on the very column where it is most visible. Both, in one list. */
 .table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
-    box-shadow: inset 3px 0 0 var(--brand), var(--pin-shadow);
+    box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
 }
 
 /* ── Column width ───────────────────────────────────────────────────────────

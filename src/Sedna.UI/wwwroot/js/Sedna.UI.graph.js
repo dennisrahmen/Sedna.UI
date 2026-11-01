@@ -85,7 +85,7 @@ import cytoscape from '../lib/cytoscape/cytoscape.js';
 const TONE_TOKENS = {
     '1': '--viz-1', '2': '--viz-2', '3': '--viz-3', '4': '--viz-4', '5': '--viz-5', '6': '--viz-6',
     go: '--go-solid', warn: '--warn-solid', danger: '--danger-solid', info: '--info-solid',
-    muted: '--border-strong', brand: '--brand', accent: '--accent',
+    muted: '--muted', brand: '--brand', accent: '--accent',
 };
 
 /* Friendly names first, then cytoscape's own, which are accepted as they are. The
@@ -452,6 +452,8 @@ function palette(colours) {
         line: c('--border-strong', fg),
         border: c('--border', fg),
         brand: c('--brand', fg),
+        // The mark on the one chosen — the selected record and link, the root and the record in focus.
+        selected: c('--selected', c('--brand', fg)),
         accent: c('--accent', fg),
         ring: c('--brand-ring', fg),
         raised: c('--surface-raised-2', c('--card-bg')),
@@ -822,7 +824,7 @@ function styleFor(colours, icons, options, extra) {
         { selector: 'node.unlabelled', style: { 'label': '' } },
         {
             selector: 'node[?root], node.focus',
-            style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'font-weight': 600, 'label': nameOf },
+            style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.selected, 'color': p.fg, 'font-weight': 600, 'label': nameOf },
         },
         /* A run (43-run.js): drawn on the border, a ring outside it and a halo — never the fill, so
            a record keeps its tone — and never by colour alone: what is running breathes, what is
@@ -960,8 +962,8 @@ function styleFor(colours, icons, options, extra) {
                 'label': nameOf,
             },
         },
-        { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.brand, 'color': p.fg, 'label': nameOf } },
-        { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.brand, 'target-arrow-color': p.brand, 'source-arrow-color': p.brand } },
+        { selector: 'node:selected', style: { 'border-width': n => (box(n) ? 2.5 : 3 * held(n)), 'border-color': p.selected, 'color': p.fg, 'label': nameOf } },
+        { selector: 'edge:selected', style: { 'line-opacity': 1, 'line-color': p.selected, 'target-arrow-color': p.selected, 'source-arrow-color': p.selected } },
         // The keyboard's place: a ring outside the record, in the focus ring's colour — over a run's ring.
         {
             selector: 'node.keyed',

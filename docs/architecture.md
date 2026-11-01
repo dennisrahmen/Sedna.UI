@@ -221,6 +221,26 @@ your own stylesheet; it is unlayered and beats the library.
   A derived token serialises through `getComputedStyle` as `color(srgb …)` rather than `rgba(…)`; the
   painted result is unchanged, but a tool that compares computed-style *strings* will report a difference
   where there is none.
+- The status, severity, badge and inline-code tints are `color-mix()` of a ramp step at an alpha —
+  `--info-bg` is `--orbit-400` at 12% — never an `rgba()` literal, so a theme that replaces a ramp
+  carries its tints with it. A theme with no blue moves `orbit` and `cyan`, and `--info-*`,
+  `--sev-4-*`, `--badge-cyan-*` and `--code-bg` follow.
+- Where one component needs to differ from the shared role it paints with, it has a role of its own
+  that points at the shared one until an app redefines it:
+
+  | Token | Default | Used by |
+  |---|---|---|
+  | `--field-border` | `--border` | the edge of `.form-input`, `.form-select`, `.form-value-display`, `.input-group`, `.form-combo-box`, `.form-color`, `.editor`, `.search-input`, `.nav-filter-input` |
+  | `--field-border-focus` | `--brand-soft` | the same boxes focused or open, and the prompt composer |
+  | `--placeholder` | `--muted` | `::placeholder` and an empty editor's prompt — a text role, held to 4.5:1 |
+  | `--selected` | `--brand` | the mark on the one chosen: a selected row's or list row's bar, a chosen card or file tile, the transcript's current line, a pressed reaction, a pressed workflow step, the spotlight ring, the graph's selected record |
+  | `--tab-indicator` | `--selected` | the line under `.tab[aria-selected]`, the current `.topbar-nav-link` and the current bottom-bar item |
+  | `--topbar-bg`, `--topbar-fg`, `--topbar-muted`, `--topbar-hover` | `--bg-elevated`, `--fg`, `--muted`, `--bg-hover` | `.topbar` and what is drawn straight on it — its icon buttons, area links, version tag and the user widget's trigger and sign-out; not the panels that open from it |
+  | `--brand-edge` | `--brand-soft` (dark), `--brand` (light) | `.btn-primary`'s border, so its boundary clears 3:1 on a dark card |
+  | `--disabled-opacity` | `0.4` | every disabled control: `.btn`, `.btn-bare`, `.tab`, `.menu-item`, `button.list-row`, `.page-link`, the checkbox, radio, switch, colour, range and segmented controls, a disabled editor's toolbar |
+
+  A text role moved this way still has to clear 4.5:1 on `--bg` and `--card-bg`, and an edge 3:1;
+  `PlaceholderContrastTests` and `ButtonEdgeContrastTests` hold the defaults to that.
 - Apps must not declare new token names. Request the token instead — see
   [CONTRIBUTING.md](../CONTRIBUTING.md) — and use an app-prefixed variable (`--myapp-…`) in the meantime.
   A bare new name risks colliding with a future library token.

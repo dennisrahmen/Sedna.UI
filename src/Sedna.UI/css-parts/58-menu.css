@@ -226,7 +226,7 @@
 .menu-item:hover { background: var(--bg-hover); text-decoration: none; }
 .menu-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .menu-item:disabled,
-.menu-item[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+.menu-item[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; pointer-events: none; }
 .menu-item--danger,
 .menu-item--danger i { color: var(--danger-fg); }
 /* A trailing shortcut hint or count. */

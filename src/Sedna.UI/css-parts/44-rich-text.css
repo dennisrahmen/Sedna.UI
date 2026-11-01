@@ -73,12 +73,12 @@
     content: attr(data-placeholder);
     position: absolute;
     inset-inline: var(--space-6);
-    color: var(--border-strong);
+    color: var(--placeholder);
     pointer-events: none;
 }
 .editor .ql-container.ql-disabled .ql-editor > * { cursor: default; }
 .editor:has(.ql-container.ql-disabled) { background: var(--surface-soft); }
-.editor:has(.ql-container.ql-disabled) .editor-toolbar { opacity: 0.45; pointer-events: none; }
+.editor:has(.ql-container.ql-disabled) .editor-toolbar { opacity: var(--disabled-opacity); pointer-events: none; }
 
 /* ── Lists ──────────────────────────────────────────────────────────────────
    Quill 2 writes every list as an `<ol>` of `<li data-list="bullet|ordered|checked|

@@ -84,7 +84,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
    The number could not be read. An em dash, not a zero: zero is a measurement and
    this is the absence of one, and a dashboard that shows 0 for "the endpoint did not
    answer" is a dashboard that lies. */
-.stat--unavailable .stat-value { color: var(--border-strong); font-weight: 500; }
+.stat--unavailable .stat-value { color: var(--muted); font-weight: 500; }
 .stat--unavailable .stat-delta,
 .stat--unavailable .stat-target { visibility: hidden; }
 

@@ -138,7 +138,7 @@
 .form-select:open::picker-icon { rotate: 180deg; }
 
 /* The box says it is open, the same way it says it is focused. */
-.form-select:open { border-color: var(--brand-soft); }
+.form-select:open { border-color: var(--field-border-focus); }
 
 /* ── The drop-down ──────────────────────────────────────────────────────────
    Deliberately the `.menu` panel, to the token: an app that opens a menu from one

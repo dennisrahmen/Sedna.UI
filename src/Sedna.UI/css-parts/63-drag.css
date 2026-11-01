@@ -132,7 +132,7 @@
 }
 .drag-handle:hover { background: var(--bg-hover); color: var(--fg); }
 .drag-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-[aria-disabled="true"] > .drag-handle { color: var(--border-strong); background: none; }
+[aria-disabled="true"] > .drag-handle { color: var(--muted); background: none; }
 
 /* ── A board of lanes ───────────────────────────────────────────────────────
    Lanes side by side, scrolling sideways when they outgrow the page — which is also
