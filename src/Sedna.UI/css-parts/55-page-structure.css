@@ -2,9 +2,11 @@
    The title row a page opens with: heading, optional supporting line, and the
    actions that apply to the whole page.
 
-   Wraps rather than shrinking the title. On a narrow screen the actions drop below
-   the heading, which keeps the heading readable — the alternative is a truncated
-   title next to two buttons, and the title is what tells you where you are.
+   The text takes the room the actions leave and wraps in it, so a long supporting
+   line stays beside the actions. Only when that room falls below 20rem — a narrow
+   screen — do the actions drop below the heading, which keeps the heading readable:
+   the alternative is a squeezed title next to two buttons, and the title is what
+   tells you where you are.
    ─────────────────────────────────────────────────────────────────────────── */
 .page-head {
     display: flex;
@@ -14,7 +16,7 @@
     gap: var(--space-6);
     margin-bottom: var(--space-7);
 }
-.page-head-text { min-width: 0; }
+.page-head-text { flex: 1 1 20rem; min-width: 0; }
 /* Zero the heading's own margins. 06-base-elements gives h1 and h2 a margin, and margins
    do not collapse inside a flex container: with align-items: flex-start the actions sit at
    the top of the line while the heading's text is pushed down by its own top margin, which

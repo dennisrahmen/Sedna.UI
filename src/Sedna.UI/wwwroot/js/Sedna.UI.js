@@ -4116,14 +4116,26 @@ window.sednaUi = window.sednaUi || {};
         } catch (e) { /* the mark still says it */ }
     }
 
+    /* The zoom between the diagram's own pixels and the viewport's. `currentCSSZoom` where
+       the browser has it; otherwise the drawn width over the laid-out one. */
+    function zoomOf(canvas, box) {
+        var z = canvas.currentCSSZoom;
+        if (z > 0) return z;
+        return canvas.offsetWidth > 0 && box.width > 0 ? box.width / canvas.offsetWidth : 1;
+    }
+
     function centre(canvas, smooth) {
         var state = canvas[STATE];
         var step = stepAtWork(canvas);
         if (!state || !step) return;
         var box = canvas.getBoundingClientRect();
         var node = nodeOf(step).getBoundingClientRect();
-        var dx = (node.left + node.width / 2) - (box.left + box.width / 2);
-        var dy = (node.top + node.height / 2) - (box.top + box.height / 2);
+        // The rects are in the viewport's pixels and the scroll offset is in the diagram's
+        // own, so under a CSS `zoom` on it or above it — the way a wall screen is scaled —
+        // the distance is divided back by that zoom, or the step overshoots by its factor.
+        var zoom = zoomOf(canvas, box);
+        var dx = ((node.left + node.width / 2) - (box.left + box.width / 2)) / zoom;
+        var dy = ((node.top + node.height / 2) - (box.top + box.height / 2)) / zoom;
         var smoothly = smooth && !reducedMotion();
         var left = canvas.scrollLeft, top = canvas.scrollTop;
         // To a place, not by an amount: a smooth scrollBy adds onto one still under way, so

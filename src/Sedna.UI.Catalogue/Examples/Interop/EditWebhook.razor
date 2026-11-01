@@ -1,0 +1,46 @@
+@* The app's own modal component. Everything on screen is written here, and
+   ISednaOverlays only presents it; SednaOverlayHost sits once in the layout. *@
+
+<dialog id="@Overlay.Id" class="modal" aria-labelledby="@($"{Overlay.Id}-title")">
+    <form @onsubmit="Save">
+        <div class="modal-header">
+            <h3 id="@($"{Overlay.Id}-title")">Edit webhook</h3>
+            <button class="modal-close" type="button" aria-label="Close" @onclick="Overlay.CancelAsync">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-field">
+                <label class="form-label" for="@($"{Overlay.Id}-url")">Address</label>
+                <input class="form-input" id="@($"{Overlay.Id}-url")" type="url" @bind="_url" />
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="@($"{Overlay.Id}-events")">Send</label>
+                <select class="form-input form-select" id="@($"{Overlay.Id}-events")" @bind="_events">
+                    <option>Order events</option>
+                    <option>Payment events</option>
+                    <option>All events</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" type="button" @onclick="Overlay.CancelAsync">Cancel</button>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </form>
+</dialog>
+
+@code {
+    public sealed record Settings(string Url, string Events);
+
+    private string _url = "";
+    private string _events = "";
+
+    [CascadingParameter] public SednaOverlay Overlay { get; set; } = default!;
+
+    [Parameter] public Settings Current { get; set; } = default!;
+
+    protected override void OnInitialized() => (_url, _events) = (Current.Url, Current.Events);
+
+    private Task Save() => Overlay.CloseAsync(new Settings(_url, _events));
+}

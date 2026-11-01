@@ -83,6 +83,23 @@ public class WorkflowFollowTests : ScriptTestBase
         await page.WaitForFunctionAsync(Centred(7));
     }
 
+    [Theory]
+    [InlineData(1.5)]
+    [InlineData(3)]
+    public async Task Under_a_css_zoom_the_step_still_lands_in_the_middle(double zoom)
+    {
+        if (NoBrowser) return;
+        // A wall screen is scaled with CSS `zoom` on a frame above the diagram. The rects
+        // are in the viewport's pixels and the scroll offset in the diagram's own, so a
+        // distance not divided back by the zoom overshoots by its factor.
+        var z = zoom.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        var page = await OpenDiagram($"""<div style="zoom:{z}">{Diagram(running: 3)}</div>""");
+        await page.WaitForFunctionAsync($"() => ({OffCentre(3)})() < 2 * {z}");
+
+        await page.EvaluateAsync(Move(3, 7));
+        await page.WaitForFunctionAsync($"() => ({OffCentre(7)})() < 2 * {z}");
+    }
+
     [Fact]
     public async Task A_smooth_burst_of_changes_lands_on_the_last_rather_than_past_it()
     {

@@ -311,7 +311,7 @@ internal static class CataloguePages
 
         new("/modal", Overlays, "Modal", "ri-window-2-line",
             "A question that has to be answered before anything else happens.",
-            "dialog backdrop confirm confirmation returnValue showModal sm lg scroll tall max-height footer ShowModalAsync CloseModalAsync deck first-run"),
+            "dialog backdrop confirm confirmation returnValue showModal sm lg scroll tall max-height footer ShowModalAsync CloseModalAsync deck first-run component ISednaOverlays SednaOverlay SednaOverlayHost ShowAsync edit form typed result"),
         new("/drawer", Overlays, "Drawers and sheets", "ri-layout-right-line",
             "A panel from an edge, for a secondary flow that can be left.",
             "drawer sheet side panel filter edge scrim ISednaOverlays SednaOverlay SednaOverlayHost ShowAsync overlay component result"),

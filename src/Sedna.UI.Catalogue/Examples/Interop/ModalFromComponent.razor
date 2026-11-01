@@ -1,0 +1,24 @@
+@inject ISednaOverlays Overlays
+
+<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+    <button class="btn" type="button" @onclick="Edit">
+        <i class="ri-edit-line"></i> Edit webhook
+    </button>
+    <code>@_webhook.Url</code>
+    <span class="badge">@_webhook.Events</span>
+</div>
+
+@code {
+    private EditWebhook.Settings _webhook = new("https://hooks.example.com/orders", "Order events");
+
+    // EditWebhook is its own component and writes its own <dialog class="modal">. This
+    // page renders nothing for it: the host in the layout renders it when asked, and it
+    // is gone again once it closes, with the typed result or null.
+    private async Task Edit()
+    {
+        var saved = await Overlays.ShowAsync<EditWebhook, EditWebhook.Settings>(
+            new() { [nameof(EditWebhook.Current)] = _webhook });
+
+        if (saved is not null) _webhook = saved;
+    }
+}

@@ -59,9 +59,13 @@
    no exclusion here — an app's stylesheet is unlayered and wins outright — and
    `.sedna-mt-0` is the per-element escape.
 
+   A `<dialog>` and a `[popover]` are excluded because they are not in the page's
+   flow once open: the platform centres a modal with `margin: auto`, and a top
+   margin here replaces that `auto` and pins a page-level modal to the top edge.
+
    `--page-gap: 0` on `.page` turns the whole thing off for a page that manages its
    own vertical rhythm. */
-.page > * + *:not(h1, h2, h3, h4, h5, h6, .lede) { margin-block-start: var(--page-gap); }
+.page > * + *:not(h1, h2, h3, h4, h5, h6, .lede, dialog, [popover]) { margin-block-start: var(--page-gap); }
 
 /* ── A page whose last thing sits at the bottom ─────────────────────────────
    `.page--fill` makes the page a flex column, so a `.page-foot` — a footer, a
