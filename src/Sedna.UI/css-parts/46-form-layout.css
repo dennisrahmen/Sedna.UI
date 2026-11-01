@@ -65,7 +65,7 @@
     width: 100%;
     min-height: var(--control-height);
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
@@ -84,7 +84,7 @@
 .input-group--lg .btn,
 .input-group--lg .input-affix { font-size: var(--text-5); }
 .input-group:focus-within {
-    border-color: var(--brand-soft);
+    border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
 /* `.form-select` is named alongside `.form-input` for the reason 34-forms.css gives

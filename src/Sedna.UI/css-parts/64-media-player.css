@@ -133,7 +133,7 @@
 }
 .media-transcript li[aria-current="true"] {
     background: var(--brand-tint);
-    box-shadow: inset 3px 0 0 var(--brand);
+    box-shadow: inset 3px 0 0 var(--selected);
     color: var(--fg);
 }
 .media-transcript-time {

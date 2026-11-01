@@ -57,7 +57,7 @@
 }
 .form-combo-box:hover { border-color: var(--border-hover); }
 .form-combo-box:focus-within {
-    border-color: var(--brand-soft);
+    border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
 /* Invalid and disabled are the INPUT's attributes, which is where a screen reader
@@ -92,7 +92,7 @@
     font: inherit;
     font-size: var(--text-4);
 }
-.form-combo-input::placeholder { color: var(--border-strong); }
+.form-combo-input::placeholder { color: var(--placeholder); }
 .form-combo-input:disabled { cursor: not-allowed; }
 
 /* ── Single select: the value under the input ─────────────────────────────

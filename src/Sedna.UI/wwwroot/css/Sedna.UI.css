@@ -387,6 +387,12 @@
     --fg:              var(--slate-50);    /* Ice White */
     --fg-soft:         var(--slate-300);         /* body copy on cards */
     --muted:           var(--slate-400);   /* Dust Gray */
+    /* The words standing in for a value that is not there: a field's placeholder, an
+       empty editor's prompt. A TEXT role, held to 4.5:1 on --bg and --card-bg in every
+       variant, which is why it points at --muted and never at a border step — a border
+       role is only held to 3:1. An app that wants a dimmer placeholder redefines this
+       and measures it; PlaceholderContrastTests is the measurement. */
+    --placeholder:     var(--muted);
     --border:          var(--slate-700);
     --border-strong:   var(--slate-600);
     --border-hover:    var(--slate-500);
@@ -513,7 +519,49 @@
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
     --brand-ring-check: color-mix(in srgb, var(--brand) 35%, transparent);  /* checkbox focus */
     --brand-glow:       color-mix(in srgb, var(--brand) 18%, transparent);  /* text-input focus glow */
+    /* The edge of a brand-filled control — .btn-primary's border. --brand is solved for
+       white text on it, which puts it at 2.9:1 against the dark card: under the 3:1 a
+       control's boundary needs. The edge takes the display strength instead, so the
+       button's outline clears 3:1 while its fill still carries the label. In the light
+       variant the fill itself clears 3:1 against white and the edge is the fill.
+       ButtonEdgeContrastTests measures it in every palette and built-in theme. */
+    --brand-edge:       var(--brand-soft);
     --accent:           var(--orbit-400);         /* links, decorative icons — Orbit Blue, unmodified */
+
+    /* ── Selection ──────────────────────────────────────────────────────────
+       The mark on the one that is chosen or on show: a selected row's leading bar, a
+       chosen card's ring, the step a workflow is showing, the spotlight's ring, the
+       graph's selected record. A line or a ring, never a fill carrying text — those stay
+       --brand, because --on-solid is measured against it.
+
+       Its own role because the brand is not always the right colour for it: on a
+       status display whose brand is red, a red ring round the one on show reads as
+       "failed". Redefine this alone to move every selection mark at once.
+
+       --tab-indicator is the line under the current tab, the current area in the
+       topbar and the current item in the bottom bar — where you are, rather than what
+       you picked. It follows --selected unless an app separates the two. */
+    --selected:         var(--brand);
+    --tab-indicator:    var(--selected);
+
+    /* ── Fields ─────────────────────────────────────────────────────────────
+       The edge of every box a reader types or picks into — .form-input, .form-select,
+       .input-group, .form-combo-box, .form-color, the Markdown editor, the search and
+       nav-filter boxes — at rest and focused. --border is also the line between cards,
+       rows and panels, and a calm line colour leaves a field's edge under the 3:1 a
+       control's boundary needs; this lets an app firm up fields without firming up
+       every divider. The focused edge is its own role for the same reason: --brand-soft
+       also tints spinners and icons, and an app with a neutral focus ring wants a
+       neutral focused field without them. */
+    --field-border:       var(--border);
+    --field-border-focus: var(--brand-soft);
+
+    /* ── Disabled ───────────────────────────────────────────────────────────
+       How far a disabled control fades: buttons, tabs, menu items, list rows, the
+       choice controls, a slider, a page link. A number, not a colour. WCAG exempts an
+       inactive control from contrast, but a disabled "Delete (0)" still says something;
+       an app that wants it read raises this. */
+    --disabled-opacity: 0.4;
 
     /* ── Sidebar ───────────────────────────────────────────────────────── */
     --sidebar-bg:      var(--slate-900);
@@ -526,6 +574,19 @@
        hover resolved to the colour already underneath it and nothing happened.
        Same value as before in this theme, so nothing dark changes. */
     --sidebar-hover:   var(--slate-800);
+
+    /* ── Topbar ─────────────────────────────────────────────────────────────
+       The header's surface and what is drawn straight on it: the icon buttons, the
+       area links, the user widget's name and sign-out, the version tag. Aliases of the
+       roles the header has always used, so nothing moves until an app points them
+       elsewhere — a brand-coloured header with white text in the light variant is
+       --topbar-bg, --topbar-fg and --topbar-muted together, and --topbar-hover for what
+       the pointer is on. Panels that open from the header (the user menu, the search
+       results) are surfaces of their own and keep the page's roles. */
+    --topbar-bg:       var(--bg-elevated);
+    --topbar-fg:       var(--fg);
+    --topbar-muted:    var(--muted);
+    --topbar-hover:    var(--bg-hover);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -542,21 +603,21 @@
     --go-solid:   var(--green-700);
     --go-hover:   var(--green-800);
     --go-active:  var(--green-900);
-    --go-bg:      rgba(34, 197, 94, 0.12);   /* green-500 */
+    --go-bg:      color-mix(in srgb, var(--green-500) 12%, transparent);
     --go-border:  var(--green-800);
     --go-fg:      var(--green-400);
-    --go-ring:    rgba(34, 197, 94, 0.5);    /* green-500 */
+    --go-ring:    color-mix(in srgb, var(--green-500) 50%, transparent);
 
     --warn-solid:      var(--amber-700);
     --warn-hover:      var(--amber-800);
     --warn-active:     var(--amber-900);
-    --warn-bg:         rgba(245, 158, 11, 0.12);   /* amber-500 */
-    --warn-bg-hover:   rgba(245, 158, 11, 0.2);    /* amber-500 */
-    --warn-bg-active:  rgba(245, 158, 11, 0.28);   /* amber-500 */
+    --warn-bg:         color-mix(in srgb, var(--amber-500) 12%, transparent);
+    --warn-bg-hover:   color-mix(in srgb, var(--amber-500) 20%, transparent);
+    --warn-bg-active:  color-mix(in srgb, var(--amber-500) 28%, transparent);
     --warn-border:     var(--amber-800);
     --warn-fg:         var(--amber-300);
-    --warn-ring:       rgba(245, 158, 11, 0.4);    /* amber-500 */
-    --warn-ring-solid: rgba(245, 158, 11, 0.5);    /* amber-500 */
+    --warn-ring:       color-mix(in srgb, var(--amber-500) 40%, transparent);
+    --warn-ring-solid: color-mix(in srgb, var(--amber-500) 50%, transparent);
 
     /* crimson-700, not the old #dc2626: that red sits 7° from the Sedna Red brand
        in OKLCH — a Delete button and a Save button would read as the same colour
@@ -564,19 +625,19 @@
        on hue AND lightness (docs/BRANDING.md §4.3 — this one is forced, not
        cosmetic). It still carries white text at AA: 4.61:1, both themes. */
     --danger-solid:         var(--crimson-700);
-    --danger-bg:            rgba(128, 0, 61, 0.15);    /* crimson-900 */
-    --danger-bg-hover:      rgba(166, 6, 83, 0.25);    /* crimson-800 */
-    --danger-bg-active:     rgba(166, 6, 83, 0.35);    /* crimson-800 */
-    --danger-border:        rgba(166, 6, 83, 0.6);     /* crimson-800 */
+    --danger-bg:            color-mix(in srgb, var(--crimson-900) 15%, transparent);
+    --danger-bg-hover:      color-mix(in srgb, var(--crimson-800) 25%, transparent);
+    --danger-bg-active:     color-mix(in srgb, var(--crimson-800) 35%, transparent);
+    --danger-border:        color-mix(in srgb, var(--crimson-800) 60%, transparent);
     --danger-border-strong: var(--crimson-800);
     --danger-fg:            var(--crimson-400);
-    --danger-ring:          rgba(244, 69, 136, 0.4);   /* crimson-500 — focus ring on a danger control */
+    --danger-ring:          color-mix(in srgb, var(--crimson-500) 40%, transparent);   /* focus ring on a danger control */
 
-    --info-bg:      rgba(89, 195, 255, 0.12);    /* orbit-400 */
+    --info-bg:      color-mix(in srgb, var(--orbit-400) 12%, transparent);
     --info-border:  var(--orbit-800);
     --info-fg:      var(--orbit-300);
     --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
-    --info-ring:    rgba(89, 195, 255, 0.5);     /* orbit-400 — its glow */
+    --info-ring:    color-mix(in srgb, var(--orbit-400) 50%, transparent);     /* its glow */
 
     /* Data in motion: the light running into a .workflow's step at work, the line it
        runs on, and that step's ring and glow. The info colours, so every theme moves
@@ -597,13 +658,13 @@
     --presence-out-of-office: var(--violet-600);
 
     /* Extra badge hues — categorical only, no semantics attached. */
-    --badge-cyan-bg:     rgba(34, 211, 238, 0.15);    /* cyan-400 */
+    --badge-cyan-bg:     color-mix(in srgb, var(--cyan-400) 15%, transparent);
     --badge-cyan-border: var(--cyan-800);
     --badge-cyan-fg:     var(--cyan-300);
-    --badge-orange-bg:     rgba(245, 158, 75, 0.15);    /* orange-400 */
+    --badge-orange-bg:     color-mix(in srgb, var(--orange-400) 15%, transparent);
     --badge-orange-border: var(--orange-800);
     --badge-orange-fg:     var(--orange-300);
-    --badge-teal-bg:     rgba(20, 184, 166, 0.15);    /* teal-500 */
+    --badge-teal-bg:     color-mix(in srgb, var(--teal-500) 15%, transparent);
     --badge-teal-border: var(--teal-800);
     --badge-teal-fg:     var(--teal-300);
 
@@ -633,22 +694,22 @@
     --sev-1-fg:     var(--on-solid);
 
     --sev-2-solid:  var(--orange-700);
-    --sev-2-bg:     rgba(245, 158, 75, 0.28);   /* orange-400 */
+    --sev-2-bg:     color-mix(in srgb, var(--orange-400) 28%, transparent);
     --sev-2-border: var(--orange-700);
     --sev-2-fg:     var(--orange-200);
 
     --sev-3-solid:  var(--amber-600);
-    --sev-3-bg:     rgba(245, 158, 11, 0.2);    /* amber-500 */
+    --sev-3-bg:     color-mix(in srgb, var(--amber-500) 20%, transparent);
     --sev-3-border: var(--amber-800);
     --sev-3-fg:     var(--amber-300);
 
     --sev-4-solid:  var(--orbit-500);
-    --sev-4-bg:     rgba(89, 195, 255, 0.13);   /* orbit-400 */
+    --sev-4-bg:     color-mix(in srgb, var(--orbit-400) 13%, transparent);
     --sev-4-border: var(--orbit-800);
     --sev-4-fg:     var(--orbit-300);
 
     --sev-5-solid:  var(--slate-400);
-    --sev-5-bg:     rgba(148, 163, 184, 0.08);  /* slate-400 */
+    --sev-5-bg:     color-mix(in srgb, var(--slate-400) 8%, transparent);
     --sev-5-border: var(--slate-700);
     --sev-5-fg:     var(--slate-300);
 
@@ -664,7 +725,7 @@
     --progress-track: rgba(255, 255, 255, 0.08);
     --btn-active-bg: var(--slate-850);
     --code-fg:       var(--indigo-300);
-    --code-bg:       rgba(133, 144, 253, 0.1);    /* indigo-500 */
+    --code-bg:       color-mix(in srgb, var(--indigo-500) 10%, transparent);
     /* The three scrims. Each is a ramp step at an alpha, written as a color-mix
        rather than as the literal the step happens to be, because a theme replaces
        the ramp and a literal cannot follow it: the spotlight's dim stayed Sedna's
@@ -1039,6 +1100,9 @@
        it — --brand-text — loses contrast as this rises. The strong tint is bounded by
        that pairing in either variant; BrandTextContrastTests is the measurement. */
     --brand-tint-strong: color-mix(in srgb, var(--brand) 20%, transparent);
+    /* The fill already clears 3:1 against a white card — it is solved for white text —
+       so the edge is the fill and nothing changes here. */
+    --brand-edge: var(--brand);
     --accent:     var(--orbit-700);
 
     --sidebar-bg:     var(--white);
@@ -1048,7 +1112,7 @@
        hover has to go darker; the dark theme's value goes lighter. */
     --sidebar-hover:  var(--slate-100);
 
-    --go-bg:     rgba(34, 197, 94, 0.1);    /* green-500 */
+    --go-bg:     color-mix(in srgb, var(--green-500) 10%, transparent);
     --go-border: var(--green-300);
     --go-fg:     var(--green-800);
     /* Nothing lighter than 600 clears 3:1 on white, so every series sits between 600
@@ -1065,7 +1129,7 @@
     --viz-previous: var(--slate-500);
     --on-viz: var(--white);
 
-    --warn-bg:     rgba(245, 158, 11, 0.1);    /* amber-500 */
+    --warn-bg:     color-mix(in srgb, var(--amber-500) 10%, transparent);
     --warn-border: var(--amber-300);
     --warn-fg:     var(--amber-800);
 
@@ -1073,31 +1137,31 @@
        dark theme, scaled for a light surface. All four move together: a tint
        remapped without its hover pair jumps between two unrelated reds. */
     --danger-solid: var(--crimson-700);
-    --danger-bg:            rgba(199, 34, 104, 0.08);    /* crimson-700 */
-    --danger-bg-hover:      rgba(199, 34, 104, 0.14);    /* crimson-700 */
-    --danger-bg-active:     rgba(199, 34, 104, 0.2);     /* crimson-700 */
+    --danger-bg:            color-mix(in srgb, var(--crimson-700) 8%, transparent);
+    --danger-bg-hover:      color-mix(in srgb, var(--crimson-700) 14%, transparent);
+    --danger-bg-active:     color-mix(in srgb, var(--crimson-700) 20%, transparent);
     --danger-border:        var(--crimson-300);
     --danger-border-strong: var(--crimson-700);
     --danger-fg:            var(--crimson-800);
-    --danger-ring:          rgba(199, 34, 104, 0.35);    /* crimson-700 */
+    --danger-ring:          color-mix(in srgb, var(--crimson-700) 35%, transparent);
 
-    --info-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
+    --info-bg:     color-mix(in srgb, var(--orbit-400) 8%, transparent);
     --info-border: var(--orbit-300);
     --info-fg:     var(--orbit-800);
     --info-solid:  var(--orbit-700);
-    --info-ring:   rgba(89, 195, 255, 0.4);     /* orbit-400 */
+    --info-ring:   color-mix(in srgb, var(--orbit-400) 40%, transparent);
 
     --secret-bg:     color-mix(in srgb, var(--violet-600) 8%, transparent);
     --secret-border: var(--violet-300);
     --secret-fg:     var(--violet-700);
 
-    --badge-cyan-bg:     rgba(34, 211, 238, 0.08);    /* cyan-400 */
+    --badge-cyan-bg:     color-mix(in srgb, var(--cyan-400) 8%, transparent);
     --badge-cyan-border: var(--cyan-300);
     --badge-cyan-fg:     var(--cyan-800);
-    --badge-orange-bg:     rgba(245, 158, 75, 0.08);    /* orange-400 */
+    --badge-orange-bg:     color-mix(in srgb, var(--orange-400) 8%, transparent);
     --badge-orange-border: var(--orange-300);
     --badge-orange-fg:     var(--orange-700);
-    --badge-teal-bg:     rgba(20, 184, 166, 0.08);    /* teal-500 */
+    --badge-teal-bg:     color-mix(in srgb, var(--teal-500) 8%, transparent);
     --badge-teal-border: var(--teal-300);
     --badge-teal-fg:     var(--teal-800);
 
@@ -1114,22 +1178,22 @@
     --sev-1-fg:     var(--on-solid);
 
     --sev-2-solid:  var(--orange-700);
-    --sev-2-bg:     rgba(218, 133, 46, 0.22);   /* orange-500 */
+    --sev-2-bg:     color-mix(in srgb, var(--orange-500) 22%, transparent);
     --sev-2-border: var(--orange-300);
     --sev-2-fg:     var(--orange-800);
 
     --sev-3-solid:  var(--amber-600);
-    --sev-3-bg:     rgba(245, 158, 11, 0.18);   /* amber-500 */
+    --sev-3-bg:     color-mix(in srgb, var(--amber-500) 18%, transparent);
     --sev-3-border: var(--amber-300);
     --sev-3-fg:     var(--amber-800);
 
     --sev-4-solid:  var(--orbit-600);
-    --sev-4-bg:     rgba(89, 195, 255, 0.14);   /* orbit-400 */
+    --sev-4-bg:     color-mix(in srgb, var(--orbit-400) 14%, transparent);
     --sev-4-border: var(--orbit-300);
     --sev-4-fg:     var(--orbit-800);
 
     --sev-5-solid:  var(--slate-500);
-    --sev-5-bg:     rgba(148, 163, 184, 0.1);   /* slate-400 */
+    --sev-5-bg:     color-mix(in srgb, var(--slate-400) 10%, transparent);
     --sev-5-border: var(--slate-300);
     --sev-5-fg:     var(--slate-600);
 
@@ -1144,7 +1208,7 @@
     --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */
     --btn-active-bg: var(--slate-300);
     --code-fg:       var(--indigo-800);
-    --code-bg:       rgba(90, 97, 191, 0.08);    /* indigo-700 */
+    --code-bg:       color-mix(in srgb, var(--indigo-700) 8%, transparent);
     --backdrop:      color-mix(in srgb, var(--slate-900) 35%, transparent);
     --overlay:       color-mix(in srgb, var(--slate-50) 66%, transparent);
     --spotlight-dim: color-mix(in srgb, var(--slate-900) 42%, transparent);
@@ -1192,10 +1256,10 @@
     --go-solid:  var(--orbit-700);
     --go-hover:  var(--orbit-800);
     --go-active: var(--orbit-900);
-    --go-bg:     rgba(89, 195, 255, 0.14);    /* orbit-400 */
+    --go-bg:     color-mix(in srgb, var(--orbit-400) 14%, transparent);
     --go-border: var(--orbit-800);
     --go-fg:     var(--orbit-300);
-    --go-ring:   rgba(89, 195, 255, 0.5);     /* orbit-400 */
+    --go-ring:   color-mix(in srgb, var(--orbit-400) 50%, transparent);
 
     /* Added for SednaUI: separate danger from the coral brand by lightness. */
     --danger-solid: var(--crimson-800);
@@ -1217,17 +1281,17 @@
     --sev-1-border: var(--crimson-800);
 
     --sev-2-solid:  var(--violet-700);
-    --sev-2-bg:     rgba(162, 131, 255, 0.28);  /* violet-500 */
+    --sev-2-bg:     color-mix(in srgb, var(--violet-500) 28%, transparent);
     --sev-2-border: var(--violet-700);
     --sev-2-fg:     var(--violet-300);
 }
 :root[data-variant="light"][data-cvd="1"] {
-    --go-bg:     rgba(89, 195, 255, 0.08);    /* orbit-400 */
+    --go-bg:     color-mix(in srgb, var(--orbit-400) 8%, transparent);
     --go-border: var(--orbit-300);
     --go-fg:     var(--orbit-800);
     --danger-fg: var(--crimson-800);
 
-    --sev-2-bg:     rgba(117, 75, 211, 0.22);   /* violet-700 */
+    --sev-2-bg:     color-mix(in srgb, var(--violet-700) 22%, transparent);
     --sev-2-border: var(--violet-300);
     --sev-2-fg:     var(--violet-800);
 }
@@ -1947,8 +2011,9 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     display: flex;
     align-items: stretch;
     height: 44px;
-    --surface-here: var(--bg-elevated);
-    background: var(--bg-elevated);
+    --surface-here: var(--topbar-bg);
+    background: var(--topbar-bg);
+    color: var(--topbar-fg);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
     position: relative;
@@ -1970,10 +2035,10 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     display: inline-flex; align-items: center; justify-content: center;
     width: 44px; flex-shrink: 0;
     background: none; border: none; border-inline-start: 1px solid var(--border);
-    color: var(--muted); cursor: pointer; font-size: var(--text-8);
+    color: var(--topbar-muted); cursor: pointer; font-size: var(--text-8);
     text-decoration: none;
 }
-.topbar-btn:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.topbar-btn:hover { background: var(--topbar-hover); color: var(--topbar-fg); text-decoration: none; }
 .topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
 
 /* ── Version tag ────────────────────────────────────────────────────────────
@@ -2002,7 +2067,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
-    color: var(--muted);
+    color: var(--topbar-muted);
     font-family: var(--font-mono);
     font-size: var(--text-2);
     font-variant-numeric: tabular-nums;
@@ -2015,7 +2080,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 a.topbar-version:hover {
     background: var(--surface-strong);
     border-color: var(--border-strong);
-    color: var(--fg);
+    color: var(--topbar-fg);
     text-decoration: none;
 }
 
@@ -2100,7 +2165,7 @@ a.topbar-version--pre:hover {
     padding: var(--space-2) var(--space-4);
     padding-inline-start: calc(var(--space-4) + var(--text-5) + var(--space-3));
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     color: var(--fg);
     font-family: inherit;
@@ -2108,10 +2173,10 @@ a.topbar-version--pre:hover {
     line-height: 1.4;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.nav-filter-input::placeholder { color: var(--muted); }
+.nav-filter-input::placeholder { color: var(--placeholder); }
 .nav-filter-input:focus {
     outline: none;
-    border-color: var(--brand-soft);
+    border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
 
@@ -2148,12 +2213,12 @@ a.topbar-version--pre:hover {
     display: flex; align-items: center; gap: var(--space-5);
     padding: 0 var(--space-7);
     background: none; border: none; cursor: pointer;
-    color: var(--fg); white-space: nowrap;
+    color: var(--topbar-fg); white-space: nowrap;
 }
-.user-trigger:hover { background: var(--bg-hover); text-decoration: none; }
+.user-trigger:hover { background: var(--topbar-hover); text-decoration: none; }
 .user-info  { display: flex; flex-direction: column; align-items: flex-start; }
 .user-name  { font-size: var(--text-4); font-weight: 500; line-height: 1.2; }
-.user-email { font-size: var(--text-2); color: var(--muted); line-height: 1.2; }
+.user-email { font-size: var(--text-2); color: var(--topbar-muted); line-height: 1.2; }
 .user-avatar {
     width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
     display: inline-flex; align-items: center; justify-content: center;
@@ -2162,11 +2227,11 @@ a.topbar-version--pre:hover {
 .user-signout {
     display: inline-flex; align-items: center; justify-content: center;
     width: 46px; flex-shrink: 0;
-    color: var(--muted); font-size: var(--text-8); text-decoration: none;
+    color: var(--topbar-muted); font-size: var(--text-8); text-decoration: none;
     transition: background var(--motion-fast), color var(--motion-fast);
 }
 .user-signout:hover, .user-signout:focus, .user-signout:hover:focus {
-    background: var(--bg-hover); color: var(--fg); text-decoration: none;
+    background: var(--topbar-hover); color: var(--topbar-fg); text-decoration: none;
 }
 
 /* ── The widget's dropdown ──────────────────────────────────────────────────
@@ -2184,6 +2249,9 @@ a.topbar-version--pre:hover {
    right: above everything else in the header, and still covered by a modal backdrop
    opened from inside it. */
 .user-widget > .menu {
+    /* The page's ink, not the header's: the panel is a surface of its own, and a header
+       painted with --topbar-fg would otherwise hand white text to a white panel. */
+    color: var(--fg);
     position: absolute;
     top: calc(100% + var(--space-2));
     inset-inline-end: 0;
@@ -2954,18 +3022,18 @@ a.topbar-version--pre:hover {
        both of which are positioned over the input rather than beside it. */
     padding: 0 var(--space-10);
     background: var(--surface-strong);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-surface);
     color: var(--fg);
     font-family: inherit;
     font-size: var(--text-4);
     outline: none;
 }
-.search-input::placeholder { color: var(--muted); }
+.search-input::placeholder { color: var(--placeholder); }
 /* type="search" brings the platform's own ✕, which sits in the same place as
    .search-clear and does not follow the theme. */
 .search-input::-webkit-search-cancel-button { display: none; }
-.search-input:focus { border-color: var(--brand); background: var(--card-bg); }
+.search-input:focus { border-color: var(--field-border-focus); background: var(--card-bg); }
 
 .search-clear {
     position: absolute;
@@ -3002,6 +3070,8 @@ a.topbar-version--pre:hover {
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
     --surface-here: var(--card-bg);
+    /* The page's ink, not the header's it opens from — see --topbar-fg. */
+    color: var(--fg);
 }
 
 /* Searching, and nothing found. Both are a line of muted text rather than an
@@ -3281,18 +3351,18 @@ a.topbar-version--pre:hover {
        jump on becoming current, and a matching top edge keeps the label centred. */
     border-bottom: 2px solid transparent;
     border-top: 2px solid transparent;
-    color: var(--muted);
+    color: var(--topbar-muted);
     font-size: var(--text-4);
     white-space: nowrap;
     text-decoration: none;
 }
 .topbar-nav-link i { font-size: var(--text-6); }
-.topbar-nav-link:hover { color: var(--fg); text-decoration: none; }
+.topbar-nav-link:hover { color: var(--topbar-fg); text-decoration: none; }
 .topbar-nav-link:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
 .topbar-nav-link.active,
 .topbar-nav-link[aria-current="page"] {
-    border-bottom-color: var(--brand);
-    color: var(--fg);
+    border-bottom-color: var(--tab-indicator);
+    color: var(--topbar-fg);
 }
 }
 
@@ -3440,7 +3510,7 @@ a.topbar-version--pre:hover {
 .bottombar-item[aria-current="page"] {
     flex: 0 1 auto;
     padding-inline: var(--space-6);
-    border-top-color: var(--brand);
+    border-top-color: var(--tab-indicator);
     color: var(--fg);
 }
 .bottombar-item.active i,
@@ -3574,7 +3644,7 @@ a.topbar-version--pre:hover {
     height: 2px;
     margin-inline-start: -8px;
     border-radius: 1px;
-    background: var(--brand);
+    background: var(--tab-indicator);
 }
 
 /* The frame's own bar is the anchor the toast stack and a .fab rise above. Only the
@@ -3931,7 +4001,7 @@ a.topbar-version--pre:hover {
 .btn:hover         { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
 .btn:active        { background: var(--btn-active-bg); }
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.btn:disabled      { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+.btn:disabled      { opacity: var(--disabled-opacity); cursor: not-allowed; pointer-events: none; }
 
 /* Three tiers. Each sets its height from the matching token and scales its padding,
    text and icon with it. */
@@ -3940,9 +4010,9 @@ a.topbar-version--pre:hover {
 .btn-lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
 .btn-lg i { font-size: var(--text-8); }
 
-.btn-primary        { background: var(--brand); border-color: var(--brand); color: var(--on-solid); }
-.btn-primary:hover  { background: var(--brand-hover); border-color: var(--brand-hover); }
-.btn-primary:active { background: var(--brand-active); border-color: var(--brand-active); }
+.btn-primary        { background: var(--brand); border-color: var(--brand-edge); color: var(--on-solid); }
+.btn-primary:hover  { background: var(--brand-hover); }
+.btn-primary:active { background: var(--brand-active); }
 .btn-primary:focus-visible { box-shadow: 0 0 0 2px var(--brand-ring); }
 
 .btn-go        { background: var(--go-solid); border-color: var(--go-solid); color: var(--on-solid); }
@@ -4041,7 +4111,7 @@ a.topbar-version--pre:hover {
     min-height: var(--control-height);
     padding: var(--space-3) var(--space-5);
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     color: var(--fg);
     font-size: var(--text-4);
@@ -4053,10 +4123,10 @@ a.topbar-version--pre:hover {
 .form-input:focus,
 .form-select:focus {
     outline: none;
-    border-color: var(--brand-soft);
+    border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
-.form-input::placeholder { color: var(--border-strong); }
+.form-input::placeholder { color: var(--placeholder); }
 
 /* ── A text area's resize grip ────────────────────────────────────
    Vertical is the DEFAULT rather than a class, because the failure is horizontal:
@@ -4100,7 +4170,7 @@ textarea.form-input::-webkit-resizer {
     min-height: var(--control-height);
     padding: var(--space-3) var(--space-5);
     background: var(--surface-soft);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     font-size: var(--text-4);
 }
@@ -4157,7 +4227,7 @@ textarea.form-input::-webkit-resizer {
    The `:has()` is what lets one rule cover the checkbox and the radio without either
    knowing about the other. */
 .form-check:has(input:disabled) { color: var(--muted); cursor: not-allowed; }
-.form-check input:disabled { opacity: 0.45; cursor: not-allowed; }
+.form-check input:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 .form-input:disabled,
 .form-select:disabled,
@@ -4263,9 +4333,16 @@ textarea.form-input::-webkit-resizer {
     box-shadow: var(--shadow-modal);
 }
 /* Width only. A confirmation needs less room than a form, and a diff or a table
-   needs more; nothing else about the panel changes. */
-.modal-sm { max-width: 360px; }
-.modal-lg { max-width: 760px; }
+   needs more; nothing else about the panel changes.
+
+   --full is as wide as the window allows, leaving the same gap at the sides the
+   height cap leaves above and below, and the safe-area insets clear: for an editor
+   that wants the whole screen. 100% is the backdrop's width, or the viewport's for a
+   <dialog>, so neither form runs under a scrollbar. */
+.modal-sm   { max-width: 360px; }
+.modal-lg   { max-width: 760px; }
+.modal-xl   { max-width: 1140px; }
+.modal-full { max-width: calc(100% - 2 * var(--space-8) - var(--safe-inline-start) - var(--safe-inline-end)); }
 
 /* ── As a <dialog> ──────────────────────────────────────────────────────────
    `.modal` on a <dialog> opened with showModal() gets the top layer, a focus trap,
@@ -5368,13 +5445,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     display: flex;
     flex-direction: column;
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     --surface-here: var(--bg);
     --editor-max-height: 480px;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.editor:focus-within { border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
+.editor:focus-within { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
 .editor-toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -5587,12 +5664,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     content: attr(data-placeholder);
     position: absolute;
     inset-inline: var(--space-6);
-    color: var(--border-strong);
+    color: var(--placeholder);
     pointer-events: none;
 }
 .editor .ql-container.ql-disabled .ql-editor > * { cursor: default; }
 .editor:has(.ql-container.ql-disabled) { background: var(--surface-soft); }
-.editor:has(.ql-container.ql-disabled) .editor-toolbar { opacity: 0.45; pointer-events: none; }
+.editor:has(.ql-container.ql-disabled) .editor-toolbar { opacity: var(--disabled-opacity); pointer-events: none; }
 
 /* ── Lists ──────────────────────────────────────────────────────────────────
    Quill 2 writes every list as an `<ol>` of `<li data-list="bullet|ordered|checked|
@@ -5933,7 +6010,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     outline: none;
     box-shadow: 0 0 0 2px var(--brand-ring-check);
 }
-.switch input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.45; }
+.switch input[type="checkbox"]:disabled { cursor: not-allowed; opacity: var(--disabled-opacity); }
 .switch:has(input:disabled) { cursor: not-allowed; color: var(--muted); }
 
 /* ── Label and hint ─────────────────────────────────────────────────────────
@@ -5959,7 +6036,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     block-size: var(--control-height);
     padding: var(--space-1);
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     cursor: pointer;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
@@ -5967,8 +6044,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .form-color.form-input-sm { inline-size: var(--control-height-sm); block-size: var(--control-height-sm); }
 .form-color.form-input-lg { inline-size: var(--control-height-lg); block-size: var(--control-height-lg); }
 .form-color:hover { border-color: var(--border-hover); }
-.form-color:focus-visible { outline: none; border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
-.form-color:disabled { cursor: not-allowed; opacity: 0.45; }
+.form-color:focus-visible { outline: none; border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
+.form-color:disabled { cursor: not-allowed; opacity: var(--disabled-opacity); }
 .form-color::-webkit-color-swatch-wrapper { padding: 0; }
 .form-color::-webkit-color-swatch { border: none; border-radius: calc(var(--radius-control) - 2px); }
 .form-color::-moz-color-swatch { border: none; border-radius: calc(var(--radius-control) - 2px); }
@@ -6071,7 +6148,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     width: 100%;
     min-height: var(--control-height);
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
@@ -6090,7 +6167,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .input-group--lg .btn,
 .input-group--lg .input-affix { font-size: var(--text-5); }
 .input-group:focus-within {
-    border-color: var(--brand-soft);
+    border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
 /* `.form-select` is named alongside `.form-input` for the reason 34-forms.css gives
@@ -6576,7 +6653,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .form-range:focus-visible { outline: none; }
 .form-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--brand-ring-check); }
 .form-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--brand-ring-check); }
-.form-range:disabled { opacity: 0.45; cursor: not-allowed; }
+.form-range:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 /* The value readout beside a range. Tabular and fixed-width, so the track does not
    shift as the number's width changes while dragging. */
@@ -6708,7 +6785,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 }
 .form-combo-box:hover { border-color: var(--border-hover); }
 .form-combo-box:focus-within {
-    border-color: var(--brand-soft);
+    border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
 /* Invalid and disabled are the INPUT's attributes, which is where a screen reader
@@ -6743,7 +6820,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
     font: inherit;
     font-size: var(--text-4);
 }
-.form-combo-input::placeholder { color: var(--border-strong); }
+.form-combo-input::placeholder { color: var(--placeholder); }
 .form-combo-input:disabled { cursor: not-allowed; }
 
 /* ── Single select: the value under the input ─────────────────────────────
@@ -7308,7 +7385,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .form-select:open::picker-icon { rotate: 180deg; }
 
 /* The box says it is open, the same way it says it is focused. */
-.form-select:open { border-color: var(--brand-soft); }
+.form-select:open { border-color: var(--field-border-focus); }
 
 /* ── The drop-down ──────────────────────────────────────────────────────────
    Deliberately the `.menu` panel, to the token: an app that opens a menu from one
@@ -7620,10 +7697,10 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .tab:hover { color: var(--fg); background: var(--surface-soft); text-decoration: none; }
 .tab:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .tab:disabled,
-.tab[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
+.tab[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 .tab--active,
-.tab[aria-selected="true"] { color: var(--brand-text); border-bottom-color: var(--brand); }
+.tab[aria-selected="true"] { color: var(--brand-text); border-bottom-color: var(--tab-indicator); }
 .tab--active:hover,
 .tab[aria-selected="true"]:hover { color: var(--brand-text); background: none; }
 
@@ -7741,7 +7818,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
    this size. The elevated surface against the inset track is enough. */
 .segmented-option:has(input:checked) { background: var(--bg-elevated); color: var(--fg); }
 .segmented-option:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.segmented-option:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
+.segmented-option:has(input:disabled) { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 /* The same three tiers as the button and the text input, off the same tokens, so a
    toolbar row agrees at every size.
@@ -8587,7 +8664,7 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .series-warn   { color: var(--warn-solid); }
 .series-danger { color: var(--danger-solid); }
 .series-info   { color: var(--info-solid); }
-.series-muted  { color: var(--border-strong); }
+.series-muted  { color: var(--muted); }
 }
 
 /* ── 54-graph.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -9129,7 +9206,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
    The number could not be read. An em dash, not a zero: zero is a measurement and
    this is the absence of one, and a dashboard that shows 0 for "the endpoint did not
    answer" is a dashboard that lies. */
-.stat--unavailable .stat-value { color: var(--border-strong); font-weight: 500; }
+.stat--unavailable .stat-value { color: var(--muted); font-weight: 500; }
 .stat--unavailable .stat-delta,
 .stat--unavailable .stat-target { visibility: hidden; }
 
@@ -9537,7 +9614,7 @@ a.stat--danger:hover { background: var(--danger-bg-hover); }
 }
 .page-link:disabled,
 .page-link[aria-disabled="true"] {
-    opacity: 0.35;
+    opacity: var(--disabled-opacity);
     cursor: not-allowed;
     pointer-events: none;
 }
@@ -9827,7 +9904,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .menu-item:hover { background: var(--bg-hover); text-decoration: none; }
 .menu-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .menu-item:disabled,
-.menu-item[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+.menu-item[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; pointer-events: none; }
 .menu-item--danger,
 .menu-item--danger i { color: var(--danger-fg); }
 /* A trailing shortcut hint or count. */
@@ -9976,7 +10053,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    vertical dividers rather than one leading edge. It cannot go on the <tr>: a
    row's box is not painted when the table's borders are collapsed. */
 .table tbody tr[aria-selected="true"] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--brand);
+    box-shadow: inset 3px 0 0 var(--selected);
 }
 
 /* ── Pinned columns ─────────────────────────────────────────────────────────
@@ -10354,7 +10431,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 /* The selection marker is an inset shadow, and the pinned cell's box-shadow would
    replace it — on the very column where it is most visible. Both, in one list. */
 .table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
-    box-shadow: inset 3px 0 0 var(--brand), var(--pin-shadow);
+    box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
 }
 
 /* ── Column width ───────────────────────────────────────────────────────────
@@ -10541,11 +10618,11 @@ button.list-row:active { background: var(--btn-active-bg); }
 /* The treatment `.menu-item` and `.btn` use. `pointer-events: none` is what stops a
    disabled row still taking the hover fill. */
 button.list-row:disabled,
-button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+button.list-row[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; pointer-events: none; }
 .list-row[aria-current="true"],
 .list-row[aria-selected="true"] {
     background: var(--brand-tint);
-    box-shadow: inset 3px 0 0 var(--brand);
+    box-shadow: inset 3px 0 0 var(--selected);
 }
 
 /* The dominant field and its supporting line. min-width: 0 is what lets the
@@ -10621,11 +10698,11 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 .list--cards > li > .list-row:is([aria-current="true"], [aria-selected="true"]):hover {
     background-color: var(--surface-here);
     background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
-    border-color: var(--brand);
-    box-shadow: inset 0 0 0 1px var(--brand);
+    border-color: var(--selected);
+    box-shadow: inset 0 0 0 1px var(--selected);
 }
 .list--cards > li > :is(a, button).list-row:is([aria-current="true"], [aria-selected="true"]):focus-visible {
-    box-shadow: inset 0 0 0 1px var(--brand), inset 0 0 0 3px var(--brand-ring-soft);
+    box-shadow: inset 0 0 0 1px var(--selected), inset 0 0 0 3px var(--brand-ring-soft);
 }
 
 /* In a card the list keeps the card's gutter round the whole stack, and the rows go
@@ -10962,7 +11039,7 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
    from growing the line box it is in. */
 .btn-bare i { line-height: 1; }
 .btn-bare:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.btn-bare:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-bare:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 /* Link-coloured, for an identifier that goes somewhere. It underlines on hover
    because that is where a reader looks for the affordance an <a> would have. */
 .btn-bare--link { color: var(--accent); }
@@ -11357,7 +11434,7 @@ button.list-row[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; poin
 }
 .drag-handle:hover { background: var(--bg-hover); color: var(--fg); }
 .drag-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-[aria-disabled="true"] > .drag-handle { color: var(--border-strong); background: none; }
+[aria-disabled="true"] > .drag-handle { color: var(--muted); background: none; }
 
 /* ── A board of lanes ───────────────────────────────────────────────────────
    Lanes side by side, scrolling sideways when they outgrow the page — which is also
@@ -12078,8 +12155,8 @@ a.file-cell:hover .file-name { text-decoration: underline; }
 }
 .file-tile:hover { border-color: var(--border-hover); }
 .file-tile:has(.file-tile-check :checked) {
-    border-color: var(--brand);
-    box-shadow: inset 0 0 0 1px var(--brand);
+    border-color: var(--selected);
+    box-shadow: inset 0 0 0 1px var(--selected);
     background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
 }
 .file-tile:has(.file-tile-open:focus-visible),
@@ -12506,7 +12583,7 @@ dialog.lightbox::before {
 }
 .media-transcript li[aria-current="true"] {
     background: var(--brand-tint);
-    box-shadow: inset 3px 0 0 var(--brand);
+    box-shadow: inset 3px 0 0 var(--selected);
     color: var(--fg);
 }
 .media-transcript-time {
@@ -12640,7 +12717,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     font-size: var(--text-6);
 }
 .palette-input:focus { outline: none; }
-.palette-input::placeholder { color: var(--border-strong); }
+.palette-input::placeholder { color: var(--placeholder); }
 
 .palette-list { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-3); margin: 0; list-style: none; }
 .palette-item {
@@ -12732,7 +12809,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
         width var(--motion-slow) ease,
         height var(--motion-slow) ease;
 }
-.spotlight-ring { box-shadow: 0 0 0 100vmax var(--spotlight-dim), 0 0 0 2px var(--brand); }
+.spotlight-ring { box-shadow: 0 0 0 100vmax var(--spotlight-dim), 0 0 0 2px var(--selected); }
 
 /* The explanatory bubble. Positioned by the app beside the hole. */
 .spotlight-tip {
@@ -14480,7 +14557,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .chat-reaction:hover { border-color: var(--border-strong); }
 .chat-reaction[aria-pressed="true"] {
     background: var(--brand-tint);
-    border-color: var(--brand);
+    border-color: var(--selected);
     color: var(--brand-text);
 }
 .chat-reaction:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
@@ -15124,7 +15201,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     background: var(--surface-raised-2);
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.chat-composer--prompt:focus-within { border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-glow); }
+.chat-composer--prompt:focus-within { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
 .chat-composer--prompt .chat-composer-row > .form-input,
 .chat-composer--prompt .chat-composer-row > .form-input:focus {
     min-height: var(--control-height-lg);
@@ -16499,7 +16576,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 :is(a, button).workflow-node { cursor: pointer; }
 :is(a, button).workflow-node:hover { border-color: var(--border-hover); }
 :is(a, button).workflow-node:focus-visible { outline: none; --workflow-ring: 0 0 0 2px var(--brand-ring-soft); }
-.workflow-node[aria-pressed="true"] { --workflow-ring: 0 0 0 2px var(--brand); }
+.workflow-node[aria-pressed="true"] { --workflow-ring: 0 0 0 2px var(--selected); }
 
 .workflow-node-head {
     display: grid;

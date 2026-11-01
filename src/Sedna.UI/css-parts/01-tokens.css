@@ -34,6 +34,12 @@
     --fg:              var(--slate-50);    /* Ice White */
     --fg-soft:         var(--slate-300);         /* body copy on cards */
     --muted:           var(--slate-400);   /* Dust Gray */
+    /* The words standing in for a value that is not there: a field's placeholder, an
+       empty editor's prompt. A TEXT role, held to 4.5:1 on --bg and --card-bg in every
+       variant, which is why it points at --muted and never at a border step — a border
+       role is only held to 3:1. An app that wants a dimmer placeholder redefines this
+       and measures it; PlaceholderContrastTests is the measurement. */
+    --placeholder:     var(--muted);
     --border:          var(--slate-700);
     --border-strong:   var(--slate-600);
     --border-hover:    var(--slate-500);
@@ -160,7 +166,49 @@
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
     --brand-ring-check: color-mix(in srgb, var(--brand) 35%, transparent);  /* checkbox focus */
     --brand-glow:       color-mix(in srgb, var(--brand) 18%, transparent);  /* text-input focus glow */
+    /* The edge of a brand-filled control — .btn-primary's border. --brand is solved for
+       white text on it, which puts it at 2.9:1 against the dark card: under the 3:1 a
+       control's boundary needs. The edge takes the display strength instead, so the
+       button's outline clears 3:1 while its fill still carries the label. In the light
+       variant the fill itself clears 3:1 against white and the edge is the fill.
+       ButtonEdgeContrastTests measures it in every palette and built-in theme. */
+    --brand-edge:       var(--brand-soft);
     --accent:           var(--orbit-400);         /* links, decorative icons — Orbit Blue, unmodified */
+
+    /* ── Selection ──────────────────────────────────────────────────────────
+       The mark on the one that is chosen or on show: a selected row's leading bar, a
+       chosen card's ring, the step a workflow is showing, the spotlight's ring, the
+       graph's selected record. A line or a ring, never a fill carrying text — those stay
+       --brand, because --on-solid is measured against it.
+
+       Its own role because the brand is not always the right colour for it: on a
+       status display whose brand is red, a red ring round the one on show reads as
+       "failed". Redefine this alone to move every selection mark at once.
+
+       --tab-indicator is the line under the current tab, the current area in the
+       topbar and the current item in the bottom bar — where you are, rather than what
+       you picked. It follows --selected unless an app separates the two. */
+    --selected:         var(--brand);
+    --tab-indicator:    var(--selected);
+
+    /* ── Fields ─────────────────────────────────────────────────────────────
+       The edge of every box a reader types or picks into — .form-input, .form-select,
+       .input-group, .form-combo-box, .form-color, the Markdown editor, the search and
+       nav-filter boxes — at rest and focused. --border is also the line between cards,
+       rows and panels, and a calm line colour leaves a field's edge under the 3:1 a
+       control's boundary needs; this lets an app firm up fields without firming up
+       every divider. The focused edge is its own role for the same reason: --brand-soft
+       also tints spinners and icons, and an app with a neutral focus ring wants a
+       neutral focused field without them. */
+    --field-border:       var(--border);
+    --field-border-focus: var(--brand-soft);
+
+    /* ── Disabled ───────────────────────────────────────────────────────────
+       How far a disabled control fades: buttons, tabs, menu items, list rows, the
+       choice controls, a slider, a page link. A number, not a colour. WCAG exempts an
+       inactive control from contrast, but a disabled "Delete (0)" still says something;
+       an app that wants it read raises this. */
+    --disabled-opacity: 0.4;
 
     /* ── Sidebar ───────────────────────────────────────────────────────── */
     --sidebar-bg:      var(--slate-900);
@@ -173,6 +221,19 @@
        hover resolved to the colour already underneath it and nothing happened.
        Same value as before in this theme, so nothing dark changes. */
     --sidebar-hover:   var(--slate-800);
+
+    /* ── Topbar ─────────────────────────────────────────────────────────────
+       The header's surface and what is drawn straight on it: the icon buttons, the
+       area links, the user widget's name and sign-out, the version tag. Aliases of the
+       roles the header has always used, so nothing moves until an app points them
+       elsewhere — a brand-coloured header with white text in the light variant is
+       --topbar-bg, --topbar-fg and --topbar-muted together, and --topbar-hover for what
+       the pointer is on. Panels that open from the header (the user menu, the search
+       results) are surfaces of their own and keep the page's roles. */
+    --topbar-bg:       var(--bg-elevated);
+    --topbar-fg:       var(--fg);
+    --topbar-muted:    var(--muted);
+    --topbar-hover:    var(--bg-hover);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -189,21 +250,21 @@
     --go-solid:   var(--green-700);
     --go-hover:   var(--green-800);
     --go-active:  var(--green-900);
-    --go-bg:      rgba(34, 197, 94, 0.12);   /* green-500 */
+    --go-bg:      color-mix(in srgb, var(--green-500) 12%, transparent);
     --go-border:  var(--green-800);
     --go-fg:      var(--green-400);
-    --go-ring:    rgba(34, 197, 94, 0.5);    /* green-500 */
+    --go-ring:    color-mix(in srgb, var(--green-500) 50%, transparent);
 
     --warn-solid:      var(--amber-700);
     --warn-hover:      var(--amber-800);
     --warn-active:     var(--amber-900);
-    --warn-bg:         rgba(245, 158, 11, 0.12);   /* amber-500 */
-    --warn-bg-hover:   rgba(245, 158, 11, 0.2);    /* amber-500 */
-    --warn-bg-active:  rgba(245, 158, 11, 0.28);   /* amber-500 */
+    --warn-bg:         color-mix(in srgb, var(--amber-500) 12%, transparent);
+    --warn-bg-hover:   color-mix(in srgb, var(--amber-500) 20%, transparent);
+    --warn-bg-active:  color-mix(in srgb, var(--amber-500) 28%, transparent);
     --warn-border:     var(--amber-800);
     --warn-fg:         var(--amber-300);
-    --warn-ring:       rgba(245, 158, 11, 0.4);    /* amber-500 */
-    --warn-ring-solid: rgba(245, 158, 11, 0.5);    /* amber-500 */
+    --warn-ring:       color-mix(in srgb, var(--amber-500) 40%, transparent);
+    --warn-ring-solid: color-mix(in srgb, var(--amber-500) 50%, transparent);
 
     /* crimson-700, not the old #dc2626: that red sits 7° from the Sedna Red brand
        in OKLCH — a Delete button and a Save button would read as the same colour
@@ -211,19 +272,19 @@
        on hue AND lightness (docs/BRANDING.md §4.3 — this one is forced, not
        cosmetic). It still carries white text at AA: 4.61:1, both themes. */
     --danger-solid:         var(--crimson-700);
-    --danger-bg:            rgba(128, 0, 61, 0.15);    /* crimson-900 */
-    --danger-bg-hover:      rgba(166, 6, 83, 0.25);    /* crimson-800 */
-    --danger-bg-active:     rgba(166, 6, 83, 0.35);    /* crimson-800 */
-    --danger-border:        rgba(166, 6, 83, 0.6);     /* crimson-800 */
+    --danger-bg:            color-mix(in srgb, var(--crimson-900) 15%, transparent);
+    --danger-bg-hover:      color-mix(in srgb, var(--crimson-800) 25%, transparent);
+    --danger-bg-active:     color-mix(in srgb, var(--crimson-800) 35%, transparent);
+    --danger-border:        color-mix(in srgb, var(--crimson-800) 60%, transparent);
     --danger-border-strong: var(--crimson-800);
     --danger-fg:            var(--crimson-400);
-    --danger-ring:          rgba(244, 69, 136, 0.4);   /* crimson-500 — focus ring on a danger control */
+    --danger-ring:          color-mix(in srgb, var(--crimson-500) 40%, transparent);   /* focus ring on a danger control */
 
-    --info-bg:      rgba(89, 195, 255, 0.12);    /* orbit-400 */
+    --info-bg:      color-mix(in srgb, var(--orbit-400) 12%, transparent);
     --info-border:  var(--orbit-800);
     --info-fg:      var(--orbit-300);
     --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
-    --info-ring:    rgba(89, 195, 255, 0.5);     /* orbit-400 — its glow */
+    --info-ring:    color-mix(in srgb, var(--orbit-400) 50%, transparent);     /* its glow */
 
     /* Data in motion: the light running into a .workflow's step at work, the line it
        runs on, and that step's ring and glow. The info colours, so every theme moves
@@ -244,13 +305,13 @@
     --presence-out-of-office: var(--violet-600);
 
     /* Extra badge hues — categorical only, no semantics attached. */
-    --badge-cyan-bg:     rgba(34, 211, 238, 0.15);    /* cyan-400 */
+    --badge-cyan-bg:     color-mix(in srgb, var(--cyan-400) 15%, transparent);
     --badge-cyan-border: var(--cyan-800);
     --badge-cyan-fg:     var(--cyan-300);
-    --badge-orange-bg:     rgba(245, 158, 75, 0.15);    /* orange-400 */
+    --badge-orange-bg:     color-mix(in srgb, var(--orange-400) 15%, transparent);
     --badge-orange-border: var(--orange-800);
     --badge-orange-fg:     var(--orange-300);
-    --badge-teal-bg:     rgba(20, 184, 166, 0.15);    /* teal-500 */
+    --badge-teal-bg:     color-mix(in srgb, var(--teal-500) 15%, transparent);
     --badge-teal-border: var(--teal-800);
     --badge-teal-fg:     var(--teal-300);
 
@@ -280,22 +341,22 @@
     --sev-1-fg:     var(--on-solid);
 
     --sev-2-solid:  var(--orange-700);
-    --sev-2-bg:     rgba(245, 158, 75, 0.28);   /* orange-400 */
+    --sev-2-bg:     color-mix(in srgb, var(--orange-400) 28%, transparent);
     --sev-2-border: var(--orange-700);
     --sev-2-fg:     var(--orange-200);
 
     --sev-3-solid:  var(--amber-600);
-    --sev-3-bg:     rgba(245, 158, 11, 0.2);    /* amber-500 */
+    --sev-3-bg:     color-mix(in srgb, var(--amber-500) 20%, transparent);
     --sev-3-border: var(--amber-800);
     --sev-3-fg:     var(--amber-300);
 
     --sev-4-solid:  var(--orbit-500);
-    --sev-4-bg:     rgba(89, 195, 255, 0.13);   /* orbit-400 */
+    --sev-4-bg:     color-mix(in srgb, var(--orbit-400) 13%, transparent);
     --sev-4-border: var(--orbit-800);
     --sev-4-fg:     var(--orbit-300);
 
     --sev-5-solid:  var(--slate-400);
-    --sev-5-bg:     rgba(148, 163, 184, 0.08);  /* slate-400 */
+    --sev-5-bg:     color-mix(in srgb, var(--slate-400) 8%, transparent);
     --sev-5-border: var(--slate-700);
     --sev-5-fg:     var(--slate-300);
 
@@ -311,7 +372,7 @@
     --progress-track: rgba(255, 255, 255, 0.08);
     --btn-active-bg: var(--slate-850);
     --code-fg:       var(--indigo-300);
-    --code-bg:       rgba(133, 144, 253, 0.1);    /* indigo-500 */
+    --code-bg:       color-mix(in srgb, var(--indigo-500) 10%, transparent);
     /* The three scrims. Each is a ramp step at an alpha, written as a color-mix
        rather than as the literal the step happens to be, because a theme replaces
        the ramp and a literal cannot follow it: the spotlight's dim stayed Sedna's

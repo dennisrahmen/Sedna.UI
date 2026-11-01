@@ -1,0 +1,22 @@
+/* brand.css, after the library sheet: a red brand on a wall display, where a red
+   ring round the record on show would read as a failure. */
+:root {
+    /* Calm lines between cards, firm edges on the fields. */
+    --field-border:       var(--slate-500);
+    --field-border-focus: var(--fg-soft);
+
+    /* The one on show in the page's own ink, the current tab still in the brand. */
+    --selected:      var(--fg);
+    --tab-indicator: var(--brand-soft);
+
+    /* A disabled "Delete (0)" that can still be read. */
+    --disabled-opacity: 0.6;
+}
+
+/* A brand-coloured header in the light variant. */
+:root[data-variant="light"] {
+    --topbar-bg:    var(--brand);
+    --topbar-fg:    var(--on-solid);
+    --topbar-muted: var(--on-solid);
+    --topbar-hover: var(--brand-hover);
+}

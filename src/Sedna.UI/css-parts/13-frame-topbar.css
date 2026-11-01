@@ -6,8 +6,9 @@
     display: flex;
     align-items: stretch;
     height: 44px;
-    --surface-here: var(--bg-elevated);
-    background: var(--bg-elevated);
+    --surface-here: var(--topbar-bg);
+    background: var(--topbar-bg);
+    color: var(--topbar-fg);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
     position: relative;
@@ -29,10 +30,10 @@
     display: inline-flex; align-items: center; justify-content: center;
     width: 44px; flex-shrink: 0;
     background: none; border: none; border-inline-start: 1px solid var(--border);
-    color: var(--muted); cursor: pointer; font-size: var(--text-8);
+    color: var(--topbar-muted); cursor: pointer; font-size: var(--text-8);
     text-decoration: none;
 }
-.topbar-btn:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.topbar-btn:hover { background: var(--topbar-hover); color: var(--topbar-fg); text-decoration: none; }
 .topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
 
 /* ── Version tag ────────────────────────────────────────────────────────────
@@ -61,7 +62,7 @@
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
-    color: var(--muted);
+    color: var(--topbar-muted);
     font-family: var(--font-mono);
     font-size: var(--text-2);
     font-variant-numeric: tabular-nums;
@@ -74,7 +75,7 @@
 a.topbar-version:hover {
     background: var(--surface-strong);
     border-color: var(--border-strong);
-    color: var(--fg);
+    color: var(--topbar-fg);
     text-decoration: none;
 }
 

@@ -405,8 +405,10 @@ markup, so it draws once, in the element that stays.
 
 Every colour on the canvas is a token, read through the browser — so the variant, the colour-vision
 setting, the contrast setting, forced colours and an app's own brand all reach it — and repainted
-whenever any of them changes. A label's outline is whatever the graph sits on. Colour is never the
-only carrier: give kinds a shape, links a line style and a label.
+whenever any of them changes. A label's outline is whatever the graph sits on. The selected record
+and link, the root and the record in focus are drawn in `--selected`, the brand unless an app
+points it elsewhere. Colour is never the only carrier: give kinds a shape, links a line style and a
+label.
 
 ## Large graphs
 

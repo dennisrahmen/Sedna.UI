@@ -55,18 +55,18 @@
        both of which are positioned over the input rather than beside it. */
     padding: 0 var(--space-10);
     background: var(--surface-strong);
-    border: 1px solid var(--border);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-surface);
     color: var(--fg);
     font-family: inherit;
     font-size: var(--text-4);
     outline: none;
 }
-.search-input::placeholder { color: var(--muted); }
+.search-input::placeholder { color: var(--placeholder); }
 /* type="search" brings the platform's own ✕, which sits in the same place as
    .search-clear and does not follow the theme. */
 .search-input::-webkit-search-cancel-button { display: none; }
-.search-input:focus { border-color: var(--brand); background: var(--card-bg); }
+.search-input:focus { border-color: var(--field-border-focus); background: var(--card-bg); }
 
 .search-clear {
     position: absolute;
@@ -103,6 +103,8 @@
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
     --surface-here: var(--card-bg);
+    /* The page's ink, not the header's it opens from — see --topbar-fg. */
+    color: var(--fg);
 }
 
 /* Searching, and nothing found. Both are a line of muted text rather than an

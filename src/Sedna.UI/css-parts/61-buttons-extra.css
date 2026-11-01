@@ -91,7 +91,7 @@
    from growing the line box it is in. */
 .btn-bare i { line-height: 1; }
 .btn-bare:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.btn-bare:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-bare:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 /* Link-coloured, for an identifier that goes somewhere. It underlines on hover
    because that is where a reader looks for the affordance an <a> would have. */
 .btn-bare--link { color: var(--accent); }

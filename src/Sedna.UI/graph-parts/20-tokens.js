@@ -96,6 +96,8 @@ function palette(colours) {
         line: c('--border-strong', fg),
         border: c('--border', fg),
         brand: c('--brand', fg),
+        // The mark on the one chosen — the selected record and link, the root and the record in focus.
+        selected: c('--selected', c('--brand', fg)),
         accent: c('--accent', fg),
         ring: c('--brand-ring', fg),
         raised: c('--surface-raised-2', c('--card-bg')),

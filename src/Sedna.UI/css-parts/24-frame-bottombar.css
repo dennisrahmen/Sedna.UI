@@ -140,7 +140,7 @@
 .bottombar-item[aria-current="page"] {
     flex: 0 1 auto;
     padding-inline: var(--space-6);
-    border-top-color: var(--brand);
+    border-top-color: var(--tab-indicator);
     color: var(--fg);
 }
 .bottombar-item.active i,
@@ -274,7 +274,7 @@
     height: 2px;
     margin-inline-start: -8px;
     border-radius: 1px;
-    background: var(--brand);
+    background: var(--tab-indicator);
 }
 
 /* The frame's own bar is the anchor the toast stack and a .fab rise above. Only the
