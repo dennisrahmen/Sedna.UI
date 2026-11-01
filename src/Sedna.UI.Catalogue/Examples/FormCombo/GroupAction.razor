@@ -1,0 +1,53 @@
+<div class="form-field" style="max-width:460px">
+    <label class="form-label" for="cb-tasks">Task templates</label>
+    <div class="form-combo" data-combo="multi" data-combo-managed>
+        <div class="form-combo-box">
+            <span class="chip" data-value="welcome-letter">
+                <span class="chip-label">Welcome letter</span>
+                <button class="chip-dismiss" type="button" aria-label="Remove Welcome letter"><i class="ri-close-line"></i></button>
+                <input type="hidden" name="templates" value="welcome-letter" />
+            </span>
+            <input class="form-combo-input" id="cb-tasks" type="text" role="combobox" placeholder="Add templates…"
+                   aria-expanded="false" aria-controls="cb-tasks-list" aria-autocomplete="list" autocomplete="off" />
+            <span class="form-combo-actions">
+                <button class="form-combo-btn form-combo-clear" type="button" aria-label="Remove every template"><i class="ri-close-line"></i></button>
+                <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show templates"><i class="ri-arrow-down-s-line"></i></button>
+            </span>
+        </div>
+        <template data-combo-chip>
+            <span class="chip">
+                <span class="chip-label"></span>
+                <button class="chip-dismiss" type="button" aria-label="Remove {label}"><i class="ri-close-line"></i></button>
+                <input type="hidden" name="templates" />
+            </span>
+        </template>
+        <div class="form-combo-panel">
+            <div class="form-combo-list" id="cb-tasks-list" role="listbox" aria-multiselectable="true" aria-label="Task templates">
+                <div class="form-combo-group" role="presentation">
+                    <span id="cb-tasks-onboarding">Onboarding</span>
+                    <button class="form-combo-group-action" type="button" tabindex="-1" id="cb-tasks-onboarding-all"
+                            aria-labelledby="cb-tasks-onboarding-all cb-tasks-onboarding" data-combo-toggle-group>
+                        <span class="form-combo-group-pick">Select all</span>
+                        <span class="form-combo-group-unpick">Clear</span>
+                    </button>
+                </div>
+                <div class="form-combo-option" role="option" id="cb-tasks-welcome-letter" data-value="welcome-letter" aria-selected="true">Welcome letter</div>
+                <div class="form-combo-option" role="option" id="cb-tasks-account-setup" data-value="account-setup" aria-selected="false">Account setup checklist</div>
+                <div class="form-combo-option" role="option" id="cb-tasks-first-call" data-value="first-call" aria-selected="false">First check-in call</div>
+                <div class="form-combo-group" role="presentation">
+                    <span id="cb-tasks-billing">Billing</span>
+                    <button class="form-combo-group-action" type="button" tabindex="-1" id="cb-tasks-billing-all"
+                            aria-labelledby="cb-tasks-billing-all cb-tasks-billing" data-combo-toggle-group>
+                        <span class="form-combo-group-pick">Select all</span>
+                        <span class="form-combo-group-unpick">Clear</span>
+                    </button>
+                </div>
+                <div class="form-combo-option" role="option" id="cb-tasks-contract-renewal" data-value="contract-renewal" aria-selected="false">Contract renewal reminder</div>
+                <div class="form-combo-option" role="option" id="cb-tasks-overdue-invoice" data-value="overdue-invoice" aria-selected="false">Overdue invoice notice</div>
+                <div class="form-combo-option" role="option" id="cb-tasks-payment-receipt" data-value="payment-receipt" aria-selected="false">Payment receipt</div>
+                <div class="form-combo-option" role="option" id="cb-tasks-price-change" data-value="price-change" aria-selected="false">Price change notice</div>
+            </div>
+            <div class="form-combo-empty"><i class="ri-search-line"></i>No template matches.</div>
+        </div>
+    </div>
+</div>

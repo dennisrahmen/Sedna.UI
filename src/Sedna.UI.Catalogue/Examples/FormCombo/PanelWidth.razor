@@ -1,0 +1,69 @@
+<div class="sedna-grid sedna-grid--sm sedna-grid--fit">
+    <div class="form-field">
+        <label class="form-label" for="cb-reminder">Reminder</label>
+        <div class="form-combo" data-combo="single" data-combo-managed style="--form-combo-panel-width: 26rem">
+            <div class="form-combo-box">
+                <span class="form-combo-value">Contract renewal reminder for annual plans</span>
+                <input class="form-combo-input" id="cb-reminder" type="text" role="combobox" placeholder="Pick a template…"
+                       aria-expanded="false" aria-controls="cb-reminder-list" aria-autocomplete="list" autocomplete="off" />
+                <span class="form-combo-actions">
+                    <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show templates"><i class="ri-arrow-down-s-line"></i></button>
+                </span>
+            </div>
+            <input type="hidden" name="reminder" value="renewal-annual" data-combo-field />
+            <div class="form-combo-panel">
+                <div class="form-combo-list" id="cb-reminder-list" role="listbox" aria-label="Templates">
+                    <div class="form-combo-option" role="option" id="cb-reminder-annual" data-value="renewal-annual" aria-selected="true"><span class="form-combo-option-text">Contract renewal reminder for annual plans</span></div>
+                    <div class="form-combo-option" role="option" id="cb-reminder-monthly" data-value="renewal-monthly" aria-selected="false"><span class="form-combo-option-text">Contract renewal reminder for monthly plans</span></div>
+                    <div class="form-combo-option" role="option" id="cb-reminder-trial" data-value="trial-ending" aria-selected="false"><span class="form-combo-option-text">Trial ending notice</span></div>
+                </div>
+                <div class="form-combo-empty"><i class="ri-search-line"></i>No template matches.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="cb-notice">Notice</label>
+        <div class="form-combo form-combo--fit" data-combo="single" data-combo-managed>
+            <div class="form-combo-box">
+                <span class="form-combo-value">Overdue invoice notice, second reminder</span>
+                <input class="form-combo-input" id="cb-notice" type="text" role="combobox" placeholder="Pick a template…"
+                       aria-expanded="false" aria-controls="cb-notice-list" aria-autocomplete="list" autocomplete="off" />
+                <span class="form-combo-actions">
+                    <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show templates"><i class="ri-arrow-down-s-line"></i></button>
+                </span>
+            </div>
+            <input type="hidden" name="notice" value="overdue-second" data-combo-field />
+            <div class="form-combo-panel">
+                <div class="form-combo-list" id="cb-notice-list" role="listbox" aria-label="Templates">
+                    <div class="form-combo-option" role="option" id="cb-notice-first" data-value="overdue-first" aria-selected="false"><span class="form-combo-option-text">Overdue invoice notice, first reminder</span></div>
+                    <div class="form-combo-option" role="option" id="cb-notice-second" data-value="overdue-second" aria-selected="true"><span class="form-combo-option-text">Overdue invoice notice, second reminder</span></div>
+                    <div class="form-combo-option" role="option" id="cb-notice-final" data-value="overdue-final" aria-selected="false"><span class="form-combo-option-text">Overdue invoice notice, final reminder before collection</span></div>
+                </div>
+                <div class="form-combo-empty"><i class="ri-search-line"></i>No template matches.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="cb-wrap">On a phone</label>
+        <div class="form-combo form-combo--wrap" data-combo="single" data-combo-managed>
+            <div class="form-combo-box">
+                <span class="form-combo-value"></span>
+                <input class="form-combo-input" id="cb-wrap" type="text" role="combobox" placeholder="Pick a template…"
+                       aria-expanded="false" aria-controls="cb-wrap-list" aria-autocomplete="list" autocomplete="off" />
+                <span class="form-combo-actions">
+                    <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show templates"><i class="ri-arrow-down-s-line"></i></button>
+                </span>
+            </div>
+            <input type="hidden" name="phone" value="" data-combo-field />
+            <div class="form-combo-panel">
+                <div class="form-combo-list" id="cb-wrap-list" role="listbox" aria-label="Templates">
+                    <div class="form-combo-option" role="option" id="cb-wrap-standard" data-value="standard" aria-selected="false"><span class="form-combo-option-text">Contract renewal reminder for annual plans with a standard billing cycle</span></div>
+                    <div class="form-combo-option" role="option" id="cb-wrap-custom" data-value="custom" aria-selected="false"><span class="form-combo-option-text">Contract renewal reminder for annual plans with a custom billing cycle</span></div>
+                </div>
+                <div class="form-combo-empty"><i class="ri-search-line"></i>No template matches.</div>
+            </div>
+        </div>
+    </div>
+</div>

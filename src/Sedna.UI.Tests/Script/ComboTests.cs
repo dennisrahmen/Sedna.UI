@@ -373,4 +373,177 @@ public class ComboTests : ScriptTestBase
         await page.WaitForTimeoutAsync(100);
         Assert.Equal(1, await page.EvaluateAsync<int>("() => more"));
     }
+
+    // ── A group heading's action ────────────────────────────────────────────
+
+    private static string Action(string id) => $"""
+        <button class="form-combo-group-action" type="button" tabindex="-1" id="{id}" data-combo-toggle-group><span class="form-combo-group-pick">Select all</span><span class="form-combo-group-unpick">Clear</span></button>
+        """;
+
+    /// <summary>
+    /// Two groups of task templates: the first with a row already picked and one disabled, the
+    /// second with nothing picked.
+    /// </summary>
+    private static readonly string Grouped = $"""
+        <div class="form-combo-panel">
+            <div class="form-combo-list" id="list" role="listbox" aria-multiselectable="true">
+                <div class="form-combo-group" role="presentation" id="g1"><span>Onboarding</span>{Action("g1-all")}</div>
+                <div class="form-combo-option" role="option" id="o0" data-value="welcome" aria-selected="false">Welcome letter</div>
+                <div class="form-combo-option" role="option" id="o1" data-value="setup" aria-selected="true">Account setup checklist</div>
+                <div class="form-combo-option" role="option" id="o2" data-value="intro" aria-selected="false" aria-disabled="true">Archived introduction</div>
+                <div class="form-combo-group" role="presentation" id="g2"><span>Billing</span>{Action("g2-all")}</div>
+                <div class="form-combo-option" role="option" id="o3" data-value="renewal" aria-selected="false">Contract renewal reminder</div>
+                <div class="form-combo-option" role="option" id="o4" data-value="overdue" aria-selected="false">Overdue invoice notice</div>
+            </div>
+        </div>
+        """;
+
+    private const string CountClicks = """
+        () => { window.clicked = []; document.addEventListener('click', e => {
+            const o = e.target.closest('.form-combo-option, .form-combo-group-action'); if (o) clicked.push(o.id); }); }
+        """;
+
+    [Fact]
+    public async Task The_arrow_keys_stop_on_a_group_action_and_Enter_clicks_each_row_of_its_group_that_has_to_change()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Field("multi", panel: Grouped));
+        await page.EvaluateAsync(CountClicks);
+
+        await page.Locator("#q").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowDown");
+        // Opening lands on the picked row, never on an action, so Enter straight away cannot
+        // tick a whole group.
+        Assert.Equal("o1", await page.EvaluateAsync<string>("() => q.getAttribute('aria-activedescendant')"));
+
+        await page.Keyboard.PressAsync("ArrowUp");
+        await page.Keyboard.PressAsync("ArrowUp");
+        var onAction = await page.EvaluateAsync<string[]>("""
+            () => [q.getAttribute('aria-activedescendant'), String(document.querySelector('#g1-all').hasAttribute('data-active'))]
+            """);
+        Assert.Equal(["g1-all", "true"], onAction);
+
+        // Unpicked, enabled rows only: o1 is picked already and o2 is disabled.
+        await page.Keyboard.PressAsync("Enter");
+        var first = await page.EvaluateAsync<JsonElement>("""
+            () => ({ clicked, open: q.getAttribute('aria-expanded'), active: q.getAttribute('aria-activedescendant'),
+                     selected: document.querySelector('#o0').getAttribute('aria-selected'),
+                     focused: document.activeElement === q })
+            """);
+        Assert.Equal(["o0", "g1-all"], first.GetProperty("clicked").EnumerateArray().Select(e => e.GetString()));
+        Assert.Equal("true", first.GetProperty("open").GetString());
+        Assert.Equal("g1-all", first.GetProperty("active").GetString());
+        Assert.True(first.GetProperty("focused").GetBoolean());
+        // Unmanaged: the app selects in its own click handler, so nothing changed here.
+        Assert.Equal("false", first.GetProperty("selected").GetString());
+
+        // The app renders its selection; the heading follows, and the action reads "Clear".
+        await page.EvaluateAsync("() => { o0.setAttribute('aria-selected', 'true'); clicked.length = 0; }");
+        await page.WaitForTimeoutAsync(50);
+        var full = await page.EvaluateAsync<string[]>("""
+            () => [String(g1.hasAttribute('data-all-selected')), String(g2.hasAttribute('data-all-selected')),
+                   document.querySelector('#g1-all').innerText.trim()]
+            """);
+        Assert.Equal(["true", "false", "Clear"], full);
+
+        // Pressed again with the whole group picked, it unticks every enabled row.
+        await page.Keyboard.PressAsync("Enter");
+        Assert.Equal(["o0", "o1", "g1-all"], await page.EvaluateAsync<string[]>("() => clicked"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task The_arrow_keys_walk_rows_and_actions_in_order_past_a_disabled_row_and_a_hidden_group()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Field("multi", panel: Grouped));
+
+        await page.Locator("#q").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowDown");
+        var walk = new List<string> { await page.EvaluateAsync<string>("() => q.getAttribute('aria-activedescendant')") };
+        for (var i = 0; i < 3; i++)
+        {
+            await page.Keyboard.PressAsync("ArrowDown");
+            walk.Add(await page.EvaluateAsync<string>("() => q.getAttribute('aria-activedescendant')"));
+        }
+        // From the picked row, past the disabled one, onto the next heading's action.
+        Assert.Equal(["o1", "g2-all", "o3", "o4"], walk);
+
+        // A query that empties the first group hides its heading, and its action with it.
+        await page.Keyboard.TypeAsync("overdue");
+        await page.Keyboard.PressAsync("ArrowUp");
+        await page.Keyboard.PressAsync("ArrowUp");
+        var state = await page.EvaluateAsync<string[]>("""
+            () => [String(g1.hidden), q.getAttribute('aria-activedescendant')]
+            """);
+        Assert.Equal(["true", "g2-all"], state);
+    }
+
+    [Fact]
+    public async Task A_managed_group_action_picks_the_whole_group_with_a_pointer_and_takes_it_away_again()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Field("multi", attributes: "data-combo-managed",
+            panel: Template + Grouped));
+
+        await page.Locator("#q").ClickAsync();
+        await page.Locator("#g2-all").ClickAsync();
+
+        const string State = """
+            () => ({
+                chips: [...document.querySelectorAll('.form-combo-box > .chip')].map(c => c.getAttribute('data-value')),
+                full: g2.hasAttribute('data-all-selected'),
+                label: document.querySelector('#g2-all').innerText.trim(),
+                open: q.getAttribute('aria-expanded'),
+                focused: document.activeElement === q
+            })
+            """;
+        var picked = await page.EvaluateAsync<JsonElement>(State);
+        Assert.Equal(["renewal", "overdue"], picked.GetProperty("chips").EnumerateArray().Select(e => e.GetString()));
+        Assert.True(picked.GetProperty("full").GetBoolean());
+        Assert.Equal("Clear", picked.GetProperty("label").GetString());
+        Assert.Equal("true", picked.GetProperty("open").GetString());
+        Assert.True(picked.GetProperty("focused").GetBoolean());
+
+        await page.Locator("#g2-all").ClickAsync();
+        var cleared = await page.EvaluateAsync<JsonElement>(State);
+        Assert.Empty(cleared.GetProperty("chips").EnumerateArray());
+        Assert.False(cleared.GetProperty("full").GetBoolean());
+        Assert.Equal("Select all", cleared.GetProperty("label").GetString());
+
+        // An action without data-combo-toggle-group is the app's: the script clicks no row for it.
+        await page.EvaluateAsync("() => document.querySelector('#g2-all').removeAttribute('data-combo-toggle-group')");
+        await page.Locator("#g2-all").ClickAsync();
+        Assert.Empty((await page.EvaluateAsync<JsonElement>(State)).GetProperty("chips").EnumerateArray());
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_group_action_is_set_in_the_panels_own_case_on_the_headings_row()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Field("multi", panel: Grouped));
+        await page.Locator("#q").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowDown");
+
+        var m = await page.EvaluateAsync<JsonElement>("""
+            () => {
+                const heading = g2, action = document.querySelector('#g2-all');
+                const h = heading.getBoundingClientRect(), a = action.getBoundingClientRect(), n = heading.firstElementChild.getBoundingClientRect();
+                return {
+                    transform: getComputedStyle(action).textTransform,
+                    headingTransform: getComputedStyle(heading).textTransform,
+                    rightGap: h.right - a.right, nameLeft: n.left - h.left,
+                    sameRow: Math.abs((a.top + a.bottom) / 2 - (n.top + n.bottom) / 2) < 2
+                };
+            }
+            """);
+        Assert.Equal("none", m.GetProperty("transform").GetString());
+        Assert.Equal("uppercase", m.GetProperty("headingTransform").GetString());
+        Assert.True(m.GetProperty("sameRow").GetBoolean(), "The action is not on the heading's row.");
+        // The name on the left, the action against the right edge.
+        Assert.True(m.GetProperty("rightGap").GetDouble() < 20, $"The action ends {m.GetProperty("rightGap")}px short.");
+        Assert.True(m.GetProperty("nameLeft").GetDouble() < 20);
+        Assert.Empty(errors);
+    }
 }
