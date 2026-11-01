@@ -17,6 +17,8 @@
        tab stop with the arrow keys between its buttons;
      * only the formats the toolbar offers, so what is pasted is cut down to them;
      * the link form, placed at the text it is for;
+     * images and videos, from addresses the app supplies — through its own media form
+       or a call — and only addresses the editor can show;
      * the editable element's name, description and state, taken from the textarea's.
 
    The parts in editor-parts/ are this one module cut into files. They share its

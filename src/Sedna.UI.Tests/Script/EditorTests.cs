@@ -294,6 +294,200 @@ public class EditorTests : ScriptTestBase
         Assert.DoesNotContain("javascript:", await Value(page), StringComparison.Ordinal);
     }
 
+    // ── Images and videos ─────────────────────────────────────────────────────
+
+    private const string MediaToolbar = """
+        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+          <button type="button" data-editor-format="bold" aria-label="Bold" id="bold"></button>
+          <button type="button" data-editor-format="image" aria-label="Image" id="image"></button>
+          <button type="button" data-editor-format="video" aria-label="Video" id="video"></button>
+        </div>
+        """;
+
+    private const string MediaForm = """
+        <div class="editor-media" data-editor-media hidden id="media-form">
+          <span data-editor-media-for="image" id="for-image">Image</span>
+          <span data-editor-media-for="video" id="for-video">Video</span>
+          <input class="form-input" type="url" data-editor-media-url aria-label="Address" id="media-url" />
+          <input class="form-input" type="text" data-editor-media-alt aria-label="Description" id="media-alt" />
+          <button class="btn btn-sm" type="button" data-editor-media-save id="media-save">Insert</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel id="media-cancel">Cancel</button>
+        </div>
+        """;
+
+    private static string MediaEditor(string value = "") => Editor(value, toolbar: MediaToolbar, link: MediaForm);
+
+    private static Task<string> Html(IPage page) =>
+        page.EvaluateAsync<string>("() => sednaUi.editor.get('note').then(e => e.html())");
+
+    [Fact]
+    public async Task An_image_and_a_video_in_the_value_survive_the_round_trip()
+    {
+        if (NoBrowser) return;
+        const string html = """<p>Before <img src="https://example.com/chart.png" alt="Orders by week" width="320"> after</p><video controls="" src="https://example.com/clip.mp4" aria-label="The new checkout"></video><p>End</p>""";
+        var page = await OpenEditor(MediaEditor(System.Net.WebUtility.HtmlEncode(html)));
+
+        Assert.Equal(html, await Html(page));
+        await TypeAtEnd(page, "!");
+        Assert.Equal(html.Replace("<p>End</p>", "<p>End!</p>", StringComparison.Ordinal), await Value(page));
+        // The video never plays by itself.
+        Assert.False(await page.EvaluateAsync<bool>("() => document.querySelector('.ql-editor video').autoplay"));
+    }
+
+    [Fact]
+    public async Task A_video_written_with_a_source_element_keeps_its_address()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor(System.Net.WebUtility.HtmlEncode(
+            """<video controls autoplay><source src="/media/clip.webm" type="video/webm"></video>""")));
+        Assert.Equal("""<video controls="" src="/media/clip.webm"></video>""", await Html(page));
+        // Written back as it was: the line Quill keeps after a closing video is not the reader's.
+        await page.EvaluateAsync("() => sednaUi.editor.get('note').then(e => e.set(e.html()))");
+        Assert.Equal("""<video controls="" src="/media/clip.webm"></video>""", await Value(page));
+    }
+
+    [Fact]
+    public async Task An_editor_whose_toolbar_offers_no_media_cuts_it_away()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(Editor(System.Net.WebUtility.HtmlEncode(
+            """<p>A<img src="https://example.com/a.png">picture</p><video controls src="https://example.com/a.mp4"></video>""")));
+        Assert.Equal("<p>Apicture</p>", await Html(page));
+    }
+
+    [Fact]
+    public async Task A_pasted_image_or_video_from_an_address_the_editor_cannot_show_is_dropped()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor());
+        await page.EvaluateAsync("""
+            () => sednaUi.editor.get('note').then(e => e.set(
+                '<p>a<img src="data:image/png;base64,iVBORw0KGgo=">b<img src="javascript:alert(1)">c<img src="/kept.png">d</p>' +
+                '<video src="javascript:alert(1)"></video><video src="https://example.com/kept.mp4" autoplay onplay="alert(1)"></video>'))
+            """);
+        Assert.Equal("""<p>abc<img src="/kept.png">d</p><video controls="" src="https://example.com/kept.mp4"></video>""", await Value(page));
+    }
+
+    [Fact]
+    public async Task A_pasted_file_is_not_inlined_and_a_pasted_picture_keeps_its_address()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;x&lt;/p&gt;"));
+        await page.Locator(".ql-editor").ClickAsync();
+        await page.Keyboard.PressAsync("Control+End");
+
+        // A file alone — dropped from the desktop, a screenshot — is the app's to upload.
+        await Paste(page, html: null);
+        Assert.Equal("<p>x</p>", await Value(page));
+
+        // A picture copied from a page carries its HTML beside the file: the address is kept.
+        await Paste(page, html: """<img src="https://example.com/copied.png" alt="Copied">""");
+        Assert.Equal("""<p>x<img src="https://example.com/copied.png" alt="Copied"></p>""", await Value(page));
+    }
+
+    private static Task Paste(IPage page, string? html) => page.EvaluateAsync("""
+        html => {
+            const data = new DataTransfer();
+            data.items.add(new File([new Uint8Array([137, 80, 78, 71])], 'shot.png', { type: 'image/png' }));
+            if (html) data.setData('text/html', html);
+            document.querySelector('.ql-editor p').dispatchEvent(
+                new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+        }
+        """, html);
+
+    [Fact]
+    public async Task The_image_control_opens_the_apps_media_form_and_enter_inserts_at_the_caret()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;Week 12&lt;/p&gt;"));
+        await page.EvaluateAsync("() => { window.asked = []; document.addEventListener('sedna-editor-media', e => asked.push(e.detail)); }");
+        await TypeAtEnd(page, ":");
+
+        await page.Locator("#image").ClickAsync();
+        await Assertions.Expect(page.Locator("#media-form")).ToBeVisibleAsync();
+        Assert.Equal("image", await page.Locator("#media-form").GetAttributeAsync("data-editor-media-kind"));
+        await Assertions.Expect(page.Locator("#for-image")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("#for-video")).ToBeHiddenAsync();
+        Assert.Equal("media-url", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+        Assert.Equal("""[{"kind":"image","src":"","alt":""}]""", await page.EvaluateAsync<string>("() => JSON.stringify(asked)"));
+
+        // An address the editor would not keep is refused where it was typed.
+        await page.Locator("#media-url").FillAsync("javascript:alert(1)");
+        await page.Keyboard.PressAsync("Enter");
+        Assert.Equal("true", await page.Locator("#media-url").GetAttributeAsync("aria-invalid"));
+        await Assertions.Expect(page.Locator("#media-form")).ToBeVisibleAsync();
+
+        await page.Locator("#media-url").FillAsync("https://example.com/week-12.png");
+        await page.Locator("#media-alt").FillAsync("Orders in week 12");
+        await page.Keyboard.PressAsync("Enter");
+        await Assertions.Expect(page.Locator("#media-form")).ToBeHiddenAsync();
+        Assert.Equal("""<p>Week 12:<img src="https://example.com/week-12.png" alt="Orders in week 12"></p>""", await Value(page));
+        Assert.True(await page.EvaluateAsync<bool>("() => document.activeElement.classList.contains('ql-editor')"));
+        // Inserting is an act, not a state of the text.
+        Assert.Null(await Pressed(page, "image"));
+
+        // Opened on the image, the form holds it, and Insert replaces it.
+        await page.Keyboard.PressAsync("Shift+ArrowLeft");
+        await page.Locator("#image").ClickAsync();
+        await Assertions.Expect(page.Locator("#media-url")).ToHaveValueAsync("https://example.com/week-12.png");
+        await Assertions.Expect(page.Locator("#media-alt")).ToHaveValueAsync("Orders in week 12");
+        await page.Locator("#media-url").FillAsync("/charts/week-12.png");
+        await page.Locator("#media-save").ClickAsync();
+        Assert.Equal("""<p>Week 12:<img src="/charts/week-12.png" alt="Orders in week 12"></p>""", await Value(page));
+    }
+
+    [Fact]
+    public async Task The_video_control_inserts_a_video_block_with_controls()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;Watch this&lt;/p&gt;"));
+        await TypeAtEnd(page, "");
+        await page.Locator("#video").ClickAsync();
+        await Assertions.Expect(page.Locator("#for-video")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("#for-image")).ToBeHiddenAsync();
+        await page.Locator("#media-url").FillAsync("https://example.com/tour.webm");
+        await page.Locator("#media-alt").FillAsync("A tour of the queue");
+        await page.Keyboard.PressAsync("Enter");
+        Assert.Equal("""<p>Watch this</p><video controls="" src="https://example.com/tour.webm" aria-label="A tour of the queue"></video>""", await Value(page));
+    }
+
+    [Fact]
+    public async Task An_app_that_cancels_the_media_event_answers_with_its_own_address()
+    {
+        if (NoBrowser) return;
+        // The app opens its own dialog — an upload — instead of the form, then inserts.
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;Ab&lt;/p&gt;"));
+        await page.EvaluateAsync("() => document.addEventListener('sedna-editor-media', e => e.preventDefault())");
+        await page.Locator(".ql-editor").ClickAsync();
+        await page.Keyboard.PressAsync("Control+End");
+        await page.Keyboard.PressAsync("ArrowLeft");
+        await page.Locator("#image").ClickAsync();
+        await Assertions.Expect(page.Locator("#media-form")).ToBeHiddenAsync();
+        await page.EvaluateAsync("() => document.activeElement.blur()");
+
+        var state = await page.EvaluateAsync<JsonElement>(
+            "() => sednaUi.editor.invoke('note', 'image', ['/uploads/receipt.jpg', 'The receipt'])");
+        Assert.Equal("""<p>A<img src="/uploads/receipt.jpg" alt="The receipt">b</p>""", state.GetProperty("html").GetString());
+        Assert.Equal(state.GetProperty("html").GetString(), await Value(page));
+
+        await page.EvaluateAsync<JsonElement>("() => sednaUi.editor.invoke('note', 'video', ['https://example.com/a.mp4', ''])");
+        Assert.EndsWith("""<video controls="" src="https://example.com/a.mp4"></video><p>b</p>""", await Value(page), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task An_insert_the_editor_cannot_keep_answers_null_and_changes_nothing()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;x&lt;/p&gt;"));
+        Assert.True(await page.EvaluateAsync<bool>("() => sednaUi.editor.invoke('note', 'image', ['javascript:alert(1)', '']).then(r => r === null)"));
+        Assert.True(await page.EvaluateAsync<bool>("() => sednaUi.editor.invoke('note', 'video', ['data:video/mp4;base64,AAAA', '']).then(r => r === null)"));
+        Assert.Equal("<p>x</p>", await Html(page));
+
+        // An editor that offers no images takes none from a call either.
+        var plain = await OpenEditor(Editor("&lt;p&gt;x&lt;/p&gt;"));
+        Assert.True(await plain.EvaluateAsync<bool>("() => sednaUi.editor.invoke('note', 'image', ['https://example.com/a.png', '']).then(r => r === null)"));
+    }
+
     // ── The textarea's own state ──────────────────────────────────────────────
 
     [Fact]

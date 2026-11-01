@@ -2,7 +2,7 @@
 
 A document a reader writes with formatting — a note, a description, a message — edited in place and
 posted as HTML. The editor is a tier 3 surface (see [surfaces.md](surfaces.md)): the app writes the
-frame, the toolbar, the link form and a `<textarea>` that holds the value; the library ships the
+frame, the toolbar, the link and media forms and a `<textarea>` that holds the value; the library ships the
 engine, [Quill](https://quilljs.com/) 2, and loads it the first time a page shows an editor.
 
 ## An editor
@@ -49,6 +49,7 @@ toolbar with `role="toolbar"` is one tab stop: the arrow keys, Home and End move
 | `data-editor-format="blockquote"`, `"code-block"` | A quote, a code block. |
 | `data-editor-format="align" value="center"`, `"right"`, `"justify"` | Alignment; no value is the start edge. |
 | `data-editor-format="link"` | Opens the link form. |
+| `data-editor-format="image"`, `"video"` | Sends `sedna-editor-media`, then opens the media form. |
 | `data-editor-action="undo"`, `"redo"` | Undo, redo — `disabled` while there is nothing to undo or redo. |
 | `data-editor-action="indent"`, `"outdent"` | One level in or out. |
 | `data-editor-action="clean"` | Removes the formatting from the selection. |
@@ -76,6 +77,70 @@ It is filled with the address of the link under the caret, and **Remove** shows 
 With no text selected, the address is written as the link's text. Only `http`, `https`, `mailto`,
 `tel` and `sms` addresses are kept; anything else is written as `about:blank`.
 
+## Images and videos
+
+An image sits in its line as `<img src alt>`; a video is a block of its own, `<video controls src>`,
+which never plays by itself. Both are formats like any other: an editor holds them only when its
+toolbar offers `data-editor-format="image"` or `"video"`, or `data-editor-formats` names them, and what
+is pasted into one that does not is cut down without them. `width` and `height` are kept on both,
+`alt` on an image, and `poster` and `aria-label` on a video; a video written with a `<source src>`
+inside it is written back with `src`.
+
+**Only `http`, `https` and relative addresses are kept.** An image or a video from any other — a
+`data:` image, a `javascript:` anything — is dropped from what is loaded or pasted. A file pasted or
+dropped into the document is not inlined either: **uploading is the app's.** It puts the file where
+it can be fetched and hands the editor the address, through its own form or a call.
+
+### The media form
+
+The app's own form, written once inside the editor, which an image or video control opens at the caret:
+
+```html
+<div class="editor-media" data-editor-media hidden>
+  <input class="form-input" type="url" data-editor-media-url aria-label="Address" placeholder="https://" />
+  <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="image" aria-label="What the image shows" />
+  <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="video" aria-label="What the video is about" />
+  <button class="btn btn-sm" type="button" data-editor-media-save>Insert</button>
+  <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel>Cancel</button>
+</div>
+```
+
+- `[data-editor-media-url]` takes the address, `[data-editor-media-alt]` the description — an image's
+  `alt`, a video's `aria-label`.
+- `data-editor-media-kind` on the form says which it is open for, `image` or `video`. An element inside
+  it with `data-editor-media-for="image"` or `"video"` shows only for that kind, and a field marked so is
+  the field for that kind.
+- Opened on an image or a video, it is filled with it, and Insert replaces it.
+- Enter inserts, Escape closes, and a press outside it closes it. An address the editor would not keep
+  marks the address field `aria-invalid` and leaves the form open; an empty one closes it.
+
+An upload belongs in the app's own markup: a file field or a dropzone in the form that, once the file
+is stored, writes its address into `[data-editor-media-url]`.
+
+### Your own dialog
+
+Before the form opens, the editor sends `sedna-editor-media`, cancelable, with `{ kind, src, alt }` —
+the image or video under the caret, or empty strings. An app that would rather open its own dialog
+cancels it — the form stays shut, and an editor with no form needs nothing else — and answers with the
+handle's `insertImage(url, alt)` or `insertVideo(url, label)`, or `ISednaEditors.InsertImageAsync` and
+`InsertVideoAsync`. Each puts the media where the caret was, or in place of the media it is on, and
+answers null, inserting nothing, when the address is not one the editor keeps or the editor does not
+take that kind.
+
+```razor
+<div class="editor" data-editor id="report" @onsedna-editor-media="PickImage" @onsedna-editor-media:preventDefault>
+  …the toolbar, with data-editor-format="image"…
+</div>
+
+@code {
+    private async Task PickImage(SednaEditorMediaEventArgs e)
+    {
+        var url = await UploadDialog.ShowAsync();   // the app's own
+        if (url is not null) await Editors.InsertImageAsync("report", url, "The damaged pallet");
+    }
+}
+```
+
 ## The keyboard
 
 | Keys | In the document |
@@ -100,7 +165,8 @@ The textarea is the field, so everything that reads a field reads the editor:
 - **`required`** is held by the editor: an empty one stops the submit, is marked `aria-invalid` and takes
   the focus.
 
-The HTML written is the editor's own: lists as `<ul>` and `<ol>`, headings, paragraphs, links, and only
+The HTML written is the editor's own: lists as `<ul>` and `<ol>`, headings, paragraphs, links, images
+and videos, and only
 the formats the editor accepts. A value loaded from the textarea is cut down the same way. That is a
 convenience, not a sanitiser — what arrives at the server is still the server's to check.
 
@@ -112,9 +178,11 @@ Bubbling from the `[data-editor]` element, with plain data in `detail`:
 |---|---|
 | `sedna-editor-ready` | `{ html, text, length, isEmpty }`, once the document has loaded. |
 | `sedna-editor-change` | The same, after each change. |
+| `sedna-editor-media` | `{ kind, src, alt }`, cancelable, before the media form opens. |
 
 From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor-change`, each a
-`SednaEditorEventArgs`.
+`SednaEditorEventArgs`, and `@onsedna-editor-media`, a `SednaEditorMediaEventArgs` —
+`@onsedna-editor-media:preventDefault` cancels it.
 
 ## Script
 
@@ -126,6 +194,8 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `html()` | The document as HTML. |
 | `set(html)` | Replaces the document, as a paste would; the textarea follows with its events. |
 | `insert(text)` | Types text at the caret, or at the end. |
+| `insertImage(url, alt)` | An image at the caret, or in place of the one it is on; null when it is not kept. |
+| `insertVideo(url, label)` | A video, the same way. |
 | `focus()` | Puts the focus in the document. |
 | `enable(on)` | Lets the reader edit, or stops them — by the textarea's `disabled`. |
 | `quill` | The engine. Quill's own API, not versioned by Sedna.UI. |
@@ -142,6 +212,8 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `GetStateAsync(id)` | A `SednaEditorState` — `Html`, `Text`, `Length`, `IsEmpty` — or null when there is no such editor. |
 | `SetHtmlAsync(id, html)` | Replaces the document. |
 | `InsertTextAsync(id, text)` | Types text at the caret. |
+| `InsertImageAsync(id, url, alt)` | An image at the caret; null when it is not kept. |
+| `InsertVideoAsync(id, url, label)` | A video at the caret; null when it is not kept. |
 | `FocusAsync(id)` | Puts the focus in the document. |
 | `SetEnabledAsync(id, enabled)` | Lets the reader edit, or stops them. |
 

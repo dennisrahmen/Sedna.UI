@@ -2,7 +2,7 @@
 
 <CatHead Title="Rich-text editor" Tier="@CatHead.Tier3">
     A document a reader writes with formatting &mdash; a note, a description, a reply &mdash; posted as
-    HTML. Your markup is the frame, the toolbar, the link form and a <code>&lt;textarea&gt;</code> that
+    HTML. Your markup is the frame, the toolbar, the link and media forms and a <code>&lt;textarea&gt;</code> that
     holds the value; the library ships the engine and loads it the first time a page shows an editor.
 </CatHead>
 
@@ -55,6 +55,41 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Editor.Media" Title="Images and videos" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; put the caret on a line and use the image or video button.</strong>
+        <code>data-editor-format="image"</code> and <code>"video"</code> open your own form,
+        <code>.editor-media[data-editor-media]</code>, written once inside the editor and placed at the caret
+        like the link form: <code>[data-editor-media-url]</code> takes the address,
+        <code>[data-editor-media-alt]</code> the description &mdash; an image's <code>alt</code>, a video's
+        <code>aria-label</code> &mdash; and <code>[data-editor-media-save]</code> inserts. The form says which it
+        is for in <code>data-editor-media-kind</code>, and shows an element marked
+        <code>data-editor-media-for="image"</code> or <code>"video"</code> only for that kind. Opened on an image
+        or a video, it is filled with it, and Insert replaces it.
+    </p>
+    <p>
+        An image sits in its line as <code>&lt;img src alt&gt;</code>; a video is a block of its own,
+        <code>&lt;video controls src&gt;</code>, which never plays by itself. Both are formats like any other: an
+        editor whose toolbar offers neither cuts them out of what is pasted. Only <code>http</code>,
+        <code>https</code> and relative addresses are kept &mdash; a <code>data:</code> image is dropped, and a
+        file pasted or dropped into the document is not inlined. <strong>Uploading is the app's</strong>: put the
+        file where it can be fetched, and hand the editor its address.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.EditorImagePicker" Title="Your own picker for images" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; put the caret in the report, then add a photo.</strong> Before the media form opens,
+        the editor sends <code>sedna-editor-media</code> with <code>{ kind, src, alt }</code>. Cancel it with
+        <code>@@onsedna-editor-media:preventDefault</code> and the form stays shut: open your own dialog &mdash;
+        an upload, a media library &mdash; and answer with
+        <code>ISednaEditors.InsertImageAsync(id, url, alt)</code> or <code>InsertVideoAsync(id, url, label)</code>,
+        which put the media where the caret was and answer null when the address is not one the editor keeps.
+        From script, it is <code>insertImage(url, alt)</code> and <code>insertVideo(url, label)</code> on the
+        editor's handle.
+    </p>
+</CatExample>
+
 <h2 id="link-form">The link form <CatAnchor Id="link-form" /></h2>
 <p class="cat-lede">
     Your own form, written once inside the editor as <code>.editor-link[data-editor-link]</code>, which the
@@ -104,6 +139,7 @@
             <tr><td><code>data-editor-format="blockquote"</code>, <code>"code-block"</code></td><td>A quote, a code block.</td></tr>
             <tr><td><code>data-editor-format="align"</code> with <code>value="center"</code>, <code>"right"</code> or <code>"justify"</code></td><td>Alignment; no value is the start edge.</td></tr>
             <tr><td><code>data-editor-format="link"</code></td><td>Opens the link form.</td></tr>
+            <tr><td><code>data-editor-format="image"</code>, <code>"video"</code></td><td>Sends <code>sedna-editor-media</code>, then opens the media form.</td></tr>
             <tr><td><code>data-editor-action="undo"</code>, <code>"redo"</code>, <code>"indent"</code>, <code>"outdent"</code>, <code>"clean"</code></td><td>Undo, redo, one level in or out, and removing the formatting from the selection.</td></tr>
             <tr><td><code>data-editor-formats="bold italic link"</code> on the editor</td><td>The formats it accepts, instead of the ones its toolbar offers.</td></tr>
             <tr><td><code>data-editor-eager</code> on the editor</td><td>Starts it at once, rather than when it scrolls near.</td></tr>
@@ -118,6 +154,7 @@
         <tbody>
             <tr><td><code>sedna-editor-ready</code></td><td><code>{ html, text, length, isEmpty }</code>, once the document has loaded.</td></tr>
             <tr><td><code>sedna-editor-change</code></td><td>The same, after each change.</td></tr>
+            <tr><td><code>sedna-editor-media</code></td><td><code>{ kind, src, alt }</code>, cancelable, before the media form opens: the image or video under the caret, or empty strings.</td></tr>
             <tr><td>the textarea's <code>input</code>, <code>change</code></td><td>As a textarea sends them: at each change, and when the focus leaves after one.</td></tr>
         </tbody>
     </table>

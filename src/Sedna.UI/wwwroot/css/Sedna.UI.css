@@ -5578,6 +5578,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     padding: var(--space-5) var(--space-6); overflow-x: auto; margin: 0.6em 0;
 }
 .markdown-body pre code { background: none; border: none; padding: 0; }
+/* An image or a video in the text is never wider than it, and keeps its proportions. */
+.markdown-body :is(img, video) { max-inline-size: 100%; block-size: auto; border-radius: var(--radius-inner); }
 .markdown-body blockquote {
     border-inline-start: 3px solid var(--border);
     margin: 0.6em 0; padding: 0.2em 0 0.2em 0.8em;
@@ -5592,7 +5594,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 /* ── The rich-text editor ─────────────────────────────────────────────────────
    The library's rich-text editor, a tier 3 surface: `[data-editor]` inside the `.editor`
    chrome (44-markdown.css), driven by the editor module and the Quill it ships. The app
-   writes the frame, the toolbar, the link form and the textarea that holds the value;
+   writes the frame, the toolbar, the link and media forms and the textarea that holds the value;
    Quill writes the document inside `.editor-body`, and this part dresses what it writes.
    docs/editor.md is the reference.
 
@@ -5604,7 +5606,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    it. */
 .editor { position: relative; }
 @media (scripting: none) {
-    .editor :is(.editor-toolbar, .editor-body, [data-editor-link]) { display: none; }
+    .editor :is(.editor-toolbar, .editor-body, [data-editor-link], [data-editor-media]) { display: none; }
     .editor textarea[data-editor-value] {
         display: block;
         box-sizing: border-box;
@@ -5781,6 +5783,22 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .editor .ql-editor .ql-size-huge { font-size: 2.5em; }
 .editor .ql-editor .ql-font-monospace { font-family: var(--font-mono); }
 .editor .ql-editor .ql-video { display: block; max-width: 100%; }
+/* An image sits in its line and a video is a block of its own; neither is wider than the
+   document, and both keep their proportions when a width is written on them. */
+.editor .ql-editor img {
+    max-inline-size: 100%;
+    block-size: auto;
+    vertical-align: bottom;
+    border-radius: var(--radius-inner);
+}
+.editor .ql-editor video {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    margin: 0.8em 0;
+    border-radius: var(--radius-inner);
+    background: var(--bg-elevated);
+}
 .editor .ql-editor code {
     font-family: var(--font-mono);
     font-size: 0.9em;
@@ -5803,11 +5821,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .editor .ql-editor .ql-code-block-container .ql-ui { top: var(--space-2); inset-inline-end: var(--space-2); }
 .editor .ql-editor a { color: var(--accent); text-decoration: underline; }
 
-/* ── The link form ──────────────────────────────────────────────────────────
-   The app's form for a link's address, `[data-editor-link]`, which the script opens
-   beneath the text it is for and places with a transform. A dropdown panel, on the
-   dropdown rung of the z-index scale. */
-.editor-link {
+/* ── The link form and the media form ───────────────────────────────────────
+   The app's forms for a link's address, `[data-editor-link]`, and for an image's or a
+   video's, `[data-editor-media]`, which the script opens beneath the text they are for
+   and places with a transform. Dropdown panels, on the dropdown rung of the z-index
+   scale. */
+.editor-link,
+.editor-media {
     position: absolute;
     inset-block-start: 0;
     inset-inline-start: 0;
@@ -5822,8 +5842,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     box-shadow: var(--shadow-dropdown);
 }
 .editor-link[hidden],
-.editor-link [hidden] { display: none; }
-.editor-link .form-input { inline-size: 16rem; }
+.editor-link [hidden],
+.editor-media[hidden],
+.editor-media [hidden] { display: none; }
+.editor-link .form-input,
+.editor-media .form-input { inline-size: 16rem; }
+/* The media form is the one with a second field; it wraps rather than leaving the frame. */
+.editor-media { flex-wrap: wrap; max-inline-size: calc(100% - 2 * var(--space-4)); }
+.editor-media .form-input { flex: 1 1 12rem; inline-size: auto; }
 }
 
 /* ── 45-form-controls.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -11225,6 +11251,7 @@ button.list-row[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor
 }
 .prose hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 .prose img { max-width: 100%; height: auto; border-radius: var(--radius-inner); }
+.prose video { display: block; max-width: 100%; height: auto; margin: 1em 0; border-radius: var(--radius-inner); }
 /* A table in untrusted prose is the one thing that breaks the page width, because
    its own content sets its minimum size. */
 .prose table { display: block; overflow-x: auto; max-width: 100%; border-collapse: collapse; }

@@ -12,6 +12,7 @@
      20-value.js
      30-toolbar.js
      40-link.js
+     50-media.js
      70-editor.js
      99-exports.js
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -36,6 +37,8 @@
        tab stop with the arrow keys between its buttons;
      * only the formats the toolbar offers, so what is pasted is cut down to them;
      * the link form, placed at the text it is for;
+     * images and videos, from addresses the app supplies — through its own media form
+       or a call — and only addresses the editor can show;
      * the editable element's name, description and state, taken from the textarea's.
 
    The parts in editor-parts/ are this one module cut into files. They share its
@@ -63,7 +66,7 @@ import Quill from '../lib/quill/quill.js';
    A format is one of Quill's, named on the control; a control with a `value` sets that
    value, and a `<select>` sets the one chosen:
 
-     bold italic underline strike code script(sub|super) link
+     bold italic underline strike code script(sub|super) link image video
      header(1–6) list(bullet|ordered|check) blockquote code-block align(center|right|justify)
 
    The formats an editor accepts are the ones its toolbar offers — so what is pasted in
@@ -72,7 +75,7 @@ import Quill from '../lib/quill/quill.js';
    it shows no button for.
    ─────────────────────────────────────────────────────────────────────────── */
 
-const FORMATS = ['bold', 'italic', 'underline', 'strike', 'code', 'script', 'link',
+const FORMATS = ['bold', 'italic', 'underline', 'strike', 'code', 'script', 'link', 'image', 'video',
     'header', 'list', 'blockquote', 'code-block', 'align', 'indent'];
 const CONTROL = '[data-editor-format],[data-editor-action]';
 
@@ -93,7 +96,8 @@ function readMarkup(el) {
     const body = el.querySelector('[data-editor-body]') || el.querySelector('.editor-body');
     const toolbar = el.querySelector('[role="toolbar"]') || el.querySelector('.editor-toolbar');
     const link = el.querySelector('[data-editor-link]');
-    return { value, body, toolbar, link };
+    const media = el.querySelector('[data-editor-media]');
+    return { value, body, toolbar, link, media };
 }
 
 /* The formats this editor accepts, as Quill names them. A list needs indent, for its
@@ -136,10 +140,15 @@ const VALUE = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'va
 
 /* The document as HTML. An empty document is the empty string, not an empty paragraph.
    Quill writes every space in the semantic HTML as a non-breaking one; a lone one is
-   put back as a space, and a run keeps all but its first, so it still shows as a run. */
+   put back as a space, and a run keeps all but its first, so it still shows as a run.
+   A document that ends in a video has an empty line after it, which Quill must hold and
+   the reader did not write: it is left out, so a value ending in a video loads and is
+   written back as it was. */
 function htmlOf(quill) {
     if (quill.getLength() <= 1 && !quill.getContents().ops.some(op => typeof op.insert === 'object')) return '';
-    return quill.getSemanticHTML().replace(/(?:&nbsp;)+/g, run => ' ' + '&nbsp;'.repeat(run.length / 6 - 1));
+    return quill.getSemanticHTML()
+        .replace(/(?:&nbsp;)+/g, run => ' ' + '&nbsp;'.repeat(run.length / 6 - 1))
+        .replace(/(<\/video>)<p><\/p>$/, '$1');
 }
 
 function stateOf(e) {
@@ -267,6 +276,8 @@ function reflect(e) {
     for (const c of e.controls) {
         const name = c.getAttribute('data-editor-format');
         if (name) {
+            // Inserting an image or a video is an act, not a state of the text: no aria-pressed.
+            if (MEDIA.includes(name)) continue;
             if (c.tagName === 'SELECT') {
                 const now = format[name];
                 c.value = now === undefined || now === false || now === null ? '' : String(now);
@@ -295,6 +306,7 @@ function applyFormat(e, c) {
     const q = e.quill;
     const name = c.getAttribute('data-editor-format');
     if (name === 'link') return openLink(e);
+    if (MEDIA.includes(name)) return openMedia(e, name);
     const range = q.getSelection(true);
     if (!range) return;
     if (c.tagName === 'SELECT') {
@@ -438,13 +450,12 @@ function openLink(e) {
     if (url) url.value = existing ? existing.href : '';
     if (remove) remove.hidden = !existing;
     panel.hidden = false;
-    placeLink(e, existing || range);
+    place(e, panel, existing || range);
     (url || panel).focus({ preventScroll: true });
 }
 
-// Beneath the text it is for, inside the editor's frame.
-function placeLink(e, range) {
-    const panel = e.link;
+// A form beneath the text it is for, inside the editor's frame: the link form, the media form.
+function place(e, panel, range) {
     const bounds = e.quill.getBounds(range.index, range.length);
     if (!bounds) return;
     const frame = e.el.getBoundingClientRect();
@@ -524,11 +535,284 @@ function wireLink(e) {
     }, true);
 }
 
+/* ── 50-media.js ──────────────────────────────────────────────── */
+/* ── Images and videos ────────────────────────────────────────────────────────
+   An image is `<img src alt>` inside a line, as Quill writes it; a video is a block of
+   its own, `<video controls src>` — never autoplaying, never an iframe. Both are formats
+   like any other: an editor holds them only when its toolbar offers them —
+
+     <button … data-editor-format="image" aria-label="Image"><i class="ri-image-line"></i></button>
+     <button … data-editor-format="video" aria-label="Video"><i class="ri-video-line"></i></button>
+
+   — or `data-editor-formats` names them, so a pasted picture is cut away from an editor
+   that cannot take one. What is kept is an address the editor can show: http, https or
+   a relative one. A `data:` image, a `javascript:` anything and a file pasted or dropped
+   into the document are not kept. Uploading is the app's: the app puts the file where it
+   can be fetched and hands the editor the address.
+
+   A media control opens the app's own form, written once inside the editor and placed
+   at the caret as the link form is:
+
+     <div class="editor-media" data-editor-media hidden>
+       <input class="form-input" type="url" data-editor-media-url aria-label="Address" />
+       <input class="form-input" type="text" data-editor-media-alt aria-label="Description" />
+       <button class="btn btn-sm" type="button" data-editor-media-save>Insert</button>
+       <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel>Cancel</button>
+     </div>
+
+   It says which it is for in `data-editor-media-kind` — image or video — and shows only
+   the elements inside it whose `data-editor-media-for` names that kind, or that carry
+   none: a field marked for one kind is the field for that kind. Opened on an image or a video, it is filled with its address and description and
+   Insert replaces it. An address the editor would not keep marks the address field
+   `aria-invalid` and leaves the form open.
+
+   Before the form opens, the editor sends `sedna-editor-media`, cancelable, with
+   `{ kind, src, alt }` — the media under the caret, or empty strings. An app that would
+   rather open its own dialog — with an upload in it — cancels it and answers with
+   `insertImage(url, alt)` or `insertVideo(url, label)`, which put the media where the
+   caret was.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const Delta = Quill.import('delta');
+const MEDIA = ['image', 'video'];
+
+/* The address as given, if it is one the editor keeps — http, https or relative, resolved
+   the way the browser would resolve it — or null. */
+function mediaUrl(url) {
+    const s = String(url ?? '').trim();
+    if (!s) return null;
+    try {
+        const { protocol } = new URL(s, document.baseURI);
+        return protocol === 'http:' || protocol === 'https:' ? s : null;
+    } catch (x) {
+        return null;
+    }
+}
+
+/* Quill's image, keeping only the addresses above: anything else is written as Quill
+   writes an address it refuses, and the clipboard below has already dropped it. */
+const QuillImage = Quill.import('formats/image');
+class SednaImage extends QuillImage {
+    static sanitize(url) { return mediaUrl(url) ?? '//:0'; }
+}
+
+/* A video the browser plays itself. Quill's own `video` is an iframe — a page from
+   anywhere, framed inside the document — so this replaces it under the same name. */
+const BlockEmbed = Quill.import('blots/block/embed');
+const VIDEO_ATTRIBUTES = ['width', 'height', 'poster', 'aria-label'];
+class SednaVideo extends BlockEmbed {
+    static blotName = 'video';
+    static tagName = 'VIDEO';
+
+    static create(value) {
+        const node = super.create(value);
+        node.setAttribute('controls', '');
+        node.setAttribute('src', mediaUrl(value) ?? '//:0');
+        return node;
+    }
+
+    // `<video src>`, or the first `<source src>` inside it — which is written back as `src`.
+    static value(node) {
+        return node.getAttribute('src') || node.querySelector('source[src]')?.getAttribute('src') || '';
+    }
+
+    static formats(node) {
+        return VIDEO_ATTRIBUTES.reduce((f, name) => {
+            if (node.hasAttribute(name)) f[name] = node.getAttribute(name);
+            return f;
+        }, {});
+    }
+
+    format(name, value) {
+        if (!VIDEO_ATTRIBUTES.includes(name)) return super.format(name, value);
+        if (name === 'poster' && value) value = mediaUrl(value);
+        if (value) this.domNode.setAttribute(name, value);
+        else this.domNode.removeAttribute(name);
+    }
+}
+
+Quill.register({ 'formats/image': SednaImage, 'formats/video': SednaVideo }, true);
+
+/* What arrives as HTML — a paste, the textarea's value — loses an image or a video whose
+   address the editor would not keep, rather than keeping a broken one. */
+function dropUnsafe(kind) {
+    return (node, delta) => {
+        const src = kind === 'image' ? node.getAttribute('src') : SednaVideo.value(node);
+        return mediaUrl(src) ? delta : new Delta();
+    };
+}
+const MEDIA_MATCHERS = [['img', dropUnsafe('image')], ['video', dropUnsafe('video')]];
+
+/* A file pasted or dropped into the document is not inlined: uploading is the app's. A
+   paste that carries HTML as well — a picture copied from a page — is pasted as HTML, so
+   its address is kept rather than the file. */
+const NO_UPLOAD = { handler() { /* the app uploads; see the header */ } };
+
+function wirePaste(e) {
+    const q = e.quill;
+    const onPaste = ev => {
+        const data = ev.clipboardData;
+        const html = data?.getData('text/html');
+        if (ev.defaultPrevented || !q.isEnabled() || !html || !data.files?.length) return;
+        ev.preventDefault();
+        const range = q.getSelection(true);
+        if (range) q.clipboard.onPaste(range, { html, text: data.getData('text/plain') });
+    };
+    q.root.addEventListener('paste', onPaste, true);
+    e.cleanups.push(() => q.root.removeEventListener('paste', onPaste, true));
+}
+
+// The image or video the selection is exactly, as its kind, index, address and description — or null.
+function mediaAt(q, range) {
+    if (!range || range.length !== 1) return null;
+    const op = q.getContents(range.index, 1).ops[0];
+    if (!op || typeof op.insert !== 'object') return null;
+    const kind = MEDIA.find(k => k in op.insert);
+    if (!kind) return null;
+    const alt = op.attributes?.[kind === 'image' ? 'alt' : 'aria-label'] ?? '';
+    return { kind, index: range.index, src: String(op.insert[kind] ?? ''), alt };
+}
+
+/* Puts an image or a video in place of the range — the caret, the media it is on — and
+   the caret after it. Null when the editor does not take that kind or the address is not
+   one it keeps. */
+function insertMedia(e, kind, url, alt, range) {
+    const q = e.quill;
+    if (!q.scroll.query(kind)) {
+        warnOnce('media:' + kind, `this editor does not take a ${kind}: offer data-editor-format="${kind}" or name it in data-editor-formats.`);
+        return null;
+    }
+    const src = mediaUrl(url);
+    if (!src) return null;
+    const at = range || q.getSelection() || e.lastRange || { index: q.getLength() - 1, length: 0 };
+    const text = String(alt ?? '').trim();
+    q.updateContents(new Delta().retain(at.index).delete(at.length).insert({ [kind]: src }), 'user');
+    // A video put in the middle of a line starts a line of its own, one place on — and Quill
+    // formats the place it was asked for, so the description is written once it is there.
+    const index = [at.index, at.index + 1].find(i => {
+        const op = q.getContents(i, 1).ops[0];
+        return op && typeof op.insert === 'object' && op.insert[kind] === src;
+    }) ?? at.index;
+    if (text) q.formatText(index, 1, kind === 'image' ? 'alt' : 'aria-label', text, 'user');
+    q.setSelection(index + 1, 0, 'silent');
+    e.lastRange = { index: index + 1, length: 0 };
+    return stateOf(e);
+}
+
+// The form's field for this kind: the first one not set aside for the other kind.
+function fieldOf(panel, name, kind) {
+    return Array.from(panel.querySelectorAll(`[${name}]`)).find(f => {
+        const only = f.closest('[data-editor-media-for]');
+        return !only || only.getAttribute('data-editor-media-for') === kind;
+    }) || null;
+}
+
+function openMedia(e, kind) {
+    const q = e.quill;
+    const range = q.getSelection(true) || e.lastRange;
+    if (!range) return;
+    const on = mediaAt(q, range);
+    const existing = on && on.kind === kind ? on : null;
+    const asked = e.emit('sedna-editor-media', { kind, src: existing?.src ?? '', alt: existing?.alt ?? '' }, true);
+    const panel = e.media;
+    if (!asked || !panel) {
+        if (asked) warnOnce('media', 'an image or video control needs the app\'s [data-editor-media] form inside the editor, or a sedna-editor-media listener that cancels the event and inserts.');
+        return;
+    }
+    e.mediaing = { kind, range };
+    panel.setAttribute('data-editor-media-kind', kind);
+    for (const part of panel.querySelectorAll('[data-editor-media-for]')) {
+        part.hidden = part.getAttribute('data-editor-media-for') !== kind;
+    }
+    const url = fieldOf(panel, 'data-editor-media-url', kind);
+    const alt = fieldOf(panel, 'data-editor-media-alt', kind);
+    if (url) {
+        url.value = existing ? existing.src : '';
+        url.removeAttribute('aria-invalid');
+    }
+    if (alt) alt.value = existing ? existing.alt : '';
+    panel.hidden = false;
+    place(e, panel, range);
+    (url || panel).focus({ preventScroll: true });
+}
+
+function closeMedia(e, refocus) {
+    if (!e.media || e.media.hidden) return;
+    e.media.hidden = true;
+    const was = e.mediaing;
+    e.mediaing = null;
+    if (refocus) {
+        e.quill.focus();
+        if (was) e.quill.setSelection(was.range.index + was.range.length, 0, 'silent');
+    }
+}
+
+function saveMedia(e) {
+    const was = e.mediaing;
+    if (!was) return;
+    const url = fieldOf(e.media, 'data-editor-media-url', was.kind);
+    const alt = fieldOf(e.media, 'data-editor-media-alt', was.kind);
+    const given = (url?.value || '').trim();
+    if (!given) return closeMedia(e, true);
+    if (!mediaUrl(given)) {
+        if (url) {
+            url.setAttribute('aria-invalid', 'true');
+            url.focus();
+        }
+        return;
+    }
+    e.mediaing = null;
+    e.media.hidden = true;
+    e.quill.focus();
+    insertMedia(e, was.kind, given, alt?.value, was.range);
+    reflect(e);
+}
+
+function wireMedia(e) {
+    wirePaste(e);
+    const panel = e.media;
+    if (!panel) return;
+    const on = (target, type, fn, opts) => {
+        target.addEventListener(type, fn, opts);
+        e.cleanups.push(() => target.removeEventListener(type, fn, opts));
+    };
+    on(panel, 'click', ev => {
+        if (ev.target.closest('[data-editor-media-save]')) saveMedia(e);
+        else if (ev.target.closest('[data-editor-media-cancel]')) closeMedia(e, true);
+    });
+    on(panel, 'keydown', ev => {
+        if (ev.key === 'Enter' && ev.target.matches('input')) {
+            ev.preventDefault();
+            saveMedia(e);
+        } else if (ev.key === 'Escape') {
+            ev.preventDefault();
+            ev.stopPropagation();
+            closeMedia(e, true);
+        }
+    });
+    on(panel, 'input', ev => {
+        if (ev.target.matches('[data-editor-media-url]')) ev.target.removeAttribute('aria-invalid');
+    });
+    // A press anywhere else closes it, leaving the focus where the press put it.
+    on(document, 'pointerdown', ev => {
+        if (!panel.hidden && !panel.contains(ev.target) && !ev.target.closest?.('[data-editor-format="image"],[data-editor-format="video"]')) closeMedia(e, false);
+    }, true);
+}
+
+/* The range an insert from the app replaces: the open media form's, which it then closes,
+   or none — the caret, as insertMedia finds it. */
+function takeMediaRange(e) {
+    const was = e.mediaing;
+    if (!was) return null;
+    closeMedia(e, false);
+    return was.range;
+}
+
 /* ── 70-editor.js ──────────────────────────────────────────────── */
 /* ── An editor ────────────────────────────────────────────────────────────────
    One `[data-editor]` element, from its markup to a document being edited:
 
-     1. its textarea, body, toolbar and link form, from the markup;
+     1. its textarea, body, toolbar, link form and media form, from the markup;
      2. Quill, made in the body, accepting the formats the toolbar offers, with no toolbar
         or theme of its own — the app's toolbar is the toolbar;
      3. the document loaded from the textarea, and every change written back to it;
@@ -539,6 +823,7 @@ function wireLink(e) {
 
      sedna-editor-ready    { html, text, length, isEmpty }
      sedna-editor-change   the same, after each change
+     sedna-editor-media    { kind, src, alt }, cancelable, before the media form opens
 
    and the textarea's own `input` and `change`, which is what `@bind` listens to.
    ─────────────────────────────────────────────────────────────────────────── */
@@ -582,12 +867,12 @@ function describe(e) {
 }
 
 function start(e) {
-    const { value, body, toolbar, link } = readMarkup(e.el);
+    const { value, body, toolbar, link, media } = readMarkup(e.el);
     if (!value || !body) {
         e.el.setAttribute('data-editor-state', 'error');
         throw new Error('a [data-editor] element needs a <textarea data-editor-value> and a <div class="editor-body"> inside it.');
     }
-    Object.assign(e, { value, body, toolbar, link, controls: controlsOf(e.el) });
+    Object.assign(e, { value, body, toolbar, link, media, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
 
     e.quill = new Quill(body, {
@@ -595,6 +880,8 @@ function start(e) {
         modules: {
             toolbar: false,
             history: { delay: 800, maxStack: 200, userOnly: true },
+            clipboard: { matchers: MEDIA_MATCHERS },
+            uploader: NO_UPLOAD,
             keyboard: {
                 bindings: {
                     toolbar: { key: 'F10', altKey: true, handler: () => toToolbar(e) },
@@ -613,6 +900,7 @@ function start(e) {
     describe(e);
     wireToolbar(e);
     wireLink(e);
+    wireMedia(e);
 
     const q = e.quill;
     q.on('text-change', () => written(e));
@@ -664,6 +952,11 @@ function makeApi(e) {
             e.quill.setSelection(range.index + String(text ?? '').length, 0, 'silent');
             return stateOf(e);
         },
+        /* An image or a video where the caret was — or in place of the one it is on — with
+           its description. Null, and nothing inserted, when the editor does not take that
+           kind or the address is not http, https or relative. */
+        insertImage: (url, alt) => insertMedia(e, 'image', url, alt, takeMediaRange(e)),
+        insertVideo: (url, label) => insertMedia(e, 'video', url, label, takeMediaRange(e)),
         focus: () => e.quill.focus(),
         enable: on => {
             e.value.disabled = on === false;
@@ -681,6 +974,8 @@ function invoke(e, method, args) {
         case 'state': return api.state();
         case 'set': return api.set(a[0]);
         case 'insert': return api.insert(a[0]);
+        case 'image': return api.insertImage(a[0], a[1]);
+        case 'video': return api.insertVideo(a[0], a[1]);
         case 'focus': api.focus(); return null;
         case 'enable': api.enable(a[0] !== false); return null;
         default:
@@ -694,7 +989,8 @@ function attach(el) {
     let e = editors.get(el);
     if (!e) {
         e = { el, written: [], cleanups: [], disposed: false, changed: false, loading: false, lastRange: null };
-        e.emit = (name, detail) => el.dispatchEvent(new CustomEvent(name, { bubbles: true, detail }));
+        // False when a cancelable event was cancelled.
+        e.emit = (name, detail, cancelable) => el.dispatchEvent(new CustomEvent(name, { bubbles: true, cancelable: !!cancelable, detail }));
         e.api = makeApi(e);
         editors.set(el, e);
         try {

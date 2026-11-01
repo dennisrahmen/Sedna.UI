@@ -40,6 +40,35 @@ public interface ISednaEditors
     /// <returns>What the document holds afterwards, or null when there is no such editor.</returns>
     Task<SednaEditorState?> InsertTextAsync(string editorId, string text, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Puts an image where the caret was — or in place of the image it is on — as
+    /// <c>&lt;img src alt&gt;</c>: the answer to <c>@onsedna-editor-media</c> once the app has
+    /// uploaded the file and has its address.
+    /// </summary>
+    /// <param name="editorId">The <c>[data-editor]</c> element's id.</param>
+    /// <param name="url">The image's address: <c>http</c>, <c>https</c> or relative.</param>
+    /// <param name="alt">Its description, written as <c>alt</c>; null or empty for none.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>
+    /// What the document holds afterwards, or null — and nothing inserted — when there is no such
+    /// editor, the editor does not take images, or the address is not one it keeps.
+    /// </returns>
+    Task<SednaEditorState?> InsertImageAsync(string editorId, string url, string? alt = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Puts a video where the caret was — or in place of the video it is on — as a block of its
+    /// own, <c>&lt;video controls src&gt;</c>, which never plays by itself.
+    /// </summary>
+    /// <param name="editorId">The <c>[data-editor]</c> element's id.</param>
+    /// <param name="url">The video file's address: <c>http</c>, <c>https</c> or relative.</param>
+    /// <param name="label">Its name, written as <c>aria-label</c>; null or empty for none.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>
+    /// What the document holds afterwards, or null — and nothing inserted — when there is no such
+    /// editor, the editor does not take videos, or the address is not one it keeps.
+    /// </returns>
+    Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label = null, CancellationToken cancellationToken = default);
+
     /// <summary>Puts the focus in the document, where the caret last was.</summary>
     Task FocusAsync(string editorId, CancellationToken cancellationToken = default);
 

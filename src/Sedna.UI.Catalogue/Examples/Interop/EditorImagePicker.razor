@@ -1,0 +1,66 @@
+@inject ISednaEditors Editors
+@inject ISednaUi Ui
+
+@* The app answers the image control itself: cancelling sedna-editor-media keeps the editor's
+   own form shut, and the app's dialog — an upload, a media library — supplies the address. *@
+<div class="editor" data-editor id="incident-note"
+     @onsedna-editor-media="PickImage" @onsedna-editor-media:preventDefault>
+    <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list"><i class="ri-list-unordered"></i></button>
+        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="image" aria-label="Add a photo" data-tip="Add a photo"><i class="ri-image-add-line"></i></button>
+    </div>
+    <div class="editor-body prose" data-editor-body></div>
+    <textarea data-editor-value hidden aria-label="Damage report" @bind="_report"></textarea>
+</div>
+
+@* The app's own picker. Each row is a dialog-method submitter, so the photo it names becomes
+   the dialog's returnValue. *@
+<dialog id="pick-photo" class="modal modal-sm" aria-labelledby="pick-photo-title">
+    <form method="dialog">
+        <div class="modal-header">
+            <h3 id="pick-photo-title">Add a photo</h3>
+        </div>
+        <div class="modal-body">
+            <ul class="list">
+                @foreach (var photo in _photos)
+                {
+                    <li>
+                        <button class="list-row" value="@photo.Id">
+                            <span class="list-main">
+                                <span class="list-title">@photo.Alt</span>
+                                <span class="list-sub">@photo.Credit</span>
+                            </span>
+                        </button>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" value="">Cancel</button>
+        </div>
+    </form>
+</dialog>
+
+@code {
+    private readonly (string Id, string Url, string Alt, string Credit)[] _photos =
+    [
+        ("racking", "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=960&h=540&fit=crop&q=70&auto=format",
+            "The racking in bay 4", "Photo by CHUTTERSNAP on Unsplash"),
+        ("crates", "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=960&h=540&fit=crop&q=70&auto=format",
+            "The crates on the floor", "Photo by Adrian Sulyok on Unsplash"),
+    ];
+
+    private string _report = "<p>Two crates arrived crushed at dock 4.</p>";
+
+    // The caret is remembered while the dialog has the focus, so the photo lands where the
+    // reader left off.
+    private async Task PickImage(SednaEditorMediaEventArgs e)
+    {
+        var id = await Ui.ShowModalAsync("pick-photo");
+        var photo = _photos.FirstOrDefault(p => p.Id == id);
+        if (photo.Url is null) return;
+
+        await Editors.InsertImageAsync("incident-note", photo.Url, $"{photo.Alt}. {photo.Credit}.");
+    }
+}

@@ -136,6 +136,7 @@
 }
 .prose hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 .prose img { max-width: 100%; height: auto; border-radius: var(--radius-inner); }
+.prose video { display: block; max-width: 100%; height: auto; margin: 1em 0; border-radius: var(--radius-inner); }
 /* A table in untrusted prose is the one thing that breaks the page width, because
    its own content sets its minimum size. */
 .prose table { display: block; overflow-x: auto; max-width: 100%; border-collapse: collapse; }

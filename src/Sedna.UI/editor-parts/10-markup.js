@@ -17,7 +17,7 @@
    A format is one of Quill's, named on the control; a control with a `value` sets that
    value, and a `<select>` sets the one chosen:
 
-     bold italic underline strike code script(sub|super) link
+     bold italic underline strike code script(sub|super) link image video
      header(1–6) list(bullet|ordered|check) blockquote code-block align(center|right|justify)
 
    The formats an editor accepts are the ones its toolbar offers — so what is pasted in
@@ -26,7 +26,7 @@
    it shows no button for.
    ─────────────────────────────────────────────────────────────────────────── */
 
-const FORMATS = ['bold', 'italic', 'underline', 'strike', 'code', 'script', 'link',
+const FORMATS = ['bold', 'italic', 'underline', 'strike', 'code', 'script', 'link', 'image', 'video',
     'header', 'list', 'blockquote', 'code-block', 'align', 'indent'];
 const CONTROL = '[data-editor-format],[data-editor-action]';
 
@@ -47,7 +47,8 @@ function readMarkup(el) {
     const body = el.querySelector('[data-editor-body]') || el.querySelector('.editor-body');
     const toolbar = el.querySelector('[role="toolbar"]') || el.querySelector('.editor-toolbar');
     const link = el.querySelector('[data-editor-link]');
-    return { value, body, toolbar, link };
+    const media = el.querySelector('[data-editor-media]');
+    return { value, body, toolbar, link, media };
 }
 
 /* The formats this editor accepts, as Quill names them. A list needs indent, for its
