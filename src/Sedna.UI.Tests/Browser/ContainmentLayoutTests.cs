@@ -179,7 +179,7 @@ public class ContainmentLayoutTests : ScriptTestBase
 
         // Scrolled past all three, every header is pinned and none has replaced
         // another. The offsets are the library's arithmetic, not the app's.
-        await page.EvaluateAsync("() => document.getElementById('scroller').scrollTop = 600");
+        await Js.Run(page, "() => document.getElementById('scroller').scrollTop = 600");
 
         var tops = await page.EvaluateAsync<double[]>(
             """

@@ -101,7 +101,7 @@ public class OrbTests : ScriptTestBase
         await Drawn(page, "#o");
         var before = await Frame(page, "#o");
 
-        await page.EvaluateAsync("() => document.getElementById('o').dataset.orb = 'done'");
+        await Js.Run(page, "() => document.getElementById('o').dataset.orb = 'done'");
         await page.WaitForFunctionAsync("before => document.querySelector('#o > canvas').toDataURL() !== before", before);
     }
 
@@ -114,12 +114,12 @@ public class OrbTests : ScriptTestBase
 
         // The tone, on the orb itself.
         var before = await Frame(page, "#o");
-        await page.EvaluateAsync("() => document.getElementById('o').dataset.orbTone = 'danger'");
+        await Js.Run(page, "() => document.getElementById('o').dataset.orbTone = 'danger'");
         await page.WaitForFunctionAsync("before => document.querySelector('#o > canvas').toDataURL() !== before", before);
 
         // The variant, on the root — what the theme toggle writes.
         before = await Frame(page, "#o");
-        await page.EvaluateAsync("() => document.documentElement.setAttribute('data-variant', 'light')");
+        await Js.Run(page, "() => document.documentElement.setAttribute('data-variant', 'light')");
         await page.WaitForFunctionAsync("before => document.querySelector('#o > canvas').toDataURL() !== before", before);
     }
 
@@ -185,7 +185,7 @@ public class OrbTests : ScriptTestBase
         var page = await OpenOrb("""<div id="host"><span class="orb" id="o" data-orb="working" data-orb-eager aria-label="Working"></span></div>""");
         await Drawn(page, "#o");
 
-        await page.EvaluateAsync("() => { window.__orb = document.getElementById('o'); window.__orb.remove(); }");
+        await Js.Run(page, "() => { window.__orb = document.getElementById('o'); window.__orb.remove(); }");
         // The canvas and the probe the module added are taken back out of the element.
         await page.WaitForFunctionAsync("() => window.__orb.querySelector('canvas') === null");
     }

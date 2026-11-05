@@ -44,7 +44,7 @@ one page never share anything but the caches in `pluginLoads` and `warned`.
 ## Rules
 
 - **Modern JavaScript, because this is a module.** `const`, arrow functions, `?.`, `async` — the floor is
-  current Chromium. This is the one place that differs from `js-parts/`, which is a classic script.
+  current Chromium and current Safari on iOS. This is the one place that differs from `js-parts/`, which is a classic script.
 - **Every colour through the tokens.** `colours.token('--x')` or `palette(colours)`, and a record's tone
   through `tokenOfTone`. Never a literal colour, not even as a fallback — a fallback is another token —
   and never a colour an app handed over: `toneOf` refuses one. `SurfaceRegistryTests` reads every part

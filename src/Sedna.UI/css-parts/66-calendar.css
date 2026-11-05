@@ -455,6 +455,16 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     overflow: clip;
     overflow-clip-margin: content-box;
 }
+/* Safari has no overflow-clip-margin, so it clips at the padding edge and the next line
+   shows through the bottom padding. There the leftover space is a bottom border in the
+   block's own fill instead: the padding edge is then the content edge, and the block
+   still ends where its time does. */
+@supports not (overflow-clip-margin: content-box) {
+    .cal-block {
+        border-block-end: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh))) solid var(--cal-fill);
+        padding-block-end: 0;
+    }
+}
 .cal-block:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .cal-block .cal-event-time { display: block; }
 

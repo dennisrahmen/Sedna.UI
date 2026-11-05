@@ -44,7 +44,7 @@ public class OutputFollowTests : ScriptTestBase
 
     private static async Task ScrollToTop(IPage page)
     {
-        await page.EvaluateAsync("() => { document.getElementById('p').scrollTop = 0; }");
+        await Js.Run(page, "() => { document.getElementById('p').scrollTop = 0; }");
         await page.WaitForFunctionAsync(Paused);
     }
 
@@ -58,7 +58,7 @@ public class OutputFollowTests : ScriptTestBase
         var (page, _) = await OpenStyled(Pane(30));
         await page.WaitForFunctionAsync(AtBottom);
 
-        await page.EvaluateAsync(Append);
+        await Js.Run(page, Append);
         await page.WaitForFunctionAsync(AtBottom);
         Assert.False(await page.EvaluateAsync<bool>(Paused));
         Assert.Equal("none", await JumpDisplay(page));
@@ -70,15 +70,15 @@ public class OutputFollowTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, _) = await OpenStyled(Pane(30));
         await page.WaitForFunctionAsync(AtBottom);
-        await page.EvaluateAsync(RecordEvents);
+        await Js.Run(page, RecordEvents);
 
         await ScrollToTop(page);
         await page.WaitForFunctionAsync("() => window.follows.length === 1");
         Assert.Equal(new[] { false }, await page.EvaluateAsync<bool[]>("() => window.follows"));
         Assert.NotEqual("none", await JumpDisplay(page));
 
-        await page.EvaluateAsync(Append);
-        await page.EvaluateAsync("() => new Promise(r => requestAnimationFrame(() => r()))");
+        await Js.Run(page, Append);
+        await Js.Run(page, "() => new Promise(r => requestAnimationFrame(() => r()))");
         Assert.Equal(0, await page.EvaluateAsync<double>("() => document.getElementById('p').scrollTop"));
     }
 
@@ -88,7 +88,7 @@ public class OutputFollowTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, _) = await OpenStyled(Pane(30));
         await page.WaitForFunctionAsync(AtBottom);
-        await page.EvaluateAsync(RecordEvents);
+        await Js.Run(page, RecordEvents);
         await ScrollToTop(page);
 
         await page.ClickAsync("#jump");
@@ -97,7 +97,7 @@ public class OutputFollowTests : ScriptTestBase
         await page.WaitForFunctionAsync("() => window.follows.length === 2");
         Assert.Equal(new[] { false, true }, await page.EvaluateAsync<bool[]>("() => window.follows"));
 
-        await page.EvaluateAsync(Append);
+        await Js.Run(page, Append);
         await page.WaitForFunctionAsync(AtBottom);
     }
 
@@ -109,17 +109,17 @@ public class OutputFollowTests : ScriptTestBase
         await page.WaitForFunctionAsync(AtBottom);
         await ScrollToTop(page);
 
-        await page.EvaluateAsync("() => document.getElementById('p').removeAttribute('data-follow')");
+        await Js.Run(page, "() => document.getElementById('p').removeAttribute('data-follow')");
         await page.WaitForFunctionAsync($"() => !({Paused})()");
 
-        await page.EvaluateAsync("() => { const p = document.getElementById('p'); p.scrollTop = p.scrollHeight; }");
+        await Js.Run(page, "() => { const p = document.getElementById('p'); p.scrollTop = p.scrollHeight; }");
         await page.WaitForFunctionAsync(AtBottom);
-        await page.EvaluateAsync(Append);
-        await page.EvaluateAsync(Append);
-        await page.EvaluateAsync("() => new Promise(r => requestAnimationFrame(() => r()))");
+        await Js.Run(page, Append);
+        await Js.Run(page, Append);
+        await Js.Run(page, "() => new Promise(r => requestAnimationFrame(() => r()))");
         Assert.False(await page.EvaluateAsync<bool>(AtBottom));
 
-        await page.EvaluateAsync("() => document.getElementById('p').setAttribute('data-follow', '')");
+        await Js.Run(page, "() => document.getElementById('p').setAttribute('data-follow', '')");
         await page.WaitForFunctionAsync(AtBottom);
     }
 
@@ -140,12 +140,12 @@ public class OutputFollowTests : ScriptTestBase
         var (page, _) = await OpenStyled(Pane(30, row));
         await page.WaitForFunctionAsync(AtBottom);
 
-        await page.EvaluateAsync("() => { document.getElementById('d').open = true; }");
+        await Js.Run(page, "() => { document.getElementById('d').open = true; }");
         await page.WaitForFunctionAsync(Paused);
         var top = await page.EvaluateAsync<double>("() => document.getElementById('p').scrollTop");
 
-        await page.EvaluateAsync(Append);
-        await page.EvaluateAsync("() => new Promise(r => requestAnimationFrame(() => r()))");
+        await Js.Run(page, Append);
+        await Js.Run(page, "() => new Promise(r => requestAnimationFrame(() => r()))");
         Assert.Equal(top, await page.EvaluateAsync<double>("() => document.getElementById('p').scrollTop"));
     }
 
@@ -164,14 +164,14 @@ public class OutputFollowTests : ScriptTestBase
         var (page, _) = await OpenStyled(Pane(30, row));
         await page.WaitForFunctionAsync(AtBottom);
 
-        await page.EvaluateAsync("() => document.getElementById('more').setAttribute('aria-expanded', 'true')");
+        await Js.Run(page, "() => document.getElementById('more').setAttribute('aria-expanded', 'true')");
         var top = await page.EvaluateAsync<double>("() => document.getElementById('p').scrollTop");
-        await page.EvaluateAsync(Append);
-        await page.EvaluateAsync("() => new Promise(r => requestAnimationFrame(() => r()))");
+        await Js.Run(page, Append);
+        await Js.Run(page, "() => new Promise(r => requestAnimationFrame(() => r()))");
         Assert.Equal(top, await page.EvaluateAsync<double>("() => document.getElementById('p').scrollTop"));
 
-        await page.EvaluateAsync("() => document.getElementById('more').setAttribute('aria-expanded', 'false')");
-        await page.EvaluateAsync(Append);
+        await Js.Run(page, "() => document.getElementById('more').setAttribute('aria-expanded', 'false')");
+        await Js.Run(page, Append);
         await page.WaitForFunctionAsync(AtBottom);
     }
 

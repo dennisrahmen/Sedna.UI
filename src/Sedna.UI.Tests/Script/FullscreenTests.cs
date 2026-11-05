@@ -44,7 +44,7 @@ public class FullscreenTests : ScriptTestBase
         await page.WaitForFunctionAsync("() => !!document.fullscreenElement");
 
         // The browser's own way out, as Escape takes it.
-        await page.EvaluateAsync("() => document.exitFullscreen()");
+        await Js.Run(page, "() => document.exitFullscreen()");
         await page.WaitForFunctionAsync("() => document.getElementById('toggle').getAttribute('aria-pressed') === 'false'");
     }
 

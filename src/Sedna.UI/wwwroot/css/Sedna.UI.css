@@ -7404,7 +7404,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
        box itself is placed logically by the auto margin above, so there is nothing
        to mirror and 70-rtl.css has no rule for this. */
     background-position: 0 0, 5px 0;
-    background-size: 5px 5px;
+    background-size: 5px 5px, 5px 5px;
     background-repeat: no-repeat;
     transition: rotate var(--motion-fast);
 }
@@ -9291,8 +9291,9 @@ a.stat--danger:hover { background: var(--danger-bg-hover); }
     grid-template-columns: repeat(auto-fit, minmax(min(calc(150px - 2 * var(--space-7)), 100%), 1fr));
     column-gap: calc(2 * var(--space-7));
     row-gap: var(--space-7);
-    overflow: clip;
-    overflow-clip-margin: var(--space-6);
+    /* The clip margin as a negative inset, which every engine on the floor draws the same
+       way: Safari has no overflow-clip-margin. */
+    clip-path: inset(calc(var(--space-6) * -1));
 }
 .stat-row--divided > .stat,
 .card-body > .stat-row > .stat { position: relative; }
@@ -13905,6 +13906,16 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     padding-block-end: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh)));
     overflow: clip;
     overflow-clip-margin: content-box;
+}
+/* Safari has no overflow-clip-margin, so it clips at the padding edge and the next line
+   shows through the bottom padding. There the leftover space is a bottom border in the
+   block's own fill instead: the padding edge is then the content edge, and the block
+   still ends where its time does. */
+@supports not (overflow-clip-margin: content-box) {
+    .cal-block {
+        border-block-end: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh))) solid var(--cal-fill);
+        padding-block-end: 0;
+    }
 }
 .cal-block:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .cal-block .cal-event-time { display: block; }

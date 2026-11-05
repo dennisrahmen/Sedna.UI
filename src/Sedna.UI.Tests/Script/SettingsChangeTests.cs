@@ -103,7 +103,7 @@ public class SettingsChangeTests : ScriptTestBase
         var page = await Open("<div></div>",
             storage: new Dictionary<string, string> { ["sedna.variant"] = "system" });
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 window.__variants = [];
                 window.sednaUi.settings.onChange(s => window.__variants.push(

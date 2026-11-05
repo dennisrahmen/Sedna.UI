@@ -133,8 +133,8 @@ these without prompting.
 
 Nothing in the index is hand-listed: examples come from the same embedded resources the pages render,
 classes from the stylesheet the app serves, docs from the repository's own `docs/`. `since` comes from
-`build/class-history.sh` — the embedded copy, and for anything it still calls unreleased, the latest
-release's own copy, which `ReleasedHistory` fetches from the GitHub release at runtime. The contract is in `docs/architecture.md`.
+`build/class-history.sh` — the copy generated when the app is built (never committed), and for
+anything it still calls unreleased, the latest release's own copy, which `ReleasedHistory` fetches from the GitHub release at runtime. The contract is in `docs/architecture.md`.
 
 **No tool declares an `outputSchema`.** They return anonymous objects the SDK cannot describe, so
 `UseStructuredContent` made each one advertise `{"type":"object","properties":{"result":true}}` — a

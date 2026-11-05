@@ -10,8 +10,9 @@ Stack: **.NET 10 / Blazor / server-side Razor**. `net10.0`, `LangVersion latest`
 Every piece of UI belongs to exactly one tier, and one question decides which: **who writes the markup
 on screen?**
 
-**Tier 1 — the frame.** Shell, sidebar and nav, header, user widget, modal shell. The app writes it,
-copied from the catalogue's Shell & nav page. Pixel-identical in every app, never restyled per project.
+**Tier 1 — the frame.** Shell, sidebar and nav, header, bottom bar, user widget, drawer, modal shell.
+Each part is a component of its own: the app writes the parts it needs and combines them as it likes.
+The catalogue's Shell & nav page shows finished combinations to start from.
 
 **Tier 2 — the paint.** Tables, forms, cards, badges, buttons, panels, alerts. The app writes plain HTML
 and applies the classes.
@@ -29,6 +30,23 @@ Adding UI means adding classes and a catalogue page.
 every one meets are in `docs/surfaces.md` — the registry the tests read. A surface is admitted by the
 owner and by passing that contract; nothing in this file changes when one is added. See **Tier 3 —
 surfaces** below.
+
+## Exact in every state, combined in any way
+
+Every component is exact in every state it supports, at every size it offers and in every theme, and it
+stays exact beside and inside any other component. An app builds its own UI from the parts; nothing in
+the library assumes one layout, one app or one combination.
+
+What only one app needs is reached in this order:
+
+1. **A token** — the component's own value, redefined in the app's `brand.css` or set inline.
+2. **A variant** — a modifier class the library ships.
+3. **A class of the app's own**, prefixed with the app's name, on the element. The library never
+   declares that name, so it survives every upgrade.
+
+An app never writes a rule for a class name the library owns. A need that recurs across apps becomes a
+token or a variant here, and a component that lacks a state, a size or a token its family has is a
+defect, not a missing feature.
 
 ## Markup belongs to the app
 
@@ -328,11 +346,11 @@ matters it is **calculated**, never typed:
 - `build/api-inventory.sh` is the same implementation for the public C# surface, and is the one place
   that answers "what does this library export".
 - `build/class-history.sh` derives which release first shipped each class, token, public C# member and
-  example, which is what the MCP server's `since` reports. `--check` in CI. **Nothing is done before
-  a release**: the tag is what dates an entry, the first PR after it regenerates the file, and until
-  that merge the hosted site reads the release's own copy — `release.yml` attaches the history
-  computed at the tag to every GitHub release, and the catalogue fetches it at runtime
-  (`ReleasedHistory`) to fill in what its embedded copy still calls unreleased.
+  example, which is what the MCP server's `since` reports. **Its output is never committed**: the tags
+  date it, so CI, `release.yml` and the catalogue image each generate it where they build, and a
+  developer runs it after cloning and after fetching a tag. `release.yml` also attaches the copy
+  computed at the tag to every GitHub release, and the running catalogue fetches it (`ReleasedHistory`)
+  to date a tag made after its last deploy.
 
 These directories carry their own `CLAUDE.md`, next to the files an agent will edit: `graph-parts/`, `editor-parts/`, `css-parts/`,
 `js-parts/` and `src/Sedna.UI.Catalogue/`. Read the local one before adding a file there — it holds
@@ -513,8 +531,9 @@ layer is added to the table in `docs/architecture.md` first.
 550 carries the dropdown panels: `.menu`, `.search-panel`, `.popover`, `.form-combo-panel` and the user widget's own. A real
 `.popover` is in the top layer and ignores the scale entirely; the rung is its fallback.
 
-**The browser floor is Chromium — current Chrome and Edge.** CSS anchor positioning is therefore
-available, and these use it: `.popover`; the collapsed rail's hover flyout, which has no other
+**The browser floor is the current release of two engines: Chromium (Chrome, Edge) and WebKit as
+Safari on iOS and iPadOS.** Every browser test runs in both. CSS anchor positioning is available in
+both, and these use it: `.popover`; the collapsed rail's hover flyout, which has no other
 option because `.nav-scroll` scrolls and a scroll container clips both axes; `.form-combo-panel`; and
 `.menu`, for the same reason — an absolutely positioned panel is laid out inside the nearest scroll container and counts
 towards its scrollable overflow, so a menu opened in a toolbar or a scrolling table both grew that
@@ -619,12 +638,14 @@ version first.
    outside the repo. The first line becomes the release title suffix; the rest becomes
    the body.
 
-7. The first pull request after the release regenerates `class-history.json` — `--check` fails until it
-   does. The hosted site is right in the meantime: `release.yml` attaches the history computed at the
-   tag to the release, and the catalogue reads it.
+7. Nothing follows the tag in the repo. `class-history.json` is generated, never committed, and the
+   running catalogue reads the release's own copy.
 
-`release.yml` builds, tests, packs, verifies the package contents, publishes to nuget.org, and creates the
-GitHub release.
+`release.yml` runs the full suite — every test project in every engine, in parallel — and only then
+builds, packs, verifies the package contents, publishes to nuget.org, and creates the GitHub release.
+A pull request runs a smoke pass, so the tag is where a browser regression is caught. **A red tag has
+published nothing**, so the version is still free: delete the tag (`git push --delete origin v0.2.0`
+and `git tag -d v0.2.0`), merge the fix, and tag the same version again.
 
 ### Version rules
 

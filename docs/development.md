@@ -140,13 +140,19 @@ entirely, and the scripts have to be genuine `<script src>` tags because `boot.j
 
 ## The generated files
 
-Four artefacts are generated and committed, so each can drift from its source. Every one has a `--check`
-mode, and CI runs all four before the build:
+These are generated and committed, so each can drift from its source. Each has a `--check` mode, and
+CI runs every one before the build:
 
 ```bash
 build/bundle-css.sh          # wwwroot/css/Sedna.UI.css   from css-parts/
 build/bundle-js.sh           # wwwroot/js/Sedna.UI.js     from js-parts/, and each surface module from its parts
 build/export-tokens.sh       # wwwroot/tokens/…tokens.json    from the token parts
+```
+
+One is generated and never committed, because the release tags date it. Run it after cloning and after
+fetching a new tag (it needs bash 4 or later); CI, the release and the catalogue image run it themselves:
+
+```bash
 build/class-history.sh       # which release first shipped each class, token, C# member and example
 ```
 

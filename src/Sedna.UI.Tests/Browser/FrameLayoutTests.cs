@@ -347,7 +347,7 @@ public class FrameLayoutTests : ScriptTestBase
         // and takes the rail's layout only once it has arrived.
         var (page, _) = await OpenStyled(Rail(collapsed: false));
         // Slow the motion down so the middle of it can be observed.
-        await page.EvaluateAsync("() => document.querySelector('.sidebar').style.setProperty('--motion-mid', '2s')");
+        await Js.Run(page, "() => document.querySelector('.sidebar').style.setProperty('--motion-mid', '2s')");
 
         // [sidebarWidth, navWidth, labelPosition, labelWidth]
         const string probe = """
@@ -365,7 +365,7 @@ public class FrameLayoutTests : ScriptTestBase
         var restingLabel = Convert.ToInt32((await page.EvaluateAsync<object[]>(probe))[3], System.Globalization.CultureInfo.InvariantCulture);
         Assert.True(restingLabel > 20, "The label should have its text's width at rest.");
 
-        await page.EvaluateAsync("() => document.querySelector('.sidebar').classList.add('collapsed')");
+        await Js.Run(page, "() => document.querySelector('.sidebar').classList.add('collapsed')");
         await page.WaitForTimeoutAsync(600);
         var mid = await page.EvaluateAsync<object[]>(probe);
         var midWidth = Convert.ToInt32(mid[0], System.Globalization.CultureInfo.InvariantCulture);
@@ -386,7 +386,7 @@ public class FrameLayoutTests : ScriptTestBase
         Assert.Equal("absolute", (string)done[2]);
 
         // Opening: the labels are back at once, at the full width, under the growing edge.
-        await page.EvaluateAsync("() => document.querySelector('.sidebar').classList.remove('collapsed')");
+        await Js.Run(page, "() => document.querySelector('.sidebar').classList.remove('collapsed')");
         await page.WaitForTimeoutAsync(300);
         var opening = await page.EvaluateAsync<object[]>(probe);
         var openingWidth = Convert.ToInt32(opening[0], System.Globalization.CultureInfo.InvariantCulture);
@@ -420,10 +420,10 @@ public class FrameLayoutTests : ScriptTestBase
             </div>
             """;
         var (page, _) = await OpenStyled(body);
-        await page.EvaluateAsync("() => document.querySelector('.sidebar').style.setProperty('--motion-mid', '2s')");
+        await Js.Run(page, "() => document.querySelector('.sidebar').style.setProperty('--motion-mid', '2s')");
         var restingNav = (await page.Locator(".sidebar > .nav").BoundingBoxAsync())!.Width;
 
-        await page.EvaluateAsync("() => document.querySelector('.sidebar').classList.add('collapsed')");
+        await Js.Run(page, "() => document.querySelector('.sidebar').classList.add('collapsed')");
         await page.WaitForTimeoutAsync(600);
         var sidebar = (await page.Locator(".sidebar").BoundingBoxAsync())!.Width;
         var nav = (await page.Locator(".sidebar > .nav").BoundingBoxAsync())!.Width;

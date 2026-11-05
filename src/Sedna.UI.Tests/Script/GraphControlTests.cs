@@ -348,7 +348,7 @@ public class GraphControlTests : GraphTestBase
         await page.Locator("#labels").SelectOptionAsync("none");
         await page.WaitForFunctionAsync("() => cyOf('g').nodes().every(n => n.style('label') === '')");
         // A name still shows where the reader is looking.
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.select('db'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select('db'))");
         Assert.Equal("Orders database", await Eval<string>(page, "() => cyOf('g').getElementById('db').style('label')"));
 
         // A link's name shows while it is lit; "always" shows the others' too.
@@ -429,7 +429,7 @@ public class GraphControlTests : GraphTestBase
         await page.Locator("#zoom-out").ClickAsync();
         Assert.Equal(fitted / 1.3, await Eval<double>(page, "() => cyOf('g').zoom()"), 6);
 
-        await page.EvaluateAsync("() => cyOf('g').panBy({ x: 300, y: -120 })");
+        await Js.Run(page, "() => cyOf('g').panBy({ x: 300, y: -120 })");
         await page.Locator("#fit").ClickAsync();
         // Fitted again — to within what the records' own size changes with the zoom.
         Assert.InRange(await Eval<double>(page, "() => cyOf('g').zoom()"), fitted * 0.97, fitted * 1.03);
@@ -440,7 +440,7 @@ public class GraphControlTests : GraphTestBase
 
     private static async Task PushAroundAndArrange(IPage page)
     {
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => { const cy = cyOf('g'); cy.getElementById('api').position({ x: -900, y: 700 }); cy.getElementById('web').shift({ x: 250, y: 0 }); }
             """);
         await page.Locator("#arrange").ClickAsync();
@@ -571,7 +571,7 @@ public class GraphControlTests : GraphTestBase
         await page.Locator("#hide-runner").ClickAsync();
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('runner').hasClass('hidden')");
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.select('archive'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select('archive'))");
         await page.Locator("#hide").ClickAsync();
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('archive').hasClass('hidden')");
         Assert.Equal(["api", "cache", "db", "queue", "web"], await Shown(page));
@@ -589,7 +589,7 @@ public class GraphControlTests : GraphTestBase
             <button type="button" data-graph-action="open" value="api" id="open-api">Open the API</button>
             """));
         await Ready(page);
-        await page.EvaluateAsync("() => document.addEventListener('sedna-graph-open', e => e.preventDefault())");
+        await Js.Run(page, "() => document.addEventListener('sedna-graph-open', e => e.preventDefault())");
 
         await page.Locator("#open-api").ClickAsync();
         await Heard(page, "sedna-graph-open");
@@ -621,7 +621,7 @@ public class GraphControlTests : GraphTestBase
         await page.Locator("#kind").SelectOptionAsync("store");
         await page.Locator("#find").FillAsync("orders");
         await page.Locator("#hide-runner").ClickAsync();
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => { g.select('db'); g.zoom(2); })");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => { g.select('db'); g.zoom(2); })");
         await Assertions.Expect(page.Locator("#stats")).ToHaveTextAsync("1 match");
 
         await page.Locator("#reset").ClickAsync();
@@ -650,13 +650,13 @@ public class GraphControlTests : GraphTestBase
         await page.Locator("#focus-web").ClickAsync();
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('runner').hasClass('hidden')");
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.filter({ muted: false }))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.filter({ muted: false }))");
         Assert.Equal(["api", "web"], await Shown(page));
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.filter({ focus: 'db' }))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.filter({ focus: 'db' }))");
         Assert.Equal(["api", "db"], await Shown(page));
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.filter({ focus: null }))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.filter({ focus: null }))");
         Assert.Equal(7, (await Shown(page)).Length);
         AssertQuiet();
     }
@@ -685,7 +685,7 @@ public class GraphControlTests : GraphTestBase
         await page.WaitForFunctionAsync("() => !cyOf('g').getElementById('api').hasClass('hidden')");
         Assert.Equal(["api", "archive", "db", "queue", "web"], await Shown(page));
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.filter({}))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.filter({}))");
         Assert.Equal(7, (await Shown(page)).Length);
         AssertQuiet();
     }

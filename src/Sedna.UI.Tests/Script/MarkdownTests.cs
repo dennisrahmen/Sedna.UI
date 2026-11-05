@@ -147,7 +147,7 @@ public class MarkdownTests : ScriptTestBase
     private async Task<IPage> Render(string body, string markdown)
     {
         var page = await Open(body);
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "md => { document.getElementById('out').innerHTML = sednaUi.md.render(md); }",
             markdown);
         return page;

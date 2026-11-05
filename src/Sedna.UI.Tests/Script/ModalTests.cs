@@ -61,7 +61,7 @@ public class ModalTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open(Fixture);
 
-        await page.EvaluateAsync(ShowAsk);
+        await Js.Run(page, ShowAsk);
         await page.Locator("#delete").ClickAsync();
 
         Assert.Equal("settled:delete", await page.EvaluateAsync<string>(Answer));
@@ -73,14 +73,14 @@ public class ModalTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open(Fixture);
 
-        await page.EvaluateAsync(ShowAsk);
+        await Js.Run(page, ShowAsk);
         await page.Locator("#keep").ClickAsync();
         Assert.Equal("settled:null", await page.EvaluateAsync<string>(Answer));
 
         // The platform keeps the last returnValue, so show() clears it as the dialog
         // opens — or Escape here would report the previous opening's button.
-        await page.EvaluateAsync("() => { document.getElementById('ask').returnValue = 'stale'; }");
-        await page.EvaluateAsync(ShowAsk);
+        await Js.Run(page, "() => { document.getElementById('ask').returnValue = 'stale'; }");
+        await Js.Run(page, ShowAsk);
         await page.Keyboard.PressAsync("Escape");
         Assert.Equal("settled:null", await page.EvaluateAsync<string>(Answer));
     }
@@ -95,11 +95,11 @@ public class ModalTests : ScriptTestBase
         // settle anyway.
         var page = await Open(Fixture);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => window.addEventListener('close', e => e.stopImmediatePropagation(), true)
             """);
-        await page.EvaluateAsync(ShowAsk);
-        await page.EvaluateAsync("() => document.getElementById('ask').close('delete')");
+        await Js.Run(page, ShowAsk);
+        await Js.Run(page, "() => document.getElementById('ask').close('delete')");
 
         Assert.Equal("settled:delete", await page.EvaluateAsync<string>(Answer));
     }
@@ -112,8 +112,8 @@ public class ModalTests : ScriptTestBase
         // awaiting forever.
         var page = await Open(Fixture);
 
-        await page.EvaluateAsync(ShowAsk);
-        await page.EvaluateAsync("() => document.getElementById('ask').remove()");
+        await Js.Run(page, ShowAsk);
+        await Js.Run(page, "() => document.getElementById('ask').remove()");
 
         Assert.Equal("settled:null", await page.EvaluateAsync<string>(Answer));
     }
@@ -156,10 +156,13 @@ public class ModalTests : ScriptTestBase
                 sednaUi.modal.show('panel');
                 await new Promise(r => setTimeout(r, 400));
                 d.close();
+                // Safari has no `overlay` property, so a closing dialog leaves the top
+                // layer at once and has no slide to wait for; idle must then not wait.
+                const slides = d.getAnimations().length > 0;
                 const started = performance.now();
                 await sednaUi.modal.idle('panel');
                 const waited = performance.now() - started;
-                return (d.getAnimations().length === 0) + ':' + (waited > 50);
+                return (d.getAnimations().length === 0) + ':' + (slides ? waited > 50 : waited < 50);
             }
             """);
 
@@ -174,7 +177,7 @@ public class ModalTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open(Fixture);
 
-        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
+        await Js.Run(page, "() => { sednaUi.modal.show('panel'); }");
 
         // :modal matches only a dialog opened with showModal(), so this is the
         // assertion that the top layer, the focus trap and the inert background are

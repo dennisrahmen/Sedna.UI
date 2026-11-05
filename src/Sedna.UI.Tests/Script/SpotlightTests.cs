@@ -319,7 +319,7 @@ public class SpotlightTests : ScriptTestBase
             </div>
             """);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 window.step = sednaUi.spotlight.follow(
                     document.getElementById('hole'), '#flow', { pad: 0, tip: document.getElementById('tip') });
@@ -329,7 +329,7 @@ public class SpotlightTests : ScriptTestBase
 
         // A node inserted above the target: exactly what a re-render does, and no scroll
         // or resize event comes with it.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => document.getElementById('stage').insertAdjacentHTML(
                 'afterbegin', '<div id="pushed" style="height:60px"></div>')
             """);
@@ -340,8 +340,8 @@ public class SpotlightTests : ScriptTestBase
         Assert.Equal(before + 60, after);
 
         // And stop() lets go: the same insertion no longer moves anything.
-        await page.EvaluateAsync("() => window.step.stop()");
-        await page.EvaluateAsync("""
+        await Js.Run(page, "() => window.step.stop()");
+        await Js.Run(page, """
             () => document.getElementById('stage').insertAdjacentHTML(
                 'afterbegin', '<div style="height:60px"></div>')
             """);
@@ -363,10 +363,10 @@ public class SpotlightTests : ScriptTestBase
             "() => sednaUi.spotlight.tipAt('#tip', sednaUi.spotlight.at('#hole', '#two'), { placement: 'right' })");
         Assert.Equal("right", side);
 
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => window.step = sednaUi.spotlight.follow('#hole', '#two', { tip: '#tip', root: '#stage' })");
         Assert.NotEqual("none", await page.EvaluateAsync<string>("() => document.getElementById('hole').style.display"));
-        await page.EvaluateAsync("() => window.step.stop()");
+        await Js.Run(page, "() => window.step.stop()");
     }
 
     [Fact]
@@ -375,16 +375,16 @@ public class SpotlightTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, _) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => window.step = sednaUi.spotlight.follow(document.getElementById('hole'), '#two')");
         Assert.NotEqual("none", await page.EvaluateAsync<string>("() => document.getElementById('hole').style.display"));
 
-        await page.EvaluateAsync("() => document.getElementById('two').style.display = 'none'");
+        await Js.Run(page, "() => document.getElementById('two').style.display = 'none'");
         Assert.Null(await page.EvaluateAsync<object?>("() => window.step.update()"));
         Assert.Equal("none", await page.EvaluateAsync<string>("() => document.getElementById('hole').style.display"));
 
-        await page.EvaluateAsync("() => document.getElementById('two').style.display = ''");
-        await page.EvaluateAsync("() => window.step.update()");
+        await Js.Run(page, "() => document.getElementById('two').style.display = ''");
+        await Js.Run(page, "() => window.step.update()");
         Assert.NotEqual("none", await page.EvaluateAsync<string>("() => document.getElementById('hole').style.display"));
     }
 
@@ -417,7 +417,7 @@ public class SpotlightTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, _) = await OpenStyled(LockStage);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => window.step = sednaUi.spotlight.follow(
                 document.getElementById('hole'), '#anchor', { lock: { interactive: true } })
             """);
@@ -437,7 +437,7 @@ public class SpotlightTests : ScriptTestBase
         await page.Locator("#blocked").ClickAsync(new() { Force = true });
         Assert.Equal(2, await page.EvaluateAsync<int>("() => window.hits || 0"));
 
-        await page.EvaluateAsync("() => window.step.stop()");
+        await Js.Run(page, "() => window.step.stop()");
         await page.Locator("#outside").ClickAsync();
         Assert.Equal(3, await page.EvaluateAsync<int>("() => window.hits || 0"));
     }
@@ -448,7 +448,7 @@ public class SpotlightTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, _) = await OpenStyled(LockStage);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.spotlight.follow(document.getElementById('hole'), '#anchor', { lock: true })
             """);
 
@@ -467,7 +467,7 @@ public class SpotlightTests : ScriptTestBase
         // activation, and only those are blocked.
         var (page, _) = await OpenStyled(LockStage);
 
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => sednaUi.spotlight.follow(document.getElementById('hole'), '#anchor', { lock: true })");
 
         await page.Locator("#field").FocusAsync();
@@ -490,8 +490,8 @@ public class SpotlightTests : ScriptTestBase
         // that suppresses hints for its own reasons must keep doing so.
         var (page, _) = await OpenStyled(LockStage);
 
-        await page.EvaluateAsync("() => { window.asked = []; sednaUi.tips.gate = el => { window.asked.push(el.id); return true; }; }");
-        await page.EvaluateAsync("() => sednaUi.spotlight.lock({ allow: '#anchor' })");
+        await Js.Run(page, "() => { window.asked = []; sednaUi.tips.gate = el => { window.asked.push(el.id); return true; }; }");
+        await Js.Run(page, "() => sednaUi.spotlight.lock({ allow: '#anchor' })");
 
         var outside = await page.EvaluateAsync<bool>("() => sednaUi.tips.gate(document.getElementById('outside'))");
         var inside = await page.EvaluateAsync<bool>("() => sednaUi.tips.gate(document.getElementById('inside'))");
@@ -500,7 +500,7 @@ public class SpotlightTests : ScriptTestBase
         // Chained, not replaced: the app's gate was still consulted for the allowed one.
         Assert.Equal(new[] { "inside" }, await page.EvaluateAsync<string[]>("() => window.asked"));
 
-        await page.EvaluateAsync("() => sednaUi.spotlight.unlock()");
+        await Js.Run(page, "() => sednaUi.spotlight.unlock()");
         Assert.True(await page.EvaluateAsync<bool>("() => sednaUi.tips.gate(document.getElementById('outside'))"));
         Assert.False(await page.EvaluateAsync<bool>("() => document.body.classList.contains('spotlight-lock')"));
     }
@@ -514,14 +514,14 @@ public class SpotlightTests : ScriptTestBase
         // wrapper instead of the app's function.
         var (page, _) = await OpenStyled(LockStage);
 
-        await page.EvaluateAsync("() => { window.mine = el => true; sednaUi.tips.gate = window.mine; }");
-        await page.EvaluateAsync("() => sednaUi.spotlight.lock({ allow: '#anchor' })");
-        await page.EvaluateAsync("() => sednaUi.spotlight.lock({ allow: '#outside' })");
+        await Js.Run(page, "() => { window.mine = el => true; sednaUi.tips.gate = window.mine; }");
+        await Js.Run(page, "() => sednaUi.spotlight.lock({ allow: '#anchor' })");
+        await Js.Run(page, "() => sednaUi.spotlight.lock({ allow: '#outside' })");
 
         Assert.True(await page.EvaluateAsync<bool>("() => sednaUi.tips.gate(document.getElementById('outside'))"));
         Assert.False(await page.EvaluateAsync<bool>("() => sednaUi.tips.gate(document.getElementById('inside'))"));
 
-        await page.EvaluateAsync("() => sednaUi.spotlight.unlock()");
+        await Js.Run(page, "() => sednaUi.spotlight.unlock()");
         Assert.True(await page.EvaluateAsync<bool>("() => sednaUi.tips.gate === window.mine"));
     }
 }

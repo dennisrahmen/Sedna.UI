@@ -52,7 +52,7 @@ public class TableModalLayoutTests : ScriptTestBase
 
         var (page, _) = await OpenStyled(body);
         await page.SetViewportSizeAsync(1000, 700);
-        if (form == "dialog") await page.EvaluateAsync("() => { sednaUi.modal.show('m'); }");
+        if (form == "dialog") await Js.Run(page, "() => { sednaUi.modal.show('m'); }");
 
         var viewport = page.ViewportSize!;
         var header = (await page.Locator(".modal-header").BoundingBoxAsync())!;
@@ -92,7 +92,7 @@ public class TableModalLayoutTests : ScriptTestBase
                 </table>
             </div>
             """);
-        await page.EvaluateAsync("() => { document.getElementById('scroller').scrollLeft = 200; }");
+        await Js.Run(page, "() => { document.getElementById('scroller').scrollLeft = 200; }");
 
         // Opaque, on both a plain and a striped row. A pinned cell that inherited the
         // zebra stripe's translucent tint without an opaque base under it is the defect
@@ -154,16 +154,16 @@ public class TableModalLayoutTests : ScriptTestBase
         var offsets = new Dictionary<string, double>();
         foreach (var dir in new[] { "ltr", "rtl" })
         {
-            await page.EvaluateAsync("d => document.documentElement.setAttribute('dir', d)", dir);
+            await Js.Run(page, "d => document.documentElement.setAttribute('dir', d)", dir);
             // Scrolled away from the inline start, or there is no shadow to measure —
             // see the test below, which is the other half of this one.
-            await page.EvaluateAsync(
+            await Js.Run(page, 
                 "() => { const s = document.getElementById('scroller'); "
                 + "s.scrollLeft = s.scrollWidth * (getComputedStyle(s).direction === 'rtl' ? -1 : 1); }");
             // A scroll-state query is re-evaluated after scroll processing, at a frame
             // boundary, so a getComputedStyle straight after the assignment can still
             // read the previous frame's answer.
-            await page.EvaluateAsync(
+            await Js.Run(page, 
                 "() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))");
             var shadow = await page.EvaluateAsync<string>(
                 "() => getComputedStyle(document.getElementById('pinned')).boxShadow");
@@ -200,12 +200,12 @@ public class TableModalLayoutTests : ScriptTestBase
                 </table>
             </div>
             """);
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             $"() => {{ document.getElementById('scroller').scrollLeft = {scrollLeft}; }}");
         // A scroll-state query is re-evaluated after scroll processing, at a frame
         // boundary, so a getComputedStyle straight after the assignment can still read
         // the previous frame's answer.
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))");
 
         // A transparent shadow is still a box-shadow, so the test is whether it PAINTS,

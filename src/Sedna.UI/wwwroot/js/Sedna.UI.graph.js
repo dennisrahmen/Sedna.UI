@@ -1790,8 +1790,17 @@ function fitCeiling(g) {
    or the screen's own ratio where that is higher — never below what the screen asks for. */
 function pixelRatioOf(el) {
     const screen = window.devicePixelRatio || 1;
-    const zoom = el && el.currentCSSZoom > 0 ? el.currentCSSZoom : 1;
-    return Math.min(screen * zoom, Math.max(screen, 3));
+    return Math.min(screen * cssZoomOf(el), Math.max(screen, 3));
+}
+
+/* The CSS zoom in effect on an element. `currentCSSZoom` where the engine has it; Safari
+   does not, and there the drawn width over the laid-out one says the same. */
+function cssZoomOf(el) {
+    if (!el) return 1;
+    if (el.currentCSSZoom > 0) return el.currentCSSZoom;
+    const laid = el.offsetWidth;
+    const drawn = laid > 0 ? el.getBoundingClientRect().width : 0;
+    return drawn > 0 ? drawn / laid : 1;
 }
 
 /* The whole drawing, from a button or a call. While the records are still travelling to

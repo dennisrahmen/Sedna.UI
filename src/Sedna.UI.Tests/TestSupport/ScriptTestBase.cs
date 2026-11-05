@@ -93,9 +93,24 @@ public abstract class ScriptTestBase : BrowserTestBase
             HasTouch = hasTouch,
             ReducedMotion = reducedMotion,
             ForcedColors = forcedColors,
-            // The copy tests need the clipboard without a permission prompt.
-            Permissions = new[] { "clipboard-read", "clipboard-write" },
+            // The copy tests need the clipboard without a permission prompt. Playwright's
+            // WebKit knows no clipboard permission and rejects the whole context over an
+            // unknown one; there a page in focus may write the clipboard on a user gesture.
+            Permissions = BrowserEngine.IsWebKit ? [] : ["clipboard-read", "clipboard-write"],
         });
+
+        // Where the clipboard cannot be read back (BrowserEngine.ReadsClipboard), record
+        // what the page writes and pass the write on unchanged, so a refused write still
+        // fails the way it would for a reader.
+        if (!BrowserEngine.ReadsClipboard)
+        {
+            await context.AddInitScriptAsync("""
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    const write = navigator.clipboard.writeText.bind(navigator.clipboard);
+                    navigator.clipboard.writeText = t => { window.__sednaCopied = String(t); return write(t); };
+                }
+                """);
+        }
 
         // Seeding storage has to happen before the document's own scripts run, which is
         // exactly what an init script is for — boot.js reads it during parse.
@@ -222,4 +237,13 @@ public abstract class ScriptTestBase : BrowserTestBase
             colorScheme: scheme, storage: storage);
         return await page.EvaluateAsync<string>("() => document.documentElement.dataset.variant");
     }
+
+    /// <summary>
+    /// What the page last put on the clipboard: read back from the clipboard where the
+    /// engine allows it, otherwise as recorded on its way there.
+    /// </summary>
+    protected static Task<string> ClipboardText(IPage page) =>
+        page.EvaluateAsync<string>(BrowserEngine.ReadsClipboard
+            ? "() => navigator.clipboard.readText()"
+            : "() => window.__sednaCopied ?? ''");
 }

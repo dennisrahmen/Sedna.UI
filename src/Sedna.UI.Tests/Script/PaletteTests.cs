@@ -114,15 +114,15 @@ public class PaletteTests : ScriptTestBase
         // opening an empty panel.
         var page = await Open(Palette);
 
-        await page.Keyboard.PressAsync("Control+k");
+        await page.Keyboard.PressAsync(Keys.Primary("k"));
         Assert.Equal(0, await page.Locator("dialog.palette[open]").CountAsync());
 
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => sednaUi.palette.register([{ label: 'Open queue', run: () => {} }])");
-        await page.Keyboard.PressAsync("Control+k");
+        await page.Keyboard.PressAsync(Keys.Primary("k"));
         Assert.Equal(1, await page.Locator("dialog.palette[open]").CountAsync());
 
-        await page.EvaluateAsync("() => sednaUi.palette.close()");
+        await Js.Run(page, "() => sednaUi.palette.close()");
         Assert.Equal(0, await page.Locator("dialog.palette[open]").CountAsync());
     }
 

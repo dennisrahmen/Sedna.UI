@@ -170,7 +170,7 @@ public class GraphInteractionTests : GraphTestBase
         await Assertions.Expect(page.Locator("#rows [data-graph-row]")).ToHaveCountAsync(1);
         Assert.Equal(["db"], await Eval<string[]>(page, "() => cyOf('g').$(':selected').map(n => n.id())"));
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.select(null))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select(null))");
         await Assertions.Expect(page.Locator("#panel")).ToBeHiddenAsync();
         AssertQuiet();
     }
@@ -258,7 +258,7 @@ public class GraphInteractionTests : GraphTestBase
         if (NoBrowser) return;
         var page = await OpenGraph(Explorer());
         await Ready(page);
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.select('hub'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select('hub'))");
         await Assertions.Expect(page.Locator("#panel")).ToBeVisibleAsync();
 
         // On the page, the panel is as tall as the graph and its body scrolls.
@@ -278,7 +278,7 @@ public class GraphInteractionTests : GraphTestBase
         Assert.Equal(wide.CanvasHeight, wide.Drawn, 1.0);
 
         // Leaving gives the page's layout back.
-        await page.EvaluateAsync("() => document.exitFullscreen()");
+        await Js.Run(page, "() => document.exitFullscreen()");
         await page.WaitForFunctionAsync("() => document.fullscreenElement === null");
         var back = await LayoutOf(page);
         Assert.Equal(onPage.GraphHeight, back.GraphHeight, 1.0);
@@ -389,7 +389,7 @@ public class GraphInteractionTests : GraphTestBase
         if (NoBrowser) return;
         var page = await OpenGraph(Framed());
         await Ready(page);
-        await page.EvaluateAsync("() => document.addEventListener('sedna-graph-open', e => e.preventDefault())");
+        await Js.Run(page, "() => document.addEventListener('sedna-graph-open', e => e.preventDefault())");
 
         var (x, y) = await PointOf(page, "api");
         await page.Mouse.DblClickAsync(x, y);
@@ -412,7 +412,7 @@ public class GraphInteractionTests : GraphTestBase
         // A location.assign() would reload the page under it.
         var page = await OpenGraph(Framed());
         await Ready(page);
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => document.addEventListener('click', e => {
                 const a = e.target.closest && e.target.closest('a[href]');
                 if (!a) return;
@@ -451,7 +451,7 @@ public class GraphInteractionTests : GraphTestBase
         if (NoBrowser) return;
         var page = await OpenGraph(Framed(attrs: "data-graph-eager data-graph-open=\"tap\""));
         await Ready(page);
-        await page.EvaluateAsync("() => document.addEventListener('sedna-graph-open', e => e.preventDefault())");
+        await Js.Run(page, "() => document.addEventListener('sedna-graph-open', e => e.preventDefault())");
         await ClearLog(page);
 
         await Click(page, "db");
@@ -642,7 +642,7 @@ public class GraphInteractionTests : GraphTestBase
         if (NoBrowser) return;
         var page = await OpenGraph(Framed());
         await Ready(page);
-        await page.EvaluateAsync("() => document.addEventListener('sedna-graph-context', e => e.preventDefault())");
+        await Js.Run(page, "() => document.addEventListener('sedna-graph-context', e => e.preventDefault())");
 
         await Click(page, "api", MouseButton.Right);
         await Heard(page, "sedna-graph-context");
@@ -696,7 +696,7 @@ public class GraphInteractionTests : GraphTestBase
 
         await Click(page, "api", MouseButton.Right);
         await Assertions.Expect(page.Locator("#menu")).ToBeVisibleAsync();
-        await page.EvaluateAsync("() => window.scrollBy(0, 300)");
+        await Js.Run(page, "() => window.scrollBy(0, 300)");
         await page.WaitForFunctionAsync("() => scrollY > 0");
 
         await Assertions.Expect(page.Locator("#menu")).ToBeHiddenAsync();
@@ -726,7 +726,7 @@ public class GraphInteractionTests : GraphTestBase
         await Heard(page, "sedna-graph-change", 2);
         Assert.Equal(1, (await Log(page, "sedna-graph-change")).Last().Detail.GetProperty("matches").GetInt32());
 
-        await page.EvaluateAsync("() => document.querySelector('#g [data-node=\"archive\"]').remove()");
+        await Js.Run(page, "() => document.querySelector('#g [data-node=\"archive\"]').remove()");
         await Heard(page, "sedna-graph-change", 3);
         Assert.Equal(6, (await Log(page, "sedna-graph-change")).Last().Detail.GetProperty("totalNodes").GetInt32());
 

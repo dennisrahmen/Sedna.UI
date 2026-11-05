@@ -31,6 +31,18 @@ COPY docs/ docs/
 # already holds to an ARG the Dockerfile names; undeclared, it is not passed at
 # all. Both default to empty and `:-` skips an empty one, so a build that knows
 # neither still produces an image rather than an argument error.
+# The class history is not committed: the tags date it, and this build context has no
+# .git. So the context becomes a commit of its own, the release tags are fetched from
+# GitHub, and the same generator CI runs writes the file (docs/releasing.md). The
+# running site still re-reads the latest release's copy every hour (ReleasedHistory),
+# so a tag made after this deploy is dated without another one.
+COPY .gitignore ./
+COPY build/ build/
+RUN git init -q . \
+ && git add -A \
+ && git -c user.name=build -c user.email=build@example.com commit -qm context \
+ && git fetch -q --no-tags https://github.com/dennisrahmen/Sedna.UI.git 'refs/tags/v*:refs/tags/v*' \
+ && bash build/class-history.sh
 ARG SOURCE_COMMIT=
 ARG RAILWAY_GIT_COMMIT_SHA=
 RUN dotnet publish src/Sedna.UI.Catalogue/Sedna.UI.Catalogue.csproj \

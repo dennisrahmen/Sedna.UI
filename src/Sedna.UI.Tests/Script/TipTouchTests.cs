@@ -15,7 +15,7 @@ public class TipTouchTests : ScriptTestBase
         """;
 
     private static Task Pointer(IPage page, string type) =>
-        page.EvaluateAsync($$"""
+        Js.Run(page, $$"""
             () => document.getElementById('b').dispatchEvent(
                 new PointerEvent('{{type}}', { pointerType: 'touch', bubbles: true, cancelable: true }))
             """);
@@ -78,7 +78,7 @@ public class TipTouchTests : ScriptTestBase
         await page.WaitForTimeoutAsync(450);
         await Assertions.Expect(page.Locator(".sedna-tip")).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("sedna-tip--visible"));
 
-        await page.EvaluateAsync("() => sednaUi.tips.setEnabled(false)");
+        await Js.Run(page, "() => sednaUi.tips.setEnabled(false)");
         Assert.False(await page.EvaluateAsync<bool>("() => !!document.querySelector('.sedna-tip--visible')"));
 
         await Pointer(page, "pointerup");

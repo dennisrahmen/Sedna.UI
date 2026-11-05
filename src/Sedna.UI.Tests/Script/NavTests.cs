@@ -94,7 +94,7 @@ public class NavTests : ScriptTestBase
 
         // A same-page fragment is handled by 29-fragment.js and leaves the address alone,
         // so what is asserted is the click Enter produced.
-        await page.EvaluateAsync("() => document.addEventListener('click', e => window.clicked = e.target.closest('a')?.id)");
+        await Js.Run(page, "() => document.addEventListener('click', e => window.clicked = e.target.closest('a')?.id)");
         await page.Locator("#filter").FillAsync("refund");
         await page.Keyboard.PressAsync("Enter");
         await page.WaitForFunctionAsync("() => window.clicked === 'returns'");
@@ -150,7 +150,7 @@ public class NavTests : ScriptTestBase
         Assert.Equal(new[] { false, true },
             state.GetProperty("visible").EnumerateArray().Select(e => e.GetBoolean()).ToArray());
 
-        await page.EvaluateAsync("() => sednaUi.nav.showArea('p1')");
+        await Js.Run(page, "() => sednaUi.nav.showArea('p1')");
         Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('p1').checkVisibility()"));
     }
 
@@ -163,7 +163,7 @@ public class NavTests : ScriptTestBase
         // The sidebar animates its width; measuring mid-transition reads a width it is passing through.
         await page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
         var open = await page.EvaluateAsync<double>("() => document.getElementById('sidebar').getBoundingClientRect().width");
-        await page.EvaluateAsync("() => document.getElementById('sidebar').classList.add('collapsed')");
+        await Js.Run(page, "() => document.getElementById('sidebar').classList.add('collapsed')");
         var state = await page.EvaluateAsync<JsonElement>("""
             () => ({
                 width: document.getElementById('sidebar').getBoundingClientRect().width,
@@ -238,20 +238,20 @@ public class NavTests : ScriptTestBase
         var (page, _) = await OpenStyled(BottombarFixture);
         await page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
 
-        await page.EvaluateAsync("() => document.getElementById('page').scrollTop = 400");
+        await Js.Run(page, "() => document.getElementById('page').scrollTop = 400");
         await page.WaitForFunctionAsync("() => document.getElementById('bar').hasAttribute('data-away')");
         Assert.Equal(0, await page.EvaluateAsync<double>("() => document.querySelector('.bottombar-items').getBoundingClientRect().height"));
 
         // The scroller's resize is not acted on for a moment after the bar moves; wait that out.
         await page.WaitForTimeoutAsync(500);
-        await page.EvaluateAsync("() => document.getElementById('page').scrollTop = 200");
+        await Js.Run(page, "() => document.getElementById('page').scrollTop = 200");
         await page.WaitForFunctionAsync("() => !document.getElementById('bar').hasAttribute('data-away')");
         await page.WaitForTimeoutAsync(500);
 
         // Focus arriving in a bar that is away brings it back, so a keyboard user never lands on an item they cannot see.
-        await page.EvaluateAsync("() => document.getElementById('page').scrollTop = 900");
+        await Js.Run(page, "() => document.getElementById('page').scrollTop = 900");
         await page.WaitForFunctionAsync("() => document.getElementById('bar').hasAttribute('data-away')");
-        await page.EvaluateAsync("() => document.getElementById('search').focus()");
+        await Js.Run(page, "() => document.getElementById('search').focus()");
         Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('bar').hasAttribute('data-away')"));
     }
 
@@ -264,7 +264,7 @@ public class NavTests : ScriptTestBase
         var (page, _) = await OpenStyled(BottombarFixture.Replace("height:2000px", "height:520px", StringComparison.Ordinal));
         await page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
 
-        await page.EvaluateAsync("() => { const p = document.getElementById('page'); p.scrollTop = p.scrollHeight; }");
+        await Js.Run(page, "() => { const p = document.getElementById('page'); p.scrollTop = p.scrollHeight; }");
         await page.WaitForFunctionAsync("() => document.getElementById('bar').hasAttribute('data-away')");
         await page.WaitForTimeoutAsync(700);
 

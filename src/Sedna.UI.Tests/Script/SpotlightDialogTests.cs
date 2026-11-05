@@ -75,7 +75,7 @@ public class SpotlightDialogTests : ScriptTestBase
     /// step placed during it is placed again when it ends. A test that acts on the
     /// bubble before then is racing that second placement.
     /// </remarks>
-    private static Task OpenPanel(IPage page) => page.EvaluateAsync("""
+    private static Task OpenPanel(IPage page) => Js.Run(page, """
         () => new Promise(done => {
             const d = document.getElementById('panel');
             d.addEventListener('toggle', () => Promise.all(
@@ -101,7 +101,7 @@ public class SpotlightDialogTests : ScriptTestBase
         var (page, errors) = await OpenStyled(Stage);
 
         await OpenPanel(page);
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { tip: '#tip' })");
 
         Assert.Equal("panel", await page.EvaluateAsync<string>(
@@ -131,7 +131,7 @@ public class SpotlightDialogTests : ScriptTestBase
         var (page, errors) = await OpenStyled(
             Stage, extraHead: "<style>:root { --motion-fast: 0s; --motion-slow: 0s }</style>");
 
-        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
+        await Js.Run(page, "() => { sednaUi.modal.show('panel'); }");
 
         // [surface x, surface y, target x, target y] — the header's padding, which is
         // panel and not text, and the middle of the control the step is about.
@@ -147,7 +147,7 @@ public class SpotlightDialogTests : ScriptTestBase
         var surfaceBefore = await Pixel(page, points[0], points[1]);
         var targetBefore = await Pixel(page, points[2], points[3]);
 
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { pad: 0 })");
         await page.WaitForFunctionAsync(
             "() => document.getElementById('hole').matches(':popover-open')",
@@ -185,14 +185,14 @@ public class SpotlightDialogTests : ScriptTestBase
         var (page, errors) = await OpenStyled(Stage);
 
         await OpenPanel(page);
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { tip: '#tip' })");
 
-        await page.EvaluateAsync("() => document.getElementById('key-name').focus()");
+        await Js.Run(page, "() => document.getElementById('key-name').focus()");
         var seen = new List<string>();
         for (var i = 0; i < 8; i++)
         {
-            await page.Keyboard.PressAsync("Tab");
+            await page.Keyboard.PressAsync(Keys.Tab);
             seen.Add(await page.EvaluateAsync<string>("""
                 () => {
                     const a = document.activeElement;
@@ -209,7 +209,7 @@ public class SpotlightDialogTests : ScriptTestBase
 
         // Escape from the bubble closes the dialog: the close watcher is the dialog's
         // own, and nothing here registers one or swallows the key.
-        await page.EvaluateAsync("() => document.getElementById('next').focus()");
+        await Js.Run(page, "() => document.getElementById('next').focus()");
         Assert.Equal("next", await page.EvaluateAsync<string>("() => document.activeElement.id"));
         await page.Keyboard.PressAsync("Escape");
 
@@ -237,7 +237,7 @@ public class SpotlightDialogTests : ScriptTestBase
         // Placed below the anchor, which is the bottom of the dialog: a bubble over the
         // controls this test force-clicks would take the clicks itself, and the count
         // would be right for the wrong reason.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => window.step = sednaUi.spotlight.follow(
                 '#hole', '#anchor',
                 { tip: '#tip', placement: 'bottom', lock: { interactive: true } })
@@ -276,7 +276,7 @@ public class SpotlightDialogTests : ScriptTestBase
         // tour ever reached a dialog.
         var (page, errors) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => window.step = sednaUi.spotlight.follow(
                 '#hole', '[data-live]', { tip: '#tip', pad: 0 })
             """);
@@ -286,7 +286,7 @@ public class SpotlightDialogTests : ScriptTestBase
 
         // Into the dialog: the attribute moves to the control inside it, exactly as a
         // tour advancing a step does.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 document.getElementById('on-page').removeAttribute('data-live');
                 document.getElementById('key-name').setAttribute('data-live', 'yes');
@@ -299,7 +299,7 @@ public class SpotlightDialogTests : ScriptTestBase
         Assert.Equal(new[] { "panel", "yes", "yes", "fixed", "fixed" }, raised[..5]);
 
         // And out again.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 document.getElementById('key-name').removeAttribute('data-live');
                 document.getElementById('on-page').setAttribute('data-live', 'yes');
@@ -310,7 +310,7 @@ public class SpotlightDialogTests : ScriptTestBase
 
         Assert.Equal(plain, await State(page));
 
-        await page.EvaluateAsync("() => window.step.stop()");
+        await Js.Run(page, "() => window.step.stop()");
         Assert.Empty(errors);
     }
 
@@ -326,14 +326,14 @@ public class SpotlightDialogTests : ScriptTestBase
         // to remove.
         var (page, errors) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { tip: '#tip', pad: 0 })");
 
         // Nothing visible to point at yet: the target is inside a closed dialog.
         Assert.Equal("none", await page.EvaluateAsync<string>(
             "() => document.getElementById('hole').style.display"));
 
-        await page.EvaluateAsync("() => { sednaUi.modal.show('panel'); }");
+        await Js.Run(page, "() => { sednaUi.modal.show('panel'); }");
 
         await page.WaitForFunctionAsync(
             "() => document.getElementById('hole').matches(':popover-open')",
@@ -355,7 +355,7 @@ public class SpotlightDialogTests : ScriptTestBase
         // amount that depends on how busy the machine was.
         var (page, errors) = await OpenStyled(Stage);
 
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { tip: '#tip', pad: 0 })");
         await OpenPanel(page);
 

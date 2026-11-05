@@ -91,7 +91,7 @@ public class ChoiceInsetTests : ScriptTestBase
         string fixture, string dir, string density, string extraHead = "")
     {
         var (page, errors) = await OpenStyled(fixture, extraHead);
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "([dir, density]) => { document.documentElement.dir = dir;"
             + " if (density) document.documentElement.dataset.density = density; }",
             new[] { dir, density });

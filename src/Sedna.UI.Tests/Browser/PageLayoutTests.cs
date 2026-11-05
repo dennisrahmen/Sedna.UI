@@ -31,7 +31,7 @@ public class PageLayoutTests : ScriptTestBase
         await page.ClickAsync("button");
         // Measured at rest: a modal opens with a short slide, so a rect read on the click
         // is the animation's, not the modal's.
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => Promise.allSettled(document.getAnimations().map(a => a.finished))");
         // [top gutter, bottom gutter, left gutter, right gutter]
         var gutters = await page.EvaluateAsync<double[]>(

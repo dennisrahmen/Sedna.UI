@@ -131,7 +131,7 @@
        box itself is placed logically by the auto margin above, so there is nothing
        to mirror and 70-rtl.css has no rule for this. */
     background-position: 0 0, 5px 0;
-    background-size: 5px 5px;
+    background-size: 5px 5px, 5px 5px;
     background-repeat: no-repeat;
     transition: rotate var(--motion-fast);
 }

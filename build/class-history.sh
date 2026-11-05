@@ -6,21 +6,19 @@
 # not have gets a page that renders unstyled, with no error anywhere — so every
 # class and token the MCP server returns carries the release it first appeared in.
 #
-#     build/class-history.sh              regenerate the data file
-#     build/class-history.sh --check      fail if it is out of date (CI-friendly)
+#     build/class-history.sh              write the data file
 #
 # `null` means "in the working tree, in no release yet". That is the signal the
 # server actually needs.
 #
-# NOTHING IS DONE BEFORE A RELEASE. The tag is the only thing that dates an entry:
-# once it exists, a plain regeneration turns every `null` the tag covers into its
-# version and moves `latestRelease` onto it. So the first pull request after a
-# release regenerates the file, and --check is what says so. Between the tag and
-# that merge the committed file is behind — every entry the release shipped still
-# reads null — and the hosted catalogue closes that gap itself: release.yml runs
-# this at the tag and attaches the result to the GitHub release, and the site reads
-# the latest release's copy at runtime and takes a version from it wherever its own
-# embedded copy says null (ReleasedHistory, in the catalogue). See docs/releasing.md.
+# THE FILE IS NOT COMMITTED. It depends on the tags, and a tag is made after the
+# merge it dates, so a committed copy was out of date the moment a release was cut
+# and took a pull request of its own to catch up. It is generated instead: CI and
+# release.yml run this before the build, a developer runs it after cloning and after
+# fetching a new tag, and the catalogue image, built without .git, takes the latest
+# release's copy, which release.yml attaches to every GitHub release. The running
+# site re-reads that copy every hour (ReleasedHistory, in the catalogue), so a tag
+# made after the last deploy is dated without a redeploy. See docs/releasing.md.
 #
 # Deliberately NOT written under src/Sedna.UI/wwwroot/, where it would ship
 # inside the package. It is the catalogue app's data.
@@ -61,15 +59,11 @@ library="src/Sedna.UI"
 examples="src/Sedna.UI.Catalogue/Examples"
 out="$root/src/Sedna.UI.Catalogue/Data/class-history.json"
 
-check=0
-case "${1:-}" in
-    "") ;;
-    --check) check=1 ;;
-    *)
-        echo "::error::Unknown argument '$1'. Usage: class-history.sh [--check]" >&2
-        exit 1
-        ;;
-esac
+if [[ $# -gt 0 ]]; then
+    echo "::error::class-history.sh takes no arguments. The file is generated, never committed," >&2
+    echo "        so there is nothing to --check against." >&2
+    exit 1
+fi
 
 # Version order, not tag order: v0.10.0 sorts after v0.9.0 only under -V.
 mapfile -t tags < <(git -C "$root" tag -l 'v*' | sort -V)
@@ -106,7 +100,7 @@ emit_first_seen() {
     # not seen by `set -e` and an unreadable script is simply no output. The
     # stylesheet always declares both kinds, so an empty result means the
     # inventory failed to run — say so, instead of emitting an almost-empty file
-    # and letting --check report it as merely out of date.
+    # that nothing downstream would question.
     if [[ ${#current[@]} -eq 0 ]]; then
         echo "::error::$inventory produced no $kind. It did not run." >&2
         echo "        Check it is executable (git ls-files -s build/) and try: bash $inventory $sheet $kind" >&2
@@ -131,7 +125,7 @@ emit_first_seen() {
 
     # Every release in the output comes from a tag. Resolving none means the path
     # lookup is broken, not that nothing shipped — and the all-null file that would
-    # be written is self-consistent, so --check could never report it.
+    # be written is self-consistent, so nothing downstream could report it.
     if [[ $resolved -eq 0 ]]; then
         echo "::error::No tag yielded a stylesheet, so no release can be attributed." >&2
         echo "        Check build/css-path.sh against: $(git -C "$root" tag -l 'v*' | tr '\n' ' ')" >&2
@@ -226,10 +220,8 @@ emit_example_first_seen() {
     # is derived by reading the same path out of every tag, which an untracked file has
     # no history in.
     #
-    # But it makes running this before `git add` quietly wrong, and --check then agrees
-    # with the file it just failed to notice. That is the failure this repo keeps
-    # finding: one implementation agreeing with itself. So say so out loud, and fail in
-    # --check so CI is not the thing that catches it.
+    # But it makes running this before `git add` quietly wrong: the file would omit
+    # them without a word. So say so out loud and stop.
     local untracked
     untracked=$(git -C "$root" ls-files --others --exclude-standard "$examples")
     if [[ -n "$untracked" ]]; then
@@ -311,17 +303,6 @@ latest="${tags[-1]#v}"
     printf '  }\n'
     printf '}\n'
 } >"$tmp/class-history.json"
-
-if [[ $check -eq 1 ]]; then
-    if [[ -f "$out" ]] && cmp -s "$tmp/class-history.json" "$out"; then
-        echo "ok      class history is up to date (latest release $latest)"
-        exit 0
-    fi
-    echo "::error::class-history.json is out of date. Run build/class-history.sh and commit the result —"
-    echo "        after a release, the first pull request is the one that does."
-    diff -u "$out" "$tmp/class-history.json" 2>/dev/null | head -40 || true
-    exit 1
-fi
 
 mkdir -p "$(dirname "$out")"
 cp "$tmp/class-history.json" "$out"

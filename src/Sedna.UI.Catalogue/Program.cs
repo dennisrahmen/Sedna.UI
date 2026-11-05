@@ -32,7 +32,7 @@ builder.Services.AddSednaUi(o =>
 builder.Services.AddSingleton<CatalogueIndex>();
 builder.Services.AddSingleton<VersionEnvelope>();
 // The latest release's own class history, read at runtime so the site is right
-// between a tag and the first merge after it. ReleasedHistory:Url empty turns it off.
+// between a tag and the next deploy. ReleasedHistory:Url empty turns it off.
 builder.Services.AddSingleton<ReleasedHistory>();
 builder.Services.AddHostedService<ReleasedHistoryFetcher>();
 

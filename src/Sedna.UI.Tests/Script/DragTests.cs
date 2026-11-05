@@ -95,7 +95,7 @@ public class DragTests : ScriptTestBase
     private async Task<IPage> OpenDrag(string body, bool hasTouch = false)
     {
         var page = await Open(body, head: StylesheetTag, hasTouch: hasTouch);
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 window.dragLog = [];
                 for (const name of ['sedna-dragstart', 'sedna-drop', 'sedna-dragend'])
@@ -209,7 +209,7 @@ public class DragTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenDrag(Queue);
-        await page.EvaluateAsync("() => { window.clicks = 0; document.getElementById('open-b').addEventListener('click', () => clicks++); }");
+        await Js.Run(page, "() => { window.clicks = 0; document.getElementById('open-b').addEventListener('click', () => clicks++); }");
 
         await page.Locator("#open-b").ClickAsync();
         Assert.Equal(1, await page.EvaluateAsync<int>("() => clicks"));
@@ -227,7 +227,7 @@ public class DragTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenDrag(Queue);
-        await page.EvaluateAsync("() => document.addEventListener('sedna-dragstart', e => e.preventDefault())");
+        await Js.Run(page, "() => document.addEventListener('sedna-dragstart', e => e.preventDefault())");
 
         await MouseDrag(page, await Point(page, "[data-drag-item=a]"),
             await Point(page, "[data-drag-item=c]"), release: false);
@@ -258,7 +258,7 @@ public class DragTests : ScriptTestBase
         Assert.False(refused[1].Detail.GetProperty("dropped").GetBoolean());
 
         // A task into the same empty lane.
-        await page.EvaluateAsync("() => dragLog.length = 0");
+        await Js.Run(page, "() => dragLog.length = 0");
         await MouseDrag(page, await Point(page, "[data-drag-item=t1]"), await Point(page, "[data-drag-zone=doing]"));
 
         var log = await Log(page);
@@ -287,7 +287,7 @@ public class DragTests : ScriptTestBase
         AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "s2", "sections", "sections", index: 0, fromIndex: 1, keyboard: false);
 
         // And a task goes between the inner lists, which share a group.
-        await page.EvaluateAsync("() => dragLog.length = 0");
+        await Js.Run(page, "() => dragLog.length = 0");
         await MouseDrag(page, await Point(page, "[data-drag-item=k3]"), await Point(page, "[data-drag-item=k2]", fy: 0.8f));
         AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "k3", "s2-tasks", "s1-tasks", index: 2, fromIndex: 0, keyboard: false);
         await AssertNothingLeftBehind(page);
@@ -311,7 +311,7 @@ public class DragTests : ScriptTestBase
         await page.Mouse.UpAsync();
         AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "g0", "tiles", "tiles", index: 2, fromIndex: 0, keyboard: false);
 
-        await page.EvaluateAsync("() => dragLog.length = 0");
+        await Js.Run(page, "() => dragLog.length = 0");
         await MouseDrag(page, await Point(page, "[data-drag-item=g0]"), await Point(page, "[data-drag-item=g4]", fx: 0.2f));
         AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "g0", "tiles", "tiles", index: 3, fromIndex: 0, keyboard: false);
         await AssertNothingLeftBehind(page);
@@ -363,7 +363,8 @@ public class DragTests : ScriptTestBase
     [Fact]
     public async Task A_finger_held_still_lifts_the_item_and_carries_it()
     {
-        if (NoBrowser) return;
+        // Raw touch input needs CDP (see BrowserEngine).
+        if (NoBrowser || !BrowserEngine.HasRawTouch) return;
         var page = await OpenDrag(Queue, hasTouch: true);
         var cdp = await page.Context.NewCDPSessionAsync(page);
 
@@ -386,7 +387,8 @@ public class DragTests : ScriptTestBase
     [Fact]
     public async Task A_finger_that_moves_before_the_hold_is_scrolling_and_lifts_nothing()
     {
-        if (NoBrowser) return;
+        // Raw touch input needs CDP (see BrowserEngine).
+        if (NoBrowser || !BrowserEngine.HasRawTouch) return;
         var page = await OpenDrag(Queue, hasTouch: true);
         var cdp = await page.Context.NewCDPSessionAsync(page);
 
@@ -403,7 +405,8 @@ public class DragTests : ScriptTestBase
     [Fact]
     public async Task A_finger_on_a_handle_lifts_at_once()
     {
-        if (NoBrowser) return;
+        // Raw touch input needs CDP (see BrowserEngine).
+        if (NoBrowser || !BrowserEngine.HasRawTouch) return;
         var page = await OpenDrag(Nested, hasTouch: true);
         var cdp = await page.Context.NewCDPSessionAsync(page);
 
@@ -491,7 +494,7 @@ public class DragTests : ScriptTestBase
         var page = await OpenDrag(Nested);
         // What a Blazor render does: the item is taken out and put back in its new place,
         // which drops focus to <body>.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => document.addEventListener('sedna-drop', e => {
                 const zone = document.querySelector(`[data-drag-zone="${e.detail.to}"]`);
                 const item = document.querySelector(`[data-drag-item="${e.detail.item}"]`);
@@ -621,7 +624,7 @@ public class DragTests : ScriptTestBase
         Assert.Equal(["t1", "t2"], Items(drop));
 
         // With a bug in the selection, a lane that takes only tasks takes none of it.
-        await page.EvaluateAsync("() => { dragLog.length = 0; document.getElementById('pick-b1').checked = true; }");
+        await Js.Run(page, "() => { dragLog.length = 0; document.getElementById('pick-b1').checked = true; }");
         await MouseDrag(page, await Point(page, "[data-drag-item=t1]", fx: 0.7f),
             await Point(page, "[data-drag-zone=doing]"), release: false);
         await Assertions.Expect(page.Locator("[data-drag-zone=doing]")).ToHaveAttributeAsync("data-drop-state", "invalid");
@@ -664,7 +667,7 @@ public class DragTests : ScriptTestBase
         AssertDrop(scattered, "p1", "picked", "picked", index: 0, fromIndex: 0, keyboard: true);
 
         // One and Two together, set down at once: nothing changes, so nothing is sent.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 dragLog.length = 0;
                 document.querySelector('[data-drag-item=p3]').removeAttribute('aria-selected');

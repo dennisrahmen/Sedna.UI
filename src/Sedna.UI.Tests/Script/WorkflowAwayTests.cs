@@ -53,7 +53,7 @@ public class WorkflowAwayTests : ScriptTestBase
         var page = await OpenLong(40);
         await page.WaitForFunctionAsync(Away(39));
 
-        await page.EvaluateAsync("() => { const wf = document.getElementById('wf'); wf.scrollLeft = wf.scrollWidth; }");
+        await Js.Run(page, "() => { const wf = document.getElementById('wf'); wf.scrollLeft = wf.scrollWidth; }");
         await page.WaitForFunctionAsync($"() => !({Away(39)})() && ({Away(0)})()");
     }
 
@@ -63,7 +63,7 @@ public class WorkflowAwayTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenLong(10);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 const wf = document.getElementById('wf');
                 for (let i = 10; i < 40; i++) {
@@ -76,9 +76,9 @@ public class WorkflowAwayTests : ScriptTestBase
         await page.WaitForFunctionAsync(Away(39));
 
         // The page scrolled far past the diagram: every part goes, and comes back with it.
-        await page.EvaluateAsync("() => { document.body.style.paddingBottom = '6000px'; window.scrollTo(0, 5000); }");
+        await Js.Run(page, "() => { document.body.style.paddingBottom = '6000px'; window.scrollTo(0, 5000); }");
         await page.WaitForFunctionAsync(Away(0));
-        await page.EvaluateAsync("() => window.scrollTo(0, 0)");
+        await Js.Run(page, "() => window.scrollTo(0, 0)");
         await page.WaitForFunctionAsync($"() => !({Away(0)})()");
     }
 }

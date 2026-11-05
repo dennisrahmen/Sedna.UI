@@ -121,18 +121,19 @@ reach for `<dialog>` before reaching for `.modal-backdrop`.
 
 ## Browser floor
 
-**Chromium — current Chrome and Edge.** The apps this library serves are deployed to a managed
-Windows estate, and that is the whole of it.
+**The current release of Chromium (Chrome, Edge) and of Safari on iOS and iPadOS.** Every browser test
+runs in both engines.
 
-Two consequences visible in the CSS:
+Consequences visible in the CSS:
 
-- **CSS anchor positioning is used, and load-bearing.** The collapsed rail's hover flyout and
-  `.popover` both depend on it. In an engine without it they do not degrade — the flyout lands at its
-  static position and the popover centres itself in the viewport. `.menu` is deliberately *not*
-  anchored this way: `.menu-anchor` uses `position: relative` and works anywhere.
-- **The select is a customizable select.** `.form-select` sets `appearance: base-select`, so the
-  drop-down is a panel in the page rather than a platform widget, and an `<option>` may hold markup.
-  In an engine without it the control is the platform's own select with a painted caret — the two
+- **CSS anchor positioning is used, and load-bearing.** The collapsed rail's hover flyout, `.popover`,
+  `.menu` and `.form-combo-panel` depend on it, and both engines ship it. In an engine without it they
+  do not degrade — the flyout lands at its static position and the popover centres itself in the
+  viewport.
+- **The select is a customizable select where the engine has one.** `.form-select` sets
+  `appearance: base-select`, so the drop-down is a panel in the page rather than a platform widget, and
+  an `<option>` may hold markup. In an engine without it the control is the platform's own select with
+  a painted caret — the two
   paths are exclusive, behind `@supports`, and neither is a script. The accessible name, the
   keyboard and typeahead are the browser's in both, because it is the same `<select>` either way.
 - **No scroll-driven animations** — they fail *incorrectly*: a browser that drops `animation-timeline`

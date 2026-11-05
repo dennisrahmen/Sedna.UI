@@ -15,7 +15,83 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Fails before anything is built or tested when the tag cannot publish.
+  preflight:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Derive version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' is not a SemVer version (expected v1.2.3 or v1.2.3-rc.1)."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Releasing $VERSION"
+
+      # Without this, a missing NUGET_USER surfaces as an opaque failure inside the
+      # NuGet/login action, after the whole suite has run.
+      - name: Preflight — publishing is configured
+        env:
+          NUGET_USER: ${{ secrets.NUGET_USER }}
+        run: |
+          if [[ -z "$NUGET_USER" ]]; then
+            echo "::error::The NUGET_USER secret is not set. It must hold your nuget.org profile name (not an e-mail address). See README → Releasing."
+            exit 1
+          fi
+          echo "NUGET_USER is set."
+
+  # ── The full suite ───────────────────────────────────────────────────────
+  # A pull request runs a smoke pass (ci.yml); the whole suite runs here, once per
+  # test project and engine, in parallel. Nothing publishes unless every slice is
+  # green. A red slice leaves nothing on nuget.org, so the same version is still
+  # free: delete the tag, merge the fix, tag again (docs/releasing.md).
+  test:
+    needs: preflight
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: true
+      matrix:
+        project: [src/Sedna.UI.Tests, src/Sedna.UI.Catalogue.Tests]
+        engine: [chromium, webkit]
+    name: test (${{ matrix.project }}, ${{ matrix.engine }})
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0      # the tags: class-history.sh dates every entry from them
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Generate the class history
+        run: bash build/class-history.sh
+
+      - name: Build
+        run: dotnet build ${{ matrix.project }} -c Release
+
+      # The browser binaries are not restored with the package, and a missing browser
+      # is a test FAILURE rather than a skip, so this step is not optional.
+      - name: Install ${{ matrix.engine }}
+        run: pwsh ${{ matrix.project }}/bin/Release/net10.0/playwright.ps1 install --with-deps ${{ matrix.engine }}
+
+      - name: Test
+        env:
+          SEDNA_UI_BROWSER_TESTS: '1'
+          SEDNA_UI_BROWSER: ${{ matrix.engine }}
+        run: dotnet test ${{ matrix.project }} -c Release --no-build --verbosity normal
+
   release:
+    needs: [preflight, test]
     runs-on: ubuntu-latest
 
     steps:
@@ -30,45 +106,13 @@ jobs:
 
       - name: Derive version from tag
         id: version
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::Tag '$GITHUB_REF_NAME' is not a SemVer version (expected v1.2.3 or v1.2.3-rc.1)."
-            exit 1
-          fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Releasing $VERSION"
-
-      # Fail before spending a build on a release that cannot publish. Without
-      # this, a missing NUGET_USER surfaces as an opaque failure inside the
-      # NuGet/login action, several minutes in.
-      - name: Preflight — publishing is configured
-        env:
-          NUGET_USER: ${{ secrets.NUGET_USER }}
-        run: |
-          if [[ -z "$NUGET_USER" ]]; then
-            echo "::error::The NUGET_USER secret is not set. It must hold your nuget.org profile name (not an e-mail address). See README → Releasing."
-            exit 1
-          fi
-          echo "NUGET_USER is set."
+        run: echo "version=${{ needs.preflight.outputs.version }}" >> "$GITHUB_OUTPUT"
 
       - name: Restore
         run: dotnet restore Sedna.UI.slnx
 
       - name: Build
         run: dotnet build Sedna.UI.slnx -c Release --no-restore -p:Version=${{ steps.version.outputs.version }}
-
-      # The browser binaries are not restored with the package, and a missing browser
-      # is a test FAILURE rather than a skip — so this step is not optional. Without
-      # it the Test step below fails and no release can ever publish.
-      - name: Install Chromium for the browser tests
-        run: pwsh src/Sedna.UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
-
-      # The same gates as CI. A tag does not get to skip them.
-      - name: Test
-        env:
-          SEDNA_UI_BROWSER_TESTS: '1'
-        run: dotnet test Sedna.UI.slnx -c Release --no-build --verbosity normal
 
       - name: Pack
         run: |
@@ -179,11 +223,10 @@ jobs:
             --notes-file release-notes.md \
             artifacts/*.nupkg artifacts/*.snupkg
       # ── The class history at this tag ──────────────────────────────────────
-      # Regenerated here, with the tag present, so every entry this release ships
-      # is dated by it. The committed copy on main is regenerated by the first pull
-      # request after the release and is behind until then; the hosted catalogue
-      # reads this asset at runtime and takes a version from it wherever its own
-      # copy still says null (ReleasedHistory, in the catalogue project).
+      # Generated here, with the tag present, so every entry this release ships is
+      # dated by it. This asset is where the history lives: nothing in the repo
+      # records it. The catalogue image takes it at build time, and the running site
+      # re-reads it every hour (ReleasedHistory, in the catalogue project).
       - name: Attach the class history at this tag
         env:
           GH_TOKEN: ${{ github.token }}

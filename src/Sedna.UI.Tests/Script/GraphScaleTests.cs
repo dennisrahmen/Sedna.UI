@@ -50,7 +50,7 @@ public class GraphScaleTests : GraphTestBase
     {
         var page = await OpenGraph(Graph(inside: "", attrs: "data-graph-eager data-graph-deferred data-graph-layout=\"islands\""));
         await Ready(page);
-        await page.EvaluateAsync($$"""
+        await Js.Run(page, $$"""
             async () => {
                 const g = await sednaUi.graph.get('g');
                 window.graphData = ({{Build}})();
@@ -69,7 +69,7 @@ public class GraphScaleTests : GraphTestBase
     private static async Task Quiet(IPage page)
     {
         await page.WaitForTimeoutAsync(400);
-        await page.EvaluateAsync("() => { window.restyled = 0; window.changedData = 0; }");
+        await Js.Run(page, "() => { window.restyled = 0; window.changedData = 0; }");
     }
 
     private static Task<int> Elements(IPage page) => page.EvaluateAsync<int>("() => cyOf('g').elements().length");
@@ -105,9 +105,9 @@ public class GraphScaleTests : GraphTestBase
         var page = await Large();
         var all = await Elements(page);
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.select('team-7'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select('team-7'))");
         await page.WaitForTimeoutAsync(500);
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.select(null))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select(null))");
         await page.WaitForTimeoutAsync(500);
         var count = await page.EvaluateAsync<int>("() => restyled");
         Assert.True(count < all / 5, $"Selecting a record and clearing it restyled {count} of {all} elements.");
@@ -121,7 +121,7 @@ public class GraphScaleTests : GraphTestBase
         // A dialog locking the scroll, a class an app toggles on <html>: the canvas repaints
         // only when a colour it is painted with has changed.
         var page = await Large();
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 document.documentElement.classList.add('app-busy');
                 document.documentElement.style.overflow = 'hidden';
@@ -131,7 +131,7 @@ public class GraphScaleTests : GraphTestBase
         Assert.Equal(0, await page.EvaluateAsync<int>("() => restyled"));
 
         // The theme itself still repaints it.
-        await page.EvaluateAsync("() => sednaUi.settings.save('variant', 'light')");
+        await Js.Run(page, "() => sednaUi.settings.save('variant', 'light')");
         await page.WaitForFunctionAsync("() => restyled > 0");
         AssertQuiet();
     }
@@ -143,7 +143,7 @@ public class GraphScaleTests : GraphTestBase
         var page = await Large();
         var all = await Elements(page);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             async () => {
                 const g = await sednaUi.graph.get('g');
                 const d = window.graphData;
@@ -170,7 +170,7 @@ public class GraphScaleTests : GraphTestBase
         var before = await Positions(page);
 
         // The same records with three states set: a run moving through a large map.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             async () => {
                 const g = await sednaUi.graph.get('g');
                 const d = window.graphData;
@@ -200,15 +200,15 @@ public class GraphScaleTests : GraphTestBase
         // brought up to date when the view comes near them, not on every step of the zoom.
         var page = await Large();
         var all = await Elements(page);
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 const cy = cyOf('g');
                 cy.zoom({ level: 2.5, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
             }
             """);
         await page.WaitForTimeoutAsync(500);
-        await page.EvaluateAsync("() => { restyled = 0; }");
-        await page.EvaluateAsync("""
+        await Js.Run(page, "() => { restyled = 0; }");
+        await Js.Run(page, """
             () => {
                 const cy = cyOf('g');
                 cy.zoom({ level: 3, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
@@ -235,7 +235,7 @@ public class GraphScaleTests : GraphTestBase
                 return cy.getElementById(id).data('zoom') !== seen[0].data('zoom');
             }
             """, far), "A record far from the view was restyled for it.");
-        await page.EvaluateAsync("id => cyOf('g').center(cyOf('g').getElementById(id))", far);
+        await Js.Run(page, "id => cyOf('g').center(cyOf('g').getElementById(id))", far);
         await page.WaitForTimeoutAsync(500);
         Assert.True(await page.EvaluateAsync<bool>("""
             () => {
@@ -247,7 +247,7 @@ public class GraphScaleTests : GraphTestBase
             """), "A record the view reached still holds the zoom of an earlier view.");
 
         // An export draws the whole drawing, so everything is brought up to date for it first.
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.export('svg'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.export('svg'))");
         Assert.True(await page.EvaluateAsync<bool>("""
             () => { const cy = cyOf('g'), z = cy.nodes()[0].data('zoom');
                     return z > 1 && cy.nodes().every(n => n.data('zoom') === z); }
@@ -266,15 +266,15 @@ public class GraphScaleTests : GraphTestBase
         var all = await Elements(page);
         var first = await Positions(page);
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.layout())");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.layout())");
         await page.WaitForTimeoutAsync(600);
         var restyled = await page.EvaluateAsync<int>("() => restyled");
         Assert.True(restyled < all / 3, $"Laying the drawing out again restyled {restyled} of {all} elements.");
         SamePlaces(first, await Positions(page), "after laying it out again");
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.filter({ except: { group: ['team-3'] } }))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.filter({ except: { group: ['team-3'] } }))");
         Assert.Equal(870, (await Shown(page)).Length);
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.filter({}))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.filter({}))");
         await page.WaitForTimeoutAsync(600);
         SamePlaces(first, await Positions(page), "after a group was hidden and shown");
         AssertQuiet();
@@ -350,12 +350,12 @@ public class GraphScaleTests : GraphTestBase
         if (NoBrowser) return;
         var page = await OpenGraph(Graph());
         await Ready(page);
-        await page.EvaluateAsync("() => { const cy = cyOf('g'); cy.emit('dragpan'); cy.panBy({ x: 120, y: 40 }); }");
+        await Js.Run(page, "() => { const cy = cyOf('g'); cy.emit('dragpan'); cy.panBy({ x: 120, y: 40 }); }");
         await page.WaitForTimeoutAsync(300);
         var before = await page.EvaluateAsync<JsonElement>("() => cyOf('g').pan()");
 
         // A video on the page going to full screen and back: nothing of the graph's.
-        await page.EvaluateAsync("() => document.dispatchEvent(new Event('fullscreenchange'))");
+        await Js.Run(page, "() => document.dispatchEvent(new Event('fullscreenchange'))");
         await page.WaitForTimeoutAsync(300);
         var after = await page.EvaluateAsync<JsonElement>("() => cyOf('g').pan()");
         Assert.Equal(before.GetProperty("x").GetDouble(), after.GetProperty("x").GetDouble(), 3);

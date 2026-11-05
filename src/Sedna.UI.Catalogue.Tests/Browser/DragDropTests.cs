@@ -89,7 +89,8 @@ public class DragDropTests(CatalogueAppFixture app)
     [Fact]
     public async Task At_phone_width_a_finger_held_on_a_tile_carries_it()
     {
-        if (app.NoBrowser) return;
+        // Raw touch input needs CDP (see BrowserEngine).
+        if (app.NoBrowser || !BrowserEngine.HasRawTouch) return;
         var page = await Open(width: 390, height: 844, touch: true);
         var cdp = await page.Context.NewCDPSessionAsync(page);
 

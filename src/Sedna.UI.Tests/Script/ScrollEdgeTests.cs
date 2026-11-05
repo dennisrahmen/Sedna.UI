@@ -49,11 +49,11 @@ public class ScrollEdgeTests : ScriptTestBase
         await page.WaitForFunctionAsync("() => document.getElementById('s').hasAttribute('data-scroll-start')");
         Assert.Equal(["data-scroll-start"], await Marks(page));
 
-        await page.EvaluateAsync("() => { document.getElementById('s').scrollLeft = 100; }");
+        await Js.Run(page, "() => { document.getElementById('s').scrollLeft = 100; }");
         await page.WaitForFunctionAsync("() => !document.getElementById('s').hasAttribute('data-scroll-start')");
         Assert.Empty(await Marks(page));
 
-        await page.EvaluateAsync("() => { const s = document.getElementById('s'); s.scrollLeft = s.scrollWidth; }");
+        await Js.Run(page, "() => { const s = document.getElementById('s'); s.scrollLeft = s.scrollWidth; }");
         await page.WaitForFunctionAsync("() => document.getElementById('s').hasAttribute('data-scroll-end')");
         Assert.Equal(["data-scroll-end"], await Marks(page));
     }
@@ -63,7 +63,7 @@ public class ScrollEdgeTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var (page, _) = await OpenStyled("<div id=\"host\"></div>");
-        await page.EvaluateAsync($$"""
+        await Js.Run(page, $$"""
             () => { document.getElementById('host').innerHTML = `{{Fits}}`; }
             """);
         await page.WaitForFunctionAsync("() => document.getElementById('s').hasAttribute('data-scroll-end')");

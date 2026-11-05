@@ -189,9 +189,9 @@ public class OverlayLayoutTests : ScriptTestBase
         // Opened and closed again, because the closed state after an open is the one that
         // regressed — a dialog that has never been opened is trivially hidden.
         await page.ClickAsync("button:has-text('Filters')");
-        await page.EvaluateAsync("() => document.getElementById('side').close()");
-        await page.EvaluateAsync("() => document.getElementById('m').showModal()");
-        await page.EvaluateAsync("() => document.getElementById('m').close()");
+        await Js.Run(page, "() => document.getElementById('side').close()");
+        await Js.Run(page, "() => document.getElementById('m').showModal()");
+        await Js.Run(page, "() => document.getElementById('m').close()");
 
         foreach (var id in new[] { "side", "start", "sheet", "p", "m" })
         {
@@ -336,7 +336,7 @@ public class OverlayLayoutTests : ScriptTestBase
         var (page, errors) = await OpenStyled(
             Panels, extraHead: "<style>:root { --motion-mid: 600s }</style>");
 
-        await page.EvaluateAsync("(dir) => { document.documentElement.dir = dir; }", dir);
+        await Js.Run(page, "(dir) => { document.documentElement.dir = dir; }", dir);
         await page.ClickAsync("button:has-text('Sheet')");
         // Sampling before the dialog is open reads a `display: none` box, where the
         // percentage has nothing to resolve against and the matrix comes back as the
@@ -389,7 +389,7 @@ public class OverlayLayoutTests : ScriptTestBase
             """);
         await page.SetViewportSizeAsync(viewport, 800);
 
-        await page.EvaluateAsync("() => document.getElementById('wide').showModal()");
+        await Js.Run(page, "() => document.getElementById('wide').showModal()");
         var box = await Box(page, "wide");
 
         Assert.Equal(expected, box[1] - box[0], 1);

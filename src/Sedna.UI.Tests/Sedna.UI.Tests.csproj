@@ -25,7 +25,7 @@
     <!-- Drives a real browser over the catalogue. Restores like any other package;
          the browser binaries are a separate `playwright install` step, so the tests
          that need them skip when they are absent (see BrowserTests). -->
-    <PackageReference Include="Microsoft.Playwright" Version="1.56.0" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.64.1" />
     <!-- axe-core over the same Playwright pages. It finds the WCAG rules a source
          scan cannot see at all: a missing accessible name, a broken label
          association, a contrast pair the token audit did not think to check. -->

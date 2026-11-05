@@ -32,7 +32,8 @@ public class AvatarPresenceTests : ScriptTestBase
     [InlineData("avatar avatar-lg")]
     public async Task Every_presence_state_is_a_different_shape_in_forced_colours(string avatarClass)
     {
-        if (NoBrowser) return;
+        // Forced colours exist in Chromium only (see BrowserEngine).
+        if (NoBrowser || !BrowserEngine.EmulatesForcedColors) return;
         var marks = string.Join("\n", States.Select(s =>
             $"""<span class="avatar-presence avatar-presence--{s}" id="p-{s}"><span class="{avatarClass}">AF</span></span>"""));
         var (page, _) = await OpenStyled($"""<div style="display:flex;gap:24px;padding:24px">{marks}</div>""");

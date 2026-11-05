@@ -116,9 +116,9 @@ public class WorkflowLayoutTests : ScriptTestBase
     private async Task<IPage> OpenRun(string? html = null, bool rtl = false, ReducedMotion? motion = null)
     {
         var page = await Open(html ?? Run, head: StylesheetTag, reducedMotion: motion);
-        if (rtl) await page.EvaluateAsync("() => document.documentElement.dir = 'rtl'");
+        if (rtl) await Js.Run(page, "() => document.documentElement.dir = 'rtl'");
         await page.SetViewportSizeAsync(1600, 900);
-        await page.EvaluateAsync(Helpers);
+        await Js.Run(page, Helpers);
         return page;
     }
 
@@ -401,7 +401,7 @@ public class WorkflowLayoutTests : ScriptTestBase
             "The overview scrolls instead of fitting.");
 
         // Too narrow to share out, a step keeps room for its name and the overview scrolls.
-        await page.EvaluateAsync("() => document.getElementById('wf').parentElement.style.width = '360px'");
+        await Js.Run(page, "() => document.getElementById('wf').parentElement.style.width = '360px'");
         var node = await page.EvaluateAsync<double>("() => parseFloat(getComputedStyle(document.getElementById('wf')).getPropertyValue('--workflow-node'))");
         Assert.True(await page.EvaluateAsync<double>("() => box('f1').w") >= node * 0.75 - 0.5, "A step was squeezed below its floor.");
         Assert.True(await page.EvaluateAsync<bool>("() => { const w = document.getElementById('wf'); return w.scrollWidth > w.clientWidth; }"),
@@ -423,7 +423,7 @@ public class WorkflowLayoutTests : ScriptTestBase
             <span id="probe"></span>
             """);
 
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
         Assert.Equal("wf", await page.EvaluateAsync<string>("() => document.activeElement.id"));
         // The ring is drawn inside the diagram, which clips anything outside it.
         Assert.Contains("inset", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('wf')).boxShadow"), StringComparison.Ordinal);
@@ -455,13 +455,13 @@ public class WorkflowLayoutTests : ScriptTestBase
 
         // An agent's step wears the agent's two colours on its edge instead, still; the
         // same class on a step not at work does nothing.
-        await page.EvaluateAsync("() => ['p1b', 'a'].forEach(id => document.getElementById(id).classList.add('workflow-node--agent'))");
+        await Js.Run(page, "() => ['p1b', 'a'].forEach(id => document.getElementById(id).classList.add('workflow-node--agent'))");
         var edge = await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('p1b')).backgroundImage");
         Assert.Contains("linear-gradient(90deg", edge, StringComparison.Ordinal);
         Assert.Contains(await page.EvaluateAsync<string>("() => colour('--agent-from')"), edge, StringComparison.Ordinal);
         Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('a')).backgroundImage"));
         // A glow is the plain edge with a glow round it.
-        await page.EvaluateAsync("() => document.getElementById('p1b').classList.replace('workflow-node--agent', 'workflow-node--glow')");
+        await Js.Run(page, "() => document.getElementById('p1b').classList.replace('workflow-node--agent', 'workflow-node--glow')");
         Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('p1b')).backgroundImage"));
         Assert.Contains("22px", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('p1b')).getPropertyValue('--workflow-glow')"), StringComparison.Ordinal);
     }
@@ -554,7 +554,7 @@ public class WorkflowLayoutTests : ScriptTestBase
         // One field: the wire into a fork and the way into the branch at work start their
         // light at the same place, the step before the fork, so a streak runs from one
         // into the other without a joint.
-        await page.EvaluateAsync("() => document.getAnimations().forEach(a => { a.pause(); a.currentTime = 0; })");
+        await Js.Run(page, "() => document.getAnimations().forEach(a => { a.pause(); a.currentTime = 0; })");
         var trunk = await Eval(page, "() => field('sf', '::before')");
         foreach (var pseudo in new[] { "::before", "::after" })
         {
@@ -678,7 +678,7 @@ public class WorkflowLayoutTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenRun($"<div style=\"width: 380px\">{Down("workflow--down")}</div>");
-        await page.EvaluateAsync($"() => {{ window.railX = {RailX}; }}");
+        await Js.Run(page, $"() => {{ window.railX = {RailX}; }}");
 
         // The steps stack, and the wire between two runs down the rail between them.
         Assert.True(await Eval(page, "() => box('db').y") > await Eval(page, "() => box('da').bottom"), "The steps do not stack.");
@@ -771,7 +771,7 @@ public class WorkflowLayoutTests : ScriptTestBase
         Assert.Equal("workflow-flow", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('df'), '::before').animationName"));
 
         // And the wire into the fork shares its field, so the light comes down without a joint.
-        await page.EvaluateAsync("() => document.getAnimations().forEach(a => { a.pause(); a.currentTime = 0; })");
+        await Js.Run(page, "() => document.getAnimations().forEach(a => { a.pause(); a.currentTime = 0; })");
         var trunk = await Eval(page, "() => field('df', '::before')");
         var branch = await Eval(page, $"() => field('b{running}', '::before')");
         Assert.True(Math.Abs(trunk - branch) < 0.6, $"The wire into the fork's light starts at {trunk}, the branch's at {branch}.");
@@ -847,7 +847,7 @@ public class WorkflowLayoutTests : ScriptTestBase
         var light = await page.EvaluateAsync<string>("() => colour('--flow-light')");
         Assert.Equal("running", await page.EvaluateAsync<string>($"() => ({Play})('j1-path', '::before')"));
 
-        await page.EvaluateAsync("() => document.getElementById('wf').classList.add('workflow--flow-off')");
+        await Js.Run(page, "() => document.getElementById('wf').classList.add('workflow--flow-off')");
         foreach (var (id, pseudo) in new[] { ("j1-path", "::before"), ("sf", "::before"), ("sf2", "::before"), ("after-loop", "::before") })
             Assert.Equal("paused", await page.EvaluateAsync<string>($"() => ({Play})('{id}', '{pseudo}')"));
         // No streak, and the line under it is the light's own colour.
@@ -875,11 +875,11 @@ public class WorkflowLayoutTests : ScriptTestBase
         var normal = await Pace();
         Assert.Equal(240, (await page.EvaluateAsync<double[]>(Wire))[1], 1);
 
-        await page.EvaluateAsync("() => document.getElementById('wf').style.setProperty('--workflow-flow-speed', '0.5')");
+        await Js.Run(page, "() => document.getElementById('wf').style.setProperty('--workflow-flow-speed', '0.5')");
         Assert.Equal(normal / 2, await Pace(), 1);
         Assert.Equal(240, (await page.EvaluateAsync<double[]>(Wire))[1], 1);
 
-        await page.EvaluateAsync("() => { const wf = document.getElementById('wf'); wf.style.removeProperty('--workflow-flow-speed'); wf.style.setProperty('--workflow-flow-packets', '2'); }");
+        await Js.Run(page, "() => { const wf = document.getElementById('wf'); wf.style.removeProperty('--workflow-flow-speed'); wf.style.setProperty('--workflow-flow-packets', '2'); }");
         Assert.Equal(120, (await page.EvaluateAsync<double[]>(Wire))[1], 1);
         Assert.Equal(normal, await Pace(), 1);
 

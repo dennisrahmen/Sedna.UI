@@ -143,8 +143,9 @@ a.stat--danger:hover { background: var(--danger-bg-hover); }
     grid-template-columns: repeat(auto-fit, minmax(min(calc(150px - 2 * var(--space-7)), 100%), 1fr));
     column-gap: calc(2 * var(--space-7));
     row-gap: var(--space-7);
-    overflow: clip;
-    overflow-clip-margin: var(--space-6);
+    /* The clip margin as a negative inset, which every engine on the floor draws the same
+       way: Safari has no overflow-clip-margin. */
+    clip-path: inset(calc(var(--space-6) * -1));
 }
 .stat-row--divided > .stat,
 .card-body > .stat-row > .stat { position: relative; }
