@@ -362,15 +362,17 @@ public class ComboTests : ScriptTestBase
         await page.Keyboard.PressAsync("ArrowDown");
         Assert.Equal(0, await page.EvaluateAsync<int>("() => more"));
 
-        await Js.Run(page, "() => { list.setAttribute('aria-busy', 'true'); list.scrollTop = list.scrollHeight; }");
-        await page.WaitForTimeoutAsync(100);
+        // Each scroll is waited for by its own event, not by a fixed time.
+        const string ScrollTo = "async top => { const done = new Promise(r => list.addEventListener('scroll', () => setTimeout(r, 50), { once: true })); list.scrollTop = top === 'end' ? list.scrollHeight : top; await done; }";
+        await Js.Run(page, "() => list.setAttribute('aria-busy', 'true')");
+        await Js.Run(page, ScrollTo, "end");
         Assert.Equal(0, await page.EvaluateAsync<int>("() => more"));
 
         // Two separate scrolls: back to the top and down again in one task is no scroll at all.
-        await Js.Run(page, "() => { list.removeAttribute('aria-busy'); list.scrollTop = 0; }");
-        await page.WaitForTimeoutAsync(100);
-        await Js.Run(page, "() => { list.scrollTop = list.scrollHeight; }");
-        await page.WaitForTimeoutAsync(100);
+        await Js.Run(page, "() => list.removeAttribute('aria-busy')");
+        await Js.Run(page, ScrollTo, 0);
+        await Js.Run(page, ScrollTo, "end");
+        await page.WaitForFunctionAsync("() => more === 1");
         Assert.Equal(1, await page.EvaluateAsync<int>("() => more"));
     }
 

@@ -39,7 +39,7 @@ public class GraphEngineTests
     {
         // The same shapes the other two scripts are held to: the module ships to every app that
         // installs the package, comments included.
-        var found = RealWorldShapes.FoundIn(File.ReadAllText(GraphJsPath));
+        var found = RealWorldShapes.FoundIn(File.ReadAllText(GraphJsPath) + File.ReadAllText(Assets.Readable("Sedna.UI.graph.js")));
         Assert.True(found.Count == 0, $"Sedna.UI.graph.js names something real: {string.Join(", ", found)}");
     }
 

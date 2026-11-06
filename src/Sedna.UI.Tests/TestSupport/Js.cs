@@ -25,6 +25,14 @@ internal static class Js
     public static Task Run(IPage page, string script) =>
         page.EvaluateAsync($"async () => {{ const v = ({script}); if (typeof v === 'function') await v(); else await v; }}");
 
+    /// <summary>
+    /// Finishes every running transition and finite animation on the page, then waits a frame —
+    /// for reading a style a state change animates towards. The animation clock, not a
+    /// wait: under load a frame can come later than any wait that keeps the suite fast.
+    /// </summary>
+    public static Task Settle(IPage page) =>
+        page.EvaluateAsync("async () => { document.getAnimations().forEach(a => { if (a.effect?.getComputedTiming().endTime !== Infinity) a.finish(); }); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); }");
+
     public static Task Run(IPage page, string script, object? arg) =>
         page.EvaluateAsync($"async (a) => {{ const v = ({script}); if (typeof v === 'function') await v(a); else await v; }}", arg);
 }

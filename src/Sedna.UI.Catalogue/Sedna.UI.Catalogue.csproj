@@ -69,7 +69,9 @@
     <!-- The docs the MCP server serves verbatim. Never retyped: a test asserts the
          host-page block it returns is a substring of getting-started.md. -->
     <EmbeddedResource Include="..\..\docs\*.md" LinkBase="Docs" WithCulture="false" />
-    <EmbeddedResource Include="Data\*.json" WithCulture="false" />
+    <!-- The class history build/class-history.sh writes into the library, which embeds it
+         for SednaContract; the MCP server embeds the same file. Never committed. -->
+    <EmbeddedResource Include="..\Sedna.UI\Contract\class-history.json" Link="Data\class-history.json" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>

@@ -108,8 +108,9 @@ public class ScriptContractTests
         // see the `No real names` section of the repo's CLAUDE.md for the rest.
         //
         // Read with comments intact, deliberately: a snippet inside one is as published
-        // as a line of code.
-        foreach (var path in new[] { Assets.JsPath, Assets.BootJsPath })
+        // as a line of code — the served copy has none, and the readable copy that ships
+        // in the package has all of them.
+        foreach (var path in new[] { Assets.JsPath, Assets.Readable("Sedna.UI.js"), Assets.BootJsPath })
         {
             var js = File.ReadAllText(path);
             var found = RealWorldShapes.FoundIn(js);
@@ -125,7 +126,7 @@ public class ScriptContractTests
         // The same shapes for the sheet, which ships and is served publicly too, and
         // whose comments carry markup snippets — a first name used as demo content sat
         // in one of them and reached every installing app.
-        var found = RealWorldShapes.FoundIn(File.ReadAllText(Assets.CssPath));
+        var found = RealWorldShapes.FoundIn(File.ReadAllText(Assets.CssPath) + File.ReadAllText(Assets.Readable("Sedna.UI.css")));
 
         Assert.True(found.Count == 0,
             $"The stylesheet names something real: {string.Join(", ", found)}");

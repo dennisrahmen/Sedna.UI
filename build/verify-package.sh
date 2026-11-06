@@ -64,6 +64,12 @@ REQUIRED=(
     "staticwebassets/lib/quill/VENDORED.txt"
     # The orb: its module, which Sedna.UI.js imports the first time a page shows one.
     "staticwebassets/js/Sedna.UI.orb.js"
+    # The commented copies of the generated bundles: packed, never served.
+    "readable/Sedna.UI.css"
+    "readable/Sedna.UI.js"
+    "readable/Sedna.UI.graph.js"
+    "readable/Sedna.UI.editor.js"
+    "readable/Sedna.UI.orb.js"
     "README.md"
     "LICENSE"
     "THIRD-PARTY-NOTICES.md"
@@ -108,6 +114,27 @@ elif ! grep -q -- '--brand:' "$css"; then
     failed=1
 else
     echo "  ok      packed stylesheet carries the token layer ($(wc -c <"$css" | tr -d ' ') bytes)"
+fi
+
+# SednaContract answers from the class history embedded in the assembly; a package built
+# without it would compile and throw in every app test that asks.
+tmpdll="$(mktemp -d)"
+unzip -q -o "$PACKAGE" 'lib/*/Sedna.UI.dll' -d "$tmpdll"
+if grep -aq 'Sedna.UI.class-history.json' "$tmpdll"/lib/*/Sedna.UI.dll; then
+    echo "  ok      the assembly carries its class history"
+else
+    echo "::error::Sedna.UI.dll has no embedded class history. Run build/class-history.sh before building."
+    failed=1
+fi
+rm -rf "$tmpdll"
+
+# The commented copies are for reading, and must never become a second path an app
+# could link: nothing of readable/ may land under staticwebassets/.
+if grep -q '^staticwebassets/readable/' <<<"$CONTENTS"; then
+    echo "::error::readable/ was packed as a static web asset. It must sit outside wwwroot."
+    failed=1
+else
+    echo "  ok      readable copies are not static web assets"
 fi
 
 # "The catalogue ships in the package" used to be a test-enforced rule. Its inverse

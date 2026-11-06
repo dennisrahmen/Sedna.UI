@@ -17,6 +17,10 @@ internal static class Assets
 
     public static string ProjectDir => Path.Combine(RepoRoot, "src", "Sedna.UI");
     public static string WwwrootDir => Path.Combine(ProjectDir, "wwwroot");
+
+    /// <summary>The commented copy of a generated bundle, which ships under readable/ in the
+    /// package and is never served. The served copy is the same text without comments.</summary>
+    public static string Readable(string fileName) => Path.Combine(ProjectDir, "readable", fileName);
     public static string CssPath => Path.Combine(ProjectDir, "wwwroot", "css", "Sedna.UI.css");
     public static string JsPath => Path.Combine(ProjectDir, "wwwroot", "js", "Sedna.UI.js");
     public static string GraphJsPath => Path.Combine(ProjectDir, "wwwroot", "js", "Sedna.UI.graph.js");

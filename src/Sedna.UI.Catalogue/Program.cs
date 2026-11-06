@@ -46,6 +46,9 @@ builder.Services
     // the heap. That is an abuse-control property, not only a scaling one.
     .WithHttpTransport(options => options.Stateless = true)
     .WithTools<CatalogueTools>()
+    // Every call's arguments are checked against the tool's own schema first, so a
+    // mistake is answered in words rather than "An error occurred invoking …".
+    .WithRequestFilters(filters => filters.AddCallToolFilter(ArgumentGuard.Wrap))
     .WithResources<CatalogueResources>();
 
 builder.Services.AddRateLimiter(options =>
@@ -69,7 +72,9 @@ builder.Services.AddRateLimiter(options =>
         RateLimitPartition.GetTokenBucketLimiter(CallerKey(context),
             _ => new TokenBucketRateLimiterOptions
             {
-                TokenLimit = 60,
+                // Configurable only so the test suite, which calls every tool many times
+                // from one address, does not run into it; production keeps 60.
+                TokenLimit = builder.Configuration.GetValue("Mcp:CallerTokenLimit", 60),
                 TokensPerPeriod = 30,
                 ReplenishmentPeriod = TimeSpan.FromMinutes(1),
                 QueueLimit = 0,

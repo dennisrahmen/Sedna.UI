@@ -386,7 +386,7 @@ public class FrameLayoutTests : ScriptTestBase
         // its words stacked and overlapping the next link.
         Assert.Equal(restingLabel, Convert.ToInt32(mid[3], System.Globalization.CultureInfo.InvariantCulture));
 
-        await Js.Run(page, "() => document.getAnimations().forEach(a => a.finish())");
+        await Js.Run(page, "() => document.getAnimations().forEach(a => { if (a.effect?.getComputedTiming().endTime !== Infinity) a.finish(); })");
         await Js.Run(page, "() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))");
         var done = await page.EvaluateAsync<object[]>(probe);
         Assert.Equal(56, Convert.ToInt32(done[0], System.Globalization.CultureInfo.InvariantCulture));

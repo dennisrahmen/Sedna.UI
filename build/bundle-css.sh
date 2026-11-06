@@ -44,6 +44,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PARTS="$ROOT/src/Sedna.UI/css-parts"
 OUT="$ROOT/src/Sedna.UI/wwwroot/css/Sedna.UI.css"
+# The readable copy, every comment kept. It is not a static web asset — it ships in the
+# package under readable/ — and the served copy above is made from it without comments.
+READABLE="$ROOT/src/Sedna.UI/readable/Sedna.UI.css"
 
 if [[ ! -d "$PARTS" ]]; then
     echo "::error::No css-parts directory at $PARTS"
@@ -69,7 +72,8 @@ for f in "${FILES[@]}"; do
 done
 
 TMP="$(mktemp)"
-trap 'rm -f "$TMP"' EXIT
+SERVED="$(mktemp)"
+trap 'rm -f "$TMP" "$SERVED"' EXIT
 
 # The layer a part belongs to, derived from its NN- prefix.
 layer_for() {
@@ -135,15 +139,22 @@ for f in "${FILES[@]}"; do
     printf '}\n\n' >> "$TMP"
 done
 
+{
+    echo "/*! Sedna.UI — generated, comments stripped. The commented copy ships in the package as readable/Sedna.UI.css. */"
+    python3 -I "$ROOT/build/strip-comments.py" css < "$TMP"
+} > "$SERVED"
+
 if [[ "${1:-}" == "--check" ]]; then
-    if cmp -s "$TMP" "$OUT"; then
+    if cmp -s "$TMP" "$READABLE" && cmp -s "$SERVED" "$OUT"; then
         echo "ok      bundle is up to date (${#FILES[@]} parts)"
         exit 0
     fi
-    echo "::error::$OUT does not match css-parts/. Run build/bundle-css.sh"
-    diff "$OUT" "$TMP" | head -40 || true
+    echo "::error::$OUT or $READABLE does not match css-parts/. Run build/bundle-css.sh"
+    diff "$READABLE" "$TMP" | head -40 || true
     exit 1
 fi
 
-cp "$TMP" "$OUT"
-echo "wrote   $(basename "$OUT") from ${#FILES[@]} parts ($(wc -l < "$OUT") lines)"
+mkdir -p "$(dirname "$READABLE")"
+cat "$TMP" > "$READABLE"
+cat "$SERVED" > "$OUT"
+echo "wrote   $(basename "$OUT") from ${#FILES[@]} parts ($(wc -l < "$READABLE") lines readable, $(wc -l < "$OUT") served)"

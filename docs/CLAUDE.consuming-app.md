@@ -169,6 +169,17 @@ on the element, not a class to override. `--toolbar-input-width`, `--search-max`
 `style="--search-max: 340px"` — rather than declaring `max-width` for a library class, which the
 section below is about. If the number you need has no knob, that is a request for the library.
 
+### Check the classes this app uses
+
+`SednaContract.Classes` holds every class the installed package declares, with the release that
+first shipped it, and `SednaContract.Tokens` the same for tokens. A test can hold this app's markup
+to it, so a mistyped class or one newer than the pinned version fails a test instead of rendering
+unstyled:
+
+```csharp
+Assert.True(SednaContract.Classes.ContainsKey("card-head"), ".card-head is not a Sedna.UI class.");
+```
+
 ### Do not style a class name the library owns
 
 Every class in the catalogue belongs to the library. If this app defines a rule for one of those names,

@@ -88,6 +88,7 @@ What the package ships that markup cannot express:
 | `ISednaOverlays`, `SednaOverlay`, `SednaOverlayHost` | Presents an app component as a modal, drawer or sheet and returns the result it closed with |
 | `ISednaGraphs`, `SednaGraphData`, `SednaGraphNode`, `SednaGraphEdge`, `SednaGraphFilter`, `SednaGraphStats`, `SednaGraphTone`, `SednaGraphLayout` | Typed access to the graphs on a page by their element's id: records, filters, search, focus, layout, export — see [graph.md](graph.md) |
 | `ISednaEditors`, `SednaEditorState` | Typed access to the rich-text editors on a page by their element's id, for what a binding to the textarea cannot do: the document's state, replacing it, typing at the caret, inserting an image or a video, focus, and switching editing off |
+| `SednaContract` | Every class and token the stylesheet declares, with the release that first shipped it — for an app's own tests. Read from the class history embedded at build time. |
 | `AddSednaUi()` | Registers the above, scoped to the circuit |
 | `EventHandlers`, `SednaDropEventArgs`, `SednaDragEventArgs`, `SednaGraphEventArgs`, `SednaGraphNodeEventArgs`, `SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs`, `SednaEditorEventArgs`, `SednaEditorMediaEventArgs`, `SednaFollowEventArgs` | Makes `@onsedna-drop`, `@onsedna-dragstart`, `@onsedna-dragend`, the `@onsedna-graph-*` and the `@onsedna-editor-*` events and `@onsedna-follow` bindable with their data, in every hosting model — a Blazor Web App, a standalone Server app and a standalone WebAssembly app. The Razor compiler finds an event only through a class named exactly `EventHandlers`, in a namespace the component imports |
 
@@ -845,10 +846,13 @@ stylesheet. A page that shows a graph fetches `Sedna.UI.graph.js` (about 40KB) a
 feature most pages never show. The package carries all of it: about 380KB more `.nupkg`, none of which a
 page without a graph ever requests.
 
-**No minification.** Measured on the shipped assets: minifying the CSS and JS saves **4,360 brotli
-bytes**, about **2% of first load**. The .NET SDK already serves the stylesheet gzipped at 11,289
-bytes. The cost would be a build step, a second artefact to keep in step with the parts, and a
-stylesheet nobody can read in DevTools or in the restored package. Not worth 2%.
+**Comments stripped, nothing else.** The served stylesheet and scripts are the bundles with their
+comments taken out by `build/strip-comments.py`, and nothing renamed, reordered or collapsed, so
+DevTools still shows readable rules and code. The commented bundles ship in the package under
+`readable/` and are never static web assets. Measured when this was introduced (November 2026), with
+gzip: the stylesheet went from 244 KB to 68 KB, the main script from 87 KB to 37 KB, and the five
+bundles together from 426 KB to 164 KB. Both bundlers write both copies, `--check` compares both,
+and `GeneratedArtefactTests` holds the served copy to the readable one.
 
 **`MapStaticAssets`, not `UseStaticFiles`.** The publish writes a `.br` and a `.gz` beside every
 compressible asset; `UseStaticFiles` can serve neither, so the 466KB stylesheet went out raw for the

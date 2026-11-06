@@ -44,7 +44,9 @@ public class BrandNamingTests
 
     public static IEnumerable<object[]> ShippedAssets() =>
     [
-        [Assets.CssPath], [Assets.JsPath], [Assets.BootJsPath], [Assets.TokensPath]
+        [Assets.CssPath], [Assets.JsPath], [Assets.BootJsPath], [Assets.TokensPath],
+        // The commented copies ship in the package too.
+        [Assets.Readable("Sedna.UI.css")], [Assets.Readable("Sedna.UI.js")],
     ];
 
     [Theory]
@@ -114,6 +116,8 @@ public class BrandNamingTests
     {
         [Assets.CssPath] = "Fix the source in css-parts/, then rerun build/bundle-css.sh — never edit this generated file directly.",
         [Assets.JsPath] = "Fix the source in js-parts/, then rerun build/bundle-js.sh — never edit this generated file directly.",
+        [Assets.Readable("Sedna.UI.css")] = "Fix the source in css-parts/, then rerun build/bundle-css.sh — never edit this generated file directly.",
+        [Assets.Readable("Sedna.UI.js")] = "Fix the source in js-parts/, then rerun build/bundle-js.sh — never edit this generated file directly.",
     };
 
     private static bool IsBuildOutput(string path) =>

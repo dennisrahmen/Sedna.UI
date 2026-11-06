@@ -31,7 +31,7 @@ public class EditorEngineTests
     [Fact]
     public void The_editor_module_names_nothing_real()
     {
-        var found = RealWorldShapes.FoundIn(File.ReadAllText(EditorJsPath));
+        var found = RealWorldShapes.FoundIn(File.ReadAllText(EditorJsPath) + File.ReadAllText(Assets.Readable("Sedna.UI.editor.js")));
         Assert.True(found.Count == 0, $"Sedna.UI.editor.js names something real: {string.Join(", ", found)}");
     }
 }

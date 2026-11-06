@@ -20,8 +20,10 @@
 # site re-reads that copy every hour (ReleasedHistory, in the catalogue), so a tag
 # made after the last deploy is dated without a redeploy. See docs/releasing.md.
 #
-# Deliberately NOT written under src/Sedna.UI/wwwroot/, where it would ship
-# inside the package. It is the catalogue app's data.
+# Written to src/Sedna.UI/Contract/, outside wwwroot: the library embeds it in its
+# assembly for SednaContract, which tells an app's tests what each name is and when it
+# shipped, and the catalogue embeds the same file for its MCP server. It is never a
+# static web asset.
 #
 # Sits on build/css-inventory.sh, which is the one implementation of "what does
 # this stylesheet declare". Both of its extractions are subtle — read its header
@@ -57,7 +59,9 @@ api="$root/build/api-inventory.sh"
 # css-path.sh was written for.
 library="src/Sedna.UI"
 examples="src/Sedna.UI.Catalogue/Examples"
-out="$root/src/Sedna.UI.Catalogue/Data/class-history.json"
+# Inside the library, embedded in its assembly: SednaContract answers from it, and the
+# catalogue embeds the same file for its MCP server. Never committed (see .gitignore).
+out="$root/src/Sedna.UI/Contract/class-history.json"
 
 if [[ $# -gt 0 ]]; then
     echo "::error::class-history.sh takes no arguments. The file is generated, never committed," >&2

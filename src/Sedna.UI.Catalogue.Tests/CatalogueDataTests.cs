@@ -24,7 +24,7 @@ namespace Sedna.UI.Catalogue.Tests;
 public class CatalogueDataTests
 {
     private static JsonDocument History() => JsonDocument.Parse(File.ReadAllText(
-        Path.Combine(CatalogueAssets.AppDir, "Data", "class-history.json")));
+        Path.Combine(Sedna.UI.Tests.TestSupport.Assets.ProjectDir, "Contract", "class-history.json")));
 
     [Theory]
     [InlineData("classes")]

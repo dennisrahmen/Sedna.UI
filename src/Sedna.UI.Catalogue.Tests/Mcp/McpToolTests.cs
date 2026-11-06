@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Sedna.UI.Catalogue.Mcp;
@@ -464,6 +465,128 @@ public class McpToolTests(CatalogueAppFixture app)
     // ── plumbing ────────────────────────────────────────────────────────────
 
     private static string Normalise(string s) => s.Replace("\r\n", "\n", StringComparison.Ordinal);
+
+    // ── Arguments, checked against each tool's own schema (ArgumentGuard) ──────────────
+    // A consuming app's agent called get_example with "ids": "Stat/Tones" and got only
+    // "An error occurred invoking 'get_example'", and reported the tool broken. Every test
+    // below walks every tool the server lists, so a tool added later is held to the same.
+
+    private static readonly string[] Opaque = ["An error occurred invoking"];
+
+    [Fact]
+    public async Task Every_tool_the_server_lists_is_called_once_and_answers()
+    {
+        var listed = (await Rpc("tools/list")).GetProperty("tools").EnumerateArray()
+            .Select(t => t.GetProperty("name").GetString()!).OrderBy(n => n, StringComparer.Ordinal).ToList();
+
+        Assert.Equal(listed, EveryTool.Select(t => t.Name).OrderBy(n => n, StringComparer.Ordinal));
+        foreach (var (name, arguments) in EveryTool)
+        {
+            var result = await Rpc("tools/call", new { name, arguments });
+            Assert.False(result.TryGetProperty("isError", out var e) && e.GetBoolean(),
+                $"{name} failed on its known-good call: {result.GetProperty("content")[0].GetProperty("text").GetString()}");
+        }
+    }
+
+    [Fact]
+    public async Task Every_list_argument_also_takes_a_single_value()
+    {
+        foreach (var tool in (await Rpc("tools/list")).GetProperty("tools").EnumerateArray())
+        {
+            var name = tool.GetProperty("name").GetString()!;
+            var good = JsonSerializer.SerializeToElement(EveryTool.Single(t => t.Name == name).Arguments);
+            foreach (var property in tool.GetProperty("inputSchema").GetProperty("properties").EnumerateObject())
+            {
+                if (!property.Value.TryGetProperty("type", out var type) || type.ToString() != "array") continue;
+                Assert.True(good.TryGetProperty(property.Name, out var list) && list.GetArrayLength() > 0,
+                    $"EveryTool's call to {name} gives no {property.Name}, so the single-value form is untested.");
+
+                var arguments = good.EnumerateObject().ToDictionary(p => p.Name, p => (object)p.Value);
+                arguments[property.Name] = list[0];
+                var result = await Rpc("tools/call", new { name, arguments });
+
+                Assert.False(result.TryGetProperty("isError", out var e) && e.GetBoolean(),
+                    $"{name} refused a single {property.Name}: {result.GetProperty("content")[0].GetProperty("text").GetString()}");
+            }
+        }
+    }
+
+    [Fact]
+    public async Task A_wrong_argument_is_answered_in_words_that_name_it()
+    {
+        foreach (var tool in (await Rpc("tools/list")).GetProperty("tools").EnumerateArray())
+        {
+            var name = tool.GetProperty("name").GetString()!;
+            var good = JsonSerializer.SerializeToElement(EveryTool.Single(t => t.Name == name).Arguments);
+
+            var unknown = good.EnumerateObject().ToDictionary(p => p.Name, p => (object)p.Value);
+            unknown["no_such_argument"] = "x";
+            var said = await Failure(name, unknown);
+            Assert.Contains("no_such_argument", said, StringComparison.Ordinal);
+            Assert.DoesNotContain(Opaque[0], said, StringComparison.Ordinal);
+
+            foreach (var property in tool.GetProperty("inputSchema").GetProperty("properties").EnumerateObject())
+            {
+                var wrong = good.EnumerateObject().ToDictionary(p => p.Name, p => (object)p.Value);
+                wrong[property.Name] = new { not = "a value any tool takes" };
+                said = await Failure(name, wrong);
+                Assert.Contains(property.Name, said, StringComparison.Ordinal);
+                Assert.DoesNotContain(Opaque[0], said, StringComparison.Ordinal);
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData("data-copy", "Script/CopyValue")]
+    [InlineData("copy a value", "Script/CopyValue")]
+    [InlineData("data-copied-show", "Script/CopyWithoutHandler")]
+    public async Task A_behaviour_is_findable_by_its_attribute_and_its_task(string query, string expected)
+    {
+        // An app asked for "copy a value", "data-copy" and "clipboard" and found nothing
+        // relevant, while the script supported all of it. Examples now carry the data-*
+        // attributes they use beside their classes.
+        var refs = (await Tool("search", new { query, kind = "example" }))
+            .GetProperty("hits").EnumerateArray()
+            .Select(h => h.GetProperty("ref").GetString()).Take(5).ToList();
+
+        Assert.Contains(expected, refs);
+    }
+
+    [Fact]
+    public async Task Every_class_the_stylesheet_declares_can_be_described()
+    {
+        // Read independently of the index: every class name in a selector of the served
+        // sheet, at any depth. A class declared only inside @media — .table--stack — used
+        // to come back notFound, which reads to an agent as "the library has no such class".
+        var css = Regex.Replace(File.ReadAllText(Path.Combine(Assets.RepoRoot,
+            "src", "Sedna.UI", "wwwroot", "css", "Sedna.UI.css")), @"/\*.*?\*/", " ", RegexOptions.Singleline);
+        var names = Regex.Matches(css, @"(?:^|[},;])\s*(?<selector>[^{};@]+)\{")
+            .SelectMany(m => Regex.Matches(m.Groups["selector"].Value, @"\.(-?[a-zA-Z][a-zA-Z0-9-]*)").Select(c => c.Groups[1].Value))
+            .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList();
+        Assert.Contains("table--stack", names);
+
+        var missing = new List<string>();
+        foreach (var batch in names.Chunk(10))
+        {
+            var found = await Tool("describe_class", new { names = batch });
+            missing.AddRange(found.GetProperty("notFound").EnumerateArray().Select(n => n.GetString()!));
+        }
+        Assert.True(missing.Count == 0, "describe_class does not find: " + string.Join(", ", missing));
+    }
+
+    [Fact]
+    public async Task Every_resource_the_server_lists_can_be_read()
+    {
+        var resources = (await Rpc("resources/list")).GetProperty("resources").EnumerateArray().ToList();
+        Assert.NotEmpty(resources);
+        foreach (var resource in resources)
+        {
+            var uri = resource.GetProperty("uri").GetString()!;
+            var contents = (await Rpc("resources/read", new { uri })).GetProperty("contents");
+            Assert.True(contents.GetArrayLength() > 0, $"{uri} read back nothing.");
+            Assert.False(string.IsNullOrWhiteSpace(contents[0].GetProperty("text").GetString()), $"{uri} is empty.");
+        }
+    }
 
     private async Task<JsonElement> Initialize() => await Rpc("initialize", new
     {

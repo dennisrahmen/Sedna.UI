@@ -108,6 +108,10 @@ jobs:
         id: version
         run: echo "version=${{ needs.preflight.outputs.version }}" >> "$GITHUB_OUTPUT"
 
+      # SednaContract answers from it, so it is generated before the library is built.
+      - name: Generate the class history
+        run: bash build/class-history.sh
+
       - name: Restore
         run: dotnet restore Sedna.UI.slnx
 
@@ -233,4 +237,4 @@ jobs:
         run: |
           bash build/class-history.sh
           gh release upload "$GITHUB_REF_NAME" \
-            src/Sedna.UI.Catalogue/Data/class-history.json --clobber
+            src/Sedna.UI/Contract/class-history.json --clobber

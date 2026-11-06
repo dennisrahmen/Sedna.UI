@@ -129,21 +129,32 @@ bundle() {
         printf '\n' >> "$tmp"
     done
 
+    # The readable copy keeps every comment and ships in the package under readable/;
+    # the served one is made from it without them.
+    local readable served
+    readable="$ROOT/src/Sedna.UI/readable/$(basename "$out")"
+    served="$(mktemp)"
+    {
+        echo "/*! Sedna.UI — generated, comments stripped. The commented copy ships in the package as readable/$(basename "$out"). */"
+        python3 -I "$ROOT/build/strip-comments.py" js < "$tmp"
+    } > "$served"
     if [[ "$CHECK" -eq 1 ]]; then
-        if cmp -s "$tmp" "$out"; then
+        if cmp -s "$tmp" "$readable" && cmp -s "$served" "$out"; then
             echo "ok      $(basename "$out") is up to date (${#files[@]} parts)"
         else
-            echo "::error::$out does not match $rel/. Run build/bundle-js.sh"
-            diff "$out" "$tmp" | head -40 || true
+            echo "::error::$out or $readable does not match $rel/. Run build/bundle-js.sh"
+            diff "$readable" "$tmp" | head -40 || true
             failed=1
         fi
-        rm -f "$tmp"
+        rm -f "$tmp" "$served"
         return
     fi
 
-    cp "$tmp" "$out"
-    rm -f "$tmp"
-    echo "wrote   $(basename "$out") from ${#files[@]} parts ($(wc -l < "$out") lines)"
+    mkdir -p "$(dirname "$readable")"
+    cat "$tmp" > "$readable"
+    cat "$served" > "$out"
+    rm -f "$tmp" "$served"
+    echo "wrote   $(basename "$out") from ${#files[@]} parts ($(wc -l < "$readable") lines readable, $(wc -l < "$out") served)"
 }
 
 bundle "$ROOT/src/Sedna.UI/js-parts"    "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.js"       script
