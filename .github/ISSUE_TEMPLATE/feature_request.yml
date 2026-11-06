@@ -1,0 +1,74 @@
+name: Feature request
+description: A token, variant, state, class or behaviour the library is missing.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository is public. Use generic names in everything you write here: "a settings page", "a dashboard card", `example.com`. No organisation, internal app, host, ticket or person.
+        Requests are judged by the rules in [docs/issues.md](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/issues.md). What ships may be shaped differently from what you propose, and wider: every component with the same gap gets the fix.
+  - type: input
+    id: version
+    attributes:
+      label: Sedna.UI version
+      placeholder: "0.28.0"
+    validations:
+      required: true
+  - type: checkboxes
+    id: searched
+    attributes:
+      label: Already there?
+      options:
+        - label: I searched the [catalogue](https://www.sedna-ui.com/) (or its MCP server's `search`) for a class, token or attribute that does this.
+          required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of change
+      options:
+        - A token — a value my app could set
+        - A variant, state or size of an existing component
+        - A new class or component family
+        - A behaviour of the script
+        - A C# member
+        - Something exists but is not documented or findable
+    validations:
+      required: true
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      description: The class family it belongs to, if any.
+      placeholder: ".media-frame"
+  - type: textarea
+    id: need
+    attributes:
+      label: What the screen needs
+      description: The problem, described as UI — what it must show or do that it cannot today. Leave your app's business out of it.
+    validations:
+      required: true
+  - type: textarea
+    id: today
+    attributes:
+      label: What you write today instead
+      description: Your app's own CSS, markup or script for it, if any. It shows the exact shape of the gap.
+      render: css
+  - type: textarea
+    id: almost
+    attributes:
+      label: What almost fits
+      description: The class, token or variant that comes closest, and where it falls short.
+  - type: textarea
+    id: elsewhere
+    attributes:
+      label: Same gap elsewhere
+      description: Other components where you would expect the same thing — they are fixed together.
+  - type: textarea
+    id: access
+    attributes:
+      label: Keyboard, touch and screen reader
+      description: For a behaviour — how it should work without a pointer, on a touch screen, and what a screen reader should hear.
+  - type: textarea
+    id: proposal
+    attributes:
+      label: A shape you would suggest
+      description: Optional. A name, a token or an attribute.
