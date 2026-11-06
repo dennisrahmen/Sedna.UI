@@ -104,7 +104,8 @@ public class ToastPresentTests : ScriptTestBase
         Assert.Null(results["closed"]);
         Assert.Null(results["dismissed"]);
         Assert.Null(results["timed out"]);
-        Assert.Equal(0, await page.Locator(".toast").CountAsync());
+        // The result is in during the click; the element leaves a moment after it.
+        await Assertions.Expect(page.Locator(".toast")).ToHaveCountAsync(0);
 
         // Asked after it ended, it still answers how.
         Assert.Equal("review", await page.EvaluateAsync<string?>("() => sednaUi.toast.result(1)"));
