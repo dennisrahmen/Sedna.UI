@@ -82,7 +82,7 @@ public class ToastPresentTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open(Templates);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 window.results = {};
                 const watch = (name, id) => sednaUi.toast.result(id).then(v => window.results[name] = v);
@@ -118,7 +118,7 @@ public class ToastPresentTests : ScriptTestBase
         {
             ["/orders/4182"] = new("<p>ORD-4182</p>", "text/html; charset=utf-8"),
         });
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 const id = sednaUi.toast.present('assigned', { title: 'Assigned to you', href: '/orders/4182' }, { timeout: 0 });
                 sednaUi.toast.result(id).then(v => sessionStorage.setItem('ended', v));
@@ -162,7 +162,7 @@ public class ToastPresentTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open(Templates + """<dialog class="modal" id="dlg"><p>Editing</p></dialog>""");
         await Js.Run(page, "() => document.getElementById('dlg').showModal()");
-        await page.EvaluateAsync("() => { sednaUi.toast.result(sednaUi.toast.present('review', { title: 'Check this' }, { timeout: 0 })).then(v => window.ended = v); }");
+        await Js.Run(page, "() => { sednaUi.toast.result(sednaUi.toast.present('review', { title: 'Check this' }, { timeout: 0 })).then(v => window.ended = v); }");
         await page.WaitForFunctionAsync("() => document.querySelector('[data-sedna-toasts]').parentElement.id === 'dlg' && !document.querySelector('.toast').hidden");
 
         await page.Locator("#later").ClickAsync(new() { Timeout = 2000 });
@@ -174,7 +174,7 @@ public class ToastPresentTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Templates);
-        await page.EvaluateAsync("() => sednaUi.toast.present('review', { title: 'Check this' }, { timeout: 1200 })");
+        await page.EvaluateAsync<int>("() => sednaUi.toast.present('review', { title: 'Check this' }, { timeout: 1200 })");
         await page.WaitForFunctionAsync("() => !document.querySelector('.toast').hidden");
         await page.HoverAsync(".toast");
         await page.WaitForTimeoutAsync(1600);

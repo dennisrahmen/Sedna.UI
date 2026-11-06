@@ -6,8 +6,8 @@
     {
         <div class="card" id="@($"tile-{tile.Name}")" tabindex="0"
              @oncontextmenu="e => Open(tile, e)" @oncontextmenu:preventDefault="true">
-            <div class="card-body">
-                <span class="card-title">@tile.Name</span>
+            <div class="card-body sedna-col">
+                <strong>@tile.Name</strong>
                 <span class="text-muted">@(tile.Locked ? "Locked by a deploy" : "Running")</span>
             </div>
         </div>

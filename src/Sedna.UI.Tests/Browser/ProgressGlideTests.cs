@@ -53,7 +53,7 @@ public class ProgressGlideTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open("""<span class="progress-ring" id="ring" style="--progress: var(--blazor-load-percentage, 0%)"></span>""",
             head: StylesheetTag, reducedMotion: ReducedMotion.Reduce);
-        await page.EvaluateAsync("() => document.documentElement.style.setProperty('--blazor-load-percentage', '40%')");
+        await Js.Run(page, "() => document.documentElement.style.setProperty('--blazor-load-percentage', '40%')");
         var value = await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('ring')).getPropertyValue('--progress').trim()");
         Assert.Equal("40%", value);
     }

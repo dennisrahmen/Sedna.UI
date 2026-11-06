@@ -88,13 +88,14 @@ public class FrameMutedTextTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled(Frame);
-        await page.EvaluateAsync("""
+        await page.EvaluateAsync<string>("""
             ([v, c, d]) => {
                 const h = document.documentElement;
                 h.dataset.variant = v;
                 if (c) h.dataset.contrast = c;
                 if (d) h.dataset.cvd = d;
                 document.getElementById('panel').hidden = false;
+                return v;
             }
             """, new[] { variant, contrast, cvd });
 
@@ -119,7 +120,7 @@ public class FrameMutedTextTests : ScriptTestBase
               .bottombar { --bottombar-surface: var(--orbit-800); --bottombar-fg: var(--white); --bottombar-muted: var(--orbit-100); }
             </style>
             """);
-        await page.EvaluateAsync("() => { document.documentElement.dataset.variant = 'light'; document.getElementById('panel').hidden = false; }");
+        await Js.Run(page, "() => { document.documentElement.dataset.variant = 'light'; document.getElementById('panel').hidden = false; }");
 
         var inks = await page.EvaluateAsync<Dictionary<string, string>>("""
             () => {

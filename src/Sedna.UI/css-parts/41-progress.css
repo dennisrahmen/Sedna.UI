@@ -99,6 +99,7 @@
     --progress-ring-radius: calc((var(--progress-ring-size) - var(--progress-ring-width)) / 2);
     content: "";
     position: absolute;
+    /* rtl-ok: the arc is a conic gradient, which turns clockwise from the top in either direction */
     left: calc(50% + var(--progress-ring-radius) * sin(var(--progress-ring-turn)) - var(--progress-ring-width) / 2);
     top: calc(50% - var(--progress-ring-radius) * cos(var(--progress-ring-turn)) - var(--progress-ring-width) / 2);
     inline-size: var(--progress-ring-width);

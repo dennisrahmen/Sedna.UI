@@ -22,7 +22,7 @@ public class TextDiffTests : ScriptTestBase
               <div class="card"><div class="card-body prose"><p>Returns are <del>free</del> <ins>free within 30 days</ins>.</p></div></div>
             </div>
             """);
-        await page.EvaluateAsync("v => document.documentElement.dataset.variant = v", variant);
+        await page.EvaluateAsync<string>("v => document.documentElement.dataset.variant = v", variant);
 
         var result = await page.EvaluateAsync<string[]>("""
             () => {

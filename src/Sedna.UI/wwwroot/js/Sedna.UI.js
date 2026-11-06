@@ -4621,8 +4621,7 @@ window.sednaUi = window.sednaUi || {};
             if (!entry.template) return;
             var t = e.target instanceof Element ? e.target.closest('[data-toast-value], .toast-close') : null;
             if (!t || !el.contains(t)) return;
-            var value = t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null;
-            setTimeout(function () { entry.remove(value); }, 0);
+            entry.remove(t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null, true);
         });
     }
     function timeOut(entry, opts) {
@@ -4696,11 +4695,13 @@ window.sednaUi = window.sednaUi || {};
         var id = nextId++;
         var entry = { id: id, el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0, waiters: [], template: false };
         wire(entry, entry.el);
-        entry.remove = function (value) {
+        entry.remove = function (value, later) {
             if (live[id] !== entry) return;
             clearTimeout(entry.timer);
             delete live[id];
-            drop(entry.el);
+            var el = entry.el;
+            if (later === true) setTimeout(function () { drop(el); }, 0);
+            else drop(el);
             value = typeof value === 'string' ? value : null;
             end(id, value);
             var waiters = entry.waiters;

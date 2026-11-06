@@ -61,7 +61,7 @@ public class FieldStateTests : ScriptTestBase
         var (page, errors) = await OpenStyled(body,
             // A transition would hand back a colour on its way there.
             "<style>*, *::before, *::after { transition: none !important; }</style>");
-        await page.EvaluateAsync("v => document.documentElement.dataset.variant = v", variant);
+        await page.EvaluateAsync<string>("v => document.documentElement.dataset.variant = v", variant);
 
         var failures = await page.EvaluateAsync<string[]>("""
             () => {

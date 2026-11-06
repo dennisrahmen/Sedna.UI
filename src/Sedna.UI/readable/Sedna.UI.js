@@ -7812,10 +7812,10 @@ window.sednaUi = window.sednaUi || {};
             if (!entry.template) return;
             var t = e.target instanceof Element ? e.target.closest('[data-toast-value], .toast-close') : null;
             if (!t || !el.contains(t)) return;
-            var value = t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null;
-            // After the click has run its course: a link still navigates, and a router listening
-            // on the document still sees the link it came from.
-            setTimeout(function () { entry.remove(value); }, 0);
+            // Settled now, so the answer is in before a link navigates away; the element leaves
+            // after the click has run its course, so a router listening on the document still
+            // sees the link it came from.
+            entry.remove(t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null, true);
         });
     }
 
@@ -7921,11 +7921,13 @@ window.sednaUi = window.sednaUi || {};
 
         // `value` is how it ended: a toast the app wrote ends with the value of the control
         // pressed; anything else that takes a toast away ends it with null.
-        entry.remove = function (value) {
+        entry.remove = function (value, later) {
             if (live[id] !== entry) return;
             clearTimeout(entry.timer);
             delete live[id];
-            drop(entry.el);
+            var el = entry.el;
+            if (later === true) setTimeout(function () { drop(el); }, 0);
+            else drop(el);
             value = typeof value === 'string' ? value : null;
             end(id, value);
             var waiters = entry.waiters;

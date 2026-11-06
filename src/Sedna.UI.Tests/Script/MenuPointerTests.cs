@@ -82,9 +82,9 @@ public class MenuPointerTests : ScriptTestBase
             """);
         async Task<bool> Open() => await page.EvaluateAsync<bool>("() => document.getElementById('m').matches(':popover-open')");
         async Task Scroll(string id, string by) =>
-            await page.EvaluateAsync($"() => {{ document.getElementById('{id}').scrollTop += {by}; }}");
+            await Js.Run(page, $"() => {{ document.getElementById('{id}').scrollTop += {by}; }}");
 
-        await page.EvaluateAsync($"() => sednaUi.menu.openAt('m', 160, 115, {about})");
+        Assert.True(await page.EvaluateAsync<bool>($"() => sednaUi.menu.openAt('m', 160, 115, {about})"));
         Assert.True(await Open());
 
         await Scroll("m", "40");          // the menu's own list, never
@@ -99,8 +99,9 @@ public class MenuPointerTests : ScriptTestBase
         }
 
         await Scroll("scroller", "60");
-        await page.WaitForTimeoutAsync(50);
-        Assert.False(await Open());
+        // A scroll event can land a frame later under load; the close is what is waited for.
+        await page.WaitForFunctionAsync("() => !document.getElementById('m').matches(':popover-open')",
+            null, new() { Timeout = 5000 });
         Assert.Empty(errors);
     }
 
@@ -191,7 +192,7 @@ public class MenuPointerTests : ScriptTestBase
         await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();      // and nothing pinned it
 
         // Chromium focuses a clicked button and WebKit does not, so start from no focus at all.
-        await page.EvaluateAsync("() => document.activeElement && document.activeElement.blur()");
+        await Js.Run(page, "() => { if (document.activeElement) document.activeElement.blur(); }");
         await page.FocusAsync("#t");
         await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();    // focus opens it, as hover does
         await page.Keyboard.PressAsync("Enter");
