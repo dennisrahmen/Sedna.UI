@@ -55,7 +55,13 @@ window.sednaUi = window.sednaUi || {};
         return node;
     }
     var HOLD = 300;
-    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD };
+    function safeHref(url) {
+        if (url == null) return null;
+        var s = String(url).trim();
+        if (!s) return null;
+        return /^(https?:|mailto:|tel:|[^:\/?#]*(?:[\/?#]|$))/i.test(s) ? s : null;
+    }
+    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD, safeHref: safeHref };
     ui.configure = function (opts) {
         if (!opts) return;
         Object.keys(opts).forEach(function (k) {
@@ -1012,15 +1018,16 @@ window.sednaUi = window.sednaUi || {};
         if (option.getAttribute('aria-disabled') === 'true') return;
         var input = inputOf(host);
         if (managed(host)) { selectManaged(host, option); mark(host); }
+        var clear = function () { if (input.value) setQuery(input, ''); };
         if (modeOf(host) === 'multi') {
             setActive(host, option);
-            if (input.value) setQuery(input, '');
+            setTimeout(clear, 0);
             input.focus();
             return;
         }
-        setQuery(input, '');
         close(host);
         input.focus();
+        setTimeout(clear, 0);
     }
     function splitter(host) {
         var input = inputOf(host);
@@ -1439,9 +1446,11 @@ window.sednaUi = window.sednaUi || {};
         var tabs = tabsIn(list);
         var at = tabs.indexOf(tab);
         if (at < 0) return;
+        var rtl = getComputedStyle(list).direction === 'rtl';
+        var next = rtl ? 'ArrowLeft' : 'ArrowRight', prev = rtl ? 'ArrowRight' : 'ArrowLeft';
         var to = -1;
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') to = (at + 1) % tabs.length;
-        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') to = (at - 1 + tabs.length) % tabs.length;
+        if (e.key === next || e.key === 'ArrowDown') to = (at + 1) % tabs.length;
+        else if (e.key === prev || e.key === 'ArrowUp') to = (at - 1 + tabs.length) % tabs.length;
         else if (e.key === 'Home') to = 0;
         else if (e.key === 'End') to = tabs.length - 1;
         else return;
@@ -1526,7 +1535,7 @@ window.sednaUi = window.sednaUi || {};
         close();
         if (!c) return;
         if (typeof c.run === 'function') c.run();
-        else if (c.href) go(c.href);
+        else if (ui._.safeHref(c.href)) go(ui._.safeHref(c.href));
     }
     function go(href) {
         var a = document.createElement('a');
@@ -1682,7 +1691,8 @@ window.sednaUi = window.sednaUi || {};
             title: item.title, code: item.code, meta: item.meta, tag: item.tag
         });
         if (!node) return null;
-        if (item.href) node.setAttribute('href', item.href);
+        var href = ui._.safeHref(item.href);
+        if (href) node.setAttribute('href', href);
         else node.removeAttribute('href');
         var tag = node.querySelector('.search-tag');
         if (tag) tag.classList.toggle('search-tag--warn', item.tone === 'warn');
@@ -3066,12 +3076,12 @@ window.sednaUi = window.sednaUi || {};
                 };
                 t = t.replace(/`([^`]+)`/g, function (_, code) { return hold('<code>' + code + '</code>'); });
                 t = t.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_, alt, url) { return hold(mediaHtml(alt, url)); });
+                t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, txt, url) {
+                    var safe = ui._.safeHref(url) || '#';
+                    return hold('<a href="' + safe + '" target="_blank" rel="noopener">') + txt + hold('</a>');
+                });
                 t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 t = t.replace(/_([^_]+)_/g, '<em>$1</em>');
-                t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, txt, url) {
-                    var safe = /^(https?:|mailto:|\/)/i.test(url) ? url : '#';
-                    return '<a href="' + safe + '" target="_blank" rel="noopener">' + txt + '</a>';
-                });
                 return t.replace(/\u0000(\d+)\u0000/g, function (_, i) { return held[+i] || ''; });
             };
             var mediaHtml = function (alt, url) {

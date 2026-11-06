@@ -6398,7 +6398,7 @@ button.list-row[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor
     --drawer-width: 480px;
     width: min(var(--drawer-width), 100vw);
     margin-inline: auto;
-    max-height: 85vh;
+    max-height: 85dvh;
     border: 1px solid var(--border);
     border-bottom: none;
     border-start-start-radius: var(--radius-panel);
@@ -6432,7 +6432,7 @@ dialog.drawer.drawer--start {
 dialog.sheet {
     inset-inline: 0;
     height: fit-content;
-    max-height: 85vh;
+    max-height: 85dvh;
     margin-inline: auto;
     border: 1px solid var(--border);
     border-bottom: none;
@@ -7010,8 +7010,8 @@ dialog.palette[open] {
 }
 dialog.palette {
     width: min(560px, calc(100vw - 32px));
-    max-height: 60vh;
-    margin: 12vh auto auto;
+    max-height: 60dvh;
+    margin: 12dvh auto auto;
     padding: 0;
     overflow: hidden;
     --surface-here: var(--bg-elevated);

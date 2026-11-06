@@ -141,7 +141,20 @@ window.sednaUi = window.sednaUi || {};
        shows the loupe: 300ms sits between. */
     var HOLD = 300;
 
-    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD };
+    /* An address the script may put in an href or navigate to: http, https, mailto, tel,
+       or relative — no scheme before its first / ? or #. Anything else, `javascript:`
+       above all, becomes null. The one rule for every href the script writes: the
+       Markdown renderer's links, the palette's and the search's results, a graph
+       record's data-href. Data an app hands over is rarely hostile, and an address in
+       it is where that one time would do harm. */
+    function safeHref(url) {
+        if (url == null) return null;
+        var s = String(url).trim();
+        if (!s) return null;
+        return /^(https?:|mailto:|tel:|[^:\/?#]*(?:[\/?#]|$))/i.test(s) ? s : null;
+    }
+
+    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD, safeHref: safeHref };
 
     ui.configure = function (opts) {
         if (!opts) return;

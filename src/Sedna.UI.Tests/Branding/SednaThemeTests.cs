@@ -131,4 +131,11 @@ public class SednaThemeTests
         Assert.Throws<ArgumentException>(() => new SednaTheme("", palette));
         Assert.Throws<ArgumentNullException>(() => new SednaTheme(null!, palette));
     }
+
+    [Theory]
+    [InlineData("night\"] { color: red } [x=\"")]
+    [InlineData("a</style><script>")]
+    [InlineData("two words")]
+    public void A_theme_name_cannot_break_out_of_its_selector(string name) =>
+        Assert.Throws<ArgumentException>(() => new SednaTheme(name, SednaTheme.Sedna.Palette));
 }

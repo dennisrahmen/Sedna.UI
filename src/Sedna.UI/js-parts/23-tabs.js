@@ -82,9 +82,13 @@
 
         // Home/End as well as the arrows: with a dozen tabs, holding an arrow key to
         // reach the last one is the kind of thing that makes people use a mouse.
+        // In a right-to-left page the next tab is to the LEFT, so the horizontal arrows
+        // swap — as they do for drag and drop and the editor's toolbar.
+        var rtl = getComputedStyle(list).direction === 'rtl';
+        var next = rtl ? 'ArrowLeft' : 'ArrowRight', prev = rtl ? 'ArrowRight' : 'ArrowLeft';
         var to = -1;
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') to = (at + 1) % tabs.length;
-        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') to = (at - 1 + tabs.length) % tabs.length;
+        if (e.key === next || e.key === 'ArrowDown') to = (at + 1) % tabs.length;
+        else if (e.key === prev || e.key === 'ArrowUp') to = (at - 1 + tabs.length) % tabs.length;
         else if (e.key === 'Home') to = 0;
         else if (e.key === 'End') to = tabs.length - 1;
         else return;

@@ -3254,9 +3254,10 @@ function select(g, ele) {
 }
 function open(g, ele, keyboard) {
     const detail = nodeDetail(ele, { keyboard: !!keyboard });
-    if (!g.emit('sedna-graph-open', detail, true) || !detail.href) return;
+    const href = window.sednaUi?._?.safeHref?.(detail.href);
+    if (!g.emit('sedna-graph-open', detail, true) || !href) return;
     const a = document.createElement('a');
-    a.href = detail.href;
+    a.href = href;
     document.body.appendChild(a);
     a.click();
     a.remove();

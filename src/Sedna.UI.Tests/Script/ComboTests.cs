@@ -138,6 +138,8 @@ public class ComboTests : ScriptTestBase
         await page.Locator("#q").FocusAsync();
         await page.Keyboard.TypeAsync("to");
         await page.Keyboard.PressAsync("Enter");
+        // The query empties once the pick has reached the app, a task later.
+        await page.WaitForFunctionAsync("() => q.value === ''");
 
         var state = await page.EvaluateAsync<JsonElement>("""
             () => ({ clicked, expanded: q.getAttribute('aria-expanded'), query: q.value,

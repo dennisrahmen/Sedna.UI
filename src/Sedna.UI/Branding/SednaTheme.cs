@@ -37,6 +37,12 @@ public sealed class SednaTheme
     public SednaTheme(string name, SednaPalette palette)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        // Written into a selector inside a <style> block ([data-theme="…"]), so only what a
+        // theme name needs: letters, digits, '-' and '_'. Anything else could end the
+        // attribute selector, the rule or the style element.
+        if (!System.Text.RegularExpressions.Regex.IsMatch(name, "^[A-Za-z0-9_-]+$"))
+            throw new ArgumentException(
+                $"A theme name may hold only letters, digits, '-' and '_'; \"{name}\" does not.", nameof(name));
         Name = name;
         Palette = palette ?? throw new ArgumentNullException(nameof(palette));
     }

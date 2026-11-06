@@ -435,15 +435,20 @@
         var input = inputOf(host);
         if (managed(host)) { selectManaged(host, option); mark(host); }
 
+        // The query is emptied after the click has finished reaching the app, not
+        // during it: emptying fires `input`, and an app that drops its server results on
+        // an empty query removed the clicked row — and its @onclick — before Blazor
+        // delivered the click.
+        var clear = function () { if (input.value) setQuery(input, ''); };
         if (modeOf(host) === 'multi') {
             setActive(host, option);
-            if (input.value) setQuery(input, '');
+            setTimeout(clear, 0);
             input.focus();
             return;
         }
-        setQuery(input, '');
         close(host);
         input.focus();
+        setTimeout(clear, 0);
     }
 
     // ── Free entry ─────────────────────────────────────────────────────────

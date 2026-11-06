@@ -72,6 +72,20 @@ public class TabsTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task In_a_right_to_left_page_the_left_arrow_goes_to_the_next_tab()
+    {
+        if (NoBrowser) return;
+        var page = await Open($"<div dir=\"rtl\">{TabsFixture}</div>");
+
+        await page.Locator("#t1").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowLeft");
+        Assert.Equal("t3", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+
+        await page.Keyboard.PressAsync("ArrowRight");
+        Assert.Equal("t1", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+    }
+
+    [Fact]
     public async Task Tabs_can_be_selected_programmatically_by_panel_id()
     {
         if (NoBrowser) return;

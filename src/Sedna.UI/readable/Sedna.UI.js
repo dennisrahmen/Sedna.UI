@@ -189,7 +189,20 @@ window.sednaUi = window.sednaUi || {};
        shows the loupe: 300ms sits between. */
     var HOLD = 300;
 
-    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD };
+    /* An address the script may put in an href or navigate to: http, https, mailto, tel,
+       or relative — no scheme before its first / ? or #. Anything else, `javascript:`
+       above all, becomes null. The one rule for every href the script writes: the
+       Markdown renderer's links, the palette's and the search's results, a graph
+       record's data-href. Data an app hands over is rarely hostile, and an address in
+       it is where that one time would do harm. */
+    function safeHref(url) {
+        if (url == null) return null;
+        var s = String(url).trim();
+        if (!s) return null;
+        return /^(https?:|mailto:|tel:|[^:\/?#]*(?:[\/?#]|$))/i.test(s) ? s : null;
+    }
+
+    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD, safeHref: safeHref };
 
     ui.configure = function (opts) {
         if (!opts) return;
@@ -1812,15 +1825,20 @@ window.sednaUi = window.sednaUi || {};
         var input = inputOf(host);
         if (managed(host)) { selectManaged(host, option); mark(host); }
 
+        // The query is emptied after the click has finished reaching the app, not
+        // during it: emptying fires `input`, and an app that drops its server results on
+        // an empty query removed the clicked row — and its @onclick — before Blazor
+        // delivered the click.
+        var clear = function () { if (input.value) setQuery(input, ''); };
         if (modeOf(host) === 'multi') {
             setActive(host, option);
-            if (input.value) setQuery(input, '');
+            setTimeout(clear, 0);
             input.focus();
             return;
         }
-        setQuery(input, '');
         close(host);
         input.focus();
+        setTimeout(clear, 0);
     }
 
     // ── Free entry ─────────────────────────────────────────────────────────
@@ -2464,9 +2482,13 @@ window.sednaUi = window.sednaUi || {};
 
         // Home/End as well as the arrows: with a dozen tabs, holding an arrow key to
         // reach the last one is the kind of thing that makes people use a mouse.
+        // In a right-to-left page the next tab is to the LEFT, so the horizontal arrows
+        // swap — as they do for drag and drop and the editor's toolbar.
+        var rtl = getComputedStyle(list).direction === 'rtl';
+        var next = rtl ? 'ArrowLeft' : 'ArrowRight', prev = rtl ? 'ArrowRight' : 'ArrowLeft';
         var to = -1;
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') to = (at + 1) % tabs.length;
-        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') to = (at - 1 + tabs.length) % tabs.length;
+        if (e.key === next || e.key === 'ArrowDown') to = (at + 1) % tabs.length;
+        else if (e.key === prev || e.key === 'ArrowUp') to = (at - 1 + tabs.length) % tabs.length;
         else if (e.key === 'Home') to = 0;
         else if (e.key === 'End') to = tabs.length - 1;
         else return;
@@ -2637,7 +2659,7 @@ window.sednaUi = window.sednaUi || {};
         // `href` is what a command registered from C# uses. A function does not
         // cross into C#, so navigation is the one action a serialisable command can
         // carry.
-        else if (c.href) go(c.href);
+        else if (ui._.safeHref(c.href)) go(ui._.safeHref(c.href));
     }
 
     /* Navigates by CLICKING a real anchor, never by assigning window.location.
@@ -2950,7 +2972,8 @@ window.sednaUi = window.sednaUi || {};
         // An <a> when the result navigates, so the browser's own affordances come
         // with it — middle-click, "open in new tab", and a framework router that
         // intercepts internal links to navigate without a reload.
-        if (item.href) node.setAttribute('href', item.href);
+        var href = ui._.safeHref(item.href);
+        if (href) node.setAttribute('href', href);
         else node.removeAttribute('href');
 
         var tag = node.querySelector('.search-tag');
@@ -5179,15 +5202,16 @@ window.sednaUi = window.sednaUi || {};
                 };
                 t = t.replace(/`([^`]+)`/g, function (_, code) { return hold('<code>' + code + '</code>'); });
                 t = t.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_, alt, url) { return hold(mediaHtml(alt, url)); });
+                // A link's tags are held aside too, before bold and italic run, so an
+                // underscore in its address is never read as emphasis; its text is still
+                // formatted. The whole line went through esc() above, so `url` is already
+                // escaped — escaping it again turned every & into &amp;amp;.
+                t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, txt, url) {
+                    var safe = ui._.safeHref(url) || '#';
+                    return hold('<a href="' + safe + '" target="_blank" rel="noopener">') + txt + hold('</a>');
+                });
                 t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 t = t.replace(/_([^_]+)_/g, '<em>$1</em>');
-                // The whole line went through esc() above, so `url` is already escaped
-                // — escaping it a second time turned every & in a query string into
-                // &amp;amp; and the browser rendered the entity rather than the &.
-                t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, txt, url) {
-                    var safe = /^(https?:|mailto:|\/)/i.test(url) ? url : '#';
-                    return '<a href="' + safe + '" target="_blank" rel="noopener">' + txt + '</a>';
-                });
                 return t.replace(/\u0000(\d+)\u0000/g, function (_, i) { return held[+i] || ''; });
             };
             // `alt` and `url` are already escaped, as the whole line is. The source is kept only
