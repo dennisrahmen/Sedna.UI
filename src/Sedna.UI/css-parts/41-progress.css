@@ -42,3 +42,34 @@
     to   { transform: translateX(340%); }
 }
 
+
+/* ── Progress ring ──────────────────────────────────────────────────────────
+   The same determinate value as a ring, for a place with no width to fill — a
+   startup screen, a tile, an upload over a thumbnail. `--progress` is a
+   percentage the app writes inline (`style="--progress: 62%"`), or Blazor's own
+   `--blazor-load-percentage` while WebAssembly starts. The ring is a pseudo-element,
+   so the element itself holds the app's label, centred. */
+.progress-ring {
+    --progress: 0%;
+    --progress-ring-size: 40px;
+    --progress-ring-width: 4px;
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    inline-size: var(--progress-ring-size);
+    block-size: var(--progress-ring-size);
+    flex-shrink: 0;
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+}
+.progress-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(var(--brand) var(--progress), var(--progress-track) 0);
+    mask: radial-gradient(farthest-side, transparent calc(100% - var(--progress-ring-width)), currentColor calc(100% - var(--progress-ring-width) + 0.5px));
+}
+.progress-ring--sm { --progress-ring-size: 24px; --progress-ring-width: 3px; font-size: var(--text-1); }
+.progress-ring--lg { --progress-ring-size: 64px; --progress-ring-width: 6px; font-size: var(--text-4); }

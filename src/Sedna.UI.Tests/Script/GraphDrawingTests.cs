@@ -84,8 +84,8 @@ public class GraphDrawingTests : GraphTestBase
         Assert.Empty(await Overlaps(page));
 
         // Laid out again, and again after the view has moved: the same.
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.zoom(0.6))");
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.layout())");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.zoom(0.6))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.layout())");
         Assert.Empty(await Overlaps(page));
         AssertQuiet();
     }
@@ -175,7 +175,7 @@ public class GraphDrawingTests : GraphTestBase
         if (NoBrowser) return;
         var page = await OpenGraph(Graph(attrs: "data-graph-eager data-graph-edge-labels=\"always\""));
         await Ready(page);
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => { g.cy.zoom(0.5); g.cy.emit('zoom'); })");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => { g.cy.zoom(0.5); g.cy.emit('zoom'); })");
         // The view settles a moment after the wheel rests.
         await page.WaitForFunctionAsync("() => cyOf('g').edges().first().data('zoom') < 0.6");
         var onScreen = await page.EvaluateAsync<double>(

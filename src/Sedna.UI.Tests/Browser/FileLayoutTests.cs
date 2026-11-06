@@ -170,8 +170,8 @@ public class FileLayoutTests : ScriptTestBase
               <li class="file-tile">
                 <label class="form-check file-tile-check" id="check"><input type="checkbox" aria-label="Select one" /></label>
                 <a class="file-tile-open" href="#"><span class="file-tile-thumb"></span><span class="file-name">one.pdf</span></a>
-                <button class="btn btn-icon file-tile-menu file-tile-menu--always" id="always" type="button" aria-label="Remove one.pdf"><i></i></button>
-                <button class="btn btn-icon file-tile-menu" id="plain" type="button" aria-label="Actions for one.pdf" style="top:auto;bottom:0"><i></i></button>
+                <button class="btn btn--icon file-tile-menu file-tile-menu--always" id="always" type="button" aria-label="Remove one.pdf"><i></i></button>
+                <button class="btn btn--icon file-tile-menu" id="plain" type="button" aria-label="Actions for one.pdf" style="top:auto;bottom:0"><i></i></button>
               </li>
             </ul>
             """);
@@ -217,7 +217,7 @@ public class FileLayoutTests : ScriptTestBase
         var (page, _) = await OpenStyled("""
             <div style="width:170px">
                 <div class="audio-wave">
-                    <button class="btn btn-sm btn-icon" type="button" aria-label="Play">P</button>
+                    <button class="btn btn--sm btn--icon" type="button" aria-label="Play">P</button>
                     <span class="audio-wave-bars"><i></i><i></i><i></i><i></i></span>
                     <span class="audio-wave-time" id="time">0:07 / 0:19</span>
                 </div>
@@ -234,7 +234,7 @@ public class FileLayoutTests : ScriptTestBase
     {
         if (NoBrowser) return;
         const string wave = """
-            <button class="btn btn-sm btn-icon" type="button" aria-label="Play">P</button>
+            <button class="btn btn--sm btn--icon" type="button" aria-label="Play">P</button>
             <span class="audio-wave-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
             <span class="audio-wave-time">0:07 / 0:19</span>
             """;

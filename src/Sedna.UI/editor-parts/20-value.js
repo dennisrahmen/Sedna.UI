@@ -45,14 +45,24 @@ function load(e, html) {
     } finally {
         e.loading = false;
     }
-    remember(e, htmlOf(e.quill));
+    // What was loaded is not something this editor wrote: a value set from outside later
+    // — '' to reset a form — must load even when it equals what was loaded first.
+    e.written = [];
     reflect(e);
 }
 
-// The last few values this editor wrote, so one arriving back is recognised as an echo.
+// What this editor wrote, and when, so a value Blazor echoes back a round trip late is
+// recognised and not loaded over newer typing. Only a recent write counts: a value the
+// app sets from outside, even one the editor held a few changes ago, always loads.
+const ECHO_MS = 3000;
 function remember(e, html) {
-    e.written.push(html);
-    if (e.written.length > 20) e.written.shift();
+    const now = Date.now();
+    e.written = e.written.filter(w => now - w.at < ECHO_MS);
+    e.written.push({ html, at: now });
+}
+function isEcho(e, v) {
+    const now = Date.now();
+    return e.written.some(w => w.html === v && now - w.at < ECHO_MS);
 }
 
 function watchValue(e) {
@@ -62,8 +72,9 @@ function watchValue(e) {
         get() { return VALUE.get.call(this); },
         set(v) {
             VALUE.set.call(this, v);
-            if (e.disposed || e.written.includes(v ?? '')) return;
-            load(e, v);
+            const value = v ?? '';
+            if (e.disposed || value === htmlOf(e.quill) || isEcho(e, value)) return;
+            load(e, value);
         },
     });
     e.cleanups.push(() => { delete ta.value; });

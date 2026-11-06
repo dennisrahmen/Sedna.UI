@@ -17,6 +17,10 @@ internal static class Assets
 
     public static string ProjectDir => Path.Combine(RepoRoot, "src", "Sedna.UI");
     public static string WwwrootDir => Path.Combine(ProjectDir, "wwwroot");
+
+    /// <summary>The commented copy of a generated bundle, which ships under readable/ in the
+    /// package and is never served. The served copy is the same text without comments.</summary>
+    public static string Readable(string fileName) => Path.Combine(ProjectDir, "readable", fileName);
     public static string CssPath => Path.Combine(ProjectDir, "wwwroot", "css", "Sedna.UI.css");
     public static string JsPath => Path.Combine(ProjectDir, "wwwroot", "js", "Sedna.UI.js");
     public static string GraphJsPath => Path.Combine(ProjectDir, "wwwroot", "js", "Sedna.UI.graph.js");
@@ -130,9 +134,12 @@ internal static class Assets
     /// Every <c>@media</c> block as (condition, body), matched by counting braces
     /// rather than by regex, so a nested rule inside the block does not truncate it.
     /// </summary>
-    public static IEnumerable<(string Condition, string Body)> MediaBlocks(string css)
+    public static IEnumerable<(string Condition, string Body)> MediaBlocks(string css) => AtBlocks(css, "media");
+
+    /// <summary>The same for any block at-rule — <c>@container</c>, <c>@supports</c>.</summary>
+    public static IEnumerable<(string Condition, string Body)> AtBlocks(string css, string atRule)
     {
-        foreach (var open in Regex.Matches(css, @"@media([^{]*)\{", RegexOptions.Compiled).Cast<Match>())
+        foreach (var open in Regex.Matches(css, "@" + atRule + @"([^{]*)\{").Cast<Match>())
         {
             var depth = 1;
             var i = open.Index + open.Length;

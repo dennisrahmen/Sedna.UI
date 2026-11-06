@@ -64,13 +64,17 @@ function start(e) {
     Object.assign(e, { value, body, toolbar, link, media, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
 
+    const formats = formatsOf(e.el);
     e.quill = new Quill(body, {
-        formats: formatsOf(e.el),
+        formats,
         modules: {
             toolbar: false,
             history: { delay: 800, maxStack: 200, userOnly: true },
             clipboard: { matchers: MEDIA_MATCHERS },
-            uploader: NO_UPLOAD,
+            uploader: uploaderFor(e),
+            // Only an editor that takes tables loads the module, so one that does not
+            // still cuts a pasted table down to its text.
+            table: formats.includes('table'),
             keyboard: {
                 bindings: {
                     toolbar: { key: 'F10', altKey: true, handler: () => toToolbar(e) },
@@ -151,6 +155,9 @@ function makeApi(e) {
             e.value.disabled = on === false;
             describe(e);
         },
+        /* A file pasted or dropped into the document, by the id its sedna-editor-file
+           event named — a File, for the app to upload. Null once the editor has let it go. */
+        file: id => fileOf(e, id),
         invoke: (method, args) => invoke(e, method, args),
         destroy: () => dispose(e),
     };
@@ -167,6 +174,8 @@ function invoke(e, method, args) {
         case 'video': return api.insertVideo(a[0], a[1]);
         case 'focus': api.focus(); return null;
         case 'enable': api.enable(a[0] !== false); return null;
+        // A File: Blazor reads it as an IJSStreamReference.
+        case 'file': return api.file(a[0]);
         default:
             warnOnce('invoke:' + method, `"${method}" is not an editor method.`);
             return null;
@@ -177,7 +186,7 @@ function invoke(e, method, args) {
 function attach(el) {
     let e = editors.get(el);
     if (!e) {
-        e = { el, written: [], cleanups: [], disposed: false, changed: false, loading: false, lastRange: null };
+        e = { el, written: [], files: new Map(), cleanups: [], disposed: false, changed: false, loading: false, lastRange: null };
         // False when a cancelable event was cancelled.
         e.emit = (name, detail, cancelable) => el.dispatchEvent(new CustomEvent(name, { bubbles: true, cancelable: !!cancelable, detail }));
         e.api = makeApi(e);

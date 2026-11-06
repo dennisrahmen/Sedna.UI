@@ -29,7 +29,7 @@ public class GraphScreenTests : GraphTestBase
         Eval<double>(page, """
             () => {
                 const c = document.querySelector('#g .graph-canvas canvas');
-                return c.width / c.getBoundingClientRect().width * c.currentCSSZoom;
+                return c.width / c.getBoundingClientRect().width * (c.currentCSSZoom ?? c.getBoundingClientRect().width / c.offsetWidth);
             }
             """);
 
@@ -37,7 +37,7 @@ public class GraphScreenTests : GraphTestBase
         page.WaitForFunctionAsync("""
             ratio => {
                 const c = document.querySelector('#g .graph-canvas canvas');
-                return Math.abs(c.width / c.getBoundingClientRect().width * c.currentCSSZoom - ratio) < 0.02;
+                return Math.abs(c.width / c.getBoundingClientRect().width * (c.currentCSSZoom ?? c.getBoundingClientRect().width / c.offsetWidth) - ratio) < 0.02;
             }
             """, ratio);
 
@@ -107,7 +107,7 @@ public class GraphScreenTests : GraphTestBase
 
         // Fit again after the reader zoomed out: back to the raised ceiling.
         await Eval<bool>(page, "() => { cyOf('raised').zoom(0.5); return true; }");
-        await page.EvaluateAsync("() => sednaUi.graph.get('raised').then(h => h.fit())");
+        await Js.Run(page, "() => sednaUi.graph.get('raised').then(h => h.fit())");
         await page.WaitForFunctionAsync("() => Math.abs(cyOf('raised').zoom() - 3) < 1e-6");
         AssertQuiet();
     }
@@ -154,7 +154,7 @@ public class GraphScreenTests : GraphTestBase
         for (var i = 0; i < own.Length; i++) Assert.Equal(own[i] * 2, big[i], 3);
 
         // Zoomed in by the reader, the scaled drawing is still the same drawing, twice the size.
-        await page.EvaluateAsync("() => Promise.all(['g', 'tv'].map(id => sednaUi.graph.get(id).then(h => h.zoom(2.4))))");
+        await Js.Run(page, "() => Promise.all(['g', 'tv'].map(id => sednaUi.graph.get(id).then(h => h.zoom(2.4))))");
         await page.WaitForFunctionAsync("() => cyOf('g').nodes()[0].data('zoom') > 2 && cyOf('tv').nodes()[0].data('zoom') > 2");
         own = await OnScreen(page, "g");
         big = await OnScreen(page, "tv");
@@ -229,7 +229,7 @@ public class GraphScreenTests : GraphTestBase
         const string Name = "id => cyOf(id).getElementById('a').numericStyle('font-size') * cyOf(id).zoom()";
         var size = await Eval<double>(page, Name, "held");
 
-        await page.EvaluateAsync("() => Promise.all(['g', 'held'].map(id => sednaUi.graph.get(id).then(h => h.zoom(0.08))))");
+        await Js.Run(page, "() => Promise.all(['g', 'held'].map(id => sednaUi.graph.get(id).then(h => h.zoom(0.08))))");
         await page.WaitForFunctionAsync("() => ['g', 'held'].every(id => cyOf(id).getElementById('a').data('zoom') < 0.5)");
 
         // Without it a name shrinks with the drawing below the floor; with it, it does not —
@@ -288,9 +288,9 @@ public class GraphScreenTests : GraphTestBase
         Assert.False(await Ringed(page));
 
         // Away and back by the keyboard: a keyboard's focus, ringed.
-        await page.Keyboard.PressAsync("Shift+Tab");
+        await page.Keyboard.PressAsync(Keys.ShiftTab);
         Assert.Equal("before", await Eval<string>(page, "() => document.activeElement.id"));
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
         Assert.Equal("g", await Eval<string>(page, "() => document.activeElement.id"));
         Assert.True(await Ringed(page));
         AssertQuiet();

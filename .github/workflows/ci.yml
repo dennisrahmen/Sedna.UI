@@ -1,8 +1,10 @@
 name: CI
 
-# Pull requests only. The ruleset on main requires `build` on a branch that is up to
-# date with main, so a merge lands exactly the tree this ran on, and a second run on
-# main would prove nothing. Do not add a push trigger back without dropping that rule.
+# Pull requests only, and a smoke pass: the generated files, the build, every test
+# that needs no browser, the package and the catalogue image. A pull request is
+# tested in full locally before it is opened; the whole suite, in every engine, runs
+# on the release tag before anything publishes (release.yml). The ruleset on main
+# requires `build` on a branch that is up to date with main, so keep the job's name.
 # CodeQL still runs on main: it is the baseline pull requests are compared against.
 on:
   pull_request:
@@ -41,7 +43,10 @@ jobs:
           bash build/bundle-css.sh --check
           bash build/bundle-js.sh --check
           bash build/export-tokens.sh --check
-          bash build/class-history.sh --check
+
+      # Not committed: it is dated by the tags, so it is generated wherever it is built.
+      - name: Generate the class history
+        run: bash build/class-history.sh
 
       - name: Restore
         run: dotnet restore Sedna.UI.slnx
@@ -49,20 +54,14 @@ jobs:
       - name: Build
         run: dotnet build Sedna.UI.slnx -c Release --no-restore
 
-      # The binaries are not restored with the package. Without them the browser
-      # tests pass while asserting nothing, which is why SEDNA_UI_BROWSER_TESTS below
-      # turns a missing browser into a failure rather than a silent skip.
-      - name: Install Chromium for the browser tests
-        run: pwsh src/Sedna.UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
-
-      # Three layers here. The source scans (no hard-coded colours outside the :root
-      # blocks, every catalogue page linked and reachable), the bUnit component tests
-      # (the markup tier 1 emits is a version contract), and the browser tests, which
-      # catch the one thing a source scan cannot see: a rule that parses fine and
-      # silently loses to a more specific one.
-      - name: Test
+      # The source scans (no hard-coded colours outside the :root blocks, every
+      # catalogue page linked and reachable), the bUnit component tests (the markup
+      # tier 1 emits is a version contract) and the catalogue's server-side tests.
+      # SEDNA_UI_BROWSER_TESTS=0 is the documented opt-out: the browser tests return
+      # without asserting, and the release tag runs them in every engine.
+      - name: Test (smoke, no browser)
         env:
-          SEDNA_UI_BROWSER_TESTS: '1'
+          SEDNA_UI_BROWSER_TESTS: '0'
         run: dotnet test Sedna.UI.slnx -c Release --no-build --verbosity normal
 
       # Packing on every build, not just on a tag: a packaging mistake should

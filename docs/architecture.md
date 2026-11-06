@@ -4,8 +4,9 @@
 
 One question decides a tier: **who writes the markup on screen?**
 
-**Tier 1 — the frame.** Shell, sidebar and nav, header, user widget, modal shell. Layout chrome that is
-pixel-identical in every app and is not restyled per project. The app writes it; shipped as CSS classes.
+**Tier 1 — the frame.** Shell, sidebar and nav, header, bottom bar, user widget, drawer, modal shell.
+Each part is a component of its own, and the app writes and combines the parts it needs; shipped as CSS
+classes.
 
 **Tier 2 — the paint.** Tables, forms, cards, badges, buttons, alerts. Shipped as semantic CSS classes.
 Pages write plain HTML and apply the classes.
@@ -87,8 +88,9 @@ What the package ships that markup cannot express:
 | `ISednaOverlays`, `SednaOverlay`, `SednaOverlayHost` | Presents an app component as a modal, drawer or sheet and returns the result it closed with |
 | `ISednaGraphs`, `SednaGraphData`, `SednaGraphNode`, `SednaGraphEdge`, `SednaGraphFilter`, `SednaGraphStats`, `SednaGraphTone`, `SednaGraphLayout` | Typed access to the graphs on a page by their element's id: records, filters, search, focus, layout, export — see [graph.md](graph.md) |
 | `ISednaEditors`, `SednaEditorState` | Typed access to the rich-text editors on a page by their element's id, for what a binding to the textarea cannot do: the document's state, replacing it, typing at the caret, inserting an image or a video, focus, and switching editing off |
+| `SednaContract` | Every class and token the stylesheet declares, with the release that first shipped it — for an app's own tests. Read from the class history embedded at build time. |
 | `AddSednaUi()` | Registers the above, scoped to the circuit |
-| `EventHandlers`, `SednaDropEventArgs`, `SednaDragEventArgs`, `SednaGraphEventArgs`, `SednaGraphNodeEventArgs`, `SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs`, `SednaEditorEventArgs`, `SednaEditorMediaEventArgs` | Makes `@onsedna-drop`, `@onsedna-dragstart`, `@onsedna-dragend`, the `@onsedna-graph-*` and the `@onsedna-editor-*` events bindable with their data. The Razor compiler finds an event only through a class named exactly `EventHandlers`, in a namespace the component imports |
+| `EventHandlers`, `SednaDropEventArgs`, `SednaDragEventArgs`, `SednaGraphEventArgs`, `SednaGraphNodeEventArgs`, `SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs`, `SednaEditorEventArgs`, `SednaEditorMediaEventArgs`, `SednaFollowEventArgs`, `SednaResizeEventArgs` | Makes `@onsedna-drop`, `@onsedna-dragstart`, `@onsedna-dragend`, the `@onsedna-graph-*` and the `@onsedna-editor-*` events, `@onsedna-follow` and `@onsedna-resize` bindable with their data, in every hosting model — a Blazor Web App, a standalone Server app and a standalone WebAssembly app. The Razor compiler finds an event only through a class named exactly `EventHandlers`, in a namespace the component imports |
 
 `ActiveLink` drops the query string and the fragment, treats a trailing slash as insignificant, and
 requires a prefix match to end on a path segment, so `/queue` does not light up on `/queue-archive`. The
@@ -124,12 +126,13 @@ dependency list is exactly that one name.
 ## Responsive frame
 
 `.layout--responsive` on `.layout` turns the sidebar into the icon rail below 900px and trims the user
-widget's text at 900px and 560px. **Opt-in**: applying it automatically would change how every released
-app looks on a narrow screen with no app edit.
+widget's text at 900px and 560px. `.layout--compact-at-sm` moves the rail's width to 560px and
+`.layout--compact-at-lg` to 1200px. **Opt-in**: applying it automatically would change how every
+released app looks on a narrow screen with no app edit.
 
-It is also the fix for the reverse hazard. An app that sets `.sidebar { width: 260px }` unconditionally
-would beat a bare `@media .sidebar { width: 56px }` rule on source order; `.layout--responsive .sidebar`
-is `(0,2,0)` and outranks it.
+The rail is written once, in `19-frame-responsive.css`, inside `@container style(--sedna-rail: forced)`.
+A media rule per width sets `--sedna-rail: forced` on the layout and the property inherits, so a fourth
+width would be one more line, not a second copy of the rail.
 
 Two rules hold for any layout media query added later:
 
@@ -236,8 +239,14 @@ your own stylesheet; it is unlayered and beats the library.
   | `--selected` | `--brand` | the mark on the one chosen: a selected row's or list row's bar, a chosen card or file tile, the transcript's current line, a pressed reaction, a pressed workflow step, the spotlight ring, the graph's selected record |
   | `--tab-indicator` | `--selected` | the line under `.tab[aria-selected]`, the current `.topbar-nav-link` and the current bottom-bar item |
   | `--topbar-bg`, `--topbar-fg`, `--topbar-muted`, `--topbar-hover` | `--bg-elevated`, `--fg`, `--muted`, `--bg-hover` | `.topbar` and what is drawn straight on it — its icon buttons, area links, version tag and the user widget's trigger and sign-out; not the panels that open from it |
-  | `--brand-edge` | `--brand-soft` (dark), `--brand` (light) | `.btn-primary`'s border, so its boundary clears 3:1 on a dark card |
-  | `--disabled-opacity` | `0.4` | every disabled control: `.btn`, `.btn-bare`, `.tab`, `.menu-item`, `button.list-row`, `.page-link`, the checkbox, radio, switch, colour, range and segmented controls, a disabled editor's toolbar |
+  | `--brand-edge` | `--brand-soft` (dark), `--brand` (light) | `.btn--brand.btn--solid`'s border, so its boundary clears 3:1 on a dark card |
+  | `--focus-ring` | `--brand-soft` | the 2px ring every control draws on `:focus-visible` |
+  | `--control-border` | `--field-border` | the edge of a checkbox, a radio and a switch's track — held to 3:1 |
+  | `--control-on` | `--brand` | a checked checkbox and radio, an on switch, a slider's filled track and thumb |
+  | `--topbar-height` | `44px` | `.topbar`, its `.topbar-btn` squares, and the sidebar's `.brand` and `.nav-area-title`, which line up with it |
+  | `--modal-head-bg`, `--modal-foot-bg`, `--card-head-bg` | `transparent` | `.modal-header`, `.modal-footer` and `.card-head` as bars of their own |
+  | `--disabled-fg`, `--disabled-bg`, `--disabled-border` | `--muted`, `--surface-soft`, `--border` | every disabled control with a label: `.btn`, `.btn-bare`, `.tab`, `.menu-item`, `button.list-row`, `.page-link`, a segmented option, a disabled field and a check's or switch's label. The label is held to 4.5:1 |
+  | `--disabled-opacity` | `0.4` | the graphics of a disabled control that carry no text: the check mark, the radio dot, the switch, the colour swatch, the range, a disabled editor's toolbar |
 
   A text role moved this way still has to clear 4.5:1 on `--bg` and `--card-bg`, and an edge 3:1;
   `PlaceholderContrastTests` and `ButtonEdgeContrastTests` hold the defaults to that.
@@ -270,7 +279,7 @@ Generated by `build/export-tokens.sh` from the same parts as the stylesheet;
 ### One control height
 
 `--control-height-sm`, `--control-height` and `--control-height-lg` (28, 36 and 44px) are the height of
-everything that can sit in a row with another control: `.btn`, `.btn-icon` (which is also its width),
+everything that can sit in a row with another control: `.btn`, `.btn--icon` (which is also its width),
 `.form-input`, `.form-select`, `.form-value-display`, `.input-group`, `.stepper`, `.search-input` and
 `.chip`. Each has an `-sm` and an `-lg` variant taking the matching token. A badge does not: it is a
 label rather than a target, so it has its own type scale in `31-badges.css`.
@@ -288,7 +297,7 @@ Two consequences for a rule that sets a control's height:
 
 ## Theming
 
-`data-theme`, `data-variant`, `data-cvd="1"`, `data-density="compact"` and `dir` are set on `<html>`.
+`data-theme`, `data-variant`, `data-cvd="1"`, `data-density="compact"` or `"touch"` and `dir` are set on `<html>`.
 
 - `Sedna.UI.boot.js` applies them from `localStorage` before first paint.
 - `sednaUi.settings.save('variant', 'light')` (or `'theme'`, `'cvd'`, `'density'`) updates them at
@@ -356,9 +365,17 @@ tag's own `data-variant-default`.
 The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, so go and danger read as
 blue against red. Amber and the brand colour are unchanged.
 
-`data-density="compact"` is a token remap. It tightens table cells through `--cell-pad-y` /
+`data-density="compact"` and `data-density="touch"` are token remaps of spacing and control heights;
+neither touches the type, which the reader sizes with the browser's zoom. Compact tightens and keeps the
+small control tier at 24px; touch loosens and puts the default control at 44px. Both move the page's
+rhythm and padding (`--page-rhythm`, `--page-pad`) and the three control heights
+(`--control-height-sm`, `--control-height`, `--control-height-lg`). Each tightens table cells through `--cell-pad-y` /
 `--cell-pad-x`, and every card part — `.card-head`, `.card-body`, `.card-foot` — through `--card-pad-block` / `--card-pad-inline`, and every `.list-row` — in a card or not — through `--list-pad-block` / `--list-pad-inline`, with `--list-gap` between the cards of a `.list--cards`. An app's own component tightens with them by reading
 the same tokens; page-specific components with other spacing are the app's to tighten.
+
+On a coarse pointer every text field — `input` of a typed kind, `select`, `textarea`, the library's and
+an app's own — is set at 16px, whatever the density, because Safari on iOS and iPadOS zooms the page
+when a smaller field takes focus.
 
 ## Branding
 
@@ -537,7 +554,8 @@ Two things the flat list does not say:
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally; `tips.setEnabled(bool)` switches them all, and is what `ISednaUi.SetTipsEnabledAsync` calls. `tips.at(rect, text, pos)` shows the same bubble beside a rectangle that is no element — a record on the graph's canvas — and `tips.hide()` takes it down |
 | `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. The stack is a manual `popover` in the top layer, moved into the topmost open modal `<dialog>` while one is open. Returns its own remover, whose `id` names the toast; `timeout: 0` stays until dismissed; `dismissLabel` — or `configure({ toastDismissLabel })` — names the close button. `toast.show(message, options)` returns the id, `toast.dismiss(id)` removes it early, `toast.replace(id, message, options)` changes it in place or shows a new one when it has gone |
 | `modal` | The presenter for an app's own `<dialog>` — `.modal`, `.drawer`, `.sheet`, `.lightbox`. `show(id)` → `showModal()`, returning a promise of its `returnValue` once it closes, or `null` for a close without one; a second `show` on an open dialog joins the first wait. `close(id, value)` → `close(value)`. `idle(id)` resolves once a closed dialog's transition has finished. An id that is not a `<dialog>` warns in the console and resolves `null` — an exception crossing the interop boundary from a Blazor handler tears down the circuit. `data-close-guard` on a `<dialog>` refuses its `cancel`, so no close request — Escape, a sheet swipe, a `request-close` command — closes it, and the app's `@oncancel` decides. The script refuses it because Razor renders `@oncancel:preventDefault` as a literal attribute. On an open modal it also turns Escape into `requestClose()`, whose `cancel` is always cancelable — Chromium otherwise stops honouring the refusal after a few presses without a click between. Escape another handler cancelled, or meant for an open popover, is left alone |
-| `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
+| `menu` | Delegated dropdowns. `closeAll()`, for after a navigation. In every open menu ↑ ↓ Home End move between items, and → ← enter and leave a `.menu-sub` opened by a `[data-menu-sub]` item. `data-menu-context="<id>"` opens a `.menu[popover]` at the pointer on a right-click, or under the element for ContextMenu and Shift+F10, through an invisible `.menu-point` anchor; `openAt(panel, x, y, on)` does the same from script |
+| `popover` | A `.popover` opened from something that cannot be a `popovertarget` button. `data-popover="<id>"` on any element opens and closes that popover by click, Enter or Space and anchors it there, writing `anchor-name` on the trigger and `position-anchor` on the panel, `aria-expanded` and `aria-controls` on the trigger; the click is taken, so a trigger inside a link does not follow it. `show(panel, trigger)`, `hide(panel)`, `toggle(panel, trigger)`, `triggerOf(panel)`. With `data-popover-hover` it is a hover card: it opens after `--hover-delay` under a resting pointer or on focus, stays while the pointer is on the card, and a click pins it |
 | — | `22-anchored.js` adds no member. It closes an open `.menu`, `.popover` or `.form-combo-panel` when a scroll moves its trigger, because an anchored `position: fixed` panel's offset is computed at reveal and never recomputed while the anchor scrolls — see the anchor-positioning note above |
 | — | `22-scroll-edge.js` adds no member. It marks every `.sedna-scroll-x` with `data-scroll-start` / `data-scroll-end` as it scrolls, which is what a pinned table column's edge shadow reads in an engine without `scroll-state()` container queries — WebKit — and agrees with the query where it exists |
 | `combo` | The keyboard, open state and filtering behind a `data-combo` field: `open(el)`, `close(el)`. The page owns the selection — the script clicks the active option on Enter, clicks the last chip's `.chip-dismiss` on a second Backspace, clicks the `.form-combo-more` after the list once the list is scrolled to its end, stops the arrow keys on a `.form-combo-group-action` and, for one with `data-combo-toggle-group`, clicks each row of its group that has to change, and for `data-combo="free"` sends one `change` per committed entry, replacing the platform's own `change` on blur so an entry is never sent twice. It writes only attributes an app never renders (`aria-expanded`, `aria-activedescendant`, `hidden` on a filtered row, `data-active`, `data-armed`, `data-all-selected` on a group heading) and paints matches through the CSS Custom Highlight API, so a Blazor render never reverts it. `data-combo-managed` makes it keep the selection itself, for a page with no app behind it |
@@ -548,13 +566,14 @@ Two things the flat list does not say:
 | `palette` | Command palette over the app's own `<dialog class="palette" data-palette>`, opened by Ctrl/⌘-K once commands exist and a palette is in the page — unless what has the focus handled the key first, as the rich-text editor does for its link form: `register(list)`, `open()` → false with no palette, `close()`, `rank(query)`. Rows are cloned from the dialog's `<template data-palette-item>`, `-group` and `-empty`, with `data-label`, `data-note`, `data-icon`, `data-group` and `data-query` slots; the script adds the combobox/listbox roles and the selection state |
 | `search` | Header search behind a `data-search` input: `register(items)`, `rank(query)`, `close()`. The results panel is the app's `[data-search-panel]` — named by `data-search="<id>"`, else the one in the box, else the first in the page — filled from its `<template data-search-item>`, `-empty` and `-more` (`data-title`, `data-code`, `data-meta`, `data-tag`, `data-query`, `data-count`). Placed under the box unless it carries `.search-panel--anchored` |
 | `drag` | Drag and drop of the app's own items between `data-drag-zone`s: mouse and pen after a few pixels, a finger after `ui._.hold` (on a `data-drag-handle`, at once), and Space / arrows / Space or Escape from the keyboard, announced through the app's `[data-drag-live]` region in its own sentences. It moves no node: it writes `data-dragging`, `data-drop-state`, `data-drop-over` and `data-drop-edge`, raises a pointer-carried item into the top layer as a manual `popover` with its box in `--drag-*` custom properties, holds its slot open on a neighbour with `data-drag-slot`, clears all of it, then dispatches `sedna-dragstart` (cancelable), `sedna-drop` on the zone landed in (`item`, `items`, `type`, `from`, `to`, `index`, `fromIndex`, `keyboard`; only when the item moved) and `sedna-dragend`. `index` counts the destination without the item. An item lifted while selected — `aria-selected="true"`, or a checked `input[data-drag-select]` inside it — carries its zone's whole selection: `items` lists every id carried in document order (`[item]` when alone), `index` counts the destination without any of them, a zone is valid only if it takes all of them, the others are marked `data-drag-carried` and the lifted item `data-drag-count`, and `{items}` gives the count to an announcement. Zones sharing `data-drag-group` trade items, `data-drag-accept` restricts them by `data-drag-type`, and no item is offered a zone inside itself. Scrolls any scroller the pointer is held against. Focus returns to the item once the app has re-rendered it. `cancel()`, `active()` → the dragged item's id or null |
+| `resize` | A handle the app writes, `[data-resize="--property"]` with `role="separator"`, resizes its parent — or the element `data-resize-on` names — by writing that custom property in pixels: by drag, snapped to `data-resize-step` (8), bounded by `aria-valuemin`/`aria-valuemax`; by the arrow keys, a step or four with Shift; Home or a double-click removes it. `aria-orientation` picks the axis, `data-resize-measure` the child whose size it starts from. The app writes the starting `aria-valuenow`, which a focusable separator needs; the script keeps it current and dispatches a bubbling `sedna-resize` with `property` and `value` (null once reset). `reset(handle)` |
 | `dropzone` | Delegated drag-and-drop for a `data-dropzone` zone: maintains `.dropzone--over`, hands a dropped file to the zone's own `input[type=file]` as a `change` event. `reset()` clears the highlight |
 | `output` | Follow-tail for a `data-follow` output pane: sticks to the newest line, releases when the reader scrolls up, re-attaches when they scroll back down. `data-follow` is the app's switch — removing it stops following, adding it again jumps to the newest line. While the reader is scrolled away the pane carries `data-follow-paused`, which shows a `.output-jump` button, and a bubbling `sedna-follow` event with `detail.following` fires on each change. Opening a row's `<details>` past the bottom releases following, and an open menu in the pane holds it still. A `data-output-follow` button follows the pane its `aria-controls` names, or the one in its `.output-panel`. `follow(pane)`, `isFollowing(pane)` |
 | `workflow` | Keeps the step at work in view in a `.workflow` with `data-follow`: the last step marked `running`, else the last `waiting`, else the first `next`. When states change it scrolls the diagram — never the page — until that step's node is in the middle, smoothly unless the reader asked for reduced motion, and lands a smooth scroll at once where the tab is not painted. A scroll that follows the reader's own input and takes the step out of view releases following: the diagram carries `data-follow-paused` and a bubbling `sedna-follow` fires with `detail.following`, as for an output pane; scrolling the step back into view follows again. A scroll the reader did not start never releases it. `data-follow` is the app's switch, and adding it again goes to the step at work. A `data-workflow-follow` button follows the diagram its `aria-controls` names, or the nearest following diagram around it. It also marks each part of every `.workflow` — a step, a fork, a loop — more than half a view out of sight `data-workflow-away`, swept on a scroll, a resize or a change inside a diagram and never per frame; the stylesheet lets the browser skip rendering such a part, at the size it had, and a part in view is never contained. `follow(canvas)`, `isFollowing(canvas)` |
 | `fullscreen` | A button with `data-fullscreen` puts the element its `aria-controls` names — else the whole page — into full screen, and takes it out again; its `aria-pressed` follows, however the reader leaves. Full screen needs the reader's press, so it cannot start from a timer or on load. Make the element a surface: it is shown alone on a black backdrop. `toggle(element?)` resolves whether the element is in full screen afterwards; `isOn(element?)` |
 | `codeBlock` | `toggle(block, expanded?)` — expands or collapses a `.code-block--clamped`. Delegated from `[data-code-expand]` |
 | — | `29-fragment.js` adds no member. A click on a link written as a bare fragment (`href="#main"`) whose target is on the page is cancelled, and the target is scrolled to and focused — under `<base href="/">` the link would otherwise open the start page, and Blazor's own same-page jump never moves focus. A modified click, a click another handler already cancelled, and a fragment naming no element are left alone. The address does not change |
-| `spotlight` | Tour geometry and the input model, not the sequence. `at(hole, target, { pad, include })` positions `.spotlight-hole` over an element, a list of them or a selector, and returns the rectangle — `null` when nothing visible is left; `tipAt(tip, rect, { placement, gap, margin, boundary })` places the bubble on any of the four sides, flips it when the side does not fit, clamps it into the viewport — or into `boundary` — and reports the side used; `follow(hole, target, opts)` keeps both attached across scroll, resize, re-render and a dialog opening or closing, returning `{ update, stop, side }`; `lock(opts)` / `unlock()` make the rest of the page inert and gate hover hints. A step whose target is inside an open modal `<dialog>` raises the hole and the bubble into the top layer after it and moves the bubble inside, and puts both back when the step leaves or the dialog closes. The steps, the copy and the order stay the app's |
+| `spotlight` | Tour geometry and the input model, not the sequence. `at(hole, target, { pad, include, scroll })` positions `.spotlight-hole` over an element, a list of them or a selector — correctly inside a CSS-zoomed frame — and returns the rectangle; `scroll: 'nearest'` or `'center'` brings the target into view first, once per step under `follow` — `null` when nothing visible is left; `tipAt(tip, rect, { placement, gap, margin, boundary })` places the bubble on any of the four sides, flips it when the side does not fit, clamps it into the viewport — or into `boundary` — and reports the side used; `follow(hole, target, opts)` keeps both attached across scroll, resize, re-render and a dialog opening or closing, returning `{ update, stop, side }`; `lock(opts)` / `unlock()` make the rest of the page inert and gate hover hints. A step whose target is inside an open modal `<dialog>` raises the hole and the bubble into the top layer after it and moves the bubble inside, and puts both back when the step leaves or the dialog closes. The steps, the copy and the order stay the app's |
 | `graph` | The graph's front door. It finds every `[data-graph]`, starts each as it comes within a screen of the viewport — importing `Sedna.UI.graph.js` and the engine, relative to itself, the first time — delegates the `data-graph-*` controls from `document`, and takes a graph down when its element leaves the document. `get(elOrId)` resolves the graph's handle, `init(root)` starts every graph in `root` at once, `invoke(id, method, args)` is the bridge `ISednaGraphs` calls, and `release()` — called by `Sedna.UI.lib.module.js` once Blazor has started — ends the wait on a prerendered page, where graphs are held so they are drawn once, in the markup the interactive render leaves. The handle, the controls and the events are in [graph.md](graph.md) |
 | `editor` | The rich-text editor's front door: `get(el or id)` resolves the editor's handle — `state()`, `html()`, `set(html)`, `insert(text)`, `insertImage(url, alt)`, `insertVideo(url, label)`, `focus()`, `enable(on)`, `quill`, `destroy()` — starting it if need be; `init(root?)` starts every editor in `root` at once; `invoke(id, method, args)` is the `ISednaEditors` bridge. See `docs/editor.md` |
 | — | `45-orb.js` adds no member. It is the orb's front door: it registers `[data-orb]` with the surface loader, which imports `Sedna.UI.orb.js` the first time a page shows one, and gives each orb `role="img"` the moment it is found. The app's `aria-label` names it, and its attributes drive it — see [orb.md](orb.md) |
@@ -770,9 +789,8 @@ have. Every class, token and example also carries `since`, which is `build/class
 never a hand-kept list. `since` is the literal `"unreleased"` rather than a missing key, so
 "in no release yet" cannot be read as "not reported".
 
-Two copies of that data answer at runtime. The embedded one is regenerated by the first pull request
-after a release, so between a tag and that merge it still says `null` for everything the release
-shipped. The latest release's own copy — `release.yml` computes it at the tag and attaches it to the
+Two copies of that data answer at runtime. The embedded one is generated when the image is built, so
+a tag made after the last deploy still reads `null` there for everything the release shipped. The latest release's own copy — `release.yml` computes it at the tag and attaches it to the
 GitHub release — is fetched at startup and hourly (`ReleasedHistory`) and asked only where the embedded
 copy says `null`. It can therefore move an entry from "unreleased" to the release that shipped it and
 nothing else; an entry merged after the tag is absent from it and stays unreleased, and a fetch that
@@ -845,10 +863,13 @@ stylesheet. A page that shows a graph fetches `Sedna.UI.graph.js` (about 40KB) a
 feature most pages never show. The package carries all of it: about 380KB more `.nupkg`, none of which a
 page without a graph ever requests.
 
-**No minification.** Measured on the shipped assets: minifying the CSS and JS saves **4,360 brotli
-bytes**, about **2% of first load**. The .NET SDK already serves the stylesheet gzipped at 11,289
-bytes. The cost would be a build step, a second artefact to keep in step with the parts, and a
-stylesheet nobody can read in DevTools or in the restored package. Not worth 2%.
+**Comments stripped, nothing else.** The served stylesheet and scripts are the bundles with their
+comments taken out by `build/strip-comments.py`, and nothing renamed, reordered or collapsed, so
+DevTools still shows readable rules and code. The commented bundles ship in the package under
+`readable/` and are never static web assets. Measured when this was introduced (November 2026), with
+gzip: the stylesheet went from 244 KB to 68 KB, the main script from 87 KB to 37 KB, and the five
+bundles together from 426 KB to 164 KB. Both bundlers write both copies, `--check` compares both,
+and `GeneratedArtefactTests` holds the served copy to the readable one.
 
 **`MapStaticAssets`, not `UseStaticFiles`.** The publish writes a `.br` and a `.gz` beside every
 compressible asset; `UseStaticFiles` can serve neither, so the 466KB stylesheet went out raw for the
@@ -879,7 +900,7 @@ miss real changes. The regressions this library actually suffers are **cascade**
 that loses a property to a more specific rule and silently does nothing. Those are found by reading
 `getComputedStyle`, never by looking, which is why the browser tests assert computed values.
 
-**CSS anchor positioning, deliberately.** The floor is Chromium — current Chrome and Edge — so
+**CSS anchor positioning, deliberately.** The floor is current Chromium and current Safari on iOS, so
 `anchor-name`, `anchor-scope`, `position-area` and `align-self: anchor-center` are all available, and
 the collapsed rail's hover flyout, `.popover`, `.menu`, `.form-combo-panel` and a `.form-select`'s own
 `::picker(select)` depend on them.

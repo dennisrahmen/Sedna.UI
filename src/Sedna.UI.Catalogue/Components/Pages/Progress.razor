@@ -6,7 +6,7 @@
     <a href="/skeleton">skeleton</a>.
 </CatHead>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-question-line"></i>
     <div class="callout-body">
         <span class="callout-title">Pick by what you know</span>
@@ -16,6 +16,17 @@
         <a href="/empty-state"><code>.empty-state--pending</code></a>.
     </div>
 </div>
+
+<CatExample TExample="Examples.Progress.Busy" Title="Busy, on a control and on a surface" Demo="ex-demo--block">
+    <p>
+        <code>aria-busy="true"</code> is the one switch, and the paint follows what is announced. On a
+        control — a menu item, a tab, a list row, a chip, a page link — its leading icon becomes the
+        spinner and it takes no pointer, so the work cannot start twice; a <code>.btn</code> covers its
+        label instead. On a surface — a card, a list, a table, a dialog, a drawer — the content stays
+        in place, dimmed and out of reach, with a bar along the top edge. Under reduced motion both
+        stand still.
+    </p>
+</CatExample>
 
 <CatExample TExample="Examples.Progress.Progress" Title="Progress bar" Demo="ex-demo--block ex-demo--pad">
     <p>
@@ -46,9 +57,28 @@
 <CatExample TExample="Examples.Progress.Spinner" Title="Spinner">
     <p>
         Sized in <code>em</code>, so it matches whatever text or button it sits in without a second
-        class. <code>.spinner-lg</code> is the standalone size for a panel that is still loading.
+        class. <code>.spinner--lg</code> is the standalone size for a panel that is still loading.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.Progress.Ring" Title="Progress ring" Demo="ex-demo--pad">
+    <p>
+        <code>.progress-ring</code> is the determinate value where there is no width to fill.
+        Write the value as a percentage in <code>--progress</code> and the same number in
+        <code>aria-valuenow</code>; the element holds a label if you give it one.
+        <code>--progress-ring-size</code> and <code>--progress-ring-width</code> size it, and
+        <code>.progress-ring--lg</code> is the larger step and <code>.progress-ring--sm</code> the smaller, beside a line of text. <code>.spinner--sm</code> is three quarters of the text it sits in.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Progress/Splash.html" Title="A splash while the app starts">
+    <p>
+        <code>.splash</code> covers the viewport in the theme's background while the app starts,
+        clear of the notch. Put it inside the element the app renders into, so the first render
+        replaces it. Blazor WebAssembly writes <code>--blazor-load-percentage</code> on the
+        document while it downloads, so a ring fed from it fills as the app loads.
+    </p>
+</CatSnippet>
 
 
 

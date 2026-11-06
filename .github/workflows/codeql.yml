@@ -53,6 +53,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Tags, for the class history below; the same reason as in ci.yml.
+          fetch-depth: 0
 
       - name: Set up .NET
         if: matrix.language == 'csharp'
@@ -74,6 +77,12 @@ jobs:
 
       # Manual rather than autobuild: the solution is a .slnx, and being explicit
       # means a build change here fails visibly instead of silently analysing nothing.
+      # Not committed: the library and the catalogue embed it, so the build needs it
+      # generated first, as ci.yml and release.yml do.
+      - name: Generate the class history
+        if: matrix.language == 'csharp'
+        run: bash build/class-history.sh
+
       - name: Build
         if: matrix.language == 'csharp'
         run: dotnet build Sedna.UI.slnx -c Release

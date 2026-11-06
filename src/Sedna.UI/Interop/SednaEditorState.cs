@@ -51,3 +51,38 @@ public sealed class SednaEditorMediaEventArgs : EventArgs
     /// <summary>Its description — an image's <c>alt</c>, a video's <c>aria-label</c> — or the empty string.</summary>
     public string Alt { get; set; } = string.Empty;
 }
+
+/// <summary>
+/// Files pasted or dropped into a rich-text editor: <c>sedna-editor-file</c>, dispatched on the
+/// <c>[data-editor]</c> element.
+/// </summary>
+/// <remarks>
+/// The editor never inlines a file — uploading is the app's. Read each one with
+/// <see cref="ISednaEditors.OpenFileAsync"/>, upload it, and answer with
+/// <see cref="ISednaEditors.InsertImageAsync"/> or <see cref="ISednaEditors.InsertVideoAsync"/>,
+/// which put it where the caret was.
+/// </remarks>
+public sealed class SednaEditorFileEventArgs : EventArgs
+{
+    /// <summary>Every file that arrived, in order.</summary>
+    public SednaEditorFile[] Files { get; set; } = [];
+
+    /// <summary>Where in the document they arrived, or null when the editor had no caret.</summary>
+    public int? Index { get; set; }
+}
+
+/// <summary>One file pasted or dropped into an editor, as <see cref="SednaEditorFileEventArgs"/> names it.</summary>
+public sealed class SednaEditorFile
+{
+    /// <summary>What <see cref="ISednaEditors.OpenFileAsync"/> takes to read it.</summary>
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>The file's name, or the empty string — a pasted screenshot often has none.</summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>Its media type, such as <c>image/png</c>.</summary>
+    public string Type { get; set; } = string.Empty;
+
+    /// <summary>Its size in bytes.</summary>
+    public long Size { get; set; }
+}

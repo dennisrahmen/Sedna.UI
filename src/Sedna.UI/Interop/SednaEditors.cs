@@ -61,6 +61,13 @@ public sealed class SednaEditors : ISednaEditors
     }
 
     /// <inheritdoc />
+    public async Task<IJSStreamReference?> OpenFileAsync(string editorId, string fileId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileId);
+        return await Call<IJSStreamReference?>(editorId, "file", cancellationToken, fileId);
+    }
+
+    /// <inheritdoc />
     public async Task FocusAsync(string editorId, CancellationToken cancellationToken = default)
         => await Call<object?>(editorId, "focus", cancellationToken);
 

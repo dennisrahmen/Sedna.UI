@@ -55,6 +55,7 @@
 .agent-status-time { color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
 .agent-status:has(> .btn:last-child) { padding-inline-end: calc((var(--status-h) - var(--control-height-sm)) / 2 - 1px); }
 .agent-status > .btn { border-radius: 50%; }
+.agent-status--sm { --status-h: 24px; --status-orb: 14px; gap: var(--space-3); font-size: var(--text-3); }
 .agent-status--lg { --status-h: 44px; --status-orb: 32px; gap: var(--space-6); font-size: var(--text-6); }
 .agent-status--xl { --status-h: 64px; --status-orb: 48px; gap: var(--space-7); padding-inline-end: var(--space-10); font-size: var(--text-8); }
 .agent-status--warn { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-fg); }
@@ -93,6 +94,7 @@
 }
 .context-ring--warn   { --ring: var(--warn-fg); }
 .context-ring--danger { --ring: var(--danger-fg); }
+.context-ring--sm { --ring-size: 14px; --ring-width: 2px; }
 .context-ring--lg { --ring-size: 56px; --ring-width: 5px; }
 
 .skeleton--agent {

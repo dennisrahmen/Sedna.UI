@@ -32,7 +32,7 @@ public class MarkdownInsertTests : ScriptTestBase
         var page = await OpenEditor();
 
         // "the order" selected.
-        await page.EvaluateAsync("() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(4, 13); }");
+        await Js.Run(page, "() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(4, 13); }");
         await Insert(page, "[ORD-4204](https://example.com/orders/ORD-4204)");
 
         var (value, start, end) = await Read(page);
@@ -48,7 +48,7 @@ public class MarkdownInsertTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor();
 
-        await page.EvaluateAsync("() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(3, 3); }");
+        await Js.Run(page, "() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(3, 3); }");
         await Insert(page, " all");
 
         var (value, start, end) = await Read(page);
@@ -65,7 +65,7 @@ public class MarkdownInsertTests : ScriptTestBase
 
         // Listening on the document proves the event bubbles, which is what Blazor's
         // delegated @bind:event="oninput" needs.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 window.inputs = [];
                 document.addEventListener('input', e => window.inputs.push(e.target.id));
@@ -85,7 +85,7 @@ public class MarkdownInsertTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor();
 
-        await page.EvaluateAsync("() => document.getElementById('ta').setSelectionRange(3, 3)");
+        await Js.Run(page, "() => document.getElementById('ta').setSelectionRange(3, 3)");
         await page.FocusAsync("#pick");
         await Insert(page, "!");
 
@@ -103,9 +103,9 @@ public class MarkdownInsertTests : ScriptTestBase
         // in the script remembers the caret — the textarea keeps its own selection across
         // the blur, and this pins that it still does.
         await page.ClickAsync("#ta");
-        await page.EvaluateAsync("() => document.getElementById('ta').setSelectionRange(13, 13)");
+        await Js.Run(page, "() => document.getElementById('ta').setSelectionRange(13, 13)");
         await page.ClickAsync("#pick");
-        await page.EvaluateAsync("() => document.getElementById('picker').showModal()");
+        await Js.Run(page, "() => document.getElementById('picker').showModal()");
         Assert.Equal("choose", await page.EvaluateAsync<string>("() => document.activeElement.id"));
         await page.ClickAsync("#choose");
         Assert.NotEqual("ta", await page.EvaluateAsync<string>("() => document.activeElement.id"));
@@ -126,7 +126,7 @@ public class MarkdownInsertTests : ScriptTestBase
         // What a Blazor re-render does after the input event: it writes the bound value
         // back, which is the value the textarea already holds. The platform moves the
         // caret only for a different value, so the next insert still lands in place.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 const ta = document.getElementById('ta');
                 ta.focus(); ta.setSelectionRange(3, 3);
@@ -147,8 +147,8 @@ public class MarkdownInsertTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor();
 
-        await page.EvaluateAsync("() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(4, 13); }");
-        await page.EvaluateAsync("c => sednaUi.md.apply(document.getElementById('ta'), c)", cmd);
+        await Js.Run(page, "() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(4, 13); }");
+        await Js.Run(page, "c => sednaUi.md.apply(document.getElementById('ta'), c)", cmd);
 
         var (value, start, end) = await Read(page);
         Assert.Equal("See ![the order](https://). Thanks.", value);
@@ -161,7 +161,7 @@ public class MarkdownInsertTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor();
 
-        await page.EvaluateAsync("() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(14, 14); }");
+        await Js.Run(page, "() => { const ta = document.getElementById('ta'); ta.focus(); ta.setSelectionRange(14, 14); }");
         await Insert(page, "\n\n![The damaged box](/uploads/box_front.jpg)\n\n");
 
         Assert.Equal("/uploads/box_front.jpg",
@@ -171,13 +171,13 @@ public class MarkdownInsertTests : ScriptTestBase
     private async Task<IPage> OpenEditor()
     {
         var page = await Open(Fixture);
-        await page.EvaluateAsync("() => sednaUi.md.init()");
+        await Js.Run(page, "() => sednaUi.md.init()");
         return page;
     }
 
     /// <summary>Calls <c>insert</c> with the text as an argument, so it arrives exactly as written.</summary>
     private static Task Insert(IPage page, string text) =>
-        page.EvaluateAsync("t => sednaUi.md.insert(document.getElementById('ta'), t)", text);
+        Js.Run(page, "t => sednaUi.md.insert(document.getElementById('ta'), t)", text);
 
     private static async Task<(string Value, int Start, int End)> Read(IPage page)
     {

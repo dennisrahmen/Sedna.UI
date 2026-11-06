@@ -30,7 +30,7 @@ public class ToastTests : ScriptTestBase
             }
             """);
 
-        Assert.Equal(["true", "true", "toast toast-go", "Uploaded"], result);
+        Assert.Equal(["true", "true", "toast toast--go", "Uploaded"], result);
     }
 
     [Fact]
@@ -159,7 +159,7 @@ public class ToastTests : ScriptTestBase
             """
             <div id="host">
               <div class="toast-stack" id="theirs" aria-live="off">
-                <div class="toast toast-info" id="mine"><span class="toast-body">Rendered by the app</span></div>
+                <div class="toast toast--info" id="mine"><span class="toast-body">Rendered by the app</span></div>
               </div>
             </div>
             """);
@@ -196,6 +196,49 @@ public class ToastTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task The_live_region_is_in_the_page_before_its_first_toast_shows()
+    {
+        if (NoBrowser) return;
+        // A region created with its content already in it is read by many screen readers
+        // as nothing, so the first toast of a new stack comes a moment after the stack.
+        var page = await Open("<p>Orders</p>");
+
+        var first = await page.EvaluateAsync<JsonElement>("""
+            () => {
+                sednaUi.toast('Saved', { timeout: 0 });
+                const stack = document.querySelector('[data-sedna-toasts]');
+                return { region: stack && stack.getAttribute('aria-live'), shown: !stack.querySelector('.toast').hidden };
+            }
+            """);
+        Assert.Equal("polite", first.GetProperty("region").GetString());
+        Assert.False(first.GetProperty("shown").GetBoolean(), "The first toast went in with its region.");
+
+        await page.WaitForFunctionAsync("() => !document.querySelector('[data-sedna-toasts] .toast').hidden");
+
+        // A second toast into a region that is already there goes in at once.
+        Assert.True(await page.EvaluateAsync<bool>("""
+            () => { sednaUi.toast('Saved again', { timeout: 0 }); return !document.querySelectorAll('[data-sedna-toasts] .toast')[1].hidden; }
+            """));
+    }
+
+    [Fact]
+    public async Task A_toast_waits_while_the_pointer_is_on_it()
+    {
+        if (NoBrowser) return;
+        var page = await Open("<p>Orders</p>", clockPausedAt: new DateTime(2026, 1, 1, 9, 0, 0, DateTimeKind.Utc));
+
+        await Js.Run(page, "() => sednaUi.toast('Saved', { timeout: 4000 })");
+        await page.Clock.RunForAsync(200);
+        await page.Locator(".toast").HoverAsync();
+        await page.Clock.RunForAsync(10000);
+        Assert.Equal(1, await page.Locator(".toast").CountAsync());
+
+        await page.Mouse.MoveAsync(0, 0);
+        await page.Clock.RunForAsync(5000);
+        Assert.Equal(0, await page.Locator(".toast").CountAsync());
+    }
+
+    [Fact]
     public async Task A_toast_shown_over_an_open_modal_is_visible_reachable_and_goes_home_after()
     {
         if (NoBrowser) return;
@@ -207,8 +250,9 @@ public class ToastTests : ScriptTestBase
             <dialog class="modal" id="dlg"><p>Editing</p><button type="button" id="save">Save</button></dialog>
             """);
 
-        await page.EvaluateAsync("() => document.getElementById('dlg').showModal()");
-        await page.EvaluateAsync("() => sednaUi.toast('Saving failed', { kind: 'danger', timeout: 0 })");
+        await Js.Run(page, "() => document.getElementById('dlg').showModal()");
+        await Js.Run(page, "() => sednaUi.toast('Saving failed', { kind: 'danger', timeout: 0 })");
+        await page.WaitForFunctionAsync("() => { const t = document.querySelector('[data-sedna-toasts] .toast'); return t && !t.hidden; }");
 
         var probe = await page.EvaluateAsync<JsonElement>("""
             () => {
@@ -232,8 +276,8 @@ public class ToastTests : ScriptTestBase
         Assert.Equal(0, await page.Locator(".toast").CountAsync());
 
         // A toast outliving the dialog goes back to <body>, still above the page.
-        await page.EvaluateAsync("() => sednaUi.toast('Still here', { timeout: 0 })");
-        await page.EvaluateAsync("() => document.getElementById('dlg').close()");
+        await Js.Run(page, "() => sednaUi.toast('Still here', { timeout: 0 })");
+        await Js.Run(page, "() => document.getElementById('dlg').close()");
         await page.WaitForFunctionAsync(
             "() => document.querySelector('[data-sedna-toasts]').parentElement === document.body");
         Assert.True(await page.EvaluateAsync<bool>(
@@ -248,9 +292,9 @@ public class ToastTests : ScriptTestBase
         // close event. The toasts the stack carried in with it must not go too.
         var page = await Open("""<dialog class="modal" id="dlg"><p>Editing</p></dialog>""");
 
-        await page.EvaluateAsync("() => document.getElementById('dlg').showModal()");
-        await page.EvaluateAsync("() => sednaUi.toast('Saved with warnings', { timeout: 0 })");
-        await page.EvaluateAsync("() => document.getElementById('dlg').remove()");
+        await Js.Run(page, "() => document.getElementById('dlg').showModal()");
+        await Js.Run(page, "() => sednaUi.toast('Saved with warnings', { timeout: 0 })");
+        await Js.Run(page, "() => document.getElementById('dlg').remove()");
 
         await page.WaitForFunctionAsync(
             "() => document.querySelector('[data-sedna-toasts]')?.parentElement === document.body");
@@ -265,8 +309,8 @@ public class ToastTests : ScriptTestBase
         // earlier, unless the stack follows it.
         var page = await Open("""<dialog class="modal" id="dlg"><p>Editing</p></dialog>""");
 
-        await page.EvaluateAsync("() => sednaUi.toast('Uploading…', { timeout: 0 })");
-        await page.EvaluateAsync("() => document.getElementById('dlg').showModal()");
+        await Js.Run(page, "() => sednaUi.toast('Uploading…', { timeout: 0 })");
+        await Js.Run(page, "() => document.getElementById('dlg').showModal()");
 
         await page.WaitForFunctionAsync(
             "() => document.querySelector('[data-sedna-toasts]').parentElement.id === 'dlg'");
@@ -280,7 +324,7 @@ public class ToastTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open("<div></div>");
 
-        await page.EvaluateAsync("() => sednaUi.toast('Read me', { timeout: 0 })");
+        await Js.Run(page, "() => sednaUi.toast('Read me', { timeout: 0 })");
         // Well past the 4000ms default, so a default-timeout regression fails here.
         await page.WaitForTimeoutAsync(4300);
         Assert.Equal(1, await page.Locator(".toast").CountAsync());

@@ -10,8 +10,8 @@
          <strong class="lightbox-title" id="lb-1-title">racking-bay-4209.jpg</strong>
          <span class="lightbox-meta">2 of 5 · 1.2 MB</span>
          <div class="lightbox-actions">
-           <a class="btn btn-ghost btn-icon" href="…" download aria-label="Download"><i class="ri-download-2-line"></i></a>
-           <form method="dialog"><button class="btn btn-ghost btn-icon" aria-label="Close"><i class="ri-close-line"></i></button></form>
+           <a class="btn btn--ghost btn--icon" href="…" download aria-label="Download"><i class="ri-download-2-line"></i></a>
+           <form method="dialog"><button class="btn btn--ghost btn--icon" aria-label="Close"><i class="ri-close-line"></i></button></form>
          </div>
        </div>
        <div class="lightbox-stage"><img src="…" alt="…" /></div>
@@ -137,7 +137,7 @@ dialog.lightbox::before {
 .lightbox-prev { inset-inline-start: calc(var(--space-4) + var(--safe-inline-start)); }
 .lightbox-next { inset-inline-end: calc(var(--space-4) + var(--safe-inline-end)); }
 .lightbox-prev:hover, .lightbox-next:hover { background: var(--bg-elevated); color: var(--fg); }
-.lightbox-prev:focus-visible, .lightbox-next:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring); }
+.lightbox-prev:focus-visible, .lightbox-next:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }
 .lightbox-prev:disabled, .lightbox-next:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .lightbox-caption {
@@ -170,4 +170,4 @@ dialog.lightbox::before {
 }
 .media-open > img,
 .media-open > .media-frame { display: block; }
-.media-open:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring-soft); }
+.media-open:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }

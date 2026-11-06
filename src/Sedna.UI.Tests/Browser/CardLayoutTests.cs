@@ -113,7 +113,7 @@ public class CardLayoutTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled(Fixture);
 
-        await page.EvaluateAsync("() => document.documentElement.setAttribute('data-density', 'compact')");
+        await Js.Run(page, "() => document.documentElement.setAttribute('data-density', 'compact')");
         var off = Mismatches(await Measure(page), g => g.Compact);
 
         // One number each, not a per-part guess: a part that did not move is a card whose
@@ -141,7 +141,7 @@ public class CardLayoutTests : ScriptTestBase
             <div class="card-body">Body</div>
             <div class="card-foot" id="plain-foot">
               <button class="btn" id="plain-first">Cancel</button>
-              <button class="btn btn-primary">Save</button>
+              <button class="btn btn--brand btn--solid">Save</button>
             </div>
           </div>
 

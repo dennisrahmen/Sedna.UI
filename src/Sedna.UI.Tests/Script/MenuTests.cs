@@ -62,7 +62,7 @@ public class MenuTests : ScriptTestBase
         Assert.Equal("false", await page.Locator("#trigger").GetAttributeAsync("aria-expanded"));
 
         await page.Locator("#trigger").ClickAsync();
-        await page.EvaluateAsync("() => sednaUi.menu.closeAll()");
+        await Js.Run(page, "() => sednaUi.menu.closeAll()");
         Assert.Equal("false", await page.Locator("#trigger").GetAttributeAsync("aria-expanded"));
     }
 

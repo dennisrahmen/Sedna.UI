@@ -84,8 +84,8 @@
 
     /* The tiers give the trailing side back too, or a small select keeps the
        normal one's inline-end padding and comes out lopsided. */
-    .form-select-sm { padding-inline-end: var(--space-4); }
-    .form-select-lg { padding-inline-end: var(--space-7); }
+    .form-select--sm { padding-inline-end: var(--space-4); }
+    .form-select--lg { padding-inline-end: var(--space-7); }
 }
 
 /* The value, when the markup supplies its own button. A clone of the chosen
@@ -131,7 +131,7 @@
        box itself is placed logically by the auto margin above, so there is nothing
        to mirror and 70-rtl.css has no rule for this. */
     background-position: 0 0, 5px 0;
-    background-size: 5px 5px;
+    background-size: 5px 5px, 5px 5px;
     background-repeat: no-repeat;
     transition: rotate var(--motion-fast);
 }

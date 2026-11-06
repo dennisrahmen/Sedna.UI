@@ -67,7 +67,7 @@
                 theme:   g('theme') || config.themeDefault,
                 variant: (v === 'light' || v === 'dark' || v === 'system') ? v : 'dark',
                 cvd:     g('cvd') === '1',
-                compact: g('density') === 'compact',
+                density: (g('density') === 'compact' || g('density') === 'touch') ? g('density') : 'comfortable',
                 // The document's own direction when nothing is stored, for the same
                 // reason as lang above: the host page is the authority until the
                 // reader chooses otherwise.
@@ -101,7 +101,8 @@
 
             if (g('cvd') === '1') root.setAttribute('data-cvd', '1');
             else root.removeAttribute('data-cvd');
-            if (g('density') === 'compact') root.setAttribute('data-density', 'compact');
+            var density = g('density');
+            if (density === 'compact' || density === 'touch') root.setAttribute('data-density', density);
             else root.removeAttribute('data-density');
             // Only a stored choice writes dir, and "ltr" is stored explicitly rather
             // than treated as absent — otherwise switching back would delete a dir

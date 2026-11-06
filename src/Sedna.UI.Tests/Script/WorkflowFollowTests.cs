@@ -79,7 +79,7 @@ public class WorkflowFollowTests : ScriptTestBase
         var page = await OpenDiagram(Diagram(running: 3));
         await page.WaitForFunctionAsync(Centred(3));
 
-        await page.EvaluateAsync(Move(3, 7));
+        await Js.Run(page, Move(3, 7));
         await page.WaitForFunctionAsync(Centred(7));
     }
 
@@ -96,7 +96,7 @@ public class WorkflowFollowTests : ScriptTestBase
         var page = await OpenDiagram($"""<div style="zoom:{z}">{Diagram(running: 3)}</div>""");
         await page.WaitForFunctionAsync($"() => ({OffCentre(3)})() < 2 * {z}");
 
-        await page.EvaluateAsync(Move(3, 7));
+        await Js.Run(page, Move(3, 7));
         await page.WaitForFunctionAsync($"() => ({OffCentre(7)})() < 2 * {z}");
     }
 
@@ -109,7 +109,7 @@ public class WorkflowFollowTests : ScriptTestBase
         var page = await OpenDiagram(Diagram(running: 1), ReducedMotion.NoPreference);
         await page.WaitForFunctionAsync(Centred(1));
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             async () => {
                 for (let i = 1; i < 6; i++) {
                     document.getElementById('s' + i).dataset.state = 'done';
@@ -127,7 +127,7 @@ public class WorkflowFollowTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenDiagram(Diagram(running: 6));
         await page.WaitForFunctionAsync(Centred(6));
-        await page.EvaluateAsync("() => { window.follows = []; document.addEventListener('sedna-follow', e => window.follows.push(e.detail.following)); }");
+        await Js.Run(page, "() => { window.follows = []; document.addEventListener('sedna-follow', e => window.follows.push(e.detail.following)); }");
 
         await Wheel(page, -2000);
         await page.WaitForFunctionAsync(Paused);
@@ -135,7 +135,7 @@ public class WorkflowFollowTests : ScriptTestBase
 
         // Released: the run moves on and the diagram stays where the reader left it.
         var left = await page.EvaluateAsync<double>("() => document.getElementById('wf').scrollLeft");
-        await page.EvaluateAsync(Move(6, 7));
+        await Js.Run(page, Move(6, 7));
         await page.WaitForTimeoutAsync(300);
         Assert.Equal(left, await page.EvaluateAsync<double>("() => document.getElementById('wf').scrollLeft"));
 
@@ -154,12 +154,12 @@ public class WorkflowFollowTests : ScriptTestBase
         var page = await OpenDiagram(Diagram(running: 6));
         await page.WaitForFunctionAsync(Centred(6));
 
-        await page.EvaluateAsync("() => { document.getElementById('wf').scrollLeft = 0; }");
-        await page.EvaluateAsync("() => { for (let i = 0; i < 10; i++) document.getElementById('m' + i).textContent = 'a much longer meta line than before'; }");
+        await Js.Run(page, "() => { document.getElementById('wf').scrollLeft = 0; }");
+        await Js.Run(page, "() => { for (let i = 0; i < 10; i++) document.getElementById('m' + i).textContent = 'a much longer meta line than before'; }");
         await page.WaitForTimeoutAsync(200);
         Assert.False(await page.EvaluateAsync<bool>(Paused));
 
-        await page.EvaluateAsync(Move(6, 8));
+        await Js.Run(page, Move(6, 8));
         await page.WaitForFunctionAsync(Centred(8));
     }
 
@@ -168,7 +168,7 @@ public class WorkflowFollowTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenDiagram(Diagram(running: 6, after:
-            """<button class="btn btn-sm" id="back" type="button" data-workflow-follow aria-controls="wf">Back to the step at work</button>"""));
+            """<button class="btn btn--sm" id="back" type="button" data-workflow-follow aria-controls="wf">Back to the step at work</button>"""));
         await page.WaitForFunctionAsync(Centred(6));
 
         await Wheel(page, -2000);
@@ -187,12 +187,12 @@ public class WorkflowFollowTests : ScriptTestBase
         await page.WaitForTimeoutAsync(200);
         Assert.Equal(0, await page.EvaluateAsync<double>("() => document.getElementById('wf').scrollLeft"));
 
-        await page.EvaluateAsync(Move(6, 8));
+        await Js.Run(page, Move(6, 8));
         await page.WaitForTimeoutAsync(200);
         Assert.Equal(0, await page.EvaluateAsync<double>("() => document.getElementById('wf').scrollLeft"));
 
         // Switched on later, it goes to the step at work.
-        await page.EvaluateAsync("() => document.getElementById('wf').setAttribute('data-follow', '')");
+        await Js.Run(page, "() => document.getElementById('wf').setAttribute('data-follow', '')");
         await page.WaitForFunctionAsync(Centred(8));
     }
 
@@ -205,7 +205,7 @@ public class WorkflowFollowTests : ScriptTestBase
         var page = await OpenDiagram(html);
         await page.WaitForFunctionAsync(CentredDown(3));
 
-        await page.EvaluateAsync(Move(3, 6));
+        await Js.Run(page, Move(3, 6));
         await page.WaitForFunctionAsync(CentredDown(6));
     }
 
@@ -223,11 +223,11 @@ public class WorkflowFollowTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenDiagram(Diagram(running: -1));
 
-        await page.EvaluateAsync("() => document.getElementById('s7').dataset.state = 'next'");
+        await Js.Run(page, "() => document.getElementById('s7').dataset.state = 'next'");
         await page.WaitForFunctionAsync(Centred(7));
-        await page.EvaluateAsync("() => document.getElementById('s2').dataset.state = 'waiting'");
+        await Js.Run(page, "() => document.getElementById('s2').dataset.state = 'waiting'");
         await page.WaitForFunctionAsync(Centred(2));
-        await page.EvaluateAsync("() => { document.getElementById('s5').dataset.state = 'running'; document.getElementById('s8').dataset.state = 'running'; }");
+        await Js.Run(page, "() => { document.getElementById('s5').dataset.state = 'running'; document.getElementById('s8').dataset.state = 'running'; }");
         await page.WaitForFunctionAsync(Centred(8));
     }
 }

@@ -68,7 +68,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         any "how do I build X" question.
         """)]
     public object Search(
-        [Description("What you are looking for, e.g. \"sortable table\" or \"badge-go\".")]
+        [Description("What you are looking for, e.g. \"sortable table\" or \"badge--go\".")]
         string query,
         [Description("Restrict to one of: example, class, token, page. Omit for everything.")]
         string? kind = null,
@@ -99,7 +99,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 // thing is an id rather than a class.
                 var score = CatalogueRanker.Score(terms, example.Id,
                     [example.Title, example.Page, string.Join(' ', example.Classes),
-                     string.Join(' ', example.Ids)],
+                     string.Join(' ', example.Ids), string.Join(' ', example.Attributes)],
                     [example.Blurb, example.Markup]);
                 if (score is null) continue;
 
@@ -117,7 +117,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
             foreach (var css in index.Classes)
             {
                 var score = CatalogueRanker.Score(terms, css.Name,
-                    [css.Name, string.Join(' ', css.Modifiers)], [css.Declarations]);
+                    [css.Name, string.Join(' ', css.Modifiers)], [css.AllDeclarations]);
                 if (score is null) continue;
 
                 hits.Add(new Hit("class", "." + css.Name, "." + css.Name,

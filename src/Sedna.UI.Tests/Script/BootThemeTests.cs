@@ -120,7 +120,7 @@ public class BootThemeTests : ScriptTestBase
         var before = await page.EvaluateAsync<string>("() => sednaUi.settings.load().theme");
         Assert.Equal("sedna", before);
 
-        await page.EvaluateAsync("() => sednaUi.configure({ themeDefault: 'northwind' })");
+        await Js.Run(page, "() => sednaUi.configure({ themeDefault: 'northwind' })");
 
         Assert.Equal("northwind",
             await page.EvaluateAsync<string>("() => sednaUi.settings.load().theme"));
@@ -139,7 +139,7 @@ public class BootThemeTests : ScriptTestBase
         var page = await Open("<p>x</p>", head: tag,
             storage: new Dictionary<string, string> { ["sedna.theme"] = "forest" });
 
-        await page.EvaluateAsync("() => sednaUi.configure({ themeDefault: 'northwind' })");
+        await Js.Run(page, "() => sednaUi.configure({ themeDefault: 'northwind' })");
 
         Assert.Equal("forest",
             await page.EvaluateAsync<string>("() => document.documentElement.dataset.theme"));
@@ -180,7 +180,7 @@ public class BootThemeTests : ScriptTestBase
         // checks the two implementations actually meet.
         var page = await Open("<p>x</p>", head: BootTag);
 
-        await page.EvaluateAsync("() => sednaUi.settings.save('variant', 'light')");
+        await Js.Run(page, "() => sednaUi.settings.save('variant', 'light')");
         var storedKey = await page.EvaluateAsync<string?>("() => localStorage.getItem('sedna.variant')");
         Assert.Equal("light", storedKey);
 
@@ -195,7 +195,7 @@ public class BootThemeTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open("<p>x</p>", head: BootTag);
 
-        await page.EvaluateAsync("() => sednaUi.settings.save('theme', 'forest')");
+        await Js.Run(page, "() => sednaUi.settings.save('theme', 'forest')");
         var storedKey = await page.EvaluateAsync<string?>("() => localStorage.getItem('sedna.theme')");
         Assert.Equal("forest", storedKey);
 

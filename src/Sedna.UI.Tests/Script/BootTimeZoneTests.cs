@@ -75,7 +75,7 @@ public class BootTimeZoneTests : ScriptTestBase
         // machine changes zone, must not keep rendering on the old clock. "Only when
         // it differs" has to mean differs, not "only once".
         var page = await Open("<p>x</p>", head: Tag, withMainScript: false);
-        await page.EvaluateAsync("() => { document.cookie = 'tz=Etc/GMT-14;path=/'; }");
+        await Js.Run(page, "() => { document.cookie = 'tz=Etc/GMT-14;path=/'; }");
         await page.ReloadAsync();
 
         var expected = await page.EvaluateAsync<string>(
@@ -101,7 +101,7 @@ public class BootTimeZoneTests : ScriptTestBase
                 get() { throw new Error('blocked'); }
             });
             """);
-        await page.EvaluateAsync("() => { document.cookie = 'tz=;path=/;max-age=0'; }");
+        await Js.Run(page, "() => { document.cookie = 'tz=;path=/;max-age=0'; }");
         await page.ReloadAsync();
 
         // Storage throwing on the first read means NO attribute is stamped at all, and

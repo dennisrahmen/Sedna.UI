@@ -34,7 +34,7 @@
     cursor: pointer;
 }
 .page-link:hover { background: var(--bg-hover); border-color: var(--border); text-decoration: none; }
-.page-link:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.page-link:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .page-link[aria-current="page"] {
     background: var(--brand-tint);
     border-color: var(--brand-soft);
@@ -43,7 +43,6 @@
 }
 .page-link:disabled,
 .page-link[aria-disabled="true"] {
-    opacity: var(--disabled-opacity);
     cursor: not-allowed;
     pointer-events: none;
 }

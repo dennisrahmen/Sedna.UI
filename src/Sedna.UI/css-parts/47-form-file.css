@@ -23,7 +23,7 @@
 .form-file-name { color: var(--muted); font-size: var(--text-3); }
 /* The focus ring has to be drawn on the label, because the focused element is the
    input the reader cannot see. */
-.form-file:has(input:focus-visible) .btn { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.form-file:has(input:focus-visible) .btn { box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* Almost no block padding. A file input's content is the UA's own button, which is
    taller than a line of text, so `.form-input`'s padding on top of it pushes a bare
@@ -88,11 +88,11 @@
 .dropzone--over i { color: var(--brand-soft); }
 /* :focus-within rather than :has(input:focus-visible): the zone IS the label, and
    focus-within says exactly what is meant with less machinery. */
-.dropzone:focus-within { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.dropzone:focus-within { box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* One row, one control high: the zone under a reply or comment composer, where a
    full-height panel would outweigh the text field it serves. Icon and label sit on
-   one line at `.btn-sm`'s size; the behaviour and the states are the same zone's. */
+   one line at `.btn--sm`'s size; the behaviour and the states are the same zone's. */
 .dropzone--sm {
     flex-direction: row;
     justify-content: center;
@@ -103,6 +103,9 @@
     font-size: var(--text-3);
 }
 .dropzone--sm i { font-size: var(--text-4); }
+/* A zone that is the page's main action — the first step of an import. */
+.dropzone--lg { padding: var(--space-11); gap: var(--space-5); font-size: var(--text-5); }
+.dropzone--lg i { font-size: var(--text-10); }
 
 /* ── File list ──────────────────────────────────────────────────────────────
    What was attached, and how to remove it. A real <ul>, so the count is announced.
@@ -138,7 +141,7 @@
          <span class="progress" role="progressbar" aria-valuenow="64" aria-label="Uploading stock-check.xlsx"><span class="progress-bar" style="width:64%"></span></span>
        </span>
        <span class="file-item-size">64%</span>
-       <span class="file-item-actions"><button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Cancel">…</button></span>
+       <span class="file-item-actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Cancel">…</button></span>
      </li>
 
    Uploading needs no modifier — the bar is the state. `--done` and `--error` colour
@@ -160,4 +163,4 @@
 .file-item-actions { display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0; }
 a.file-item { color: inherit; text-decoration: none; }
 a.file-item:hover { border-color: var(--border-strong); text-decoration: none; }
-a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }

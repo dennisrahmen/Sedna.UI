@@ -7,7 +7,7 @@
     drawing follows them.
 </CatHead>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-braces-line"></i>
     <div class="callout-body">
         <span class="callout-title">Register once, import the namespace, call after the first render</span>
@@ -66,6 +66,9 @@
     <p>
         A layout whose shape is the point, such as <code>dagre</code> or <code>grid</code>, runs again
         instead. <code>relayout: true</code> lays out the whole drawing again in any layout.
+        <code>data-graph-arrive="pop"</code> swells one halo around each record that arrives, so a
+        graph that grows on a screen across the room is seen growing, and
+        <code>data-graph-announce-arrive</code> says it in the live region.
     </p>
 </CatExample>
 

@@ -41,13 +41,60 @@
     align-items: center;
     padding: var(--card-pad-block) var(--card-pad-inline);
     border-bottom: 1px solid var(--border);
+    background: var(--card-head-bg);
 }
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
    margin and 1.17em size, so the head measures half again as tall as one holding a
    <strong> and the heading is bigger than the card it titles. */
-.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
+.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
+/* A leading slot — a drag grip, an icon, a fold toggle — before the title. The title
+   then takes the room between it and the trailing actions. */
+.card-head-lead { display: flex; align-items: center; gap: var(--space-3); flex-shrink: 0; margin-inline-end: var(--space-4); color: var(--muted); }
+.card-head:has(> .card-head-lead) { justify-content: flex-start; }
+.card-head:has(> .card-head-lead) > .card-head-right { margin-inline-start: auto; }
+
+/* ── Folded and resizable ───────────────────────────────────────────────────
+   `.card--folded` shows the head alone — a widget put away, its title still in place.
+   The app toggles the class from its own control and says so with aria-expanded.
+
+   `.card--resizable` holds a height the reader chose, in `--card-height`: the head and
+   the foot stay, the body scrolls. Its `.card-resize` handle at the bottom edge is the
+   app's, a `[data-resize="--card-height"]` separator that 26-resize.js moves; without a
+   height the card is as tall as its content, as any card is. */
+.card.card--folded > :not(.card-head) { display: none; }
+.card.card--folded > .card-head { border-bottom: none; }
+.card--resizable {
+    --card-height: auto;
+    display: flex;
+    flex-direction: column;
+    block-size: var(--card-height);
+}
+.card--resizable > .card-body { flex: 1 1 auto; min-block-size: 0; overflow: auto; }
+.card-resize {
+    flex-shrink: 0;
+    block-size: var(--space-4);
+    margin-block-start: calc(var(--space-4) * -1);
+    cursor: ns-resize;
+    touch-action: none;
+    position: relative;
+}
+.card-resize::before {
+    content: "";
+    position: absolute;
+    inset-inline: 40%;
+    inset-block-start: calc(50% - 1px);
+    block-size: 2px;
+    border-radius: var(--radius-pill);
+    background: var(--border-strong);
+    opacity: 0;
+    transition: opacity var(--motion-fast);
+}
+.card-resize:hover::before,
+.card-resize:focus-visible::before,
+.card-resize[data-resizing]::before { opacity: 1; background: var(--selected); }
+.card-resize:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); border-radius: var(--radius-inner); }
 
 /* ── A card head that holds a tab strip ─────────────────────────────────────
    `.card-head` pads all four sides and centres its children, which leaves a `.tabs`
@@ -199,4 +246,6 @@
 .kv { display: flex; justify-content: space-between; gap: var(--space-7); padding: var(--space-2) 0; }
 .kv .k { color: var(--muted); }
 .kv .v { font-family: var(--font-mono); }
+/* Either side may be long — a path, an id — and neither may push the row wider. */
+.kv > * { min-width: 0; overflow-wrap: anywhere; }
 

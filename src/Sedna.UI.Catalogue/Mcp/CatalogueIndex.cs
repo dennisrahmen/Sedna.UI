@@ -18,7 +18,12 @@ internal sealed record IndexedExample(
     bool Live,
     IReadOnlyList<string> Classes,
     IReadOnlyList<string> Ids,
-    IReadOnlyList<string> Members);
+    IReadOnlyList<string> Members)
+{
+    /// <summary>The <c>data-*</c> attributes the markup carries — the script's behaviours are
+    /// switched on by them, and an agent asks for one by its attribute.</summary>
+    public IReadOnlyList<string> Attributes { get; init; } = [];
+}
 
 /// <summary>One CSS class, with what the stylesheet actually says about it.</summary>
 internal sealed record IndexedClass(
@@ -26,7 +31,13 @@ internal sealed record IndexedClass(
     string Layer,
     string Declarations,
     IReadOnlyList<string> Modifiers,
-    IReadOnlyList<string> UsedByExamples);
+    IReadOnlyList<string> UsedByExamples)
+{
+    /// <summary>What search reads: every rule about it, uncapped — the rules that name only
+    /// a few classes where it has any. <see cref="Declarations"/> is the first few rules,
+    /// which is what an agent is shown.</summary>
+    public string AllDeclarations { get; init; } = Declarations;
+}
 
 /// <summary>
 /// Everything the MCP server can answer questions about, built once at startup
@@ -176,7 +187,11 @@ internal sealed class CatalogueIndex
                 Live: extension == "razor",
                 Classes: ClassesIn(markup, live: extension == "razor", declared),
                 Ids: IdsIn(markup),
-                Members: MembersIn(markup, api)));
+                Members: MembersIn(markup, api))
+            {
+                Attributes = DataAttributes.Matches(markup).Select(m => m.Value)
+                    .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList(),
+            });
         }
 
         return examples.OrderBy(e => e.Id, StringComparer.Ordinal).ToList();
@@ -346,6 +361,9 @@ internal sealed class CatalogueIndex
             .OrderBy(id => id, StringComparer.Ordinal)
             .ToList();
 
+    private static readonly Regex DataAttributes = new(
+        @"\bdata-[a-z][a-z0-9-]*", RegexOptions.Compiled);
+
     private static readonly Regex IdAttribute = new(
         @"\bid=""(?<value>[^""]*)""", RegexOptions.Compiled);
 
@@ -397,12 +415,16 @@ internal sealed class CatalogueIndex
     /// One walk, two outputs — an id is found by the same rule walker that finds a
     /// class, so the two answers cannot disagree about what the sheet contains.
     /// </remarks>
+    // How many classes a rule may name and still be about each of them, for search.
+    private const int Focused = 4;
+
     private static (List<IndexedClass> Classes, List<IndexedClass> Ids) BuildSelectors(string rawCss)
     {
         var declarations = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var layers = new Dictionary<string, string>(StringComparer.Ordinal);
         var idDeclarations = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var idLayers = new Dictionary<string, string>(StringComparer.Ordinal);
+        var focused = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
         // Comments out first. The walker takes everything between one rule's closing
         // brace and the next opening brace as the selector, and this stylesheet
@@ -410,10 +432,11 @@ internal sealed class CatalogueIndex
         // of box-drawing characters as its declaration.
         var css = Regex.Replace(rawCss, @"/\*.*?\*/", " ", RegexOptions.Singleline);
 
-        foreach (var (selector, body, layer) in Rules(css))
+        foreach (var (selector, body, layer, condition) in Rules(css))
         {
-            foreach (var name in Regex.Matches(selector, @"\.(-?[a-zA-Z][a-zA-Z0-9-]*)")
-                         .Select(m => m.Groups[1].Value).Distinct(StringComparer.Ordinal))
+            var classes = Regex.Matches(selector, @"\.(-?[a-zA-Z][a-zA-Z0-9-]*)")
+                .Select(m => m.Groups[1].Value).Distinct(StringComparer.Ordinal).ToList();
+            foreach (var name in classes)
             {
                 if (!declarations.TryGetValue(name, out var list))
                 {
@@ -421,7 +444,15 @@ internal sealed class CatalogueIndex
                     layers[name] = layer;
                 }
 
-                list.Add($"{Squash(selector)} {{ {Squash(body)} }}");
+                list.Add(Rule(selector, body, condition));
+                // A rule that names a handful of classes is about them; one that lists
+                // dozens — the forced-colours focus rule — is about none in particular,
+                // and searching it made every class it names an equal hit.
+                if (classes.Count <= Focused)
+                {
+                    if (!focused.TryGetValue(name, out var mine)) focused[name] = mine = [];
+                    mine.Add(Rule(selector, body, condition));
+                }
             }
 
             foreach (var name in Regex.Matches(selector, @"#(-?[a-zA-Z][a-zA-Z0-9-]*)")
@@ -433,11 +464,19 @@ internal sealed class CatalogueIndex
                     idLayers[name] = layer;
                 }
 
-                list.Add($"{Squash(selector)} {{ {Squash(body)} }}");
+                list.Add(Rule(selector, body, condition));
             }
         }
 
-        return (Selectors(declarations, layers, "."), Selectors(idDeclarations, idLayers, "#"));
+        var classesFound = Selectors(declarations, layers, ".")
+            .Select(c => c with
+            {
+                AllDeclarations = focused.TryGetValue(c.Name, out var mine)
+                    ? string.Join("\n", mine)
+                    : c.AllDeclarations,
+            })
+            .ToList();
+        return (classesFound, Selectors(idDeclarations, idLayers, "#"));
     }
 
     /// <summary>One selector family, as the index reports it.</summary>
@@ -463,7 +502,10 @@ internal sealed class CatalogueIndex
                                         || other.StartsWith(entry.Key + "--", StringComparison.Ordinal))
                         .OrderBy(m => m, StringComparer.Ordinal).ToList()
                     : [],
-                UsedByExamples: []))
+                UsedByExamples: [])
+            {
+                AllDeclarations = string.Join("\n", entry.Value),
+            })
             .OrderBy(c => c.Name, StringComparer.Ordinal)
             .ToList();
 
@@ -485,55 +527,50 @@ internal sealed class CatalogueIndex
     }
 
     /// <summary>
-    /// Every rule as (selector, body, layer), tracking which <c>@layer</c> block it
-    /// sits in.
+    /// Every rule as (selector, body, layer, condition), at any depth: a rule inside
+    /// <c>@media</c>, <c>@container</c> or <c>@supports</c> is a rule of its layer too,
+    /// and <c>condition</c> names the blocks it sits in.
     /// </summary>
     /// <remarks>
     /// The layer is read from the enclosing block rather than derived a second time
     /// from a part's <c>NN-</c> prefix, so it cannot disagree with what the
-    /// generator wrote.
+    /// generator wrote. Only the top level was read once, so a class declared only
+    /// under a media query — <c>.table--stack</c> among them — was reported as not
+    /// declared at all.
     /// </remarks>
-    private static IEnumerable<(string Selector, string Body, string Layer)> Rules(string css)
+    private static IEnumerable<(string Selector, string Body, string Layer, string Condition)> Rules(string css)
     {
-        var layer = string.Empty;
-        var depth = 0;
-        var start = 0;
+        // One frame per open block: its prelude and where its body starts.
+        var frames = new List<(string Prelude, int BodyStart)>();
 
         for (var i = 0; i < css.Length; i++)
         {
             if (css[i] == '{')
             {
-                if (depth == 0)
-                {
-                    var prelude = css[start..i];
-                    var match = LayerBlock.Match(prelude + "{");
-                    if (match.Success) layer = match.Groups["layer"].Value;
-                    start = i + 1;
-                }
-                else if (depth == 1)
-                {
-                    start = i + 1;
-                }
-
-                depth++;
+                frames.Add((css[LastBoundary(css, i + 1)..i].Trim(), i + 1));
             }
             else if (css[i] == '}')
             {
-                depth--;
-                if (depth == 1)
-                {
-                    var body = css[start..i];
-                    var selector = css[LastBoundary(css, start)..(start - 1)];
-                    // A dot or a hash: bare element rules carry no name to index, and an
-                    // id-only rule is exactly the one that was invisible — every
-                    // #blazor-error-ui rule was dropped here before it reached the walker's
-                    // caller, which is why the tool could only answer notFound.
-                    if (selector.Contains('.', StringComparison.Ordinal)
-                        || selector.Contains('#', StringComparison.Ordinal))
-                        yield return (selector.Trim(), body, layer);
-                }
+                if (frames.Count == 0) continue;
+                var (selector, bodyStart) = frames[^1];
+                frames.RemoveAt(frames.Count - 1);
 
-                start = i + 1;
+                // A dot or a hash: bare element rules carry no name to index, and an
+                // id-only rule is exactly the one that was invisible — every
+                // #blazor-error-ui rule was dropped here before it reached the walker's
+                // caller, which is why the tool could only answer notFound.
+                if (!selector.StartsWith('@')
+                    && (selector.Contains('.', StringComparison.Ordinal)
+                        || selector.Contains('#', StringComparison.Ordinal)))
+                {
+                    var layer = frames
+                        .Select(f => LayerBlock.Match(f.Prelude + "{"))
+                        .LastOrDefault(m => m.Success)?.Groups["layer"].Value ?? string.Empty;
+                    var condition = string.Join(" ", frames
+                        .Where(f => f.Prelude.StartsWith('@') && !f.Prelude.StartsWith("@layer", StringComparison.Ordinal))
+                        .Select(f => f.Prelude));
+                    yield return (selector, css[bodyStart..i], layer, condition);
+                }
             }
         }
     }
@@ -541,8 +578,15 @@ internal sealed class CatalogueIndex
     private static int LastBoundary(string css, int bodyStart)
     {
         var i = bodyStart - 2;
-        while (i > 0 && css[i] != '}' && css[i] != '{') i--;
+        while (i > 0 && css[i] != '}' && css[i] != '{' && css[i] != ';') i--;
         return i + 1;
+    }
+
+    // A rule as the index reports it, inside the at-rules it sits in.
+    private static string Rule(string selector, string body, string condition)
+    {
+        var rule = $"{Squash(selector)} {{ {Squash(body)} }}";
+        return condition.Length == 0 ? rule : $"{Squash(condition)} {{ {rule} }}";
     }
 
     private static string Squash(string s) =>

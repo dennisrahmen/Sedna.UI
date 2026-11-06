@@ -156,7 +156,8 @@ public class ComparisonBarTests : ScriptTestBase
     [Fact]
     public async Task In_forced_colours_the_fill_the_hatch_and_the_track_are_three_colours()
     {
-        if (NoBrowser) return;
+        // Forced colours exist in Chromium only (see BrowserEngine).
+        if (NoBrowser || !BrowserEngine.EmulatesForcedColors) return;
         var (page, _) = await OpenStyled(Fixture);
         await page.EmulateMediaAsync(new() { ForcedColors = ForcedColors.Active });
 
@@ -186,7 +187,7 @@ public class ComparisonBarTests : ScriptTestBase
 
     private static async Task SetPalette(IPage page, string flags)
     {
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             flags => {
                 const html = document.documentElement;
                 html.dataset.variant = flags.includes('light') ? 'light' : 'dark';

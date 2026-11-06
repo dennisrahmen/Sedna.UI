@@ -72,7 +72,7 @@
 }
 .nav-group > summary::-webkit-details-marker { display: none; }
 .nav-group > summary:hover { background: var(--sidebar-hover); }
-.nav-group > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.nav-group > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 .nav-group > summary > i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
 .nav-group > summary::after {
     content: '';
@@ -143,5 +143,5 @@
     transform: none;
     text-decoration: none;
     outline: none;
-    box-shadow: 0 0 0 3px var(--brand-ring);
+    box-shadow: 0 0 0 3px var(--focus-ring);
 }

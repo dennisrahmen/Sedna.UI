@@ -3,7 +3,7 @@ using Microsoft.Playwright;
 namespace Sedna.UI.Tests.TestSupport;
 
 /// <summary>
-/// A Chromium instance and the opt-out gate, shared by every test class that needs a
+/// A browser instance and the opt-out gate, shared by every test class that needs a
 /// real browser.
 /// </summary>
 /// <remarks>
@@ -12,7 +12,12 @@ namespace Sedna.UI.Tests.TestSupport;
 /// without asserting anything is worse than one that fails — so a missing browser is a
 /// <b>failure by default</b>. Install it once:
 /// </para>
-/// <code>pwsh bin/Debug/net10.0/playwright.ps1 install chromium</code>
+/// <code>pwsh bin/Debug/net10.0/playwright.ps1 install chromium webkit</code>
+/// <para>
+/// The floor is two engines, so the suite runs once per engine: <c>SEDNA_UI_BROWSER</c> is
+/// <c>chromium</c> (the default) or <c>webkit</c>, and CI runs both. Any other value is a
+/// failure, so a typo cannot quietly fall back to the default engine.
+/// </para>
 /// <para>
 /// <c>SEDNA_UI_BROWSER_TESTS=0</c> opts out, for the rare case of running the source scans
 /// on a machine that genuinely cannot host a browser. It has to be set deliberately,
@@ -31,6 +36,9 @@ public abstract class BrowserTestBase : IAsyncLifetime
 
     private IPlaywright? _playwright;
 
+    /// <summary>The engine this run drives: <c>chromium</c> or <c>webkit</c>.</summary>
+    protected static string Engine => BrowserEngine.Name;
+
     /// <summary>The launched browser, or null when none could be started.</summary>
     protected IBrowser? Browser { get; private set; }
 
@@ -43,10 +51,19 @@ public abstract class BrowserTestBase : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        // Opted out means no browser at all, not "whichever happens to be installed":
+        // the smoke pass in CI and a quick local run both rely on it to skip the browser
+        // tests, and they did not skip on a machine that had one.
+        if (OptedOut)
+        {
+            Unavailable = $"{OptOutEnvVar}=0";
+            return;
+        }
+
         try
         {
             _playwright = await Playwright.CreateAsync();
-            Browser = await _playwright.Chromium.LaunchAsync(new() { Headless = true });
+            Browser = await BrowserEngine.Of(_playwright).LaunchAsync(new() { Headless = true });
         }
         catch (Exception ex)
         {
@@ -80,7 +97,7 @@ public abstract class BrowserTestBase : IAsyncLifetime
 
         Assert.True(Unavailable is null,
             "No browser could be launched, so every browser test would have asserted nothing. Run "
-            + "`pwsh src/Sedna.UI.Tests/bin/Debug/net10.0/playwright.ps1 install chromium`, "
+            + $"`pwsh src/Sedna.UI.Tests/bin/Debug/net10.0/playwright.ps1 install {Engine}`, "
             + $"or set {OptOutEnvVar}=0 to run only the source scans. Playwright said: {Unavailable}");
     }
 }

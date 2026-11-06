@@ -83,8 +83,8 @@ public class BottombarOverlayTests : ScriptTestBase
         await page.SetViewportSizeAsync(375, 700);
 
         await Measure(page); // the toast shows before the scroll
-        await page.EvaluateAsync("() => window.scrollTo(0, 1200)");
-        await page.EvaluateAsync("() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))");
+        await Js.Run(page, "() => window.scrollTo(0, 1200)");
+        await Js.Run(page, "() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))");
         var edges = await Measure(page);
 
         Assert.Equal(edges.Bar - Gap, edges.Toast, 1.0);

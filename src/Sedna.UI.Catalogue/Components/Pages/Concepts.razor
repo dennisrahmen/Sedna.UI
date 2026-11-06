@@ -16,8 +16,8 @@
         <span class="cat-tile-ic"><i class="ri-side-bar-line"></i></span>
         <span class="cat-tile-text">
             <strong>Tier 1 — the frame</strong>
-            <span>Shell, sidebar and nav, header, user widget, the modal shell. The app writes it,
-            pixel-identical in every app and never restyled per project.</span>
+            <span>Shell, sidebar and nav, header, bottom bar, user widget, drawer, the modal shell.
+            Separate parts the app writes and combines as it likes.</span>
         </span>
     </div>
     <div class="card cat-tile">
@@ -67,7 +67,7 @@
     </table>
 </div>
 
-<div class="callout callout-warn">
+<div class="callout callout--warn">
     <i class="ri-stack-line"></i>
     <div class="callout-body">
         <span class="callout-title">Your stylesheet is unlayered, so it always wins</span>
@@ -89,7 +89,7 @@
     stepper, the search box and the chip.
 </p>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-ruler-line"></i>
     <div class="callout-body">
         <span class="callout-title">Sizing a control yourself takes two rules</span>
@@ -127,7 +127,7 @@
     <table class="table">
         <thead><tr><th>Shape</th><th>Rule</th></tr></thead>
         <tbody>
-            <tr><td><code>.card</code>, <code>.btn-go</code></td><td>Semantic, lowercase-kebab, no app or vendor prefix</td></tr>
+            <tr><td><code>.card</code>, <code>.btn--go.btn--solid</code></td><td>Semantic, lowercase-kebab, no app or vendor prefix</td></tr>
             <tr><td><code>.sedna-row</code>, <code>.sedna-scroll</code></td><td>Library-owned utilities that need a namespace</td></tr>
             <tr><td><code>.tab--active</code></td><td>A modifier is <code>--</code> on the block</td></tr>
             <tr><td><code>go</code>, <code>warn</code>, <code>danger</code>, <code>info</code>, <code>secret</code></td><td>Semantic families, chosen by meaning across buttons, badges and alerts</td></tr>
@@ -136,7 +136,7 @@
     </table>
 </div>
 
-<div class="callout callout-warn">
+<div class="callout callout--warn">
     <i class="ri-price-tag-3-line"></i>
     <div class="callout-body">
         <span class="callout-title">A plain name is a claim on the shared namespace</span>
@@ -171,7 +171,7 @@
     </table>
 </div>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-information-line"></i>
     <div class="callout-body">
         <span class="callout-title">What the numbers do not say</span>
@@ -192,7 +192,7 @@
     on this site.
 </p>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-text-direction-r"></i>
     <div class="callout-body">
         <span class="callout-title">Write the logical property and it mirrors for free</span>
@@ -200,8 +200,10 @@
         <code>inset-inline</code> and <code>text-align: start</code> and your own pages mirror for free;
         only <code>transform: translateX()</code> and a <code>background-position</code> percentage have
         no logical form, and both are handled here. <code>data-density="compact"</code> tightens table
-        cells, card padding and list rows by remapping <code>--cell-pad-*</code>,
-        <code>--card-pad-*</code> and <code>--list-pad-*</code>;
-        a component of your own that reads those tokens tightens with them.
+        cells, card padding, list rows, the page's rhythm and the control heights by remapping
+        <code>--cell-pad-*</code>, <code>--card-pad-*</code>, <code>--list-pad-*</code>,
+        <code>--page-rhythm</code>, <code>--page-pad</code> and <code>--control-height*</code>;
+        <code>data-density="touch"</code> loosens the same tokens and puts the default control at
+        44px. A component of your own that reads those tokens moves with them.
     </div>
 </div>

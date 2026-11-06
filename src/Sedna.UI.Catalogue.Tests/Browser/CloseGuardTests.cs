@@ -21,7 +21,7 @@ public class CloseGuardTests(CatalogueAppFixture app)
         page.Locator("dialog.modal[data-close-guard]");
 
     private static ILocator Discard(IPage page) =>
-        page.Locator("dialog.modal-sm:has(h3:text-is('Discard this reply?'))");
+        page.Locator("dialog.modal--sm:has(h3:text-is('Discard this reply?'))");
 
     private static ILocator Outcome(IPage page) =>
         page.Locator(".cat-ex:has(button:text-is('Reply on ORD-4209')) .badge").First;
@@ -52,11 +52,11 @@ public class CloseGuardTests(CatalogueAppFixture app)
         for (var i = 0; i < 4; i++)
         {
             await page.Keyboard.PressAsync("Escape");
-            await page.WaitForFunctionAsync("() => [...document.querySelectorAll('dialog.modal-sm')].some(d => d.open)");
+            await page.WaitForFunctionAsync("() => [...document.querySelectorAll('dialog.modal--sm')].some(d => d.open)");
 
             // Escape on the question is "keep writing".
             await page.Keyboard.PressAsync("Escape");
-            await page.WaitForFunctionAsync("() => ![...document.querySelectorAll('dialog.modal-sm')].some(d => d.open)");
+            await page.WaitForFunctionAsync("() => ![...document.querySelectorAll('dialog.modal--sm')].some(d => d.open)");
 
             Assert.True(await IsOpen(Reply(page)));
         }
@@ -80,10 +80,10 @@ public class CloseGuardTests(CatalogueAppFixture app)
 
         await Reply(page).Locator("textarea").FillAsync("The replacement ships on Monday.");
         await Reply(page).GetByRole(AriaRole.Button, new() { Name = "Close" }).ClickAsync();
-        await page.WaitForFunctionAsync("() => [...document.querySelectorAll('dialog.modal-sm')].some(d => d.open)");
+        await page.WaitForFunctionAsync("() => [...document.querySelectorAll('dialog.modal--sm')].some(d => d.open)");
 
         await Discard(page).GetByRole(AriaRole.Button, new() { Name = "Keep writing" }).ClickAsync();
-        await page.WaitForFunctionAsync("() => ![...document.querySelectorAll('dialog.modal-sm')].some(d => d.open)");
+        await page.WaitForFunctionAsync("() => ![...document.querySelectorAll('dialog.modal--sm')].some(d => d.open)");
         Assert.True(await IsOpen(Reply(page)));
 
         await page.Context.CloseAsync();

@@ -120,6 +120,7 @@ On the `[data-graph]` element:
 | `data-graph-fit-max` | a zoom, e.g. `3` | How far a fit may zoom in: `1.25` for dots and `1.1` for boxes unless set. Raise it for a few records on a screen read from across a room. |
 | `data-graph-scale` | a number above 0, e.g. `2` | The same drawing that many times bigger: names, records, lines and the gaps between them together, for a screen read from across a room. Multiplies the fit's ceiling and the zoom range with them. `1` unless set. |
 | `data-graph-hold` | — | Names keep their size on screen however far the drawing is zoomed out, rather than shrinking below a zoom of 0.4. For a small graph only: in a large one, names that do not fit push the drawing further out. |
+| `data-graph-arrive` | `pop` | A record added after the first drawing swells a halo in its own colour that fades, once, so it is seen arriving from across a room. Not under reduced motion, in a hidden tab, or for more than 24 arrivals at once. |
 | `data-graph-renderer` | `canvas` (default), `webgl` | WebGL is faster for many thousands of elements on a real GPU, and is still experimental in the engine: choose it for a very large graph and check it on the hardware the app runs on. |
 
 ## The frame
@@ -131,7 +132,7 @@ On the `[data-graph]` element:
         <div class="graph" data-graph id="deps" …>
             …
             <div class="graph-tools" role="toolbar" aria-label="View">
-                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit"
+                <button class="btn btn--ghost btn--sm btn--icon" type="button" data-graph-action="fit"
                         aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
             </div>
             <canvas class="graph-minimap" data-graph-minimap aria-hidden="true"></canvas>
@@ -207,8 +208,8 @@ record's tone.
   `both`); `[data-graph-link]` takes the link's label, and a row's `data-graph-action` acts on that
   neighbour.
 - **Announcements** — `[data-graph-live]`, a polite live region, says each record the keyboard reaches
-  in `data-graph-announce`, and a selection in `data-graph-announce-select`: `{label}`, `{kind}`,
-  `{meta}`, any field, and `{links}`.
+  in `data-graph-announce`, a selection in `data-graph-announce-select`, and a record added live in
+  `data-graph-announce-arrive`: `{label}`, `{kind}`, `{meta}`, any field, and `{links}`.
 
 ## Reading a graph
 

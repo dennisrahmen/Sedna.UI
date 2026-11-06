@@ -147,13 +147,13 @@ public class CalendarLayoutTests : ScriptTestBase
                 const b = document.getElementById('b');
                 const s = getComputedStyle(b);
                 const box = b.getBoundingClientRect();
-                // The clip is the content box, and every line box is one line-height tall
+                // What shows is the content box, and every line box is one line-height tall
                 // from its top: so whole lines show exactly when that height is a multiple.
                 const clipTop = box.top + parseFloat(s.borderTopWidth) + parseFloat(s.paddingTop);
                 const clipBottom = box.bottom - parseFloat(s.borderBottomWidth) - parseFloat(s.paddingBottom);
                 const lines = (clipBottom - clipTop) / parseFloat(s.lineHeight);
                 return [Math.abs(lines - Math.round(lines)), Math.round(lines), clipBottom - box.bottom,
-                        s.overflowX === 'clip' && s.overflowClipMargin.startsWith('content-box') ? 1 : 0,
+                        (a => Math.abs(parseFloat(a.height) - parseFloat(s.paddingBottom)) < 0.5 && a.backgroundColor === s.backgroundColor && a.backgroundImage === s.backgroundImage)(getComputedStyle(b, '::after')) ? 1 : 0,
                         b.scrollHeight > b.clientHeight ? 1 : 0];
             }
             """);
@@ -161,7 +161,7 @@ public class CalendarLayoutTests : ScriptTestBase
         Assert.True(m[0] < 0.05, $"The block's edge cuts a line {m[0]:0.00} of the way through.");
         Assert.True(m[1] >= 1, "The block shows no line at all.");
         Assert.True(m[2] <= 0, "The clip edge is outside the block.");
-        Assert.Equal(1, m[3]);                 // clipped at the content box, not the padding
+        Assert.Equal(1, m[3]);                 // the padding below the last line is covered in the block's own background
         Assert.Equal(1, m[4]);                 // and the fixture does overflow, or this proves nothing
     }
 
@@ -321,7 +321,7 @@ public class CalendarLayoutTests : ScriptTestBase
         })));
 
         var (page, _) = await OpenStyled(body);
-        await page.EvaluateAsync($"() => document.documentElement.setAttribute('data-variant', '{variant}')");
+        await Js.Run(page, $"() => document.documentElement.setAttribute('data-variant', '{variant}')");
 
         var rows = await page.EvaluateAsync<string[][]>("""
             () => {
@@ -436,11 +436,11 @@ public class CalendarLayoutTests : ScriptTestBase
               <div class="cal-years" id="years">{picks}</div>
               <div class="datepicker-time" id="time">
                 <label for="from">From</label>
-                <input class="form-input form-input-sm" id="from" type="time" value="14:00">
+                <input class="form-input form-input--sm" id="from" type="time" value="14:00">
                 <span aria-hidden="true">&ndash;</span>
-                <input class="form-input form-input-sm" id="to" type="time" value="15:30" aria-label="Until">
+                <input class="form-input form-input--sm" id="to" type="time" value="15:30" aria-label="Until">
               </div>
-              <div class="datepicker-actions" id="actions"><button class="btn btn-sm" type="button">Set</button></div>
+              <div class="datepicker-actions" id="actions"><button class="btn btn--sm" type="button">Set</button></div>
             </div>
             """);
 

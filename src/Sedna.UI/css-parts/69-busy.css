@@ -1,0 +1,74 @@
+/* ── Busy and read-only, on every control and every surface ──────────────────
+   `aria-busy="true"` is what a screen reader is told, and the paint keys off the same
+   attribute, so the two cannot disagree — as `.btn[aria-busy]` does in 33-buttons.css.
+
+   A CONTROL whose action is running keeps its place and its label: its leading icon
+   turns into the spinner, it shows the progress cursor and takes no pointer, so a
+   second press cannot start the work twice. A control with no icon keeps its label and
+   only stops taking the pointer. The keyboard is not stopped — leave `disabled` off,
+   which would drop the focus — and the app ignores a second activation while it works.
+
+   A SURFACE whose content is being replaced — a card refreshing, a list reloading, a
+   dialog saving — keeps its content in place, dimmed and out of reach, with a 2px bar
+   running along its top edge. The bar is a background layer rather than a
+   pseudo-element, so no component's own ::before or ::after is taken; under reduced
+   motion it stands still, full width, and still says "busy".
+
+   `aria-readonly="true"` on a choice control — a select, a combo, a check, a switch, a
+   segmented group, a colour or a range — shows its value at full contrast on the
+   read-only surface a `readonly` text field has, and takes no pointer; 21-readonly.js
+   stops the keyboard changing it. BusyStateTests holds every family named here to
+   being one the sheet declares, and the lists to each other. */
+:is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
+    .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] {
+    cursor: progress;
+    pointer-events: none;
+}
+:is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
+    .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type {
+    position: relative;
+    color: transparent;
+}
+:is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
+    .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    inline-size: 1em;
+    block-size: 1em;
+    margin: auto;
+    border: 2px solid var(--muted);
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    box-sizing: border-box;
+    animation: sedna-spin var(--spin-duration) linear infinite;
+}
+
+:is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+    cursor: progress;
+    background-image: linear-gradient(var(--brand-soft), var(--brand-soft));
+    background-size: 30% 2px;
+    background-repeat: no-repeat;
+    background-position: -30% 0;
+    animation: sedna-busy-bar var(--progress-duration) ease-in-out infinite;
+}
+:is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] > * {
+    opacity: 0.55;
+    pointer-events: none;
+}
+@keyframes sedna-busy-bar {
+    to { background-position: 130% 0; }
+}
+
+:is(.form-select, .form-combo-box, .form-color)[aria-readonly="true"],
+.form-combo:has(.form-combo-input[aria-readonly="true"]) .form-combo-box {
+    background-color: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--fg);
+    pointer-events: none;
+}
+:is(.segmented, .form-range, .choice-tiles)[aria-readonly="true"],
+:is(.form-check, .switch):has(input[aria-readonly="true"]) {
+    pointer-events: none;
+}
+:is(.form-check, .switch):has(input[aria-readonly="true"]) input { opacity: 1; }

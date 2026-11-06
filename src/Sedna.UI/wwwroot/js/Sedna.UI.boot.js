@@ -115,7 +115,8 @@
         }
         root.setAttribute('data-variant', variant);
         if (get('cvd') === '1') root.setAttribute('data-cvd', '1');
-        if (get('density') === 'compact') root.setAttribute('data-density', 'compact');
+        var density = get('density');
+        if (density === 'compact' || density === 'touch') root.setAttribute('data-density', density);
 
         // Before first paint or not at all: a document that paints left-to-right and
         // then mirrors is a worse flash than a theme change, because every box moves.

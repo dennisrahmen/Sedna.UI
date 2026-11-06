@@ -34,27 +34,22 @@
 .split-btn > .btn:focus-visible { position: relative; z-index: 1; }
 /* Between two filled buttons of the same colour the shared edge disappears, so the
    split is drawn as a lighter inset line instead. */
-.split-btn > .btn-primary + .btn-primary,
-.split-btn > .btn-go + .btn-go,
-.split-btn > .btn-warn-solid + .btn-warn-solid { box-shadow: inset 1px 0 0 var(--surface-strong); }
+.split-btn > .btn--solid + .btn--solid { box-shadow: inset 1px 0 0 var(--surface-strong); }
 
 /* ── Icon-only and floating buttons ─────────────────────────────────────────
-   .btn-icon is a square button with no label. It still needs an aria-label, and
+   .btn--icon is a square button with no label. It still needs an aria-label, and
    `.btn`'s min-height already matches it to text buttons beside it — this only
    squares the padding so it is not a wide box around one glyph.
 
    Square by construction, from the same token as the height. Do not hard-code the
    width: it drifts from the height the moment either tier changes. */
-.btn-icon { padding-inline: 0; width: var(--control-height); }
-.btn-icon.btn-sm { width: var(--control-height-sm); }
-.btn-icon.btn-lg { width: var(--control-height-lg); }
+.btn--icon { padding-inline: 0; width: var(--control-height); }
+.btn--icon.btn--sm { width: var(--control-height-sm); }
+.btn--icon.btn--lg { width: var(--control-height-lg); }
 
-/* .btn-ghost carries no border or fill until hovered, for a dense row of secondary
+/* .btn--ghost carries no border or fill until hovered, for a dense row of secondary
    actions — a table row's actions, a toolbar. Everything the button does is still
    there; only the chrome is deferred. */
-.btn-ghost { background: none; border-color: transparent; color: var(--muted); }
-.btn-ghost:hover { background: var(--bg-hover); border-color: transparent; color: var(--fg); }
-.btn-ghost:active { background: var(--btn-active-bg); }
 
 /* ── A button with no chrome ────────────────────────────────────────────────
    For an identifier in running text that DOES something: a record number that opens
@@ -90,8 +85,8 @@
 /* No size of its own: the glyph rides the surrounding text. line-height: 1 keeps it
    from growing the line box it is in. */
 .btn-bare i { line-height: 1; }
-.btn-bare:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.btn-bare:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
+.btn-bare:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.btn-bare:disabled { cursor: not-allowed; }
 /* Link-coloured, for an identifier that goes somewhere. It underlines on hover
    because that is where a reader looks for the affordance an <a> would have. */
 .btn-bare--link { color: var(--accent); }
@@ -132,6 +127,6 @@
 }
 .fab i { font-size: var(--text-8); }
 .fab:hover { background: var(--brand-hover); }
-.fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--brand-ring); }
+.fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 /* Icon-only: circular, and the label goes in an aria-label. */
 .fab--icon { width: 48px; padding: 0; }

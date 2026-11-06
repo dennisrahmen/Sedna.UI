@@ -14,8 +14,8 @@ public class ControlStateTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var (page, _) = await OpenStyled("""
-            <button class="btn btn-primary" id="idle" type="button"><i class="ri-save-line"></i> Save changes</button>
-            <button class="btn btn-primary" id="busy" type="button" aria-busy="true"><i class="ri-save-line"></i> Save changes</button>
+            <button class="btn btn--brand btn--solid" id="idle" type="button"><i class="ri-save-line"></i> Save changes</button>
+            <button class="btn btn--brand btn--solid" id="busy" type="button" aria-busy="true"><i class="ri-save-line"></i> Save changes</button>
             """);
 
         var result = await page.EvaluateAsync<double[]>("""
@@ -77,8 +77,8 @@ public class ControlStateTests : ScriptTestBase
                 <thead>
                   <tr><th>Order</th><th>Status</th></tr>
                   <tr class="tr-filter">
-                    <th><input class="form-input form-input-sm" aria-label="Filter by order"></th>
-                    <th><input class="form-input form-input-sm" aria-label="Filter by status"></th>
+                    <th><input class="form-input form-input--sm" aria-label="Filter by order"></th>
+                    <th><input class="form-input form-input--sm" aria-label="Filter by status"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -128,8 +128,8 @@ public class ControlStateTests : ScriptTestBase
 
     [Theory]
     [InlineData("", "")]
-    [InlineData("form-input-sm", "form-input-sm")]
-    [InlineData("form-input-lg", "form-input-lg")]
+    [InlineData("form-input--sm", "form-input--sm")]
+    [InlineData("form-input--lg", "form-input--lg")]
     public async Task A_colour_field_is_as_tall_as_the_text_field_beside_it(string colourSize, string inputSize)
     {
         if (NoBrowser) return;

@@ -85,7 +85,7 @@
     --drawer-width: 480px;
     width: min(var(--drawer-width), 100vw);
     margin-inline: auto;
-    max-height: 85vh;
+    max-height: 85dvh;
     border: 1px solid var(--border);
     border-bottom: none;
     border-start-start-radius: var(--radius-panel);
@@ -161,7 +161,7 @@ dialog.drawer.drawer--start {
 dialog.sheet {
     inset-inline: 0;
     height: fit-content;
-    max-height: 85vh;
+    max-height: 85dvh;
     /* `dialog.drawer` above sets `margin: 0`, which it has to — auto margins would
        fight the edge anchoring. A capped sheet needs them back, and this is the rule
        that outranks it. Without them `inset-inline: 0` plus a definite width is
@@ -324,7 +324,7 @@ dialog.sheet.sheet--dragging { transition: none; }
 .tree summary:hover,
 .tree-leaf:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
 .tree summary:focus-visible,
-.tree-leaf:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.tree-leaf:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .tree summary::before {
     content: '';
     flex-shrink: 0;

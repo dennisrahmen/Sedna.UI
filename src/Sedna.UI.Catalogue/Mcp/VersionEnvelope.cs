@@ -94,8 +94,7 @@ internal sealed record HistoryMaps(
 /// <para>
 /// Two copies of the history answer here. The embedded one is what the build had; a
 /// <c>null</c> in it means "in no release <em>as far as this checkout knew</em>",
-/// which between a tag and the first merge after it understates every entry the
-/// tag shipped. The latest release's own copy (<see cref="ReleasedHistory"/>) was
+/// which between a tag and the next deploy understates every entry the tag shipped. The latest release's own copy (<see cref="ReleasedHistory"/>) was
 /// generated at the tag and is asked only where the embedded copy says null, so it
 /// can only ever move an entry from "unreleased" to the release that shipped it.
 /// </para>
@@ -136,7 +135,7 @@ internal sealed class VersionEnvelope
 
     /// <summary>
     /// The newest release either copy knows. The embedded copy is behind between a tag
-    /// and the first merge after it; the release's own copy is not.
+    /// and the next deploy; the release's own copy is not.
     /// </summary>
     public string LatestRelease
     {

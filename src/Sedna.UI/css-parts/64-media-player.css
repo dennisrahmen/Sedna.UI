@@ -24,6 +24,7 @@
    controls; the transcript is the same words, readable and searchable without playing.
    ─────────────────────────────────────────────────────────────────────────── */
 .media-player {
+    container: sedna-media-player / inline-size;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -76,9 +77,9 @@
     height: var(--control-height);
     margin-top: var(--space-3);
 }
-/* On a phone the actions go under the text rather than squeezing the title to
-   nothing. */
-@media (max-width: 560px) {
+/* In a narrow player — on a phone, in a side panel — the actions go under the text
+   rather than squeezing the title to nothing. */
+@container sedna-media-player (width < 560px) {
     .media-player-body { flex-wrap: wrap; }
     .media-player-body > .media-player-actions { margin-inline-start: auto; }
 }
@@ -102,7 +103,7 @@
 }
 .media-transcript > summary::-webkit-details-marker { display: none; }
 .media-transcript > summary:hover { background: var(--bg-hover); }
-.media-transcript > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.media-transcript > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 .media-transcript > summary::after {
     content: '';
     margin-inline-start: auto;
@@ -147,7 +148,7 @@
     cursor: pointer;
 }
 .media-transcript-time:hover { text-decoration: underline; }
-.media-transcript-time:focus-visible { outline: none; border-radius: var(--radius-small); box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.media-transcript-time:focus-visible { outline: none; border-radius: var(--radius-small); box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* ── A track in a list ──────────────────────────────────────────────────────
    A playlist is a `.list`: the row is a button that plays, the length is the

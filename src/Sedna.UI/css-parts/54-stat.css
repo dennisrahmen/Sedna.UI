@@ -28,6 +28,8 @@
    in a row of stats the reader compares. The label, note and unit keep their size:
    only the figure steps down, so the tile still lines up with its neighbours. */
 .stat--sm .stat-value { font-size: var(--text-6); }
+/* A figure that is the point of the page — one tile on its own, a wall screen. */
+.stat--lg .stat-value { font-size: var(--text-10); }
 
 /* A unit or denominator that should not compete with the number. */
 .stat-unit { font-size: var(--text-4); font-weight: 500; color: var(--muted); }
@@ -78,7 +80,7 @@ a.stat {
 }
 a.stat:hover { background: var(--bg-hover); text-decoration: none; }
 a.stat:hover .stat-value { color: var(--brand-text); }
-a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* ── Unavailable ────────────────────────────────────────────────────────────
    The number could not be read. An em dash, not a zero: zero is a measurement and
@@ -99,32 +101,28 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
    It reaches less than half the narrowest gap, so two toned tiles side by side never
    touch. The edge is a border, so forced-colors mode keeps it when the tint is
    flattened. `.stat.stat--*` outranks `a.stat`, so a linked tile takes the same box. */
-.stat.stat--warn,
-.stat.stat--danger {
+.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) {
     padding: calc(var(--space-3) - 1px);
     margin: calc(var(--space-3) * -1);
     border: 1px solid transparent;
     border-radius: var(--radius-surface);
 }
-.card-body > .stat-row > .stat.stat--warn,
-.card-body > .stat-row > .stat.stat--danger {
+.card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) {
     padding-block: calc(var(--space-2) + var(--space-3) - 1px);
 }
-.stat--warn   { background: var(--warn-bg);   border-color: var(--warn-border); }
-.stat--danger { background: var(--danger-bg); border-color: var(--danger-border-strong); }
-.stat--warn .stat-value,
-a.stat--warn:hover .stat-value   { color: var(--warn-fg); }
-.stat--danger .stat-value,
-a.stat--danger:hover .stat-value { color: var(--danger-fg); }
-a.stat--warn:hover   { background: var(--warn-bg-hover); }
-a.stat--danger:hover { background: var(--danger-bg-hover); }
 
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
-   it is given, so it behaves correctly inside a narrow column too. */
+   it is given, so it behaves correctly inside a narrow column too.
+
+   Nothing it holds paints past its inline edges: a toned tile's tint and a linked tile's
+   hover reach into the gaps between tiles, and stop flush with the row's own edge, so a
+   row lines up with the panels above and below it. Clipped rather than inset, so a tile
+   turning amber while the page is open moves nothing. */
 .stat-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
     gap: var(--space-7);
+    clip-path: inset(calc(var(--space-6) * -1) 0);
 }
 /* ── A dividing rule between tiles ──────────────────────────────────────────
    Tiles inside a card get a rule between them rather than a bare gap, so the card
@@ -133,8 +131,8 @@ a.stat--danger:hover { background: var(--danger-bg-hover); }
    The rule has to survive the row wrapping, and no selector can tell which tile starts
    the second row. So EVERY tile draws its rule, in the middle of the gap before it,
    and the row clips what falls outside its own edge: the first tile of each row puts
-   its rule there, and loses it. The clip margin lets a linked tile's hover and focus
-   ring out, and stops short of the rule.
+   its rule there, and loses it — the row's own clip, above, which stops at its inline
+   edges and lets a linked tile's hover and focus ring out above and below.
 
    The track floor is the plain row's 150px less the wider gap, so a row that fitted on
    one line before still does. */
@@ -143,8 +141,6 @@ a.stat--danger:hover { background: var(--danger-bg-hover); }
     grid-template-columns: repeat(auto-fit, minmax(min(calc(150px - 2 * var(--space-7)), 100%), 1fr));
     column-gap: calc(2 * var(--space-7));
     row-gap: var(--space-7);
-    overflow: clip;
-    overflow-clip-margin: var(--space-6);
 }
 .stat-row--divided > .stat,
 .card-body > .stat-row > .stat { position: relative; }
@@ -167,10 +163,8 @@ a.stat--danger:hover { background: var(--danger-bg-hover); }
     inset-inline-start: calc(var(--space-5) - var(--space-7));
 }
 /* A toned tile's box reaches past its track by its tint; the rule does not. */
-.stat-row--divided > .stat.stat--warn::before,
-.stat-row--divided > .stat.stat--danger::before,
-.card-body > .stat-row > .stat.stat--warn::before,
-.card-body > .stat-row > .stat.stat--danger::before {
+.stat-row--divided > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before,
+.card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
     inset-block: calc(var(--space-3) - 1px);
     inset-inline-start: calc(var(--space-3) - 1px - var(--space-7));
 }

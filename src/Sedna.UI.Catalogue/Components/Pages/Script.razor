@@ -75,6 +75,17 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Script.CopyValue" Title="Copy a value" Demo="ex-demo--block">
+    <p>
+        A value shown cut short — a checksum, an id, a token — copies whole from an icon button
+        beside it, with the clipboard feedback in the button's own icons. Put the full value in
+        <code>data-copy</code> and only the start in the cell; the column is
+        <code>.col-fit</code>, so a narrow screen scrolls the table instead of breaking the value
+        one character per line. The button needs an <code>aria-label</code> that names what it
+        copies.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Script.CopyWithoutHandler" Title="Copy without a handler" Demo="ex-demo--block">
     <p>
         <code>data-copy="…"</code> copies a literal; <code>data-copy-target="#sel"</code> copies

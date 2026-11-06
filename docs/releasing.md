@@ -14,7 +14,10 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` �
 2. Write the notes to a file outside the repo. List every CSS class the release adds, and every one it
    removes: a consuming app that already styles an added name sees its appearance change on upgrade with
    no error, so the list is what lets it grep first — and a removal is the breaking part of the release,
-   which `build/release-inventory.sh` prints first for that reason.
+   which `build/release-inventory.sh` prints first for that reason. A release that renames classes also
+   commits `docs/renames/<version>.json` before the tag: each old name with the class or classes that
+   look the same, so an app converts by the map and not by a prefix. `release.yml` attaches it to the
+   release, and `RenameMapTests` holds it to the stylesheet.
 3. Tag `main` and push. There is no release PR and nothing to prepare in the tree:
 
    ```bash
@@ -25,16 +28,25 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` �
    `--cleanup=verbatim` is required. Without it git deletes every line starting with `#`, so every
    Markdown heading disappears from the tag message and from the release body built from it.
 
-4. Afterwards, the first pull request regenerates `class-history.json` — `--check` in CI fails until
-   it does, so it cannot be forgotten. A tag does exactly two things to that file: every `null` the
-   tag covers becomes its version, and `latestRelease` moves onto it. Until that merge the committed
-   copy is behind, and the hosted catalogue is not: `release.yml` runs `build/class-history.sh` at the
-   tag and attaches the result to the GitHub release, and the site fetches the latest release's copy
-   at runtime to date whatever its embedded copy still calls unreleased. A fetch that fails leaves
-   the embedded copy in charge, which under-reports and never over-reports.
+4. Nothing follows the tag in the repo. `class-history.json` is never committed: CI, `release.yml`
+   and the catalogue image each run `build/class-history.sh` where they build, `release.yml` attaches
+   the copy computed at the tag to the GitHub release, and the running site fetches the latest
+   release's copy hourly to date whatever its own copy still calls unreleased. A fetch that fails
+   leaves the site's own copy in charge, which under-reports and never over-reports. Locally, run the
+   script after cloning and after fetching a new tag; it needs bash 4 or later.
 
-`release.yml` builds, tests, packs, verifies the package contents, publishes to nuget.org, and creates the
-GitHub release. The release body is the tag message plus an install snippet and a compare link to the
+`release.yml` runs the full suite first — every test project in every engine, as parallel jobs — and
+only then builds, packs, verifies the package contents, publishes to nuget.org, and creates the
+GitHub release. A pull request runs a smoke pass without a browser, so the tag is where a browser
+regression is caught.
+
+**If the tag's test run is red**, nothing has been published and the version is still free. Delete
+the tag, merge the fix, and tag the same version again:
+
+```bash
+git push --delete origin v0.2.0
+git tag -d v0.2.0
+``` The release body is the tag message plus an install snippet and a compare link to the
 previous tag.
 
 The first line of the tag message becomes the release title suffix; the rest becomes the body. A

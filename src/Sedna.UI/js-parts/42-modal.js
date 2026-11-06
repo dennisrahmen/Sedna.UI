@@ -151,6 +151,9 @@
             if (!d || d.open || typeof d.getAnimations !== 'function') return Promise.resolve();
             if (document.visibilityState === 'hidden') return Promise.resolve();
 
+            // An engine without `overlay` has no closing transition of its own;
+            // 42-modal-exit.js plays it, and starts it here so it can be waited for.
+            if (ui._.slideOut) ui._.slideOut(d);
             getComputedStyle(d).display;
             var running = d.getAnimations().map(function (a) {
                 return a.finished.catch(function () { /* cancelled is finished too */ });

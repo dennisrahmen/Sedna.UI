@@ -34,8 +34,9 @@
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
+    --modal-width: 480px;
     width: 100%;
-    max-width: 480px;
+    max-width: var(--modal-width);
     max-height: var(--modal-max-height);
     display: flex;
     flex-direction: column;
@@ -48,10 +49,10 @@
    height cap leaves above and below, and the safe-area insets clear: for an editor
    that wants the whole screen. 100% is the backdrop's width, or the viewport's for a
    <dialog>, so neither form runs under a scrollbar. */
-.modal-sm   { max-width: 360px; }
-.modal-lg   { max-width: 760px; }
-.modal-xl   { max-width: 1140px; }
-.modal-full { max-width: calc(100% - 2 * var(--space-8) - var(--safe-inline-start) - var(--safe-inline-end)); }
+.modal--sm   { --modal-width: 360px; }
+.modal--lg   { --modal-width: 760px; }
+.modal--xl   { --modal-width: 1140px; }
+.modal--full { --modal-width: calc(100% - 2 * var(--space-8) - var(--safe-inline-start) - var(--safe-inline-end)); }
 
 /* ── As a <dialog> ──────────────────────────────────────────────────────────
    `.modal` on a <dialog> opened with showModal() gets the top layer, a focus trap,
@@ -124,6 +125,9 @@ dialog.modal::backdrop {
     flex-shrink: 0;
     padding: var(--space-7) var(--space-8);
     border-bottom: 1px solid var(--border);
+    background: var(--modal-head-bg);
+    border-start-start-radius: calc(var(--radius-panel) - 1px);
+    border-start-end-radius: calc(var(--radius-panel) - 1px);
 }
 .modal-header h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
 .modal-close {
@@ -145,7 +149,7 @@ dialog.modal::backdrop {
    markup is the close button — so its focus ring is the FIRST thing a keyboard reader
    sees of a modal, and without this rule it was the UA's own outline: a hard square
    against every other control in the library, which rings with a soft brand halo. */
-.modal-close:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.modal-close:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* The part that scrolls. `min-height: 0` is stated even though `overflow-y: auto`
    already suppresses a flex item's automatic minimum size, because it is the
    declaration that makes the intent survive: the obvious pair — max-height on the
@@ -171,6 +175,9 @@ dialog.modal::backdrop {
     gap: var(--space-4);
     padding: var(--space-7) var(--space-8);
     border-top: 1px solid var(--border);
+    background: var(--modal-foot-bg);
+    border-end-start-radius: calc(var(--radius-panel) - 1px);
+    border-end-end-radius: calc(var(--radius-panel) - 1px);
 }
 
 
@@ -269,4 +276,4 @@ button.deck-dot::before {
 }
 button.deck-dot:hover { background: var(--muted); }
 button.deck-dot[aria-current]:hover { background: var(--brand); }
-button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring-soft); }
+button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }

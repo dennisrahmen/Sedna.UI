@@ -372,6 +372,28 @@ Three things to know:
   level is where `--muted` stops clearing AA — `30-cards.css` lifts it to `--fg-soft` there, and
   `SurfaceTokenTests` measures both variants on every build.
 
+### Roles a ramp cannot express
+
+A brand whose light variant has tinted surfaces — a pink card on a pink page — needs roles the
+ramps do not give it. `DarkRoles` and `LightRoles` set them per variant, by token name, to a ramp
+step or a hex colour:
+
+```csharp
+var pink = new SednaTheme("pink", palette)
+{
+    LightRoles = new Dictionary<string, string>
+    {
+        ["--card-bg"] = "#fff0f6",
+        ["--sidebar-bg"] = "var(--coral-50)",
+    },
+};
+```
+
+They are written into `<SednaBrandStyle />`'s block for that theme and variant and outrank the
+stylesheet's, except in high contrast, which keeps the library's measured roles. A name or a value of
+any other shape is refused when the theme is built. Measure what you move: the library's contrast tests
+hold its own roles, not these.
+
 ---
 
 ## 5. Design language, carried over unchanged
@@ -414,7 +436,7 @@ The palette shifted; the transparency did not.
 | In-card overlay | 66% | 66% |
 | Spotlight dim | 62% | 42% |
 | Scroll edge fade | 30% | 16% |
-| Disabled control (`--disabled-opacity`) | 40% | 40% |
+| Disabled graphic — check, switch, range (`--disabled-opacity`) | 40% | 40% |
 
 The status, severity, badge and inline-code tints are written as `color-mix()` of their ramp step
 at these alphas, so a theme that replaces a ramp carries the tint with it.
@@ -497,9 +519,9 @@ on a hovered row, where the tint sits on `--bg-hover`:
 | Pair | Ratio |
 |---|---|
 | White on `--brand` | 4.55 |
-| `.badge-orange` text on its tint, hovered row, light | 4.60 |
-| `.badge-secret` text on its tint, hovered row, light | 4.68 |
-| `.badge-sev-2` text on its tint, hovered row, colour-blind dark | 4.75 |
+| `.badge--orange` text on its tint, hovered row, light | 4.60 |
+| `.badge--secret` text on its tint, hovered row, light | 4.68 |
+| `.badge--sev-2` text on its tint, hovered row, colour-blind dark | 4.75 |
 | `--accent` on light canvas | 4.80 |
 | White on `--go-solid` | 4.83 |
 
@@ -536,7 +558,7 @@ border step, which is only held to 3:1. `PlaceholderContrastTests` reads the col
 rules paints and measures it on `--bg`, `--card-bg` and `--bg-elevated` in every palette and theme.
 
 **A filled button's boundary is not its label.** `--brand` is solved for white text on it and lands
-under 3:1 against the dark card, so `.btn-primary` is edged in `--brand-edge`, the display strength.
+under 3:1 against the dark card, so `.btn--brand.btn--solid` is edged in `--brand-edge`, the display strength.
 `ButtonEdgeContrastTests` measures whichever of fill and edge stands out more, on every surface.
 
 `TokenTierTests.A_near_floor_pair_still_clears_AA` re-measures these on every build, resolving each

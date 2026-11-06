@@ -19,9 +19,9 @@ namespace Sedna.UI;
 /// <see cref="SednaOverlay.Id"/> on its <c>&lt;dialog&gt;</c>, and closes through
 /// <see cref="SednaOverlay.CloseAsync"/> or <see cref="SednaOverlay.CancelAsync"/>:
 /// <code>
-/// &lt;dialog id="@Overlay.Id" class="modal modal-sm" aria-labelledby="@($"{Overlay.Id}-title")"&gt;
+/// &lt;dialog id="@Overlay.Id" class="modal modal--sm" aria-labelledby="@($"{Overlay.Id}-title")"&gt;
 ///     …
-///     &lt;button class="btn btn-danger" type="button" @onclick="() =&gt; Overlay.CloseAsync(true)"&gt;Delete&lt;/button&gt;
+///     &lt;button class="btn btn--danger" type="button" @onclick="() =&gt; Overlay.CloseAsync(true)"&gt;Delete&lt;/button&gt;
 /// &lt;/dialog&gt;
 ///
 /// @code {

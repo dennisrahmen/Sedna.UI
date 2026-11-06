@@ -13,7 +13,7 @@
    `data-copied="failed"` for 1.4s. The words and the icons are the app's, marked with
    what the stylesheet shows when:
 
-     <button class="btn btn-sm" type="button" data-copy="…">
+     <button class="btn btn--sm" type="button" data-copy="…">
        <i class="ri-file-copy-line" data-copied-hide></i>
        <i class="ri-check-line" data-copied-show="ok"></i>
        <span data-copied-hide>Copy</span>

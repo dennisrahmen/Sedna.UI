@@ -52,7 +52,7 @@ public class SegmentedWidthTests : ScriptTestBase
               </div>
             </dialog>
             """);
-        await page.EvaluateAsync("() => document.getElementById('dlg').showModal()");
+        await Js.Run(page, "() => document.getElementById('dlg').showModal()");
 
         var widths = await page.EvaluateAsync<double[]>("""
             () => ['box', 'seg', 't'].map(id => document.getElementById(id).getBoundingClientRect().width)

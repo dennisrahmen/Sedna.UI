@@ -11,10 +11,10 @@ engine, [Quill](https://quilljs.com/) 2, and loads it the first time a page show
 <label for="note-value">Handover note</label>
 <div class="editor" data-editor id="note">
   <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
-    <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
-    <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="italic" aria-label="Italic"><i class="ri-italic"></i></button>
+    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="italic" aria-label="Italic"><i class="ri-italic"></i></button>
     <span class="editor-sep" role="separator"></span>
-    <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list"><i class="ri-list-unordered"></i></button>
+    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list"><i class="ri-list-unordered"></i></button>
   </div>
   <div class="editor-body prose" data-editor-body></div>
   <textarea id="note-value" name="note" data-editor-value hidden placeholder="What the next shift needs to know"></textarea>
@@ -53,6 +53,9 @@ toolbar with `role="toolbar"` is one tab stop: the arrow keys, Home and End move
 | `data-editor-action="undo"`, `"redo"` | Undo, redo — `disabled` while there is nothing to undo or redo. |
 | `data-editor-action="indent"`, `"outdent"` | One level in or out. |
 | `data-editor-action="clean"` | Removes the formatting from the selection. |
+| `<input type="color" data-editor-format="color">`, `"background"` | The text colour, the highlight. Opt-in: a stored colour is kept only where the editor offers it. The value is the app's choice, and so is its legibility in both variants. |
+| `data-editor-action="table-insert"` | A two-by-two table at the caret; `disabled` inside a table. Any table action makes the editor take tables, and a stored table is kept. |
+| `data-editor-action="table-row-above"`, `"table-row-below"`, `"table-column-before"`, `"table-column-after"`, `"table-row-delete"`, `"table-column-delete"`, `"table-delete"` | Changes the table the caret is in; `disabled` outside one. |
 
 **The formats the editor accepts are the ones its toolbar offers.** What is pasted in is cut down to
 them, so the document never holds what the reader could not have written. `data-editor-formats="bold
@@ -67,8 +70,8 @@ The app's own form, written once inside the editor and opened at the text it is 
 ```html
 <div class="editor-link" data-editor-link hidden>
   <input class="form-input" type="url" data-editor-link-url aria-label="Address" placeholder="https://" />
-  <button class="btn btn-sm" type="button" data-editor-link-save>Save</button>
-  <button class="btn btn-ghost btn-sm" type="button" data-editor-link-remove>Remove</button>
+  <button class="btn btn--sm" type="button" data-editor-link-save>Save</button>
+  <button class="btn btn--ghost btn--sm" type="button" data-editor-link-remove>Remove</button>
 </div>
 ```
 
@@ -100,8 +103,8 @@ The app's own form, written once inside the editor, which an image or video cont
   <input class="form-input" type="url" data-editor-media-url aria-label="Address" placeholder="https://" />
   <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="image" aria-label="What the image shows" />
   <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="video" aria-label="What the video is about" />
-  <button class="btn btn-sm" type="button" data-editor-media-save>Insert</button>
-  <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel>Cancel</button>
+  <button class="btn btn--sm" type="button" data-editor-media-save>Insert</button>
+  <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel>Cancel</button>
 </div>
 ```
 
@@ -179,10 +182,12 @@ Bubbling from the `[data-editor]` element, with plain data in `detail`:
 | `sedna-editor-ready` | `{ html, text, length, isEmpty }`, once the document has loaded. |
 | `sedna-editor-change` | The same, after each change. |
 | `sedna-editor-media` | `{ kind, src, alt }`, cancelable, before the media form opens. |
+| `sedna-editor-file` | `{ files: [{ id, name, type, size }], index }`, when an image or a video is pasted or dropped. Nothing is inserted: read each file by its `id`, upload it, and answer with `insertImage` or `insertVideo`. |
 
 From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor-change`, each a
-`SednaEditorEventArgs`, and `@onsedna-editor-media`, a `SednaEditorMediaEventArgs` —
-`@onsedna-editor-media:preventDefault` cancels it.
+`SednaEditorEventArgs`; `@onsedna-editor-media`, a `SednaEditorMediaEventArgs` —
+`@onsedna-editor-media:preventDefault` cancels it; and `@onsedna-editor-file`, a
+`SednaEditorFileEventArgs`.
 
 ## Script
 
@@ -196,6 +201,7 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `insert(text)` | Types text at the caret, or at the end. |
 | `insertImage(url, alt)` | An image at the caret, or in place of the one it is on; null when it is not kept. |
 | `insertVideo(url, label)` | A video, the same way. |
+| `file(id)` | A pasted or dropped file, as a `File`, by the id its `sedna-editor-file` named; null once the editor has let it go — it keeps the last few. |
 | `focus()` | Puts the focus in the document. |
 | `enable(on)` | Lets the reader edit, or stops them — by the textarea's `disabled`. |
 | `quill` | The engine. Quill's own API, not versioned by Sedna.UI. |
@@ -214,6 +220,7 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `InsertTextAsync(id, text)` | Types text at the caret. |
 | `InsertImageAsync(id, url, alt)` | An image at the caret; null when it is not kept. |
 | `InsertVideoAsync(id, url, label)` | A video at the caret; null when it is not kept. |
+| `OpenFileAsync(id, fileId)` | A pasted or dropped file as an `IJSStreamReference` — `OpenReadStream(maxAllowedSize)` reads it — or null. |
 | `FocusAsync(id)` | Puts the focus in the document. |
 | `SetEnabledAsync(id, enabled)` | Lets the reader edit, or stops them. |
 

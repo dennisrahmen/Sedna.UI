@@ -1,0 +1,77 @@
+/* ── Choice tiles ───────────────────────────────────────────────────────────
+   A radio group whose options are pictures: a screen's layout, a plan, a theme. Each
+   tile is a <label> around a real radio, so the platform gives the keyboard — Tab into
+   the group, the arrows between options — and a form posts the value with no script.
+
+     <div class="choice-tiles" role="radiogroup" aria-label="Screen layout">
+       <label class="choice-tile">
+         <input type="radio" name="layout" value="stage" checked>
+         <span class="choice-tile-art">…the app's picture: an SVG, an icon…</span>
+         <span class="choice-tile-title">Stage and side</span>
+         <span class="choice-tile-hint">Runs large, queue beside them</span>
+       </label>
+       …
+     </div>
+
+   The radio is kept in the page but not drawn: the tile is the control, its edge and
+   tint say which is chosen (--selected), and its focus ring says where the keyboard is.
+   `--choice-min` is the narrowest a tile gets before the row wraps. */
+.choice-tiles {
+    --choice-min: 160px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--choice-min), 100%), 1fr));
+    gap: var(--space-5);
+}
+.choice-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    padding: var(--space-5);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    cursor: pointer;
+    transition: border-color var(--motion-fast), background var(--motion-fast), box-shadow var(--motion-fast);
+}
+.choice-tile > input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+.choice-tile:hover { border-color: var(--border-strong); }
+.choice-tile-art {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    margin-block-end: var(--space-2);
+    border-radius: var(--radius-inner);
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: var(--text-10);
+    overflow: hidden;
+}
+.choice-tile-art > :is(img, svg) { inline-size: 100%; block-size: 100%; object-fit: cover; }
+.choice-tile-title { color: var(--fg); font-weight: 600; overflow-wrap: anywhere; }
+.choice-tile-hint { color: var(--muted); font-size: var(--text-3); overflow-wrap: anywhere; }
+.choice-tile:has(> input:checked) {
+    border-color: var(--selected);
+    background: var(--brand-tint);
+    box-shadow: inset 0 0 0 1px var(--selected);
+}
+.choice-tile:has(> input:checked) .choice-tile-art { color: var(--brand-text); }
+.choice-tile:has(> input:focus-visible) { box-shadow: 0 0 0 2px var(--focus-ring); }
+.choice-tile:has(> input:checked:focus-visible) { box-shadow: inset 0 0 0 1px var(--selected), 0 0 0 2px var(--focus-ring); }
+.choice-tile:has(> input:disabled) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--disabled-fg);
+    cursor: not-allowed;
+}
+.choice-tile:has(> input:disabled) :is(.choice-tile-title, .choice-tile-art) { color: var(--disabled-fg); }

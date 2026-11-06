@@ -29,7 +29,7 @@ public class CopyTests : ScriptTestBase
         // fires only when the test runs it, however slowly the clicks arrive.
         var page = await Open(Button, head: StylesheetTag, clockPausedAt: new DateTime(2030, 1, 1));
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 const c = document.getElementById('c');
                 window.childChanges = 0;
@@ -55,8 +55,7 @@ public class CopyTests : ScriptTestBase
         await page.Locator("#c").ClickAsync();
         await page.WaitForFunctionAsync("() => window.marks === 2");
 
-        Assert.Equal("orders-console-01", await page.EvaluateAsync<string>(
-            "() => navigator.clipboard.readText()"));
+        Assert.Equal("orders-console-01", await ClipboardText(page));
         // innerText, which is what is rendered: textContent would include the hidden words.
         Assert.Equal("Kopiert", await page.EvaluateAsync<string>("() => document.getElementById('c').innerText.trim()"));
 
@@ -87,6 +86,6 @@ public class CopyTests : ScriptTestBase
         await page.Locator("#c").ClickAsync();
 
         Assert.Equal("dotnet add package Sedna.UI",
-            (await page.EvaluateAsync<string>("() => navigator.clipboard.readText()")).Trim());
+            (await ClipboardText(page)).Trim());
     }
 }

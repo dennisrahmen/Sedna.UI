@@ -51,10 +51,10 @@ button.list-row {
    keep getting neither, which is why the element scope stays rather than going away.
    The forced-colours outline in 71-forced-colors.css is scoped the same way. */
 :is(a, button).list-row:hover { background: var(--bg-hover); text-decoration: none; }
-:is(a, button).list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+:is(a, button).list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 /* Pressed, which on a touch screen is the only feedback there is — a hover state a
    finger never enters says nothing. The same `--bg-hover` / `--btn-active-bg` pair
-   `.btn-ghost` uses, so a quiet control being held reads the same everywhere and a
+   `.btn--ghost` uses, so a quiet control being held reads the same everywhere and a
    theme remaps both at once.
 
    Pressed and disabled stay on `button.` rather than joining the `:is(a, button)`
@@ -65,7 +65,7 @@ button.list-row:active { background: var(--btn-active-bg); }
 /* The treatment `.menu-item` and `.btn` use. `pointer-events: none` is what stops a
    disabled row still taking the hover fill. */
 button.list-row:disabled,
-button.list-row[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; pointer-events: none; }
+button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: none; }
 .list-row[aria-current="true"],
 .list-row[aria-selected="true"] {
     background: var(--brand-tint);
@@ -149,7 +149,7 @@ button.list-row[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor
     box-shadow: inset 0 0 0 1px var(--selected);
 }
 .list--cards > li > :is(a, button).list-row:is([aria-current="true"], [aria-selected="true"]):focus-visible {
-    box-shadow: inset 0 0 0 1px var(--selected), inset 0 0 0 3px var(--brand-ring-soft);
+    box-shadow: inset 0 0 0 1px var(--selected), inset 0 0 0 3px var(--focus-ring);
 }
 
 /* In a card the list keeps the card's gutter round the whole stack, and the rows go
@@ -372,7 +372,7 @@ button.list-row[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor
 }
 .accordion summary::-webkit-details-marker { display: none; }
 .accordion summary:hover { background: var(--bg-hover); }
-.accordion summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.accordion summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 /* The caret goes last so the label starts at the same place whatever the state. */
 .accordion summary::after {
     content: '';

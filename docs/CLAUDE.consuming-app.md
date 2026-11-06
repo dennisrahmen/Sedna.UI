@@ -39,11 +39,27 @@ Tables, forms, cards, badges, buttons and panels are CSS classes. Write plain HT
 and apply them. Do not wrap page content in a component, and do not add MudBlazor, Syncfusion, Radzen or
 Tailwind.
 
-The layout frame — shell, sidebar, header, user widget — is CSS classes too. There is no `<AppShell>`:
-copy the markup from the catalogue's Shell and nav page. `ActiveLink` from the package supplies the one
-thing that markup cannot, which is knowing which nav link is the current page. Do not restyle the frame
-here and do not fork it: a copied frame stops receiving library fixes, and it will silently miss later
-additions such as the responsive drawer and the skip link.
+The layout frame — shell, sidebar, header, bottom bar, user widget, drawer — is CSS classes too. There
+is no `<AppShell>`. Each part is a component of its own: write the parts this app needs and combine
+them as it likes, starting from a combination on the catalogue's Shell and nav page. `ActiveLink` from
+the package supplies the one thing that markup cannot, which is knowing which nav link is the current
+page. Keep the library's class names on the parts rather than copying their rules into this app: a
+copied rule stops receiving library fixes, and it will silently miss later additions such as the
+responsive drawer and the skip link.
+
+### When a component needs something only this app needs
+
+Every component is exact in every state it supports and combines with any other. What this app alone
+needs is reached in this order:
+
+1. **A token** — the component's own value, in `wwwroot/css/brand.css` or inline
+   (`style="--modal-width: 1200px"`).
+2. **A variant** — a modifier class the library ships.
+3. **A class of this app's own**, prefixed with this app's name (`.<APP-PREFIX>-…`), on the element.
+   It may set any property; the library never declares that name, so it survives upgrades.
+
+Never write a rule for a class name the library owns. If a token or variant is missing, use step 3 now
+and request the token or variant upstream — see *Requesting a library change*.
 
 ### Toasts, and the one word the library writes
 
@@ -106,7 +122,7 @@ Escape-to-close and inert content behind come from the browser, and a `.modal-ba
 nor anything below needs `IJSRuntime`.
 
 `ShowModalAsync` completes when the dialog closes, with its `returnValue`, so **a confirmation is a
-`.modal-sm` you write**: a `<form method="dialog">` whose buttons carry a `value`, and one comparison on
+`.modal--sm` you write**: a `<form method="dialog">` whose buttons carry a `value`, and one comparison on
 the result — `null` is Escape. The library draws no confirmation, so the wording and the language are
 the app's. Leave `@onsubmit` off that form: a Blazor submit handler cancels the submit, and closing the
 dialog is its default action.
@@ -146,12 +162,23 @@ layout at the seam instead.
 ### A number in a `style` attribute is usually a knob you have not found
 
 Where a library class has one value an app reasonably wants to change, that value is a custom property
-on the element, not a class to override. `--toolbar-input-width`, `--search-max`, `--modal-max-height`,
+on the element, not a class to override. `--toolbar-input-width`, `--search-max`, `--modal-width`, `--modal-max-height`, `--drawer-width`,
 `--scroll-max`, `--skeleton-height`, `--page-gap`, `--sidebar-width`, `--nav-indent`,
 `--prose-measure`, `--deck-height`, `--form-combo-panel-width`,
 `--col-control-min` / `--col-control-max`, `--col-prose-min` / `--col-prose-max`. Set one inline —
 `style="--search-max: 340px"` — rather than declaring `max-width` for a library class, which the
 section below is about. If the number you need has no knob, that is a request for the library.
+
+### Check the classes this app uses
+
+`SednaContract.Classes` holds every class the installed package declares, with the release that
+first shipped it, and `SednaContract.Tokens` the same for tokens. A test can hold this app's markup
+to it, so a mistyped class or one newer than the pinned version fails a test instead of rendering
+unstyled:
+
+```csharp
+Assert.True(SednaContract.Classes.ContainsKey("card-head"), ".card-head is not a Sedna.UI class.");
+```
 
 ### Do not style a class name the library owns
 
@@ -247,8 +274,9 @@ If a value you need is genuinely missing from the library:
    (`--<APP-PREFIX>-…`) in an app stylesheet, not a bare name in the shared namespace. Prefixed names
    cannot collide with a future library token.
 
-Do not restyle a library class to work around a missing value. Overriding `.btn` or `.card` in this app
-means the next library upgrade fights you, which is the drift the shared library exists to prevent.
+Do not write a rule for a library class name to work around a missing value. Overriding `.btn` or
+`.card` in this app means the next library upgrade fights you, which is the drift the shared library
+exists to prevent. Put an app-prefixed class on the element instead.
 
 ### Safe area — do not write `env()` yourself
 

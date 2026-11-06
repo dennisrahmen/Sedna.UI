@@ -47,7 +47,7 @@ public class EditorBlazorTests(CatalogueAppFixture app)
         await Assertions.Expect(demo.Locator(".toolbar-count")).ToHaveTextAsync("58 characters");
 
         await demo.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Control+End");
+        await page.Keyboard.PressAsync(Keys.DocumentEnd);
         await page.Keyboard.TypeAsync(" Thanks!");
 
         // The component renders what the binding received.
@@ -70,7 +70,7 @@ public class EditorBlazorTests(CatalogueAppFixture app)
         await Assertions.Expect(demo.Locator(".ql-editor li")).ToHaveCountAsync(2);
 
         await demo.Locator(".ql-editor p").ClickAsync();
-        await page.Keyboard.PressAsync("End");
+        await page.Keyboard.PressAsync(Keys.LineEnd);
         await demo.GetByRole(AriaRole.Button, new() { Name = "Sign it" }).ClickAsync();
         await Assertions.Expect(demo.Locator(".code-block code")).ToContainTextAsync("Thanks for getting in touch. — Alex Fischer, Northwind Retail</p>");
 

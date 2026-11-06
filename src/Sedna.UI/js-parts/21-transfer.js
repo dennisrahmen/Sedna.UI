@@ -11,8 +11,8 @@
          <select class="form-select" id="t-from" multiple size="6" data-transfer-from>…</select>
        </div>
        <div class="transfer-actions">
-         <button class="btn btn-icon" type="button" data-transfer-add    aria-label="Add">…</button>
-         <button class="btn btn-icon" type="button" data-transfer-remove aria-label="Remove">…</button>
+         <button class="btn btn--icon" type="button" data-transfer-add    aria-label="Add">…</button>
+         <button class="btn btn--icon" type="button" data-transfer-remove aria-label="Remove">…</button>
        </div>
        <div class="form-field">
          <label class="form-label" for="t-to">Notified</label>

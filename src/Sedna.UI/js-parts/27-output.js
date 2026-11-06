@@ -81,8 +81,17 @@
         // newest line rather than the oldest.
         pane[STATE] = { following: true };
         toBottom(pane);
+        pane[STATE].top = pane.scrollTop;
 
-        pane.addEventListener('scroll', function () { setFollowing(pane, atBottom(pane)); });
+        // Only a scroll that moved the pane is the reader's. WebKit also reports a scroll
+        // when lines are added below a pane held still, with the position unchanged, and
+        // reading that as "scrolled away" stopped the pane following for good.
+        pane.addEventListener('scroll', function () {
+            var state = pane[STATE];
+            if (pane.scrollTop === state.top) return;
+            state.top = pane.scrollTop;
+            setFollowing(pane, atBottom(pane));
+        });
 
         // `toggle` does not bubble, so it is caught on the way down.
         pane.addEventListener('toggle', function (e) {

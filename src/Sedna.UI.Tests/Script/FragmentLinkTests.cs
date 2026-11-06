@@ -44,9 +44,9 @@ public class FragmentLinkTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Fixture, head: BaseTag);
-        await page.EvaluateAsync("() => { window.__stay = true; }");
+        await Js.Run(page, "() => { window.__stay = true; }");
 
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
         Assert.Equal("skip", await ActiveId(page));
 
         await page.Keyboard.PressAsync("Enter");
@@ -63,7 +63,7 @@ public class FragmentLinkTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Fixture, head: BaseTag);
-        await page.EvaluateAsync("() => { window.__stay = true; }");
+        await Js.Run(page, "() => { window.__stay = true; }");
 
         await page.Locator("#to-email").ClickAsync();
         await page.WaitForLoadStateAsync();
@@ -92,7 +92,7 @@ public class FragmentLinkTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open(Fixture, head: BaseTag);
         // A tab or a menu item that is also a fragment link, and handles its own click.
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => document.getElementById('to-email').addEventListener('click', e => e.preventDefault())");
 
         await page.Locator("#to-email").ClickAsync();
@@ -105,7 +105,7 @@ public class FragmentLinkTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Fixture, head: BaseTag);
-        await page.EvaluateAsync(Recorder);
+        await Js.Run(page, Recorder);
 
         // Ctrl-click opens a new tab; cancelling it would take that away.
         await page.Locator("#to-email").ClickAsync(new() { Modifiers = [KeyboardModifier.Control] });

@@ -9,7 +9,7 @@
 
      <div class="editor">
        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-pressed="true" aria-label="Bold"><i class="ri-bold"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-pressed="true" aria-label="Bold"><i class="ri-bold"></i></button>
          <span class="editor-sep" role="separator"></span>
          …
        </div>

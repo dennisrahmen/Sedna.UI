@@ -298,7 +298,7 @@ public class GraphPluginTests : GraphTestBase
         var page = await OpenGraph(Graph(inside: "", attrs: "data-graph-eager data-graph-deferred"));
         await Ready(page);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.graph.get('g').then(g => g.set({
                 nodes: [{ id: 'team', label: 'Platform team', collapsed: true }, { id: 'runner', label: 'build-runner-04', parent: 'team' },
                         { id: 'db', label: 'src-db-14', parent: 'team' }, { id: 'console', label: 'orders-console-01' }],
@@ -309,7 +309,7 @@ public class GraphPluginTests : GraphTestBase
         Assert.False(await Drawn(page, "runner"));
 
         // One that arrives later is folded as it arrives, and the first stays folded.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.graph.get('g').then(g => g.set({
                 nodes: [{ id: 'team', label: 'Platform team', collapsed: true }, { id: 'runner', label: 'build-runner-04', parent: 'team' },
                         { id: 'db', label: 'src-db-14', parent: 'team' }, { id: 'console', label: 'orders-console-01' },
@@ -330,7 +330,7 @@ public class GraphPluginTests : GraphTestBase
         var page = await OpenGraph(Graph(inside: Folding, attrs: "data-graph-eager data-graph-collapse"));
         await Ready(page);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => document.querySelector('#g [data-graph-data]').insertAdjacentHTML('beforeend',
                 '<li data-node="mail">Mail sender</li><li data-edge data-source="console" data-target="mail"></li>')
             """);
@@ -349,7 +349,7 @@ public class GraphPluginTests : GraphTestBase
         var page = await OpenGraph(Graph(inside: Folding, attrs: "data-graph-eager data-graph-collapse"));
         await Ready(page);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => document.querySelector('#g [data-graph-data]').insertAdjacentHTML('beforeend',
                 '<li data-node="phone" data-parent="other">Phone</li>')
             """);
@@ -409,7 +409,7 @@ public class GraphPluginTests : GraphTestBase
         Assert.Equal(at["api"], (await Positions(page))["api"]);
 
         // The app adds it to its list, and the graph draws it.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => document.querySelector('#g [data-graph-data]').insertAdjacentHTML('beforeend',
                 '<li data-edge data-source="api" data-target="db">reads</li>')
             """);
@@ -487,8 +487,8 @@ public class GraphPluginTests : GraphTestBase
         var page = await OpenGraph(Graph(inside: WithMinimap));
         await Ready(page);
         // The minimap repaints on a timer once the records' drawn size has settled.
-        await page.EvaluateAsync("() => { window.before = document.getElementById('minimap').toDataURL(); }");
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.zoom(3))");
+        await Js.Run(page, "() => { window.before = document.getElementById('minimap').toDataURL(); }");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.zoom(3))");
         await page.WaitForFunctionAsync("() => document.getElementById('minimap').toDataURL() !== before");
         // Records are held at their screen size once the zoom settles; press after that.
         await page.WaitForFunctionAsync("() => cyOf('g').nodes().first().data('zoom') > 1");
@@ -521,7 +521,7 @@ public class GraphPluginTests : GraphTestBase
         var page = await OpenGraph(Graph());
         await Ready(page);
         // Zoomed in on one corner: the export is still the whole drawing.
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.zoom(4))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.zoom(4))");
 
         var svg = await page.EvaluateAsync<JsonElement>("""
             async () => {
@@ -567,7 +567,7 @@ public class GraphPluginTests : GraphTestBase
         if (NoBrowser) return;
         var page = await OpenGraph(Graph());
         await Ready(page);
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.zoom(4))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.zoom(4))");
 
         var png = await page.EvaluateAsync<JsonElement>("""
             async () => {
@@ -647,6 +647,17 @@ public class GraphPluginTests : GraphTestBase
             """);
         await page.Mouse.DblClickAsync((float)inside.GetProperty("x").GetDouble(), (float)inside.GetProperty("y").GetDouble());
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('team').hasClass('cy-expand-collapse-collapsed-node')");
+        // Folding moves the drawing; the second double click aims where the folded group
+        // has come to rest, not where it was a frame ago.
+        await page.WaitForFunctionAsync("""
+            () => {
+                const cy = cyOf('g'), p = cy.getElementById('team').renderedPosition();
+                const at = Math.round(p.x) + ',' + Math.round(p.y);
+                const still = window.teamAt === at && !cy.elements().some(e => e.animated());
+                window.teamAt = at;
+                return still;
+            }
+            """, null, new() { PollingInterval = 100 });
 
         var (x, y) = await PointOf(page, "team");
         await page.Mouse.DblClickAsync(x, y);
@@ -661,7 +672,7 @@ public class GraphPluginTests : GraphTestBase
         // Out of the drawing while the records were switched to boxes, it came back a dot.
         var page = await OpenGraph(Graph(inside: Folding, attrs: "data-graph-eager data-graph-collapse"));
         await Ready(page);
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.option('nodes', 'box'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.option('nodes', 'box'))");
         await page.Locator("#expand-other").ClickAsync();
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('pager').inside()");
 

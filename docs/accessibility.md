@@ -50,7 +50,7 @@ something, it is listed below and repeated in the class's own comment.
 | `.table` selection | `aria-selected` on the `<tr>` |
 | `.stat-delta` | an arrow icon. The colour is not the direction. |
 | `.skip-link` | `href="#main"`, and `tabindex="-1"` on `<main id="main">` so the jump moves focus rather than only scrolling. Under `<base href="/">` the jump needs `Sedna.UI.js` — see [getting started](getting-started.md#base-href) |
-| any icon-only button | `aria-label`, plus `data-tip` when the purpose is not obvious — and `.btn-icon`, which squares it to the shared control height instead of leaving a wide box around one glyph |
+| any icon-only button | `aria-label`, plus `data-tip` when the purpose is not obvious — and `.btn--icon`, which squares it to the shared control height instead of leaving a wide box around one glyph |
 | `data-drag-zone` | `tabindex="0"` on a whole item, or a real `<button>` as its `data-drag-handle`, with an `aria-label` naming what it moves; a `[data-drag-live]` region carrying the sentences a keyboard drag is announced in; and `aria-disabled="true"` on an item that cannot move. |
 | `.graph` | an `aria-label` naming what the graph shows; the `.graph-data` list written as sentences a screen reader reads out ("Orders API reads the orders database"), with `data-label` for the short word the canvas writes; a `[data-graph-live]` polite region carrying the sentences a keyboard move is announced in; `aria-label` and `data-tip` on every icon-only tool; and colour never the only carrier — a kind gets a shape, a link a line style and a label. `aria-roledescription="graph"` is yours to add in your own language. See **The graph** below. |
 | `.dropzone` | a real `<input type="file">` inside it. Drag and drop alone is unreachable by keyboard; `data-dropzone` adds the drag handling on top of the input, never instead of it. |
@@ -121,18 +121,31 @@ reach for `<dialog>` before reaching for `.modal-backdrop`.
 
 ## Browser floor
 
-**Chromium — current Chrome and Edge.** The apps this library serves are deployed to a managed
-Windows estate, and that is the whole of it.
+**The current release of Chromium (Chrome, Edge) and of Safari on iOS and iPadOS.** Every browser test
+runs in both engines.
 
-Two consequences visible in the CSS:
+As versions, the floor is what the tests run on, and moves with each release that updates them:
 
-- **CSS anchor positioning is used, and load-bearing.** The collapsed rail's hover flyout and
-  `.popover` both depend on it. In an engine without it they do not degrade — the flyout lands at its
-  static position and the popover centres itself in the viewport. `.menu` is deliberately *not*
-  anchored this way: `.menu-anchor` uses `position: relative` and works anywhere.
-- **The select is a customizable select.** `.form-select` sets `appearance: base-select`, so the
-  drop-down is a panel in the page rather than a platform widget, and an `<option>` may hold markup.
-  In an engine without it the control is the platform's own select with a painted caret — the two
+| Engine | Tested on | Which means |
+|---|---|---|
+| Chromium | 156 | Chrome and Edge 156 |
+| WebKit | 27.2 | Safari 27.2, iOS and iPadOS 27.2 |
+
+An older version is not tested and not supported. It is not refused either, and much of the library works
+there; what fails first is what arrived last in Safari — anchor positioning with `anchor-scope`, container
+style queries, `closedby` and `currentCSSZoom`. A device that cannot update to the version above is the
+one to check by hand.
+
+Consequences visible in the CSS:
+
+- **CSS anchor positioning is used, and load-bearing.** The collapsed rail's hover flyout, `.popover`,
+  `.menu` and `.form-combo-panel` depend on it, and both engines ship it. In an engine without it they
+  do not degrade — the flyout lands at its static position and the popover centres itself in the
+  viewport.
+- **The select is a customizable select where the engine has one.** `.form-select` sets
+  `appearance: base-select`, so the drop-down is a panel in the page rather than a platform widget, and
+  an `<option>` may hold markup. In an engine without it the control is the platform's own select with
+  a painted caret — the two
   paths are exclusive, behind `@supports`, and neither is a script. The accessible name, the
   keyboard and typeahead are the browser's in both, because it is the same `<select>` either way.
 - **No scroll-driven animations** — they fail *incorrectly*: a browser that drops `animation-timeline`

@@ -133,6 +133,39 @@ public class StatToneTests : ScriptTestBase
         Assert.NotEqual(warn.ValueColour, danger.ValueColour);
     }
 
+    // A toned tile at either end of a row stops flush with the row, and so with the panels
+    // above and below it: the tint reaches into the gaps between tiles and no further.
+    [Theory]
+    [InlineData("plain")]
+    [InlineData("divided")]
+    [InlineData("card")]
+    public async Task Nothing_in_a_row_paints_past_its_inline_edges(string layout)
+    {
+        if (NoBrowser) return;
+        string[] ends = ["stat--warn", "", "stat--danger"];
+        var tiles = string.Concat(ends.Select((tone, i) =>
+            $"""<a class="stat {tone}" href="#" id="t{i}"><span class="stat-label">Count {i}</span><span class="stat-value">{i}</span></a>"""));
+        var (page, _) = await OpenStyled(Row(layout, tiles));
+
+        var edges = await page.EvaluateAsync<double[]>("""
+            () => {
+              const row = document.getElementById('row');
+              const r = row.getBoundingClientRect();
+              const first = document.getElementById('t0').getBoundingClientRect();
+              const last = document.getElementById('t2').getBoundingClientRect();
+              // The visible box is the tile's box cut by the row's clip.
+              const clip = getComputedStyle(row).clipPath;
+              const m = /inset\(([-\d.]+)px\s+([-\d.]+)px/.exec(clip);
+              const inline = m ? parseFloat(m[2]) : -1e6;
+              return [Math.max(first.left, r.left - inline) - r.left, r.right - Math.min(last.right, r.right + inline), first.left - r.left];
+            }
+            """);
+
+        Assert.Equal(0, edges[0], 0.01);
+        Assert.Equal(0, edges[1], 0.01);
+        Assert.True(edges[2] < 0, "The toned tile no longer reaches past its track, so this measures nothing.");
+    }
+
     // The plain row has the narrowest gap; two tints side by side must leave some of it.
     [Fact]
     public async Task Two_toned_tiles_side_by_side_do_not_touch()

@@ -119,7 +119,7 @@
    rather than a `.btn`.
 
    Both halves of that are the same finding. The markup carried
-   `.btn.btn-sm.btn-danger`, and `.btn-danger` is a TINT — 15% crimson over the
+   `.btn.btn--sm.btn--danger`, and `.btn--danger` is a TINT — 15% crimson over the
    page surface — so on a bar that is already crimson-900 the fill vanished and
    the label landed on `--reconnect-fail-fg`, the bar's own text colour. The
    control read as an empty rectangle with a hairline around it. The tinted button
@@ -127,14 +127,14 @@
    rather than a change to `--reconnect-fail-*`.
 
    And the frame cannot fix a `.btn`: `@layer sedna.paint` comes after
-   `@layer sedna.frame`, so `.btn-danger` outranks anything written here whatever
+   `@layer sedna.frame`, so `.btn--danger` outranks anything written here whatever
    the selectors weigh. A control that belongs to the frame is a frame class —
    `.topbar-btn` and `.user-signout` already are.
 
    The fill is the semantic solid, which carries `--on-solid` at AA in every
    theme (white on warn 5.31, on danger 4.61 — docs/BRANDING.md §6). Hover is a
    ring in `currentColor` rather than a darker fill: the token set has no
-   `--danger-hover`, because `.btn-danger` hovers on its tint, and a ring works
+   `--danger-hover`, because `.btn--danger` hovers on its tint, and a ring works
    on both palettes and in every theme without one. */
 .status-bar-action {
     display: inline-flex;

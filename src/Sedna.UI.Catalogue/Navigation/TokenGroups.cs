@@ -71,14 +71,17 @@ internal static class TokenGroups
         // The mark on the one chosen, and the line under where you are. Both point at the
         // brand until an app separates them — a red ring on a red-brand status board reads
         // as "failed".
-        new("Selection", ["--selected", "--tab-indicator"]),
+        new("Selection", ["--selected", "--tab-indicator", "--row-hover-accent"]),
 
         // The edge of every box a reader types or picks into, at rest and focused, apart
         // from --border so fields can be firmed up without firming up every divider.
-        new("Fields", ["--field-border", "--field-border-focus"]),
+        new("Fields", ["--field-border", "--field-border-focus", "--control-border", "--control-on", "--focus-ring"]),
 
-        // How far a disabled control fades. A number, not a colour.
-        new("Disabled", ["--disabled-opacity"], Swatch: false),
+        // A disabled control: its label, fill and edge — the label still at 4.5:1.
+        new("Disabled", ["--disabled-fg", "--disabled-bg", "--disabled-border"]),
+
+        // How far a disabled control's graphic fades — the check, the switch, the range. A number.
+        new("Disabled graphics", ["--disabled-opacity"], Swatch: false),
 
         new("Sidebar", [
             "--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-active",
@@ -88,10 +91,14 @@ internal static class TokenGroups
         // The header's surface and what is drawn straight on it. Aliases of the roles it
         // always used, so a brand-coloured header is four tokens and no rule.
         new("Topbar", ["--topbar-bg", "--topbar-fg", "--topbar-muted", "--topbar-hover"]),
+        new("Sizes", ["--topbar-height", "--touch-target"], Swatch: false),
+
+        // A modal's header and footer and a card's head as bars of their own.
+        new("Panel bars", ["--modal-head-bg", "--modal-foot-bg", "--card-head-bg"]),
 
         new("Status — go (sends outward)", [
-            "--go-solid", "--go-hover", "--go-active", "--go-bg", "--go-border", "--go-fg",
-            "--go-ring",
+            "--go-solid", "--go-hover", "--go-active", "--go-bg", "--go-bg-hover", "--go-bg-active",
+            "--go-border", "--go-fg", "--go-ring",
         ]),
 
         new("Status — warn (control changes)", [
@@ -100,13 +107,15 @@ internal static class TokenGroups
         ]),
 
         new("Status — danger", [
-            "--danger-solid", "--danger-bg", "--danger-bg-hover", "--danger-bg-active",
+            "--danger-solid", "--danger-hover", "--danger-active", "--danger-bg", "--danger-bg-hover", "--danger-bg-active",
             "--danger-border", "--danger-border-strong", "--danger-fg", "--danger-ring",
         ]),
 
         new("Status — info & secret", [
-            "--info-bg", "--info-border", "--info-fg", "--info-solid", "--info-ring",
-            "--secret-bg", "--secret-border", "--secret-fg",
+            "--info-bg", "--info-bg-hover", "--info-bg-active", "--info-border", "--info-fg",
+            "--info-solid", "--info-on-solid", "--info-hover", "--info-active", "--info-ring",
+            "--secret-bg", "--secret-bg-hover", "--secret-bg-active", "--secret-border", "--secret-fg",
+            "--secret-hover", "--secret-active",
         ]),
 
         new("Severity — an ordered five-step ramp", [
@@ -118,9 +127,9 @@ internal static class TokenGroups
         ]),
 
         new("Categorical badge hues", [
-            "--badge-cyan-bg", "--badge-cyan-border", "--badge-cyan-fg",
-            "--badge-orange-bg", "--badge-orange-border", "--badge-orange-fg",
-            "--badge-teal-bg", "--badge-teal-border", "--badge-teal-fg",
+            "--badge-cyan-bg", "--badge-cyan-border", "--badge-cyan-fg", "--badge-cyan-bg-hover", "--badge-cyan-bg-active", "--badge-cyan-hover", "--badge-cyan-active",
+            "--badge-orange-bg", "--badge-orange-border", "--badge-orange-fg", "--badge-orange-bg-hover", "--badge-orange-bg-active", "--badge-orange-hover", "--badge-orange-active",
+            "--badge-teal-bg", "--badge-teal-border", "--badge-teal-fg", "--badge-teal-bg-hover", "--badge-teal-bg-active", "--badge-teal-hover", "--badge-teal-active",
         ]),
 
         new("Component surfaces", [
@@ -149,7 +158,7 @@ internal static class TokenGroups
 
         new("Type scale", [
             "--text-1", "--text-2", "--text-3", "--text-4", "--text-5", "--text-6",
-            "--text-7", "--text-8", "--text-9", "--text-10", "--text-11",
+            "--text-7", "--text-8", "--text-9", "--text-10", "--text-11", "--text-field-touch",
         ], Swatch: false),
 
         new("Control height", [
@@ -168,12 +177,12 @@ internal static class TokenGroups
         new("Motion", [
             "--motion-fast", "--motion-mid", "--motion-slow",
             "--spin-duration", "--progress-duration", "--skeleton-duration", "--pulse-duration",
-            "--shimmer-duration", "--caret-duration", "--flow-duration",
+            "--shimmer-duration", "--caret-duration", "--flow-duration", "--stagger-step", "--hover-delay",
         ], Swatch: false),
 
         new("Density and metrics", [
             "--page-max", "--cell-pad-x", "--cell-pad-y", "--card-pad-block", "--card-pad-inline",
-            "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--code-clamp",
+            "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--code-clamp", "--page-rhythm", "--page-pad",
         ], Swatch: false),
 
         // How much of each viewport edge the device has taken — a home indicator, a

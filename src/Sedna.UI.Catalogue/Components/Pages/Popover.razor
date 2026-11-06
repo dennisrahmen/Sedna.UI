@@ -19,6 +19,27 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Popover.FromAnyElement" Title="Opened from something that is not a button" Demo="ex-demo--pad">
+    <p>
+        A count inside a link, an avatar or a table cell cannot be a <code>popovertarget</code>
+        button. <code>data-popover="&lt;id&gt;"</code> on any element opens that popover by click,
+        <kbd>Enter</kbd> or <kbd>Space</kbd> and anchors it there, placed exactly as a button's
+        would be; the click is taken, so the link around it does not follow. Give the trigger a
+        role and a <code>tabindex</code> when it is not focusable already.
+        <code>sednaUi.popover.show(panel, trigger)</code> does the same from your own script.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Popover.HoverCard" Title="A hover card" Demo="ex-demo--pad">
+    <p>
+        <code>data-popover-hover</code> beside <code>data-popover</code> opens the panel when the
+        pointer rests on the trigger or the focus reaches it, after <code>--hover-delay</code>
+        (400ms), and closes it once the pointer has left both — so the reader can move onto the card.
+        A click pins it until it is dismissed. Use it for a detail worth a glance; a word of help is a
+        <a href="/hover-hints">hover hint</a>.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Popover.Shapes" Title="Four shapes" Demo="ex-demo--block">
     <p>
         A definition, a key/value detail block, a small table, and one with an action in it. One
@@ -37,7 +58,7 @@
     </p>
 </CatExample>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-stack-line"></i>
     <div class="callout-body">
         <span class="callout-title">Above everything, by promotion rather than by number</span>

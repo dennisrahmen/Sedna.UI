@@ -155,7 +155,7 @@
         // `href` is what a command registered from C# uses. A function does not
         // cross into C#, so navigation is the one action a serialisable command can
         // carry.
-        else if (c.href) go(c.href);
+        else if (ui._.safeHref(c.href)) go(ui._.safeHref(c.href));
     }
 
     /* Navigates by CLICKING a real anchor, never by assigning window.location.

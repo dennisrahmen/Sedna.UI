@@ -4,8 +4,8 @@ using Microsoft.Playwright;
 namespace Sedna.UI.Catalogue.Tests.TestSupport;
 
 /// <summary>
-/// The running catalogue and a Chromium instance, started once for the whole
-/// suite.
+/// The running catalogue and a browser instance, started once for the whole
+/// suite. The engine is <c>SEDNA_UI_BROWSER</c>, as in the library's own suite.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -59,15 +59,22 @@ public sealed class CatalogueAppFixture : IAsyncLifetime
         // No outbound call from a test run: the latest release's class history is
         // fetched from GitHub in production, and an empty URL turns that off.
         _baseFactory = new WebApplicationFactory<Program>();
-        _factory = _baseFactory.WithWebHostBuilder(b => b.UseSetting("ReleasedHistory:Url", ""));
+        _factory = _baseFactory.WithWebHostBuilder(b => b.UseSetting("ReleasedHistory:Url", "").UseSetting("Mcp:CallerTokenLimit", "100000"));
         _factory.UseKestrel(0);
         _factory.StartServer();
         BaseAddress = _factory.ClientOptions.BaseAddress;
 
+        // Opted out means no browser at all, not "whichever happens to be installed".
+        if (OptedOut)
+        {
+            Unavailable = $"{OptOutEnvVar}=0";
+            return;
+        }
+
         try
         {
             _playwright = await Playwright.CreateAsync();
-            Browser = await _playwright.Chromium.LaunchAsync(new() { Headless = true });
+            Browser = await BrowserEngine.Of(_playwright).LaunchAsync(new() { Headless = true });
         }
         catch (Exception ex)
         {
@@ -126,7 +133,7 @@ public sealed class CatalogueAppFixture : IAsyncLifetime
 
         Assert.True(Unavailable is null,
             "No browser could be launched, so every browser test would have asserted nothing. Run "
-            + "`pwsh src/Sedna.UI.Tests/bin/Debug/net10.0/playwright.ps1 install chromium`, "
+            + $"`pwsh src/Sedna.UI.Tests/bin/Debug/net10.0/playwright.ps1 install {BrowserEngine.Name}`, "
             + $"or set {OptOutEnvVar}=0 to run only the source scans. Playwright said: {Unavailable}");
     }
 }

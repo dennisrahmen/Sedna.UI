@@ -61,9 +61,8 @@
                popover from one, which is also what makes the invoker the implicit
                anchor position-area places against. So the same test applies, with
                no need for an API that exposes the invoker. */
-            var trigger = panel.id
-                ? document.querySelector('[popovertarget="' + panel.id + '"]')
-                : null;
+            var trigger = ui.popover ? ui.popover.triggerOf(panel)
+                : (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null);
 
             if (stale(scroller, panel, trigger)) {
                 try { panel.hidePopover(); } catch (err2) { /* already closing */ }
@@ -97,6 +96,21 @@
         closeMenus(scroller);
         closePopovers(scroller);
         closeCombos(scroller);
+    }, true);
+
+    /* The same rule for a trigger that leaves the document: a render that replaces the
+       button an open popover hangs off leaves the panel pointing at nothing. It closes,
+       as it would on a scroll that moved the trigger away (ui._.layer.whenGone). A menu
+       does the same from 22-menu.js, where it opens. */
+    document.addEventListener('toggle', function (e) {
+        var panel = e.target;
+        if (!panel || e.newState !== 'open' || !panel.matches || !panel.matches('.popover')) return;
+        var trigger = ui.popover ? ui.popover.triggerOf(panel)
+            : (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null);
+        if (!trigger) return;
+        ui._.layer.whenGone(trigger, function () {
+            try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* already closed */ }
+        });
     }, true);
 
 })(window.sednaUi);

@@ -6,9 +6,9 @@
 <div class="editor" data-editor id="incident-note"
      @onsedna-editor-media="PickImage" @onsedna-editor-media:preventDefault>
     <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
-        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
-        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list"><i class="ri-list-unordered"></i></button>
-        <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="image" aria-label="Add a photo" data-tip="Add a photo"><i class="ri-image-add-line"></i></button>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list"><i class="ri-list-unordered"></i></button>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="image" aria-label="Add a photo" data-tip="Add a photo"><i class="ri-image-add-line"></i></button>
     </div>
     <div class="editor-body prose" data-editor-body></div>
     <textarea data-editor-value hidden aria-label="Damage report" @bind="_report"></textarea>
@@ -16,7 +16,7 @@
 
 @* The app's own picker. Each row is a dialog-method submitter, so the photo it names becomes
    the dialog's returnValue. *@
-<dialog id="pick-photo" class="modal modal-sm" aria-labelledby="pick-photo-title">
+<dialog id="pick-photo" class="modal modal--sm" aria-labelledby="pick-photo-title">
     <form method="dialog">
         <div class="modal-header">
             <h3 id="pick-photo-title">Add a photo</h3>

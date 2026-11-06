@@ -1,3 +1,4 @@
+using Sedna.UI.Tests.TestSupport;
 using System.Text.Json;
 using Microsoft.Playwright;
 
@@ -177,7 +178,7 @@ public abstract class GraphTestBase : ScriptTestBase
     /// loaded — after <c>sedna-graph-ready</c>. Starts a graph that has not started.
     /// </summary>
     protected static Task Ready(IPage page, string id = "g") =>
-        page.EvaluateAsync("id => sednaUi.graph.get(id).then(() => true)", id);
+        Js.Run(page, "id => sednaUi.graph.get(id).then(() => true)", id);
 
     /// <summary>Waits until a graph says it is in <paramref name="state"/>.</summary>
     protected static Task State(IPage page, string id, string state) =>
@@ -234,7 +235,7 @@ public abstract class GraphTestBase : ScriptTestBase
             .ToList();
     }
 
-    protected static Task ClearLog(IPage page) => page.EvaluateAsync("() => { graphLog.length = 0; }");
+    protected static Task ClearLog(IPage page) => Js.Run(page, "() => { graphLog.length = 0; }");
 
     /// <summary>Waits until <paramref name="count"/> events of that name have been logged.</summary>
     protected static Task Heard(IPage page, string name, int count = 1) =>

@@ -91,6 +91,8 @@ public class InteropTests : BunitContext
     [InlineData(ToastKind.Go, "go")]
     [InlineData(ToastKind.Warn, "warn")]
     [InlineData(ToastKind.Danger, "danger")]
+    [InlineData(ToastKind.Brand, "brand")]
+    [InlineData(ToastKind.Secret, "secret")]
     public async Task Every_toast_kind_maps_to_a_family_the_stylesheet_defines(
         ToastKind kind, string expected)
     {
@@ -99,8 +101,8 @@ public class InteropTests : BunitContext
         await Wrapper().ToastAsync("x", kind);
 
         Assert.Equal(expected, ((IDictionary<string, object?>)Only("sednaUi.toast.show").Arguments[1]!)["kind"]);
-        // .toast-go, .toast-warn, .toast-danger, .toast-info all exist.
-        Assert.Contains($".toast-{expected}", Assets.Css, StringComparison.Ordinal);
+        // .toast--go, .toast--warn, .toast--danger, .toast--info all exist.
+        Assert.Contains($".toast--{expected}", Assets.Css, StringComparison.Ordinal);
     }
 
     [Fact]

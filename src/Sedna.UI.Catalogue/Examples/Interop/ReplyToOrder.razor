@@ -20,7 +20,7 @@
     </div>
     <div class="modal-footer">
         <button class="btn" type="button" @onclick="Dismiss">Cancel</button>
-        <button class="btn btn-primary" type="button" disabled="@IsEmpty"
+        <button class="btn btn--brand btn--solid" type="button" disabled="@IsEmpty"
                 @onclick="() => Overlay.CloseAsync(_message)">
             <i class="ri-send-plane-line"></i> Send
         </button>
@@ -29,7 +29,7 @@
 
 @* The question is the app's markup too, opened over the reply. The safe choice comes
    first, which is the one showModal() focuses. *@
-<dialog id="@($"{Overlay.Id}-discard")" class="modal modal-sm" aria-labelledby="@($"{Overlay.Id}-discard-title")">
+<dialog id="@($"{Overlay.Id}-discard")" class="modal modal--sm" aria-labelledby="@($"{Overlay.Id}-discard-title")">
     <form method="dialog">
         <div class="modal-header">
             <h3 id="@($"{Overlay.Id}-discard-title")">Discard this reply?</h3>
@@ -39,7 +39,7 @@
         </div>
         <div class="modal-footer">
             <button class="btn" value="keep">Keep writing</button>
-            <button class="btn btn-danger" value="discard">Discard</button>
+            <button class="btn btn--danger" value="discard">Discard</button>
         </div>
     </form>
 </dialog>

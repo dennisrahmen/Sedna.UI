@@ -1,0 +1,44 @@
+/* ── Kiosk ──────────────────────────────────────────────────────────────────
+   A screen nobody operates — a wall display, a status board in a hall. `.kiosk` is the
+   whole viewport and never scrolls; the cursor is hidden; and every screen lays out the
+   same canvas about 1280px wide, scaled up to fill it, so a page designed once reads the
+   same at 1366px, 1080p, 1440p and 4K:
+
+     width   ≥1366   ≥1920   ≥2560   ≥3840
+     zoom    1.067   1.5     2       3
+
+   `--kiosk-zoom` on the element sets a factor of the app's own instead.
+
+   Inside it, a scrollbar is never drawn: what moves is moved by the app — a list that
+   follows the newest row (`data-follow`), a feed that advances — and a reader has no
+   pointer to drag one with. Programmatic scrolling still works.
+
+   Three optional areas: `.kiosk-strip` across the top, `.kiosk-stage` below it and
+   `.kiosk-side` beside the stage. Each keeps its own area whatever is empty, so a strip
+   with nothing in it yet does not pull the stage into the top row. */
+.kiosk {
+    --kiosk-zoom: 1;
+    --kiosk-side: 22rem;
+    zoom: var(--kiosk-zoom);
+    inline-size: calc(100vw / var(--kiosk-zoom));
+    block-size: calc(100dvh / var(--kiosk-zoom));
+    overflow: hidden;
+    cursor: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: "strip strip" "stage side";
+    gap: var(--page-rhythm);
+    padding: var(--page-pad);
+    box-sizing: border-box;
+    background: var(--bg);
+}
+@media (min-width: 1366px) { .kiosk { --kiosk-zoom: 1.067; } }
+@media (min-width: 1920px) { .kiosk { --kiosk-zoom: 1.5; } }
+@media (min-width: 2560px) { .kiosk { --kiosk-zoom: 2; } }
+@media (min-width: 3840px) { .kiosk { --kiosk-zoom: 3; } }
+.kiosk-strip { grid-area: strip; min-inline-size: 0; }
+.kiosk-stage { grid-area: stage; min-inline-size: 0; min-block-size: 0; }
+.kiosk-side  { grid-area: side; min-block-size: 0; inline-size: var(--kiosk-side); }
+.kiosk, .kiosk * { scrollbar-width: none; }
+.kiosk::-webkit-scrollbar, .kiosk *::-webkit-scrollbar { display: none; }

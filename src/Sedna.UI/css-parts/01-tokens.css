@@ -84,6 +84,32 @@
        every filled control. Ice White here would lower all six ratios at once,
        which is why --white exists in the palette as an absolute. */
     --on-solid:        var(--white);          /* text on any filled/solid button */
+    /* Hover and press steps of the tones that had none, mixed from their own roles so
+       every theme and variant moves them too (69-tone.css). */
+    --badge-cyan-active: color-mix(in srgb, var(--badge-cyan-fg), var(--badge-cyan-bg) 25%);
+    --badge-cyan-bg-active: color-mix(in srgb, var(--badge-cyan-bg), var(--badge-cyan-fg) 18%);
+    --badge-cyan-bg-hover: color-mix(in srgb, var(--badge-cyan-bg), var(--badge-cyan-fg) 10%);
+    --badge-cyan-hover: color-mix(in srgb, var(--badge-cyan-fg), var(--badge-cyan-bg) 15%);
+    --badge-orange-active: color-mix(in srgb, var(--badge-orange-fg), var(--badge-orange-bg) 25%);
+    --badge-orange-bg-active: color-mix(in srgb, var(--badge-orange-bg), var(--badge-orange-fg) 18%);
+    --badge-orange-bg-hover: color-mix(in srgb, var(--badge-orange-bg), var(--badge-orange-fg) 10%);
+    --badge-orange-hover: color-mix(in srgb, var(--badge-orange-fg), var(--badge-orange-bg) 15%);
+    --badge-teal-active: color-mix(in srgb, var(--badge-teal-fg), var(--badge-teal-bg) 25%);
+    --badge-teal-bg-active: color-mix(in srgb, var(--badge-teal-bg), var(--badge-teal-fg) 18%);
+    --badge-teal-bg-hover: color-mix(in srgb, var(--badge-teal-bg), var(--badge-teal-fg) 10%);
+    --badge-teal-hover: color-mix(in srgb, var(--badge-teal-fg), var(--badge-teal-bg) 15%);
+    --danger-active: color-mix(in srgb, var(--danger-solid), var(--danger-fg) 25%);
+    --danger-hover: color-mix(in srgb, var(--danger-solid), var(--danger-fg) 15%);
+    --go-bg-active: color-mix(in srgb, var(--go-bg), var(--go-solid) 20%);
+    --go-bg-hover: color-mix(in srgb, var(--go-bg), var(--go-solid) 12%);
+    --info-active: color-mix(in srgb, var(--info-solid), var(--info-fg) 25%);
+    --info-bg-active: color-mix(in srgb, var(--info-bg), var(--info-solid) 20%);
+    --info-bg-hover: color-mix(in srgb, var(--info-bg), var(--info-solid) 12%);
+    --info-hover: color-mix(in srgb, var(--info-solid), var(--info-fg) 15%);
+    --secret-active: color-mix(in srgb, var(--secret-fg), var(--secret-bg) 25%);
+    --secret-bg-active: color-mix(in srgb, var(--secret-bg), var(--secret-fg) 18%);
+    --secret-bg-hover: color-mix(in srgb, var(--secret-bg), var(--secret-fg) 10%);
+    --secret-hover: color-mix(in srgb, var(--secret-fg), var(--secret-bg) 15%);
     /* Text on a series fill. The dark theme's series are light steps (cyan-400,
        teal-400), where white fails AA; the light theme's are 600 steps, and the
        light block swaps this to white. */
@@ -162,11 +188,15 @@
        that erases the state under the pointer. Both move together — a tint remapped
        without its pair jumps between two unrelated strengths. */
     --brand-tint-strong: color-mix(in srgb, var(--brand) 24%, transparent);
+    /* THE focus indicator, on every control: opaque, so it clears 3:1 against every
+       surface in every theme (FocusRingContrastTests). The translucent rings below were
+       the indicator once and measured 1.4–2.1:1; they are kept for glows and halos. */
+    --focus-ring:       var(--brand-soft);
     --brand-ring:       color-mix(in srgb, var(--brand) 50%, transparent);  /* filled primary focus ring */
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
     --brand-ring-check: color-mix(in srgb, var(--brand) 35%, transparent);  /* checkbox focus */
     --brand-glow:       color-mix(in srgb, var(--brand) 18%, transparent);  /* text-input focus glow */
-    /* The edge of a brand-filled control — .btn-primary's border. --brand is solved for
+    /* The edge of a brand-filled control — .btn--brand.btn--solid's border. --brand is solved for
        white text on it, which puts it at 2.9:1 against the dark card: under the 3:1 a
        control's boundary needs. The edge takes the display strength instead, so the
        button's outline clears 3:1 while its fill still carries the label. In the light
@@ -189,6 +219,8 @@
        topbar and the current item in the bottom bar — where you are, rather than what
        you picked. It follows --selected unless an app separates the two. */
     --selected:         var(--brand);
+    /* The strip at the start of a clickable row under the pointer; none until an app sets it. */
+    --row-hover-accent: transparent;
     --tab-indicator:    var(--selected);
 
     /* ── Fields ─────────────────────────────────────────────────────────────
@@ -200,15 +232,24 @@
        every divider. The focused edge is its own role for the same reason: --brand-soft
        also tints spinners and icons, and an app with a neutral focus ring wants a
        neutral focused field without them. */
-    --field-border:       var(--border);
+    /* A field's and a choice control's edge is the only thing that says it is a control:
+       a step past --border-strong, for 3:1 against a card (StateContrastTests).
+       --control-on is what a checked checkbox, a checked radio, an on switch and a
+       slider's filled track and thumb are painted in. */
+    --field-border:       var(--slate-500);
+    --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
+    --control-on:         var(--brand);
 
     /* ── Disabled ───────────────────────────────────────────────────────────
-       How far a disabled control fades: buttons, tabs, menu items, list rows, the
-       choice controls, a slider, a page link. A number, not a colour. WCAG exempts an
-       inactive control from contrast, but a disabled "Delete (0)" still says something;
-       an app that wants it read raises this. */
+       How far a disabled control's graphic fades — the check, the radio dot, the
+       switch, the slider, the colour swatch. A number, not a colour. Labels do not fade. */
     --disabled-opacity: 0.4;
+    /* A disabled control keeps a label that reads at 4.5:1 — dimming by opacity alone
+       measured 1.3–3.5:1 — and says it is unavailable by its flat, quiet look instead. */
+    --disabled-fg:     var(--muted);
+    --disabled-bg:     var(--surface-soft);
+    --disabled-border: var(--border);
 
     /* ── Sidebar ───────────────────────────────────────────────────────── */
     --sidebar-bg:      var(--slate-900);
@@ -234,6 +275,15 @@
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
     --topbar-hover:    var(--bg-hover);
+    /* The header's height, and the sidebar's brand and area title, which line up with it. */
+    --topbar-height:   44px;
+
+    /* ── Panel bars ─────────────────────────────────────────────────────────
+       A modal's header and footer and a card's head sit on the panel's own surface; an
+       app that wants them as bars sets these. */
+    --modal-head-bg:   transparent;
+    --modal-foot-bg:   transparent;
+    --card-head-bg:    transparent;
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -284,6 +334,7 @@
     --info-border:  var(--orbit-800);
     --info-fg:      var(--orbit-300);
     --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
+    --info-on-solid: var(--on-solid);                     /* a label on it — dark where the fill is light */
     --info-ring:    color-mix(in srgb, var(--orbit-400) 50%, transparent);     /* its glow */
 
     /* Data in motion: the light running into a .workflow's step at work, the line it
@@ -328,7 +379,7 @@
        grey — never the ranking itself. Same reasoning as `.steps`, where done
        is FILLED rather than green.
 
-       Which means the label still has to say the rank. `.badge-sev-2` reading
+       Which means the label still has to say the rank. `.badge--sev-2` reading
        "P2" is the contract; a bare coloured pill is a colour, not a position.
 
        --sev-N-solid is a ramp of its own, stepping 800 → 700 → 600 → 500 → 400
@@ -481,6 +532,8 @@
     --control-height-sm: 28px;
     --control-height:    36px;
     --control-height-lg: 44px;   /* the WCAG AAA target size */
+    /* The hit area a small control grows to on a coarse pointer (69-touch.css). */
+    --touch-target:      32px;
 
     /* ── Choice inset ───────────────────────────────────────────────────────
        Where a choice control's label starts, measured from the control's inline
@@ -511,6 +564,10 @@
     --text-9:  22px;
     --text-10: 26px;
     --text-11: 40px;   /* display only — the empty-state glyph, .state-icon */
+    /* A text field on a coarse pointer. Not a step of the scale: 16px is the size under
+       which Safari on iOS and iPadOS zooms the page when a field takes focus, so it is
+       a floor and not a choice — keep it at 16px or above. */
+    --text-field-touch: 16px;
 
     /* ── Motion ─────────────────────────────────────────────────────────────
        Three durations for interaction, and one per looping animation. Set them all
@@ -526,6 +583,8 @@
     --shimmer-duration:  2.2s;   /* .text-shimmer, words an agent is still deciding */
     --caret-duration:    1s;     /* the caret on a streaming answer */
     --flow-duration:     1.6s;   /* a .workflow streak, one spacing along its way */
+    --stagger-step:      30ms;
+    --hover-delay:       400ms;  /* before a hover card opens under a resting pointer */   /* between two rows arriving in .table--stagger, .list--stagger */
 
     /* ── Corner rounding ────────────────────────────────────────────────────
        Named by role rather than by size, because "square off the controls" is the
@@ -563,6 +622,11 @@
     --list-pad-block:  var(--space-5);
     --list-pad-inline: var(--space-6);
     --list-gap:        var(--space-4);
+
+    /* The space between a page's sections and the page's own padding — .page reads
+       them, and the density remaps move them with the rows and cells above. */
+    --page-rhythm:     var(--space-7);
+    --page-pad:        var(--space-9);
 
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes

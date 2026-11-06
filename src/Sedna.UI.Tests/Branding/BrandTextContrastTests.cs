@@ -64,6 +64,7 @@ public class BrandTextContrastTests
     private static readonly Dictionary<string, (Ink Kind, string[] Tints)> Uses = new(StringComparer.Ordinal)
     {
         [".markdown-body a"] = (Ink.Text, []),
+        [".text-brand"] = (Ink.Text, []),
         [".nav-link.active"] = (Ink.Text, ["--brand-tint"]),
         [".nav-link.active i"] = (Ink.Icon, ["--brand-tint"]),
         [".nav-area[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
@@ -78,6 +79,7 @@ public class BrandTextContrastTests
         [".avatar"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over i"] = (Ink.Icon, ["--brand-tint"]),
+        [".choice-tile:has(> input:checked) .choice-tile-art"] = (Ink.Icon, ["--brand-tint"]),
         ["[data-drop-state=\"valid\"][data-drop-over] > .drag-empty"] = (Ink.Text, ["--brand-tint"]),
         // A chosen row is tinted, and pointing at it or arrowing onto it deepens the tint — so
         // the label sits on either one.

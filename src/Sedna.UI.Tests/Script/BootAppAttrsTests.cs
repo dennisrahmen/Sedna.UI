@@ -135,15 +135,15 @@ public class BootAppAttrsTests : ScriptTestBase
         var page = await Open("<p>x</p>", head: Tag);
         Assert.Null(await Attr(page, "data-app-mochi"));
 
-        await page.EvaluateAsync("() => sednaUi.settings.save('mochi', 'off')");
+        await Js.Run(page, "() => sednaUi.settings.save('mochi', 'off')");
         Assert.Equal("off", await page.EvaluateAsync<string?>("() => localStorage.getItem('sedna.mochi')"));
         Assert.Equal("off", await Attr(page, "data-app-mochi"));
 
-        await page.EvaluateAsync("() => sednaUi.settings.save('mochi', 'on')");
+        await Js.Run(page, "() => sednaUi.settings.save('mochi', 'on')");
         Assert.Equal("on", await Attr(page, "data-app-mochi"));
 
         // Storage is the source: a key removed is an attribute removed on the next apply.
-        await page.EvaluateAsync("() => { localStorage.removeItem('sedna.mochi'); sednaUi.settings.apply(); }");
+        await Js.Run(page, "() => { localStorage.removeItem('sedna.mochi'); sednaUi.settings.apply(); }");
         Assert.Null(await Attr(page, "data-app-mochi"));
     }
 
@@ -153,7 +153,7 @@ public class BootAppAttrsTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open("<p>x</p>", head: BootTag);
 
-        await page.EvaluateAsync("() => sednaUi.settings.save('mochi', 'off')");
+        await Js.Run(page, "() => sednaUi.settings.save('mochi', 'off')");
         Assert.Null(await Attr(page, "data-app-mochi"));
     }
 }

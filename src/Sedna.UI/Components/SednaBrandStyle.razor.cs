@@ -23,4 +23,13 @@ namespace Sedna.UI;
 /// scoped-CSS guard.
 /// </para>
 /// </remarks>
-public partial class SednaBrandStyle;
+public partial class SednaBrandStyle
+{
+    /// <summary>
+    /// The nonce of the page's Content Security Policy, written on the <c>&lt;style&gt;</c> so a
+    /// policy without <c>'unsafe-inline'</c> in <c>style-src</c> still applies the brand. Left
+    /// out, the element has no <c>nonce</c> attribute at all.
+    /// </summary>
+    [Microsoft.AspNetCore.Components.Parameter]
+    public string? Nonce { get; set; }
+}

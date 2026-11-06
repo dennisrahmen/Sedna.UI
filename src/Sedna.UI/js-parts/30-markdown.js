@@ -186,15 +186,16 @@
                 };
                 t = t.replace(/`([^`]+)`/g, function (_, code) { return hold('<code>' + code + '</code>'); });
                 t = t.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_, alt, url) { return hold(mediaHtml(alt, url)); });
+                // A link's tags are held aside too, before bold and italic run, so an
+                // underscore in its address is never read as emphasis; its text is still
+                // formatted. The whole line went through esc() above, so `url` is already
+                // escaped — escaping it again turned every & into &amp;amp;.
+                t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, txt, url) {
+                    var safe = ui._.safeHref(url) || '#';
+                    return hold('<a href="' + safe + '" target="_blank" rel="noopener">') + txt + hold('</a>');
+                });
                 t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 t = t.replace(/_([^_]+)_/g, '<em>$1</em>');
-                // The whole line went through esc() above, so `url` is already escaped
-                // — escaping it a second time turned every & in a query string into
-                // &amp;amp; and the browser rendered the entity rather than the &.
-                t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, txt, url) {
-                    var safe = /^(https?:|mailto:|\/)/i.test(url) ? url : '#';
-                    return '<a href="' + safe + '" target="_blank" rel="noopener">' + txt + '</a>';
-                });
                 return t.replace(/\u0000(\d+)\u0000/g, function (_, i) { return held[+i] || ''; });
             };
             // `alt` and `url` are already escaped, as the whole line is. The source is kept only

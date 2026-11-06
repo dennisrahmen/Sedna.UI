@@ -15,7 +15,7 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// </para>
 /// <para>
 /// An example carries the classes it uses as keywords rather than its prose. That
-/// is what makes <c>badge-go</c> land on the example that writes it, which is the
+/// is what makes <c>badge--go</c> land on the example that writes it, which is the
 /// question this site is actually asked; full text is the MCP server's
 /// <c>search</c> tool, which does not have to fit in a dropdown.
 /// </para>

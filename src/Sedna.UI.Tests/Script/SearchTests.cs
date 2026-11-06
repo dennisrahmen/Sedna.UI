@@ -67,7 +67,7 @@ public class SearchTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Box);
-        await page.EvaluateAsync(Register);
+        await Js.Run(page, Register);
 
         await page.FillAsync(".search-input", "qu");
 
@@ -110,7 +110,7 @@ public class SearchTests : ScriptTestBase
         // it could never rise above a modal backdrop, whatever its own z-index. So the
         // app puts its panel outside, and the script places it under the box it measured.
         var page = await Open(Box, head: StylesheetTag);
-        await page.EvaluateAsync(Register);
+        await Js.Run(page, Register);
         await page.FillAsync(".search-input", "qu");
 
         var placed = await page.EvaluateAsync<string>("""
@@ -133,7 +133,7 @@ public class SearchTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Box);
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.search.register([
                 { title: 'Quality report', tag: 'KPI', tone: 'warn' },
                 { title: 'Quality gate', href: '/gate' }
@@ -163,7 +163,7 @@ public class SearchTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Box);
-        await page.EvaluateAsync(Register);
+        await Js.Run(page, Register);
 
         await page.FillAsync(".search-input", "xyzzy");
 
@@ -177,7 +177,7 @@ public class SearchTests : ScriptTestBase
         // The script draws no panel of its own any more; with none in the page it
         // warns once and leaves the box alone.
         var page = await Open("""<div class="search"><input class="search-input" type="search" data-search></div>""");
-        await page.EvaluateAsync(Register);
+        await Js.Run(page, Register);
 
         await page.FillAsync(".search-input", "qu");
 
@@ -190,7 +190,7 @@ public class SearchTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Box);
-        await page.EvaluateAsync(Register);
+        await Js.Run(page, Register);
 
         await page.ClickAsync(".search-input");
         await page.Locator(".search-input").PressSequentiallyAsync("qu");
@@ -223,7 +223,7 @@ public class SearchTests : ScriptTestBase
         // Otherwise the query survives a router navigation but not a full page load,
         // so the box sometimes holds the last search and sometimes does not.
         var page = await Open(Box);
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => sednaUi.search.register([{ title: 'Approval queue', run: () => {} }])");
 
         await page.FillAsync(".search-input", "queue");
@@ -239,7 +239,7 @@ public class SearchTests : ScriptTestBase
         if (NoBrowser) return;
         // The same key always undoes the last thing that happened.
         var page = await Open(Box);
-        await page.EvaluateAsync(Register);
+        await Js.Run(page, Register);
 
         await page.ClickAsync(".search-input");
         await page.Locator(".search-input").PressSequentiallyAsync("qu");
@@ -263,8 +263,8 @@ public class SearchTests : ScriptTestBase
         // Assigning .value alone is invisible to Blazor's @bind and to every other
         // listener. The event is the part that matters.
         var page = await Open(Box);
-        await page.EvaluateAsync(Register);
-        await page.EvaluateAsync(
+        await Js.Run(page, Register);
+        await Js.Run(page, 
             "() => { window.seen = 0; document.querySelector('.search-input')"
             + ".addEventListener('input', () => window.seen++); }");
 
@@ -301,8 +301,8 @@ public class SearchTests : ScriptTestBase
         var ranked = await page.EvaluateAsync<string[]>("""
             () => {
                 sednaUi.search.register([
-                    { title: 'Semantic', keywords: 'badge badge-go badge-warn' },
-                    { title: 'Head and body', keywords: 'card card-head badge badge-warn' },
+                    { title: 'Semantic', keywords: 'badge badge--go badge--warn' },
+                    { title: 'Head and body', keywords: 'card card-head badge badge--warn' },
                     { title: 'Badge go', keywords: 'badge' }
                 ]);
                 return sednaUi.search.rank('badge go').map(i => i.title);
@@ -327,7 +327,7 @@ public class SearchTests : ScriptTestBase
             () => {
                 sednaUi.search.register([
                     { title: 'Head and body', keywords: 'card card-head badge alert table-row grid' },
-                    { title: 'Semantic', keywords: 'badge badge-go' }
+                    { title: 'Semantic', keywords: 'badge badge--go' }
                 ]);
                 return sednaUi.search.rank('badgo').map(i => i.title);
             }
@@ -344,7 +344,7 @@ public class SearchTests : ScriptTestBase
         if (NoBrowser) return;
         // A silently truncated list reads as "that is everything".
         var page = await Open(Box);
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.search.register(
                 Array.from({ length: 12 }, (_, i) => ({ title: 'Queue ' + i, href: '#' })))
             """);

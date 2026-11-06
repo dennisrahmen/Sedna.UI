@@ -96,7 +96,7 @@
     font-size: var(--text-4);
 }
 .drag-item:has(> .drag-handle) { padding-inline-start: var(--space-2); }
-.drag-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.drag-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .drag-item[aria-disabled="true"] {
     background: var(--surface-soft);
     color: var(--muted);
@@ -131,7 +131,7 @@
     line-height: 1;
 }
 .drag-handle:hover { background: var(--bg-hover); color: var(--fg); }
-.drag-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.drag-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 [aria-disabled="true"] > .drag-handle { color: var(--muted); background: none; }
 
 /* ── A board of lanes ───────────────────────────────────────────────────────

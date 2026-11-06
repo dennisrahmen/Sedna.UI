@@ -100,11 +100,3 @@
 
 /* The same semantic families as buttons, badges and alerts. Tinted more lightly
    than an .alert: a callout is read as part of the prose, not scanned as a state. */
-.callout-info   { background: var(--info-bg);   border-inline-start-color: var(--info-border); }
-.callout-info > i   { color: var(--info-fg); }
-.callout-warn   { background: var(--warn-bg);   border-inline-start-color: var(--warn-solid); }
-.callout-warn > i   { color: var(--warn-fg); }
-.callout-danger { background: var(--danger-bg); border-inline-start-color: var(--danger-solid); }
-.callout-danger > i { color: var(--danger-fg); }
-.callout-go     { background: var(--go-bg);     border-inline-start-color: var(--go-solid); }
-.callout-go > i     { color: var(--go-fg); }

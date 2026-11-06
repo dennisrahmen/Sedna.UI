@@ -59,7 +59,7 @@ public class GraphKeyboardTests : GraphTestBase
     private static async Task TabIn(IPage page)
     {
         await page.Locator("#before").FocusAsync();
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
         Assert.Equal("g", await Eval<string>(page, "() => document.activeElement.id"));
     }
 
@@ -93,7 +93,7 @@ public class GraphKeyboardTests : GraphTestBase
         await Assertions.Expect(page.Locator("#live")).ToHaveTextAsync("Orders API, service. 4 links.");
 
         // One stop: the next Tab leaves the graph, and takes the ring with it.
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
         Assert.Equal("after", await Eval<string>(page, "() => document.activeElement.id"));
         Assert.Null(await Ringed(page));
         AssertQuiet();
@@ -160,7 +160,7 @@ public class GraphKeyboardTests : GraphTestBase
     {
         if (NoBrowser) return;
         var page = await OpenCompass();
-        await page.EvaluateAsync("() => document.getElementById('live').setAttribute('data-graph-announce', '{label}, {kind}, {owner}. {links} links.')");
+        await Js.Run(page, "() => document.getElementById('live').setAttribute('data-graph-announce', '{label}, {kind}, {owner}. {links} links.')");
         await TabIn(page);
 
         await Assertions.Expect(page.Locator("#live")).ToHaveTextAsync("Orders API, service. 4 links.");
@@ -287,7 +287,7 @@ public class GraphKeyboardTests : GraphTestBase
     {
         if (NoBrowser) return;
         var page = await OpenCompass();
-        await page.EvaluateAsync("() => document.addEventListener('sedna-graph-open', e => e.preventDefault())");
+        await Js.Run(page, "() => document.addEventListener('sedna-graph-open', e => e.preventDefault())");
         await TabIn(page);
         await ClearLog(page);
 

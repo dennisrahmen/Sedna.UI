@@ -39,8 +39,8 @@ dotnet add package Sedna.UI
 
 ## Three tiers
 
-**The frame** — shell, sidebar, header, user widget — is chrome that must be pixel-identical in every app
-and that nobody should restyle per project.
+**The frame** — shell, sidebar, header, bottom bar, user widget — is a set of parts an app combines as it
+likes, each exact in every state it supports.
 
 **The paint** — tables, forms, cards, badges, buttons, alerts — is what a page puts inside it.
 

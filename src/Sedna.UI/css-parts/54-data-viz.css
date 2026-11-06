@@ -111,6 +111,7 @@
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
+.stack-bar--sm { height: 6px; }
 .stack-bar--lg { height: 18px; }
 .stack-bar-segment {
     --value: 0%;
@@ -167,6 +168,7 @@
     background: var(--progress-track);
     border-radius: var(--radius-pill);
 }
+.meter--sm { height: 6px; }
 .meter--lg { height: 18px; }
 .meter--labelled { margin-bottom: calc(var(--text-2) + var(--space-5)); }
 .meter--labelled:has(.meter-mark--above) { margin-top: calc(var(--text-2) + var(--space-5)); }

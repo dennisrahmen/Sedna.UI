@@ -32,7 +32,7 @@ public class FlowLayoutTests : ScriptTestBase
         Assert.Equal("visible", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('page')).overflowY"));
         Assert.Equal("sticky", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('topbar')).position"));
 
-        await page.EvaluateAsync("() => window.scrollTo(0, 400)");
+        await Js.Run(page, "() => window.scrollTo(0, 400)");
         var top = await page.EvaluateAsync<double>("() => document.getElementById('topbar').getBoundingClientRect().top");
         Assert.True(Math.Abs(top) < 1, $"The topbar scrolled away: top {top}.");
     }

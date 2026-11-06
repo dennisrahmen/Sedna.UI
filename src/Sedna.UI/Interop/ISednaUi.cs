@@ -80,7 +80,7 @@ public interface ISednaUi
     /// </para>
     /// <para>
     /// The markup, the classes, the wording and the styling are the app's; this only
-    /// presents it. A confirmation is therefore a <c>.modal-sm</c> the app writes, with a
+    /// presents it. A confirmation is therefore a <c>.modal--sm</c> the app writes, with a
     /// <c>&lt;form method="dialog"&gt;</c> whose buttons carry values, and one comparison
     /// on the result. For a dialog that is its own component and hands back a typed
     /// result, use <see cref="ISednaOverlays"/>.
@@ -209,7 +209,7 @@ public interface ISednaUi
     /// <see cref="SednaUiOptions.Default"/>);
     /// <c>variant</c> takes <c>dark</c>, <c>light</c>, or <c>system</c> to follow
     /// <c>prefers-color-scheme</c> live; <c>cvd</c> takes <c>1</c> or anything else
-    /// for off; <c>density</c> takes <c>compact</c> or anything else for the
+    /// for off; <c>density</c> takes <c>compact</c>, <c>touch</c> or anything else for the
     /// default; <c>lang</c> takes a two-letter code.
     /// A name the boot script's <c>data-app-attrs</c> lists is the app's own preference: it is
     /// stored under the same prefix and mirrored to <c>&lt;html data-app-&lt;name&gt;&gt;</c>.

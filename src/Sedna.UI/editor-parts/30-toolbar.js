@@ -32,14 +32,23 @@ function reflect(e) {
             if (c.tagName === 'SELECT') {
                 const now = format[name];
                 c.value = now === undefined || now === false || now === null ? '' : String(now);
+            } else if (c.tagName === 'INPUT') {
+                // A colour field shows the colour under the caret, where it is one a field
+                // can show; otherwise it keeps the last one chosen.
+                const now = format[name];
+                if (typeof now === 'string' && /^#[0-9a-f]{6}$/i.test(now)) c.value = now;
             } else {
                 c.setAttribute('aria-pressed', isOn(format, name, c.getAttribute('value')) ? 'true' : 'false');
             }
             continue;
         }
         const action = c.getAttribute('data-editor-action');
+        // A row or column action needs the caret in a table; inserting one, the opposite.
+        const inTable = !!format.table;
         const idle = action === 'undo' ? q.history.stack.undo.length === 0
-            : action === 'redo' ? q.history.stack.redo.length === 0 : false;
+            : action === 'redo' ? q.history.stack.redo.length === 0
+                : action === 'table-insert' ? inTable
+                    : action && action.startsWith('table-') ? !inTable : false;
         c.disabled = idle || !q.isEnabled();
     }
     keepStop(e);
@@ -60,7 +69,7 @@ function applyFormat(e, c) {
     if (MEDIA.includes(name)) return openMedia(e, name);
     const range = q.getSelection(true);
     if (!range) return;
-    if (c.tagName === 'SELECT') {
+    if (c.tagName === 'SELECT' || c.tagName === 'INPUT') {
         q.format(name, c.value || false, 'user');
     } else {
         const value = c.getAttribute('value');
@@ -71,6 +80,25 @@ function applyFormat(e, c) {
     reflect(e);
 }
 
+/* A table's actions, through Quill's table module — loaded only for an editor that takes
+   tables. Rows and columns are added beside the cell the caret is in. */
+function tableAction(q, action) {
+    const table = q.getModule('table');
+    if (!table) return;
+    q.getSelection(true);
+    switch (action) {
+        case 'table-insert': table.insertTable(2, 2); break;
+        case 'table-row-above': table.insertRowAbove(); break;
+        case 'table-row-below': table.insertRowBelow(); break;
+        case 'table-column-before': table.insertColumnLeft(); break;
+        case 'table-column-after': table.insertColumnRight(); break;
+        case 'table-row-delete': table.deleteRow(); break;
+        case 'table-column-delete': table.deleteColumn(); break;
+        case 'table-delete': table.deleteTable(); break;
+        default: break;
+    }
+}
+
 function act(e, c) {
     const q = e.quill;
     const action = c.getAttribute('data-editor-action');
@@ -79,6 +107,10 @@ function act(e, c) {
         case 'redo': q.history.redo(); break;
         case 'indent': q.getSelection(true); q.format('indent', '+1', 'user'); break;
         case 'outdent': q.getSelection(true); q.format('indent', '-1', 'user'); break;
+        case 'table-insert': case 'table-row-above': case 'table-row-below':
+        case 'table-column-before': case 'table-column-after':
+        case 'table-row-delete': case 'table-column-delete': case 'table-delete':
+            tableAction(q, action); break;
         case 'clean': {
             const range = q.getSelection(true);
             if (!range) break;
@@ -101,12 +133,12 @@ function wireToolbar(e) {
 
     on(e.el, 'click', ev => {
         const c = ev.target.closest(CONTROL);
-        if (!c || c.tagName === 'SELECT' || !e.controls.includes(c) || c.disabled) return;
+        if (!c || c.tagName === 'SELECT' || c.tagName === 'INPUT' || !e.controls.includes(c) || c.disabled) return;
         if (c.hasAttribute('data-editor-format')) applyFormat(e, c);
         else act(e, c);
     });
     on(e.el, 'change', ev => {
-        const c = ev.target.closest('select[data-editor-format]');
+        const c = ev.target.closest('select[data-editor-format], input[data-editor-format]');
         if (!c || !e.controls.includes(c)) return;
         applyFormat(e, c);
         e.quill.focus();

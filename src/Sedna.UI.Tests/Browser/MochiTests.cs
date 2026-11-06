@@ -48,7 +48,7 @@ public class MochiTests : ScriptTestBase
             """,
             head: StylesheetTag,
             reducedMotion: reduced ? ReducedMotion.Reduce : ReducedMotion.NoPreference);
-        await page.EvaluateAsync(Inline);
+        await Js.Run(page, Inline);
         return page;
     }
 
@@ -464,7 +464,7 @@ public class MochiTests : ScriptTestBase
         Assert.True(await page.EvaluateAsync<int>(Running()) > 0, "Nothing ran while in view.");
 
         // Pushed far below the fold: marked away, and every loop holds.
-        await page.EvaluateAsync("() => document.getElementById('m').style.marginTop = '5000px'");
+        await Js.Run(page, "() => document.getElementById('m').style.marginTop = '5000px'");
         await page.WaitForFunctionAsync("() => document.getElementById('m').hasAttribute('data-mochi-away')");
         // Held, and not drawn at all: the browser skips the drawing, so its parts are not
         // even styled — the loops cannot step. The span keeps its size, so nothing around
@@ -474,7 +474,7 @@ public class MochiTests : ScriptTestBase
         Assert.Equal(112, await page.EvaluateAsync<double>("() => document.getElementById('m').getBoundingClientRect().width"), 0);
 
         // Back in view: it moves again.
-        await page.EvaluateAsync("() => document.getElementById('m').style.marginTop = '0'");
+        await Js.Run(page, "() => document.getElementById('m').style.marginTop = '0'");
         await page.WaitForFunctionAsync("() => !document.getElementById('m').hasAttribute('data-mochi-away')");
         Assert.True(await page.EvaluateAsync<int>(Running()) > 0, "It did not move again once back in view.");
     }
@@ -531,9 +531,9 @@ public class MochiTests : ScriptTestBase
 
         // Out of view the script holds every loop; back in view it lets them go. A still
         // Mochi has none to let go.
-        await page.EvaluateAsync("() => document.getElementById('m').style.marginTop = '5000px'");
+        await Js.Run(page, "() => document.getElementById('m').style.marginTop = '5000px'");
         await page.WaitForFunctionAsync("() => document.getElementById('m').hasAttribute('data-mochi-away')");
-        await page.EvaluateAsync("() => document.getElementById('m').style.marginTop = '0'");
+        await Js.Run(page, "() => document.getElementById('m').style.marginTop = '0'");
         await page.WaitForFunctionAsync("() => !document.getElementById('m').hasAttribute('data-mochi-away')");
 
         Assert.Equal("running", (await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('m')).getPropertyValue('--play')")).Trim());

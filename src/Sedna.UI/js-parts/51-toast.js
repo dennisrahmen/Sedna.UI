@@ -47,62 +47,25 @@
         go: 'ri-check-line',
         warn: 'ri-alert-line',
         danger: 'ri-error-warning-line',
-        info: 'ri-information-line'
+        info: 'ri-information-line',
+        brand: 'ri-megaphone-line',
+        secret: 'ri-lock-line'
     };
 
     var host = null;     // our stack, while it exists
-    var opened = [];     // modal dialogs, in the order they opened — the top layer's order
-    var watch = null;    // notices the dialog holding the stack being removed
+    var unwatch = null;  // stops watching for the stack being taken out with a dialog
+    var layer = ui._.layer;
 
-    function isModal(el) {
-        try { return !!el && el.isConnected && el.matches('dialog:modal'); } catch (e) { return false; }
-    }
-
-    /* The modal the stack belongs in, or null for <body>. The last one opened is the one
-       on top; one opened before this script ran is not in `opened`, so document order,
-       where a nested dialog follows its parent, stands in for it. */
-    function topModal(except) {
-        for (var i = opened.length - 1; i >= 0; i--) {
-            if (opened[i] !== except && isModal(opened[i])) return opened[i];
-        }
-        var all;
-        try { all = document.querySelectorAll('dialog:modal'); } catch (e) { return null; }
-        for (var j = all.length - 1; j >= 0; j--) if (all[j] !== except) return all[j];
-        return null;
-    }
-
-    /* Moves the stack to where it can be seen and reached, and promotes it above
-       everything already in the top layer. `except` is a dialog that is closing and
+    /* Moves the stack to where it can be seen and reached, promoted above everything
+       already in the top layer (00-layer.js). `except` is a dialog that is closing and
        still matches :modal. */
     function raise(except) {
         if (!host) return;
-        var parent = topModal(except) || document.body;
-        if (host.parentNode !== parent) {
-            // Moving a node blurs whatever inside it had focus — a toast's close button.
-            var focused = host.contains(document.activeElement) ? document.activeElement : null;
-            parent.appendChild(host);
-            if (focused && focused !== document.activeElement) {
-                try { focused.focus({ preventScroll: true }); } catch (e) { /* refused */ }
-            }
-        }
-        try {
-            if (host.matches(':popover-open')) host.hidePopover();
-            host.showPopover();
-        } catch (e) { /* no popover support: z-index 600 is the fallback */ }
-        follow(parent !== document.body ? parent : null);
-    }
-
-    /* A dialog a framework removes takes the stack with it, before any close event can
-       say so. While the stack is in one, a removal brings it back to <body>. */
-    function follow(dialog) {
-        if (watch) { watch.disconnect(); watch = null; }
-        if (!dialog) return;
-        try {
-            watch = new MutationObserver(function () {
-                if (host && !host.isConnected) raise();
-            });
-            watch.observe(document.body, { childList: true, subtree: true });
-        } catch (e) { /* no observer: the next toast finds it */ }
+        layer.raise(host, except);
+        // A dialog a framework removes takes the stack with it, before any close event
+        // can say so; then it comes back to wherever it can be seen.
+        if (unwatch) unwatch();
+        unwatch = layer.whenGone(host, function () { unwatch = null; if (host && host.children.length) raise(); });
     }
 
     function stack() {
@@ -128,29 +91,17 @@
     function drop(el) {
         if (el.parentNode) el.parentNode.removeChild(el);
         if (host && !host.children.length) {
-            follow(null);
+            if (unwatch) { unwatch(); unwatch = null; }
             if (host.parentNode) host.parentNode.removeChild(host);
             host = null;
         }
     }
 
-    /* Capture, because none of these bubble, and from the document because a dialog is
-       a node a framework replaces like any other. `beforetoggle` is the one that fires
-       while a closing dialog is still displayed, so the stack leaves before it hides. */
-    function track(e) {
-        var dialog = e.target;
-        if (!(dialog instanceof HTMLDialogElement)) return;
-        var closing = e.type === 'close' || e.newState === 'closed';
-        var at = opened.indexOf(dialog);
-        if (at >= 0) opened.splice(at, 1);
-        if (!closing && isModal(dialog)) opened.push(dialog);
-        if (host && host.children.length) raise(closing ? dialog : null);
-    }
-    document.addEventListener('beforetoggle', track, true);
-    document.addEventListener('toggle', track, true);
-    document.addEventListener('close', track, true);
+    // A modal opening or closing moves a stack that is showing toasts with it.
+    layer.onChange(function (closing) { if (host && host.children.length) raise(closing); });
 
     var live = {};       // id -> { el, remove, timer }
+    var REGION_SETTLE_MS = 150;
     var nextId = 1;
 
     // Fills a toast element for its kind, title and message, with the close button
@@ -165,7 +116,7 @@
         // A failure interrupts; a confirmation waits its turn.
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
 
-        el.className = 'toast toast-' + kind;
+        el.className = 'toast toast--' + kind;
         el.textContent = '';
 
         var icon = document.createElement('i');
@@ -200,10 +151,34 @@
         }
 
         clearTimeout(entry.timer);
+        entry.timer = 0;
         // 0 means "stays until dismissed" — for a failure the user has to read, or for
         // work still running that will replace this toast when it ends.
         var ms = opts.timeout === undefined ? 4000 : opts.timeout;
-        entry.timer = ms > 0 ? setTimeout(entry.remove, ms) : 0;
+        entry.left = ms;
+        entry.started = Date.now();
+        entry.timer = ms > 0 && !entry.held ? setTimeout(entry.remove, ms) : 0;
+    }
+
+    /* A toast does not run out while the reader is on it (WCAG 2.2.1): the pointer over
+       it or the focus in it holds the clock, and leaving gives back what was left — at
+       least a second, so it does not vanish the instant the pointer moves off. */
+    function hold(entry) {
+        if (entry.held) return;
+        entry.held = true;
+        if (!entry.timer) return;
+        clearTimeout(entry.timer);
+        entry.timer = 0;
+        entry.left = Math.max(0, entry.left - (Date.now() - entry.started));
+    }
+    function release(entry) {
+        if (!entry.held) return;
+        entry.held = false;
+        if (entry.left > 0 && !entry.timer) {
+            entry.started = Date.now();
+            entry.left = Math.max(entry.left, 1000);
+            entry.timer = setTimeout(entry.remove, entry.left);
+        }
     }
 
     /**
@@ -214,7 +189,11 @@
      */
     ui.toast = function (message, opts) {
         var id = nextId++;
-        var entry = { el: document.createElement('div'), timer: 0 };
+        var entry = { el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0 };
+        entry.el.addEventListener('mouseenter', function () { hold(entry); });
+        entry.el.addEventListener('mouseleave', function () { if (!entry.el.contains(document.activeElement)) release(entry); });
+        entry.el.addEventListener('focusin', function () { hold(entry); });
+        entry.el.addEventListener('focusout', function (e) { if (!entry.el.contains(e.relatedTarget) && !entry.el.matches(':hover')) release(entry); });
 
         entry.remove = function () {
             clearTimeout(entry.timer);
@@ -224,8 +203,19 @@
         entry.remove.id = id;
         live[id] = entry;
 
+        var fresh = !host || !host.isConnected;
         paint(entry, message, opts);
-        host.appendChild(entry.el);
+        // A live region announces what is ADDED to it, so it has to be in the page before
+        // its first toast: a region created with its content already in it is read by many
+        // screen readers as nothing. A new stack therefore takes its first toast a moment
+        // after it appears; every later one goes in at once.
+        if (fresh) {
+            entry.el.hidden = true;
+            host.appendChild(entry.el);
+            setTimeout(function () { entry.el.hidden = false; }, REGION_SETTLE_MS);
+        } else {
+            host.appendChild(entry.el);
+        }
 
         return entry.remove;
     };

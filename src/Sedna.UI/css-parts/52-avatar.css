@@ -44,12 +44,12 @@
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .avatar i { font-size: var(--text-6); }
 
-.avatar-sm { --avatar-size: 22px; --avatar-overlap: 6px; font-size: var(--text-1); }
+.avatar--sm { --avatar-size: 22px; --avatar-overlap: 6px; font-size: var(--text-1); }
 /* An even size in the 22px circle: an odd one sits on a half pixel and the glyph
    rounds off-centre. */
-.avatar-sm i { font-size: var(--text-5); }
-.avatar-lg { --avatar-size: 40px; --avatar-overlap: 11px; font-size: var(--text-6); }
-.avatar-lg i { font-size: var(--text-9); }
+.avatar--sm i { font-size: var(--text-5); }
+.avatar--lg { --avatar-size: 40px; --avatar-overlap: 11px; font-size: var(--text-6); }
+.avatar--lg i { font-size: var(--text-9); }
 
 /* Neutral, for an actor with no brand meaning — a system account, an unknown
    sender. Keeps the brand tint for people, so a page of rows does not read as
@@ -144,7 +144,7 @@
     display: inline-flex;
     flex-shrink: 0;
 }
-.avatar-presence:has(> .avatar-lg) { --presence-size: 12px; }
+.avatar-presence:has(> .avatar--lg) { --presence-size: 12px; }
 .avatar-presence::after {
     content: '';
     position: absolute;
@@ -306,7 +306,7 @@
        <span class="avatar avatar--viz-4" aria-hidden="true">TF</span>
      </span>
 
-   The size class goes on the pair — `.avatar-pair.avatar-lg` is a pair the size of a
+   The size class goes on the pair — `.avatar-pair.avatar--lg` is a pair the size of a
    large avatar — and the two inside take a step down from it, rounded to an even
    pixel so the initials centre. The avatar in front is cut out of the one behind by
    the group's own rule above, with the hole moved to the front one's centre.
@@ -332,8 +332,8 @@
     font-size: var(--text-1);
 }
 .avatar-pair > .avatar i { font-size: var(--text-3); }
-.avatar-pair.avatar-lg > .avatar { font-size: var(--text-3); }
-.avatar-pair.avatar-lg > .avatar i { font-size: var(--text-6); }
+.avatar-pair.avatar--lg > .avatar { font-size: var(--text-3); }
+.avatar-pair.avatar--lg > .avatar i { font-size: var(--text-6); }
 .avatar-pair > .avatar:first-child:not(:last-child) {
     --avatar-cut-x: calc(var(--avatar-pair-size) - var(--avatar-size) / 2);
     --avatar-cut-y: calc(var(--avatar-pair-size) - var(--avatar-size) / 2);

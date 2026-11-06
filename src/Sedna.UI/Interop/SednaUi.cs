@@ -211,13 +211,15 @@ public sealed class SednaUi : ISednaUi
     public Task PingAsync() => _js.InvokeVoidAsync("sednaUi.ping").AsTask();
 
     // The script's own vocabulary, which is also the CSS modifier suffix
-    // (.toast-go, .toast-danger). Mapped explicitly rather than lower-casing the
+    // (.toast--go, .toast--danger). Mapped explicitly rather than lower-casing the
     // enum name, so renaming a member here cannot silently change a CSS class.
     private static string Name(ToastKind kind) => kind switch
     {
         ToastKind.Go => "go",
         ToastKind.Warn => "warn",
         ToastKind.Danger => "danger",
+        ToastKind.Brand => "brand",
+        ToastKind.Secret => "secret",
         _ => "info",
     };
 }

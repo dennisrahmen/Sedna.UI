@@ -1,16 +1,17 @@
 @inject ISednaGraphs Graphs
 
 <div class="card">
-    <div class="graph graph--sm" data-graph data-graph-deferred id="fulfilment"
+    <div class="graph graph--sm" data-graph data-graph-deferred data-graph-arrive="pop" id="fulfilment"
          aria-label="Warehouses, and the services they stock from and ship through">
         <div class="graph-canvas"></div>
         <div class="graph-wait skeleton skeleton-block"></div>
+        <p class="visually-hidden" data-graph-live aria-live="polite" data-graph-announce-arrive="{label} opened."></p>
     </div>
     <div class="card-foot card-foot--start">
-        <button class="btn btn-sm" type="button" @onclick="OpenWarehouse" disabled="@(_opened.Count == Sites.Length)">
+        <button class="btn btn--sm" type="button" @onclick="OpenWarehouse" disabled="@(_opened.Count == Sites.Length)">
             <i class="ri-add-line"></i> Open a warehouse
         </button>
-        <button class="btn btn-sm" type="button" @onclick="CloseNewest" disabled="@(_opened.Count == 0)">
+        <button class="btn btn--sm" type="button" @onclick="CloseNewest" disabled="@(_opened.Count == 0)">
             Close the newest
         </button>
         <label class="switch"><input type="checkbox" @bind="_fault" @bind:after="MarkFault" /> Stock fault</label>

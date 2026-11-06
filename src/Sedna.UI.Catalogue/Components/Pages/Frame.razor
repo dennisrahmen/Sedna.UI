@@ -2,10 +2,10 @@
 
 <CatHead Title="Shell" Tier="@CatHead.Tier1">
     The page shells: the full three-part layout, the two reduced ones, and the rhythm inside them.
-    This looks identical in every app and is never restyled per project.
+    Each part stands on its own, so an app combines the ones it needs; these are combinations to start from.
 </CatHead>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-information-line"></i>
     <div class="callout-body">
         <span class="callout-title">The frame is markup, not components</span>
@@ -75,8 +75,12 @@
     <p>
         Add <code>.layout--responsive</code> to <code>.layout</code> and the sidebar becomes the
         rail below 900px, where it is forced — so hide a collapse toggle at that width or accept
-        the no-op. A topbar outside a <code>.layout</code> opts in with
-        <code>.topbar--responsive</code> on the <code>.topbar</code> instead.
+        the no-op. <code>.layout--compact-at-sm</code> moves that width to 560px and
+        <code>.layout--compact-at-lg</code> to 1200px. A topbar outside a <code>.layout</code> opts in with
+        <code>.topbar--responsive</code> on the <code>.topbar</code> instead. Put
+        <code>.sidebar-wide</code> on your own content in the sidebar that has no place in the
+        rail — it goes whenever the labels do, toggled or forced — and <code>.topbar-wide</code> on
+        your own header content that can go below 560px.
     </p>
 </CatSnippet>
 
@@ -89,7 +93,21 @@
         shell grows with its content, the topbar sticks under the notch, a sidebar sticks to the
         top of its column and a bottom bar to the bottom of the viewport &mdash; and changes
         nothing above it. This site uses it. Keep the box for a page that must never move under
-        its header, a full-bleed map or an editor.
+        its header, a full-bleed map or an editor. Safari on iOS 26 can leave its viewport offset
+        after the page has scrolled to its end or the keyboard has closed, which draws the bottom
+        bar and the header in the middle of the page; <code>Sedna.UI.js</code> notices and nudges
+        it back, once, and only then.
+    </p>
+</CatSnippet>
+
+<CatSnippet Name="Frame/Kiosk.html" Title="A wall screen">
+    <p>
+        <code>.kiosk</code> is a screen nobody operates: the whole viewport, never scrolled, no
+        cursor, and the same canvas about 1280px wide scaled up to every screen — 1.5 at 1080p, 2 at
+        1440p, 3 at 4K — so a page designed once reads the same on each; <code>--kiosk-zoom</code>
+        sets a factor of your own. No scrollbar is drawn inside it, because what moves is moved by
+        the app. <code>.kiosk-strip</code>, <code>.kiosk-stage</code> and <code>.kiosk-side</code>
+        keep their areas when one is empty; <code>--kiosk-side</code> is the side column's width.
     </p>
 </CatSnippet>
 

@@ -72,7 +72,7 @@ public class GraphTests : GraphTestBase
         Assert.DoesNotContain(Requests, r => r.Url.Contains("Sedna.UI.graph.js", StringComparison.Ordinal));
 
         // Within a screen of the viewport is near enough: it is drawn by the time it is seen.
-        await page.EvaluateAsync("() => window.scrollTo(0, document.getElementById('g').offsetTop - 1.5 * innerHeight)");
+        await Js.Run(page, "() => window.scrollTo(0, document.getElementById('g').offsetTop - 1.5 * innerHeight)");
         await State(page, "g", "ready");
         Assert.Contains(Requests, r => r.Url.EndsWith("/js/Sedna.UI.graph.js", StringComparison.Ordinal));
         Assert.Contains(Requests, r => r.Url.EndsWith("/lib/cytoscape/cytoscape.js", StringComparison.Ordinal));
@@ -144,7 +144,7 @@ public class GraphTests : GraphTestBase
         Assert.Equal(2, ready.Detail.GetProperty("nodes").GetInt32());
 
         // Only the first set is a first drawing.
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.set({ nodes: [{ id: 'api' }], edges: [] }))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.set({ nodes: [{ id: 'api' }], edges: [] }))");
         Assert.Single(await Log(page, "sedna-graph-ready"));
         AssertQuiet();
     }
@@ -156,7 +156,7 @@ public class GraphTests : GraphTestBase
         var page = await OpenGraph(Graph(inside: "", attrs: "data-graph-eager data-graph-deferred"));
         await Ready(page);
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.set({ nodes: [], edges: [] }))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.set({ nodes: [], edges: [] }))");
 
         Assert.Equal("empty", await StateOf(page));
         await Assertions.Expect(page.Locator("#g .graph-empty:not(.graph-empty--filtered, .graph-empty--error)")).ToBeVisibleAsync();
@@ -200,8 +200,13 @@ public class GraphTests : GraphTestBase
         var request = Requests.Single(r => r.Url.EndsWith("/api/graph", StringComparison.Ordinal));
         var headers = await request.AllHeadersAsync();
         Assert.Contains("application/json", headers["accept"], StringComparison.Ordinal);
-        Assert.True(headers.TryGetValue("cookie", out var cookie), "The request carried no cookie.");
-        Assert.Contains("session=alex-fischer", cookie, StringComparison.Ordinal);
+        // Where the routed headers cannot show it (see BrowserEngine), the script's own
+        // fetch is what this rests on: it asks with the page's credentials.
+        if (BrowserEngine.ShowsRoutedCookies)
+        {
+            Assert.True(headers.TryGetValue("cookie", out var cookie), "The request carried no cookie.");
+            Assert.Contains("session=alex-fischer", cookie, StringComparison.Ordinal);
+        }
         AssertQuiet();
     }
 
@@ -649,7 +654,7 @@ public class GraphTests : GraphTestBase
 
         // The WebGL half needs a browser that has WebGL 2 at all.
         if (!await Eval<bool>(page, "() => !!document.createElement('canvas').getContext('webgl2')")) return;
-        await page.EvaluateAsync("html => { document.getElementById('later').innerHTML = html; }",
+        await Js.Run(page, "html => { document.getElementById('later').innerHTML = html; }",
             Graph(id: "gpu", attrs: "data-graph-eager data-graph-renderer=\"webgl\""));
         await Ready(page, "gpu");
         Assert.True(await page.EvaluateAsync<int>(WebglLayers, "gpu") > 0);
@@ -682,7 +687,7 @@ public class GraphTests : GraphTestBase
         await ClearLog(page);
 
         // What a Blazor render does when a record arrives: two new items in the list.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 const list = document.querySelector('#g [data-graph-data]');
                 list.insertAdjacentHTML('beforeend',
@@ -718,7 +723,7 @@ public class GraphTests : GraphTestBase
         var before = await Positions(page);
         await ClearLog(page);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 document.querySelector('#g [data-node="runner"]').remove();
                 document.querySelector('#g [data-edge][data-source="runner"]').remove();
@@ -742,7 +747,7 @@ public class GraphTests : GraphTestBase
         var before = await Positions(page);
         await ClearLog(page);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 const li = document.querySelector('#g [data-node="db"]');
                 li.textContent = 'Orders replica';
@@ -774,7 +779,7 @@ public class GraphTests : GraphTestBase
         await Ready(page);
         await ClearLog(page);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => document.querySelector('#g [data-graph-data]').insertAdjacentHTML('beforeend',
                 '<li data-node="gpu" data-parent="team">gpu-runner-02</li>')
             """);
@@ -794,7 +799,7 @@ public class GraphTests : GraphTestBase
         if (NoBrowser) return;
         var page = await OpenGraph(Graph(inside: "", attrs: "data-graph-eager data-graph-deferred"));
         await Ready(page);
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.graph.get('g').then(g => g.set({
                 nodes: [{ id: 'api', label: 'Orders API' }, { id: 'db', label: 'Orders database' },
                         { id: 'web', label: 'Web shop' }, { id: 'runner', label: 'Build runner' }],
@@ -802,7 +807,7 @@ public class GraphTests : GraphTestBase
             }))
             """);
         var before = await Positions(page);
-        await page.EvaluateAsync("() => { window.keptApi = cyOf('g').getElementById('api'); }");
+        await Js.Run(page, "() => { window.keptApi = cyOf('g').getElementById('api'); }");
 
         var stats = await page.EvaluateAsync<JsonElement>("""
             () => sednaUi.graph.get('g').then(g => g.set({
@@ -832,14 +837,14 @@ public class GraphTests : GraphTestBase
         // and the link that now points somewhere else — under the id it always had.
         var page = await OpenGraph(Graph(inside: "", attrs: "data-graph-eager data-graph-deferred"));
         await Ready(page);
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.graph.get('g').then(g => g.set({
                 nodes: [{ id: 'runner', label: 'build-runner-04' }, { id: 'db', label: 'src-db-14' }, { id: 'console', label: 'orders-console-01' }],
                 edges: [{ id: 'deploys', source: 'runner', target: 'db', label: 'deploys' }]
             }))
             """);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.graph.get('g').then(g => g.set({
                 nodes: [{ id: 'platform', label: 'Platform team' }, { id: 'runner', label: 'build-runner-04', parent: 'platform' },
                         { id: 'db', label: 'src-db-14' }, { id: 'console', label: 'orders-console-01' }],
@@ -908,7 +913,7 @@ public class GraphTests : GraphTestBase
         await Ready(page);
         const string db = "() => [flat(cyOf('g').getElementById('db').style('background-color')), cyOf('g').getElementById('db').numericStyle('border-width'), paintOf('var(--viz-5)'), paintOf('var(--viz-4)')]";
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.graph.get('g').then(g => g.style([
                 { selector: 'node[kind = "store"]', style: { 'background-color': 'var(--viz-5)', 'border-width': 5 } }]))
             """);
@@ -917,7 +922,7 @@ public class GraphTests : GraphTestBase
         Assert.Equal(5, dark[1].GetDouble());
 
         // A theme change repaints everything, and keeps the app's rule — in the new theme's colour.
-        await page.EvaluateAsync("() => sednaUi.settings.save('variant', 'light')");
+        await Js.Run(page, "() => sednaUi.settings.save('variant', 'light')");
         await page.WaitForFunctionAsync("c => flat(cyOf('g').getElementById('db').style('background-color')) !== c", dark[0].GetString());
         var light = await Eval<JsonElement>(page, db);
         Assert.NotEqual(dark[2].GetString(), light[2].GetString());
@@ -925,7 +930,7 @@ public class GraphTests : GraphTestBase
         Assert.Equal(5, light[1].GetDouble());
 
         // A second call replaces the first.
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.style([]))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.style([]))");
         var plain = await Eval<JsonElement>(page, db);
         Assert.Equal(plain[3].GetString(), plain[0].GetString());
         AssertQuiet();
@@ -944,12 +949,12 @@ public class GraphTests : GraphTestBase
         Assert.Contains(Warnings, w => w.Contains("\"hairball\" is not a layout; using force", StringComparison.Ordinal));
 
         var before = await Positions(page);
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.layout('nonsense'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.layout('nonsense'))");
         Assert.Contains(Warnings, w => w.Contains("\"nonsense\" is not a layout", StringComparison.Ordinal));
         var still = await Positions(page);
         foreach (var (id, at) in before) Assert.Equal(at, still[id]);
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.layout('circle'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.layout('circle'))");
         Assert.NotEqual(before["api"], (await Positions(page))["api"]);
         AssertQuiet("is not a layout");
     }
@@ -983,7 +988,7 @@ public class GraphTests : GraphTestBase
 
         // Waits on tone 4, not tone 2: a series may keep its colour across variants — tone 2 is
         // cyan-600 in both — so only a tone the light block moves can show the repaint.
-        await page.EvaluateAsync("() => sednaUi.settings.save('variant', 'light')");
+        await Js.Run(page, "() => sednaUi.settings.save('variant', 'light')");
         await page.WaitForFunctionAsync(
             "c => flat(cyOf('g').getElementById('db').style('background-color')) !== c", dark[2]);
 
@@ -997,7 +1002,8 @@ public class GraphTests : GraphTestBase
     [Fact]
     public async Task Forced_colours_paint_the_canvas_in_the_readers_system_colours()
     {
-        if (NoBrowser) return;
+        // Forced colours exist in Chromium only (see BrowserEngine).
+        if (NoBrowser || !BrowserEngine.EmulatesForcedColors) return;
         // Windows high contrast replaces every colour on the page with the reader's
         // palette. A canvas is out of the browser's reach, so the graph has to follow.
         var page = await OpenGraph(Graph(), forcedColors: ForcedColors.Active);
@@ -1022,7 +1028,8 @@ public class GraphTests : GraphTestBase
     [Fact]
     public async Task Turning_forced_colours_on_repaints_a_graph_already_drawn()
     {
-        if (NoBrowser) return;
+        // Forced colours exist in Chromium only (see BrowserEngine).
+        if (NoBrowser || !BrowserEngine.EmulatesForcedColors) return;
         var page = await OpenGraph(Graph());
         await Ready(page);
         var before = await Eval<string>(page, "() => flat(cyOf('g').getElementById('api').style('background-color'))");
@@ -1045,12 +1052,12 @@ public class GraphTests : GraphTestBase
         // would keep its observers, its timers and its canvas for as long as the tab.
         var page = await OpenGraph(Graph());
         await Ready(page);
-        await page.EvaluateAsync("() => { window.keptCy = cyOf('g'); window.keptEl = document.getElementById('g'); keptEl.remove(); }");
+        await Js.Run(page, "() => { window.keptCy = cyOf('g'); window.keptEl = document.getElementById('g'); keptEl.remove(); }");
 
         await page.WaitForFunctionAsync("() => keptCy.destroyed()");
         Assert.False(await Eval<bool>(page, "() => keptEl.hasAttribute('data-graph-state')"));
         // Nothing left behind to be painted or listened to.
-        await page.EvaluateAsync("() => { sednaUi.settings.save('variant', 'light'); window.dispatchEvent(new Event('resize')); }");
+        await Js.Run(page, "() => { sednaUi.settings.save('variant', 'light'); window.dispatchEvent(new Event('resize')); }");
         await page.WaitForTimeoutAsync(100);
         AssertQuiet();
     }
@@ -1063,7 +1070,7 @@ public class GraphTests : GraphTestBase
         var page = await OpenGraph(Graph() + """<div id="elsewhere"></div>""");
         await Ready(page);
 
-        await page.EvaluateAsync("() => { window.keptCy = cyOf('g'); document.getElementById('elsewhere').appendChild(document.getElementById('g')); }");
+        await Js.Run(page, "() => { window.keptCy = cyOf('g'); document.getElementById('elsewhere').appendChild(document.getElementById('g')); }");
         await page.WaitForTimeoutAsync(100);
 
         Assert.False(await Eval<bool>(page, "() => keptCy.destroyed()"));
@@ -1079,11 +1086,11 @@ public class GraphTests : GraphTestBase
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         // Blazor's move: out of one place and into another, in one task.
-        await page.EvaluateAsync("() => document.getElementById('second').appendChild(document.getElementById('g'))");
+        await Js.Run(page, "() => document.getElementById('second').appendChild(document.getElementById('g'))");
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         Assert.Null(await StateOf(page));
 
-        await page.EvaluateAsync("() => window.scrollTo(0, document.getElementById('g').offsetTop - 1.5 * innerHeight)");
+        await Js.Run(page, "() => window.scrollTo(0, document.getElementById('g').offsetTop - 1.5 * innerHeight)");
         await State(page, "g", "ready");
         AssertQuiet();
     }
@@ -1095,13 +1102,13 @@ public class GraphTests : GraphTestBase
         var page = await OpenGraph("""<div id="top"></div>""" + FarBelow + Graph(attrs: ""));
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        await page.EvaluateAsync("() => { window.kept = document.getElementById('g'); kept.remove(); }");
+        await Js.Run(page, "() => { window.kept = document.getElementById('g'); kept.remove(); }");
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         Assert.DoesNotContain(Requests, r => r.Url.Contains("Sedna.UI.graph.js", StringComparison.Ordinal));
         Assert.Null(await Eval<string?>(page, "() => kept.getAttribute('data-graph-state')"));
 
         // Rendered again, this time at the top of the page.
-        await page.EvaluateAsync("() => document.getElementById('top').appendChild(kept)");
+        await Js.Run(page, "() => document.getElementById('top').appendChild(kept)");
         await State(page, "g", "ready");
         AssertQuiet();
     }

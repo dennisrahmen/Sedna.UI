@@ -8,8 +8,8 @@ namespace Sedna.UI.Catalogue.Tests;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A fully-nulled <c>class-history.json</c> is internally self-consistent, so
-/// <c>build/class-history.sh --check</c> cannot detect one. The generator reads the stylesheet out
+/// A fully-nulled <c>class-history.json</c> is internally self-consistent, so nothing
+/// downstream of <c>build/class-history.sh</c> can detect one. The generator reads the stylesheet out
 /// of each git tag, and it once did so at the <em>working tree's</em> path — which stops resolving
 /// the moment the file is renamed, silently attributing nothing at all. That shipped once and
 /// nothing was red.
@@ -24,7 +24,7 @@ namespace Sedna.UI.Catalogue.Tests;
 public class CatalogueDataTests
 {
     private static JsonDocument History() => JsonDocument.Parse(File.ReadAllText(
-        Path.Combine(CatalogueAssets.AppDir, "Data", "class-history.json")));
+        Path.Combine(Sedna.UI.Tests.TestSupport.Assets.ProjectDir, "Contract", "class-history.json")));
 
     [Theory]
     [InlineData("classes")]

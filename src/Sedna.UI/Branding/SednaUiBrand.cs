@@ -15,10 +15,11 @@ public static class SednaUiBrand
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <b>Palette tokens only.</b> The semantic tier (<c>--brand</c>, <c>--bg</c>, and the rest
-    /// of the ~160 roles) already ships in the stylesheet and already points at the palette, so
-    /// a theme that changes only its anchors needs no semantic block at all — this method never
-    /// emits one. The two absolutes, <c>--white</c> and <c>--black</c>, are emitted once, in the
+    /// <b>Palette tokens, and the roles a theme sets itself.</b> The semantic tier
+    /// (<c>--brand</c>, <c>--bg</c> and the rest) already ships in the stylesheet and already
+    /// points at the palette, so a theme that changes only its anchors needs no semantic block.
+    /// A theme with <see cref="SednaTheme.DarkRoles"/> or <see cref="SednaTheme.LightRoles"/>
+    /// gets one block per variant for those roles alone. The two absolutes, <c>--white</c> and <c>--black</c>, are emitted once, in the
     /// <c>:root</c> block, because they do not vary by theme.
     /// </para>
     /// <para>
@@ -64,7 +65,28 @@ public static class SednaUiBrand
             css.Append('}');
         }
 
+        // A theme's own roles per variant, after its palette. Not in high contrast, whose
+        // roles are the library's measured ones. The default theme's also apply before a
+        // data-theme is set.
+        foreach (var theme in themes)
+        {
+            var self = theme.Name == options.Default
+                ? ":root:is([data-theme=\"" + theme.Name + "\"],:not([data-theme]))"
+                : ":root[data-theme=\"" + theme.Name + "\"]";
+            AppendRoles(css, self + ":not([data-variant=\"light\"],[data-contrast=\"more\"])", theme.DarkRoles);
+            AppendRoles(css, self + "[data-variant=\"light\"]:not([data-contrast=\"more\"])", theme.LightRoles);
+        }
+
         return css.ToString();
+    }
+
+    private static void AppendRoles(StringBuilder css, string selector, IReadOnlyDictionary<string, string> roles)
+    {
+        if (roles.Count == 0) return;
+        css.Append(selector).Append('{');
+        foreach (var (name, value) in roles.OrderBy(r => r.Key, StringComparer.Ordinal))
+            css.Append(name).Append(':').Append(value).Append(';');
+        css.Append('}');
     }
 
     private static void AppendAbsolutes(StringBuilder css)

@@ -31,12 +31,62 @@ public sealed class SednaTheme
     /// <summary>The ramps this theme supplies. Used by both variants.</summary>
     public SednaPalette Palette { get; }
 
+    /// <summary>
+    /// Semantic roles this theme sets in its dark variant, by token name — for a brand whose
+    /// surfaces a ramp cannot express: <c>["--card-bg"] = "var(--navy-950)"</c>.
+    /// </summary>
+    /// <remarks>
+    /// A value is a ramp step, <c>var(--&lt;ramp&gt;-&lt;step&gt;)</c>, or a hex colour. They are
+    /// written after the stylesheet's own blocks and outrank them, except in high contrast
+    /// (<c>data-contrast="more"</c>), whose roles stay the library's. A role moved here still has
+    /// to clear the contrast its text or edge needs; the library measures only its own.
+    /// </remarks>
+    /// <exception cref="ArgumentException">A name is not a custom property, or a value is neither form.</exception>
+    public IReadOnlyDictionary<string, string> DarkRoles
+    {
+        get => _darkRoles;
+        init => _darkRoles = Validated(value, nameof(DarkRoles));
+    }
+
+    /// <summary>The same for the light variant.</summary>
+    /// <exception cref="ArgumentException">A name is not a custom property, or a value is neither form.</exception>
+    public IReadOnlyDictionary<string, string> LightRoles
+    {
+        get => _lightRoles;
+        init => _lightRoles = Validated(value, nameof(LightRoles));
+    }
+
+    private readonly IReadOnlyDictionary<string, string> _darkRoles = new Dictionary<string, string>();
+    private readonly IReadOnlyDictionary<string, string> _lightRoles = new Dictionary<string, string>();
+
+    // Written into a <style> element, so a name and a value are held to the two shapes a role
+    // can take and nothing that could end the declaration, the rule or the element.
+    private static IReadOnlyDictionary<string, string> Validated(IReadOnlyDictionary<string, string>? roles, string parameter)
+    {
+        ArgumentNullException.ThrowIfNull(roles, parameter);
+        foreach (var (name, value) in roles)
+        {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(name, "^--[a-z][a-z0-9-]*$"))
+                throw new ArgumentException($"\"{name}\" is not a token name such as --card-bg.", parameter);
+            if (!System.Text.RegularExpressions.Regex.IsMatch(value, "^(#[0-9A-Fa-f]{3,8}|var\\(--[a-z][a-z0-9-]*\\))$"))
+                throw new ArgumentException(
+                    $"{name}: \"{value}\" is neither a hex colour nor a ramp step such as var(--navy-950).", parameter);
+        }
+        return new Dictionary<string, string>(roles, StringComparer.Ordinal);
+    }
+
     /// <summary>Builds a theme.</summary>
     /// <param name="name">The theme name, matched against <c>data-theme</c>.</param>
     /// <param name="palette">The ramps, used by both variants.</param>
     public SednaTheme(string name, SednaPalette palette)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        // Written into a selector inside a <style> block ([data-theme="…"]), so only what a
+        // theme name needs: letters, digits, '-' and '_'. Anything else could end the
+        // attribute selector, the rule or the style element.
+        if (!System.Text.RegularExpressions.Regex.IsMatch(name, "^[A-Za-z0-9_-]+$"))
+            throw new ArgumentException(
+                $"A theme name may hold only letters, digits, '-' and '_'; \"{name}\" does not.", nameof(name));
         Name = name;
         Palette = palette ?? throw new ArgumentNullException(nameof(palette));
     }
@@ -277,7 +327,7 @@ public sealed class SednaTheme
     /// <summary>
     /// The white-text contrast floor a generated theme's brand step (<c>coral-600</c>, what
     /// <c>--brand</c> resolves to) is solved for — WCAG AA's 4.5:1 floor for
-    /// <c>--on-solid</c> on <c>.btn-primary</c>, plus a margin.
+    /// <c>--on-solid</c> on <c>.btn--brand.btn--solid</c>, plus a margin.
     /// </summary>
     /// <remarks>
     /// 4.5 is a cliff, not a plateau, and Sedna's own hand-solved <c>coral-600</c> sits at 4.55

@@ -53,7 +53,7 @@ public class StatRowDividerTests : ScriptTestBase
                          top: b.top - parseFloat(s.marginTop), rule: b.left + parseFloat(before.left) };
               });
               return { left: r.left, right: r.right,
-                       clipMargin: parseFloat(getComputedStyle(row).overflowClipMargin) || 0, tiles };
+                       clipMargin: (m => m ? -parseFloat(m[1]) : 0)(/inset\((-?[\d.]+)px/.exec(getComputedStyle(row).clipPath)), tiles };
             }
             """);
 

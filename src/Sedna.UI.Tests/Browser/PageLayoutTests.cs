@@ -31,7 +31,7 @@ public class PageLayoutTests : ScriptTestBase
         await page.ClickAsync("button");
         // Measured at rest: a modal opens with a short slide, so a rect read on the click
         // is the animation's, not the modal's.
-        await page.EvaluateAsync(
+        await Js.Run(page, 
             "() => Promise.allSettled(document.getAnimations().map(a => a.finished))");
         // [top gutter, bottom gutter, left gutter, right gutter]
         var gutters = await page.EvaluateAsync<double[]>(
@@ -82,7 +82,7 @@ public class PageLayoutTests : ScriptTestBase
                  gap. A secret nobody has read for ninety days is flagged in the list.</p>
             </div>
             <div class="page-head-actions" id="actions">
-              <button class="btn btn-primary" type="button">New secret</button>
+              <button class="btn btn--brand btn--solid" type="button">New secret</button>
             </div>
           </div>
         </main>

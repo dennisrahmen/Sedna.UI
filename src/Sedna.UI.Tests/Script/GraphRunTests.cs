@@ -182,7 +182,7 @@ public class GraphRunTests : GraphTestBase
         Assert.Equal(await Eval<string>(page, "() => paintOf('var(--agent-to)')"), dark);
 
         // The light variant moves the agent colour a step darker; the ring and the flowing link go with it.
-        await page.EvaluateAsync("() => sednaUi.settings.save('variant', 'light')");
+        await Js.Run(page, "() => sednaUi.settings.save('variant', 'light')");
         await page.WaitForFunctionAsync("c => flat(cyOf('g').getElementById('parse').style('outline-color')) !== c", dark);
 
         var light = await Eval<string[]>(page, """
@@ -198,7 +198,8 @@ public class GraphRunTests : GraphTestBase
     [Fact]
     public async Task Forced_colours_draw_a_run_in_the_readers_system_colours()
     {
-        if (NoBrowser) return;
+        // Forced colours exist in Chromium only (see BrowserEngine).
+        if (NoBrowser || !BrowserEngine.EmulatesForcedColors) return;
         var page = await OpenGraph(Graph(inside: Run, attrs: Flow), forcedColors: ForcedColors.Active);
         await Ready(page);
 
@@ -234,7 +235,7 @@ public class GraphRunTests : GraphTestBase
         """;
 
     private static Task SetStates(IPage page, object states) =>
-        page.EvaluateAsync($"states => sednaUi.graph.get('g').then(g => g.set(({Steps})(states)))", states);
+        Js.Run(page, $"states => sednaUi.graph.get('g').then(g => g.set(({Steps})(states)))", states);
 
     [Fact]
     public async Task New_states_restyle_only_the_records_and_links_they_change_and_lay_nothing_out_again()
@@ -249,7 +250,7 @@ public class GraphRunTests : GraphTestBase
         var before = await Positions(page);
         // The first drawing's frames restyle what it marked; counting starts after them.
         await page.WaitForTimeoutAsync(400);
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 window.restyledIds = new Set();
                 window.dataIds = new Set();
@@ -290,7 +291,7 @@ public class GraphRunTests : GraphTestBase
         await Ready(page);
         var before = await Positions(page);
 
-        await page.EvaluateAsync("() => document.querySelector('[data-node=\"lookup\"]').setAttribute('data-state', 'running')");
+        await Js.Run(page, "() => document.querySelector('[data-node=\"lookup\"]').setAttribute('data-state', 'running')");
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('parse→lookup').data('run') === 'running'");
 
         Assert.Equal("running", await Eval<string>(page, "() => cyOf('g').getElementById('lookup').data('state')"));
@@ -320,7 +321,7 @@ public class GraphRunTests : GraphTestBase
     private static async Task CountRestyles(IPage page)
     {
         await page.WaitForTimeoutAsync(400);
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 window.restyledIds = new Set();
                 window.restyled = 0;
@@ -337,6 +338,11 @@ public class GraphRunTests : GraphTestBase
         var page = await OpenGraph(Graph(inside: Moving, attrs: Flow));
         await Ready(page);
         await CountRestyles(page);
+        // The first half second may still carry the drawing settling in, which on a
+        // loaded machine can land after Ready. What has to be true is that nothing keeps
+        // restyling, so only the second half second is counted.
+        await page.WaitForTimeoutAsync(500);
+        await Js.Run(page, "() => restyledIds.clear()");
         await page.WaitForTimeoutAsync(500);
 
         Assert.Equal("", await Eval<string>(page, "() => [...restyledIds].sort().join(' ')"));
@@ -380,7 +386,7 @@ public class GraphRunTests : GraphTestBase
         Assert.Equal("", string.Join(" ", restyled.Intersect(["parse", "summarise", "merge", "parse→summarise", "summarise→merge"])));
 
         // A tab nobody is looking at gets nothing.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
                 document.dispatchEvent(new Event('visibilitychange'));
@@ -391,7 +397,7 @@ public class GraphRunTests : GraphTestBase
         Assert.Equal(0, await Eval<int>(page, "() => restyled"));
 
         // Seen again, it moves again.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' });
                 document.dispatchEvent(new Event('visibilitychange'));
@@ -420,7 +426,7 @@ public class GraphRunTests : GraphTestBase
         await Ready(page);
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('classify').data('breath') !== undefined");
 
-        await page.EvaluateAsync("() => document.querySelector('[data-node=\"classify\"]').setAttribute('data-state', 'done')");
+        await Js.Run(page, "() => document.querySelector('[data-node=\"classify\"]').setAttribute('data-state', 'done')");
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('parse→classify').data('run') === 'done'");
         await CountRestyles(page);
         await page.WaitForTimeoutAsync(400);
@@ -440,8 +446,8 @@ public class GraphRunTests : GraphTestBase
         var page = await OpenGraph(Graph(inside: Run, attrs: Flow));
         await Ready(page);
 
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.select('reply'))");
-        await page.EvaluateAsync("() => sednaUi.graph.get('g').then(g => g.select('notify'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select('reply'))");
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select('notify'))");
         await Heard(page, "sedna-graph-select", 2);
 
         var selected = await Log(page, "sedna-graph-select");

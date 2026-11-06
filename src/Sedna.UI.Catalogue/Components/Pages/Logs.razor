@@ -16,7 +16,8 @@
         button. <strong>Pausing is the app's</strong>: render the pane without
         <code>data-follow</code> and it stops following, render it with the attribute again and it
         jumps to the newest line. The pane also fires a bubbling <code>sedna-follow</code> event
-        with <code>detail.following</code>, for an app that counts the lines not yet seen.
+        with <code>detail.following</code> — <code>@@onsedna-follow</code> with a
+        <code>SednaFollowEventArgs</code> in Blazor — for an app that counts the lines not yet seen.
     </p>
 </CatExample>
 
@@ -57,7 +58,7 @@
     <p>
         <code>.output-actions</code> is a strip at the end of the line that shows on hover and on
         focus, and stays while its <a href="/menu"><code>.menu</code></a> is open. The buttons are
-        <code>.btn-ghost .btn-icon .btn-sm</code>, the copy button is <code>data-copy</code>, and
+        <code>.btn--ghost .btn--icon .btn--sm</code>, the copy button is <code>data-copy</code>, and
         the menu is the usual <code>.menu-anchor</code> with <code>data-menu-toggle</code>. Put the
         strip <strong>after</strong> the <code>&lt;details&gt;</code>, never inside its
         <code>&lt;summary&gt;</code>. On a touch screen the strip is always shown and the line keeps

@@ -20,7 +20,7 @@
 .form-input[aria-invalid="true"]:focus,
 .form-select[aria-invalid="true"]:focus {
     border-color: var(--danger-solid);
-    box-shadow: 0 0 0 2px var(--danger-ring);
+    box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* The message itself. Put it after the control and point at it with
@@ -138,7 +138,7 @@
 .input-group .btn:hover { background: var(--bg-hover); }
 .input-group .btn:not(:first-child) { border-inline-start: 1px solid var(--border); }
 .input-group .btn:not(:last-child)  { border-inline-end:   1px solid var(--border); }
-.input-group .btn:focus-visible { box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.input-group .btn:focus-visible { box-shadow: inset 0 0 0 2px var(--focus-ring); }
 
 /* ── Clear button ───────────────────────────────────────────────────────────
    A button that empties the field beside it, drawn inside the group rather than as
@@ -175,7 +175,7 @@
     cursor: pointer;
 }
 .input-clear:hover { background: var(--bg-hover); color: var(--fg); }
-.input-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.input-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .input-group:has(> .form-input:placeholder-shown) > .input-clear { display: none; }
 .input-group:has(> .input-clear) > .form-input::-webkit-search-cancel-button { display: none; }
 
@@ -186,7 +186,7 @@
    the focus ring and the three size tiers, so it lines up with the text fields
    beside it at every size:
 
-     <button class="form-input form-input-sm form-trigger" type="button" popovertarget="region-filter">
+     <button class="form-input form-input--sm form-trigger" type="button" popovertarget="region-filter">
        <i class="ri-map-pin-line"></i><span>2 selected</span>
      </button>
 
@@ -329,6 +329,7 @@
    `align-items` on the grid: the fields have to stretch, or a label above one list
    pushes that list out of line with the other. */
 .transfer {
+    container: sedna-transfer / inline-size;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     gap: var(--space-6);
@@ -343,8 +344,11 @@
 /* Under the two-list width the buttons go between the lists as a row, and the
    arrows then point the wrong way — which is why the markup uses up/down glyphs at
    this width and not rotated chevrons: a rotation is a lie about what the button
-   does. */
-@media (max-width: 640px) {
-    .transfer { grid-template-columns: 1fr; }
+   does. Measured on the transfer's own width, so one in a drawer stacks where the same
+   one on a page does not. */
+@container sedna-transfer (width < 640px) {
+    /* Each part across the transfer's own three tracks: the container cannot restyle its
+       own columns from inside its query, so its children span them instead. */
+    .transfer > * { grid-column: 1 / span 3; }
     .transfer-actions { flex-direction: row; justify-content: center; }
 }

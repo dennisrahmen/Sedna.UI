@@ -18,25 +18,25 @@ public class ListLayoutTests : ScriptTestBase
         <div style="width:360px">
           <ul class="list">
             <li><span class="list-row" id="flush-row">
-              <span class="avatar avatar-sm" id="flush-avatar">AF</span>
+              <span class="avatar avatar--sm" id="flush-avatar">AF</span>
               <span class="list-main"><span class="list-title" id="short">Short</span><span class="list-sub">Sub</span></span>
             </span></li>
             <li><span class="list-row"><span class="list-main">
               <span class="list-title" id="long-default">{Long}</span>
             </span></span></li>
             <li style="--list-lines: 2"><span class="list-row">
-              <span class="avatar avatar-sm" id="two-avatar">AF</span>
+              <span class="avatar avatar--sm" id="two-avatar">AF</span>
               <span class="list-main" id="two-main"><span class="list-title" id="long-two">{Long}</span></span>
             </span></li>
             <li style="--list-lines: none"><span class="list-row"><span class="list-main">
               <span class="list-title" id="long-none">{Long}</span>
             </span></span></li>
             <li><span class="list-row" id="own-row">
-              <span class="avatar avatar-sm" id="own-avatar">AF</span>
+              <span class="avatar avatar--sm" id="own-avatar">AF</span>
               <span class="list-main"><span class="list-title" id="long-own" style="--list-lines: 2">{Long}</span></span>
             </span></li>
             <li><span class="list-row">
-              <span class="avatar avatar-sm" id="meta-avatar">AF</span>
+              <span class="avatar avatar--sm" id="meta-avatar">AF</span>
               <span class="list-main" id="meta-main">
                 <span class="list-meta"><span>ORD-4211</span><span>12 min</span></span>
                 <span class="list-title">Short</span>

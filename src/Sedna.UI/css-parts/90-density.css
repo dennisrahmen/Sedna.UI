@@ -1,9 +1,14 @@
-/* ═══ Compact density ═══════════════════════════════════════════════════════
-   [data-density="compact"] on <html>. A pure token remap, like every other theme
-   block, so it composes with the themes and CSS load order stays irrelevant.
+/* ═══ Density ═══════════════════════════════════════════════════════════════
+   [data-density="compact"] or [data-density="touch"] on <html>. A pure token remap,
+   like every other theme block, so it composes with the themes and CSS load order
+   stays irrelevant. Density moves spacing and control heights and never the type:
+   text sizes are the reader's, set by the browser's zoom.
 
-   Three families tighten: table cells (--cell-pad-*), card parts (--card-pad-*) and
-   list rows (--list-pad-*, plus --list-gap between the cards of `.list--cards`).
+   What moves: table cells (--cell-pad-*), card parts (--card-pad-*), list rows
+   (--list-pad-*, plus --list-gap between the cards of `.list--cards`), the page's
+   rhythm and padding, and the three control heights every button, field, select,
+   segmented control and toolbar reads. Compact keeps the small tier at 24px, the
+   WCAG 2.5.8 floor; touch puts the default tier at 44px, the 2.5.5 target size.
    Anything else that should tighten with them reads the same tokens and gets it for
    free — an app's own card part written with `.card-body`, or its own component
    padded with var(--card-pad-inline).
@@ -21,4 +26,35 @@
     --list-pad-block: var(--space-3);
     --list-pad-inline: var(--space-5);
     --list-gap: var(--space-2);
+    --page-rhythm: var(--space-5);
+    --page-pad: var(--space-7);
+    --control-height-sm: 24px;
+    --control-height: 30px;
+    --control-height-lg: 38px;
+}
+
+:root[data-density="touch"] {
+    --cell-pad-y: var(--space-6);
+    --cell-pad-x: var(--space-7);
+    --card-pad-block: var(--space-8);
+    --card-pad-inline: var(--space-8);
+    --list-pad-block: var(--space-7);
+    --list-pad-inline: var(--space-7);
+    --list-gap: var(--space-6);
+    --page-rhythm: var(--space-8);
+    --control-height-sm: 36px;
+    --control-height: 44px;
+    --control-height-lg: 52px;
+}
+
+/* ═══ A coarse pointer ══════════════════════════════════════════════════════
+   On a touch screen a field set under 16px makes Safari on iOS and iPadOS zoom the
+   page when it takes focus, and the page stays zoomed. Every field a reader types
+   into is set at 16px there, whatever its size tier — the library's and an app's own,
+   since the rule names elements. This is the one rule in the file that is not a token
+   remap: the zoom is decided per element, so no token can reach an app's own field. */
+@media (pointer: coarse) {
+    :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"],
+                     [type="button"], [type="submit"], [type="reset"], [type="image"], [type="hidden"]),
+           select, textarea) { font-size: var(--text-field-touch); }
 }

@@ -106,6 +106,16 @@
         catch (e) { return false; }
     }
 
+    /* The CSS zoom in force where a box is placed. getBoundingClientRect() reports what is
+       drawn, zoom applied; `top` and `left` are written in the box's own unzoomed pixels, so
+       a spotlight inside a zoomed frame — a wall screen scaled up — was off by the factor.
+       Every measured distance is divided by this before it is written. */
+    function zoomOf(el) {
+        var parent = (el && el.offsetParent) || document.body;
+        var z = parent && parent.currentCSSZoom;
+        return typeof z === 'number' && z > 0 ? z : 1;
+    }
+
     function offsetParentRect(el) {
         // In the top layer the containing block is the viewport whatever the
         // ancestors say, and offsetParent reports null.
@@ -326,14 +336,26 @@
             for (var t = 0; !stage && t < targets.length; t++) stage = modalDialog(targets[t]);
             raise(hole, stage, false);
 
+            /* A target out of view is brought into it first — `scroll: 'nearest'` or
+               'center' — so a step below the fold does not dim the page around nothing. */
+            if (opts.scroll) {
+                var first = targets[0];
+                var b0 = first.getBoundingClientRect();
+                if (b0.bottom < 0 || b0.top > window.innerHeight || b0.right < 0 || b0.left > window.innerWidth
+                    || opts.scroll === 'center') {
+                    first.scrollIntoView({ block: opts.scroll === 'center' ? 'center' : 'nearest', inline: 'nearest' });
+                }
+            }
+
             var box = union(targets);
             var origin = offsetParentRect(hole);
+            var z = zoomOf(hole);
 
             var rect = {
-                top: box.top - origin.top - pad,
-                left: box.left - origin.left - pad,
-                width: box.width + pad * 2,
-                height: box.height + pad * 2
+                top: (box.top - origin.top) / z - pad,
+                left: (box.left - origin.left) / z - pad,
+                width: box.width / z + pad * 2,
+                height: box.height / z + pad * 2
             };
 
             hole.style.top = rect.top + 'px';
@@ -404,15 +426,20 @@
             tip.style.width = '';
             tip.style.left = '0px';
             tip.style.top = '0px';
+            /* Measured in drawn pixels and placed in the tip's own: under a CSS zoom the
+               two differ by the factor (zoomOf), so the measurements are brought into the
+               tip's pixels and the viewport with them. */
+            var z = zoomOf(tip);
             var probe = tip.getBoundingClientRect();
-            var dx = probe.left, dy = probe.top;
-            var w = probe.width;
+            var dx = probe.left / z, dy = probe.top / z;
+            var w = probe.width / z;
             tip.style.width = w + 'px';
-            var h = tip.getBoundingClientRect().height;
+            var h = tip.getBoundingClientRect().height / z;
 
             var edge = one(opts.boundary);
-            var vp = edge ? edge.getBoundingClientRect()
+            var vb = edge ? edge.getBoundingClientRect()
                           : { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
+            var vp = { left: vb.left / z, top: vb.top / z, right: vb.right / z, bottom: vb.bottom / z };
             var r = {
                 left: rect.left + dx,
                 top: rect.top + dy,
@@ -459,6 +486,8 @@
            plus:
 
              tip     the bubble to place beside the hole
+             scroll  'nearest' or 'center': bring the target into view when the step
+                     starts, once — after that the reader's scrolling is followed
              root    what to watch for DOM changes, `document.body`. A selector or an
                      element; narrowing it is the escape hatch on a very large page
              lock    true, or { interactive, allow, block }, to make the rest of the
@@ -483,14 +512,17 @@
             var opts = options || {};
             var lockOpts = opts.lock === true ? {} : (opts.lock || null);
             var root = one(opts.root) || document.body;
-            var raf = 0, stopped = false, observer = null;
+            var raf = 0, stopped = false, observer = null, scrolled = false;
 
             function place() {
                 if (stopped) return null;
                 // Resolved every time rather than captured: when these were given as
                 // selectors, a re-render has replaced the nodes they named.
                 var box = one(hole);
-                var rect = ui.spotlight.at(box, target, opts);
+                // The target is scrolled to once, when the step starts; after that the
+                // reader's own scrolling is followed, not fought.
+                var rect = ui.spotlight.at(box, target, scrolled ? Object.assign({}, opts, { scroll: null }) : opts);
+                scrolled = true;
                 if (!rect) {
                     if (box) box.style.display = 'none';
                     if (lockOpts) mark(null);

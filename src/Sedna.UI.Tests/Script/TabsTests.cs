@@ -72,12 +72,26 @@ public class TabsTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task In_a_right_to_left_page_the_left_arrow_goes_to_the_next_tab()
+    {
+        if (NoBrowser) return;
+        var page = await Open($"<div dir=\"rtl\">{TabsFixture}</div>");
+
+        await page.Locator("#t1").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowLeft");
+        Assert.Equal("t3", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+
+        await page.Keyboard.PressAsync("ArrowRight");
+        Assert.Equal("t1", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+    }
+
+    [Fact]
     public async Task Tabs_can_be_selected_programmatically_by_panel_id()
     {
         if (NoBrowser) return;
         var page = await Open(TabsFixture);
 
-        await page.EvaluateAsync("() => sednaUi.tabs.select('p3')");
+        await Js.Run(page, "() => sednaUi.tabs.select('p3')");
 
         Assert.Equal("true", await page.Locator("#t3").GetAttributeAsync("aria-selected"));
         Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('p3').hidden"));
@@ -101,7 +115,7 @@ public class TabsTests : ScriptTestBase
             <div role="tabpanel" id="m2" hidden>second</div>
             """);
 
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 window.clicked = [];
                 document.querySelectorAll('[role=tab]').forEach(t =>

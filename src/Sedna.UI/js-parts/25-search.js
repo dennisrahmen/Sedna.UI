@@ -189,7 +189,8 @@
         // An <a> when the result navigates, so the browser's own affordances come
         // with it — middle-click, "open in new tab", and a framework router that
         // intercepts internal links to navigate without a reload.
-        if (item.href) node.setAttribute('href', item.href);
+        var href = ui._.safeHref(item.href);
+        if (href) node.setAttribute('href', href);
         else node.removeAttribute('href');
 
         var tag = node.querySelector('.search-tag');

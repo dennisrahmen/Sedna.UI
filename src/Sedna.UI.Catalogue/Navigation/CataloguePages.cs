@@ -145,7 +145,7 @@ internal static class CataloguePages
             "form-error form-warning aria-invalid aria-describedby required label marker invalid message reject summary"),
         new("/form-text", Forms, "Text fields", "ri-input-field",
             "The text input in three sizes, its states, and the input group around it.",
-            "input text email search password url placeholder disabled readonly form-input-sm form-input-lg value-display input-group input-affix input-clear clear unit prefix affix width narrow form-trigger"),
+            "input text email search password url placeholder disabled readonly form-input--sm form-input--lg value-display input-group input-affix input-clear clear unit prefix affix width narrow form-trigger"),
         new("/form-textarea", Forms, "Text areas", "ri-text-block",
             "Multi-line input, and locking which way it can be dragged.",
             "textarea rows resize resize-none resize-both vertical lock multiline comment note maxlength counter"),

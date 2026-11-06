@@ -18,8 +18,8 @@
      <div class="editor-media" data-editor-media hidden>
        <input class="form-input" type="url" data-editor-media-url aria-label="Address" />
        <input class="form-input" type="text" data-editor-media-alt aria-label="Description" />
-       <button class="btn btn-sm" type="button" data-editor-media-save>Insert</button>
-       <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel>Cancel</button>
+       <button class="btn btn--sm" type="button" data-editor-media-save>Insert</button>
+       <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel>Cancel</button>
      </div>
 
    It says which it is for in `data-editor-media-kind` — image or video — and shows only
@@ -105,10 +105,36 @@ function dropUnsafe(kind) {
 }
 const MEDIA_MATCHERS = [['img', dropUnsafe('image')], ['video', dropUnsafe('video')]];
 
-/* A file pasted or dropped into the document is not inlined: uploading is the app's. A
-   paste that carries HTML as well — a picture copied from a page — is pasted as HTML, so
-   its address is kept rather than the file. */
-const NO_UPLOAD = { handler() { /* the app uploads; see the header */ } };
+/* A file pasted or dropped into the document is not inlined: uploading is the app's. The
+   editor says a file arrived — `sedna-editor-file`, with an id per file — and keeps the
+   File under that id, where the app reads it (handle.file(id); from C#,
+   ISednaEditors.OpenFileAsync) and answers with insertImage once it is uploaded. A paste
+   that carries HTML as well — a picture copied from a page — is pasted as HTML, so its
+   address is kept rather than the file. */
+const FILE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif', 'image/svg+xml',
+    'video/mp4', 'video/webm'];
+const FILES_KEPT = 20;
+let fileSeq = 0;
+
+function uploaderFor(e) {
+    return {
+        mimetypes: FILE_TYPES,
+        handler: (range, files) => {
+            const listed = Array.from(files).map(file => {
+                const id = 'file-' + (++fileSeq);
+                e.files.set(id, file);
+                return { id, name: file.name || '', type: file.type || '', size: file.size || 0 };
+            });
+            while (e.files.size > FILES_KEPT) e.files.delete(e.files.keys().next().value);
+            if (range) e.lastRange = range;
+            e.emit('sedna-editor-file', { files: listed, index: range ? range.index : null });
+        },
+    };
+}
+
+function fileOf(e, id) {
+    return e.files.get(id) ?? null;
+}
 
 function wirePaste(e) {
     const q = e.quill;

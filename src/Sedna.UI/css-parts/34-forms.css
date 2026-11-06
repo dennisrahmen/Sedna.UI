@@ -79,8 +79,8 @@ textarea.form-input::-webkit-resizer {
 
 /* The same three tiers as the button, so a field and the button beside it agree at
    every size. Padding stays under the tier so the tier is what sets the height. */
-.form-input-sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
-.form-input-lg { min-height: var(--control-height-lg); padding: var(--space-5) var(--space-7); font-size: var(--text-5); }
+.form-input--sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
+.form-input--lg { min-height: var(--control-height-lg); padding: var(--space-5) var(--space-7); font-size: var(--text-5); }
 
 /* A read-only value rendered in the shape of an input — so it takes the input's
    height too, or a form of mixed editable and read-only rows steps up and down. */
@@ -118,15 +118,15 @@ textarea.form-input::-webkit-resizer {
     flex-shrink: 0;
     cursor: pointer;
     background: var(--bg);
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-small);
     position: relative;
     transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 .form-check input[type="checkbox"]:hover { border-color: var(--border-hover); }
 .form-check input[type="checkbox"]:checked {
-    background: var(--brand);
-    border-color: var(--brand);
+    background: var(--control-on);
+    border-color: var(--control-on);
 }
 .form-check input[type="checkbox"]:checked::after {
     content: '';
@@ -140,7 +140,7 @@ textarea.form-input::-webkit-resizer {
 }
 .form-check input[type="checkbox"]:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--brand-ring-check);
+    box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* Disabled reads as disabled. It applies to the whole label, not just the box:
@@ -149,12 +149,12 @@ textarea.form-input::-webkit-resizer {
 
    The `:has()` is what lets one rule cover the checkbox and the radio without either
    knowing about the other. */
-.form-check:has(input:disabled) { color: var(--muted); cursor: not-allowed; }
+.form-check:has(input:disabled) { color: var(--disabled-fg); cursor: not-allowed; }
 .form-check input:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 .form-input:disabled,
 .form-select:disabled,
-.form-input[readonly] { cursor: not-allowed; background: var(--surface-soft); color: var(--muted); }
+.form-input[readonly] { cursor: not-allowed; background: var(--disabled-bg); border-color: var(--disabled-border); color: var(--disabled-fg); }
 /* readonly is not disabled: the value is still selectable and copyable, and still
    submitted, so it keeps the normal cursor and a full-contrast value. Only the
    surface says it cannot be edited. */

@@ -42,6 +42,6 @@ const step = sednaUi.spotlight.follow('#hole', '#key-name', {
     A key named for what uses it is a key somebody can revoke without asking around.
     <div class="spotlight-tip-actions">
         <span class="spotlight-step">3 of 5</span>
-        <button class="btn btn-sm btn-primary" type="button">Next</button>
+        <button class="btn btn--sm btn--brand btn--solid" type="button">Next</button>
     </div>
 </div>

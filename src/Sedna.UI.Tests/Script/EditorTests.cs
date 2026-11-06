@@ -17,20 +17,20 @@ public class EditorTests : ScriptTestBase
 {
     private const string Toolbar = """
         <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-action="undo" aria-label="Undo" id="undo"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold" id="bold"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="italic" aria-label="Italic" id="italic"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="header" value="2" aria-label="Heading" id="h2"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="List" id="ul"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="link" aria-label="Link" id="link"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-action="undo" aria-label="Undo" id="undo"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold" id="bold"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="italic" aria-label="Italic" id="italic"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="header" value="2" aria-label="Heading" id="h2"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="bullet" aria-label="List" id="ul"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="link" aria-label="Link" id="link"></button>
         </div>
         """;
 
     private const string LinkForm = """
         <div class="editor-link" data-editor-link hidden id="link-form">
           <input class="form-input" type="url" data-editor-link-url aria-label="Address" id="url" />
-          <button class="btn btn-sm" type="button" data-editor-link-save id="save">Save</button>
-          <button class="btn btn-ghost btn-sm" type="button" data-editor-link-remove id="remove">Remove</button>
+          <button class="btn btn--sm" type="button" data-editor-link-save id="save">Save</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-editor-link-remove id="remove">Remove</button>
         </div>
         """;
 
@@ -61,7 +61,7 @@ public class EditorTests : ScriptTestBase
     private static async Task TypeAtEnd(IPage page, string text)
     {
         await page.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Control+End");
+        await page.Keyboard.PressAsync(Keys.DocumentEnd);
         await page.Keyboard.TypeAsync(text);
     }
 
@@ -84,7 +84,7 @@ public class EditorTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenEditor(Editor("&lt;p&gt;Three lines reserved.&lt;/p&gt;") + """<button type="button" id="after">After</button>""");
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 window.heard = [];
                 const ta = document.getElementById('note-value');
@@ -102,7 +102,7 @@ public class EditorTests : ScriptTestBase
         Assert.DoesNotContain("change", heard);
 
         // change, once, when the focus leaves after an edit — as a textarea sends it.
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
         await page.WaitForFunctionAsync("() => heard.includes('change')");
         Assert.Single(await page.EvaluateAsync<string[]>("() => heard.filter(h => h === 'change')"));
     }
@@ -114,12 +114,12 @@ public class EditorTests : ScriptTestBase
         // Blazor writes a bound textarea by setting its value; the editor follows it, and ignores a
         // value it wrote itself arriving back.
         var page = await OpenEditor(Editor());
-        await page.EvaluateAsync("() => { document.getElementById('note-value').value = '<h2>From the app</h2><ul><li>one</li></ul>'; }");
+        await Js.Run(page, "() => { document.getElementById('note-value').value = '<h2>From the app</h2><ul><li>one</li></ul>'; }");
         Assert.Equal("From the app\none\n", await page.EvaluateAsync<string>("() => sednaUi.editor.get('note').then(e => e.quill.getText())"));
 
         await TypeAtEnd(page, "!");
         var written = await Value(page);
-        await page.EvaluateAsync("v => { document.getElementById('note-value').value = v; }", written);
+        await Js.Run(page, "v => { document.getElementById('note-value').value = v; }", written);
         Assert.Equal(written, await Value(page));
         // Not loaded again: a load starts the history afresh, and the typing is still undoable.
         Assert.True(await page.EvaluateAsync<bool>("() => sednaUi.editor.get('note').then(e => e.quill.history.stack.undo.length > 0)"));
@@ -131,7 +131,7 @@ public class EditorTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor(Editor("&lt;p&gt;x&lt;/p&gt;"));
         await page.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Control+A");
+        await page.Keyboard.PressAsync(Keys.SelectAll);
         await page.Keyboard.PressAsync("Backspace");
         Assert.Equal("", await Value(page));
         var state = await page.EvaluateAsync<JsonElement>("() => sednaUi.editor.get('note').then(e => e.state())");
@@ -146,8 +146,8 @@ public class EditorTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor(Editor("&lt;p&gt;Hold two lines&lt;/p&gt;"));
         await page.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Control+End");
-        await page.Keyboard.PressAsync("Shift+Home");
+        await page.Keyboard.PressAsync(Keys.DocumentEnd);
+        await page.Keyboard.PressAsync(Keys.SelectToLineStart);
 
         await page.Locator("#bold").ClickAsync();
         Assert.Equal("true", await Pressed(page, "bold"));
@@ -174,7 +174,7 @@ public class EditorTests : ScriptTestBase
               <button type="button" data-editor-format="bold" aria-label="Bold" id="bold"></button>
             </div>
             """, link: ""));
-        await page.EvaluateAsync("() => sednaUi.editor.get('note').then(e => e.set('<h1>Title</h1><p><strong>bold</strong> and <em>italic</em> and <a href=\"https://example.com\">a link</a></p>'))");
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(e => e.set('<h1>Title</h1><p><strong>bold</strong> and <em>italic</em> and <a href=\"https://example.com\">a link</a></p>'))");
 
         Assert.Equal("<p>Title</p><p><strong>bold</strong> and italic and a link</p>", await Value(page));
     }
@@ -218,7 +218,7 @@ public class EditorTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor(Editor("&lt;p&gt;A&lt;/p&gt;") + """<button type="button" id="after">After</button>""");
         await page.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
         Assert.Equal("after", await page.EvaluateAsync<string>("() => document.activeElement.id"));
         Assert.Equal("<p>A</p>", await Value(page));
     }
@@ -231,10 +231,10 @@ public class EditorTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor(Editor("&lt;p&gt;See the guide&lt;/p&gt;"));
         await page.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Control+End");
+        await page.Keyboard.PressAsync(Keys.DocumentEnd);
         for (var i = 0; i < 5; i++) await page.Keyboard.PressAsync("Shift+ArrowLeft");
 
-        await page.Keyboard.PressAsync("Control+k");
+        await page.Keyboard.PressAsync(Keys.Primary("k"));
         await Assertions.Expect(page.Locator("#link-form")).ToBeVisibleAsync();
         Assert.Equal("url", await page.EvaluateAsync<string>("() => document.activeElement.id"));
         await Assertions.Expect(page.Locator("#remove")).ToBeHiddenAsync();
@@ -266,18 +266,18 @@ public class EditorTests : ScriptTestBase
               <template data-palette-item><li role="presentation"><div class="palette-item" role="option"><span data-label></span></div></li></template>
             </dialog>
             """);
-        await page.EvaluateAsync("() => sednaUi.palette.register([{ label: 'Open the queue', run: () => {} }])");
+        await Js.Run(page, "() => sednaUi.palette.register([{ label: 'Open the queue', run: () => {} }])");
 
         await page.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Control+k");
+        await page.Keyboard.PressAsync(Keys.Primary("k"));
         await Assertions.Expect(page.Locator("#link-form")).ToBeVisibleAsync();
         Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('palette').open"));
 
         // Anywhere else on the page the palette keeps its key.
         await page.Keyboard.PressAsync("Escape");
         await page.Locator("#note-label").ClickAsync(new() { Position = new() { X = 1, Y = 1 } });
-        await page.EvaluateAsync("() => document.activeElement.blur()");
-        await page.Keyboard.PressAsync("Control+k");
+        await Js.Run(page, "() => document.activeElement.blur()");
+        await page.Keyboard.PressAsync(Keys.Primary("k"));
         await page.WaitForFunctionAsync("() => document.getElementById('palette').open");
     }
 
@@ -287,8 +287,8 @@ public class EditorTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor(Editor("&lt;p&gt;x&lt;/p&gt;"));
         await page.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Control+A");
-        await page.Keyboard.PressAsync("Control+k");
+        await page.Keyboard.PressAsync(Keys.SelectAll);
+        await page.Keyboard.PressAsync(Keys.Primary("k"));
         await page.Locator("#url").FillAsync("javascript:alert(1)");
         await page.Keyboard.PressAsync("Enter");
         Assert.DoesNotContain("javascript:", await Value(page), StringComparison.Ordinal);
@@ -310,8 +310,8 @@ public class EditorTests : ScriptTestBase
           <span data-editor-media-for="video" id="for-video">Video</span>
           <input class="form-input" type="url" data-editor-media-url aria-label="Address" id="media-url" />
           <input class="form-input" type="text" data-editor-media-alt aria-label="Description" id="media-alt" />
-          <button class="btn btn-sm" type="button" data-editor-media-save id="media-save">Insert</button>
-          <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel id="media-cancel">Cancel</button>
+          <button class="btn btn--sm" type="button" data-editor-media-save id="media-save">Insert</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel id="media-cancel">Cancel</button>
         </div>
         """;
 
@@ -342,7 +342,7 @@ public class EditorTests : ScriptTestBase
             """<video controls autoplay><source src="/media/clip.webm" type="video/webm"></video>""")));
         Assert.Equal("""<video controls="" src="/media/clip.webm"></video>""", await Html(page));
         // Written back as it was: the line Quill keeps after a closing video is not the reader's.
-        await page.EvaluateAsync("() => sednaUi.editor.get('note').then(e => e.set(e.html()))");
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(e => e.set(e.html()))");
         Assert.Equal("""<video controls="" src="/media/clip.webm"></video>""", await Value(page));
     }
 
@@ -360,7 +360,7 @@ public class EditorTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenEditor(MediaEditor());
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => sednaUi.editor.get('note').then(e => e.set(
                 '<p>a<img src="data:image/png;base64,iVBORw0KGgo=">b<img src="javascript:alert(1)">c<img src="/kept.png">d</p>' +
                 '<video src="javascript:alert(1)"></video><video src="https://example.com/kept.mp4" autoplay onplay="alert(1)"></video>'))
@@ -374,7 +374,7 @@ public class EditorTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await OpenEditor(MediaEditor("&lt;p&gt;x&lt;/p&gt;"));
         await page.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Control+End");
+        await page.Keyboard.PressAsync(Keys.DocumentEnd);
 
         // A file alone — dropped from the desktop, a screenshot — is the app's to upload.
         await Paste(page, html: null);
@@ -385,7 +385,7 @@ public class EditorTests : ScriptTestBase
         Assert.Equal("""<p>x<img src="https://example.com/copied.png" alt="Copied"></p>""", await Value(page));
     }
 
-    private static Task Paste(IPage page, string? html) => page.EvaluateAsync("""
+    private static Task Paste(IPage page, string? html) => Js.Run(page, """
         html => {
             const data = new DataTransfer();
             data.items.add(new File([new Uint8Array([137, 80, 78, 71])], 'shot.png', { type: 'image/png' }));
@@ -400,7 +400,7 @@ public class EditorTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenEditor(MediaEditor("&lt;p&gt;Week 12&lt;/p&gt;"));
-        await page.EvaluateAsync("() => { window.asked = []; document.addEventListener('sedna-editor-media', e => asked.push(e.detail)); }");
+        await Js.Run(page, "() => { window.asked = []; document.addEventListener('sedna-editor-media', e => asked.push(e.detail)); }");
         await TypeAtEnd(page, ":");
 
         await page.Locator("#image").ClickAsync();
@@ -457,13 +457,13 @@ public class EditorTests : ScriptTestBase
         if (NoBrowser) return;
         // The app opens its own dialog — an upload — instead of the form, then inserts.
         var page = await OpenEditor(MediaEditor("&lt;p&gt;Ab&lt;/p&gt;"));
-        await page.EvaluateAsync("() => document.addEventListener('sedna-editor-media', e => e.preventDefault())");
+        await Js.Run(page, "() => document.addEventListener('sedna-editor-media', e => e.preventDefault())");
         await page.Locator(".ql-editor").ClickAsync();
-        await page.Keyboard.PressAsync("Control+End");
+        await page.Keyboard.PressAsync(Keys.DocumentEnd);
         await page.Keyboard.PressAsync("ArrowLeft");
         await page.Locator("#image").ClickAsync();
         await Assertions.Expect(page.Locator("#media-form")).ToBeHiddenAsync();
-        await page.EvaluateAsync("() => document.activeElement.blur()");
+        await Js.Run(page, "() => document.activeElement.blur()");
 
         var state = await page.EvaluateAsync<JsonElement>(
             "() => sednaUi.editor.invoke('note', 'image', ['/uploads/receipt.jpg', 'The receipt'])");
@@ -502,7 +502,7 @@ public class EditorTests : ScriptTestBase
             """);
         Assert.Equal(["textbox", "true", "note-label", "hint", "Write it here", "false"], a11y);
 
-        await page.EvaluateAsync("() => { document.getElementById('note-value').disabled = true; }");
+        await Js.Run(page, "() => { document.getElementById('note-value').disabled = true; }");
         await page.WaitForFunctionAsync("() => document.querySelector('.ql-editor').getAttribute('aria-readonly') === 'true'");
         Assert.Equal("false", await page.EvaluateAsync<string>("() => document.querySelector('.ql-editor').getAttribute('contenteditable')"));
         Assert.True(await page.Locator("#undo").IsDisabledAsync());

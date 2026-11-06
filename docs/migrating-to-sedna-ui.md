@@ -92,7 +92,7 @@ registration call move.
 
 ## 4. CSS classes
 
-Only the library's own namespaced utilities move. Semantic class names — `.card`, `.badge-go`,
+Only the library's own namespaced utilities move. Semantic class names — `.card`, `.badge--go`,
 `.btn`, `.modal` and the rest — are unchanged and need no edit.
 
 | Old | New |

@@ -43,7 +43,7 @@
 .gallery > a:hover .media-frame,
 .gallery > button:hover .media-frame { border-color: var(--border-hover); }
 .gallery > *:focus-visible { outline: none; }
-.gallery > *:focus-visible .media-frame { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.gallery > *:focus-visible .media-frame { box-shadow: 0 0 0 2px var(--focus-ring); }
 /* Pictures that share one frame — the photos in a message, the ones on a card — two
    across with a hairline between them. The frame they sit in has the corners, so the
    pictures have none of their own. */
@@ -80,7 +80,7 @@
     overflow: hidden;
 }
 .link-preview:hover { border-color: var(--border-strong); text-decoration: none; }
-.link-preview:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.link-preview:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .link-preview > img { width: 88px; height: 100%; object-fit: cover; }
 .link-preview-body {
     display: flex;

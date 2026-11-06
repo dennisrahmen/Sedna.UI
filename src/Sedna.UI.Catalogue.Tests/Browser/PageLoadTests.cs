@@ -247,7 +247,9 @@ public class PageLoadTests(CatalogueAppFixture app)
             // and fails as "Element is not visible" — about one run in three.
             var page = await app.OpenInteractiveAsync(route);
             await page.SetViewportSizeAsync(width, 900);
-            await page.EvaluateAsync("d => document.documentElement.setAttribute('dir', d)", dir);
+            await Js.Run(page, "d => document.documentElement.setAttribute('dir', d)", dir);
+            // What a script places — the spotlight's tip — follows the resize a frame later.
+            await Js.Settle(page);
 
             var spills = new List<string>(await page.EvaluateAsync<string[]>(measure));
 

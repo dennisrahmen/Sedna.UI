@@ -130,7 +130,7 @@ public class ComboTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Field("multi", panel: Options(true, Products)));
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => { window.clicked = []; document.addEventListener('click', e => {
                 const o = e.target.closest('.form-combo-option'); if (o) clicked.push(o.id); }); }
             """);
@@ -138,6 +138,8 @@ public class ComboTests : ScriptTestBase
         await page.Locator("#q").FocusAsync();
         await page.Keyboard.TypeAsync("to");
         await page.Keyboard.PressAsync("Enter");
+        // The query empties once the pick has reached the app, a task later.
+        await page.WaitForFunctionAsync("() => q.value === ''");
 
         var state = await page.EvaluateAsync<JsonElement>("""
             () => ({ clicked, expanded: q.getAttribute('aria-expanded'), query: q.value,
@@ -176,7 +178,7 @@ public class ComboTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open(Field("multi", chips: Chip, panel: Options(true, Products)));
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => { window.dismissed = []; document.addEventListener('click', e => {
                 const d = e.target.closest('.chip-dismiss'); if (d) dismissed.push(d.getAttribute('aria-label')); }); }
             """);
@@ -244,12 +246,12 @@ public class ComboTests : ScriptTestBase
         var page = await Open(Field("free", chips: """
             <span class="chip" data-value="alex.fischer@example.com"><span class="chip-label">alex.fischer@example.com</span></span>
             """, attributes: "data-combo-validate=\"email\""));
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => { window.changes = []; document.addEventListener('change', e => changes.push(e.target.value)); }
             """);
 
         await page.Locator("#q").FocusAsync();
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 const data = new DataTransfer();
                 data.setData('text/plain', 'ops@example.org, Alex.Fischer@example.com; billing@example.net ops@example.org');
@@ -275,7 +277,7 @@ public class ComboTests : ScriptTestBase
         // The platform fires its own `change` on blur. Let through, the app would get the entry
         // from it and then again from the commit.
         var page = await Open(Field("free"));
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => { window.changes = []; document.addEventListener('change', e => changes.push(e.target.value)); }
             """);
 
@@ -354,7 +356,7 @@ public class ComboTests : ScriptTestBase
         var rows = Enumerable.Range(1, 30).Select(i => $"Product {i}").ToArray();
         var (page, _) = await OpenStyled(Field("multi", attributes: "data-combo-source=\"server\"",
             panel: Options(true, more: true, rows)));
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => { window.more = 0; document.addEventListener('click', e => { if (e.target.closest('.form-combo-more')) more++; }); }
             """);
 
@@ -362,15 +364,17 @@ public class ComboTests : ScriptTestBase
         await page.Keyboard.PressAsync("ArrowDown");
         Assert.Equal(0, await page.EvaluateAsync<int>("() => more"));
 
-        await page.EvaluateAsync("() => { list.setAttribute('aria-busy', 'true'); list.scrollTop = list.scrollHeight; }");
-        await page.WaitForTimeoutAsync(100);
+        // Each scroll is waited for by its own event, not by a fixed time.
+        const string ScrollTo = "async top => { const done = new Promise(r => list.addEventListener('scroll', () => setTimeout(r, 50), { once: true })); list.scrollTop = top === 'end' ? list.scrollHeight : top; await done; }";
+        await Js.Run(page, "() => list.setAttribute('aria-busy', 'true')");
+        await Js.Run(page, ScrollTo, "end");
         Assert.Equal(0, await page.EvaluateAsync<int>("() => more"));
 
         // Two separate scrolls: back to the top and down again in one task is no scroll at all.
-        await page.EvaluateAsync("() => { list.removeAttribute('aria-busy'); list.scrollTop = 0; }");
-        await page.WaitForTimeoutAsync(100);
-        await page.EvaluateAsync("() => { list.scrollTop = list.scrollHeight; }");
-        await page.WaitForTimeoutAsync(100);
+        await Js.Run(page, "() => list.removeAttribute('aria-busy')");
+        await Js.Run(page, ScrollTo, 0);
+        await Js.Run(page, ScrollTo, "end");
+        await page.WaitForFunctionAsync("() => more === 1");
         Assert.Equal(1, await page.EvaluateAsync<int>("() => more"));
     }
 
@@ -408,7 +412,7 @@ public class ComboTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled(Field("multi", panel: Grouped));
-        await page.EvaluateAsync(CountClicks);
+        await Js.Run(page, CountClicks);
 
         await page.Locator("#q").FocusAsync();
         await page.Keyboard.PressAsync("ArrowDown");
@@ -438,7 +442,7 @@ public class ComboTests : ScriptTestBase
         Assert.Equal("false", first.GetProperty("selected").GetString());
 
         // The app renders its selection; the heading follows, and the action reads "Clear".
-        await page.EvaluateAsync("() => { o0.setAttribute('aria-selected', 'true'); clicked.length = 0; }");
+        await Js.Run(page, "() => { o0.setAttribute('aria-selected', 'true'); clicked.length = 0; }");
         await page.WaitForTimeoutAsync(50);
         var full = await page.EvaluateAsync<string[]>("""
             () => [String(g1.hasAttribute('data-all-selected')), String(g2.hasAttribute('data-all-selected')),
@@ -512,7 +516,7 @@ public class ComboTests : ScriptTestBase
         Assert.Equal("Select all", cleared.GetProperty("label").GetString());
 
         // An action without data-combo-toggle-group is the app's: the script clicks no row for it.
-        await page.EvaluateAsync("() => document.querySelector('#g2-all').removeAttribute('data-combo-toggle-group')");
+        await Js.Run(page, "() => document.querySelector('#g2-all').removeAttribute('data-combo-toggle-group')");
         await page.Locator("#g2-all").ClickAsync();
         Assert.Empty((await page.EvaluateAsync<JsonElement>(State)).GetProperty("chips").EnumerateArray());
         Assert.Empty(errors);

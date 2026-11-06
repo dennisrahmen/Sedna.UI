@@ -13,7 +13,7 @@
      <div class="chat" role="log" aria-live="polite" aria-label="Chat with Alex Fischer">
        <div class="chat-day">Today</div>
        <div class="chat-message">
-         <span class="avatar avatar-sm">AF</span>
+         <span class="avatar avatar--sm">AF</span>
          <div class="chat-body">
            <div class="chat-meta"><span class="chat-author">Alex Fischer</span><time class="chat-time">09:41</time></div>
            <div class="chat-bubble">Can you reroute ORD-4209 to EU-West?</div>
@@ -229,7 +229,7 @@
     border-color: var(--selected);
     color: var(--brand-text);
 }
-.chat-reaction:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.chat-reaction:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* The thread under a message: who answered, how many (the `<strong>`, which is the
    link's own colour and underline — the avatars carry neither) and when. */
@@ -268,7 +268,7 @@
     cursor: pointer;
 }
 .chat-emoji:hover { background: var(--bg-hover); }
-.chat-emoji:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.chat-emoji:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* ── Actions on a message ───────────────────────────────────────────────────
    React, reply, more — a row of ghost icon buttons that appears beside the
@@ -411,7 +411,7 @@
     anchor-name: --sedna-chat-thread;
 }
 /* A scroller the keyboard can reach carries `tabindex="0"`, and so a focus ring. */
-.chat-pane > .chat:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.chat-pane > .chat:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 /* Sticks to the top of the thread on its own ground, so it is readable over what
    scrolls under it. */
 .chat-pane .chat-day {
@@ -449,7 +449,7 @@
     cursor: pointer;
 }
 .chat-jump:hover { color: var(--fg); border-color: var(--border-strong); }
-.chat-jump:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--brand-ring-soft); }
+.chat-jump:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 /* What is pinned, at the top of the pane. */
 .chat-pinned {
     display: flex;
@@ -519,7 +519,7 @@
     cursor: pointer;
 }
 .chat-launcher:hover { background: var(--brand-hover); }
-.chat-launcher:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--brand-ring); }
+.chat-launcher:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 .chat-launcher-count {
     position: absolute;
     top: -4px;
@@ -570,7 +570,8 @@
 .chat-flyover > .chat-composer { padding: var(--space-4) var(--space-5); }
 
 /* On a phone the flyover is the screen: a 380px card with a margin around it is
-   most of a phone anyway, and the keyboard needs the rest. */
+   most of a phone anyway, and the keyboard needs the rest. A viewport query and not a
+   container one, because the flyover is fixed to the viewport it fills. */
 @media (max-width: 560px) {
     .chat-flyover {
         inset: 0;

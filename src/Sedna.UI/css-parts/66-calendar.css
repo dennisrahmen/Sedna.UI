@@ -129,7 +129,7 @@
 }
 button.cal-weeknum { background: none; border-block: none; border-inline-start: none; font-family: inherit; cursor: pointer; }
 button.cal-weeknum:hover { background: var(--bg-hover); color: var(--fg); }
-button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 .cal-month--weeknums .cal-weekdays > .cal-weekday:first-child { padding-inline: 0; text-align: center; }
 
 /* A positioned grid child takes its grid area as its containing block, so the layer
@@ -179,7 +179,7 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
 a.cal-event:hover,
 button.cal-event:hover { filter: brightness(1.15); text-decoration: none; }
 button.cal-event { border-block: none; border-inline-end: none; font-family: inherit; text-align: start; cursor: pointer; }
-.cal-event:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.cal-event:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* --fg-soft, not --muted: the pill is a tinted surface, and muted text on a tint falls
    under the contrast floor. The weight is what sets the time apart from the title. */
 .cal-event-time { color: var(--fg-soft); font-weight: 400; font-variant-numeric: tabular-nums; flex-shrink: 0; }
@@ -446,16 +446,27 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     font-weight: 500;
     line-height: 1.35;
     text-decoration: none;
-    /* Clipped at the content box, and the content box ends on a whole line: the bottom
-       padding takes up whatever is left over after the lines that fit. Below one line
-       the block shows what it can rather than nothing. */
+    /* The content box ends on a whole line: the bottom padding takes up whatever is left
+       over after the lines that fit, and below one line the block shows what it can
+       rather than nothing. A line that does not fit would show through that padding, so
+       ::after covers it in the block's own background — `inherit`, so a hatch lines up
+       too, because both boxes start their gradient at the same bottom corner. Every
+       engine on the floor draws it alike; Safari has no overflow-clip-margin. */
     --cal-edge: 0px;
     --cal-block-inner: calc(var(--cal-span) * var(--cal-hour-height) - 2 * var(--space-1) - 2 * var(--cal-edge));
-    padding-block-end: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh)));
+    --cal-block-rest: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh)));
+    padding-block-end: var(--cal-block-rest);
     overflow: clip;
-    overflow-clip-margin: content-box;
 }
-.cal-block:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.cal-block::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: var(--cal-block-rest);
+    background: inherit;
+}
+.cal-block:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .cal-block .cal-event-time { display: block; }
 
 .cal-now {
@@ -701,7 +712,7 @@ button.cal-day {
     cursor: pointer;
 }
 button.cal-day:hover { background: var(--bg-hover); }
-button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .cal-month--mini button.cal-day[aria-pressed="true"]:hover { background: var(--brand); }
 .cal-day:disabled,
 .cal-day[aria-disabled="true"] {
@@ -762,9 +773,9 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
      <button class="form-input" type="button" popovertarget="due">12 Sep 2026</button>
      <div class="popover datepicker" id="due" popover>
        <div class="datepicker-head">
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Previous month"><i class="ri-arrow-left-s-line"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous month"><i class="ri-arrow-left-s-line"></i></button>
          <span class="datepicker-title">September 2026</span>
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Next month"><i class="ri-arrow-right-s-line"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next month"><i class="ri-arrow-right-s-line"></i></button>
        </div>
        <div class="cal-month cal-month--mini">… <button class="cal-day" type="button" aria-label="Monday 21 September 2026" aria-pressed="true">21</button> …</div>
        <div class="datepicker-actions">…</div>
@@ -795,12 +806,12 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 
 /* ── Date picker: a time, and jumping further ───────────────────────────────
    A date with a time is a `.datepicker-time` row under the grid: a label and a
-   `.form-input.form-input-sm` of `type="time"`, or two for a range. The input is the
+   `.form-input.form-input--sm` of `type="time"`, or two for a range. The input is the
    platform's, so the clock, the 12- or 24-hour form and the keyboard are the reader's.
 
      <div class="datepicker-time">
        <label for="due-time">Time</label>
-       <input class="form-input form-input-sm" id="due-time" type="time" value="14:00">
+       <input class="form-input form-input--sm" id="due-time" type="time" value="14:00">
      </div>
 
    Further than a month is the title as a <button> that switches the panel to a level
@@ -810,9 +821,9 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
    and what a pick does, are the app's; the panel swaps its body and keeps its head.
 
      <div class="datepicker-head">
-       <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Previous year">…</button>
+       <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous year">…</button>
        <button class="datepicker-title" type="button" aria-label="2026, choose a year">2026 <i class="ri-arrow-down-s-line"></i></button>
-       <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Next year">…</button>
+       <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next year">…</button>
      </div>
      <div class="cal-months">
        <button class="cal-pick" type="button" aria-pressed="false">Jan</button> … 12 …
@@ -830,7 +841,7 @@ button.datepicker-title {
     cursor: pointer;
 }
 button.datepicker-title:hover { background: var(--bg-hover); }
-button.datepicker-title:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+button.datepicker-title:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 
 .cal-months,
@@ -856,7 +867,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     cursor: pointer;
 }
 .cal-pick:hover { background: var(--bg-hover); }
-.cal-pick:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.cal-pick:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .cal-pick--outside { color: var(--muted); }
 /* `:where()` keeps "now" at one class of weight, so "chosen" below outranks it when a
    pick is both, and this month chosen is on-solid text on the fill, not brand on brand. */

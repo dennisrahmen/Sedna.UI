@@ -67,7 +67,7 @@ public class SafeAreaTests : ScriptTestBase
         <dialog class="modal" id="modal">
           <div class="modal-header"><h3>Confirm</h3></div>
           <div class="modal-body"><p style="height:2000px">tall</p></div>
-          <div class="modal-footer"><button class="btn btn-go" type="button">Go</button></div>
+          <div class="modal-footer"><button class="btn btn--go btn--solid" type="button">Go</button></div>
         </dialog>
         """;
 
@@ -154,7 +154,7 @@ public class SafeAreaTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled(Frame, Notched);
 
-        await page.EvaluateAsync($"() => document.getElementById('{id}').showModal()");
+        await Js.Run(page, $"() => document.getElementById('{id}').showModal()");
 
         Assert.Equal(Bottom, await Px(page, id, "paddingBottom"), 1);
         // Padding, not margin — the panel's own elevated surface has to fill the strip,
@@ -202,7 +202,7 @@ public class SafeAreaTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled(Frame, Notched);
 
-        await page.EvaluateAsync("() => document.getElementById('modal').showModal()");
+        await Js.Run(page, "() => document.getElementById('modal').showModal()");
 
         var box = await page.EvaluateAsync<double[]>(
             "() => { const r = document.getElementById('modal').getBoundingClientRect(); "

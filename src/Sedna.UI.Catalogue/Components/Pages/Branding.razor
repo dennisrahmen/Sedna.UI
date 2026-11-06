@@ -73,12 +73,16 @@
         <legend>Density</legend>
         <div class="segmented">
             <label class="segmented-option">
-                <input type="radio" name="branding-density" checked="@(!IsCompact)" @onchange="SelectComfortable" />
+                <input type="radio" name="branding-density" checked="@(Settings.Current.Density == "comfortable")" @onchange="SelectComfortable" />
                 <span><i class="ri-menu-line"></i> Comfortable</span>
             </label>
             <label class="segmented-option">
                 <input type="radio" name="branding-density" checked="@IsCompact" @onchange="SelectCompact" />
                 <span><i class="ri-list-check-2"></i> Compact</span>
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="branding-density" checked="@(Settings.Current.Density == "touch")" @onchange="SelectTouch" />
+                <span><i class="ri-hand"></i> Touch</span>
             </label>
         </div>
     </fieldset>
@@ -188,7 +192,7 @@
     </table>
 </div>
 
-<div class="callout callout-warn">
+<div class="callout callout--warn">
     <i class="ri-error-warning-line"></i>
     <div class="callout-body">
         <span class="callout-title">The SVG trap</span>
@@ -313,7 +317,7 @@
     private bool IsLight => Settings.Current.Variant == "light";
     private bool IsDark => !IsLight;
     private bool IsColourBlind => Settings.Current.ColourBlind;
-    private bool IsCompact => Settings.Current.Compact;
+    private bool IsCompact => Settings.Current.Density == "compact";
     private bool IsRtl => Settings.Current.Direction == "rtl";
 
     /// <summary>
@@ -372,8 +376,9 @@
     private Task SelectLight() => Settings.SetVariantAsync("light");
     private Task SelectFullColour() => Settings.SetColourBlindAsync(false);
     private Task SelectColourBlind() => Settings.SetColourBlindAsync(true);
-    private Task SelectComfortable() => Settings.SetCompactAsync(false);
-    private Task SelectCompact() => Settings.SetCompactAsync(true);
+    private Task SelectComfortable() => Settings.SetDensityAsync("comfortable");
+    private Task SelectCompact() => Settings.SetDensityAsync("compact");
+    private Task SelectTouch() => Settings.SetDensityAsync("touch");
     private Task SelectLtr() => Settings.SetDirectionAsync("ltr");
     private Task SelectRtl() => Settings.SetDirectionAsync("rtl");
 

@@ -17,8 +17,8 @@ namespace Sedna.UI.Tests;
 /// <para>
 /// Refusing is not enough on its own. Chromium honours a refused close request only so
 /// often without a click or a keypress between — Escape is not one — and then dispatches a
-/// <c>cancel</c> that cannot be cancelled and closes the dialog. The first test pins that
-/// platform behaviour, so the day it stops being true is a visible failure and the Escape
+/// <c>cancel</c> that cannot be cancelled and closes the dialog, and so does WebKit. The
+/// first test pins that platform behaviour in both engines, so the day it stops being true is a visible failure and the Escape
 /// half of the guard can be reconsidered.
 /// </para>
 /// </remarks>
@@ -97,7 +97,7 @@ public class CloseGuardTests : ScriptTestBase
 
         await page.Locator("#open-guarded").ClickAsync();
         await page.Locator("#guarded-input").FocusAsync();
-        await page.EvaluateAsync("() => document.getElementById('guarded-input').remove()");
+        await Js.Run(page, "() => document.getElementById('guarded-input').remove()");
         Assert.True(await page.EvaluateAsync<bool>("() => document.activeElement === document.body"));
         for (var i = 0; i < 6; i++) await page.Keyboard.PressAsync("Escape");
 
@@ -132,7 +132,7 @@ public class CloseGuardTests : ScriptTestBase
         Assert.Equal(1, await Asked(page, "guarded"));
 
         // What Overlay.CancelAsync() does once the reader has said yes.
-        await page.EvaluateAsync("() => sednaUi.modal.close('guarded')");
+        await Js.Run(page, "() => sednaUi.modal.close('guarded')");
         Assert.False(await IsOpen(page, "guarded"));
     }
 
@@ -177,7 +177,7 @@ public class CloseGuardTests : ScriptTestBase
         Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('sheet').classList.contains('sheet--dragging')"));
 
         // Unguarded, the same swipe closes it.
-        await page.EvaluateAsync("() => document.getElementById('sheet').removeAttribute('data-close-guard')");
+        await Js.Run(page, "() => document.getElementById('sheet').removeAttribute('data-close-guard')");
         await SwipeDown(page);
 
         Assert.False(await IsOpen(page, "sheet"));

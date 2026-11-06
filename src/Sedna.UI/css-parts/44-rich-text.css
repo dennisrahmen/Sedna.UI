@@ -85,6 +85,20 @@
    unchecked">` and draws the marker itself, into a `.ql-ui` span, so the browser's own
    markers are off and the counters below number an ordered list through its indents:
    1. a. i. and round again, as a document editor does. */
+/* A table the editor takes (data-editor-format="table" or a table action): the
+   document's own grid, in the table tokens, so a stored table reads as one. */
+.editor .ql-editor table {
+    border-collapse: collapse;
+    inline-size: 100%;
+    margin-block: var(--space-4);
+    table-layout: fixed;
+}
+.editor .ql-editor td {
+    border: 1px solid var(--border);
+    padding: var(--space-2) var(--space-4);
+    vertical-align: top;
+    min-inline-size: 2em;
+}
 .editor .ql-editor ol { padding-inline-start: 1.5em; }
 .editor .ql-editor li {
     position: relative;

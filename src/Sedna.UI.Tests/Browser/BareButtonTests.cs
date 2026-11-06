@@ -80,11 +80,12 @@ public class BareButtonTests : ScriptTestBase
 
         // Tab rather than focus(): :focus-visible is a heuristic about how focus
         // arrived, and a scripted focus() is not reliably keyboard focus.
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
 
         var focused = await page.EvaluateAsync<string>("() => document.activeElement.id");
         Assert.Equal("bare", focused);
 
+        await Js.Settle(page);
         var (bareRing, bareOutline) = await Ring(page, "bare");
 
         Assert.NotEqual("none", bareRing);
@@ -92,14 +93,13 @@ public class BareButtonTests : ScriptTestBase
 
         // The same ring the chromed button wears, rather than a second one invented
         // here: one focus style is what makes it recognisable as focus.
-        await page.Keyboard.PressAsync("Tab");
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
+        await page.Keyboard.PressAsync(Keys.Tab);
         Assert.Equal("chromed", await page.EvaluateAsync<string>("() => document.activeElement.id"));
 
         // `.btn` transitions its box-shadow, so a value read the instant focus lands is
         // mid-transition — transparent and zero-sized — and compares against nothing.
-        // `.btn-bare` has no transition, which is why its own ring reads final at once.
-        await page.WaitForTimeoutAsync(250);
+        await Js.Settle(page);
 
         var (chromedRing, _) = await Ring(page, "chromed");
         Assert.Equal(chromedRing, bareRing);

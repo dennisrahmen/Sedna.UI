@@ -1,0 +1,253 @@
+/* ── Tones ────────────────────────────────────────────────────────────────────
+   One tone system for every family that carries a tone: a TONE modifier says what the
+   thing means, an EMPHASIS modifier how loudly, and the two combine freely.
+
+     .btn--danger                     soft: the tone's tint, its ink, its edge
+     .btn--danger.btn--solid          filled
+     .btn--danger.btn--ghost          no fill and no edge — its ink only
+     .btn--ghost                      no tone: the neutral ghost
+
+   Tones: brand go warn danger info secret, and the three categorical hues cyan orange
+   teal on the families that label (badge, chip). Families: btn badge alert callout toast
+   chip stat, and a table row (tr). ToneMatrixTests holds every family to every tone it
+   takes, so a family cannot lack one by accident.
+
+   A tone modifier sets nothing but --tone-* properties, and every family reads them
+   through the rules below — so a new family joins the system by being named here. The
+   properties are reset on each family element first, so a button inside a toned alert
+   does not inherit the alert's tone.
+
+   A solid fill's edge is the tone's ink, as --brand-edge is a step off --brand: a filled
+   green or amber is under 3:1 against a dark card on its own, and the edge is what keeps
+   the control's boundary visible (ButtonEdgeContrastTests). Where the fill is the tone's
+   own ink — secret and the categorical hues, light in dark and dark in light — the label
+   on it is --bg, which flips with it (SolidToneContrastTests).
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr {
+    --tone-fg: initial;
+    --tone-bg: initial;
+    --tone-bg-hover: initial;
+    --tone-bg-active: initial;
+    --tone-border: initial;
+    --tone-border-strong: initial;
+    --tone-solid: initial;
+    --tone-solid-hover: initial;
+    --tone-solid-active: initial;
+    --tone-solid-edge: initial;
+    --tone-ring: initial;
+    --tone-ring-solid: initial;
+    --tone-on-solid: initial;
+}
+
+.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand {
+    --tone-fg: var(--brand-text);
+    --tone-bg: var(--brand-tint);
+    --tone-bg-hover: var(--brand-tint-strong);
+    --tone-bg-active: var(--brand-tint-strong);
+    --tone-border: var(--brand-soft);
+    --tone-border-strong: var(--brand);
+    --tone-solid: var(--brand);
+    --tone-solid-hover: var(--brand-hover);
+    --tone-solid-active: var(--brand-active);
+    --tone-solid-edge: var(--brand-edge);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go {
+    --tone-fg: var(--go-fg);
+    --tone-bg: var(--go-bg);
+    --tone-bg-hover: var(--go-bg-hover);
+    --tone-bg-active: var(--go-bg-active);
+    --tone-border: var(--go-border);
+    --tone-border-strong: var(--go-hover);
+    --tone-solid: var(--go-solid);
+    --tone-solid-hover: var(--go-hover);
+    --tone-solid-active: var(--go-active);
+    --tone-solid-edge: var(--go-fg);
+    --tone-ring: var(--go-ring);
+    --tone-ring-solid: var(--go-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn {
+    --tone-fg: var(--warn-fg);
+    --tone-bg: var(--warn-bg);
+    --tone-bg-hover: var(--warn-bg-hover);
+    --tone-bg-active: var(--warn-bg-active);
+    --tone-border: var(--warn-border);
+    --tone-border-strong: var(--warn-hover);
+    --tone-solid: var(--warn-solid);
+    --tone-solid-hover: var(--warn-hover);
+    --tone-solid-active: var(--warn-active);
+    --tone-solid-edge: var(--warn-fg);
+    --tone-ring: var(--warn-ring);
+    --tone-ring-solid: var(--warn-ring-solid);
+    --tone-on-solid: var(--on-solid);
+}
+
+.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger {
+    --tone-fg: var(--danger-fg);
+    --tone-bg: var(--danger-bg);
+    --tone-bg-hover: var(--danger-bg-hover);
+    --tone-bg-active: var(--danger-bg-active);
+    --tone-border: var(--danger-border);
+    --tone-border-strong: var(--danger-border-strong);
+    --tone-solid: var(--danger-solid);
+    --tone-solid-hover: var(--danger-hover);
+    --tone-solid-active: var(--danger-active);
+    --tone-solid-edge: var(--danger-fg);
+    --tone-ring: var(--danger-ring);
+    --tone-ring-solid: var(--danger-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info {
+    --tone-fg: var(--info-fg);
+    --tone-bg: var(--info-bg);
+    --tone-bg-hover: var(--info-bg-hover);
+    --tone-bg-active: var(--info-bg-active);
+    --tone-border: var(--info-border);
+    --tone-border-strong: var(--info-border);
+    --tone-solid: var(--info-solid);
+    --tone-solid-hover: var(--info-hover);
+    --tone-solid-active: var(--info-active);
+    --tone-solid-edge: var(--info-fg);
+    --tone-ring: var(--info-ring);
+    --tone-ring-solid: var(--info-ring);
+    --tone-on-solid: var(--info-on-solid);
+}
+
+.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret {
+    --tone-fg: var(--secret-fg);
+    --tone-bg: var(--secret-bg);
+    --tone-bg-hover: var(--secret-bg-hover);
+    --tone-bg-active: var(--secret-bg-active);
+    --tone-border: var(--secret-border);
+    --tone-border-strong: var(--secret-border);
+    --tone-solid: var(--secret-fg);
+    --tone-solid-hover: var(--secret-hover);
+    --tone-solid-active: var(--secret-active);
+    --tone-solid-edge: var(--secret-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--bg);
+}
+
+.badge--cyan, .chip--cyan {
+    --tone-fg: var(--badge-cyan-fg);
+    --tone-bg: var(--badge-cyan-bg);
+    --tone-bg-hover: var(--badge-cyan-bg-hover);
+    --tone-bg-active: var(--badge-cyan-bg-active);
+    --tone-border: var(--badge-cyan-border);
+    --tone-border-strong: var(--badge-cyan-border);
+    --tone-solid: var(--badge-cyan-fg);
+    --tone-solid-hover: var(--badge-cyan-hover);
+    --tone-solid-active: var(--badge-cyan-active);
+    --tone-solid-edge: var(--badge-cyan-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--bg);
+}
+
+.badge--orange, .chip--orange {
+    --tone-fg: var(--badge-orange-fg);
+    --tone-bg: var(--badge-orange-bg);
+    --tone-bg-hover: var(--badge-orange-bg-hover);
+    --tone-bg-active: var(--badge-orange-bg-active);
+    --tone-border: var(--badge-orange-border);
+    --tone-border-strong: var(--badge-orange-border);
+    --tone-solid: var(--badge-orange-fg);
+    --tone-solid-hover: var(--badge-orange-hover);
+    --tone-solid-active: var(--badge-orange-active);
+    --tone-solid-edge: var(--badge-orange-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--bg);
+}
+
+.badge--teal, .chip--teal {
+    --tone-fg: var(--badge-teal-fg);
+    --tone-bg: var(--badge-teal-bg);
+    --tone-bg-hover: var(--badge-teal-bg-hover);
+    --tone-bg-active: var(--badge-teal-bg-active);
+    --tone-border: var(--badge-teal-border);
+    --tone-border-strong: var(--badge-teal-border);
+    --tone-solid: var(--badge-teal-fg);
+    --tone-solid-hover: var(--badge-teal-hover);
+    --tone-solid-active: var(--badge-teal-active);
+    --tone-solid-edge: var(--badge-teal-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--bg);
+}
+
+/* Buttons. Soft is a toned button's own emphasis. */
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):hover { background: var(--tone-bg-hover); border-color: var(--tone-border-strong); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):active { background: var(--tone-bg-active); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
+.btn.btn--solid { background: var(--tone-solid, var(--fg)); border-color: var(--tone-solid-edge, var(--fg)); color: var(--tone-on-solid, var(--bg)); }
+/* The edge stays where it is on hover and press: the fill darkens away from a dark card,
+   and the edge is what keeps the boundary at 3:1 there. */
+.btn.btn--solid:hover { background: var(--tone-solid-hover, var(--fg-soft)); }
+.btn.btn--solid:active { background: var(--tone-solid-active, var(--fg-soft)); }
+.btn.btn--solid:focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
+.btn.btn--ghost { background: none; border-color: transparent; color: var(--tone-fg, var(--muted)); }
+.btn.btn--ghost:hover { background: var(--tone-bg, var(--bg-hover)); border-color: transparent; color: var(--tone-fg, var(--fg)); }
+.btn.btn--ghost:active { background: var(--tone-bg-active, var(--btn-active-bg)); }
+
+/* Badges. Ghost is an outline: a label keeps its edge. */
+.badge:is(.badge--brand, .badge--go, .badge--warn, .badge--danger, .badge--info, .badge--secret, .badge--cyan, .badge--orange, .badge--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+.badge.badge--solid { background: var(--tone-solid, var(--fg-soft)); border-color: var(--tone-solid, var(--fg-soft)); color: var(--tone-on-solid, var(--bg)); }
+.badge.badge--ghost { background: transparent; border-color: var(--tone-border, var(--border)); color: var(--tone-fg, var(--fg-soft)); }
+
+/* Alerts and callouts. A link inside one takes the alert's own ink and an underline: the
+   accent link colour fell under 4.5:1 on the tinted fills. */
+.alert:is(.alert--brand, .alert--go, .alert--warn, .alert--danger, .alert--info, .alert--secret) { background: var(--tone-bg); border-color: var(--tone-border-strong); color: var(--tone-fg); }
+.alert.alert--solid { background: var(--tone-solid, var(--fg)); border-color: var(--tone-solid, var(--fg)); color: var(--tone-on-solid, var(--bg)); }
+.alert:is(.alert--brand, .alert--go, .alert--warn, .alert--danger, .alert--info, .alert--secret) a, .alert.alert--solid a { color: inherit; text-decoration: underline; }
+.callout:is(.callout--brand, .callout--go, .callout--warn, .callout--danger, .callout--info, .callout--secret) { background: var(--tone-bg); border-inline-start-color: var(--tone-solid); }
+.callout:is(.callout--brand, .callout--go, .callout--warn, .callout--danger, .callout--info, .callout--secret) > i { color: var(--tone-fg); }
+.callout:is(.callout--brand, .callout--go, .callout--warn, .callout--danger, .callout--info, .callout--secret) a { color: inherit; text-decoration: underline; }
+
+/* A toast the library draws: its tone is its edge and its icon. */
+.toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) { border-inline-start-color: var(--tone-solid); }
+.toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) i { color: var(--tone-fg); }
+
+/* Chips. */
+.chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+
+/* A stat tile over a threshold — its tint, its edge and its figure. */
+.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) { background: var(--tone-bg); border-color: var(--tone-border); }
+.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) .stat-value, a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover .stat-value { color: var(--tone-fg); }
+a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover { background: var(--tone-bg-hover); }
+
+/* A table row that means something — stale, failing, waiting. */
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret) > td { background: var(--tone-bg); }
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover > td { background: var(--tone-bg-hover); }
+
+/* An ordinary neutral ghost button placed straight in the header reads the header's
+   own tokens, as .topbar-btn does, so a brand-coloured header keeps it legible. A toned
+   one keeps its tone, and a button inside a panel that opens from the header keeps the
+   page's roles: only a direct child of the bar or of a section is the header's. In this
+   layer and not the frame's, which the ghost rule above would outrank. */
+:is(.topbar, .topbar-section) > .btn.btn--ghost:not(:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret)) { color: var(--topbar-muted); }
+:is(.topbar, .topbar-section) > .btn.btn--ghost:not(:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret)):hover { background: var(--topbar-hover); color: var(--topbar-fg); }
+
+/* Disabled — after every tone, so one look wins over all of them. The label keeps AA
+   contrast: a disabled control is still read, to learn why it cannot be used, and
+   opacity took the text under 3:1. Nothing is faded; the control loses its tone and its
+   fill instead. Graphics with no text — a check mark, a range thumb — keep the opacity. */
+.btn:is(:disabled, [aria-disabled="true"]),
+.btn:is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--disabled-fg);
+    cursor: not-allowed;
+}
+.btn.btn--ghost:is(:disabled, [aria-disabled="true"]):is(*, :hover, :active) { background: transparent; border-color: transparent; }
+:is(.btn-bare, .tab, .menu-item, button.list-row, .page-link):is(:disabled, [aria-disabled="true"]),
+.segmented-option:has(input:disabled) { color: var(--disabled-fg); }

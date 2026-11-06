@@ -28,7 +28,7 @@ public class SamePageLinkTests(CatalogueAppFixture app)
         if (app.NoBrowser) return;
         var page = await app.OpenInteractiveAsync("/button");
 
-        await page.Keyboard.PressAsync("Tab");
+        await page.Keyboard.PressAsync(Keys.Tab);
         Assert.Equal("skip-link", await page.EvaluateAsync<string>("() => document.activeElement.className"));
 
         await page.Keyboard.PressAsync("Enter");
@@ -72,7 +72,7 @@ public class SamePageLinkTests(CatalogueAppFixture app)
             if (count > 0)
             {
                 await page.WaitForSelectorAsync("[data-interactive='true']", new() { Timeout = 15_000 });
-                await page.EvaluateAsync(
+                await Js.Run(page, 
                     "() => document.querySelectorAll('.ex-demo a[href=\"#\"]').forEach(a => a.click())");
                 await page.WaitForTimeoutAsync(Settle);
 

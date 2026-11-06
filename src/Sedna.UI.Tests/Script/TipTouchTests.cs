@@ -15,7 +15,7 @@ public class TipTouchTests : ScriptTestBase
         """;
 
     private static Task Pointer(IPage page, string type) =>
-        page.EvaluateAsync($$"""
+        Js.Run(page, $$"""
             () => document.getElementById('b').dispatchEvent(
                 new PointerEvent('{{type}}', { pointerType: 'touch', bubbles: true, cancelable: true }))
             """);
@@ -32,8 +32,10 @@ public class TipTouchTests : ScriptTestBase
         await Assertions.Expect(page.Locator(".sedna-tip")).ToHaveTextAsync("Deletes the order and its reservations");
 
         // Lifting the finger fires the platform's click; the hold has already taken it.
+        // Dispatched rather than clicked: a finger brings no mouse, and Playwright's
+        // click moves one over the button first, which is a hover of its own in WebKit.
         await Pointer(page, "pointerup");
-        await page.Locator("#b").ClickAsync();
+        await page.Locator("#b").DispatchEventAsync("click");
         Assert.Equal(0, await page.EvaluateAsync<int>("() => window.clicks || 0"));
 
         // Lingers long enough to be read, then goes.
@@ -78,7 +80,7 @@ public class TipTouchTests : ScriptTestBase
         await page.WaitForTimeoutAsync(450);
         await Assertions.Expect(page.Locator(".sedna-tip")).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("sedna-tip--visible"));
 
-        await page.EvaluateAsync("() => sednaUi.tips.setEnabled(false)");
+        await Js.Run(page, "() => sednaUi.tips.setEnabled(false)");
         Assert.False(await page.EvaluateAsync<bool>("() => !!document.querySelector('.sedna-tip--visible')"));
 
         await Pointer(page, "pointerup");

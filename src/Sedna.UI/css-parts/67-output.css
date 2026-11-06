@@ -159,7 +159,7 @@
     cursor: pointer;
 }
 .output-details > summary::-webkit-details-marker { display: none; }
-.output-details > summary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.output-details > summary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .output-details > summary::before {
     content: '';
     position: absolute;
@@ -189,7 +189,7 @@
 /* ── Row actions ────────────────────────────────────────────────────────────
    Copy the line, open the trace, filter by this source: a small strip at the row's
    trailing edge that appears on hover and on focus, and stays while its menu is open.
-   The buttons are `.btn-ghost .btn-icon .btn-sm` and the menu is `.menu-anchor` with
+   The buttons are `.btn--ghost .btn--icon .btn--sm` and the menu is `.menu-anchor` with
    `data-menu-toggle`, as anywhere else. Put the strip after a <details>, never inside
    its <summary>, where a click on the menu's padding would toggle the row.
 

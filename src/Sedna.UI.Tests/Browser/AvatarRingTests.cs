@@ -19,14 +19,14 @@ public class AvatarRingTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, _) = await OpenStyled("""
             <div class="card" style="display:flex;gap:32px;align-items:center;padding:24px">
-                <span class="avatar avatar-sm avatar--ring-warn" id="sm">AF</span>
+                <span class="avatar avatar--sm avatar--ring-warn" id="sm">AF</span>
                 <span class="avatar avatar--ring-warn" id="md">AF</span>
-                <span class="avatar avatar-lg avatar--ring-warn" id="lg">AF</span>
-                <span class="avatar avatar-lg avatar--ring" id="brand">AF</span>
-                <span class="avatar-presence avatar-presence--busy"><span class="avatar avatar-lg avatar--ring-warn" id="presence">AF</span></span>
+                <span class="avatar avatar--lg avatar--ring-warn" id="lg">AF</span>
+                <span class="avatar avatar--lg avatar--ring" id="brand">AF</span>
+                <span class="avatar-presence avatar-presence--busy"><span class="avatar avatar--lg avatar--ring-warn" id="presence">AF</span></span>
                 <span class="user-avatar avatar--ring-warn" id="widget">AF</span>
                 <span class="avatar-pair avatar--ring-warn" id="pair-md"><span class="avatar">PN</span><span class="avatar">TF</span></span>
-                <span class="avatar-pair avatar-lg avatar--ring-warn" id="pair-lg"><span class="avatar">PN</span><span class="avatar">TF</span></span>
+                <span class="avatar-pair avatar--lg avatar--ring-warn" id="pair-lg"><span class="avatar">PN</span><span class="avatar">TF</span></span>
             </div>
             """);
 
@@ -46,8 +46,8 @@ public class AvatarRingTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var (page, _) = await OpenStyled("""
-            <div class="card" id="card" style="padding:24px"><span class="avatar avatar-lg avatar--ring-warn" id="on-card">AF</span></div>
-            <div style="padding:24px" id="page"><span class="avatar avatar-lg avatar--ring-warn" id="on-page">AF</span></div>
+            <div class="card" id="card" style="padding:24px"><span class="avatar avatar--lg avatar--ring-warn" id="on-card">AF</span></div>
+            <div style="padding:24px" id="page"><span class="avatar avatar--lg avatar--ring-warn" id="on-page">AF</span></div>
             """);
 
         foreach (var (id, surface) in new[] { ("on-card", "card"), ("on-page", "page") })
@@ -69,9 +69,9 @@ public class AvatarRingTests : ScriptTestBase
     }
 
     [Theory]
-    [InlineData("avatar-sm", 22)]
+    [InlineData("avatar--sm", 22)]
     [InlineData("", 28)]
-    [InlineData("avatar-lg", 40)]
+    [InlineData("avatar--lg", 40)]
     public async Task A_pair_is_one_avatar_square_with_the_front_one_in_the_far_corner(string size, double square)
     {
         if (NoBrowser) return;

@@ -36,7 +36,7 @@ public partial class CatalogueTopbar : ComponentBase, IDisposable
     // reader is actually looking at.
     private bool Light => Settings.Current.Variant == "light";
     private bool ColourBlind => Settings.Current.ColourBlind;
-    private bool Compact => Settings.Current.Compact;
+    private bool Compact => Settings.Current.Density == "compact";
     private bool Rtl => Settings.Current.Direction == "rtl";
 
     private static string Pressed(bool on) => on ? "true" : "false";
@@ -64,7 +64,7 @@ public partial class CatalogueTopbar : ComponentBase, IDisposable
 
     private Task ToggleColourBlind() => Settings.SetColourBlindAsync(!ColourBlind);
 
-    private Task ToggleDensity() => Settings.SetCompactAsync(!Compact);
+    private Task ToggleDensity() => Settings.SetDensityAsync(Compact ? "comfortable" : "compact");
 
     // The whole point of shipping 70-rtl.css is that a mirrored document is one
     // attribute away, so the site that documents it has to be able to prove that on

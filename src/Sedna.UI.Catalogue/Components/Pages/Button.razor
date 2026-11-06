@@ -10,14 +10,23 @@
     <table class="table">
         <thead><tr><th>Class</th><th>Use for</th></tr></thead>
         <tbody>
-            <tr><td><code>.btn-primary</code></td><td>The neutral primary action</td></tr>
-            <tr><td><code>.btn-go</code></td><td>Sends something outward — approve, apply, send, reroute</td></tr>
-            <tr><td><code>.btn-warn-solid</code></td><td>Changes who is in control — accept and take over</td></tr>
-            <tr><td><code>.btn-warn</code></td><td>The same action as a secondary, beside a green primary</td></tr>
-            <tr><td><code>.btn-danger</code></td><td>Destructive</td></tr>
+            <tr><td><code>.btn--brand.btn--solid</code></td><td>The neutral primary action</td></tr>
+            <tr><td><code>.btn--go.btn--solid</code></td><td>Sends something outward — approve, apply, send, reroute</td></tr>
+            <tr><td><code>.btn--warn.btn--solid</code></td><td>Changes who is in control — accept and take over</td></tr>
+            <tr><td><code>.btn--warn</code></td><td>The same action as a secondary, beside a green primary</td></tr>
+            <tr><td><code>.btn--danger</code></td><td>Destructive</td></tr>
         </tbody>
     </table>
 </div>
+
+<CatExample TExample="Examples.Button.ToneMatrix" Title="Tone and emphasis" Demo="ex-demo--block">
+    <p>
+        A tone says what a button does — <code>.btn--brand</code>, <code>--go</code>, <code>--warn</code>,
+        <code>--danger</code>, <code>--info</code>, <code>--secret</code> — and an emphasis how loudly:
+        soft by default, <code>.btn--solid</code> filled, <code>.btn--ghost</code> with no fill until
+        hovered. Any tone takes any emphasis; a panel's one primary action is the filled one.
+    </p>
+</CatExample>
 
 <CatExample TExample="Examples.Button.Variants" Title="Variants">
     <p>The full set, all at the same height.</p>
@@ -25,7 +34,7 @@
 
 <CatExample TExample="Examples.Button.Sizes" Title="Three sizes" Demo="ex-demo--block">
     <p>
-        <code>.btn-sm</code>, the default, and <code>.btn-lg</code>. Every control that can share a row
+        <code>.btn--sm</code>, the default, and <code>.btn--lg</code>. Every control that can share a row
         takes the same three heights &mdash; 28px, 36px and 44px &mdash; so a button, a link, an
         icon button, a field and a chip line up; a <a href="/badge">badge</a> does not, because it
         has its own type scale.
@@ -44,7 +53,7 @@
 
 <CatExample TExample="Examples.Button.IconOnly" Title="Icon-only">
     <p>
-        <strong><code>.btn-icon</code> is not optional</strong> &mdash; a bare <code>.btn</code>
+        <strong><code>.btn--icon</code> is not optional</strong> &mdash; a bare <code>.btn</code>
         keeps its text padding, so one glyph sits in a box half again as wide as it is tall. Give
         every icon-only button an <code>aria-label</code>; the glyph itself is a bundled
         <a href="https://remixicon.com">Remix Icon</a>, linked from
@@ -55,7 +64,7 @@
 
 <CatExample TExample="Examples.Button.Ghost" Title="Ghost">
     <p>
-        <code>.btn-ghost</code> defers its border and fill until hover, for a dense row of
+        <code>.btn--ghost</code> defers its border and fill until hover, for a dense row of
         secondary actions &mdash; a table row's actions, a toolbar. It keeps the same box as a
         bordered button, so a ghost and a solid button in one row still line up.
     </p>
@@ -91,6 +100,13 @@
     <p>
         <code>.btn</code> works on an <code>&lt;a&gt;</code> &mdash; it sets its own
         <code>text-decoration</code> and colour, so no reset is needed.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Button.Wrap" Title="A label on two lines">
+    <p>
+        <code>.btn--wrap</code> lets the label wrap and starts it at the inline start, for a
+        picker whose choices are full-width buttons with a long name. A button is otherwise one line.
     </p>
 </CatExample>
 
