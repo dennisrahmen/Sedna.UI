@@ -272,4 +272,6 @@
     /* 69-motion — rows arrive at once. */
     .table--stagger tbody > tr,
     .list--stagger > li { animation: none; }
+    .card-resize::before,
+    .split-resize::before { transition: none; }
 }

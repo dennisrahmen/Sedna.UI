@@ -108,12 +108,21 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Grid.ResizableSplit" Title="A split the reader resizes" Demo="ex-demo--block">
+    <p>
+        A <code>.split-resize</code> handle between the two writes <code>--split-aside</code> as
+        the reader drags it, with <code>data-resize-measure</code> naming the aside it measures. It
+        sits in the gap and takes no room. Pair it with a <code>--stack-*</code> modifier, so the
+        handle goes when the two stack.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Grid.AutoFill" Title="`.sedna-grid`" Demo="ex-demo--block">
     <p>
         Peers in as many columns as <code>--grid-min</code> (280px) allows. It fills with empty tracks,
         so three children in a wide grid stay three tracks wide instead of stretching across the row.
         <code>.sedna-grid--sm</code> sets the minimum to 200px and <code>.sedna-grid--lg</code> to
-        340px.
+        340px. <code>--grid-max</code> caps the number of columns however wide the grid is.
     </p>
 </CatExample>
 

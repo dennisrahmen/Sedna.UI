@@ -41,6 +41,7 @@ namespace Sedna.UI;
 [EventHandler("onsedna-editor-media", typeof(SednaEditorMediaEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
 [EventHandler("onsedna-editor-file", typeof(SednaEditorFileEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-follow", typeof(SednaFollowEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-resize", typeof(SednaResizeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 public static class EventHandlers
 {
 }

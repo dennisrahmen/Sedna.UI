@@ -102,6 +102,20 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Card.Widgets" Title="Widgets the reader arranges" Demo="ex-demo--block">
+    <p>
+        <code>.card-head-lead</code> is a slot before the title for a grip or an icon; the title
+        then takes the room up to <code>.card-head-right</code>. <code>.card--folded</code> shows
+        the head alone — toggle it from your own button and say so with <code>aria-expanded</code>.
+        <code>.card--resizable</code> holds the height in <code>--card-height</code>, keeps the head
+        and scrolls the body; its <code>.card-resize</code> handle is a
+        <code>[data-resize="--card-height"]</code> separator the reader drags, moves with the arrow
+        keys and resets with <kbd>Home</kbd> or a double-click. <code>&#64;onsedna-resize</code> tells
+        you the height to keep. <code>--grid-max</code> on the <code>.sedna-grid</code> caps how
+        many columns the widgets take, by the grid's own width.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Card.CaveatAboutCardSOwn" Title="A caveat about the card's own content" Demo="ex-demo--block">
     <p>
         <code>.card-warning</code> pins an amber strip to the card's bottom edge &mdash; a stale

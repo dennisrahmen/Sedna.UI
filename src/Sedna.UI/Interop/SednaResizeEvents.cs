@@ -1,0 +1,18 @@
+namespace Sedna.UI;
+
+/// <summary>
+/// A handle finished resizing what it resizes: <c>sedna-resize</c>, dispatched on the element
+/// whose custom property the handle writes — a resizable card, a split.
+/// </summary>
+/// <remarks>
+/// It fires once a drag ends, on each arrow key, and on a reset, so an app can keep the size
+/// the reader chose and write it back as the same property next time.
+/// </remarks>
+public sealed class SednaResizeEventArgs : EventArgs
+{
+    /// <summary>The custom property the handle writes, e.g. <c>--card-height</c>.</summary>
+    public string Property { get; set; } = "";
+
+    /// <summary>The size in pixels, or null once the reader put it back to the default.</summary>
+    public double? Value { get; set; }
+}

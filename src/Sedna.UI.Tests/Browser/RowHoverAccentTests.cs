@@ -31,7 +31,7 @@ public class RowHoverAccentTests : ScriptTestBase
         await page.HoverAsync(hover);
         Assert.EndsWith("|rgba(0, 0, 0, 0)|3px", await Strip(page, cell), StringComparison.Ordinal);
 
-        await page.EvaluateAsync("() => document.getElementById('wrap').style.setProperty('--row-hover-accent', 'rgb(255, 0, 0)')");
+        await Js.Run(page, "() => document.getElementById('wrap').style.setProperty('--row-hover-accent', 'rgb(255, 0, 0)')");
         Assert.EndsWith("|rgb(255, 0, 0)|3px", await Strip(page, cell), StringComparison.Ordinal);
         Assert.Empty(errors);
     }
@@ -41,7 +41,7 @@ public class RowHoverAccentTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var (page, _) = await OpenStyled(Rows);
-        await page.EvaluateAsync("() => document.getElementById('wrap').style.setProperty('--row-hover-accent', 'rgb(255, 0, 0)')");
+        await Js.Run(page, "() => document.getElementById('wrap').style.setProperty('--row-hover-accent', 'rgb(255, 0, 0)')");
         await page.HoverAsync("#sel");
         Assert.StartsWith("none", await Strip(page, "#sel > td:first-child"), StringComparison.Ordinal);
     }
