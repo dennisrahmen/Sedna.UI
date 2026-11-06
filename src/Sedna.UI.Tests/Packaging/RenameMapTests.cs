@@ -35,4 +35,16 @@ public class RenameMapTests
         }
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
     }
+
+    /// <summary>
+    /// The release notes call the attached map renames-&lt;version&gt;.json. An asset is
+    /// named after its file, and the file in the repository is named after the version
+    /// alone, so the release has to upload it under the other name.
+    /// </summary>
+    [Fact]
+    public void The_release_attaches_the_map_under_the_name_the_notes_give_it()
+    {
+        var yaml = File.ReadAllText(Path.Combine(Assets.RepoRoot, ".github", "workflows", "release.yml"));
+        Assert.Matches(@"gh release upload [^\n]*""renames-\$VERSION\.json""", yaml);
+    }
 }
