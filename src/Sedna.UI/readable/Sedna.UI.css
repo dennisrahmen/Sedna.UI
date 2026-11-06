@@ -89,6 +89,7 @@
      68-workflow.css
      69-beam.css
      69-timeline.css
+     69-tone.css
      70-rtl.css
      71-forced-colors.css
      72-print.css
@@ -437,6 +438,32 @@
        every filled control. Ice White here would lower all six ratios at once,
        which is why --white exists in the palette as an absolute. */
     --on-solid:        var(--white);          /* text on any filled/solid button */
+    /* Hover and press steps of the tones that had none, mixed from their own roles so
+       every theme and variant moves them too (69-tone.css). */
+    --badge-cyan-active: color-mix(in srgb, var(--badge-cyan-fg), var(--badge-cyan-bg) 25%);
+    --badge-cyan-bg-active: color-mix(in srgb, var(--badge-cyan-bg), var(--badge-cyan-fg) 18%);
+    --badge-cyan-bg-hover: color-mix(in srgb, var(--badge-cyan-bg), var(--badge-cyan-fg) 10%);
+    --badge-cyan-hover: color-mix(in srgb, var(--badge-cyan-fg), var(--badge-cyan-bg) 15%);
+    --badge-orange-active: color-mix(in srgb, var(--badge-orange-fg), var(--badge-orange-bg) 25%);
+    --badge-orange-bg-active: color-mix(in srgb, var(--badge-orange-bg), var(--badge-orange-fg) 18%);
+    --badge-orange-bg-hover: color-mix(in srgb, var(--badge-orange-bg), var(--badge-orange-fg) 10%);
+    --badge-orange-hover: color-mix(in srgb, var(--badge-orange-fg), var(--badge-orange-bg) 15%);
+    --badge-teal-active: color-mix(in srgb, var(--badge-teal-fg), var(--badge-teal-bg) 25%);
+    --badge-teal-bg-active: color-mix(in srgb, var(--badge-teal-bg), var(--badge-teal-fg) 18%);
+    --badge-teal-bg-hover: color-mix(in srgb, var(--badge-teal-bg), var(--badge-teal-fg) 10%);
+    --badge-teal-hover: color-mix(in srgb, var(--badge-teal-fg), var(--badge-teal-bg) 15%);
+    --danger-active: color-mix(in srgb, var(--danger-solid), var(--danger-fg) 25%);
+    --danger-hover: color-mix(in srgb, var(--danger-solid), var(--danger-fg) 15%);
+    --go-bg-active: color-mix(in srgb, var(--go-bg), var(--go-solid) 20%);
+    --go-bg-hover: color-mix(in srgb, var(--go-bg), var(--go-solid) 12%);
+    --info-active: color-mix(in srgb, var(--info-solid), var(--info-fg) 25%);
+    --info-bg-active: color-mix(in srgb, var(--info-bg), var(--info-solid) 20%);
+    --info-bg-hover: color-mix(in srgb, var(--info-bg), var(--info-solid) 12%);
+    --info-hover: color-mix(in srgb, var(--info-solid), var(--info-fg) 15%);
+    --secret-active: color-mix(in srgb, var(--secret-fg), var(--secret-bg) 25%);
+    --secret-bg-active: color-mix(in srgb, var(--secret-bg), var(--secret-fg) 18%);
+    --secret-bg-hover: color-mix(in srgb, var(--secret-bg), var(--secret-fg) 10%);
+    --secret-hover: color-mix(in srgb, var(--secret-fg), var(--secret-bg) 15%);
     /* Text on a series fill. The dark theme's series are light steps (cyan-400,
        teal-400), where white fails AA; the light theme's are 600 steps, and the
        light block swaps this to white. */
@@ -519,7 +546,7 @@
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
     --brand-ring-check: color-mix(in srgb, var(--brand) 35%, transparent);  /* checkbox focus */
     --brand-glow:       color-mix(in srgb, var(--brand) 18%, transparent);  /* text-input focus glow */
-    /* The edge of a brand-filled control — .btn-primary's border. --brand is solved for
+    /* The edge of a brand-filled control — .btn--brand.btn--solid's border. --brand is solved for
        white text on it, which puts it at 2.9:1 against the dark card: under the 3:1 a
        control's boundary needs. The edge takes the display strength instead, so the
        button's outline clears 3:1 while its fill still carries the label. In the light
@@ -681,7 +708,7 @@
        grey — never the ranking itself. Same reasoning as `.steps`, where done
        is FILLED rather than green.
 
-       Which means the label still has to say the rank. `.badge-sev-2` reading
+       Which means the label still has to say the rank. `.badge--sev-2` reading
        "P2" is the contract; a bare coloured pill is a colour, not a position.
 
        --sev-N-solid is a ramp of its own, stepping 800 → 700 → 600 → 500 → 400
@@ -2571,7 +2598,7 @@ a.topbar-version--pre:hover {
    rather than a `.btn`.
 
    Both halves of that are the same finding. The markup carried
-   `.btn.btn-sm.btn-danger`, and `.btn-danger` is a TINT — 15% crimson over the
+   `.btn.btn--sm.btn--danger`, and `.btn--danger` is a TINT — 15% crimson over the
    page surface — so on a bar that is already crimson-900 the fill vanished and
    the label landed on `--reconnect-fail-fg`, the bar's own text colour. The
    control read as an empty rectangle with a hairline around it. The tinted button
@@ -2579,14 +2606,14 @@ a.topbar-version--pre:hover {
    rather than a change to `--reconnect-fail-*`.
 
    And the frame cannot fix a `.btn`: `@layer sedna.paint` comes after
-   `@layer sedna.frame`, so `.btn-danger` outranks anything written here whatever
+   `@layer sedna.frame`, so `.btn--danger` outranks anything written here whatever
    the selectors weigh. A control that belongs to the frame is a frame class —
    `.topbar-btn` and `.user-signout` already are.
 
    The fill is the semantic solid, which carries `--on-solid` at AA in every
    theme (white on warn 5.31, on danger 4.61 — docs/BRANDING.md §6). Hover is a
    ring in `currentColor` rather than a darker fill: the token set has no
-   `--danger-hover`, because `.btn-danger` hovers on its tint, and a ring works
+   `--danger-hover`, because `.btn--danger` hovers on its tint, and a ring works
    on both palettes and in every theme without one. */
 .status-bar-action {
     display: inline-flex;
@@ -3900,7 +3927,7 @@ a.topbar-version--pre:hover {
 
    A badge is a label, not a target, so its three sizes are a type scale rather than
    the control heights: it has to sit inside a line of text, a table cell and a card
-   title without setting the line's height. That is why `.badge-lg` is 12px text and
+   title without setting the line's height. That is why `.badge--lg` is 12px text and
    not a 36px pill. The chip, which is interactive, does take the control heights. */
 .badge {
     display: inline-flex;
@@ -3920,36 +3947,28 @@ a.topbar-version--pre:hover {
    baseline offset drops it a pixel under the text on iOS. */
 .badge i { font-size: var(--text-3); line-height: 1; }
 
-.badge-sm   { font-size: var(--text-1); padding: 0 var(--space-3); }
-.badge-sm i { font-size: var(--text-2); }
-.badge-lg   { font-size: var(--text-3); padding: var(--space-2) var(--space-5); }
-.badge-lg i { font-size: var(--text-4); }
-.badge-go     { background: var(--go-bg);     border-color: var(--go-border);     color: var(--go-fg); }
-.badge-warn   { background: var(--warn-bg);   border-color: var(--warn-border);   color: var(--warn-fg); }
-.badge-danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }
-.badge-info   { background: var(--info-bg);   border-color: var(--info-border);   color: var(--info-fg); }
-.badge-secret { background: var(--secret-bg); border-color: var(--secret-border); color: var(--secret-fg); }
-.badge-cyan   { background: var(--badge-cyan-bg);   border-color: var(--badge-cyan-border);   color: var(--badge-cyan-fg); }
-.badge-orange { background: var(--badge-orange-bg); border-color: var(--badge-orange-border); color: var(--badge-orange-fg); }
-.badge-teal   { background: var(--badge-teal-bg);   border-color: var(--badge-teal-border);   color: var(--badge-teal-fg); }
+.badge--sm   { font-size: var(--text-1); padding: 0 var(--space-3); }
+.badge--sm i { font-size: var(--text-2); }
+.badge--lg   { font-size: var(--text-3); padding: var(--space-2) var(--space-5); }
+.badge--lg i { font-size: var(--text-4); }
 
 /* ── Severity ───────────────────────────────────────────────────────────────
    An ORDERED five-step scale — P1–P5, a CVSS band, a triage tier. The four
    semantic families rank nothing and the three categorical hues say so out
    loud, which is why neither can serve a ranking.
 
-   `.badge-sev-1` is a filled pill and 2–5 are tints that weaken as the rank
+   `.badge--sev-1` is a filled pill and 2–5 are tints that weaken as the rank
    falls. That ladder is the ordering, and it is the part that survives the
    colour-blind palette, a greyscale print and forced colours — see the token
    block in 01-tokens.css.
 
    THE LABEL MUST CARRY THE RANK. "P2", "High", "3 of 5" — not a bare pill.
    Colour is the reinforcement here, never the only channel. */
-.badge-sev-1 { background: var(--sev-1-bg); border-color: var(--sev-1-border); color: var(--sev-1-fg); }
-.badge-sev-2 { background: var(--sev-2-bg); border-color: var(--sev-2-border); color: var(--sev-2-fg); }
-.badge-sev-3 { background: var(--sev-3-bg); border-color: var(--sev-3-border); color: var(--sev-3-fg); }
-.badge-sev-4 { background: var(--sev-4-bg); border-color: var(--sev-4-border); color: var(--sev-4-fg); }
-.badge-sev-5 { background: var(--sev-5-bg); border-color: var(--sev-5-border); color: var(--sev-5-fg); }
+.badge--sev-1 { background: var(--sev-1-bg); border-color: var(--sev-1-border); color: var(--sev-1-fg); }
+.badge--sev-2 { background: var(--sev-2-bg); border-color: var(--sev-2-border); color: var(--sev-2-fg); }
+.badge--sev-3 { background: var(--sev-3-bg); border-color: var(--sev-3-border); color: var(--sev-3-fg); }
+.badge--sev-4 { background: var(--sev-4-bg); border-color: var(--sev-4-border); color: var(--sev-4-fg); }
+.badge--sev-5 { background: var(--sev-5-bg); border-color: var(--sev-5-border); color: var(--sev-5-fg); }
 }
 
 /* ── 32-tables.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -3980,11 +3999,10 @@ a.topbar-version--pre:hover {
 /* ── Buttons ────────────────────────────────────────────────────────────────
    Colour language — a panel's primary CTA is always a FILLED button in its
    semantic colour:
-     .btn-primary    filled brand   — the neutral primary
-     .btn-go         filled green   — sends something outward (approve, apply)
-     .btn-warn-solid filled amber   — changes who is in control (take over)
-     .btn-warn       tinted amber   — a SECONDARY of the above, beside a primary
-     .btn-danger     tinted red     — destructive
+     A tone modifier says what a button does, an emphasis modifier how loudly
+     (69-tone.css): .btn--brand.btn--solid is the primary action; .btn--go.btn--solid
+     sends something outward; .btn--warn.btn--solid changes who is in control, .btn--warn
+     is its secondary; .btn--danger is destructive; .btn--ghost has no fill until hovered.
 
    --control-height is shared with the text input, the select and the search box, so
    a button beside a field is the same height as the field. It also pins an icon-only
@@ -4019,36 +4037,16 @@ a.topbar-version--pre:hover {
 
 /* Three tiers. Each sets its height from the matching token and scales its padding,
    text and icon with it. */
-.btn-sm   { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
-.btn-sm i { font-size: var(--text-4); }
-.btn-lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
-.btn-lg i { font-size: var(--text-8); }
+.btn--sm   { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
+.btn--sm i { font-size: var(--text-4); }
+.btn--lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
+.btn--lg i { font-size: var(--text-8); }
 
-.btn-primary        { background: var(--brand); border-color: var(--brand-edge); color: var(--on-solid); }
-.btn-primary:hover  { background: var(--brand-hover); }
-.btn-primary:active { background: var(--brand-active); }
-.btn-primary:focus-visible { box-shadow: 0 0 0 2px var(--brand-ring); }
 
-.btn-go        { background: var(--go-solid); border-color: var(--go-solid); color: var(--on-solid); }
-.btn-go:hover  { background: var(--go-hover); border-color: var(--go-hover); }
-.btn-go:active { background: var(--go-active); border-color: var(--go-active); }
-.btn-go:focus-visible { box-shadow: 0 0 0 2px var(--go-ring); }
 
-.btn-warn-solid        { background: var(--warn-solid); border-color: var(--warn-solid); color: var(--on-solid); }
-.btn-warn-solid:hover  { background: var(--warn-hover); border-color: var(--warn-hover); }
-.btn-warn-solid:active { background: var(--warn-active); border-color: var(--warn-active); }
-.btn-warn-solid:focus-visible { box-shadow: 0 0 0 2px var(--warn-ring-solid); }
 
-.btn-warn        { color: var(--warn-fg); border-color: var(--warn-border); background: var(--warn-bg); }
-.btn-warn:hover  { background: var(--warn-bg-hover); border-color: var(--warn-border); }
-.btn-warn:active { background: var(--warn-bg-active); }
-.btn-warn:focus-visible { box-shadow: 0 0 0 2px var(--warn-ring); }
 
-.btn-danger        { color: var(--danger-fg); border-color: var(--danger-border); background: var(--danger-bg); }
-.btn-danger:hover  { background: var(--danger-bg-hover); border-color: var(--danger-border-strong); }
-.btn-danger:active { background: var(--danger-bg-active); }
 /* Its own ring, so focus is not a blue halo around a red destructive button. */
-.btn-danger:focus-visible { box-shadow: 0 0 0 2px var(--danger-ring); }
 
 /* ── In flight ──────────────────────────────────────────────────────────────
    `aria-busy="true"` on a button whose action is running — a save, a submit, an API
@@ -4059,7 +4057,7 @@ a.topbar-version--pre:hover {
    only painted transparent, and the spinner is laid over the middle, so the box does
    not shrink under the cursor mid-click. `-webkit-text-fill-color` rather than
    `color: transparent`, because the ring is drawn in `currentColor` and has to keep
-   the variant's own text colour — on `.btn-primary` that is the on-solid ink.
+   the variant's own text colour — on `.btn--brand.btn--solid` that is the on-solid ink.
 
    Pointer clicks are stopped, so a double click cannot submit twice. The keyboard is
    not: leave `disabled` off, which would drop focus to <body> and stop the busy state
@@ -4170,8 +4168,8 @@ textarea.form-input::-webkit-resizer {
 
 /* The same three tiers as the button, so a field and the button beside it agree at
    every size. Padding stays under the tier so the tier is what sets the height. */
-.form-input-sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
-.form-input-lg { min-height: var(--control-height-lg); padding: var(--space-5) var(--space-7); font-size: var(--text-5); }
+.form-input--sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
+.form-input--lg { min-height: var(--control-height-lg); padding: var(--space-5) var(--space-7); font-size: var(--text-5); }
 
 /* A read-only value rendered in the shape of an input — so it takes the input's
    height too, or a form of mixed editable and read-only rows steps up and down. */
@@ -4353,10 +4351,10 @@ textarea.form-input::-webkit-resizer {
    height cap leaves above and below, and the safe-area insets clear: for an editor
    that wants the whole screen. 100% is the backdrop's width, or the viewport's for a
    <dialog>, so neither form runs under a scrollbar. */
-.modal-sm   { max-width: 360px; }
-.modal-lg   { max-width: 760px; }
-.modal-xl   { max-width: 1140px; }
-.modal-full { max-width: calc(100% - 2 * var(--space-8) - var(--safe-inline-start) - var(--safe-inline-end)); }
+.modal--sm   { max-width: 360px; }
+.modal--lg   { max-width: 760px; }
+.modal--xl   { max-width: 1140px; }
+.modal--full { max-width: calc(100% - 2 * var(--space-8) - var(--safe-inline-start) - var(--safe-inline-end)); }
 
 /* ── As a <dialog> ──────────────────────────────────────────────────────────
    `.modal` on a <dialog> opened with showModal() gets the top layer, a focus trap,
@@ -4588,17 +4586,17 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     border-radius: var(--radius-surface);
     font-size: var(--text-4);
     margin-bottom: var(--space-7);
-    border: 1px solid;
+    /* With no tone it is a plain note: a soft surface, the text's own colour. A tone
+       modifier (69-tone.css) tints it. */
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--fg);
     /* A flex row: without these its text is a flex item that will not shrink below its
        longest word, and a long address widens the alert past its container. */
     overflow-wrap: anywhere;
 }
 .alert > * { min-width: 0; }
 .alert i { font-size: var(--text-7); flex-shrink: 0; }
-.alert-go     { background: var(--go-bg);     border-color: var(--go-hover);     color: var(--go-fg); }
-.alert-warn   { background: var(--warn-bg);   border-color: var(--warn-hover);   color: var(--warn-fg); }
-.alert-danger { background: var(--danger-bg); border-color: var(--danger-border-strong); color: var(--danger-fg); }
-.alert-info   { background: var(--info-bg);   border-color: var(--info-border);   color: var(--info-fg); }
 
 }
 
@@ -4707,14 +4705,6 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .toast-close:hover { color: var(--fg); }
 
 /* The semantic families again, carried on the leading rule and the icon. */
-.toast-go     { border-inline-start-color: var(--go-solid); }
-.toast-go i   { color: var(--go-fg); }
-.toast-warn   { border-inline-start-color: var(--warn-solid); }
-.toast-warn i { color: var(--warn-fg); }
-.toast-danger   { border-inline-start-color: var(--danger-solid); }
-.toast-danger i { color: var(--danger-fg); }
-.toast-info   { border-inline-start-color: var(--info-border); }
-.toast-info i { color: var(--info-fg); }
 
 }
 
@@ -4734,7 +4724,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     /* Keeps the ring on the text baseline instead of riding above it. */
     vertical-align: -0.125em;
 }
-.spinner-lg { width: 24px; height: 24px; border-width: 3px; }
+.spinner--lg { width: 24px; height: 24px; border-width: 3px; }
 
 @keyframes sedna-spin { to { transform: rotate(360deg); } }
 
@@ -4923,7 +4913,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .empty-state--pending > .spinner,
 /* The spinner stands in for the drawing in the waiting state, so its margin tracks
    .state-art's. Left behind, the waiting state sits differently from every other. */
-.empty-state--pending > .spinner-lg {
+.empty-state--pending > .spinner--lg {
     width: 40px;
     height: 40px;
     margin-bottom: var(--space-4);
@@ -4989,7 +4979,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    same sentence under a 22px heading reads as a narrow strip. */
 .empty-state--page p { font-size: var(--text-5); max-width: 52ch; }
 .empty-state--page.empty-state--pending > .spinner,
-.empty-state--page.empty-state--pending > .spinner-lg { width: 56px; height: 56px; border-width: 4px; }
+.empty-state--page.empty-state--pending > .spinner--lg { width: 56px; height: 56px; border-width: 4px; }
 
 /* The status code, above the title. What the reader needs it for is telling somebody
    else which page broke, so it is sized to be read once and repeated — not to be the
@@ -5448,7 +5438,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
      <div class="editor">
        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-pressed="true" aria-label="Bold"><i class="ri-bold"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-pressed="true" aria-label="Bold"><i class="ri-bold"></i></button>
          <span class="editor-sep" role="separator"></span>
          …
        </div>
@@ -5955,18 +5945,18 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
 /* The same three tiers as .form-input, so a small filter field and the small
    dropdown beside it agree on height. Longhands rather than the `padding`
-   shorthand .form-input-sm uses: the shorthand would reset the fallback caret's
+   shorthand .form-input--sm uses: the shorthand would reset the fallback caret's
    room above, which is the one thing that select cannot give up. --space-10
    therefore stays where the fallback set it, at every tier — and where base
    appearance is available there is no reserved room to protect, so
    49-form-select-base.css gives the trailing side back at each tier. */
-.form-select-sm {
+.form-select--sm {
     min-height: var(--control-height-sm);
     padding-block: var(--space-2);
     padding-inline-start: var(--space-4);
     font-size: var(--text-3);
 }
-.form-select-lg {
+.form-select--lg {
     min-height: var(--control-height-lg);
     padding-block: var(--space-5);
     padding-inline-start: var(--space-7);
@@ -6083,8 +6073,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    `<input type="color" class="form-color">`. The native input IS the picker, so there
    is no picker logic here — only its chrome, which otherwise is a small system-styled
    box that sits badly beside a .form-input in every engine. It takes the shared control
-   heights, the field border and the field focus ring; `.form-input-sm` and
-   `.form-input-lg` size it like any other field.
+   heights, the field border and the field focus ring; `.form-input--sm` and
+   `.form-input--lg` size it like any other field.
 
    The swatch inside is the engine's own pseudo-element, which is why it is reached
    with the prefixed selectors: the wrapper's padding is what left the colour floating
@@ -6099,8 +6089,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     cursor: pointer;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.form-color.form-input-sm { inline-size: var(--control-height-sm); block-size: var(--control-height-sm); }
-.form-color.form-input-lg { inline-size: var(--control-height-lg); block-size: var(--control-height-lg); }
+.form-color.form-input--sm { inline-size: var(--control-height-sm); block-size: var(--control-height-sm); }
+.form-color.form-input--lg { inline-size: var(--control-height-lg); block-size: var(--control-height-lg); }
 .form-color:hover { border-color: var(--border-hover); }
 .form-color:focus-visible { outline: none; border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
 .form-color:disabled { cursor: not-allowed; opacity: var(--disabled-opacity); }
@@ -6327,7 +6317,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
    the focus ring and the three size tiers, so it lines up with the text fields
    beside it at every size:
 
-     <button class="form-input form-input-sm form-trigger" type="button" popovertarget="region-filter">
+     <button class="form-input form-input--sm form-trigger" type="button" popovertarget="region-filter">
        <i class="ri-map-pin-line"></i><span>2 selected</span>
      </button>
 
@@ -6587,7 +6577,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
 /* One row, one control high: the zone under a reply or comment composer, where a
    full-height panel would outweigh the text field it serves. Icon and label sit on
-   one line at `.btn-sm`'s size; the behaviour and the states are the same zone's. */
+   one line at `.btn--sm`'s size; the behaviour and the states are the same zone's. */
 .dropzone--sm {
     flex-direction: row;
     justify-content: center;
@@ -6633,7 +6623,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
          <span class="progress" role="progressbar" aria-valuenow="64" aria-label="Uploading stock-check.xlsx"><span class="progress-bar" style="width:64%"></span></span>
        </span>
        <span class="file-item-size">64%</span>
-       <span class="file-item-actions"><button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Cancel">…</button></span>
+       <span class="file-item-actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Cancel">…</button></span>
      </li>
 
    Uploading needs no modifier — the bar is the state. `--done` and `--error` colour
@@ -7389,8 +7379,8 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 
     /* The tiers give the trailing side back too, or a small select keeps the
        normal one's inline-end padding and comes out lopsided. */
-    .form-select-sm { padding-inline-end: var(--space-4); }
-    .form-select-lg { padding-inline-end: var(--space-7); }
+    .form-select--sm { padding-inline-end: var(--space-4); }
+    .form-select--lg { padding-inline-end: var(--space-7); }
 }
 
 /* The value, when the markup supplies its own button. A clone of the chosen
@@ -7941,12 +7931,12 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .avatar i { font-size: var(--text-6); }
 
-.avatar-sm { --avatar-size: 22px; --avatar-overlap: 6px; font-size: var(--text-1); }
+.avatar--sm { --avatar-size: 22px; --avatar-overlap: 6px; font-size: var(--text-1); }
 /* An even size in the 22px circle: an odd one sits on a half pixel and the glyph
    rounds off-centre. */
-.avatar-sm i { font-size: var(--text-5); }
-.avatar-lg { --avatar-size: 40px; --avatar-overlap: 11px; font-size: var(--text-6); }
-.avatar-lg i { font-size: var(--text-9); }
+.avatar--sm i { font-size: var(--text-5); }
+.avatar--lg { --avatar-size: 40px; --avatar-overlap: 11px; font-size: var(--text-6); }
+.avatar--lg i { font-size: var(--text-9); }
 
 /* Neutral, for an actor with no brand meaning — a system account, an unknown
    sender. Keeps the brand tint for people, so a page of rows does not read as
@@ -8041,7 +8031,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
     display: inline-flex;
     flex-shrink: 0;
 }
-.avatar-presence:has(> .avatar-lg) { --presence-size: 12px; }
+.avatar-presence:has(> .avatar--lg) { --presence-size: 12px; }
 .avatar-presence::after {
     content: '';
     position: absolute;
@@ -8203,7 +8193,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
        <span class="avatar avatar--viz-4" aria-hidden="true">TF</span>
      </span>
 
-   The size class goes on the pair — `.avatar-pair.avatar-lg` is a pair the size of a
+   The size class goes on the pair — `.avatar-pair.avatar--lg` is a pair the size of a
    large avatar — and the two inside take a step down from it, rounded to an even
    pixel so the initials centre. The avatar in front is cut out of the one behind by
    the group's own rule above, with the hole moved to the front one's centre.
@@ -8229,8 +8219,8 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
     font-size: var(--text-1);
 }
 .avatar-pair > .avatar i { font-size: var(--text-3); }
-.avatar-pair.avatar-lg > .avatar { font-size: var(--text-3); }
-.avatar-pair.avatar-lg > .avatar i { font-size: var(--text-6); }
+.avatar-pair.avatar--lg > .avatar { font-size: var(--text-3); }
+.avatar-pair.avatar--lg > .avatar i { font-size: var(--text-6); }
 .avatar-pair > .avatar:first-child:not(:last-child) {
     --avatar-cut-x: calc(var(--avatar-pair-size) - var(--avatar-size) / 2);
     --avatar-cut-y: calc(var(--avatar-pair-size) - var(--avatar-size) / 2);
@@ -8264,8 +8254,8 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
    `.tag` is commonly already taken in a consuming app.
    ─────────────────────────────────────────────────────────────────────────── */
 /* A chip is interactive, so it takes the control heights rather than a type scale.
-   The default is the SMALL tier: a chip's home is a filter bar beside a `.btn-sm`,
-   and that is the pairing it has to line up with. `.chip-lg` is the normal tier, for
+   The default is the SMALL tier: a chip's home is a filter bar beside a `.btn--sm`,
+   and that is the pairing it has to line up with. `.chip--lg` is the normal tier, for
    a chip beside a full-size button. */
 .chip {
     display: inline-flex;
@@ -8281,8 +8271,8 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
     font-size: var(--text-3);
     line-height: 1.6;
 }
-.chip-lg { min-height: var(--control-height); font-size: var(--text-4); padding-inline-start: var(--space-6); }
-.chip-lg .chip-dismiss { width: 22px; height: 22px; }
+.chip--lg { min-height: var(--control-height); font-size: var(--text-4); padding-inline-start: var(--space-6); }
+.chip--lg .chip-dismiss { width: 22px; height: 22px; }
 /* A chip with no dismiss button does not need the trailing room for one. */
 .chip:not(:has(.chip-dismiss)) { padding-inline-end: var(--space-5); }
 /* Child, not descendant. `.chip i` weighs the same as `.avatar i` in 52-avatar.css
@@ -8291,16 +8281,16 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 .chip > i { font-size: var(--text-5); color: var(--muted); }
 .chip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* A 22px .avatar-sm in a 28px chip leaves EXACTLY 3px of clearance — the chip's
+/* A 22px .avatar--sm in a 28px chip leaves EXACTLY 3px of clearance — the chip's
    min-height is the small control tier, its block padding is 2px and its border 1px,
    and 22 + 4 + 2 is 28 with nothing over. 3 CSS px on a 1.5x display is 4.5 device
    pixels, which cannot split evenly, so the top and the bottom differ by a device
    pixel and which one is larger flips with the scroll offset. That is the "bottom is
    more, it feels like" — it is real and it is not a measurable asymmetry.
 
-   20px makes the clearance 4px, which does split. Scoped off .chip-lg, whose 36px box
+   20px makes the clearance 4px, which does split. Scoped off .chip--lg, whose 36px box
    already has 7px and needs nothing. */
-.chip:not(.chip-lg) > .avatar { --avatar-size: 20px; }
+.chip:not(.chip--lg) > .avatar { --avatar-size: 20px; }
 
 /* A status dot inside a chip, for a filter whose value carries a state. Colour it
    with a semantic token from the markup, or it says nothing. */
@@ -8838,7 +8828,7 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-rin
 }
 
 /* ── The toolbar on the canvas ─────────────────────────────────────────────────
-   Zoom, fit, arrange, full screen: `.btn .btn-ghost .btn-sm .btn-icon` buttons with a
+   Zoom, fit, arrange, full screen: `.btn .btn--ghost .btn--sm .btn--icon` buttons with a
    `data-graph-action` each, and a `data-tip` for their name. Top right by default;
    `--start` puts it top left, `--bottom` along the bottom, `--stack` in a column. */
 .graph-tools {
@@ -9279,25 +9269,15 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
    It reaches less than half the narrowest gap, so two toned tiles side by side never
    touch. The edge is a border, so forced-colors mode keeps it when the tint is
    flattened. `.stat.stat--*` outranks `a.stat`, so a linked tile takes the same box. */
-.stat.stat--warn,
-.stat.stat--danger {
+.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) {
     padding: calc(var(--space-3) - 1px);
     margin: calc(var(--space-3) * -1);
     border: 1px solid transparent;
     border-radius: var(--radius-surface);
 }
-.card-body > .stat-row > .stat.stat--warn,
-.card-body > .stat-row > .stat.stat--danger {
+.card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) {
     padding-block: calc(var(--space-2) + var(--space-3) - 1px);
 }
-.stat--warn   { background: var(--warn-bg);   border-color: var(--warn-border); }
-.stat--danger { background: var(--danger-bg); border-color: var(--danger-border-strong); }
-.stat--warn .stat-value,
-a.stat--warn:hover .stat-value   { color: var(--warn-fg); }
-.stat--danger .stat-value,
-a.stat--danger:hover .stat-value { color: var(--danger-fg); }
-a.stat--warn:hover   { background: var(--warn-bg-hover); }
-a.stat--danger:hover { background: var(--danger-bg-hover); }
 
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
    it is given, so it behaves correctly inside a narrow column too. */
@@ -9348,10 +9328,8 @@ a.stat--danger:hover { background: var(--danger-bg-hover); }
     inset-inline-start: calc(var(--space-5) - var(--space-7));
 }
 /* A toned tile's box reaches past its track by its tint; the rule does not. */
-.stat-row--divided > .stat.stat--warn::before,
-.stat-row--divided > .stat.stat--danger::before,
-.card-body > .stat-row > .stat.stat--warn::before,
-.card-body > .stat-row > .stat.stat--danger::before {
+.stat-row--divided > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before,
+.card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
     inset-block: calc(var(--space-3) - 1px);
     inset-inline-start: calc(var(--space-3) - 1px - var(--space-7));
 }
@@ -9461,14 +9439,6 @@ a.stat--danger:hover { background: var(--danger-bg-hover); }
 
 /* The same semantic families as buttons, badges and alerts. Tinted more lightly
    than an .alert: a callout is read as part of the prose, not scanned as a state. */
-.callout-info   { background: var(--info-bg);   border-inline-start-color: var(--info-border); }
-.callout-info > i   { color: var(--info-fg); }
-.callout-warn   { background: var(--warn-bg);   border-inline-start-color: var(--warn-solid); }
-.callout-warn > i   { color: var(--warn-fg); }
-.callout-danger { background: var(--danger-bg); border-inline-start-color: var(--danger-solid); }
-.callout-danger > i { color: var(--danger-fg); }
-.callout-go     { background: var(--go-bg);     border-inline-start-color: var(--go-solid); }
-.callout-go > i     { color: var(--go-fg); }
 }
 
 /* ── 56-code-block.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -10274,7 +10244,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
      <tr class="tr-group">
        <th colspan="4" scope="rowgroup">
          <div class="tr-group-body">
-           Waiting on you <span class="badge badge-warn">3</span>
+           Waiting on you <span class="badge badge--warn">3</span>
            <span class="chip">EU-Central <button class="chip-dismiss" …></button></span>
            <span class="tr-group-count">3 of 128</span>
          </div>
@@ -10325,14 +10295,14 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 
 /* ── Filter row ─────────────────────────────────────────────────────────────
    A second header row whose cells hold a filter for their column — a
-   `.form-input.form-input-sm` or a `.form-select`. For an admin table that is
+   `.form-input.form-input--sm` or a `.form-select`. For an admin table that is
    filtered per column; the toolbar above a table is still the default.
 
      <thead>
        <tr><th>Order</th><th>Status</th></tr>
        <tr class="tr-filter">
-         <th><input class="form-input form-input-sm" type="search" aria-label="Filter by order"></th>
-         <th><select class="form-input form-select form-input-sm" aria-label="Filter by status">…</select></th>
+         <th><input class="form-input form-input--sm" type="search" aria-label="Filter by order"></th>
+         <th><select class="form-input form-select form-input--sm" aria-label="Filter by status">…</select></th>
        </tr>
      </thead>
 
@@ -10359,7 +10329,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    control in any cell makes the whole row taller than the sticky offset above says:
 
      · text          `.input-group--sm` with a search `.input-affix` and an `.input-clear`
-     · one choice    `.form-select.form-select-sm`, with `<selectedcontent>` for icons or badges
+     · one choice    `.form-select.form-select--sm`, with `<selectedcontent>` for icons or badges
      · several       `.form-trigger` reading "2 selected", opening a `.popover` of `.form-check`s
      · number range  `.input-group--sm` holding two number fields and an `.input-affix` between
      · date range    `.form-trigger` opening a `.datepicker`
@@ -10682,7 +10652,7 @@ button.list-row {
 :is(a, button).list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
 /* Pressed, which on a touch screen is the only feedback there is — a hover state a
    finger never enters says nothing. The same `--bg-hover` / `--btn-active-bg` pair
-   `.btn-ghost` uses, so a quiet control being held reads the same everywhere and a
+   `.btn--ghost` uses, so a quiet control being held reads the same everywhere and a
    theme remaps both at once.
 
    Pressed and disabled stay on `button.` rather than joining the `:is(a, button)`
@@ -11057,27 +11027,22 @@ button.list-row[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor
 .split-btn > .btn:focus-visible { position: relative; z-index: 1; }
 /* Between two filled buttons of the same colour the shared edge disappears, so the
    split is drawn as a lighter inset line instead. */
-.split-btn > .btn-primary + .btn-primary,
-.split-btn > .btn-go + .btn-go,
-.split-btn > .btn-warn-solid + .btn-warn-solid { box-shadow: inset 1px 0 0 var(--surface-strong); }
+.split-btn > .btn--solid + .btn--solid { box-shadow: inset 1px 0 0 var(--surface-strong); }
 
 /* ── Icon-only and floating buttons ─────────────────────────────────────────
-   .btn-icon is a square button with no label. It still needs an aria-label, and
+   .btn--icon is a square button with no label. It still needs an aria-label, and
    `.btn`'s min-height already matches it to text buttons beside it — this only
    squares the padding so it is not a wide box around one glyph.
 
    Square by construction, from the same token as the height. Do not hard-code the
    width: it drifts from the height the moment either tier changes. */
-.btn-icon { padding-inline: 0; width: var(--control-height); }
-.btn-icon.btn-sm { width: var(--control-height-sm); }
-.btn-icon.btn-lg { width: var(--control-height-lg); }
+.btn--icon { padding-inline: 0; width: var(--control-height); }
+.btn--icon.btn--sm { width: var(--control-height-sm); }
+.btn--icon.btn--lg { width: var(--control-height-lg); }
 
-/* .btn-ghost carries no border or fill until hovered, for a dense row of secondary
+/* .btn--ghost carries no border or fill until hovered, for a dense row of secondary
    actions — a table row's actions, a toolbar. Everything the button does is still
    there; only the chrome is deferred. */
-.btn-ghost { background: none; border-color: transparent; color: var(--muted); }
-.btn-ghost:hover { background: var(--bg-hover); border-color: transparent; color: var(--fg); }
-.btn-ghost:active { background: var(--btn-active-bg); }
 
 /* ── A button with no chrome ────────────────────────────────────────────────
    For an identifier in running text that DOES something: a record number that opens
@@ -12359,8 +12324,8 @@ a.file-cell:hover .file-name { text-decoration: underline; }
          <strong class="lightbox-title" id="lb-1-title">racking-bay-4209.jpg</strong>
          <span class="lightbox-meta">2 of 5 · 1.2 MB</span>
          <div class="lightbox-actions">
-           <a class="btn btn-ghost btn-icon" href="…" download aria-label="Download"><i class="ri-download-2-line"></i></a>
-           <form method="dialog"><button class="btn btn-ghost btn-icon" aria-label="Close"><i class="ri-close-line"></i></button></form>
+           <a class="btn btn--ghost btn--icon" href="…" download aria-label="Download"><i class="ri-download-2-line"></i></a>
+           <form method="dialog"><button class="btn btn--ghost btn--icon" aria-label="Close"><i class="ri-close-line"></i></button></form>
          </div>
        </div>
        <div class="lightbox-stage"><img src="…" alt="…" /></div>
@@ -13354,8 +13319,8 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    ── Approval ──
    The agent asks before it acts. `.agent-approval` on a `.card`; `data-state="approved"`
    or `"denied"` once the reader has answered, which swaps the actions for the result
-   line. Approve is `.btn-go` — it lets the action out — and taking control back is
-   `.btn-warn`, the library's own meanings for both.
+   line. Approve is `.btn--go.btn--solid` — it lets the action out — and taking control back is
+   `.btn--warn`, the library's own meanings for both.
    ─────────────────────────────────────────────────────────────────────────── */
 .reasoning { font-size: var(--text-4); }
 .reasoning > summary {
@@ -14273,9 +14238,9 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
      <button class="form-input" type="button" popovertarget="due">12 Sep 2026</button>
      <div class="popover datepicker" id="due" popover>
        <div class="datepicker-head">
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Previous month"><i class="ri-arrow-left-s-line"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous month"><i class="ri-arrow-left-s-line"></i></button>
          <span class="datepicker-title">September 2026</span>
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Next month"><i class="ri-arrow-right-s-line"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next month"><i class="ri-arrow-right-s-line"></i></button>
        </div>
        <div class="cal-month cal-month--mini">… <button class="cal-day" type="button" aria-label="Monday 21 September 2026" aria-pressed="true">21</button> …</div>
        <div class="datepicker-actions">…</div>
@@ -14306,12 +14271,12 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 
 /* ── Date picker: a time, and jumping further ───────────────────────────────
    A date with a time is a `.datepicker-time` row under the grid: a label and a
-   `.form-input.form-input-sm` of `type="time"`, or two for a range. The input is the
+   `.form-input.form-input--sm` of `type="time"`, or two for a range. The input is the
    platform's, so the clock, the 12- or 24-hour form and the keyboard are the reader's.
 
      <div class="datepicker-time">
        <label for="due-time">Time</label>
-       <input class="form-input form-input-sm" id="due-time" type="time" value="14:00">
+       <input class="form-input form-input--sm" id="due-time" type="time" value="14:00">
      </div>
 
    Further than a month is the title as a <button> that switches the panel to a level
@@ -14321,9 +14286,9 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
    and what a pick does, are the app's; the panel swaps its body and keeps its head.
 
      <div class="datepicker-head">
-       <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Previous year">…</button>
+       <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous year">…</button>
        <button class="datepicker-title" type="button" aria-label="2026, choose a year">2026 <i class="ri-arrow-down-s-line"></i></button>
-       <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Next year">…</button>
+       <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next year">…</button>
      </div>
      <div class="cal-months">
        <button class="cal-pick" type="button" aria-pressed="false">Jan</button> … 12 …
@@ -14431,7 +14396,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
      <div class="chat" role="log" aria-live="polite" aria-label="Chat with Alex Fischer">
        <div class="chat-day">Today</div>
        <div class="chat-message">
-         <span class="avatar avatar-sm">AF</span>
+         <span class="avatar avatar--sm">AF</span>
          <div class="chat-body">
            <div class="chat-meta"><span class="chat-author">Alex Fischer</span><time class="chat-time">09:41</time></div>
            <div class="chat-bubble">Can you reroute ORD-4209 to EU-West?</div>
@@ -15496,7 +15461,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 /* ── Row actions ────────────────────────────────────────────────────────────
    Copy the line, open the trace, filter by this source: a small strip at the row's
    trailing edge that appears on hover and on focus, and stays while its menu is open.
-   The buttons are `.btn-ghost .btn-icon .btn-sm` and the menu is `.menu-anchor` with
+   The buttons are `.btn--ghost .btn--icon .btn--sm` and the menu is `.menu-anchor` with
    `data-menu-toggle`, as anywhere else. Put the strip after a <details>, never inside
    its <summary>, where a click on the menu's padding would toggle the row.
 
@@ -18109,6 +18074,238 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .timeline--aside > li > .timeline-what { display: block; line-height: var(--timeline-lead); }
 }
 
+/* ── 69-tone.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Tones ────────────────────────────────────────────────────────────────────
+   One tone system for every family that carries a tone: a TONE modifier says what the
+   thing means, an EMPHASIS modifier how loudly, and the two combine freely.
+
+     .btn--danger                     soft: the tone's tint, its ink, its edge
+     .btn--danger.btn--solid          filled
+     .btn--danger.btn--ghost          no fill and no edge — its ink only
+     .btn--ghost                      no tone: the neutral ghost
+
+   Tones: brand go warn danger info secret, and the three categorical hues cyan orange
+   teal on the families that label (badge, chip). Families: btn badge alert callout toast
+   chip stat, and a table row (tr). ToneMatrixTests holds every family to every tone it
+   takes, so a family cannot lack one by accident.
+
+   A tone modifier sets nothing but --tone-* properties, and every family reads them
+   through the rules below — so a new family joins the system by being named here. The
+   properties are reset on each family element first, so a button inside a toned alert
+   does not inherit the alert's tone.
+
+   A solid fill's edge is the tone's ink, as --brand-edge is a step off --brand: a filled
+   green or amber is under 3:1 against a dark card on its own, and the edge is what keeps
+   the control's boundary visible (ButtonEdgeContrastTests).
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr {
+    --tone-fg: initial;
+    --tone-bg: initial;
+    --tone-bg-hover: initial;
+    --tone-bg-active: initial;
+    --tone-border: initial;
+    --tone-border-strong: initial;
+    --tone-solid: initial;
+    --tone-solid-hover: initial;
+    --tone-solid-active: initial;
+    --tone-solid-edge: initial;
+    --tone-ring: initial;
+    --tone-ring-solid: initial;
+    --tone-on-solid: initial;
+}
+
+.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand {
+    --tone-fg: var(--brand-text);
+    --tone-bg: var(--brand-tint);
+    --tone-bg-hover: var(--brand-tint-strong);
+    --tone-bg-active: var(--brand-tint-strong);
+    --tone-border: var(--brand-soft);
+    --tone-border-strong: var(--brand);
+    --tone-solid: var(--brand);
+    --tone-solid-hover: var(--brand-hover);
+    --tone-solid-active: var(--brand-active);
+    --tone-solid-edge: var(--brand-edge);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go {
+    --tone-fg: var(--go-fg);
+    --tone-bg: var(--go-bg);
+    --tone-bg-hover: var(--go-bg-hover);
+    --tone-bg-active: var(--go-bg-active);
+    --tone-border: var(--go-border);
+    --tone-border-strong: var(--go-hover);
+    --tone-solid: var(--go-solid);
+    --tone-solid-hover: var(--go-hover);
+    --tone-solid-active: var(--go-active);
+    --tone-solid-edge: var(--go-fg);
+    --tone-ring: var(--go-ring);
+    --tone-ring-solid: var(--go-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn {
+    --tone-fg: var(--warn-fg);
+    --tone-bg: var(--warn-bg);
+    --tone-bg-hover: var(--warn-bg-hover);
+    --tone-bg-active: var(--warn-bg-active);
+    --tone-border: var(--warn-border);
+    --tone-border-strong: var(--warn-hover);
+    --tone-solid: var(--warn-solid);
+    --tone-solid-hover: var(--warn-hover);
+    --tone-solid-active: var(--warn-active);
+    --tone-solid-edge: var(--warn-fg);
+    --tone-ring: var(--warn-ring);
+    --tone-ring-solid: var(--warn-ring-solid);
+    --tone-on-solid: var(--on-solid);
+}
+
+.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger {
+    --tone-fg: var(--danger-fg);
+    --tone-bg: var(--danger-bg);
+    --tone-bg-hover: var(--danger-bg-hover);
+    --tone-bg-active: var(--danger-bg-active);
+    --tone-border: var(--danger-border);
+    --tone-border-strong: var(--danger-border-strong);
+    --tone-solid: var(--danger-solid);
+    --tone-solid-hover: var(--danger-hover);
+    --tone-solid-active: var(--danger-active);
+    --tone-solid-edge: var(--danger-fg);
+    --tone-ring: var(--danger-ring);
+    --tone-ring-solid: var(--danger-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info {
+    --tone-fg: var(--info-fg);
+    --tone-bg: var(--info-bg);
+    --tone-bg-hover: var(--info-bg-hover);
+    --tone-bg-active: var(--info-bg-active);
+    --tone-border: var(--info-border);
+    --tone-border-strong: var(--info-border);
+    --tone-solid: var(--info-solid);
+    --tone-solid-hover: var(--info-hover);
+    --tone-solid-active: var(--info-active);
+    --tone-solid-edge: var(--info-fg);
+    --tone-ring: var(--info-ring);
+    --tone-ring-solid: var(--info-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret {
+    --tone-fg: var(--secret-fg);
+    --tone-bg: var(--secret-bg);
+    --tone-bg-hover: var(--secret-bg-hover);
+    --tone-bg-active: var(--secret-bg-active);
+    --tone-border: var(--secret-border);
+    --tone-border-strong: var(--secret-border);
+    --tone-solid: var(--secret-fg);
+    --tone-solid-hover: var(--secret-hover);
+    --tone-solid-active: var(--secret-active);
+    --tone-solid-edge: var(--secret-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.badge--cyan, .chip--cyan {
+    --tone-fg: var(--badge-cyan-fg);
+    --tone-bg: var(--badge-cyan-bg);
+    --tone-bg-hover: var(--badge-cyan-bg-hover);
+    --tone-bg-active: var(--badge-cyan-bg-active);
+    --tone-border: var(--badge-cyan-border);
+    --tone-border-strong: var(--badge-cyan-border);
+    --tone-solid: var(--badge-cyan-fg);
+    --tone-solid-hover: var(--badge-cyan-hover);
+    --tone-solid-active: var(--badge-cyan-active);
+    --tone-solid-edge: var(--badge-cyan-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.badge--orange, .chip--orange {
+    --tone-fg: var(--badge-orange-fg);
+    --tone-bg: var(--badge-orange-bg);
+    --tone-bg-hover: var(--badge-orange-bg-hover);
+    --tone-bg-active: var(--badge-orange-bg-active);
+    --tone-border: var(--badge-orange-border);
+    --tone-border-strong: var(--badge-orange-border);
+    --tone-solid: var(--badge-orange-fg);
+    --tone-solid-hover: var(--badge-orange-hover);
+    --tone-solid-active: var(--badge-orange-active);
+    --tone-solid-edge: var(--badge-orange-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+.badge--teal, .chip--teal {
+    --tone-fg: var(--badge-teal-fg);
+    --tone-bg: var(--badge-teal-bg);
+    --tone-bg-hover: var(--badge-teal-bg-hover);
+    --tone-bg-active: var(--badge-teal-bg-active);
+    --tone-border: var(--badge-teal-border);
+    --tone-border-strong: var(--badge-teal-border);
+    --tone-solid: var(--badge-teal-fg);
+    --tone-solid-hover: var(--badge-teal-hover);
+    --tone-solid-active: var(--badge-teal-active);
+    --tone-solid-edge: var(--badge-teal-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--on-solid);
+}
+
+/* Buttons. Soft is a toned button's own emphasis. */
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):hover { background: var(--tone-bg-hover); border-color: var(--tone-border-strong); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):active { background: var(--tone-bg-active); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):focus-visible { box-shadow: 0 0 0 2px var(--tone-ring); }
+.btn.btn--solid { background: var(--tone-solid, var(--fg)); border-color: var(--tone-solid-edge, var(--fg)); color: var(--tone-on-solid, var(--bg)); }
+/* The edge stays where it is on hover and press: the fill darkens away from a dark card,
+   and the edge is what keeps the boundary at 3:1 there. */
+.btn.btn--solid:hover { background: var(--tone-solid-hover, var(--fg-soft)); }
+.btn.btn--solid:active { background: var(--tone-solid-active, var(--fg-soft)); }
+.btn.btn--solid:focus-visible { box-shadow: 0 0 0 2px var(--tone-ring-solid, var(--brand-ring)); }
+.btn.btn--ghost { background: none; border-color: transparent; color: var(--tone-fg, var(--muted)); }
+.btn.btn--ghost:hover { background: var(--tone-bg, var(--bg-hover)); border-color: transparent; color: var(--tone-fg, var(--fg)); }
+.btn.btn--ghost:active { background: var(--tone-bg-active, var(--btn-active-bg)); }
+
+/* Badges. Ghost is an outline: a label keeps its edge. */
+.badge:is(.badge--brand, .badge--go, .badge--warn, .badge--danger, .badge--info, .badge--secret, .badge--cyan, .badge--orange, .badge--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+.badge.badge--solid { background: var(--tone-solid, var(--fg-soft)); border-color: var(--tone-solid, var(--fg-soft)); color: var(--tone-on-solid, var(--bg)); }
+.badge.badge--ghost { background: transparent; border-color: var(--tone-border, var(--border)); color: var(--tone-fg, var(--fg-soft)); }
+
+/* Alerts and callouts. A link inside one takes the alert's own ink and an underline: the
+   accent link colour fell under 4.5:1 on the tinted fills. */
+.alert:is(.alert--brand, .alert--go, .alert--warn, .alert--danger, .alert--info, .alert--secret) { background: var(--tone-bg); border-color: var(--tone-border-strong); color: var(--tone-fg); }
+.alert.alert--solid { background: var(--tone-solid, var(--fg)); border-color: var(--tone-solid, var(--fg)); color: var(--tone-on-solid, var(--bg)); }
+.alert:is(.alert--brand, .alert--go, .alert--warn, .alert--danger, .alert--info, .alert--secret) a, .alert.alert--solid a { color: inherit; text-decoration: underline; }
+.callout:is(.callout--brand, .callout--go, .callout--warn, .callout--danger, .callout--info, .callout--secret) { background: var(--tone-bg); border-inline-start-color: var(--tone-solid); }
+.callout:is(.callout--brand, .callout--go, .callout--warn, .callout--danger, .callout--info, .callout--secret) > i { color: var(--tone-fg); }
+.callout:is(.callout--brand, .callout--go, .callout--warn, .callout--danger, .callout--info, .callout--secret) a { color: inherit; text-decoration: underline; }
+
+/* A toast the library draws: its tone is its edge and its icon. */
+.toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) { border-inline-start-color: var(--tone-solid); }
+.toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) i { color: var(--tone-fg); }
+
+/* Chips. */
+.chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+
+/* A stat tile over a threshold — its tint, its edge and its figure. */
+.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) { background: var(--tone-bg); border-color: var(--tone-border); }
+.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) .stat-value, a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover .stat-value { color: var(--tone-fg); }
+a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover { background: var(--tone-bg-hover); }
+
+/* A table row that means something — stale, failing, waiting. */
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret) > td { background: var(--tone-bg); }
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover > td { background: var(--tone-bg-hover); }
+}
+
 /* ── 70-rtl.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ═══ Right-to-left ═════════════════════════════════════════════════════════
@@ -18857,6 +19054,14 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 @media print {
     .sedna-print-only { display: revert; }
 }
+
+/* Text in a tone, for a figure or a word inside running text. */
+.text-brand  { color: var(--brand-text); }
+.text-go     { color: var(--go-fg); }
+.text-warn   { color: var(--warn-fg); }
+.text-danger { color: var(--danger-fg); }
+.text-info   { color: var(--info-fg); }
+.text-secret { color: var(--secret-fg); }
 }
 
 /* ── 90-density.css → @layer sedna.overrides ──────────────────────────────────────────────── */

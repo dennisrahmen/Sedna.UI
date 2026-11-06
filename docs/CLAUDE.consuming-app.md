@@ -122,7 +122,7 @@ Escape-to-close and inert content behind come from the browser, and a `.modal-ba
 nor anything below needs `IJSRuntime`.
 
 `ShowModalAsync` completes when the dialog closes, with its `returnValue`, so **a confirmation is a
-`.modal-sm` you write**: a `<form method="dialog">` whose buttons carry a `value`, and one comparison on
+`.modal--sm` you write**: a `<form method="dialog">` whose buttons carry a `value`, and one comparison on
 the result — `null` is Escape. The library draws no confirmation, so the wording and the language are
 the app's. Leave `@onsubmit` off that form: a Blazor submit handler cancels the submit, and closing the
 dialog is its default action.

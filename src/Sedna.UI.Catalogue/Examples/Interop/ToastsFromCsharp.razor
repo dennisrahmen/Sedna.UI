@@ -1,9 +1,9 @@
 @inject ISednaUi Ui
 
 <div style="display:flex; flex-wrap:wrap; gap:8px">
-    <button class="btn btn-go" type="button" @onclick="Approved">Success toast</button>
-    <button class="btn btn-warn" type="button" @onclick="Lowered">Warning toast</button>
-    <button class="btn btn-danger" type="button" @onclick="Failed">Failure, stays until dismissed</button>
+    <button class="btn btn--go btn--solid" type="button" @onclick="Approved">Success toast</button>
+    <button class="btn btn--warn" type="button" @onclick="Lowered">Warning toast</button>
+    <button class="btn btn--danger" type="button" @onclick="Failed">Failure, stays until dismissed</button>
 </div>
 
 @code {

@@ -101,12 +101,4 @@
 .toast-close:hover { color: var(--fg); }
 
 /* The semantic families again, carried on the leading rule and the icon. */
-.toast-go     { border-inline-start-color: var(--go-solid); }
-.toast-go i   { color: var(--go-fg); }
-.toast-warn   { border-inline-start-color: var(--warn-solid); }
-.toast-warn i { color: var(--warn-fg); }
-.toast-danger   { border-inline-start-color: var(--danger-solid); }
-.toast-danger i { color: var(--danger-fg); }
-.toast-info   { border-inline-start-color: var(--info-border); }
-.toast-info i { color: var(--info-fg); }
 

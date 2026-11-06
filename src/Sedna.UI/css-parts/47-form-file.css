@@ -92,7 +92,7 @@
 
 /* One row, one control high: the zone under a reply or comment composer, where a
    full-height panel would outweigh the text field it serves. Icon and label sit on
-   one line at `.btn-sm`'s size; the behaviour and the states are the same zone's. */
+   one line at `.btn--sm`'s size; the behaviour and the states are the same zone's. */
 .dropzone--sm {
     flex-direction: row;
     justify-content: center;
@@ -138,7 +138,7 @@
          <span class="progress" role="progressbar" aria-valuenow="64" aria-label="Uploading stock-check.xlsx"><span class="progress-bar" style="width:64%"></span></span>
        </span>
        <span class="file-item-size">64%</span>
-       <span class="file-item-actions"><button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Cancel">…</button></span>
+       <span class="file-item-actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Cancel">…</button></span>
      </li>
 
    Uploading needs no modifier — the bar is the state. `--done` and `--error` colour

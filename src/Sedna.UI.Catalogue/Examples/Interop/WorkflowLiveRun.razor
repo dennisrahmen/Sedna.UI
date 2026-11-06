@@ -42,12 +42,12 @@
                 <span class="agent-status-label @(_playing ? "text-shimmer" : null)">@_now</span>
                 <span class="agent-status-time">@Elapsed</span>
             </span>
-            <button class="btn btn-sm" type="button" @onclick="Toggle">
+            <button class="btn btn--sm" type="button" @onclick="Toggle">
                 <i class="@(_playing ? "ri-pause-fill" : "ri-play-fill")"></i>@PlayLabel
             </button>
-            <button class="btn btn-sm btn-ghost btn-icon" type="button" @onclick="Step" disabled="@(_playing || Finished)"
+            <button class="btn btn--sm btn--ghost btn--icon" type="button" @onclick="Step" disabled="@(_playing || Finished)"
                     aria-label="Next event" data-tip="Next event"><i class="ri-skip-forward-line"></i></button>
-            <button class="btn btn-sm btn-ghost btn-icon" type="button" @onclick="Reset" disabled="@(_next == 0)"
+            <button class="btn btn--sm btn--ghost btn--icon" type="button" @onclick="Reset" disabled="@(_next == 0)"
                     aria-label="Start again" data-tip="Start again"><i class="ri-restart-line"></i></button>
         </div>
     </div>
@@ -299,7 +299,7 @@
                         }
                         else
                         {
-                            <span class="avatar avatar-sm">AF</span>
+                            <span class="avatar avatar--sm">AF</span>
                         }
                         <div class="chat-body">
                             <div class="chat-meta"><span class="chat-author">@(line.Agent ? "Voice agent" : "Alex Fischer")</span><time class="chat-time">@line.At</time></div>

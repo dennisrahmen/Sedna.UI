@@ -31,12 +31,12 @@ public class ModalTests : ScriptTestBase
         </dialog>
         <div id="not-a-dialog"></div>
 
-        <dialog id="ask" class="modal modal-sm">
+        <dialog id="ask" class="modal modal--sm">
             <form method="dialog">
                 <div class="modal-header"><h3>Delete the queue?</h3></div>
                 <div class="modal-footer">
                     <button class="btn" id="keep" value="">Keep it</button>
-                    <button class="btn btn-danger" id="delete" value="delete">Delete</button>
+                    <button class="btn btn--danger" id="delete" value="delete">Delete</button>
                 </div>
             </form>
         </dialog>

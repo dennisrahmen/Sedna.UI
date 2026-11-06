@@ -301,8 +301,8 @@ public class SearchTests : ScriptTestBase
         var ranked = await page.EvaluateAsync<string[]>("""
             () => {
                 sednaUi.search.register([
-                    { title: 'Semantic', keywords: 'badge badge-go badge-warn' },
-                    { title: 'Head and body', keywords: 'card card-head badge badge-warn' },
+                    { title: 'Semantic', keywords: 'badge badge--go badge--warn' },
+                    { title: 'Head and body', keywords: 'card card-head badge badge--warn' },
                     { title: 'Badge go', keywords: 'badge' }
                 ]);
                 return sednaUi.search.rank('badge go').map(i => i.title);
@@ -327,7 +327,7 @@ public class SearchTests : ScriptTestBase
             () => {
                 sednaUi.search.register([
                     { title: 'Head and body', keywords: 'card card-head badge alert table-row grid' },
-                    { title: 'Semantic', keywords: 'badge badge-go' }
+                    { title: 'Semantic', keywords: 'badge badge--go' }
                 ]);
                 return sednaUi.search.rank('badgo').map(i => i.title);
             }

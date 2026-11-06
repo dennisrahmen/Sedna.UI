@@ -46,7 +46,7 @@ public class SpotlightDialogTests : ScriptTestBase
                         <input class="form-input" id="key-name" />
                     </div>
                     <span id="anchor">
-                        <button class="btn btn-primary" type="button" id="create"
+                        <button class="btn btn--brand btn--solid" type="button" id="create"
                                 onclick="window.hits = (window.hits || 0) + 1; window.last = 'create'">Create</button>
                         <span data-spotlight-block>
                             <button class="btn" type="button" id="cancel"
@@ -58,7 +58,7 @@ public class SpotlightDialogTests : ScriptTestBase
 
             <div id="hole" class="spotlight-hole spotlight-ring"></div>
             <div id="tip" class="spotlight-tip">
-                <button class="btn btn-sm btn-primary" type="button" id="next"
+                <button class="btn btn--sm btn--brand btn--solid" type="button" id="next"
                         onclick="window.hits = (window.hits || 0) + 1; window.last = 'next'">Next</button>
             </div>
         </div>

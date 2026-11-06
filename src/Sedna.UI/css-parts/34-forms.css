@@ -79,8 +79,8 @@ textarea.form-input::-webkit-resizer {
 
 /* The same three tiers as the button, so a field and the button beside it agree at
    every size. Padding stays under the tier so the tier is what sets the height. */
-.form-input-sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
-.form-input-lg { min-height: var(--control-height-lg); padding: var(--space-5) var(--space-7); font-size: var(--text-5); }
+.form-input--sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
+.form-input--lg { min-height: var(--control-height-lg); padding: var(--space-5) var(--space-7); font-size: var(--text-5); }
 
 /* A read-only value rendered in the shape of an input — so it takes the input's
    height too, or a form of mixed editable and read-only rows steps up and down. */

@@ -189,7 +189,7 @@ public class GraphInteractionTests : GraphTestBase
         return $"""
             <div class="graph-frame" data-graph-frame style="--graph-height: 20rem">
               <div class="toolbar">
-                <button class="btn btn-sm" type="button" data-graph-action="fullscreen" aria-pressed="false" id="full">Full screen</button>
+                <button class="btn btn--sm" type="button" data-graph-action="fullscreen" aria-pressed="false" id="full">Full screen</button>
               </div>
               <div class="sedna-split">
                 <div class="card" id="graph-card">
@@ -204,7 +204,7 @@ public class GraphInteractionTests : GraphTestBase
                       </template>
                     </ul>
                   </div>
-                  <div class="card-foot"><button class="btn btn-sm" type="button" data-graph-action="clear">Close</button></div>
+                  <div class="card-foot"><button class="btn btn--sm" type="button" data-graph-action="clear">Close</button></div>
                 </aside>
               </div>
             </div>

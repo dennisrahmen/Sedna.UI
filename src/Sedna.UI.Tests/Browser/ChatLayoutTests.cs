@@ -11,7 +11,7 @@ public class ChatLayoutTests : ScriptTestBase
             <div class="card-body">
                 <div class="chat" id="chat" role="log">
                     <div class="chat-message" id="theirs">
-                        <span class="avatar avatar-sm">AF</span>
+                        <span class="avatar avatar--sm">AF</span>
                         <div class="chat-body"><div class="chat-bubble">Hello</div></div>
                     </div>
                     <div class="chat-message chat-message--mine" id="mine">

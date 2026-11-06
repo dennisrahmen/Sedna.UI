@@ -1,7 +1,7 @@
 @inject ISednaUi Ui
 
 <div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
-    <button class="btn btn-primary" type="button" @onclick="Open">New API key</button>
+    <button class="btn btn--brand btn--solid" type="button" @onclick="Open">New API key</button>
 
     @if (_result is null)
     {
@@ -9,7 +9,7 @@
     }
     else
     {
-        <span class="badge @(_result.Saved ? "badge-go" : "")">
+        <span class="badge @(_result.Saved ? "badge--go" : "")">
             <i class="@(_result.Saved ? "ri-key-2-line" : "ri-close-circle-line")"></i>
             @_result.Label
         </span>
@@ -39,7 +39,7 @@
         </div>
         <div class="modal-footer">
             <button class="btn" type="button" @onclick="Cancel">Cancel</button>
-            <button class="btn btn-primary" type="submit">Create</button>
+            <button class="btn btn--brand btn--solid" type="submit">Create</button>
         </div>
     </form>
 </dialog>

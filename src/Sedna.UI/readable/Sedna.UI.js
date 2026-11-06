@@ -834,7 +834,7 @@ window.sednaUi = window.sednaUi || {};
    `data-copied="failed"` for 1.4s. The words and the icons are the app's, marked with
    what the stylesheet shows when:
 
-     <button class="btn btn-sm" type="button" data-copy="…">
+     <button class="btn btn--sm" type="button" data-copy="…">
        <i class="ri-file-copy-line" data-copied-hide></i>
        <i class="ri-check-line" data-copied-show="ok"></i>
        <span data-copied-hide>Copy</span>
@@ -976,8 +976,8 @@ window.sednaUi = window.sednaUi || {};
          <select class="form-select" id="t-from" multiple size="6" data-transfer-from>…</select>
        </div>
        <div class="transfer-actions">
-         <button class="btn btn-icon" type="button" data-transfer-add    aria-label="Add">…</button>
-         <button class="btn btn-icon" type="button" data-transfer-remove aria-label="Remove">…</button>
+         <button class="btn btn--icon" type="button" data-transfer-add    aria-label="Add">…</button>
+         <button class="btn btn--icon" type="button" data-transfer-remove aria-label="Remove">…</button>
        </div>
        <div class="form-field">
          <label class="form-label" for="t-to">Notified</label>
@@ -6894,7 +6894,9 @@ window.sednaUi = window.sednaUi || {};
         go: 'ri-check-line',
         warn: 'ri-alert-line',
         danger: 'ri-error-warning-line',
-        info: 'ri-information-line'
+        info: 'ri-information-line',
+        brand: 'ri-megaphone-line',
+        secret: 'ri-lock-line'
     };
 
     var host = null;     // our stack, while it exists
@@ -6961,7 +6963,7 @@ window.sednaUi = window.sednaUi || {};
         // A failure interrupts; a confirmation waits its turn.
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
 
-        el.className = 'toast toast-' + kind;
+        el.className = 'toast toast--' + kind;
         el.textContent = '';
 
         var icon = document.createElement('i');

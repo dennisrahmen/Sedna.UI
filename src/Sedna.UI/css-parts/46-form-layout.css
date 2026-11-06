@@ -186,7 +186,7 @@
    the focus ring and the three size tiers, so it lines up with the text fields
    beside it at every size:
 
-     <button class="form-input form-input-sm form-trigger" type="button" popovertarget="region-filter">
+     <button class="form-input form-input--sm form-trigger" type="button" popovertarget="region-filter">
        <i class="ri-map-pin-line"></i><span>2 selected</span>
      </button>
 

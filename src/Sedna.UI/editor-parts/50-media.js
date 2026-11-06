@@ -18,8 +18,8 @@
      <div class="editor-media" data-editor-media hidden>
        <input class="form-input" type="url" data-editor-media-url aria-label="Address" />
        <input class="form-input" type="text" data-editor-media-alt aria-label="Description" />
-       <button class="btn btn-sm" type="button" data-editor-media-save>Insert</button>
-       <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel>Cancel</button>
+       <button class="btn btn--sm" type="button" data-editor-media-save>Insert</button>
+       <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel>Cancel</button>
      </div>
 
    It says which it is for in `data-editor-media-kind` — image or video — and shows only

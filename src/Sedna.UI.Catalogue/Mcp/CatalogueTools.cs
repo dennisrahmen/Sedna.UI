@@ -68,7 +68,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         any "how do I build X" question.
         """)]
     public object Search(
-        [Description("What you are looking for, e.g. \"sortable table\" or \"badge-go\".")]
+        [Description("What you are looking for, e.g. \"sortable table\" or \"badge--go\".")]
         string query,
         [Description("Restrict to one of: example, class, token, page. Omit for everything.")]
         string? kind = null,

@@ -33,9 +33,9 @@ public class TintedTextContrastTests
     /// </summary>
     private static readonly string[] Badges =
     [
-        ".badge", ".badge-go", ".badge-warn", ".badge-danger", ".badge-info", ".badge-secret",
-        ".badge-cyan", ".badge-orange", ".badge-teal",
-        ".badge-sev-1", ".badge-sev-2", ".badge-sev-3", ".badge-sev-4", ".badge-sev-5",
+        ".badge", ".badge--brand", ".badge--go", ".badge--warn", ".badge--danger", ".badge--info", ".badge--secret",
+        ".badge--cyan", ".badge--orange", ".badge--teal",
+        ".badge--sev-1", ".badge--sev-2", ".badge--sev-3", ".badge--sev-4", ".badge--sev-5",
         ".badge-ai",
     ];
 
@@ -70,6 +70,12 @@ public class TintedTextContrastTests
                     rules[selector] = (text.Groups["t"].Value, tint.Groups["t"].Value);
             }
         }
+
+        // A tone modifier sets only --tone-* properties (69-tone.css), which every badge reads:
+        // its text on its tint is the carrier's fg on its bg.
+        foreach (var (tone, props) in Tones.Carriers())
+            if (Tones.Families().TryGetValue("badge", out var badgeTones) && badgeTones.Contains(tone))
+                rules[".badge--" + tone] = (props["fg"], props["bg"]);
 
         return rules;
     }

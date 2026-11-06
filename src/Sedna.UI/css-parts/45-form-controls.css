@@ -67,18 +67,18 @@
 
 /* The same three tiers as .form-input, so a small filter field and the small
    dropdown beside it agree on height. Longhands rather than the `padding`
-   shorthand .form-input-sm uses: the shorthand would reset the fallback caret's
+   shorthand .form-input--sm uses: the shorthand would reset the fallback caret's
    room above, which is the one thing that select cannot give up. --space-10
    therefore stays where the fallback set it, at every tier — and where base
    appearance is available there is no reserved room to protect, so
    49-form-select-base.css gives the trailing side back at each tier. */
-.form-select-sm {
+.form-select--sm {
     min-height: var(--control-height-sm);
     padding-block: var(--space-2);
     padding-inline-start: var(--space-4);
     font-size: var(--text-3);
 }
-.form-select-lg {
+.form-select--lg {
     min-height: var(--control-height-lg);
     padding-block: var(--space-5);
     padding-inline-start: var(--space-7);
@@ -195,8 +195,8 @@
    `<input type="color" class="form-color">`. The native input IS the picker, so there
    is no picker logic here — only its chrome, which otherwise is a small system-styled
    box that sits badly beside a .form-input in every engine. It takes the shared control
-   heights, the field border and the field focus ring; `.form-input-sm` and
-   `.form-input-lg` size it like any other field.
+   heights, the field border and the field focus ring; `.form-input--sm` and
+   `.form-input--lg` size it like any other field.
 
    The swatch inside is the engine's own pseudo-element, which is why it is reached
    with the prefixed selectors: the wrapper's padding is what left the colour floating
@@ -211,8 +211,8 @@
     cursor: pointer;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
-.form-color.form-input-sm { inline-size: var(--control-height-sm); block-size: var(--control-height-sm); }
-.form-color.form-input-lg { inline-size: var(--control-height-lg); block-size: var(--control-height-lg); }
+.form-color.form-input--sm { inline-size: var(--control-height-sm); block-size: var(--control-height-sm); }
+.form-color.form-input--lg { inline-size: var(--control-height-lg); block-size: var(--control-height-lg); }
 .form-color:hover { border-color: var(--border-hover); }
 .form-color:focus-visible { outline: none; border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
 .form-color:disabled { cursor: not-allowed; opacity: var(--disabled-opacity); }

@@ -82,7 +82,7 @@ public class PageLayoutTests : ScriptTestBase
                  gap. A secret nobody has read for ninety days is flagged in the list.</p>
             </div>
             <div class="page-head-actions" id="actions">
-              <button class="btn btn-primary" type="button">New secret</button>
+              <button class="btn btn--brand btn--solid" type="button">New secret</button>
             </div>
           </div>
         </main>

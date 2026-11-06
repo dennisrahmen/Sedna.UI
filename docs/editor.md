@@ -11,10 +11,10 @@ engine, [Quill](https://quilljs.com/) 2, and loads it the first time a page show
 <label for="note-value">Handover note</label>
 <div class="editor" data-editor id="note">
   <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
-    <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
-    <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="italic" aria-label="Italic"><i class="ri-italic"></i></button>
+    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="italic" aria-label="Italic"><i class="ri-italic"></i></button>
     <span class="editor-sep" role="separator"></span>
-    <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list"><i class="ri-list-unordered"></i></button>
+    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list"><i class="ri-list-unordered"></i></button>
   </div>
   <div class="editor-body prose" data-editor-body></div>
   <textarea id="note-value" name="note" data-editor-value hidden placeholder="What the next shift needs to know"></textarea>
@@ -70,8 +70,8 @@ The app's own form, written once inside the editor and opened at the text it is 
 ```html
 <div class="editor-link" data-editor-link hidden>
   <input class="form-input" type="url" data-editor-link-url aria-label="Address" placeholder="https://" />
-  <button class="btn btn-sm" type="button" data-editor-link-save>Save</button>
-  <button class="btn btn-ghost btn-sm" type="button" data-editor-link-remove>Remove</button>
+  <button class="btn btn--sm" type="button" data-editor-link-save>Save</button>
+  <button class="btn btn--ghost btn--sm" type="button" data-editor-link-remove>Remove</button>
 </div>
 ```
 
@@ -103,8 +103,8 @@ The app's own form, written once inside the editor, which an image or video cont
   <input class="form-input" type="url" data-editor-media-url aria-label="Address" placeholder="https://" />
   <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="image" aria-label="What the image shows" />
   <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="video" aria-label="What the video is about" />
-  <button class="btn btn-sm" type="button" data-editor-media-save>Insert</button>
-  <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel>Cancel</button>
+  <button class="btn btn--sm" type="button" data-editor-media-save>Insert</button>
+  <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel>Cancel</button>
 </div>
 ```
 

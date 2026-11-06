@@ -36,8 +36,8 @@ public class ControlRowTests : ScriptTestBase
         """
         <div style="padding:20px; width:640px">
           <p><button class="btn" id="btn">Reassign</button></p>
-          <p><button class="btn btn-primary" id="btn-primary"><i class="ri-check-line"></i> Apply</button></p>
-          <p><button class="btn btn-icon" id="btn-icon" aria-label="Refresh"><i class="ri-refresh-line"></i></button></p>
+          <p><button class="btn btn--brand btn--solid" id="btn--brand btn--solid"><i class="ri-check-line"></i> Apply</button></p>
+          <p><button class="btn btn--icon" id="btn--icon" aria-label="Refresh"><i class="ri-refresh-line"></i></button></p>
           <p><input class="form-input" id="input" value="ORD-4182" /></p>
           <p><select class="form-input form-select" id="select"><option>Any</option></select></p>
           <p><span class="form-value-display" id="value">EU-West</span></p>
@@ -45,34 +45,34 @@ public class ControlRowTests : ScriptTestBase
             <span class="input-group" id="group">
               <span class="input-affix"><i class="ri-search-line"></i></span>
               <input class="form-input" value="queue" />
-              <button class="btn btn-icon" aria-label="Clear"><i class="ri-close-line"></i></button>
+              <button class="btn btn--icon" aria-label="Clear"><i class="ri-close-line"></i></button>
             </span>
           </p>
-          <p><button class="btn btn-sm" id="sm">Export</button></p>
-          <p><button class="btn btn-sm btn-icon" id="sm-icon" aria-label="Pin"><i class="ri-pushpin-line"></i></button></p>
-          <p><input class="form-input form-input-sm" id="sm-input" value="queue" /></p>
+          <p><button class="btn btn--sm" id="sm">Export</button></p>
+          <p><button class="btn btn--sm btn--icon" id="sm-icon" aria-label="Pin"><i class="ri-pushpin-line"></i></button></p>
+          <p><input class="form-input form-input--sm" id="sm-input" value="queue" /></p>
           <p><span class="chip" id="sm-chip"><span class="chip-label">Priority 2</span></span></p>
           <p>
             <span class="input-group input-group--sm" id="sm-group">
               <input class="form-input" value="queue" />
-              <button class="btn btn-icon" aria-label="Clear"><i class="ri-close-line"></i></button>
+              <button class="btn btn--icon" aria-label="Clear"><i class="ri-close-line"></i></button>
             </span>
           </p>
-          <p><button class="btn btn-lg" id="lg">Continue</button></p>
-          <p><button class="btn btn-lg btn-icon" id="lg-icon" aria-label="Next"><i class="ri-arrow-right-line"></i></button></p>
-          <p><input class="form-input form-input-lg" id="lg-input" value="queue" /></p>
-          <p><span class="chip chip-lg" id="lg-chip"><span class="chip-label">Priority 2</span></span></p>
+          <p><button class="btn btn--lg" id="lg">Continue</button></p>
+          <p><button class="btn btn--lg btn--icon" id="lg-icon" aria-label="Next"><i class="ri-arrow-right-line"></i></button></p>
+          <p><input class="form-input form-input--lg" id="lg-input" value="queue" /></p>
+          <p><span class="chip chip--lg" id="lg-chip"><span class="chip-label">Priority 2</span></span></p>
           <p>
             <span class="input-group input-group--lg" id="lg-group">
               <input class="form-input" value="queue" />
-              <button class="btn btn-icon" aria-label="Clear"><i class="ri-close-line"></i></button>
+              <button class="btn btn--icon" aria-label="Clear"><i class="ri-close-line"></i></button>
             </span>
           </p>
           <p>
             <span class="stepper" id="stepper">
-              <button class="btn btn-icon" aria-label="Fewer">&minus;</button>
+              <button class="btn btn--icon" aria-label="Fewer">&minus;</button>
               <input class="form-input" type="number" value="3" />
-              <button class="btn btn-icon" aria-label="More">+</button>
+              <button class="btn btn--icon" aria-label="More">+</button>
             </span>
           </p>
         </div>
@@ -81,7 +81,7 @@ public class ControlRowTests : ScriptTestBase
     /// <summary>Every id in the fixture, in the order <see cref="Heights"/> returns.</summary>
     private static readonly string[] Ids =
     [
-        "btn", "btn-primary", "btn-icon", "input", "select", "value", "group", "stepper",
+        "btn", "btn--brand btn--solid", "btn--icon", "input", "select", "value", "group", "stepper",
         "sm", "sm-icon", "sm-input", "sm-chip", "sm-group",
         "lg", "lg-icon", "lg-input", "lg-chip", "lg-group",
     ];
@@ -90,7 +90,7 @@ public class ControlRowTests : ScriptTestBase
     public static TheoryData<string, string[]> Tiers() => new()
     {
         { "small",  ["sm", "sm-icon", "sm-input", "sm-chip", "sm-group"] },
-        { "normal", ["btn", "btn-primary", "btn-icon", "input", "select", "value", "group", "stepper", "lg-chip"] },
+        { "normal", ["btn", "btn--brand btn--solid", "btn--icon", "input", "select", "value", "group", "stepper", "lg-chip"] },
         { "large",  ["lg", "lg-icon", "lg-input", "lg-group"] },
     };
 
@@ -160,12 +160,12 @@ public class ControlRowTests : ScriptTestBase
             }
             """);
 
-        Assert.Equal(measured[0], measured[3], 1);   // sm token vs .btn-sm
-        Assert.Equal(measured[0], measured[4], 1);   // sm token vs .form-input-sm
+        Assert.Equal(measured[0], measured[3], 1);   // sm token vs .btn--sm
+        Assert.Equal(measured[0], measured[4], 1);   // sm token vs .form-input--sm
         Assert.Equal(measured[1], measured[5], 1);   // normal token vs .btn
         Assert.Equal(measured[1], measured[6], 1);   // normal token vs .form-input
-        Assert.Equal(measured[2], measured[7], 1);   // lg token vs .btn-lg
-        Assert.Equal(measured[2], measured[8], 1);   // lg token vs .form-input-lg
+        Assert.Equal(measured[2], measured[7], 1);   // lg token vs .btn--lg
+        Assert.Equal(measured[2], measured[8], 1);   // lg token vs .form-input--lg
 
         Assert.Empty(errors);
     }
@@ -174,11 +174,11 @@ public class ControlRowTests : ScriptTestBase
     public async Task An_icon_only_button_is_square()
     {
         if (NoBrowser) return;
-        // .btn-icon takes its width from the same token as its height, so "square" is
+        // .btn--icon takes its width from the same token as its height, so "square" is
         // by construction rather than by two numbers that happen to agree.
         var (page, errors) = await OpenStyled(Row);
 
-        foreach (var id in new[] { "btn-icon", "sm-icon", "lg-icon" })
+        foreach (var id in new[] { "btn--icon", "sm-icon", "lg-icon" })
         {
             var box = await page.EvaluateAsync<double[]>(
                 $"() => {{ const r = document.getElementById('{id}').getBoundingClientRect(); "

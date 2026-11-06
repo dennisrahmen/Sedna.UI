@@ -282,3 +282,11 @@
 @media print {
     .sedna-print-only { display: revert; }
 }
+
+/* Text in a tone, for a figure or a word inside running text. */
+.text-brand  { color: var(--brand-text); }
+.text-go     { color: var(--go-fg); }
+.text-warn   { color: var(--warn-fg); }
+.text-danger { color: var(--danger-fg); }
+.text-info   { color: var(--info-fg); }
+.text-secret { color: var(--secret-fg); }

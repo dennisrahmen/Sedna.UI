@@ -52,7 +52,7 @@ import Quill from '../lib/quill/quill.js';
 
      <div class="editor" data-editor id="note">
        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
          …
        </div>
        <div class="editor-body prose" data-editor-body></div>
@@ -465,8 +465,8 @@ function toToolbar(e) {
 
      <div class="editor-link" data-editor-link hidden>
        <input class="form-input" type="url" data-editor-link-url aria-label="Address" />
-       <button class="btn btn-sm" type="button" data-editor-link-save>Save</button>
-       <button class="btn btn-ghost btn-sm" type="button" data-editor-link-remove>Remove</button>
+       <button class="btn btn--sm" type="button" data-editor-link-save>Save</button>
+       <button class="btn btn--ghost btn--sm" type="button" data-editor-link-remove>Remove</button>
      </div>
 
    It is filled with the address of the link under the caret, if there is one; Remove
@@ -606,8 +606,8 @@ function wireLink(e) {
      <div class="editor-media" data-editor-media hidden>
        <input class="form-input" type="url" data-editor-media-url aria-label="Address" />
        <input class="form-input" type="text" data-editor-media-alt aria-label="Description" />
-       <button class="btn btn-sm" type="button" data-editor-media-save>Insert</button>
-       <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel>Cancel</button>
+       <button class="btn btn--sm" type="button" data-editor-media-save>Insert</button>
+       <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel>Cancel</button>
      </div>
 
    It says which it is for in `data-editor-media-kind` — image or video — and shows only

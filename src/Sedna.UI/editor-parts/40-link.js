@@ -5,8 +5,8 @@
 
      <div class="editor-link" data-editor-link hidden>
        <input class="form-input" type="url" data-editor-link-url aria-label="Address" />
-       <button class="btn btn-sm" type="button" data-editor-link-save>Save</button>
-       <button class="btn btn-ghost btn-sm" type="button" data-editor-link-remove>Remove</button>
+       <button class="btn btn--sm" type="button" data-editor-link-save>Save</button>
+       <button class="btn btn--ghost btn--sm" type="button" data-editor-link-remove>Remove</button>
      </div>
 
    It is filled with the address of the link under the caret, if there is one; Remove

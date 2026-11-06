@@ -18,7 +18,7 @@ public class QuietTextPaintTests : ScriptTestBase
           <div class="card-body">
             <input class="form-input" id="field" placeholder="Search orders">
             <div class="stat stat--unavailable"><span class="stat-label">Queue depth</span><span class="stat-value" id="dash">—</span></div>
-            <button class="btn btn-primary" type="button" id="primary">Save</button>
+            <button class="btn btn--brand btn--solid" type="button" id="primary">Save</button>
           </div>
         </div>
         """;

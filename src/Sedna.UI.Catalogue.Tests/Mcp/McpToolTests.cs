@@ -140,7 +140,7 @@ public class McpToolTests(CatalogueAppFixture app)
     // not the class it documents.
     [InlineData("drawer", "page", "/drawer")]
     // A compound name is found by its compound name, not by its stem.
-    [InlineData("badge go", "class", ".badge-go")]
+    [InlineData("badge go", "class", ".badge--go")]
     [InlineData("stat delta", "class", ".stat-delta")]
     [InlineData("chip dismiss", "class", ".chip-dismiss")]
     public async Task The_ranking_puts_the_obvious_answer_first(
@@ -262,10 +262,10 @@ public class McpToolTests(CatalogueAppFixture app)
     [Fact]
     public async Task Describe_class_reports_what_the_stylesheet_declares()
     {
-        var css = (await Tool("describe_class", new { names = new[] { ".badge-go" } }))
+        var css = (await Tool("describe_class", new { names = new[] { ".badge--go" } }))
             .GetProperty("classes").EnumerateArray().Single();
 
-        Assert.Equal(".badge-go", css.GetProperty("name").GetString());
+        Assert.Equal(".badge--go", css.GetProperty("name").GetString());
         Assert.Equal("sedna.paint", css.GetProperty("layer").GetString());
 
         // Read from the sheet, so it cannot describe a rule that is not there.
@@ -351,7 +351,7 @@ public class McpToolTests(CatalogueAppFixture app)
         // and "unreleased" would be indistinguishable from "not reported" — the one
         // distinction the field exists to make.
         var classes = (await Tool("describe_class",
-                new { names = new[] { ".accordion", ".btn-go" } }))
+                new { names = new[] { ".accordion", ".btn--go.btn--solid" } }))
             .GetProperty("classes").EnumerateArray().ToList();
 
         foreach (var css in classes)

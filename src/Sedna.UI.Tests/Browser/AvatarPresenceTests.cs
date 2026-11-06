@@ -29,7 +29,7 @@ public class AvatarPresenceTests : ScriptTestBase
 
     [Theory]
     [InlineData("avatar")]
-    [InlineData("avatar avatar-lg")]
+    [InlineData("avatar avatar--lg")]
     public async Task Every_presence_state_is_a_different_shape_in_forced_colours(string avatarClass)
     {
         // Forced colours exist in Chromium only (see BrowserEngine).
@@ -72,9 +72,9 @@ public class AvatarPresenceTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var (page, _) = await OpenStyled("""
-            <span class="avatar-presence avatar-presence--online" id="sm"><span class="avatar avatar-sm">AF</span></span>
+            <span class="avatar-presence avatar-presence--online" id="sm"><span class="avatar avatar--sm">AF</span></span>
             <span class="avatar-presence avatar-presence--online" id="md"><span class="avatar">AF</span></span>
-            <span class="avatar-presence avatar-presence--online" id="lg"><span class="avatar avatar-lg">AF</span></span>
+            <span class="avatar-presence avatar-presence--online" id="lg"><span class="avatar avatar--lg">AF</span></span>
             <span class="avatar-presence avatar-presence--label avatar-presence--online" id="label">Online</span>
             """);
 

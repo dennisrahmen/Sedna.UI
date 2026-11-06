@@ -3,9 +3,9 @@
 <div class="card">
     <div class="card-head">
         <div class="toolbar-filters">
-            <input class="form-input form-input-sm toolbar-input" type="search" placeholder="Find a service"
+            <input class="form-input form-input--sm toolbar-input" type="search" placeholder="Find a service"
                    aria-label="Find a service" @bind="_query" @bind:event="oninput" @bind:after="Search" />
-            <select class="form-input form-select form-select-sm sedna-w-fit" aria-label="Show around"
+            <select class="form-input form-select form-select--sm sedna-w-fit" aria-label="Show around"
                     @bind="_focus" @bind:after="Focus">
                 <option value="">Everything</option>
                 @foreach (var service in Services)
@@ -21,8 +21,8 @@
         <div class="graph-wait skeleton skeleton-block"></div>
     </div>
     <div class="card-foot card-foot--start">
-        <button class="btn btn-sm" type="button" @onclick="Export"><i class="ri-image-line"></i> Picture</button>
-        <button class="btn btn-sm" type="button" @onclick="Download"><i class="ri-download-2-line"></i> Download PNG</button>
+        <button class="btn btn--sm" type="button" @onclick="Export"><i class="ri-image-line"></i> Picture</button>
+        <button class="btn btn--sm" type="button" @onclick="Download"><i class="ri-download-2-line"></i> Download PNG</button>
         @if (_picture is not null)
         {
             <img class="sedna-push" src="@_picture" alt="The checkout services, as a picture" width="160" />

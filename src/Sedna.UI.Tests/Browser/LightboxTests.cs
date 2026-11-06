@@ -12,7 +12,7 @@ public class LightboxTests : ScriptTestBase
         <dialog class="lightbox" id="lb" aria-labelledby="t">
             <div class="lightbox-head">
                 <strong class="lightbox-title" id="t">wide.svg</strong>
-                <div class="lightbox-actions"><form method="dialog"><button class="btn btn-ghost btn-icon" id="close" aria-label="Close">x</button></form></div>
+                <div class="lightbox-actions"><form method="dialog"><button class="btn btn--ghost btn--icon" id="close" aria-label="Close">x</button></form></div>
             </div>
             <div class="lightbox-stage">
                 <img id="img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4000' height='1000'%3E%3Crect width='4000' height='1000' fill='%23888'/%3E%3C/svg%3E" alt="" />

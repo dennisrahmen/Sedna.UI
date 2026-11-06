@@ -48,7 +48,7 @@
 .empty-state--pending > .spinner,
 /* The spinner stands in for the drawing in the waiting state, so its margin tracks
    .state-art's. Left behind, the waiting state sits differently from every other. */
-.empty-state--pending > .spinner-lg {
+.empty-state--pending > .spinner--lg {
     width: 40px;
     height: 40px;
     margin-bottom: var(--space-4);
@@ -114,7 +114,7 @@
    same sentence under a 22px heading reads as a narrow strip. */
 .empty-state--page p { font-size: var(--text-5); max-width: 52ch; }
 .empty-state--page.empty-state--pending > .spinner,
-.empty-state--page.empty-state--pending > .spinner-lg { width: 56px; height: 56px; border-width: 4px; }
+.empty-state--page.empty-state--pending > .spinner--lg { width: 56px; height: 56px; border-width: 4px; }
 
 /* The status code, above the title. What the reader needs it for is telling somebody
    else which page broke, so it is sized to be read once and repeated — not to be the

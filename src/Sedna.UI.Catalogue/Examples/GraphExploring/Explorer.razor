@@ -1,8 +1,8 @@
 <div class="graph-frame" data-graph-frame style="--graph-height: 34rem">
     <div class="toolbar">
         <div class="toolbar-filters">
-            <input class="form-input form-input-sm toolbar-input" type="search" data-graph-search placeholder="Find a service or host" aria-label="Find a service or host" />
-            <select class="form-select form-select-sm toolbar-input" data-graph-filter="team" aria-label="Team">
+            <input class="form-input form-input--sm toolbar-input" type="search" data-graph-search placeholder="Find a service or host" aria-label="Find a service or host" />
+            <select class="form-select form-select--sm toolbar-input" data-graph-filter="team" aria-label="Team">
                 <option value="" selected>Every team</option>
                 <option value="Checkout">Checkout</option>
                 <option value="Catalogue">Catalogue</option>
@@ -18,7 +18,7 @@
         </div>
         <div class="toolbar-actions">
             <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} · {edges} links" data-graph-stats-match="{matches} found"></span>
-            <button class="btn btn-ghost btn-sm" type="button" data-graph-action="reset"><i class="ri-restart-line"></i> Reset</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-graph-action="reset"><i class="ri-restart-line"></i> Reset</button>
         </div>
     </div>
     <div class="sedna-split">
@@ -69,11 +69,11 @@
                 </ul>
                 <div class="graph-canvas"></div>
                 <div class="graph-tools" role="toolbar" aria-label="View">
-                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
-                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
-                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
+                    <button class="btn btn--ghost btn--sm btn--icon" type="button" data-graph-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ri-zoom-in-line"></i></button>
+                    <button class="btn btn--ghost btn--sm btn--icon" type="button" data-graph-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ri-zoom-out-line"></i></button>
+                    <button class="btn btn--ghost btn--sm btn--icon" type="button" data-graph-action="fit" aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
                     <span class="graph-tools-sep"></span>
-                    <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fullscreen" aria-pressed="false" aria-label="Full screen" data-tip="Full screen">
+                    <button class="btn btn--ghost btn--sm btn--icon" type="button" data-graph-action="fullscreen" aria-pressed="false" aria-label="Full screen" data-tip="Full screen">
                         <i class="ri-fullscreen-line graph-when-off"></i><i class="ri-fullscreen-exit-line graph-when-on"></i>
                     </button>
                 </div>
@@ -95,7 +95,7 @@
                 <div class="graph-empty graph-empty--filtered empty-state">
                     <svg class="state-art" aria-hidden="true"><use href="#filtered-out" /></svg>
                     <span class="empty-state-title">No service matches these filters</span>
-                    <button class="btn btn-sm" type="button" data-graph-action="reset"><i class="ri-filter-off-line"></i> Clear the filters</button>
+                    <button class="btn btn--sm" type="button" data-graph-action="reset"><i class="ri-filter-off-line"></i> Clear the filters</button>
                 </div>
                 <p class="visually-hidden" data-graph-live aria-live="polite"
                    data-graph-announce="{label}, run by {team}. {links} links."
@@ -105,7 +105,7 @@
         <aside class="card card--fill sedna-split-aside graph-detail" data-graph-detail hidden aria-label="The selected service">
             <div class="card-head">
                 <span class="sedna-row sedna-gap-2"><i data-graph-icon aria-hidden="true"></i><strong data-graph-field="label"></strong></span>
-                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="clear" aria-label="Close" data-tip="Close"><i class="ri-close-line"></i></button>
+                <button class="btn btn--ghost btn--sm btn--icon" type="button" data-graph-action="clear" aria-label="Close" data-tip="Close"><i class="ri-close-line"></i></button>
             </div>
             <div class="card-body">
                 <p class="text-muted text-sm sedna-mt-0" data-graph-field="meta"></p>
@@ -134,8 +134,8 @@
                 </div>
             </div>
             <div class="card-foot card-foot--split">
-                <button class="btn btn-sm" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Its neighbourhood</button>
-                <button class="btn btn-ghost btn-sm" type="button" data-graph-action="unfocus">Show all</button>
+                <button class="btn btn--sm" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Its neighbourhood</button>
+                <button class="btn btn--ghost btn--sm" type="button" data-graph-action="unfocus">Show all</button>
             </div>
         </aside>
     </div>

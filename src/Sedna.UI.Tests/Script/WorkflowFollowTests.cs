@@ -168,7 +168,7 @@ public class WorkflowFollowTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenDiagram(Diagram(running: 6, after:
-            """<button class="btn btn-sm" id="back" type="button" data-workflow-follow aria-controls="wf">Back to the step at work</button>"""));
+            """<button class="btn btn--sm" id="back" type="button" data-workflow-follow aria-controls="wf">Back to the step at work</button>"""));
         await page.WaitForFunctionAsync(Centred(6));
 
         await Wheel(page, -2000);

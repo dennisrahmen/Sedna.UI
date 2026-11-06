@@ -189,7 +189,7 @@
 /* ── Row actions ────────────────────────────────────────────────────────────
    Copy the line, open the trace, filter by this source: a small strip at the row's
    trailing edge that appears on hover and on focus, and stays while its menu is open.
-   The buttons are `.btn-ghost .btn-icon .btn-sm` and the menu is `.menu-anchor` with
+   The buttons are `.btn--ghost .btn--icon .btn--sm` and the menu is `.menu-anchor` with
    `data-menu-toggle`, as anywhere else. Put the strip after a <details>, never inside
    its <summary>, where a click on the menu's padding would toggle the row.
 

@@ -280,7 +280,7 @@
      <tr class="tr-group">
        <th colspan="4" scope="rowgroup">
          <div class="tr-group-body">
-           Waiting on you <span class="badge badge-warn">3</span>
+           Waiting on you <span class="badge badge--warn">3</span>
            <span class="chip">EU-Central <button class="chip-dismiss" …></button></span>
            <span class="tr-group-count">3 of 128</span>
          </div>
@@ -331,14 +331,14 @@
 
 /* ── Filter row ─────────────────────────────────────────────────────────────
    A second header row whose cells hold a filter for their column — a
-   `.form-input.form-input-sm` or a `.form-select`. For an admin table that is
+   `.form-input.form-input--sm` or a `.form-select`. For an admin table that is
    filtered per column; the toolbar above a table is still the default.
 
      <thead>
        <tr><th>Order</th><th>Status</th></tr>
        <tr class="tr-filter">
-         <th><input class="form-input form-input-sm" type="search" aria-label="Filter by order"></th>
-         <th><select class="form-input form-select form-input-sm" aria-label="Filter by status">…</select></th>
+         <th><input class="form-input form-input--sm" type="search" aria-label="Filter by order"></th>
+         <th><select class="form-input form-select form-input--sm" aria-label="Filter by status">…</select></th>
        </tr>
      </thead>
 
@@ -365,7 +365,7 @@
    control in any cell makes the whole row taller than the sticky offset above says:
 
      · text          `.input-group--sm` with a search `.input-affix` and an `.input-clear`
-     · one choice    `.form-select.form-select-sm`, with `<selectedcontent>` for icons or badges
+     · one choice    `.form-select.form-select--sm`, with `<selectedcontent>` for icons or badges
      · several       `.form-trigger` reading "2 selected", opening a `.popover` of `.form-check`s
      · number range  `.input-group--sm` holding two number fields and an `.input-affix` between
      · date range    `.form-trigger` opening a `.datepicker`

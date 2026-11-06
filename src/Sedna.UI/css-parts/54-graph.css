@@ -109,7 +109,7 @@
 }
 
 /* ── The toolbar on the canvas ─────────────────────────────────────────────────
-   Zoom, fit, arrange, full screen: `.btn .btn-ghost .btn-sm .btn-icon` buttons with a
+   Zoom, fit, arrange, full screen: `.btn .btn--ghost .btn--sm .btn--icon` buttons with a
    `data-graph-action` each, and a `data-tip` for their name. Top right by default;
    `--start` puts it top left, `--bottom` along the bottom, `--stack` in a column. */
 .graph-tools {

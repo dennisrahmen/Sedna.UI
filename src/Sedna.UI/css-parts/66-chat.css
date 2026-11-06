@@ -13,7 +13,7 @@
      <div class="chat" role="log" aria-live="polite" aria-label="Chat with Alex Fischer">
        <div class="chat-day">Today</div>
        <div class="chat-message">
-         <span class="avatar avatar-sm">AF</span>
+         <span class="avatar avatar--sm">AF</span>
          <div class="chat-body">
            <div class="chat-meta"><span class="chat-author">Alex Fischer</span><time class="chat-time">09:41</time></div>
            <div class="chat-bubble">Can you reroute ORD-4209 to EU-West?</div>

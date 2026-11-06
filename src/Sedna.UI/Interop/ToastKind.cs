@@ -23,4 +23,10 @@ public enum ToastKind
 
     /// <summary>Something failed. Announced assertively.</summary>
     Danger,
+
+    /// <summary>An announcement in the brand's own colour — news, not a status.</summary>
+    Brand,
+
+    /// <summary>Something private or sensitive: a key copied, a value revealed.</summary>
+    Secret,
 }

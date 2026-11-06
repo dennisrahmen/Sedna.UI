@@ -39,12 +39,13 @@ internal static class CatalogueRanker
     private const int LongFieldWord = 200;
     private const int MarkupWord = 100;
 
-    /// <summary>Normalises both sides so `btn-go`, `.btn-go`, `btn go` and `BtnGo` agree.</summary>
+    /// <summary>Normalises both sides so `btn--go btn--solid`, `.btn--go.btn--solid`, `btn go` and `BtnGo` agree.</summary>
     public static string Normalise(string text)
     {
         var lower = text.ToLowerInvariant().TrimStart('.');
         if (lower.StartsWith("--", StringComparison.Ordinal)) lower = lower[2..];
-        return lower.Replace('_', ' ').Replace('-', ' ');
+        // `badge--go` and `badge-go` read the same: a modifier's double dash is one break.
+        return System.Text.RegularExpressions.Regex.Replace(lower.Replace('_', ' ').Replace('-', ' '), " {2,}", " ");
     }
 
     public static IEnumerable<string> Terms(string query) =>
@@ -68,7 +69,7 @@ internal static class CatalogueRanker
         var id = Normalise(identifier);
 
         // The whole query IS the identifier. Without this, "badge go" loses
-        // `.badge-go` to `.badge`: the shorter name scores an exact match on the
+        // `.badge--go` to `.badge`: the shorter name scores an exact match on the
         // first term and finds the second among its own modifiers, and one exact
         // hit outweighs two near-exact ones. Scoring the query as a unit first is
         // what makes a compound name findable by its compound name.

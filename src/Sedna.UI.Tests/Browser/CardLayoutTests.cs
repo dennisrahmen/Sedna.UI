@@ -141,7 +141,7 @@ public class CardLayoutTests : ScriptTestBase
             <div class="card-body">Body</div>
             <div class="card-foot" id="plain-foot">
               <button class="btn" id="plain-first">Cancel</button>
-              <button class="btn btn-primary">Save</button>
+              <button class="btn btn--brand btn--solid">Save</button>
             </div>
           </div>
 

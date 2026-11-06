@@ -25,9 +25,9 @@ public class LongContentTests : ScriptTestBase
 
     public static TheoryData<string, string> Roles() => new()
     {
-        { "alert", $"""<div class="alert alert-info"><i class="ri-information-line"></i><span>Saved as {Token}</span></div>""" },
-        { "alert, bare text", $"""<div class="alert alert-info">Saved as {Token}</div>""" },
-        { "card title", $"""<div class="card"><div class="card-head"><h3>{Token}</h3><button class="btn btn-sm" type="button">Open</button></div></div>""" },
+        { "alert", $"""<div class="alert alert--info"><i class="ri-information-line"></i><span>Saved as {Token}</span></div>""" },
+        { "alert, bare text", $"""<div class="alert alert--info">Saved as {Token}</div>""" },
+        { "card title", $"""<div class="card"><div class="card-head"><h3>{Token}</h3><button class="btn btn--sm" type="button">Open</button></div></div>""" },
         { "card body", $"""<div class="card"><div class="card-body"><p>{Token}</p></div></div>""" },
         { "key/value", $"""<div class="kv"><span class="k">File</span><span class="v">{Token}</span></div>""" },
         { "menu item", $"""<div class="menu" style="position:static"><button class="menu-item" type="button">{Token}</button></div>""" },
@@ -35,7 +35,7 @@ public class LongContentTests : ScriptTestBase
         { "chip", $"""<span class="chip"><span class="chip-label">{Token}</span></span>""" },
         { "form hint", $"""<div class="form-field"><label class="form-label">File</label><input class="form-input"><p class="form-hint">{Token}</p></div>""" },
         { "page head", $"""<div class="page-head"><h1>{Token}</h1></div>""" },
-        { "callout", $"""<div class="callout callout-info"><i class="ri-information-line"></i><div class="callout-body"><span class="callout-title">{Token}</span>{Token}</div></div>""" },
+        { "callout", $"""<div class="callout callout--info"><i class="ri-information-line"></i><div class="callout-body"><span class="callout-title">{Token}</span>{Token}</div></div>""" },
     };
 
     [Theory]

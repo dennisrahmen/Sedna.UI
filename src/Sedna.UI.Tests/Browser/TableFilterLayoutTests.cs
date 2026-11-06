@@ -12,7 +12,7 @@ public class TableFilterLayoutTests : ScriptTestBase
 {
     private const string FilterRow = """
         <tr class="tr-filter">
-          <th id="plain"><input class="form-input form-input-sm" placeholder="Order" aria-label="Order"></th>
+          <th id="plain"><input class="form-input form-input--sm" placeholder="Order" aria-label="Order"></th>
           <th id="text">
             <div class="input-group input-group--sm">
               <span class="input-affix"><i class="ri-search-line"></i></span>
@@ -20,9 +20,9 @@ public class TableFilterLayoutTests : ScriptTestBase
               <button class="input-clear" type="button" aria-label="Clear"><i class="ri-close-line"></i></button>
             </div>
           </th>
-          <th id="choice"><select class="form-select form-select-sm" aria-label="Status"><option>Any</option></select></th>
+          <th id="choice"><select class="form-select form-select--sm" aria-label="Status"><option>Any</option></select></th>
           <th id="several" class="col-filtered">
-            <button class="form-input form-input-sm form-trigger" type="button" popovertarget="p">
+            <button class="form-input form-input--sm form-trigger" type="button" popovertarget="p">
               <i class="ri-calendar-line"></i><span>2 selected</span>
             </button>
             <div class="popover" id="p" popover><strong class="popover-title">Region</strong>Pick</div>

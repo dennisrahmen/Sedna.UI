@@ -7,15 +7,15 @@
     border-radius: var(--radius-surface);
     font-size: var(--text-4);
     margin-bottom: var(--space-7);
-    border: 1px solid;
+    /* With no tone it is a plain note: a soft surface, the text's own colour. A tone
+       modifier (69-tone.css) tints it. */
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--fg);
     /* A flex row: without these its text is a flex item that will not shrink below its
        longest word, and a long address widens the alert past its container. */
     overflow-wrap: anywhere;
 }
 .alert > * { min-width: 0; }
 .alert i { font-size: var(--text-7); flex-shrink: 0; }
-.alert-go     { background: var(--go-bg);     border-color: var(--go-hover);     color: var(--go-fg); }
-.alert-warn   { background: var(--warn-bg);   border-color: var(--warn-hover);   color: var(--warn-fg); }
-.alert-danger { background: var(--danger-bg); border-color: var(--danger-border-strong); color: var(--danger-fg); }
-.alert-info   { background: var(--info-bg);   border-color: var(--info-border);   color: var(--info-fg); }
 

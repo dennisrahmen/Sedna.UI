@@ -283,7 +283,7 @@ public sealed class SednaTheme
     /// <summary>
     /// The white-text contrast floor a generated theme's brand step (<c>coral-600</c>, what
     /// <c>--brand</c> resolves to) is solved for — WCAG AA's 4.5:1 floor for
-    /// <c>--on-solid</c> on <c>.btn-primary</c>, plus a margin.
+    /// <c>--on-solid</c> on <c>.btn--brand.btn--solid</c>, plus a margin.
     /// </summary>
     /// <remarks>
     /// 4.5 is a cliff, not a plateau, and Sedna's own hand-solved <c>coral-600</c> sits at 4.55

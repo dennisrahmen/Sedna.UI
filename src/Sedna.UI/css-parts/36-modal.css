@@ -48,10 +48,10 @@
    height cap leaves above and below, and the safe-area insets clear: for an editor
    that wants the whole screen. 100% is the backdrop's width, or the viewport's for a
    <dialog>, so neither form runs under a scrollbar. */
-.modal-sm   { max-width: 360px; }
-.modal-lg   { max-width: 760px; }
-.modal-xl   { max-width: 1140px; }
-.modal-full { max-width: calc(100% - 2 * var(--space-8) - var(--safe-inline-start) - var(--safe-inline-end)); }
+.modal--sm   { max-width: 360px; }
+.modal--lg   { max-width: 760px; }
+.modal--xl   { max-width: 1140px; }
+.modal--full { max-width: calc(100% - 2 * var(--space-8) - var(--safe-inline-start) - var(--safe-inline-end)); }
 
 /* ── As a <dialog> ──────────────────────────────────────────────────────────
    `.modal` on a <dialog> opened with showModal() gets the top layer, a focus trap,

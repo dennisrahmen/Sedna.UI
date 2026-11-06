@@ -43,7 +43,7 @@ public class TableModalLayoutTests : ScriptTestBase
         var panel = $"""
             <div class="modal-header"><h3 id="t">Edit source</h3></div>
             <div class="modal-body">{rows}</div>
-            <div class="modal-footer"><button class="btn btn-primary" id="save" type="button">Save</button></div>
+            <div class="modal-footer"><button class="btn btn--brand btn--solid" id="save" type="button">Save</button></div>
             """;
 
         var body = form == "dialog"

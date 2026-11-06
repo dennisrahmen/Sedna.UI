@@ -5,7 +5,7 @@
     panel; header, body and footer are three optional rows.
 </CatHead>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-window-2-line"></i>
     <div class="callout-body">
         <span class="callout-title">Put it on a <code>&lt;dialog&gt;</code> and open it with <code>showModal()</code></span>
@@ -15,7 +15,7 @@
     </div>
 </div>
 
-<div class="callout callout-warn">
+<div class="callout callout--warn">
     <i class="ri-signpost-line"></i>
     <div class="callout-body">
         <span class="callout-title">Two routes: pick by where the dialog's markup lives</span>
@@ -108,7 +108,7 @@
 
 <CatExample TExample="Examples.Interop.ConfirmFromCsharp" Title="A confirmation, from C#" Demo="ex-demo--block">
     <p>
-        <strong>Live — open it.</strong> A confirmation is a <code>.modal-sm</code> you write, not
+        <strong>Live — open it.</strong> A confirmation is a <code>.modal--sm</code> you write, not
         something the library draws, so the question, the button labels and the language are
         yours. Wrap it in <code>&lt;form method="dialog"&gt;</code> with a <code>value</code> on each
         button and compare what <code>ShowModalAsync</code> returns with the one value that means
@@ -142,8 +142,8 @@
 
 <CatExample TExample="Examples.Modal.Widths" Title="Widths" Demo="ex-demo--block">
     <p>
-        <code>.modal-sm</code> is 360px, <code>.modal-lg</code> 760px and <code>.modal-xl</code> 1140px,
-        against the default 480px; <code>.modal-full</code> takes the window's width less a margin at
+        <code>.modal--sm</code> is 360px, <code>.modal--lg</code> 760px and <code>.modal--xl</code> 1140px,
+        against the default 480px; <code>.modal--full</code> takes the window's width less a margin at
         each side and the safe-area insets. Pick by how wide the content has to be, not by how
         important the dialog is.
     </p>

@@ -16,7 +16,7 @@ public class OutputFollowTests : ScriptTestBase
                     $"<li class=\"output-line\"><span class=\"output-msg\">line {i}</span></li>"))}
                 {extra}
             </ul>
-            <button class="btn btn-sm output-jump" id="jump" type="button" data-output-follow>Jump to latest</button>
+            <button class="btn btn--sm output-jump" id="jump" type="button" data-output-follow>Jump to latest</button>
         </div>
         """;
 
@@ -156,7 +156,7 @@ public class OutputFollowTests : ScriptTestBase
         const string row = """
             <li class="output-line"><span class="output-msg">has a menu</span>
                 <div class="output-actions"><div class="menu-anchor">
-                    <button class="btn btn-sm btn-ghost btn-icon" id="more" type="button" data-menu-toggle aria-expanded="false" aria-label="More">…</button>
+                    <button class="btn btn--sm btn--ghost btn--icon" id="more" type="button" data-menu-toggle aria-expanded="false" aria-label="More">…</button>
                     <div class="menu" hidden><button class="menu-item" type="button">Copy</button></div>
                 </div></div>
             </li>
@@ -182,7 +182,7 @@ public class OutputFollowTests : ScriptTestBase
         const string row = """
             <li class="output-line" id="row"><span class="output-msg">has actions</span>
                 <div class="output-actions" id="actions"><div class="menu-anchor">
-                    <button class="btn btn-sm btn-ghost btn-icon" id="more" type="button" data-menu-toggle aria-expanded="false" aria-label="More">…</button>
+                    <button class="btn btn--sm btn--ghost btn--icon" id="more" type="button" data-menu-toggle aria-expanded="false" aria-label="More">…</button>
                     <div class="menu" hidden><button class="menu-item" type="button">Copy</button></div>
                 </div></div>
             </li>

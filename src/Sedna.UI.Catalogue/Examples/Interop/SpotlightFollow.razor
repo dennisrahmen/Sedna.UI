@@ -24,7 +24,7 @@
                         </div>
                     </span>
                 </div>
-                <button class="btn btn-warn" type="button" data-live="@Live(1)">Hold selected</button>
+                <button class="btn btn--warn" type="button" data-live="@Live(1)">Hold selected</button>
             </div>
 
             @* Clear of the results panel above, which is fixed and overlays rather than
@@ -51,9 +51,9 @@
             <div class="spotlight-tip-actions">
                 <span class="spotlight-step">@(_step + 1) of @Steps.Length — @_side</span>
                 <span class="sedna-row sedna-gap-1">
-                    <button class="btn btn-sm" type="button" disabled="@(_step == 0)"
+                    <button class="btn btn--sm" type="button" disabled="@(_step == 0)"
                             @onclick="() => Go(-1)">Back</button>
-                    <button class="btn btn-sm btn-primary" type="button" disabled="@(_step == Steps.Length - 1)"
+                    <button class="btn btn--sm btn--brand btn--solid" type="button" disabled="@(_step == Steps.Length - 1)"
                             @onclick="() => Go(1)">Next</button>
                 </span>
             </div>

@@ -773,9 +773,9 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
      <button class="form-input" type="button" popovertarget="due">12 Sep 2026</button>
      <div class="popover datepicker" id="due" popover>
        <div class="datepicker-head">
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Previous month"><i class="ri-arrow-left-s-line"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous month"><i class="ri-arrow-left-s-line"></i></button>
          <span class="datepicker-title">September 2026</span>
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Next month"><i class="ri-arrow-right-s-line"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next month"><i class="ri-arrow-right-s-line"></i></button>
        </div>
        <div class="cal-month cal-month--mini">… <button class="cal-day" type="button" aria-label="Monday 21 September 2026" aria-pressed="true">21</button> …</div>
        <div class="datepicker-actions">…</div>
@@ -806,12 +806,12 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
 
 /* ── Date picker: a time, and jumping further ───────────────────────────────
    A date with a time is a `.datepicker-time` row under the grid: a label and a
-   `.form-input.form-input-sm` of `type="time"`, or two for a range. The input is the
+   `.form-input.form-input--sm` of `type="time"`, or two for a range. The input is the
    platform's, so the clock, the 12- or 24-hour form and the keyboard are the reader's.
 
      <div class="datepicker-time">
        <label for="due-time">Time</label>
-       <input class="form-input form-input-sm" id="due-time" type="time" value="14:00">
+       <input class="form-input form-input--sm" id="due-time" type="time" value="14:00">
      </div>
 
    Further than a month is the title as a <button> that switches the panel to a level
@@ -821,9 +821,9 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-
    and what a pick does, are the app's; the panel swaps its body and keeps its head.
 
      <div class="datepicker-head">
-       <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Previous year">…</button>
+       <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous year">…</button>
        <button class="datepicker-title" type="button" aria-label="2026, choose a year">2026 <i class="ri-arrow-down-s-line"></i></button>
-       <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Next year">…</button>
+       <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next year">…</button>
      </div>
      <div class="cal-months">
        <button class="cal-pick" type="button" aria-pressed="false">Jan</button> … 12 …

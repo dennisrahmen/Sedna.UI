@@ -147,7 +147,7 @@ public class StatusBarTests : ScriptTestBase
         Assert.Equal("flex", await page.EvalOnSelectorAsync<string>(
             ".status-bar--error", "el => getComputedStyle(el).display"));
 
-        // The action is FILLED. `.btn-danger` is a tint, so on a crimson bar its fill
+        // The action is FILLED. `.btn--danger` is a tint, so on a crimson bar its fill
         // vanished and the control read as an empty rectangle — which is why this is a
         // frame class and not a `.btn`.
         var background = await page.EvalOnSelectorAsync<string>(

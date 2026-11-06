@@ -64,6 +64,7 @@ public class BrandTextContrastTests
     private static readonly Dictionary<string, (Ink Kind, string[] Tints)> Uses = new(StringComparer.Ordinal)
     {
         [".markdown-body a"] = (Ink.Text, []),
+        [".text-brand"] = (Ink.Text, []),
         [".nav-link.active"] = (Ink.Text, ["--brand-tint"]),
         [".nav-link.active i"] = (Ink.Icon, ["--brand-tint"]),
         [".nav-area[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),

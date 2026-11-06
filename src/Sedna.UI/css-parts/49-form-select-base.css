@@ -84,8 +84,8 @@
 
     /* The tiers give the trailing side back too, or a small select keeps the
        normal one's inline-end padding and comes out lopsided. */
-    .form-select-sm { padding-inline-end: var(--space-4); }
-    .form-select-lg { padding-inline-end: var(--space-7); }
+    .form-select--sm { padding-inline-end: var(--space-4); }
+    .form-select--lg { padding-inline-end: var(--space-7); }
 }
 
 /* The value, when the markup supplies its own button. A clone of the chosen

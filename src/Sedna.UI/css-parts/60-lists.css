@@ -54,7 +54,7 @@ button.list-row {
 :is(a, button).list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
 /* Pressed, which on a touch screen is the only feedback there is — a hover state a
    finger never enters says nothing. The same `--bg-hover` / `--btn-active-bg` pair
-   `.btn-ghost` uses, so a quiet control being held reads the same everywhere and a
+   `.btn--ghost` uses, so a quiet control being held reads the same everywhere and a
    theme remaps both at once.
 
    Pressed and disabled stay on `button.` rather than joining the `:is(a, button)`

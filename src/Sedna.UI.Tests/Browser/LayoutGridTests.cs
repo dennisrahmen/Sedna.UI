@@ -173,7 +173,7 @@ public class LayoutGridTests : ScriptTestBase
               <div class="sedna-grid-24">
                 <div class="card sedna-span-12" style="height:80px"><div class="card-body">
                   <div class="menu-anchor">
-                    <button class="btn btn-sm" id="trigger" type="button" data-menu-toggle aria-expanded="false">More</button>
+                    <button class="btn btn--sm" id="trigger" type="button" data-menu-toggle aria-expanded="false">More</button>
                     <div class="menu" hidden>
                       <button class="menu-item" type="button">One</button>
                       <button class="menu-item" type="button">Two</button>
@@ -271,7 +271,7 @@ public class LayoutGridTests : ScriptTestBase
                 <div class="card card--fill sedna-span-12" id="long">
                   <div class="card-head"><strong>Long</strong></div>
                   <div class="card-body" id="body"><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p><p>10</p><p>11</p><p>12</p></div>
-                  <div class="card-foot" id="foot"><button class="btn btn-sm" type="button">Open</button></div>
+                  <div class="card-foot" id="foot"><button class="btn btn--sm" type="button">Open</button></div>
                 </div>
                 <div class="card card--fill sedna-row-span-2" id="double">
                   <div class="card-body">Two rows.</div>

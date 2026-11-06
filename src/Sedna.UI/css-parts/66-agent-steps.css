@@ -32,8 +32,8 @@
    ── Approval ──
    The agent asks before it acts. `.agent-approval` on a `.card`; `data-state="approved"`
    or `"denied"` once the reader has answered, which swaps the actions for the result
-   line. Approve is `.btn-go` — it lets the action out — and taking control back is
-   `.btn-warn`, the library's own meanings for both.
+   line. Approve is `.btn--go.btn--solid` — it lets the action out — and taking control back is
+   `.btn--warn`, the library's own meanings for both.
    ─────────────────────────────────────────────────────────────────────────── */
 .reasoning { font-size: var(--text-4); }
 .reasoning > summary {

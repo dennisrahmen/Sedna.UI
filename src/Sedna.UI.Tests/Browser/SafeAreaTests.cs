@@ -67,7 +67,7 @@ public class SafeAreaTests : ScriptTestBase
         <dialog class="modal" id="modal">
           <div class="modal-header"><h3>Confirm</h3></div>
           <div class="modal-body"><p style="height:2000px">tall</p></div>
-          <div class="modal-footer"><button class="btn btn-go" type="button">Go</button></div>
+          <div class="modal-footer"><button class="btn btn--go btn--solid" type="button">Go</button></div>
         </dialog>
         """;
 

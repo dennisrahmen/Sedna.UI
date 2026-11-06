@@ -22,12 +22,12 @@ public class ThemeToggleTests : ScriptTestBase
             const probe = document.createElement('div');
             probe.style.cssText = 'position:absolute;left:-9999px;top:0';
             probe.innerHTML = `<div class='card'><div class='card-body'>
-                <button class='btn btn-primary'>b</button>
+                <button class='btn btn--brand btn--solid'>b</button>
                 <table class='table'><tr><th>h</th><td>d</td></tr></table>
             </div></div>`;
             document.body.appendChild(probe);
 
-            const watch = ['.card', '.btn-primary', '.table th', '.table td'];
+            const watch = ['.card', '.btn--brand.btn--solid', '.table th', '.table td'];
             const geometry = ['padding', 'margin', 'borderWidth', 'borderRadius', 'fontSize',
                               'fontWeight', 'display', 'minHeight', 'gap'];
             const snap = () => watch.map(s => {

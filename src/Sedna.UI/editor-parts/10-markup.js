@@ -3,7 +3,7 @@
 
      <div class="editor" data-editor id="note">
        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
-         <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+         <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
          …
        </div>
        <div class="editor-body prose" data-editor-body></div>

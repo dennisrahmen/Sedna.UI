@@ -2,7 +2,7 @@ namespace Sedna.UI.Tests;
 
 /// <summary>
 /// <c>--brand</c> resolves to <c>coral-600</c> (<c>01-tokens.css</c>), and that is the background
-/// of <c>.btn-primary</c> whose label is <c>--on-solid</c> — pure white. WCAG AA needs 4.5:1 for
+/// of <c>.btn--brand.btn--solid</c> whose label is <c>--on-solid</c> — pure white. WCAG AA needs 4.5:1 for
 /// that pairing.
 /// </summary>
 /// <remarks>
@@ -32,7 +32,7 @@ public class SednaThemeContrastTests
 
         Assert.True(ratio >= 4.5,
             $"\"{theme.Name}\"'s coral-600 ({brandHex}) is white-on-brand {ratio:0.00}:1, below the "
-            + "4.5:1 WCAG AA floor a .btn-primary label (--on-solid, white) needs against --brand. "
+            + "4.5:1 WCAG AA floor a .btn--brand.btn--solid label (--on-solid, white) needs against --brand. "
             + "See docs/BRANDING.md §3.1 — the step has to be solved for contrast, not read off "
             + "the shared lightness curve.");
     }

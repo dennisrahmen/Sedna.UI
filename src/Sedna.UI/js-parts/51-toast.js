@@ -47,7 +47,9 @@
         go: 'ri-check-line',
         warn: 'ri-alert-line',
         danger: 'ri-error-warning-line',
-        info: 'ri-information-line'
+        info: 'ri-information-line',
+        brand: 'ri-megaphone-line',
+        secret: 'ri-lock-line'
     };
 
     var host = null;     // our stack, while it exists
@@ -114,7 +116,7 @@
         // A failure interrupts; a confirmation waits its turn.
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
 
-        el.className = 'toast toast-' + kind;
+        el.className = 'toast toast--' + kind;
         el.textContent = '';
 
         var icon = document.createElement('i');

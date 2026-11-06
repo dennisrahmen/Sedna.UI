@@ -131,7 +131,7 @@ On the `[data-graph]` element:
         <div class="graph" data-graph id="deps" …>
             …
             <div class="graph-tools" role="toolbar" aria-label="View">
-                <button class="btn btn-ghost btn-sm btn-icon" type="button" data-graph-action="fit"
+                <button class="btn btn--ghost btn--sm btn--icon" type="button" data-graph-action="fit"
                         aria-label="Fit" data-tip="Fit"><i class="ri-focus-3-line"></i></button>
             </div>
             <canvas class="graph-minimap" data-graph-minimap aria-hidden="true"></canvas>

@@ -17,20 +17,20 @@ public class EditorTests : ScriptTestBase
 {
     private const string Toolbar = """
         <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-action="undo" aria-label="Undo" id="undo"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="bold" aria-label="Bold" id="bold"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="italic" aria-label="Italic" id="italic"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="header" value="2" aria-label="Heading" id="h2"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="list" value="bullet" aria-label="List" id="ul"></button>
-          <button class="btn btn-ghost btn-icon btn-sm" type="button" data-editor-format="link" aria-label="Link" id="link"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-action="undo" aria-label="Undo" id="undo"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold" id="bold"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="italic" aria-label="Italic" id="italic"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="header" value="2" aria-label="Heading" id="h2"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="bullet" aria-label="List" id="ul"></button>
+          <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="link" aria-label="Link" id="link"></button>
         </div>
         """;
 
     private const string LinkForm = """
         <div class="editor-link" data-editor-link hidden id="link-form">
           <input class="form-input" type="url" data-editor-link-url aria-label="Address" id="url" />
-          <button class="btn btn-sm" type="button" data-editor-link-save id="save">Save</button>
-          <button class="btn btn-ghost btn-sm" type="button" data-editor-link-remove id="remove">Remove</button>
+          <button class="btn btn--sm" type="button" data-editor-link-save id="save">Save</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-editor-link-remove id="remove">Remove</button>
         </div>
         """;
 
@@ -310,8 +310,8 @@ public class EditorTests : ScriptTestBase
           <span data-editor-media-for="video" id="for-video">Video</span>
           <input class="form-input" type="url" data-editor-media-url aria-label="Address" id="media-url" />
           <input class="form-input" type="text" data-editor-media-alt aria-label="Description" id="media-alt" />
-          <button class="btn btn-sm" type="button" data-editor-media-save id="media-save">Insert</button>
-          <button class="btn btn-ghost btn-sm" type="button" data-editor-media-cancel id="media-cancel">Cancel</button>
+          <button class="btn btn--sm" type="button" data-editor-media-save id="media-save">Insert</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel id="media-cancel">Cancel</button>
         </div>
         """;
 

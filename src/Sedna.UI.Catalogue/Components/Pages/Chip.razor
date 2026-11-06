@@ -5,7 +5,7 @@
     recipient, a label attached to a record.
 </CatHead>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-question-line"></i>
     <div class="callout-body">
         <span class="callout-title">Chip or badge?</span>
@@ -13,6 +13,10 @@
         can take it away it is a chip, and if it reflects data it is a <a href="/badge">badge</a>.
     </div>
 </div>
+
+<CatExample TExample="Examples.Chip.Tones" Title="Tones" Demo="ex-demo--block">
+    <p>A chip takes the same tones as a badge, for a filter that stands for a state or a category.</p>
+</CatExample>
 
 <CatExample TExample="Examples.Chip.Chips" Title="A set of filters" Demo="ex-demo--block">
     <p>
@@ -35,7 +39,7 @@
 <CatExample TExample="Examples.Chip.Recipients" Title="Chosen people, in a field" Demo="ex-demo--block">
     <p>
         A chip can hold an <a href="/avatar"><code>.avatar</code></a> as well as a label;
-        <code>.avatar-sm</code> is the size that fits inside the small tier, and
+        <code>.avatar--sm</code> is the size that fits inside the small tier, and
         <code>.avatar--muted</code> marks an actor that is not a person. The input goes after the
         chips, not inside them &mdash; a field whose value is a set of chips still needs one real
         labelled control for adding to it.
@@ -45,7 +49,7 @@
 <CatExample TExample="Examples.Chip.Sizes" Title="Two sizes" Demo="ex-demo--block">
     <p>
         A chip is interactive, so it takes the <a href="/concepts">control heights</a> rather than a
-        type scale. The default is the small tier, for a filter bar beside a <code>.btn-sm</code>;
-        <code>.chip-lg</code> is the normal tier.
+        type scale. The default is the small tier, for a filter bar beside a <code>.btn--sm</code>;
+        <code>.chip--lg</code> is the normal tier.
     </p>
 </CatExample>

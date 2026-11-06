@@ -22,7 +22,7 @@
     </div>
     <div class="drawer-footer">
         <button class="btn" type="button" @onclick="Overlay.CancelAsync">Cancel</button>
-        <button class="btn btn-primary" type="button" disabled="@(_owner == Current)"
+        <button class="btn btn--brand btn--solid" type="button" disabled="@(_owner == Current)"
                 @onclick="() => Overlay.CloseAsync(_owner)">Reassign</button>
     </div>
 </dialog>

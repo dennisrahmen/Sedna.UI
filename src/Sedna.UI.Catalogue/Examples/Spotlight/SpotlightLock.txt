@@ -27,7 +27,7 @@ const step = sednaUi.spotlight.follow('#hole', '[data-live]', {
 // The opt-out is for a control INSIDE the live anchor that the step must not let
 // the reader press — the Cancel beside the button the step is about.
 <div class="btn-group" data-live="yes">
-    <button class="btn btn-warn" type="button">Hold shipment</button>
+    <button class="btn btn--warn" type="button">Hold shipment</button>
     <span data-spotlight-block>
         <button class="btn" type="button">Cancel</button>
     </span>

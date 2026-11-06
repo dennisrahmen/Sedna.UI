@@ -25,7 +25,7 @@
         {
             <div class="form-combo-status form-combo-status--error" id="note-tags-status" role="alert">
                 <i class="ri-error-warning-line"></i>The tags could not be loaded.
-                <button class="btn btn-sm" type="button" @onclick="SearchAsync">Retry</button>
+                <button class="btn btn--sm" type="button" @onclick="SearchAsync">Retry</button>
             </div>
         }
         else

@@ -90,8 +90,8 @@ internal static class TokenGroups
         new("Topbar", ["--topbar-bg", "--topbar-fg", "--topbar-muted", "--topbar-hover"]),
 
         new("Status — go (sends outward)", [
-            "--go-solid", "--go-hover", "--go-active", "--go-bg", "--go-border", "--go-fg",
-            "--go-ring",
+            "--go-solid", "--go-hover", "--go-active", "--go-bg", "--go-bg-hover", "--go-bg-active",
+            "--go-border", "--go-fg", "--go-ring",
         ]),
 
         new("Status — warn (control changes)", [
@@ -100,13 +100,15 @@ internal static class TokenGroups
         ]),
 
         new("Status — danger", [
-            "--danger-solid", "--danger-bg", "--danger-bg-hover", "--danger-bg-active",
+            "--danger-solid", "--danger-hover", "--danger-active", "--danger-bg", "--danger-bg-hover", "--danger-bg-active",
             "--danger-border", "--danger-border-strong", "--danger-fg", "--danger-ring",
         ]),
 
         new("Status — info & secret", [
-            "--info-bg", "--info-border", "--info-fg", "--info-solid", "--info-ring",
-            "--secret-bg", "--secret-border", "--secret-fg",
+            "--info-bg", "--info-bg-hover", "--info-bg-active", "--info-border", "--info-fg",
+            "--info-solid", "--info-hover", "--info-active", "--info-ring",
+            "--secret-bg", "--secret-bg-hover", "--secret-bg-active", "--secret-border", "--secret-fg",
+            "--secret-hover", "--secret-active",
         ]),
 
         new("Severity — an ordered five-step ramp", [
@@ -118,9 +120,9 @@ internal static class TokenGroups
         ]),
 
         new("Categorical badge hues", [
-            "--badge-cyan-bg", "--badge-cyan-border", "--badge-cyan-fg",
-            "--badge-orange-bg", "--badge-orange-border", "--badge-orange-fg",
-            "--badge-teal-bg", "--badge-teal-border", "--badge-teal-fg",
+            "--badge-cyan-bg", "--badge-cyan-border", "--badge-cyan-fg", "--badge-cyan-bg-hover", "--badge-cyan-bg-active", "--badge-cyan-hover", "--badge-cyan-active",
+            "--badge-orange-bg", "--badge-orange-border", "--badge-orange-fg", "--badge-orange-bg-hover", "--badge-orange-bg-active", "--badge-orange-hover", "--badge-orange-active",
+            "--badge-teal-bg", "--badge-teal-border", "--badge-teal-fg", "--badge-teal-bg-hover", "--badge-teal-bg-active", "--badge-teal-hover", "--badge-teal-active",
         ]),
 
         new("Component surfaces", [

@@ -4019,7 +4019,9 @@ window.sednaUi = window.sednaUi || {};
         go: 'ri-check-line',
         warn: 'ri-alert-line',
         danger: 'ri-error-warning-line',
-        info: 'ri-information-line'
+        info: 'ri-information-line',
+        brand: 'ri-megaphone-line',
+        secret: 'ri-lock-line'
     };
     var host = null;     // our stack, while it exists
     var unwatch = null;  // stops watching for the stack being taken out with a dialog
@@ -4064,7 +4066,7 @@ window.sednaUi = window.sednaUi || {};
         var kind = ICONS[opts.kind] ? opts.kind : 'info';
         stack();
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
-        el.className = 'toast toast-' + kind;
+        el.className = 'toast toast--' + kind;
         el.textContent = '';
         var icon = document.createElement('i');
         icon.className = ICONS[kind];

@@ -7,10 +7,10 @@
         <div class="graph-wait skeleton skeleton-block"></div>
     </div>
     <div class="card-foot card-foot--start">
-        <button class="btn btn-sm" type="button" @onclick="OpenWarehouse" disabled="@(_opened.Count == Sites.Length)">
+        <button class="btn btn--sm" type="button" @onclick="OpenWarehouse" disabled="@(_opened.Count == Sites.Length)">
             <i class="ri-add-line"></i> Open a warehouse
         </button>
-        <button class="btn btn-sm" type="button" @onclick="CloseNewest" disabled="@(_opened.Count == 0)">
+        <button class="btn btn--sm" type="button" @onclick="CloseNewest" disabled="@(_opened.Count == 0)">
             Close the newest
         </button>
         <label class="switch"><input type="checkbox" @bind="_fault" @bind:after="MarkFault" /> Stock fault</label>

@@ -7,7 +7,7 @@
     page of the thing they drive.
 </CatHead>
 
-<div class="callout callout-info">
+<div class="callout callout--info">
     <i class="ri-braces-line"></i>
     <div class="callout-body">
         <span class="callout-title">Register it once, and never call it while prerendering</span>
@@ -31,7 +31,7 @@
 <CatExample TExample="Examples.Interop.ToastsFromCsharp" Title="Toasts" Demo="ex-demo--block">
     <p>
         <code>ToastAsync</code> takes the message and a <code>ToastKind</code>, whose members are the
-        CSS modifier suffixes, so <code>ToastKind.Go</code> and <code>.toast-go</code> cannot drift
+        CSS modifier suffixes, so <code>ToastKind.Go</code> and <code>.toast--go</code> cannot drift
         apart. A toast is one of the two pieces of UI the library draws for you, because a line of
         text has nothing to author. It returns a <a href="/toast#work-that-ends-later">handle</a>
         for dismissing or replacing it.

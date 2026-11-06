@@ -497,9 +497,9 @@ on a hovered row, where the tint sits on `--bg-hover`:
 | Pair | Ratio |
 |---|---|
 | White on `--brand` | 4.55 |
-| `.badge-orange` text on its tint, hovered row, light | 4.60 |
-| `.badge-secret` text on its tint, hovered row, light | 4.68 |
-| `.badge-sev-2` text on its tint, hovered row, colour-blind dark | 4.75 |
+| `.badge--orange` text on its tint, hovered row, light | 4.60 |
+| `.badge--secret` text on its tint, hovered row, light | 4.68 |
+| `.badge--sev-2` text on its tint, hovered row, colour-blind dark | 4.75 |
 | `--accent` on light canvas | 4.80 |
 | White on `--go-solid` | 4.83 |
 
@@ -536,7 +536,7 @@ border step, which is only held to 3:1. `PlaceholderContrastTests` reads the col
 rules paints and measures it on `--bg`, `--card-bg` and `--bg-elevated` in every palette and theme.
 
 **A filled button's boundary is not its label.** `--brand` is solved for white text on it and lands
-under 3:1 against the dark card, so `.btn-primary` is edged in `--brand-edge`, the display strength.
+under 3:1 against the dark card, so `.btn--brand.btn--solid` is edged in `--brand-edge`, the display strength.
 `ButtonEdgeContrastTests` measures whichever of fill and edge stands out more, on every surface.
 
 `TokenTierTests.A_near_floor_pair_still_clears_AA` re-measures these on every build, resolving each

@@ -148,7 +148,7 @@ public class OverlayTests : BunitContext
         {
             builder.OpenElement(0, "dialog");
             builder.AddAttribute(1, "id", Overlay.Id);
-            builder.AddAttribute(2, "class", "modal modal-sm");
+            builder.AddAttribute(2, "class", "modal modal--sm");
             builder.OpenElement(3, "h3");
             builder.AddContent(4, $"Delete {Queue}?");
             builder.CloseElement();

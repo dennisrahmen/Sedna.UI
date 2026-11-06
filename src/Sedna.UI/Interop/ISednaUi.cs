@@ -80,7 +80,7 @@ public interface ISednaUi
     /// </para>
     /// <para>
     /// The markup, the classes, the wording and the styling are the app's; this only
-    /// presents it. A confirmation is therefore a <c>.modal-sm</c> the app writes, with a
+    /// presents it. A confirmation is therefore a <c>.modal--sm</c> the app writes, with a
     /// <c>&lt;form method="dialog"&gt;</c> whose buttons carry values, and one comparison
     /// on the result. For a dialog that is its own component and hands back a typed
     /// result, use <see cref="ISednaOverlays"/>.

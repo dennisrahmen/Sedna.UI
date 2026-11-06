@@ -436,11 +436,11 @@ public class CalendarLayoutTests : ScriptTestBase
               <div class="cal-years" id="years">{picks}</div>
               <div class="datepicker-time" id="time">
                 <label for="from">From</label>
-                <input class="form-input form-input-sm" id="from" type="time" value="14:00">
+                <input class="form-input form-input--sm" id="from" type="time" value="14:00">
                 <span aria-hidden="true">&ndash;</span>
-                <input class="form-input form-input-sm" id="to" type="time" value="15:30" aria-label="Until">
+                <input class="form-input form-input--sm" id="to" type="time" value="15:30" aria-label="Until">
               </div>
-              <div class="datepicker-actions" id="actions"><button class="btn btn-sm" type="button">Set</button></div>
+              <div class="datepicker-actions" id="actions"><button class="btn btn--sm" type="button">Set</button></div>
             </div>
             """);
 

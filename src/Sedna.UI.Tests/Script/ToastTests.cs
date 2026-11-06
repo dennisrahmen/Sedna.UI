@@ -30,7 +30,7 @@ public class ToastTests : ScriptTestBase
             }
             """);
 
-        Assert.Equal(["true", "true", "toast toast-go", "Uploaded"], result);
+        Assert.Equal(["true", "true", "toast toast--go", "Uploaded"], result);
     }
 
     [Fact]
@@ -159,7 +159,7 @@ public class ToastTests : ScriptTestBase
             """
             <div id="host">
               <div class="toast-stack" id="theirs" aria-live="off">
-                <div class="toast toast-info" id="mine"><span class="toast-body">Rendered by the app</span></div>
+                <div class="toast toast--info" id="mine"><span class="toast-body">Rendered by the app</span></div>
               </div>
             </div>
             """);

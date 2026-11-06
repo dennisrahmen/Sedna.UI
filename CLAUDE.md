@@ -488,7 +488,7 @@ engine is [Quill](https://quilljs.com/) 2, vendored with the licences of what it
 ## Naming
 
 - CSS classes: semantic, lowercase-kebab, no app or vendor prefix. Library-owned utilities that need a
-  namespace use `sedna-` (`.sedna-scroll`, `.sedna-tip`); everything else is plain (`.card`, `.btn-go`).
+  namespace use `sedna-` (`.sedna-scroll`, `.sedna-tip`); everything else is plain (`.card`, `.btn--go.btn--solid`).
 - **A plain name is a claim on the shared namespace.** An app that already styles that class silently
   gets the library's rules merged with its own on upgrade — no error, just a changed appearance. Before
   adding a plain generic name (`.list`, `.menu`, `.row`, `.tag`, `.pager`), check it against the apps
@@ -627,7 +627,7 @@ version first.
 2. Read `git log <last-tag>..HEAD` **and the diff**. A commit subject can hide a contract change.
 3. Classify against the rules below, taking the highest applicable level.
 4. State the proposed version, its level, and the reason, then wait for confirmation — e.g.
-   "0.2.0 (minor): adds `--brand-glow` and `.badge-teal`, nothing renamed or removed."
+   "0.2.0 (minor): adds `--brand-glow` and `.badge--teal`, nothing renamed or removed."
 5. Draft the release notes. **List every CSS class the release adds, and every one it removes.** The
    additions let a consuming app grep its own stylesheets for a collision before bumping — a class the
    app already styles changes its appearance silently otherwise. The removals are the breaking part of

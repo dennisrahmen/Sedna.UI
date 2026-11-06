@@ -12,7 +12,7 @@ namespace Sedna.UI.Tests;
 /// The failure this pins is not hypothetical, it is what was shipping: <c>.btn</c>
 /// pinned itself to <c>33px</c>, <c>.form-input</c> came out at <c>35.5px</c> from its
 /// own padding and line-height, <c>.search-input</c> was told <c>34px</c> by hand, and
-/// <c>.btn-icon</c> restated the button's number a second time — so a button beside a
+/// <c>.btn--icon</c> restated the button's number a second time — so a button beside a
 /// field was two and a half pixels short, a button <i>inside</i> an input group
 /// stretched to a third height, and a square icon button was square only by
 /// coincidence.
@@ -38,14 +38,14 @@ public class ControlHeightTests
     public static TheoryData<string, string> Controls() => new()
     {
         { ".btn", "min-height" },
-        { ".btn-sm", "min-height" },
-        { ".btn-lg", "min-height" },
-        { ".btn-icon", "width" },
-        { ".btn-icon.btn-sm", "width" },
-        { ".btn-icon.btn-lg", "width" },
+        { ".btn--sm", "min-height" },
+        { ".btn--lg", "min-height" },
+        { ".btn--icon", "width" },
+        { ".btn--icon.btn--sm", "width" },
+        { ".btn--icon.btn--lg", "width" },
         { ".form-input", "min-height" },
-        { ".form-input-sm", "min-height" },
-        { ".form-input-lg", "min-height" },
+        { ".form-input--sm", "min-height" },
+        { ".form-input--lg", "min-height" },
         { ".form-value-display", "min-height" },
         { ".input-group", "min-height" },
         { ".input-group--sm", "min-height" },
@@ -54,7 +54,7 @@ public class ControlHeightTests
         // The chip is interactive, so it takes the control heights too. The badge does
         // not appear here on purpose: it is a label with its own type scale.
         { ".chip", "min-height" },
-        { ".chip-lg", "min-height" },
+        { ".chip--lg", "min-height" },
     };
 
     [Theory]
