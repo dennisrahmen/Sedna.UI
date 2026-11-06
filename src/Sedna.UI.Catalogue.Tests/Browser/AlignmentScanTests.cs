@@ -113,7 +113,8 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                 // A word and an icon are measured on what is drawn; anything else — an avatar, a
                 // ring, a pill — on its box, since what it draws inside is its own design.
                 var centres = row.Items
-                    .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Ink.Paint(image, 0, top, i.X, i.Y, i.W, i.H)))
+                    // A pixel in from its edges, where a painted item's own antialiased edge is.
+                    .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Ink.Paint(image, 0, top, i.X, i.Y + 1, i.W, i.H - 2)))
                     .Where(m => m.Ink is not null)
                     .Select(m => (m.Item, Centre: Ink.Centre(m.Ink!)))
                     .ToList();
@@ -218,7 +219,9 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                   if (textOnly && !line) { skip = true; break; }
                   // A word is measured across its own width, so a separator or a marker its
                   // element draws beside it is not taken for it.
-                  const across = line ? { left: line.left, top: r.top, width: line.width, height: r.height } : r;
+                  // Within its own box: a word cut short with an ellipsis runs past it, invisibly.
+                  const l = line ? Math.max(line.left, r.left) : 0, rr = line ? Math.min(line.right, r.right) : 0;
+                  const across = line && rr - l >= 1 ? { left: l, top: r.top, width: rr - l, height: r.height } : r;
                   items.push(box(across, isIcon(n) ? 'icon' : textOnly ? 'text' : 'box', name(n), n));
                 }
               }
