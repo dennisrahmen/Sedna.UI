@@ -570,7 +570,8 @@
 .chat-flyover > .chat-composer { padding: var(--space-4) var(--space-5); }
 
 /* On a phone the flyover is the screen: a 380px card with a margin around it is
-   most of a phone anyway, and the keyboard needs the rest. */
+   most of a phone anyway, and the keyboard needs the rest. A viewport query and not a
+   container one, because the flyover is fixed to the viewport it fills. */
 @media (max-width: 560px) {
     .chat-flyover {
         inset: 0;

@@ -608,7 +608,8 @@
    for screen readers.
 
    Only geometry and a token-valued surface here — a layout query decides how much
-   room there is, never what something looks like. */
+   room there is, never what something looks like. A viewport query, because a table
+   cannot be the container its own rows are measured against. */
 @media (max-width: 640px) {
     .table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     .table--stack tr { display: block; margin-bottom: var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }

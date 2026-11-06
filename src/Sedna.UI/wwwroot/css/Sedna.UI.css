@@ -3634,6 +3634,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--dim .choice-dependent--dim { opacity: 1; }
 .transfer {
+    container: sedna-transfer / inline-size;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     gap: var(--space-6);
@@ -3644,8 +3645,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     flex-direction: column;
     gap: var(--space-3);
 }
-@media (max-width: 640px) {
-    .transfer { grid-template-columns: 1fr; }
+@container sedna-transfer (width < 640px) {
+    .transfer > * { grid-column: 1 / span 3; }
     .transfer-actions { flex-direction: row; justify-content: center; }
 }
 }
@@ -4958,6 +4959,7 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 }
 @layer sedna.paint {
 .graph {
+    container: sedna-graph / inline-size;
     position: relative;
     display: grid;
     grid-template: minmax(0, 1fr) / minmax(0, 1fr);
@@ -5047,7 +5049,7 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .graph-minimap--start { inset-inline-end: auto; inset-inline-start: var(--space-4); }
 .graph-minimap--top { inset-block-end: auto; inset-block-start: var(--space-4); }
 .graph--sm .graph-minimap { width: 8rem; height: 5.5rem; }
-@media (max-width: 560px) {
+@container sedna-graph (width < 560px) {
     .graph-minimap { display: none; }
 }
 .graph-tip {
@@ -7131,6 +7133,7 @@ dialog.lightbox::before {
 }
 @layer sedna.paint {
 .media-player {
+    container: sedna-media-player / inline-size;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -7177,7 +7180,7 @@ dialog.lightbox::before {
     height: var(--control-height);
     margin-top: var(--space-3);
 }
-@media (max-width: 560px) {
+@container sedna-media-player (width < 560px) {
     .media-player-body { flex-wrap: wrap; }
     .media-player-body > .media-player-actions { margin-inline-start: auto; }
 }

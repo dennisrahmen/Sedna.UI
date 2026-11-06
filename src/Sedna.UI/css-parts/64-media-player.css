@@ -24,6 +24,7 @@
    controls; the transcript is the same words, readable and searchable without playing.
    ─────────────────────────────────────────────────────────────────────────── */
 .media-player {
+    container: sedna-media-player / inline-size;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -76,9 +77,9 @@
     height: var(--control-height);
     margin-top: var(--space-3);
 }
-/* On a phone the actions go under the text rather than squeezing the title to
-   nothing. */
-@media (max-width: 560px) {
+/* In a narrow player — on a phone, in a side panel — the actions go under the text
+   rather than squeezing the title to nothing. */
+@container sedna-media-player (width < 560px) {
     .media-player-body { flex-wrap: wrap; }
     .media-player-body > .media-player-actions { margin-inline-start: auto; }
 }

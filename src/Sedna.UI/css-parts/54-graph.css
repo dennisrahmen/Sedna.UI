@@ -40,6 +40,7 @@
    panel together.
    ─────────────────────────────────────────────────────────────────────────── */
 .graph {
+    container: sedna-graph / inline-size;
     position: relative;
     display: grid;
     grid-template: minmax(0, 1fr) / minmax(0, 1fr);
@@ -168,7 +169,9 @@
 .graph-minimap--start { inset-inline-end: auto; inset-inline-start: var(--space-4); }
 .graph-minimap--top { inset-block-end: auto; inset-block-start: var(--space-4); }
 .graph--sm .graph-minimap { width: 8rem; height: 5.5rem; }
-@media (max-width: 560px) {
+/* A graph too narrow for a map beside the drawing — on a phone, in a side panel —
+   shows the drawing alone. */
+@container sedna-graph (width < 560px) {
     .graph-minimap { display: none; }
 }
 
