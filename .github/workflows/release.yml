@@ -238,3 +238,15 @@ jobs:
           bash build/class-history.sh
           gh release upload "$GITHUB_REF_NAME" \
             src/Sedna.UI/Contract/class-history.json --clobber
+
+      # ── The renames, for a release that has any ────────────────────────────
+      # docs/renames/<version>.json maps every class the release renames to the class
+      # or classes that look the same, so an app converts by the map and not by a prefix.
+      - name: Attach the rename map
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          MAP="docs/renames/${GITHUB_REF_NAME#v}.json"
+          if [[ -f "$MAP" ]]; then
+            gh release upload "$GITHUB_REF_NAME" "$MAP" --clobber
+          fi

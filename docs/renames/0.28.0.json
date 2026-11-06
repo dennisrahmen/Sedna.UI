@@ -1,0 +1,298 @@
+{
+  "release": "0.28.0",
+  "from": "0.27.0",
+  "about": "Every class 0.28.0 renames, old name to the class or classes that give the same look. Replace a whole class token, never a prefix: btn-go becomes two classes, and renaming it to btn--go alone turns a filled button into a soft one. The old names are gone; nothing aliases them.",
+  "renames": [
+    {
+      "old": "btn-primary",
+      "new": [
+        "btn--brand",
+        "btn--solid"
+      ]
+    },
+    {
+      "old": "btn-go",
+      "new": [
+        "btn--go",
+        "btn--solid"
+      ]
+    },
+    {
+      "old": "btn-warn-solid",
+      "new": [
+        "btn--warn",
+        "btn--solid"
+      ]
+    },
+    {
+      "old": "btn-warn",
+      "new": [
+        "btn--warn"
+      ]
+    },
+    {
+      "old": "btn-danger",
+      "new": [
+        "btn--danger"
+      ]
+    },
+    {
+      "old": "btn-ghost",
+      "new": [
+        "btn--ghost"
+      ]
+    },
+    {
+      "old": "btn-icon",
+      "new": [
+        "btn--icon"
+      ]
+    },
+    {
+      "old": "btn-sm",
+      "new": [
+        "btn--sm"
+      ]
+    },
+    {
+      "old": "btn-lg",
+      "new": [
+        "btn--lg"
+      ]
+    },
+    {
+      "old": "badge-cyan",
+      "new": [
+        "badge--cyan"
+      ]
+    },
+    {
+      "old": "badge-danger",
+      "new": [
+        "badge--danger"
+      ]
+    },
+    {
+      "old": "badge-go",
+      "new": [
+        "badge--go"
+      ]
+    },
+    {
+      "old": "badge-info",
+      "new": [
+        "badge--info"
+      ]
+    },
+    {
+      "old": "badge-orange",
+      "new": [
+        "badge--orange"
+      ]
+    },
+    {
+      "old": "badge-secret",
+      "new": [
+        "badge--secret"
+      ]
+    },
+    {
+      "old": "badge-teal",
+      "new": [
+        "badge--teal"
+      ]
+    },
+    {
+      "old": "badge-warn",
+      "new": [
+        "badge--warn"
+      ]
+    },
+    {
+      "old": "badge-sev-1",
+      "new": [
+        "badge--sev-1"
+      ]
+    },
+    {
+      "old": "badge-sev-2",
+      "new": [
+        "badge--sev-2"
+      ]
+    },
+    {
+      "old": "badge-sev-3",
+      "new": [
+        "badge--sev-3"
+      ]
+    },
+    {
+      "old": "badge-sev-4",
+      "new": [
+        "badge--sev-4"
+      ]
+    },
+    {
+      "old": "badge-sev-5",
+      "new": [
+        "badge--sev-5"
+      ]
+    },
+    {
+      "old": "badge-sm",
+      "new": [
+        "badge--sm"
+      ]
+    },
+    {
+      "old": "badge-lg",
+      "new": [
+        "badge--lg"
+      ]
+    },
+    {
+      "old": "avatar-sm",
+      "new": [
+        "avatar--sm"
+      ]
+    },
+    {
+      "old": "avatar-lg",
+      "new": [
+        "avatar--lg"
+      ]
+    },
+    {
+      "old": "chip-lg",
+      "new": [
+        "chip--lg"
+      ]
+    },
+    {
+      "old": "form-input-sm",
+      "new": [
+        "form-input--sm"
+      ]
+    },
+    {
+      "old": "form-input-lg",
+      "new": [
+        "form-input--lg"
+      ]
+    },
+    {
+      "old": "form-select-sm",
+      "new": [
+        "form-select--sm"
+      ]
+    },
+    {
+      "old": "form-select-lg",
+      "new": [
+        "form-select--lg"
+      ]
+    },
+    {
+      "old": "modal-sm",
+      "new": [
+        "modal--sm"
+      ]
+    },
+    {
+      "old": "modal-lg",
+      "new": [
+        "modal--lg"
+      ]
+    },
+    {
+      "old": "modal-xl",
+      "new": [
+        "modal--xl"
+      ]
+    },
+    {
+      "old": "modal-full",
+      "new": [
+        "modal--full"
+      ]
+    },
+    {
+      "old": "spinner-lg",
+      "new": [
+        "spinner--lg"
+      ]
+    },
+    {
+      "old": "alert-danger",
+      "new": [
+        "alert--danger"
+      ]
+    },
+    {
+      "old": "alert-go",
+      "new": [
+        "alert--go"
+      ]
+    },
+    {
+      "old": "alert-info",
+      "new": [
+        "alert--info"
+      ]
+    },
+    {
+      "old": "alert-warn",
+      "new": [
+        "alert--warn"
+      ]
+    },
+    {
+      "old": "callout-danger",
+      "new": [
+        "callout--danger"
+      ]
+    },
+    {
+      "old": "callout-go",
+      "new": [
+        "callout--go"
+      ]
+    },
+    {
+      "old": "callout-info",
+      "new": [
+        "callout--info"
+      ]
+    },
+    {
+      "old": "callout-warn",
+      "new": [
+        "callout--warn"
+      ]
+    },
+    {
+      "old": "toast-danger",
+      "new": [
+        "toast--danger"
+      ]
+    },
+    {
+      "old": "toast-go",
+      "new": [
+        "toast--go"
+      ]
+    },
+    {
+      "old": "toast-info",
+      "new": [
+        "toast--info"
+      ]
+    },
+    {
+      "old": "toast-warn",
+      "new": [
+        "toast--warn"
+      ]
+    }
+  ]
+}

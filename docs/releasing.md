@@ -14,7 +14,10 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` â€
 2. Write the notes to a file outside the repo. List every CSS class the release adds, and every one it
    removes: a consuming app that already styles an added name sees its appearance change on upgrade with
    no error, so the list is what lets it grep first â€” and a removal is the breaking part of the release,
-   which `build/release-inventory.sh` prints first for that reason.
+   which `build/release-inventory.sh` prints first for that reason. A release that renames classes also
+   commits `docs/renames/<version>.json` before the tag: each old name with the class or classes that
+   look the same, so an app converts by the map and not by a prefix. `release.yml` attaches it to the
+   release, and `RenameMapTests` holds it to the stylesheet.
 3. Tag `main` and push. There is no release PR and nothing to prepare in the tree:
 
    ```bash

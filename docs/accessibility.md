@@ -124,6 +124,18 @@ reach for `<dialog>` before reaching for `.modal-backdrop`.
 **The current release of Chromium (Chrome, Edge) and of Safari on iOS and iPadOS.** Every browser test
 runs in both engines.
 
+As versions, the floor is what the tests run on, and moves with each release that updates them:
+
+| Engine | Tested on | Which means |
+|---|---|---|
+| Chromium | 156 | Chrome and Edge 156 |
+| WebKit | 27.2 | Safari 27.2, iOS and iPadOS 27.2 |
+
+An older version is not tested and not supported. It is not refused either, and much of the library works
+there; what fails first is what arrived last in Safari — anchor positioning with `anchor-scope`, container
+style queries, `closedby` and `currentCSSZoom`. A device that cannot update to the version above is the
+one to check by hand.
+
 Consequences visible in the CSS:
 
 - **CSS anchor positioning is used, and load-bearing.** The collapsed rail's hover flyout, `.popover`,

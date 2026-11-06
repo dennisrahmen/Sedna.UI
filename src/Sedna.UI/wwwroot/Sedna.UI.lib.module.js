@@ -29,9 +29,14 @@ function register(blazor) {
     if (registered || !blazor || typeof blazor.registerCustomEventType !== 'function') return;
     registered = true;
     for (const name of events) {
-        blazor.registerCustomEventType(name, {
-            createEventArgs: event => Object.assign({}, event.detail)
-        });
+        // Blazor throws on a name registered twice, and an app may have registered one of
+        // these itself before the library did — the way round a missing registration.
+        // Theirs stays, the rest are still registered, and nothing stops the app starting.
+        try {
+            blazor.registerCustomEventType(name, {
+                createEventArgs: event => Object.assign({}, event.detail)
+            });
+        } catch (err) { /* already registered by the app */ }
     }
 }
 

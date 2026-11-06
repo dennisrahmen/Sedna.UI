@@ -632,7 +632,8 @@ version first.
    additions let a consuming app grep its own stylesheets for a collision before bumping — a class the
    app already styles changes its appearance silently otherwise. The removals are the breaking part of
    the release, and `build/release-inventory.sh` prints them first for that reason; list them just as
-   plainly. Confirm the notes too.
+   plainly. A release that renames classes also commits `docs/renames/<version>.json`, each old name
+   with the class or classes that look the same. Confirm the notes too.
 6. Once the version and the notes are confirmed, tag `main` — no release PR, nothing to stamp:
 
    ```bash
