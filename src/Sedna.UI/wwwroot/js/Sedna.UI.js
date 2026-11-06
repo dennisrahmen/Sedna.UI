@@ -2894,11 +2894,26 @@ window.sednaUi = window.sednaUi || {};
         handle.setAttribute('aria-valuenow', String(value));
         return value;
     }
-    function done(p, value) {
+    function done(p, value, folded) {
         p.target.dispatchEvent(new CustomEvent('sedna-resize', {
             bubbles: true,
-            detail: { property: p.property, value: value }
+            detail: { property: p.property, value: value, folded: !!folded }
         }));
+    }
+    function foldAt(handle) {
+        var f = parseFloat(handle.getAttribute('data-resize-fold'));
+        return isNaN(f) ? null : f;
+    }
+    function restore(handle, p, before, now) {
+        if (before) p.target.style.setProperty(p.property, before);
+        else p.target.style.removeProperty(p.property);
+        if (now === null) handle.removeAttribute('aria-valuenow');
+        else handle.setAttribute('aria-valuenow', now);
+    }
+    function fold(handle, p, before, now) {
+        restore(handle, p, before, now);
+        var value = parseFloat(before);
+        done(p, isNaN(value) ? null : value, true);
     }
     function reset(handle) {
         var p = parts(handle);
@@ -2916,19 +2931,27 @@ window.sednaUi = window.sednaUi || {};
         if (!p) return;
         e.preventDefault();
         var start = size(p), dir = sign(handle, p), origin = p.block ? e.clientY : e.clientX;
-        var value = start;
+        var value = start, folding = false, threshold = foldAt(handle);
+        var before = p.target.style.getPropertyValue(p.property), now = handle.getAttribute('aria-valuenow');
         try { handle.setPointerCapture(e.pointerId); } catch (err) { /* already released */ }
         handle.setAttribute('data-resizing', '');
         function move(ev) {
             var at = p.block ? ev.clientY : ev.clientX;
-            value = apply(handle, p, start + (at - origin) * dir);
+            var wanted = start + (at - origin) * dir;
+            folding = threshold !== null && wanted < threshold;
+            if (folding) handle.setAttribute('data-resize-folding', '');
+            else handle.removeAttribute('data-resize-folding');
+            value = apply(handle, p, wanted);
         }
-        function up() {
+        function up(ev) {
             handle.removeEventListener('pointermove', move);
             handle.removeEventListener('pointerup', up);
             handle.removeEventListener('pointercancel', up);
             handle.removeAttribute('data-resizing');
-            if (value !== start) done(p, value);
+            handle.removeAttribute('data-resize-folding');
+            if (folding && ev.type === 'pointerup') fold(handle, p, before, now);
+            else if (folding) restore(handle, p, before, now);
+            else if (value !== start) done(p, value);
         }
         handle.addEventListener('pointermove', move);
         handle.addEventListener('pointerup', up);
@@ -2948,8 +2971,12 @@ window.sednaUi = window.sednaUi || {};
         var by = forward[e.key];
         if (!by) return;
         e.preventDefault();
-        var value = apply(handle, p, size(p) + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1));
-        done(p, value);
+        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1);
+        if (foldAt(handle) !== null && wanted < current && current <= bounds(handle).min + 0.5) {
+            fold(handle, p, p.target.style.getPropertyValue(p.property), handle.getAttribute('aria-valuenow'));
+            return;
+        }
+        done(p, apply(handle, p, wanted));
     });
 })(window.sednaUi);
 (function (ui) {

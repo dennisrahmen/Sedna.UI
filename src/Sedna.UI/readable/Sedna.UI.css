@@ -4022,14 +4022,21 @@ a.topbar-version--pre:hover {
    `.card--resizable` holds a height the reader chose, in `--card-height`: the head and
    the foot stay, the body scrolls. Its `.card-resize` handle at the bottom edge is the
    app's, a `[data-resize="--card-height"]` separator that 26-resize.js moves; without a
-   height the card is as tall as its content, as any card is. */
+   height the card is as tall as its content, as any card is.
+
+   A handle on `--card-max-height` instead makes the reader's height a ceiling: the card
+   follows its content, and only a body taller than the ceiling scrolls — a short list
+   does not leave a tall empty card. The app folds a card the reader drags below
+   `data-resize-fold` by toggling `.card--folded` from the `sedna-resize` event. */
 .card.card--folded > :not(.card-head) { display: none; }
 .card.card--folded > .card-head { border-bottom: none; }
 .card--resizable {
     --card-height: auto;
+    --card-max-height: none;
     display: flex;
     flex-direction: column;
     block-size: var(--card-height);
+    max-block-size: var(--card-max-height);
 }
 .card--resizable > .card-body { flex: 1 1 auto; min-block-size: 0; overflow: auto; }
 .card-resize {

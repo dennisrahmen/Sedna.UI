@@ -4724,6 +4724,15 @@ window.sednaUi = window.sednaUi || {};
    needs one — and the script keeps it current. Nothing else is written: `aria-valuenow`
    on the handle, and the property on the element. A bubbling `sedna-resize` on that element, with `property` and `value` in
    pixels (null once reset), says where it ended, so an app can keep it.
+
+   FOLDING. `data-resize-fold="<px>"` lets the reader put a thing away by dragging it
+   small: a drag that ends with the pointer below that size, or an arrow key towards
+   smaller when the size is already at its minimum, folds instead of resizing. The size
+   goes back to what it was before, so unfolding returns to the reader's height, and
+   `sedna-resize` says `folded: true` with that size as `value`; the app folds — a card
+   takes `.card--folded` — the way a drop moves nothing and the app moves the item. While
+   a drag is below the threshold the handle carries `data-resize-folding`, for the app to
+   show what letting go will do.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -4772,11 +4781,31 @@ window.sednaUi = window.sednaUi || {};
         return value;
     }
 
-    function done(p, value) {
+    function done(p, value, folded) {
         p.target.dispatchEvent(new CustomEvent('sedna-resize', {
             bubbles: true,
-            detail: { property: p.property, value: value }
+            detail: { property: p.property, value: value, folded: !!folded }
         }));
+    }
+
+    function foldAt(handle) {
+        var f = parseFloat(handle.getAttribute('data-resize-fold'));
+        return isNaN(f) ? null : f;
+    }
+
+    /* Puts the property and the handle's value back to what they were before, and says it
+       folded. `value` is what the property held, in pixels, or null when it held nothing. */
+    function restore(handle, p, before, now) {
+        if (before) p.target.style.setProperty(p.property, before);
+        else p.target.style.removeProperty(p.property);
+        if (now === null) handle.removeAttribute('aria-valuenow');
+        else handle.setAttribute('aria-valuenow', now);
+    }
+
+    function fold(handle, p, before, now) {
+        restore(handle, p, before, now);
+        var value = parseFloat(before);
+        done(p, isNaN(value) ? null : value, true);
     }
 
     function reset(handle) {
@@ -4797,20 +4826,29 @@ window.sednaUi = window.sednaUi || {};
         if (!p) return;
         e.preventDefault();
         var start = size(p), dir = sign(handle, p), origin = p.block ? e.clientY : e.clientX;
-        var value = start;
+        var value = start, folding = false, threshold = foldAt(handle);
+        var before = p.target.style.getPropertyValue(p.property), now = handle.getAttribute('aria-valuenow');
         try { handle.setPointerCapture(e.pointerId); } catch (err) { /* already released */ }
         handle.setAttribute('data-resizing', '');
 
         function move(ev) {
             var at = p.block ? ev.clientY : ev.clientX;
-            value = apply(handle, p, start + (at - origin) * dir);
+            var wanted = start + (at - origin) * dir;
+            folding = threshold !== null && wanted < threshold;
+            if (folding) handle.setAttribute('data-resize-folding', '');
+            else handle.removeAttribute('data-resize-folding');
+            value = apply(handle, p, wanted);
         }
-        function up() {
+        function up(ev) {
             handle.removeEventListener('pointermove', move);
             handle.removeEventListener('pointerup', up);
             handle.removeEventListener('pointercancel', up);
             handle.removeAttribute('data-resizing');
-            if (value !== start) done(p, value);
+            handle.removeAttribute('data-resize-folding');
+            // A cancelled drag below the threshold folds nothing: the size goes back, unsaid.
+            if (folding && ev.type === 'pointerup') fold(handle, p, before, now);
+            else if (folding) restore(handle, p, before, now);
+            else if (value !== start) done(p, value);
         }
         handle.addEventListener('pointermove', move);
         handle.addEventListener('pointerup', up);
@@ -4833,8 +4871,13 @@ window.sednaUi = window.sednaUi || {};
         var by = forward[e.key];
         if (!by) return;
         e.preventDefault();
-        var value = apply(handle, p, size(p) + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1));
-        done(p, value);
+        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1);
+        // Already as small as it goes, and asked for less: put it away.
+        if (foldAt(handle) !== null && wanted < current && current <= bounds(handle).min + 0.5) {
+            fold(handle, p, p.target.style.getPropertyValue(p.property), handle.getAttribute('aria-valuenow'));
+            return;
+        }
+        done(p, apply(handle, p, wanted));
     });
 
 })(window.sednaUi);

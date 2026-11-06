@@ -116,6 +116,19 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.CardFoldFromCsharp" Title="A ceiling, and a fold by dragging" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; drag a handle, or drag one nearly shut.</strong> A handle on
+        <code>--card-max-height</code> instead of <code>--card-height</code> makes the reader's height a
+        ceiling: the card follows its content and only scrolls past it, so a short list does not
+        leave a tall empty card, and a drag starts from the card's real height.
+        <code>data-resize-fold</code> on the handle is a threshold: dragged below it &mdash; or an
+        arrow key towards smaller at the minimum &mdash; the handle folds instead, puts the height back
+        and says <code>Folded</code> on <code>&#64;onsedna-resize</code>, and you toggle
+        <code>.card--folded</code>. A split pane's handle folds the same way.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Card.CaveatAboutCardSOwn" Title="A caveat about the card's own content" Demo="ex-demo--block">
     <p>
         <code>.card-warning</code> pins an amber strip to the card's bottom edge &mdash; a stale

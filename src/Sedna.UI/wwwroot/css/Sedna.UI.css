@@ -2080,9 +2080,11 @@ a.topbar-version--pre:hover {
 .card.card--folded > .card-head { border-bottom: none; }
 .card--resizable {
     --card-height: auto;
+    --card-max-height: none;
     display: flex;
     flex-direction: column;
     block-size: var(--card-height);
+    max-block-size: var(--card-max-height);
 }
 .card--resizable > .card-body { flex: 1 1 auto; min-block-size: 0; overflow: auto; }
 .card-resize {
