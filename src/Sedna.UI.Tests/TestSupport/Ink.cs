@@ -46,7 +46,8 @@ internal static class Ink
     /// sits at (<paramref name="left"/>, <paramref name="top"/>) in page pixels, against the
     /// colour most of the box's pixels have; null when nothing is.
     /// </summary>
-    public static double[]? Paint(Png image, double left, double top, double x, double y, double width, double height)
+    public static double[]? Paint(Png image, double left, double top, double x, double y, double width, double height,
+        (int R, int G, int B)? colour = null)
     {
         int x0 = Math.Max(0, (int)Math.Ceiling((x - left) * Scale)), x1 = Math.Min(image.Width, (int)Math.Floor((x + width - left) * Scale));
         int y0 = Math.Max(0, (int)Math.Ceiling((y - top) * Scale)), y1 = Math.Min(image.Height, (int)Math.Floor((y + height - top) * Scale));
@@ -63,16 +64,34 @@ internal static class Ink
         // How far each row's most-painted pixel is from the background. A horizontal edge that
         // covers part of a device pixel paints that row in proportion, so the edge rows say
         // where inside them the edge falls — what makes this good to a fraction of a pixel.
+        // Given the colour the paint is in, a pixel counts only for how far it has moved from
+        // the background towards that colour, so a border or a curve in another colour drawn in
+        // the same box is not taken for it.
         var rows = new double[y1 - y0];
+        double fr = 0, fg = 0, fb = 0, span = 1;
+        if (colour is { } c)
+        {
+            (fr, fg, fb) = (c.R - bg.Item1, c.G - bg.Item2, c.B - bg.Item3);
+            span = fr * fr + fg * fg + fb * fb;
+            if (span < 1) colour = null;
+        }
         for (var py = y0; py < y1; py++)
             for (var px = x0; px < x1; px++)
             {
                 var p = image.Pixel(px, py);
-                var d = Math.Abs(p.R - bg.Item1) + Math.Abs(p.G - bg.Item2) + Math.Abs(p.B - bg.Item3);
+                double d;
+                if (colour is not null)
+                {
+                    double dr = p.R - bg.Item1, dg = p.G - bg.Item2, db = p.B - bg.Item3;
+                    var along = (dr * fr + dg * fg + db * fb) / span;
+                    var off = Math.Sqrt(Math.Max(0, dr * dr + dg * dg + db * db - along * along * span));
+                    d = along > 0 && off < 0.35 * Math.Sqrt(span) * Math.Max(along, 0.2) ? along * 255 : 0;
+                }
+                else d = Math.Abs(p.R - bg.Item1) + Math.Abs(p.G - bg.Item2) + Math.Abs(p.B - bg.Item3);
                 if (d > rows[py - y0]) rows[py - y0] = d;
             }
         var full = rows.Max();
-        if (full < 96) return null;
+        if (full < (colour is null ? 96 : 64)) return null;
         var floor = full * 0.15;
         var first = Array.FindIndex(rows, d => d > floor);
         var last = Array.FindLastIndex(rows, d => d > floor);

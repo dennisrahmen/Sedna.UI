@@ -48,7 +48,7 @@ public class AlignmentScanTests(CatalogueAppFixture app)
         { "touch", "rtl" },
     };
 
-    private sealed record Box(string Kind, string Label, double X, double Y, double W, double H);
+    private sealed record Box(string Kind, string Label, double X, double Y, double W, double H, int[]? Fg = null, double[]? Line = null);
     private sealed record Row(string Path, double Centre, Box[] Items);
     private sealed record Scan(Row[] Rows, Box[] Boxes, string[] Bare, double Height);
 
@@ -69,15 +69,22 @@ public class AlignmentScanTests(CatalogueAppFixture app)
         {
             foreach (var route in RoutedPages.All)
             {
-                var page = await context.NewPageAsync();
-                await page.GotoAsync(app.Url(route), new() { WaitUntil = WaitUntilState.NetworkIdle });
-                var scan = System.Text.Json.JsonSerializer.Deserialize<Scan>(
-                    await page.EvaluateAsync<string>(Scanner, new { density, dir }),
-                    new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
-                await Js.Settle(page);
-                problems.AddRange(scan.Bare.Select(b => $"{route} {b}: a bare word beside an element"));
-                problems.AddRange(await Measure(page, scan, route));
-                await page.CloseAsync();
+                // A page that moves while it is measured — a render that lands between reading
+                // the positions and taking the picture — is measured again from the start.
+                List<string>? found = null;
+                for (var attempt = 0; attempt < 3 && found is null; attempt++)
+                {
+                    var page = await context.NewPageAsync();
+                    await page.GotoAsync(app.Url(route), new() { WaitUntil = WaitUntilState.NetworkIdle });
+                    var scan = System.Text.Json.JsonSerializer.Deserialize<Scan>(
+                        await page.EvaluateAsync<string>(Scanner, new { density, dir }),
+                        new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+                    await Js.Settle(page);
+                    found = await Measure(page, scan, route);
+                    if (found is not null) found.InsertRange(0, scan.Bare.Select(b => $"{route} {b}: a bare word beside an element"));
+                    await page.CloseAsync();
+                }
+                problems.AddRange(found ?? [$"{route}: the page kept moving while it was measured"]);
             }
         }
         finally { await context.CloseAsync(); }
@@ -86,7 +93,7 @@ public class AlignmentScanTests(CatalogueAppFixture app)
         Assert.True(problems.Count == 0, $"{problems.Count} off their centre line:{Environment.NewLine}{report}");
     }
 
-    private static async Task<List<string>> Measure(IPage page, Scan scan, string route)
+    private static async Task<List<string>?> Measure(IPage page, Scan scan, string route)
     {
         var problems = new List<string>();
         const double band = 1200, step = 900;
@@ -107,6 +114,7 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                 Clip = new() { X = 0, Y = (float)top, Width = 1280, Height = (float)(bottom - top) },
             });
             var image = Ink.Png.Decode(png);
+            if (await page.EvaluateAsync<double>("() => window.__alignMoved()") > 0.1) return null;
 
             foreach (var row in inBand)
             {
@@ -114,7 +122,7 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                 // ring, a pill — on its box, since what it draws inside is its own design.
                 var centres = row.Items
                     // A pixel in from its edges, where a painted item's own antialiased edge is.
-                    .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Ink.Paint(image, 0, top, i.X, i.Y + 1, i.W, i.H - 2)))
+                    .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Paint(image, top, i)))
                     .Where(m => m.Ink is not null)
                     .Select(m => (m.Item, Centre: Ink.Centre(m.Ink!)))
                     .ToList();
@@ -128,8 +136,7 @@ public class AlignmentScanTests(CatalogueAppFixture app)
 
             foreach (var box in boxesInBand)
             {
-                // A pixel in from the border: the border's own edge, antialiased, reaches into it.
-                var ink = Ink.Paint(image, 0, top, box.X, box.Y + 1, box.W, box.H - 2);
+                var ink = Paint(image, top, box);
                 if (ink is null) continue;
                 var delta = Ink.Centre(ink) - (box.Y + box.H / 2);
                 if (Math.Abs(delta) > Tolerance)
@@ -137,6 +144,23 @@ public class AlignmentScanTests(CatalogueAppFixture app)
             }
         }
         return problems;
+    }
+
+    /// <summary>
+    /// What is drawn in an item: a pixel in from its top and bottom, where its own
+    /// antialiased edge is, within its word's line, and across the middle three fifths of
+    /// the word, clear of the curve of a rounded end — a pill's radius reaches further in
+    /// than its padding — and counting only the word's own colour.
+    /// </summary>
+    private static double[]? Paint(Ink.Png image, double top, Box b)
+    {
+        // Within the word's own line, as layout placed it, and two pixels either side: what is
+        // drawn there is the word, and the box's middle is still what it is measured against.
+        var y0 = b.Y + 1;
+        var y1 = b.Y + b.H - 1;
+        if (b.Line is [var lt, var lb]) (y0, y1) = (Math.Max(y0, lt - 2), Math.Min(y1, lb + 2));
+        return Ink.Paint(image, 0, top, b.X + b.W * 0.2, y0, b.W * 0.6, y1 - y0,
+            b.Fg is { Length: 3 } c ? (c[0], c[1], c[2]) : null);
     }
 
     /// <summary>
@@ -166,7 +190,12 @@ public class AlignmentScanTests(CatalogueAppFixture app)
           await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
           const sy = window.scrollY, sx = window.scrollX;
-          const box = (r, kind, label, node) => { const b = { kind, label, x: r.left + sx, y: r.top + sy, w: r.width, h: r.height }; Object.defineProperty(b, 'node', { value: node, enumerable: false }); return b; };
+          // The colour a word is drawn in, as [r, g, b], when it is a plain opaque one.
+          const ink = el => { const m = /^rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)$/.exec(getComputedStyle(el).color);
+            return m && (m[4] === undefined || parseFloat(m[4]) === 1) ? [+m[1], +m[2], +m[3]] : null; };
+          const box = (r, kind, label, node) => { const b = { kind, label, x: r.left + sx, y: r.top + sy, w: r.width, h: r.height,
+            fg: kind === 'text' || kind === 'bare' || kind === 'box' && node && !node.children?.length ? ink(node) : null };
+            Object.defineProperty(b, 'node', { value: node, enumerable: false }); return b; };
           const name = el => el.tagName.toLowerCase() + (el.classList.length ? '.' + [...el.classList].join('.') : '');
           const path = el => {
             const parts = [];
@@ -206,7 +235,9 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                   if (!n.data.trim()) continue;
                   const r = oneLine(n);
                   if (!r) { skip = true; break; }
-                  items.push(box(r, 'bare', '"' + n.data.trim().length + 'ch"', n.parentElement));
+                  const it = box(r, 'bare', '"' + n.data.trim().length + 'ch"', n.parentElement);
+                  it.line = [r.top + sy, r.bottom + sy];
+                  items.push(it);
                 } else if (n.nodeType === Node.ELEMENT_NODE) {
                   if (!visible(n)) continue;
                   const c = getComputedStyle(n);
@@ -226,7 +257,9 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                   const across = line && rr - l >= 1
                     ? { left: l, top: r.top + ibt, width: rr - l, height: r.height - ibt - ibb }
                     : r;
-                  items.push(box(across, isIcon(n) ? 'icon' : textOnly ? 'text' : 'box', name(n), n));
+                  const it = box(across, isIcon(n) ? 'icon' : textOnly ? 'text' : 'box', name(n), n);
+                  if (line) it.line = [line.top + sy, line.bottom + sy];
+                  items.push(it);
                 }
               }
               // A painted row is seen as the area inside its borders — a border on one side is a
@@ -267,7 +300,11 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                 const left = Math.max(inner.left, Math.min(...rects.map(x => x.left)));
                 const right = Math.min(inner.left + inner.width, Math.max(...rects.map(x => x.right)));
                 if (inner.height >= 4 && right - left >= 2)
-                  boxes.push(box({ left, top: inner.top, width: right - left, height: inner.height }, 'box', path(el), el));
+                {
+                  const it = box({ left, top: inner.top, width: right - left, height: inner.height }, 'box', path(el), el);
+                  it.line = [Math.min(...rects.map(x => x.top)) + sy, Math.max(...rects.map(x => x.bottom)) + sy];
+                  boxes.push(it);
+                }
               }
             }
           }
@@ -286,15 +323,22 @@ public class AlignmentScanTests(CatalogueAppFixture app)
             for (const it of all) {
               if (seen.has(it)) continue;
               const r = it.node.getBoundingClientRect();
-              const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-              if (cy < 0 || cy >= innerHeight || cx < 0 || cx >= innerWidth) continue;
-              const hit = document.elementFromPoint(cx, cy);
-              seen.set(it, !!hit && (it.node.contains(hit) || hit.contains(it.node)));
+              if (r.top < 0 || r.bottom > innerHeight || r.left < 0 || r.right > innerWidth) continue;
+              // The middle and four points near the corners: something over only part of an
+              // item — a figure hanging over a row — still changes what is drawn there.
+              const points = [[0.5, 0.5], [0.2, 0.2], [0.8, 0.2], [0.2, 0.8], [0.8, 0.8]];
+              seen.set(it, points.every(([fx, fy]) => {
+                const hit = document.elementFromPoint(r.left + r.width * fx, r.top + r.height * fy);
+                return !!hit && (it.node.contains(hit) || hit.contains(it.node));
+              }));
             }
           }
           window.scrollTo(0, 0);
           hittable.remove();
           const shown = it => seen.get(it) !== false;
+          // Where each measured element was, to tell whether the page moved before the picture.
+          const placed = all.map(it => [it.node, it.node.getBoundingClientRect().top + scrollY]);
+          window.__alignMoved = () => Math.max(0, ...placed.map(([n, y]) => Math.abs(n.getBoundingClientRect().top + scrollY - y)));
           const keptRows = rows.map(r => ({ ...r, items: r.items.filter(shown) })).filter(r => r.items.length >= 2);
           return JSON.stringify({ rows: keptRows, boxes: boxes.filter(shown), bare, height });
         }
