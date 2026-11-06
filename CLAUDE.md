@@ -68,8 +68,11 @@ from a tier 3 surface, which answers to its own contract:
   app's `<dialog>` — a modal, a drawer or a sheet — and completes with its `returnValue` when it
   closes. `ISednaOverlays.ShowAsync<TComponent, TResult>` renders an app component through
   `SednaOverlayHost`, opens the `<dialog>` that component wrote, and completes with the result it
-  closed with. **A presenter never adds an element the app did not write.** Presenters are for overlays
-  opened by app logic; a popover or a menu opened by its trigger's own attribute needs none.
+  closed with. `ISednaUi.PresentToastAsync` clones a toast the app wrote in a `<template>` into the
+  library's toast stack, and its handle's `ResultAsync` completes with the value of the control the
+  reader pressed; `ISednaUi.OpenMenuAtAsync` opens the app's `.menu` at a point. **A presenter never
+  adds an element the app did not write.** Presenters are for overlays opened by app logic; a popover or
+  a menu opened by its trigger's own attribute needs none.
 - **State helpers** compute what markup cannot express. `ActiveLink` answers which link is the current
   page, as `aria-current`; `SednaSort` renders `aria-sort`, `SednaPager` picks the page numbers to show,
   `SednaTabs` renders a managed tablist's attributes. Pure functions, no interop, nothing held.

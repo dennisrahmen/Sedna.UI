@@ -56,6 +56,38 @@ public interface ISednaUi
         string? dismissLabel = null);
 
     /// <summary>
+    /// Shows a toast the app wrote in a <c>&lt;template&gt;</c> — a notification card whose body
+    /// opens the record it is about, with buttons of its own — in the library's one toast stack.
+    /// </summary>
+    /// <param name="templateId">
+    /// The <c>id</c> of the <c>&lt;template&gt;</c>. Its first element is the toast: a
+    /// <c>.toast</c> with the app's own icon, words and controls.
+    /// </param>
+    /// <param name="data">
+    /// Text for the template's <c>data-*</c> slots, by slot name: <c>title</c> fills every
+    /// <c>[data-title]</c>, as text, never as markup. A slot with no text is removed. <c>href</c>
+    /// is the <c>href</c> of the <c>[data-href]</c> link instead.
+    /// </param>
+    /// <param name="timeoutMs">How long it stays, in milliseconds. <c>0</c> stays until the reader deals with it.</param>
+    /// <returns>
+    /// The toast, once it is on the page — await <see cref="SednaToast.ResultAsync"/> for the control
+    /// the reader pressed — or <see langword="null"/> when no <c>&lt;template&gt;</c> has that id.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// A presenter: every element and every word on screen is the app's. The stack is the
+    /// library's, so the toast has what every toast has — the top layer above an open modal, the
+    /// hold on its timer while the pointer or the focus is on it, and one corner shared with
+    /// every other toast — and never collides with a second stack.
+    /// </para>
+    /// <para>
+    /// A control with <c>data-toast-value</c> ends the toast with that value, and a
+    /// <c>.toast-close</c> ends it with none. A link keeps navigating.
+    /// </para>
+    /// </remarks>
+    Task<SednaToast?> PresentToastAsync(string templateId, IReadOnlyDictionary<string, string?>? data = null, int timeoutMs = 4000);
+
+    /// <summary>
     /// Opens a <c>&lt;dialog&gt;</c> the app wrote — a <c>.modal</c>, a <c>.drawer</c> or a
     /// <c>.sheet</c> — with the platform's own <c>showModal()</c>, and waits for it to close.
     /// </summary>

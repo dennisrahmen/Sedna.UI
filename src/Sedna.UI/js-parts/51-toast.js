@@ -40,6 +40,34 @@
    toast also has an id — toast.show() returns it — and toast.dismiss(id) and
    toast.replace(id, message, opts) act on it: the "Uploading…" toast turns into
    "Uploaded" in place instead of flickering out and back.
+
+   A TOAST THE APP WRITES. toast.present(template, data, opts) shows a toast the app
+   wrote, in this same stack — a notification card whose body opens the record it is
+   about, with buttons of its own, in the app's words:
+
+     <template id="assigned-toast">
+       <div class="toast toast--info">
+         <i class="ri-user-received-line" aria-hidden="true"></i>
+         <a class="toast-body" data-href data-toast-value="open">
+           <strong data-title></strong><span data-text></span>
+         </a>
+         <button class="toast-close" type="button" aria-label="Dismiss"><i class="ri-close-line" aria-hidden="true"></i></button>
+       </div>
+     </template>
+
+     sednaUi.toast.present('assigned-toast', { title: 'Assigned to you', text: 'ORD-4182', href: '/orders/4182' }, { timeout: 0 })
+
+   It clones the template's first element and fills its `data-*` slots with text
+   (ui._.fill), and `href` becomes the `href` of its `[data-href]` link. It is a
+   presenter, not more of the surface: every element and every word is the app's.
+   It gets what this stack has — the top layer and a place inside an open modal, the
+   hover and focus hold on the timer, dismiss and replace by id — and returns the id.
+   toast.result(id) is a promise of how it ended: the `data-toast-value` of the control
+   the reader pressed, which also takes the toast away, or null when it was closed by
+   its `.toast-close`, dismissed or timed out. It is the presenter's awaited call,
+   as modal.show() is a dialog's; nothing calls back. `opts.replace` puts the new
+   toast in the place of the one it names, keeping its id and its result — a "+3 more"
+   card that counts up in place.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -100,9 +128,46 @@
     // A modal opening or closing moves a stack that is showing toasts with it.
     layer.onChange(function (closing) { if (host && host.children.length) raise(closing); });
 
-    var live = {};       // id -> { el, remove, timer }
+    var live = {};       // id -> { el, remove, timer, waiters }
+    var ended = {};      // id -> how a toast that has gone ended, for a result() asked late
+    var endedOrder = [];
     var REGION_SETTLE_MS = 150;
     var nextId = 1;
+
+    function end(id, value) {
+        ended[id] = value;
+        endedOrder.push(id);
+        if (endedOrder.length > 100) delete ended[endedOrder.shift()];
+    }
+
+    /* The hold on the timer and the values a toast the app wrote can end with. Wired once
+       per element: a replaced toast the app wrote is a new element. */
+    function wire(entry, el) {
+        el.addEventListener('mouseenter', function () { hold(entry); });
+        el.addEventListener('mouseleave', function () { if (!el.contains(document.activeElement)) release(entry); });
+        el.addEventListener('focusin', function () { hold(entry); });
+        el.addEventListener('focusout', function (e) { if (!el.contains(e.relatedTarget) && !el.matches(':hover')) release(entry); });
+        el.addEventListener('click', function (e) {
+            if (!entry.template) return;
+            var t = e.target instanceof Element ? e.target.closest('[data-toast-value], .toast-close') : null;
+            if (!t || !el.contains(t)) return;
+            var value = t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null;
+            // After the click has run its course: a link still navigates, and a router listening
+            // on the document still sees the link it came from.
+            setTimeout(function () { entry.remove(value); }, 0);
+        });
+    }
+
+    function timeOut(entry, opts) {
+        clearTimeout(entry.timer);
+        entry.timer = 0;
+        // 0 means "stays until dismissed" — for a failure the user has to read, or for
+        // work still running that will replace this toast when it ends.
+        var ms = !opts || opts.timeout === undefined ? 4000 : opts.timeout;
+        entry.left = ms;
+        entry.started = Date.now();
+        entry.timer = ms > 0 && !entry.held ? setTimeout(function () { entry.remove(null); }, ms) : 0;
+    }
 
     // Fills a toast element for its kind, title and message, with the close button
     // and the timeout. Shared by a new toast and a replaced one, so replacing is
@@ -116,6 +181,14 @@
         // A failure interrupts; a confirmation waits its turn.
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
 
+        if (entry.template) {
+            // A toast the app wrote, replaced by one the library draws: a fresh element.
+            var drawn = document.createElement('div');
+            wire(entry, drawn);
+            entry.el.replaceWith(drawn);
+            entry.el = el = drawn;
+            entry.template = false;
+        }
         el.className = 'toast toast--' + kind;
         el.textContent = '';
 
@@ -146,18 +219,11 @@
             x.className = 'ri-close-line';
             x.setAttribute('aria-hidden', 'true');
             close.appendChild(x);
-            close.addEventListener('click', entry.remove);
+            close.addEventListener('click', function () { entry.remove(null); });
             el.appendChild(close);
         }
 
-        clearTimeout(entry.timer);
-        entry.timer = 0;
-        // 0 means "stays until dismissed" — for a failure the user has to read, or for
-        // work still running that will replace this toast when it ends.
-        var ms = opts.timeout === undefined ? 4000 : opts.timeout;
-        entry.left = ms;
-        entry.started = Date.now();
-        entry.timer = ms > 0 && !entry.held ? setTimeout(entry.remove, ms) : 0;
+        timeOut(entry, opts);
     }
 
     /* A toast does not run out while the reader is on it (WCAG 2.2.1): the pointer over
@@ -177,7 +243,7 @@
         if (entry.left > 0 && !entry.timer) {
             entry.started = Date.now();
             entry.left = Math.max(entry.left, 1000);
-            entry.timer = setTimeout(entry.remove, entry.left);
+            entry.timer = setTimeout(function () { entry.remove(null); }, entry.left);
         }
     }
 
@@ -187,28 +253,34 @@
      * returns  a function that removes this toast early; its `id` names the toast for
      *          toast.dismiss() and toast.replace()
      */
-    ui.toast = function (message, opts) {
+    function create() {
         var id = nextId++;
-        var entry = { el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0 };
-        entry.el.addEventListener('mouseenter', function () { hold(entry); });
-        entry.el.addEventListener('mouseleave', function () { if (!entry.el.contains(document.activeElement)) release(entry); });
-        entry.el.addEventListener('focusin', function () { hold(entry); });
-        entry.el.addEventListener('focusout', function (e) { if (!entry.el.contains(e.relatedTarget) && !entry.el.matches(':hover')) release(entry); });
+        var entry = { id: id, el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0, waiters: [], template: false };
+        wire(entry, entry.el);
 
-        entry.remove = function () {
+        // `value` is how it ended: a toast the app wrote ends with the value of the control
+        // pressed; anything else that takes a toast away ends it with null.
+        entry.remove = function (value) {
+            if (live[id] !== entry) return;
             clearTimeout(entry.timer);
             delete live[id];
             drop(entry.el);
+            value = typeof value === 'string' ? value : null;
+            end(id, value);
+            var waiters = entry.waiters;
+            entry.waiters = [];
+            for (var i = 0; i < waiters.length; i++) waiters[i](value);
         };
         entry.remove.id = id;
         live[id] = entry;
+        return entry;
+    }
 
-        var fresh = !host || !host.isConnected;
-        paint(entry, message, opts);
-        // A live region announces what is ADDED to it, so it has to be in the page before
-        // its first toast: a region created with its content already in it is read by many
-        // screen readers as nothing. A new stack therefore takes its first toast a moment
-        // after it appears; every later one goes in at once.
+    /* Adds a toast to the stack. A live region announces what is ADDED to it, so it has to be
+       in the page before its first toast: a region created with its content already in it is
+       read by many screen readers as nothing. A new stack therefore takes its first toast a
+       moment after it appears; every later one goes in at once. */
+    function add(entry, fresh) {
         if (fresh) {
             entry.el.hidden = true;
             host.appendChild(entry.el);
@@ -216,7 +288,13 @@
         } else {
             host.appendChild(entry.el);
         }
+    }
 
+    ui.toast = function (message, opts) {
+        var entry = create();
+        var fresh = !host || !host.isConnected;
+        paint(entry, message, opts);
+        add(entry, fresh);
         return entry.remove;
     };
 
@@ -230,7 +308,7 @@
     ui.toast.dismiss = function (id) {
         var entry = live[id];
         if (!entry) return false;
-        entry.remove();
+        entry.remove(null);
         return true;
     };
 
@@ -242,6 +320,58 @@
         if (!entry) return ui.toast.show(message, opts);
         paint(entry, message, opts);
         return id;
+    };
+
+    /* Shows a toast the app wrote in a <template> — an element or its id — with its
+       `data-*` slots filled from `data`, and returns its id. False-y when there is no
+       such template, with a console warning: a missing template is the app's to fix, and
+       an exception would cross into a Blazor circuit. */
+    ui.toast.present = function (template, data, opts) {
+        opts = opts || {};
+        var t = typeof template === 'string' ? document.getElementById(template) : template;
+        var slots = {}, href = null;
+        Object.keys(data || {}).forEach(function (k) {
+            if (k === 'href') href = data[k]; else slots[k] = data[k];
+        });
+        var node = t && t.tagName === 'TEMPLATE' ? ui._.fill(t, slots) : null;
+        if (!node) {
+            console.warn('sednaUi.toast.present: no <template> with the id ' + template + '. The toast is app markup — see the Toast page.');
+            return 0;
+        }
+        var links = node.matches('[data-href]') ? [node] : [];
+        Array.prototype.push.apply(links, node.querySelectorAll('[data-href]'));
+        var safe = ui._.safeHref(href);
+        links.forEach(function (a) {
+            a.removeAttribute('data-href');
+            if (safe) a.setAttribute('href', safe); else a.removeAttribute('href');
+        });
+
+        var entry = opts.replace ? live[opts.replace] : null;
+        var fresh = !host || !host.isConnected;
+        if (entry) {
+            wire(entry, node);
+            entry.el.replaceWith(node);
+            entry.el = node;
+        } else {
+            entry = create();
+            entry.el = node;
+            wire(entry, node);
+        }
+        entry.template = true;
+        stack();
+        host.setAttribute('aria-live', node.matches('.toast--danger') ? 'assertive' : 'polite');
+        if (!node.isConnected) add(entry, fresh);
+        timeOut(entry, opts);
+        return entry.id;
+    };
+
+    /* How a toast ended, as a promise: the `data-toast-value` of the control the reader
+       pressed in a toast the app wrote, or null — closed, dismissed or timed out. A toast
+       that has already gone answers at once; an id that never was answers null. */
+    ui.toast.result = function (id) {
+        var entry = live[id];
+        if (!entry) return Promise.resolve(Object.prototype.hasOwnProperty.call(ended, id) ? ended[id] : null);
+        return new Promise(function (resolve) { entry.waiters.push(resolve); });
     };
 
 })(window.sednaUi);

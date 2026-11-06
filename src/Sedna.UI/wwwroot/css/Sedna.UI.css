@@ -2600,6 +2600,27 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     line-height: 1;
 }
 .toast-close:hover { color: var(--fg); }
+:is(a, button).toast-body {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-small);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+:is(a, button).toast-body:hover > strong { text-decoration: underline; }
+:is(a, button).toast-body:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.toast-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-block-start: var(--space-4);
+}
 }
 @layer sedna.paint {
 .spinner {

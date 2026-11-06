@@ -4602,15 +4602,50 @@ window.sednaUi = window.sednaUi || {};
         }
     }
     layer.onChange(function (closing) { if (host && host.children.length) raise(closing); });
-    var live = {};       // id -> { el, remove, timer }
+    var live = {};       // id -> { el, remove, timer, waiters }
+    var ended = {};      // id -> how a toast that has gone ended, for a result() asked late
+    var endedOrder = [];
     var REGION_SETTLE_MS = 150;
     var nextId = 1;
+    function end(id, value) {
+        ended[id] = value;
+        endedOrder.push(id);
+        if (endedOrder.length > 100) delete ended[endedOrder.shift()];
+    }
+    function wire(entry, el) {
+        el.addEventListener('mouseenter', function () { hold(entry); });
+        el.addEventListener('mouseleave', function () { if (!el.contains(document.activeElement)) release(entry); });
+        el.addEventListener('focusin', function () { hold(entry); });
+        el.addEventListener('focusout', function (e) { if (!el.contains(e.relatedTarget) && !el.matches(':hover')) release(entry); });
+        el.addEventListener('click', function (e) {
+            if (!entry.template) return;
+            var t = e.target instanceof Element ? e.target.closest('[data-toast-value], .toast-close') : null;
+            if (!t || !el.contains(t)) return;
+            var value = t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null;
+            setTimeout(function () { entry.remove(value); }, 0);
+        });
+    }
+    function timeOut(entry, opts) {
+        clearTimeout(entry.timer);
+        entry.timer = 0;
+        var ms = !opts || opts.timeout === undefined ? 4000 : opts.timeout;
+        entry.left = ms;
+        entry.started = Date.now();
+        entry.timer = ms > 0 && !entry.held ? setTimeout(function () { entry.remove(null); }, ms) : 0;
+    }
     function paint(entry, message, opts) {
         opts = opts || {};
         var el = entry.el;
         var kind = ICONS[opts.kind] ? opts.kind : 'info';
         stack();
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
+        if (entry.template) {
+            var drawn = document.createElement('div');
+            wire(entry, drawn);
+            entry.el.replaceWith(drawn);
+            entry.el = el = drawn;
+            entry.template = false;
+        }
         el.className = 'toast toast--' + kind;
         el.textContent = '';
         var icon = document.createElement('i');
@@ -4635,15 +4670,10 @@ window.sednaUi = window.sednaUi || {};
             x.className = 'ri-close-line';
             x.setAttribute('aria-hidden', 'true');
             close.appendChild(x);
-            close.addEventListener('click', entry.remove);
+            close.addEventListener('click', function () { entry.remove(null); });
             el.appendChild(close);
         }
-        clearTimeout(entry.timer);
-        entry.timer = 0;
-        var ms = opts.timeout === undefined ? 4000 : opts.timeout;
-        entry.left = ms;
-        entry.started = Date.now();
-        entry.timer = ms > 0 && !entry.held ? setTimeout(entry.remove, ms) : 0;
+        timeOut(entry, opts);
     }
     function hold(entry) {
         if (entry.held) return;
@@ -4659,25 +4689,29 @@ window.sednaUi = window.sednaUi || {};
         if (entry.left > 0 && !entry.timer) {
             entry.started = Date.now();
             entry.left = Math.max(entry.left, 1000);
-            entry.timer = setTimeout(entry.remove, entry.left);
+            entry.timer = setTimeout(function () { entry.remove(null); }, entry.left);
         }
     }
-    ui.toast = function (message, opts) {
+    function create() {
         var id = nextId++;
-        var entry = { el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0 };
-        entry.el.addEventListener('mouseenter', function () { hold(entry); });
-        entry.el.addEventListener('mouseleave', function () { if (!entry.el.contains(document.activeElement)) release(entry); });
-        entry.el.addEventListener('focusin', function () { hold(entry); });
-        entry.el.addEventListener('focusout', function (e) { if (!entry.el.contains(e.relatedTarget) && !entry.el.matches(':hover')) release(entry); });
-        entry.remove = function () {
+        var entry = { id: id, el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0, waiters: [], template: false };
+        wire(entry, entry.el);
+        entry.remove = function (value) {
+            if (live[id] !== entry) return;
             clearTimeout(entry.timer);
             delete live[id];
             drop(entry.el);
+            value = typeof value === 'string' ? value : null;
+            end(id, value);
+            var waiters = entry.waiters;
+            entry.waiters = [];
+            for (var i = 0; i < waiters.length; i++) waiters[i](value);
         };
         entry.remove.id = id;
         live[id] = entry;
-        var fresh = !host || !host.isConnected;
-        paint(entry, message, opts);
+        return entry;
+    }
+    function add(entry, fresh) {
         if (fresh) {
             entry.el.hidden = true;
             host.appendChild(entry.el);
@@ -4685,6 +4719,12 @@ window.sednaUi = window.sednaUi || {};
         } else {
             host.appendChild(entry.el);
         }
+    }
+    ui.toast = function (message, opts) {
+        var entry = create();
+        var fresh = !host || !host.isConnected;
+        paint(entry, message, opts);
+        add(entry, fresh);
         return entry.remove;
     };
     ui.toast.show = function (message, opts) {
@@ -4693,7 +4733,7 @@ window.sednaUi = window.sednaUi || {};
     ui.toast.dismiss = function (id) {
         var entry = live[id];
         if (!entry) return false;
-        entry.remove();
+        entry.remove(null);
         return true;
     };
     ui.toast.replace = function (id, message, opts) {
@@ -4701,5 +4741,47 @@ window.sednaUi = window.sednaUi || {};
         if (!entry) return ui.toast.show(message, opts);
         paint(entry, message, opts);
         return id;
+    };
+    ui.toast.present = function (template, data, opts) {
+        opts = opts || {};
+        var t = typeof template === 'string' ? document.getElementById(template) : template;
+        var slots = {}, href = null;
+        Object.keys(data || {}).forEach(function (k) {
+            if (k === 'href') href = data[k]; else slots[k] = data[k];
+        });
+        var node = t && t.tagName === 'TEMPLATE' ? ui._.fill(t, slots) : null;
+        if (!node) {
+            console.warn('sednaUi.toast.present: no <template> with the id ' + template + '. The toast is app markup — see the Toast page.');
+            return 0;
+        }
+        var links = node.matches('[data-href]') ? [node] : [];
+        Array.prototype.push.apply(links, node.querySelectorAll('[data-href]'));
+        var safe = ui._.safeHref(href);
+        links.forEach(function (a) {
+            a.removeAttribute('data-href');
+            if (safe) a.setAttribute('href', safe); else a.removeAttribute('href');
+        });
+        var entry = opts.replace ? live[opts.replace] : null;
+        var fresh = !host || !host.isConnected;
+        if (entry) {
+            wire(entry, node);
+            entry.el.replaceWith(node);
+            entry.el = node;
+        } else {
+            entry = create();
+            entry.el = node;
+            wire(entry, node);
+        }
+        entry.template = true;
+        stack();
+        host.setAttribute('aria-live', node.matches('.toast--danger') ? 'assertive' : 'polite');
+        if (!node.isConnected) add(entry, fresh);
+        timeOut(entry, opts);
+        return entry.id;
+    };
+    ui.toast.result = function (id) {
+        var entry = live[id];
+        if (!entry) return Promise.resolve(Object.prototype.hasOwnProperty.call(ended, id) ? ended[id] : null);
+        return new Promise(function (resolve) { entry.waiters.push(resolve); });
     };
 })(window.sednaUi);

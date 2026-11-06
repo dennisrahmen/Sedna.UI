@@ -33,6 +33,11 @@ what it names.
   script, and loads it on demand through its own ES module — generated from `<name>-parts/` — which
   the shared loader in `js-parts/42-surfaces.js` imports the first time a page shows one.
 
+The toast stack also holds toasts the app wrote: `sednaUi.toast.present` clones one from the app's
+`<template>` — a notification card with a link or buttons of its own — so every toast on a page shares
+one stack, its top layer and its timer hold. That is a presenter beside the surface, not more of it:
+what the library draws in a toast is still the app's one line.
+
 A surface's **catalogue** route is its page; a page whose route extends it (`/graph-layouts`) belongs
 to it too. Every one of those pages carries the tier 3 badge, and no other page does.
 

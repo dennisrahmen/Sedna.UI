@@ -45,6 +45,21 @@ public sealed class SednaUi : ISednaUi
     }
 
     /// <inheritdoc />
+    public async Task<SednaToast?> PresentToastAsync(
+        string templateId, IReadOnlyDictionary<string, string?>? data = null, int timeoutMs = 4000)
+    {
+        var id = await _js.InvokeAsync<int>("sednaUi.toast.present", templateId, data, PresentOptions(timeoutMs, null));
+        return id == 0 ? null : new SednaToast(_js, id, dismissLabel: null);
+    }
+
+    internal static Dictionary<string, object?> PresentOptions(int timeoutMs, int? replace)
+    {
+        var options = new Dictionary<string, object?>(StringComparer.Ordinal) { ["timeout"] = timeoutMs };
+        if (replace is { } id) options["replace"] = id;
+        return options;
+    }
+
+    /// <inheritdoc />
     public Task SetTipsEnabledAsync(bool enabled)
         => _js.InvokeVoidAsync("sednaUi.tips.setEnabled", enabled).AsTask();
 

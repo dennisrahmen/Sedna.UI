@@ -4941,6 +4941,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    The stack is the only fixed element; each toast is a normal block inside it,
    so an app can render the list with @foreach and never position anything.
 
+   A TOAST THE APP WRITES goes in the same stack: sednaUi.toast.present() — or
+   ISednaUi.PresentToastAsync — clones it from the app's <template> into the stack the
+   library keeps, so it has the top layer, the timer hold and one corner shared with
+   every other toast. Its body may be the thing to click (`a.toast-body`), and
+   `.toast-actions` holds buttons of its own. A second stack the app positions itself
+   collides with the library's in the same corner, and loses all three.
+
    THE STACK IS THE LIVE REGION. sednaUi.toast puts role="status" and
    aria-live="polite" on the stack it creates (assertive while a danger toast is
    showing). An app rendering its own stack has to write those itself — nothing
@@ -5044,6 +5051,32 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     line-height: 1;
 }
 .toast-close:hover { color: var(--fg); }
+
+/* A body that is the thing to click: a notification that opens the record it is about.
+   A link or a button, so Tab reaches it apart from the close button; it keeps the look of
+   the text, and says it can be followed by underlining its title under the pointer. */
+:is(a, button).toast-body {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-small);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+:is(a, button).toast-body:hover > strong { text-decoration: underline; }
+:is(a, button).toast-body:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+/* The toast's own buttons, under its text: "Open", "Mark as read". */
+.toast-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-block-start: var(--space-4);
+}
 
 /* The semantic families again, carried on the leading rule and the icon. */
 
