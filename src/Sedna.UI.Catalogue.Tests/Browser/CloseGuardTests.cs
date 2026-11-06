@@ -24,7 +24,7 @@ public class CloseGuardTests(CatalogueAppFixture app)
         page.Locator("dialog.modal--sm:has(h3:text-is('Discard this reply?'))");
 
     private static ILocator Outcome(IPage page) =>
-        page.Locator(".cat-ex:has(button:text-is('Reply on ORD-4209')) .badge").First;
+        page.Locator(".cat-ex:has(button:has-text('Reply on ORD-4209')) .badge").First;
 
     private async Task<IPage> OpenReply()
     {

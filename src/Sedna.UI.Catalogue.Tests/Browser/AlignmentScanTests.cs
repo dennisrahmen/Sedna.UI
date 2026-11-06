@@ -113,7 +113,8 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                 // A word and an icon are measured on what is drawn; anything else — an avatar, a
                 // ring, a pill — on its box, since what it draws inside is its own design.
                 var centres = row.Items
-                    .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Ink.Paint(image, 0, top, i.X, i.Y, i.W, i.H)))
+                    // A pixel in from its edges, where a painted item's own antialiased edge is.
+                    .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Ink.Paint(image, 0, top, i.X, i.Y + 1, i.W, i.H - 2)))
                     .Where(m => m.Ink is not null)
                     .Select(m => (m.Item, Centre: Ink.Centre(m.Ink!)))
                     .ToList();

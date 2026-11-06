@@ -4,13 +4,16 @@
     text-align: start;
     padding: var(--cell-pad-y) var(--cell-pad-x);
     border-bottom: 1px solid var(--border);
-    /* A cell's line is trimmed to its capitals and its padding takes the rest, so the row
-       is as tall as before and its text sits in the middle of it. */
-    text-box: trim-both cap alphabetic;
-    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
     /* On a whole pixel, so a row is: a table lays its rows out on whole pixels, and a
        half-pixel line would put the text half a pixel off its middle. */
     line-height: round(1.5em, 2px);
+}
+/* A cell that holds only its words has its line trimmed to its capitals, and its padding
+   takes the rest, so the row is as tall as before and the words sit in its middle. A cell
+   with a control or a badge in it is laid out around that, and is left as it is. */
+.table :is(th, td):not(:has(*)) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
 }
 .table th {
     background: var(--table-head-bg);
