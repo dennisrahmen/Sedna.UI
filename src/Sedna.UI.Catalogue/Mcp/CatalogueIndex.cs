@@ -542,18 +542,16 @@ internal sealed class CatalogueIndex
     {
         // One frame per open block: its prelude and where its body starts.
         var frames = new List<(string Prelude, int BodyStart)>();
-        var start = 0;
 
         for (var i = 0; i < css.Length; i++)
         {
             if (css[i] == '{')
             {
                 frames.Add((css[LastBoundary(css, i + 1)..i].Trim(), i + 1));
-                start = i + 1;
             }
             else if (css[i] == '}')
             {
-                if (frames.Count == 0) { start = i + 1; continue; }
+                if (frames.Count == 0) continue;
                 var (selector, bodyStart) = frames[^1];
                 frames.RemoveAt(frames.Count - 1);
 
@@ -573,8 +571,6 @@ internal sealed class CatalogueIndex
                         .Select(f => f.Prelude));
                     yield return (selector, css[bodyStart..i], layer, condition);
                 }
-
-                start = i + 1;
             }
         }
     }

@@ -4581,8 +4581,9 @@ window.sednaUi = window.sednaUi || {};
    `aria-valuemax` bound it. The arrow keys move the handle a step, Shift four steps,
    and Home or a double-click puts the size back to what the CSS gives it.
 
-   Nothing else is written: `aria-valuenow` on the handle, and the property on the
-   element. A bubbling `sedna-resize` on that element, with `property` and `value` in
+   The app writes the handle's starting `aria-valuenow` — a separator that takes the focus
+   needs one — and the script keeps it current. Nothing else is written: `aria-valuenow`
+   on the handle, and the property on the element. A bubbling `sedna-resize` on that element, with `property` and `value` in
    pixels (null once reset), says where it ended, so an app can keep it.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {

@@ -26,11 +26,13 @@ public class SolidToneContrastTests
         var failures = new List<string>();
         foreach (var (tone, props) in carriers)
         {
-            Assert.True(props.ContainsKey("solid") && props.ContainsKey("on-solid"),
-                $"The {tone} tone names no --tone-solid or --tone-on-solid.");
-            var ratio = Tokens.Contrast(tokens, props["on-solid"], props["solid"]);
+            var hasSolid = props.TryGetValue("solid", out var solid);
+            var hasLabel = props.TryGetValue("on-solid", out var onSolid);
+            Assert.True(hasSolid && hasLabel, $"The {tone} tone names no --tone-solid or --tone-on-solid.");
+            if (solid is null || onSolid is null) continue;
+            var ratio = Tokens.Contrast(tokens, onSolid, solid);
             if (ratio < Floor)
-                failures.Add($"{tone}: {props["on-solid"]} on {props["solid"]} is {ratio:0.000}:1");
+                failures.Add($"{tone}: {onSolid} on {solid} is {ratio:0.000}:1");
         }
 
         Assert.True(failures.Count == 0,
