@@ -75,7 +75,7 @@ internal static class TokenGroups
 
         // The edge of every box a reader types or picks into, at rest and focused, apart
         // from --border so fields can be firmed up without firming up every divider.
-        new("Fields", ["--field-border", "--field-border-focus", "--control-border", "--control-on", "--focus-ring"]),
+        new("Fields", ["--field-border", "--field-border-focus", "--field-border-danger", "--field-border-warn", "--control-border", "--control-on", "--focus-ring"]),
 
         // A disabled control: its label, fill and edge — the label still at 4.5:1.
         new("Disabled", ["--disabled-fg", "--disabled-bg", "--disabled-border"]),
@@ -84,14 +84,14 @@ internal static class TokenGroups
         new("Disabled graphics", ["--disabled-opacity"], Swatch: false),
 
         new("Sidebar", [
-            "--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-active",
+            "--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-muted", "--sidebar-active",
             "--sidebar-hover",
         ]),
 
         // The header's surface and what is drawn straight on it. Aliases of the roles it
         // always used, so a brand-coloured header is four tokens and no rule.
         new("Topbar", ["--topbar-bg", "--topbar-fg", "--topbar-muted", "--topbar-hover"]),
-        new("Sizes", ["--topbar-height", "--touch-target"], Swatch: false),
+        new("Sizes", ["--topbar-height", "--touch-target", "--checker-size"], Swatch: false),
 
         // A modal's header and footer and a card's head as bars of their own.
         new("Panel bars", ["--modal-head-bg", "--modal-foot-bg", "--card-head-bg"]),
