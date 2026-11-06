@@ -372,6 +372,28 @@ Three things to know:
   level is where `--muted` stops clearing AA — `30-cards.css` lifts it to `--fg-soft` there, and
   `SurfaceTokenTests` measures both variants on every build.
 
+### Roles a ramp cannot express
+
+A brand whose light variant has tinted surfaces — a pink card on a pink page — needs roles the
+ramps do not give it. `DarkRoles` and `LightRoles` set them per variant, by token name, to a ramp
+step or a hex colour:
+
+```csharp
+var pink = new SednaTheme("pink", palette)
+{
+    LightRoles = new Dictionary<string, string>
+    {
+        ["--card-bg"] = "#fff0f6",
+        ["--sidebar-bg"] = "var(--coral-50)",
+    },
+};
+```
+
+They are written into `<SednaBrandStyle />`'s block for that theme and variant and outrank the
+stylesheet's, except in high contrast, which keeps the library's measured roles. A name or a value of
+any other shape is refused when the theme is built. Measure what you move: the library's contrast tests
+hold its own roles, not these.
+
 ---
 
 ## 5. Design language, carried over unchanged

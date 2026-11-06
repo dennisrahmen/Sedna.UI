@@ -3600,6 +3600,11 @@ window.sednaUi = window.sednaUi || {};
         try { return !!dialog && dialog.isConnected && dialog.matches(':modal'); }
         catch (e) { return false; }
     }
+    function zoomOf(el) {
+        var parent = (el && el.offsetParent) || document.body;
+        var z = parent && parent.currentCSSZoom;
+        return typeof z === 'number' && z > 0 ? z : 1;
+    }
     function offsetParentRect(el) {
         if (isRaised(el)) return { left: 0, top: 0 };
         var parent = el.offsetParent || document.body;
@@ -3723,13 +3728,22 @@ window.sednaUi = window.sednaUi || {};
             stage = null;
             for (var t = 0; !stage && t < targets.length; t++) stage = modalDialog(targets[t]);
             raise(hole, stage, false);
+            if (opts.scroll) {
+                var first = targets[0];
+                var b0 = first.getBoundingClientRect();
+                if (b0.bottom < 0 || b0.top > window.innerHeight || b0.right < 0 || b0.left > window.innerWidth
+                    || opts.scroll === 'center') {
+                    first.scrollIntoView({ block: opts.scroll === 'center' ? 'center' : 'nearest', inline: 'nearest' });
+                }
+            }
             var box = union(targets);
             var origin = offsetParentRect(hole);
+            var z = zoomOf(hole);
             var rect = {
-                top: box.top - origin.top - pad,
-                left: box.left - origin.left - pad,
-                width: box.width + pad * 2,
-                height: box.height + pad * 2
+                top: (box.top - origin.top) / z - pad,
+                left: (box.left - origin.left) / z - pad,
+                width: box.width / z + pad * 2,
+                height: box.height / z + pad * 2
             };
             hole.style.top = rect.top + 'px';
             hole.style.left = rect.left + 'px';
@@ -3751,14 +3765,16 @@ window.sednaUi = window.sednaUi || {};
             tip.style.width = '';
             tip.style.left = '0px';
             tip.style.top = '0px';
+            var z = zoomOf(tip);
             var probe = tip.getBoundingClientRect();
-            var dx = probe.left, dy = probe.top;
-            var w = probe.width;
+            var dx = probe.left / z, dy = probe.top / z;
+            var w = probe.width / z;
             tip.style.width = w + 'px';
-            var h = tip.getBoundingClientRect().height;
+            var h = tip.getBoundingClientRect().height / z;
             var edge = one(opts.boundary);
-            var vp = edge ? edge.getBoundingClientRect()
+            var vb = edge ? edge.getBoundingClientRect()
                           : { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
+            var vp = { left: vb.left / z, top: vb.top / z, right: vb.right / z, bottom: vb.bottom / z };
             var r = {
                 left: rect.left + dx,
                 top: rect.top + dy,
@@ -3795,11 +3811,12 @@ window.sednaUi = window.sednaUi || {};
             var opts = options || {};
             var lockOpts = opts.lock === true ? {} : (opts.lock || null);
             var root = one(opts.root) || document.body;
-            var raf = 0, stopped = false, observer = null;
+            var raf = 0, stopped = false, observer = null, scrolled = false;
             function place() {
                 if (stopped) return null;
                 var box = one(hole);
-                var rect = ui.spotlight.at(box, target, opts);
+                var rect = ui.spotlight.at(box, target, scrolled ? Object.assign({}, opts, { scroll: null }) : opts);
+                scrolled = true;
                 if (!rect) {
                     if (box) box.style.display = 'none';
                     if (lockOpts) mark(null);

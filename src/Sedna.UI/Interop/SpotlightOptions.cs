@@ -42,6 +42,13 @@ public sealed record SpotlightOptions
     /// </summary>
     public SpotlightLock? Lock { get; init; }
 
+    /// <summary>
+    /// Brings the target into view when the step starts: <see cref="SpotlightScroll.Nearest"/>
+    /// scrolls only a target out of view, <see cref="SpotlightScroll.Center"/> centres it.
+    /// Nothing is scrolled when unset.
+    /// </summary>
+    public SpotlightScroll? Scroll { get; init; }
+
     /// <summary>The object the script reads, with unset options left out.</summary>
     internal Dictionary<string, object> ToScript()
     {
@@ -54,6 +61,7 @@ public sealed record SpotlightOptions
         if (Margin is { } margin) o["margin"] = margin;
         if (Boundary is not null) o["boundary"] = Boundary;
         if (Root is not null) o["root"] = Root;
+        if (Scroll is { } scroll) o["scroll"] = scroll == SpotlightScroll.Center ? "center" : "nearest";
         if (Lock is { } l)
         {
             var lockOptions = new Dictionary<string, object>(StringComparer.Ordinal) { ["interactive"] = l.Interactive };
@@ -108,4 +116,14 @@ public sealed record SpotlightLock
     /// Elements blocked even inside what is allowed. <c>[data-spotlight-block]</c> when unset.
     /// </summary>
     public string? Block { get; init; }
+}
+
+/// <summary>How a spotlight brings its target into view when a step starts.</summary>
+public enum SpotlightScroll
+{
+    /// <summary>Scrolls only a target that is out of view, by as little as it takes.</summary>
+    Nearest,
+
+    /// <summary>Scrolls the target to the middle of the view.</summary>
+    Center,
 }
