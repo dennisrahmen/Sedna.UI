@@ -52,7 +52,6 @@ public class BrowserFloorTests
     public void The_release_runs_the_browser_tests_in_the_matrix_engine()
     {
         var yaml = Workflow("release.yml");
-        Assert.Matches(@"playwright\.ps1 install --with-deps \$\{\{ matrix\.engine \}\}", yaml);
         Assert.Matches(@"SEDNA_UI_BROWSER_TESTS:\s*'1'", yaml);
         Assert.Matches(@"SEDNA_UI_BROWSER:\s*\$\{\{ matrix\.engine \}\}", yaml);
     }
@@ -65,5 +64,26 @@ public class BrowserFloorTests
 
         Assert.True(release.Success, "release.yml's release job declares no `needs:` list.");
         Assert.Contains("test", release.Groups["needs"].Value.Split(',', StringSplitOptions.TrimEntries));
+    }
+
+    /// <summary>
+    /// The release tests run in Microsoft's Playwright image, which carries the browsers and
+    /// their system libraries. Its tag has to be the Playwright package's version: the
+    /// package drives the browser build it was released with, and an image of another
+    /// version has other builds in it, which the package cannot launch.
+    /// </summary>
+    [Fact]
+    public void The_release_runs_in_the_Playwright_image_of_the_package_version()
+    {
+        var image = Regex.Match(Workflow("release.yml"), @"container:\s*mcr\.microsoft\.com/playwright/dotnet:v(?<v>[\d.]+)-");
+        Assert.True(image.Success, "release.yml's test job runs in no Playwright image, so it installs the browsers and their libraries itself.");
+
+        foreach (var csproj in Directory.GetFiles(Path.Combine(Assets.RepoRoot, "src"), "*.Tests.csproj", SearchOption.AllDirectories))
+        {
+            var package = Regex.Match(File.ReadAllText(csproj), @"Include=""Microsoft\.Playwright"" Version=""(?<v>[\d.]+)""");
+            if (!package.Success) continue;
+            Assert.True(package.Groups["v"].Value == image.Groups["v"].Value,
+                $"{Path.GetFileName(csproj)} uses Playwright {package.Groups["v"].Value} and release.yml's image is {image.Groups["v"].Value}. Move them together.");
+        }
     }
 }

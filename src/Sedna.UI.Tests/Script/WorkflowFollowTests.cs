@@ -61,6 +61,7 @@ public class WorkflowFollowTests : ScriptTestBase
         var box = await page.Locator("#wf").BoundingBoxAsync();
         await page.Mouse.MoveAsync(box!.X + box.Width / 2, box.Y + box.Height / 2);
         await page.Mouse.WheelAsync((float)deltaX, 0);
+        await Js.ScrollAtRest(page, "#wf");
     }
 
     [Fact]

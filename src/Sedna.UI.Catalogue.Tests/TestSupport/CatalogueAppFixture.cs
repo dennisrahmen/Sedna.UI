@@ -56,6 +56,13 @@ public sealed class CatalogueAppFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        // The server's address is the test's own choice. The .NET container images — the
+        // Playwright image the release runs in among them — set ASPNETCORE_HTTP_PORTS=8080,
+        // which binds the app to [::]:8080 beside the port asked for here, and a client
+        // cannot connect to an unspecified address. The variables are this process's only.
+        foreach (var name in new[] { "ASPNETCORE_HTTP_PORTS", "ASPNETCORE_HTTPS_PORTS", "ASPNETCORE_URLS", "DOTNET_HTTP_PORTS", "DOTNET_URLS" })
+            Environment.SetEnvironmentVariable(name, null);
+
         // No outbound call from a test run: the latest release's class history is
         // fetched from GitHub in production, and an empty URL turns that off.
         _baseFactory = new WebApplicationFactory<Program>();
