@@ -8,7 +8,11 @@
     font-size: var(--text-4);
     margin-bottom: var(--space-7);
     border: 1px solid;
+    /* A flex row: without these its text is a flex item that will not shrink below its
+       longest word, and a long address widens the alert past its container. */
+    overflow-wrap: anywhere;
 }
+.alert > * { min-width: 0; }
 .alert i { font-size: var(--text-7); flex-shrink: 0; }
 .alert-go     { background: var(--go-bg);     border-color: var(--go-hover);     color: var(--go-fg); }
 .alert-warn   { background: var(--warn-bg);   border-color: var(--warn-hover);   color: var(--warn-fg); }

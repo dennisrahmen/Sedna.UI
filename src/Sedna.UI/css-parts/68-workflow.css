@@ -437,7 +437,11 @@
     font-size: var(--text-5);
     font-weight: 600;
     line-height: 20px;
-    overflow-wrap: break-word;
+    /* A word is never cut without a hyphen — "Kategorisi|eren" in a squeezed strip. With
+       a `lang` on the page the browser hyphenates; without one, a node is as wide as its
+       longest word and the strip scrolls. */
+    hyphens: auto;
+    overflow-wrap: normal;
 }
 .workflow-node-meta {
     grid-column: 2;

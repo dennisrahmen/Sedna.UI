@@ -1582,6 +1582,10 @@ body {
     font-family: var(--font-sans);
     font-size: var(--text-5);
     line-height: 1.5;
+    /* A file name, an address or an id longer than its line breaks rather than running
+       out of its box. `break-word` and not `anywhere`: it leaves min-content alone, so a
+       table's columns are sized by their words and a wide table scrolls instead. */
+    overflow-wrap: break-word;
 }
 
 a { color: var(--accent); text-decoration: none; }
@@ -2341,6 +2345,10 @@ a.topbar-version--pre:hover {
    resolve `min-height: 100%` against a flexed scroller, and a column that measured
    itself that way sat short on an iPad. */
 .page--fill { display: flex; flex-direction: column; }
+/* Its children keep their height and the page scrolls: as flex items they would shrink,
+   and one that clips — a card holding a table — was squeezed instead. Growing is
+   untouched, so the foot and a page-level empty state still take the room left. */
+.page--fill > * { flex-shrink: 0; }
 .page--fill > .page-foot { margin-top: auto; }
 
 .back-link {
@@ -3726,7 +3734,7 @@ a.topbar-version--pre:hover {
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
    margin and 1.17em size, so the head measures half again as tall as one holding a
    <strong> and the heading is bigger than the card it titles. */
-.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
+.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
 
 /* ── A card head that holds a tab strip ─────────────────────────────────────
@@ -3879,6 +3887,8 @@ a.topbar-version--pre:hover {
 .kv { display: flex; justify-content: space-between; gap: var(--space-7); padding: var(--space-2) 0; }
 .kv .k { color: var(--muted); }
 .kv .v { font-family: var(--font-mono); }
+/* Either side may be long — a path, an id — and neither may push the row wider. */
+.kv > * { min-width: 0; overflow-wrap: anywhere; }
 
 }
 
@@ -4579,7 +4589,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
     font-size: var(--text-4);
     margin-bottom: var(--space-7);
     border: 1px solid;
+    /* A flex row: without these its text is a flex item that will not shrink below its
+       longest word, and a long address widens the alert past its container. */
+    overflow-wrap: anywhere;
 }
+.alert > * { min-width: 0; }
 .alert i { font-size: var(--text-7); flex-shrink: 0; }
 .alert-go     { background: var(--go-bg);     border-color: var(--go-hover);     color: var(--go-fg); }
 .alert-warn   { background: var(--warn-bg);   border-color: var(--warn-hover);   color: var(--warn-fg); }
@@ -4683,7 +4697,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 
 .toast i        { font-size: var(--text-7); flex-shrink: 0; color: var(--muted); }
 .toast strong   { display: block; color: var(--fg); font-weight: 600; }
-.toast-body     { flex: 1; min-width: 0; }
+.toast-body     { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .toast-close {
     flex-shrink: 0;
     background: none; border: none; padding: 0;
@@ -9946,6 +9960,9 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     cursor: pointer;
 }
 .menu-item i { font-size: var(--text-7); color: var(--muted); }
+/* A long label wraps inside the panel instead of widening it past the screen. */
+.menu-item { overflow-wrap: anywhere; }
+.menu-item > * { min-width: 0; }
 .menu-item:hover { background: var(--bg-hover); text-decoration: none; }
 .menu-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .menu-item:disabled,
@@ -10545,7 +10562,20 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     background: var(--surface-soft);
     box-shadow: inset 3px 0 0 var(--border-strong);
 }
-.tr-detail-body { padding: var(--space-6) var(--space-7); }
+/* An inline <code> breaks anywhere elsewhere, which in a squeezed column put one
+   character on each line. In a table it keeps its word, the column keeps its width, and
+   a table too wide for its box scrolls in its .sedna-scroll-x. */
+.table code { overflow-wrap: break-word; }
+
+/* What a detail row holds stays inside the table's width and scrolls on its own: zero
+   inline size keeps it out of the column widths, and the minimum fills the cell. */
+.tr-detail-body {
+    padding: var(--space-6) var(--space-7);
+    inline-size: 0;
+    min-inline-size: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
 
 /* A grouped header spanning several columns. */
 .table th[colspan] { text-align: center; border-bottom-color: var(--border-strong); }
@@ -16655,7 +16685,11 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     font-size: var(--text-5);
     font-weight: 600;
     line-height: 20px;
-    overflow-wrap: break-word;
+    /* A word is never cut without a hyphen — "Kategorisi|eren" in a squeezed strip. With
+       a `lang` on the page the browser hyphenates; without one, a node is as wide as its
+       longest word and the strip scrolls. */
+    hyphens: auto;
+    overflow-wrap: normal;
 }
 .workflow-node-meta {
     grid-column: 2;

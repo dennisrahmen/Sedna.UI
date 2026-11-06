@@ -25,6 +25,10 @@ body {
     font-family: var(--font-sans);
     font-size: var(--text-5);
     line-height: 1.5;
+    /* A file name, an address or an id longer than its line breaks rather than running
+       out of its box. `break-word` and not `anywhere`: it leaves min-content alone, so a
+       table's columns are sized by their words and a wide table scrolls instead. */
+    overflow-wrap: break-word;
 }
 
 a { color: var(--accent); text-decoration: none; }

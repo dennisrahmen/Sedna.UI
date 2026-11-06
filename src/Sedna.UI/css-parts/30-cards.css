@@ -46,7 +46,7 @@
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
    margin and 1.17em size, so the head measures half again as tall as one holding a
    <strong> and the heading is bigger than the card it titles. */
-.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
+.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
 
 /* ── A card head that holds a tab strip ─────────────────────────────────────
@@ -199,4 +199,6 @@
 .kv { display: flex; justify-content: space-between; gap: var(--space-7); padding: var(--space-2) 0; }
 .kv .k { color: var(--muted); }
 .kv .v { font-family: var(--font-mono); }
+/* Either side may be long — a path, an id — and neither may push the row wider. */
+.kv > * { min-width: 0; overflow-wrap: anywhere; }
 

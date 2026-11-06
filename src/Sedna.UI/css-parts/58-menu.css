@@ -223,6 +223,9 @@
     cursor: pointer;
 }
 .menu-item i { font-size: var(--text-7); color: var(--muted); }
+/* A long label wraps inside the panel instead of widening it past the screen. */
+.menu-item { overflow-wrap: anywhere; }
+.menu-item > * { min-width: 0; }
 .menu-item:hover { background: var(--bg-hover); text-decoration: none; }
 .menu-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .menu-item:disabled,

@@ -77,6 +77,10 @@
    resolve `min-height: 100%` against a flexed scroller, and a column that measured
    itself that way sat short on an iPad. */
 .page--fill { display: flex; flex-direction: column; }
+/* Its children keep their height and the page scrolls: as flex items they would shrink,
+   and one that clips — a card holding a table — was squeezed instead. Growing is
+   untouched, so the foot and a page-level empty state still take the room left. */
+.page--fill > * { flex-shrink: 0; }
 .page--fill > .page-foot { margin-top: auto; }
 
 .back-link {

@@ -568,7 +568,20 @@
     background: var(--surface-soft);
     box-shadow: inset 3px 0 0 var(--border-strong);
 }
-.tr-detail-body { padding: var(--space-6) var(--space-7); }
+/* An inline <code> breaks anywhere elsewhere, which in a squeezed column put one
+   character on each line. In a table it keeps its word, the column keeps its width, and
+   a table too wide for its box scrolls in its .sedna-scroll-x. */
+.table code { overflow-wrap: break-word; }
+
+/* What a detail row holds stays inside the table's width and scrolls on its own: zero
+   inline size keeps it out of the column widths, and the minimum fills the cell. */
+.tr-detail-body {
+    padding: var(--space-6) var(--space-7);
+    inline-size: 0;
+    min-inline-size: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
 
 /* A grouped header spanning several columns. */
 .table th[colspan] { text-align: center; border-bottom-color: var(--border-strong); }

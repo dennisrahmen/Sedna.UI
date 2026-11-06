@@ -91,7 +91,7 @@
 
 .toast i        { font-size: var(--text-7); flex-shrink: 0; color: var(--muted); }
 .toast strong   { display: block; color: var(--fg); font-weight: 600; }
-.toast-body     { flex: 1; min-width: 0; }
+.toast-body     { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .toast-close {
     flex-shrink: 0;
     background: none; border: none; padding: 0;
