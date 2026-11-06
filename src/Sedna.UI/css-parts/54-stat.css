@@ -110,11 +110,17 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 }
 
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
-   it is given, so it behaves correctly inside a narrow column too. */
+   it is given, so it behaves correctly inside a narrow column too.
+
+   Nothing it holds paints past its inline edges: a toned tile's tint and a linked tile's
+   hover reach into the gaps between tiles, and stop flush with the row's own edge, so a
+   row lines up with the panels above and below it. Clipped rather than inset, so a tile
+   turning amber while the page is open moves nothing. */
 .stat-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
     gap: var(--space-7);
+    clip-path: inset(calc(var(--space-6) * -1) 0);
 }
 /* ── A dividing rule between tiles ──────────────────────────────────────────
    Tiles inside a card get a rule between them rather than a bare gap, so the card
@@ -123,8 +129,8 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
    The rule has to survive the row wrapping, and no selector can tell which tile starts
    the second row. So EVERY tile draws its rule, in the middle of the gap before it,
    and the row clips what falls outside its own edge: the first tile of each row puts
-   its rule there, and loses it. The clip margin lets a linked tile's hover and focus
-   ring out, and stops short of the rule.
+   its rule there, and loses it — the row's own clip, above, which stops at its inline
+   edges and lets a linked tile's hover and focus ring out above and below.
 
    The track floor is the plain row's 150px less the wider gap, so a row that fitted on
    one line before still does. */
@@ -133,9 +139,6 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     grid-template-columns: repeat(auto-fit, minmax(min(calc(150px - 2 * var(--space-7)), 100%), 1fr));
     column-gap: calc(2 * var(--space-7));
     row-gap: var(--space-7);
-    /* The clip margin as a negative inset, which every engine on the floor draws the same
-       way: Safari has no overflow-clip-margin. */
-    clip-path: inset(calc(var(--space-6) * -1));
 }
 .stat-row--divided > .stat,
 .card-body > .stat-row > .stat { position: relative; }

@@ -195,6 +195,9 @@
     .cal-pick:is([aria-pressed="true"], [aria-current]:not([aria-current="false"])),
     .editor-toolbar [aria-pressed="true"],
     .workflow-node[aria-pressed="true"] { outline: 1px solid Highlight; }
+    /* A selected table row is a tint and an inset bar, and neither is painted here. Each
+       cell is outlined inside its own box, so the row reads as one marked band. */
+    .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
 
     /* A chat bubble is nothing but a background; without a line around it a
        thread is a column of text with no turns in it. */

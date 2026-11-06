@@ -32,4 +32,13 @@ public class SednaBrandStyleTests : BunitContext
 
         Assert.Contains("[data-theme=\"forest\"]", cut.Markup, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void A_nonce_is_written_on_the_style_and_none_is_written_without_one()
+    {
+        Services.AddSingleton(new SednaUiOptions());
+
+        Assert.Equal("r4nd0m", Render<SednaBrandStyle>(p => p.Add(c => c.Nonce, "r4nd0m")).Find("style").GetAttribute("nonce"));
+        Assert.False(Render<SednaBrandStyle>().Find("style").HasAttribute("nonce"));
+    }
 }

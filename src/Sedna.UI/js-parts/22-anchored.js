@@ -61,9 +61,8 @@
                popover from one, which is also what makes the invoker the implicit
                anchor position-area places against. So the same test applies, with
                no need for an API that exposes the invoker. */
-            var trigger = panel.id
-                ? document.querySelector('[popovertarget="' + panel.id + '"]')
-                : null;
+            var trigger = ui.popover ? ui.popover.triggerOf(panel)
+                : (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null);
 
             if (stale(scroller, panel, trigger)) {
                 try { panel.hidePopover(); } catch (err2) { /* already closing */ }
@@ -106,7 +105,8 @@
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || e.newState !== 'open' || !panel.matches || !panel.matches('.popover')) return;
-        var trigger = panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null;
+        var trigger = ui.popover ? ui.popover.triggerOf(panel)
+            : (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null);
         if (!trigger) return;
         ui._.layer.whenGone(trigger, function () {
             try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* already closed */ }

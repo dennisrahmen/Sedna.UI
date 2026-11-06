@@ -430,6 +430,39 @@ A function does not cross into C#, so where the script hands one over the C# mem
 To show something decided during prerendering — a toast from `OnInitializedAsync` — keep it as state
 and show it from `OnAfterRenderAsync(firstRender: true)`; the catalogue's From C# page has the recipe.
 
+## Content Security Policy
+
+The library needs nothing inline from a policy. Its stylesheet, its scripts, the engines its
+surfaces import and the icon font are files under `_content/Sedna.UI/`, so `'self'` covers them; the
+script sets styles through the CSSOM, which `style-src` does not govern, and evaluates no string.
+The one inline element is `<SednaBrandStyle />`'s `<style>`, which takes the policy's nonce:
+
+```razor
+<SednaBrandStyle Nonce="@cspNonce" />
+```
+
+A policy for a Blazor Web App on Sedna.UI, with a fresh nonce per response:
+
+```text
+default-src 'self';
+script-src 'self' 'nonce-{nonce}' 'wasm-unsafe-eval';
+style-src 'self' 'nonce-{nonce}';
+style-src-attr 'unsafe-inline';
+img-src 'self' data: blob:;
+font-src 'self';
+connect-src 'self' wss:;
+object-src 'none';
+base-uri 'self';
+frame-ancestors 'none'
+```
+
+- `'wasm-unsafe-eval'` is Blazor WebAssembly's, and only an app with WebAssembly components needs it.
+- `style-src-attr 'unsafe-inline'` is for the app's own `style="…"` attributes — the knobs the
+  catalogue sets inline, such as `style="--modal-width: 720px"`. Drop it if the app writes none, or
+  moves each into a class of its own.
+- `wss:` is the interactive server circuit; name the host instead of the scheme where it is known.
+- `img-src data: blob:` is for an image pasted into the rich-text editor before the app has stored it.
+
 ## Writing pages
 
 Copy markup from the catalogue at <https://www.sedna-ui.com/> rather than writing it from

@@ -1,0 +1,20 @@
+/* ── Hit areas on a touch screen ─────────────────────────────────────────────
+   A finger needs a bigger target than a pointer, and the small controls — a chip's
+   dismiss, a field's clear button, a column filter, a dialog's close — are drawn
+   smaller than that on purpose. On a coarse pointer each one's hit area grows to
+   --touch-target around its centre through a pseudo-element, so nothing on screen
+   moves or changes size: the deck dot's technique, applied to every small control.
+
+   :where() keeps this at zero specificity, so a control an app or a component has
+   already positioned — the clear button absolutely inside the search box, a dismiss
+   pinned to a thumbnail's corner — keeps its own position; the pseudo-element hangs
+   off whichever box it has. TouchTargetTests finds every control drawn under the
+   target size and holds it to this list. */
+@media (pointer: coarse) {
+    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close) { position: relative; }
+    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close)::before {
+        content: "";
+        position: absolute;
+        inset: min(0px, calc((var(--touch-target) - 100%) / -2));
+    }
+}

@@ -530,6 +530,8 @@
     --control-height-sm: 28px;
     --control-height:    36px;
     --control-height-lg: 44px;   /* the WCAG AAA target size */
+    /* The hit area a small control grows to on a coarse pointer (69-touch.css). */
+    --touch-target:      32px;
 
     /* ── Choice inset ───────────────────────────────────────────────────────
        Where a choice control's label starts, measured from the control's inline

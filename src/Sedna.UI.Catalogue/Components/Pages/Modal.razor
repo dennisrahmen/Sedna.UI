@@ -164,6 +164,16 @@
     </p>
 </CatExample>
 
+<CatSnippet Name="Modal/ClosedByAny.html" Title="Closed by a click beside it">
+    <p>
+        <code>closedby="any"</code> on the <code>&lt;dialog&gt;</code> closes it on a click on the
+        backdrop, as <kbd>Escape</kbd> does — the platform's own light dismiss, in every browser
+        this library supports, with nothing to script and no <code>target === dialog</code> test
+        to get wrong. Keep it for a dialog that holds nothing to lose; with
+        <code>data-close-guard</code> the click is refused like any other close request.
+    </p>
+</CatSnippet>
+
 <CatSnippet Name="Modal/BackdropForm.html" Title="Without a dialog">
     <p>
         <code>.modal-backdrop</code> dims and centres a panel inside the page instead, at z-index

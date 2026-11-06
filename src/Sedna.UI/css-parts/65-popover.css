@@ -15,15 +15,14 @@
    difference is in what goes inside, and the surfaces are deliberately distinct:
    a menu is flush-padded for rows, this one has reading padding.
 
-   THE `popover` ATTRIBUTE IS REQUIRED, and so is opening it from a
-   `popovertarget` control. The platform then supplies everything this file would
-   otherwise need JavaScript for — the top layer, light dismiss, Escape, focus
-   handling, and `:popover-open`. There is no sednaUi.popover and there does
-   not need to be one — with one exception the platform does not cover:
-   22-anchored.js closes an open popover when a scroll moves its invoker, because
-   an anchored panel's offset is computed at reveal and never recomputed while the
-   anchor scrolls. It finds the invoker through `popovertarget`, which is why that
-   attribute being required below is load-bearing twice over.
+   THE `popover` ATTRIBUTE IS REQUIRED, and so is opening it from a control: a
+   `popovertarget` button, or — for a trigger that cannot be a button, a count in a
+   link, an avatar, a cell — any element with `data-popover="<id>"`, which
+   22-popover.js anchors with `anchor-name` and `position-anchor`. The platform
+   supplies the rest — the top layer, light dismiss, Escape, focus handling, and
+   `:popover-open`. 22-anchored.js closes an open popover when a scroll moves its
+   trigger, because an anchored panel's offset is computed at reveal and never
+   recomputed while the anchor scrolls.
 
    `popovertarget` also makes the invoker the popover's IMPLICIT ANCHOR, which is
    what lets `position-area` place this with no `anchor-name` anywhere. That
