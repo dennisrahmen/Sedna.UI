@@ -1,0 +1,90 @@
+name: Bug report
+description: Something in the library looks or behaves wrong.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository is public. Use generic names in everything you write here: `example.com`, "the orders page", "our dashboard". No organisation, internal app, host, ticket or person.
+        A security problem that a page's visitor could exploit goes to [private reporting](https://github.com/dennisrahmen/Sedna.UI/security/advisories/new) instead.
+  - type: input
+    id: version
+    attributes:
+      label: Sedna.UI version
+      placeholder: "0.28.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: catalogue
+    attributes:
+      label: Does it happen on the catalogue?
+      description: "[sedna-ui.com](https://www.sedna-ui.com/) is built from `main`. If its own example shows the problem, that page is the reproduction."
+      options:
+        - Yes, on the page linked below
+        - No, only in my app
+        - Not tried
+    validations:
+      required: true
+  - type: input
+    id: catalogue-page
+    attributes:
+      label: Catalogue page
+      placeholder: "https://www.sedna-ui.com/…"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens, and what you expected
+      description: For a behaviour, the steps — pointer, keyboard or touch — that lead to it.
+    validations:
+      required: true
+  - type: textarea
+    id: markup
+    attributes:
+      label: Smallest markup that shows it
+      description: Plain HTML with the library's classes, as short as it can be while still showing the problem. If the problem is in a C# call, add the call.
+      render: html
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser engine
+      description: The tested floor is the current Chromium and the current Safari on iOS and iPadOS.
+      multiple: true
+      options:
+        - Chromium (Chrome, Edge)
+        - Safari on iOS or iPadOS
+        - Safari on macOS
+        - Firefox or other (outside the tested floor)
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Browser version and device
+      description: Say if the page runs as a home-screen web app — iOS lays it out differently.
+      placeholder: "Safari 27.2, iPad, installed to the home screen"
+  - type: input
+    id: settings
+    attributes:
+      label: Theme and settings on `<html>`
+      description: A visual defect is often specific to one of these.
+      placeholder: 'data-theme="sedna" data-variant="light" data-cvd="0" data-density="compact" dir="ltr"'
+  - type: dropdown
+    id: hosting
+    attributes:
+      label: How the page is rendered
+      description: Matters for the script, events and the C# services; it rarely matters for a style.
+      options:
+        - Blazor Server (interactive server)
+        - Blazor WebAssembly, standalone
+        - Blazor Web App, WebAssembly or auto
+        - Static server rendering
+        - Plain HTML, no Blazor
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot or recording
+      description: For anything visual. Crop out anything that names your organisation or your users.
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Your workaround, if you have one
+      description: What your app does today to get around it — it often points at the cause, and the reply can say when yours can go.
