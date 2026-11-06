@@ -180,6 +180,9 @@ unstyled:
 Assert.True(SednaContract.Classes.ContainsKey("card-head"), ".card-head is not a Sedna.UI class.");
 ```
 
+`SednaContract.LatestRelease` is the newest release the history knows, so a test can say which
+version a class map was checked against.
+
 ### Do not style a class name the library owns
 
 Every class in the catalogue belongs to the library. If this app defines a rule for one of those names,

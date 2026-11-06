@@ -486,7 +486,7 @@ The catalogue has an MCP server. Add one URL:
 | `describe_class` | What a class does: its rules from the shipped stylesheet, its layer, its modifiers. |
 | `get_page` | Everything on one page, or the list of pages. |
 | `get_tokens` | The design tokens, for writing `brand.css`. |
-| `get_integration_guide` | This document, the branding recipe, the JavaScript surface, the rules, or the graph's reference. |
+| `get_integration_guide` | This document, the branding recipe, the JavaScript surface, the rules, the graph's or the editor's reference, or — when upgrading — every class each release renamed. |
 
 Pass `installedVersion` and the response names anything your version does not have.
 

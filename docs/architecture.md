@@ -763,10 +763,10 @@ client honouring the read-only hint calls these without prompting.
 | --- | --- |
 | `search` | References only, never markup, across examples, classes, tokens and pages. |
 | `get_example` | The bytes the site renders for an example, valid in a `.razor` page and an `.html` file alike. |
-| `describe_class` | What the shipped stylesheet declares for a class, its layer, its modifiers, and the examples using it. |
+| `describe_class` | What the shipped stylesheet declares for a class, its layer, its modifiers, and the examples using it. A class a release renamed comes back under `renamed`, with the classes that replace it. |
 | `get_page` | Every example on one catalogue page, or the list of pages. |
 | `get_tokens` | The token export, as an ordered array of blocks. |
-| `get_integration_guide` | This repository's own documentation, verbatim: `host-page`, `branding`, `javascript`, `rules`, `graph`. |
+| `get_integration_guide` | This repository's own documentation, verbatim: `host-page`, `branding`, `javascript`, `rules`, `graph`, `editor` — and `upgrade`, every class each release renamed, from `docs/renames/`. |
 
 Nothing in the index is hand-listed. Examples come from the same embedded resources the pages render,
 classes from the stylesheet the app serves, docs from `docs/`.

@@ -291,4 +291,63 @@ public class InteropTests : BunitContext
     // The wrappers build anonymous objects, which is what the JSON serialiser sees.
     private static object? Read(object bag, string property) =>
         bag.GetType().GetProperty(property)?.GetValue(bag);
+
+    [Theory]
+    [InlineData("comfortable")]
+    [InlineData("compact")]
+    [InlineData("touch")]
+    public async Task A_density_is_saved_as_the_word_the_script_reads(string density)
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+        var options = new SednaUiOptions();
+        var settings = new SednaSettings(Wrapper(options), JSInterop.JSRuntime, options);
+
+        await settings.SetDensityAsync(density);
+
+        var call = Only("sednaUi.settings.save");
+        Assert.Equal("density", call.Arguments[0]);
+        Assert.Equal(density, call.Arguments[1]);
+    }
+
+    [Theory]
+    [InlineData("Compact")]
+    [InlineData("dense")]
+    [InlineData("")]
+    public async Task An_unknown_density_is_rejected_rather_than_coerced(string density)
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+        var options = new SednaUiOptions();
+        var settings = new SednaSettings(Wrapper(options), JSInterop.JSRuntime, options);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => settings.SetDensityAsync(density));
+        Assert.Empty(JSInterop.Invocations["sednaUi.settings.save"]);
+    }
+
+    [Theory]
+    [InlineData(SpotlightScroll.Nearest, "nearest")]
+    [InlineData(SpotlightScroll.Center, "center")]
+    public void A_spotlight_s_scroll_is_sent_in_the_script_s_words(SpotlightScroll scroll, string word)
+    {
+        var options = new SpotlightOptions { Scroll = scroll }.ToScript();
+        Assert.Equal(word, options["scroll"]);
+        Assert.False(new SpotlightOptions().ToScript().ContainsKey("scroll"));
+    }
+
+    [Fact]
+    public void The_resize_and_follow_events_carry_what_the_script_sends()
+    {
+        // The initializer passes event.detail through as it is; these are its names.
+        var resize = System.Text.Json.JsonSerializer.Deserialize<SednaResizeEventArgs>(
+            """{"property":"--card-height","value":240}""", new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+        Assert.Equal("--card-height", resize.Property);
+        Assert.Equal(240, resize.Value);
+
+        var reset = System.Text.Json.JsonSerializer.Deserialize<SednaResizeEventArgs>(
+            """{"property":"--card-height","value":null}""", new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+        Assert.Null(reset.Value);
+
+        var follow = System.Text.Json.JsonSerializer.Deserialize<SednaFollowEventArgs>(
+            """{"following":false}""", new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+        Assert.False(follow.Following);
+    }
 }
