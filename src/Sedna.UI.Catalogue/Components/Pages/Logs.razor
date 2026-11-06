@@ -16,7 +16,8 @@
         button. <strong>Pausing is the app's</strong>: render the pane without
         <code>data-follow</code> and it stops following, render it with the attribute again and it
         jumps to the newest line. The pane also fires a bubbling <code>sedna-follow</code> event
-        with <code>detail.following</code>, for an app that counts the lines not yet seen.
+        with <code>detail.following</code> — <code>@@onsedna-follow</code> with a
+        <code>SednaFollowEventArgs</code> in Blazor — for an app that counts the lines not yet seen.
     </p>
 </CatExample>
 

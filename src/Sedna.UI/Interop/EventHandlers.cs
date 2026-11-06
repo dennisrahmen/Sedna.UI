@@ -8,7 +8,8 @@ namespace Sedna.UI;
 /// the graph — <c>@onsedna-graph-select</c>, <c>-open</c>, <c>-hover</c>, <c>-context</c>,
 /// <c>-connect</c>, <c>-expand</c>, <c>-collapse</c>, <c>-change</c> and <c>-ready</c> — and the
 /// rich-text editor — <c>@onsedna-editor-change</c>, <c>@onsedna-editor-ready</c> and
-/// <c>@onsedna-editor-media</c>.
+/// <c>@onsedna-editor-media</c> — and a pane or a diagram following what is newest,
+/// <c>@onsedna-follow</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -24,8 +25,8 @@ namespace Sedna.UI;
 /// </para>
 /// </remarks>
 [EventHandler("onsedna-dragstart", typeof(SednaDragEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
-[EventHandler("onsedna-drop", typeof(SednaDropEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
-[EventHandler("onsedna-dragend", typeof(SednaDragEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
+[EventHandler("onsedna-drop", typeof(SednaDropEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-dragend", typeof(SednaDragEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-graph-ready", typeof(SednaGraphEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-graph-change", typeof(SednaGraphEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-graph-select", typeof(SednaGraphNodeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
@@ -38,6 +39,7 @@ namespace Sedna.UI;
 [EventHandler("onsedna-editor-ready", typeof(SednaEditorEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-editor-change", typeof(SednaEditorEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-editor-media", typeof(SednaEditorMediaEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
+[EventHandler("onsedna-follow", typeof(SednaFollowEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 public static class EventHandlers
 {
 }

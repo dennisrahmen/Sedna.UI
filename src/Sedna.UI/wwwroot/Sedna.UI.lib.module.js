@@ -20,6 +20,7 @@ const events = [
     'sedna-graph-ready', 'sedna-graph-change', 'sedna-graph-select', 'sedna-graph-open', 'sedna-graph-hover',
     'sedna-graph-context', 'sedna-graph-connect', 'sedna-graph-expand', 'sedna-graph-collapse',
     'sedna-editor-ready', 'sedna-editor-change', 'sedna-editor-media',
+    'sedna-follow',
 ];
 
 let registered = false;
@@ -42,12 +43,16 @@ function started() {
     window.sednaUi?.editor?.release?.();
 }
 
-// A Blazor Web App calls the first; a standalone Blazor Server or WebAssembly app, the
-// second. Both may run in one page, and a name registered twice throws.
+// Every hosting model calls a different one of these: a Blazor Web App `afterWebStarted`
+// and then the one for the render mode that starts; a standalone WebAssembly app
+// `afterWebAssemblyStarted` instead of `afterStarted` once the module exports it; a
+// standalone Server app `afterStarted`, or `afterServerStarted` the same way. So each of
+// them registers, and `register` runs once however many are called — a name registered
+// twice throws. EventRegistrationTests holds the four exports and the event list.
 export function afterWebStarted(blazor) { register(blazor); }
 export function afterStarted(blazor) { register(blazor); started(); }
 
 // A Blazor Web App's interactive render replaces what was prerendered once its circuit,
 // or its WebAssembly runtime, has started.
-export function afterServerStarted() { started(); }
-export function afterWebAssemblyStarted() { started(); }
+export function afterServerStarted(blazor) { register(blazor); started(); }
+export function afterWebAssemblyStarted(blazor) { register(blazor); started(); }
