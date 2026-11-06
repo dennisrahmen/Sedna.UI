@@ -221,7 +221,11 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                   // element draws beside it is not taken for it.
                   // Within its own box: a word cut short with an ellipsis runs past it, invisibly.
                   const l = line ? Math.max(line.left, r.left) : 0, rr = line ? Math.min(line.right, r.right) : 0;
-                  const across = line && rr - l >= 1 ? { left: l, top: r.top, width: rr - l, height: r.height } : r;
+                  // Inside its border, so a painted item's own edge is not taken for its word.
+                  const ibt = parseFloat(c.borderTopWidth) || 0, ibb = parseFloat(c.borderBottomWidth) || 0;
+                  const across = line && rr - l >= 1
+                    ? { left: l, top: r.top + ibt, width: rr - l, height: r.height - ibt - ibb }
+                    : r;
                   items.push(box(across, isIcon(n) ? 'icon' : textOnly ? 'text' : 'box', name(n), n));
                 }
               }
