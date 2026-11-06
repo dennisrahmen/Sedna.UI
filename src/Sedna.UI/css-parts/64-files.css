@@ -38,6 +38,8 @@
 .file-icon > img { width: 100%; height: 100%; object-fit: cover; }
 .file-icon--sm { --file-icon-size: 28px; }
 .file-icon--sm > i { font-size: var(--text-6); }
+.file-icon--lg { --file-icon-size: 56px; }
+.file-icon--lg > i { font-size: var(--text-10); }
 .file-icon--pdf    { --file-icon-ink: var(--viz-1); }
 .file-icon--image  { --file-icon-ink: var(--viz-2); }
 .file-icon--slides { --file-icon-ink: var(--viz-3); }

@@ -12,6 +12,7 @@
     /* Keeps the ring on the text baseline instead of riding above it. */
     vertical-align: -0.125em;
 }
+.spinner--sm { width: 0.75em; height: 0.75em; border-width: 1.5px; }
 .spinner--lg { width: 24px; height: 24px; border-width: 3px; }
 
 @keyframes sedna-spin { to { transform: rotate(360deg); } }

@@ -274,4 +274,12 @@
     .list--stagger > li { animation: none; }
     .card-resize::before,
     .split-resize::before { transition: none; }
+    /* 69-busy — the spinner stands still; the bar is full width and still. */
+    :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
+        .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }
+    :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+        animation: none;
+        background-size: 100% 2px;
+        background-position: 0 0;
+    }
 }

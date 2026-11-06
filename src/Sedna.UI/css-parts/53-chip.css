@@ -28,6 +28,8 @@
     line-height: 1.6;
 }
 .chip--lg { min-height: var(--control-height); font-size: var(--text-4); padding-inline-start: var(--space-6); }
+/* A step under the default, for a chip inside a dense row or a table cell. */
+.chip--sm { min-height: calc(var(--control-height-sm) - 6px); font-size: var(--text-2); padding-block: 0; padding-inline-start: var(--space-4); }
 .chip--lg .chip-dismiss { width: 22px; height: 22px; }
 /* A chip with no dismiss button does not need the trailing room for one. */
 .chip:not(:has(.chip-dismiss)) { padding-inline-end: var(--space-5); }

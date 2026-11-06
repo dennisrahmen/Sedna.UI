@@ -88,6 +88,7 @@
      68-mochi.css
      68-workflow.css
      69-beam.css
+     69-busy.css
      69-motion.css
      69-timeline.css
      69-tone.css
@@ -4844,6 +4845,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     /* Keeps the ring on the text baseline instead of riding above it. */
     vertical-align: -0.125em;
 }
+.spinner--sm { width: 0.75em; height: 0.75em; border-width: 1.5px; }
 .spinner--lg { width: 24px; height: 24px; border-width: 3px; }
 
 @keyframes sedna-spin { to { transform: rotate(360deg); } }
@@ -5030,6 +5032,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     background: conic-gradient(var(--brand) var(--progress), var(--progress-track) 0);
     mask: radial-gradient(farthest-side, transparent calc(100% - var(--progress-ring-width)), currentColor calc(100% - var(--progress-ring-width) + 0.5px));
 }
+.progress-ring--sm { --progress-ring-size: 24px; --progress-ring-width: 3px; font-size: var(--text-1); }
 .progress-ring--lg { --progress-ring-size: 64px; --progress-ring-width: 6px; font-size: var(--text-4); }
 }
 
@@ -6837,6 +6840,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     font-size: var(--text-3);
 }
 .dropzone--sm i { font-size: var(--text-4); }
+/* A zone that is the page's main action — the first step of an import. */
+.dropzone--lg { padding: var(--space-11); gap: var(--space-5); font-size: var(--text-5); }
+.dropzone--lg i { font-size: var(--text-10); }
 
 /* ── File list ──────────────────────────────────────────────────────────────
    What was attached, and how to remove it. A real <ul>, so the count is announced.
@@ -8521,6 +8527,8 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     line-height: 1.6;
 }
 .chip--lg { min-height: var(--control-height); font-size: var(--text-4); padding-inline-start: var(--space-6); }
+/* A step under the default, for a chip inside a dense row or a table cell. */
+.chip--sm { min-height: calc(var(--control-height-sm) - 6px); font-size: var(--text-2); padding-block: 0; padding-inline-start: var(--space-4); }
 .chip--lg .chip-dismiss { width: 22px; height: 22px; }
 /* A chip with no dismiss button does not need the trailing room for one. */
 .chip:not(:has(.chip-dismiss)) { padding-inline-end: var(--space-5); }
@@ -8725,6 +8733,7 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
+.stack-bar--sm { height: 6px; }
 .stack-bar--lg { height: 18px; }
 .stack-bar-segment {
     --value: 0%;
@@ -8781,6 +8790,7 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     background: var(--progress-track);
     border-radius: var(--radius-pill);
 }
+.meter--sm { height: 6px; }
 .meter--lg { height: 18px; }
 .meter--labelled { margin-bottom: calc(var(--text-2) + var(--space-5)); }
 .meter--labelled:has(.meter-mark--above) { margin-top: calc(var(--text-2) + var(--space-5)); }
@@ -9447,6 +9457,8 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    in a row of stats the reader compares. The label, note and unit keep their size:
    only the figure steps down, so the tile still lines up with its neighbours. */
 .stat--sm .stat-value { font-size: var(--text-6); }
+/* A figure that is the point of the page — one tile on its own, a wall screen. */
+.stat--lg .stat-value { font-size: var(--text-10); }
 
 /* A unit or denominator that should not compete with the number. */
 .stat-unit { font-size: var(--text-4); font-weight: 500; color: var(--muted); }
@@ -12365,6 +12377,8 @@ dialog.sheet.sheet--dragging { transition: none; }
 .file-icon > img { width: 100%; height: 100%; object-fit: cover; }
 .file-icon--sm { --file-icon-size: 28px; }
 .file-icon--sm > i { font-size: var(--text-6); }
+.file-icon--lg { --file-icon-size: 56px; }
+.file-icon--lg > i { font-size: var(--text-10); }
 .file-icon--pdf    { --file-icon-ink: var(--viz-1); }
 .file-icon--image  { --file-icon-ink: var(--viz-2); }
 .file-icon--slides { --file-icon-ink: var(--viz-3); }
@@ -13425,6 +13439,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .agent-status-time { color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
 .agent-status:has(> .btn:last-child) { padding-inline-end: calc((var(--status-h) - var(--control-height-sm)) / 2 - 1px); }
 .agent-status > .btn { border-radius: 50%; }
+.agent-status--sm { --status-h: 24px; --status-orb: 14px; gap: var(--space-3); font-size: var(--text-3); }
 .agent-status--lg { --status-h: 44px; --status-orb: 32px; gap: var(--space-6); font-size: var(--text-6); }
 .agent-status--xl { --status-h: 64px; --status-orb: 48px; gap: var(--space-7); padding-inline-end: var(--space-10); font-size: var(--text-8); }
 .agent-status--warn { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-fg); }
@@ -13463,6 +13478,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 }
 .context-ring--warn   { --ring: var(--warn-fg); }
 .context-ring--danger { --ring: var(--danger-fg); }
+.context-ring--sm { --ring-size: 14px; --ring-width: 2px; }
 .context-ring--lg { --ring-size: 56px; --ring-width: 5px; }
 
 .skeleton--agent {
@@ -18074,6 +18090,84 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .chat-composer--prompt.beam:focus-within { --beam-fill: var(--surface-raised-2); }
 }
 
+/* ── 69-busy.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Busy and read-only, on every control and every surface ──────────────────
+   `aria-busy="true"` is what a screen reader is told, and the paint keys off the same
+   attribute, so the two cannot disagree — as `.btn[aria-busy]` does in 33-buttons.css.
+
+   A CONTROL whose action is running keeps its place and its label: its leading icon
+   turns into the spinner, it shows the progress cursor and takes no pointer, so a
+   second press cannot start the work twice. A control with no icon keeps its label and
+   only stops taking the pointer. The keyboard is not stopped — leave `disabled` off,
+   which would drop the focus — and the app ignores a second activation while it works.
+
+   A SURFACE whose content is being replaced — a card refreshing, a list reloading, a
+   dialog saving — keeps its content in place, dimmed and out of reach, with a 2px bar
+   running along its top edge. The bar is a background layer rather than a
+   pseudo-element, so no component's own ::before or ::after is taken; under reduced
+   motion it stands still, full width, and still says "busy".
+
+   `aria-readonly="true"` on a choice control — a select, a combo, a check, a switch, a
+   segmented group, a colour or a range — shows its value at full contrast on the
+   read-only surface a `readonly` text field has, and takes no pointer; 21-readonly.js
+   stops the keyboard changing it. BusyStateTests holds every family named here to
+   being one the sheet declares, and the lists to each other. */
+:is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
+    .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] {
+    cursor: progress;
+    pointer-events: none;
+}
+:is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
+    .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type {
+    position: relative;
+    color: transparent;
+}
+:is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
+    .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    inline-size: 1em;
+    block-size: 1em;
+    margin: auto;
+    border: 2px solid var(--muted);
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    box-sizing: border-box;
+    animation: sedna-spin var(--spin-duration) linear infinite;
+}
+
+:is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+    cursor: progress;
+    background-image: linear-gradient(var(--brand-soft), var(--brand-soft));
+    background-size: 30% 2px;
+    background-repeat: no-repeat;
+    background-position: -30% 0;
+    animation: sedna-busy-bar var(--progress-duration) ease-in-out infinite;
+}
+:is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] > * {
+    opacity: 0.55;
+    pointer-events: none;
+}
+@keyframes sedna-busy-bar {
+    to { background-position: 130% 0; }
+}
+
+:is(.form-select, .form-combo-box, .form-color)[aria-readonly="true"],
+.form-combo:has(.form-combo-input[aria-readonly="true"]) .form-combo-box {
+    background-color: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--fg);
+    pointer-events: none;
+}
+:is(.segmented, .form-range)[aria-readonly="true"],
+:is(.form-check, .switch):has(input[aria-readonly="true"]) {
+    pointer-events: none;
+}
+:is(.form-check, .switch):has(input[aria-readonly="true"]) input { opacity: 1; }
+}
+
 /* ── 69-motion.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Motion for rows ─────────────────────────────────────────────────────────
@@ -19844,6 +19938,14 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .list--stagger > li { animation: none; }
     .card-resize::before,
     .split-resize::before { transition: none; }
+    /* 69-busy — the spinner stands still; the bar is full width and still. */
+    :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
+        .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }
+    :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+        animation: none;
+        background-size: 100% 2px;
+        background-position: 0 0;
+    }
 }
 }
 

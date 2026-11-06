@@ -507,6 +507,26 @@ window.sednaUi = window.sednaUi || {};
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
 })(window.sednaUi);
+(function () {
+    function readonly(el) {
+        return el instanceof Element && !!el.closest('[aria-readonly="true"]')
+            && !!el.closest('input, select, .segmented, .form-combo');
+    }
+    document.addEventListener('click', function (e) {
+        var t = e.target;
+        if (t instanceof HTMLInputElement && (t.type === 'checkbox' || t.type === 'radio') && readonly(t)) e.preventDefault();
+    }, true);
+    document.addEventListener('keydown', function (e) {
+        var t = e.target;
+        if (!readonly(t)) return;
+        if (e.key === 'Tab' || e.key === 'Escape' || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (t instanceof HTMLInputElement && t.type === 'text') return;   // a combo's input carries `readonly` itself
+        e.preventDefault();
+    }, true);
+    document.addEventListener('mousedown', function (e) {
+        if (e.target instanceof HTMLSelectElement && readonly(e.target)) e.preventDefault();
+    }, true);
+})();
 (function (ui) {
     function selectedIn(list) {
         return Array.prototype.filter.call(
