@@ -87,6 +87,12 @@
         if (!panel) return;
         e.preventDefault();
         e.stopPropagation();
+        // A hover card clicked is pinned: shown, and no longer closed by the pointer leaving.
+        if (trigger.hasAttribute('data-popover-hover')) {
+            clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            show(panel, trigger);
+            return;
+        }
         if (wasOpen === panel) { wasOpen = null; hide(panel); return; }
         ui.popover.toggle(panel, trigger);
     });
@@ -100,6 +106,63 @@
         if (!panel) return;
         e.preventDefault();
         ui.popover.toggle(panel, trigger);
+    });
+
+    /* ── A hover card ──────────────────────────────────────────────────────
+       `data-popover-hover` beside `data-popover` also opens the panel when the pointer
+       rests on the trigger or the focus reaches it, after `--hover-delay`, and closes it a
+       moment after the pointer has left both the trigger and the panel — so the reader
+       can move onto the card to select or follow something in it. A click still pins it
+       open until it is dismissed. The panel is the app's, as for any popover. */
+    var hoverTimer = 0, leaveTimer = 0, hovered = null;
+
+    function delayOf(trigger) {
+        var d = parseFloat(getComputedStyle(trigger).getPropertyValue('--hover-delay'));
+        return isNaN(d) ? 400 : d;
+    }
+
+    function enter(trigger) {
+        var panel = target(trigger);
+        if (!panel) return;
+        clearTimeout(leaveTimer);
+        clearTimeout(hoverTimer);
+        hovered = panel;
+        hoverTimer = setTimeout(function () { show(panel, trigger); }, delayOf(trigger));
+    }
+
+    function leave() {
+        clearTimeout(hoverTimer);
+        var panel = hovered;
+        if (!panel) return;
+        clearTimeout(leaveTimer);
+        leaveTimer = setTimeout(function () {
+            var trigger = triggers.get(panel);
+            var stay = panel.matches(':hover') || panel.contains(document.activeElement)
+                || (trigger && (trigger.matches(':hover') || trigger === document.activeElement));
+            if (!stay) { hide(panel); hovered = null; }
+        }, 200);
+    }
+
+    document.addEventListener('pointerover', function (e) {
+        var el = e.target instanceof Element ? e.target : null;
+        if (!el) return;
+        var trigger = el.closest('[data-popover][data-popover-hover]');
+        if (trigger && !trigger.contains(e.relatedTarget)) { enter(trigger); return; }
+        if (hovered && hovered.contains(el)) clearTimeout(leaveTimer);
+    });
+    document.addEventListener('pointerout', function (e) {
+        var el = e.target instanceof Element ? e.target : null;
+        if (!el || !hovered) return;
+        var from = el.closest('[data-popover][data-popover-hover]') || (hovered.contains(el) ? hovered : null);
+        if (from && !from.contains(e.relatedTarget)) leave();
+    });
+    document.addEventListener('focusin', function (e) {
+        var trigger = e.target instanceof Element ? e.target.closest('[data-popover][data-popover-hover]') : null;
+        if (trigger) enter(trigger);
+    });
+    document.addEventListener('focusout', function (e) {
+        var el = e.target instanceof Element ? e.target : null;
+        if (el && (el.closest('[data-popover][data-popover-hover]') || (hovered && hovered.contains(el)))) leave();
     });
 
     /* The trigger says whether its panel is open, however the panel was closed:

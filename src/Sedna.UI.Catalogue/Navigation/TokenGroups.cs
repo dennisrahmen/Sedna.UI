@@ -177,7 +177,7 @@ internal static class TokenGroups
         new("Motion", [
             "--motion-fast", "--motion-mid", "--motion-slow",
             "--spin-duration", "--progress-duration", "--skeleton-duration", "--pulse-duration",
-            "--shimmer-duration", "--caret-duration", "--flow-duration", "--stagger-step",
+            "--shimmer-duration", "--caret-duration", "--flow-duration", "--stagger-step", "--hover-delay",
         ], Swatch: false),
 
         new("Density and metrics", [

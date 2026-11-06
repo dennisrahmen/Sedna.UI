@@ -34,6 +34,21 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Menu.AtThePointer" Title="At the pointer, with a submenu" Demo="ex-demo--block">
+    <p>
+        <strong>Live — right-click a row.</strong> <code>data-menu-context="&lt;id&gt;"</code> on
+        any element opens the <code>.menu</code> with that id and the <code>popover</code> attribute
+        where the reader right-clicked, or below the element for the <kbd>ContextMenu</kbd> key and
+        <kbd>Shift</kbd> <kbd>F10</kbd>; the script places an invisible <code>.menu-point</code>
+        there and the panel flips at the screen's edges as a dropdown does. The element it opened on
+        carries <code>data-menu-context-target</code> while it is open. A
+        <code>.menu-sub-anchor</code> holds an item with <code>data-menu-sub</code> and the
+        <code>.menu.menu-sub</code> it opens beside it. In every menu, <kbd>↑</kbd> <kbd>↓</kbd>
+        <kbd>Home</kbd> <kbd>End</kbd> move between items and <kbd>→</kbd> <kbd>←</kbd> enter and
+        leave a submenu.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Menu.ValueTriggerInATable" Title="A value trigger in a table cell" Demo="ex-demo--block">
     <p>
         <strong>Live — open one, then scroll the table sideways.</strong>

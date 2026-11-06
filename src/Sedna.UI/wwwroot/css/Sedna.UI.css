@@ -365,6 +365,7 @@
     --caret-duration:    1s;
     --flow-duration:     1.6s;
     --stagger-step:      30ms;
+    --hover-delay:       400ms;
     --radius-control: 5px;
     --radius-surface: 6px;
     --radius-panel:   8px;
@@ -5519,6 +5520,34 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .menu-anchor > .menu--start {
     position-area: block-end span-inline-end;
     justify-self: start;
+}
+.menu-sub-anchor { position: relative; anchor-name: --sedna-submenu; anchor-scope: --sedna-submenu; }
+.menu-sub-anchor > .menu-sub {
+    display: none;
+    position: fixed;
+    position-anchor: --sedna-submenu;
+    position-area: inline-end span-block-end;
+    position-try-fallbacks: flip-inline;
+    margin-block-start: calc(var(--space-2) * -1);
+    z-index: 550;
+}
+.menu-sub-anchor:is(:hover, :focus-within, [data-open]) > .menu-sub { display: block; }
+.menu-sub-anchor > .menu-item[data-menu-sub] > :last-child { margin-inline-start: auto; }
+.menu-point {
+    position: fixed;
+    inline-size: 0;
+    block-size: 0;
+    pointer-events: none;
+    anchor-name: --sedna-menu-point;
+}
+.menu[popover] {
+    inset: auto;
+    margin: 0;
+    position: fixed;
+    position-anchor: --sedna-menu-point;
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    z-index: 550;
 }
 .value-trigger {
     --value-trigger-measure: 10ch;

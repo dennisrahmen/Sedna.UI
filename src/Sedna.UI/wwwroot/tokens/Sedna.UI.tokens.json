@@ -364,6 +364,7 @@
         "--caret-duration": "1s",
         "--flow-duration": "1.6s",
         "--stagger-step": "30ms",
+        "--hover-delay": "400ms",
         "--radius-control": "5px",
         "--radius-surface": "6px",
         "--radius-panel": "8px",

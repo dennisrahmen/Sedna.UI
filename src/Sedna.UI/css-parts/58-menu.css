@@ -121,6 +121,47 @@
     justify-self: start;
 }
 
+/* ── A submenu ──────────────────────────────────────────────────────────────
+   An item that opens a further menu beside it: `.menu-sub-anchor` holds the item, which
+   carries `data-menu-sub` and `aria-haspopup="menu"`, and the `.menu.menu-sub` it opens.
+   It opens under the pointer and while the focus is inside — Right enters it and Left
+   leaves it, in 22-menu.js — beside the item, and flips to the other side where there
+   is no room. Anchored and fixed for the reason the dropdown is: a menu scrolls. */
+.menu-sub-anchor { position: relative; anchor-name: --sedna-submenu; anchor-scope: --sedna-submenu; }
+.menu-sub-anchor > .menu-sub {
+    display: none;
+    position: fixed;
+    position-anchor: --sedna-submenu;
+    position-area: inline-end span-block-end;
+    position-try-fallbacks: flip-inline;
+    margin-block-start: calc(var(--space-2) * -1);
+    z-index: 550;
+}
+.menu-sub-anchor:is(:hover, :focus-within, [data-open]) > .menu-sub { display: block; }
+.menu-sub-anchor > .menu-item[data-menu-sub] > :last-child { margin-inline-start: auto; }
+
+/* ── A menu at the pointer ──────────────────────────────────────────────────
+   `.menu` with the `popover` attribute, opened by `data-menu-context` where the
+   reader right-clicked. 22-menu.js places a 0×0 `.menu-point` there; the panel is
+   anchored to it like a dropdown to its trigger, so it flips at the screen's edges
+   with no measuring. The top layer, light dismiss and Escape are the platform's. */
+.menu-point {
+    position: fixed;
+    inline-size: 0;
+    block-size: 0;
+    pointer-events: none;
+    anchor-name: --sedna-menu-point;
+}
+.menu[popover] {
+    inset: auto;
+    margin: 0;
+    position: fixed;
+    position-anchor: --sedna-menu-point;
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    z-index: 550;
+}
+
 /* ── Value trigger ──────────────────────────────────────────────────────────
    A control that shows the CURRENT value of something and opens a menu to change it —
    a status, an assignee, a queue, a time range. It sits inside a line of text or a

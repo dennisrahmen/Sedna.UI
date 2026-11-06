@@ -676,6 +676,7 @@ window.sednaUi = window.sednaUi || {};
             return;
         }
         var item = e.target.closest('.menu-item');
+        if (item && item.hasAttribute('data-menu-sub')) return;
         if (item) { closeAll(null); return; }
         if (e.target.closest('.menu')) return;
         closeAll(null);
@@ -686,6 +687,121 @@ window.sednaUi = window.sednaUi || {};
         if (!open) return;
         closeAll(null);
         try { open.focus(); } catch (err) { /* detached */ }
+    });
+    function items(menu) {
+        return Array.prototype.filter.call(menu.querySelectorAll('.menu-item'), function (el) {
+            return el.closest('.menu') === menu && !el.disabled && el.getAttribute('aria-disabled') !== 'true'
+                && el.getClientRects().length > 0;
+        });
+    }
+    function subOf(item) {
+        var anchor = item.closest('.menu-sub-anchor');
+        return anchor ? anchor.querySelector(':scope > .menu-sub') : null;
+    }
+    function setSub(item, open) {
+        var anchor = item.closest('.menu-sub-anchor');
+        if (!anchor) return;
+        if (open) anchor.setAttribute('data-open', ''); else anchor.removeAttribute('data-open');
+        item.setAttribute('aria-expanded', String(open));
+    }
+    document.addEventListener('keydown', function (e) {
+        var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
+        var menu = item ? item.closest('.menu') : null;
+        if (!menu) return;
+        var list = items(menu), at = list.indexOf(item), next = null;
+        if (e.key === 'ArrowDown') next = list[(at + 1) % list.length];
+        else if (e.key === 'ArrowUp') next = list[(at - 1 + list.length) % list.length];
+        else if (e.key === 'Home') next = list[0];
+        else if (e.key === 'End') next = list[list.length - 1];
+        else if (e.key === (getComputedStyle(menu).direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight') && item.hasAttribute('data-menu-sub')) {
+            var sub = subOf(item);
+            if (sub) { setSub(item, true); next = items(sub)[0]; }
+        } else if (e.key === (getComputedStyle(menu).direction === 'rtl' ? 'ArrowRight' : 'ArrowLeft') && menu.classList.contains('menu-sub')) {
+            var opener = menu.parentElement && menu.parentElement.querySelector(':scope > [data-menu-sub]');
+            if (opener) { setSub(opener, false); next = opener; }
+        }
+        if (!next) return;
+        e.preventDefault();
+        next.focus();
+    });
+    document.addEventListener('focusout', function (e) {
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (!anchor || anchor.contains(e.relatedTarget)) return;
+        var opener = anchor.querySelector(':scope > [data-menu-sub]');
+        if (opener) setSub(opener, false);
+    });
+    document.addEventListener('pointerover', function (e) {
+        var opener = e.target instanceof Element ? e.target.closest('[data-menu-sub]') : null;
+        if (opener) opener.setAttribute('aria-expanded', 'true');
+    });
+    document.addEventListener('pointerout', function (e) {
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (!anchor || anchor.contains(e.relatedTarget) || anchor.hasAttribute('data-open')) return;
+        var opener = anchor.querySelector(':scope > [data-menu-sub]');
+        if (opener) opener.setAttribute('aria-expanded', 'false');
+    });
+    var point = null;
+    function pointAt(x, y) {
+        if (!point) {
+            point = document.createElement('span');
+            point.setAttribute('aria-hidden', 'true');
+            point.className = 'menu-point';
+            document.body.appendChild(point);
+        }
+        point.style.left = Math.round(x) + 'px';
+        point.style.top = Math.round(y) + 'px';
+        return point;
+    }
+    function openAt(panel, x, y, on) {
+        if (!panel || typeof panel.showPopover !== 'function') return;
+        pointAt(x, y);
+        var was = document.querySelector('[data-menu-context-target]');
+        if (was) was.removeAttribute('data-menu-context-target');
+        if (on) on.setAttribute('data-menu-context-target', '');
+        try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* closed */ }
+        try { panel.showPopover(); } catch (err2) { return; }
+        var first = items(panel)[0];
+        if (first) first.focus();
+    }
+    ui.menu.openAt = openAt;
+    var secondaryDown = false;
+    document.addEventListener('pointerdown', function (e) { if (e.button === 2) secondaryDown = true; }, true);
+    document.addEventListener('pointerup', function (e) { if (e.button === 2) secondaryDown = false; }, true);
+    document.addEventListener('contextmenu', function (e) {
+        var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
+        if (!on) return;
+        var panel = document.getElementById(on.getAttribute('data-menu-context'));
+        if (!panel) return;
+        e.preventDefault();
+        var x = e.clientX, y = e.clientY;
+        if (!secondaryDown) { openAt(panel, x, y, on); return; }
+        document.addEventListener('pointerup', function once(ev) {
+            if (ev.button !== 2) return;
+            document.removeEventListener('pointerup', once, true);
+            setTimeout(function () { openAt(panel, x, y, on); }, 0);
+        }, true);
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'ContextMenu' && !(e.key === 'F10' && e.shiftKey)) return;
+        var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
+        if (!on) return;
+        var panel = document.getElementById(on.getAttribute('data-menu-context'));
+        if (!panel) return;
+        e.preventDefault();
+        var r = on.getBoundingClientRect();
+        openAt(panel, r.left, r.bottom, on);
+    });
+    document.addEventListener('toggle', function (e) {
+        var panel = e.target;
+        if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]')) return;
+        var on = document.querySelector('[data-menu-context-target]');
+        if (on && on.getAttribute('data-menu-context') === panel.id) on.removeAttribute('data-menu-context-target');
+    }, true);
+    document.addEventListener('click', function (e) {
+        var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
+        if (!item || item.hasAttribute('data-menu-sub')) return;
+        var panel = item.closest('.menu[popover]');
+        try { if (panel && panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* closed */ }
     });
 })(window.sednaUi);
 (function (ui) {
@@ -744,6 +860,11 @@ window.sednaUi = window.sednaUi || {};
         if (!panel) return;
         e.preventDefault();
         e.stopPropagation();
+        if (trigger.hasAttribute('data-popover-hover')) {
+            clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            show(panel, trigger);
+            return;
+        }
         if (wasOpen === panel) { wasOpen = null; hide(panel); return; }
         ui.popover.toggle(panel, trigger);
     });
@@ -756,6 +877,52 @@ window.sednaUi = window.sednaUi || {};
         if (!panel) return;
         e.preventDefault();
         ui.popover.toggle(panel, trigger);
+    });
+    var hoverTimer = 0, leaveTimer = 0, hovered = null;
+    function delayOf(trigger) {
+        var d = parseFloat(getComputedStyle(trigger).getPropertyValue('--hover-delay'));
+        return isNaN(d) ? 400 : d;
+    }
+    function enter(trigger) {
+        var panel = target(trigger);
+        if (!panel) return;
+        clearTimeout(leaveTimer);
+        clearTimeout(hoverTimer);
+        hovered = panel;
+        hoverTimer = setTimeout(function () { show(panel, trigger); }, delayOf(trigger));
+    }
+    function leave() {
+        clearTimeout(hoverTimer);
+        var panel = hovered;
+        if (!panel) return;
+        clearTimeout(leaveTimer);
+        leaveTimer = setTimeout(function () {
+            var trigger = triggers.get(panel);
+            var stay = panel.matches(':hover') || panel.contains(document.activeElement)
+                || (trigger && (trigger.matches(':hover') || trigger === document.activeElement));
+            if (!stay) { hide(panel); hovered = null; }
+        }, 200);
+    }
+    document.addEventListener('pointerover', function (e) {
+        var el = e.target instanceof Element ? e.target : null;
+        if (!el) return;
+        var trigger = el.closest('[data-popover][data-popover-hover]');
+        if (trigger && !trigger.contains(e.relatedTarget)) { enter(trigger); return; }
+        if (hovered && hovered.contains(el)) clearTimeout(leaveTimer);
+    });
+    document.addEventListener('pointerout', function (e) {
+        var el = e.target instanceof Element ? e.target : null;
+        if (!el || !hovered) return;
+        var from = el.closest('[data-popover][data-popover-hover]') || (hovered.contains(el) ? hovered : null);
+        if (from && !from.contains(e.relatedTarget)) leave();
+    });
+    document.addEventListener('focusin', function (e) {
+        var trigger = e.target instanceof Element ? e.target.closest('[data-popover][data-popover-hover]') : null;
+        if (trigger) enter(trigger);
+    });
+    document.addEventListener('focusout', function (e) {
+        var el = e.target instanceof Element ? e.target : null;
+        if (el && (el.closest('[data-popover][data-popover-hover]') || (hovered && hovered.contains(el)))) leave();
     });
     document.addEventListener('toggle', function (e) {
         var panel = e.target;

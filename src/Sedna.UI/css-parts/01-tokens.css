@@ -583,7 +583,8 @@
     --shimmer-duration:  2.2s;   /* .text-shimmer, words an agent is still deciding */
     --caret-duration:    1s;     /* the caret on a streaming answer */
     --flow-duration:     1.6s;   /* a .workflow streak, one spacing along its way */
-    --stagger-step:      30ms;   /* between two rows arriving in .table--stagger, .list--stagger */
+    --stagger-step:      30ms;
+    --hover-delay:       400ms;  /* before a hover card opens under a resting pointer */   /* between two rows arriving in .table--stagger, .list--stagger */
 
     /* ── Corner rounding ────────────────────────────────────────────────────
        Named by role rather than by size, because "square off the controls" is the

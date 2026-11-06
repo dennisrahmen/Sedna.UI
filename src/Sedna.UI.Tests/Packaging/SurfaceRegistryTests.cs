@@ -22,6 +22,12 @@ public class SurfaceRegistryTests
     /// </summary>
     private static readonly string[] InvisibleHelpers = ["a", "textarea"];
 
+    /// <summary>
+    /// An element one part creates that nobody sees or reads, named with its part so the
+    /// exception cannot spread: the 0×0, aria-hidden point a menu at the pointer is anchored to.
+    /// </summary>
+    private static readonly (string File, string Tag)[] InvisibleAnchors = [("22-menu.js", "span")];
+
     private static string Lib(string relative) =>
         Path.Combine(Assets.ProjectDir, relative.Replace('/', Path.DirectorySeparatorChar));
 
@@ -127,7 +133,8 @@ public class SurfaceRegistryTests
             for (var i = 0; i < lines.Length; i++)
             {
                 foreach (Match m in Regex.Matches(lines[i], @"createElement(?:NS)?\(\s*(?:[^,()]+,\s*)?['""]([a-z0-9-]+)['""]"))
-                    if (!InvisibleHelpers.Contains(m.Groups[1].Value))
+                    if (!InvisibleHelpers.Contains(m.Groups[1].Value)
+                        && !InvisibleAnchors.Contains((Path.GetFileName(file), m.Groups[1].Value)))
                         problems.Add($"{Path.GetFileName(file)}:{i + 1}: creates <{m.Groups[1].Value}>");
                 if (Regex.IsMatch(lines[i], @"\.(innerHTML|outerHTML)\s*[+]?=|insertAdjacentHTML|document\.write"))
                     problems.Add($"{Path.GetFileName(file)}:{i + 1}: writes markup");

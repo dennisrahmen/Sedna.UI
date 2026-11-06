@@ -1,0 +1,23 @@
+<div style="padding-bottom:210px">
+    <table class="table">
+        <tbody>
+            <tr data-menu-context="order-menu" tabindex="0"><td>ORD-4182</td><td>Northwind Retail</td><td>Shipped</td></tr>
+            <tr data-menu-context="order-menu" tabindex="0"><td>ORD-4183</td><td>Alex Fischer</td><td>Open</td></tr>
+        </tbody>
+    </table>
+    <div class="menu" id="order-menu" popover>
+        <button class="menu-item" type="button"><i class="ri-file-copy-line"></i> Copy order number</button>
+        <div class="menu-sub-anchor">
+            <button class="menu-item" type="button" data-menu-sub aria-haspopup="menu" aria-expanded="false">
+                <i class="ri-flag-line"></i> Set status <i class="ri-arrow-right-s-line"></i>
+            </button>
+            <div class="menu menu-sub">
+                <button class="menu-item" type="button">Open</button>
+                <button class="menu-item" type="button">Shipped</button>
+                <button class="menu-item" type="button">On hold</button>
+            </div>
+        </div>
+        <hr class="menu-sep" />
+        <button class="menu-item menu-item--danger" type="button"><i class="ri-delete-bin-line"></i> Cancel order</button>
+    </div>
+</div>
