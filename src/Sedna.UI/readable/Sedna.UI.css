@@ -2410,7 +2410,11 @@ a.topbar-version--pre:hover {
     position: fixed;
     /* rtl-ok: Sedna.UI.js writes `left` in pixels after measuring, so a
        logical property here would be overwritten by a physical one anyway. */
-    top: 0; left: 0;
+    top: 0; left: 0; right: auto; bottom: auto;
+    /* A manual popover (00-layer.js), so the UA's popover box — centred by `inset: 0`
+       and auto margins — is given back. */
+    margin: 0;
+    overflow: visible;
     z-index: 1000;
     max-width: 280px;
     padding: var(--space-3) var(--space-5);

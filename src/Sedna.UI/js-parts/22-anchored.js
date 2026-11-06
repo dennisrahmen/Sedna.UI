@@ -99,4 +99,18 @@
         closeCombos(scroller);
     }, true);
 
+    /* The same rule for a trigger that leaves the document: a render that replaces the
+       button an open popover hangs off leaves the panel pointing at nothing. It closes,
+       as it would on a scroll that moved the trigger away (ui._.layer.whenGone). A menu
+       does the same from 22-menu.js, where it opens. */
+    document.addEventListener('toggle', function (e) {
+        var panel = e.target;
+        if (!panel || e.newState !== 'open' || !panel.matches || !panel.matches('.popover')) return;
+        var trigger = panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null;
+        if (!trigger) return;
+        ui._.layer.whenGone(trigger, function () {
+            try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* already closed */ }
+        });
+    }, true);
+
 })(window.sednaUi);

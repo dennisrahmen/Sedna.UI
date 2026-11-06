@@ -65,6 +65,81 @@ window.sednaUi = window.sednaUi || {};
     };
 })(window.sednaUi);
 (function (ui) {
+    var opened = [];     // modal dialogs, in the order they opened — the top layer's order
+    var listeners = [];
+    function isModal(el) {
+        try { return !!el && el.isConnected && el.matches('dialog:modal'); } catch (e) { return false; }
+    }
+    function topModal(except) {
+        for (var i = opened.length - 1; i >= 0; i--) {
+            if (opened[i] !== except && isModal(opened[i])) return opened[i];
+        }
+        var all;
+        try { all = document.querySelectorAll('dialog:modal'); } catch (e) { return null; }
+        for (var j = all.length - 1; j >= 0; j--) if (all[j] !== except) return all[j];
+        return null;
+    }
+    function raise(node, except) {
+        if (!node) return;
+        var parent = topModal(except) || document.body;
+        if (!parent) return;
+        if (node.parentNode !== parent) {
+            var focused = node.contains(document.activeElement) ? document.activeElement : null;
+            parent.appendChild(node);
+            if (focused && focused !== document.activeElement) {
+                try { focused.focus({ preventScroll: true }); } catch (e) { /* refused */ }
+            }
+        }
+        if (!node.hasAttribute('popover')) node.setAttribute('popover', 'manual');
+        try {
+            if (node.matches(':popover-open')) node.hidePopover();
+            node.showPopover();
+        } catch (e) { /* no popover support: its z-index is the fallback */ }
+    }
+    function track(e) {
+        var dialog = e.target;
+        if (!(dialog instanceof HTMLDialogElement)) return;
+        var closing = e.type === 'close' || e.newState === 'closed';
+        var at = opened.indexOf(dialog);
+        if (at >= 0) opened.splice(at, 1);
+        if (!closing && isModal(dialog)) opened.push(dialog);
+        for (var i = 0; i < listeners.length; i++) {
+            try { listeners[i](closing ? dialog : null); } catch (err) { /* one listener must not stop the rest */ }
+        }
+    }
+    document.addEventListener('beforetoggle', track, true);
+    document.addEventListener('toggle', track, true);
+    document.addEventListener('close', track, true);
+    var watched = [];
+    var observer = null;
+    function check() {
+        var gone = watched.filter(function (w) { return !w.el.isConnected; });
+        if (!gone.length) return;
+        watched = watched.filter(function (w) { return w.el.isConnected; });
+        if (!watched.length && observer) { observer.disconnect(); observer = null; }
+        gone.forEach(function (w) { try { w.fn(); } catch (e) { /* the next one still runs */ } });
+    }
+    function whenGone(el, fn) {
+        if (!el || typeof MutationObserver !== 'function') return function () { };
+        var entry = { el: el, fn: fn };
+        watched.push(entry);
+        if (!observer) {
+            observer = new MutationObserver(check);
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        }
+        return function () {
+            watched = watched.filter(function (w) { return w !== entry; });
+            if (!watched.length && observer) { observer.disconnect(); observer = null; }
+        };
+    }
+    ui._.layer = {
+        topModal: topModal,
+        raise: raise,
+        onChange: function (fn) { listeners.push(fn); },
+        whenGone: whenGone
+    };
+})(window.sednaUi);
+(function (ui) {
     var core = ui._;
     var config = core.config, key = core.key, readRaw = core.readRaw;
     function systemPrefersLight() {
@@ -199,13 +274,15 @@ window.sednaUi = window.sednaUi || {};
     ui.tips = (function () {
         var tipEl = null, showTimer = null, current = null;
         var SHOW_DELAY = 130;   // ms — long enough not to flash on a passing cursor
+        var unwatch = null;
         function ensureEl() {
             if (!tipEl) {
                 tipEl = document.createElement('div');
                 tipEl.className = 'sedna-tip';
                 tipEl.setAttribute('role', 'tooltip');
-                document.body.appendChild(tipEl);
+                tipEl.setAttribute('popover', 'manual');
             }
+            ui._.layer.raise(tipEl);
             return tipEl;
         }
         function trigger(t) {
@@ -230,6 +307,8 @@ window.sednaUi = window.sednaUi || {};
             var vis = (el.innerText || '').trim();
             if (vis && vis.indexOf(tip) !== -1 && !clipped(el)) return hide();
             put(tip, el.getBoundingClientRect(), el.getAttribute('data-tip-pos'));
+            if (unwatch) unwatch();
+            unwatch = ui._.layer.whenGone(el, function () { unwatch = null; if (current === el || held === el) { held = null; hide(); } });
         }
         function put(text, r, preferred) {
             var box = ensureEl();
@@ -261,8 +340,15 @@ window.sednaUi = window.sednaUi || {};
         function hide() {
             current = null;
             clearTimeout(showTimer);
+            if (unwatch) { unwatch(); unwatch = null; }
             if (tipEl) tipEl.classList.remove('sedna-tip--visible');
         }
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape' || !tipEl || !tipEl.classList.contains('sedna-tip--visible')) return;
+            hide();
+            e.preventDefault();
+            e.stopPropagation();
+        }, true);
         document.addEventListener('mouseover', function (e) {
             var el = trigger(e.target);
             if (el) show(el);
@@ -535,6 +621,15 @@ window.sednaUi = window.sednaUi || {};
         closePopovers(scroller);
         closeCombos(scroller);
     }, true);
+    document.addEventListener('toggle', function (e) {
+        var panel = e.target;
+        if (!panel || e.newState !== 'open' || !panel.matches || !panel.matches('.popover')) return;
+        var trigger = panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null;
+        if (!trigger) return;
+        ui._.layer.whenGone(trigger, function () {
+            try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* already closed */ }
+        });
+    }, true);
 })(window.sednaUi);
 (function (ui) {
     function panelOf(toggle) {
@@ -544,6 +639,9 @@ window.sednaUi = window.sednaUi || {};
     function setOpen(toggle, panel, open) {
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        if (open && ui._.layer) {
+            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) panel.hidden = true; });
+        }
     }
     function closeAll(except) {
         var toggles = document.querySelectorAll('[data-menu-toggle][aria-expanded="true"]');
@@ -3914,45 +4012,13 @@ window.sednaUi = window.sednaUi || {};
         info: 'ri-information-line'
     };
     var host = null;     // our stack, while it exists
-    var opened = [];     // modal dialogs, in the order they opened — the top layer's order
-    var watch = null;    // notices the dialog holding the stack being removed
-    function isModal(el) {
-        try { return !!el && el.isConnected && el.matches('dialog:modal'); } catch (e) { return false; }
-    }
-    function topModal(except) {
-        for (var i = opened.length - 1; i >= 0; i--) {
-            if (opened[i] !== except && isModal(opened[i])) return opened[i];
-        }
-        var all;
-        try { all = document.querySelectorAll('dialog:modal'); } catch (e) { return null; }
-        for (var j = all.length - 1; j >= 0; j--) if (all[j] !== except) return all[j];
-        return null;
-    }
+    var unwatch = null;  // stops watching for the stack being taken out with a dialog
+    var layer = ui._.layer;
     function raise(except) {
         if (!host) return;
-        var parent = topModal(except) || document.body;
-        if (host.parentNode !== parent) {
-            var focused = host.contains(document.activeElement) ? document.activeElement : null;
-            parent.appendChild(host);
-            if (focused && focused !== document.activeElement) {
-                try { focused.focus({ preventScroll: true }); } catch (e) { /* refused */ }
-            }
-        }
-        try {
-            if (host.matches(':popover-open')) host.hidePopover();
-            host.showPopover();
-        } catch (e) { /* no popover support: z-index 600 is the fallback */ }
-        follow(parent !== document.body ? parent : null);
-    }
-    function follow(dialog) {
-        if (watch) { watch.disconnect(); watch = null; }
-        if (!dialog) return;
-        try {
-            watch = new MutationObserver(function () {
-                if (host && !host.isConnected) raise();
-            });
-            watch.observe(document.body, { childList: true, subtree: true });
-        } catch (e) { /* no observer: the next toast finds it */ }
+        layer.raise(host, except);
+        if (unwatch) unwatch();
+        unwatch = layer.whenGone(host, function () { unwatch = null; if (host && host.children.length) raise(); });
     }
     function stack() {
         if (host && !host.isConnected && host.children.length) {
@@ -3973,24 +4039,14 @@ window.sednaUi = window.sednaUi || {};
     function drop(el) {
         if (el.parentNode) el.parentNode.removeChild(el);
         if (host && !host.children.length) {
-            follow(null);
+            if (unwatch) { unwatch(); unwatch = null; }
             if (host.parentNode) host.parentNode.removeChild(host);
             host = null;
         }
     }
-    function track(e) {
-        var dialog = e.target;
-        if (!(dialog instanceof HTMLDialogElement)) return;
-        var closing = e.type === 'close' || e.newState === 'closed';
-        var at = opened.indexOf(dialog);
-        if (at >= 0) opened.splice(at, 1);
-        if (!closing && isModal(dialog)) opened.push(dialog);
-        if (host && host.children.length) raise(closing ? dialog : null);
-    }
-    document.addEventListener('beforetoggle', track, true);
-    document.addEventListener('toggle', track, true);
-    document.addEventListener('close', track, true);
+    layer.onChange(function (closing) { if (host && host.children.length) raise(closing); });
     var live = {};       // id -> { el, remove, timer }
+    var REGION_SETTLE_MS = 150;
     var nextId = 1;
     function paint(entry, message, opts) {
         opts = opts || {};
@@ -4026,12 +4082,36 @@ window.sednaUi = window.sednaUi || {};
             el.appendChild(close);
         }
         clearTimeout(entry.timer);
+        entry.timer = 0;
         var ms = opts.timeout === undefined ? 4000 : opts.timeout;
-        entry.timer = ms > 0 ? setTimeout(entry.remove, ms) : 0;
+        entry.left = ms;
+        entry.started = Date.now();
+        entry.timer = ms > 0 && !entry.held ? setTimeout(entry.remove, ms) : 0;
+    }
+    function hold(entry) {
+        if (entry.held) return;
+        entry.held = true;
+        if (!entry.timer) return;
+        clearTimeout(entry.timer);
+        entry.timer = 0;
+        entry.left = Math.max(0, entry.left - (Date.now() - entry.started));
+    }
+    function release(entry) {
+        if (!entry.held) return;
+        entry.held = false;
+        if (entry.left > 0 && !entry.timer) {
+            entry.started = Date.now();
+            entry.left = Math.max(entry.left, 1000);
+            entry.timer = setTimeout(entry.remove, entry.left);
+        }
     }
     ui.toast = function (message, opts) {
         var id = nextId++;
-        var entry = { el: document.createElement('div'), timer: 0 };
+        var entry = { el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0 };
+        entry.el.addEventListener('mouseenter', function () { hold(entry); });
+        entry.el.addEventListener('mouseleave', function () { if (!entry.el.contains(document.activeElement)) release(entry); });
+        entry.el.addEventListener('focusin', function () { hold(entry); });
+        entry.el.addEventListener('focusout', function (e) { if (!entry.el.contains(e.relatedTarget) && !entry.el.matches(':hover')) release(entry); });
         entry.remove = function () {
             clearTimeout(entry.timer);
             delete live[id];
@@ -4039,8 +4119,15 @@ window.sednaUi = window.sednaUi || {};
         };
         entry.remove.id = id;
         live[id] = entry;
+        var fresh = !host || !host.isConnected;
         paint(entry, message, opts);
-        host.appendChild(entry.el);
+        if (fresh) {
+            entry.el.hidden = true;
+            host.appendChild(entry.el);
+            setTimeout(function () { entry.el.hidden = false; }, REGION_SETTLE_MS);
+        } else {
+            host.appendChild(entry.el);
+        }
         return entry.remove;
     };
     ui.toast.show = function (message, opts) {

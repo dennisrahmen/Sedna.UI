@@ -25,6 +25,11 @@
     function setOpen(toggle, panel, open) {
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        // A render that removes the toggle of an open menu leaves the panel pointing at
+        // nothing; it closes, as a hint does when its trigger goes.
+        if (open && ui._.layer) {
+            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) panel.hidden = true; });
+        }
     }
 
     function closeAll(except) {

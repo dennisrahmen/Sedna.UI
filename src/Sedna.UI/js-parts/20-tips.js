@@ -9,6 +9,11 @@
 
    On touch there is no hover, so press and hold shows the hint instead — see the
    pointer handlers at the end.
+
+   Over an open modal <dialog> the bubble would be painted under it, so it is a manual
+   popover moved into the modal on top whenever it shows (ui._.layer, 00-layer.js). It
+   goes when its trigger leaves the document — a render that replaced the element while
+   it was hovered — and Escape dismisses it without closing the dialog it sits in.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -16,13 +21,16 @@
         var tipEl = null, showTimer = null, current = null;
         var SHOW_DELAY = 130;   // ms — long enough not to flash on a passing cursor
 
+        var unwatch = null;
         function ensureEl() {
             if (!tipEl) {
                 tipEl = document.createElement('div');
                 tipEl.className = 'sedna-tip';
                 tipEl.setAttribute('role', 'tooltip');
-                document.body.appendChild(tipEl);
+                tipEl.setAttribute('popover', 'manual');
             }
+            // Into the modal on top, if one is open, and above it.
+            ui._.layer.raise(tipEl);
             return tipEl;
         }
 
@@ -61,6 +69,8 @@
             if (vis && vis.indexOf(tip) !== -1 && !clipped(el)) return hide();
 
             put(tip, el.getBoundingClientRect(), el.getAttribute('data-tip-pos'));
+            if (unwatch) unwatch();
+            unwatch = ui._.layer.whenGone(el, function () { unwatch = null; if (current === el || held === el) { held = null; hide(); } });
         }
 
         // The bubble, holding `text`, beside the viewport rectangle `r`.
@@ -103,8 +113,17 @@
         function hide() {
             current = null;
             clearTimeout(showTimer);
+            if (unwatch) { unwatch(); unwatch = null; }
             if (tipEl) tipEl.classList.remove('sedna-tip--visible');
         }
+        // Dismissible without moving the pointer or the focus (WCAG 1.4.13). The press is
+        // taken, so the dialog the hint sits in stays open; the next Escape closes it.
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape' || !tipEl || !tipEl.classList.contains('sedna-tip--visible')) return;
+            hide();
+            e.preventDefault();
+            e.stopPropagation();
+        }, true);
 
         document.addEventListener('mouseover', function (e) {
             var el = trigger(e.target);

@@ -1173,7 +1173,9 @@ a.topbar-version--pre:hover {
 @layer sedna.frame {
 .sedna-tip {
     position: fixed;
-    top: 0; left: 0;
+    top: 0; left: 0; right: auto; bottom: auto;
+    margin: 0;
+    overflow: visible;
     z-index: 1000;
     max-width: 280px;
     padding: var(--space-3) var(--space-5);
