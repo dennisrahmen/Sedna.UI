@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://github.com/dennisrahmen/Sedna.UI/security/advisories/new
+    about: Anything a page's visitor could exploit is reported privately. See SECURITY.md.
+  - name: Catalogue
+    url: https://www.sedna-ui.com/
+    about: Every class, token and example, with the release it first shipped in. Check here before asking for something.
+  - name: How requests are handled
+    url: https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/issues.md
+    about: The rules every issue and pull request is judged by.

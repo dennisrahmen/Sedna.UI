@@ -490,10 +490,10 @@ engine is [Quill](https://quilljs.com/) 2, vendored with the licences of what it
 - CSS classes: semantic, lowercase-kebab, no app or vendor prefix. Library-owned utilities that need a
   namespace use `sedna-` (`.sedna-scroll`, `.sedna-tip`); everything else is plain (`.card`, `.btn--go.btn--solid`).
 - **A plain name is a claim on the shared namespace.** An app that already styles that class silently
-  gets the library's rules merged with its own on upgrade — no error, just a changed appearance. Before
-  adding a plain generic name (`.list`, `.menu`, `.row`, `.tag`, `.pager`), check it against the apps
-  known to consume this library, and prefer a name none of them uses when the meanings differ. Every
-  release lists the class names it adds, so a consuming app can grep its own CSS before bumping.
+  gets the library's rules merged with its own on upgrade — no error, just a changed appearance. Prefer a
+  modifier on an existing block, or a name that fits its family, over a bare generic word (`.list`,
+  `.menu`, `.row`, `.tag`, `.pager`). Every release lists the class names it adds; that list is how a
+  consuming app greps its own CSS for a collision before bumping.
 - Modifiers: `--` suffix on the block (`.nav-status-card--ok`, `.tab--active`).
 - Semantic families across buttons, badges and alerts: `go` (sends outward), `warn` (control changes),
   `danger`, `info`, `secret`, plus `cyan` / `orange` / `teal` as categorical hues with no meaning.
@@ -590,6 +590,13 @@ The library uses none, and a test enforces it. Inside a cascade layer an `!impor
 declaration becomes *harder* for an app to override rather than easier, because layer order inverts for
 important declarations — so `!important` here would defeat the override model. Raise specificity instead
 (see `.nav-link .nav-link-ext`).
+
+## Outside requests
+
+Issues, feature requests, pull requests and suggestions from anyone other than the owner are judged,
+built, answered and closed by `docs/issues.md`. Read it before replying to, implementing or closing
+one: it says what an agent decides alone and what it asks the owner. Security reports follow
+`SECURITY.md`.
 
 ## Releasing
 

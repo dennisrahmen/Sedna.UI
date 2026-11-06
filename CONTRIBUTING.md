@@ -15,14 +15,31 @@ rename are weighed against every app already using the old name.
 A release can also be major with nothing renamed or removed: changing an existing rule enough to move
 layout or colour, and making an existing app override stop working, both count. So does adding a class
 whose name a consuming app already styles — the two sets of declarations merge and the app's appearance
-changes with no error. New class names are therefore checked against the apps known to consume this
-package, and every release lists the names it adds.
+changes with no error. Every release therefore lists the class names it adds, so you can grep your own
+stylesheets before bumping.
 
 Until a release lands, use an **app-prefixed** variable (`--myapp-…`) in your own stylesheet rather than a
 new bare `--` name, which a future library version could claim with a different meaning. Do not override
 library classes in an app; the next upgrade will fight you.
 
+## How a request is handled
+
+Anyone may open an issue, and every request is judged on the same rules, which are in
+[docs/issues.md](docs/issues.md). In short:
+
+- A request is often built wider than it was asked: where other components have the same gap, the fix
+  covers all of them, and the name or shape may differ from the one you proposed.
+- A request the design rules forbid, or UI that only one app needs, is declined with the rule and with
+  the way your app can build it from the library's classes.
+- Replies are posted by an agent on the owner's behalf and say so in their footer. A reply says "the
+  next release" rather than a version number. An accepted issue closes when a release contains it.
+- An issue waiting on an answer from you closes after 30 days, and can be reopened.
+
 ## Pull requests
+
+A pull request is judged like an issue. Accepted work is rebuilt in the library's shape — the system,
+the tests, the catalogue page — on a branch of the repository, with you credited as co-author, and your
+pull request is closed with a link to it. Opening an issue first saves you the work.
 
 By contributing you agree your contribution is licensed under [Apache-2.0](LICENSE), as stated in §5 of
 that licence.
@@ -50,7 +67,10 @@ See [docs/development.md](docs/development.md) for what each guard covers.
   `<DataTable>` hides markup from whoever edits the page. See
   [docs/architecture.md](docs/architecture.md).
 - **UI the library draws.** A confirmation, a prompt or a panel built by the script. The app writes it and
-  a presenter shows it; the toast and the hover-hint bubble are the only exceptions.
+  a presenter shows it; the surfaces in [docs/surfaces.md](docs/surfaces.md) are the only exceptions, and
+  a new surface is the owner's decision.
+- **Anything below the floors** — WCAG AA contrast, a keyboard path, both browser engines, forced
+  colours.
 - **A dependency on MudBlazor, Syncfusion, Radzen or Tailwind.**
 - **A second icon set.** Remix Icon is bundled and is the only one.
 - **Colour literals in the library CSS.** Every colour resolves through a token; a test enforces it.
@@ -75,6 +95,9 @@ both humans and AI agents working in this repo.
 Include the library version, the browser, and the smallest markup that reproduces it. If it is visual,
 state which theme and variant (`data-theme`, `data-variant`, `data-cvd`, `data-density`) it appears
 under: a visual defect is often variant-specific.
+
+A security problem that a page's visitor could exploit is reported privately — see
+[SECURITY.md](SECURITY.md).
 
 ## Maintainers
 
