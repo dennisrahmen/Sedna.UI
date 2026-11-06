@@ -139,6 +139,10 @@ public sealed class SednaUi : ISednaUi
     public Task CloseMenusAsync() => _js.InvokeVoidAsync("sednaUi.menu.closeAll").AsTask();
 
     /// <inheritdoc />
+    public Task<bool> OpenMenuAtAsync(string menuId, double clientX, double clientY, string? targetId = null)
+        => _js.InvokeAsync<bool>("sednaUi.menu.openAt", menuId, clientX, clientY, targetId).AsTask();
+
+    /// <inheritdoc />
     public Task ScrollPageTopAsync() => _js.InvokeVoidAsync("sednaUi.scrollPageTop").AsTask();
 
     /// <inheritdoc />

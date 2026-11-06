@@ -55,6 +55,17 @@ public class InteropTests : BunitContext
     }
 
     [Fact]
+    public async Task A_menu_opens_at_a_point_by_its_id_and_the_id_of_what_it_is_about()
+    {
+        JSInterop.Setup<bool>("sednaUi.menu.openAt", _ => true).SetResult(true);
+
+        Assert.True(await Wrapper().OpenMenuAtAsync("tile-menu", 412.5, 230, "tile-orders-console-01"));
+
+        var call = Only("sednaUi.menu.openAt");
+        Assert.Equal(["tile-menu", 412.5, 230.0, "tile-orders-console-01"], call.Arguments);
+    }
+
+    [Fact]
     public async Task A_toast_handle_dismisses_and_replaces_the_toast_it_names()
     {
         JSInterop.Setup<int>("sednaUi.toast.show", _ => true).SetResult(3);

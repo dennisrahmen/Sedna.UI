@@ -47,6 +47,13 @@
         <kbd>Home</kbd> <kbd>End</kbd> move between items and <kbd>→</kbd> <kbd>←</kbd> enter and
         leave a submenu.
     </p>
+    <p>
+        For a menu your own code decides to open, call
+        <code>sednaUi.menu.openAt('order-menu', event.clientX, event.clientY, row)</code> &mdash;
+        elements or ids &mdash; or <a href="/interop"><code>ISednaUi.OpenMenuAtAsync</code></a> from
+        C#. It answers whether a menu opened. A scroll that moves the element it is about closes it,
+        and one opened at a bare point closes on any scroll outside it.
+    </p>
 </CatExample>
 
 <CatExample TExample="Examples.Menu.ValueTriggerInATable" Title="A value trigger in a table cell" Demo="ex-demo--block">

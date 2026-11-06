@@ -285,6 +285,30 @@ public interface ISednaUi
     /// <remarks>Call after navigating: a menu can otherwise survive a back-navigation.</remarks>
     Task CloseMenusAsync();
 
+    /// <summary>
+    /// Opens a <c>.menu[popover]</c> the app wrote at a point on screen — where the reader
+    /// right-clicked — as <c>data-menu-context</c> does, for a menu the app decides to open
+    /// after checks of its own.
+    /// </summary>
+    /// <param name="menuId">The <c>id</c> of the <c>.menu</c>, which carries <c>popover</c>.</param>
+    /// <param name="clientX">The point's x in viewport pixels: <c>MouseEventArgs.ClientX</c>.</param>
+    /// <param name="clientY">The point's y in viewport pixels: <c>MouseEventArgs.ClientY</c>.</param>
+    /// <param name="targetId">
+    /// The <c>id</c> of the element the menu is about, which carries
+    /// <c>data-menu-context-target</c> while it is open. A scroll that moves it closes the menu;
+    /// without one, any scroll outside the menu does.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> once the menu is opening; <see langword="false"/> when no
+    /// <c>popover</c> element has that id.
+    /// </returns>
+    /// <remarks>
+    /// The panel flips at the screen's edges in CSS, the focus moves to its first item, and an
+    /// outside click and <kbd>Escape</kbd> close it — the platform's own popover behaviour.
+    /// Call it from an <c>@oncontextmenu</c> handler with <c>@oncontextmenu:preventDefault</c>.
+    /// </remarks>
+    Task<bool> OpenMenuAtAsync(string menuId, double clientX, double clientY, string? targetId = null);
+
     /// <summary>Scrolls the frame's page column back to the top.</summary>
     /// <returns>A task that completes once it is scrolled.</returns>
     /// <remarks>

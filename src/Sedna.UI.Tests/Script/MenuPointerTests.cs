@@ -43,6 +43,68 @@ public class MenuPointerTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task The_app_opens_a_menu_at_a_point_by_id_and_hears_whether_it_opened()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Menu);
+        var opened = await page.EvaluateAsync<bool[]>("""
+            () => [sednaUi.menu.openAt('m', 160, 115, 'row'), sednaUi.menu.openAt('no-such-menu', 0, 0)]
+            """);
+        Assert.Equal([true, false], opened);
+        await Assertions.Expect(page.Locator("#m")).ToBeVisibleAsync();
+        Assert.Equal("copy", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+        Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('row').hasAttribute('data-menu-context-target')"));
+
+        await page.Keyboard.PressAsync("Escape");
+        await Assertions.Expect(page.Locator("#m")).ToBeHiddenAsync();
+        // The toggle event that clears it is a task of its own, after the panel hides.
+        await page.WaitForFunctionAsync("() => !document.getElementById('row').hasAttribute('data-menu-context-target')");
+        Assert.Empty(errors);
+    }
+
+    [Theory]
+    [InlineData("'row'")]
+    [InlineData("null")]
+    public async Task A_menu_at_a_point_closes_when_the_page_scrolls_from_under_it(string about)
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled($"""
+            <div id="scroller" style="height:300px; overflow:auto">
+              <div style="height:1200px; padding-top:100px">
+                <div id="row" style="width:300px;height:40px">ORD-4182</div>
+              </div>
+            </div>
+            <div id="other" style="height:100px; overflow:auto"><div style="height:400px"></div></div>
+            <div class="menu" id="m" popover style="max-height:80px; overflow:auto">
+              <button class="menu-item" type="button">Copy</button><button class="menu-item" type="button">Open</button>
+              <button class="menu-item" type="button">Pin</button><button class="menu-item" type="button">Cancel order</button>
+            </div>
+            """);
+        async Task<bool> Open() => await page.EvaluateAsync<bool>("() => document.getElementById('m').matches(':popover-open')");
+        async Task Scroll(string id, string by) =>
+            await page.EvaluateAsync($"() => {{ document.getElementById('{id}').scrollTop += {by}; }}");
+
+        await page.EvaluateAsync($"() => sednaUi.menu.openAt('m', 160, 115, {about})");
+        Assert.True(await Open());
+
+        await Scroll("m", "40");          // the menu's own list, never
+        await page.WaitForTimeoutAsync(50);
+        Assert.True(await Open());
+
+        if (about != "null")
+        {
+            await Scroll("other", "40");  // a scroller that does not hold what it is about
+            await page.WaitForTimeoutAsync(50);
+            Assert.True(await Open());
+        }
+
+        await Scroll("scroller", "60");
+        await page.WaitForTimeoutAsync(50);
+        Assert.False(await Open());
+        Assert.Empty(errors);
+    }
+
+    [Fact]
     public async Task The_arrow_keys_move_through_the_menu_and_into_and_out_of_a_submenu()
     {
         if (NoBrowser) return;

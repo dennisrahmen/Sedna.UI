@@ -70,6 +70,29 @@
         }
     }
 
+    /* A menu opened at the pointer (22-menu.js) hangs off a point fixed to the viewport, so
+       the page moving under it is what makes it stale: a scroll that moves the element it
+       is about, or any scroll outside it when it is about no element. A `.menu[popover]`
+       opened by a popovertarget button follows the button, as a popover does. */
+    function closePointMenus(scroller) {
+        var open;
+        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        catch (err) { return; }
+
+        for (var i = 0; i < open.length; i++) {
+            var panel = open[i];
+            var origin = ui._.menuOrigin ? ui._.menuOrigin(panel) : undefined;
+            var close = origin === null
+                ? !(panel === scroller || panel.contains(scroller))
+                : stale(scroller, panel, origin === undefined
+                    ? (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null)
+                    : origin);
+            if (close) {
+                try { panel.hidePopover(); } catch (err2) { /* already closing */ }
+            }
+        }
+    }
+
     /* A combo field's panel hangs off its box the same way. An inline one is in
        the flow and has nothing to go stale. */
     function closeCombos(scroller) {
@@ -94,6 +117,7 @@
         var scroller = scrolledElement(e.target);
         if (!scroller) return;
         closeMenus(scroller);
+        closePointMenus(scroller);
         closePopovers(scroller);
         closeCombos(scroller);
     }, true);

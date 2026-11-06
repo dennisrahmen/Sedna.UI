@@ -633,6 +633,23 @@ window.sednaUi = window.sednaUi || {};
             }
         }
     }
+    function closePointMenus(scroller) {
+        var open;
+        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        catch (err) { return; }
+        for (var i = 0; i < open.length; i++) {
+            var panel = open[i];
+            var origin = ui._.menuOrigin ? ui._.menuOrigin(panel) : undefined;
+            var close = origin === null
+                ? !(panel === scroller || panel.contains(scroller))
+                : stale(scroller, panel, origin === undefined
+                    ? (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null)
+                    : origin);
+            if (close) {
+                try { panel.hidePopover(); } catch (err2) { /* already closing */ }
+            }
+        }
+    }
     function closeCombos(scroller) {
         var open = document.querySelectorAll('[data-combo] .form-combo-input[aria-expanded="true"]');
         for (var i = 0; i < open.length; i++) {
@@ -647,6 +664,7 @@ window.sednaUi = window.sednaUi || {};
         var scroller = scrolledElement(e.target);
         if (!scroller) return;
         closeMenus(scroller);
+        closePointMenus(scroller);
         closePopovers(scroller);
         closeCombos(scroller);
     }, true);
@@ -818,6 +836,7 @@ window.sednaUi = window.sednaUi || {};
         if (opener) opener.setAttribute('aria-expanded', 'false');
     });
     var point = null;
+    var origins = new WeakMap();   // a menu opened at a point -> the element it is about, or null
     function pointAt(x, y) {
         if (!point) {
             point = document.createElement('span');
@@ -829,9 +848,25 @@ window.sednaUi = window.sednaUi || {};
         point.style.top = Math.round(y) + 'px';
         return point;
     }
+    function byId(x) { return typeof x === 'string' ? document.getElementById(x) : x; }
     function openAt(panel, x, y, on) {
-        if (!panel || typeof panel.showPopover !== 'function') return;
+        panel = byId(panel);
+        on = byId(on) || null;
+        if (!panel || typeof panel.showPopover !== 'function') return false;
+        if (secondaryDown) {
+            document.addEventListener('pointerup', function once(ev) {
+                if (ev.button !== 2) return;
+                document.removeEventListener('pointerup', once, true);
+                setTimeout(function () { show(panel, x, y, on); }, 0);
+            }, true);
+            return true;
+        }
+        show(panel, x, y, on);
+        return true;
+    }
+    function show(panel, x, y, on) {
         pointAt(x, y);
+        origins.set(panel, on);
         var was = document.querySelector('[data-menu-context-target]');
         if (was) was.removeAttribute('data-menu-context-target');
         if (on) on.setAttribute('data-menu-context-target', '');
@@ -841,6 +876,7 @@ window.sednaUi = window.sednaUi || {};
         if (first) first.focus();
     }
     ui.menu.openAt = openAt;
+    ui._.menuOrigin = function (panel) { return origins.has(panel) ? origins.get(panel) : undefined; };
     var secondaryDown = false;
     document.addEventListener('pointerdown', function (e) { if (e.button === 2) secondaryDown = true; }, true);
     document.addEventListener('pointerup', function (e) { if (e.button === 2) secondaryDown = false; }, true);
@@ -850,13 +886,7 @@ window.sednaUi = window.sednaUi || {};
         var panel = document.getElementById(on.getAttribute('data-menu-context'));
         if (!panel) return;
         e.preventDefault();
-        var x = e.clientX, y = e.clientY;
-        if (!secondaryDown) { openAt(panel, x, y, on); return; }
-        document.addEventListener('pointerup', function once(ev) {
-            if (ev.button !== 2) return;
-            document.removeEventListener('pointerup', once, true);
-            setTimeout(function () { openAt(panel, x, y, on); }, 0);
-        }, true);
+        openAt(panel, e.clientX, e.clientY, on);
     });
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'ContextMenu' && !(e.key === 'F10' && e.shiftKey)) return;
@@ -871,8 +901,9 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]')) return;
-        var on = document.querySelector('[data-menu-context-target]');
-        if (on && on.getAttribute('data-menu-context') === panel.id) on.removeAttribute('data-menu-context-target');
+        var on = origins.get(panel);
+        origins.delete(panel);
+        if (on && on.hasAttribute('data-menu-context-target')) on.removeAttribute('data-menu-context-target');
     }, true);
     document.addEventListener('click', function (e) {
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;

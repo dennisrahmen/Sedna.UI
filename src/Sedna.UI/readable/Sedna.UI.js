@@ -1237,6 +1237,29 @@ window.sednaUi = window.sednaUi || {};
         }
     }
 
+    /* A menu opened at the pointer (22-menu.js) hangs off a point fixed to the viewport, so
+       the page moving under it is what makes it stale: a scroll that moves the element it
+       is about, or any scroll outside it when it is about no element. A `.menu[popover]`
+       opened by a popovertarget button follows the button, as a popover does. */
+    function closePointMenus(scroller) {
+        var open;
+        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        catch (err) { return; }
+
+        for (var i = 0; i < open.length; i++) {
+            var panel = open[i];
+            var origin = ui._.menuOrigin ? ui._.menuOrigin(panel) : undefined;
+            var close = origin === null
+                ? !(panel === scroller || panel.contains(scroller))
+                : stale(scroller, panel, origin === undefined
+                    ? (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null)
+                    : origin);
+            if (close) {
+                try { panel.hidePopover(); } catch (err2) { /* already closing */ }
+            }
+        }
+    }
+
     /* A combo field's panel hangs off its box the same way. An inline one is in
        the flow and has nothing to go stale. */
     function closeCombos(scroller) {
@@ -1261,6 +1284,7 @@ window.sednaUi = window.sednaUi || {};
         var scroller = scrolledElement(e.target);
         if (!scroller) return;
         closeMenus(scroller);
+        closePointMenus(scroller);
         closePopovers(scroller);
         closeCombos(scroller);
     }, true);
@@ -1528,8 +1552,16 @@ window.sednaUi = window.sednaUi || {};
        and Shift+F10, and moves the focus to its first item. The point is a 0×0 anchor
        nobody sees, so 58-menu.css places and flips the panel at the screen's edges with
        position-area, as it places a dropdown. The element the menu opened on carries
-       `data-menu-context-target` while it is open, for the app to read. */
+       `data-menu-context-target` while it is open, for the app to read.
+
+       `openAt(panel, x, y, on)` is the same from the app's own code — for a menu the app
+       decides to open, after checks of its own, which `data-menu-context` would skip. The
+       panel and the element it is about are elements or ids, so C# can name them
+       (ISednaUi.OpenMenuAtAsync), and it answers whether a menu opened. A scroll that
+       moves the element it opened on closes it, and a menu opened at a bare point closes
+       on any scroll outside it: the page has moved out from under it (22-anchored.js). */
     var point = null;
+    var origins = new WeakMap();   // a menu opened at a point -> the element it is about, or null
 
     function pointAt(x, y) {
         if (!point) {
@@ -1543,9 +1575,30 @@ window.sednaUi = window.sednaUi || {};
         return point;
     }
 
+    function byId(x) { return typeof x === 'string' ? document.getElementById(x) : x; }
+
     function openAt(panel, x, y, on) {
-        if (!panel || typeof panel.showPopover !== 'function') return;
+        panel = byId(panel);
+        on = byId(on) || null;
+        if (!panel || typeof panel.showPopover !== 'function') return false;
+        // Safari on macOS raises contextmenu on the press, and the release that follows would
+        // light-dismiss a panel opened then; so while a secondary button is down the menu opens
+        // on its release — whoever asked for it, the contextmenu handler below or the app.
+        if (secondaryDown) {
+            document.addEventListener('pointerup', function once(ev) {
+                if (ev.button !== 2) return;
+                document.removeEventListener('pointerup', once, true);
+                setTimeout(function () { show(panel, x, y, on); }, 0);
+            }, true);
+            return true;
+        }
+        show(panel, x, y, on);
+        return true;
+    }
+
+    function show(panel, x, y, on) {
         pointAt(x, y);
+        origins.set(panel, on);
         var was = document.querySelector('[data-menu-context-target]');
         if (was) was.removeAttribute('data-menu-context-target');
         if (on) on.setAttribute('data-menu-context-target', '');
@@ -1556,10 +1609,10 @@ window.sednaUi = window.sednaUi || {};
     }
 
     ui.menu.openAt = openAt;
+    /* What a menu opened at a point is about: the element, null for a bare point, and
+       undefined for a menu that was not opened at a point. Private, for 22-anchored.js. */
+    ui._.menuOrigin = function (panel) { return origins.has(panel) ? origins.get(panel) : undefined; };
 
-    /* Safari on macOS raises contextmenu on the press, and the release that follows would
-       light-dismiss a panel opened then; so while a secondary button is down the menu opens
-       on its release. */
     var secondaryDown = false;
     document.addEventListener('pointerdown', function (e) { if (e.button === 2) secondaryDown = true; }, true);
     document.addEventListener('pointerup', function (e) { if (e.button === 2) secondaryDown = false; }, true);
@@ -1570,13 +1623,7 @@ window.sednaUi = window.sednaUi || {};
         var panel = document.getElementById(on.getAttribute('data-menu-context'));
         if (!panel) return;
         e.preventDefault();
-        var x = e.clientX, y = e.clientY;
-        if (!secondaryDown) { openAt(panel, x, y, on); return; }
-        document.addEventListener('pointerup', function once(ev) {
-            if (ev.button !== 2) return;
-            document.removeEventListener('pointerup', once, true);
-            setTimeout(function () { openAt(panel, x, y, on); }, 0);
-        }, true);
+        openAt(panel, e.clientX, e.clientY, on);
     });
 
     document.addEventListener('keydown', function (e) {
@@ -1593,8 +1640,9 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]')) return;
-        var on = document.querySelector('[data-menu-context-target]');
-        if (on && on.getAttribute('data-menu-context') === panel.id) on.removeAttribute('data-menu-context-target');
+        var on = origins.get(panel);
+        origins.delete(panel);
+        if (on && on.hasAttribute('data-menu-context-target')) on.removeAttribute('data-menu-context-target');
     }, true);
 
     /* An item chosen in a menu at the pointer closes it, as it closes a dropdown. */

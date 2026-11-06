@@ -38,6 +38,19 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.MenuAtPointFromCsharp" Title="A menu at the pointer, opened by the app" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; right-click a tile.</strong> <code>OpenMenuAtAsync</code> opens a
+        <code>.menu[popover]</code> you wrote at the pointer, as
+        <a href="/menu"><code>data-menu-context</code></a> does, for a menu your code decides to open:
+        after selecting the record, checking the reader's rights, or not at all. It takes
+        <code>MouseEventArgs.ClientX</code> and <code>ClientY</code> and the id of the element the
+        menu is about, which carries <code>data-menu-context-target</code> while it is open; a scroll
+        that moves that element closes the menu. Placement, flipping at the screen's edges,
+        <kbd>Escape</kbd> and an outside click are the same as for a right-click.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Interop.SettingsFromCsharp" Title="Appearance settings" Demo="ex-demo--block">
     <p>
         <code>ISednaSettings</code> is the applied settings as state, with a <code>Changed</code>
