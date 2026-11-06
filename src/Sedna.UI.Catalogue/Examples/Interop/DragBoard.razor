@@ -9,7 +9,7 @@
     {
         <section class="drag-lane" aria-labelledby="lane-@id">
             <h3 class="drag-lane-head" id="lane-@id">
-                @title <span class="badge">@_lanes[id].Count</span>
+                <span>@title</span> <span class="badge">@_lanes[id].Count</span>
             </h3>
             <ul class="drag-list" data-drag-zone="@id" data-drag-group="board" data-drag-label="@title">
                 @foreach (var card in _lanes[id])

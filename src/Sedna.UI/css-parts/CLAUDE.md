@@ -89,6 +89,21 @@ Two consequences to keep in mind while writing a rule:
 - **Appearance-conditional blocks only remap tokens.** A `prefers-color-scheme`, `prefers-contrast` or
   `forced-colors` block may contain `:root` token remaps and nothing else. Layout media queries
   (`min-width` / `max-width` / `print`) may move real selectors — that is what they are for.
+- **What is drawn sits on its line, not just its box.** `AlignmentScanTests` measures every catalogue
+  page, in every density and direction, from screenshots. The rules that make it hold are in
+  `06-base-elements.css`, "The line a row is centred on":
+  - an icon's box is its em square (`line-height: 1`, set for every icon there);
+  - a label in a row is trimmed to its capitals and given its line back:
+    `text-box: trim-both cap alphabetic; padding-block: var(--cap-gap)` — the base rule covers an
+    unclassed `<span>`, a component's own label class adds the two declarations itself;
+  - a box that holds only its text (`.x:not(:has(> *))`) is a block container, so its line can be
+    trimmed: `align-content: center` where its height is set, `padding-block: calc(<its padding> +
+    var(--cap-gap))` where its padding sets it;
+  - a row that sets items against its first line gives `--row-line: 1lh`, and its icon takes
+    `margin-block-start: calc((var(--row-line) - 1em) / 2)`;
+  - a leaf component's line height is a whole, even number of pixels — `round(1.4em, 2px)`, never a
+    bare multiplier — so a row centres on a pixel. A container that holds an app's own content keeps
+    its multiplier, which the app's text inherits as a ratio.
 - **`z-index` comes from the documented scale** in `docs/architecture.md`. A test fails on any other
   value.
 - **Nothing is loaded or inlined.** No `url(`, no `data:` URI. Need a glyph? Use the bundled Remix Icon

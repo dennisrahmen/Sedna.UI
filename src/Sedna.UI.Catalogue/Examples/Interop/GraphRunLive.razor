@@ -10,13 +10,13 @@
     </div>
     <div class="card-foot card-foot--start">
         <button class="btn btn--sm btn--brand btn--solid" type="button" @onclick="Run" disabled="@(_run is not null || Finished)">
-            <i class="ri-play-line"></i> Run
+            <i class="ri-play-line"></i> <span>Run</span>
         </button>
         <button class="btn btn--sm" type="button" @onclick="Step" disabled="@(_run is not null || Finished)">
-            <i class="ri-skip-forward-line"></i> Step
+            <i class="ri-skip-forward-line"></i> <span>Step</span>
         </button>
         <button class="btn btn--sm" type="button" @onclick="Reset" disabled="@(_step == 0 && _run is null)">
-            <i class="ri-restart-line"></i> Reset
+            <i class="ri-restart-line"></i> <span>Reset</span>
         </button>
         <span class="form-hint sedna-push" role="status">@_status</span>
     </div>

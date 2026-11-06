@@ -38,6 +38,11 @@ internal static class McpInstructions
         (the version the app has pinned) to search, get_example, describe_class and get_tokens,
         and `meta.warning` names anything that version does not have. Do not copy those.
 
+        Upgrading an app to a newer release: read get_integration_guide with section "upgrade",
+        which lists every class each release renamed, old name to the class or classes that look
+        the same. describe_class answers an old name the same way, under `renamed`. Replace the
+        whole class, never a prefix — one old class can become two.
+
         Never override a library class in an app's own stylesheet. If something is missing,
         report it against the library rather than working around it locally.
         """;

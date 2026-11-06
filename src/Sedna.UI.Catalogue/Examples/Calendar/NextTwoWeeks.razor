@@ -1,0 +1,61 @@
+<div class="cal-month cal-month--day-tones" style="--cal-lanes: 1; max-width: 720px">
+    <div class="cal-weekdays">
+        <span class="cal-weekday">Thu</span>
+        <span class="cal-weekday">Fri</span>
+        <span class="cal-weekday">Sat</span>
+        <span class="cal-weekday">Sun</span>
+        <span class="cal-weekday">Mon</span>
+        <span class="cal-weekday">Tue</span>
+        <span class="cal-weekday">Wed</span>
+    </div>
+    <div class="cal-row">
+        <div class="cal-day" aria-current="date">
+            <span class="cal-day-num">6</span>
+            <span class="cal-marks">
+                <button class="cal-mark" type="button" data-popover="due-6" aria-label="3 tasks due, show them"><i class="ri-checkbox-circle-line"></i><span>3</span></button>
+            </span>
+        </div>
+        <div class="cal-day">
+            <span class="cal-day-num">7</span>
+            <span class="cal-marks">
+                <button class="cal-mark" type="button" data-popover="sends-7" aria-label="2 messages scheduled, the first at 09:00, show them"><i class="ri-mail-send-line"></i><span>09:00 +1</span></button>
+            </span>
+        </div>
+        <div class="cal-day cal-day--weekend"><span class="cal-day-num">8</span></div>
+        <div class="cal-day cal-day--weekend"><span class="cal-day-num">9</span></div>
+        <div class="cal-day"><span class="cal-day-num">10</span></div>
+        <div class="cal-day">
+            <span class="cal-day-num">11</span>
+            <span class="cal-marks">
+                <span class="cal-mark" role="img" aria-label="Deadline"><i class="ri-flag-line"></i></span>
+            </span>
+        </div>
+        <div class="cal-day"><span class="cal-day-num">12</span></div>
+        <div class="cal-row-events">
+            <a class="cal-event" href="#" style="grid-column: 1 / span 2; grid-row: 1">Stocktake, EU-West</a>
+        </div>
+        <div class="cal-now" style="--cal-at: 0.6"></div>
+    </div>
+    <div class="cal-row">
+        <div class="cal-day"><span class="cal-day-num">13</span></div>
+        <div class="cal-day"><span class="cal-day-num">14</span></div>
+        <div class="cal-day cal-day--weekend"><span class="cal-day-num">15</span></div>
+        <div class="cal-day cal-day--weekend"><span class="cal-day-num">16</span></div>
+        <div class="cal-day cal-day--holiday"><span class="cal-day-num">17</span></div>
+        <div class="cal-day"><span class="cal-day-num">18</span></div>
+        <div class="cal-day"><span class="cal-day-num">19</span></div>
+    </div>
+</div>
+<div class="popover" id="due-6" popover>
+    <strong class="popover-title">Due today</strong>
+    <ul class="list">
+        <li class="list-row"><span class="list-main"><span class="list-title">Confirm ORD-4182 delivery</span></span></li>
+        <li class="list-row"><span class="list-main"><span class="list-title">Reorder packing tape</span></span></li>
+        <li class="list-row"><span class="list-main"><span class="list-title">Return the forklift key</span></span></li>
+    </ul>
+</div>
+<div class="popover" id="sends-7" popover>
+    <strong class="popover-title">Scheduled for tomorrow</strong>
+    <div class="kv"><span class="k">09:00</span><span class="v">Dispatch summary to Northwind Retail</span></div>
+    <div class="kv"><span class="k">14:30</span><span class="v">Reminder to Alex Fischer</span></div>
+</div>

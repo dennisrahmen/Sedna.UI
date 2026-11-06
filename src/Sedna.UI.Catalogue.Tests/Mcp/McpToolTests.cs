@@ -588,6 +588,56 @@ public class McpToolTests(CatalogueAppFixture app)
         }
     }
 
+    [Fact]
+    public async Task An_old_class_name_is_answered_with_what_replaced_it()
+    {
+        var result = await Tool("describe_class", new { names = new[] { ".btn-primary", "badge-go" } });
+
+        var renamed = result.GetProperty("renamed").EnumerateArray()
+            .ToDictionary(r => r.GetProperty("name").GetString()!, r => r.GetProperty("use").EnumerateArray().Select(u => u.GetString()).ToArray());
+        Assert.Equal(new[] { ".btn--brand", ".btn--solid" }, renamed[".btn-primary"]);
+        Assert.Equal(new[] { ".badge--go" }, renamed[".badge-go"]);
+        Assert.Contains("Renamed in 0.28.0", result.GetProperty("notes")[0].GetProperty("note").GetString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task The_upgrade_guide_lists_every_rename_of_every_map_in_the_repository()
+    {
+        var markdown = (await Tool("get_integration_guide", new { section = "upgrade" }))
+            .GetProperty("markdown").GetString()!;
+
+        var maps = Directory.GetFiles(Path.Combine(Assets.RepoRoot, "docs", "renames"), "*.json");
+        Assert.NotEmpty(maps);
+        foreach (var file in maps)
+        {
+            using var doc = JsonDocument.Parse(File.ReadAllText(file));
+            foreach (var r in doc.RootElement.GetProperty("renames").EnumerateArray())
+                Assert.Contains($"| `.{r.GetProperty("old").GetString()}` |", markdown, StringComparison.Ordinal);
+        }
+    }
+
+    [Theory]
+    [InlineData("editor", "editor.md")]
+    [InlineData("graph", "graph.md")]
+    public async Task A_surface_s_reference_is_its_own_guide_section(string section, string file)
+    {
+        var markdown = (await Tool("get_integration_guide", new { section }))
+            .GetProperty("markdown").GetString()!;
+        var documented = File.ReadAllText(Path.Combine(Assets.RepoRoot, "docs", file));
+        Assert.Equal(documented.ReplaceLineEndings().Trim(), markdown.ReplaceLineEndings().Trim());
+    }
+
+    [Fact]
+    public async Task Every_doc_in_the_repository_is_served_by_the_docs_resource()
+    {
+        foreach (var file in Directory.GetFiles(Path.Combine(Assets.RepoRoot, "docs"), "*.md"))
+        {
+            var uri = "sednaui://docs/" + Path.GetFileNameWithoutExtension(file);
+            var contents = (await Rpc("resources/read", new { uri })).GetProperty("contents");
+            Assert.False(string.IsNullOrEmpty(contents[0].GetProperty("text").GetString()), $"{uri} is empty.");
+        }
+    }
+
     private async Task<JsonElement> Initialize() => await Rpc("initialize", new
     {
         protocolVersion = "2025-06-18",

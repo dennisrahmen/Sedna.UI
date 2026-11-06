@@ -99,4 +99,28 @@ public class ResizeTests : ScriptTestBase
         Assert.Equal(Math.Round((before + 64) / 8) * 8, await Width(page, "aside"), 1.0);
         Assert.Empty(errors);
     }
+
+    [Fact]
+    public async Task A_handle_writes_on_the_element_it_names_and_snaps_to_its_own_step()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div style="width:400px">
+              <div class="card card--resizable" id="card" style="--card-height: 200px">
+                <div class="card-body"><p style="height:600px">Rows</p></div>
+              </div>
+              <div class="card-resize" id="h" data-resize="--card-height" data-resize-on="card" data-resize-measure=".card-body"
+                   data-resize-step="20" role="separator" aria-orientation="horizontal" aria-label="Resize" aria-valuemin="100" aria-valuenow="200" tabindex="0"></div>
+            </div>
+            """);
+
+        await page.FocusAsync("#h");
+        await page.Keyboard.PressAsync("ArrowDown");
+        // Written on #card, not on the handle's parent, and measured from the body inside it.
+        Assert.False(string.IsNullOrEmpty(await page.EvaluateAsync<string>("() => document.getElementById('card').style.getPropertyValue('--card-height')")));
+        Assert.Equal("", await page.EvaluateAsync<string>("() => document.getElementById('h').parentElement.style.getPropertyValue('--card-height')"));
+        var value = double.Parse((await page.GetAttributeAsync("#h", "aria-valuenow"))!, System.Globalization.CultureInfo.InvariantCulture);
+        Assert.Equal(0, value % 20);         // snapped to the handle's own step
+        Assert.Empty(errors);
+    }
 }

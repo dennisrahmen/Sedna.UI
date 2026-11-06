@@ -16,8 +16,8 @@
 }
 .user-trigger:hover { background: var(--topbar-hover); text-decoration: none; }
 .user-info  { display: flex; flex-direction: column; align-items: flex-start; }
-.user-name  { font-size: var(--text-4); font-weight: 500; line-height: 1.2; }
-.user-email { font-size: var(--text-2); color: var(--topbar-muted); line-height: 1.2; }
+.user-name  { font-size: var(--text-4); font-weight: 500; line-height: round(1.2em, 2px); }
+.user-email { font-size: var(--text-2); color: var(--topbar-muted); line-height: round(1.2em, 2px); }
 .user-avatar {
     width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
     display: inline-flex; align-items: center; justify-content: center;
@@ -57,3 +57,8 @@
     z-index: 550;
 }
 
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its size. See "The line a row is centred on" in 06-base-elements.css. */
+.user-avatar:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }

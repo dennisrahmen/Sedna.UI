@@ -45,6 +45,8 @@ public class BusyStateTests
         "workflow", "workflow-node", "graph", "stat", "list--cards", "list", "input-group", "segmented",
         "form-combo-group-action", "form-combo-input", "form-combo-option", "form-combo",
         "choice-tile",                          // a choice, read-only not busy
+        "cal-mark",                             // opens a list; nothing of its own runs
+        "sticky-group-toggle",                  // folds a group; nothing of its own runs
     };
 
     [Fact]

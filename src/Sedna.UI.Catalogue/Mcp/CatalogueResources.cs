@@ -42,8 +42,9 @@ internal sealed class CatalogueResources(CatalogueIndex index, VersionEnvelope v
 
     [McpServerResource(UriTemplate = "sednaui://docs/{name}", Name = "docs",
         MimeType = "text/markdown")]
-    [Description("A documentation file: getting-started, architecture, CLAUDE.consuming-app, releasing, " +
-        "migrating-to-sedna-ui, accessibility, development.")]
+    [Description("Any documentation file in the repository's docs/, by name without .md — getting-started, " +
+        "architecture, CLAUDE.consuming-app, graph, editor, surfaces, BRANDING, accessibility and the rest. " +
+        "A wrong name is answered with the list.")]
     public string Doc(string name)
     {
         var file = name.EndsWith(".md", StringComparison.Ordinal) ? name : name + ".md";

@@ -2,9 +2,9 @@
 
 <div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
     <button class="btn" type="button" disabled="@_busy" @onclick="Upload">
-        <i class="ri-upload-2-line"></i> Upload the packing list
+        <i class="ri-upload-2-line"></i> <span>Upload the packing list</span>
     </button>
-    <label class="form-check"><input type="checkbox" @bind="_fail" /> Make it fail</label>
+    <label class="form-check"><input type="checkbox" @bind="_fail" /> <span>Make it fail</span></label>
 </div>
 
 @code {

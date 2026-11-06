@@ -283,4 +283,6 @@
         background-position: 0 0;
     }
     .choice-tile { transition: none; }
+    button.cal-mark { transition: none; }
+    .sticky-group-toggle::before { transition: none; }
 }

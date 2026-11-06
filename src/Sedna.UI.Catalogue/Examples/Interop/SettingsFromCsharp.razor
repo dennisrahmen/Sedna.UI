@@ -6,17 +6,17 @@
         <label class="segmented-option">
             <input type="radio" name="ex-variant" checked="@(Settings.Current.Variant == "dark")"
                    @onchange="@(() => Settings.SetVariantAsync("dark"))" />
-            <span><i class="ri-moon-line"></i> Dark</span>
+            <i class="ri-moon-line"></i> <span>Dark</span>
         </label>
         <label class="segmented-option">
             <input type="radio" name="ex-variant" checked="@(Settings.Current.Variant == "light")"
                    @onchange="@(() => Settings.SetVariantAsync("light"))" />
-            <span><i class="ri-sun-line"></i> Light</span>
+            <i class="ri-sun-line"></i> <span>Light</span>
         </label>
         <label class="segmented-option">
             <input type="radio" name="ex-variant" checked="@(Settings.Current.Variant == "system")"
                    @onchange="@(() => Settings.SetVariantAsync("system"))" />
-            <span><i class="ri-computer-line"></i> System</span>
+            <i class="ri-computer-line"></i> <span>System</span>
         </label>
     </div>
 

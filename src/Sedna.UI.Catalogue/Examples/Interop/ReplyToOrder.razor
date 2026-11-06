@@ -22,7 +22,7 @@
         <button class="btn" type="button" @onclick="Dismiss">Cancel</button>
         <button class="btn btn--brand btn--solid" type="button" disabled="@IsEmpty"
                 @onclick="() => Overlay.CloseAsync(_message)">
-            <i class="ri-send-plane-line"></i> Send
+            <i class="ri-send-plane-line"></i> <span>Send</span>
         </button>
     </div>
 </dialog>

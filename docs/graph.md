@@ -145,7 +145,7 @@ On the `[data-graph]` element:
 | Class | |
 |---|---|
 | `.graph` | The frame around the canvas: `--graph-height` (26rem), `--sm`, `--lg`, `--fill` (its container's height), `--viewport` (what the viewport has left). `--graph-height` set on the `.graph-frame` sizes the graph and its side panel together. |
-| `.graph-canvas` | What the engine draws into. |
+| `.graph-canvas` | What the engine draws into. `[data-graph-canvas]` names another element for it instead, for a frame whose canvas carries a class of the app's own. |
 | `.graph-data` | The records as markup, visually hidden. |
 | `.graph-tools` | The toolbar on the canvas: top right; `--start`, `--bottom`, `--stack`; `.graph-tools-sep` between groups. A toggle's two icons are `.graph-when-off` and `.graph-when-on`. |
 | `.graph-minimap` | The minimap canvas: bottom right; `--start`, `--top`. Hidden on a phone. |
@@ -201,8 +201,9 @@ record's tone.
   the library's hover-hint bubble says the record's name and `meta`.
 - **Menu** — `[data-graph-menu]` on a `.menu` inside the graph, opened by a right click, a long press or
   the context-menu key. Its `data-graph-action` items act on that record, and an item that does not
-  apply hides itself — `open` without a `data-href`, `expand` on a record that is no folded group. A
-  `.menu-sep` shows only between two things that are showing.
+  apply hides itself — `open` without a `data-href`, `expand` on a record that is no folded group;
+  `data-graph-always` on an `open` item keeps it for a record without one, for an app that opens
+  records itself on `sedna-graph-open`. A `.menu-sep` shows only between two things that are showing.
 - **Side panel** — `[data-graph-detail]`, shown while a record is selected. Rows are cloned from its
   `<template data-graph-neighbour>`, one per neighbour, each with `data-graph-direction` (`out`, `in`,
   `both`); `[data-graph-link]` takes the link's label, and a row's `data-graph-action` acts on that

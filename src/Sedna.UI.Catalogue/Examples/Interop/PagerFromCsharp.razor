@@ -1,6 +1,6 @@
 <nav class="pagination" aria-label="Pagination">
     <button class="page-link" type="button" disabled="@(_page == 1)" @onclick="@(() => _page--)">
-        <i class="ri-arrow-left-s-line"></i> Previous
+        <i class="ri-arrow-left-s-line"></i> <span>Previous</span>
     </button>
 
     @foreach (var slot in SednaPager.Window(_page, Pages))
@@ -16,7 +16,7 @@
     }
 
     <button class="page-link" type="button" disabled="@(_page == Pages)" @onclick="@(() => _page++)">
-        Next <i class="ri-arrow-right-s-line"></i>
+        <span>Next</span> <i class="ri-arrow-right-s-line"></i>
     </button>
     <span class="page-count">Page @_page of @Pages</span>
 </nav>

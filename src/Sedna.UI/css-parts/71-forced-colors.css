@@ -173,6 +173,8 @@
     .output-details > summary:focus-visible,
     .card-resize:focus-visible,
     .choice-tile:has(> input:focus-visible),
+    button.cal-mark:focus-visible,
+    .sticky-group-toggle:focus-visible,
     .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
     :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }

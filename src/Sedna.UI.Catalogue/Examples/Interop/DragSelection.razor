@@ -8,7 +8,7 @@
     @foreach (var (id, title) in Zones)
     {
         <section class="sedna-col sedna-gap-1" aria-labelledby="pick-@id">
-            <h3 class="drag-lane-head" id="pick-@id">@title <span class="badge">@_zones[id].Count</span></h3>
+            <h3 class="drag-lane-head" id="pick-@id"><span>@title</span> <span class="badge">@_zones[id].Count</span></h3>
             <ul class="file-grid" data-drag-zone="@id" data-drag-group="photos" data-drag-axis="grid"
                 data-drag-label="@title" style="--drop-gap: var(--space-6)">
                 @foreach (var photo in _zones[id])

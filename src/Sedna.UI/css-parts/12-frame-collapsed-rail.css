@@ -50,7 +50,7 @@
 .sidebar.collapsed .sidebar-wide { display: none; transition: display var(--motion-mid) allow-discrete; }
 .sidebar.collapsed .nav-count {
     position: absolute; top: 2px; inset-inline-end: var(--space-3); margin-inline-start: 0;
-    min-width: 15px; padding: 0 var(--space-2); font-size: var(--text-1); line-height: 1.6;
+    min-width: 15px; padding: var(--cap-gap) var(--space-2); font-size: var(--text-1); line-height: round(1.6em, 2px);
     transition: position var(--snap) allow-discrete, top var(--snap), inset-inline-end var(--snap), margin-inline-start var(--snap), min-width var(--snap), padding var(--snap), font-size var(--snap), line-height var(--snap);
 }
 .sidebar.collapsed .nav-status-card {

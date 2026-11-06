@@ -599,6 +599,15 @@
     --radius-small:   3px;   /* inline code, the checkbox */
     --radius-pill:    999px; /* badges, count pills, the progress track, the switch */
 
+    /* ── The cap line ───────────────────────────────────────────────────────
+       What a line of text gives back above its capitals and below its baseline once
+       it is trimmed to them: half the line's leading and the font's own ascent and
+       descent beyond the capitals, the same on both sides. It is resolved where it is
+       used, in that element's own font and line height, so one token serves every
+       size. A trimmed label takes it as padding, and a box that holds text adds it to
+       its own padding, so the box keeps its height and its text sits in its middle. */
+    --cap-gap: calc((1lh - 1cap) / 2);
+
     /* ── Cell padding ───────────────────────────────────────────────────────
        Table cells, remapped by [data-density="compact"]. A token so anything else
        that should tighten with the tables can opt in by using them. */

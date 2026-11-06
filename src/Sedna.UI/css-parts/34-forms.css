@@ -39,7 +39,7 @@
     color: var(--fg);
     font-size: var(--text-4);
     font-family: inherit;
-    line-height: 1.4;
+    line-height: round(1.4em, 2px);
     width: 100%;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }

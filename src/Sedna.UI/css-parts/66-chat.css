@@ -535,6 +535,9 @@
     line-height: 20px;
     text-align: center;
     box-shadow: 0 0 0 2px var(--bg);
+    /* Its capitals in the middle of its height: see 06-base-elements.css. */
+    align-content: center;
+    text-box: trim-both cap alphabetic;
 }
 
 .chat-flyover {
@@ -584,3 +587,11 @@
         padding-bottom: var(--safe-block-end);
     }
 }
+
+/* A label in a row, trimmed to its capitals with its line in its padding: see "The line a
+   row is centred on" in 06-base-elements.css. */
+:is(.chat-author, .chat-time, .chat-edited) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+/* A bubble that holds one message and nothing else: its line trimmed to its capitals, its
+   leading back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.chat-bubble:not(:has(> *)) { text-box: trim-both cap alphabetic; padding-block: calc(var(--space-4) + var(--cap-gap)); }
+.chat--flat .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }

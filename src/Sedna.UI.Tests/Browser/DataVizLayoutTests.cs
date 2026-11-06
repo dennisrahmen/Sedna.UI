@@ -61,4 +61,39 @@ public class DataVizLayoutTests : ScriptTestBase
         Assert.True(boxes[2] <= boxes[3], "The moved label sits over the track.");
         Assert.True(boxes[4] > 0, "--labelled reserves the line above once a mark asks for it.");
     }
+
+    // A row in parts keeps its length against the widest, and its segments split that length.
+    [Fact]
+    public async Task A_bar_list_row_in_parts_keeps_its_length_and_its_segments_split_it()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div class="bar-list" style="width:480px">
+              <div class="bar-list-row">
+                <span class="bar-list-label">Alex Fischer</span>
+                <span class="bar-list-track" id="track"><span class="bar-list-fill" id="fill" style="--value: 50%">
+                  <span class="stack-bar-segment series-info" id="a" style="--value: 75%"></span>
+                  <span class="stack-bar-segment series-danger" id="b" style="--value: 25%"></span>
+                </span></span>
+                <span class="bar-list-value">9</span>
+              </div>
+            </div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+              const w = id => document.getElementById(id).getBoundingClientRect().width;
+              const bg = id => getComputedStyle(document.getElementById(id)).backgroundColor;
+              return [w('fill') / w('track'), w('a') / w('fill'), w('b') / w('fill'),
+                      bg('a') === bg('b') ? 1 : 0, bg('fill') === 'rgba(0, 0, 0, 0)' ? 1 : 0];
+            }
+            """);
+
+        Assert.InRange(m[0], 0.49, 0.51);   // the row is half the widest
+        Assert.InRange(m[1], 0.70, 0.76);   // three quarters of it, less the gap
+        Assert.InRange(m[2], 0.20, 0.26);
+        Assert.Equal(0, m[3]);              // two colours
+        Assert.Equal(1, m[4]);              // the fill paints nothing of its own
+        Assert.Empty(errors);
+    }
 }

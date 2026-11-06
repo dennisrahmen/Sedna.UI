@@ -958,6 +958,15 @@
     --radius-small:   3px;   /* inline code, the checkbox */
     --radius-pill:    999px; /* badges, count pills, the progress track, the switch */
 
+    /* ── The cap line ───────────────────────────────────────────────────────
+       What a line of text gives back above its capitals and below its baseline once
+       it is trimmed to them: half the line's leading and the font's own ascent and
+       descent beyond the capitals, the same on both sides. It is resolved where it is
+       used, in that element's own font and line height, so one token serves every
+       size. A trimmed label takes it as padding, and a box that holds text adds it to
+       its own padding, so the box keeps its height and its text sits in its middle. */
+    --cap-gap: calc((1lh - 1cap) / 2);
+
     /* ── Cell padding ───────────────────────────────────────────────────────
        Table cells, remapped by [data-density="compact"]. A token so anything else
        that should tighten with the tables can opt in by using them. */
@@ -1729,6 +1738,40 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 @keyframes sedna-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
 
+
+/* ── The line a row is centred on ────────────────────────────────────────────
+   An icon beside a word, a count beside a name: the eye compares where they are drawn,
+   and a box centred in its row does not draw its glyphs in its middle. A word sits on
+   its font's baseline, with the ascent above it and the descent below, so its capitals
+   hang above the middle of its line by an amount every font sets differently.
+
+   So an icon's box is its glyph's em square, which the icon font draws centred, and a
+   word set in an element of its own is trimmed to its capitals and given its line back
+   in equal padding: the box is exactly as tall as before, and its capitals are in its
+   middle. Centring the row then centres what is drawn. Padding rather than margin, so a
+   label that clips its overflow — one cut short with an ellipsis — keeps its descenders.
+
+   Only an element can be trimmed. A word that is the row's own text node is set where
+   its font puts it, so a label beside anything else is an element — a <span> holding
+   only its words, with no class or only utilities. Inline, the trim changes nothing but the box a background
+   would paint, and vertical padding moves nothing. */
+:where([class^="ri-"], [class*=" ri-"]) { line-height: 1; }
+
+/* A row that sets its items against its first line — an icon beside a message that may
+   wrap — gives its own line height as a length, so an icon there can stand in the middle
+   of that line: `margin-block-start: calc((var(--row-line) - 1em) / 2)`. Registered, so
+   it is resolved once, in the row's own font, and an icon inherits the length rather
+   than its own line height. */
+@property --row-line {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+}
+
+:where(span, strong, b, em, small, time, abbr, cite, data, output, q, s, u, var):where(:not([class]), [class^="text-"], [class*=" text-"], [class^="sedna-"], [class*=" sedna-"]):not(:empty, :has(*)) {
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
 }
 
 /* ── 10-frame-shell.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -1844,7 +1887,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    cropped rather than squashed, so supply a square asset. */
 .brand-logo { width: 30px; height: 30px; border-radius: var(--radius-surface); flex-shrink: 0; overflow: hidden; }
 .brand-logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+.brand-text { display: flex; flex-direction: column; line-height: round(1.1em, 2px); }
 .brand-sub {
     display: block; font-size: var(--text-1); color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.06em; margin-top: var(--space-1);
@@ -1913,7 +1956,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     background: var(--brand);
     color: var(--on-solid);
     border-radius: var(--radius-pill);
-    font-size: var(--text-2); font-weight: 600; line-height: 1.6;
+    font-size: var(--text-2); font-weight: 600; line-height: round(1.6em, 2px);
     padding: 0 var(--space-4); min-width: 18px; text-align: center;
 }
 
@@ -1965,6 +2008,16 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .nav-status-card--fail .nav-status-dot   { background: var(--danger-solid); }
 .nav-status-card--fail .nav-status-state { color: var(--danger-fg); }
 
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+/* A count is a flex item, and so already a block container. */
+.nav-count { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+
+/* A label in a row, trimmed to its capitals with its line in its padding: see "The line a
+   row is centred on" in 06-base-elements.css. */
+.nav-status-state { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 
 /* ── 12-frame-collapsed-rail.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -2021,7 +2074,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .sidebar.collapsed .sidebar-wide { display: none; transition: display var(--motion-mid) allow-discrete; }
 .sidebar.collapsed .nav-count {
     position: absolute; top: 2px; inset-inline-end: var(--space-3); margin-inline-start: 0;
-    min-width: 15px; padding: 0 var(--space-2); font-size: var(--text-1); line-height: 1.6;
+    min-width: 15px; padding: var(--cap-gap) var(--space-2); font-size: var(--text-1); line-height: round(1.6em, 2px);
     transition: position var(--snap) allow-discrete, top var(--snap), inset-inline-end var(--snap), margin-inline-start var(--snap), min-width var(--snap), padding var(--snap), font-size var(--snap), line-height var(--snap);
 }
 .sidebar.collapsed .nav-status-card {
@@ -2155,7 +2208,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     font-family: var(--font-mono);
     font-size: var(--text-2);
     font-variant-numeric: tabular-nums;
-    line-height: 1.5;
+    line-height: round(1.5em, 2px);
     white-space: nowrap;
     text-decoration: none;
 }
@@ -2199,6 +2252,12 @@ a.topbar-version--pre:hover {
 .topbar > .health-badge,
 .topbar > .stale,
 .topbar > .topbar-version { align-self: center; margin-inline: var(--space-6); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.topbar-version:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
 }
 
 /* ── 14-frame-nav-filter.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -2254,7 +2313,7 @@ a.topbar-version--pre:hover {
     color: var(--fg);
     font-family: inherit;
     font-size: var(--text-3);
-    line-height: 1.4;
+    line-height: round(1.4em, 2px);
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 .nav-filter-input::placeholder { color: var(--placeholder); }
@@ -2301,8 +2360,8 @@ a.topbar-version--pre:hover {
 }
 .user-trigger:hover { background: var(--topbar-hover); text-decoration: none; }
 .user-info  { display: flex; flex-direction: column; align-items: flex-start; }
-.user-name  { font-size: var(--text-4); font-weight: 500; line-height: 1.2; }
-.user-email { font-size: var(--text-2); color: var(--topbar-muted); line-height: 1.2; }
+.user-name  { font-size: var(--text-4); font-weight: 500; line-height: round(1.2em, 2px); }
+.user-email { font-size: var(--text-2); color: var(--topbar-muted); line-height: round(1.2em, 2px); }
 .user-avatar {
     width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
     display: inline-flex; align-items: center; justify-content: center;
@@ -2342,6 +2401,11 @@ a.topbar-version--pre:hover {
     z-index: 550;
 }
 
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its size. See "The line a row is centred on" in 06-base-elements.css. */
+.user-avatar:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 }
 
 /* ── 16-frame-page-scroll.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -2808,7 +2872,7 @@ a.topbar-version--pre:hover {
     .layout--responsive .sidebar .sidebar-wide { display: none; }
     .layout--responsive .sidebar .nav-count {
         position: absolute; top: 2px; inset-inline-end: var(--space-3); margin-inline-start: 0;
-        min-width: 15px; padding: 0 var(--space-2); font-size: var(--text-1); line-height: 1.6;
+        min-width: 15px; padding: var(--cap-gap) var(--space-2); font-size: var(--text-1); line-height: round(1.6em, 2px);
     }
     .layout--responsive .sidebar .nav-status-card { align-items: center; padding: var(--space-4) 0; position: relative; }
     .layout--responsive .sidebar .nav-status-label,
@@ -3268,7 +3332,7 @@ a.topbar-version--pre:hover {
     color: var(--fg);
     font-size: var(--text-4);
     font-weight: 600;
-    line-height: 1.35;
+    line-height: round(1.35em, 2px);
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -3424,7 +3488,7 @@ a.topbar-version--pre:hover {
     font-family: inherit;
     font-size: var(--text-1);
     font-weight: 500;
-    line-height: 1.2;
+    line-height: round(1.2em, 2px);
     text-align: center;
     text-decoration: none;
     cursor: pointer;
@@ -3459,6 +3523,10 @@ a.topbar-version--pre:hover {
     font-size: var(--text-4);
     font-weight: 600;
 }
+
+/* A word on its own: a block container, trimmed to its capitals and centred in its height.
+   See "The line a row is centred on" in 06-base-elements.css. */
+.nav-area-title:not(:has(> *)) { display: block; align-content: center; text-box: trim-both cap alphabetic; }
 }
 
 /* ── 23-frame-topbar-nav.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -4104,7 +4172,7 @@ a.topbar-version--pre:hover {
     font-size: var(--text-2);
     padding: var(--space-1) var(--space-4);
     color: var(--fg-soft);
-    line-height: 1.45;
+    line-height: round(1.45em, 2px);
     white-space: nowrap;
     vertical-align: middle;
 }
@@ -4134,6 +4202,14 @@ a.topbar-version--pre:hover {
 .badge--sev-3 { background: var(--sev-3-bg); border-color: var(--sev-3-border); color: var(--sev-3-fg); }
 .badge--sev-4 { background: var(--sev-4-bg); border-color: var(--sev-4-border); color: var(--sev-4-fg); }
 .badge--sev-5 { background: var(--sev-5-bg); border-color: var(--sev-5-border); color: var(--sev-5-fg); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.badge:not(:has(> *))     { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
+.badge--sm:not(:has(> *)) { padding-block: var(--cap-gap); }
+.badge--lg:not(:has(> *)) { padding-block: calc(var(--space-2) + var(--cap-gap)); }
 }
 
 /* ── 32-tables.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -4144,6 +4220,16 @@ a.topbar-version--pre:hover {
     text-align: start;
     padding: var(--cell-pad-y) var(--cell-pad-x);
     border-bottom: 1px solid var(--border);
+    /* On a whole pixel, so a row is: a table lays its rows out on whole pixels, and a
+       half-pixel line would put the text half a pixel off its middle. */
+    line-height: round(1.5em, 2px);
+}
+/* A cell that holds only its words has its line trimmed to its capitals, and its padding
+   takes the rest, so the row is as tall as before and the words sit in its middle. A cell
+   with a control or a badge in it is laid out around that, and is left as it is. */
+.table :is(th, td):not(:has(*)) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
 }
 .table th {
     background: var(--table-head-bg);
@@ -4189,7 +4275,7 @@ a.topbar-version--pre:hover {
     font-family: inherit;
     font-weight: 500;
     cursor: pointer;
-    line-height: 1.4;
+    line-height: round(1.4em, 2px);
     white-space: nowrap;
     text-decoration: none;
     transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
@@ -4247,6 +4333,17 @@ a.topbar-version--pre:hover {
     animation: sedna-spin var(--spin-duration) linear infinite;
 }
 
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its minimum height. See "The line a row is centred on" in 06-base-elements.css. */
+.btn:not(:has(> *)) {
+    display: inline-block;
+    align-content: center;
+    text-align: center;
+    text-box: trim-both cap alphabetic;
+}
+.btn.btn--wrap:not(:has(> *)) { text-align: start; }
 }
 
 /* ── 34-forms.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -4292,7 +4389,7 @@ a.topbar-version--pre:hover {
     color: var(--fg);
     font-size: var(--text-4);
     font-family: inherit;
-    line-height: 1.4;
+    line-height: round(1.4em, 2px);
     width: 100%;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
@@ -4864,9 +4961,17 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    centres whether an app rendered it or the library did. */
 .toast:not(:has(strong)) { align-items: center; }
 
+/* The icon stands on the first line's capitals: the body is trimmed to them and given its
+   leading back in padding, and the icon sits in the middle of one line's height. */
+.toast          { --row-line: 1lh; }
 .toast i        { font-size: var(--text-7); flex-shrink: 0; color: var(--muted); }
+.toast > i      { margin-block-start: calc((var(--row-line) - 1em) / 2); }
+.toast:not(:has(strong)) > i { margin-block-start: 0; }
 .toast strong   { display: block; color: var(--fg); font-weight: 600; }
 .toast-body     { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+/* A message with no title is the row's one line; with a title, the <strong> is the label
+   06-base-elements.css trims. */
+.toast-body:not(:has(> strong)) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .toast-close {
     flex-shrink: 0;
     background: none; border: none; padding: 0;
@@ -6469,8 +6574,10 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 .form-error   { color: var(--danger-fg); }
 .form-warning { color: var(--warn-fg); }
+.form-error,
+.form-warning { --row-line: 1lh; }
 .form-error i,
-.form-warning i { font-size: var(--text-5); flex-shrink: 0; line-height: 1.35; }
+.form-warning i { font-size: var(--text-5); flex-shrink: 0; margin-block-start: calc((var(--row-line) - 1em) / 2); }
 
 /* A required field's label. The marker is decoration — put `required` on the
    control, which is what is actually announced and enforced, and aria-hidden on
@@ -7413,7 +7520,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     border-radius: var(--radius-inner);
     color: var(--fg);
     font-size: var(--text-4);
-    line-height: 1.35;
+    line-height: round(1.35em, 2px);
     cursor: pointer;
     user-select: none;
 }
@@ -7994,7 +8101,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     .form-select[multiple] option:has(.option-text),
     .form-select[size]:not([size="1"]) option:has(.option-text) {
         padding-block: var(--space-3);
-        line-height: 1.4;
+        line-height: round(1.4em, 2px);
     }
 }
 }
@@ -8079,6 +8186,14 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    30-cards.css because it is that head's modifier. It drops this padding, the strip's
    own bottom border and the head's block padding, so the indicator meets the body
    edge. Do not write a second answer here. */
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.tab:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-4) + var(--cap-gap)); }
+/* A count is a flex item, and so already a block container. */
+.tab-count { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 
 /* ── 51-choice-tiles.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -8217,9 +8332,9 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 }
 
 /* line-height pins the option's box, so an option with an icon in it is the same
-   height as one without. The icon takes `line-height: 1` for the reason `.btn i`
-   does: an icon nested in a <span> beside the label shares a line box with it, and at
-   the inherited 1.5 its taller box is what set the option's height. */
+   height as one without. The icon and the label are the option's own items, beside the
+   hidden input — `<input …><i class="ri-…"></i> <span>List</span>` — so the row centres
+   what each draws (06-base-elements.css). */
 .segmented-option {
     position: relative;
     display: inline-flex;
@@ -8230,7 +8345,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     color: var(--muted);
     font-size: var(--text-3);
     font-weight: 500;
-    line-height: 1.4;
+    line-height: round(1.4em, 2px);
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
@@ -8628,6 +8743,12 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
         + round(down, calc(var(--avatar-pair-size) * 0.72), 2px) / 2
         - var(--avatar-pair-size) / 2);
 }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its size. See "The line a row is centred on" in 06-base-elements.css. */
+.avatar:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 }
 
 /* ── 53-chip.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -8659,7 +8780,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     border-radius: var(--radius-pill);
     color: var(--fg-soft);
     font-size: var(--text-3);
-    line-height: 1.6;
+    line-height: round(1.6em, 2px);
 }
 .chip--lg { min-height: var(--control-height); font-size: var(--text-4); padding-inline-start: var(--space-6); }
 /* A step under the default, for a chip inside a dense row or a table cell. */
@@ -8751,6 +8872,16 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 
 /* A whole row of them, wrapping. */
 .chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its minimum height. See "The line a row is centred on" in 06-base-elements.css. */
+.chip:not(:has(> *)) { display: inline-block; align-content: center; text-box: trim-both cap alphabetic; }
+
+/* A label in a row, trimmed to its capitals with its line in its padding: see "The line a
+   row is centred on" in 06-base-elements.css. */
+.chip-label { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 
 /* ── 54-data-viz.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -8841,6 +8972,17 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     font-variant-numeric: tabular-nums;
     min-width: 3ch;
     text-align: end;
+}
+/* A row in parts — open tasks per person, split by state. The fill keeps its `--value`,
+   the row's length against the widest, and `.stack-bar-segment`s inside it split that
+   length: each segment's `--value` is its share of the row, as in a `.stack-bar`, in the
+   same `series-*` colours, so the rows match a summary bar above them. The fill is one
+   picture, so it takes `role="img"` and a label with the numbers. */
+.bar-list-fill:has(> .stack-bar-segment) {
+    display: flex;
+    gap: var(--space-1);
+    background: none;
+    overflow: hidden;
 }
 /* A row the reader is on, or the one the figure above is about. */
 .bar-list-row[aria-current="true"] .bar-list-label,
@@ -9587,7 +9729,7 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .stat-value {
     font-size: var(--text-9);
     font-weight: 600;
-    line-height: 1.2;
+    line-height: round(1.2em, 2px);
     color: var(--fg);
     font-variant-numeric: tabular-nums;
 }
@@ -9818,9 +9960,17 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     border-radius: var(--radius-inner);
     color: var(--fg-soft);
     font-size: var(--text-4);
+    --row-line: 1lh;
 }
-.callout > i { font-size: var(--text-8); flex-shrink: 0; color: var(--muted); line-height: 1.4; }
-.callout-body { min-width: 0; }
+/* On the first line's capitals: the body is trimmed to them and given its leading back in
+   padding, and the icon stands in the middle of a line's height. */
+.callout > i {
+    font-size: var(--text-8);
+    flex-shrink: 0;
+    color: var(--muted);
+    margin-block-start: calc((var(--row-line) - 1em) / 2);
+}
+.callout-body { min-width: 0; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .callout-body > :first-child { margin-top: 0; }
 .callout-body > :last-child { margin-bottom: 0; }
 .callout-title { display: block; font-weight: 600; color: var(--fg); margin-bottom: var(--space-1); }
@@ -9833,11 +9983,13 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
    A title is what makes centring wrong: then the callout is two blocks, and the
    icon belongs against the first line rather than floating to the middle of both. */
 .callout:not(:has(.callout-title)) { align-items: center; }
+.callout:not(:has(.callout-title)) > i { margin-block-start: 0; }
 
-/* A title with nothing under it IS the content, so it is the one-line case again
-   and its gap has nothing left to separate. */
+/* A title with nothing under it IS the content, so its gap has nothing left to
+   separate. The icon needs no rule of its own here: it already stands on the first line,
+   which is the only one. (`:only-child` cannot tell a title with words after it from one
+   without, so it must not decide the row's alignment.) */
 .callout-title:only-child { margin-bottom: 0; }
-.callout:has(.callout-title:only-child) { align-items: center; }
 
 /* The same semantic families as buttons, badges and alerts. Tinted more lightly
    than an .alert: a callout is read as part of the prose, not scanned as a state. */
@@ -10102,6 +10254,13 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
        the trail does not reflow when the font falls back. */
 }
 .breadcrumb-item[aria-current="page"] { color: var(--fg); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its minimum height, or in a margin. See "The line a row is centred on" in 06-base-elements.css. */
+.page-link:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
+.breadcrumb-item:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 
 /* ── 58-menu.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -10400,6 +10559,12 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    panel in the markup — the panel then paints above it on source order, and the
    scrim needs no z-index of its own. */
 .menu-scrim { position: fixed; inset: 0; cursor: default; }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.menu-item:not(:has(> *)) { display: block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-4) + var(--cap-gap)); }
 }
 
 /* ── 59-table-extensions.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -11378,6 +11543,48 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     font-variant-numeric: tabular-nums;
 }
 
+/* ── A group that folds ─────────────────────────────────────────────────────
+   `.sticky-group-toggle` is the head's label as a button, with a chevron that turns: down
+   while the group is open, towards the inline end while it is folded. It takes the head's
+   own type, so a head reads the same with or without one, and the count stays beside it.
+   22-group.js marks the folded group's rows `data-group-hidden`; they leave the layout and
+   the accessibility tree, and the head stays where it is pinned. */
+.sticky-group-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex: 0 1 auto;
+    min-width: 0;
+    block-size: 100%;
+    margin-inline-start: calc(var(--space-2) * -1);
+    padding-inline: var(--space-2);
+    background: none;
+    border: none;
+    border-radius: var(--radius-inner);
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+.sticky-group-toggle::before {
+    content: "";
+    flex-shrink: 0;
+    inline-size: 6px;
+    block-size: 6px;
+    margin-block-start: -3px;
+    border-inline-end: 1.5px solid currentColor;
+    border-block-end: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform var(--motion-fast);
+}
+.sticky-group-toggle[aria-expanded="false"]::before { transform: rotate(-45deg); margin-block-start: 0; }
+.sticky-group-toggle[aria-expanded="false"]:dir(rtl)::before { transform: rotate(135deg); }
+.sticky-group-toggle:hover { color: var(--fg); }
+.sticky-group-toggle:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
+[data-group-hidden] { display: none; }
+
 /* ── Accordion ──────────────────────────────────────────────────────────────
    Built on <details>/<summary>, which is the whole point: open and closed state,
    keyboard operation, and the announcement all come from the platform, so there is
@@ -11430,6 +11637,13 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .accordion-body { padding: var(--space-6) var(--space-7); font-size: var(--text-4); color: var(--fg-soft); }
 .accordion-body > :first-child { margin-top: 0; }
 .accordion-body > :last-child { margin-bottom: 0; }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in a margin. See "The line a row is centred on" in 06-base-elements.css. */
+.sticky-group-count { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+.list-meta:not(:has(> *)) { display: block; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 
 /* ── 61-buttons-extra.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -11713,6 +11927,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    its own content sets its minimum size. */
 .prose table { display: block; overflow-x: auto; max-width: 100%; border-collapse: collapse; }
 .prose th, .prose td { padding: var(--space-3) var(--space-5); border: 1px solid var(--border); text-align: start; }
+.prose :is(th, td):not(:has(*)) { padding-block: calc(var(--space-3) + var(--cap-gap)); text-box: trim-both cap alphabetic; }
 .prose th { background: var(--table-head-bg); color: var(--muted); font-size: 0.9em; }
 
 /* ── Redacted ───────────────────────────────────────────────────────────────
@@ -12735,7 +12950,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
     color: var(--on-solid);
     font-size: var(--text-2);
     font-weight: 600;
-    line-height: 1.6;
+    line-height: round(1.6em, 2px);
     font-variant-numeric: tabular-nums;
 }
 /* A video's thumbnail says it plays: a round play glyph in the middle. */
@@ -13263,7 +13478,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     color: var(--code-fg);
     font-family: var(--font-mono);
     font-size: var(--text-2);
-    line-height: 1.5;
+    line-height: round(1.5em, 2px);
 }
 
 /* ── Spotlight ──────────────────────────────────────────────────────────────
@@ -13422,6 +13637,16 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block],
 body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, input, select, textarea, label) {
     pointer-events: none;
 }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.kbd:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(1px + var(--cap-gap)); }
+
+/* A label in a row, trimmed to its capitals with its line in its padding: see "The line a
+   row is centred on" in 06-base-elements.css. */
+.spotlight-step { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 
 /* ── 65-popover.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -13575,8 +13800,9 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     white-space: nowrap;
 }
 .agent-status > .orb { --orb-size: var(--status-orb); }
-.agent-status-label { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; padding-block: var(--space-1); }
-.agent-status-time { color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+/* Trimmed to its capitals, with its line in its padding: see 06-base-elements.css. */
+.agent-status-label { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
+.agent-status-time { color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .agent-status:has(> .btn:last-child) { padding-inline-end: calc((var(--status-h) - var(--control-height-sm)) / 2 - 1px); }
 .agent-status > .btn { border-radius: 50%; }
 .agent-status--sm { --status-h: 24px; --status-orb: 14px; gap: var(--space-3); font-size: var(--text-3); }
@@ -13740,7 +13966,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    The thinking behind an answer, folded away. A native <details>, so it opens from the
    keyboard and with no script.
      <details class="reasoning">
-       <summary><i class="ri-arrow-right-s-line reasoning-chevron"></i>Thought for 4 s</summary>
+       <summary><i class="ri-arrow-right-s-line reasoning-chevron"></i><span>Thought for 4 s</span></summary>
        <div class="reasoning-body"><p>…</p></div>
      </details>
 
@@ -13752,7 +13978,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
        <li data-state="done">
          <span class="agent-step-icon"><i class="ri-check-line"></i></span>
          <details class="agent-step">
-           <summary><span class="agent-step-label"><i class="ri-search-line"></i>Searched the runbook</span>
+           <summary><span class="agent-step-label"><i class="ri-search-line"></i><span>Searched the runbook</span></span>
                     <span class="agent-step-meta">4 results · 1.2 s</span></summary>
            <pre class="code-block"><code>…</code></pre>
          </details>
@@ -13839,7 +14065,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .agent-step > summary::-webkit-details-marker { display: none; }
 .agent-step-label { display: flex; align-items: center; gap: var(--space-3); min-inline-size: 0; }
 .agent-step-label > i { color: var(--muted); font-size: var(--text-5); }
-.agent-step-meta { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.agent-step-meta { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .agent-step > .code-block { margin-block-start: var(--space-4); }
 
 .agent-plan { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); font-size: var(--text-4); }
@@ -14356,7 +14582,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
-    line-height: 1.35;
+    line-height: round(1.35em, 2px);
     text-decoration: none;
     /* The content box ends on a whole line: the bottom padding takes up whatever is left
        over after the lines that fit, and below one line the block shows what it can
@@ -14550,6 +14776,22 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
 }
 .cal-timeline > .cal-now::before { inset-inline-start: -3px; inset-block-start: -4px; }
 
+/* Now, in a week of the month: the same vertical rule, through the row that holds
+   today, at `--cal-at` days from the row's first day — 2.6 is 60% of the way through the
+   third. A week row's inline axis is time and a day cell's block axis is not, so the line
+   runs across the row like the timeline's rather than down inside one cell. Put it in
+   today's `.cal-row`, after its cells. */
+.cal-row > .cal-now {
+    inset-block: 0;
+    inset-inline-start: calc(100% * var(--cal-at) / 7);
+    inline-size: 2px;
+    block-size: auto;
+}
+.cal-month--weeknums > .cal-row > .cal-now {
+    inset-inline-start: calc(var(--cal-weeknum-width) + (100% - var(--cal-weeknum-width)) * var(--cal-at) / 7);
+}
+.cal-row > .cal-now::before { inset-inline-start: -3px; inset-block-start: -4px; }
+
 .cal-timeline--grow .cal-timeline-row > .cal-row-events {
     position: relative;
     inset: auto;
@@ -14666,6 +14908,7 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
     block-size: 24px;
     color: var(--fg-soft);
     font-size: var(--text-2);
+    line-height: round(1.5em, 2px);
     font-weight: 500;
     letter-spacing: 0;
     text-transform: none;
@@ -14676,6 +14919,71 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
 @container cal-cell (max-width: 72px) {
     .cal-holiday-name { display: none; }
 }
+
+/* ── Markers in a day's head ────────────────────────────────────────────────
+   What else is on a day without an event pill for it — tasks due, messages scheduled, a
+   deadline: a small icon with a count or a time, at the end of the day's head. A marker
+   that opens the list behind it is a <button> with `data-popover`, so the list is the
+   app's own `.popover`, anchored to the marker; one that only says so is a <span>.
+
+     <div class="cal-day">
+       <span class="cal-day-num">6</span>
+       <span class="cal-marks">
+         <button class="cal-mark" type="button" data-popover="due-6" aria-label="3 tasks due, show them">
+           <i class="ri-checkbox-circle-line"></i><span>3</span>
+         </button>
+       </span>
+     </div>
+     <div class="popover" id="due-6" popover>…the three tasks…</div>
+
+   Several markers wrap inside the cell rather than widening it. The label says what the
+   number counts, because the icon alone does not. */
+.cal-day:has(> .cal-marks) {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+}
+.cal-marks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-1);
+    min-width: 0;
+    margin-inline-start: auto;
+    padding-block-start: 2px;
+}
+.cal-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    block-size: 20px;
+    padding: 0 var(--space-2);
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--surface-strong);
+    color: var(--fg-soft);
+    font-family: inherit;
+    font-size: var(--text-2);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    white-space: nowrap;
+}
+.cal-mark > i { color: var(--muted); font-size: var(--text-3); }
+button.cal-mark { cursor: pointer; transition: background var(--motion-fast), color var(--motion-fast); }
+button.cal-mark:hover { background: var(--bg-hover); color: var(--fg); }
+button.cal-mark:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: var(--brand-text); }
+
+/* ── Day tones ─────────────────────────────────────────────────────────────
+   On a month whose days carry markers, the shade of a weekend or a holiday is too faint to
+   read beside them. `.cal-month--day-tones` puts it on the day number instead: a weekend's
+   in the info tone, a holiday's in the danger tone. A holiday on a weekend reads as a
+   holiday, and today keeps its own mark.
+
+     <div class="cal-month cal-month--day-tones">…</div> */
+.cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--info-bg); color: var(--info-fg); }
+.cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--danger-bg); color: var(--danger-fg); }
 
 /* ── Date picker ───────────────────────────────────────────────────────────
    A panel for a date — or a range — that looks the same in every engine, for the app
@@ -14824,6 +15132,13 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .cal-month--mini .cal-day--range-start { border-start-end-radius: 0; border-end-end-radius: 0; }
 .cal-month--mini .cal-day--range-end { border-start-start-radius: 0; border-end-start-radius: 0; }
 .cal-month--mini .cal-day--range-start.cal-day--range-end { border-radius: var(--radius-inner); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its height. See "The line a row is centred on" in 06-base-elements.css. */
+.cal-day-num:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
+.cal-holiday-name { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 
 /* ── 66-chat.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -15365,6 +15680,9 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     line-height: 20px;
     text-align: center;
     box-shadow: 0 0 0 2px var(--bg);
+    /* Its capitals in the middle of its height: see 06-base-elements.css. */
+    align-content: center;
+    text-box: trim-both cap alphabetic;
 }
 
 .chat-flyover {
@@ -15414,6 +15732,14 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
         padding-bottom: var(--safe-block-end);
     }
 }
+
+/* A label in a row, trimmed to its capitals with its line in its padding: see "The line a
+   row is centred on" in 06-base-elements.css. */
+:is(.chat-author, .chat-time, .chat-edited) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+/* A bubble that holds one message and nothing else: its line trimmed to its capitals, its
+   leading back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.chat-bubble:not(:has(> *)) { text-box: trim-both cap alphabetic; padding-block: calc(var(--space-4) + var(--cap-gap)); }
+.chat--flat .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }
 }
 
 /* ── 66-orb.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -15691,7 +16017,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     font-weight: 600;
     line-height: 1;
 }
-.source-card-title { font-size: var(--text-4); font-weight: 600; line-height: 1.35; }
+.source-card-title { font-size: var(--text-4); font-weight: 600; line-height: round(1.35em, 2px); }
 
 .chat-composer--prompt {
     gap: var(--space-3);
@@ -15714,6 +16040,13 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
 .chat-composer-send > .btn { border-radius: 50%; }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its height. See "The line a row is centred on" in 06-base-elements.css. */
+.citation:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
+.chat-message--agent .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }
 }
 
 /* ── 67-output.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -15804,7 +16137,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
      <ul class="output output--columns" aria-label="Application log">
        <li class="output-line output-line--warn">
          <span class="output-time">09:14:02.118</span>
-         <span class="output-level"><i class="ri-alert-line" aria-hidden="true"></i> WARN</span>
+         <span class="output-level"><i class="ri-alert-line" aria-hidden="true"></i> <span>WARN</span></span>
          <span class="output-source">orders.sync</span>
          <span class="output-msg">retrying order <span class="output-id">ORD-4182</span></span>
        </li>
@@ -18923,8 +19256,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    off whichever box it has. TouchTargetTests finds every control drawn under the
    target size and holds it to this list. */
 @media (pointer: coarse) {
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close) { position: relative; }
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close)::before {
+    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
+    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
         content: "";
         position: absolute;
         inset: min(0px, calc((var(--touch-target) - 100%) / -2));
@@ -19264,6 +19597,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .output-details > summary:focus-visible,
     .card-resize:focus-visible,
     .choice-tile:has(> input:focus-visible),
+    button.cal-mark:focus-visible,
+    .sticky-group-toggle:focus-visible,
     .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
     :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
@@ -19511,7 +19846,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     font-size: var(--text-2);
     font-weight: 600;
     letter-spacing: 0.06em;
-    line-height: 1.4;
+    line-height: round(1.4em, 2px);
     text-transform: uppercase;
 }
 .text-mono  { font-family: var(--font-mono); }
@@ -20114,6 +20449,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         background-position: 0 0;
     }
     .choice-tile { transition: none; }
+    button.cal-mark { transition: none; }
+    .sticky-group-toggle::before { transition: none; }
 }
 }
 

@@ -49,7 +49,7 @@
     color: var(--fg);
     font-family: inherit;
     font-size: var(--text-3);
-    line-height: 1.4;
+    line-height: round(1.4em, 2px);
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 .nav-filter-input::placeholder { color: var(--placeholder); }

@@ -77,9 +77,17 @@
     border-radius: var(--radius-inner);
     color: var(--fg-soft);
     font-size: var(--text-4);
+    --row-line: 1lh;
 }
-.callout > i { font-size: var(--text-8); flex-shrink: 0; color: var(--muted); line-height: 1.4; }
-.callout-body { min-width: 0; }
+/* On the first line's capitals: the body is trimmed to them and given its leading back in
+   padding, and the icon stands in the middle of a line's height. */
+.callout > i {
+    font-size: var(--text-8);
+    flex-shrink: 0;
+    color: var(--muted);
+    margin-block-start: calc((var(--row-line) - 1em) / 2);
+}
+.callout-body { min-width: 0; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .callout-body > :first-child { margin-top: 0; }
 .callout-body > :last-child { margin-bottom: 0; }
 .callout-title { display: block; font-weight: 600; color: var(--fg); margin-bottom: var(--space-1); }
@@ -92,11 +100,13 @@
    A title is what makes centring wrong: then the callout is two blocks, and the
    icon belongs against the first line rather than floating to the middle of both. */
 .callout:not(:has(.callout-title)) { align-items: center; }
+.callout:not(:has(.callout-title)) > i { margin-block-start: 0; }
 
-/* A title with nothing under it IS the content, so it is the one-line case again
-   and its gap has nothing left to separate. */
+/* A title with nothing under it IS the content, so its gap has nothing left to
+   separate. The icon needs no rule of its own here: it already stands on the first line,
+   which is the only one. (`:only-child` cannot tell a title with words after it from one
+   without, so it must not decide the row's alignment.) */
 .callout-title:only-child { margin-bottom: 0; }
-.callout:has(.callout-title:only-child) { align-items: center; }
 
 /* The same semantic families as buttons, badges and alerts. Tinted more lightly
    than an .alert: a callout is read as part of the prose, not scanned as a state. */

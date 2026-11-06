@@ -51,8 +51,9 @@
     white-space: nowrap;
 }
 .agent-status > .orb { --orb-size: var(--status-orb); }
-.agent-status-label { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; padding-block: var(--space-1); }
-.agent-status-time { color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+/* Trimmed to its capitals, with its line in its padding: see 06-base-elements.css. */
+.agent-status-label { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
+.agent-status-time { color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .agent-status:has(> .btn:last-child) { padding-inline-end: calc((var(--status-h) - var(--control-height-sm)) / 2 - 1px); }
 .agent-status > .btn { border-radius: 50%; }
 .agent-status--sm { --status-h: 24px; --status-orb: 14px; gap: var(--space-3); font-size: var(--text-3); }

@@ -2,8 +2,8 @@
     <div class="card-head">
         <strong>Release pipeline</strong>
         <div class="card-head-right">
-            <label class="switch"><input type="checkbox" @bind="_scan" /> Security scan</label>
-            <label class="switch"><input type="checkbox" @bind="_loadTest" /> Load test</label>
+            <label class="switch"><input type="checkbox" @bind="_scan" /> <span>Security scan</span></label>
+            <label class="switch"><input type="checkbox" @bind="_loadTest" /> <span>Load test</span></label>
         </div>
     </div>
     <div class="graph graph--sm" data-graph id="release-pipeline" aria-label="The stages of a release"

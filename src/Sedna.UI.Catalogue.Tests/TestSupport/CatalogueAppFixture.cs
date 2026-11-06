@@ -66,7 +66,13 @@ public sealed class CatalogueAppFixture : IAsyncLifetime
         // No outbound call from a test run: the latest release's class history is
         // fetched from GitHub in production, and an empty URL turns that off.
         _baseFactory = new WebApplicationFactory<Program>();
-        _factory = _baseFactory.WithWebHostBuilder(b => b.UseSetting("ReleasedHistory:Url", "").UseSetting("Mcp:CallerTokenLimit", "100000"));
+        // And a free port only: without an address of its own, Kestrel also binds its default,
+        // 127.0.0.1:5000, which macOS gives to its AirPlay receiver — the app then fails to
+        // start, or a browser reaches AirPlay and gets a 403 instead of the catalogue.
+        _factory = _baseFactory.WithWebHostBuilder(b => b
+            .UseSetting("urls", "http://127.0.0.1:0")
+            .UseSetting("ReleasedHistory:Url", "")
+            .UseSetting("Mcp:CallerTokenLimit", "100000"));
         _factory.UseKestrel(0);
         _factory.StartServer();
         BaseAddress = _factory.ClientOptions.BaseAddress;

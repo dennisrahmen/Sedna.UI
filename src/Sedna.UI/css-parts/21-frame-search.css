@@ -144,7 +144,7 @@
     color: var(--fg);
     font-size: var(--text-4);
     font-weight: 600;
-    line-height: 1.35;
+    line-height: round(1.35em, 2px);
     text-overflow: ellipsis;
     white-space: nowrap;
 }

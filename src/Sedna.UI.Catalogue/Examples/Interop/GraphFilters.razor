@@ -7,10 +7,10 @@
             {
                 <label class="form-check">
                     <input type="checkbox" @bind="_kinds[kind.Id]" @bind:after="Apply" />
-                    <span class="graph-key"><span class="graph-swatch @kind.Swatch"></span>@kind.Name</span>
+                    <span class="graph-key"><span class="graph-swatch @kind.Swatch"></span><span>@kind.Name</span></span>
                 </label>
             }
-            <label class="switch"><input type="checkbox" @bind="_retired" @bind:after="Apply" /> Retired</label>
+            <label class="switch"><input type="checkbox" @bind="_retired" @bind:after="Apply" /> <span>Retired</span></label>
         </div>
         <select class="form-input form-select form-select--sm sedna-w-fit" aria-label="Team"
                 @bind="_team" @bind:after="Apply">

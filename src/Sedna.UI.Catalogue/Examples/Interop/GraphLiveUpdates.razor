@@ -9,12 +9,12 @@
     </div>
     <div class="card-foot card-foot--start">
         <button class="btn btn--sm" type="button" @onclick="OpenWarehouse" disabled="@(_opened.Count == Sites.Length)">
-            <i class="ri-add-line"></i> Open a warehouse
+            <i class="ri-add-line"></i> <span>Open a warehouse</span>
         </button>
         <button class="btn btn--sm" type="button" @onclick="CloseNewest" disabled="@(_opened.Count == 0)">
             Close the newest
         </button>
-        <label class="switch"><input type="checkbox" @bind="_fault" @bind:after="MarkFault" /> Stock fault</label>
+        <label class="switch"><input type="checkbox" @bind="_fault" @bind:after="MarkFault" /> <span>Stock fault</span></label>
         <span class="form-hint sedna-push">@_status</span>
     </div>
 </div>

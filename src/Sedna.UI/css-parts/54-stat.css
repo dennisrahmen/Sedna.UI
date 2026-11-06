@@ -20,7 +20,7 @@
 .stat-value {
     font-size: var(--text-9);
     font-weight: 600;
-    line-height: 1.2;
+    line-height: round(1.2em, 2px);
     color: var(--fg);
     font-variant-numeric: tabular-nums;
 }

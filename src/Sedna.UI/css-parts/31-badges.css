@@ -16,7 +16,7 @@
     font-size: var(--text-2);
     padding: var(--space-1) var(--space-4);
     color: var(--fg-soft);
-    line-height: 1.45;
+    line-height: round(1.45em, 2px);
     white-space: nowrap;
     vertical-align: middle;
 }
@@ -46,3 +46,11 @@
 .badge--sev-3 { background: var(--sev-3-bg); border-color: var(--sev-3-border); color: var(--sev-3-fg); }
 .badge--sev-4 { background: var(--sev-4-bg); border-color: var(--sev-4-border); color: var(--sev-4-fg); }
 .badge--sev-5 { background: var(--sev-5-bg); border-color: var(--sev-5-border); color: var(--sev-5-fg); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.badge:not(:has(> *))     { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
+.badge--sm:not(:has(> *)) { padding-block: var(--cap-gap); }
+.badge--lg:not(:has(> *)) { padding-block: calc(var(--space-2) + var(--cap-gap)); }

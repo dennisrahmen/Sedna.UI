@@ -86,7 +86,7 @@
     font-family: inherit;
     font-size: var(--text-1);
     font-weight: 500;
-    line-height: 1.2;
+    line-height: round(1.2em, 2px);
     text-align: center;
     text-decoration: none;
     cursor: pointer;
@@ -121,3 +121,7 @@
     font-size: var(--text-4);
     font-weight: 600;
 }
+
+/* A word on its own: a block container, trimmed to its capitals and centred in its height.
+   See "The line a row is centred on" in 06-base-elements.css. */
+.nav-area-title:not(:has(> *)) { display: block; align-content: center; text-box: trim-both cap alphabetic; }

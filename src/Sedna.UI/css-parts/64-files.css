@@ -257,7 +257,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
     color: var(--on-solid);
     font-size: var(--text-2);
     font-weight: 600;
-    line-height: 1.6;
+    line-height: round(1.6em, 2px);
     font-variant-numeric: tabular-nums;
 }
 /* A video's thumbnail says it plays: a round play glyph in the middle. */

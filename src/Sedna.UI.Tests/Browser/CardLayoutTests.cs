@@ -31,7 +31,7 @@ public class CardLayoutTests : ScriptTestBase
           <div class="card">
             <div class="card-head card-head--tabs">
               <div class="tabs" role="tablist">
-                <button class="tab" role="tab" aria-selected="true" id="tab">Open</button>
+                <button class="tab" role="tab" aria-selected="true" id="tab"><span>Open</span></button>
               </div>
               <div class="card-head-right" id="tabs-right"><span>3</span></div>
             </div>

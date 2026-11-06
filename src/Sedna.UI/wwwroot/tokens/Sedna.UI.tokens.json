@@ -371,6 +371,7 @@
         "--radius-inner": "4px",
         "--radius-small": "3px",
         "--radius-pill": "999px",
+        "--cap-gap": "calc((1lh - 1cap) / 2)",
         "--cell-pad-y": "8px",
         "--cell-pad-x": "12px",
         "--card-pad-block": "var(--space-6)",

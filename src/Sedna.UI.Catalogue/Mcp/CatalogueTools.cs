@@ -58,7 +58,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     private static readonly string[] Kinds = ["example", "class", "token", "page"];
 
     /// <summary>The sections <c>get_integration_guide</c> serves.</summary>
-    private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules", "graph"];
+    private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules", "graph", "editor", "upgrade"];
 
     [McpServerTool(Name = "search", ReadOnly = true, Destructive = false, Idempotent = true,
         OpenWorld = false)]
@@ -271,6 +271,14 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 declarations = c.Declarations,
                 usedByExamples = c.UsedByExamples,
             }),
+            // A name a release renamed: what replaced it, so an upgrade converts by the map
+            // and not by guessing from a prefix.
+            renamed = missing.Select(Renames.Of).OfType<Renames.Rename>().Select(r => new
+            {
+                name = "." + r.Old,
+                use = r.New.Select(n => "." + n),
+                since = r.Release,
+            }),
             notFound = missing,
             notes = missing.Select(n => new { name = n, note = WhyNotAClass(n) }),
         };
@@ -294,6 +302,10 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         if (name.IndexOfAny(SelectorPunctuation) >= 0)
             return "A selector, not a class name — pass one class at a time, without the dot or "
                    + "anything around it.";
+
+        if (Renames.Of(name) is { } rename)
+            return $"Renamed in {rename.Release}: use {string.Join(" ", rename.New.Select(n => "." + n))} "
+                   + "together, as renamed lists — replace the whole class, not its prefix.";
 
         return "No class of that name is declared. Try search, which also matches a class by what "
                + "its rules say.";
@@ -406,12 +418,13 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         Idempotent = true, OpenWorld = false)]
     [Description("""
         How to wire Sedna.UI into an app: the host page with its load order, the branding
-        recipe, the JavaScript and C# surface, the rules a consuming app follows, and the graph's
-        reference — its markup, controls, events, script and C#. Call once when integrating, not
-        per page.
+        recipe, the JavaScript and C# surface, the rules a consuming app follows, the graph's and
+        the rich-text editor's references, and — for an app moving to a newer release — every
+        class each release renamed, old name to the classes that look the same. Call once when
+        integrating or upgrading, not per page.
         """)]
     public object GetIntegrationGuide(
-        [Description("One of: host-page, branding, javascript, rules, graph. Omit for host-page.")]
+        [Description("One of: host-page, branding, javascript, rules, graph, editor, upgrade. Omit for host-page.")]
         string? section = null)
     {
         var name = section?.ToLowerInvariant() ?? "host-page";
@@ -422,12 +435,41 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
             "javascript" => Docs.Read("architecture.md"),
             "rules" => Docs.Read("CLAUDE.consuming-app.md"),
             "graph" => Docs.Read("graph.md"),
+            "editor" => Docs.Read("editor.md"),
+            "upgrade" => Upgrade(),
             _ => throw new McpException(
                 $"Unknown section \"{section}\". Use one of: {string.Join(", ", Sections)} — "
                 + "or omit it for host-page."),
         };
 
         return new { meta = versions.For(null), section = name, markdown };
+    }
+
+    /// <summary>
+    /// The upgrade section: where each release's breaking changes are, and every class each
+    /// release renamed, as markdown an agent can follow without another call.
+    /// </summary>
+    private static string Upgrade()
+    {
+        var md = new System.Text.StringBuilder();
+        md.AppendLine("# Upgrading Sedna.UI");
+        md.AppendLine();
+        md.AppendLine("Each release's breaking changes are listed first in its notes on the GitHub releases page. "
+            + "Before 1.0 a breaking change ships in a minor version. Class renames are below, and attached "
+            + "to each release as renames-<version>.json. `describe_class` answers an old name with what replaced it.");
+        foreach (var map in Renames.All)
+        {
+            md.AppendLine();
+            md.AppendLine($"## {map.From} → {map.Release}");
+            md.AppendLine();
+            md.AppendLine(map.About);
+            md.AppendLine();
+            md.AppendLine("| Old | Use |");
+            md.AppendLine("|---|---|");
+            foreach (var r in map.Renames)
+                md.AppendLine($"| `.{r.Old}` | {string.Join(" ", r.New.Select(n => $"`.{n}`"))} |");
+        }
+        return md.ToString();
     }
 
     /// <summary>

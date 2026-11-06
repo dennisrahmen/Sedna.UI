@@ -15,7 +15,9 @@
         state; this only positions them. The hole is placed against its offset parent, so give the
         stage <code>position: relative</code>, and call <code>UpdateAsync()</code> after every
         render rather than only on a step change: the bubble's own size decides which side it
-        fits on.
+        fits on. <code>Scroll = SpotlightScroll.Nearest</code> brings a step's target into view
+        when it starts, once, and <code>SpotlightScroll.Center</code> centres it; a tour inside a
+        frame scaled with CSS <code>zoom</code>, a wall screen, is placed correctly either way.
     </p>
 </CatExample>
 
