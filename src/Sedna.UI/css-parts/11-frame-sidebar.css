@@ -41,7 +41,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-5);
-    height: 44px;
+    height: var(--topbar-height);
     flex-shrink: 0;
     padding: 0 var(--space-7);
     border-bottom: 1px solid var(--sidebar-border);

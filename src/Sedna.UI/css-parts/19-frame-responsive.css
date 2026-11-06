@@ -47,6 +47,7 @@
         clip-path: inset(50%);
     }
     .layout--responsive .sidebar .nav-link-ext { display: none; }
+    .layout--responsive .sidebar .sidebar-wide { display: none; }
     .layout--responsive .sidebar .nav-count {
         position: absolute; top: 2px; inset-inline-end: var(--space-3); margin-inline-start: 0;
         min-width: 15px; padding: 0 var(--space-2); font-size: var(--text-1); line-height: 1.6;
@@ -110,6 +111,9 @@
     .topbar--responsive .user-trigger { padding: 0 var(--space-6); }
     .layout--responsive .topbar-version,
     .topbar--responsive .topbar-version { display: none; }
+    /* The app's own header content that can go on a phone — a status strip, a hint. */
+    .layout--responsive .topbar-wide,
+    .topbar--responsive .topbar-wide { display: none; }
 }
 
 /* ── The document scrolls on a phone ─────────────────────────────────────────

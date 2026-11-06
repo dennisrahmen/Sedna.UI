@@ -145,7 +145,8 @@
         <code>.modal--sm</code> is 360px, <code>.modal--lg</code> 760px and <code>.modal--xl</code> 1140px,
         against the default 480px; <code>.modal--full</code> takes the window's width less a margin at
         each side and the safe-area insets. Pick by how wide the content has to be, not by how
-        important the dialog is.
+        important the dialog is. Any other width is <code>--modal-width</code> on the dialog —
+        <code>style="--modal-width: min(1200px, 96vw)"</code>; the panel never grows past the window.
     </p>
 </CatExample>
 

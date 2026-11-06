@@ -35,6 +35,7 @@
     .sidebar.collapsed .nav-link { transition: none; }
     .sidebar.collapsed .nav-link > span:not(.nav-count) { transition: none; }
     .sidebar.collapsed .nav-link-ext { transition: none; }
+    .sidebar.collapsed .sidebar-wide { transition: none; }
     .sidebar.collapsed .nav-count { transition: none; }
     .sidebar.collapsed .nav-status-card { transition: none; }
     .sidebar.collapsed .nav-status-label,

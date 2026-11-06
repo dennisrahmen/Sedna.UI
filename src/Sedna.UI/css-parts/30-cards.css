@@ -41,6 +41,7 @@
     align-items: center;
     padding: var(--card-pad-block) var(--card-pad-inline);
     border-bottom: 1px solid var(--border);
+    background: var(--card-head-bg);
 }
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block

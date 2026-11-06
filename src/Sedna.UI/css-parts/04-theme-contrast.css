@@ -82,6 +82,7 @@
     --info-border: var(--orbit-300);
     --info-fg:     var(--orbit-200);
     --info-solid:  var(--orbit-300);
+    --info-on-solid: var(--black);
     --secret-bg:     var(--violet-900);
     --secret-border: var(--violet-300);
     --secret-fg:     var(--violet-200);
@@ -176,6 +177,7 @@
     --info-border: var(--orbit-800);
     --info-fg:     var(--orbit-900);
     --info-solid:  var(--orbit-900);
+    --info-on-solid: var(--on-solid);
     --secret-bg:     var(--violet-200);
     --secret-border: var(--violet-800);
     --secret-fg:     var(--violet-900);

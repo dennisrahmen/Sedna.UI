@@ -20,7 +20,7 @@
 .form-input[aria-invalid="true"]:focus,
 .form-select[aria-invalid="true"]:focus {
     border-color: var(--danger-solid);
-    box-shadow: 0 0 0 2px var(--danger-ring);
+    box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* The message itself. Put it after the control and point at it with
@@ -138,7 +138,7 @@
 .input-group .btn:hover { background: var(--bg-hover); }
 .input-group .btn:not(:first-child) { border-inline-start: 1px solid var(--border); }
 .input-group .btn:not(:last-child)  { border-inline-end:   1px solid var(--border); }
-.input-group .btn:focus-visible { box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.input-group .btn:focus-visible { box-shadow: inset 0 0 0 2px var(--focus-ring); }
 
 /* ── Clear button ───────────────────────────────────────────────────────────
    A button that empties the field beside it, drawn inside the group rather than as
@@ -175,7 +175,7 @@
     cursor: pointer;
 }
 .input-clear:hover { background: var(--bg-hover); color: var(--fg); }
-.input-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.input-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .input-group:has(> .form-input:placeholder-shown) > .input-clear { display: none; }
 .input-group:has(> .input-clear) > .form-input::-webkit-search-cancel-button { display: none; }
 

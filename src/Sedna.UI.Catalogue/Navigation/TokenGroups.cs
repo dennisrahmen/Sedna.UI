@@ -75,10 +75,13 @@ internal static class TokenGroups
 
         // The edge of every box a reader types or picks into, at rest and focused, apart
         // from --border so fields can be firmed up without firming up every divider.
-        new("Fields", ["--field-border", "--field-border-focus"]),
+        new("Fields", ["--field-border", "--field-border-focus", "--control-border", "--control-on", "--focus-ring"]),
 
-        // How far a disabled control fades. A number, not a colour.
-        new("Disabled", ["--disabled-opacity"], Swatch: false),
+        // A disabled control: its label, fill and edge — the label still at 4.5:1.
+        new("Disabled", ["--disabled-fg", "--disabled-bg", "--disabled-border"]),
+
+        // How far a disabled control's graphic fades — the check, the switch, the range. A number.
+        new("Disabled graphics", ["--disabled-opacity"], Swatch: false),
 
         new("Sidebar", [
             "--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-active",
@@ -88,6 +91,10 @@ internal static class TokenGroups
         // The header's surface and what is drawn straight on it. Aliases of the roles it
         // always used, so a brand-coloured header is four tokens and no rule.
         new("Topbar", ["--topbar-bg", "--topbar-fg", "--topbar-muted", "--topbar-hover"]),
+        new("Topbar size", ["--topbar-height"], Swatch: false),
+
+        // A modal's header and footer and a card's head as bars of their own.
+        new("Panel bars", ["--modal-head-bg", "--modal-foot-bg", "--card-head-bg"]),
 
         new("Status — go (sends outward)", [
             "--go-solid", "--go-hover", "--go-active", "--go-bg", "--go-bg-hover", "--go-bg-active",
@@ -106,7 +113,7 @@ internal static class TokenGroups
 
         new("Status — info & secret", [
             "--info-bg", "--info-bg-hover", "--info-bg-active", "--info-border", "--info-fg",
-            "--info-solid", "--info-hover", "--info-active", "--info-ring",
+            "--info-solid", "--info-on-solid", "--info-hover", "--info-active", "--info-ring",
             "--secret-bg", "--secret-bg-hover", "--secret-bg-active", "--secret-border", "--secret-fg",
             "--secret-hover", "--secret-active",
         ]),
@@ -151,7 +158,7 @@ internal static class TokenGroups
 
         new("Type scale", [
             "--text-1", "--text-2", "--text-3", "--text-4", "--text-5", "--text-6",
-            "--text-7", "--text-8", "--text-9", "--text-10", "--text-11",
+            "--text-7", "--text-8", "--text-9", "--text-10", "--text-11", "--text-field-touch",
         ], Swatch: false),
 
         new("Control height", [
@@ -175,7 +182,7 @@ internal static class TokenGroups
 
         new("Density and metrics", [
             "--page-max", "--cell-pad-x", "--cell-pad-y", "--card-pad-block", "--card-pad-inline",
-            "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--code-clamp",
+            "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--code-clamp", "--page-rhythm", "--page-pad",
         ], Swatch: false),
 
         // How much of each viewport edge the device has taken — a home indicator, a

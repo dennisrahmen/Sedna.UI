@@ -78,7 +78,7 @@
     cursor: pointer;
 }
 .chip-dismiss:hover { background: var(--bg-hover); color: var(--fg); }
-.chip-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.chip-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* Chosen — a filter that is on, rather than one offered. A <button> chip whose
    aria-pressed is "true" is chosen by that alone, so a script that toggles the state —
@@ -111,7 +111,7 @@ button.chip[aria-pressed="true"] i { color: var(--brand-text); }
    does not inherit the page's font. */
 button.chip { font-family: inherit; cursor: pointer; }
 button.chip:hover { border-color: var(--border-hover); }
-button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* A whole row of them, wrapping. */
 .chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }

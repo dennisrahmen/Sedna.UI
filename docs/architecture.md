@@ -239,7 +239,13 @@ your own stylesheet; it is unlayered and beats the library.
   | `--tab-indicator` | `--selected` | the line under `.tab[aria-selected]`, the current `.topbar-nav-link` and the current bottom-bar item |
   | `--topbar-bg`, `--topbar-fg`, `--topbar-muted`, `--topbar-hover` | `--bg-elevated`, `--fg`, `--muted`, `--bg-hover` | `.topbar` and what is drawn straight on it — its icon buttons, area links, version tag and the user widget's trigger and sign-out; not the panels that open from it |
   | `--brand-edge` | `--brand-soft` (dark), `--brand` (light) | `.btn--brand.btn--solid`'s border, so its boundary clears 3:1 on a dark card |
-  | `--disabled-opacity` | `0.4` | every disabled control: `.btn`, `.btn-bare`, `.tab`, `.menu-item`, `button.list-row`, `.page-link`, the checkbox, radio, switch, colour, range and segmented controls, a disabled editor's toolbar |
+  | `--focus-ring` | `--brand-soft` | the 2px ring every control draws on `:focus-visible` |
+  | `--control-border` | `--field-border` | the edge of a checkbox, a radio and a switch's track — held to 3:1 |
+  | `--control-on` | `--brand` | a checked checkbox and radio, an on switch, a slider's filled track and thumb |
+  | `--topbar-height` | `44px` | `.topbar`, its `.topbar-btn` squares, and the sidebar's `.brand` and `.nav-area-title`, which line up with it |
+  | `--modal-head-bg`, `--modal-foot-bg`, `--card-head-bg` | `transparent` | `.modal-header`, `.modal-footer` and `.card-head` as bars of their own |
+  | `--disabled-fg`, `--disabled-bg`, `--disabled-border` | `--muted`, `--surface-soft`, `--border` | every disabled control with a label: `.btn`, `.btn-bare`, `.tab`, `.menu-item`, `button.list-row`, `.page-link`, a segmented option, a disabled field and a check's or switch's label. The label is held to 4.5:1 |
+  | `--disabled-opacity` | `0.4` | the graphics of a disabled control that carry no text: the check mark, the radio dot, the switch, the colour swatch, the range, a disabled editor's toolbar |
 
   A text role moved this way still has to clear 4.5:1 on `--bg` and `--card-bg`, and an edge 3:1;
   `PlaceholderContrastTests` and `ButtonEdgeContrastTests` hold the defaults to that.
@@ -290,7 +296,7 @@ Two consequences for a rule that sets a control's height:
 
 ## Theming
 
-`data-theme`, `data-variant`, `data-cvd="1"`, `data-density="compact"` and `dir` are set on `<html>`.
+`data-theme`, `data-variant`, `data-cvd="1"`, `data-density="compact"` or `"touch"` and `dir` are set on `<html>`.
 
 - `Sedna.UI.boot.js` applies them from `localStorage` before first paint.
 - `sednaUi.settings.save('variant', 'light')` (or `'theme'`, `'cvd'`, `'density'`) updates them at
@@ -358,9 +364,17 @@ tag's own `data-variant-default`.
 The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, so go and danger read as
 blue against red. Amber and the brand colour are unchanged.
 
-`data-density="compact"` is a token remap. It tightens table cells through `--cell-pad-y` /
+`data-density="compact"` and `data-density="touch"` are token remaps of spacing and control heights;
+neither touches the type, which the reader sizes with the browser's zoom. Compact tightens and keeps the
+small control tier at 24px; touch loosens and puts the default control at 44px. Both move the page's
+rhythm and padding (`--page-rhythm`, `--page-pad`) and the three control heights
+(`--control-height-sm`, `--control-height`, `--control-height-lg`). Each tightens table cells through `--cell-pad-y` /
 `--cell-pad-x`, and every card part — `.card-head`, `.card-body`, `.card-foot` — through `--card-pad-block` / `--card-pad-inline`, and every `.list-row` — in a card or not — through `--list-pad-block` / `--list-pad-inline`, with `--list-gap` between the cards of a `.list--cards`. An app's own component tightens with them by reading
 the same tokens; page-specific components with other spacing are the app's to tighten.
+
+On a coarse pointer every text field — `input` of a typed kind, `select`, `textarea`, the library's and
+an app's own — is set at 16px, whatever the density, because Safari on iOS and iPadOS zooms the page
+when a smaller field takes focus.
 
 ## Branding
 

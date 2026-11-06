@@ -129,7 +129,7 @@
 }
 button.cal-weeknum { background: none; border-block: none; border-inline-start: none; font-family: inherit; cursor: pointer; }
 button.cal-weeknum:hover { background: var(--bg-hover); color: var(--fg); }
-button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 .cal-month--weeknums .cal-weekdays > .cal-weekday:first-child { padding-inline: 0; text-align: center; }
 
 /* A positioned grid child takes its grid area as its containing block, so the layer
@@ -179,7 +179,7 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
 a.cal-event:hover,
 button.cal-event:hover { filter: brightness(1.15); text-decoration: none; }
 button.cal-event { border-block: none; border-inline-end: none; font-family: inherit; text-align: start; cursor: pointer; }
-.cal-event:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.cal-event:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* --fg-soft, not --muted: the pill is a tinted surface, and muted text on a tint falls
    under the contrast floor. The weight is what sets the time apart from the title. */
 .cal-event-time { color: var(--fg-soft); font-weight: 400; font-variant-numeric: tabular-nums; flex-shrink: 0; }
@@ -466,7 +466,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     block-size: var(--cal-block-rest);
     background: inherit;
 }
-.cal-block:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.cal-block:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .cal-block .cal-event-time { display: block; }
 
 .cal-now {
@@ -712,7 +712,7 @@ button.cal-day {
     cursor: pointer;
 }
 button.cal-day:hover { background: var(--bg-hover); }
-button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .cal-month--mini button.cal-day[aria-pressed="true"]:hover { background: var(--brand); }
 .cal-day:disabled,
 .cal-day[aria-disabled="true"] {
@@ -841,7 +841,7 @@ button.datepicker-title {
     cursor: pointer;
 }
 button.datepicker-title:hover { background: var(--bg-hover); }
-button.datepicker-title:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+button.datepicker-title:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 
 .cal-months,
@@ -867,7 +867,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     cursor: pointer;
 }
 .cal-pick:hover { background: var(--bg-hover); }
-.cal-pick:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.cal-pick:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .cal-pick--outside { color: var(--muted); }
 /* `:where()` keeps "now" at one class of weight, so "chosen" below outranks it when a
    pick is both, and this month chosen is on-solid text on the fill, not brand on brand. */

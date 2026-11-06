@@ -34,8 +34,8 @@
 .btn i { font-size: var(--text-6); line-height: 1; }
 .btn:hover         { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
 .btn:active        { background: var(--btn-active-bg); }
-.btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.btn:disabled      { opacity: var(--disabled-opacity); cursor: not-allowed; pointer-events: none; }
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.btn:disabled      { cursor: not-allowed; pointer-events: none; }
 
 /* Three tiers. Each sets its height from the matching token and scales its padding,
    text and icon with it. */
@@ -44,11 +44,10 @@
 .btn--lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
 .btn--lg i { font-size: var(--text-8); }
 
-
-
-
-
-/* Its own ring, so focus is not a blue halo around a red destructive button. */
+/* A label that may run to two lines — a recipient's name over their organisation in a
+   picker, a long choice. It wraps and starts at the inline start; the height grows from
+   the tier's minimum. */
+.btn.btn--wrap { white-space: normal; text-align: start; justify-content: flex-start; overflow-wrap: anywhere; }
 
 /* ── In flight ──────────────────────────────────────────────────────────────
    `aria-busy="true"` on a button whose action is running — a save, a submit, an API

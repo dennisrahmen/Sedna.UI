@@ -85,8 +85,8 @@
 /* No size of its own: the glyph rides the surrounding text. line-height: 1 keeps it
    from growing the line box it is in. */
 .btn-bare i { line-height: 1; }
-.btn-bare:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
-.btn-bare:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
+.btn-bare:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.btn-bare:disabled { cursor: not-allowed; }
 /* Link-coloured, for an identifier that goes somewhere. It underlines on hover
    because that is where a reader looks for the affordance an <a> would have. */
 .btn-bare--link { color: var(--accent); }
@@ -127,6 +127,6 @@
 }
 .fab i { font-size: var(--text-8); }
 .fab:hover { background: var(--brand-hover); }
-.fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--brand-ring); }
+.fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 /* Icon-only: circular, and the label goes in an aria-label. */
 .fab--icon { width: 48px; padding: 0; }

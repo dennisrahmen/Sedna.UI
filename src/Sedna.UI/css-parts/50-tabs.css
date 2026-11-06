@@ -49,9 +49,9 @@
 }
 .tab i { font-size: var(--text-6); }
 .tab:hover { color: var(--fg); background: var(--surface-soft); text-decoration: none; }
-.tab:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.tab:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .tab:disabled,
-.tab[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; }
+.tab[aria-disabled="true"] { cursor: not-allowed; }
 
 .tab--active,
 .tab[aria-selected="true"] { color: var(--brand-text); border-bottom-color: var(--tab-indicator); }

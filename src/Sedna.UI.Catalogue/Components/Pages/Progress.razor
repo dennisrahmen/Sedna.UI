@@ -50,6 +50,25 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Progress.Ring" Title="Progress ring" Demo="ex-demo--pad">
+    <p>
+        <code>.progress-ring</code> is the determinate value where there is no width to fill.
+        Write the value as a percentage in <code>--progress</code> and the same number in
+        <code>aria-valuenow</code>; the element holds a label if you give it one.
+        <code>--progress-ring-size</code> and <code>--progress-ring-width</code> size it, and
+        <code>.progress-ring--lg</code> is the larger step.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Progress/Splash.html" Title="A splash while the app starts">
+    <p>
+        <code>.splash</code> covers the viewport in the theme's background while the app starts,
+        clear of the notch. Put it inside the element the app renders into, so the first render
+        replaces it. Blazor WebAssembly writes <code>--blazor-load-percentage</code> on the
+        document while it downloads, so a ring fed from it fills as the app loads.
+    </p>
+</CatSnippet>
+
 
 
 <CatExample TExample="Examples.Progress.RunningJobs" Title="A list of running work" Demo="ex-demo--block">

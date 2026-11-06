@@ -162,7 +162,7 @@ layout at the seam instead.
 ### A number in a `style` attribute is usually a knob you have not found
 
 Where a library class has one value an app reasonably wants to change, that value is a custom property
-on the element, not a class to override. `--toolbar-input-width`, `--search-max`, `--modal-max-height`,
+on the element, not a class to override. `--toolbar-input-width`, `--search-max`, `--modal-width`, `--modal-max-height`, `--drawer-width`,
 `--scroll-max`, `--skeleton-height`, `--page-gap`, `--sidebar-width`, `--nav-indent`,
 `--prose-measure`, `--deck-height`, `--form-combo-panel-width`,
 `--col-control-min` / `--col-control-max`, `--col-prose-min` / `--col-prose-max`. Set one inline —

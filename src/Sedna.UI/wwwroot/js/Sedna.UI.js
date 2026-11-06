@@ -173,7 +173,7 @@ window.sednaUi = window.sednaUi || {};
                 theme:   g('theme') || config.themeDefault,
                 variant: (v === 'light' || v === 'dark' || v === 'system') ? v : 'dark',
                 cvd:     g('cvd') === '1',
-                compact: g('density') === 'compact',
+                density: (g('density') === 'compact' || g('density') === 'touch') ? g('density') : 'comfortable',
                 dir:     g('dir') === 'rtl' ? 'rtl' : (g('dir') === 'ltr' ? 'ltr'
                              : (document.documentElement.dir || 'ltr'))
             };
@@ -202,7 +202,8 @@ window.sednaUi = window.sednaUi || {};
             root.setAttribute('data-variant', variant);
             if (g('cvd') === '1') root.setAttribute('data-cvd', '1');
             else root.removeAttribute('data-cvd');
-            if (g('density') === 'compact') root.setAttribute('data-density', 'compact');
+            var density = g('density');
+            if (density === 'compact' || density === 'touch') root.setAttribute('data-density', density);
             else root.removeAttribute('data-density');
             var dir = g('dir');
             if (dir === 'rtl' || dir === 'ltr') root.dir = dir;
@@ -352,8 +353,11 @@ window.sednaUi = window.sednaUi || {};
         document.addEventListener('keydown', function (e) {
             if (e.key !== 'Escape' || !tipEl || !tipEl.classList.contains('sedna-tip--visible')) return;
             hide();
-            e.preventDefault();
-            e.stopPropagation();
+            var t = e.target instanceof Element ? e.target : null;
+            if (t && t.closest('dialog[open], :popover-open')) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
         }, true);
         document.addEventListener('mouseover', function (e) {
             var el = trigger(e.target);

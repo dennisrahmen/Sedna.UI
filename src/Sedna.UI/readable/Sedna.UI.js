@@ -399,7 +399,7 @@ window.sednaUi = window.sednaUi || {};
                 theme:   g('theme') || config.themeDefault,
                 variant: (v === 'light' || v === 'dark' || v === 'system') ? v : 'dark',
                 cvd:     g('cvd') === '1',
-                compact: g('density') === 'compact',
+                density: (g('density') === 'compact' || g('density') === 'touch') ? g('density') : 'comfortable',
                 // The document's own direction when nothing is stored, for the same
                 // reason as lang above: the host page is the authority until the
                 // reader chooses otherwise.
@@ -433,7 +433,8 @@ window.sednaUi = window.sednaUi || {};
 
             if (g('cvd') === '1') root.setAttribute('data-cvd', '1');
             else root.removeAttribute('data-cvd');
-            if (g('density') === 'compact') root.setAttribute('data-density', 'compact');
+            var density = g('density');
+            if (density === 'compact' || density === 'touch') root.setAttribute('data-density', density);
             else root.removeAttribute('data-density');
             // Only a stored choice writes dir, and "ltr" is stored explicitly rather
             // than treated as absent — otherwise switching back would delete a dir
@@ -712,13 +713,18 @@ window.sednaUi = window.sednaUi || {};
             if (unwatch) { unwatch(); unwatch = null; }
             if (tipEl) tipEl.classList.remove('sedna-tip--visible');
         }
-        // Dismissible without moving the pointer or the focus (WCAG 1.4.13). The press is
-        // taken, so the dialog the hint sits in stays open; the next Escape closes it.
+        // Dismissible without moving the pointer or the focus (WCAG 1.4.13). Inside an open
+        // dialog or popover the press is taken, so the container the hint sits in stays
+        // open and the next Escape closes it. Anywhere else the press goes on as well: a
+        // graph, a combo or a menu that clears something on Escape still hears it.
         document.addEventListener('keydown', function (e) {
             if (e.key !== 'Escape' || !tipEl || !tipEl.classList.contains('sedna-tip--visible')) return;
             hide();
-            e.preventDefault();
-            e.stopPropagation();
+            var t = e.target instanceof Element ? e.target : null;
+            if (t && t.closest('dialog[open], :popover-open')) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
         }, true);
 
         document.addEventListener('mouseover', function (e) {

@@ -73,7 +73,7 @@
     cursor: pointer;
 }
 .th-sort:hover { color: var(--fg); background: var(--surface-strong); }
-.th-sort:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.th-sort:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 /* The caret is drawn with borders rather than taken from the icon font. Two
    reasons: `font-family` in this library always rides a token and a test enforces
    it, and pinning a Remix Icon codepoint here would silently point at a different
@@ -447,7 +447,7 @@
     cursor: pointer;
 }
 .th-filter:hover { background: var(--bg-hover); color: var(--fg); }
-.th-filter:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.th-filter:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .table th[aria-sort] .th-filter { margin-inline-end: var(--space-3); }
 .th-filter--active,
 .th-filter--active:hover { background: var(--brand-tint); color: var(--brand-text); }

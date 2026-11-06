@@ -87,7 +87,7 @@
 .code-block:hover .code-block-copy,
 .code-block-copy:focus-visible { opacity: 1; }
 .code-block-copy:hover { background: var(--bg-hover); color: var(--fg); }
-.code-block-copy:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.code-block-copy:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* Touch and other hover-less inputs: there is no hover to reveal it. */
 @media (hover: none) {
     .code-block-copy { opacity: 1; }
@@ -147,5 +147,5 @@
     transition: background var(--motion-fast), color var(--motion-fast);
 }
 .code-block-expand:hover { background: var(--bg-hover); color: var(--fg); }
-.code-block-expand:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.code-block-expand:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .code-block-expand i { font-size: var(--text-4); }

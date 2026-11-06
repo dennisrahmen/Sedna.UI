@@ -159,7 +159,7 @@
     cursor: pointer;
 }
 .output-details > summary::-webkit-details-marker { display: none; }
-.output-details > summary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.output-details > summary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .output-details > summary::before {
     content: '';
     position: absolute;

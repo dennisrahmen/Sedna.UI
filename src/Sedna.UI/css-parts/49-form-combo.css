@@ -64,7 +64,7 @@
    reads them. The box follows. */
 .form-combo-box:has(> .form-combo-input[aria-invalid="true"]) { border-color: var(--danger-border-strong); }
 .form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within {
-    box-shadow: 0 0 0 2px var(--danger-ring);
+    box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .form-combo-box:has(> .form-combo-input:disabled) {
     background: var(--surface-soft);
@@ -150,7 +150,7 @@
     cursor: pointer;
 }
 .form-combo-btn:hover { background: var(--bg-hover); color: var(--fg); }
-.form-combo-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.form-combo-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .form-combo-toggle i { transition: transform var(--motion-fast); }
 .form-combo-box:has(> .form-combo-input[aria-expanded="true"]) .form-combo-toggle i { transform: rotate(180deg); }
 /* Clear appears once there is something to clear. */
@@ -166,7 +166,7 @@
    never eats the picks in front of it. */
 .form-combo-box > .chip[data-armed] {
     border-color: var(--brand);
-    box-shadow: 0 0 0 2px var(--brand-ring-soft);
+    box-shadow: 0 0 0 2px var(--focus-ring);
     color: var(--fg);
 }
 
@@ -444,7 +444,7 @@
 .form-combo-group-action:hover { text-decoration: underline; }
 .form-combo-group-action[data-active] {
     background: var(--bg-hover);
-    box-shadow: 0 0 0 2px var(--brand-ring-soft);
+    box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .form-combo-group-action:disabled {
     color: var(--muted);

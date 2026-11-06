@@ -45,6 +45,9 @@
     transition: position var(--snap) allow-discrete, width var(--snap) allow-discrete, height var(--snap) allow-discrete, overflow var(--snap) allow-discrete, clip-path var(--snap) allow-discrete;
 }
 .sidebar.collapsed .nav-link-ext { display: none; transition: display var(--motion-mid) allow-discrete; }
+/* The app's own content that only makes sense wide — a status block, a note at the
+   foot of the sidebar: it goes with the labels. */
+.sidebar.collapsed .sidebar-wide { display: none; transition: display var(--motion-mid) allow-discrete; }
 .sidebar.collapsed .nav-count {
     position: absolute; top: 2px; inset-inline-end: var(--space-3); margin-inline-start: 0;
     min-width: 15px; padding: 0 var(--space-2); font-size: var(--text-1); line-height: 1.6;

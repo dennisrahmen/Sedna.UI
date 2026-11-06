@@ -5,7 +5,7 @@
 .topbar {
     display: flex;
     align-items: stretch;
-    height: 44px;
+    height: var(--topbar-height);
     --surface-here: var(--topbar-bg);
     background: var(--topbar-bg);
     color: var(--topbar-fg);
@@ -28,13 +28,18 @@
    right (for the leading sidebar toggle); the default divides on the left. */
 .topbar-btn {
     display: inline-flex; align-items: center; justify-content: center;
-    width: 44px; flex-shrink: 0;
+    width: var(--topbar-height); flex-shrink: 0;
     background: none; border: none; border-inline-start: 1px solid var(--border);
     color: var(--topbar-muted); cursor: pointer; font-size: var(--text-8);
     text-decoration: none;
 }
 .topbar-btn:hover { background: var(--topbar-hover); color: var(--topbar-fg); text-decoration: none; }
 .topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
+
+
+/* A header that stays at the top while the document scrolls under it — for a page
+   without the frame's own scroll container. */
+.topbar--sticky { position: sticky; inset-block-start: 0; }
 
 /* ── Version tag ────────────────────────────────────────────────────────────
    The running version or build of the app, in the header's trailing cluster

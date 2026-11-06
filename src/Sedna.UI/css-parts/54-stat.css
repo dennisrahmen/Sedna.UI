@@ -78,7 +78,7 @@ a.stat {
 }
 a.stat:hover { background: var(--bg-hover); text-decoration: none; }
 a.stat:hover .stat-value { color: var(--brand-text); }
-a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* ── Unavailable ────────────────────────────────────────────────────────────
    The number could not be read. An em dash, not a zero: zero is a measurement and

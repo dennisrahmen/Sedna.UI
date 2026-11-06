@@ -19,7 +19,9 @@
 
    A solid fill's edge is the tone's ink, as --brand-edge is a step off --brand: a filled
    green or amber is under 3:1 against a dark card on its own, and the edge is what keeps
-   the control's boundary visible (ButtonEdgeContrastTests).
+   the control's boundary visible (ButtonEdgeContrastTests). Where the fill is the tone's
+   own ink — secret and the categorical hues, light in dark and dark in light — the label
+   on it is --bg, which flips with it (SolidToneContrastTests).
    ─────────────────────────────────────────────────────────────────────────── */
 
 .btn, .badge, .alert, .callout, .toast, .chip, .stat, tr {
@@ -115,7 +117,7 @@
     --tone-solid-edge: var(--info-fg);
     --tone-ring: var(--info-ring);
     --tone-ring-solid: var(--info-ring);
-    --tone-on-solid: var(--on-solid);
+    --tone-on-solid: var(--info-on-solid);
 }
 
 .btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret {
@@ -131,7 +133,7 @@
     --tone-solid-edge: var(--secret-fg);
     --tone-ring: var(--brand-ring-soft);
     --tone-ring-solid: var(--brand-ring);
-    --tone-on-solid: var(--on-solid);
+    --tone-on-solid: var(--bg);
 }
 
 .badge--cyan, .chip--cyan {
@@ -147,7 +149,7 @@
     --tone-solid-edge: var(--badge-cyan-fg);
     --tone-ring: var(--brand-ring-soft);
     --tone-ring-solid: var(--brand-ring);
-    --tone-on-solid: var(--on-solid);
+    --tone-on-solid: var(--bg);
 }
 
 .badge--orange, .chip--orange {
@@ -163,7 +165,7 @@
     --tone-solid-edge: var(--badge-orange-fg);
     --tone-ring: var(--brand-ring-soft);
     --tone-ring-solid: var(--brand-ring);
-    --tone-on-solid: var(--on-solid);
+    --tone-on-solid: var(--bg);
 }
 
 .badge--teal, .chip--teal {
@@ -179,20 +181,20 @@
     --tone-solid-edge: var(--badge-teal-fg);
     --tone-ring: var(--brand-ring-soft);
     --tone-ring-solid: var(--brand-ring);
-    --tone-on-solid: var(--on-solid);
+    --tone-on-solid: var(--bg);
 }
 
 /* Buttons. Soft is a toned button's own emphasis. */
 .btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
 .btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):hover { background: var(--tone-bg-hover); border-color: var(--tone-border-strong); }
 .btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):active { background: var(--tone-bg-active); }
-.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):focus-visible { box-shadow: 0 0 0 2px var(--tone-ring); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
 .btn.btn--solid { background: var(--tone-solid, var(--fg)); border-color: var(--tone-solid-edge, var(--fg)); color: var(--tone-on-solid, var(--bg)); }
 /* The edge stays where it is on hover and press: the fill darkens away from a dark card,
    and the edge is what keeps the boundary at 3:1 there. */
 .btn.btn--solid:hover { background: var(--tone-solid-hover, var(--fg-soft)); }
 .btn.btn--solid:active { background: var(--tone-solid-active, var(--fg-soft)); }
-.btn.btn--solid:focus-visible { box-shadow: 0 0 0 2px var(--tone-ring-solid, var(--brand-ring)); }
+.btn.btn--solid:focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
 .btn.btn--ghost { background: none; border-color: transparent; color: var(--tone-fg, var(--muted)); }
 .btn.btn--ghost:hover { background: var(--tone-bg, var(--bg-hover)); border-color: transparent; color: var(--tone-fg, var(--fg)); }
 .btn.btn--ghost:active { background: var(--tone-bg-active, var(--btn-active-bg)); }
@@ -226,3 +228,26 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 /* A table row that means something — stale, failing, waiting. */
 .table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret) > td { background: var(--tone-bg); }
 .table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover > td { background: var(--tone-bg-hover); }
+
+/* An ordinary neutral ghost button placed straight in the header reads the header's
+   own tokens, as .topbar-btn does, so a brand-coloured header keeps it legible. A toned
+   one keeps its tone, and a button inside a panel that opens from the header keeps the
+   page's roles: only a direct child of the bar or of a section is the header's. In this
+   layer and not the frame's, which the ghost rule above would outrank. */
+:is(.topbar, .topbar-section) > .btn.btn--ghost:not(:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret)) { color: var(--topbar-muted); }
+:is(.topbar, .topbar-section) > .btn.btn--ghost:not(:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret)):hover { background: var(--topbar-hover); color: var(--topbar-fg); }
+
+/* Disabled — after every tone, so one look wins over all of them. The label keeps AA
+   contrast: a disabled control is still read, to learn why it cannot be used, and
+   opacity took the text under 3:1. Nothing is faded; the control loses its tone and its
+   fill instead. Graphics with no text — a check mark, a range thumb — keep the opacity. */
+.btn:is(:disabled, [aria-disabled="true"]),
+.btn:is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--disabled-fg);
+    cursor: not-allowed;
+}
+.btn.btn--ghost:is(:disabled, [aria-disabled="true"]):is(*, :hover, :active) { background: transparent; border-color: transparent; }
+:is(.btn-bare, .tab, .menu-item, button.list-row, .page-link):is(:disabled, [aria-disabled="true"]),
+.segmented-option:has(input:disabled) { color: var(--disabled-fg); }

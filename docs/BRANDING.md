@@ -414,7 +414,7 @@ The palette shifted; the transparency did not.
 | In-card overlay | 66% | 66% |
 | Spotlight dim | 62% | 42% |
 | Scroll edge fade | 30% | 16% |
-| Disabled control (`--disabled-opacity`) | 40% | 40% |
+| Disabled graphic — check, switch, range (`--disabled-opacity`) | 40% | 40% |
 
 The status, severity, badge and inline-code tints are written as `color-mix()` of their ramp step
 at these alphas, so a theme that replaces a ramp carries the tint with it.

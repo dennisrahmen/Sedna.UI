@@ -183,7 +183,7 @@
 }
 .value-trigger:hover { background: var(--bg-hover); border-color: var(--border); }
 .value-trigger:hover::after { opacity: 1; }
-.value-trigger:focus-visible { outline: none; border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.value-trigger:focus-visible { outline: none; border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--focus-ring); }
 .value-trigger[aria-expanded="true"] { background: var(--bg-hover); border-color: var(--border); }
 .value-trigger[aria-expanded="true"]::after { transform: rotate(180deg); }
 .value-trigger[aria-disabled="true"] { color: var(--muted); pointer-events: none; }
@@ -227,9 +227,9 @@
 .menu-item { overflow-wrap: anywhere; }
 .menu-item > * { min-width: 0; }
 .menu-item:hover { background: var(--bg-hover); text-decoration: none; }
-.menu-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.menu-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .menu-item:disabled,
-.menu-item[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; pointer-events: none; }
+.menu-item[aria-disabled="true"] { cursor: not-allowed; pointer-events: none; }
 .menu-item--danger,
 .menu-item--danger i { color: var(--danger-fg); }
 /* A trailing shortcut hint or count. */

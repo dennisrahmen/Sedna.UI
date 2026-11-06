@@ -137,7 +137,7 @@ dialog.lightbox::before {
 .lightbox-prev { inset-inline-start: calc(var(--space-4) + var(--safe-inline-start)); }
 .lightbox-next { inset-inline-end: calc(var(--space-4) + var(--safe-inline-end)); }
 .lightbox-prev:hover, .lightbox-next:hover { background: var(--bg-elevated); color: var(--fg); }
-.lightbox-prev:focus-visible, .lightbox-next:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring); }
+.lightbox-prev:focus-visible, .lightbox-next:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }
 .lightbox-prev:disabled, .lightbox-next:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .lightbox-caption {
@@ -170,4 +170,4 @@ dialog.lightbox::before {
 }
 .media-open > img,
 .media-open > .media-frame { display: block; }
-.media-open:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring-soft); }
+.media-open:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }

@@ -232,7 +232,7 @@
     /* The wires' z-index stays inside the diagram. */
     isolation: isolate;
 }
-.workflow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand-ring-soft); }
+.workflow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 .workflow--grid {
     background-image: radial-gradient(circle, var(--border) 1px, transparent 1.5px);
     background-size: 16px 16px;
@@ -414,7 +414,7 @@
    <button> or an <a>, with spans inside. Pressed is the one on show. */
 :is(a, button).workflow-node { cursor: pointer; }
 :is(a, button).workflow-node:hover { border-color: var(--border-hover); }
-:is(a, button).workflow-node:focus-visible { outline: none; --workflow-ring: 0 0 0 2px var(--brand-ring-soft); }
+:is(a, button).workflow-node:focus-visible { outline: none; --workflow-ring: 0 0 0 2px var(--focus-ring); }
 .workflow-node[aria-pressed="true"] { --workflow-ring: 0 0 0 2px var(--selected); }
 
 .workflow-node-head {

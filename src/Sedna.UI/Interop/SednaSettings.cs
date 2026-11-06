@@ -100,8 +100,15 @@ internal sealed class SednaSettings : ISednaSettings, IAsyncDisposable
         return _ui.SaveSettingAsync("variant", variant);
     }
 
-    public Task SetCompactAsync(bool compact) =>
-        _ui.SaveSettingAsync("density", compact ? "compact" : "comfortable");
+    public Task SetDensityAsync(string density)
+    {
+        if (density is not ("comfortable" or "compact" or "touch"))
+            throw new ArgumentException(
+                $"\"{density}\" is not a density. Use \"comfortable\", \"compact\" or \"touch\".",
+                nameof(density));
+
+        return _ui.SaveSettingAsync("density", density);
+    }
 
     public Task SetColourBlindAsync(bool colourBlind) =>
         _ui.SaveSettingAsync("cvd", colourBlind ? "1" : "0");

@@ -209,7 +209,7 @@ public interface ISednaUi
     /// <see cref="SednaUiOptions.Default"/>);
     /// <c>variant</c> takes <c>dark</c>, <c>light</c>, or <c>system</c> to follow
     /// <c>prefers-color-scheme</c> live; <c>cvd</c> takes <c>1</c> or anything else
-    /// for off; <c>density</c> takes <c>compact</c> or anything else for the
+    /// for off; <c>density</c> takes <c>compact</c>, <c>touch</c> or anything else for the
     /// default; <c>lang</c> takes a two-letter code.
     /// A name the boot script's <c>data-app-attrs</c> lists is the app's own preference: it is
     /// stored under the same prefix and mirrored to <c>&lt;html data-app-&lt;name&gt;&gt;</c>.

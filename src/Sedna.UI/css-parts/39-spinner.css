@@ -16,3 +16,25 @@
 
 @keyframes sedna-spin { to { transform: rotate(360deg); } }
 
+
+/* ── Splash ─────────────────────────────────────────────────────────────────
+   The screen an app shows while it starts — Blazor WebAssembly downloading, a first
+   sync — written in the host page and replaced when the app renders. It covers the
+   viewport in the theme's own background, which works before the app does because
+   boot.js has set the theme by then, and keeps its content clear of the notch. The
+   mark, the spinner or the ring, and the words are the app's. */
+.splash {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-7);
+    padding: max(var(--space-9), var(--safe-block-start)) max(var(--space-9), var(--safe-inline-end))
+             max(var(--space-9), var(--safe-block-end)) max(var(--space-9), var(--safe-inline-start));
+    background: var(--bg);
+    color: var(--muted);
+    font-size: var(--text-4);
+    text-align: center;
+}

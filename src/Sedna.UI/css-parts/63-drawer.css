@@ -324,7 +324,7 @@ dialog.sheet.sheet--dragging { transition: none; }
 .tree summary:hover,
 .tree-leaf:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
 .tree summary:focus-visible,
-.tree-leaf:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.tree-leaf:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .tree summary::before {
     content: '';
     flex-shrink: 0;

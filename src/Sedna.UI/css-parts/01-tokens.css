@@ -188,6 +188,10 @@
        that erases the state under the pointer. Both move together — a tint remapped
        without its pair jumps between two unrelated strengths. */
     --brand-tint-strong: color-mix(in srgb, var(--brand) 24%, transparent);
+    /* THE focus indicator, on every control: opaque, so it clears 3:1 against every
+       surface in every theme (FocusRingContrastTests). The translucent rings below were
+       the indicator once and measured 1.4–2.1:1; they are kept for glows and halos. */
+    --focus-ring:       var(--brand-soft);
     --brand-ring:       color-mix(in srgb, var(--brand) 50%, transparent);  /* filled primary focus ring */
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
     --brand-ring-check: color-mix(in srgb, var(--brand) 35%, transparent);  /* checkbox focus */
@@ -226,15 +230,24 @@
        every divider. The focused edge is its own role for the same reason: --brand-soft
        also tints spinners and icons, and an app with a neutral focus ring wants a
        neutral focused field without them. */
-    --field-border:       var(--border);
+    /* A field's and a choice control's edge is the only thing that says it is a control:
+       a step past --border-strong, for 3:1 against a card (StateContrastTests).
+       --control-on is what a checked checkbox, a checked radio, an on switch and a
+       slider's filled track and thumb are painted in. */
+    --field-border:       var(--slate-500);
+    --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
+    --control-on:         var(--brand);
 
     /* ── Disabled ───────────────────────────────────────────────────────────
-       How far a disabled control fades: buttons, tabs, menu items, list rows, the
-       choice controls, a slider, a page link. A number, not a colour. WCAG exempts an
-       inactive control from contrast, but a disabled "Delete (0)" still says something;
-       an app that wants it read raises this. */
+       How far a disabled control's graphic fades — the check, the radio dot, the
+       switch, the slider, the colour swatch. A number, not a colour. Labels do not fade. */
     --disabled-opacity: 0.4;
+    /* A disabled control keeps a label that reads at 4.5:1 — dimming by opacity alone
+       measured 1.3–3.5:1 — and says it is unavailable by its flat, quiet look instead. */
+    --disabled-fg:     var(--muted);
+    --disabled-bg:     var(--surface-soft);
+    --disabled-border: var(--border);
 
     /* ── Sidebar ───────────────────────────────────────────────────────── */
     --sidebar-bg:      var(--slate-900);
@@ -260,6 +273,15 @@
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
     --topbar-hover:    var(--bg-hover);
+    /* The header's height, and the sidebar's brand and area title, which line up with it. */
+    --topbar-height:   44px;
+
+    /* ── Panel bars ─────────────────────────────────────────────────────────
+       A modal's header and footer and a card's head sit on the panel's own surface; an
+       app that wants them as bars sets these. */
+    --modal-head-bg:   transparent;
+    --modal-foot-bg:   transparent;
+    --card-head-bg:    transparent;
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -310,6 +332,7 @@
     --info-border:  var(--orbit-800);
     --info-fg:      var(--orbit-300);
     --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
+    --info-on-solid: var(--on-solid);                     /* a label on it — dark where the fill is light */
     --info-ring:    color-mix(in srgb, var(--orbit-400) 50%, transparent);     /* its glow */
 
     /* Data in motion: the light running into a .workflow's step at work, the line it
@@ -537,6 +560,10 @@
     --text-9:  22px;
     --text-10: 26px;
     --text-11: 40px;   /* display only — the empty-state glyph, .state-icon */
+    /* A text field on a coarse pointer. Not a step of the scale: 16px is the size under
+       which Safari on iOS and iPadOS zooms the page when a field takes focus, so it is
+       a floor and not a choice — keep it at 16px or above. */
+    --text-field-touch: 16px;
 
     /* ── Motion ─────────────────────────────────────────────────────────────
        Three durations for interaction, and one per looping animation. Set them all
@@ -589,6 +616,11 @@
     --list-pad-block:  var(--space-5);
     --list-pad-inline: var(--space-6);
     --list-gap:        var(--space-4);
+
+    /* The space between a page's sections and the page's own padding — .page reads
+       them, and the density remaps move them with the rows and cells above. */
+    --page-rhythm:     var(--space-7);
+    --page-pad:        var(--space-9);
 
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes

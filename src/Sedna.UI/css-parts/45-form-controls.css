@@ -98,13 +98,13 @@
     flex-shrink: 0;
     cursor: pointer;
     background: var(--bg);
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--control-border);
     border-radius: 50%;
     position: relative;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 .form-check input[type="radio"]:hover { border-color: var(--border-hover); }
-.form-check input[type="radio"]:checked { border-color: var(--brand); }
+.form-check input[type="radio"]:checked { border-color: var(--control-on); }
 /* Centred by `inset: 0` and auto margins, not by `left: 50%` + a translate.
    Percentage inset and transform are resolved and rounded independently of each
    other, so at a fractional page zoom the two roundings can both land the same
@@ -121,11 +121,11 @@
     margin: auto;
     width: 7px; height: 7px;
     border-radius: 50%;
-    background: var(--brand);
+    background: var(--control-on);
 }
 .form-check input[type="radio"]:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--brand-ring-check);
+    box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* ── Switch ─────────────────────────────────────────────────────────────────
@@ -150,8 +150,8 @@
     flex-shrink: 0;
     width: 34px;
     height: 19px;
-    background: var(--border-strong);
-    border: 1px solid var(--border-strong);
+    background: var(--control-border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     cursor: pointer;
     transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
@@ -172,16 +172,16 @@
 }
 .switch input[type="checkbox"]:hover { border-color: var(--border-hover); }
 .switch input[type="checkbox"]:checked {
-    background: var(--brand);
-    border-color: var(--brand);
+    background: var(--control-on);
+    border-color: var(--control-on);
 }
 .switch input[type="checkbox"]:checked::after { transform: translateX(15px); }
 .switch input[type="checkbox"]:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--brand-ring-check);
+    box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .switch input[type="checkbox"]:disabled { cursor: not-allowed; opacity: var(--disabled-opacity); }
-.switch:has(input:disabled) { cursor: not-allowed; color: var(--muted); }
+.switch:has(input:disabled) { cursor: not-allowed; color: var(--disabled-fg); }
 
 /* ── Label and hint ─────────────────────────────────────────────────────────
    Room for a sentence under the label: what the option does, or what flipping it

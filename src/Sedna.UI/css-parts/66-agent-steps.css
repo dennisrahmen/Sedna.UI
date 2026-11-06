@@ -49,7 +49,7 @@
 }
 .reasoning > summary::-webkit-details-marker { display: none; }
 .reasoning > summary:hover { color: var(--fg); }
-.reasoning > summary:focus-visible { outline: 2px solid var(--brand-ring-soft); outline-offset: 2px; border-radius: var(--radius-small); }
+.reasoning > summary:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: var(--radius-small); }
 .reasoning-chevron { inline-size: 20px; text-align: center; font-size: var(--text-6); transition: rotate var(--motion-fast); }
 .reasoning[open] .reasoning-chevron { rotate: 90deg; }
 .reasoning-body {

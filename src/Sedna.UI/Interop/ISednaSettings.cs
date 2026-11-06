@@ -2,7 +2,7 @@ namespace Sedna.UI;
 
 /// <summary>
 /// The applied appearance settings, as state a component can bind to — which theme, which
-/// variant, compact density, the colour-vision palette, language and direction — and an event
+/// variant, density, the colour-vision palette, language and direction — and an event
 /// that fires when any of them changes.
 /// </summary>
 /// <remarks>
@@ -90,8 +90,13 @@ public interface ISednaSettings
     /// <exception cref="ArgumentException"><paramref name="variant"/> is none of the three.</exception>
     Task SetVariantAsync(string variant);
 
-    /// <summary>Turns compact density on or off.</summary>
-    Task SetCompactAsync(bool compact);
+    /// <summary>Sets the density: spacing and control heights, never the type.</summary>
+    /// <param name="density">
+    /// <c>"comfortable"</c> (the default), <c>"compact"</c> — tighter cells, rows, cards and
+    /// controls — or <c>"touch"</c>, which raises the default control to the 44px target size.
+    /// </param>
+    /// <exception cref="ArgumentException"><paramref name="density"/> is none of the three.</exception>
+    Task SetDensityAsync(string density);
 
     /// <summary>Turns the colour-vision-deficiency palette on or off.</summary>
     Task SetColourBlindAsync(bool colourBlind);

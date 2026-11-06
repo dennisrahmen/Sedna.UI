@@ -200,8 +200,10 @@
         <code>inset-inline</code> and <code>text-align: start</code> and your own pages mirror for free;
         only <code>transform: translateX()</code> and a <code>background-position</code> percentage have
         no logical form, and both are handled here. <code>data-density="compact"</code> tightens table
-        cells, card padding and list rows by remapping <code>--cell-pad-*</code>,
-        <code>--card-pad-*</code> and <code>--list-pad-*</code>;
-        a component of your own that reads those tokens tightens with them.
+        cells, card padding, list rows, the page's rhythm and the control heights by remapping
+        <code>--cell-pad-*</code>, <code>--card-pad-*</code>, <code>--list-pad-*</code>,
+        <code>--page-rhythm</code>, <code>--page-pad</code> and <code>--control-height*</code>;
+        <code>data-density="touch"</code> loosens the same tokens and puts the default control at
+        44px. A component of your own that reads those tokens moves with them.
     </div>
 </div>
