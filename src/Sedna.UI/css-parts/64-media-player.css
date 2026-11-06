@@ -35,13 +35,13 @@
     overflow: hidden;
 }
 /* The picture on the letterbox, at its frame's ratio before a byte has loaded, so the
-   page does not jump when the metadata arrives. A different ratio is the element's
-   own `aspect-ratio`, set inline or by the app. */
+   page does not jump when the metadata arrives. A different ratio is `--media-ratio`,
+   on the player or on anything around it, as for every framed medium. */
 .media-player > video {
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     object-fit: contain;
     background: var(--media-bg);
 }

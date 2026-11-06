@@ -4,7 +4,8 @@ namespace Sedna.UI.Tests;
 
 /// <summary>
 /// The tokens every interactive control draws its state with clear WCAG on every surface, in every
-/// theme and palette: the focus ring and a check's, radio's or switch's edge at 3:1 (1.4.11), and a
+/// theme and palette: the focus ring, a check's, radio's or switch's edge and a rejected or unusual
+/// field's edge at 3:1 (1.4.11), and a
 /// disabled control's label at 4.5:1 on its own fill.
 /// </summary>
 /// <remarks>
@@ -28,6 +29,9 @@ public class StateContrastTests
             var ground = Tokens.Rgb(tokens, surface);
             Check("--focus-ring", Tokens.Over(tokens, "--focus-ring", ground), ground, 3.0, surface);
             Check("--control-border", Tokens.Over(tokens, "--control-border", ground), ground, 3.0, surface);
+            // A field in a state is still a field: its edge is the only boundary it has.
+            Check("--field-border-danger", Tokens.Over(tokens, "--field-border-danger", ground), ground, 3.0, surface);
+            Check("--field-border-warn", Tokens.Over(tokens, "--field-border-warn", ground), ground, 3.0, surface);
 
             var fill = Tokens.Over(tokens, "--disabled-bg", ground);
             Check("--disabled-fg on --disabled-bg", Tokens.Rgb(tokens, "--disabled-fg"), fill, 4.5, surface);

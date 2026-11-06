@@ -48,6 +48,11 @@ function describe(e) {
     const describedBy = ta.getAttribute('aria-describedby');
     if (describedBy) root.setAttribute('aria-describedby', describedBy);
     else root.removeAttribute('aria-describedby');
+    // A value the app rejected is announced from the document, where the reader is. The
+    // frame shows it from the textarea (46-form-layout.css); the editor's own required
+    // check marks the frame, and is not undone here.
+    if (ta.getAttribute('aria-invalid') === 'true') root.setAttribute('aria-invalid', 'true');
+    else if (!e.el.hasAttribute('aria-invalid')) root.removeAttribute('aria-invalid');
     if (ta.placeholder) root.setAttribute('data-placeholder', ta.placeholder);
     const off = ta.disabled || ta.readOnly;
     e.quill.enable(!off);
@@ -108,7 +113,7 @@ function start(e) {
 
     // The textarea's own state, when the app changes it: disabled, read-only, its label.
     const attrs = new MutationObserver(() => { if (!e.disposed) describe(e); });
-    attrs.observe(value, { attributes: true, attributeFilter: ['disabled', 'readonly', 'aria-label', 'aria-labelledby', 'aria-describedby', 'placeholder'] });
+    attrs.observe(value, { attributes: true, attributeFilter: ['disabled', 'readonly', 'aria-label', 'aria-labelledby', 'aria-describedby', 'aria-invalid', 'placeholder'] });
     e.cleanups.push(() => attrs.disconnect());
 
     e.el.setAttribute('data-editor-state', 'ready');

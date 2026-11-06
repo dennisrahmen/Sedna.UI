@@ -102,6 +102,8 @@
     --danger-bg-active:     color-mix(in srgb, var(--crimson-700) 20%, transparent);
     --danger-border:        var(--crimson-300);
     --danger-border-strong: var(--crimson-700);
+    --field-border-danger:  var(--crimson-700);
+    --field-border-warn:    var(--amber-700);
     --danger-fg:            var(--crimson-800);
     --danger-ring:          color-mix(in srgb, var(--crimson-700) 35%, transparent);
 

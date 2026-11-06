@@ -239,6 +239,12 @@
     --field-border:       var(--slate-500);
     --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
+    /* The edge of a field in a state (46-form-layout.css, "Field states"): rejected and
+       unusual. Their own roles rather than --danger-border-strong and --warn-border,
+       which are a tint's edge and fall far under the 3:1 a field's boundary needs on a
+       dark card — a rejected field lost its outline. StateContrastTests holds both. */
+    --field-border-danger: var(--crimson-500);
+    --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
 
     /* ── Disabled ───────────────────────────────────────────────────────────
@@ -436,6 +442,9 @@
        black, and a label on a photograph cannot know what the photograph is. */
     --media-bg:      var(--black);
     --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    /* One square of the checkerboard behind a picture in a `--transparency` frame
+       (62-media-and-prose.css). */
+    --checker-size:  8px;
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);

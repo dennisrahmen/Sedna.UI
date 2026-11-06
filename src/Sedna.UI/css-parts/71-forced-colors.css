@@ -61,6 +61,7 @@
         --warn-solid: CanvasText; --warn-bg: Canvas;   --warn-border: CanvasText; --warn-fg: CanvasText;
         --danger-solid: CanvasText; --danger-bg: Canvas; --danger-fg: CanvasText;
         --danger-border: CanvasText; --danger-border-strong: CanvasText;
+        --field-border-danger: CanvasText; --field-border-warn: CanvasText;
         --info-bg: Canvas;   --info-border: CanvasText;   --info-fg: CanvasText;
         /* Data on its way into the step at work is the other thing it points at. */
         --flow-light: Highlight; --flow-line: CanvasText; --flow-tint: Canvas; --flow-glow: Canvas;

@@ -1,0 +1,37 @@
+<div class="sedna-col" style="max-width:520px; gap:16px">
+    <div class="form-field">
+        <label class="form-label" for="un-retain">Retention</label>
+        <div class="input-group">
+            <input class="form-input" id="un-retain" type="number" value="400"
+                   data-state="warn" aria-describedby="un-retain-warn" />
+            <span class="input-affix">days</span>
+        </div>
+        <p class="form-warning" id="un-retain-warn">
+            <i class="ri-alert-line"></i>
+            <span>Usually 30 to 365. Saved, but the archive only reaches back 365 days.</span>
+        </p>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="un-region">Shipping region</label>
+        <select class="form-select" id="un-region" data-state="warn" aria-describedby="un-region-warn">
+            <option>EU-West</option>
+            <option selected>AP-South</option>
+        </select>
+        <p class="form-warning" id="un-region-warn">
+            <i class="ri-alert-line"></i>
+            <span>This customer has never been shipped to from AP-South.</span>
+        </p>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="un-price">Unit price</label>
+        <div class="input-group input-group--sm">
+            <span class="input-affix">EUR</span>
+            <input class="form-input" id="un-price" type="text" inputmode="decimal" value="1,240.00"
+                   data-state="warn" aria-describedby="un-price-warn" />
+        </div>
+        <p class="form-warning" id="un-price-warn">
+            <i class="ri-alert-line"></i>
+            <span>Four times the average of the last 90 days.</span>
+        </p>
+    </div>
+</div>

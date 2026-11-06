@@ -1,0 +1,83 @@
+<div class="form-field" style="max-width:320px">
+    <label class="form-label form-label--required" for="golive">Go-live</label>
+    <!-- The group is the picker's anchor, so the panel lines up with the field's edge, not the button's. -->
+    <div class="input-group" style="anchor-name: --golive-field">
+        <input class="form-input" id="golive" type="text" inputmode="numeric" autocomplete="off"
+               value="31.02.26" aria-invalid="true" aria-describedby="golive-err" required />
+        <button class="btn btn--icon" type="button" popovertarget="golive-picker" aria-label="Pick the go-live date">
+            <i class="ri-calendar-line"></i>
+        </button>
+    </div>
+    <p class="form-error" id="golive-err">
+        <i class="ri-error-warning-line"></i>
+        <span>February has no 31st. Type a date such as 27.02.26, or pick one.</span>
+    </p>
+</div>
+
+<div class="popover datepicker" id="golive-picker" popover style="position-anchor: --golive-field">
+    <div class="datepicker-head">
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous month"><i class="ri-arrow-left-s-line"></i></button>
+        <span class="datepicker-title">February 2026</span>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next month"><i class="ri-arrow-right-s-line"></i></button>
+    </div>
+    <div class="cal-month cal-month--mini">
+        <div class="cal-weekdays" aria-hidden="true">
+            <span class="cal-weekday">Mo</span>
+            <span class="cal-weekday">Tu</span>
+            <span class="cal-weekday">We</span>
+            <span class="cal-weekday">Th</span>
+            <span class="cal-weekday">Fr</span>
+            <span class="cal-weekday">Sa</span>
+            <span class="cal-weekday">Su</span>
+        </div>
+        <div class="cal-row">
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Sunday 1 February 2026" aria-pressed="false">1</button>
+        </div>
+        <div class="cal-row">
+            <button class="cal-day" type="button" aria-label="Monday 2 February 2026" aria-pressed="false">2</button>
+            <button class="cal-day" type="button" aria-label="Tuesday 3 February 2026" aria-pressed="false">3</button>
+            <button class="cal-day" type="button" aria-label="Wednesday 4 February 2026" aria-pressed="false">4</button>
+            <button class="cal-day" type="button" aria-label="Thursday 5 February 2026" aria-pressed="false">5</button>
+            <button class="cal-day" type="button" aria-label="Friday 6 February 2026" aria-pressed="false">6</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Saturday 7 February 2026" aria-pressed="false">7</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Sunday 8 February 2026" aria-pressed="false">8</button>
+        </div>
+        <div class="cal-row">
+            <button class="cal-day" type="button" aria-label="Monday 9 February 2026" aria-pressed="false">9</button>
+            <button class="cal-day" type="button" aria-label="Tuesday 10 February 2026" aria-pressed="false">10</button>
+            <button class="cal-day" type="button" aria-label="Wednesday 11 February 2026" aria-pressed="false">11</button>
+            <button class="cal-day" type="button" aria-label="Thursday 12 February 2026" aria-pressed="false" aria-current="date">12</button>
+            <button class="cal-day" type="button" aria-label="Friday 13 February 2026" aria-pressed="false">13</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Saturday 14 February 2026" aria-pressed="false">14</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Sunday 15 February 2026" aria-pressed="false">15</button>
+        </div>
+        <div class="cal-row">
+            <button class="cal-day" type="button" aria-label="Monday 16 February 2026" aria-pressed="false">16</button>
+            <button class="cal-day" type="button" aria-label="Tuesday 17 February 2026" aria-pressed="false">17</button>
+            <button class="cal-day" type="button" aria-label="Wednesday 18 February 2026" aria-pressed="false">18</button>
+            <button class="cal-day" type="button" aria-label="Thursday 19 February 2026" aria-pressed="false">19</button>
+            <button class="cal-day" type="button" aria-label="Friday 20 February 2026" aria-pressed="false">20</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Saturday 21 February 2026" aria-pressed="false">21</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Sunday 22 February 2026" aria-pressed="false">22</button>
+        </div>
+        <div class="cal-row">
+            <button class="cal-day" type="button" aria-label="Monday 23 February 2026" aria-pressed="false">23</button>
+            <button class="cal-day" type="button" aria-label="Tuesday 24 February 2026" aria-pressed="false">24</button>
+            <button class="cal-day" type="button" aria-label="Wednesday 25 February 2026" aria-pressed="false">25</button>
+            <button class="cal-day" type="button" aria-label="Thursday 26 February 2026" aria-pressed="false">26</button>
+            <button class="cal-day" type="button" aria-label="Friday 27 February 2026" aria-pressed="false">27</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Saturday 28 February 2026" aria-pressed="false">28</button>
+            <span class="cal-day cal-day--outside"></span>
+        </div>
+    </div>
+    <div class="datepicker-actions">
+        <button class="btn btn--sm btn--ghost" type="button">Today</button>
+        <button class="btn btn--sm" type="button" popovertarget="golive-picker" popovertargetaction="hide">Cancel</button>
+    </div>
+</div>

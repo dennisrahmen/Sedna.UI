@@ -598,6 +598,12 @@
     --field-border:       var(--slate-500);
     --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
+    /* The edge of a field in a state (46-form-layout.css, "Field states"): rejected and
+       unusual. Their own roles rather than --danger-border-strong and --warn-border,
+       which are a tint's edge and fall far under the 3:1 a field's boundary needs on a
+       dark card — a rejected field lost its outline. StateContrastTests holds both. */
+    --field-border-danger: var(--crimson-500);
+    --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
 
     /* ── Disabled ───────────────────────────────────────────────────────────
@@ -795,6 +801,9 @@
        black, and a label on a photograph cannot know what the photograph is. */
     --media-bg:      var(--black);
     --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    /* One square of the checkerboard behind a picture in a `--transparency` frame
+       (62-media-and-prose.css). */
+    --checker-size:  8px;
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);
@@ -1221,6 +1230,8 @@
     --danger-bg-active:     color-mix(in srgb, var(--crimson-700) 20%, transparent);
     --danger-border:        var(--crimson-300);
     --danger-border-strong: var(--crimson-700);
+    --field-border-danger:  var(--crimson-700);
+    --field-border-warn:    var(--amber-700);
     --danger-fg:            var(--crimson-800);
     --danger-ring:          color-mix(in srgb, var(--crimson-700) 35%, transparent);
 
@@ -1457,6 +1468,8 @@
     --danger-bg:            var(--crimson-900);
     --danger-border:        var(--crimson-400);
     --danger-border-strong: var(--crimson-300);
+    --field-border-danger:  var(--crimson-300);
+    --field-border-warn:    var(--amber-300);
     --danger-fg:            var(--crimson-300);
     --info-bg:     var(--orbit-950);
     --info-border: var(--orbit-300);
@@ -1552,6 +1565,8 @@
     --danger-bg:            var(--crimson-200);
     --danger-border:        var(--crimson-800);
     --danger-border-strong: var(--crimson-900);
+    --field-border-danger:  var(--crimson-900);
+    --field-border-warn:    var(--amber-900);
     --danger-fg:            var(--crimson-900);
     --info-bg:     var(--orbit-100);
     --info-border: var(--orbit-800);
@@ -5082,7 +5097,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     flex-shrink: 0;
 }
 .skeleton-image {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     width: 100%;
     border-radius: var(--radius-surface);
 }
@@ -6539,22 +6554,66 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    .form-input's own border and ring at equal specificity.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* ── Validation ─────────────────────────────────────────────────────────────
-   Keyed off aria-invalid, not a class. The attribute is what a screen reader
-   announces, so if the styling hung off a separate class the two could disagree,
-   and the reader who most needs the message would be the one who does not get
-   it. Set aria-invalid and the border follows.
+/* ── Field states ───────────────────────────────────────────────────────────
+   A field is at rest, rejected or unusual, and every family that draws a field's
+   edge draws all three, at every size and in every theme:
 
-   `.form-select` is in the selector for the same reason it is in the shared shape
-   rule in 34-forms.css: a select carrying `.form-select` alone is a complete,
-   correct class list, so a rule that names only `.form-input` leaves the one
-   control a form most often rejects — an empty required dropdown — reporting
-   nothing at all, while the screen reader announces it as invalid. */
-.form-input[aria-invalid="true"],
-.form-select[aria-invalid="true"] { border-color: var(--danger-border-strong); }
-.form-input[aria-invalid="true"]:focus,
-.form-select[aria-invalid="true"]:focus {
-    border-color: var(--danger-solid);
+     rejected   aria-invalid="true"   the value is refused
+     unusual    data-state="warn"     the value is kept, but worth a second look —
+                                      a retention far past the usual, a price far
+                                      from the average
+
+   Rejected is keyed off aria-invalid, not a class. The attribute is what a screen
+   reader announces, so if the styling hung off a separate class the two could
+   disagree, and the reader who most needs the message would be the one who does
+   not get it. Unusual has no ARIA attribute, so its message is what a screen reader
+   hears: put it in `.form-warning` and point `aria-describedby` at it.
+
+   The attribute goes on the control a reader types or picks into, always — never on
+   a frame. A frame that draws the edge for its control (.input-group, the combo box,
+   the editors) follows it with :has(), so the attribute stays where a screen reader
+   reads it. A field that carries both is rejected.
+
+   At rest the edge is the state's own field role; focused it keeps that edge and
+   takes the focus ring. The Markdown editor's textarea draws its own ring, so its
+   frame takes the edge alone. FieldStateTests holds every family that draws a field edge to
+   both states, so a family cannot lack one.
+
+   `.form-select` is in every list for the reason 34-forms.css gives for naming both
+   in the shared shape rule: a select carrying `.form-select` alone is a complete,
+   correct class list, and the one control a form most often rejects — an empty
+   required dropdown — would otherwise report nothing. */
+:is(.form-input, .form-select, .form-color)[data-state="warn"],
+.input-group:has(> :is(.form-input, .form-select)[data-state="warn"]),
+.form-combo-box:has(> .form-combo-input[data-state="warn"]),
+.editor[data-state="warn"],
+.editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]),
+.md-editor:has(> [data-md-input][data-state="warn"]) { border-color: var(--field-border-warn); }
+
+:is(.form-input, .form-select)[data-state="warn"]:focus,
+.form-color[data-state="warn"]:focus-visible,
+.input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
+.form-combo-box:has(> .form-combo-input[data-state="warn"]):focus-within,
+.editor[data-state="warn"]:focus-within,
+.editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within {
+    border-color: var(--field-border-warn);
+    box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+:is(.form-input, .form-select, .form-color)[aria-invalid="true"],
+.input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]),
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]),
+.editor[aria-invalid="true"],
+.editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]),
+.md-editor:has(> [data-md-input][aria-invalid="true"]) { border-color: var(--field-border-danger); }
+
+:is(.form-input, .form-select)[aria-invalid="true"]:focus,
+.form-color[aria-invalid="true"]:focus-visible,
+.input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within,
+.editor[aria-invalid="true"]:focus-within,
+.editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within {
+    border-color: var(--field-border-danger);
     box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
@@ -7249,12 +7308,8 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
-/* Invalid and disabled are the INPUT's attributes, which is where a screen reader
-   reads them. The box follows. */
-.form-combo-box:has(> .form-combo-input[aria-invalid="true"]) { border-color: var(--danger-border-strong); }
-.form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within {
-    box-shadow: 0 0 0 2px var(--focus-ring);
-}
+/* Disabled is the INPUT's attribute, which is where a screen reader reads it, and the
+   box follows. So do the field states, in 46-form-layout.css. */
 .form-combo-box:has(> .form-combo-input:disabled) {
     background: var(--surface-soft);
     color: var(--muted);
@@ -8246,7 +8301,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .choice-tile-art {
     display: grid;
     place-items: center;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     margin-block-end: var(--space-2);
     border-radius: var(--radius-inner);
     background: var(--surface-soft);
@@ -11789,13 +11844,22 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    images arrive: the box has its height before the image loads. `contain` rather
    than `cover` because these are documents, and cropping a screenshot removes the
    part somebody needed.
+
+   THE RATIO IS ONE TOKEN FOR EVERY FRAMED MEDIUM. `--media-ratio` is read by every
+   box that holds a picture at a fixed shape — .media-frame, .skeleton-image,
+   .choice-tile-art, .file-tile-thumb and a .media-player's video — so an app sets
+   `--media-ratio: 4 / 3` on one frame or on a whole container, and a skeleton swaps
+   for the loaded frame at the same height. Each frame names its own default in the
+   fallback and declares nothing on itself, so a value set on a container reaches it;
+   the modifiers and the gallery set the token rather than the ratio, for the same
+   reason. The video ratio, 16:9, is the default wherever there is no other.
    ─────────────────────────────────────────────────────────────────────────── */
 .media-frame {
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -11803,10 +11867,28 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .media-frame > img,
 .media-frame > video,
 .media-frame > iframe { max-width: 100%; max-height: 100%; object-fit: contain; border: none; }
-.media-frame--square { aspect-ratio: 1; }
-.media-frame--wide { aspect-ratio: 21 / 9; }
+.media-frame--square { --media-ratio: 1; }
+.media-frame--wide { --media-ratio: 21 / 9; }
 /* Fills and crops — right for a decorative banner, wrong for a document. */
 .media-frame--cover > img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Transparency ─────────────────────────────────────────────────────────────
+   A checkerboard behind a picture, so a transparent background or edge can be told
+   from a white or grey one — a logo, an icon, a cut-out, an upload being checked.
+   One modifier on every frame that shows a picture: .media-frame, .file-tile-thumb,
+   .file-thumb, .choice-tile-art and the lightbox's stage. It is painted behind the
+   picture itself, not the frame, so a letterbox stays plain and the checkerboard ends
+   where the picture does.
+
+   The squares are the two quiet steps every theme already has, --surface-soft and
+   --border, so they follow the variant, the contrast setting and an app's brand.
+   `--checker-size` is one square's side. */
+:is(.media-frame--transparency, .file-tile-thumb--transparency, .file-thumb--transparency,
+    .choice-tile-art--transparency, .lightbox-stage--transparency) > :is(img, svg) {
+    background-color: var(--surface-soft);
+    background-image: repeating-conic-gradient(var(--border) 0 25%, transparent 0 50%);
+    background-size: calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
 
 /* A caption belongs to the figure, so use <figure>/<figcaption> and this styles the
    caption. An image whose meaning is in the caption still needs a real alt. */
@@ -11822,7 +11904,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     gap: var(--space-5);
 }
 .gallery > * { position: relative; display: block; text-decoration: none; }
-.gallery .media-frame { aspect-ratio: 1; }
+.gallery { --media-ratio: 1; }
 .gallery > a:hover .media-frame,
 .gallery > button:hover .media-frame { border-color: var(--border-hover); }
 .gallery > *:focus-visible { outline: none; }
@@ -12871,7 +12953,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1;
+    aspect-ratio: var(--media-ratio, 1);
     overflow: hidden;
     border-radius: var(--radius-inner);
     background: var(--surface-soft);
@@ -12879,7 +12961,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
 .file-tile-thumb > img { width: 100%; height: 100%; object-fit: cover; }
 .file-tile-thumb > .file-icon { --file-icon-size: 56px; background: transparent; }
 .file-tile-thumb > .file-icon > i { font-size: var(--text-11); }
-.file-grid--wide .file-tile-thumb { aspect-ratio: 16 / 9; }
+.file-grid--wide { --media-ratio: 16 / 9; }
 /* A picture that must not be cropped — a logo, a screenshot — in either of two shapes.
    `--contain` keeps the tile's frame and fits the whole picture inside it, so a row of
    tiles stays level. `--natural` drops the frame and takes the picture's own ratio,
@@ -13187,13 +13269,13 @@ dialog.lightbox::before {
     overflow: hidden;
 }
 /* The picture on the letterbox, at its frame's ratio before a byte has loaded, so the
-   page does not jump when the metadata arrives. A different ratio is the element's
-   own `aspect-ratio`, set inline or by the app. */
+   page does not jump when the metadata arrives. A different ratio is `--media-ratio`,
+   on the player or on anything around it, as for every framed medium. */
 .media-player > video {
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     object-fit: contain;
     background: var(--media-bg);
 }
@@ -19486,6 +19568,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         --warn-solid: CanvasText; --warn-bg: Canvas;   --warn-border: CanvasText; --warn-fg: CanvasText;
         --danger-solid: CanvasText; --danger-bg: Canvas; --danger-fg: CanvasText;
         --danger-border: CanvasText; --danger-border-strong: CanvasText;
+        --field-border-danger: CanvasText; --field-border-warn: CanvasText;
         --info-bg: Canvas;   --info-border: CanvasText;   --info-fg: CanvasText;
         /* Data on its way into the step at work is the other thing it points at. */
         --flow-light: Highlight; --flow-line: CanvasText; --flow-tint: Canvas; --flow-glow: Canvas;

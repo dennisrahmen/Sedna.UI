@@ -201,6 +201,8 @@
     --field-border:       var(--slate-500);
     --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
+    --field-border-danger: var(--crimson-500);
+    --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
     --disabled-opacity: 0.4;
     --disabled-fg:     var(--muted);
@@ -298,6 +300,7 @@
     --backdrop:      rgba(0, 0, 0, 0.65);
     --media-bg:      var(--black);
     --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    --checker-size:  8px;
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);
     --tip-bg:        var(--slate-925);
@@ -492,6 +495,8 @@
     --danger-bg-active:     color-mix(in srgb, var(--crimson-700) 20%, transparent);
     --danger-border:        var(--crimson-300);
     --danger-border-strong: var(--crimson-700);
+    --field-border-danger:  var(--crimson-700);
+    --field-border-warn:    var(--amber-700);
     --danger-fg:            var(--crimson-800);
     --danger-ring:          color-mix(in srgb, var(--crimson-700) 35%, transparent);
     --info-bg:     color-mix(in srgb, var(--orbit-400) 8%, transparent);
@@ -625,6 +630,8 @@
     --danger-bg:            var(--crimson-900);
     --danger-border:        var(--crimson-400);
     --danger-border-strong: var(--crimson-300);
+    --field-border-danger:  var(--crimson-300);
+    --field-border-warn:    var(--amber-300);
     --danger-fg:            var(--crimson-300);
     --info-bg:     var(--orbit-950);
     --info-border: var(--orbit-300);
@@ -702,6 +709,8 @@
     --danger-bg:            var(--crimson-200);
     --danger-border:        var(--crimson-800);
     --danger-border-strong: var(--crimson-900);
+    --field-border-danger:  var(--crimson-900);
+    --field-border-warn:    var(--amber-900);
     --danger-fg:            var(--crimson-900);
     --info-bg:     var(--orbit-100);
     --info-border: var(--orbit-800);
@@ -2631,7 +2640,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     flex-shrink: 0;
 }
 .skeleton-image {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     width: 100%;
     border-radius: var(--radius-surface);
 }
@@ -3486,11 +3495,34 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .swatch[aria-pressed="true"]:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--brand-soft); }
 }
 @layer sedna.paint {
-.form-input[aria-invalid="true"],
-.form-select[aria-invalid="true"] { border-color: var(--danger-border-strong); }
-.form-input[aria-invalid="true"]:focus,
-.form-select[aria-invalid="true"]:focus {
-    border-color: var(--danger-solid);
+:is(.form-input, .form-select, .form-color)[data-state="warn"],
+.input-group:has(> :is(.form-input, .form-select)[data-state="warn"]),
+.form-combo-box:has(> .form-combo-input[data-state="warn"]),
+.editor[data-state="warn"],
+.editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]),
+.md-editor:has(> [data-md-input][data-state="warn"]) { border-color: var(--field-border-warn); }
+:is(.form-input, .form-select)[data-state="warn"]:focus,
+.form-color[data-state="warn"]:focus-visible,
+.input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
+.form-combo-box:has(> .form-combo-input[data-state="warn"]):focus-within,
+.editor[data-state="warn"]:focus-within,
+.editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within {
+    border-color: var(--field-border-warn);
+    box-shadow: 0 0 0 2px var(--focus-ring);
+}
+:is(.form-input, .form-select, .form-color)[aria-invalid="true"],
+.input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]),
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]),
+.editor[aria-invalid="true"],
+.editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]),
+.md-editor:has(> [data-md-input][aria-invalid="true"]) { border-color: var(--field-border-danger); }
+:is(.form-input, .form-select)[aria-invalid="true"]:focus,
+.form-color[aria-invalid="true"]:focus-visible,
+.input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within,
+.editor[aria-invalid="true"]:focus-within,
+.editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within {
+    border-color: var(--field-border-danger);
     box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .form-error,
@@ -3889,10 +3921,6 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .form-combo-box:focus-within {
     border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
-}
-.form-combo-box:has(> .form-combo-input[aria-invalid="true"]) { border-color: var(--danger-border-strong); }
-.form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within {
-    box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .form-combo-box:has(> .form-combo-input:disabled) {
     background: var(--surface-soft);
@@ -4446,7 +4474,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .choice-tile-art {
     display: grid;
     place-items: center;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     margin-block-end: var(--space-2);
     border-radius: var(--radius-inner);
     background: var(--surface-soft);
@@ -6374,7 +6402,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -6382,9 +6410,15 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .media-frame > img,
 .media-frame > video,
 .media-frame > iframe { max-width: 100%; max-height: 100%; object-fit: contain; border: none; }
-.media-frame--square { aspect-ratio: 1; }
-.media-frame--wide { aspect-ratio: 21 / 9; }
+.media-frame--square { --media-ratio: 1; }
+.media-frame--wide { --media-ratio: 21 / 9; }
 .media-frame--cover > img { width: 100%; height: 100%; object-fit: cover; }
+:is(.media-frame--transparency, .file-tile-thumb--transparency, .file-thumb--transparency,
+    .choice-tile-art--transparency, .lightbox-stage--transparency) > :is(img, svg) {
+    background-color: var(--surface-soft);
+    background-image: repeating-conic-gradient(var(--border) 0 25%, transparent 0 50%);
+    background-size: calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
 .media-figure { margin: 0; }
 .media-figure > figcaption { margin-top: var(--space-3); color: var(--muted); font-size: var(--text-3); }
 .gallery {
@@ -6393,7 +6427,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     gap: var(--space-5);
 }
 .gallery > * { position: relative; display: block; text-decoration: none; }
-.gallery .media-frame { aspect-ratio: 1; }
+.gallery { --media-ratio: 1; }
 .gallery > a:hover .media-frame,
 .gallery > button:hover .media-frame { border-color: var(--border-hover); }
 .gallery > *:focus-visible { outline: none; }
@@ -7018,7 +7052,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1;
+    aspect-ratio: var(--media-ratio, 1);
     overflow: hidden;
     border-radius: var(--radius-inner);
     background: var(--surface-soft);
@@ -7026,7 +7060,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
 .file-tile-thumb > img { width: 100%; height: 100%; object-fit: cover; }
 .file-tile-thumb > .file-icon { --file-icon-size: 56px; background: transparent; }
 .file-tile-thumb > .file-icon > i { font-size: var(--text-11); }
-.file-grid--wide .file-tile-thumb { aspect-ratio: 16 / 9; }
+.file-grid--wide { --media-ratio: 16 / 9; }
 .file-tile-thumb--contain > img { object-fit: contain; }
 .file-tile-thumb.file-tile-thumb--natural:has(> img) { aspect-ratio: auto; }
 .file-tile-thumb--natural > img { height: auto; object-fit: contain; }
@@ -7244,7 +7278,7 @@ dialog.lightbox::before {
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     object-fit: contain;
     background: var(--media-bg);
 }
@@ -11423,6 +11457,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         --warn-solid: CanvasText; --warn-bg: Canvas;   --warn-border: CanvasText; --warn-fg: CanvasText;
         --danger-solid: CanvasText; --danger-bg: Canvas; --danger-fg: CanvasText;
         --danger-border: CanvasText; --danger-border-strong: CanvasText;
+        --field-border-danger: CanvasText; --field-border-warn: CanvasText;
         --info-bg: Canvas;   --info-border: CanvasText;   --info-fg: CanvasText;
         --flow-light: Highlight; --flow-line: CanvasText; --flow-tint: Canvas; --flow-glow: Canvas;
         --presence-out-of-office: CanvasText;
