@@ -3339,7 +3339,7 @@ window.sednaUi = window.sednaUi || {};
         if (nudged || typing() || Math.abs(vv.scale - 1) > 0.01) return;
         nudged = true;
         window.scrollBy(0, 1);
-        requestAnimationFrame(function () { window.scrollBy(0, -1); });
+        setTimeout(function () { window.scrollBy(0, -1); }, 50);
     }
     function settle() {
         clearTimeout(timer);

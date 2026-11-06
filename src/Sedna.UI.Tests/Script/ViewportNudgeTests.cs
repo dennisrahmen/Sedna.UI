@@ -26,7 +26,7 @@ public class ViewportNudgeTests : ScriptTestBase
     private static async Task<double[]> After(Microsoft.Playwright.IPage page)
     {
         await Js.Run(page, "() => window.dispatchEvent(new Event('scroll'))");
-        await page.WaitForTimeoutAsync(400);
+        await page.WaitForTimeoutAsync(700);
         return await page.EvaluateAsync<double[]>("() => window.nudges");
     }
 
