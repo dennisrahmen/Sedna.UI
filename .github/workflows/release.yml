@@ -78,6 +78,12 @@ jobs:
         with:
           global-json-file: global.json
 
+      # The checkout belongs to the runner's user and the container runs as root, so git
+      # refuses the repository as one of dubious ownership — and the checkout action marks
+      # it safe only for its own commands. The class history reads the tags with git.
+      - name: Trust the checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Generate the class history
         run: bash build/class-history.sh
 

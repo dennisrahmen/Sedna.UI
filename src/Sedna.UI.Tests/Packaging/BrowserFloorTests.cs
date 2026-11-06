@@ -75,8 +75,16 @@ public class BrowserFloorTests
     [Fact]
     public void The_release_runs_in_the_Playwright_image_of_the_package_version()
     {
-        var image = Regex.Match(Workflow("release.yml"), @"container:\s*mcr\.microsoft\.com/playwright/dotnet:v(?<v>[\d.]+)-");
+        var yaml = Workflow("release.yml");
+        var image = Regex.Match(yaml, @"container:\s*mcr\.microsoft\.com/playwright/dotnet:v(?<v>[\d.]+)-");
         Assert.True(image.Success, "release.yml's test job runs in no Playwright image, so it installs the browsers and their libraries itself.");
+
+        // In a container the checkout is another user's, and git refuses it until it is
+        // marked safe; the class history reads the tags with git, before the build.
+        var trust = yaml.IndexOf("safe.directory \"$GITHUB_WORKSPACE\"", image.Index, StringComparison.Ordinal);
+        var history = yaml.IndexOf("build/class-history.sh", image.Index, StringComparison.Ordinal);
+        Assert.True(trust > 0 && trust < history,
+            "release.yml's container test job does not mark the checkout safe before git reads it.");
 
         foreach (var csproj in Directory.GetFiles(Path.Combine(Assets.RepoRoot, "src"), "*.Tests.csproj", SearchOption.AllDirectories))
         {
