@@ -68,13 +68,13 @@
         <div class="status-bar status-bar--failed">
             <i class="ri-close-circle-line"></i><span>Could not reconnect.</span>
             <button class="status-bar-action" type="button" onclick="location.reload()">
-                <i class="ri-refresh-line"></i> Retry
+                <i class="ri-refresh-line"></i> <span>Retry</span>
             </button>
         </div>
         <div class="status-bar status-bar--expired">
             <i class="ri-error-warning-line"></i><span>This session has expired on the server.</span>
             <button class="status-bar-action" type="button" onclick="location.reload()">
-                <i class="ri-refresh-line"></i> Reload
+                <i class="ri-refresh-line"></i> <span>Reload</span>
             </button>
         </div>
     </div>
@@ -87,7 +87,7 @@
             <i class="ri-alert-line"></i>
             <span>An unhandled error has occurred.</span>
             <button class="status-bar-action" type="button" onclick="location.reload()">
-                <i class="ri-refresh-line"></i> Reload
+                <i class="ri-refresh-line"></i> <span>Reload</span>
             </button>
             <button class="status-bar-dismiss" type="button" aria-label="Dismiss this message"
                     onclick="this.closest('#blazor-error-ui').style.display='none'">

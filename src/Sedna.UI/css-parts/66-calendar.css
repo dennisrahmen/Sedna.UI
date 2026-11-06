@@ -444,7 +444,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
-    line-height: 1.35;
+    line-height: round(1.35em, 2px);
     text-decoration: none;
     /* The content box ends on a whole line: the bottom padding takes up whatever is left
        over after the lines that fit, and below one line the block shows what it can
@@ -770,6 +770,7 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
     block-size: 24px;
     color: var(--fg-soft);
     font-size: var(--text-2);
+    line-height: round(1.5em, 2px);
     font-weight: 500;
     letter-spacing: 0;
     text-transform: none;
@@ -791,7 +792,7 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
        <span class="cal-day-num">6</span>
        <span class="cal-marks">
          <button class="cal-mark" type="button" data-popover="due-6" aria-label="3 tasks due, show them">
-           <i class="ri-checkbox-circle-line"></i>3
+           <i class="ri-checkbox-circle-line"></i><span>3</span>
          </button>
        </span>
      </div>
@@ -818,7 +819,7 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
     align-items: center;
     gap: var(--space-1);
     block-size: 20px;
-    padding-inline: var(--space-2);
+    padding: 0 var(--space-2);
     border: none;
     border-radius: var(--radius-pill);
     background: var(--surface-strong);
@@ -835,6 +836,16 @@ button.cal-mark { cursor: pointer; transition: background var(--motion-fast), co
 button.cal-mark:hover { background: var(--bg-hover); color: var(--fg); }
 button.cal-mark:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: var(--brand-text); }
+
+/* ── Day tones ─────────────────────────────────────────────────────────────
+   On a month whose days carry markers, the shade of a weekend or a holiday is too faint to
+   read beside them. `.cal-month--day-tones` puts it on the day number instead: a weekend's
+   in the info tone, a holiday's in the danger tone. A holiday on a weekend reads as a
+   holiday, and today keeps its own mark.
+
+     <div class="cal-month cal-month--day-tones">…</div> */
+.cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--info-bg); color: var(--info-fg); }
+.cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--danger-bg); color: var(--danger-fg); }
 
 /* ── Date picker ───────────────────────────────────────────────────────────
    A panel for a date — or a range — that looks the same in every engine, for the app
@@ -983,3 +994,10 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .cal-month--mini .cal-day--range-start { border-start-end-radius: 0; border-end-end-radius: 0; }
 .cal-month--mini .cal-day--range-end { border-start-start-radius: 0; border-end-start-radius: 0; }
 .cal-month--mini .cal-day--range-start.cal-day--range-end { border-radius: var(--radius-inner); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its height. See "The line a row is centred on" in 06-base-elements.css. */
+.cal-day-num:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
+.cal-holiday-name { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }

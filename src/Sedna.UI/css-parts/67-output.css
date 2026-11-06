@@ -84,7 +84,7 @@
      <ul class="output output--columns" aria-label="Application log">
        <li class="output-line output-line--warn">
          <span class="output-time">09:14:02.118</span>
-         <span class="output-level"><i class="ri-alert-line" aria-hidden="true"></i> WARN</span>
+         <span class="output-level"><i class="ri-alert-line" aria-hidden="true"></i> <span>WARN</span></span>
          <span class="output-source">orders.sync</span>
          <span class="output-msg">retrying order <span class="output-id">ORD-4182</span></span>
        </li>

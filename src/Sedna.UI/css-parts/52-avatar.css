@@ -351,3 +351,9 @@
         + round(down, calc(var(--avatar-pair-size) * 0.72), 2px) / 2
         - var(--avatar-pair-size) / 2);
 }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its size. See "The line a row is centred on" in 06-base-elements.css. */
+.avatar:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }

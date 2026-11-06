@@ -100,3 +100,37 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 @keyframes sedna-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
 
+
+/* ── The line a row is centred on ────────────────────────────────────────────
+   An icon beside a word, a count beside a name: the eye compares where they are drawn,
+   and a box centred in its row does not draw its glyphs in its middle. A word sits on
+   its font's baseline, with the ascent above it and the descent below, so its capitals
+   hang above the middle of its line by an amount every font sets differently.
+
+   So an icon's box is its glyph's em square, which the icon font draws centred, and a
+   word set in an element of its own is trimmed to its capitals and given its line back
+   in equal padding: the box is exactly as tall as before, and its capitals are in its
+   middle. Centring the row then centres what is drawn. Padding rather than margin, so a
+   label that clips its overflow — one cut short with an ellipsis — keeps its descenders.
+
+   Only an element can be trimmed. A word that is the row's own text node is set where
+   its font puts it, so a label beside anything else is an element — a <span> holding
+   only its words, with no class or only utilities. Inline, the trim changes nothing but the box a background
+   would paint, and vertical padding moves nothing. */
+:where([class^="ri-"], [class*=" ri-"]) { line-height: 1; }
+
+/* A row that sets its items against its first line — an icon beside a message that may
+   wrap — gives its own line height as a length, so an icon there can stand in the middle
+   of that line: `margin-block-start: calc((var(--row-line) - 1em) / 2)`. Registered, so
+   it is resolved once, in the row's own font, and an icon inherits the length rather
+   than its own line height. */
+@property --row-line {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+}
+
+:where(span, strong, b, em, small, time, abbr, cite, data, output, q, s, u, var):where(:not([class]), [class^="text-"], [class*=" text-"], [class^="sedna-"], [class*=" sedna-"]):not(:empty, :has(*)) {
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}

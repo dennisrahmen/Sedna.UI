@@ -110,7 +110,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     color: var(--code-fg);
     font-family: var(--font-mono);
     font-size: var(--text-2);
-    line-height: 1.5;
+    line-height: round(1.5em, 2px);
 }
 
 /* ── Spotlight ──────────────────────────────────────────────────────────────
@@ -269,3 +269,13 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block],
 body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, input, select, textarea, label) {
     pointer-events: none;
 }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.kbd:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(1px + var(--cap-gap)); }
+
+/* A label in a row, trimmed to its capitals with its line in its padding: see "The line a
+   row is centred on" in 06-base-elements.css. */
+.spotlight-step { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }

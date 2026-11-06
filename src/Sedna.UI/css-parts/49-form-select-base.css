@@ -390,6 +390,6 @@
     .form-select[multiple] option:has(.option-text),
     .form-select[size]:not([size="1"]) option:has(.option-text) {
         padding-block: var(--space-3);
-        line-height: 1.4;
+        line-height: round(1.4em, 2px);
     }
 }

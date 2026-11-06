@@ -431,3 +431,10 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .accordion-body { padding: var(--space-6) var(--space-7); font-size: var(--text-4); color: var(--fg-soft); }
 .accordion-body > :first-child { margin-top: 0; }
 .accordion-body > :last-child { margin-bottom: 0; }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in a margin. See "The line a row is centred on" in 06-base-elements.css. */
+.sticky-group-count { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+.list-meta:not(:has(> *)) { display: block; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }

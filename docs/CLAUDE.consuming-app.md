@@ -47,6 +47,22 @@ page. Keep the library's class names on the parts rather than copying their rule
 copied rule stops receiving library fixes, and it will silently miss later additions such as the
 responsive drawer and the skip link.
 
+### A label beside anything else is an element
+
+In a row — a button, a badge, a chip, a menu item, a nav link, an alert, a list row — write the words
+beside an icon, a dot, a count, a checkbox or a badge as an element: a `<span>` with no class, or with
+only utility classes.
+
+```html
+<button class="btn"><i class="ri-check-line"></i> <span>Approve</span></button>
+<label class="form-check"><input type="checkbox" /> <span>Notify me</span></label>
+```
+
+The library centres what is drawn, not the boxes: an icon on the middle of its glyph, a word on the
+middle of its capitals. A word that is the row's own text node is set where its font puts it, up to a
+pixel off, because no rule can reach it. Text on its own — `<button class="btn">Save</button>` — needs
+nothing: the library centres it.
+
 ### When a component needs something only this app needs
 
 Every component is exact in every state it supports and combines with any other. What this app alone

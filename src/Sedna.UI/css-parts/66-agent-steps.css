@@ -6,7 +6,7 @@
    The thinking behind an answer, folded away. A native <details>, so it opens from the
    keyboard and with no script.
      <details class="reasoning">
-       <summary><i class="ri-arrow-right-s-line reasoning-chevron"></i>Thought for 4 s</summary>
+       <summary><i class="ri-arrow-right-s-line reasoning-chevron"></i><span>Thought for 4 s</span></summary>
        <div class="reasoning-body"><p>…</p></div>
      </details>
 
@@ -18,7 +18,7 @@
        <li data-state="done">
          <span class="agent-step-icon"><i class="ri-check-line"></i></span>
          <details class="agent-step">
-           <summary><span class="agent-step-label"><i class="ri-search-line"></i>Searched the runbook</span>
+           <summary><span class="agent-step-label"><i class="ri-search-line"></i><span>Searched the runbook</span></span>
                     <span class="agent-step-meta">4 results · 1.2 s</span></summary>
            <pre class="code-block"><code>…</code></pre>
          </details>
@@ -105,7 +105,7 @@
 .agent-step > summary::-webkit-details-marker { display: none; }
 .agent-step-label { display: flex; align-items: center; gap: var(--space-3); min-inline-size: 0; }
 .agent-step-label > i { color: var(--muted); font-size: var(--text-5); }
-.agent-step-meta { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.agent-step-meta { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .agent-step > .code-block { margin-block-start: var(--space-4); }
 
 .agent-plan { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); font-size: var(--text-4); }

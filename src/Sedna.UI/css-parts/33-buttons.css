@@ -26,7 +26,7 @@
     font-family: inherit;
     font-weight: 500;
     cursor: pointer;
-    line-height: 1.4;
+    line-height: round(1.4em, 2px);
     white-space: nowrap;
     text-decoration: none;
     transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
@@ -84,3 +84,14 @@
     animation: sedna-spin var(--spin-duration) linear infinite;
 }
 
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its minimum height. See "The line a row is centred on" in 06-base-elements.css. */
+.btn:not(:has(> *)) {
+    display: inline-block;
+    align-content: center;
+    text-align: center;
+    text-box: trim-both cap alphabetic;
+}
+.btn.btn--wrap:not(:has(> *)) { text-align: start; }

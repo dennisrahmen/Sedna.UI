@@ -51,9 +51,9 @@
 }
 
 /* line-height pins the option's box, so an option with an icon in it is the same
-   height as one without. The icon takes `line-height: 1` for the reason `.btn i`
-   does: an icon nested in a <span> beside the label shares a line box with it, and at
-   the inherited 1.5 its taller box is what set the option's height. */
+   height as one without. The icon and the label are the option's own items, beside the
+   hidden input — `<input …><i class="ri-…"></i> <span>List</span>` — so the row centres
+   what each draws (06-base-elements.css). */
 .segmented-option {
     position: relative;
     display: inline-flex;
@@ -64,7 +64,7 @@
     color: var(--muted);
     font-size: var(--text-3);
     font-weight: 500;
-    line-height: 1.4;
+    line-height: round(1.4em, 2px);
     white-space: nowrap;
     cursor: pointer;
     user-select: none;

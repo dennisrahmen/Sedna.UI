@@ -84,10 +84,12 @@ public abstract class ScriptTestBase : BrowserTestBase
         ForcedColors? forcedColors = null,
         IReadOnlyDictionary<string, Served>? serve = null,
         Action<IPage>? beforeLoad = null,
-        DateTime? clockPausedAt = null)
+        DateTime? clockPausedAt = null,
+        float? deviceScaleFactor = null)
     {
         var context = await Browser!.NewContextAsync(new()
         {
+            DeviceScaleFactor = deviceScaleFactor,
             ColorScheme = colorScheme,
             TimezoneId = timeZone,
             HasTouch = hasTouch,
@@ -211,10 +213,10 @@ public abstract class ScriptTestBase : BrowserTestBase
     /// Opens a fixture carrying the shipped stylesheet, and collects console errors.
     /// </summary>
     protected async Task<(IPage Page, List<string> Errors)> OpenStyled(
-        string body, string extraHead = "")
+        string body, string extraHead = "", float? deviceScaleFactor = null)
     {
         var errors = new List<string>();
-        var page = await Open(body, head: StylesheetTag + extraHead);
+        var page = await Open(body, head: StylesheetTag + extraHead, deviceScaleFactor: deviceScaleFactor);
         page.Console += (_, message) =>
         {
             if (message.Type == "error") errors.Add(message.Text);

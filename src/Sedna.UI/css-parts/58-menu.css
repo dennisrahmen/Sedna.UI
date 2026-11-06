@@ -292,3 +292,9 @@
    panel in the markup — the panel then paints above it on source order, and the
    scrim needs no z-index of its own. */
 .menu-scrim { position: fixed; inset: 0; cursor: default; }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.menu-item:not(:has(> *)) { display: block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-4) + var(--cap-gap)); }

@@ -140,7 +140,12 @@
 /* A table in untrusted prose is the one thing that breaks the page width, because
    its own content sets its minimum size. */
 .prose table { display: block; overflow-x: auto; max-width: 100%; border-collapse: collapse; }
-.prose th, .prose td { padding: var(--space-3) var(--space-5); border: 1px solid var(--border); text-align: start; }
+.prose th, .prose td {
+    padding: calc(var(--space-3) + var(--cap-gap)) var(--space-5);
+    border: 1px solid var(--border);
+    text-align: start;
+    text-box: trim-both cap alphabetic;
+}
 .prose th { background: var(--table-head-bg); color: var(--muted); font-size: 0.9em; }
 
 /* ── Redacted ───────────────────────────────────────────────────────────────

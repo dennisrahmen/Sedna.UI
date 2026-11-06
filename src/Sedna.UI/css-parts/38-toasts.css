@@ -89,9 +89,17 @@
    centres whether an app rendered it or the library did. */
 .toast:not(:has(strong)) { align-items: center; }
 
+/* The icon stands on the first line's capitals: the body is trimmed to them and given its
+   leading back in padding, and the icon sits in the middle of one line's height. */
+.toast          { --row-line: 1lh; }
 .toast i        { font-size: var(--text-7); flex-shrink: 0; color: var(--muted); }
+.toast > i      { margin-block-start: calc((var(--row-line) - 1em) / 2); }
+.toast:not(:has(strong)) > i { margin-block-start: 0; }
 .toast strong   { display: block; color: var(--fg); font-weight: 600; }
 .toast-body     { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+/* A message with no title is the row's one line; with a title, the <strong> is the label
+   06-base-elements.css trims. */
+.toast-body:not(:has(> strong)) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .toast-close {
     flex-shrink: 0;
     background: none; border: none; padding: 0;

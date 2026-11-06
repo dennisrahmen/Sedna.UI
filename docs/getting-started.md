@@ -349,7 +349,7 @@ install. Add the stylesheet:
 Then use the classes on an `<i>`:
 
 ```html
-<button class="btn btn--go btn--solid"><i class="ri-check-line"></i> Approve</button>
+<button class="btn btn--go btn--solid"><i class="ri-check-line"></i> <span>Approve</span></button>
 <button class="btn" aria-label="Refresh"><i class="ri-refresh-line"></i></button>
 ```
 

@@ -3,7 +3,7 @@
 <div class="card">
     <div class="card-head">
         <strong>Which service calls which</strong>
-        <label class="switch"><input type="checkbox" @bind="_drawing" @bind:after="Draw" /> Draw links</label>
+        <label class="switch"><input type="checkbox" @bind="_drawing" @bind:after="Draw" /> <span>Draw links</span></label>
     </div>
     <div class="graph graph--sm" data-graph data-graph-deferred id="drawn-calls" data-graph-arrows="target"
          aria-label="Services, and the calls drawn between them" @onsedna-graph-connect="Connected">

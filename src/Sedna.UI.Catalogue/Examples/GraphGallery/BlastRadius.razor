@@ -7,15 +7,15 @@
         <div class="toolbar">
             <div class="toolbar-filters">
                 <div class="segmented segmented--sm" role="group" aria-label="How far to follow the calls">
-                    <label class="segmented-option"><input type="radio" name="blast-depth" value="1" data-graph-option="depth" /> 1 hop</label>
-                    <label class="segmented-option"><input type="radio" name="blast-depth" value="2" data-graph-option="depth" checked /> 2 hops</label>
-                    <label class="segmented-option"><input type="radio" name="blast-depth" value="3" data-graph-option="depth" /> 3 hops</label>
+                    <label class="segmented-option"><input type="radio" name="blast-depth" value="1" data-graph-option="depth" /> <span>1 hop</span></label>
+                    <label class="segmented-option"><input type="radio" name="blast-depth" value="2" data-graph-option="depth" checked /> <span>2 hops</span></label>
+                    <label class="segmented-option"><input type="radio" name="blast-depth" value="3" data-graph-option="depth" /> <span>3 hops</span></label>
                 </div>
                 <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} services in view"></span>
             </div>
             <div class="toolbar-actions">
-                <button class="btn btn--sm" type="button" data-graph-action="unfocus"><i class="ri-apps-2-line"></i> Whole map</button>
-                <button class="btn btn--sm" type="button" data-graph-action="focus" value="session-store"><i class="ri-focus-3-line"></i> Back to the failure</button>
+                <button class="btn btn--sm" type="button" data-graph-action="unfocus"><i class="ri-apps-2-line"></i> <span>Whole map</span></button>
+                <button class="btn btn--sm" type="button" data-graph-action="focus" value="session-store"><i class="ri-focus-3-line"></i> <span>Back to the failure</span></button>
             </div>
         </div>
     </div>
@@ -92,11 +92,11 @@
     </div>
     <div class="card-foot card-foot--start">
         <div class="graph-legend">
-            <span class="graph-key"><span class="graph-swatch series-danger"></span> Down</span>
-            <span class="graph-key"><span class="graph-swatch series-warn"></span> Failing because of it</span>
-            <span class="graph-key"><span class="graph-swatch series-go"></span> Healthy</span>
-            <span class="graph-key"><span class="graph-swatch graph-swatch--square series-muted"></span> Data store</span>
-            <span class="graph-key"><span class="graph-line graph-line--arrow"></span> Calls</span>
+            <span class="graph-key"><span class="graph-swatch series-danger"></span> <span>Down</span></span>
+            <span class="graph-key"><span class="graph-swatch series-warn"></span> <span>Failing because of it</span></span>
+            <span class="graph-key"><span class="graph-swatch series-go"></span> <span>Healthy</span></span>
+            <span class="graph-key"><span class="graph-swatch graph-swatch--square series-muted"></span> <span>Data store</span></span>
+            <span class="graph-key"><span class="graph-line graph-line--arrow"></span> <span>Calls</span></span>
         </div>
     </div>
 </div>

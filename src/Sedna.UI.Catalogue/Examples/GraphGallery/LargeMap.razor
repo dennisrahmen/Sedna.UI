@@ -10,7 +10,7 @@
             <button class="chip" type="button" data-graph-filter="cluster" value="platform-b" aria-pressed="true">Platform B</button>
             <button class="chip" type="button" data-graph-filter="cluster" value="platform-c" aria-pressed="true">Platform C</button>
             </div>
-            <label class="form-check"><input type="checkbox" data-graph-show="muted" checked /> Retired</label>
+            <label class="form-check"><input type="checkbox" data-graph-show="muted" checked /> <span>Retired</span></label>
         </div>
         <span class="toolbar-count" data-graph-stats="{nodes} records · {edges} links" data-graph-stats-match="{matches} of {nodes} records match"></span>
     </div>
@@ -367,7 +367,7 @@
         <div class="graph-empty graph-empty--filtered empty-state">
             <svg class="state-art" aria-hidden="true"><use href="#filtered-out" /></svg>
             <span class="empty-state-title">Every platform is switched off</span>
-            <button class="btn btn--sm" type="button" data-graph-action="reset"><i class="ri-restart-line"></i> Show every platform</button>
+            <button class="btn btn--sm" type="button" data-graph-action="reset"><i class="ri-restart-line"></i> <span>Show every platform</span></button>
         </div>
         <p class="visually-hidden" data-graph-live aria-live="polite"
            data-graph-announce="{label}, {meta}. {links} links." data-graph-announce-select="{label} selected."></p>

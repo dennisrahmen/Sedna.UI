@@ -71,7 +71,7 @@
     font-family: var(--font-mono);
     font-size: var(--text-2);
     font-variant-numeric: tabular-nums;
-    line-height: 1.5;
+    line-height: round(1.5em, 2px);
     white-space: nowrap;
     text-decoration: none;
 }
@@ -115,3 +115,9 @@ a.topbar-version--pre:hover {
 .topbar > .health-badge,
 .topbar > .stale,
 .topbar > .topbar-version { align-self: center; margin-inline: var(--space-6); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.topbar-version:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }

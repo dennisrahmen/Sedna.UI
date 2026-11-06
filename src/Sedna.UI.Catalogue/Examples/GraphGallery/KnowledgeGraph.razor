@@ -5,15 +5,15 @@
                 <span class="input-affix"><i class="ri-search-line"></i></span>
                 <input class="form-input" type="search" placeholder="Search" aria-label="Search the knowledge graph" data-graph-search />
             </div>
-            <label class="form-check"><input type="checkbox" data-graph-show="muted" checked /> Done tasks</label>
+            <label class="form-check"><input type="checkbox" data-graph-show="muted" checked /> <span>Done tasks</span></label>
         </div>
         <span class="toolbar-count" data-graph-stats="{nodes} records · {edges} links" data-graph-stats-match="{matches} of {nodes} records match"></span>
     </div>
     <div class="chip-set" role="group" aria-label="Show kinds">
-        <button class="chip" type="button" data-graph-filter="kind" value="note" aria-pressed="true"><span class="graph-swatch graph-swatch--rounded series-2"></span> Notes</button>
-        <button class="chip" type="button" data-graph-filter="kind" value="task" aria-pressed="true"><span class="graph-swatch graph-swatch--diamond series-3"></span> Tasks</button>
-        <button class="chip" type="button" data-graph-filter="kind" value="person" aria-pressed="true"><span class="graph-swatch series-5"></span> People</button>
-        <button class="chip" type="button" data-graph-filter="kind" value="tag" aria-pressed="true"><span class="graph-swatch graph-swatch--tag series-6"></span> Tags</button>
+        <button class="chip" type="button" data-graph-filter="kind" value="note" aria-pressed="true"><span class="graph-swatch graph-swatch--rounded series-2"></span> <span>Notes</span></button>
+        <button class="chip" type="button" data-graph-filter="kind" value="task" aria-pressed="true"><span class="graph-swatch graph-swatch--diamond series-3"></span> <span>Tasks</span></button>
+        <button class="chip" type="button" data-graph-filter="kind" value="person" aria-pressed="true"><span class="graph-swatch series-5"></span> <span>People</span></button>
+        <button class="chip" type="button" data-graph-filter="kind" value="tag" aria-pressed="true"><span class="graph-swatch graph-swatch--tag series-6"></span> <span>Tags</span></button>
     </div>
     <div class="sedna-split">
         <div class="graph card" data-graph id="knowledge" data-graph-layout="islands"
@@ -115,10 +115,10 @@
             </div>
             <div class="menu graph-menu" data-graph-menu role="menu" hidden>
                 <span class="menu-label" data-graph-field="label"></span>
-                <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-3-line"></i> Only its neighbourhood</button>
-                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-apps-2-line"></i> Everything again</button>
-                <button class="menu-item" role="menuitem" type="button" data-graph-action="hide"><i class="ri-eye-off-line"></i> Hide it</button>
-                <button class="menu-item" role="menuitem" type="button" data-graph-action="show-all"><i class="ri-eye-line"></i> Show what I hid</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-3-line"></i> <span>Only its neighbourhood</span></button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-apps-2-line"></i> <span>Everything again</span></button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="hide"><i class="ri-eye-off-line"></i> <span>Hide it</span></button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="show-all"><i class="ri-eye-line"></i> <span>Show what I hid</span></button>
             </div>
             <div class="graph-wait skeleton skeleton-block"></div>
             <p class="visually-hidden" data-graph-live aria-live="polite"
@@ -148,15 +148,15 @@
                 </ul>
             </div>
             <div class="card-foot card-foot--start">
-                <button class="btn btn--sm" type="button" data-graph-action="focus"><i class="ri-focus-3-line"></i> Neighbourhood</button>
+                <button class="btn btn--sm" type="button" data-graph-action="focus"><i class="ri-focus-3-line"></i> <span>Neighbourhood</span></button>
                 <button class="btn btn--ghost btn--sm" type="button" data-graph-action="unfocus">Everything</button>
             </div>
         </aside>
     </div>
     <div class="graph-legend">
-        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-1"></span> Project</span>
-        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-3 graph-swatch--muted"></span> Done task</span>
-        <span class="graph-key"><span class="graph-line"></span> Filed under, written by, assigned to</span>
-        <span class="graph-key"><span class="graph-line graph-line--dotted"></span> Tagged</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-1"></span> <span>Project</span></span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-3 graph-swatch--muted"></span> <span>Done task</span></span>
+        <span class="graph-key"><span class="graph-line"></span> <span>Filed under, written by, assigned to</span></span>
+        <span class="graph-key"><span class="graph-line graph-line--dotted"></span> <span>Tagged</span></span>
     </div>
 </div>

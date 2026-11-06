@@ -121,7 +121,7 @@
     font-weight: 600;
     line-height: 1;
 }
-.source-card-title { font-size: var(--text-4); font-weight: 600; line-height: 1.35; }
+.source-card-title { font-size: var(--text-4); font-weight: 600; line-height: round(1.35em, 2px); }
 
 .chat-composer--prompt {
     gap: var(--space-3);
@@ -144,3 +144,10 @@
 .chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
 .chat-composer-send > .btn { border-radius: 50%; }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back by its height. See "The line a row is centred on" in 06-base-elements.css. */
+.citation:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
+.chat-message--agent .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }

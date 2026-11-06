@@ -18,7 +18,7 @@
         </div>
         <div class="toolbar-actions">
             <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} · {edges} links" data-graph-stats-match="{matches} found"></span>
-            <button class="btn btn--ghost btn--sm" type="button" data-graph-action="reset"><i class="ri-restart-line"></i> Reset</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-graph-action="reset"><i class="ri-restart-line"></i> <span>Reset</span></button>
         </div>
     </div>
     <div class="sedna-split">
@@ -84,18 +84,18 @@
                 </div>
                 <div class="menu graph-menu" data-graph-menu role="menu" hidden>
                     <span class="menu-label" data-graph-field="label"></span>
-                    <button class="menu-item" role="menuitem" type="button" data-graph-action="select"><i class="ri-side-bar-line"></i> Show its details</button>
-                    <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Show its neighbourhood</button>
-                    <button class="menu-item" role="menuitem" type="button" data-graph-action="hide"><i class="ri-eye-off-line"></i> Hide it</button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="select"><i class="ri-side-bar-line"></i> <span>Show its details</span></button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> <span>Show its neighbourhood</span></button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="hide"><i class="ri-eye-off-line"></i> <span>Hide it</span></button>
                     <hr class="menu-sep" />
-                    <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> Show every service</button>
-                    <button class="menu-item" role="menuitem" type="button" data-graph-action="show-all"><i class="ri-eye-line"></i> Show hidden services</button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> <span>Show every service</span></button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="show-all"><i class="ri-eye-line"></i> <span>Show hidden services</span></button>
                 </div>
                 <div class="graph-wait skeleton skeleton-block"></div>
                 <div class="graph-empty graph-empty--filtered empty-state">
                     <svg class="state-art" aria-hidden="true"><use href="#filtered-out" /></svg>
                     <span class="empty-state-title">No service matches these filters</span>
-                    <button class="btn btn--sm" type="button" data-graph-action="reset"><i class="ri-filter-off-line"></i> Clear the filters</button>
+                    <button class="btn btn--sm" type="button" data-graph-action="reset"><i class="ri-filter-off-line"></i> <span>Clear the filters</span></button>
                 </div>
                 <p class="visually-hidden" data-graph-live aria-live="polite"
                    data-graph-announce="{label}, run by {team}. {links} links."
@@ -134,7 +134,7 @@
                 </div>
             </div>
             <div class="card-foot card-foot--split">
-                <button class="btn btn--sm" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Its neighbourhood</button>
+                <button class="btn btn--sm" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> <span>Its neighbourhood</span></button>
                 <button class="btn btn--ghost btn--sm" type="button" data-graph-action="unfocus">Show all</button>
             </div>
         </aside>

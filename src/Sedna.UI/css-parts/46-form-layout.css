@@ -36,8 +36,10 @@
 }
 .form-error   { color: var(--danger-fg); }
 .form-warning { color: var(--warn-fg); }
+.form-error,
+.form-warning { --row-line: 1lh; }
 .form-error i,
-.form-warning i { font-size: var(--text-5); flex-shrink: 0; line-height: 1.35; }
+.form-warning i { font-size: var(--text-5); flex-shrink: 0; margin-block-start: calc((var(--row-line) - 1em) / 2); }
 
 /* A required field's label. The marker is decoration — put `required` on the
    control, which is what is actually announced and enforced, and aria-hidden on

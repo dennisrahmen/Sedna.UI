@@ -5,7 +5,7 @@
                 <th>Order</th>
                 <th class="col-filtered">
                     <div class="sedna-row sedna-gap-0">
-                        Status<span class="visually-hidden">, filtered</span>
+                        <span>Status<span class="visually-hidden">, filtered</span></span>
                         <button class="th-filter th-filter--active" type="button" popovertarget="fp-status" aria-label="Filter by status, 2 chosen"><i class="ri-filter-3-line"></i></button>
                         <div class="popover" id="fp-status" popover>
                             <strong class="popover-title">Status</strong>
@@ -30,9 +30,9 @@
                             <strong class="popover-title">Placed</strong>
                             <div class="sedna-col">
                                 <div class="segmented segmented--sm" role="group" aria-label="Comparison">
-                                    <label class="segmented-option"><input type="radio" name="fp-placed-op" />Before</label>
-                                    <label class="segmented-option"><input type="radio" name="fp-placed-op" checked />On</label>
-                                    <label class="segmented-option"><input type="radio" name="fp-placed-op" />After</label>
+                                    <label class="segmented-option"><input type="radio" name="fp-placed-op" /><span>Before</span></label>
+                                    <label class="segmented-option"><input type="radio" name="fp-placed-op" checked /><span>On</span></label>
+                                    <label class="segmented-option"><input type="radio" name="fp-placed-op" /><span>After</span></label>
                                 </div>
                                 <input class="form-input form-input--sm" type="date" aria-label="Date placed" />
                             </div>

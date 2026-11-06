@@ -2,10 +2,10 @@
     <div class="toolbar">
         <div class="toolbar-filters">
             <div class="segmented segmented--sm" role="group" aria-label="Direction">
-                <label class="segmented-option"><input type="radio" name="packages-direction" value="TB" data-graph-option="direction" checked /><span><i class="ri-arrow-down-line"></i> Top down</span></label>
-                <label class="segmented-option"><input type="radio" name="packages-direction" value="LR" data-graph-option="direction" /><span><i class="ri-arrow-right-line"></i> Left to right</span></label>
+                <label class="segmented-option"><input type="radio" name="packages-direction" value="TB" data-graph-option="direction" checked /><i class="ri-arrow-down-line"></i> <span>Top down</span></label>
+                <label class="segmented-option"><input type="radio" name="packages-direction" value="LR" data-graph-option="direction" /><i class="ri-arrow-right-line"></i> <span>Left to right</span></label>
             </div>
-            <label class="form-check"><input type="checkbox" data-graph-show="muted" checked /> Deprecated</label>
+            <label class="form-check"><input type="checkbox" data-graph-show="muted" checked /> <span>Deprecated</span></label>
             <button class="chip" type="button" data-graph-filter="scope" value="build" aria-pressed="true">Build-only</button>
         </div>
         <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} packages"></span>
@@ -56,11 +56,11 @@
            data-graph-announce="{label} {meta}. {links} links." data-graph-announce-select="{label} selected."></p>
     </div>
     <div class="graph-legend">
-        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-2"></span> Up to date</span>
-        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-warn"></span> Update available</span>
-        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-danger"></span> Security advisory</span>
-        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-muted"></span> Deprecated</span>
-        <span class="graph-key"><span class="graph-line graph-line--arrow"></span> Depends on</span>
-        <span class="graph-key"><span class="graph-line graph-line--dashed graph-line--arrow"></span> Build only</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-2"></span> <span>Up to date</span></span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-warn"></span> <span>Update available</span></span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-danger"></span> <span>Security advisory</span></span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-muted"></span> <span>Deprecated</span></span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow"></span> <span>Depends on</span></span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed graph-line--arrow"></span> <span>Build only</span></span>
     </div>
 </div>

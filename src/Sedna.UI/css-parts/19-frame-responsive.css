@@ -64,7 +64,7 @@
     .layout--responsive .sidebar .sidebar-wide { display: none; }
     .layout--responsive .sidebar .nav-count {
         position: absolute; top: 2px; inset-inline-end: var(--space-3); margin-inline-start: 0;
-        min-width: 15px; padding: 0 var(--space-2); font-size: var(--text-1); line-height: 1.6;
+        min-width: 15px; padding: var(--cap-gap) var(--space-2); font-size: var(--text-1); line-height: round(1.6em, 2px);
     }
     .layout--responsive .sidebar .nav-status-card { align-items: center; padding: var(--space-4) 0; position: relative; }
     .layout--responsive .sidebar .nav-status-label,

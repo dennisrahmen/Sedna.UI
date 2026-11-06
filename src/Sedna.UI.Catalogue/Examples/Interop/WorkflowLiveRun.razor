@@ -43,7 +43,7 @@
                 <span class="agent-status-time">@Elapsed</span>
             </span>
             <button class="btn btn--sm" type="button" @onclick="Toggle">
-                <i class="@(_playing ? "ri-pause-fill" : "ri-play-fill")"></i>@PlayLabel
+                <i class="@(_playing ? "ri-pause-fill" : "ri-play-fill")"></i><span>@PlayLabel</span>
             </button>
             <button class="btn btn--sm btn--ghost btn--icon" type="button" @onclick="Step" disabled="@(_playing || Finished)"
                     aria-label="Next event" data-tip="Next event"><i class="ri-skip-forward-line"></i></button>
@@ -104,7 +104,7 @@
     @* Every step, under the overview. data-follow keeps the one at work in view. *@
     <ol class="workflow workflow--sm workflow--grid workflow--auto @Flow" style="@FlowKnobs" tabindex="0" data-follow aria-label="Every step of the request">
         <li class="workflow-step" data-state="@S("in")">
-            <span class="workflow-end"><i class="ri-phone-line"></i>Call in<span class="visually-hidden">@W("in")</span></span>
+            <span class="workflow-end"><i class="ri-phone-line"></i><span>Call in</span><span class="visually-hidden">@W("in")</span></span>
         </li>
         <li class="workflow-step" data-state="@S("identify")">
             <article class="workflow-node workflow-node--agent">
@@ -145,14 +145,14 @@
                     </article>
                 </li>
             </ol>
-            <span class="workflow-loop-count"><i class="ri-repeat-line"></i>Turn @_turn</span>
+            <span class="workflow-loop-count"><i class="ri-repeat-line"></i><span>Turn @_turn</span></span>
         </li>
         <li class="workflow-fork workflow-fork--decision">
             <div class="workflow-branch" data-state="@S("fixed")">
                 <span class="workflow-label">Fixed</span>
                 <ol class="workflow-path">
                     <li class="workflow-step">
-                        <span class="workflow-end"><i class="ri-chat-check-line"></i>Confirm and close</span>
+                        <span class="workflow-end"><i class="ri-chat-check-line"></i><span>Confirm and close</span></span>
                     </li>
                 </ol>
             </div>
@@ -276,7 +276,7 @@
                         </article>
                     </li>
                     <li class="workflow-step" data-state="@S("end")">
-                        <span class="workflow-end"><i class="ri-flag-line"></i>Handed over<span class="visually-hidden">@W("end")</span></span>
+                        <span class="workflow-end"><i class="ri-flag-line"></i><span>Handed over</span><span class="visually-hidden">@W("end")</span></span>
                     </li>
                 </ol>
             </div>
@@ -287,7 +287,7 @@
         <section class="card">
             <div class="card-head">
                 <strong>The call</strong>
-                <span class="health-badge @(OnTheLine ? "health-badge--live" : "health-badge--idle")"><span class="health-dot"></span>@(OnTheLine ? "On the line" : _said.Count == 0 ? "No call yet" : "Ended")</span>
+                <span class="health-badge @(OnTheLine ? "health-badge--live" : "health-badge--idle")"><span class="health-dot"></span><span>@(OnTheLine ? "On the line" : _said.Count == 0 ? "No call yet" : "Ended")</span></span>
             </div>
             <div class="chat chat--flat sedna-scroll" role="log" aria-label="Call transcript" style="max-height: 300px">
                 @foreach (var line in _said)
@@ -314,7 +314,7 @@
                 <strong>Where the ticket goes</strong>
                 @if (_options is not null)
                 {
-                    <span class="badge badge-ai"><i class="ri-sparkling-2-line"></i>@(_decided ? "Decided by the agent" : "Weighing")</span>
+                    <span class="badge badge-ai"><i class="ri-sparkling-2-line"></i><span>@(_decided ? "Decided by the agent" : "Weighing")</span></span>
                 }
             </div>
             <div class="card-body">
@@ -344,7 +344,7 @@
     </div>
 
     <div class="card-body">
-        <div class="output-head"><i class="ri-webhook-line"></i>What the automation sent</div>
+        <div class="output-head"><i class="ri-webhook-line"></i><span>What the automation sent</span></div>
         <ul class="output output--columns output--dense" data-follow aria-label="Events from the automation" style="max-height: 168px">
             @foreach (var e in _log)
             {

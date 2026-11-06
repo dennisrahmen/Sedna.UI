@@ -2,11 +2,11 @@
     <div class="toolbar">
         <div class="toolbar-filters">
             <div class="segmented segmented--sm" role="group" aria-label="How far to reach">
-                <label class="segmented-option"><input type="radio" name="xp-reach" data-graph-option="depth" value="1" checked /> 1 step</label>
-                <label class="segmented-option"><input type="radio" name="xp-reach" data-graph-option="depth" value="2" /> 2 steps</label>
-                <label class="segmented-option"><input type="radio" name="xp-reach" data-graph-option="depth" value="3" /> 3 steps</label>
+                <label class="segmented-option"><input type="radio" name="xp-reach" data-graph-option="depth" value="1" checked /> <span>1 step</span></label>
+                <label class="segmented-option"><input type="radio" name="xp-reach" data-graph-option="depth" value="2" /> <span>2 steps</span></label>
+                <label class="segmented-option"><input type="radio" name="xp-reach" data-graph-option="depth" value="3" /> <span>3 steps</span></label>
             </div>
-            <button class="btn btn--sm" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> Every package</button>
+            <button class="btn btn--sm" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> <span>Every package</span></button>
         </div>
         <span class="toolbar-count" data-graph-stats="{nodes} of {totalNodes} packages"></span>
     </div>
@@ -81,17 +81,17 @@
             </div>
             <div class="menu graph-menu" data-graph-menu role="menu" hidden>
                 <span class="menu-label" data-graph-field="label"></span>
-                <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> Show what it touches</button>
-                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> Show every package</button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-2-line"></i> <span>Show what it touches</span></button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-fullscreen-exit-line"></i> <span>Show every package</span></button>
             </div>
             <div class="graph-wait skeleton skeleton-block"></div>
         </div>
     </div>
     <div class="graph-legend">
-        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-2"></span> Application</span>
-        <span class="graph-key"><span class="graph-swatch series-3"></span> Feature package</span>
-        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-5"></span> Shared interface</span>
-        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-6"></span> Library</span>
-        <span class="graph-key"><span class="graph-line graph-line--arrow"></span> Depends on</span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--square series-2"></span> <span>Application</span></span>
+        <span class="graph-key"><span class="graph-swatch series-3"></span> <span>Feature package</span></span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--diamond series-5"></span> <span>Shared interface</span></span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--hexagon series-6"></span> <span>Library</span></span>
+        <span class="graph-key"><span class="graph-line graph-line--arrow"></span> <span>Depends on</span></span>
     </div>
 </div>
