@@ -11,6 +11,7 @@
 }
 .modal {
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     /* The panel never grows past the window, and the body is what gives way. A
        backdrop centres with align-items: center, so a panel taller than the
        viewport grows past BOTH edges — the header off the top and the footer off

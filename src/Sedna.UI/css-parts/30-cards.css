@@ -7,6 +7,7 @@
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {
     --surface-here: var(--surface-raised-1);
+    --muted-here: var(--muted);
     background: var(--surface-raised-1);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -28,10 +29,12 @@
    `SurfaceTokenTests.Muted_text_clears_AA_on_every_surface_level`. */
 .card .card {
     --surface-here: var(--surface-raised-2);
+    --muted-here: var(--muted);
     background: var(--surface-raised-2);
 }
 .card .card .card {
     --surface-here: var(--surface-raised-3);
+    --muted-here: var(--muted);
     background: var(--surface-raised-3);
     --muted: var(--fg-soft);
 }

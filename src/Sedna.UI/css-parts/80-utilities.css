@@ -52,14 +52,16 @@
 .text-center { text-align: center; }
 .text-end    { text-align: end; }
 
-.text-muted { color: var(--muted); }
+/* Quiet text in the ink of whatever it sits on: the page's, a card's, or a frame region's
+   own (--muted-here), so it stays readable on a coloured topbar. */
+.text-muted { color: var(--muted-here, var(--muted)); }
 /* A small label above a heading — the section a page is in, the kind of a record. Muted,
    spaced capitals at the smallest legible size, with no margin of its own so it sits on
    the heading it names. */
 .eyebrow {
     display: block;
     margin: 0;
-    color: var(--muted);
+    color: var(--muted-here, var(--muted));
     font-size: var(--text-2);
     font-weight: 600;
     letter-spacing: 0.06em;

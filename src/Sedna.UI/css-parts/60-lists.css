@@ -132,12 +132,13 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .list--cards > li + li { border-top: none; }
 .list--cards > li > .list-row {
     --surface-here: var(--surface-raised-1);
+    --muted-here: var(--muted);
     background-color: var(--surface-here);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
 }
-.card .list--cards > li > .list-row { --surface-here: var(--surface-raised-2); }
-.card .card .list--cards > li > .list-row { --surface-here: var(--surface-raised-3); --muted: var(--fg-soft); }
+.card .list--cards > li > .list-row { --surface-here: var(--surface-raised-2); --muted-here: var(--muted); }
+.card .card .list--cards > li > .list-row { --surface-here: var(--surface-raised-3); --muted-here: var(--muted); --muted: var(--fg-soft); }
 
 .list--cards > li > :is(a, button).list-row:hover { background-color: var(--bg-hover); border-color: var(--border-strong); }
 .list--cards > li > button.list-row:active { background-color: var(--btn-active-bg); }

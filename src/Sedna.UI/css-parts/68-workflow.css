@@ -389,6 +389,7 @@
    hung on the port line at the inline end of the head. */
 .workflow-node {
     --surface-here: var(--surface-raised-1);
+    --muted-here: var(--muted);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -407,8 +408,8 @@
     box-shadow: var(--workflow-ring, 0 0 transparent), var(--workflow-glow, 0 0 transparent);
     transition: border-color var(--motion-fast), box-shadow var(--motion-mid);
 }
-.card .workflow-node { --surface-here: var(--surface-raised-2); }
-.card .card .workflow-node { --surface-here: var(--surface-raised-3); --muted: var(--fg-soft); }
+.card .workflow-node { --surface-here: var(--surface-raised-2); --muted-here: var(--muted); }
+.card .card .workflow-node { --surface-here: var(--surface-raised-3); --muted-here: var(--muted); --muted: var(--fg-soft); }
 
 /* A node that opens something — the step's detail beside the diagram — is a
    <button> or an <a>, with spans inside. Pressed is the one on show. */

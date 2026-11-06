@@ -45,6 +45,7 @@
        0px on anything without an indicator, so a desktop drawer is unchanged. */
     padding-block-end: var(--safe-block-end);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border-inline-start: 1px solid var(--border);
     box-shadow: var(--shadow-modal);

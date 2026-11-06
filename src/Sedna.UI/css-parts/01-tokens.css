@@ -261,6 +261,10 @@
     --sidebar-bg:      var(--slate-900);
     --sidebar-border:  var(--slate-800);
     --sidebar-fg:      var(--slate-200);
+    /* Quiet text drawn straight on the sidebar: a section label, the brand's second line,
+       a tool link. An alias of --muted, so nothing moves until an app gives the sidebar a
+       colour of its own and sets this beside --sidebar-fg. */
+    --sidebar-muted:   var(--muted);
     --sidebar-active:  var(--coral-600);
     /* The nav's hover surface has to be its own token rather than --bg-elevated,
        which is what it used to be. Elevation runs the other way in the light
@@ -276,7 +280,12 @@
        elsewhere — a brand-coloured header with white text in the light variant is
        --topbar-bg, --topbar-fg and --topbar-muted together, and --topbar-hover for what
        the pointer is on. Panels that open from the header (the user menu, the search
-       results) are surfaces of their own and keep the page's roles. */
+       results) are surfaces of their own and keep the page's roles.
+
+       Each frame region with a surface of its own — the topbar, the sidebar, the bottom
+       bar — says what quiet text on it is painted in, as --muted-here, the way it says
+       what its surface is as --surface-here; .text-muted, .eyebrow and
+       .nav-section-label read it, and every surface resets it to --muted. */
     --topbar-bg:       var(--bg-elevated);
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);

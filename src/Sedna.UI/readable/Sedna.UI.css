@@ -620,6 +620,10 @@
     --sidebar-bg:      var(--slate-900);
     --sidebar-border:  var(--slate-800);
     --sidebar-fg:      var(--slate-200);
+    /* Quiet text drawn straight on the sidebar: a section label, the brand's second line,
+       a tool link. An alias of --muted, so nothing moves until an app gives the sidebar a
+       colour of its own and sets this beside --sidebar-fg. */
+    --sidebar-muted:   var(--muted);
     --sidebar-active:  var(--coral-600);
     /* The nav's hover surface has to be its own token rather than --bg-elevated,
        which is what it used to be. Elevation runs the other way in the light
@@ -635,7 +639,12 @@
        elsewhere — a brand-coloured header with white text in the light variant is
        --topbar-bg, --topbar-fg and --topbar-muted together, and --topbar-hover for what
        the pointer is on. Panels that open from the header (the user menu, the search
-       results) are surfaces of their own and keep the page's roles. */
+       results) are surfaces of their own and keep the page's roles.
+
+       Each frame region with a surface of its own — the topbar, the sidebar, the bottom
+       bar — says what quiet text on it is painted in, as --muted-here, the way it says
+       what its surface is as --surface-here; .text-muted, .eyebrow and
+       .nav-section-label read it, and every surface resets it to --muted. */
     --topbar-bg:       var(--bg-elevated);
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
@@ -1877,6 +1886,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     --sidebar-width-collapsed: 56px;
     width: var(--sidebar-width);
     --surface-here: var(--sidebar-bg);
+    --muted-here: var(--sidebar-muted);
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
     padding: 0;
@@ -1926,7 +1936,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .brand-logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .brand-text { display: flex; flex-direction: column; line-height: round(1.1em, 2px); }
 .brand-sub {
-    display: block; font-size: var(--text-1); color: var(--muted);
+    display: block; font-size: var(--text-1); color: var(--sidebar-muted);
     text-transform: uppercase; letter-spacing: 0.06em; margin-top: var(--space-1);
 }
 
@@ -1962,7 +1972,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--muted);
+    color: var(--muted-here, var(--muted));
     pointer-events: none;
 }
 .nav-link {
@@ -2008,7 +2018,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    3:1, under the 4.5:1 floor for 12px text — and a control at half strength beside
    full-strength siblings reads as disabled rather than as secondary. --muted is the
    token each theme already tunes for exactly this job. */
-.nav-link-tool { font-size: var(--text-3); color: var(--muted); }
+.nav-link-tool { font-size: var(--text-3); color: var(--sidebar-muted); }
 .nav-link-tool i { opacity: 0.75; }
 .nav-link-tool:hover { color: var(--sidebar-fg); }
 .nav-link-tool:hover i { opacity: 1; }
@@ -2033,7 +2043,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .nav-status-label {
     font-size: var(--text-1); font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--muted);
+    color: var(--sidebar-muted);
 }
 .nav-status-row { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); font-weight: 500; }
 .nav-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--border-hover); }
@@ -2181,6 +2191,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     align-items: stretch;
     height: var(--topbar-height);
     --surface-here: var(--topbar-bg);
+    --muted-here: var(--topbar-muted);
     background: var(--topbar-bg);
     color: var(--topbar-fg);
     border-bottom: 1px solid var(--border);
@@ -2584,8 +2595,8 @@ a.topbar-version--pre:hover {
    body is the part that gives way and it must say so at its edge. */
 .drawer-body,
 .palette-list,
-.form-combo-list { --surface-here: var(--bg-elevated); }
-.nav-scroll { --surface-here: var(--sidebar-bg); }
+.form-combo-list { --surface-here: var(--bg-elevated); --muted-here: var(--muted); }
+.nav-scroll { --surface-here: var(--sidebar-bg); --muted-here: var(--sidebar-muted); }
 
 }
 
@@ -3328,6 +3339,7 @@ a.topbar-version--pre:hover {
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
     /* The page's ink, not the header's it opens from — see --topbar-fg. */
     color: var(--fg);
 }
@@ -3521,7 +3533,7 @@ a.topbar-version--pre:hover {
     background: none;
     border: none;
     border-radius: var(--radius-surface);
-    color: var(--muted);
+    color: var(--muted-here, var(--muted));
     font-family: inherit;
     font-size: var(--text-1);
     font-weight: 500;
@@ -3690,7 +3702,14 @@ a.topbar-version--pre:hover {
     --bottombar-height: 46px;
     --bottombar-radius: var(--radius-surface);
     --bottombar-surface: var(--bg-elevated);
+    /* What is drawn straight on the bar, as the topbar's tokens are: an app that colours
+       the bar sets these four together. */
+    --bottombar-fg: var(--fg);
+    --bottombar-muted: var(--muted);
+    --bottombar-hover: var(--bg-hover);
     --surface-here: var(--bottombar-surface);
+    --muted-here: var(--bottombar-muted);
+    color: var(--bottombar-fg);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -3723,7 +3742,7 @@ a.topbar-version--pre:hover {
        the row's centre. */
     border-top: 2px solid transparent;
     border-bottom: 2px solid transparent;
-    color: var(--muted);
+    color: var(--bottombar-muted);
     font-family: inherit;
     font-size: var(--text-3);
     font-weight: 500;
@@ -3731,7 +3750,7 @@ a.topbar-version--pre:hover {
     text-decoration: none;
     cursor: pointer;
 }
-.bottombar-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.bottombar-item:hover { background: var(--bottombar-hover); color: var(--bottombar-fg); text-decoration: none; }
 .bottombar-item:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 
 .bottombar-icon { position: relative; display: inline-flex; }
@@ -3773,7 +3792,7 @@ a.topbar-version--pre:hover {
     flex: 0 1 auto;
     padding-inline: var(--space-6);
     border-top-color: var(--tab-indicator);
-    color: var(--fg);
+    color: var(--bottombar-fg);
 }
 .bottombar-item.active i,
 .bottombar-item[aria-current="page"] i { color: var(--brand-text); }
@@ -3945,6 +3964,7 @@ a.topbar-version--pre:hover {
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {
     --surface-here: var(--surface-raised-1);
+    --muted-here: var(--muted);
     background: var(--surface-raised-1);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -3966,10 +3986,12 @@ a.topbar-version--pre:hover {
    `SurfaceTokenTests.Muted_text_clears_AA_on_every_surface_level`. */
 .card .card {
     --surface-here: var(--surface-raised-2);
+    --muted-here: var(--muted);
     background: var(--surface-raised-2);
 }
 .card .card .card {
     --surface-here: var(--surface-raised-3);
+    --muted-here: var(--muted);
     background: var(--surface-raised-3);
     --muted: var(--fg-soft);
 }
@@ -4609,6 +4631,7 @@ textarea.form-input::-webkit-resizer {
 }
 .modal {
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     /* The panel never grows past the window, and the body is what gives way. A
        backdrop centres with align-items: center, so a panel taller than the
        viewport grows past BOTH edges — the header off the top and the footer off
@@ -4976,6 +4999,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     max-width: min(calc(100vw - 40px), 100%);
     padding: var(--space-5) var(--space-6);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-inline-start: 3px solid var(--border-strong);
@@ -5930,6 +5954,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     --surface-here: var(--bg);
+    --muted-here: var(--muted);
     --editor-max-height: 480px;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
@@ -5967,6 +5992,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-radius: var(--radius-panel);
     overflow: hidden;
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
     background: var(--card-bg);
 }
 .md-toolbar {
@@ -7541,6 +7567,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     margin-block-start: var(--space-2);
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -8003,6 +8030,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     position-try-fallbacks: none;
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -8142,6 +8170,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     .form-select[size]:not([size="1"]) {
         box-sizing: border-box;
         --surface-here: var(--bg);
+        --muted-here: var(--muted);
         white-space: normal;
         overflow: auto;
         /* ── The box is measured here, not left to `size` ──
@@ -10405,6 +10434,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     max-width: min(20rem, calc(100vw - 32px));
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -11445,12 +11475,13 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .list--cards > li + li { border-top: none; }
 .list--cards > li > .list-row {
     --surface-here: var(--surface-raised-1);
+    --muted-here: var(--muted);
     background-color: var(--surface-here);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
 }
-.card .list--cards > li > .list-row { --surface-here: var(--surface-raised-2); }
-.card .card .list--cards > li > .list-row { --surface-here: var(--surface-raised-3); --muted: var(--fg-soft); }
+.card .list--cards > li > .list-row { --surface-here: var(--surface-raised-2); --muted-here: var(--muted); }
+.card .card .list--cards > li > .list-row { --surface-here: var(--surface-raised-3); --muted-here: var(--muted); --muted: var(--fg-soft); }
 
 .list--cards > li > :is(a, button).list-row:hover { background-color: var(--bg-hover); border-color: var(--border-strong); }
 .list--cards > li > button.list-row:active { background-color: var(--btn-active-bg); }
@@ -12528,6 +12559,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
        0px on anything without an indicator, so a desktop drawer is unchanged. */
     padding-block-end: var(--safe-block-end);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border-inline-start: 1px solid var(--border);
     box-shadow: var(--shadow-modal);
@@ -13536,6 +13568,7 @@ dialog.palette {
     padding: 0;
     overflow: hidden;
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
@@ -13658,6 +13691,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     max-width: 300px;
     padding: var(--space-6) var(--space-7);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -13842,6 +13876,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     max-width: min(320px, calc(100vw - 32px));
     padding: var(--space-6) var(--space-7);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -14338,6 +14373,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     overflow: hidden;
     background: var(--card-bg);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
 }
 /* Each day column starts at a line named `day`, so a layer can say "from the first
    day" and mean it with or without a week-number column in front. */
@@ -14650,6 +14686,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     overflow: hidden;
     background: var(--card-bg);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
 }
 .cal-week-head,
 .cal-week-body {
@@ -14820,6 +14857,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     border-radius: var(--radius-surface);
     background: var(--card-bg);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
 }
 .cal-timeline-head,
 .cal-timeline-row {
@@ -15394,6 +15432,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    nearest the avatar sharper, which is what points a bubble at its author. */
 .chat-bubble {
     --surface-here: var(--surface-strong);
+    --muted-here: var(--muted);
     background: var(--surface-here);
     padding: var(--space-4) var(--space-6);
     border-radius: var(--radius-surface);
@@ -15681,8 +15720,9 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     min-height: 0;
     height: 100%;
     --surface-here: var(--bg);
+    --muted-here: var(--muted);
 }
-.card .chat-pane { --surface-here: var(--card-bg); }
+.card .chat-pane { --surface-here: var(--card-bg); --muted-here: var(--muted); }
 /* No top padding: a sticky day cannot leave its parent's content box, so padding
    there would be a strip the messages scroll through above it. The jump anchors
    to this box. */
@@ -15838,6 +15878,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     color: var(--fg);
     box-shadow: var(--shadow-float);
@@ -16602,6 +16643,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     max-width: 280px;
     padding: var(--space-8);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -17521,6 +17563,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    hung on the port line at the inline end of the head. */
 .workflow-node {
     --surface-here: var(--surface-raised-1);
+    --muted-here: var(--muted);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -17539,8 +17582,8 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     box-shadow: var(--workflow-ring, 0 0 transparent), var(--workflow-glow, 0 0 transparent);
     transition: border-color var(--motion-fast), box-shadow var(--motion-mid);
 }
-.card .workflow-node { --surface-here: var(--surface-raised-2); }
-.card .card .workflow-node { --surface-here: var(--surface-raised-3); --muted: var(--fg-soft); }
+.card .workflow-node { --surface-here: var(--surface-raised-2); --muted-here: var(--muted); }
+.card .card .workflow-node { --surface-here: var(--surface-raised-3); --muted-here: var(--muted); --muted: var(--fg-soft); }
 
 /* A node that opens something — the step's detail beside the diagram — is a
    <button> or an <a>, with spans inside. Pressed is the one on show. */
@@ -19974,14 +20017,16 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 .text-center { text-align: center; }
 .text-end    { text-align: end; }
 
-.text-muted { color: var(--muted); }
+/* Quiet text in the ink of whatever it sits on: the page's, a card's, or a frame region's
+   own (--muted-here), so it stays readable on a coloured topbar. */
+.text-muted { color: var(--muted-here, var(--muted)); }
 /* A small label above a heading — the section a page is in, the kind of a record. Muted,
    spaced capitals at the smallest legible size, with no margin of its own so it sits on
    the heading it names. */
 .eyebrow {
     display: block;
     margin: 0;
-    color: var(--muted);
+    color: var(--muted-here, var(--muted));
     font-size: var(--text-2);
     font-weight: 600;
     letter-spacing: 0.06em;

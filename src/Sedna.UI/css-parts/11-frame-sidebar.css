@@ -9,6 +9,7 @@
     --sidebar-width-collapsed: 56px;
     width: var(--sidebar-width);
     --surface-here: var(--sidebar-bg);
+    --muted-here: var(--sidebar-muted);
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
     padding: 0;
@@ -58,7 +59,7 @@
 .brand-logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .brand-text { display: flex; flex-direction: column; line-height: round(1.1em, 2px); }
 .brand-sub {
-    display: block; font-size: var(--text-1); color: var(--muted);
+    display: block; font-size: var(--text-1); color: var(--sidebar-muted);
     text-transform: uppercase; letter-spacing: 0.06em; margin-top: var(--space-1);
 }
 
@@ -94,7 +95,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--muted);
+    color: var(--muted-here, var(--muted));
     pointer-events: none;
 }
 .nav-link {
@@ -140,7 +141,7 @@
    3:1, under the 4.5:1 floor for 12px text — and a control at half strength beside
    full-strength siblings reads as disabled rather than as secondary. --muted is the
    token each theme already tunes for exactly this job. */
-.nav-link-tool { font-size: var(--text-3); color: var(--muted); }
+.nav-link-tool { font-size: var(--text-3); color: var(--sidebar-muted); }
 .nav-link-tool i { opacity: 0.75; }
 .nav-link-tool:hover { color: var(--sidebar-fg); }
 .nav-link-tool:hover i { opacity: 1; }
@@ -165,7 +166,7 @@
 .nav-status-label {
     font-size: var(--text-1); font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--muted);
+    color: var(--sidebar-muted);
 }
 .nav-status-row { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); font-weight: 500; }
 .nav-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--border-hover); }

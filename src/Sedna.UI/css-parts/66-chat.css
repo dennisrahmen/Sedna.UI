@@ -111,6 +111,7 @@
    nearest the avatar sharper, which is what points a bubble at its author. */
 .chat-bubble {
     --surface-here: var(--surface-strong);
+    --muted-here: var(--muted);
     background: var(--surface-here);
     padding: var(--space-4) var(--space-6);
     border-radius: var(--radius-surface);
@@ -398,8 +399,9 @@
     min-height: 0;
     height: 100%;
     --surface-here: var(--bg);
+    --muted-here: var(--muted);
 }
-.card .chat-pane { --surface-here: var(--card-bg); }
+.card .chat-pane { --surface-here: var(--card-bg); --muted-here: var(--muted); }
 /* No top padding: a sticky day cannot leave its parent's content box, so padding
    there would be a strip the messages scroll through above it. The jump anchors
    to this box. */
@@ -555,6 +557,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     color: var(--fg);
     box-shadow: var(--shadow-float);

@@ -103,6 +103,7 @@
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
     /* The page's ink, not the header's it opens from — see --topbar-fg. */
     color: var(--fg);
 }

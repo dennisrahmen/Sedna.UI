@@ -135,6 +135,6 @@
    body is the part that gives way and it must say so at its edge. */
 .drawer-body,
 .palette-list,
-.form-combo-list { --surface-here: var(--bg-elevated); }
-.nav-scroll { --surface-here: var(--sidebar-bg); }
+.form-combo-list { --surface-here: var(--bg-elevated); --muted-here: var(--muted); }
+.nav-scroll { --surface-here: var(--sidebar-bg); --muted-here: var(--sidebar-muted); }
 

@@ -82,7 +82,7 @@
     background: none;
     border: none;
     border-radius: var(--radius-surface);
-    color: var(--muted);
+    color: var(--muted-here, var(--muted));
     font-family: inherit;
     font-size: var(--text-1);
     font-weight: 500;
