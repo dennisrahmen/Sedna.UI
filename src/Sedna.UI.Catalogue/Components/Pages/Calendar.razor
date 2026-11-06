@@ -43,6 +43,18 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Calendar.NextTwoWeeks" Title="The next two weeks, with now and what else is on" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; open a marker.</strong> A short rolling range is two rows of the month,
+        starting today. <code>.cal-now</code> in today's <code>.cal-row</code> is a rule through the
+        week at <code>--cal-at</code> days from its first day &mdash; 0.6 is 60% of the way through
+        today &mdash; the same line the timeline draws. <code>.cal-marks</code> holds a day's
+        <code>.cal-mark</code>s: an icon with a count or a time for what has no pill of its own. A
+        marker that opens its list is a <code>&lt;button&gt;</code> with
+        <code>data-popover</code>; give it a label that says what the number counts.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Calendar.Growing" Title="Rows that grow" Demo="ex-demo--block">
     <p>
         <code>.cal-month--grow</code> is the other choice for a whole calendar: a week is as tall as its

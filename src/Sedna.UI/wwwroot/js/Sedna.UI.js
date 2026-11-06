@@ -662,6 +662,63 @@ window.sednaUi = window.sednaUi || {};
     }, true);
 })(window.sednaUi);
 (function (ui) {
+    function rowsOf(head) {
+        var rows = [];
+        for (var el = head.nextElementSibling; el && !el.classList.contains('sticky-group-head'); el = el.nextElementSibling)
+            rows.push(el);
+        return rows;
+    }
+    function apply(toggle) {
+        var head = toggle.closest('.sticky-group-head');
+        if (!head) return;
+        var folded = toggle.getAttribute('aria-expanded') === 'false';
+        var rows = rowsOf(head);
+        for (var i = 0; i < rows.length; i++) {
+            if (folded) rows[i].setAttribute('data-group-hidden', '');
+            else rows[i].removeAttribute('data-group-hidden');
+        }
+    }
+    function applyAll(root) {
+        var toggles = (root || document).querySelectorAll('[data-group-toggle]');
+        for (var i = 0; i < toggles.length; i++) apply(toggles[i]);
+    }
+    ui.groups = {
+        toggle: function (toggle) {
+            if (!toggle) return;
+            toggle.setAttribute('aria-expanded', toggle.getAttribute('aria-expanded') === 'false' ? 'true' : 'false');
+            apply(toggle);
+        },
+        refresh: function () { applyAll(document); }
+    };
+    document.addEventListener('click', function (e) {
+        var toggle = e.target instanceof Element ? e.target.closest('[data-group-toggle]') : null;
+        if (!toggle) return;
+        if (toggle.getAttribute('data-group-toggle') === 'managed') return;
+        ui.groups.toggle(toggle);
+    });
+    var scheduled = false;
+    function later() {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(function () { scheduled = false; applyAll(document); });
+    }
+    function watch() {
+        new MutationObserver(function (records) {
+            if (!document.querySelector('[data-group-toggle]')) return;
+            for (var i = 0; i < records.length; i++) {
+                var r = records[i];
+                if (r.type === 'childList' || (r.attributeName === 'aria-expanded' && r.target.hasAttribute('data-group-toggle'))) {
+                    later();
+                    return;
+                }
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-expanded'] });
+        applyAll(document);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
+    else watch();
+})(window.sednaUi);
+(function (ui) {
     function panelOf(toggle) {
         var anchor = toggle.closest('.menu-anchor');
         return anchor ? anchor.querySelector('.menu') : null;

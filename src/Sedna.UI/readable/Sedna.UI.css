@@ -8842,6 +8842,17 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     min-width: 3ch;
     text-align: end;
 }
+/* A row in parts — open tasks per person, split by state. The fill keeps its `--value`,
+   the row's length against the widest, and `.stack-bar-segment`s inside it split that
+   length: each segment's `--value` is its share of the row, as in a `.stack-bar`, in the
+   same `series-*` colours, so the rows match a summary bar above them. The fill is one
+   picture, so it takes `role="img"` and a label with the numbers. */
+.bar-list-fill:has(> .stack-bar-segment) {
+    display: flex;
+    gap: var(--space-1);
+    background: none;
+    overflow: hidden;
+}
 /* A row the reader is on, or the one the figure above is about. */
 .bar-list-row[aria-current="true"] .bar-list-label,
 .bar-list-row[aria-current="true"] .bar-list-value { color: var(--fg); font-weight: 600; }
@@ -11377,6 +11388,48 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     color: var(--fg-soft);
     font-variant-numeric: tabular-nums;
 }
+
+/* ── A group that folds ─────────────────────────────────────────────────────
+   `.sticky-group-toggle` is the head's label as a button, with a chevron that turns: down
+   while the group is open, towards the inline end while it is folded. It takes the head's
+   own type, so a head reads the same with or without one, and the count stays beside it.
+   22-group.js marks the folded group's rows `data-group-hidden`; they leave the layout and
+   the accessibility tree, and the head stays where it is pinned. */
+.sticky-group-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex: 0 1 auto;
+    min-width: 0;
+    block-size: 100%;
+    margin-inline-start: calc(var(--space-2) * -1);
+    padding-inline: var(--space-2);
+    background: none;
+    border: none;
+    border-radius: var(--radius-inner);
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+.sticky-group-toggle::before {
+    content: "";
+    flex-shrink: 0;
+    inline-size: 6px;
+    block-size: 6px;
+    margin-block-start: -3px;
+    border-inline-end: 1.5px solid currentColor;
+    border-block-end: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform var(--motion-fast);
+}
+.sticky-group-toggle[aria-expanded="false"]::before { transform: rotate(-45deg); margin-block-start: 0; }
+.sticky-group-toggle[aria-expanded="false"]:dir(rtl)::before { transform: rotate(135deg); }
+.sticky-group-toggle:hover { color: var(--fg); }
+.sticky-group-toggle:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
+[data-group-hidden] { display: none; }
 
 /* ── Accordion ──────────────────────────────────────────────────────────────
    Built on <details>/<summary>, which is the whole point: open and closed state,
@@ -14550,6 +14603,22 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
 }
 .cal-timeline > .cal-now::before { inset-inline-start: -3px; inset-block-start: -4px; }
 
+/* Now, in a week of the month: the same vertical rule, through the row that holds
+   today, at `--cal-at` days from the row's first day — 2.6 is 60% of the way through the
+   third. A week row's inline axis is time and a day cell's block axis is not, so the line
+   runs across the row like the timeline's rather than down inside one cell. Put it in
+   today's `.cal-row`, after its cells. */
+.cal-row > .cal-now {
+    inset-block: 0;
+    inset-inline-start: calc(100% * var(--cal-at) / 7);
+    inline-size: 2px;
+    block-size: auto;
+}
+.cal-month--weeknums > .cal-row > .cal-now {
+    inset-inline-start: calc(var(--cal-weeknum-width) + (100% - var(--cal-weeknum-width)) * var(--cal-at) / 7);
+}
+.cal-row > .cal-now::before { inset-inline-start: -3px; inset-block-start: -4px; }
+
 .cal-timeline--grow .cal-timeline-row > .cal-row-events {
     position: relative;
     inset: auto;
@@ -14676,6 +14745,61 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
 @container cal-cell (max-width: 72px) {
     .cal-holiday-name { display: none; }
 }
+
+/* ── Markers in a day's head ────────────────────────────────────────────────
+   What else is on a day without an event pill for it — tasks due, messages scheduled, a
+   deadline: a small icon with a count or a time, at the end of the day's head. A marker
+   that opens the list behind it is a <button> with `data-popover`, so the list is the
+   app's own `.popover`, anchored to the marker; one that only says so is a <span>.
+
+     <div class="cal-day">
+       <span class="cal-day-num">6</span>
+       <span class="cal-marks">
+         <button class="cal-mark" type="button" data-popover="due-6" aria-label="3 tasks due, show them">
+           <i class="ri-checkbox-circle-line"></i>3
+         </button>
+       </span>
+     </div>
+     <div class="popover" id="due-6" popover>…the three tasks…</div>
+
+   Several markers wrap inside the cell rather than widening it. The label says what the
+   number counts, because the icon alone does not. */
+.cal-day:has(> .cal-marks) {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+}
+.cal-marks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-1);
+    min-width: 0;
+    margin-inline-start: auto;
+    padding-block-start: 2px;
+}
+.cal-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    block-size: 20px;
+    padding-inline: var(--space-2);
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--surface-strong);
+    color: var(--fg-soft);
+    font-family: inherit;
+    font-size: var(--text-2);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    white-space: nowrap;
+}
+.cal-mark > i { color: var(--muted); font-size: var(--text-3); }
+button.cal-mark { cursor: pointer; transition: background var(--motion-fast), color var(--motion-fast); }
+button.cal-mark:hover { background: var(--bg-hover); color: var(--fg); }
+button.cal-mark:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: var(--brand-text); }
 
 /* ── Date picker ───────────────────────────────────────────────────────────
    A panel for a date — or a range — that looks the same in every engine, for the app
@@ -18923,8 +19047,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    off whichever box it has. TouchTargetTests finds every control drawn under the
    target size and holds it to this list. */
 @media (pointer: coarse) {
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close) { position: relative; }
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close)::before {
+    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
+    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
         content: "";
         position: absolute;
         inset: min(0px, calc((var(--touch-target) - 100%) / -2));
@@ -19264,6 +19388,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .output-details > summary:focus-visible,
     .card-resize:focus-visible,
     .choice-tile:has(> input:focus-visible),
+    button.cal-mark:focus-visible,
+    .sticky-group-toggle:focus-visible,
     .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
     :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
@@ -20114,6 +20240,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         background-position: 0 0;
     }
     .choice-tile { transition: none; }
+    button.cal-mark { transition: none; }
+    .sticky-group-toggle::before { transition: none; }
 }
 }
 

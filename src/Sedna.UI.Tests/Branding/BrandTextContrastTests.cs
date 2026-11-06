@@ -79,6 +79,7 @@ public class BrandTextContrastTests
         [".avatar"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over i"] = (Ink.Icon, ["--brand-tint"]),
+        ["button.cal-mark[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".choice-tile:has(> input:checked) .choice-tile-art"] = (Ink.Icon, ["--brand-tint"]),
         ["[data-drop-state=\"valid\"][data-drop-over] > .drag-empty"] = (Ink.Text, ["--brand-tint"]),
         // A chosen row is tinted, and pointing at it or arrowing onto it deepens the tint — so

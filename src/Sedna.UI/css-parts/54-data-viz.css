@@ -85,6 +85,17 @@
     min-width: 3ch;
     text-align: end;
 }
+/* A row in parts — open tasks per person, split by state. The fill keeps its `--value`,
+   the row's length against the widest, and `.stack-bar-segment`s inside it split that
+   length: each segment's `--value` is its share of the row, as in a `.stack-bar`, in the
+   same `series-*` colours, so the rows match a summary bar above them. The fill is one
+   picture, so it takes `role="img"` and a label with the numbers. */
+.bar-list-fill:has(> .stack-bar-segment) {
+    display: flex;
+    gap: var(--space-1);
+    background: none;
+    overflow: hidden;
+}
 /* A row the reader is on, or the one the figure above is about. */
 .bar-list-row[aria-current="true"] .bar-list-label,
 .bar-list-row[aria-current="true"] .bar-list-value { color: var(--fg); font-weight: 600; }
