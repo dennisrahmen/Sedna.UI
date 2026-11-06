@@ -32,8 +32,10 @@ public class TipTouchTests : ScriptTestBase
         await Assertions.Expect(page.Locator(".sedna-tip")).ToHaveTextAsync("Deletes the order and its reservations");
 
         // Lifting the finger fires the platform's click; the hold has already taken it.
+        // Dispatched rather than clicked: a finger brings no mouse, and Playwright's
+        // click moves one over the button first, which is a hover of its own in WebKit.
         await Pointer(page, "pointerup");
-        await page.Locator("#b").ClickAsync();
+        await page.Locator("#b").DispatchEventAsync("click");
         Assert.Equal(0, await page.EvaluateAsync<int>("() => window.clicks || 0"));
 
         // Lingers long enough to be read, then goes.

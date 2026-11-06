@@ -147,13 +147,13 @@ public class CalendarLayoutTests : ScriptTestBase
                 const b = document.getElementById('b');
                 const s = getComputedStyle(b);
                 const box = b.getBoundingClientRect();
-                // The clip is the content box, and every line box is one line-height tall
+                // What shows is the content box, and every line box is one line-height tall
                 // from its top: so whole lines show exactly when that height is a multiple.
                 const clipTop = box.top + parseFloat(s.borderTopWidth) + parseFloat(s.paddingTop);
                 const clipBottom = box.bottom - parseFloat(s.borderBottomWidth) - parseFloat(s.paddingBottom);
                 const lines = (clipBottom - clipTop) / parseFloat(s.lineHeight);
                 return [Math.abs(lines - Math.round(lines)), Math.round(lines), clipBottom - box.bottom,
-                        s.overflowX === 'clip' && ((s.overflowClipMargin ?? '').startsWith('content-box') || parseFloat(s.paddingBottom) === 0) ? 1 : 0,
+                        (a => Math.abs(parseFloat(a.height) - parseFloat(s.paddingBottom)) < 0.5 && a.backgroundColor === s.backgroundColor && a.backgroundImage === s.backgroundImage)(getComputedStyle(b, '::after')) ? 1 : 0,
                         b.scrollHeight > b.clientHeight ? 1 : 0];
             }
             """);
@@ -161,7 +161,7 @@ public class CalendarLayoutTests : ScriptTestBase
         Assert.True(m[0] < 0.05, $"The block's edge cuts a line {m[0]:0.00} of the way through.");
         Assert.True(m[1] >= 1, "The block shows no line at all.");
         Assert.True(m[2] <= 0, "The clip edge is outside the block.");
-        Assert.Equal(1, m[3]);                 // clipped at the content box, not the padding (Safari: no padding below it)
+        Assert.Equal(1, m[3]);                 // the padding below the last line is covered in the block's own background
         Assert.Equal(1, m[4]);                 // and the fixture does overflow, or this proves nothing
     }
 

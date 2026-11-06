@@ -365,8 +365,17 @@ public class FrameLayoutTests : ScriptTestBase
         var restingLabel = Convert.ToInt32((await page.EvaluateAsync<object[]>(probe))[3], System.Globalization.CultureInfo.InvariantCulture);
         Assert.True(restingLabel > 20, "The label should have its text's width at rest.");
 
-        await Js.Run(page, "() => document.querySelector('.sidebar').classList.add('collapsed')");
-        await page.WaitForTimeoutAsync(600);
+        // Held at 30% of the 2s by the animation clock rather than by waiting 600ms of
+        // wall time: under load a frame can come later than that, and the motion had
+        // not started when it was measured.
+        await Js.Run(page, """
+            () => {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.add('collapsed');
+                getComputedStyle(sidebar).width;
+                document.getAnimations().forEach(a => { a.pause(); a.currentTime = 600; });
+            }
+            """);
         var mid = await page.EvaluateAsync<object[]>(probe);
         var midWidth = Convert.ToInt32(mid[0], System.Globalization.CultureInfo.InvariantCulture);
         Assert.True(midWidth is > 56 and < 220, $"The sidebar should be mid-way, it is {midWidth}px.");
@@ -377,7 +386,8 @@ public class FrameLayoutTests : ScriptTestBase
         // its words stacked and overlapping the next link.
         Assert.Equal(restingLabel, Convert.ToInt32(mid[3], System.Globalization.CultureInfo.InvariantCulture));
 
-        await page.WaitForTimeoutAsync(2000);
+        await Js.Run(page, "() => document.getAnimations().forEach(a => a.finish())");
+        await Js.Run(page, "() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))");
         var done = await page.EvaluateAsync<object[]>(probe);
         Assert.Equal(56, Convert.ToInt32(done[0], System.Globalization.CultureInfo.InvariantCulture));
         // The rail's width less its edge.

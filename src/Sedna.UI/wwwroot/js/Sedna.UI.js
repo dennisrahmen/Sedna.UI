@@ -12,6 +12,7 @@
      20-select.js
      20-tips.js
      21-copy.js
+     21-dependent.js
      21-transfer.js
      22-anchored.js
      22-menu.js
@@ -32,6 +33,7 @@
      30-markdown.js
      40-interop.js
      41-spotlight.js
+     42-modal-exit.js
      42-modal.js
      42-surfaces.js
      43-graph.js
@@ -737,6 +739,80 @@ window.sednaUi = window.sednaUi || {};
         // reports what actually happened.
         ui.copyText(text).then(function (ok) { flash(btn, ok); });
     });
+
+})(window.sednaUi);
+
+/* ── 21-dependent.js ──────────────────────────────────────────────── */
+/* ── A dimmed dependent block is inert ───────────────────────────────────────
+   `.choice-dependent--dim` after a `.form-check` or `.switch` fades while its option
+   is off, and the stylesheet makes it inert with `interactivity: inert`. Safari has no
+   such property, so a block that looks unavailable would still take focus and typing
+   there. This sets the `inert` attribute to match, in every engine, so the block
+   behaves the same everywhere:
+
+     <label class="switch"><input type="checkbox" checked> Send a digest</label>
+     <div class="choice-dependent choice-dependent--dim">…</div>
+
+   It follows the option on every `change` and `reset`, and after a render adds or
+   swaps markup. A value set by script without either — a Blazor binding writing
+   `checked` — is picked up at the next of those; the fade itself never waits, being
+   CSS. An `inert` the app set itself is never touched: only what this part added is
+   marked `data-sedna-inert` and taken away again.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var SELECTOR = '.choice-dependent--dim';
+    var MARK = 'data-sedna-inert';
+
+    function controlOf(block) {
+        var host = block.previousElementSibling;
+        if (!host || !host.matches('.form-check, .switch')) return null;
+        for (var i = 0; i < host.children.length; i++) {
+            var c = host.children[i];
+            if (c.tagName === 'INPUT' && (c.type === 'checkbox' || c.type === 'radio')) return c;
+        }
+        return null;
+    }
+
+    function sync(block) {
+        var input = controlOf(block);
+        if (!input) return;
+        var off = !input.checked;
+        if (off && !block.hasAttribute('inert')) {
+            block.setAttribute('inert', '');
+            block.setAttribute(MARK, '');
+        } else if (!off && block.hasAttribute(MARK)) {
+            block.removeAttribute('inert');
+            block.removeAttribute(MARK);
+        }
+    }
+
+    function syncAll(root) {
+        var scope = root && root.querySelectorAll ? root : document;
+        var blocks = scope.querySelectorAll(SELECTOR);
+        for (var i = 0; i < blocks.length; i++) sync(blocks[i]);
+    }
+
+    var queued = false;
+    function soon() {
+        if (queued) return;
+        queued = true;
+        // A radio's siblings change with it, so every block is looked at once the
+        // event or the render has finished, rather than the one next to the target.
+        (window.queueMicrotask || setTimeout)(function () { queued = false; syncAll(document); });
+    }
+
+    function init() {
+        syncAll(document);
+        document.addEventListener('change', soon, true);
+        document.addEventListener('reset', function () { setTimeout(soon, 0); }, true);
+        if (typeof MutationObserver === 'function') {
+            new MutationObserver(soon).observe(document.documentElement, { childList: true, subtree: true });
+        }
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
 
 })(window.sednaUi);
 
@@ -4021,8 +4097,17 @@ window.sednaUi = window.sednaUi || {};
         // newest line rather than the oldest.
         pane[STATE] = { following: true };
         toBottom(pane);
+        pane[STATE].top = pane.scrollTop;
 
-        pane.addEventListener('scroll', function () { setFollowing(pane, atBottom(pane)); });
+        // Only a scroll that moved the pane is the reader's. WebKit also reports a scroll
+        // when lines are added below a pane held still, with the position unchanged, and
+        // reading that as "scrolled away" stopped the pane following for good.
+        pane.addEventListener('scroll', function () {
+            var state = pane[STATE];
+            if (pane.scrollTop === state.top) return;
+            state.top = pane.scrollTop;
+            setFollowing(pane, atBottom(pane));
+        });
 
         // `toggle` does not bubble, so it is caught on the way down.
         pane.addEventListener('toggle', function (e) {
@@ -5742,6 +5827,105 @@ window.sednaUi = window.sednaUi || {};
 
 })(window.sednaUi);
 
+/* ── 42-modal-exit.js ──────────────────────────────────────────────── */
+/* ── A closing drawer slides out in every engine ────────────────────────────
+   `dialog.drawer` — a drawer or a sheet — slides in and out with a CSS transition
+   that keeps the closing dialog displayed through `display` and `overlay`, both
+   `allow-discrete`. Safari has no `overlay` property and takes the dialog away the
+   moment it closes, so the panel vanishes instead of leaving.
+
+   Where the engine lacks `overlay`, this plays the same slide after the fact: the
+   closed dialog is held displayed and visible for the length of its own transform
+   transition, animated from where an open panel sits to where the stylesheet puts a
+   closed one, and then let go. Nothing is added to the page and nothing is decided
+   here — the duration, the easing and both ends are read from the stylesheet, so a
+   theme, a variant and reduced motion (a zero duration) apply as they do elsewhere.
+   `modal.idle` waits for it like any other animation on the dialog.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var supported = false;
+    try { supported = !!(window.CSS && CSS.supports('overlay', 'auto')); } catch (e) { /* no CSS.supports */ }
+    if (supported) return;
+
+    var HELD = 'data-sedna-closing';
+
+    // Dialogs seen open since they last slid out, so a later idle() on a dialog closed
+    // long ago never replays the slide.
+    var opened = new WeakSet();
+    function watch(record) {
+        var d = record.target;
+        if (d.tagName === 'DIALOG' && d.open) opened.add(d);
+    }
+    if (typeof MutationObserver === 'function') {
+        new MutationObserver(function (records) { records.forEach(watch); })
+            .observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
+    }
+    document.querySelectorAll('dialog[open]').forEach(function (d) { opened.add(d); });
+
+    function seconds(value) {
+        var n = parseFloat(value);
+        if (!isFinite(n)) return 0;
+        return /ms\s*$/.test(value) ? n / 1000 : n;
+    }
+
+    // The transform transition's own duration and easing, from the comma lists.
+    function timing(style) {
+        var props = style.transitionProperty.split(',').map(function (p) { return p.trim(); });
+        var at = props.indexOf('transform');
+        if (at < 0) at = props.indexOf('all');
+        if (at < 0) return null;
+        var pick = function (list) { var a = list.split(','); return (a[at % a.length] || '').trim(); };
+        var duration = seconds(pick(style.transitionDuration)) * 1000;
+        return duration > 0 ? { duration: duration, easing: pick(style.transitionTimingFunction) || 'ease' } : null;
+    }
+
+    function release(d) {
+        if (!d.hasAttribute(HELD)) return;
+        d.removeAttribute(HELD);
+        d.style.removeProperty('display');
+    }
+
+    // Starts the slide for a dialog that has just closed, once: from the `close` event,
+    // or sooner from modal.idle(), which is called straight after close() and has to
+    // see the animation it is about to wait for — the event comes a task later.
+    function slideOut(d) {
+        if (!d || d.tagName !== 'DIALOG' || d.open || !opened.has(d)) return;
+        opened.delete(d);
+        if (d.hasAttribute(HELD) || !d.matches('.drawer')) return;
+        var closed = getComputedStyle(d);
+        var t = timing(closed);
+        if (!t) return;
+        var to = closed.transform;
+        d.setAttribute(HELD, '');
+        d.style.setProperty('display', 'flex');
+        var run;
+        try {
+            run = d.animate(
+                [{ transform: 'none', visibility: 'visible' }, { transform: to, visibility: 'visible' }],
+                { duration: t.duration, easing: t.easing });
+        } catch (err) {
+            release(d);
+            return;
+        }
+        var done = function () { release(d); };
+        run.onfinish = done;
+        run.oncancel = done;
+    }
+
+    ui._.slideOut = slideOut;
+
+    document.addEventListener('close', function (e) { slideOut(e.target); }, true);
+
+    // Opened again mid-slide: the slide stops where it is and the open state takes over.
+    document.addEventListener('toggle', function (e) {
+        var d = e.target;
+        if (!d || d.tagName !== 'DIALOG' || !d.open || !d.hasAttribute(HELD)) return;
+        d.getAnimations().forEach(function (a) { a.cancel(); });
+        release(d);
+    }, true);
+})(window.sednaUi);
+
 /* ── 42-modal.js ──────────────────────────────────────────────── */
 /* ── The dialog presenter ────────────────────────────────────────────────────
    await sednaUi.modal.show(id)    → dialog.showModal(); resolves with returnValue
@@ -5896,6 +6080,9 @@ window.sednaUi = window.sednaUi || {};
             if (!d || d.open || typeof d.getAnimations !== 'function') return Promise.resolve();
             if (document.visibilityState === 'hidden') return Promise.resolve();
 
+            // An engine without `overlay` has no closing transition of its own;
+            // 42-modal-exit.js plays it, and starts it here so it can be waited for.
+            if (ui._.slideOut) ui._.slideOut(d);
             getComputedStyle(d).display;
             var running = d.getAnimations().map(function (a) {
                 return a.finished.catch(function () { /* cancelled is finished too */ });

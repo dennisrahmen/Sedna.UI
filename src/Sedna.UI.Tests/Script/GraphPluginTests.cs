@@ -647,6 +647,17 @@ public class GraphPluginTests : GraphTestBase
             """);
         await page.Mouse.DblClickAsync((float)inside.GetProperty("x").GetDouble(), (float)inside.GetProperty("y").GetDouble());
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('team').hasClass('cy-expand-collapse-collapsed-node')");
+        // Folding moves the drawing; the second double click aims where the folded group
+        // has come to rest, not where it was a frame ago.
+        await page.WaitForFunctionAsync("""
+            () => {
+                const cy = cyOf('g'), p = cy.getElementById('team').renderedPosition();
+                const at = Math.round(p.x) + ',' + Math.round(p.y);
+                const still = window.teamAt === at && !cy.elements().some(e => e.animated());
+                window.teamAt = at;
+                return still;
+            }
+            """, null, new() { PollingInterval = 100 });
 
         var (x, y) = await PointOf(page, "team");
         await page.Mouse.DblClickAsync(x, y);

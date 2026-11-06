@@ -594,22 +594,25 @@ const labelPx = n => 10.5 + Math.min(n.data('degree') || 0, 14) * 0.2 + (n.data(
 const labelSize = n => labelPx(n) / zoomOf(n);
 
 /* How wide a line of text is at a size, measured by the browser once and remembered — the
-   declutter asks for every name each time the view settles. A name is measured once per
-   weight, at a size of 100, and scaled: a width grows with the size, and a name kept per
-   size would be measured again at every step of the zoom. */
+   declutter asks for every name each time the view settles. A name is measured per weight
+   at its size rounded to a whole pixel, and scaled the last fraction of a pixel. Not once at
+   a large size and scaled down: Apple's system font switches between optical sizes, and at
+   100px it is the narrow display cut, so every name on macOS and iOS came out narrower than
+   it is drawn and the declutter wrote names over each other. */
 let textCtx = null;
 const textWidths = new Map();
 function textWidth(text, weight, px, family) {
-    const key = weight + family + '\u0000' + text;
+    const at = Math.max(1, Math.round(px));
+    const key = weight + '\u0000' + at + family + '\u0000' + text;
     let w = textWidths.get(key);
     if (w === undefined) {
         textCtx = textCtx || document.createElement('canvas').getContext('2d');
-        textCtx.font = `${weight} 100px ${family}`;
+        textCtx.font = `${weight} ${at}px ${family}`;
         w = textCtx.measureText(text).width;
         if (textWidths.size > 50000) textWidths.clear();
         textWidths.set(key, w);
     }
-    return w * px / 100;
+    return w * px / at;
 }
 const sizeOf = weight => Math.min(14 + 5 * Math.sqrt(Math.max(weight, 0)), 46);
 

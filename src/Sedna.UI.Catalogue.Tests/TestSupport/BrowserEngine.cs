@@ -54,6 +54,10 @@ internal static class BrowserEngine
     /// the network process adds them after Playwright has seen the request.</summary>
     public static bool ShowsRoutedCookies => !IsWebKit;
 
+    /// <summary>An arrow key scrolls the focused scroll container natively. Playwright's
+    /// WebKit on macOS does not perform that default action for a synthesised key.</summary>
+    public static bool ScrollsWithArrowKeys => !(IsWebKit && OperatingSystem.IsMacOS());
+
     public static IBrowserType Of(IPlaywright playwright) =>
         Name == "webkit" ? playwright.Webkit : playwright.Chromium;
 }

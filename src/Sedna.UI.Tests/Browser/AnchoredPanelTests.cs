@@ -72,8 +72,11 @@ public class AnchoredPanelTests : ScriptTestBase
             async () => {
               const sleep = ms => new Promise(r => setTimeout(r, ms));
               const host = document.getElementById('host');
+              // Waits for the scroll itself rather than a fixed time: under load the event
+              // can come later than any sleep that is short enough to keep the suite fast.
+              const scrolled = new Promise(r => host.addEventListener('scroll', () => setTimeout(r, 0), { once: true }));
               host.scrollTop = 60;
-              await sleep(250);
+              await scrolled;
               // The assertion the earlier fixtures were missing: prove it scrolled.
               if (host.scrollTop !== 60) throw new Error('the fixture did not scroll');
               return document.getElementById('panel').hidden ? 1 : 0;
@@ -97,8 +100,11 @@ public class AnchoredPanelTests : ScriptTestBase
             async () => {
               const sleep = ms => new Promise(r => setTimeout(r, ms));
               const other = document.getElementById('elsewhere');
+              // Waits for the scroll itself rather than a fixed time: under load the event
+              // can come later than any sleep that is short enough to keep the suite fast.
+              const scrolled = new Promise(r => other.addEventListener('scroll', () => setTimeout(r, 0), { once: true }));
               other.scrollTop = 200;
-              await sleep(250);
+              await scrolled;
               if (other.scrollTop !== 200) throw new Error('the fixture did not scroll');
               return document.getElementById('panel').hidden ? 0 : 1;
             }
@@ -137,8 +143,11 @@ public class AnchoredPanelTests : ScriptTestBase
             async () => {
               const sleep = ms => new Promise(r => setTimeout(r, ms));
               const panel = document.getElementById('panel');
+              // Waits for the scroll itself rather than a fixed time: under load the event
+              // can come later than any sleep that is short enough to keep the suite fast.
+              const scrolled = new Promise(r => panel.addEventListener('scroll', () => setTimeout(r, 0), { once: true }));
               panel.scrollTop = 30;
-              await sleep(250);
+              await scrolled;
               if (panel.scrollTop !== 30) throw new Error('the panel did not scroll');
               return panel.hidden ? 0 : 1;
             }
@@ -175,8 +184,11 @@ public class AnchoredPanelTests : ScriptTestBase
               if (!pop.matches(':popover-open')) throw new Error('the popover did not open');
 
               const host = document.getElementById('host');
+              // Waits for the scroll itself rather than a fixed time: under load the event
+              // can come later than any sleep that is short enough to keep the suite fast.
+              const scrolled = new Promise(r => host.addEventListener('scroll', () => setTimeout(r, 0), { once: true }));
               host.scrollTop = 60;
-              await sleep(250);
+              await scrolled;
               if (host.scrollTop !== 60) throw new Error('the fixture did not scroll');
               return pop.matches(':popover-open') ? 0 : 1;
             }

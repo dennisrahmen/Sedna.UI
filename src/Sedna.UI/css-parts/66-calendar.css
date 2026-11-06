@@ -446,24 +446,25 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     font-weight: 500;
     line-height: 1.35;
     text-decoration: none;
-    /* Clipped at the content box, and the content box ends on a whole line: the bottom
-       padding takes up whatever is left over after the lines that fit. Below one line
-       the block shows what it can rather than nothing. */
+    /* The content box ends on a whole line: the bottom padding takes up whatever is left
+       over after the lines that fit, and below one line the block shows what it can
+       rather than nothing. A line that does not fit would show through that padding, so
+       ::after covers it in the block's own background — `inherit`, so a hatch lines up
+       too, because both boxes start their gradient at the same bottom corner. Every
+       engine on the floor draws it alike; Safari has no overflow-clip-margin. */
     --cal-edge: 0px;
     --cal-block-inner: calc(var(--cal-span) * var(--cal-hour-height) - 2 * var(--space-1) - 2 * var(--cal-edge));
-    padding-block-end: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh)));
+    --cal-block-rest: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh)));
+    padding-block-end: var(--cal-block-rest);
     overflow: clip;
-    overflow-clip-margin: content-box;
 }
-/* Safari has no overflow-clip-margin, so it clips at the padding edge and the next line
-   shows through the bottom padding. There the leftover space is a bottom border in the
-   block's own fill instead: the padding edge is then the content edge, and the block
-   still ends where its time does. */
-@supports not (overflow-clip-margin: content-box) {
-    .cal-block {
-        border-block-end: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh))) solid var(--cal-fill);
-        padding-block-end: 0;
-    }
+.cal-block::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: var(--cal-block-rest);
+    background: inherit;
 }
 .cal-block:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .cal-block .cal-event-time { display: block; }

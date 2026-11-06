@@ -338,6 +338,11 @@ public class GraphRunTests : GraphTestBase
         var page = await OpenGraph(Graph(inside: Moving, attrs: Flow));
         await Ready(page);
         await CountRestyles(page);
+        // The first half second may still carry the drawing settling in, which on a
+        // loaded machine can land after Ready. What has to be true is that nothing keeps
+        // restyling, so only the second half second is counted.
+        await page.WaitForTimeoutAsync(500);
+        await Js.Run(page, "() => restyledIds.clear()");
         await page.WaitForTimeoutAsync(500);
 
         Assert.Equal("", await Eval<string>(page, "() => [...restyledIds].sort().join(' ')"));

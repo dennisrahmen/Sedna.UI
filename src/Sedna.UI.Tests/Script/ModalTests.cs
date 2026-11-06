@@ -156,13 +156,12 @@ public class ModalTests : ScriptTestBase
                 sednaUi.modal.show('panel');
                 await new Promise(r => setTimeout(r, 400));
                 d.close();
-                // Safari has no `overlay` property, so a closing dialog leaves the top
-                // layer at once and has no slide to wait for; idle must then not wait.
-                const slides = d.getAnimations().length > 0;
+                // In an engine without `overlay` the slide is the library's own
+                // (42-modal-exit.js), and idle waits for it the same way.
                 const started = performance.now();
                 await sednaUi.modal.idle('panel');
                 const waited = performance.now() - started;
-                return (d.getAnimations().length === 0) + ':' + (slides ? waited > 50 : waited < 50);
+                return (d.getAnimations().length === 0) + ':' + (waited > 50);
             }
             """);
 

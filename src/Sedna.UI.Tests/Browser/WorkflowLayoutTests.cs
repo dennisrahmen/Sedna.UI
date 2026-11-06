@@ -428,6 +428,8 @@ public class WorkflowLayoutTests : ScriptTestBase
         // The ring is drawn inside the diagram, which clips anything outside it.
         Assert.Contains("inset", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('wf')).boxShadow"), StringComparison.Ordinal);
 
+        // Scrolling it is the browser's own default for a focused scroll container.
+        if (!BrowserEngine.ScrollsWithArrowKeys) return;
         await page.Keyboard.PressAsync("ArrowRight");
         await page.WaitForFunctionAsync("() => document.getElementById('wf').scrollLeft > 0");
     }
