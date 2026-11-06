@@ -49,6 +49,7 @@ public class EditorInteropTests : BunitContext
         new("InsertVideoAsync", e => e.InsertVideoAsync(Id, "https://example.com/a.mp4", "A tour"), "video", """["https://example.com/a.mp4","A tour"]"""),
         new("FocusAsync", e => e.FocusAsync(Id), "focus", "[]"),
         new("SetEnabledAsync", e => e.SetEnabledAsync(Id, false), "enable", "[false]"),
+        new("OpenFileAsync", e => e.OpenFileAsync(Id, "file-3"), "file", """["file-3"]"""),
     ];
 
     public static TheoryData<EditorCall> Calls()
@@ -141,7 +142,12 @@ public class EditorInteropTests : BunitContext
             handlers.Keys.Where(k => k.StartsWith("sedna-editor-", StringComparison.Ordinal)).Order(StringComparer.Ordinal),
             dispatched);
         Assert.All(dispatched, name => Assert.Equal(
-            name == "sedna-editor-media" ? typeof(SednaEditorMediaEventArgs) : typeof(SednaEditorEventArgs),
+            name switch
+            {
+                "sedna-editor-media" => typeof(SednaEditorMediaEventArgs),
+                "sedna-editor-file" => typeof(SednaEditorFileEventArgs),
+                _ => typeof(SednaEditorEventArgs),
+            },
             handlers[name].EventArgsType));
         // The media event is the one an app cancels, to open its own dialog instead of the form.
         Assert.True(handlers["sedna-editor-media"].EnablePreventDefault);

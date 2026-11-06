@@ -2952,6 +2952,18 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand
 .editor .ql-container.ql-disabled .ql-editor > * { cursor: default; }
 .editor:has(.ql-container.ql-disabled) { background: var(--surface-soft); }
 .editor:has(.ql-container.ql-disabled) .editor-toolbar { opacity: var(--disabled-opacity); pointer-events: none; }
+.editor .ql-editor table {
+    border-collapse: collapse;
+    inline-size: 100%;
+    margin-block: var(--space-4);
+    table-layout: fixed;
+}
+.editor .ql-editor td {
+    border: 1px solid var(--border);
+    padding: var(--space-2) var(--space-4);
+    vertical-align: top;
+    min-inline-size: 2em;
+}
 .editor .ql-editor ol { padding-inline-start: 1.5em; }
 .editor .ql-editor li {
     position: relative;

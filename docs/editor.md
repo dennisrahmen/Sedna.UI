@@ -53,6 +53,9 @@ toolbar with `role="toolbar"` is one tab stop: the arrow keys, Home and End move
 | `data-editor-action="undo"`, `"redo"` | Undo, redo — `disabled` while there is nothing to undo or redo. |
 | `data-editor-action="indent"`, `"outdent"` | One level in or out. |
 | `data-editor-action="clean"` | Removes the formatting from the selection. |
+| `<input type="color" data-editor-format="color">`, `"background"` | The text colour, the highlight. Opt-in: a stored colour is kept only where the editor offers it. The value is the app's choice, and so is its legibility in both variants. |
+| `data-editor-action="table-insert"` | A two-by-two table at the caret; `disabled` inside a table. Any table action makes the editor take tables, and a stored table is kept. |
+| `data-editor-action="table-row-above"`, `"table-row-below"`, `"table-column-before"`, `"table-column-after"`, `"table-row-delete"`, `"table-column-delete"`, `"table-delete"` | Changes the table the caret is in; `disabled` outside one. |
 
 **The formats the editor accepts are the ones its toolbar offers.** What is pasted in is cut down to
 them, so the document never holds what the reader could not have written. `data-editor-formats="bold
@@ -179,10 +182,12 @@ Bubbling from the `[data-editor]` element, with plain data in `detail`:
 | `sedna-editor-ready` | `{ html, text, length, isEmpty }`, once the document has loaded. |
 | `sedna-editor-change` | The same, after each change. |
 | `sedna-editor-media` | `{ kind, src, alt }`, cancelable, before the media form opens. |
+| `sedna-editor-file` | `{ files: [{ id, name, type, size }], index }`, when an image or a video is pasted or dropped. Nothing is inserted: read each file by its `id`, upload it, and answer with `insertImage` or `insertVideo`. |
 
 From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor-change`, each a
-`SednaEditorEventArgs`, and `@onsedna-editor-media`, a `SednaEditorMediaEventArgs` —
-`@onsedna-editor-media:preventDefault` cancels it.
+`SednaEditorEventArgs`; `@onsedna-editor-media`, a `SednaEditorMediaEventArgs` —
+`@onsedna-editor-media:preventDefault` cancels it; and `@onsedna-editor-file`, a
+`SednaEditorFileEventArgs`.
 
 ## Script
 
@@ -196,6 +201,7 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `insert(text)` | Types text at the caret, or at the end. |
 | `insertImage(url, alt)` | An image at the caret, or in place of the one it is on; null when it is not kept. |
 | `insertVideo(url, label)` | A video, the same way. |
+| `file(id)` | A pasted or dropped file, as a `File`, by the id its `sedna-editor-file` named; null once the editor has let it go — it keeps the last few. |
 | `focus()` | Puts the focus in the document. |
 | `enable(on)` | Lets the reader edit, or stops them — by the textarea's `disabled`. |
 | `quill` | The engine. Quill's own API, not versioned by Sedna.UI. |
@@ -214,6 +220,7 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `InsertTextAsync(id, text)` | Types text at the caret. |
 | `InsertImageAsync(id, url, alt)` | An image at the caret; null when it is not kept. |
 | `InsertVideoAsync(id, url, label)` | A video at the caret; null when it is not kept. |
+| `OpenFileAsync(id, fileId)` | A pasted or dropped file as an `IJSStreamReference` — `OpenReadStream(maxAllowedSize)` reads it — or null. |
 | `FocusAsync(id)` | Puts the focus in the document. |
 | `SetEnabledAsync(id, enabled)` | Lets the reader edit, or stops them. |
 

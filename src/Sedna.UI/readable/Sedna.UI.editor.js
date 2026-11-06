@@ -68,6 +68,9 @@ import Quill from '../lib/quill/quill.js';
 
      bold italic underline strike code script(sub|super) link image video
      header(1–6) list(bullet|ordered|check) blockquote code-block align(center|right|justify)
+     color background table — opt-in: offered only when a control or data-editor-formats
+     names them. A colour is the app's choice of value, kept as written; legibility in
+     either variant is the app's to judge.
 
    The formats an editor accepts are the ones its toolbar offers — so what is pasted in
    is cut down to what the reader could have written — or `data-editor-formats` on the
@@ -76,7 +79,9 @@ import Quill from '../lib/quill/quill.js';
    ─────────────────────────────────────────────────────────────────────────── */
 
 const FORMATS = ['bold', 'italic', 'underline', 'strike', 'code', 'script', 'link', 'image', 'video',
-    'header', 'list', 'blockquote', 'code-block', 'align', 'indent'];
+    'header', 'list', 'blockquote', 'code-block', 'align', 'indent', 'color', 'background', 'table'];
+// What a table is made of in Quill: the cell is `table`, held by these three.
+const TABLE_PARTS = ['table-row', 'table-body', 'table-container'];
 const CONTROL = '[data-editor-format],[data-editor-action]';
 
 const warned = new Set();
@@ -108,12 +113,14 @@ function formatsOf(el) {
     const acted = controlsOf(el).map(c => c.getAttribute('data-editor-action'));
     const wanted = new Set(named.length ? named : offered);
     if (acted.includes('indent') || acted.includes('outdent') || wanted.has('list')) wanted.add('indent');
+    if (acted.some(a => a && a.startsWith('table-'))) wanted.add('table');
     for (const f of wanted) {
         if (!FORMATS.includes(f)) {
             warnOnce('format:' + f, `"${f}" is not a format the editor offers; it is ignored.`);
             wanted.delete(f);
         }
     }
+    if (wanted.has('table')) TABLE_PARTS.forEach(p => wanted.add(p));
     return [...wanted];
 }
 
@@ -165,14 +172,24 @@ function load(e, html) {
     } finally {
         e.loading = false;
     }
-    remember(e, htmlOf(e.quill));
+    // What was loaded is not something this editor wrote: a value set from outside later
+    // — '' to reset a form — must load even when it equals what was loaded first.
+    e.written = [];
     reflect(e);
 }
 
-// The last few values this editor wrote, so one arriving back is recognised as an echo.
+// What this editor wrote, and when, so a value Blazor echoes back a round trip late is
+// recognised and not loaded over newer typing. Only a recent write counts: a value the
+// app sets from outside, even one the editor held a few changes ago, always loads.
+const ECHO_MS = 3000;
 function remember(e, html) {
-    e.written.push(html);
-    if (e.written.length > 20) e.written.shift();
+    const now = Date.now();
+    e.written = e.written.filter(w => now - w.at < ECHO_MS);
+    e.written.push({ html, at: now });
+}
+function isEcho(e, v) {
+    const now = Date.now();
+    return e.written.some(w => w.html === v && now - w.at < ECHO_MS);
 }
 
 function watchValue(e) {
@@ -182,8 +199,9 @@ function watchValue(e) {
         get() { return VALUE.get.call(this); },
         set(v) {
             VALUE.set.call(this, v);
-            if (e.disposed || e.written.includes(v ?? '')) return;
-            load(e, v);
+            const value = v ?? '';
+            if (e.disposed || value === htmlOf(e.quill) || isEcho(e, value)) return;
+            load(e, value);
         },
     });
     e.cleanups.push(() => { delete ta.value; });
@@ -281,14 +299,23 @@ function reflect(e) {
             if (c.tagName === 'SELECT') {
                 const now = format[name];
                 c.value = now === undefined || now === false || now === null ? '' : String(now);
+            } else if (c.tagName === 'INPUT') {
+                // A colour field shows the colour under the caret, where it is one a field
+                // can show; otherwise it keeps the last one chosen.
+                const now = format[name];
+                if (typeof now === 'string' && /^#[0-9a-f]{6}$/i.test(now)) c.value = now;
             } else {
                 c.setAttribute('aria-pressed', isOn(format, name, c.getAttribute('value')) ? 'true' : 'false');
             }
             continue;
         }
         const action = c.getAttribute('data-editor-action');
+        // A row or column action needs the caret in a table; inserting one, the opposite.
+        const inTable = !!format.table;
         const idle = action === 'undo' ? q.history.stack.undo.length === 0
-            : action === 'redo' ? q.history.stack.redo.length === 0 : false;
+            : action === 'redo' ? q.history.stack.redo.length === 0
+                : action === 'table-insert' ? inTable
+                    : action && action.startsWith('table-') ? !inTable : false;
         c.disabled = idle || !q.isEnabled();
     }
     keepStop(e);
@@ -309,7 +336,7 @@ function applyFormat(e, c) {
     if (MEDIA.includes(name)) return openMedia(e, name);
     const range = q.getSelection(true);
     if (!range) return;
-    if (c.tagName === 'SELECT') {
+    if (c.tagName === 'SELECT' || c.tagName === 'INPUT') {
         q.format(name, c.value || false, 'user');
     } else {
         const value = c.getAttribute('value');
@@ -320,6 +347,25 @@ function applyFormat(e, c) {
     reflect(e);
 }
 
+/* A table's actions, through Quill's table module — loaded only for an editor that takes
+   tables. Rows and columns are added beside the cell the caret is in. */
+function tableAction(q, action) {
+    const table = q.getModule('table');
+    if (!table) return;
+    q.getSelection(true);
+    switch (action) {
+        case 'table-insert': table.insertTable(2, 2); break;
+        case 'table-row-above': table.insertRowAbove(); break;
+        case 'table-row-below': table.insertRowBelow(); break;
+        case 'table-column-before': table.insertColumnLeft(); break;
+        case 'table-column-after': table.insertColumnRight(); break;
+        case 'table-row-delete': table.deleteRow(); break;
+        case 'table-column-delete': table.deleteColumn(); break;
+        case 'table-delete': table.deleteTable(); break;
+        default: break;
+    }
+}
+
 function act(e, c) {
     const q = e.quill;
     const action = c.getAttribute('data-editor-action');
@@ -328,6 +374,10 @@ function act(e, c) {
         case 'redo': q.history.redo(); break;
         case 'indent': q.getSelection(true); q.format('indent', '+1', 'user'); break;
         case 'outdent': q.getSelection(true); q.format('indent', '-1', 'user'); break;
+        case 'table-insert': case 'table-row-above': case 'table-row-below':
+        case 'table-column-before': case 'table-column-after':
+        case 'table-row-delete': case 'table-column-delete': case 'table-delete':
+            tableAction(q, action); break;
         case 'clean': {
             const range = q.getSelection(true);
             if (!range) break;
@@ -350,12 +400,12 @@ function wireToolbar(e) {
 
     on(e.el, 'click', ev => {
         const c = ev.target.closest(CONTROL);
-        if (!c || c.tagName === 'SELECT' || !e.controls.includes(c) || c.disabled) return;
+        if (!c || c.tagName === 'SELECT' || c.tagName === 'INPUT' || !e.controls.includes(c) || c.disabled) return;
         if (c.hasAttribute('data-editor-format')) applyFormat(e, c);
         else act(e, c);
     });
     on(e.el, 'change', ev => {
-        const c = ev.target.closest('select[data-editor-format]');
+        const c = ev.target.closest('select[data-editor-format], input[data-editor-format]');
         if (!c || !e.controls.includes(c)) return;
         applyFormat(e, c);
         e.quill.focus();
@@ -643,10 +693,36 @@ function dropUnsafe(kind) {
 }
 const MEDIA_MATCHERS = [['img', dropUnsafe('image')], ['video', dropUnsafe('video')]];
 
-/* A file pasted or dropped into the document is not inlined: uploading is the app's. A
-   paste that carries HTML as well — a picture copied from a page — is pasted as HTML, so
-   its address is kept rather than the file. */
-const NO_UPLOAD = { handler() { /* the app uploads; see the header */ } };
+/* A file pasted or dropped into the document is not inlined: uploading is the app's. The
+   editor says a file arrived — `sedna-editor-file`, with an id per file — and keeps the
+   File under that id, where the app reads it (handle.file(id); from C#,
+   ISednaEditors.OpenFileAsync) and answers with insertImage once it is uploaded. A paste
+   that carries HTML as well — a picture copied from a page — is pasted as HTML, so its
+   address is kept rather than the file. */
+const FILE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif', 'image/svg+xml',
+    'video/mp4', 'video/webm'];
+const FILES_KEPT = 20;
+let fileSeq = 0;
+
+function uploaderFor(e) {
+    return {
+        mimetypes: FILE_TYPES,
+        handler: (range, files) => {
+            const listed = Array.from(files).map(file => {
+                const id = 'file-' + (++fileSeq);
+                e.files.set(id, file);
+                return { id, name: file.name || '', type: file.type || '', size: file.size || 0 };
+            });
+            while (e.files.size > FILES_KEPT) e.files.delete(e.files.keys().next().value);
+            if (range) e.lastRange = range;
+            e.emit('sedna-editor-file', { files: listed, index: range ? range.index : null });
+        },
+    };
+}
+
+function fileOf(e, id) {
+    return e.files.get(id) ?? null;
+}
 
 function wirePaste(e) {
     const q = e.quill;
@@ -875,13 +951,17 @@ function start(e) {
     Object.assign(e, { value, body, toolbar, link, media, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
 
+    const formats = formatsOf(e.el);
     e.quill = new Quill(body, {
-        formats: formatsOf(e.el),
+        formats,
         modules: {
             toolbar: false,
             history: { delay: 800, maxStack: 200, userOnly: true },
             clipboard: { matchers: MEDIA_MATCHERS },
-            uploader: NO_UPLOAD,
+            uploader: uploaderFor(e),
+            // Only an editor that takes tables loads the module, so one that does not
+            // still cuts a pasted table down to its text.
+            table: formats.includes('table'),
             keyboard: {
                 bindings: {
                     toolbar: { key: 'F10', altKey: true, handler: () => toToolbar(e) },
@@ -962,6 +1042,9 @@ function makeApi(e) {
             e.value.disabled = on === false;
             describe(e);
         },
+        /* A file pasted or dropped into the document, by the id its sedna-editor-file
+           event named — a File, for the app to upload. Null once the editor has let it go. */
+        file: id => fileOf(e, id),
         invoke: (method, args) => invoke(e, method, args),
         destroy: () => dispose(e),
     };
@@ -978,6 +1061,8 @@ function invoke(e, method, args) {
         case 'video': return api.insertVideo(a[0], a[1]);
         case 'focus': api.focus(); return null;
         case 'enable': api.enable(a[0] !== false); return null;
+        // A File: Blazor reads it as an IJSStreamReference.
+        case 'file': return api.file(a[0]);
         default:
             warnOnce('invoke:' + method, `"${method}" is not an editor method.`);
             return null;
@@ -988,7 +1073,7 @@ function invoke(e, method, args) {
 function attach(el) {
     let e = editors.get(el);
     if (!e) {
-        e = { el, written: [], cleanups: [], disposed: false, changed: false, loading: false, lastRange: null };
+        e = { el, written: [], files: new Map(), cleanups: [], disposed: false, changed: false, loading: false, lastRange: null };
         // False when a cancelable event was cancelled.
         e.emit = (name, detail, cancelable) => el.dispatchEvent(new CustomEvent(name, { bubbles: true, cancelable: !!cancelable, detail }));
         e.api = makeApi(e);

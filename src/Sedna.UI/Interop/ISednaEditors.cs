@@ -1,3 +1,5 @@
+using Microsoft.JSInterop;
+
 namespace Sedna.UI;
 
 /// <summary>
@@ -68,6 +70,20 @@ public interface ISednaEditors
     /// editor, the editor does not take videos, or the address is not one it keeps.
     /// </returns>
     Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Opens a file pasted or dropped into the editor, by the id its <c>sedna-editor-file</c>
+    /// event named, for the app to upload.
+    /// </summary>
+    /// <param name="editorId">The <c>[data-editor]</c> element's id.</param>
+    /// <param name="fileId">An id from <see cref="SednaEditorFileEventArgs.Files"/>.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>
+    /// The file's bytes as a stream reference — <c>OpenReadStream(maxAllowedSize)</c> reads them —
+    /// or null when there is no such editor or the editor has let the file go; it keeps the last
+    /// few that arrived.
+    /// </returns>
+    Task<IJSStreamReference?> OpenFileAsync(string editorId, string fileId, CancellationToken cancellationToken = default);
 
     /// <summary>Puts the focus in the document, where the caret last was.</summary>
     Task FocusAsync(string editorId, CancellationToken cancellationToken = default);
