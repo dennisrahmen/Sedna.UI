@@ -24,6 +24,7 @@
      17-frame-hover-hints.css
      18-frame-status-bar.css
      19-frame-responsive.css
+     20-frame-kiosk.css
      20-frame-layouts.css
      21-frame-search.css
      22-frame-nav-areas.css
@@ -53,6 +54,7 @@
      49-form-combo.css
      49-form-select-base.css
      50-tabs.css
+     51-choice-tiles.css
      51-segmented.css
      52-avatar.css
      53-chip.css
@@ -2917,6 +2919,54 @@ a.topbar-version--pre:hover {
         bottom: 0;
     }
 }
+}
+
+/* ── 20-frame-kiosk.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
+/* ── Kiosk ──────────────────────────────────────────────────────────────────
+   A screen nobody operates — a wall display, a status board in a hall. `.kiosk` is the
+   whole viewport and never scrolls; the cursor is hidden; and every screen lays out the
+   same canvas about 1280px wide, scaled up to fill it, so a page designed once reads the
+   same at 1366px, 1080p, 1440p and 4K:
+
+     width   ≥1366   ≥1920   ≥2560   ≥3840
+     zoom    1.067   1.5     2       3
+
+   `--kiosk-zoom` on the element sets a factor of the app's own instead.
+
+   Inside it, a scrollbar is never drawn: what moves is moved by the app — a list that
+   follows the newest row (`data-follow`), a feed that advances — and a reader has no
+   pointer to drag one with. Programmatic scrolling still works.
+
+   Three optional areas: `.kiosk-strip` across the top, `.kiosk-stage` below it and
+   `.kiosk-side` beside the stage. Each keeps its own area whatever is empty, so a strip
+   with nothing in it yet does not pull the stage into the top row. */
+.kiosk {
+    --kiosk-zoom: 1;
+    --kiosk-side: 22rem;
+    zoom: var(--kiosk-zoom);
+    inline-size: calc(100vw / var(--kiosk-zoom));
+    block-size: calc(100dvh / var(--kiosk-zoom));
+    overflow: hidden;
+    cursor: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: "strip strip" "stage side";
+    gap: var(--page-rhythm);
+    padding: var(--page-pad);
+    box-sizing: border-box;
+    background: var(--bg);
+}
+@media (min-width: 1366px) { .kiosk { --kiosk-zoom: 1.067; } }
+@media (min-width: 1920px) { .kiosk { --kiosk-zoom: 1.5; } }
+@media (min-width: 2560px) { .kiosk { --kiosk-zoom: 2; } }
+@media (min-width: 3840px) { .kiosk { --kiosk-zoom: 3; } }
+.kiosk-strip { grid-area: strip; min-inline-size: 0; }
+.kiosk-stage { grid-area: stage; min-inline-size: 0; min-block-size: 0; }
+.kiosk-side  { grid-area: side; min-block-size: 0; inline-size: var(--kiosk-side); }
+.kiosk, .kiosk * { scrollbar-width: none; }
+.kiosk::-webkit-scrollbar, .kiosk *::-webkit-scrollbar { display: none; }
 }
 
 /* ── 20-frame-layouts.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -8025,6 +8075,87 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    30-cards.css because it is that head's modifier. It drops this padding, the strip's
    own bottom border and the head's block padding, so the indicator meets the body
    edge. Do not write a second answer here. */
+}
+
+/* ── 51-choice-tiles.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Choice tiles ───────────────────────────────────────────────────────────
+   A radio group whose options are pictures: a screen's layout, a plan, a theme. Each
+   tile is a <label> around a real radio, so the platform gives the keyboard — Tab into
+   the group, the arrows between options — and a form posts the value with no script.
+
+     <div class="choice-tiles" role="radiogroup" aria-label="Screen layout">
+       <label class="choice-tile">
+         <input type="radio" name="layout" value="stage" checked>
+         <span class="choice-tile-art">…the app's picture: an SVG, an icon…</span>
+         <span class="choice-tile-title">Stage and side</span>
+         <span class="choice-tile-hint">Runs large, queue beside them</span>
+       </label>
+       …
+     </div>
+
+   The radio is kept in the page but not drawn: the tile is the control, its edge and
+   tint say which is chosen (--selected), and its focus ring says where the keyboard is.
+   `--choice-min` is the narrowest a tile gets before the row wraps. */
+.choice-tiles {
+    --choice-min: 160px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--choice-min), 100%), 1fr));
+    gap: var(--space-5);
+}
+.choice-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    padding: var(--space-5);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    cursor: pointer;
+    transition: border-color var(--motion-fast), background var(--motion-fast), box-shadow var(--motion-fast);
+}
+.choice-tile > input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+.choice-tile:hover { border-color: var(--border-strong); }
+.choice-tile-art {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    margin-block-end: var(--space-2);
+    border-radius: var(--radius-inner);
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: var(--text-10);
+    overflow: hidden;
+}
+.choice-tile-art > :is(img, svg) { inline-size: 100%; block-size: 100%; object-fit: cover; }
+.choice-tile-title { color: var(--fg); font-weight: 600; overflow-wrap: anywhere; }
+.choice-tile-hint { color: var(--muted); font-size: var(--text-3); overflow-wrap: anywhere; }
+.choice-tile:has(> input:checked) {
+    border-color: var(--selected);
+    background: var(--brand-tint);
+    box-shadow: inset 0 0 0 1px var(--selected);
+}
+.choice-tile:has(> input:checked) .choice-tile-art { color: var(--brand-text); }
+.choice-tile:has(> input:focus-visible) { box-shadow: 0 0 0 2px var(--focus-ring); }
+.choice-tile:has(> input:checked:focus-visible) { box-shadow: inset 0 0 0 1px var(--selected), 0 0 0 2px var(--focus-ring); }
+.choice-tile:has(> input:disabled) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--disabled-fg);
+    cursor: not-allowed;
+}
+.choice-tile:has(> input:disabled) :is(.choice-tile-title, .choice-tile-art) { color: var(--disabled-fg); }
 }
 
 /* ── 51-segmented.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -18161,7 +18292,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     color: var(--fg);
     pointer-events: none;
 }
-:is(.segmented, .form-range)[aria-readonly="true"],
+:is(.segmented, .form-range, .choice-tiles)[aria-readonly="true"],
 :is(.form-check, .switch):has(input[aria-readonly="true"]) {
     pointer-events: none;
 }
@@ -19122,6 +19253,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .chat-launcher:focus-visible,
     .output-details > summary:focus-visible,
     .card-resize:focus-visible,
+    .choice-tile:has(> input:focus-visible),
+    .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
     :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
@@ -19146,7 +19279,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .cal-day:is([aria-pressed="true"], [aria-selected="true"], [aria-current="date"]),
     .cal-pick:is([aria-pressed="true"], [aria-current]:not([aria-current="false"])),
     .editor-toolbar [aria-pressed="true"],
-    .workflow-node[aria-pressed="true"] { outline: 1px solid Highlight; }
+    .workflow-node[aria-pressed="true"],
+    .choice-tile:has(> input:checked) { outline: 1px solid Highlight; }
     /* A selected table row is a tint and an inset bar, and neither is painted here. Each
        cell is outlined inside its own box, so the row reads as one marked band. */
     .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
@@ -19946,6 +20080,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         background-size: 100% 2px;
         background-position: 0 0;
     }
+    .choice-tile { transition: none; }
 }
 }
 

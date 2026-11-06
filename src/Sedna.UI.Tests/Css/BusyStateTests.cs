@@ -44,6 +44,7 @@ public class BusyStateTests
         "chat-pane", "chat", "cal-event", "cal-block", "cal-pick", "cal-day", "cal-weeknum", "datepicker-title",
         "workflow", "workflow-node", "graph", "stat", "list--cards", "list", "input-group", "segmented",
         "form-combo-group-action", "form-combo-input", "form-combo-option", "form-combo",
+        "choice-tile",                          // a choice, read-only not busy
     };
 
     [Fact]

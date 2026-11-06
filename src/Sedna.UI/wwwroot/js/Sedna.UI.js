@@ -510,7 +510,7 @@ window.sednaUi = window.sednaUi || {};
 (function () {
     function readonly(el) {
         return el instanceof Element && !!el.closest('[aria-readonly="true"]')
-            && !!el.closest('input, select, .segmented, .form-combo');
+            && !!el.closest('input, select, .segmented, .choice-tiles, .form-combo');
     }
     document.addEventListener('click', function (e) {
         var t = e.target;

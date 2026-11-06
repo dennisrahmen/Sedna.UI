@@ -1449,6 +1449,34 @@ a.topbar-version--pre:hover {
 }
 }
 @layer sedna.frame {
+.kiosk {
+    --kiosk-zoom: 1;
+    --kiosk-side: 22rem;
+    zoom: var(--kiosk-zoom);
+    inline-size: calc(100vw / var(--kiosk-zoom));
+    block-size: calc(100dvh / var(--kiosk-zoom));
+    overflow: hidden;
+    cursor: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: "strip strip" "stage side";
+    gap: var(--page-rhythm);
+    padding: var(--page-pad);
+    box-sizing: border-box;
+    background: var(--bg);
+}
+@media (min-width: 1366px) { .kiosk { --kiosk-zoom: 1.067; } }
+@media (min-width: 1920px) { .kiosk { --kiosk-zoom: 1.5; } }
+@media (min-width: 2560px) { .kiosk { --kiosk-zoom: 2; } }
+@media (min-width: 3840px) { .kiosk { --kiosk-zoom: 3; } }
+.kiosk-strip { grid-area: strip; min-inline-size: 0; }
+.kiosk-stage { grid-area: stage; min-inline-size: 0; min-block-size: 0; }
+.kiosk-side  { grid-area: side; min-block-size: 0; inline-size: var(--kiosk-side); }
+.kiosk, .kiosk * { scrollbar-width: none; }
+.kiosk::-webkit-scrollbar, .kiosk *::-webkit-scrollbar { display: none; }
+}
+@layer sedna.frame {
 .auth-layout {
     display: flex;
     flex-direction: column;
@@ -4345,6 +4373,67 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .tab--active .tab-count,
 .tab[aria-selected="true"] .tab-count { background: var(--brand-tint); color: var(--brand-text); }
 .tab-panel { padding-top: var(--space-7); }
+}
+@layer sedna.paint {
+.choice-tiles {
+    --choice-min: 160px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--choice-min), 100%), 1fr));
+    gap: var(--space-5);
+}
+.choice-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    padding: var(--space-5);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    cursor: pointer;
+    transition: border-color var(--motion-fast), background var(--motion-fast), box-shadow var(--motion-fast);
+}
+.choice-tile > input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+.choice-tile:hover { border-color: var(--border-strong); }
+.choice-tile-art {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    margin-block-end: var(--space-2);
+    border-radius: var(--radius-inner);
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: var(--text-10);
+    overflow: hidden;
+}
+.choice-tile-art > :is(img, svg) { inline-size: 100%; block-size: 100%; object-fit: cover; }
+.choice-tile-title { color: var(--fg); font-weight: 600; overflow-wrap: anywhere; }
+.choice-tile-hint { color: var(--muted); font-size: var(--text-3); overflow-wrap: anywhere; }
+.choice-tile:has(> input:checked) {
+    border-color: var(--selected);
+    background: var(--brand-tint);
+    box-shadow: inset 0 0 0 1px var(--selected);
+}
+.choice-tile:has(> input:checked) .choice-tile-art { color: var(--brand-text); }
+.choice-tile:has(> input:focus-visible) { box-shadow: 0 0 0 2px var(--focus-ring); }
+.choice-tile:has(> input:checked:focus-visible) { box-shadow: inset 0 0 0 1px var(--selected), 0 0 0 2px var(--focus-ring); }
+.choice-tile:has(> input:disabled) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--disabled-fg);
+    cursor: not-allowed;
+}
+.choice-tile:has(> input:disabled) :is(.choice-tile-title, .choice-tile-art) { color: var(--disabled-fg); }
 }
 @layer sedna.paint {
 .segmented {
@@ -10705,7 +10794,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     color: var(--fg);
     pointer-events: none;
 }
-:is(.segmented, .form-range)[aria-readonly="true"],
+:is(.segmented, .form-range, .choice-tiles)[aria-readonly="true"],
 :is(.form-check, .switch):has(input[aria-readonly="true"]) {
     pointer-events: none;
 }
@@ -11267,6 +11356,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .chat-launcher:focus-visible,
     .output-details > summary:focus-visible,
     .card-resize:focus-visible,
+    .choice-tile:has(> input:focus-visible),
+    .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
     :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
@@ -11287,7 +11378,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .cal-day:is([aria-pressed="true"], [aria-selected="true"], [aria-current="date"]),
     .cal-pick:is([aria-pressed="true"], [aria-current]:not([aria-current="false"])),
     .editor-toolbar [aria-pressed="true"],
-    .workflow-node[aria-pressed="true"] { outline: 1px solid Highlight; }
+    .workflow-node[aria-pressed="true"],
+    .choice-tile:has(> input:checked) { outline: 1px solid Highlight; }
     .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
     .chat-bubble,
     .link-preview,
@@ -11739,5 +11831,6 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         background-size: 100% 2px;
         background-position: 0 0;
     }
+    .choice-tile { transition: none; }
 }
 }

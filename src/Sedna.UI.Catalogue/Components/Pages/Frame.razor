@@ -97,6 +97,17 @@
     </p>
 </CatSnippet>
 
+<CatSnippet Name="Frame/Kiosk.html" Title="A wall screen">
+    <p>
+        <code>.kiosk</code> is a screen nobody operates: the whole viewport, never scrolled, no
+        cursor, and the same canvas about 1280px wide scaled up to every screen — 1.5 at 1080p, 2 at
+        1440p, 3 at 4K — so a page designed once reads the same on each; <code>--kiosk-zoom</code>
+        sets a factor of your own. No scrollbar is drawn inside it, because what moves is moved by
+        the app. <code>.kiosk-strip</code>, <code>.kiosk-stage</code> and <code>.kiosk-side</code>
+        keep their areas when one is empty; <code>--kiosk-side</code> is the side column's width.
+    </p>
+</CatSnippet>
+
 <CatSnippet Name="Frame/SkipLink.html" Title="Skip link">
     <p>
         The first focusable thing on the page, jumping past the navigation to the content —

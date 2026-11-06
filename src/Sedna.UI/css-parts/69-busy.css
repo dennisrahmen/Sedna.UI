@@ -67,7 +67,7 @@
     color: var(--fg);
     pointer-events: none;
 }
-:is(.segmented, .form-range)[aria-readonly="true"],
+:is(.segmented, .form-range, .choice-tiles)[aria-readonly="true"],
 :is(.form-check, .switch):has(input[aria-readonly="true"]) {
     pointer-events: none;
 }

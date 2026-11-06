@@ -172,6 +172,8 @@
     .chat-launcher:focus-visible,
     .output-details > summary:focus-visible,
     .card-resize:focus-visible,
+    .choice-tile:has(> input:focus-visible),
+    .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
     :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
@@ -196,7 +198,8 @@
     .cal-day:is([aria-pressed="true"], [aria-selected="true"], [aria-current="date"]),
     .cal-pick:is([aria-pressed="true"], [aria-current]:not([aria-current="false"])),
     .editor-toolbar [aria-pressed="true"],
-    .workflow-node[aria-pressed="true"] { outline: 1px solid Highlight; }
+    .workflow-node[aria-pressed="true"],
+    .choice-tile:has(> input:checked) { outline: 1px solid Highlight; }
     /* A selected table row is a tint and an inset bar, and neither is painted here. Each
        cell is outlined inside its own box, so the row reads as one marked band. */
     .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
