@@ -34,6 +34,7 @@
      29-fragment.js
      29-fullscreen.js
      29-sheet.js
+     29-viewport.js
      30-markdown.js
      40-interop.js
      41-spotlight.js
@@ -5522,6 +5523,54 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('pointercancel', finish);
 
 })(window.sednaUi);
+
+/* ── 29-viewport.js ──────────────────────────────────────────────── */
+/* ── A stuck viewport on iOS ─────────────────────────────────────────────────
+   Safari on iOS 26 can leave the visual viewport offset after the page has scrolled to
+   its end and back, or after the keyboard has closed: `visualViewport.offsetTop` stays
+   above zero, and every fixed and sticky element — the bottom bar, a floating button, the
+   sticky header of `.layout--flow` — is drawn that far from where it belongs, in the
+   middle of the content. It is WebKit's fault and an open bug there; nothing in the
+   stylesheet causes or can undo it.
+
+   Scrolling the document by a pixel and back makes Safari compute the viewport again.
+   This does that, once per occurrence, and only where it can be this fault: a page in
+   `.layout--flow`, at phone width, with the visual viewport still offset after things
+   settled, nothing focused that has a keyboard, and no pinch zoom — a reader who zoomed
+   in has offset the viewport on purpose. Anywhere else it does nothing. */
+(function () {
+
+    var timer = 0, nudged = false;
+
+    function typing() {
+        var a = document.activeElement;
+        return !!a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+    }
+
+    function check() {
+        var vv = window.visualViewport;
+        if (!vv || window.innerWidth > 560 || !document.querySelector('.layout--flow')) return;
+        if (vv.offsetTop <= 1) { nudged = false; return; }
+        if (nudged || typing() || Math.abs(vv.scale - 1) > 0.01) return;
+        nudged = true;
+        window.scrollBy(0, 1);
+        requestAnimationFrame(function () { window.scrollBy(0, -1); });
+    }
+
+    function settle() {
+        clearTimeout(timer);
+        timer = setTimeout(check, 250);
+    }
+
+    window.addEventListener('scroll', settle, { passive: true });
+    window.addEventListener('resize', settle);
+    document.addEventListener('focusout', settle);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', settle);
+        window.visualViewport.addEventListener('scroll', settle);
+    }
+
+})();
 
 /* ── 30-markdown.js ──────────────────────────────────────────────── */
 /* ── Markdown editor ─────────────────────────────────────────────────────────

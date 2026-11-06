@@ -93,7 +93,10 @@
         shell grows with its content, the topbar sticks under the notch, a sidebar sticks to the
         top of its column and a bottom bar to the bottom of the viewport &mdash; and changes
         nothing above it. This site uses it. Keep the box for a page that must never move under
-        its header, a full-bleed map or an editor.
+        its header, a full-bleed map or an editor. Safari on iOS 26 can leave its viewport offset
+        after the page has scrolled to its end or the keyboard has closed, which draws the bottom
+        bar and the header in the middle of the page; <code>Sedna.UI.js</code> notices and nudges
+        it back, once, and only then.
     </p>
 </CatSnippet>
 

@@ -3326,6 +3326,33 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('pointerup', finish);
     document.addEventListener('pointercancel', finish);
 })(window.sednaUi);
+(function () {
+    var timer = 0, nudged = false;
+    function typing() {
+        var a = document.activeElement;
+        return !!a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+    }
+    function check() {
+        var vv = window.visualViewport;
+        if (!vv || window.innerWidth > 560 || !document.querySelector('.layout--flow')) return;
+        if (vv.offsetTop <= 1) { nudged = false; return; }
+        if (nudged || typing() || Math.abs(vv.scale - 1) > 0.01) return;
+        nudged = true;
+        window.scrollBy(0, 1);
+        requestAnimationFrame(function () { window.scrollBy(0, -1); });
+    }
+    function settle() {
+        clearTimeout(timer);
+        timer = setTimeout(check, 250);
+    }
+    window.addEventListener('scroll', settle, { passive: true });
+    window.addEventListener('resize', settle);
+    document.addEventListener('focusout', settle);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', settle);
+        window.visualViewport.addEventListener('scroll', settle);
+    }
+})();
 (function (ui) {
     ui.md = {
         _seq: 0,
