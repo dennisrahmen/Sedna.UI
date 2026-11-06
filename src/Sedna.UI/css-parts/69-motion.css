@@ -1,0 +1,47 @@
+/* ── Motion for rows ─────────────────────────────────────────────────────────
+   Two opt-ins for a page that would otherwise feel static, both off under reduced
+   motion (95-reduced-motion.css).
+
+   `.table--stagger` and `.list--stagger` let the first rows arrive one after another
+   as the table or list appears: each row fades and rises by --stagger-step after the
+   one before, from the twelfth on together. `--row-index` on a row overrides its
+   place — for rows an app renders in pages, which should count from the page's
+   first row, not the table's.
+
+   `--row-hover-accent` draws a strip at the inline start of a clickable row under
+   the pointer — a `.tr-clickable` and a linked or button `.list-row`. It is
+   `transparent` until an app sets it, so nothing changes by default, and a selected
+   row keeps its own bar. A pseudo-element rather than a shadow, so a pinned column's
+   shadow and a stacked table's labels are untouched. */
+.table--stagger tbody > tr,
+.list--stagger > li {
+    animation: sedna-row-in var(--motion-slow) ease-out both;
+    animation-delay: calc(var(--row-index, 12) * var(--stagger-step));
+}
+.table--stagger tbody > tr:nth-child(1), .list--stagger > li:nth-child(1) { --row-index: 0; }
+.table--stagger tbody > tr:nth-child(2), .list--stagger > li:nth-child(2) { --row-index: 1; }
+.table--stagger tbody > tr:nth-child(3), .list--stagger > li:nth-child(3) { --row-index: 2; }
+.table--stagger tbody > tr:nth-child(4), .list--stagger > li:nth-child(4) { --row-index: 3; }
+.table--stagger tbody > tr:nth-child(5), .list--stagger > li:nth-child(5) { --row-index: 4; }
+.table--stagger tbody > tr:nth-child(6), .list--stagger > li:nth-child(6) { --row-index: 5; }
+.table--stagger tbody > tr:nth-child(7), .list--stagger > li:nth-child(7) { --row-index: 6; }
+.table--stagger tbody > tr:nth-child(8), .list--stagger > li:nth-child(8) { --row-index: 7; }
+.table--stagger tbody > tr:nth-child(9), .list--stagger > li:nth-child(9) { --row-index: 8; }
+.table--stagger tbody > tr:nth-child(10), .list--stagger > li:nth-child(10) { --row-index: 9; }
+.table--stagger tbody > tr:nth-child(11), .list--stagger > li:nth-child(11) { --row-index: 10; }
+.table--stagger tbody > tr:nth-child(12), .list--stagger > li:nth-child(12) { --row-index: 11; }
+@keyframes sedna-row-in {
+    from { opacity: 0; transform: translateY(4px); }
+}
+
+:where(.tr-clickable > td:first-child, :is(a, button).list-row) { position: relative; }
+.tr-clickable:not([aria-selected="true"]):hover > td:first-child::after,
+:is(a, button).list-row:not([aria-selected="true"], [aria-current="true"]):hover::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--row-hover-accent);
+    pointer-events: none;
+}

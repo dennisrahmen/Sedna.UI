@@ -268,4 +268,8 @@
     .stack-bar-segment,
     .meter-fill,
     .bar-previous { transition: none; }
+
+    /* 69-motion — rows arrive at once. */
+    .table--stagger tbody > tr,
+    .list--stagger > li { animation: none; }
 }

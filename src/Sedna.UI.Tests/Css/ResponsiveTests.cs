@@ -116,11 +116,12 @@ public class ResponsiveTests
         var rail = Assets.StripComments(ReadPart("12-frame-collapsed-rail.css"));
         var responsive = Assets.StripComments(ReadPart("19-frame-responsive.css"));
 
-        // The rail part has no media wrapper; the responsive part is entirely inside
-        // one, so its rules are read out of the block bodies.
+        // The rail part has no wrapper; the responsive part's rail is the one
+        // @container style(--sedna-rail: forced) block, so its rules are read out of it.
         var railSelectors = Selectors(rail, ".sidebar.collapsed");
 
-        var responsiveSelectors = Assets.MediaBlocks(responsive)
+        var responsiveSelectors = Assets.AtBlocks(responsive, "container")
+            .Where(m => m.Condition.Contains("--sedna-rail", StringComparison.Ordinal))
             .SelectMany(m => Selectors(m.Body, ".layout--responsive .sidebar"))
             .ToHashSet(StringComparer.Ordinal);
 

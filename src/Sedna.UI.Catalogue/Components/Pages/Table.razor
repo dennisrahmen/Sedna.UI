@@ -9,6 +9,17 @@
     <p>A row that means something — stale, failing, waiting — takes a tone with <code>.tr--warn</code> and the rest.</p>
 </CatExample>
 
+<CatExample TExample="Examples.Table.Stagger" Title="Rows that arrive, and a strip under the pointer" Demo="ex-demo--block">
+    <p>
+        <code>.table--stagger</code> — and <code>.list--stagger</code> on a list — lets the first
+        rows fade in one after another, <code>--stagger-step</code> apart; set
+        <code>--row-index</code> on a row to count a later page from its own first row.
+        <code>--row-hover-accent</code> draws a strip at the start of a clickable row under the
+        pointer, on a <code>.tr-clickable</code> and a linked <code>.list-row</code>; it is
+        transparent until you set it. Both are off for a reader who asked for reduced motion.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Table.Basic" Title="Basic" Demo="ex-demo--block">
     <p>
         Headers are uppercased and muted by the class. <code>.col-muted</code> is for secondary

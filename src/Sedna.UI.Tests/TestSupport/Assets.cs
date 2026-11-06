@@ -134,9 +134,12 @@ internal static class Assets
     /// Every <c>@media</c> block as (condition, body), matched by counting braces
     /// rather than by regex, so a nested rule inside the block does not truncate it.
     /// </summary>
-    public static IEnumerable<(string Condition, string Body)> MediaBlocks(string css)
+    public static IEnumerable<(string Condition, string Body)> MediaBlocks(string css) => AtBlocks(css, "media");
+
+    /// <summary>The same for any block at-rule — <c>@container</c>, <c>@supports</c>.</summary>
+    public static IEnumerable<(string Condition, string Body)> AtBlocks(string css, string atRule)
     {
-        foreach (var open in Regex.Matches(css, @"@media([^{]*)\{", RegexOptions.Compiled).Cast<Match>())
+        foreach (var open in Regex.Matches(css, "@" + atRule + @"([^{]*)\{").Cast<Match>())
         {
             var depth = 1;
             var i = open.Index + open.Length;

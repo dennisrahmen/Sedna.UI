@@ -71,7 +71,7 @@ internal static class TokenGroups
         // The mark on the one chosen, and the line under where you are. Both point at the
         // brand until an app separates them — a red ring on a red-brand status board reads
         // as "failed".
-        new("Selection", ["--selected", "--tab-indicator"]),
+        new("Selection", ["--selected", "--tab-indicator", "--row-hover-accent"]),
 
         // The edge of every box a reader types or picks into, at rest and focused, apart
         // from --border so fields can be firmed up without firming up every divider.
@@ -177,7 +177,7 @@ internal static class TokenGroups
         new("Motion", [
             "--motion-fast", "--motion-mid", "--motion-slow",
             "--spin-duration", "--progress-duration", "--skeleton-duration", "--pulse-duration",
-            "--shimmer-duration", "--caret-duration", "--flow-duration",
+            "--shimmer-duration", "--caret-duration", "--flow-duration", "--stagger-step",
         ], Swatch: false),
 
         new("Density and metrics", [

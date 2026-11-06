@@ -126,12 +126,13 @@ dependency list is exactly that one name.
 ## Responsive frame
 
 `.layout--responsive` on `.layout` turns the sidebar into the icon rail below 900px and trims the user
-widget's text at 900px and 560px. **Opt-in**: applying it automatically would change how every released
-app looks on a narrow screen with no app edit.
+widget's text at 900px and 560px. `.layout--compact-at-sm` moves the rail's width to 560px and
+`.layout--compact-at-lg` to 1200px. **Opt-in**: applying it automatically would change how every
+released app looks on a narrow screen with no app edit.
 
-It is also the fix for the reverse hazard. An app that sets `.sidebar { width: 260px }` unconditionally
-would beat a bare `@media .sidebar { width: 56px }` rule on source order; `.layout--responsive .sidebar`
-is `(0,2,0)` and outranks it.
+The rail is written once, in `19-frame-responsive.css`, inside `@container style(--sedna-rail: forced)`.
+A media rule per width sets `--sedna-rail: forced` on the layout and the property inherits, so a fourth
+width would be one more line, not a second copy of the rail.
 
 Two rules hold for any layout media query added later:
 

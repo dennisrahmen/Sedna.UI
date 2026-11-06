@@ -196,6 +196,7 @@
     --brand-edge:       var(--brand-soft);
     --accent:           var(--orbit-400);
     --selected:         var(--brand);
+    --row-hover-accent: transparent;
     --tab-indicator:    var(--selected);
     --field-border:       var(--slate-500);
     --control-border:     var(--field-border);
@@ -363,6 +364,7 @@
     --shimmer-duration:  2.2s;
     --caret-duration:    1s;
     --flow-duration:     1.6s;
+    --stagger-step:      30ms;
     --radius-control: 5px;
     --radius-surface: 6px;
     --radius-panel:   8px;
@@ -1338,7 +1340,17 @@ a.topbar-version--pre:hover {
     .status-bar--reconnecting { display: flex; }
 }
 @layer sedna.frame {
+@media (max-width: 560px) {
+    .layout--responsive.layout--compact-at-sm { --sedna-rail: forced; }
+}
 @media (max-width: 900px) {
+    .layout--responsive:not(.layout--compact-at-sm, .layout--compact-at-lg) { --sedna-rail: forced; }
+    .topbar--responsive .user-email { display: none; }
+}
+@media (max-width: 1200px) {
+    .layout--responsive.layout--compact-at-lg { --sedna-rail: forced; }
+}
+@container style(--sedna-rail: forced) {
     .layout--responsive .sidebar { width: var(--sidebar-width-collapsed); }
     .layout--responsive .sidebar > .brand,
     .layout--responsive .sidebar > .nav,
@@ -1394,8 +1406,7 @@ a.topbar-version--pre:hover {
         white-space: nowrap; z-index: 400; box-shadow: var(--shadow-flyout);
         pointer-events: none;
     }
-    .layout--responsive .user-email,
-    .topbar--responsive .user-email { display: none; }
+    .layout--responsive .user-email { display: none; }
 }
 @media (max-width: 560px) {
     .layout--responsive .user-info,
@@ -10545,6 +10556,39 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .chat-composer--prompt.beam:focus-within { --beam-fill: var(--surface-raised-2); }
 }
 @layer sedna.paint {
+.table--stagger tbody > tr,
+.list--stagger > li {
+    animation: sedna-row-in var(--motion-slow) ease-out both;
+    animation-delay: calc(var(--row-index, 12) * var(--stagger-step));
+}
+.table--stagger tbody > tr:nth-child(1), .list--stagger > li:nth-child(1) { --row-index: 0; }
+.table--stagger tbody > tr:nth-child(2), .list--stagger > li:nth-child(2) { --row-index: 1; }
+.table--stagger tbody > tr:nth-child(3), .list--stagger > li:nth-child(3) { --row-index: 2; }
+.table--stagger tbody > tr:nth-child(4), .list--stagger > li:nth-child(4) { --row-index: 3; }
+.table--stagger tbody > tr:nth-child(5), .list--stagger > li:nth-child(5) { --row-index: 4; }
+.table--stagger tbody > tr:nth-child(6), .list--stagger > li:nth-child(6) { --row-index: 5; }
+.table--stagger tbody > tr:nth-child(7), .list--stagger > li:nth-child(7) { --row-index: 6; }
+.table--stagger tbody > tr:nth-child(8), .list--stagger > li:nth-child(8) { --row-index: 7; }
+.table--stagger tbody > tr:nth-child(9), .list--stagger > li:nth-child(9) { --row-index: 8; }
+.table--stagger tbody > tr:nth-child(10), .list--stagger > li:nth-child(10) { --row-index: 9; }
+.table--stagger tbody > tr:nth-child(11), .list--stagger > li:nth-child(11) { --row-index: 10; }
+.table--stagger tbody > tr:nth-child(12), .list--stagger > li:nth-child(12) { --row-index: 11; }
+@keyframes sedna-row-in {
+    from { opacity: 0; transform: translateY(4px); }
+}
+:where(.tr-clickable > td:first-child, :is(a, button).list-row) { position: relative; }
+.tr-clickable:not([aria-selected="true"]):hover > td:first-child::after,
+:is(a, button).list-row:not([aria-selected="true"], [aria-current="true"]):hover::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--row-hover-accent);
+    pointer-events: none;
+}
+}
+@layer sedna.paint {
 .timeline {
     --timeline-line: 1px;
     --timeline-dot: 13px;
@@ -11526,5 +11570,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .stack-bar-segment,
     .meter-fill,
     .bar-previous { transition: none; }
+    .table--stagger tbody > tr,
+    .list--stagger > li { animation: none; }
 }
 }

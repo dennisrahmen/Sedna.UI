@@ -29,6 +29,29 @@
 
 const graphs = new Map();
 
+/* A record added live, with data-graph-arrive="pop": one halo in its own colour swells
+   out from it and fades, so a record that appears across the room is seen arriving.
+   Still under reduced motion, in a hidden tab and for a crowd of arrivals. The live region's
+   data-graph-announce-arrive, if the app wrote one, says each arrival in the app's words,
+   motion or not. */
+function arrive(g, nodes) {
+    const region = scoped(g, '[data-graph-live]')[0];
+    const template = region?.getAttribute('data-graph-announce-arrive');
+    if (template) {
+        region.textContent = '';
+        const words = nodes.not('.hidden').map(n => fillAnnouncement(template, n)).join(' ');
+        setTimeout(() => { if (!g.disposed) region.textContent = words; }, 30);
+    }
+    if (g.options.arrive !== 'pop' || reducedMotion() || document.visibilityState !== 'visible' || nodes.length > 24) return;
+    nodes.not('.hidden').forEach(n => {
+        const colour = n.style('border-color');
+        n.style({ 'overlay-color': colour, 'overlay-opacity': 0.4, 'overlay-padding': 2 });
+        n.animation({ style: { 'overlay-opacity': 0, 'overlay-padding': 18 }, duration: 700, easing: 'ease-out' })
+            .play().promise('completed')
+            .then(() => { if (!g.disposed && n.inside()) n.removeStyle('overlay-color overlay-opacity overlay-padding'); });
+    });
+}
+
 function readOptions(el, given) {
     const d = el.dataset;
     const has = name => el.hasAttribute('data-graph-' + name) && el.getAttribute('data-graph-' + name) !== 'false';
@@ -59,6 +82,7 @@ function readOptions(el, given) {
         connect: has('connect'),
         collapse: has('collapse'),
         hulls: has('hulls'),
+        arrive: d.graphArrive === 'pop' ? 'pop' : null,
     };
     Object.assign(o, given || {});
     if (!knownLayout(o.layout)) {
@@ -597,6 +621,7 @@ async function setData(g, data, opts = {}) {
     if (g.selected && (g.selected.removed() || g.selected.hasClass('hidden'))) select(g, null);
     else showDetail(g);
     flow(g);
+    if (!first && addedNodes.nonempty()) arrive(g, addedNodes);
     const s = changed(g);
     if (first) g.emit('sedna-graph-ready', s);
 }
