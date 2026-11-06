@@ -54,6 +54,11 @@ jobs:
   test:
     needs: preflight
     runs-on: ubuntu-latest
+    # Microsoft's Playwright image, pinned to the Playwright package the tests use: the
+    # browsers and every system library they need are already in it. Installing them per
+    # run meant some seventy apt packages from the Ubuntu mirror, and one slow mirror held
+    # a release for half an hour. BrowserFloorTests keeps the tag and the package in step.
+    container: mcr.microsoft.com/playwright/dotnet:v1.64.1-noble
     permissions:
       contents: read
     strategy:
@@ -78,11 +83,6 @@ jobs:
 
       - name: Build
         run: dotnet build ${{ matrix.project }} -c Release
-
-      # The browser binaries are not restored with the package, and a missing browser
-      # is a test FAILURE rather than a skip, so this step is not optional.
-      - name: Install ${{ matrix.engine }}
-        run: pwsh ${{ matrix.project }}/bin/Release/net10.0/playwright.ps1 install --with-deps ${{ matrix.engine }}
 
       - name: Test
         env:

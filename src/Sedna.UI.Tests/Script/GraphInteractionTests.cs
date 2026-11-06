@@ -357,6 +357,7 @@ public class GraphInteractionTests : GraphTestBase
         await page.Mouse.MoveAsync(x, y);
         await page.Mouse.WheelAsync(0, 120);
         await page.WaitForFunctionAsync("() => scrollY > 0");
+        await Js.ScrollAtRest(page);
         Assert.Equal(zoom, await Eval<double>(page, zoomNow));
         var scrolled = await Eval<double>(page, "() => scrollY");
         // The engine ignores the wheel for a moment after the page has scrolled, so a

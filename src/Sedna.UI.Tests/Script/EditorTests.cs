@@ -60,7 +60,9 @@ public class EditorTests : ScriptTestBase
 
     private static async Task TypeAtEnd(IPage page, string text)
     {
-        await page.Locator(".ql-editor").ClickAsync();
+        // The first line, not the middle: in a document with a video the middle can be the
+        // video's own controls, which take the keys — WebKit on Linux draws it there.
+        await page.Locator(".ql-editor").ClickAsync(new() { Position = new() { X = 6, Y = 6 } });
         await page.Keyboard.PressAsync(Keys.DocumentEnd);
         await page.Keyboard.TypeAsync(text);
     }

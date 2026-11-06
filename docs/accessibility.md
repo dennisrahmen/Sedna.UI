@@ -133,7 +133,7 @@ As versions, the floor is what the tests run on, and moves with each release tha
 
 An older version is not tested and not supported. It is not refused either, and much of the library works
 there; what fails first is what arrived last in Safari — anchor positioning with `anchor-scope`, container
-style queries, `closedby` and `currentCSSZoom`. A device that cannot update to the version above is the
+style queries and `closedby`. A device that cannot update to the version above is the
 one to check by hand.
 
 Consequences visible in the CSS:

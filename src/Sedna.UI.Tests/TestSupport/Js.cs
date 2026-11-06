@@ -33,6 +33,26 @@ internal static class Js
     public static Task Settle(IPage page) =>
         page.EvaluateAsync("async () => { document.getAnimations().forEach(a => { if (a.effect?.getComputedTiming().endTime !== Infinity) a.finish(); }); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); }");
 
+    /// <summary>
+    /// Waits until a scroller stops moving — the document with no selector, else the first
+    /// element the selector finds. WebKit on Linux animates a wheel scroll over several frames,
+    /// so a position read straight after the wheel is one on the way, not where it lands.
+    /// </summary>
+    public static Task ScrollAtRest(IPage page, string? selector = null) =>
+        page.EvaluateAsync("""
+            async sel => {
+              const el = sel ? document.querySelector(sel) : document.scrollingElement;
+              const at = () => [el.scrollLeft, el.scrollTop].join();
+              let was = at();
+              for (let i = 0; i < 50; i++) {
+                await new Promise(r => setTimeout(r, 100));
+                const now = at();
+                if (now === was) return;
+                was = now;
+              }
+            }
+            """, selector);
+
     public static Task Run(IPage page, string script, object? arg) =>
         page.EvaluateAsync($"async (a) => {{ const v = ({script}); if (typeof v === 'function') await v(a); else await v; }}", arg);
 }

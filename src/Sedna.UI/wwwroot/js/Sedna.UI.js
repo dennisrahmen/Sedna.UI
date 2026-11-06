@@ -3630,8 +3630,11 @@ window.sednaUi = window.sednaUi || {};
     }
     function zoomOf(el) {
         var parent = (el && el.offsetParent) || document.body;
-        var z = parent && parent.currentCSSZoom;
-        return typeof z === 'number' && z > 0 ? z : 1;
+        if (!parent) return 1;
+        var z = parent.currentCSSZoom;
+        if (typeof z === 'number' && z > 0) return z;
+        var drawn = parent.getBoundingClientRect().width;
+        return parent.offsetWidth > 0 && drawn > 0 ? drawn / parent.offsetWidth : 1;
     }
     function offsetParentRect(el) {
         if (isRaised(el)) return { left: 0, top: 0 };
