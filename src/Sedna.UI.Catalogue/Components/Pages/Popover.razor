@@ -35,8 +35,18 @@
         <code>data-popover-hover</code> beside <code>data-popover</code> opens the panel when the
         pointer rests on the trigger or the focus reaches it, after <code>--hover-delay</code>
         (400ms), and closes it once the pointer has left both — so the reader can move onto the card.
-        A click pins it until it is dismissed. Use it for a detail worth a glance; a word of help is a
-        <a href="/hover-hints">hover hint</a>.
+        A click pins it until it is dismissed or the trigger is clicked again. Use it for a detail
+        worth a glance; a word of help is a <a href="/hover-hints">hover hint</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Popover.HoverOnly" Title="A hover card beside a click of its own" Demo="ex-demo--pad">
+    <p>
+        <strong>Live &mdash; rest on the button, then click it.</strong>
+        <code>data-popover-hover="only"</code> is for a trigger whose click does something else &mdash;
+        here it opens a dialog, and the card is a glance at what the dialog holds. Hover and focus open
+        the card; a click neither opens nor pins it, runs the trigger's own action and closes the card,
+        so it never sits above the dialog the click opened.
     </p>
 </CatExample>
 

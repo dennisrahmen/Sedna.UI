@@ -1679,6 +1679,7 @@ window.sednaUi = window.sednaUi || {};
 (function (ui) {
 
     var triggers = new WeakMap();
+    var pinned = new WeakSet();   // hover cards a click has pinned open
     var count = 0;
 
     function anchor(panel, trigger) {
@@ -1743,11 +1744,29 @@ window.sednaUi = window.sednaUi || {};
         if (!trigger) return;
         var panel = target(trigger);
         if (!panel) return;
+        // A hover-only card leaves the click to the trigger's own action — a button that opens
+        // a dialog — and gets out of its way, so it does not sit above what the click opened.
+        if (hoverOnly(trigger)) {
+            clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            hide(panel);
+            return;
+        }
         e.preventDefault();
         e.stopPropagation();
         // A hover card clicked is pinned: shown, and no longer closed by the pointer leaving.
+        // Clicked again once pinned, it closes, as a popovertarget button toggles its panel.
         if (trigger.hasAttribute('data-popover-hover')) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            var open = false;
+            try { open = panel.matches(':popover-open'); } catch (err) { /* no :popover-open */ }
+            if (pinned.has(panel) && (open || wasOpen === panel)) {
+                wasOpen = null;
+                pinned.delete(panel);
+                hide(panel);
+                return;
+            }
+            wasOpen = null;
+            pinned.add(panel);
             show(panel, trigger);
             return;
         }
@@ -1760,6 +1779,7 @@ window.sednaUi = window.sednaUi || {};
         var trigger = e.target instanceof Element ? e.target : null;
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         if (trigger.tagName === 'BUTTON') return;   // a button clicks on its own
+        if (hoverOnly(trigger)) return;             // and so does a hover-only trigger's own action
         var panel = target(trigger);
         if (!panel) return;
         e.preventDefault();
@@ -1770,9 +1790,17 @@ window.sednaUi = window.sednaUi || {};
        `data-popover-hover` beside `data-popover` also opens the panel when the pointer
        rests on the trigger or the focus reaches it, after `--hover-delay`, and closes it a
        moment after the pointer has left both the trigger and the panel — so the reader
-       can move onto the card to select or follow something in it. A click still pins it
-       open until it is dismissed. The panel is the app's, as for any popover. */
+       can move onto the card to select or follow something in it. A click pins it open
+       until it is dismissed or the trigger is clicked again. The panel is the app's, as for
+       any popover.
+
+       `data-popover-hover="only"` is for a trigger with a click action of its own — a
+       button that opens a dialog, beside a summary of what the dialog holds. Hover and
+       focus open the card; a click neither opens nor pins it, is left to the trigger, and
+       closes the card. */
     var hoverTimer = 0, leaveTimer = 0, hovered = null;
+
+    function hoverOnly(trigger) { return trigger.getAttribute('data-popover-hover') === 'only'; }
 
     function delayOf(trigger) {
         var d = parseFloat(getComputedStyle(trigger).getPropertyValue('--hover-delay'));
@@ -1828,6 +1856,7 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
+        if (e.newState === 'closed') pinned.delete(panel);
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');

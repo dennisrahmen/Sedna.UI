@@ -914,6 +914,7 @@ window.sednaUi = window.sednaUi || {};
 })(window.sednaUi);
 (function (ui) {
     var triggers = new WeakMap();
+    var pinned = new WeakSet();   // hover cards a click has pinned open
     var count = 0;
     function anchor(panel, trigger) {
         var name = trigger.style.getPropertyValue('anchor-name');
@@ -966,10 +967,25 @@ window.sednaUi = window.sednaUi || {};
         if (!trigger) return;
         var panel = target(trigger);
         if (!panel) return;
+        if (hoverOnly(trigger)) {
+            clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            hide(panel);
+            return;
+        }
         e.preventDefault();
         e.stopPropagation();
         if (trigger.hasAttribute('data-popover-hover')) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            var open = false;
+            try { open = panel.matches(':popover-open'); } catch (err) { /* no :popover-open */ }
+            if (pinned.has(panel) && (open || wasOpen === panel)) {
+                wasOpen = null;
+                pinned.delete(panel);
+                hide(panel);
+                return;
+            }
+            wasOpen = null;
+            pinned.add(panel);
             show(panel, trigger);
             return;
         }
@@ -981,12 +997,14 @@ window.sednaUi = window.sednaUi || {};
         var trigger = e.target instanceof Element ? e.target : null;
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         if (trigger.tagName === 'BUTTON') return;   // a button clicks on its own
+        if (hoverOnly(trigger)) return;             // and so does a hover-only trigger's own action
         var panel = target(trigger);
         if (!panel) return;
         e.preventDefault();
         ui.popover.toggle(panel, trigger);
     });
     var hoverTimer = 0, leaveTimer = 0, hovered = null;
+    function hoverOnly(trigger) { return trigger.getAttribute('data-popover-hover') === 'only'; }
     function delayOf(trigger) {
         var d = parseFloat(getComputedStyle(trigger).getPropertyValue('--hover-delay'));
         return isNaN(d) ? 400 : d;
@@ -1035,6 +1053,7 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
+        if (e.newState === 'closed') pinned.delete(panel);
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
