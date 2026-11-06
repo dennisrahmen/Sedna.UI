@@ -3335,7 +3335,8 @@ window.sednaUi = window.sednaUi || {};
     function check() {
         var vv = window.visualViewport;
         if (!vv || window.innerWidth > 560 || !document.querySelector('.layout--flow')) return;
-        if (vv.offsetTop <= 1) { nudged = false; return; }
+        var shifted = vv.offsetTop > 0.5 || window.innerHeight - vv.height > 1;
+        if (!shifted) { nudged = false; return; }
         if (nudged || typing() || Math.abs(vv.scale - 1) > 0.01) return;
         nudged = true;
         window.scrollBy(0, 1);
@@ -3343,7 +3344,7 @@ window.sednaUi = window.sednaUi || {};
     }
     function settle() {
         clearTimeout(timer);
-        timer = setTimeout(check, 250);
+        timer = setTimeout(check, 150);
     }
     window.addEventListener('scroll', settle, { passive: true });
     window.addEventListener('resize', settle);

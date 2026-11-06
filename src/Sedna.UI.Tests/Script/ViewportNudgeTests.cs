@@ -14,7 +14,7 @@ public class ViewportNudgeTests : ScriptTestBase
         <script>
           window.nudges = [];
           const fake = new EventTarget();
-          fake.offsetTop = 240; fake.scale = 1;
+          fake.offsetTop = 240; fake.scale = 1; fake.height = window.innerHeight;
           Object.defineProperty(window, 'visualViewport', { value: fake, configurable: true });
           const real = window.scrollBy.bind(window);
           window.scrollBy = (x, y) => { window.nudges.push(y); real(x, y); };
@@ -39,6 +39,18 @@ public class ViewportNudgeTests : ScriptTestBase
 
         Assert.Equal(new double[] { 1, -1 }, await After(page));
         Assert.Equal(new double[] { 1, -1 }, await After(page));   // once per occurrence
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_viewport_left_short_after_the_keyboard_is_nudged_too()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Flow, extraHead: Stuck);
+        await page.SetViewportSizeAsync(390, 800);
+        await Js.Run(page, "() => { window.visualViewport.offsetTop = 0; window.visualViewport.height = window.innerHeight - 240; }");
+
+        Assert.Equal(new double[] { 1, -1 }, await After(page));
         Assert.Empty(errors);
     }
 
