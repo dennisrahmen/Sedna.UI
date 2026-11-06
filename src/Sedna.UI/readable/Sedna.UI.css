@@ -4220,13 +4220,16 @@ a.topbar-version--pre:hover {
     text-align: start;
     padding: var(--cell-pad-y) var(--cell-pad-x);
     border-bottom: 1px solid var(--border);
-    /* A cell's line is trimmed to its capitals and its padding takes the rest, so the row
-       is as tall as before and its text sits in the middle of it. */
-    text-box: trim-both cap alphabetic;
-    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
     /* On a whole pixel, so a row is: a table lays its rows out on whole pixels, and a
        half-pixel line would put the text half a pixel off its middle. */
     line-height: round(1.5em, 2px);
+}
+/* A cell that holds only its words has its line trimmed to its capitals, and its padding
+   takes the rest, so the row is as tall as before and the words sit in its middle. A cell
+   with a control or a badge in it is laid out around that, and is left as it is. */
+.table :is(th, td):not(:has(*)) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
 }
 .table th {
     background: var(--table-head-bg);
@@ -11923,12 +11926,8 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 /* A table in untrusted prose is the one thing that breaks the page width, because
    its own content sets its minimum size. */
 .prose table { display: block; overflow-x: auto; max-width: 100%; border-collapse: collapse; }
-.prose th, .prose td {
-    padding: calc(var(--space-3) + var(--cap-gap)) var(--space-5);
-    border: 1px solid var(--border);
-    text-align: start;
-    text-box: trim-both cap alphabetic;
-}
+.prose th, .prose td { padding: var(--space-3) var(--space-5); border: 1px solid var(--border); text-align: start; }
+.prose :is(th, td):not(:has(*)) { padding-block: calc(var(--space-3) + var(--cap-gap)); text-box: trim-both cap alphabetic; }
 .prose th { background: var(--table-head-bg); color: var(--muted); font-size: 0.9em; }
 
 /* ── Redacted ───────────────────────────────────────────────────────────────

@@ -2162,9 +2162,11 @@ a.topbar-version--pre:hover {
     text-align: start;
     padding: var(--cell-pad-y) var(--cell-pad-x);
     border-bottom: 1px solid var(--border);
+    line-height: round(1.5em, 2px);
+}
+.table :is(th, td):not(:has(*)) {
     text-box: trim-both cap alphabetic;
     padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
-    line-height: round(1.5em, 2px);
 }
 .table th {
     background: var(--table-head-bg);
@@ -6457,12 +6459,8 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .prose img { max-width: 100%; height: auto; border-radius: var(--radius-inner); }
 .prose video { display: block; max-width: 100%; height: auto; margin: 1em 0; border-radius: var(--radius-inner); }
 .prose table { display: block; overflow-x: auto; max-width: 100%; border-collapse: collapse; }
-.prose th, .prose td {
-    padding: calc(var(--space-3) + var(--cap-gap)) var(--space-5);
-    border: 1px solid var(--border);
-    text-align: start;
-    text-box: trim-both cap alphabetic;
-}
+.prose th, .prose td { padding: var(--space-3) var(--space-5); border: 1px solid var(--border); text-align: start; }
+.prose :is(th, td):not(:has(*)) { padding-block: calc(var(--space-3) + var(--cap-gap)); text-box: trim-both cap alphabetic; }
 .prose th { background: var(--table-head-bg); color: var(--muted); font-size: 0.9em; }
 .redacted {
     display: inline-flex;

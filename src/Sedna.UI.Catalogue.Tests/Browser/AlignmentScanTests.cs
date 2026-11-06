@@ -219,7 +219,9 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                   if (textOnly && !line) { skip = true; break; }
                   // A word is measured across its own width, so a separator or a marker its
                   // element draws beside it is not taken for it.
-                  const across = line ? { left: line.left, top: r.top, width: line.width, height: r.height } : r;
+                  // Within its own box: a word cut short with an ellipsis runs past it, invisibly.
+                  const l = line ? Math.max(line.left, r.left) : 0, rr = line ? Math.min(line.right, r.right) : 0;
+                  const across = line && rr - l >= 1 ? { left: l, top: r.top, width: rr - l, height: r.height } : r;
                   items.push(box(across, isIcon(n) ? 'icon' : textOnly ? 'text' : 'box', name(n), n));
                 }
               }
