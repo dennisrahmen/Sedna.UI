@@ -54,6 +54,28 @@ code {
     overflow-wrap: anywhere;
 }
 
+/* What changed between two versions of a text: the words added and the words removed,
+   in running text, prose, a Markdown preview or a table cell alike, so a word diff
+   writes <ins> and <del> and needs no class. The tint is the go and danger pair a
+   .badge--go and a .badge--danger read, which TintedTextContrastTests holds at AA on the
+   page and on a card in every theme; the underline and the strike-through say it again
+   without colour, which is what survives forced colours, print and a reader who cannot
+   tell the two tints apart. A spoken "added" or "removed" is the app's own words, in a
+   .visually-hidden span inside the element.
+
+   Inline padding and no block padding, so the line height never moves; `clone` gives
+   every line of a change that wraps its own ends. */
+ins,
+del {
+    padding-inline: var(--space-1);
+    border-radius: var(--radius-small);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    text-decoration-thickness: from-font;
+}
+ins { color: var(--go-fg); background: var(--go-bg); text-decoration-line: underline; }
+del { color: var(--danger-fg); background: var(--danger-bg); text-decoration-line: line-through; }
+
 h1 { font-size: var(--text-9); margin: 0 0 var(--space-4); }
 h2 { font-size: var(--text-7); margin: var(--space-9) 0 var(--space-4); }
 p.lede { color: var(--muted); margin: 0 0 var(--space-7); }

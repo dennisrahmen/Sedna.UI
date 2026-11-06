@@ -1707,6 +1707,28 @@ code {
     overflow-wrap: anywhere;
 }
 
+/* What changed between two versions of a text: the words added and the words removed,
+   in running text, prose, a Markdown preview or a table cell alike, so a word diff
+   writes <ins> and <del> and needs no class. The tint is the go and danger pair a
+   .badge--go and a .badge--danger read, which TintedTextContrastTests holds at AA on the
+   page and on a card in every theme; the underline and the strike-through say it again
+   without colour, which is what survives forced colours, print and a reader who cannot
+   tell the two tints apart. A spoken "added" or "removed" is the app's own words, in a
+   .visually-hidden span inside the element.
+
+   Inline padding and no block padding, so the line height never moves; `clone` gives
+   every line of a change that wraps its own ends. */
+ins,
+del {
+    padding-inline: var(--space-1);
+    border-radius: var(--radius-small);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    text-decoration-thickness: from-font;
+}
+ins { color: var(--go-fg); background: var(--go-bg); text-decoration-line: underline; }
+del { color: var(--danger-fg); background: var(--danger-bg); text-decoration-line: line-through; }
+
 h1 { font-size: var(--text-9); margin: 0 0 var(--space-4); }
 h2 { font-size: var(--text-7); margin: var(--space-9) 0 var(--space-4); }
 p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
@@ -5176,7 +5198,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    startup screen, a tile, an upload over a thumbnail. `--progress` is a
    percentage the app writes inline (`style="--progress: 62%"`), or Blazor's own
    `--blazor-load-percentage` while WebAssembly starts. The ring is a pseudo-element,
-   so the element itself holds the app's label, centred. */
+   so the element itself holds the app's label, centred.
+
+   `--progress` is registered as a percentage, so a new value glides to its place
+   over --motion-slow, as a bar's width does, instead of jumping; it rests under
+   reduced motion. Inherited, because the arc is drawn by the ring's own ::before. */
+@property --progress {
+    syntax: '<percentage>';
+    inherits: true;
+    initial-value: 0%;
+}
 .progress-ring {
     --progress: 0%;
     --progress-ring-size: 40px;
@@ -5190,6 +5221,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     font-size: var(--text-2);
     font-variant-numeric: tabular-nums;
     color: var(--muted);
+    transition: --progress var(--motion-slow) ease;
 }
 .progress-ring::before {
     content: "";
@@ -5201,6 +5233,29 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 .progress-ring--sm { --progress-ring-size: 24px; --progress-ring-width: 3px; font-size: var(--text-1); }
 .progress-ring--lg { --progress-ring-size: 64px; --progress-ring-width: 6px; font-size: var(--text-4); }
+
+/* Round ends, as an SVG ring with `stroke-linecap: round` has. The start is a dot on the
+   arc's own layer, at the top; the end is ::after, placed on the ring's centre line at
+   the angle --progress gives — `progress()` turns the percentage into the number sin()
+   and cos() need — so it travels with the arc as the value glides. */
+.progress-ring--round::before {
+    background:
+        radial-gradient(circle at 50% calc(var(--progress-ring-width) / 2),
+            var(--brand) calc(var(--progress-ring-width) / 2 - 0.5px), transparent calc(var(--progress-ring-width) / 2)),
+        conic-gradient(var(--brand) var(--progress), var(--progress-track) 0);
+}
+.progress-ring--round::after {
+    --progress-ring-turn: calc(progress(var(--progress), 0%, 100%) * 360deg);
+    --progress-ring-radius: calc((var(--progress-ring-size) - var(--progress-ring-width)) / 2);
+    content: "";
+    position: absolute;
+    left: calc(50% + var(--progress-ring-radius) * sin(var(--progress-ring-turn)) - var(--progress-ring-width) / 2);
+    top: calc(50% - var(--progress-ring-radius) * cos(var(--progress-ring-turn)) - var(--progress-ring-width) / 2);
+    inline-size: var(--progress-ring-width);
+    block-size: var(--progress-ring-width);
+    border-radius: 50%;
+    background: var(--brand);
+}
 }
 
 /* ── 42-empty-state.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -20339,6 +20394,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
     .progress-bar     { transition: none; }   /* 41 */
+    .progress-ring    { transition: none; }   /* 41 — the arc lands on its value */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
     .tab              { transition: none; }   /* 50 */
     a.stat            { transition: none; }   /* 54 */
