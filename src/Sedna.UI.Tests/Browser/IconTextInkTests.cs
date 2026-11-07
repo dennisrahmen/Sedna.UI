@@ -17,18 +17,19 @@ namespace Sedna.UI.Tests;
 /// </para>
 /// <para>
 /// The icon is a filled square and the label capitals and digits, so the measurement is of
-/// the line each is set on, not of one icon's drawing or one word's descenders. The
-/// fixtures sit on whole pixels, where Chromium places a line of text where its box says.
+/// the line each is set on, not of one icon's drawing or one word's descenders.
 /// </para>
 /// </remarks>
 public class IconTextInkTests : ScriptTestBase
 {
     /// <summary>
-    /// Half a pixel. Both engines trim a line to its font's cap height rounded to a pixel,
-    /// and draw the glyph at the exact one, so a trimmed word can sit up to half a pixel
-    /// from the middle of its box, whatever the rules say.
+    /// The engine's own bound. Both engines trim a line to its font's cap height rounded to
+    /// a pixel and draw the glyph at the exact one, so a trimmed word can sit half a pixel
+    /// from the middle of its box: WebKit's bound on Apple's platforms. Chromium, and
+    /// WebKit on Linux, also set the line itself on a whole CSS pixel, so where a font's
+    /// metrics put a box between pixels a word lands up to a pixel off.
     /// </summary>
-    private const double Tolerance = 0.5;
+    internal static double Tolerance => BrowserEngine.IsWebKit && OperatingSystem.IsMacOS() ? 0.5 : 1.0;
 
     private const string Icon = """<i class="ri-checkbox-blank-fill" id="i"></i>""";
 
@@ -100,6 +101,7 @@ public class IconTextInkTests : ScriptTestBase
         { "tab-count", """<div class="tabs" role="tablist"><button class="tab" role="tab"><span>LINES</span> <span class="tab-count" id="w">5</span></button></div>""" },
         { "topbar-version", """<span class="topbar-version" id="w">V4.2.1</span>""" },
         { "citation", """<button class="citation" type="button" id="w">2</button>""" },
+        { "source-card-n", """<a class="source-card" href="#"><span class="source-card-host"><span class="source-card-n" id="w">2</span><span>RUNBOOK</span></span></a>""" },
     };
 
     [Theory]

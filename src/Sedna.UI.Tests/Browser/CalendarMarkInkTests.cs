@@ -30,8 +30,8 @@ public class CalendarMarkInkTests : ScriptTestBase
         var ink = await Ink.Of(page, "#icon", "#count", "#num");
         var (icon, count, num) = (Ink.Centre(ink[0]), Ink.Centre(ink[1]), Ink.Centre(ink[2]));
 
-        Assert.True(Math.Abs(icon - count) <= 0.5, $"The icon's ink is centred {icon - count:0.00}px from the count's.");
-        Assert.True(Math.Abs(count - num) <= 0.5, $"The count's ink is centred {count - num:0.00}px from the day number's.");
+        Assert.True(Math.Abs(icon - count) <= IconTextInkTests.Tolerance, $"The icon's ink is centred {icon - count:0.00}px from the count's.");
+        Assert.True(Math.Abs(count - num) <= IconTextInkTests.Tolerance, $"The count's ink is centred {count - num:0.00}px from the day number's.");
         Assert.Empty(errors);
     }
 }
