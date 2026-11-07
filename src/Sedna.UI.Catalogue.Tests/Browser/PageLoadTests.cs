@@ -308,7 +308,7 @@ public class PageLoadTests(CatalogueAppFixture app)
             {
                 await sidebar.Locator($".nav-area[href='{areaHref}']").ClickAsync();
                 await sidebar.Locator($".nav-area.active[href='{areaHref}']")
-                    .WaitForAsync(new() { Timeout = 10_000 });
+                    .WaitForAsync();
             }
 
             await sidebar.Locator($".nav-link[href='{route}']").ClickAsync();
@@ -316,7 +316,7 @@ public class PageLoadTests(CatalogueAppFixture app)
             // A Playwright timeout here names the selector, which is the whole
             // diagnosis: the link for the page we are on never became active.
             await sidebar.Locator($".nav-link.active[href='{route}']")
-                .WaitForAsync(new() { Timeout = 10_000 });
+                .WaitForAsync();
 
             var active = await sidebar.Locator(".nav-link.active").AllAsync();
             var hrefs = await Task.WhenAll(active.Select(a => a.GetAttributeAsync("href")));
@@ -339,13 +339,13 @@ public class PageLoadTests(CatalogueAppFixture app)
         var sidebar = page.Locator(".cat-drawer .sidebar");
 
         await page.Locator("[aria-label='Collapse navigation']").ClickAsync();
-        await sidebar.And(page.Locator(".collapsed")).WaitForAsync(new() { Timeout = 10_000 });
+        await sidebar.And(page.Locator(".collapsed")).WaitForAsync();
 
         var other = CataloguePages.InGroup(CataloguePages.All.Single(p => p.Route == "/table").Group).First().Route;
         await sidebar.Locator($".nav-area[href='{other}']").ClickAsync();
 
-        await sidebar.And(page.Locator(":not(.collapsed)")).WaitForAsync(new() { Timeout = 10_000 });
-        await sidebar.Locator(".nav-link[href='/table']").WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 10_000 });
+        await sidebar.And(page.Locator(":not(.collapsed)")).WaitForAsync();
+        await sidebar.Locator(".nav-link[href='/table']").WaitForAsync(new() { State = WaitForSelectorState.Visible });
 
         await page.CloseAsync();
     }

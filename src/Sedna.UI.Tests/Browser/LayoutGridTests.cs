@@ -201,7 +201,7 @@ public class LayoutGridTests : ScriptTestBase
 
         // Playwright refuses to click an element that is covered or clipped away, so
         // this asks the reader's question directly: can the last item be reached.
-        await page.ClickAsync("#last", new() { Timeout = 5_000 });
+        await page.ClickAsync("#last");
         Assert.Empty(errors);
     }
 

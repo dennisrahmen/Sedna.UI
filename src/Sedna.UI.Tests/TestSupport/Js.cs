@@ -63,20 +63,30 @@ internal static class Js
     /// Waits until a scroller stops moving — the document with no selector, else the first
     /// element the selector finds. WebKit on Linux animates a wheel scroll over several frames,
     /// so a position read straight after the wheel is one on the way, not where it lands.
+    /// Counted in frames, and given <paramref name="from"/> — the position as
+    /// <c>"left,top"</c> before the input — it first waits for the scroll to begin, since
+    /// under load the input reaches the scroller frames after it was sent.
     /// </summary>
-    public static Task ScrollAtRest(IPage page, string? selector = null) =>
+    public static Task ScrollAtRest(IPage page, string? selector = null, string? from = null) =>
         page.EvaluateAsync("""
-            async sel => {
+            async ([sel, from]) => {
               const el = sel ? document.querySelector(sel) : document.scrollingElement;
-              const at = () => [el.scrollLeft, el.scrollTop].join();
-              let was = at();
-              for (let i = 0; i < 50; i++) {
-                await new Promise(r => setTimeout(r, 100));
+              const at = () => el.scrollLeft + ',' + el.scrollTop;
+              const frame = () => new Promise(r => requestAnimationFrame(r));
+              for (let i = 0; from !== null && at() === from && i < 600; i++) await frame();
+              for (let still = 0, was = at(); still < 5; ) {
+                await frame();
                 const now = at();
-                if (now === was) return;
+                still = now === was ? still + 1 : 0;
                 was = now;
               }
             }
+            """, new object?[] { selector, from });
+
+    /// <summary>A scroller's position as <see cref="ScrollAtRest"/> takes it.</summary>
+    public static Task<string> ScrollPosition(IPage page, string? selector = null) =>
+        page.EvaluateAsync<string>("""
+            sel => { const el = sel ? document.querySelector(sel) : document.scrollingElement; return el.scrollLeft + ',' + el.scrollTop; }
             """, selector);
 
     public static Task Run(IPage page, string script, object? arg) =>

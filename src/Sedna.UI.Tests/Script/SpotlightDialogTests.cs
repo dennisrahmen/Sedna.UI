@@ -150,8 +150,7 @@ public class SpotlightDialogTests : ScriptTestBase
         await Js.Run(page, 
             "() => window.step = sednaUi.spotlight.follow('#hole', '#key-name', { pad: 0 })");
         await page.WaitForFunctionAsync(
-            "() => document.getElementById('hole').matches(':popover-open')",
-            null, new() { Timeout = 4_000 });
+            "() => document.getElementById('hole').matches(':popover-open')");
 
         // The box, in the viewport both are measured in: exactly the control.
         var box = await page.EvaluateAsync<double[]>("""
@@ -216,8 +215,7 @@ public class SpotlightDialogTests : ScriptTestBase
         await page.WaitForFunctionAsync("() => !document.getElementById('panel').open");
         // …and the bubble comes home rather than going with it.
         await page.WaitForFunctionAsync(
-            "() => document.getElementById('tip').parentElement.id === 'stage'",
-            null, new() { Timeout = 4_000 });
+            "() => document.getElementById('tip').parentElement.id === 'stage'");
         Assert.False(await page.EvaluateAsync<bool>(
             "() => document.getElementById('tip').hasAttribute('popover')"));
 
@@ -336,8 +334,7 @@ public class SpotlightDialogTests : ScriptTestBase
         await Js.Run(page, "() => { sednaUi.modal.show('panel'); }");
 
         await page.WaitForFunctionAsync(
-            "() => document.getElementById('hole').matches(':popover-open')",
-            null, new() { Timeout = 4_000 });
+            "() => document.getElementById('hole').matches(':popover-open')");
         Assert.NotEqual("none", await page.EvaluateAsync<string>(
             "() => document.getElementById('hole').style.display"));
 
@@ -368,7 +365,7 @@ public class SpotlightDialogTests : ScriptTestBase
                 return Math.abs(parseFloat(h.top) - t.top) <= 1
                     && Math.abs(parseFloat(h.left) - t.left) <= 1;
             }
-            """, null, new() { Timeout = 4_000 });
+            """);
 
         Assert.Empty(errors);
     }

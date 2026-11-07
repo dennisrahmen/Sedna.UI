@@ -176,7 +176,8 @@ public class PaletteTests : ScriptTestBase
                 sednaUi.palette.register([{ label: 'Open the queue', href: '/queue' }]);
                 sednaUi.palette.open();
                 document.querySelector('.palette-item').click();
-                setTimeout(() => resolve(seen), 500);
+                // Every handler the click set off has run two frames later.
+                requestAnimationFrame(() => requestAnimationFrame(() => resolve(seen)));
             })
             """);
 

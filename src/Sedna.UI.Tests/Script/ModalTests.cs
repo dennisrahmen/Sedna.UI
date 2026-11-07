@@ -1,3 +1,4 @@
+using Microsoft.Playwright;
 using Sedna.UI.Tests.TestSupport;
 
 namespace Sedna.UI.Tests;
@@ -44,16 +45,12 @@ public class ModalTests : ScriptTestBase
 
     // Parked on window so the click and the await are separate steps — awaiting the
     // evaluate call itself would wait for a reader who is this test.
-    private const string ShowAsk = "() => { window.__answer = sednaUi.modal.show('ask'); }";
+    private const string ShowAsk = "() => { window.__settled = undefined; window.__answer = sednaUi.modal.show('ask').then(v => { window.__settled = 'settled:' + v; }); }";
 
-    // Raced against a timer so a promise that never settles fails in a second with a
-    // readable message, instead of stalling until Playwright's default timeout.
-    private const string Answer = """
-        () => Promise.race([
-            window.__answer.then(v => 'settled:' + v),
-            new Promise(r => setTimeout(() => r('never settled'), 1000))
-        ])
-        """;
+    // Waited for as a result, so a promise that never settles fails with Playwright's
+    // timeout and its message rather than racing a timer that load can outrun.
+    private static async Task<string> Settled(IPage page) =>
+        await (await page.WaitForFunctionAsync("() => window.__settled")).JsonValueAsync<string>();
 
     [Fact]
     public async Task Show_resolves_with_the_value_of_the_dialog_method_button_pressed()
@@ -64,7 +61,7 @@ public class ModalTests : ScriptTestBase
         await Js.Run(page, ShowAsk);
         await page.Locator("#delete").ClickAsync();
 
-        Assert.Equal("settled:delete", await page.EvaluateAsync<string>(Answer));
+        Assert.Equal("settled:delete", await Settled(page));
     }
 
     [Fact]
@@ -75,14 +72,14 @@ public class ModalTests : ScriptTestBase
 
         await Js.Run(page, ShowAsk);
         await page.Locator("#keep").ClickAsync();
-        Assert.Equal("settled:null", await page.EvaluateAsync<string>(Answer));
+        Assert.Equal("settled:null", await Settled(page));
 
         // The platform keeps the last returnValue, so show() clears it as the dialog
         // opens — or Escape here would report the previous opening's button.
         await Js.Run(page, "() => { document.getElementById('ask').returnValue = 'stale'; }");
         await Js.Run(page, ShowAsk);
         await page.Keyboard.PressAsync("Escape");
-        Assert.Equal("settled:null", await page.EvaluateAsync<string>(Answer));
+        Assert.Equal("settled:null", await Settled(page));
     }
 
     [Fact]
@@ -101,7 +98,7 @@ public class ModalTests : ScriptTestBase
         await Js.Run(page, ShowAsk);
         await Js.Run(page, "() => document.getElementById('ask').close('delete')");
 
-        Assert.Equal("settled:delete", await page.EvaluateAsync<string>(Answer));
+        Assert.Equal("settled:delete", await Settled(page));
     }
 
     [Fact]
@@ -115,7 +112,7 @@ public class ModalTests : ScriptTestBase
         await Js.Run(page, ShowAsk);
         await Js.Run(page, "() => document.getElementById('ask').remove()");
 
-        Assert.Equal("settled:null", await page.EvaluateAsync<string>(Answer));
+        Assert.Equal("settled:null", await Settled(page));
     }
 
     [Fact]
@@ -154,7 +151,9 @@ public class ModalTests : ScriptTestBase
             async () => {
                 const d = document.getElementById('panel');
                 sednaUi.modal.show('panel');
-                await new Promise(r => setTimeout(r, 400));
+                // The open slide finished, by the animations' own clock.
+                await new Promise(r => requestAnimationFrame(r));
+                await Promise.all(d.getAnimations().map(a => a.finished));
                 d.close();
                 // In an engine without `overlay` the slide is the library's own
                 // (42-modal-exit.js), and idle waits for it the same way.

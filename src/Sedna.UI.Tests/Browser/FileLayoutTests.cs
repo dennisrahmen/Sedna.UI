@@ -88,16 +88,14 @@ public class FileLayoutTests : ScriptTestBase
             await page.EvaluateAsync<string>($"() => getComputedStyle(document.getElementById('{id}')).borderTopColor");
 
         await page.Mouse.MoveAsync(0, 400);
+        await Js.Settle(page);
         Assert.Equal(0, await Opacity("c2"));
         var unselected = await Border("t1");
 
         await page.Locator("#i1").CheckAsync(new() { Force = true });
         await page.Mouse.MoveAsync(0, 400);
-        // Until the transitions have run, not for a fixed time: under load a quarter of a
-        // second was not always enough.
-        await page.WaitForFunctionAsync(
-            "u => getComputedStyle(document.getElementById('t1')).borderTopColor !== u && parseFloat(getComputedStyle(document.getElementById('c2')).opacity) === 1",
-            unselected, new() { Timeout = 5000 });
+        // Where the transitions end, by the animations' own clock.
+        await Js.Settle(page);
 
         Assert.NotEqual(unselected, await Border("t1"));
         Assert.Equal(1, await Opacity("c2"));

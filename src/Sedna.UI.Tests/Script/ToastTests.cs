@@ -272,7 +272,7 @@ public class ToastTests : ScriptTestBase
         Assert.True(probe.GetProperty("onTop").GetBoolean(), "The toast is painted under the dialog.");
 
         // Reachable, not merely painted: an inert close button would not take the click.
-        await page.Locator(".toast-close").ClickAsync(new() { Timeout = 2000 });
+        await page.Locator(".toast-close").ClickAsync();
         Assert.Equal(0, await page.Locator(".toast").CountAsync());
 
         // A toast outliving the dialog goes back to <body>, still above the page.
@@ -314,7 +314,7 @@ public class ToastTests : ScriptTestBase
 
         await page.WaitForFunctionAsync(
             "() => document.querySelector('[data-sedna-toasts]').parentElement.id === 'dlg'");
-        await page.Locator(".toast-close").ClickAsync(new() { Timeout = 2000 });
+        await page.Locator(".toast-close").ClickAsync();
         Assert.Equal(0, await page.Locator(".toast").CountAsync());
     }
 

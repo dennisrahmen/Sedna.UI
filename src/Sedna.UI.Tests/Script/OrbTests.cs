@@ -22,8 +22,8 @@ public class OrbTests : ScriptTestBase
         "solving", "writing", "connecting", "planning", "shaping", "reading", "remembering", "syncing", "analyzing",
     ];
 
-    private async Task<IPage> OpenOrb(string body, bool reduced = false) =>
-        await Open(body, head: StylesheetTag, reducedMotion: reduced ? ReducedMotion.Reduce : ReducedMotion.NoPreference);
+    private async Task<IPage> OpenOrb(string body, bool reduced = false, DateTime? clockPausedAt = null) =>
+        await Open(body, head: StylesheetTag, reducedMotion: reduced ? ReducedMotion.Reduce : ReducedMotion.NoPreference, clockPausedAt: clockPausedAt);
 
     private static async Task Drawn(IPage page, string selector) =>
         await page.WaitForFunctionAsync(
@@ -153,26 +153,33 @@ public class OrbTests : ScriptTestBase
         if (NoBrowser) return;
         // Below 72px a dot moves well under a pixel a frame, so those orbs draw at most
         // thirty times a second; the finest drawing at most sixty — on any display. Counted
-        // by the canvas being cleared, which is the first thing every frame of an orb does.
-        var page = await OpenOrb("""
+        // by the canvas being cleared, which is the first thing every frame of an orb does —
+        // over one second of the page's own clock, which also times its frames, so a loaded
+        // machine dropping frames cannot make both orbs draw on every frame it has.
+        var page = await OpenOrb(clockPausedAt: new DateTime(2026, 1, 5, 9, 0, 0), body: """
             <span class="orb" id="small" data-orb="searching" data-orb-eager style="--orb-size: 32px" aria-label="Searching"></span>
             <span class="orb" id="large" data-orb="searching" data-orb-eager style="--orb-size: 96px" aria-label="Searching"></span>
             """);
+        await page.Clock.RunForAsync(500);
         await Drawn(page, "#small");
         await Drawn(page, "#large");
 
-        var counts = await page.EvaluateAsync<int[]>("""
-            async () => {
+        await Js.Run(page, """
+            () => {
                 const clear = CanvasRenderingContext2D.prototype.clearRect;
-                const seen = new Map();
-                CanvasRenderingContext2D.prototype.clearRect = function (...a) { seen.set(this.canvas, (seen.get(this.canvas) || 0) + 1); return clear.apply(this, a); };
-                await new Promise(r => setTimeout(r, 1000));
-                CanvasRenderingContext2D.prototype.clearRect = clear;
-                return ['#small', '#large'].map(id => seen.get(document.querySelector(id + ' > canvas')) || 0);
+                window.__orbClears = new Map();
+                window.__orbClear = clear;
+                CanvasRenderingContext2D.prototype.clearRect = function (...a) { __orbClears.set(this.canvas, (__orbClears.get(this.canvas) || 0) + 1); return clear.apply(this, a); };
+            }
+            """);
+        await page.Clock.RunForAsync(1000);
+        var counts = await page.EvaluateAsync<int[]>("""
+            () => {
+                CanvasRenderingContext2D.prototype.clearRect = __orbClear;
+                return ['#small', '#large'].map(id => __orbClears.get(document.querySelector(id + ' > canvas')) || 0);
             }
             """);
 
-        // A ratio rather than two rates, so a slow machine dropping frames does not fail it.
         Assert.True(counts[0] > 0 && counts[0] <= 34, $"The small orb drew {counts[0]} times in a second.");
         Assert.True(counts[1] <= 64, $"The large orb drew {counts[1]} times in a second.");
         Assert.True(counts[0] * 1.6 <= counts[1], $"The small orb drew {counts[0]} times and the large {counts[1]}.");
