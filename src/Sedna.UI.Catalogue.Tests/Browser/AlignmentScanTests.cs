@@ -239,7 +239,9 @@ public class AlignmentScanTests(CatalogueAppFixture app)
           const style = document.createElement('style');
           // No scrollbar while the page is measured: WebKit takes its picture without one, and a
           // layout that fits what the width allows — a year of small months — reflows when it goes.
-          style.textContent = '[class^="ri-"]::before, [class*=" ri-"]::before { content: "\\eb7c" !important; } *, *::before, *::after { caret-color: transparent !important; } html { scrollbar-width: none !important; } ::-webkit-scrollbar { display: none !important; }';
+          // No hover hint either: scrolling under a resting pointer hovers whatever passes under
+          // it, and the hint it shows a moment later is drawn over what is being measured.
+          style.textContent = '[class^="ri-"]::before, [class*=" ri-"]::before { content: "\\eb7c" !important; } *, *::before, *::after { caret-color: transparent !important; } html { scrollbar-width: none !important; } ::-webkit-scrollbar { display: none !important; } .sedna-tip { display: none !important; }';
           document.head.appendChild(style);
           const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
           for (let n = walker.nextNode(); n; n = walker.nextNode()) {
