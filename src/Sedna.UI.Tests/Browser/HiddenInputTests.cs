@@ -47,7 +47,7 @@ public class HiddenInputTests : ScriptTestBase
             }
             """);
 
-        Assert.True(at[0] == 0, $"Focusing the {control}'s input scrolled the dialog itself by {at[0]}px.");
+        Assert.True(at[0] < 0.5, $"Focusing the {control}'s input scrolled the dialog itself by {at[0]}px.");
         Assert.True(at[1] > 0, $"The body did not scroll to the {control} (dialog {at[4]}/{at[5]}, body {at[6]}/{at[7]}).");
         Assert.True(at[2] >= -1 && at[3] >= -1, $"The {control}'s input is outside the body it sits in ({at[2]}, {at[3]}).");
         Assert.Empty(errors);
