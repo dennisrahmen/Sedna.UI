@@ -133,7 +133,7 @@ public class DragTests : ScriptTestBase
         await page.Mouse.DownAsync();
         await page.Mouse.MoveAsync(from.X, from.Y + 8, new() { Steps = 2 });
         await page.Mouse.MoveAsync(to.X, to.Y, new() { Steps = 12 });
-        await page.WaitForTimeoutAsync(50);
+        await Js.Frames(page);
         if (release) await page.Mouse.UpAsync();
     }
 
@@ -325,7 +325,13 @@ public class DragTests : ScriptTestBase
 
         var bottom = await Point(page, "#scroller", fy: 0.97f);
         await MouseDrag(page, await Point(page, "[data-drag-item=r1]"), bottom, release: false);
-        await page.WaitForTimeoutAsync(900);
+        // Until it has scrolled and the place it would drop has followed past the seventh row
+        // (the dragged row leaves the count, so that is an index past 6) — not for a fixed
+        // time: the scrolling runs on frames, and a loaded machine paints fewer of them.
+        await page.WaitForFunctionAsync("""
+            () => document.getElementById('scroller').scrollTop > 120
+               && [...document.querySelectorAll('#scroller [data-drag-item]')].findIndex(e => e.hasAttribute('data-drop-edge')) > 7
+            """, null, new() { Timeout = 10_000 });
 
         var scrolled = await page.EvaluateAsync<double>("() => document.getElementById('scroller').scrollTop");
         Assert.True(scrolled > 120, $"The scroller moved {scrolled}px under a drag held at its edge.");
@@ -372,11 +378,9 @@ public class DragTests : ScriptTestBase
         var to = await Point(page, "[data-drag-item=c]", fy: 0.8f);
 
         await Touch(cdp, "touchStart", from);
-        await page.WaitForTimeoutAsync(450);
         await Assertions.Expect(page.Locator("[data-drag-item=a]")).ToHaveAttributeAsync("data-dragging", "pointer");
 
         await TouchMove(cdp, from, to, steps: 10);
-        await page.WaitForTimeoutAsync(50);
         await Assertions.Expect(page.Locator("[data-drag-item=d]")).ToHaveAttributeAsync("data-drop-edge", "before");
         await Touch(cdp, "touchEnd", null);
 
@@ -395,7 +399,7 @@ public class DragTests : ScriptTestBase
         var from = await Point(page, "[data-drag-item=a]");
         await Touch(cdp, "touchStart", from);
         await TouchMove(cdp, from, (from.X, from.Y + 60), steps: 6);
-        await page.WaitForTimeoutAsync(450);
+        await Js.Elapse(page, 450);
         await Touch(cdp, "touchEnd", null);
 
         Assert.Empty(await Log(page));
@@ -414,7 +418,6 @@ public class DragTests : ScriptTestBase
         var to = await Point(page, "[data-drag-item=s1]", fy: 0.2f);
         await Touch(cdp, "touchStart", from);
         await TouchMove(cdp, from, to, steps: 10);
-        await page.WaitForTimeoutAsync(50);
         await Assertions.Expect(page.Locator("[data-drag-item=s2]")).ToHaveAttributeAsync("data-dragging", "pointer");
         await Touch(cdp, "touchEnd", null);
 

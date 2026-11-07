@@ -132,7 +132,7 @@ public class OrbTests : ScriptTestBase
         Assert.True(await Painted(page, "#o") > 64, "The still frame is blank.");
 
         var first = await Frame(page, "#o");
-        await page.WaitForTimeoutAsync(400);
+        await Js.Frames(page, 12);
         Assert.Equal(first, await Frame(page, "#o"));
     }
 

@@ -344,6 +344,16 @@ public class MochiTests : ScriptTestBase
                 const angle = () => { const m = new DOMMatrix(getComputedStyle(arm).transform); return Math.atan2(m.b, m.a) * 180 / Math.PI; };
                 const out = [angle()];
                 document.getElementById('m').dataset.action = 'wave';
+                angle();
+                // The arm's own transition, stepped through rather than sampled a frame at a
+                // time: under load a frame can come only once or twice in the whole change.
+                const ease = arm.getAnimations().find(a => a instanceof CSSTransition && a.transitionProperty === 'transform');
+                if (ease) {
+                    ease.pause();
+                    const end = ease.effect.getComputedTiming().endTime;
+                    for (let i = 1; i <= 20; i++) { ease.currentTime = end * i / 20; out.push(angle()); }
+                    ease.finish();
+                }
                 const t0 = performance.now();
                 while (performance.now() - t0 < 1100) {
                     await new Promise(r => requestAnimationFrame(r));
@@ -555,6 +565,16 @@ public class MochiTests : ScriptTestBase
                 const angle = () => { const m = new DOMMatrix(getComputedStyle(arm).transform); return Math.atan2(m.b, m.a) * 180 / Math.PI; };
                 const out = [angle()];
                 document.getElementById('m').dataset.action = 'wave';
+                angle();
+                // The arm's own transition, stepped through rather than sampled a frame at a
+                // time: under load a frame can come only once or twice in the whole change.
+                const ease = arm.getAnimations().find(a => a instanceof CSSTransition && a.transitionProperty === 'transform');
+                if (ease) {
+                    ease.pause();
+                    const end = ease.effect.getComputedTiming().endTime;
+                    for (let i = 1; i <= 20; i++) { ease.currentTime = end * i / 20; out.push(angle()); }
+                    ease.finish();
+                }
                 const t0 = performance.now();
                 while (performance.now() - t0 < 1100) {
                     await new Promise(r => requestAnimationFrame(r));

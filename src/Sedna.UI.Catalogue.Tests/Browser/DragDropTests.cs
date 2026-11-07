@@ -110,12 +110,13 @@ public class DragDropTests(CatalogueAppFixture app)
             });
 
         await Touch("touchStart", from);
-        await page.WaitForTimeoutAsync(450);
+        // Held until the drag has taken it, not for a fixed time.
+        await Assertions.Expect(page.Locator("[data-drag-item=orders]")).ToHaveAttributeAsync("data-dragging", "pointer");
         for (var i = 1; i <= 10; i++)
         {
             await Touch("touchMove", (from.X + (to.X + 30 - from.X) * i / 10, from.Y + (to.Y - from.Y) * i / 10));
         }
-        await page.WaitForTimeoutAsync(50);
+        await Js.Frames(page);
         await Touch("touchEnd", null);
 
         await page.WaitForFunctionAsync(

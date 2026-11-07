@@ -133,6 +133,25 @@ SEDNA_UI_BROWSER_TESTS=0 dotnet test Sedna.UI.slnx   # source scans only
 They assert computed values, never screenshots — see the decision note in
 [`architecture.md`](architecture.md#decisions-with-a-measurement-behind-them).
 
+### Waiting
+
+A test never waits on the test runner's clock: no `WaitForTimeoutAsync`, `Task.Delay` or `Thread.Sleep`,
+and `WaitTests` fails on one. Under load the page receives commands late and paints fewer frames, so a
+wait in milliseconds is too short on a slow runner and proves nothing on a fast one. Wait on what the
+test is about:
+
+| Waiting for | Use |
+|---|---|
+| a result | `WaitForFunctionAsync`, an `Expect`, a load state |
+| the library's own timer — a hold, a delay, a timeout, a debounce | `clockPausedAt`, then `page.Clock.RunForAsync(ms)` |
+| nothing to happen after a change | `Js.Frames(page)` — not on a page whose clock is paused |
+| time to pass on the page, where its clock cannot be paused | `Js.Elapse(page, ms)` |
+| an animation's middle or end | pause and seek it, or `Js.Settle(page)` |
+
+A wait written inside a page script runs on the page's clock and is fine. An expectation keeps trying for
+fifteen seconds (`TestSupport/Expectations.cs`), so it still has to come true but is not cut off on a slow
+runner.
+
 `Script/` uses the same browser for the `sednaUi` behaviour, over a fake HTTPS origin served by request
 interception rather than `file://`: `localStorage` needs a real origin, which `boot.js` depends on
 entirely, and the scripts have to be genuine `<script src>` tags because `boot.js` reads its options off

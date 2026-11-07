@@ -93,7 +93,11 @@ public class FileLayoutTests : ScriptTestBase
 
         await page.Locator("#i1").CheckAsync(new() { Force = true });
         await page.Mouse.MoveAsync(0, 400);
-        await page.WaitForTimeoutAsync(250);
+        // Until the transitions have run, not for a fixed time: under load a quarter of a
+        // second was not always enough.
+        await page.WaitForFunctionAsync(
+            "u => getComputedStyle(document.getElementById('t1')).borderTopColor !== u && parseFloat(getComputedStyle(document.getElementById('c2')).opacity) === 1",
+            unselected, new() { Timeout = 5000 });
 
         Assert.NotEqual(unselected, await Border("t1"));
         Assert.Equal(1, await Opacity("c2"));

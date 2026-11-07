@@ -306,7 +306,7 @@ public class GraphInteractionTests : GraphTestBase
         await ClearLog(page);
 
         await Click(page, "api");
-        await page.WaitForTimeoutAsync(50);
+        await Js.Elapse(page, 50);
 
         Assert.Equal(0, await Eval<int>(page, "() => cyOf('g').$(':selected').length"));
         Assert.Empty(await Log(page, "sedna-graph-select"));
@@ -362,7 +362,7 @@ public class GraphInteractionTests : GraphTestBase
         var scrolled = await Eval<double>(page, "() => scrollY");
         // The engine ignores the wheel for a moment after the page has scrolled, so a
         // scroll still under way does not turn into a zoom as the canvas passes the pointer.
-        await page.WaitForTimeoutAsync(300);
+        await Js.Elapse(page, 300);
 
         // Pressed: the wheel is the graph's.
         box = (await page.Locator("#g .graph-canvas").BoundingBoxAsync())!;
@@ -400,7 +400,7 @@ public class GraphInteractionTests : GraphTestBase
         Assert.True(open.Cancelable);
         Assert.Equal("api", open.Detail.GetProperty("id").GetString());
         Assert.False(open.Detail.GetProperty("keyboard").GetBoolean());
-        await page.WaitForTimeoutAsync(100);
+        await Js.Elapse(page, 100);
         Assert.EndsWith("/fixture.html", page.Url, StringComparison.Ordinal);
         AssertQuiet();
     }
@@ -647,7 +647,7 @@ public class GraphInteractionTests : GraphTestBase
 
         await Click(page, "api", MouseButton.Right);
         await Heard(page, "sedna-graph-context");
-        await page.WaitForTimeoutAsync(50);
+        await Js.Elapse(page, 50);
         await Assertions.Expect(page.Locator("#menu")).ToBeHiddenAsync();
         AssertQuiet();
     }
