@@ -9305,7 +9305,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
 .chat-composer-send > .btn { border-radius: 50%; }
 .citation:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
-.source-card-n:not(:has(> *)) { display: block; text-align: center; text-box: trim-both cap alphabetic; padding-block: calc((16px - 1cap) / 2); }
+.source-card-n:not(:has(> *)) { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .chat-message--agent .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }
 }
 @layer sedna.paint {
