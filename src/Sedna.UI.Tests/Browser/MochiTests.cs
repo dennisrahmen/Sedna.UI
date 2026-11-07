@@ -493,7 +493,7 @@ public class MochiTests : ScriptTestBase
 
     /// <summary>How many loops are stepping inside #m right now.</summary>
     private const string Running = """
-        () => document.getAnimations().filter(a => a.playState === 'running' && a.effect.target.closest('#m')).length
+        () => document.getAnimations().filter(a => a instanceof CSSAnimation && a.playState === 'running' && a.effect.target.closest('#m')).length
         """;
 
     /// <summary>The most loops stepping inside #m on any frame across half a second.</summary>
@@ -503,7 +503,7 @@ public class MochiTests : ScriptTestBase
             const t0 = performance.now();
             while (performance.now() - t0 < 500) {
                 await new Promise(r => requestAnimationFrame(r));
-                most = Math.max(most, document.getAnimations().filter(a => a.playState === 'running' && a.effect.target.closest('#m')).length);
+                most = Math.max(most, document.getAnimations().filter(a => a instanceof CSSAnimation && a.playState === 'running' && a.effect.target.closest('#m')).length);
             }
             return most;
         }
