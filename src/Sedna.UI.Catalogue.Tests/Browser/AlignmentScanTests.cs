@@ -52,7 +52,11 @@ public class AlignmentScanTests(CatalogueAppFixture app)
         return data;
     }
 
-    private sealed record Box(string Kind, string Label, double X, double Y, double W, double H, int[]? Fg = null, double[]? Line = null);
+    private sealed record Box(string Kind, string Label, double X, double Y, double W, double H, int K, int[]? Fg = null, double[]? Line = null)
+    {
+        /// <summary>The same box where its element stands now, <paramref name="dy"/> lower.</summary>
+        public Box Shifted(double dy) => this with { Y = Y + dy, Line = Line is [var t, var b] ? [t + dy, b + dy] : null };
+    }
     private sealed record Row(string Path, double Centre, Box[] Items);
     private sealed record Scan(Row[] Rows, Box[] Boxes, string[] Bare, double Height);
 
@@ -69,6 +73,7 @@ public class AlignmentScanTests(CatalogueAppFixture app)
             ReducedMotion = ReducedMotion.Reduce,
         });
         List<string>? found = null;
+        string? moved = null;
         try
         {
             // A page that moves while it is measured — a render that lands between reading
@@ -77,83 +82,132 @@ public class AlignmentScanTests(CatalogueAppFixture app)
             {
                 var page = await context.NewPageAsync();
                 await page.GotoAsync(app.Url(route), new() { WaitUntil = WaitUntilState.NetworkIdle });
-                // As tall as the page, so the full-page picture needs no resize: WebKit makes the
-                // viewport the page's height to take one, and what is sized by the viewport — a
-                // sticky sidebar — moves under the positions already read.
-                for (var tries = 0; tries < 3; tries++)
-                {
-                    var tall = Math.Clamp(await page.EvaluateAsync<int>("() => document.documentElement.scrollHeight"), 900, 12_000);
-                    if (tall == page.ViewportSize!.Height) break;
-                    await page.SetViewportSizeAsync(1280, tall);
-                    await Js.Frames(page);
-                }
                 var scan = System.Text.Json.JsonSerializer.Deserialize<Scan>(
                     await page.EvaluateAsync<string>(Scanner, new { density, dir }),
                     new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
                 await Js.Settle(page);
-                found = await Measure(page, scan, route);
+                (found, moved) = await Measure(page, scan, route);
                 if (found is not null) found.InsertRange(0, scan.Bare.Select(b => $"{route} {b}: a bare word beside an element"));
                 await page.CloseAsync();
             }
         }
         finally { await context.CloseAsync(); }
 
-        var problems = found ?? [$"{route}: the page kept moving while it was measured"];
+        var problems = found ?? [$"{route}: the page kept moving while it was measured — {moved}"];
         var report = string.Join(Environment.NewLine, problems);
         Assert.True(problems.Count == 0, $"{problems.Count} off their centre line:{Environment.NewLine}{report}");
     }
 
-    private static async Task<List<string>?> Measure(IPage page, Scan scan, string route)
+    /// <summary>
+    /// Where every measured element stands now: whether it is wholly in the viewport with
+    /// nothing over it, and how far it has moved from where the scan read it — a sticky
+    /// element moves with the scroll, and is measured where it is.
+    /// </summary>
+    private sealed record Where(double Y, double[][] Items);
+
+    private const string Band = """
+        () => {
+          const nodes = window.__alignNodes, at = window.__alignAt, pinned = window.__alignPinned;
+          // The middle and four points near the corners: something over only part of an item —
+          // a figure hanging over a row, a sticky bar over a scrolled one — still changes what is
+          // drawn there.
+          const points = [[0.5, 0.5], [0.2, 0.2], [0.8, 0.2], [0.2, 0.8], [0.8, 0.8]];
+          return JSON.stringify({ y: scrollY, items: nodes.map((n, k) => {
+            const r = n.getBoundingClientRect();
+            const inView = r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth;
+            const clear = inView && points.every(([fx, fy]) => {
+              const hit = document.elementFromPoint(r.left + r.width * fx, r.top + r.height * fy);
+              return !!hit && (n.contains(hit) || hit.contains(n));
+            });
+            return [clear ? 1 : 0, r.top + scrollY - at[k], pinned[k]];
+          }) });
+        }
+        """;
+
+    /// <summary>
+    /// Measured a viewport at a time, scrolled down the page: the viewport stays the size a
+    /// reader has, so nothing sized by it moves, and no picture is larger than one screen —
+    /// a whole tall page at four pixels to the pixel is more than a loaded runner's WebKit
+    /// holds. Each element is measured in the first band that shows all of it, uncovered.
+    /// </summary>
+    /// <summary>What was found, or what moved while it was being measured.</summary>
+    private sealed record Outcome(List<string>? Found, string? Moved);
+
+    private static async Task<Outcome> Measure(IPage page, Scan scan, string route)
     {
         var problems = new List<string>();
-        const double band = 1200, step = 900;
         var rows = scan.Rows.ToList();
         var boxes = scan.Boxes.ToList();
-        for (double top = 0; top < scan.Height && (rows.Count > 0 || boxes.Count > 0); top += step)
+        var viewport = page.ViewportSize!.Height;
+        var options = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        for (double top = 0; rows.Count > 0 || boxes.Count > 0; top += viewport - 300)
         {
-            var bottom = Math.Min(top + band, scan.Height);
-            var inBand = rows.Where(r => r.Items.Min(i => i.Y) >= top && r.Items.Max(i => i.Y + i.H) <= bottom).ToList();
-            var boxesInBand = boxes.Where(b => b.Y >= top && b.Y + b.H <= bottom).ToList();
-            if (inBand.Count == 0 && boxesInBand.Count == 0) continue;
-            rows.RemoveAll(inBand.Contains);
-            boxes.RemoveAll(boxesInBand.Contains);
-
-            var png = await page.ScreenshotAsync(new()
+            await Js.Run(page, "y => window.scrollTo(0, y)", top);
+            await Js.Frames(page);
+            async Task<Where> Read() => System.Text.Json.JsonSerializer.Deserialize<Where>(await page.EvaluateAsync<string>(Band), options)!;
+            // Taken again while the page moves between reading where things are and the picture,
+            // so what is measured is the page as it stays. A pinned element that moved is
+            // measured in a later band: WebKit moves one pinned to the viewport's bottom while it
+            // takes the picture.
+            var before = await Read();
+            var image = Ink.Png.Decode(await page.ScreenshotAsync());
+            var after = await Read();
+            double[] shift = [];
+            (double d, int k) moved = default;
+            for (var take = 0; ; take++)
             {
-                FullPage = true,
-                Clip = new() { X = 0, Y = (float)top, Width = 1280, Height = (float)(bottom - top) },
-            });
-            var image = Ink.Png.Decode(png);
-            if (await page.EvaluateAsync<double>("() => window.__alignMoved()") > 0.1) return null;
+                shift = before.Items.Zip(after.Items, (b, a) => Math.Abs(b[1] - a[1])).ToArray();
+                moved = shift.Select((d, k) => (d, k)).Where(x => before.Items[x.k][2] == 0).DefaultIfEmpty().MaxBy(x => x.d);
+                if (moved.d <= 0.1) break;
+                if (take == 2)
+                {
+                    var what = scan.Rows.SelectMany(r => r.Items).Concat(scan.Boxes).First(b => b.K == moved.k);
+                    return new(null, $"{what.Label} moved {moved.d:0.00}px");
+                }
+                before = after;
+                image = Ink.Png.Decode(await page.ScreenshotAsync());
+                after = await Read();
+            }
 
-            foreach (var row in inBand)
+            bool Clear(Box b) => before.Items[b.K][0] > 0 && shift[b.K] <= 0.1;
+            Box Now(Box b) => b.Shifted(before.Items[b.K][1]);
+            var origin = before.Y;
+
+            foreach (var row in rows.Where(r => r.Items.All(Clear)).ToList())
             {
+                rows.Remove(row);
+                var items = row.Items.Select(Now).ToList();
+                var centre = row.Centre + before.Items[row.Items[0].K][1];
                 // A word and an icon are measured on what is drawn; anything else — an avatar, a
                 // ring, a pill — on its box, since what it draws inside is its own design.
-                var centres = row.Items
-                    // A pixel in from its edges, where a painted item's own antialiased edge is.
-                    .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Paint(image, top, i)))
+                var centres = items
+                    .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Paint(image, origin, i)))
                     .Where(m => m.Ink is not null)
                     .Select(m => (m.Item, Centre: Ink.Centre(m.Ink!)))
                     .ToList();
                 if (centres.Count < 2) continue;
-                var off = centres.Where(c => Math.Abs(c.Centre - row.Centre) > Tolerance).ToList();
+                var off = centres.Where(c => Math.Abs(c.Centre - centre) > Tolerance).ToList();
                 if (off.Count > 0)
                     problems.Add($"{route} {row.Path}: "
-                        + string.Join(", ", off.Select(c => $"{c.Item.Kind} {c.Item.Label} {c.Centre - row.Centre:+0.00;-0.00} at ({c.Item.X:0}, {c.Item.Y:0})"))
+                        + string.Join(", ", off.Select(c => $"{c.Item.Kind} {c.Item.Label} {c.Centre - centre:+0.00;-0.00} at ({c.Item.X:0}, {c.Item.Y:0})"))
                         + " from the row's centre line");
             }
 
-            foreach (var box in boxesInBand)
+            foreach (var box in boxes.Where(Clear).ToList())
             {
-                var ink = Paint(image, top, box);
+                boxes.Remove(box);
+                var now = Now(box);
+                var ink = Paint(image, origin, now);
                 if (ink is null) continue;
-                var delta = Ink.Centre(ink) - (box.Y + box.H / 2);
+                var delta = Ink.Centre(ink) - (now.Y + now.H / 2);
                 if (Math.Abs(delta) > Tolerance)
                     problems.Add($"{route} {box.Label}: its text is {delta:+0.00;-0.00}px from the middle of its box");
             }
+
+            // The last band: what was never wholly shown uncovered is not on screen to measure.
+            if (origin + viewport >= scan.Height - 1) break;
         }
-        return problems;
+        return new(problems, null);
     }
 
     /// <summary>
@@ -183,7 +237,9 @@ public class AlignmentScanTests(CatalogueAppFixture app)
           if (density === 'comfortable') root.removeAttribute('data-density'); else root.setAttribute('data-density', density);
           root.setAttribute('dir', dir);
           const style = document.createElement('style');
-          style.textContent = '[class^="ri-"]::before, [class*=" ri-"]::before { content: "\\eb7c" !important; } *, *::before, *::after { caret-color: transparent !important; }';
+          // No scrollbar while the page is measured: WebKit takes its picture without one, and a
+          // layout that fits what the width allows — a year of small months — reflows when it goes.
+          style.textContent = '[class^="ri-"]::before, [class*=" ri-"]::before { content: "\\eb7c" !important; } *, *::before, *::after { caret-color: transparent !important; } html { scrollbar-width: none !important; } ::-webkit-scrollbar { display: none !important; }';
           document.head.appendChild(style);
           const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
           for (let n = walker.nextNode(); n; n = walker.nextNode()) {
@@ -318,39 +374,28 @@ public class AlignmentScanTests(CatalogueAppFixture app)
               }
             }
           }
-          // What something else covers — a sticky footer over a scrolled list — is not on
-          // screen to be measured. Hit-tested a viewport at a time, then back to the top.
-          // A drawing that ignores the pointer — a decoration over the page — covers what is
-          // under it all the same, so everything is hit-testable while this runs.
+          // Everything is hit-testable while the page is measured: a drawing that ignores the
+          // pointer — a decoration over the page — covers what is under it all the same.
           const hittable = document.createElement('style');
           hittable.textContent = '*, *::before, *::after { pointer-events: auto !important; }';
           document.head.appendChild(hittable);
+          // Every measured element by number, with where it stood, for each band to read again.
           const all = [...rows.flatMap(r => r.items), ...boxes];
-          const seen = new Map();
-          const height = document.documentElement.scrollHeight;
-          for (let y = 0; y < height; y += Math.max(200, innerHeight - 100)) {
-            window.scrollTo(0, y);
-            for (const it of all) {
-              if (seen.has(it)) continue;
-              const r = it.node.getBoundingClientRect();
-              if (r.top < 0 || r.bottom > innerHeight || r.left < 0 || r.right > innerWidth) continue;
-              // The middle and four points near the corners: something over only part of an
-              // item — a figure hanging over a row — still changes what is drawn there.
-              const points = [[0.5, 0.5], [0.2, 0.2], [0.8, 0.2], [0.2, 0.8], [0.8, 0.8]];
-              seen.set(it, points.every(([fx, fy]) => {
-                const hit = document.elementFromPoint(r.left + r.width * fx, r.top + r.height * fy);
-                return !!hit && (it.node.contains(hit) || hit.contains(it.node));
-              }));
+          all.forEach((it, k) => { it.k = k; });
+          window.__alignNodes = all.map(it => it.node);
+          window.__alignAt = all.map(it => it.node.getBoundingClientRect().top + scrollY);
+          // Pinned — sticky or fixed, or inside something that is: placed by the viewport, so
+          // it moves with the scroll, and WebKit moves one pinned to the viewport's bottom while
+          // it takes a picture.
+          window.__alignPinned = all.map(it => {
+            for (let e = it.node; e && e !== document.body; e = e.parentElement) {
+              const p = getComputedStyle(e).position;
+              if (p === 'sticky' || p === 'fixed') return 1;
             }
-          }
-          window.scrollTo(0, 0);
-          hittable.remove();
-          const shown = it => seen.get(it) !== false;
-          // Where each measured element was, to tell whether the page moved before the picture.
-          const placed = all.map(it => [it.node, it.node.getBoundingClientRect().top + scrollY]);
-          window.__alignMoved = () => Math.max(0, ...placed.map(([n, y]) => Math.abs(n.getBoundingClientRect().top + scrollY - y)));
-          const keptRows = rows.map(r => ({ ...r, items: r.items.filter(shown) })).filter(r => r.items.length >= 2);
-          return JSON.stringify({ rows: keptRows, boxes: boxes.filter(shown), bare, height });
+            return 0;
+          });
+          const height = document.documentElement.scrollHeight;
+          return JSON.stringify({ rows, boxes, bare, height });
         }
         """;
 }
