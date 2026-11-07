@@ -157,7 +157,7 @@ public class AlignmentScanTests(CatalogueAppFixture app)
             for (var take = 0; ; take++)
             {
                 shift = before.Items.Zip(after.Items, (b, a) => Math.Abs(b[1] - a[1])).ToArray();
-                moved = shift.Select((d, k) => (d, k)).Where(x => before.Items[x.k][2] == 0).DefaultIfEmpty().MaxBy(x => x.d);
+                moved = shift.Select((d, k) => (d, k)).Where(x => before.Items[x.k][2] < 0.5).DefaultIfEmpty().MaxBy(x => x.d);
                 if (moved.d <= 0.1) break;
                 if (take == 2)
                 {
