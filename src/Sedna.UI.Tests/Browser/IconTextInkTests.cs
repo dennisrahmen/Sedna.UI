@@ -29,7 +29,10 @@ public class IconTextInkTests : ScriptTestBase
     /// WebKit on Linux, also set the line itself on a whole CSS pixel, so where a font's
     /// metrics put a box between pixels a word lands up to a pixel off.
     /// </summary>
-    internal static double Tolerance => BrowserEngine.IsWebKit && OperatingSystem.IsMacOS() ? 0.5 : 1.0;
+    internal static double Tolerance => (BrowserEngine.IsWebKit && OperatingSystem.IsMacOS() ? 0.5 : 1.0) + Measured;
+
+    /// <summary>What the measurement itself is good to: a sixteenth of a pixel, as the page scan allows.</summary>
+    private const double Measured = 1.0 / 16;
 
     private const string Icon = """<i class="ri-checkbox-blank-fill" id="i"></i>""";
 
