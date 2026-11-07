@@ -75,6 +75,16 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                 {
                     var page = await context.NewPageAsync();
                     await page.GotoAsync(app.Url(route), new() { WaitUntil = WaitUntilState.NetworkIdle });
+                    // As tall as the page, so the full-page picture needs no resize: WebKit makes the
+                    // viewport the page's height to take one, and what is sized by the viewport — a
+                    // sticky sidebar — moves under the positions already read.
+                    for (var tries = 0; tries < 3; tries++)
+                    {
+                        var tall = Math.Clamp(await page.EvaluateAsync<int>("() => document.documentElement.scrollHeight"), 900, 12_000);
+                        if (tall == page.ViewportSize!.Height) break;
+                        await page.SetViewportSizeAsync(1280, tall);
+                        await Js.Frames(page);
+                    }
                     var scan = System.Text.Json.JsonSerializer.Deserialize<Scan>(
                         await page.EvaluateAsync<string>(Scanner, new { density, dir }),
                         new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
