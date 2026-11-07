@@ -137,7 +137,7 @@ public class WorkflowFollowTests : ScriptTestBase
         // Released: the run moves on and the diagram stays where the reader left it.
         var left = await page.EvaluateAsync<double>("() => document.getElementById('wf').scrollLeft");
         await Js.Run(page, Move(6, 7));
-        await page.WaitForTimeoutAsync(300);
+        await Js.Frames(page, 6);
         Assert.Equal(left, await page.EvaluateAsync<double>("() => document.getElementById('wf').scrollLeft"));
 
         // Back into view: following again.
@@ -157,7 +157,7 @@ public class WorkflowFollowTests : ScriptTestBase
 
         await Js.Run(page, "() => { document.getElementById('wf').scrollLeft = 0; }");
         await Js.Run(page, "() => { for (let i = 0; i < 10; i++) document.getElementById('m' + i).textContent = 'a much longer meta line than before'; }");
-        await page.WaitForTimeoutAsync(200);
+        await Js.Frames(page, 6);
         Assert.False(await page.EvaluateAsync<bool>(Paused));
 
         await Js.Run(page, Move(6, 8));
@@ -185,11 +185,11 @@ public class WorkflowFollowTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenDiagram(Diagram(running: 6, attributes: ""));
-        await page.WaitForTimeoutAsync(200);
+        await Js.Frames(page, 6);
         Assert.Equal(0, await page.EvaluateAsync<double>("() => document.getElementById('wf').scrollLeft"));
 
         await Js.Run(page, Move(6, 8));
-        await page.WaitForTimeoutAsync(200);
+        await Js.Frames(page, 6);
         Assert.Equal(0, await page.EvaluateAsync<double>("() => document.getElementById('wf').scrollLeft"));
 
         // Switched on later, it goes to the step at work.

@@ -235,18 +235,20 @@ public class NavTests : ScriptTestBase
     public async Task The_bottom_bar_steps_away_on_the_way_down_and_returns_on_the_way_up()
     {
         if (NoBrowser) return;
-        var (page, _) = await OpenStyled(BottombarFixture);
+        // The moment after the bar moves is measured on the page clock, which is paused, so it
+        // passes exactly when the test runs it.
+        var (page, _) = await OpenStyled(BottombarFixture, clockPausedAt: new DateTime(2030, 1, 1));
         await page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
 
         await Js.Run(page, "() => document.getElementById('page').scrollTop = 400");
         await page.WaitForFunctionAsync("() => document.getElementById('bar').hasAttribute('data-away')");
         Assert.Equal(0, await page.EvaluateAsync<double>("() => document.querySelector('.bottombar-items').getBoundingClientRect().height"));
 
-        // The scroller's resize is not acted on for a moment after the bar moves; wait that out.
-        await page.WaitForTimeoutAsync(500);
+        // The scroller's resize is not acted on for a moment after the bar moves; run that out.
+        await page.Clock.RunForAsync(500);
         await Js.Run(page, "() => document.getElementById('page').scrollTop = 200");
         await page.WaitForFunctionAsync("() => !document.getElementById('bar').hasAttribute('data-away')");
-        await page.WaitForTimeoutAsync(500);
+        await page.Clock.RunForAsync(500);
 
         // Focus arriving in a bar that is away brings it back, so a keyboard user never lands on an item they cannot see.
         await Js.Run(page, "() => document.getElementById('page').scrollTop = 900");
@@ -261,12 +263,12 @@ public class NavTests : ScriptTestBase
         if (NoBrowser) return;
         // Barely taller than its scroller: the bar leaving grows the scroller, the browser
         // clamps scrollTop upwards, and that must not read as the reader scrolling up.
-        var (page, _) = await OpenStyled(BottombarFixture.Replace("height:2000px", "height:520px", StringComparison.Ordinal));
+        var (page, _) = await OpenStyled(BottombarFixture.Replace("height:2000px", "height:520px", StringComparison.Ordinal), clockPausedAt: new DateTime(2030, 1, 1));
         await page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
 
         await Js.Run(page, "() => { const p = document.getElementById('page'); p.scrollTop = p.scrollHeight; }");
         await page.WaitForFunctionAsync("() => document.getElementById('bar').hasAttribute('data-away')");
-        await page.WaitForTimeoutAsync(700);
+        await page.Clock.RunForAsync(700);
 
         Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('bar').hasAttribute('data-away')"));
     }

@@ -126,10 +126,14 @@ public class ToastPresentTests : ScriptTestBase
             }
             """);
         await page.WaitForFunctionAsync("() => !document.querySelector('.toast').hidden");
-        await page.ClickAsync(".toast-body");
 
-        // The toast settled with its value, and the link went where it points.
-        await page.WaitForURLAsync("**/orders/4182");
+        // The toast settled with its value, and the link went where it points: the
+        // navigation is waited for from the click on, and counted once it commits — the
+        // new page's load is not what is under test, and under load it can take longer.
+        var navigated = page.WaitForURLAsync("**/orders/4182", new() { WaitUntil = WaitUntilState.Commit });
+        await page.ClickAsync(".toast-body");
+        await navigated;
+        await page.WaitForFunctionAsync("() => sessionStorage.getItem('ended') !== null");
         Assert.Equal("open", await page.EvaluateAsync<string>("() => sessionStorage.getItem('ended')"));
     }
 
@@ -174,13 +178,16 @@ public class ToastPresentTests : ScriptTestBase
     public async Task The_pointer_on_a_template_toast_holds_its_timer()
     {
         if (NoBrowser) return;
-        var page = await Open(Templates);
+        var page = await Open(Templates, clockPausedAt: new DateTime(2030, 1, 1));
         await page.EvaluateAsync<int>("() => sednaUi.toast.present('review', { title: 'Check this' }, { timeout: 1200 })");
-        await page.WaitForFunctionAsync("() => !document.querySelector('.toast').hidden");
+        // The toast is shown once the live region has settled, on the paused clock too.
+        await page.Clock.RunForAsync(200);
+        await Assertions.Expect(page.Locator(".toast")).ToBeVisibleAsync();
         await page.HoverAsync(".toast");
-        await page.WaitForTimeoutAsync(1600);
+        await page.Clock.RunForAsync(1600);
         Assert.Equal(1, await page.Locator(".toast").CountAsync());
         await page.Mouse.MoveAsync(1, 1);
-        await Assertions.Expect(page.Locator(".toast")).ToHaveCountAsync(0, new() { Timeout = 3000 });
+        await page.Clock.RunForAsync(3000);
+        await Assertions.Expect(page.Locator(".toast")).ToHaveCountAsync(0);
     }
 }

@@ -213,10 +213,10 @@ public abstract class ScriptTestBase : BrowserTestBase
     /// Opens a fixture carrying the shipped stylesheet, and collects console errors.
     /// </summary>
     protected async Task<(IPage Page, List<string> Errors)> OpenStyled(
-        string body, string extraHead = "", float? deviceScaleFactor = null)
+        string body, string extraHead = "", float? deviceScaleFactor = null, DateTime? clockPausedAt = null)
     {
         var errors = new List<string>();
-        var page = await Open(body, head: StylesheetTag + extraHead, deviceScaleFactor: deviceScaleFactor);
+        var page = await Open(body, head: StylesheetTag + extraHead, deviceScaleFactor: deviceScaleFactor, clockPausedAt: clockPausedAt);
         page.Console += (_, message) =>
         {
             if (message.Type == "error") errors.Add(message.Text);

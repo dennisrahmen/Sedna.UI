@@ -1729,6 +1729,7 @@ window.sednaUi = window.sednaUi || {};
         var y = scroller.scrollTop;
         var last = lastY.has(scroller) ? lastY.get(scroller) : 0;
         if ((settledAt.get(scroller) || 0) > Date.now()) { lastY.set(scroller, y); return; }
+        if (y < last && y >= scroller.scrollHeight - scroller.clientHeight - 1) { lastY.set(scroller, y); return; }
         if (Math.abs(y - last) < 8) return;
         lastY.set(scroller, y);
         var away = y > last && y > 40;

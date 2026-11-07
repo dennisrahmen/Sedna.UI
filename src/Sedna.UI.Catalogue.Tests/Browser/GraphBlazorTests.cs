@@ -38,7 +38,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         await page.Locator("#" + graph).ScrollIntoViewIfNeededAsync();
         await page.WaitForSelectorAsync($"#{graph}[data-graph-state='ready']", new() { Timeout = 15_000 });
         // The first drawing travels into place; a click during it lands where a record was.
-        await page.WaitForTimeoutAsync(600);
+        await Js.Elapse(page, 600);
     }
 
     private static ILocator Example(IPage page, string graph) =>
@@ -112,7 +112,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         var before = await Cy<Dictionary<string, Dictionary<string, double>>>(page, "fulfilment", positions);
         await demo.GetByRole(AriaRole.Button, new() { Name = "Open a warehouse" }).ClickAsync();
         await demo.GetByText("6 records, 7 links").WaitForAsync(new() { Timeout = 5_000 });
-        await page.WaitForTimeoutAsync(600);
+        await Js.Elapse(page, 600);
         var after = await Cy<Dictionary<string, Dictionary<string, double>>>(page, "fulfilment", positions);
 
         Assert.True(await Cy<bool>(page, "fulfilment", "cy.getElementById('warehouse-east').nonempty()"));
@@ -160,7 +160,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         await page.Mouse.MoveAsync((from.X + to.X) / 2, (from.Y + to.Y) / 2, new() { Steps = 10 });
         await page.Mouse.MoveAsync(to.X, to.Y, new() { Steps = 10 });
         // The plugin snaps to a record it has hovered for a moment, not one passed over.
-        await page.WaitForTimeoutAsync(300);
+        await Js.Elapse(page, 300);
         await page.Mouse.UpAsync();
 
         await demo.Locator(".chip", new() { HasText = "Orders API calls Payments" }).WaitForAsync(new() { Timeout = 5_000 });
@@ -207,7 +207,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
 
         var courier = await At(page, "fulfilment", "courier");
         await page.Mouse.ClickAsync(courier.X, courier.Y);
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
 
         // wire() focuses the graph on pointerdown "so the keys carry on from there", but the
         // engine's own mousedown handler blurs the active element straight after: focus ends on

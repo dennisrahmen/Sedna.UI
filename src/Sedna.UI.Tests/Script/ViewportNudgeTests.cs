@@ -25,8 +25,9 @@ public class ViewportNudgeTests : ScriptTestBase
 
     private static async Task<double[]> After(Microsoft.Playwright.IPage page)
     {
+        // The settle and the nudge are timers, run on the paused page clock: well past both.
         await Js.Run(page, "() => window.dispatchEvent(new Event('scroll'))");
-        await page.WaitForTimeoutAsync(700);
+        await page.Clock.RunForAsync(700);
         return await page.EvaluateAsync<double[]>("() => window.nudges");
     }
 
@@ -34,7 +35,7 @@ public class ViewportNudgeTests : ScriptTestBase
     public async Task A_stuck_viewport_at_phone_width_is_nudged_once()
     {
         if (NoBrowser) return;
-        var (page, errors) = await OpenStyled(Flow, extraHead: Stuck);
+        var (page, errors) = await OpenStyled(Flow, extraHead: Stuck, clockPausedAt: new DateTime(2030, 1, 1));
         await page.SetViewportSizeAsync(390, 800);
 
         Assert.Equal(new double[] { 1, -1 }, await After(page));
@@ -46,7 +47,7 @@ public class ViewportNudgeTests : ScriptTestBase
     public async Task A_viewport_left_short_after_the_keyboard_is_nudged_too()
     {
         if (NoBrowser) return;
-        var (page, errors) = await OpenStyled(Flow, extraHead: Stuck);
+        var (page, errors) = await OpenStyled(Flow, extraHead: Stuck, clockPausedAt: new DateTime(2030, 1, 1));
         await page.SetViewportSizeAsync(390, 800);
         await Js.Run(page, "() => { window.visualViewport.offsetTop = 0; window.visualViewport.height = window.innerHeight - 240; }");
 
@@ -61,7 +62,7 @@ public class ViewportNudgeTests : ScriptTestBase
     public async Task Nothing_is_touched_where_the_offset_is_the_reader_s(string why)
     {
         if (NoBrowser) return;
-        var (page, errors) = await OpenStyled(Flow, extraHead: Stuck);
+        var (page, errors) = await OpenStyled(Flow, extraHead: Stuck, clockPausedAt: new DateTime(2030, 1, 1));
         await page.SetViewportSizeAsync(why == "wide" ? 1200 : 390, 800);
         if (why == "typing") await page.FocusAsync("#f");
         if (why == "zoomed") await Js.Run(page, "() => { window.visualViewport.scale = 2; }");

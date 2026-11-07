@@ -26,6 +26,7 @@ public class CalendarMarkInkTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled(Day, deviceScaleFactor: Ink.Scale);
         await page.EvaluateAsync<bool>("() => document.fonts.ready.then(() => true)");
+        await Js.Settle(page);
 
         var ink = await Ink.Of(page, "#icon", "#count", "#num");
         var (icon, count, num) = (Ink.Centre(ink[0]), Ink.Centre(ink[1]), Ink.Centre(ink[2]));

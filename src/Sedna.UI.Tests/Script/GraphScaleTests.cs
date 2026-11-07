@@ -68,7 +68,7 @@ public class GraphScaleTests : GraphTestBase
     /// <summary>Waits out whatever the last action left on timers, then zeroes the counts.</summary>
     private static async Task Quiet(IPage page)
     {
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
         await Js.Run(page, "() => { window.restyled = 0; window.changedData = 0; }");
     }
 
@@ -86,13 +86,13 @@ public class GraphScaleTests : GraphTestBase
         await Quiet(page);
         await page.Mouse.MoveAsync(x, y, new() { Steps = 4 });
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('team-3').hasClass('lit')");
-        await page.WaitForTimeoutAsync(300);
+        await Js.Elapse(page, 300);
         var lit = await page.EvaluateAsync<int>("() => restyled");
         Assert.True(lit < all / 10, $"Pointing at one record restyled {lit} of {all} elements.");
 
         await page.Mouse.MoveAsync(2, 2);
         await page.WaitForFunctionAsync("() => cyOf('g').elements('.lit').length === 0");
-        await page.WaitForTimeoutAsync(300);
+        await Js.Elapse(page, 300);
         var both = await page.EvaluateAsync<int>("() => restyled");
         Assert.True(both < all / 5, $"Pointing at one record and leaving it restyled {both} of {all} elements.");
         AssertQuiet();
@@ -106,9 +106,9 @@ public class GraphScaleTests : GraphTestBase
         var all = await Elements(page);
 
         await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select('team-7'))");
-        await page.WaitForTimeoutAsync(500);
+        await Js.Elapse(page, 500);
         await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.select(null))");
-        await page.WaitForTimeoutAsync(500);
+        await Js.Elapse(page, 500);
         var count = await page.EvaluateAsync<int>("() => restyled");
         Assert.True(count < all / 5, $"Selecting a record and clearing it restyled {count} of {all} elements.");
         AssertQuiet();
@@ -127,7 +127,7 @@ public class GraphScaleTests : GraphTestBase
                 document.documentElement.style.overflow = 'hidden';
             }
             """);
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
         Assert.Equal(0, await page.EvaluateAsync<int>("() => restyled"));
 
         // The theme itself still repaints it.
@@ -152,7 +152,7 @@ public class GraphScaleTests : GraphTestBase
                 await g.set(d);
             }
             """);
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
         Assert.Equal(901, (await Shown(page)).Length);
         var changed = await page.EvaluateAsync<int>("() => changedData");
         var restyled = await page.EvaluateAsync<int>("() => restyled");
@@ -178,7 +178,7 @@ public class GraphScaleTests : GraphTestBase
                 await g.set({ nodes: d.nodes.map(n => (states[n.id] ? Object.assign({}, n, { state: states[n.id] }) : n)), edges: d.edges });
             }
             """);
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
 
         // The three records, and the links into them, which take their state.
         var expected = await page.EvaluateAsync<int>(
@@ -206,7 +206,7 @@ public class GraphScaleTests : GraphTestBase
                 cy.zoom({ level: 2.5, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
             }
             """);
-        await page.WaitForTimeoutAsync(500);
+        await Js.Elapse(page, 500);
         await Js.Run(page, "() => { restyled = 0; }");
         await Js.Run(page, """
             () => {
@@ -214,7 +214,7 @@ public class GraphScaleTests : GraphTestBase
                 cy.zoom({ level: 3, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
             }
             """);
-        await page.WaitForTimeoutAsync(500);
+        await Js.Elapse(page, 500);
         var count = await page.EvaluateAsync<int>("() => restyled");
         Assert.True(count < all / 3, $"A step of the zoom close in restyled {count} of {all} elements.");
 
@@ -236,7 +236,7 @@ public class GraphScaleTests : GraphTestBase
             }
             """, far), "A record far from the view was restyled for it.");
         await Js.Run(page, "id => cyOf('g').center(cyOf('g').getElementById(id))", far);
-        await page.WaitForTimeoutAsync(500);
+        await Js.Elapse(page, 500);
         Assert.True(await page.EvaluateAsync<bool>("""
             () => {
                 const cy = cyOf('g'), e = cy.extent();
@@ -267,7 +267,7 @@ public class GraphScaleTests : GraphTestBase
         var first = await Positions(page);
 
         await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.layout())");
-        await page.WaitForTimeoutAsync(600);
+        await Js.Elapse(page, 600);
         var restyled = await page.EvaluateAsync<int>("() => restyled");
         Assert.True(restyled < all / 3, $"Laying the drawing out again restyled {restyled} of {all} elements.");
         SamePlaces(first, await Positions(page), "after laying it out again");
@@ -275,7 +275,7 @@ public class GraphScaleTests : GraphTestBase
         await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.filter({ except: { group: ['team-3'] } }))");
         Assert.Equal(870, (await Shown(page)).Length);
         await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.filter({}))");
-        await page.WaitForTimeoutAsync(600);
+        await Js.Elapse(page, 600);
         SamePlaces(first, await Positions(page), "after a group was hidden and shown");
         AssertQuiet();
     }
@@ -351,12 +351,12 @@ public class GraphScaleTests : GraphTestBase
         var page = await OpenGraph(Graph());
         await Ready(page);
         await Js.Run(page, "() => { const cy = cyOf('g'); cy.emit('dragpan'); cy.panBy({ x: 120, y: 40 }); }");
-        await page.WaitForTimeoutAsync(300);
+        await Js.Elapse(page, 300);
         var before = await page.EvaluateAsync<JsonElement>("() => cyOf('g').pan()");
 
         // A video on the page going to full screen and back: nothing of the graph's.
         await Js.Run(page, "() => document.dispatchEvent(new Event('fullscreenchange'))");
-        await page.WaitForTimeoutAsync(300);
+        await Js.Elapse(page, 300);
         var after = await page.EvaluateAsync<JsonElement>("() => cyOf('g').pan()");
         Assert.Equal(before.GetProperty("x").GetDouble(), after.GetProperty("x").GetDouble(), 3);
         Assert.Equal(before.GetProperty("y").GetDouble(), after.GetProperty("y").GetDouble(), 3);
