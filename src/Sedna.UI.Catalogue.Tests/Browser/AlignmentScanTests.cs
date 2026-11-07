@@ -37,15 +37,20 @@ public class AlignmentScanTests(CatalogueAppFixture app)
     /// <summary>What the measurement itself is good to: a sixteenth of a pixel.</summary>
     private const double Measured = 1.0 / 16;
 
-    public static TheoryData<string, string> Variants() => new()
+    /// <summary>
+    /// One case per page and variant, so each lasts seconds and a failure names its page:
+    /// the whole catalogue in one case outran the test host's hang timeout on a slow runner.
+    /// </summary>
+    public static TheoryData<string, string, string> Variants()
     {
-        { "comfortable", "ltr" },
-        { "compact", "ltr" },
-        { "touch", "ltr" },
-        { "comfortable", "rtl" },
-        { "compact", "rtl" },
-        { "touch", "rtl" },
-    };
+        var data = new TheoryData<string, string, string>();
+        foreach (var dir in new[] { "ltr", "rtl" })
+            foreach (var density in new[] { "comfortable", "compact", "touch" })
+                foreach (var route in RoutedPages.All)
+                    data.Add(route, density, dir);
+        Assert.NotEmpty(data);
+        return data;
+    }
 
     private sealed record Box(string Kind, string Label, double X, double Y, double W, double H, int[]? Fg = null, double[]? Line = null);
     private sealed record Row(string Path, double Centre, Box[] Items);
@@ -53,51 +58,47 @@ public class AlignmentScanTests(CatalogueAppFixture app)
 
     [Theory]
     [MemberData(nameof(Variants))]
-    public async Task Every_row_and_every_box_paints_on_its_centre_line(string density, string dir)
+    public async Task Every_row_and_every_box_paints_on_its_centre_line(string route, string density, string dir)
     {
         if (app.NoBrowser) return;
 
-        var problems = new List<string>();
         var context = await app.Browser!.NewContextAsync(new()
         {
             DeviceScaleFactor = Ink.Scale,
             ViewportSize = new() { Width = 1280, Height = 900 },
             ReducedMotion = ReducedMotion.Reduce,
         });
+        List<string>? found = null;
         try
         {
-            foreach (var route in RoutedPages.All)
+            // A page that moves while it is measured — a render that lands between reading
+            // the positions and taking the picture — is measured again from the start.
+            for (var attempt = 0; attempt < 3 && found is null; attempt++)
             {
-                // A page that moves while it is measured — a render that lands between reading
-                // the positions and taking the picture — is measured again from the start.
-                List<string>? found = null;
-                for (var attempt = 0; attempt < 3 && found is null; attempt++)
+                var page = await context.NewPageAsync();
+                await page.GotoAsync(app.Url(route), new() { WaitUntil = WaitUntilState.NetworkIdle });
+                // As tall as the page, so the full-page picture needs no resize: WebKit makes the
+                // viewport the page's height to take one, and what is sized by the viewport — a
+                // sticky sidebar — moves under the positions already read.
+                for (var tries = 0; tries < 3; tries++)
                 {
-                    var page = await context.NewPageAsync();
-                    await page.GotoAsync(app.Url(route), new() { WaitUntil = WaitUntilState.NetworkIdle });
-                    // As tall as the page, so the full-page picture needs no resize: WebKit makes the
-                    // viewport the page's height to take one, and what is sized by the viewport — a
-                    // sticky sidebar — moves under the positions already read.
-                    for (var tries = 0; tries < 3; tries++)
-                    {
-                        var tall = Math.Clamp(await page.EvaluateAsync<int>("() => document.documentElement.scrollHeight"), 900, 12_000);
-                        if (tall == page.ViewportSize!.Height) break;
-                        await page.SetViewportSizeAsync(1280, tall);
-                        await Js.Frames(page);
-                    }
-                    var scan = System.Text.Json.JsonSerializer.Deserialize<Scan>(
-                        await page.EvaluateAsync<string>(Scanner, new { density, dir }),
-                        new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
-                    await Js.Settle(page);
-                    found = await Measure(page, scan, route);
-                    if (found is not null) found.InsertRange(0, scan.Bare.Select(b => $"{route} {b}: a bare word beside an element"));
-                    await page.CloseAsync();
+                    var tall = Math.Clamp(await page.EvaluateAsync<int>("() => document.documentElement.scrollHeight"), 900, 12_000);
+                    if (tall == page.ViewportSize!.Height) break;
+                    await page.SetViewportSizeAsync(1280, tall);
+                    await Js.Frames(page);
                 }
-                problems.AddRange(found ?? [$"{route}: the page kept moving while it was measured"]);
+                var scan = System.Text.Json.JsonSerializer.Deserialize<Scan>(
+                    await page.EvaluateAsync<string>(Scanner, new { density, dir }),
+                    new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+                await Js.Settle(page);
+                found = await Measure(page, scan, route);
+                if (found is not null) found.InsertRange(0, scan.Bare.Select(b => $"{route} {b}: a bare word beside an element"));
+                await page.CloseAsync();
             }
         }
         finally { await context.CloseAsync(); }
 
+        var problems = found ?? [$"{route}: the page kept moving while it was measured"];
         var report = string.Join(Environment.NewLine, problems);
         Assert.True(problems.Count == 0, $"{problems.Count} off their centre line:{Environment.NewLine}{report}");
     }
