@@ -2879,6 +2879,10 @@ window.sednaUi = window.sednaUi || {};
         var y = scroller.scrollTop;
         var last = lastY.has(scroller) ? lastY.get(scroller) : 0;
         if ((settledAt.get(scroller) || 0) > Date.now()) { lastY.set(scroller, y); return; }
+        // Up, and still at the very end: that is the browser clamping a scroller that grew,
+        // never the reader, who leaves the end on the way up. A loaded machine can deliver the
+        // clamp after the moment above has passed, so it is recognised, not only timed out.
+        if (y < last && y >= scroller.scrollHeight - scroller.clientHeight - 1) { lastY.set(scroller, y); return; }
         if (Math.abs(y - last) < 8) return;
         lastY.set(scroller, y);
 

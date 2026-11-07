@@ -255,7 +255,7 @@ public class GraphControlTests : GraphTestBase
             }
             """));
         await Heard(page, "sedna-graph-change");
-        await page.WaitForTimeoutAsync(300);
+        await Js.Elapse(page, 300);
 
         // Then one search, for all of it.
         var changes = await Log(page, "sedna-graph-change");

@@ -32,7 +32,7 @@ public class SamePageLinkTests(CatalogueAppFixture app)
         Assert.Equal("skip-link", await page.EvaluateAsync<string>("() => document.activeElement.className"));
 
         await page.Keyboard.PressAsync("Enter");
-        await page.WaitForTimeoutAsync(Settle);
+        await page.WaitForFunctionAsync("() => document.activeElement.id === 'main'");
 
         Assert.Equal("/button", await page.EvaluateAsync<string>("() => location.pathname"));
         Assert.Equal("main", await page.EvaluateAsync<string>("() => document.activeElement.id"));
@@ -47,7 +47,7 @@ public class SamePageLinkTests(CatalogueAppFixture app)
         var page = await app.OpenInteractiveAsync("/alert");
 
         await page.Locator(".ex-demo a[href='#vs-email']").ClickAsync();
-        await page.WaitForTimeoutAsync(Settle);
+        await page.WaitForFunctionAsync("() => document.activeElement.id === 'vs-email'");
 
         Assert.Equal("/alert", await page.EvaluateAsync<string>("() => location.pathname"));
         Assert.Equal("vs-email", await page.EvaluateAsync<string>("() => document.activeElement.id"));
@@ -74,7 +74,8 @@ public class SamePageLinkTests(CatalogueAppFixture app)
                 await page.WaitForSelectorAsync("[data-interactive='true']", new() { Timeout = 15_000 });
                 await Js.Run(page, 
                     "() => document.querySelectorAll('.ex-demo a[href=\"#\"]').forEach(a => a.click())");
-                await page.WaitForTimeoutAsync(Settle);
+                // A navigation would have begun by now: the page's own time, not the test's.
+                await Js.Elapse(page, Settle);
 
                 var path = await page.EvaluateAsync<string>("() => location.pathname");
                 if (path != route) problems.Add($"{route}: a placeholder link in a demo went to {path}");

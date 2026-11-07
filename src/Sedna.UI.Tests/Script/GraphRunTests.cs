@@ -249,7 +249,7 @@ public class GraphRunTests : GraphTestBase
         });
         var before = await Positions(page);
         // The first drawing's frames restyle what it marked; counting starts after them.
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
         await Js.Run(page, """
             () => {
                 window.restyledIds = new Set();
@@ -265,7 +265,7 @@ public class GraphRunTests : GraphTestBase
             ["trigger"] = "done", ["parse"] = "done", ["lookup"] = "done", ["route"] = "running", ["chat"] = "skipped",
             ["chat>classify"] = "skipped",
         });
-        await page.WaitForTimeoutAsync(300);
+        await Js.Elapse(page, 300);
 
         // Nothing moved: a state is not a reason to lay a flow out again.
         AssertSamePlaces(before, await Positions(page));
@@ -320,7 +320,7 @@ public class GraphRunTests : GraphTestBase
     /// </summary>
     private static async Task CountRestyles(IPage page)
     {
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
         await Js.Run(page, """
             () => {
                 window.restyledIds = new Set();
@@ -341,9 +341,9 @@ public class GraphRunTests : GraphTestBase
         // The first half second may still carry the drawing settling in, which on a
         // loaded machine can land after Ready. What has to be true is that nothing keeps
         // restyling, so only the second half second is counted.
-        await page.WaitForTimeoutAsync(500);
+        await Js.Elapse(page, 500);
         await Js.Run(page, "() => restyledIds.clear()");
-        await page.WaitForTimeoutAsync(500);
+        await Js.Elapse(page, 500);
 
         Assert.Equal("", await Eval<string>(page, "() => [...restyledIds].sort().join(' ')"));
         var still = await page.EvaluateAsync<JsonElement>("""
@@ -377,7 +377,7 @@ public class GraphRunTests : GraphTestBase
         await page.WaitForFunctionAsync(
             "d => cyOf('g').getElementById('parse→classify').numericStyle('line-dash-offset') !== d", first);
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('classify').data('breath') !== undefined");
-        await page.WaitForTimeoutAsync(300);
+        await Js.Elapse(page, 300);
         // ...and nothing else is restyled for it: what is not running and not joined to what is
         // stays as it was drawn.
         var restyled = await Eval<string[]>(page, "() => [...restyledIds].sort()");
@@ -393,7 +393,7 @@ public class GraphRunTests : GraphTestBase
             }
             """);
         await CountRestyles(page);
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
         Assert.Equal(0, await Eval<int>(page, "() => restyled"));
 
         // Seen again, it moves again.
@@ -412,7 +412,7 @@ public class GraphRunTests : GraphTestBase
         // link drawn mid-dash, on a busy machine for good.
         Assert.Equal(0, await Eval<double>(page, "() => cyOf('g').getElementById('parse→classify').numericStyle('line-dash-offset')"));
         await CountRestyles(page);
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
         Assert.Equal(0, await Eval<int>(page, "() => restyled"));
         Assert.Equal(0, await Eval<double>(page, "() => cyOf('g').getElementById('parse→classify').numericStyle('line-dash-offset')"));
         AssertQuiet();
@@ -429,7 +429,7 @@ public class GraphRunTests : GraphTestBase
         await Js.Run(page, "() => document.querySelector('[data-node=\"classify\"]').setAttribute('data-state', 'done')");
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('parse→classify').data('run') === 'done'");
         await CountRestyles(page);
-        await page.WaitForTimeoutAsync(400);
+        await Js.Elapse(page, 400);
 
         Assert.Equal(0, await Eval<int>(page, "() => restyled"));
         Assert.True(await Eval<bool>(page,

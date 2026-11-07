@@ -402,8 +402,10 @@ public class CalendarLayoutTests : ScriptTestBase
             </div>
             """;
 
+        // The hint's rest before it shows is a timer, run on the paused page clock.
         var (page, _) = await OpenStyled(
-            $"""<div style="padding: 60px">{Cell("wide", 260)}{Cell("cut", 120)}{Cell("narrow", 64)}</div>""");
+            $"""<div style="padding: 60px">{Cell("wide", 260)}{Cell("cut", 120)}{Cell("narrow", 64)}</div>""",
+            clockPausedAt: new DateTime(2030, 1, 1));
 
         var shown = await page.EvaluateAsync<string[]>("""
             () => ['wide', 'cut', 'narrow'].map(id => getComputedStyle(document.querySelector(`#${id} .cal-holiday-name`)).display)
@@ -415,9 +417,9 @@ public class CalendarLayoutTests : ScriptTestBase
         async Task<bool> TipFor(string id)
         {
             await page.Mouse.MoveAsync(0, 0);
-            await page.WaitForTimeoutAsync(50);
+            await page.Clock.RunForAsync(1000);
             await page.HoverAsync($"#{id}");
-            await page.WaitForTimeoutAsync(300);
+            await page.Clock.RunForAsync(1000);
             return await page.EvaluateAsync<bool>("() => !!document.querySelector('.sedna-tip--visible')");
         }
 
@@ -512,7 +514,7 @@ public class CalendarLayoutTests : ScriptTestBase
                         rows[0] - rows[1], busy.bottom - last.bottom];
             }
             """);
-        await page.WaitForTimeoutAsync(100);
+        await Js.Frames(page, 3);
         var shadows = await page.EvaluateAsync<string[]>("""
             async () => {
                 const labelEl = document.querySelector('#t .cal-timeline-label');

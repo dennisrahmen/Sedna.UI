@@ -91,7 +91,7 @@ public class StateArtTests : ScriptTestBase
         {
             still.Add(await Sample(page, "#still", 60 / 120.0, 33 / 120.0));
             live.Add(await Sample(page, "#live", 60 / 120.0, 33 / 120.0));
-            await page.WaitForTimeoutAsync(250);
+            await Js.Frames(page, 15);
         }
 
         foreach (var sample in still) AssertClose(still[0], sample, "a paused drawing");

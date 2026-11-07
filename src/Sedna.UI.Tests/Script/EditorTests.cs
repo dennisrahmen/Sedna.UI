@@ -557,7 +557,9 @@ public class EditorTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await Open("<p>No editor here.</p>", head: StylesheetTag);
-        await page.WaitForTimeoutAsync(300);
+        // Every request the page makes has been made once the network has been quiet.
+        await page.WaitForLoadStateAsync(Microsoft.Playwright.LoadState.NetworkIdle);
+        await Js.Frames(page);
         Assert.DoesNotContain(Requests, r => r.Url.Contains("/lib/quill/", StringComparison.Ordinal) || r.Url.EndsWith("Sedna.UI.editor.js", StringComparison.Ordinal));
     }
 

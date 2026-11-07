@@ -88,20 +88,20 @@ public class MenuPointerTests : ScriptTestBase
         Assert.True(await Open());
 
         await Scroll("m", "40");          // the menu's own list, never
-        await page.WaitForTimeoutAsync(50);
+        await Js.Frames(page);
         Assert.True(await Open());
 
         if (about != "null")
         {
             await Scroll("other", "40");  // a scroller that does not hold what it is about
-            await page.WaitForTimeoutAsync(50);
+            await Js.Frames(page);
             Assert.True(await Open());
         }
 
         await Scroll("scroller", "60");
         // A scroll event can land a frame later under load; the close is what is waited for.
         await page.WaitForFunctionAsync("() => !document.getElementById('m').matches(':popover-open')",
-            null, new() { Timeout = 5000 });
+            null, new() { Timeout = 15_000 });
         Assert.Empty(errors);
     }
 
@@ -134,15 +134,18 @@ public class MenuPointerTests : ScriptTestBase
         var (page, errors) = await OpenStyled("""
             <p style="padding:80px"><span id="t" data-popover="card" data-popover-hover tabindex="0">14 Nov</span></p>
             <div class="popover" id="card" popover><p>Delivery window 09:00–11:00</p></div>
-            """);
+            """, clockPausedAt: new DateTime(2030, 1, 1));
+        // The rest and the grace on leaving are timers, run on the paused page clock.
         await page.HoverAsync("#t");
+        await page.Clock.RunForAsync(400);
         await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();
 
         await page.HoverAsync("#card");
-        await page.WaitForTimeoutAsync(400);
+        await page.Clock.RunForAsync(400);
         await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();
 
         await page.Mouse.MoveAsync(5, 5);
+        await page.Clock.RunForAsync(400);
         await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();
         Assert.Empty(errors);
     }
@@ -154,12 +157,12 @@ public class MenuPointerTests : ScriptTestBase
         var (page, errors) = await OpenStyled("""
             <p style="padding:80px"><button class="btn" id="t" type="button" data-popover="card" data-popover-hover>Open items</button></p>
             <div class="popover" id="card" popover><p>Three items due in the next 14 days</p></div>
-            """);
+            """, clockPausedAt: new DateTime(2030, 1, 1));
 
         await page.ClickAsync("#t");                                   // pins it
         await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();
         await page.Mouse.MoveAsync(5, 5);
-        await page.WaitForTimeoutAsync(400);
+        await page.Clock.RunForAsync(400);
         await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();   // pinned: leaving does not close it
 
         await page.ClickAsync("#t");                                   // and the trigger again closes it
@@ -179,21 +182,23 @@ public class MenuPointerTests : ScriptTestBase
             <p style="padding:80px"><button class="btn" id="t" type="button" data-popover="card" data-popover-hover="only"
                 onclick="window.clicked = (window.clicked || 0) + 1">Hosting costs</button></p>
             <div class="popover" id="card" popover><p>This month so far: 41.20 EUR</p></div>
-            """);
+            """, clockPausedAt: new DateTime(2030, 1, 1));
 
         await page.HoverAsync("#t");
+        await page.Clock.RunForAsync(400);
         await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();
 
         await page.ClickAsync("#t");
         await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();      // out of the way of what the click opens
         Assert.Equal(1, await page.EvaluateAsync<int>("() => window.clicked"));  // the trigger's own action ran
         await page.Mouse.MoveAsync(5, 5);
-        await page.WaitForTimeoutAsync(400);
+        await page.Clock.RunForAsync(400);
         await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();      // and nothing pinned it
 
         // Chromium focuses a clicked button and WebKit does not, so start from no focus at all.
         await Js.Run(page, "() => { if (document.activeElement) document.activeElement.blur(); }");
         await page.FocusAsync("#t");
+        await page.Clock.RunForAsync(400);
         await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();    // focus opens it, as hover does
         await page.Keyboard.PressAsync("Enter");
         await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();

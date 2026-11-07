@@ -24,7 +24,7 @@ public class DialogClosedByTests : ScriptTestBase
         Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('d').open"));
 
         await page.Mouse.ClickAsync(5, 5);
-        await page.WaitForTimeoutAsync(50);
+        await Js.Frames(page);
 
         Assert.Equal(staysOpen, await page.EvaluateAsync<bool>("() => document.getElementById('d').open"));
         Assert.Empty(errors);

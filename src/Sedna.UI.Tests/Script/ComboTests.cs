@@ -443,7 +443,7 @@ public class ComboTests : ScriptTestBase
 
         // The app renders its selection; the heading follows, and the action reads "Clear".
         await Js.Run(page, "() => { o0.setAttribute('aria-selected', 'true'); clicked.length = 0; }");
-        await page.WaitForTimeoutAsync(50);
+        await Js.Frames(page);
         var full = await page.EvaluateAsync<string[]>("""
             () => [String(g1.hasAttribute('data-all-selected')), String(g2.hasAttribute('data-all-selected')),
                    document.querySelector('#g1-all').innerText.trim()]

@@ -23,13 +23,13 @@ namespace Sedna.UI.Tests;
 public class IconTextInkTests : ScriptTestBase
 {
     /// <summary>
-    /// The engine's own bound. Both engines trim a line to its font's cap height rounded to
-    /// a pixel and draw the glyph at the exact one, so a trimmed word can sit half a pixel
-    /// from the middle of its box: WebKit's bound on Apple's platforms. Chromium, and
-    /// WebKit on Linux, also set the line itself on a whole CSS pixel, so where a font's
-    /// metrics put a box between pixels a word lands up to a pixel off.
+    /// A pixel. Both engines trim a line to its font's cap height rounded to a pixel and draw
+    /// the glyph at the exact one, and both set a line of text on a whole pixel where its box
+    /// falls between pixels — Chromium always, WebKit on Linux and in some layouts on Apple's
+    /// platforms (a 10px number in a 16px box: 0.82px off, centred any way) — so a word lands up
+    /// to a pixel from where the rules put it, and no rule can put it closer.
     /// </summary>
-    internal static double Tolerance => (BrowserEngine.IsWebKit && OperatingSystem.IsMacOS() ? 0.5 : 1.0) + Measured;
+    internal static double Tolerance => 1.0 + Measured;
 
     /// <summary>What the measurement itself is good to: a sixteenth of a pixel, as the page scan allows.</summary>
     private const double Measured = 1.0 / 16;
@@ -73,6 +73,8 @@ public class IconTextInkTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled($"""<div style="padding:24px; width:480px">{markup}</div>""", deviceScaleFactor: Ink.Scale);
         await page.EvaluateAsync<bool>("() => document.fonts.ready.then(() => true)");
+        // An entrance — a toast's — run to its end: the measurement is of where it comes to rest.
+        await Js.Settle(page);
 
         var ink = await Ink.Of(page, "#i", "#t");
         var text = await FirstLine(page, ink[1]);
@@ -114,6 +116,8 @@ public class IconTextInkTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled($"""<div style="padding:24px; display:flex; align-items:flex-start">{markup}</div>""", deviceScaleFactor: Ink.Scale);
         await page.EvaluateAsync<bool>("() => document.fonts.ready.then(() => true)");
+        // An entrance — a toast's — run to its end: the measurement is of where it comes to rest.
+        await Js.Settle(page);
 
         // Inside the border, a pixel in: the border's own antialiased edge reaches into it.
         var box = await page.EvaluateAsync<double[]>("""

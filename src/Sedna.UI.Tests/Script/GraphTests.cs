@@ -1058,7 +1058,7 @@ public class GraphTests : GraphTestBase
         Assert.False(await Eval<bool>(page, "() => keptEl.hasAttribute('data-graph-state')"));
         // Nothing left behind to be painted or listened to.
         await Js.Run(page, "() => { sednaUi.settings.save('variant', 'light'); window.dispatchEvent(new Event('resize')); }");
-        await page.WaitForTimeoutAsync(100);
+        await Js.Elapse(page, 100);
         AssertQuiet();
     }
 
@@ -1071,7 +1071,7 @@ public class GraphTests : GraphTestBase
         await Ready(page);
 
         await Js.Run(page, "() => { window.keptCy = cyOf('g'); document.getElementById('elsewhere').appendChild(document.getElementById('g')); }");
-        await page.WaitForTimeoutAsync(100);
+        await Js.Elapse(page, 100);
 
         Assert.False(await Eval<bool>(page, "() => keptCy.destroyed()"));
         Assert.Equal("ready", await StateOf(page));

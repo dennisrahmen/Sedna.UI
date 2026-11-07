@@ -33,6 +33,29 @@ internal static class Js
     public static Task Settle(IPage page) =>
         page.EvaluateAsync("async () => { document.getAnimations().forEach(a => { if (a.effect?.getComputedTiming().endTime !== Infinity) a.finish(); }); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); }");
 
+    /// <summary>
+    /// The next frames, by the page's own clock of frames rather than by time: every event
+    /// handler, observer, promise and frame callback a change set off has run once they have
+    /// passed, however slow the machine.
+    /// </summary>
+    public static Task Frames(IPage page, int count = 2) =>
+        page.EvaluateAsync("n => new Promise(r => { const step = k => k ? requestAnimationFrame(() => step(k - 1)) : r(); step(n); })", count);
+
+    /// <summary>
+    /// Lets the page's own time pass — <paramref name="ms"/> of it, by its clock — and then two
+    /// frames: a timer the page set for less than that has run by then, however slow the
+    /// machine or the commands that reach it.
+    /// </summary>
+    public static Task Elapse(IPage page, int ms) =>
+        page.EvaluateAsync("""
+            ms => new Promise(r => {
+                const until = performance.now() + ms;
+                const step = () => performance.now() < until ? requestAnimationFrame(step)
+                    : requestAnimationFrame(() => requestAnimationFrame(r));
+                step();
+            })
+            """, ms);
+
     public static Task Run(IPage page, string script, object? arg) =>
         page.EvaluateAsync($"async (a) => {{ const v = ({script}); if (typeof v === 'function') await v(a); else await v; }}", arg);
 }

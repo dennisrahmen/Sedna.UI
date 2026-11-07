@@ -322,11 +322,11 @@ public class ToastTests : ScriptTestBase
     public async Task Toast_with_a_zero_timeout_stays_until_it_is_dismissed()
     {
         if (NoBrowser) return;
-        var page = await Open("<div></div>");
+        var page = await Open("<div></div>", clockPausedAt: new DateTime(2030, 1, 1));
 
         await Js.Run(page, "() => sednaUi.toast('Read me', { timeout: 0 })");
         // Well past the 4000ms default, so a default-timeout regression fails here.
-        await page.WaitForTimeoutAsync(4300);
+        await page.Clock.RunForAsync(4300);
         Assert.Equal(1, await page.Locator(".toast").CountAsync());
 
         await page.Locator(".toast-close").ClickAsync();

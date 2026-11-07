@@ -396,8 +396,14 @@ public class FrameLayoutTests : ScriptTestBase
         Assert.Equal("absolute", (string)done[2]);
 
         // Opening: the labels are back at once, at the full width, under the growing edge.
-        await Js.Run(page, "() => document.querySelector('.sidebar').classList.remove('collapsed')");
-        await page.WaitForTimeoutAsync(300);
+        await Js.Run(page, """
+            () => {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.remove('collapsed');
+                getComputedStyle(sidebar).width;
+                document.getAnimations().forEach(a => { a.pause(); a.currentTime = 300; });
+            }
+            """);
         var opening = await page.EvaluateAsync<object[]>(probe);
         var openingWidth = Convert.ToInt32(opening[0], System.Globalization.CultureInfo.InvariantCulture);
         Assert.True(openingWidth is > 56 and < 220, $"The sidebar should be opening, it is {openingWidth}px.");
@@ -433,15 +439,22 @@ public class FrameLayoutTests : ScriptTestBase
         await Js.Run(page, "() => document.querySelector('.sidebar').style.setProperty('--motion-mid', '2s')");
         var restingNav = (await page.Locator(".sidebar > .nav").BoundingBoxAsync())!.Width;
 
-        await Js.Run(page, "() => document.querySelector('.sidebar').classList.add('collapsed')");
-        await page.WaitForTimeoutAsync(600);
+        // Held at 600ms of the 2s by the animation clock, then run to its end, not waited for.
+        await Js.Run(page, """
+            () => {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.add('collapsed');
+                getComputedStyle(sidebar).width;
+                document.getAnimations().forEach(a => { a.pause(); a.currentTime = 600; });
+            }
+            """);
         var sidebar = (await page.Locator(".sidebar").BoundingBoxAsync())!.Width;
         var nav = (await page.Locator(".sidebar > .nav").BoundingBoxAsync())!.Width;
         Assert.True(sidebar < restingNav + 64, $"The sidebar should be closing, it is {sidebar}px.");
         Assert.Equal(restingNav, nav);
         Assert.Equal("flex", await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('.sidebar > .nav')).display"));
 
-        await page.WaitForTimeoutAsync(2000);
+        await Js.Settle(page);
         Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('.sidebar > .nav')).display"));
     }
 

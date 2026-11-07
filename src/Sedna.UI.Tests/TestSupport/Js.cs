@@ -34,6 +34,32 @@ internal static class Js
         page.EvaluateAsync("async () => { document.getAnimations().forEach(a => { if (a.effect?.getComputedTiming().endTime !== Infinity) a.finish(); }); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); }");
 
     /// <summary>
+    /// The next frames, by the page's own clock of frames rather than by time: every event
+    /// handler, observer, promise and frame callback a change set off has run once they have
+    /// passed, however slow the machine. What a test waits on when it checks that nothing
+    /// happened — a wait in milliseconds proves that only on a machine fast enough. Not on a
+    /// page whose clock is paused: frames run on that clock too, and there the test runs it.
+    /// </summary>
+    public static Task Frames(IPage page, int count = 2) =>
+        page.EvaluateAsync("n => new Promise(r => { const step = k => k ? requestAnimationFrame(() => step(k - 1)) : r(); step(n); })", count);
+
+    /// <summary>
+    /// Lets the page's own time pass — <paramref name="ms"/> of it, by its clock — and then two
+    /// frames: a timer the page set for less than that has run by then, however slow the
+    /// machine. For checking that something the page does on a timer did not happen, where
+    /// its clock cannot be paused because the input under test comes from the browser.
+    /// </summary>
+    public static Task Elapse(IPage page, int ms) =>
+        page.EvaluateAsync("""
+            ms => new Promise(r => {
+                const until = performance.now() + ms;
+                const step = () => performance.now() < until ? requestAnimationFrame(step)
+                    : requestAnimationFrame(() => requestAnimationFrame(r));
+                step();
+            })
+            """, ms);
+
+    /// <summary>
     /// Waits until a scroller stops moving — the document with no selector, else the first
     /// element the selector finds. WebKit on Linux animates a wheel scroll over several frames,
     /// so a position read straight after the wheel is one on the way, not where it lands.
