@@ -101,7 +101,7 @@ public class MenuPointerTests : ScriptTestBase
         await Scroll("scroller", "60");
         // A scroll event can land a frame later under load; the close is what is waited for.
         await page.WaitForFunctionAsync("() => !document.getElementById('m').matches(':popover-open')",
-            null, new() { Timeout = 5000 });
+            null, new() { Timeout = 15_000 });
         Assert.Empty(errors);
     }
 

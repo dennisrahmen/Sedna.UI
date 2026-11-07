@@ -16234,7 +16234,8 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     color: var(--fg-soft);
     font-size: var(--text-1);
     font-weight: 600;
-    line-height: 1;
+    /* A whole line that holds its font, so its word can be trimmed to its capitals. */
+    line-height: round(1.2em, 2px);
 }
 .source-card-title { font-size: var(--text-4); font-weight: 600; line-height: round(1.35em, 2px); }
 
@@ -16265,7 +16266,9 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    line can be trimmed to its capitals and stand in the middle of its height — the same
    height, given back by its height. See "The line a row is centred on" in 06-base-elements.css. */
 .citation:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
-.source-card-n:not(:has(> *)) { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
+/* Centred by its padding, its 16px less its capitals shared above and below: WebKit placed a
+   10px word in this small a box most of a pixel low when it was centred by align-content. */
+.source-card-n:not(:has(> *)) { display: block; text-align: center; text-box: trim-both cap alphabetic; padding-block: calc((16px - 1cap) / 2); }
 .chat-message--agent .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }
 }
 

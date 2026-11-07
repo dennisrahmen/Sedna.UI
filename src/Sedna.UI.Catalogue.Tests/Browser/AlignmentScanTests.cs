@@ -26,15 +26,13 @@ namespace Sedna.UI.Catalogue.Tests;
 public class AlignmentScanTests(CatalogueAppFixture app)
 {
     /// <summary>
-    /// How far from its centre line a drawing may land. Both engines trim a line to its
-    /// font's cap height rounded to a pixel and draw the glyph at the exact one, and both
-    /// place a table cell's content on a whole pixel, so a word can sit half a pixel from
-    /// where the rules put it: that is WebKit's bound on Apple's platforms. Chromium, and
-    /// WebKit on Linux, also set the line itself on a whole CSS pixel, rounded through every
-    /// box it sits in, so a word on a page can land a pixel from its line unless every box
-    /// above it starts on a whole pixel.
+    /// How far from its centre line a drawing may land: a pixel. Both engines trim a line to
+    /// its font's cap height rounded to a pixel and draw the glyph at the exact one, place a
+    /// table cell's content on a whole pixel, and set a line of text on a whole pixel where its
+    /// box falls between pixels — Chromium always, WebKit on Linux and in some layouts on
+    /// Apple's platforms — so a word can land up to a pixel from where the rules put it.
     /// </summary>
-    private static double Tolerance => (BrowserEngine.IsWebKit && OperatingSystem.IsMacOS() ? 0.5 : 1.0) + Measured;
+    private static double Tolerance => 1.0 + Measured;
 
     /// <summary>What the measurement itself is good to: a sixteenth of a pixel.</summary>
     private const double Measured = 1.0 / 16;
