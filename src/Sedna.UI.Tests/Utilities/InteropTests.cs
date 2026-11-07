@@ -55,6 +55,50 @@ public class InteropTests : BunitContext
     }
 
     [Fact]
+    public async Task A_template_toast_is_presented_awaited_and_replaced_by_its_id()
+    {
+        JSInterop.Setup<int>("sednaUi.toast.present", _ => true).SetResult(9);
+        JSInterop.Setup<string?>("sednaUi.toast.result", _ => true).SetResult("open");
+
+        var data = new Dictionary<string, string?> { ["title"] = "Assigned to you", ["href"] = "/orders/4182" };
+        var toast = await Wrapper().PresentToastAsync("assigned-toast", data, timeoutMs: 0);
+
+        Assert.NotNull(toast);
+        Assert.Equal(9, toast.Id);
+        Assert.Equal("open", await toast.ResultAsync());
+        Assert.True(await toast.ReplaceFromTemplateAsync("more-toast", new Dictionary<string, string?> { ["count"] = "+3 more" }, 0));
+
+        var presents = JSInterop.Invocations["sednaUi.toast.present"];
+        Assert.Equal(2, presents.Count);
+        Assert.Equal("assigned-toast", presents[0].Arguments[0]);
+        Assert.Same(data, presents[0].Arguments[1]);
+        var first = (IDictionary<string, object?>)presents[0].Arguments[2]!;
+        Assert.Equal(0, first["timeout"]);
+        Assert.False(first.ContainsKey("replace"));
+        var second = (IDictionary<string, object?>)presents[1].Arguments[2]!;
+        Assert.Equal(9, second["replace"]);
+        Assert.Equal([9], Only("sednaUi.toast.result").Arguments);
+    }
+
+    [Fact]
+    public async Task A_template_that_is_not_there_answers_null_rather_than_throwing()
+    {
+        JSInterop.Setup<int>("sednaUi.toast.present", _ => true).SetResult(0);
+        Assert.Null(await Wrapper().PresentToastAsync("no-such-template"));
+    }
+
+    [Fact]
+    public async Task A_menu_opens_at_a_point_by_its_id_and_the_id_of_what_it_is_about()
+    {
+        JSInterop.Setup<bool>("sednaUi.menu.openAt", _ => true).SetResult(true);
+
+        Assert.True(await Wrapper().OpenMenuAtAsync("tile-menu", 412.5, 230, "tile-orders-console-01"));
+
+        var call = Only("sednaUi.menu.openAt");
+        Assert.Equal(["tile-menu", 412.5, 230.0, "tile-orders-console-01"], call.Arguments);
+    }
+
+    [Fact]
     public async Task A_toast_handle_dismisses_and_replaces_the_toast_it_names()
     {
         JSInterop.Setup<int>("sednaUi.toast.show", _ => true).SetResult(3);

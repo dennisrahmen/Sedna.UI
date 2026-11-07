@@ -56,6 +56,38 @@ public interface ISednaUi
         string? dismissLabel = null);
 
     /// <summary>
+    /// Shows a toast the app wrote in a <c>&lt;template&gt;</c> — a notification card whose body
+    /// opens the record it is about, with buttons of its own — in the library's one toast stack.
+    /// </summary>
+    /// <param name="templateId">
+    /// The <c>id</c> of the <c>&lt;template&gt;</c>. Its first element is the toast: a
+    /// <c>.toast</c> with the app's own icon, words and controls.
+    /// </param>
+    /// <param name="data">
+    /// Text for the template's <c>data-*</c> slots, by slot name: <c>title</c> fills every
+    /// <c>[data-title]</c>, as text, never as markup. A slot with no text is removed. <c>href</c>
+    /// is the <c>href</c> of the <c>[data-href]</c> link instead.
+    /// </param>
+    /// <param name="timeoutMs">How long it stays, in milliseconds. <c>0</c> stays until the reader deals with it.</param>
+    /// <returns>
+    /// The toast, once it is on the page — await <see cref="SednaToast.ResultAsync"/> for the control
+    /// the reader pressed — or <see langword="null"/> when no <c>&lt;template&gt;</c> has that id.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// A presenter: every element and every word on screen is the app's. The stack is the
+    /// library's, so the toast has what every toast has — the top layer above an open modal, the
+    /// hold on its timer while the pointer or the focus is on it, and one corner shared with
+    /// every other toast — and never collides with a second stack.
+    /// </para>
+    /// <para>
+    /// A control with <c>data-toast-value</c> ends the toast with that value, and a
+    /// <c>.toast-close</c> ends it with none. A link keeps navigating.
+    /// </para>
+    /// </remarks>
+    Task<SednaToast?> PresentToastAsync(string templateId, IReadOnlyDictionary<string, string?>? data = null, int timeoutMs = 4000);
+
+    /// <summary>
     /// Opens a <c>&lt;dialog&gt;</c> the app wrote — a <c>.modal</c>, a <c>.drawer</c> or a
     /// <c>.sheet</c> — with the platform's own <c>showModal()</c>, and waits for it to close.
     /// </summary>
@@ -284,6 +316,30 @@ public interface ISednaUi
     /// <returns>A task that completes once they are closed.</returns>
     /// <remarks>Call after navigating: a menu can otherwise survive a back-navigation.</remarks>
     Task CloseMenusAsync();
+
+    /// <summary>
+    /// Opens a <c>.menu[popover]</c> the app wrote at a point on screen — where the reader
+    /// right-clicked — as <c>data-menu-context</c> does, for a menu the app decides to open
+    /// after checks of its own.
+    /// </summary>
+    /// <param name="menuId">The <c>id</c> of the <c>.menu</c>, which carries <c>popover</c>.</param>
+    /// <param name="clientX">The point's x in viewport pixels: <c>MouseEventArgs.ClientX</c>.</param>
+    /// <param name="clientY">The point's y in viewport pixels: <c>MouseEventArgs.ClientY</c>.</param>
+    /// <param name="targetId">
+    /// The <c>id</c> of the element the menu is about, which carries
+    /// <c>data-menu-context-target</c> while it is open. A scroll that moves it closes the menu;
+    /// without one, any scroll outside the menu does.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> once the menu is opening; <see langword="false"/> when no
+    /// <c>popover</c> element has that id.
+    /// </returns>
+    /// <remarks>
+    /// The panel flips at the screen's edges in CSS, the focus moves to its first item, and an
+    /// outside click and <kbd>Escape</kbd> close it — the platform's own popover behaviour.
+    /// Call it from an <c>@oncontextmenu</c> handler with <c>@oncontextmenu:preventDefault</c>.
+    /// </remarks>
+    Task<bool> OpenMenuAtAsync(string menuId, double clientX, double clientY, string? targetId = null);
 
     /// <summary>Scrolls the frame's page column back to the top.</summary>
     /// <returns>A task that completes once it is scrolled.</returns>

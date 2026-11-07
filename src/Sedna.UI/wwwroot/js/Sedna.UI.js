@@ -633,6 +633,23 @@ window.sednaUi = window.sednaUi || {};
             }
         }
     }
+    function closePointMenus(scroller) {
+        var open;
+        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        catch (err) { return; }
+        for (var i = 0; i < open.length; i++) {
+            var panel = open[i];
+            var origin = ui._.menuOrigin ? ui._.menuOrigin(panel) : undefined;
+            var close = origin === null
+                ? !(panel === scroller || panel.contains(scroller))
+                : stale(scroller, panel, origin === undefined
+                    ? (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null)
+                    : origin);
+            if (close) {
+                try { panel.hidePopover(); } catch (err2) { /* already closing */ }
+            }
+        }
+    }
     function closeCombos(scroller) {
         var open = document.querySelectorAll('[data-combo] .form-combo-input[aria-expanded="true"]');
         for (var i = 0; i < open.length; i++) {
@@ -647,6 +664,7 @@ window.sednaUi = window.sednaUi || {};
         var scroller = scrolledElement(e.target);
         if (!scroller) return;
         closeMenus(scroller);
+        closePointMenus(scroller);
         closePopovers(scroller);
         closeCombos(scroller);
     }, true);
@@ -818,6 +836,7 @@ window.sednaUi = window.sednaUi || {};
         if (opener) opener.setAttribute('aria-expanded', 'false');
     });
     var point = null;
+    var origins = new WeakMap();   // a menu opened at a point -> the element it is about, or null
     function pointAt(x, y) {
         if (!point) {
             point = document.createElement('span');
@@ -829,9 +848,25 @@ window.sednaUi = window.sednaUi || {};
         point.style.top = Math.round(y) + 'px';
         return point;
     }
+    function byId(x) { return typeof x === 'string' ? document.getElementById(x) : x; }
     function openAt(panel, x, y, on) {
-        if (!panel || typeof panel.showPopover !== 'function') return;
+        panel = byId(panel);
+        on = byId(on) || null;
+        if (!panel || typeof panel.showPopover !== 'function') return false;
+        if (secondaryDown) {
+            document.addEventListener('pointerup', function once(ev) {
+                if (ev.button !== 2) return;
+                document.removeEventListener('pointerup', once, true);
+                setTimeout(function () { show(panel, x, y, on); }, 0);
+            }, true);
+            return true;
+        }
+        show(panel, x, y, on);
+        return true;
+    }
+    function show(panel, x, y, on) {
         pointAt(x, y);
+        origins.set(panel, on);
         var was = document.querySelector('[data-menu-context-target]');
         if (was) was.removeAttribute('data-menu-context-target');
         if (on) on.setAttribute('data-menu-context-target', '');
@@ -841,6 +876,7 @@ window.sednaUi = window.sednaUi || {};
         if (first) first.focus();
     }
     ui.menu.openAt = openAt;
+    ui._.menuOrigin = function (panel) { return origins.has(panel) ? origins.get(panel) : undefined; };
     var secondaryDown = false;
     document.addEventListener('pointerdown', function (e) { if (e.button === 2) secondaryDown = true; }, true);
     document.addEventListener('pointerup', function (e) { if (e.button === 2) secondaryDown = false; }, true);
@@ -850,13 +886,7 @@ window.sednaUi = window.sednaUi || {};
         var panel = document.getElementById(on.getAttribute('data-menu-context'));
         if (!panel) return;
         e.preventDefault();
-        var x = e.clientX, y = e.clientY;
-        if (!secondaryDown) { openAt(panel, x, y, on); return; }
-        document.addEventListener('pointerup', function once(ev) {
-            if (ev.button !== 2) return;
-            document.removeEventListener('pointerup', once, true);
-            setTimeout(function () { openAt(panel, x, y, on); }, 0);
-        }, true);
+        openAt(panel, e.clientX, e.clientY, on);
     });
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'ContextMenu' && !(e.key === 'F10' && e.shiftKey)) return;
@@ -871,8 +901,9 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]')) return;
-        var on = document.querySelector('[data-menu-context-target]');
-        if (on && on.getAttribute('data-menu-context') === panel.id) on.removeAttribute('data-menu-context-target');
+        var on = origins.get(panel);
+        origins.delete(panel);
+        if (on && on.hasAttribute('data-menu-context-target')) on.removeAttribute('data-menu-context-target');
     }, true);
     document.addEventListener('click', function (e) {
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
@@ -883,6 +914,7 @@ window.sednaUi = window.sednaUi || {};
 })(window.sednaUi);
 (function (ui) {
     var triggers = new WeakMap();
+    var pinned = new WeakSet();   // hover cards a click has pinned open
     var count = 0;
     function anchor(panel, trigger) {
         var name = trigger.style.getPropertyValue('anchor-name');
@@ -935,10 +967,25 @@ window.sednaUi = window.sednaUi || {};
         if (!trigger) return;
         var panel = target(trigger);
         if (!panel) return;
+        if (hoverOnly(trigger)) {
+            clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            hide(panel);
+            return;
+        }
         e.preventDefault();
         e.stopPropagation();
         if (trigger.hasAttribute('data-popover-hover')) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            var open = false;
+            try { open = panel.matches(':popover-open'); } catch (err) { /* no :popover-open */ }
+            if (pinned.has(panel) && (open || wasOpen === panel)) {
+                wasOpen = null;
+                pinned.delete(panel);
+                hide(panel);
+                return;
+            }
+            wasOpen = null;
+            pinned.add(panel);
             show(panel, trigger);
             return;
         }
@@ -950,12 +997,14 @@ window.sednaUi = window.sednaUi || {};
         var trigger = e.target instanceof Element ? e.target : null;
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         if (trigger.tagName === 'BUTTON') return;   // a button clicks on its own
+        if (hoverOnly(trigger)) return;             // and so does a hover-only trigger's own action
         var panel = target(trigger);
         if (!panel) return;
         e.preventDefault();
         ui.popover.toggle(panel, trigger);
     });
     var hoverTimer = 0, leaveTimer = 0, hovered = null;
+    function hoverOnly(trigger) { return trigger.getAttribute('data-popover-hover') === 'only'; }
     function delayOf(trigger) {
         var d = parseFloat(getComputedStyle(trigger).getPropertyValue('--hover-delay'));
         return isNaN(d) ? 400 : d;
@@ -1004,6 +1053,7 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
+        if (e.newState === 'closed') pinned.delete(panel);
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
@@ -2863,11 +2913,26 @@ window.sednaUi = window.sednaUi || {};
         handle.setAttribute('aria-valuenow', String(value));
         return value;
     }
-    function done(p, value) {
+    function done(p, value, folded) {
         p.target.dispatchEvent(new CustomEvent('sedna-resize', {
             bubbles: true,
-            detail: { property: p.property, value: value }
+            detail: { property: p.property, value: value, folded: !!folded }
         }));
+    }
+    function foldAt(handle) {
+        var f = parseFloat(handle.getAttribute('data-resize-fold'));
+        return isNaN(f) ? null : f;
+    }
+    function restore(handle, p, before, now) {
+        if (before) p.target.style.setProperty(p.property, before);
+        else p.target.style.removeProperty(p.property);
+        if (now === null) handle.removeAttribute('aria-valuenow');
+        else handle.setAttribute('aria-valuenow', now);
+    }
+    function fold(handle, p, before, now) {
+        restore(handle, p, before, now);
+        var value = parseFloat(before);
+        done(p, isNaN(value) ? null : value, true);
     }
     function reset(handle) {
         var p = parts(handle);
@@ -2885,19 +2950,27 @@ window.sednaUi = window.sednaUi || {};
         if (!p) return;
         e.preventDefault();
         var start = size(p), dir = sign(handle, p), origin = p.block ? e.clientY : e.clientX;
-        var value = start;
+        var value = start, folding = false, threshold = foldAt(handle);
+        var before = p.target.style.getPropertyValue(p.property), now = handle.getAttribute('aria-valuenow');
         try { handle.setPointerCapture(e.pointerId); } catch (err) { /* already released */ }
         handle.setAttribute('data-resizing', '');
         function move(ev) {
             var at = p.block ? ev.clientY : ev.clientX;
-            value = apply(handle, p, start + (at - origin) * dir);
+            var wanted = start + (at - origin) * dir;
+            folding = threshold !== null && wanted < threshold;
+            if (folding) handle.setAttribute('data-resize-folding', '');
+            else handle.removeAttribute('data-resize-folding');
+            value = apply(handle, p, wanted);
         }
-        function up() {
+        function up(ev) {
             handle.removeEventListener('pointermove', move);
             handle.removeEventListener('pointerup', up);
             handle.removeEventListener('pointercancel', up);
             handle.removeAttribute('data-resizing');
-            if (value !== start) done(p, value);
+            handle.removeAttribute('data-resize-folding');
+            if (folding && ev.type === 'pointerup') fold(handle, p, before, now);
+            else if (folding) restore(handle, p, before, now);
+            else if (value !== start) done(p, value);
         }
         handle.addEventListener('pointermove', move);
         handle.addEventListener('pointerup', up);
@@ -2917,8 +2990,12 @@ window.sednaUi = window.sednaUi || {};
         var by = forward[e.key];
         if (!by) return;
         e.preventDefault();
-        var value = apply(handle, p, size(p) + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1));
-        done(p, value);
+        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1);
+        if (foldAt(handle) !== null && wanted < current && current <= bounds(handle).min + 0.5) {
+            fold(handle, p, p.target.style.getPropertyValue(p.property), handle.getAttribute('aria-valuenow'));
+            return;
+        }
+        done(p, apply(handle, p, wanted));
     });
 })(window.sednaUi);
 (function (ui) {
@@ -4525,15 +4602,49 @@ window.sednaUi = window.sednaUi || {};
         }
     }
     layer.onChange(function (closing) { if (host && host.children.length) raise(closing); });
-    var live = {};       // id -> { el, remove, timer }
+    var live = {};       // id -> { el, remove, timer, waiters }
+    var ended = {};      // id -> how a toast that has gone ended, for a result() asked late
+    var endedOrder = [];
     var REGION_SETTLE_MS = 150;
     var nextId = 1;
+    function end(id, value) {
+        ended[id] = value;
+        endedOrder.push(id);
+        if (endedOrder.length > 100) delete ended[endedOrder.shift()];
+    }
+    function wire(entry, el) {
+        el.addEventListener('mouseenter', function () { hold(entry); });
+        el.addEventListener('mouseleave', function () { if (!el.contains(document.activeElement)) release(entry); });
+        el.addEventListener('focusin', function () { hold(entry); });
+        el.addEventListener('focusout', function (e) { if (!el.contains(e.relatedTarget) && !el.matches(':hover')) release(entry); });
+        el.addEventListener('click', function (e) {
+            if (!entry.template) return;
+            var t = e.target instanceof Element ? e.target.closest('[data-toast-value], .toast-close') : null;
+            if (!t || !el.contains(t)) return;
+            entry.remove(t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null, true);
+        });
+    }
+    function timeOut(entry, opts) {
+        clearTimeout(entry.timer);
+        entry.timer = 0;
+        var ms = !opts || opts.timeout === undefined ? 4000 : opts.timeout;
+        entry.left = ms;
+        entry.started = Date.now();
+        entry.timer = ms > 0 && !entry.held ? setTimeout(function () { entry.remove(null); }, ms) : 0;
+    }
     function paint(entry, message, opts) {
         opts = opts || {};
         var el = entry.el;
         var kind = ICONS[opts.kind] ? opts.kind : 'info';
         stack();
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
+        if (entry.template) {
+            var drawn = document.createElement('div');
+            wire(entry, drawn);
+            entry.el.replaceWith(drawn);
+            entry.el = el = drawn;
+            entry.template = false;
+        }
         el.className = 'toast toast--' + kind;
         el.textContent = '';
         var icon = document.createElement('i');
@@ -4558,15 +4669,10 @@ window.sednaUi = window.sednaUi || {};
             x.className = 'ri-close-line';
             x.setAttribute('aria-hidden', 'true');
             close.appendChild(x);
-            close.addEventListener('click', entry.remove);
+            close.addEventListener('click', function () { entry.remove(null); });
             el.appendChild(close);
         }
-        clearTimeout(entry.timer);
-        entry.timer = 0;
-        var ms = opts.timeout === undefined ? 4000 : opts.timeout;
-        entry.left = ms;
-        entry.started = Date.now();
-        entry.timer = ms > 0 && !entry.held ? setTimeout(entry.remove, ms) : 0;
+        timeOut(entry, opts);
     }
     function hold(entry) {
         if (entry.held) return;
@@ -4582,25 +4688,31 @@ window.sednaUi = window.sednaUi || {};
         if (entry.left > 0 && !entry.timer) {
             entry.started = Date.now();
             entry.left = Math.max(entry.left, 1000);
-            entry.timer = setTimeout(entry.remove, entry.left);
+            entry.timer = setTimeout(function () { entry.remove(null); }, entry.left);
         }
     }
-    ui.toast = function (message, opts) {
+    function create() {
         var id = nextId++;
-        var entry = { el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0 };
-        entry.el.addEventListener('mouseenter', function () { hold(entry); });
-        entry.el.addEventListener('mouseleave', function () { if (!entry.el.contains(document.activeElement)) release(entry); });
-        entry.el.addEventListener('focusin', function () { hold(entry); });
-        entry.el.addEventListener('focusout', function (e) { if (!entry.el.contains(e.relatedTarget) && !entry.el.matches(':hover')) release(entry); });
-        entry.remove = function () {
+        var entry = { id: id, el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0, waiters: [], template: false };
+        wire(entry, entry.el);
+        entry.remove = function (value, later) {
+            if (live[id] !== entry) return;
             clearTimeout(entry.timer);
             delete live[id];
-            drop(entry.el);
+            var el = entry.el;
+            if (later === true) setTimeout(function () { drop(el); }, 0);
+            else drop(el);
+            value = typeof value === 'string' ? value : null;
+            end(id, value);
+            var waiters = entry.waiters;
+            entry.waiters = [];
+            for (var i = 0; i < waiters.length; i++) waiters[i](value);
         };
         entry.remove.id = id;
         live[id] = entry;
-        var fresh = !host || !host.isConnected;
-        paint(entry, message, opts);
+        return entry;
+    }
+    function add(entry, fresh) {
         if (fresh) {
             entry.el.hidden = true;
             host.appendChild(entry.el);
@@ -4608,6 +4720,12 @@ window.sednaUi = window.sednaUi || {};
         } else {
             host.appendChild(entry.el);
         }
+    }
+    ui.toast = function (message, opts) {
+        var entry = create();
+        var fresh = !host || !host.isConnected;
+        paint(entry, message, opts);
+        add(entry, fresh);
         return entry.remove;
     };
     ui.toast.show = function (message, opts) {
@@ -4616,7 +4734,7 @@ window.sednaUi = window.sednaUi || {};
     ui.toast.dismiss = function (id) {
         var entry = live[id];
         if (!entry) return false;
-        entry.remove();
+        entry.remove(null);
         return true;
     };
     ui.toast.replace = function (id, message, opts) {
@@ -4624,5 +4742,47 @@ window.sednaUi = window.sednaUi || {};
         if (!entry) return ui.toast.show(message, opts);
         paint(entry, message, opts);
         return id;
+    };
+    ui.toast.present = function (template, data, opts) {
+        opts = opts || {};
+        var t = typeof template === 'string' ? document.getElementById(template) : template;
+        var slots = {}, href = null;
+        Object.keys(data || {}).forEach(function (k) {
+            if (k === 'href') href = data[k]; else slots[k] = data[k];
+        });
+        var node = t && t.tagName === 'TEMPLATE' ? ui._.fill(t, slots) : null;
+        if (!node) {
+            console.warn('sednaUi.toast.present: no <template> with the id ' + template + '. The toast is app markup — see the Toast page.');
+            return 0;
+        }
+        var links = node.matches('[data-href]') ? [node] : [];
+        Array.prototype.push.apply(links, node.querySelectorAll('[data-href]'));
+        var safe = ui._.safeHref(href);
+        links.forEach(function (a) {
+            a.removeAttribute('data-href');
+            if (safe) a.setAttribute('href', safe); else a.removeAttribute('href');
+        });
+        var entry = opts.replace ? live[opts.replace] : null;
+        var fresh = !host || !host.isConnected;
+        if (entry) {
+            wire(entry, node);
+            entry.el.replaceWith(node);
+            entry.el = node;
+        } else {
+            entry = create();
+            entry.el = node;
+            wire(entry, node);
+        }
+        entry.template = true;
+        stack();
+        host.setAttribute('aria-live', node.matches('.toast--danger') ? 'assertive' : 'polite');
+        if (!node.isConnected) add(entry, fresh);
+        timeOut(entry, opts);
+        return entry.id;
+    };
+    ui.toast.result = function (id) {
+        var entry = live[id];
+        if (!entry) return Promise.resolve(Object.prototype.hasOwnProperty.call(ended, id) ? ended[id] : null);
+        return new Promise(function (resolve) { entry.waiters.push(resolve); });
     };
 })(window.sednaUi);

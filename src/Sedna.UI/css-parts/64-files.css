@@ -177,7 +177,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1;
+    aspect-ratio: var(--media-ratio, 1);
     overflow: hidden;
     border-radius: var(--radius-inner);
     background: var(--surface-soft);
@@ -185,7 +185,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
 .file-tile-thumb > img { width: 100%; height: 100%; object-fit: cover; }
 .file-tile-thumb > .file-icon { --file-icon-size: 56px; background: transparent; }
 .file-tile-thumb > .file-icon > i { font-size: var(--text-11); }
-.file-grid--wide .file-tile-thumb { aspect-ratio: 16 / 9; }
+.file-grid--wide { --media-ratio: 16 / 9; }
 /* A picture that must not be cropped — a logo, a screenshot — in either of two shapes.
    `--contain` keeps the tile's frame and fits the whole picture inside it, so a row of
    tiles stays level. `--natural` drops the frame and takes the picture's own ratio,

@@ -39,7 +39,8 @@ something, it is listed below and repeated in the class's own comment.
 |---|---|
 | `.tabs` / `.tab` / `.tab-panel` | `role="tablist"` / `role="tab"` + `aria-selected` + `aria-controls` / `role="tabpanel"`, **and arrow-key movement with a roving tabindex**. `data-tabs` does the keyboard part for you. |
 | `.menu` | `aria-expanded` on the trigger. Nothing else — see below on why there is no `role="menu"`. |
-| `.form-input` when rejected | `aria-invalid="true"` (the styling keys off it, not off a class) and `aria-describedby` pointing at the `.form-error` |
+| A field when rejected | `aria-invalid="true"` on the control — on the input inside an `.input-group` or a combo box, not on the frame; the styling keys off it, not off a class — and `aria-describedby` pointing at the `.form-error` |
+| A field when unusual | `data-state="warn"` on the control, and `aria-describedby` pointing at the `.form-warning`. No ARIA attribute says "unusual", so the message is what a screen reader hears. |
 | `.form-label--required` | `required` on the control. The `*` is decoration. |
 | `.segmented` | one `name` shared by every radio, and a group name via `<fieldset>` or `aria-labelledby` |
 | `.avatar` | the person's name in text, an `alt`, or a `.visually-hidden` span. Initials are not a name. |

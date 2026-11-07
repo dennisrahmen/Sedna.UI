@@ -15,4 +15,11 @@ public sealed class SednaResizeEventArgs : EventArgs
 
     /// <summary>The size in pixels, or null once the reader put it back to the default.</summary>
     public double? Value { get; set; }
+
+    /// <summary>
+    /// True when the reader dragged it below the handle's <c>data-resize-fold</c>, or pressed an
+    /// arrow towards smaller at its minimum: the app folds it — a card takes <c>.card--folded</c>.
+    /// The size is back at what it was before, and <see cref="Value"/> says what that is.
+    /// </summary>
+    public bool Folded { get; set; }
 }

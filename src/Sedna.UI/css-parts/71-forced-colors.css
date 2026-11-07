@@ -61,6 +61,7 @@
         --warn-solid: CanvasText; --warn-bg: Canvas;   --warn-border: CanvasText; --warn-fg: CanvasText;
         --danger-solid: CanvasText; --danger-bg: Canvas; --danger-fg: CanvasText;
         --danger-border: CanvasText; --danger-border-strong: CanvasText;
+        --field-border-danger: CanvasText; --field-border-warn: CanvasText;
         --info-bg: Canvas;   --info-border: CanvasText;   --info-fg: CanvasText;
         /* Data on its way into the step at work is the other thing it points at. */
         --flow-light: Highlight; --flow-line: CanvasText; --flow-tint: Canvas; --flow-glow: Canvas;
@@ -177,6 +178,16 @@
     .sticky-group-toggle:focus-visible,
     .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
+    :is(a, button).toast-body:focus-visible,
+    :is(.form-input, .form-select)[data-state="warn"]:focus,
+    :is(.form-input, .form-select)[aria-invalid="true"]:focus,
+    .form-color[data-state="warn"]:focus-visible,
+    .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
+    .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
+    .form-combo-box:has(> .form-combo-input[data-state="warn"]):focus-within,
+    .editor[data-state="warn"]:focus-within,
+    .editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within,
+    .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within,
     :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */

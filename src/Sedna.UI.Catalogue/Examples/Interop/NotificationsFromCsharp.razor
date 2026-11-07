@@ -1,0 +1,98 @@
+@inject ISednaUi Ui
+
+<template id="note-card">
+    <div class="toast toast--info">
+        <i class="ri-notification-3-line" aria-hidden="true"></i>
+        <div class="toast-body">
+            <strong data-title></strong><span data-text></span>
+            <div class="toast-actions">
+                <button class="btn btn--sm btn--brand btn--solid" type="button" data-toast-value="open">Open</button>
+                <button class="btn btn--sm" type="button" data-toast-value="read">Mark as read</button>
+            </div>
+        </div>
+        <button class="toast-close" type="button" aria-label="Dismiss"><i class="ri-close-line" aria-hidden="true"></i></button>
+    </div>
+</template>
+<template id="note-more">
+    <div class="toast">
+        <i class="ri-stack-line" aria-hidden="true"></i>
+        <button class="toast-body" type="button" data-toast-value="all"><strong data-count></strong><span>Show every notification</span></button>
+    </div>
+</template>
+
+<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+    <button class="btn" type="button" @onclick="Arrive"><i class="ri-notification-3-line"></i> <span>A notification arrives</span></button>
+    <span class="text-muted" role="status">@_status</span>
+</div>
+
+@code {
+    private const int Shown = 3;
+    private readonly Queue<string> _waiting = new();
+    private int _onScreen;
+    private SednaToast? _more;
+    private int _next = 4182;
+    private string _status = "Press it a few times.";
+
+    private async Task Arrive()
+    {
+        var order = $"ORD-{_next++}";
+        if (_onScreen < Shown) await Show(order);
+        else
+        {
+            _waiting.Enqueue(order);
+            await UpdateMore();
+        }
+    }
+
+    // One card per notification, up to three; each waits for what the reader does with it.
+    private async Task Show(string order)
+    {
+        var card = await Ui.PresentToastAsync("note-card",
+            new Dictionary<string, string?> { ["title"] = "Assigned to you", ["text"] = $"{order} · Northwind Retail" }, timeoutMs: 0);
+        if (card is null) return;
+        _onScreen++;
+        _ = Handle(order, card);
+    }
+
+    private async Task Handle(string order, SednaToast card)
+    {
+        var choice = await card.ResultAsync();
+        _status = choice switch
+        {
+            "open" => $"Opened {order}.",
+            "read" => $"{order} marked as read.",
+            _ => $"{order} put away.",
+        };
+        _onScreen--;
+        if (_waiting.TryDequeue(out var next)) await Show(next);
+        await UpdateMore();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // The rest fold into one card that counts them, replaced in place as the count moves.
+    private async Task UpdateMore()
+    {
+        if (_waiting.Count == 0)
+        {
+            if (_more is not null) await _more.DismissAsync();
+            _more = null;
+            return;
+        }
+        var data = new Dictionary<string, string?> { ["count"] = $"+{_waiting.Count} more" };
+        if (_more is null)
+        {
+            _more = await Ui.PresentToastAsync("note-more", data, timeoutMs: 0);
+            if (_more is not null) _ = ShowAll(_more);
+        }
+        else await _more.ReplaceFromTemplateAsync("note-more", data, timeoutMs: 0);
+    }
+
+    private async Task ShowAll(SednaToast more)
+    {
+        if (await more.ResultAsync() != "all") return;
+        _status = $"Showing all {_waiting.Count} waiting notifications.";
+        _waiting.Clear();
+        _more = null;
+        await InvokeAsync(StateHasChanged);
+    }
+}

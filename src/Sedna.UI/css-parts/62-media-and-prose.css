@@ -6,13 +6,22 @@
    images arrive: the box has its height before the image loads. `contain` rather
    than `cover` because these are documents, and cropping a screenshot removes the
    part somebody needed.
+
+   THE RATIO IS ONE TOKEN FOR EVERY FRAMED MEDIUM. `--media-ratio` is read by every
+   box that holds a picture at a fixed shape — .media-frame, .skeleton-image,
+   .choice-tile-art, .file-tile-thumb and a .media-player's video — so an app sets
+   `--media-ratio: 4 / 3` on one frame or on a whole container, and a skeleton swaps
+   for the loaded frame at the same height. Each frame names its own default in the
+   fallback and declares nothing on itself, so a value set on a container reaches it;
+   the modifiers and the gallery set the token rather than the ratio, for the same
+   reason. The video ratio, 16:9, is the default wherever there is no other.
    ─────────────────────────────────────────────────────────────────────────── */
 .media-frame {
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -20,10 +29,28 @@
 .media-frame > img,
 .media-frame > video,
 .media-frame > iframe { max-width: 100%; max-height: 100%; object-fit: contain; border: none; }
-.media-frame--square { aspect-ratio: 1; }
-.media-frame--wide { aspect-ratio: 21 / 9; }
+.media-frame--square { --media-ratio: 1; }
+.media-frame--wide { --media-ratio: 21 / 9; }
 /* Fills and crops — right for a decorative banner, wrong for a document. */
 .media-frame--cover > img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Transparency ─────────────────────────────────────────────────────────────
+   A checkerboard behind a picture, so a transparent background or edge can be told
+   from a white or grey one — a logo, an icon, a cut-out, an upload being checked.
+   One modifier on every frame that shows a picture: .media-frame, .file-tile-thumb,
+   .file-thumb, .choice-tile-art and the lightbox's stage. It is painted behind the
+   picture itself, not the frame, so a letterbox stays plain and the checkerboard ends
+   where the picture does.
+
+   The squares are the two quiet steps every theme already has, --surface-soft and
+   --border, so they follow the variant, the contrast setting and an app's brand.
+   `--checker-size` is one square's side. */
+:is(.media-frame--transparency, .file-tile-thumb--transparency, .file-thumb--transparency,
+    .choice-tile-art--transparency, .lightbox-stage--transparency) > :is(img, svg) {
+    background-color: var(--surface-soft);
+    background-image: repeating-conic-gradient(var(--border) 0 25%, transparent 0 50%);
+    background-size: calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
 
 /* A caption belongs to the figure, so use <figure>/<figcaption> and this styles the
    caption. An image whose meaning is in the caption still needs a real alt. */
@@ -39,7 +66,7 @@
     gap: var(--space-5);
 }
 .gallery > * { position: relative; display: block; text-decoration: none; }
-.gallery .media-frame { aspect-ratio: 1; }
+.gallery { --media-ratio: 1; }
 .gallery > a:hover .media-frame,
 .gallery > button:hover .media-frame { border-color: var(--border-hover); }
 .gallery > *:focus-visible { outline: none; }

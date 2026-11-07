@@ -123,4 +123,98 @@ public class ResizeTests : ScriptTestBase
         Assert.Equal(0, value % 20);         // snapped to the handle's own step
         Assert.Empty(errors);
     }
+
+    private const string Ceiling = """
+        <div style="width:400px">
+          <div class="card card--resizable" id="short">
+            <div class="card-head"><h3>Due today</h3></div>
+            <div class="card-body"><p style="height:60px; margin:0">Two orders</p></div>
+            <div class="card-resize" id="hs" data-resize="--card-max-height" data-resize-fold="80" role="separator" aria-orientation="horizontal"
+                 aria-label="Resize Due today" aria-valuemin="120" aria-valuemax="600" tabindex="0"></div>
+          </div>
+          <div class="card card--resizable" id="long">
+            <div class="card-head"><h3>Open orders</h3></div>
+            <div class="card-body"><p style="height:900px; margin:0">Rows</p></div>
+            <div class="card-resize" id="hl" data-resize="--card-max-height" data-resize-fold="80" role="separator" aria-orientation="horizontal"
+                 aria-label="Resize Open orders" aria-valuemin="120" aria-valuemax="600" aria-valuenow="320" tabindex="0"></div>
+          </div>
+        </div>
+        <script>window.ended = []; document.addEventListener('sedna-resize', e => window.ended.push([e.target.id, e.detail.value, e.detail.folded]));</script>
+        """;
+
+    private static async Task Drag(IPage page, string handle, float by)
+    {
+        var box = (await page.Locator(handle).BoundingBoxAsync())!;
+        var (x, y) = (box.X + box.Width / 2, box.Y + box.Height / 2);
+        await page.Mouse.MoveAsync(x, y);
+        await page.Mouse.DownAsync();
+        await page.Mouse.MoveAsync(x, y + by, new() { Steps = 6 });
+        await page.Mouse.UpAsync();
+    }
+
+    [Fact]
+    public async Task A_ceiling_lets_a_short_card_follow_its_content_and_caps_a_long_one()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Ceiling);
+        var natural = await Height(page, "short");
+        await Js.Run(page, "() => document.getElementById('long').style.setProperty('--card-max-height', '320px')");
+        Assert.Equal(320, await Height(page, "long"), 0.5);
+
+        await Drag(page, "#hs", 200);                                  // a ceiling far above its content
+        Assert.Equal(natural, await Height(page, "short"), 0.5);       // follows the content, no empty room
+
+        await Drag(page, "#hl", 80);                                   // the long one starts from its real height
+        Assert.Equal(400, await Height(page, "long"), 0.5);
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_drag_below_the_fold_threshold_folds_and_keeps_the_readers_height()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Ceiling);
+        await Js.Run(page, "() => document.getElementById('long').style.setProperty('--card-max-height', '320px')");
+
+        var box = (await page.Locator("#hl").BoundingBoxAsync())!;
+        var (x, y) = (box.X + box.Width / 2, box.Y + box.Height / 2);
+        await page.Mouse.MoveAsync(x, y);
+        await page.Mouse.DownAsync();
+        await page.Mouse.MoveAsync(x, y - 280, new() { Steps = 6 });   // 320 - 280 = 40, under the 80 threshold
+        Assert.Equal("", await page.GetAttributeAsync("#hl", "data-resize-folding"));
+        await page.Mouse.UpAsync();
+
+        Assert.Null(await page.GetAttributeAsync("#hl", "data-resize-folding"));
+        Assert.Equal("320px", await page.EvaluateAsync<string>("() => document.getElementById('long').style.getPropertyValue('--card-max-height')"));
+        Assert.Equal("320", await page.GetAttributeAsync("#hl", "aria-valuenow"));
+        Assert.Equal("[[\"long\",320,true]]", await page.EvaluateAsync<string>("() => JSON.stringify(window.ended)"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task An_arrow_towards_smaller_at_the_minimum_folds()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Ceiling);
+        await Js.Run(page, "() => document.getElementById('long').style.setProperty('--card-max-height', '128px')");
+        await page.FocusAsync("#hl");
+
+        await page.Keyboard.PressAsync("ArrowUp");                    // 128 -> 120, the minimum: a resize
+        await page.Keyboard.PressAsync("ArrowUp");                    // at the minimum and asked for less: a fold
+        Assert.Equal("[[\"long\",120,false],[\"long\",120,true]]", await page.EvaluateAsync<string>("() => JSON.stringify(window.ended)"));
+        Assert.Equal("120px", await page.EvaluateAsync<string>("() => document.getElementById('long').style.getPropertyValue('--card-max-height')"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_handle_with_no_fold_threshold_never_folds()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Card);
+        await Js.Run(page, "() => document.getElementById('card').style.setProperty('--card-height', '120px')");
+        await page.FocusAsync("#h");
+        await page.Keyboard.PressAsync("ArrowUp");
+        Assert.Equal("[120]", await page.EvaluateAsync<string>("() => JSON.stringify(window.ended)"));
+        Assert.Empty(errors);
+    }
 }

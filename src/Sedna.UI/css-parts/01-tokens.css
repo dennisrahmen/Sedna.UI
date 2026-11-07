@@ -239,6 +239,12 @@
     --field-border:       var(--slate-500);
     --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
+    /* The edge of a field in a state (46-form-layout.css, "Field states"): rejected and
+       unusual. Their own roles rather than --danger-border-strong and --warn-border,
+       which are a tint's edge and fall far under the 3:1 a field's boundary needs on a
+       dark card — a rejected field lost its outline. StateContrastTests holds both. */
+    --field-border-danger: var(--crimson-500);
+    --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
 
     /* ── Disabled ───────────────────────────────────────────────────────────
@@ -255,6 +261,10 @@
     --sidebar-bg:      var(--slate-900);
     --sidebar-border:  var(--slate-800);
     --sidebar-fg:      var(--slate-200);
+    /* Quiet text drawn straight on the sidebar: a section label, the brand's second line,
+       a tool link. An alias of --muted, so nothing moves until an app gives the sidebar a
+       colour of its own and sets this beside --sidebar-fg. */
+    --sidebar-muted:   var(--muted);
     --sidebar-active:  var(--coral-600);
     /* The nav's hover surface has to be its own token rather than --bg-elevated,
        which is what it used to be. Elevation runs the other way in the light
@@ -270,7 +280,12 @@
        elsewhere — a brand-coloured header with white text in the light variant is
        --topbar-bg, --topbar-fg and --topbar-muted together, and --topbar-hover for what
        the pointer is on. Panels that open from the header (the user menu, the search
-       results) are surfaces of their own and keep the page's roles. */
+       results) are surfaces of their own and keep the page's roles.
+
+       Each frame region with a surface of its own — the topbar, the sidebar, the bottom
+       bar — says what quiet text on it is painted in, as --muted-here, the way it says
+       what its surface is as --surface-here; .text-muted, .eyebrow and
+       .nav-section-label read it, and every surface resets it to --muted. */
     --topbar-bg:       var(--bg-elevated);
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
@@ -436,6 +451,9 @@
        black, and a label on a photograph cannot know what the photograph is. */
     --media-bg:      var(--black);
     --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    /* One square of the checkerboard behind a picture in a `--transparency` frame
+       (62-media-and-prose.css). */
+    --checker-size:  8px;
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);

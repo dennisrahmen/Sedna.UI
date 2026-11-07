@@ -43,6 +43,69 @@ public class MenuPointerTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task The_app_opens_a_menu_at_a_point_by_id_and_hears_whether_it_opened()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Menu);
+        var opened = await page.EvaluateAsync<bool[]>("""
+            () => [sednaUi.menu.openAt('m', 160, 115, 'row'), sednaUi.menu.openAt('no-such-menu', 0, 0)]
+            """);
+        Assert.Equal([true, false], opened);
+        await Assertions.Expect(page.Locator("#m")).ToBeVisibleAsync();
+        Assert.Equal("copy", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+        Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('row').hasAttribute('data-menu-context-target')"));
+
+        await page.Keyboard.PressAsync("Escape");
+        await Assertions.Expect(page.Locator("#m")).ToBeHiddenAsync();
+        // The toggle event that clears it is a task of its own, after the panel hides.
+        await page.WaitForFunctionAsync("() => !document.getElementById('row').hasAttribute('data-menu-context-target')");
+        Assert.Empty(errors);
+    }
+
+    [Theory]
+    [InlineData("'row'")]
+    [InlineData("null")]
+    public async Task A_menu_at_a_point_closes_when_the_page_scrolls_from_under_it(string about)
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled($"""
+            <div id="scroller" style="height:300px; overflow:auto">
+              <div style="height:1200px; padding-top:100px">
+                <div id="row" style="width:300px;height:40px">ORD-4182</div>
+              </div>
+            </div>
+            <div id="other" style="height:100px; overflow:auto"><div style="height:400px"></div></div>
+            <div class="menu" id="m" popover style="max-height:80px; overflow:auto">
+              <button class="menu-item" type="button">Copy</button><button class="menu-item" type="button">Open</button>
+              <button class="menu-item" type="button">Pin</button><button class="menu-item" type="button">Cancel order</button>
+            </div>
+            """);
+        async Task<bool> Open() => await page.EvaluateAsync<bool>("() => document.getElementById('m').matches(':popover-open')");
+        async Task Scroll(string id, string by) =>
+            await Js.Run(page, $"() => {{ document.getElementById('{id}').scrollTop += {by}; }}");
+
+        Assert.True(await page.EvaluateAsync<bool>($"() => sednaUi.menu.openAt('m', 160, 115, {about})"));
+        Assert.True(await Open());
+
+        await Scroll("m", "40");          // the menu's own list, never
+        await page.WaitForTimeoutAsync(50);
+        Assert.True(await Open());
+
+        if (about != "null")
+        {
+            await Scroll("other", "40");  // a scroller that does not hold what it is about
+            await page.WaitForTimeoutAsync(50);
+            Assert.True(await Open());
+        }
+
+        await Scroll("scroller", "60");
+        // A scroll event can land a frame later under load; the close is what is waited for.
+        await page.WaitForFunctionAsync("() => !document.getElementById('m').matches(':popover-open')",
+            null, new() { Timeout = 5000 });
+        Assert.Empty(errors);
+    }
+
+    [Fact]
     public async Task The_arrow_keys_move_through_the_menu_and_into_and_out_of_a_submenu()
     {
         if (NoBrowser) return;
@@ -81,6 +144,60 @@ public class MenuPointerTests : ScriptTestBase
 
         await page.Mouse.MoveAsync(5, 5);
         await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_second_click_on_the_trigger_closes_a_pinned_hover_card()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <p style="padding:80px"><button class="btn" id="t" type="button" data-popover="card" data-popover-hover>Open items</button></p>
+            <div class="popover" id="card" popover><p>Three items due in the next 14 days</p></div>
+            """);
+
+        await page.ClickAsync("#t");                                   // pins it
+        await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();
+        await page.Mouse.MoveAsync(5, 5);
+        await page.WaitForTimeoutAsync(400);
+        await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();   // pinned: leaving does not close it
+
+        await page.ClickAsync("#t");                                   // and the trigger again closes it
+        await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();
+        await Assertions.Expect(page.Locator("#t")).ToHaveAttributeAsync("aria-expanded", "false");
+
+        await page.ClickAsync("#t");                                   // a third pins it again
+        await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_hover_only_card_opens_on_hover_and_focus_and_leaves_the_click_to_the_trigger()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <p style="padding:80px"><button class="btn" id="t" type="button" data-popover="card" data-popover-hover="only"
+                onclick="window.clicked = (window.clicked || 0) + 1">Hosting costs</button></p>
+            <div class="popover" id="card" popover><p>This month so far: 41.20 EUR</p></div>
+            """);
+
+        await page.HoverAsync("#t");
+        await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();
+
+        await page.ClickAsync("#t");
+        await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();      // out of the way of what the click opens
+        Assert.Equal(1, await page.EvaluateAsync<int>("() => window.clicked"));  // the trigger's own action ran
+        await page.Mouse.MoveAsync(5, 5);
+        await page.WaitForTimeoutAsync(400);
+        await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();      // and nothing pinned it
+
+        // Chromium focuses a clicked button and WebKit does not, so start from no focus at all.
+        await Js.Run(page, "() => { if (document.activeElement) document.activeElement.blur(); }");
+        await page.FocusAsync("#t");
+        await Assertions.Expect(page.Locator("#card")).ToBeVisibleAsync();    // focus opens it, as hover does
+        await page.Keyboard.PressAsync("Enter");
+        await Assertions.Expect(page.Locator("#card")).ToBeHiddenAsync();
+        Assert.Equal(2, await page.EvaluateAsync<int>("() => window.clicked"));
         Assert.Empty(errors);
     }
 }

@@ -7,10 +7,10 @@ const close = sednaUi.toast('ORD-4182 is on its way to EU-West.', {
 });
 close();                          // e.g. once the SignalR event confirms it
 
-// C#. The remover cannot cross the JS boundary, so ToastAsync returns nothing.
-// For a toast the app has to be able to withdraw, keep it in JavaScript.
-await Ui.ToastAsync("ORD-4182 is on its way to EU-West.",
-                    ToastKind.Go, title: "Order dispatched");
+// C#. The remover cannot cross the JS boundary, so ToastAsync returns a handle
+// that names the toast by its id: DismissAsync, ReplaceAsync.
+var toast = await Ui.ToastAsync("ORD-4182 is on its way to EU-West.",
+                                ToastKind.Go, title: "Order dispatched");
 
 // A failure the reader has to see gets timeout: 0. It is announced through
 // aria-live on the stack — assertive for danger, polite for everything else —
@@ -21,3 +21,16 @@ await Ui.ToastAsync("The endpoint returned 503. Nothing was written.",
 // The stack is created on first use and found by data-sedna-toasts, so an app
 // renders nothing and positions nothing. Only a stack the library created is
 // ever appended to or removed.
+
+// A toast you write: cloned from your <template>, its data-* slots filled as text,
+// `href` on its [data-href] link. Returns the id, or 0 when there is no such template.
+const id = sednaUi.toast.present('toast-assigned',
+    { title: 'Assigned to you', text: 'ORD-4182', href: '/orders/4182' },
+    { timeout: 0 });                       // replace: <id> puts it in that toast's place
+const choice = await sednaUi.toast.result(id);   // 'open' — its data-toast-value — or null
+
+// C#.
+var card = await Ui.PresentToastAsync("toast-assigned",
+    new Dictionary<string, string?> { ["title"] = "Assigned to you", ["href"] = "/orders/4182" },
+    timeoutMs: 0);
+if (card is not null && await card.ResultAsync() == "open") { /* mark it read */ }

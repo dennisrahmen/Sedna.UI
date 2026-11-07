@@ -58,7 +58,14 @@
     --bottombar-height: 46px;
     --bottombar-radius: var(--radius-surface);
     --bottombar-surface: var(--bg-elevated);
+    /* What is drawn straight on the bar, as the topbar's tokens are: an app that colours
+       the bar sets these four together. */
+    --bottombar-fg: var(--fg);
+    --bottombar-muted: var(--muted);
+    --bottombar-hover: var(--bg-hover);
     --surface-here: var(--bottombar-surface);
+    --muted-here: var(--bottombar-muted);
+    color: var(--bottombar-fg);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -91,7 +98,7 @@
        the row's centre. */
     border-top: 2px solid transparent;
     border-bottom: 2px solid transparent;
-    color: var(--muted);
+    color: var(--bottombar-muted);
     font-family: inherit;
     font-size: var(--text-3);
     font-weight: 500;
@@ -99,7 +106,7 @@
     text-decoration: none;
     cursor: pointer;
 }
-.bottombar-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.bottombar-item:hover { background: var(--bottombar-hover); color: var(--bottombar-fg); text-decoration: none; }
 .bottombar-item:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 
 .bottombar-icon { position: relative; display: inline-flex; }
@@ -141,7 +148,7 @@
     flex: 0 1 auto;
     padding-inline: var(--space-6);
     border-top-color: var(--tab-indicator);
-    color: var(--fg);
+    color: var(--bottombar-fg);
 }
 .bottombar-item.active i,
 .bottombar-item[aria-current="page"] i { color: var(--brand-text); }

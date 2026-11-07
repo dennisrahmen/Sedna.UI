@@ -49,7 +49,7 @@
 .choice-tile-art {
     display: grid;
     place-items: center;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     margin-block-end: var(--space-2);
     border-radius: var(--radius-inner);
     background: var(--surface-soft);

@@ -47,6 +47,7 @@ public class BusyStateTests
         "choice-tile",                          // a choice, read-only not busy
         "cal-mark",                             // opens a list; nothing of its own runs
         "sticky-group-toggle",                  // folds a group; nothing of its own runs
+        "editor",                               // a field: read-only, not busy — the form it sits in is
     };
 
     [Fact]

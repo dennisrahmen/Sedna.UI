@@ -1,0 +1,24 @@
+<button class="btn" type="button" data-popover="hosting-summary" data-popover-hover="only"
+        onclick="document.getElementById('hosting-costs').showModal()">
+    <i class="ri-server-line"></i> <span>Hosting costs</span>
+</button>
+<div class="popover" id="hosting-summary" popover>
+    <strong class="popover-title">This month so far</strong>
+    <div class="kv"><span class="k">Spent</span><span class="v">41.20 EUR</span></div>
+    <div class="kv"><span class="k">Forecast</span><span class="v">63.00 EUR</span></div>
+</div>
+
+<dialog class="modal" id="hosting-costs" aria-labelledby="hosting-costs-title">
+    <form method="dialog">
+        <div class="modal-header">
+            <h3 id="hosting-costs-title">Hosting costs</h3>
+            <button class="modal-close" value="close" aria-label="Close"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="modal-body">
+            <p>orders-console-01 and build-runner-04, billed daily. The full breakdown by service is in the invoice.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" value="close">Close</button>
+        </div>
+    </form>
+</dialog>

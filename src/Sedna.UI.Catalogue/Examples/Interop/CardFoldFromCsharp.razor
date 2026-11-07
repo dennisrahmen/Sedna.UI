@@ -1,0 +1,53 @@
+<div class="sedna-grid" style="--grid-min: 260px; --grid-max: 2">
+    @foreach (var widget in _widgets)
+    {
+        <div class="card card--resizable @(widget.Folded ? "card--folded" : "")" id="@widget.Id"
+             style="--card-max-height: @(widget.Height)px" @onsedna-resize="e => Resized(widget, e)">
+            <div class="card-head">
+                <h3 id="@($"{widget.Id}-title")">@widget.Title</h3>
+                <div class="card-head-right">
+                    <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-expanded="@(!widget.Folded ? "true" : "false")"
+                            aria-label="@($"{(widget.Folded ? "Unfold" : "Fold")} {widget.Title}")" @onclick="() => widget.Folded = !widget.Folded">
+                        <i class="@(widget.Folded ? "ri-arrow-down-s-line" : "ri-arrow-up-s-line")"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <ul class="list">
+                    @foreach (var row in widget.Rows)
+                    {
+                        <li><a class="list-row" href="#"><span class="list-main"><span class="list-title">@row</span></span></a></li>
+                    }
+                </ul>
+            </div>
+            <div class="card-resize" data-resize="--card-max-height" data-resize-fold="96" role="separator" aria-orientation="horizontal"
+                 aria-labelledby="@($"{widget.Id}-title")" aria-valuemin="140" aria-valuenow="@widget.Height" tabindex="0"></div>
+        </div>
+    }
+</div>
+
+@code {
+    private sealed class Widget(string id, string title, int height, params string[] rows)
+    {
+        public string Id { get; } = id;
+        public string Title { get; } = title;
+        public int Height { get; set; } = height;
+        public bool Folded { get; set; }
+        public string[] Rows { get; } = rows;
+    }
+
+    // Each reader's own heights and folds, which an app would keep per user.
+    private readonly Widget[] _widgets =
+    [
+        new("w-due", "Due today", 320, "ORD-4182", "ORD-4183"),
+        new("w-open", "Open orders", 220, "ORD-4182", "ORD-4183", "ORD-4184", "ORD-4185", "ORD-4186", "ORD-4187", "ORD-4188"),
+    ];
+
+    // The height the reader dragged is a ceiling: a short list keeps its own height. Dragged
+    // below the fold threshold, the card folds and keeps the height it had for unfolding.
+    private static void Resized(Widget widget, SednaResizeEventArgs e)
+    {
+        if (e.Value is { } height) widget.Height = (int)height;
+        if (e.Folded) widget.Folded = true;
+    }
+}

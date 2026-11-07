@@ -1237,6 +1237,29 @@ window.sednaUi = window.sednaUi || {};
         }
     }
 
+    /* A menu opened at the pointer (22-menu.js) hangs off a point fixed to the viewport, so
+       the page moving under it is what makes it stale: a scroll that moves the element it
+       is about, or any scroll outside it when it is about no element. A `.menu[popover]`
+       opened by a popovertarget button follows the button, as a popover does. */
+    function closePointMenus(scroller) {
+        var open;
+        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        catch (err) { return; }
+
+        for (var i = 0; i < open.length; i++) {
+            var panel = open[i];
+            var origin = ui._.menuOrigin ? ui._.menuOrigin(panel) : undefined;
+            var close = origin === null
+                ? !(panel === scroller || panel.contains(scroller))
+                : stale(scroller, panel, origin === undefined
+                    ? (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null)
+                    : origin);
+            if (close) {
+                try { panel.hidePopover(); } catch (err2) { /* already closing */ }
+            }
+        }
+    }
+
     /* A combo field's panel hangs off its box the same way. An inline one is in
        the flow and has nothing to go stale. */
     function closeCombos(scroller) {
@@ -1261,6 +1284,7 @@ window.sednaUi = window.sednaUi || {};
         var scroller = scrolledElement(e.target);
         if (!scroller) return;
         closeMenus(scroller);
+        closePointMenus(scroller);
         closePopovers(scroller);
         closeCombos(scroller);
     }, true);
@@ -1528,8 +1552,16 @@ window.sednaUi = window.sednaUi || {};
        and Shift+F10, and moves the focus to its first item. The point is a 0×0 anchor
        nobody sees, so 58-menu.css places and flips the panel at the screen's edges with
        position-area, as it places a dropdown. The element the menu opened on carries
-       `data-menu-context-target` while it is open, for the app to read. */
+       `data-menu-context-target` while it is open, for the app to read.
+
+       `openAt(panel, x, y, on)` is the same from the app's own code — for a menu the app
+       decides to open, after checks of its own, which `data-menu-context` would skip. The
+       panel and the element it is about are elements or ids, so C# can name them
+       (ISednaUi.OpenMenuAtAsync), and it answers whether a menu opened. A scroll that
+       moves the element it opened on closes it, and a menu opened at a bare point closes
+       on any scroll outside it: the page has moved out from under it (22-anchored.js). */
     var point = null;
+    var origins = new WeakMap();   // a menu opened at a point -> the element it is about, or null
 
     function pointAt(x, y) {
         if (!point) {
@@ -1543,9 +1575,30 @@ window.sednaUi = window.sednaUi || {};
         return point;
     }
 
+    function byId(x) { return typeof x === 'string' ? document.getElementById(x) : x; }
+
     function openAt(panel, x, y, on) {
-        if (!panel || typeof panel.showPopover !== 'function') return;
+        panel = byId(panel);
+        on = byId(on) || null;
+        if (!panel || typeof panel.showPopover !== 'function') return false;
+        // Safari on macOS raises contextmenu on the press, and the release that follows would
+        // light-dismiss a panel opened then; so while a secondary button is down the menu opens
+        // on its release — whoever asked for it, the contextmenu handler below or the app.
+        if (secondaryDown) {
+            document.addEventListener('pointerup', function once(ev) {
+                if (ev.button !== 2) return;
+                document.removeEventListener('pointerup', once, true);
+                setTimeout(function () { show(panel, x, y, on); }, 0);
+            }, true);
+            return true;
+        }
+        show(panel, x, y, on);
+        return true;
+    }
+
+    function show(panel, x, y, on) {
         pointAt(x, y);
+        origins.set(panel, on);
         var was = document.querySelector('[data-menu-context-target]');
         if (was) was.removeAttribute('data-menu-context-target');
         if (on) on.setAttribute('data-menu-context-target', '');
@@ -1556,10 +1609,10 @@ window.sednaUi = window.sednaUi || {};
     }
 
     ui.menu.openAt = openAt;
+    /* What a menu opened at a point is about: the element, null for a bare point, and
+       undefined for a menu that was not opened at a point. Private, for 22-anchored.js. */
+    ui._.menuOrigin = function (panel) { return origins.has(panel) ? origins.get(panel) : undefined; };
 
-    /* Safari on macOS raises contextmenu on the press, and the release that follows would
-       light-dismiss a panel opened then; so while a secondary button is down the menu opens
-       on its release. */
     var secondaryDown = false;
     document.addEventListener('pointerdown', function (e) { if (e.button === 2) secondaryDown = true; }, true);
     document.addEventListener('pointerup', function (e) { if (e.button === 2) secondaryDown = false; }, true);
@@ -1570,13 +1623,7 @@ window.sednaUi = window.sednaUi || {};
         var panel = document.getElementById(on.getAttribute('data-menu-context'));
         if (!panel) return;
         e.preventDefault();
-        var x = e.clientX, y = e.clientY;
-        if (!secondaryDown) { openAt(panel, x, y, on); return; }
-        document.addEventListener('pointerup', function once(ev) {
-            if (ev.button !== 2) return;
-            document.removeEventListener('pointerup', once, true);
-            setTimeout(function () { openAt(panel, x, y, on); }, 0);
-        }, true);
+        openAt(panel, e.clientX, e.clientY, on);
     });
 
     document.addEventListener('keydown', function (e) {
@@ -1593,8 +1640,9 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]')) return;
-        var on = document.querySelector('[data-menu-context-target]');
-        if (on && on.getAttribute('data-menu-context') === panel.id) on.removeAttribute('data-menu-context-target');
+        var on = origins.get(panel);
+        origins.delete(panel);
+        if (on && on.hasAttribute('data-menu-context-target')) on.removeAttribute('data-menu-context-target');
     }, true);
 
     /* An item chosen in a menu at the pointer closes it, as it closes a dropdown. */
@@ -1631,6 +1679,7 @@ window.sednaUi = window.sednaUi || {};
 (function (ui) {
 
     var triggers = new WeakMap();
+    var pinned = new WeakSet();   // hover cards a click has pinned open
     var count = 0;
 
     function anchor(panel, trigger) {
@@ -1695,11 +1744,29 @@ window.sednaUi = window.sednaUi || {};
         if (!trigger) return;
         var panel = target(trigger);
         if (!panel) return;
+        // A hover-only card leaves the click to the trigger's own action — a button that opens
+        // a dialog — and gets out of its way, so it does not sit above what the click opened.
+        if (hoverOnly(trigger)) {
+            clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            hide(panel);
+            return;
+        }
         e.preventDefault();
         e.stopPropagation();
         // A hover card clicked is pinned: shown, and no longer closed by the pointer leaving.
+        // Clicked again once pinned, it closes, as a popovertarget button toggles its panel.
         if (trigger.hasAttribute('data-popover-hover')) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            var open = false;
+            try { open = panel.matches(':popover-open'); } catch (err) { /* no :popover-open */ }
+            if (pinned.has(panel) && (open || wasOpen === panel)) {
+                wasOpen = null;
+                pinned.delete(panel);
+                hide(panel);
+                return;
+            }
+            wasOpen = null;
+            pinned.add(panel);
             show(panel, trigger);
             return;
         }
@@ -1712,6 +1779,7 @@ window.sednaUi = window.sednaUi || {};
         var trigger = e.target instanceof Element ? e.target : null;
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         if (trigger.tagName === 'BUTTON') return;   // a button clicks on its own
+        if (hoverOnly(trigger)) return;             // and so does a hover-only trigger's own action
         var panel = target(trigger);
         if (!panel) return;
         e.preventDefault();
@@ -1722,9 +1790,17 @@ window.sednaUi = window.sednaUi || {};
        `data-popover-hover` beside `data-popover` also opens the panel when the pointer
        rests on the trigger or the focus reaches it, after `--hover-delay`, and closes it a
        moment after the pointer has left both the trigger and the panel — so the reader
-       can move onto the card to select or follow something in it. A click still pins it
-       open until it is dismissed. The panel is the app's, as for any popover. */
+       can move onto the card to select or follow something in it. A click pins it open
+       until it is dismissed or the trigger is clicked again. The panel is the app's, as for
+       any popover.
+
+       `data-popover-hover="only"` is for a trigger with a click action of its own — a
+       button that opens a dialog, beside a summary of what the dialog holds. Hover and
+       focus open the card; a click neither opens nor pins it, is left to the trigger, and
+       closes the card. */
     var hoverTimer = 0, leaveTimer = 0, hovered = null;
+
+    function hoverOnly(trigger) { return trigger.getAttribute('data-popover-hover') === 'only'; }
 
     function delayOf(trigger) {
         var d = parseFloat(getComputedStyle(trigger).getPropertyValue('--hover-delay'));
@@ -1780,6 +1856,7 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
+        if (e.newState === 'closed') pinned.delete(panel);
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
@@ -4676,6 +4753,15 @@ window.sednaUi = window.sednaUi || {};
    needs one — and the script keeps it current. Nothing else is written: `aria-valuenow`
    on the handle, and the property on the element. A bubbling `sedna-resize` on that element, with `property` and `value` in
    pixels (null once reset), says where it ended, so an app can keep it.
+
+   FOLDING. `data-resize-fold="<px>"` lets the reader put a thing away by dragging it
+   small: a drag that ends with the pointer below that size, or an arrow key towards
+   smaller when the size is already at its minimum, folds instead of resizing. The size
+   goes back to what it was before, so unfolding returns to the reader's height, and
+   `sedna-resize` says `folded: true` with that size as `value`; the app folds — a card
+   takes `.card--folded` — the way a drop moves nothing and the app moves the item. While
+   a drag is below the threshold the handle carries `data-resize-folding`, for the app to
+   show what letting go will do.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -4724,11 +4810,31 @@ window.sednaUi = window.sednaUi || {};
         return value;
     }
 
-    function done(p, value) {
+    function done(p, value, folded) {
         p.target.dispatchEvent(new CustomEvent('sedna-resize', {
             bubbles: true,
-            detail: { property: p.property, value: value }
+            detail: { property: p.property, value: value, folded: !!folded }
         }));
+    }
+
+    function foldAt(handle) {
+        var f = parseFloat(handle.getAttribute('data-resize-fold'));
+        return isNaN(f) ? null : f;
+    }
+
+    /* Puts the property and the handle's value back to what they were before, and says it
+       folded. `value` is what the property held, in pixels, or null when it held nothing. */
+    function restore(handle, p, before, now) {
+        if (before) p.target.style.setProperty(p.property, before);
+        else p.target.style.removeProperty(p.property);
+        if (now === null) handle.removeAttribute('aria-valuenow');
+        else handle.setAttribute('aria-valuenow', now);
+    }
+
+    function fold(handle, p, before, now) {
+        restore(handle, p, before, now);
+        var value = parseFloat(before);
+        done(p, isNaN(value) ? null : value, true);
     }
 
     function reset(handle) {
@@ -4749,20 +4855,29 @@ window.sednaUi = window.sednaUi || {};
         if (!p) return;
         e.preventDefault();
         var start = size(p), dir = sign(handle, p), origin = p.block ? e.clientY : e.clientX;
-        var value = start;
+        var value = start, folding = false, threshold = foldAt(handle);
+        var before = p.target.style.getPropertyValue(p.property), now = handle.getAttribute('aria-valuenow');
         try { handle.setPointerCapture(e.pointerId); } catch (err) { /* already released */ }
         handle.setAttribute('data-resizing', '');
 
         function move(ev) {
             var at = p.block ? ev.clientY : ev.clientX;
-            value = apply(handle, p, start + (at - origin) * dir);
+            var wanted = start + (at - origin) * dir;
+            folding = threshold !== null && wanted < threshold;
+            if (folding) handle.setAttribute('data-resize-folding', '');
+            else handle.removeAttribute('data-resize-folding');
+            value = apply(handle, p, wanted);
         }
-        function up() {
+        function up(ev) {
             handle.removeEventListener('pointermove', move);
             handle.removeEventListener('pointerup', up);
             handle.removeEventListener('pointercancel', up);
             handle.removeAttribute('data-resizing');
-            if (value !== start) done(p, value);
+            handle.removeAttribute('data-resize-folding');
+            // A cancelled drag below the threshold folds nothing: the size goes back, unsaid.
+            if (folding && ev.type === 'pointerup') fold(handle, p, before, now);
+            else if (folding) restore(handle, p, before, now);
+            else if (value !== start) done(p, value);
         }
         handle.addEventListener('pointermove', move);
         handle.addEventListener('pointerup', up);
@@ -4785,8 +4900,13 @@ window.sednaUi = window.sednaUi || {};
         var by = forward[e.key];
         if (!by) return;
         e.preventDefault();
-        var value = apply(handle, p, size(p) + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1));
-        done(p, value);
+        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1);
+        // Already as small as it goes, and asked for less: put it away.
+        if (foldAt(handle) !== null && wanted < current && current <= bounds(handle).min + 0.5) {
+            fold(handle, p, p.target.style.getPropertyValue(p.property), handle.getAttribute('aria-valuenow'));
+            return;
+        }
+        done(p, apply(handle, p, wanted));
     });
 
 })(window.sednaUi);
@@ -7581,6 +7701,34 @@ window.sednaUi = window.sednaUi || {};
    toast also has an id — toast.show() returns it — and toast.dismiss(id) and
    toast.replace(id, message, opts) act on it: the "Uploading…" toast turns into
    "Uploaded" in place instead of flickering out and back.
+
+   A TOAST THE APP WRITES. toast.present(template, data, opts) shows a toast the app
+   wrote, in this same stack — a notification card whose body opens the record it is
+   about, with buttons of its own, in the app's words:
+
+     <template id="assigned-toast">
+       <div class="toast toast--info">
+         <i class="ri-user-received-line" aria-hidden="true"></i>
+         <a class="toast-body" data-href data-toast-value="open">
+           <strong data-title></strong><span data-text></span>
+         </a>
+         <button class="toast-close" type="button" aria-label="Dismiss"><i class="ri-close-line" aria-hidden="true"></i></button>
+       </div>
+     </template>
+
+     sednaUi.toast.present('assigned-toast', { title: 'Assigned to you', text: 'ORD-4182', href: '/orders/4182' }, { timeout: 0 })
+
+   It clones the template's first element and fills its `data-*` slots with text
+   (ui._.fill), and `href` becomes the `href` of its `[data-href]` link. It is a
+   presenter, not more of the surface: every element and every word is the app's.
+   It gets what this stack has — the top layer and a place inside an open modal, the
+   hover and focus hold on the timer, dismiss and replace by id — and returns the id.
+   toast.result(id) is a promise of how it ended: the `data-toast-value` of the control
+   the reader pressed, which also takes the toast away, or null when it was closed by
+   its `.toast-close`, dismissed or timed out. It is the presenter's awaited call,
+   as modal.show() is a dialog's; nothing calls back. `opts.replace` puts the new
+   toast in the place of the one it names, keeping its id and its result — a "+3 more"
+   card that counts up in place.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -7641,9 +7789,46 @@ window.sednaUi = window.sednaUi || {};
     // A modal opening or closing moves a stack that is showing toasts with it.
     layer.onChange(function (closing) { if (host && host.children.length) raise(closing); });
 
-    var live = {};       // id -> { el, remove, timer }
+    var live = {};       // id -> { el, remove, timer, waiters }
+    var ended = {};      // id -> how a toast that has gone ended, for a result() asked late
+    var endedOrder = [];
     var REGION_SETTLE_MS = 150;
     var nextId = 1;
+
+    function end(id, value) {
+        ended[id] = value;
+        endedOrder.push(id);
+        if (endedOrder.length > 100) delete ended[endedOrder.shift()];
+    }
+
+    /* The hold on the timer and the values a toast the app wrote can end with. Wired once
+       per element: a replaced toast the app wrote is a new element. */
+    function wire(entry, el) {
+        el.addEventListener('mouseenter', function () { hold(entry); });
+        el.addEventListener('mouseleave', function () { if (!el.contains(document.activeElement)) release(entry); });
+        el.addEventListener('focusin', function () { hold(entry); });
+        el.addEventListener('focusout', function (e) { if (!el.contains(e.relatedTarget) && !el.matches(':hover')) release(entry); });
+        el.addEventListener('click', function (e) {
+            if (!entry.template) return;
+            var t = e.target instanceof Element ? e.target.closest('[data-toast-value], .toast-close') : null;
+            if (!t || !el.contains(t)) return;
+            // Settled now, so the answer is in before a link navigates away; the element leaves
+            // after the click has run its course, so a router listening on the document still
+            // sees the link it came from.
+            entry.remove(t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null, true);
+        });
+    }
+
+    function timeOut(entry, opts) {
+        clearTimeout(entry.timer);
+        entry.timer = 0;
+        // 0 means "stays until dismissed" — for a failure the user has to read, or for
+        // work still running that will replace this toast when it ends.
+        var ms = !opts || opts.timeout === undefined ? 4000 : opts.timeout;
+        entry.left = ms;
+        entry.started = Date.now();
+        entry.timer = ms > 0 && !entry.held ? setTimeout(function () { entry.remove(null); }, ms) : 0;
+    }
 
     // Fills a toast element for its kind, title and message, with the close button
     // and the timeout. Shared by a new toast and a replaced one, so replacing is
@@ -7657,6 +7842,14 @@ window.sednaUi = window.sednaUi || {};
         // A failure interrupts; a confirmation waits its turn.
         host.setAttribute('aria-live', kind === 'danger' ? 'assertive' : 'polite');
 
+        if (entry.template) {
+            // A toast the app wrote, replaced by one the library draws: a fresh element.
+            var drawn = document.createElement('div');
+            wire(entry, drawn);
+            entry.el.replaceWith(drawn);
+            entry.el = el = drawn;
+            entry.template = false;
+        }
         el.className = 'toast toast--' + kind;
         el.textContent = '';
 
@@ -7687,18 +7880,11 @@ window.sednaUi = window.sednaUi || {};
             x.className = 'ri-close-line';
             x.setAttribute('aria-hidden', 'true');
             close.appendChild(x);
-            close.addEventListener('click', entry.remove);
+            close.addEventListener('click', function () { entry.remove(null); });
             el.appendChild(close);
         }
 
-        clearTimeout(entry.timer);
-        entry.timer = 0;
-        // 0 means "stays until dismissed" — for a failure the user has to read, or for
-        // work still running that will replace this toast when it ends.
-        var ms = opts.timeout === undefined ? 4000 : opts.timeout;
-        entry.left = ms;
-        entry.started = Date.now();
-        entry.timer = ms > 0 && !entry.held ? setTimeout(entry.remove, ms) : 0;
+        timeOut(entry, opts);
     }
 
     /* A toast does not run out while the reader is on it (WCAG 2.2.1): the pointer over
@@ -7718,7 +7904,7 @@ window.sednaUi = window.sednaUi || {};
         if (entry.left > 0 && !entry.timer) {
             entry.started = Date.now();
             entry.left = Math.max(entry.left, 1000);
-            entry.timer = setTimeout(entry.remove, entry.left);
+            entry.timer = setTimeout(function () { entry.remove(null); }, entry.left);
         }
     }
 
@@ -7728,28 +7914,36 @@ window.sednaUi = window.sednaUi || {};
      * returns  a function that removes this toast early; its `id` names the toast for
      *          toast.dismiss() and toast.replace()
      */
-    ui.toast = function (message, opts) {
+    function create() {
         var id = nextId++;
-        var entry = { el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0 };
-        entry.el.addEventListener('mouseenter', function () { hold(entry); });
-        entry.el.addEventListener('mouseleave', function () { if (!entry.el.contains(document.activeElement)) release(entry); });
-        entry.el.addEventListener('focusin', function () { hold(entry); });
-        entry.el.addEventListener('focusout', function (e) { if (!entry.el.contains(e.relatedTarget) && !entry.el.matches(':hover')) release(entry); });
+        var entry = { id: id, el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0, waiters: [], template: false };
+        wire(entry, entry.el);
 
-        entry.remove = function () {
+        // `value` is how it ended: a toast the app wrote ends with the value of the control
+        // pressed; anything else that takes a toast away ends it with null.
+        entry.remove = function (value, later) {
+            if (live[id] !== entry) return;
             clearTimeout(entry.timer);
             delete live[id];
-            drop(entry.el);
+            var el = entry.el;
+            if (later === true) setTimeout(function () { drop(el); }, 0);
+            else drop(el);
+            value = typeof value === 'string' ? value : null;
+            end(id, value);
+            var waiters = entry.waiters;
+            entry.waiters = [];
+            for (var i = 0; i < waiters.length; i++) waiters[i](value);
         };
         entry.remove.id = id;
         live[id] = entry;
+        return entry;
+    }
 
-        var fresh = !host || !host.isConnected;
-        paint(entry, message, opts);
-        // A live region announces what is ADDED to it, so it has to be in the page before
-        // its first toast: a region created with its content already in it is read by many
-        // screen readers as nothing. A new stack therefore takes its first toast a moment
-        // after it appears; every later one goes in at once.
+    /* Adds a toast to the stack. A live region announces what is ADDED to it, so it has to be
+       in the page before its first toast: a region created with its content already in it is
+       read by many screen readers as nothing. A new stack therefore takes its first toast a
+       moment after it appears; every later one goes in at once. */
+    function add(entry, fresh) {
         if (fresh) {
             entry.el.hidden = true;
             host.appendChild(entry.el);
@@ -7757,7 +7951,13 @@ window.sednaUi = window.sednaUi || {};
         } else {
             host.appendChild(entry.el);
         }
+    }
 
+    ui.toast = function (message, opts) {
+        var entry = create();
+        var fresh = !host || !host.isConnected;
+        paint(entry, message, opts);
+        add(entry, fresh);
         return entry.remove;
     };
 
@@ -7771,7 +7971,7 @@ window.sednaUi = window.sednaUi || {};
     ui.toast.dismiss = function (id) {
         var entry = live[id];
         if (!entry) return false;
-        entry.remove();
+        entry.remove(null);
         return true;
     };
 
@@ -7783,6 +7983,58 @@ window.sednaUi = window.sednaUi || {};
         if (!entry) return ui.toast.show(message, opts);
         paint(entry, message, opts);
         return id;
+    };
+
+    /* Shows a toast the app wrote in a <template> — an element or its id — with its
+       `data-*` slots filled from `data`, and returns its id. False-y when there is no
+       such template, with a console warning: a missing template is the app's to fix, and
+       an exception would cross into a Blazor circuit. */
+    ui.toast.present = function (template, data, opts) {
+        opts = opts || {};
+        var t = typeof template === 'string' ? document.getElementById(template) : template;
+        var slots = {}, href = null;
+        Object.keys(data || {}).forEach(function (k) {
+            if (k === 'href') href = data[k]; else slots[k] = data[k];
+        });
+        var node = t && t.tagName === 'TEMPLATE' ? ui._.fill(t, slots) : null;
+        if (!node) {
+            console.warn('sednaUi.toast.present: no <template> with the id ' + template + '. The toast is app markup — see the Toast page.');
+            return 0;
+        }
+        var links = node.matches('[data-href]') ? [node] : [];
+        Array.prototype.push.apply(links, node.querySelectorAll('[data-href]'));
+        var safe = ui._.safeHref(href);
+        links.forEach(function (a) {
+            a.removeAttribute('data-href');
+            if (safe) a.setAttribute('href', safe); else a.removeAttribute('href');
+        });
+
+        var entry = opts.replace ? live[opts.replace] : null;
+        var fresh = !host || !host.isConnected;
+        if (entry) {
+            wire(entry, node);
+            entry.el.replaceWith(node);
+            entry.el = node;
+        } else {
+            entry = create();
+            entry.el = node;
+            wire(entry, node);
+        }
+        entry.template = true;
+        stack();
+        host.setAttribute('aria-live', node.matches('.toast--danger') ? 'assertive' : 'polite');
+        if (!node.isConnected) add(entry, fresh);
+        timeOut(entry, opts);
+        return entry.id;
+    };
+
+    /* How a toast ended, as a promise: the `data-toast-value` of the control the reader
+       pressed in a toast the app wrote, or null — closed, dismissed or timed out. A toast
+       that has already gone answers at once; an id that never was answers null. */
+    ui.toast.result = function (id) {
+        var entry = live[id];
+        if (!entry) return Promise.resolve(Object.prototype.hasOwnProperty.call(ended, id) ? ended[id] : null);
+        return new Promise(function (resolve) { entry.waiters.push(resolve); });
     };
 
 })(window.sednaUi);

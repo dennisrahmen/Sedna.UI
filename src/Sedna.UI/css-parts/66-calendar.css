@@ -62,6 +62,7 @@
     overflow: hidden;
     background: var(--card-bg);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
 }
 /* Each day column starts at a line named `day`, so a layer can say "from the first
    day" and mean it with or without a week-number column in front. */
@@ -374,6 +375,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     overflow: hidden;
     background: var(--card-bg);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
 }
 .cal-week-head,
 .cal-week-body {
@@ -544,6 +546,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     border-radius: var(--radius-surface);
     background: var(--card-bg);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
 }
 .cal-timeline-head,
 .cal-timeline-row {

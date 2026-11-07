@@ -598,6 +598,12 @@
     --field-border:       var(--slate-500);
     --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
+    /* The edge of a field in a state (46-form-layout.css, "Field states"): rejected and
+       unusual. Their own roles rather than --danger-border-strong and --warn-border,
+       which are a tint's edge and fall far under the 3:1 a field's boundary needs on a
+       dark card — a rejected field lost its outline. StateContrastTests holds both. */
+    --field-border-danger: var(--crimson-500);
+    --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
 
     /* ── Disabled ───────────────────────────────────────────────────────────
@@ -614,6 +620,10 @@
     --sidebar-bg:      var(--slate-900);
     --sidebar-border:  var(--slate-800);
     --sidebar-fg:      var(--slate-200);
+    /* Quiet text drawn straight on the sidebar: a section label, the brand's second line,
+       a tool link. An alias of --muted, so nothing moves until an app gives the sidebar a
+       colour of its own and sets this beside --sidebar-fg. */
+    --sidebar-muted:   var(--muted);
     --sidebar-active:  var(--coral-600);
     /* The nav's hover surface has to be its own token rather than --bg-elevated,
        which is what it used to be. Elevation runs the other way in the light
@@ -629,7 +639,12 @@
        elsewhere — a brand-coloured header with white text in the light variant is
        --topbar-bg, --topbar-fg and --topbar-muted together, and --topbar-hover for what
        the pointer is on. Panels that open from the header (the user menu, the search
-       results) are surfaces of their own and keep the page's roles. */
+       results) are surfaces of their own and keep the page's roles.
+
+       Each frame region with a surface of its own — the topbar, the sidebar, the bottom
+       bar — says what quiet text on it is painted in, as --muted-here, the way it says
+       what its surface is as --surface-here; .text-muted, .eyebrow and
+       .nav-section-label read it, and every surface resets it to --muted. */
     --topbar-bg:       var(--bg-elevated);
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
@@ -795,6 +810,9 @@
        black, and a label on a photograph cannot know what the photograph is. */
     --media-bg:      var(--black);
     --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    /* One square of the checkerboard behind a picture in a `--transparency` frame
+       (62-media-and-prose.css). */
+    --checker-size:  8px;
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);
@@ -1221,6 +1239,8 @@
     --danger-bg-active:     color-mix(in srgb, var(--crimson-700) 20%, transparent);
     --danger-border:        var(--crimson-300);
     --danger-border-strong: var(--crimson-700);
+    --field-border-danger:  var(--crimson-700);
+    --field-border-warn:    var(--amber-700);
     --danger-fg:            var(--crimson-800);
     --danger-ring:          color-mix(in srgb, var(--crimson-700) 35%, transparent);
 
@@ -1457,6 +1477,8 @@
     --danger-bg:            var(--crimson-900);
     --danger-border:        var(--crimson-400);
     --danger-border-strong: var(--crimson-300);
+    --field-border-danger:  var(--crimson-300);
+    --field-border-warn:    var(--amber-300);
     --danger-fg:            var(--crimson-300);
     --info-bg:     var(--orbit-950);
     --info-border: var(--orbit-300);
@@ -1552,6 +1574,8 @@
     --danger-bg:            var(--crimson-200);
     --danger-border:        var(--crimson-800);
     --danger-border-strong: var(--crimson-900);
+    --field-border-danger:  var(--crimson-900);
+    --field-border-warn:    var(--amber-900);
     --danger-fg:            var(--crimson-900);
     --info-bg:     var(--orbit-100);
     --info-border: var(--orbit-800);
@@ -1691,6 +1715,28 @@ code {
     border-radius: var(--radius-small);
     overflow-wrap: anywhere;
 }
+
+/* What changed between two versions of a text: the words added and the words removed,
+   in running text, prose, a Markdown preview or a table cell alike, so a word diff
+   writes <ins> and <del> and needs no class. The tint is the go and danger pair a
+   .badge--go and a .badge--danger read, which TintedTextContrastTests holds at AA on the
+   page and on a card in every theme; the underline and the strike-through say it again
+   without colour, which is what survives forced colours, print and a reader who cannot
+   tell the two tints apart. A spoken "added" or "removed" is the app's own words, in a
+   .visually-hidden span inside the element.
+
+   Inline padding and no block padding, so the line height never moves; `clone` gives
+   every line of a change that wraps its own ends. */
+ins,
+del {
+    padding-inline: var(--space-1);
+    border-radius: var(--radius-small);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    text-decoration-thickness: from-font;
+}
+ins { color: var(--go-fg); background: var(--go-bg); text-decoration-line: underline; }
+del { color: var(--danger-fg); background: var(--danger-bg); text-decoration-line: line-through; }
 
 h1 { font-size: var(--text-9); margin: 0 0 var(--space-4); }
 h2 { font-size: var(--text-7); margin: var(--space-9) 0 var(--space-4); }
@@ -1840,6 +1886,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     --sidebar-width-collapsed: 56px;
     width: var(--sidebar-width);
     --surface-here: var(--sidebar-bg);
+    --muted-here: var(--sidebar-muted);
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
     padding: 0;
@@ -1889,7 +1936,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .brand-logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .brand-text { display: flex; flex-direction: column; line-height: round(1.1em, 2px); }
 .brand-sub {
-    display: block; font-size: var(--text-1); color: var(--muted);
+    display: block; font-size: var(--text-1); color: var(--sidebar-muted);
     text-transform: uppercase; letter-spacing: 0.06em; margin-top: var(--space-1);
 }
 
@@ -1925,7 +1972,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--muted);
+    color: var(--muted-here, var(--muted));
     pointer-events: none;
 }
 .nav-link {
@@ -1971,7 +2018,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    3:1, under the 4.5:1 floor for 12px text — and a control at half strength beside
    full-strength siblings reads as disabled rather than as secondary. --muted is the
    token each theme already tunes for exactly this job. */
-.nav-link-tool { font-size: var(--text-3); color: var(--muted); }
+.nav-link-tool { font-size: var(--text-3); color: var(--sidebar-muted); }
 .nav-link-tool i { opacity: 0.75; }
 .nav-link-tool:hover { color: var(--sidebar-fg); }
 .nav-link-tool:hover i { opacity: 1; }
@@ -1996,7 +2043,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .nav-status-label {
     font-size: var(--text-1); font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--muted);
+    color: var(--sidebar-muted);
 }
 .nav-status-row { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); font-weight: 500; }
 .nav-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--border-hover); }
@@ -2144,6 +2191,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     align-items: stretch;
     height: var(--topbar-height);
     --surface-here: var(--topbar-bg);
+    --muted-here: var(--topbar-muted);
     background: var(--topbar-bg);
     color: var(--topbar-fg);
     border-bottom: 1px solid var(--border);
@@ -2547,8 +2595,8 @@ a.topbar-version--pre:hover {
    body is the part that gives way and it must say so at its edge. */
 .drawer-body,
 .palette-list,
-.form-combo-list { --surface-here: var(--bg-elevated); }
-.nav-scroll { --surface-here: var(--sidebar-bg); }
+.form-combo-list { --surface-here: var(--bg-elevated); --muted-here: var(--muted); }
+.nav-scroll { --surface-here: var(--sidebar-bg); --muted-here: var(--sidebar-muted); }
 
 }
 
@@ -3291,6 +3339,7 @@ a.topbar-version--pre:hover {
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
     /* The page's ink, not the header's it opens from — see --topbar-fg. */
     color: var(--fg);
 }
@@ -3484,7 +3533,7 @@ a.topbar-version--pre:hover {
     background: none;
     border: none;
     border-radius: var(--radius-surface);
-    color: var(--muted);
+    color: var(--muted-here, var(--muted));
     font-family: inherit;
     font-size: var(--text-1);
     font-weight: 500;
@@ -3653,7 +3702,14 @@ a.topbar-version--pre:hover {
     --bottombar-height: 46px;
     --bottombar-radius: var(--radius-surface);
     --bottombar-surface: var(--bg-elevated);
+    /* What is drawn straight on the bar, as the topbar's tokens are: an app that colours
+       the bar sets these four together. */
+    --bottombar-fg: var(--fg);
+    --bottombar-muted: var(--muted);
+    --bottombar-hover: var(--bg-hover);
     --surface-here: var(--bottombar-surface);
+    --muted-here: var(--bottombar-muted);
+    color: var(--bottombar-fg);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -3686,7 +3742,7 @@ a.topbar-version--pre:hover {
        the row's centre. */
     border-top: 2px solid transparent;
     border-bottom: 2px solid transparent;
-    color: var(--muted);
+    color: var(--bottombar-muted);
     font-family: inherit;
     font-size: var(--text-3);
     font-weight: 500;
@@ -3694,7 +3750,7 @@ a.topbar-version--pre:hover {
     text-decoration: none;
     cursor: pointer;
 }
-.bottombar-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.bottombar-item:hover { background: var(--bottombar-hover); color: var(--bottombar-fg); text-decoration: none; }
 .bottombar-item:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 
 .bottombar-icon { position: relative; display: inline-flex; }
@@ -3736,7 +3792,7 @@ a.topbar-version--pre:hover {
     flex: 0 1 auto;
     padding-inline: var(--space-6);
     border-top-color: var(--tab-indicator);
-    color: var(--fg);
+    color: var(--bottombar-fg);
 }
 .bottombar-item.active i,
 .bottombar-item[aria-current="page"] i { color: var(--brand-text); }
@@ -3908,6 +3964,7 @@ a.topbar-version--pre:hover {
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {
     --surface-here: var(--surface-raised-1);
+    --muted-here: var(--muted);
     background: var(--surface-raised-1);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -3929,10 +3986,12 @@ a.topbar-version--pre:hover {
    `SurfaceTokenTests.Muted_text_clears_AA_on_every_surface_level`. */
 .card .card {
     --surface-here: var(--surface-raised-2);
+    --muted-here: var(--muted);
     background: var(--surface-raised-2);
 }
 .card .card .card {
     --surface-here: var(--surface-raised-3);
+    --muted-here: var(--muted);
     background: var(--surface-raised-3);
     --muted: var(--fg-soft);
 }
@@ -3963,14 +4022,21 @@ a.topbar-version--pre:hover {
    `.card--resizable` holds a height the reader chose, in `--card-height`: the head and
    the foot stay, the body scrolls. Its `.card-resize` handle at the bottom edge is the
    app's, a `[data-resize="--card-height"]` separator that 26-resize.js moves; without a
-   height the card is as tall as its content, as any card is. */
+   height the card is as tall as its content, as any card is.
+
+   A handle on `--card-max-height` instead makes the reader's height a ceiling: the card
+   follows its content, and only a body taller than the ceiling scrolls — a short list
+   does not leave a tall empty card. The app folds a card the reader drags below
+   `data-resize-fold` by toggling `.card--folded` from the `sedna-resize` event. */
 .card.card--folded > :not(.card-head) { display: none; }
 .card.card--folded > .card-head { border-bottom: none; }
 .card--resizable {
     --card-height: auto;
+    --card-max-height: none;
     display: flex;
     flex-direction: column;
     block-size: var(--card-height);
+    max-block-size: var(--card-max-height);
 }
 .card--resizable > .card-body { flex: 1 1 auto; min-block-size: 0; overflow: auto; }
 .card-resize {
@@ -4575,6 +4641,7 @@ textarea.form-input::-webkit-resizer {
 }
 .modal {
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     /* The panel never grows past the window, and the body is what gives way. A
        backdrop centres with align-items: center, so a panel taller than the
        viewport grows past BOTH edges — the header off the top and the footer off
@@ -4877,6 +4944,13 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    The stack is the only fixed element; each toast is a normal block inside it,
    so an app can render the list with @foreach and never position anything.
 
+   A TOAST THE APP WRITES goes in the same stack: sednaUi.toast.present() — or
+   ISednaUi.PresentToastAsync — clones it from the app's <template> into the stack the
+   library keeps, so it has the top layer, the timer hold and one corner shared with
+   every other toast. Its body may be the thing to click (`a.toast-body`), and
+   `.toast-actions` holds buttons of its own. A second stack the app positions itself
+   collides with the library's in the same corner, and loses all three.
+
    THE STACK IS THE LIVE REGION. sednaUi.toast puts role="status" and
    aria-live="polite" on the stack it creates (assertive while a danger toast is
    showing). An app rendering its own stack has to write those itself — nothing
@@ -4942,6 +5016,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     max-width: min(calc(100vw - 40px), 100%);
     padding: var(--space-5) var(--space-6);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-inline-start: 3px solid var(--border-strong);
@@ -4979,6 +5054,32 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     line-height: 1;
 }
 .toast-close:hover { color: var(--fg); }
+
+/* A body that is the thing to click: a notification that opens the record it is about.
+   A link or a button, so Tab reaches it apart from the close button; it keeps the look of
+   the text, and says it can be followed by underlining its title under the pointer. */
+:is(a, button).toast-body {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-small);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+:is(a, button).toast-body:hover > strong { text-decoration: underline; }
+:is(a, button).toast-body:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+/* The toast's own buttons, under its text: "Open", "Mark as read". */
+.toast-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-block-start: var(--space-4);
+}
 
 /* The semantic families again, carried on the leading rule and the icon. */
 
@@ -5085,7 +5186,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     flex-shrink: 0;
 }
 .skeleton-image {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     width: 100%;
     border-radius: var(--radius-surface);
 }
@@ -5164,7 +5265,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    startup screen, a tile, an upload over a thumbnail. `--progress` is a
    percentage the app writes inline (`style="--progress: 62%"`), or Blazor's own
    `--blazor-load-percentage` while WebAssembly starts. The ring is a pseudo-element,
-   so the element itself holds the app's label, centred. */
+   so the element itself holds the app's label, centred.
+
+   `--progress` is registered as a percentage, so a new value glides to its place
+   over --motion-slow, as a bar's width does, instead of jumping; it rests under
+   reduced motion. Inherited, because the arc is drawn by the ring's own ::before. */
+@property --progress {
+    syntax: '<percentage>';
+    inherits: true;
+    initial-value: 0%;
+}
 .progress-ring {
     --progress: 0%;
     --progress-ring-size: 40px;
@@ -5178,6 +5288,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     font-size: var(--text-2);
     font-variant-numeric: tabular-nums;
     color: var(--muted);
+    transition: --progress var(--motion-slow) ease;
 }
 .progress-ring::before {
     content: "";
@@ -5189,6 +5300,30 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 .progress-ring--sm { --progress-ring-size: 24px; --progress-ring-width: 3px; font-size: var(--text-1); }
 .progress-ring--lg { --progress-ring-size: 64px; --progress-ring-width: 6px; font-size: var(--text-4); }
+
+/* Round ends, as an SVG ring with `stroke-linecap: round` has. The start is a dot on the
+   arc's own layer, at the top; the end is ::after, placed on the ring's centre line at
+   the angle --progress gives — `progress()` turns the percentage into the number sin()
+   and cos() need — so it travels with the arc as the value glides. */
+.progress-ring--round::before {
+    background:
+        radial-gradient(circle at 50% calc(var(--progress-ring-width) / 2),
+            var(--brand) calc(var(--progress-ring-width) / 2 - 0.5px), transparent calc(var(--progress-ring-width) / 2)),
+        conic-gradient(var(--brand) var(--progress), var(--progress-track) 0);
+}
+.progress-ring--round::after {
+    --progress-ring-turn: calc(progress(var(--progress), 0%, 100%) * 360deg);
+    --progress-ring-radius: calc((var(--progress-ring-size) - var(--progress-ring-width)) / 2);
+    content: "";
+    position: absolute;
+    /* rtl-ok: the arc is a conic gradient, which turns clockwise from the top in either direction */
+    left: calc(50% + var(--progress-ring-radius) * sin(var(--progress-ring-turn)) - var(--progress-ring-width) / 2);
+    top: calc(50% - var(--progress-ring-radius) * cos(var(--progress-ring-turn)) - var(--progress-ring-width) / 2);
+    inline-size: var(--progress-ring-width);
+    block-size: var(--progress-ring-width);
+    border-radius: 50%;
+    background: var(--brand);
+}
 }
 
 /* ── 42-empty-state.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -5863,6 +5998,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border: 1px solid var(--field-border);
     border-radius: var(--radius-control);
     --surface-here: var(--bg);
+    --muted-here: var(--muted);
     --editor-max-height: 480px;
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
@@ -5900,6 +6036,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-radius: var(--radius-panel);
     overflow: hidden;
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
     background: var(--card-bg);
 }
 .md-toolbar {
@@ -6542,22 +6679,66 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    .form-input's own border and ring at equal specificity.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* ── Validation ─────────────────────────────────────────────────────────────
-   Keyed off aria-invalid, not a class. The attribute is what a screen reader
-   announces, so if the styling hung off a separate class the two could disagree,
-   and the reader who most needs the message would be the one who does not get
-   it. Set aria-invalid and the border follows.
+/* ── Field states ───────────────────────────────────────────────────────────
+   A field is at rest, rejected or unusual, and every family that draws a field's
+   edge draws all three, at every size and in every theme:
 
-   `.form-select` is in the selector for the same reason it is in the shared shape
-   rule in 34-forms.css: a select carrying `.form-select` alone is a complete,
-   correct class list, so a rule that names only `.form-input` leaves the one
-   control a form most often rejects — an empty required dropdown — reporting
-   nothing at all, while the screen reader announces it as invalid. */
-.form-input[aria-invalid="true"],
-.form-select[aria-invalid="true"] { border-color: var(--danger-border-strong); }
-.form-input[aria-invalid="true"]:focus,
-.form-select[aria-invalid="true"]:focus {
-    border-color: var(--danger-solid);
+     rejected   aria-invalid="true"   the value is refused
+     unusual    data-state="warn"     the value is kept, but worth a second look —
+                                      a retention far past the usual, a price far
+                                      from the average
+
+   Rejected is keyed off aria-invalid, not a class. The attribute is what a screen
+   reader announces, so if the styling hung off a separate class the two could
+   disagree, and the reader who most needs the message would be the one who does
+   not get it. Unusual has no ARIA attribute, so its message is what a screen reader
+   hears: put it in `.form-warning` and point `aria-describedby` at it.
+
+   The attribute goes on the control a reader types or picks into, always — never on
+   a frame. A frame that draws the edge for its control (.input-group, the combo box,
+   the editors) follows it with :has(), so the attribute stays where a screen reader
+   reads it. A field that carries both is rejected.
+
+   At rest the edge is the state's own field role; focused it keeps that edge and
+   takes the focus ring. The Markdown editor's textarea draws its own ring, so its
+   frame takes the edge alone. FieldStateTests holds every family that draws a field edge to
+   both states, so a family cannot lack one.
+
+   `.form-select` is in every list for the reason 34-forms.css gives for naming both
+   in the shared shape rule: a select carrying `.form-select` alone is a complete,
+   correct class list, and the one control a form most often rejects — an empty
+   required dropdown — would otherwise report nothing. */
+:is(.form-input, .form-select, .form-color)[data-state="warn"],
+.input-group:has(> :is(.form-input, .form-select)[data-state="warn"]),
+.form-combo-box:has(> .form-combo-input[data-state="warn"]),
+.editor[data-state="warn"],
+.editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]),
+.md-editor:has(> [data-md-input][data-state="warn"]) { border-color: var(--field-border-warn); }
+
+:is(.form-input, .form-select)[data-state="warn"]:focus,
+.form-color[data-state="warn"]:focus-visible,
+.input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
+.form-combo-box:has(> .form-combo-input[data-state="warn"]):focus-within,
+.editor[data-state="warn"]:focus-within,
+.editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within {
+    border-color: var(--field-border-warn);
+    box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+:is(.form-input, .form-select, .form-color)[aria-invalid="true"],
+.input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]),
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]),
+.editor[aria-invalid="true"],
+.editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]),
+.md-editor:has(> [data-md-input][aria-invalid="true"]) { border-color: var(--field-border-danger); }
+
+:is(.form-input, .form-select)[aria-invalid="true"]:focus,
+.form-color[aria-invalid="true"]:focus-visible,
+.input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within,
+.editor[aria-invalid="true"]:focus-within,
+.editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within {
+    border-color: var(--field-border-danger);
     box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
@@ -7252,12 +7433,8 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
-/* Invalid and disabled are the INPUT's attributes, which is where a screen reader
-   reads them. The box follows. */
-.form-combo-box:has(> .form-combo-input[aria-invalid="true"]) { border-color: var(--danger-border-strong); }
-.form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within {
-    box-shadow: 0 0 0 2px var(--focus-ring);
-}
+/* Disabled is the INPUT's attribute, which is where a screen reader reads it, and the
+   box follows. So do the field states, in 46-form-layout.css. */
 .form-combo-box:has(> .form-combo-input:disabled) {
     background: var(--surface-soft);
     color: var(--muted);
@@ -7434,6 +7611,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     margin-block-start: var(--space-2);
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -7896,6 +8074,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     position-try-fallbacks: none;
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -8035,6 +8214,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     .form-select[size]:not([size="1"]) {
         box-sizing: border-box;
         --surface-here: var(--bg);
+        --muted-here: var(--muted);
         white-space: normal;
         overflow: auto;
         /* ── The box is measured here, not left to `size` ──
@@ -8249,7 +8429,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .choice-tile-art {
     display: grid;
     place-items: center;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     margin-block-end: var(--space-2);
     border-radius: var(--radius-inner);
     background: var(--surface-soft);
@@ -10298,6 +10478,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     max-width: min(20rem, calc(100vw - 32px));
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -11338,12 +11519,13 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .list--cards > li + li { border-top: none; }
 .list--cards > li > .list-row {
     --surface-here: var(--surface-raised-1);
+    --muted-here: var(--muted);
     background-color: var(--surface-here);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
 }
-.card .list--cards > li > .list-row { --surface-here: var(--surface-raised-2); }
-.card .card .list--cards > li > .list-row { --surface-here: var(--surface-raised-3); --muted: var(--fg-soft); }
+.card .list--cards > li > .list-row { --surface-here: var(--surface-raised-2); --muted-here: var(--muted); }
+.card .card .list--cards > li > .list-row { --surface-here: var(--surface-raised-3); --muted-here: var(--muted); --muted: var(--fg-soft); }
 
 .list--cards > li > :is(a, button).list-row:hover { background-color: var(--bg-hover); border-color: var(--border-strong); }
 .list--cards > li > button.list-row:active { background-color: var(--btn-active-bg); }
@@ -11792,13 +11974,22 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    images arrive: the box has its height before the image loads. `contain` rather
    than `cover` because these are documents, and cropping a screenshot removes the
    part somebody needed.
+
+   THE RATIO IS ONE TOKEN FOR EVERY FRAMED MEDIUM. `--media-ratio` is read by every
+   box that holds a picture at a fixed shape — .media-frame, .skeleton-image,
+   .choice-tile-art, .file-tile-thumb and a .media-player's video — so an app sets
+   `--media-ratio: 4 / 3` on one frame or on a whole container, and a skeleton swaps
+   for the loaded frame at the same height. Each frame names its own default in the
+   fallback and declares nothing on itself, so a value set on a container reaches it;
+   the modifiers and the gallery set the token rather than the ratio, for the same
+   reason. The video ratio, 16:9, is the default wherever there is no other.
    ─────────────────────────────────────────────────────────────────────────── */
 .media-frame {
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -11806,10 +11997,28 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .media-frame > img,
 .media-frame > video,
 .media-frame > iframe { max-width: 100%; max-height: 100%; object-fit: contain; border: none; }
-.media-frame--square { aspect-ratio: 1; }
-.media-frame--wide { aspect-ratio: 21 / 9; }
+.media-frame--square { --media-ratio: 1; }
+.media-frame--wide { --media-ratio: 21 / 9; }
 /* Fills and crops — right for a decorative banner, wrong for a document. */
 .media-frame--cover > img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Transparency ─────────────────────────────────────────────────────────────
+   A checkerboard behind a picture, so a transparent background or edge can be told
+   from a white or grey one — a logo, an icon, a cut-out, an upload being checked.
+   One modifier on every frame that shows a picture: .media-frame, .file-tile-thumb,
+   .file-thumb, .choice-tile-art and the lightbox's stage. It is painted behind the
+   picture itself, not the frame, so a letterbox stays plain and the checkerboard ends
+   where the picture does.
+
+   The squares are the two quiet steps every theme already has, --surface-soft and
+   --border, so they follow the variant, the contrast setting and an app's brand.
+   `--checker-size` is one square's side. */
+:is(.media-frame--transparency, .file-tile-thumb--transparency, .file-thumb--transparency,
+    .choice-tile-art--transparency, .lightbox-stage--transparency) > :is(img, svg) {
+    background-color: var(--surface-soft);
+    background-image: repeating-conic-gradient(var(--border) 0 25%, transparent 0 50%);
+    background-size: calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
 
 /* A caption belongs to the figure, so use <figure>/<figcaption> and this styles the
    caption. An image whose meaning is in the caption still needs a real alt. */
@@ -11825,7 +12034,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     gap: var(--space-5);
 }
 .gallery > * { position: relative; display: block; text-decoration: none; }
-.gallery .media-frame { aspect-ratio: 1; }
+.gallery { --media-ratio: 1; }
 .gallery > a:hover .media-frame,
 .gallery > button:hover .media-frame { border-color: var(--border-hover); }
 .gallery > *:focus-visible { outline: none; }
@@ -12390,6 +12599,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
        0px on anything without an indicator, so a desktop drawer is unchanged. */
     padding-block-end: var(--safe-block-end);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border-inline-start: 1px solid var(--border);
     box-shadow: var(--shadow-modal);
@@ -12870,7 +13080,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1;
+    aspect-ratio: var(--media-ratio, 1);
     overflow: hidden;
     border-radius: var(--radius-inner);
     background: var(--surface-soft);
@@ -12878,7 +13088,7 @@ a.file-cell:hover .file-name { text-decoration: underline; }
 .file-tile-thumb > img { width: 100%; height: 100%; object-fit: cover; }
 .file-tile-thumb > .file-icon { --file-icon-size: 56px; background: transparent; }
 .file-tile-thumb > .file-icon > i { font-size: var(--text-11); }
-.file-grid--wide .file-tile-thumb { aspect-ratio: 16 / 9; }
+.file-grid--wide { --media-ratio: 16 / 9; }
 /* A picture that must not be cropped — a logo, a screenshot — in either of two shapes.
    `--contain` keeps the tile's frame and fits the whole picture inside it, so a row of
    tiles stays level. `--natural` drops the frame and takes the picture's own ratio,
@@ -13186,13 +13396,13 @@ dialog.lightbox::before {
     overflow: hidden;
 }
 /* The picture on the letterbox, at its frame's ratio before a byte has loaded, so the
-   page does not jump when the metadata arrives. A different ratio is the element's
-   own `aspect-ratio`, set inline or by the app. */
+   page does not jump when the metadata arrives. A different ratio is `--media-ratio`,
+   on the player or on anything around it, as for every framed medium. */
 .media-player > video {
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--media-ratio, 16 / 9);
     object-fit: contain;
     background: var(--media-bg);
 }
@@ -13398,6 +13608,7 @@ dialog.palette {
     padding: 0;
     overflow: hidden;
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
@@ -13520,6 +13731,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     max-width: 300px;
     padding: var(--space-6) var(--space-7);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -13704,6 +13916,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     max-width: min(320px, calc(100vw - 32px));
     padding: var(--space-6) var(--space-7);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -14200,6 +14413,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     overflow: hidden;
     background: var(--card-bg);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
 }
 /* Each day column starts at a line named `day`, so a layer can say "from the first
    day" and mean it with or without a week-number column in front. */
@@ -14512,6 +14726,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     overflow: hidden;
     background: var(--card-bg);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
 }
 .cal-week-head,
 .cal-week-body {
@@ -14682,6 +14897,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     border-radius: var(--radius-surface);
     background: var(--card-bg);
     --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
 }
 .cal-timeline-head,
 .cal-timeline-row {
@@ -15256,6 +15472,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    nearest the avatar sharper, which is what points a bubble at its author. */
 .chat-bubble {
     --surface-here: var(--surface-strong);
+    --muted-here: var(--muted);
     background: var(--surface-here);
     padding: var(--space-4) var(--space-6);
     border-radius: var(--radius-surface);
@@ -15543,8 +15760,9 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     min-height: 0;
     height: 100%;
     --surface-here: var(--bg);
+    --muted-here: var(--muted);
 }
-.card .chat-pane { --surface-here: var(--card-bg); }
+.card .chat-pane { --surface-here: var(--card-bg); --muted-here: var(--muted); }
 /* No top padding: a sticky day cannot leave its parent's content box, so padding
    there would be a strip the messages scroll through above it. The jump anchors
    to this box. */
@@ -15700,6 +15918,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     color: var(--fg);
     box-shadow: var(--shadow-float);
@@ -16464,6 +16683,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     max-width: 280px;
     padding: var(--space-8);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -17383,6 +17603,7 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
    hung on the port line at the inline end of the head. */
 .workflow-node {
     --surface-here: var(--surface-raised-1);
+    --muted-here: var(--muted);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -17401,8 +17622,8 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
     box-shadow: var(--workflow-ring, 0 0 transparent), var(--workflow-glow, 0 0 transparent);
     transition: border-color var(--motion-fast), box-shadow var(--motion-mid);
 }
-.card .workflow-node { --surface-here: var(--surface-raised-2); }
-.card .card .workflow-node { --surface-here: var(--surface-raised-3); --muted: var(--fg-soft); }
+.card .workflow-node { --surface-here: var(--surface-raised-2); --muted-here: var(--muted); }
+.card .card .workflow-node { --surface-here: var(--surface-raised-3); --muted-here: var(--muted); --muted: var(--fg-soft); }
 
 /* A node that opens something — the step's detail beside the diagram — is a
    <button> or an <a>, with spans inside. Pressed is the one on show. */
@@ -19485,6 +19706,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         --warn-solid: CanvasText; --warn-bg: Canvas;   --warn-border: CanvasText; --warn-fg: CanvasText;
         --danger-solid: CanvasText; --danger-bg: Canvas; --danger-fg: CanvasText;
         --danger-border: CanvasText; --danger-border-strong: CanvasText;
+        --field-border-danger: CanvasText; --field-border-warn: CanvasText;
         --info-bg: Canvas;   --info-border: CanvasText;   --info-fg: CanvasText;
         /* Data on its way into the step at work is the other thing it points at. */
         --flow-light: Highlight; --flow-line: CanvasText; --flow-tint: Canvas; --flow-glow: Canvas;
@@ -19601,6 +19823,16 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .sticky-group-toggle:focus-visible,
     .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
+    :is(a, button).toast-body:focus-visible,
+    :is(.form-input, .form-select)[data-state="warn"]:focus,
+    :is(.form-input, .form-select)[aria-invalid="true"]:focus,
+    .form-color[data-state="warn"]:focus-visible,
+    .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
+    .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
+    .form-combo-box:has(> .form-combo-input[data-state="warn"]):focus-within,
+    .editor[data-state="warn"]:focus-within,
+    .editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within,
+    .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within,
     :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
@@ -19835,14 +20067,16 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 .text-center { text-align: center; }
 .text-end    { text-align: end; }
 
-.text-muted { color: var(--muted); }
+/* Quiet text in the ink of whatever it sits on: the page's, a card's, or a frame region's
+   own (--muted-here), so it stays readable on a coloured topbar. */
+.text-muted { color: var(--muted-here, var(--muted)); }
 /* A small label above a heading — the section a page is in, the kind of a record. Muted,
    spaced capitals at the smallest legible size, with no margin of its own so it sits on
    the heading it names. */
 .eyebrow {
     display: block;
     margin: 0;
-    color: var(--muted);
+    color: var(--muted-here, var(--muted));
     font-size: var(--text-2);
     font-weight: 600;
     letter-spacing: 0.06em;
@@ -20255,6 +20489,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
     .progress-bar     { transition: none; }   /* 41 */
+    .progress-ring    { transition: none; }   /* 41 — the arc lands on its value */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
     .tab              { transition: none; }   /* 50 */
     a.stat            { transition: none; }   /* 54 */

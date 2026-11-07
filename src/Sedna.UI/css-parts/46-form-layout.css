@@ -4,22 +4,66 @@
    .form-input's own border and ring at equal specificity.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* ── Validation ─────────────────────────────────────────────────────────────
-   Keyed off aria-invalid, not a class. The attribute is what a screen reader
-   announces, so if the styling hung off a separate class the two could disagree,
-   and the reader who most needs the message would be the one who does not get
-   it. Set aria-invalid and the border follows.
+/* ── Field states ───────────────────────────────────────────────────────────
+   A field is at rest, rejected or unusual, and every family that draws a field's
+   edge draws all three, at every size and in every theme:
 
-   `.form-select` is in the selector for the same reason it is in the shared shape
-   rule in 34-forms.css: a select carrying `.form-select` alone is a complete,
-   correct class list, so a rule that names only `.form-input` leaves the one
-   control a form most often rejects — an empty required dropdown — reporting
-   nothing at all, while the screen reader announces it as invalid. */
-.form-input[aria-invalid="true"],
-.form-select[aria-invalid="true"] { border-color: var(--danger-border-strong); }
-.form-input[aria-invalid="true"]:focus,
-.form-select[aria-invalid="true"]:focus {
-    border-color: var(--danger-solid);
+     rejected   aria-invalid="true"   the value is refused
+     unusual    data-state="warn"     the value is kept, but worth a second look —
+                                      a retention far past the usual, a price far
+                                      from the average
+
+   Rejected is keyed off aria-invalid, not a class. The attribute is what a screen
+   reader announces, so if the styling hung off a separate class the two could
+   disagree, and the reader who most needs the message would be the one who does
+   not get it. Unusual has no ARIA attribute, so its message is what a screen reader
+   hears: put it in `.form-warning` and point `aria-describedby` at it.
+
+   The attribute goes on the control a reader types or picks into, always — never on
+   a frame. A frame that draws the edge for its control (.input-group, the combo box,
+   the editors) follows it with :has(), so the attribute stays where a screen reader
+   reads it. A field that carries both is rejected.
+
+   At rest the edge is the state's own field role; focused it keeps that edge and
+   takes the focus ring. The Markdown editor's textarea draws its own ring, so its
+   frame takes the edge alone. FieldStateTests holds every family that draws a field edge to
+   both states, so a family cannot lack one.
+
+   `.form-select` is in every list for the reason 34-forms.css gives for naming both
+   in the shared shape rule: a select carrying `.form-select` alone is a complete,
+   correct class list, and the one control a form most often rejects — an empty
+   required dropdown — would otherwise report nothing. */
+:is(.form-input, .form-select, .form-color)[data-state="warn"],
+.input-group:has(> :is(.form-input, .form-select)[data-state="warn"]),
+.form-combo-box:has(> .form-combo-input[data-state="warn"]),
+.editor[data-state="warn"],
+.editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]),
+.md-editor:has(> [data-md-input][data-state="warn"]) { border-color: var(--field-border-warn); }
+
+:is(.form-input, .form-select)[data-state="warn"]:focus,
+.form-color[data-state="warn"]:focus-visible,
+.input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
+.form-combo-box:has(> .form-combo-input[data-state="warn"]):focus-within,
+.editor[data-state="warn"]:focus-within,
+.editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within {
+    border-color: var(--field-border-warn);
+    box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+:is(.form-input, .form-select, .form-color)[aria-invalid="true"],
+.input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]),
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]),
+.editor[aria-invalid="true"],
+.editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]),
+.md-editor:has(> [data-md-input][aria-invalid="true"]) { border-color: var(--field-border-danger); }
+
+:is(.form-input, .form-select)[aria-invalid="true"]:focus,
+.form-color[aria-invalid="true"]:focus-visible,
+.input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
+.form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within,
+.editor[aria-invalid="true"]:focus-within,
+.editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within {
+    border-color: var(--field-border-danger);
     box-shadow: 0 0 0 2px var(--focus-ring);
 }
 

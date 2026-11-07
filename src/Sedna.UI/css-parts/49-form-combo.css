@@ -60,12 +60,8 @@
     border-color: var(--field-border-focus);
     box-shadow: 0 0 0 2px var(--brand-glow);
 }
-/* Invalid and disabled are the INPUT's attributes, which is where a screen reader
-   reads them. The box follows. */
-.form-combo-box:has(> .form-combo-input[aria-invalid="true"]) { border-color: var(--danger-border-strong); }
-.form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within {
-    box-shadow: 0 0 0 2px var(--focus-ring);
-}
+/* Disabled is the INPUT's attribute, which is where a screen reader reads it, and the
+   box follows. So do the field states, in 46-form-layout.css. */
 .form-combo-box:has(> .form-combo-input:disabled) {
     background: var(--surface-soft);
     color: var(--muted);
@@ -242,6 +238,7 @@
     margin-block-start: var(--space-2);
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);

@@ -1,22 +1,36 @@
 @page "/form-validation"
 
 <CatHead Title="Validation">
-    The error border keys off <code>aria-invalid</code>, never a class, so the styling and what a
-    screen reader announces cannot disagree. Point <code>aria-describedby</code> at the message and it
-    is read as part of the field.
+    A field is at rest, rejected or unusual. Rejected keys off <code>aria-invalid</code>, never a
+    class, so the styling and what a screen reader announces cannot disagree; unusual is
+    <code>data-state="warn"</code>. Both go on the control, every field family draws both, and
+    <code>aria-describedby</code> on the control makes the message part of the field.
 </CatHead>
 
 <CatExample TExample="Examples.FormValidation.Messages" Title="Error and warning" Demo="ex-demo--block">
     <p>
         <code>.form-error</code> is a rejected value. <code>.form-warning</code> is one that is
-        accepted but unwise &mdash; it carries no <code>aria-invalid</code>, because the field is
-        valid.
+        accepted but unwise &mdash; its field carries <code>data-state="warn"</code> and no
+        <code>aria-invalid</code>, because the value is kept.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormValidation.Unusual" Title="Unusual, not rejected" Demo="ex-demo--block">
+    <p>
+        <code>data-state="warn"</code> is for a value that is saved but worth a second look &mdash;
+        outside the usual range, far from the average. Red would tell the reader it was refused.
+        No ARIA attribute says "unusual", so the <code>.form-warning</code> tied by
+        <code>aria-describedby</code> is what a screen reader hears; write it every time. On an
+        <code>.input-group</code> the attribute still goes on the control, and the group draws the
+        edge.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.FormValidation.AcrossControls" Title="Across every control" Demo="ex-demo--block">
     <p>
-        One attribute, the same result on an input, a select and a text area. The select is the case
+        One attribute, the same result on an input, a select, an <code>.input-group</code> and a
+        text area &mdash; and on a combo box, a colour field and both editors. In a group, the
+        attribute stays on the control and the group draws the edge. The select is the case
         worth knowing: it needs an empty first option for <code>required</code> to bite at all.
     </p>
 </CatExample>

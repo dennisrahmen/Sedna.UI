@@ -1,0 +1,50 @@
+@using Microsoft.AspNetCore.Components.Web
+@inject ISednaUi Ui
+
+<div class="sedna-grid sedna-grid--sm sedna-grid--fit" style="max-width:560px; padding-bottom:160px">
+    @foreach (var tile in _tiles)
+    {
+        <div class="card" id="@($"tile-{tile.Name}")" tabindex="0"
+             @oncontextmenu="e => Open(tile, e)" @oncontextmenu:preventDefault="true">
+            <div class="card-body sedna-col">
+                <strong>@tile.Name</strong>
+                <span class="text-muted">@(tile.Locked ? "Locked by a deploy" : "Running")</span>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="menu" id="tile-menu" popover>
+    <button class="menu-item" type="button" @onclick="Restart">
+        <i class="ri-restart-line"></i> <span>Restart</span>
+    </button>
+    <button class="menu-item" type="button" @onclick="OpenLog">
+        <i class="ri-file-list-3-line"></i> <span>Open the log</span>
+    </button>
+</div>
+
+<p class="text-muted" role="status">@_status</p>
+
+@code {
+    private sealed record Tile(string Name, bool Locked);
+
+    private readonly Tile[] _tiles = [new("orders-console-01", false), new("build-runner-04", true)];
+    private Tile? _chosen;
+    private string _status = "Right-click a tile.";
+
+    private void Restart() => _status = $"Restarting {_chosen?.Name}…";
+    private void OpenLog() => _status = $"Opened the log of {_chosen?.Name}.";
+
+    // The app decides whether there is a menu at all, and for which tile — then the library
+    // places it at the pointer, flips it at the screen's edges and closes it on a scroll.
+    private async Task Open(Tile tile, MouseEventArgs e)
+    {
+        if (tile.Locked)
+        {
+            _status = $"{tile.Name} is locked by a deploy, so there is nothing to do with it.";
+            return;
+        }
+        _chosen = tile;
+        await Ui.OpenMenuAtAsync("tile-menu", e.ClientX, e.ClientY, $"tile-{tile.Name}");
+    }
+}

@@ -630,6 +630,8 @@ function describe(e) {
     const describedBy = ta.getAttribute('aria-describedby');
     if (describedBy) root.setAttribute('aria-describedby', describedBy);
     else root.removeAttribute('aria-describedby');
+    if (ta.getAttribute('aria-invalid') === 'true') root.setAttribute('aria-invalid', 'true');
+    else if (!e.el.hasAttribute('aria-invalid')) root.removeAttribute('aria-invalid');
     if (ta.placeholder) root.setAttribute('data-placeholder', ta.placeholder);
     const off = ta.disabled || ta.readOnly;
     e.quill.enable(!off);
@@ -677,7 +679,7 @@ function start(e) {
     e.el.addEventListener('focusout', onFocusOut);
     e.cleanups.push(() => e.el.removeEventListener('focusout', onFocusOut));
     const attrs = new MutationObserver(() => { if (!e.disposed) describe(e); });
-    attrs.observe(value, { attributes: true, attributeFilter: ['disabled', 'readonly', 'aria-label', 'aria-labelledby', 'aria-describedby', 'placeholder'] });
+    attrs.observe(value, { attributes: true, attributeFilter: ['disabled', 'readonly', 'aria-label', 'aria-labelledby', 'aria-describedby', 'aria-invalid', 'placeholder'] });
     e.cleanups.push(() => attrs.disconnect());
     e.el.setAttribute('data-editor-state', 'ready');
     e.emit('sedna-editor-ready', stateOf(e));

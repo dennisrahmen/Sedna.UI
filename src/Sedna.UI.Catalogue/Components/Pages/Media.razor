@@ -39,6 +39,31 @@
 
 
 
+<CatExample TExample="Examples.Media.Ratio" Title="Any ratio, one token" Demo="ex-demo--block">
+    <p>
+        Every frame that holds a picture at a fixed shape reads <code>--media-ratio</code>: the
+        <code>.media-frame</code>, the <code>.skeleton-image</code> it replaces, a
+        <a href="/form-choice"><code>.choice-tile-art</code></a>, a
+        <a href="/files"><code>.file-tile-thumb</code></a> and a
+        <a href="/video"><code>.media-player</code></a>'s video. Each is 16:9 unless it says otherwise
+        &mdash; a file tile is square &mdash; so a skeleton swaps for its picture without a jump. Set
+        the token on one frame or on a whole container: <code>4 / 3</code>, <code>3 / 2</code>,
+        <code>9 / 16</code>. <code>--square</code> and <code>--wide</code> set it too.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Media.Transparency" Title="Seeing transparency" Demo="ex-demo--block">
+    <p>
+        <code>.media-frame--transparency</code> paints a checkerboard behind the picture, so a
+        transparent background can be told from a white or grey one &mdash; a logo, an icon, a
+        cut-out, an upload being checked. It is behind the picture alone, so a letterbox stays plain.
+        Every picture frame takes the same modifier: <code>.file-tile-thumb--transparency</code>,
+        <code>.file-thumb--transparency</code>, <code>.choice-tile-art--transparency</code> and
+        <code>.lightbox-stage--transparency</code>. The squares are <code>--surface-soft</code> and
+        <code>--border</code>, so they follow the theme; <code>--checker-size</code> is one square.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Media.Gallery" Title="A gallery of attachments" Demo="ex-demo--block">
     <p>
         <code>.gallery</code> is a breakpoint-free grid of thumbnails. Each tile is a real

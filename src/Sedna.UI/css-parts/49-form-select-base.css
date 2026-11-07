@@ -185,6 +185,7 @@
     position-try-fallbacks: none;
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-surface);
@@ -324,6 +325,7 @@
     .form-select[size]:not([size="1"]) {
         box-sizing: border-box;
         --surface-here: var(--bg);
+        --muted-here: var(--muted);
         white-space: normal;
         overflow: auto;
         /* ── The box is measured here, not left to `size` ──

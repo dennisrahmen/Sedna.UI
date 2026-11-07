@@ -50,6 +50,19 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.FormDatetime.Typeable" Title="A typeable date with a calendar" Demo="ex-demo--block">
+    <p>
+        A text field people type into &mdash; <code>3.11.26</code>, <code>03112026</code> &mdash;
+        beside a button that opens a <a href="/calendar"><code>.datepicker</code></a>, as one
+        <code>.input-group</code>. Input that cannot be read as a date sets
+        <code>aria-invalid</code> on the input, and the group draws the rejected edge. Opened from
+        the button, the picker would line up with the button at the group's end; an
+        <code>anchor-name</code> on the group and the same name as the popover's
+        <code>position-anchor</code> line it up with the field instead, and it still flips at the
+        screen's edge.
+    </p>
+</CatExample>
+
 <h2 id="platform">What the browser draws</h2>
 <p class="cat-lede">
     The calendar glyph is a browser glyph in a fixed colour, invisible on a dark surface until it
