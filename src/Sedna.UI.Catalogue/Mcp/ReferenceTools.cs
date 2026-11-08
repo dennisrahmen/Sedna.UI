@@ -27,6 +27,8 @@ internal sealed class ReferenceTools(CatalogueIndex index, VersionEnvelope versi
 
     // ── check_markup ────────────────────────────────────────────────────────
 
+    private static readonly char[] Whitespace = [' ', '\t', '\n', '\r'];
+
     private static readonly Regex ClassAttribute = new(
         @"\bclass\s*=\s*(?:""(?<v>[^""]*)""|'(?<v>[^']*)')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -55,7 +57,7 @@ internal sealed class ReferenceTools(CatalogueIndex index, VersionEnvelope versi
         var dynamic = new SortedSet<string>(StringComparer.Ordinal);
         foreach (Match attribute in ClassAttribute.Matches(markup))
         {
-            foreach (var token in attribute.Groups["v"].Value.Split((char[])[' ', '\t', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries))
+            foreach (var token in attribute.Groups["v"].Value.Split(Whitespace, StringSplitOptions.RemoveEmptyEntries))
             {
                 // Razor that builds a class at render time cannot be checked from the source.
                 if (token.Contains('@', StringComparison.Ordinal) || token.Contains('{', StringComparison.Ordinal)
