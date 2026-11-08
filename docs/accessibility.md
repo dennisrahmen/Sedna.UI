@@ -15,6 +15,14 @@ something, it is listed below and repeated in the class's own comment.
 - **No colour-only signals.** Every state that matters carries a second channel — a leading rule, a
   filled-versus-outlined marker, an arrow, an icon. Deltas are the clearest case: `--good` / `--bad`
   set the colour, and the arrow you put inside carries the direction.
+- **F6 moves between the frame's regions.** F6 and Shift+F6 cycle focus through the landmarks, the
+  topbar, sidebar and bottom bar and an open modeless drawer, skipping hidden ones; inside a modal
+  dialog the key is left to the browser. The rules are in
+  [architecture](architecture.md#moving-between-regions).
+- **States are ARIA attributes, not classes.** The library styles `aria-pressed`, `aria-selected`,
+  `aria-current`, `aria-expanded`, `aria-invalid`, `aria-busy` and the platform's pseudo-classes, so
+  the look and what a screen reader hears cannot disagree. The full list is in
+  [architecture](architecture.md#interaction-states).
 - **The colour-blind palette is a token remap**, so it composes with either theme and changes no
   layout. A browser test asserts that flipping it moves no geometry.
 - **Focus is always visible.** Every interactive class has a `:focus-visible` ring. Mouse focus does
@@ -90,10 +98,12 @@ interaction once more:
 
 ## Deliberate omissions
 
-**No `role="menu"`.** That role promises arrow-key navigation and a roving tabindex, and a menu that
-claims it without implementing it is *worse* than one that claims nothing: the items stop being
-reachable the way they appear to be. `.menu` items are ordinary links and buttons that tab. The
-disclosure pattern — `aria-expanded` on the trigger, no role on the panel — is correct and complete.
+**No `role="menu"`.** The script moves focus between a `.menu`'s items with the arrow keys, Home and
+End, jumps to an item by its first letters and opens a submenu with the arrow towards it — but the
+items stay ordinary links and buttons, each its own Tab stop, with no roving tabindex, and a menu may
+hold a filter field. `role="menu"` promises a single tab stop and children that are all `menuitem`s,
+and a screen reader stops announcing a link as a link inside it. The disclosure pattern —
+`aria-expanded` on the trigger, no role on the panel — is correct and complete.
 
 **No `role="listbox"` on the palette.** A combobox needs `aria-activedescendant` on the input, which is
 what the palette does, rather than a listbox whose keyboard contract it would only half implement.

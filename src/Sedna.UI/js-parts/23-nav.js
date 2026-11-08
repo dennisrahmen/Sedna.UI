@@ -37,6 +37,23 @@
    .content — or the document. Focus moving into the bar brings it back, so a keyboard
    user never tabs onto an item they cannot see.
 
+   MOVING BETWEEN REGIONS. F6 moves focus to the next region of the frame and Shift+F6
+   to the previous, wrapping at both ends. A region is a landmark — header, nav, main,
+   aside, footer or an element with a landmark role (a header or footer inside an
+   article, aside, main, nav or section is not one) — a .topbar, .sidebar or .bottombar,
+   or an open dialog that is not modal: a modeless drawer or sheet. Only the outermost
+   counts, so the nav inside a sidebar is not a stop of its own; a region inside an open
+   dialog is part of the dialog. Regions are visited in document order, skipping one
+   that is not rendered, is invisible, is inert or aria-hidden, or lies wholly beside the
+   viewport, as an off-canvas drawer does.
+
+   Focus goes to the region's first element Tab would reach. A region with none takes
+   the focus itself: the script gives it tabindex="-1" for as long as it holds the
+   focus, unless it already had a tabindex, and takes the attribute away on blur.
+
+   While a modal dialog is open, F6 is left to the browser: the dialog is the only
+   region there is, and the rest of the page is inert.
+
    None of these behaviours inserts or removes an element, and each writes only attributes
    an app does not render itself, so a Blazor re-render has nothing to revert.
    ─────────────────────────────────────────────────────────────────────────── */
@@ -101,7 +118,10 @@
                 ? document.querySelector('[data-nav-area][aria-controls="' + itemOrPanelId + '"]')
                 : itemOrPanelId;
             if (item) showArea(item);
-        }
+        },
+        // Moves the focus to the next region (1) or the previous (-1), as F6 and
+        // Shift+F6 do. Answers the region, or null.
+        moveRegion: function (step) { return moveRegion(step < 0 ? -1 : 1); }
     };
 
     // Direction, not offset: the bar leaves on the way down and returns on the way up,
@@ -187,6 +207,97 @@
             var input = link.closest('.nav').querySelector('[data-nav-filter]');
             if (input) setTimeout(function () { clear(input); }, 0);
         }
+    });
+
+    /* ── Moving between regions ───────────────────────────────────────────────── */
+
+    var REGION = 'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], ' +
+        '[role="complementary"], [role="contentinfo"], [role="search"], [role="region"], ' +
+        '.topbar, .sidebar, .bottombar, dialog[open]';
+    var TABBABLE = 'a[href], area[href], button, input:not([type="hidden"]), select, textarea, summary, ' +
+        'iframe, audio[controls], video[controls], [contenteditable=""], [contenteditable="true"], [tabindex]';
+
+    function shown(el) {
+        if (el.closest('[inert], [aria-hidden="true"]')) return false;
+        if (el.checkVisibility && !el.checkVisibility({ visibilityProperty: true })) return false;
+        if (!el.getClientRects().length) return false;
+        var r = el.getBoundingClientRect();
+        // Wholly beside the viewport: an off-canvas drawer, moved out by a transform.
+        return r.right > 0 && r.left < window.innerWidth;
+    }
+
+    function landmark(el) {
+        if (el.tagName === 'DIALOG') return !el.matches(':modal');
+        // A header or footer scoped to a section of content is not a landmark.
+        if (!el.hasAttribute('role') && (el.tagName === 'HEADER' || el.tagName === 'FOOTER') &&
+            !el.matches('.topbar, .bottombar') &&
+            el.parentElement && el.parentElement.closest('article, aside, main, nav, section')) return false;
+        return true;
+    }
+
+    // The frame's regions, outermost only, in document order.
+    function regions() {
+        var all = Array.prototype.filter.call(document.querySelectorAll(REGION), landmark);
+        return all.filter(function (el) {
+            for (var i = 0; i < all.length; i++) {
+                // A dialog is a region of its own wherever it sits; anything else inside
+                // another region is part of it.
+                if (all[i] !== el && all[i].contains(el) && el.tagName !== 'DIALOG') return false;
+            }
+            return shown(el);
+        });
+    }
+
+    function firstTabbable(region) {
+        var all = region.querySelectorAll(TABBABLE);
+        for (var i = 0; i < all.length; i++) {
+            var el = all[i];
+            if (el.tabIndex < 0 || el.disabled) continue;
+            if (!shown(el)) continue;
+            // Inside a closed <details>, only its summary is reachable.
+            var closed = el.closest('details:not([open])');
+            if (closed && el.tagName !== 'SUMMARY' && !el.closest('summary')) continue;
+            return el;
+        }
+        return null;
+    }
+
+    function enterRegion(region) {
+        var target = firstTabbable(region);
+        if (target) { target.focus(); return; }
+        if (!region.hasAttribute('tabindex')) {
+            region.setAttribute('tabindex', '-1');
+            region.addEventListener('blur', function lose() {
+                region.removeEventListener('blur', lose);
+                region.removeAttribute('tabindex');
+            });
+        }
+        region.focus();
+    }
+
+    /* Moves the focus one region on (1) or back (-1) and answers the region, or null
+       with none to go to or while a modal dialog is open. */
+    function moveRegion(step) {
+        if (document.querySelector('dialog:modal')) return null;
+        var list = regions();
+        if (!list.length) return null;
+
+        // The innermost region holding the focus: descendants follow their ancestors in
+        // document order, so the last one that contains it.
+        var active = document.activeElement;
+        var at = -1;
+        for (var i = 0; i < list.length; i++) if (active && list[i].contains(active)) at = i;
+
+        var next = at < 0
+            ? (step > 0 ? 0 : list.length - 1)
+            : (at + (step > 0 ? 1 : -1) + list.length) % list.length;
+        enterRegion(list[next]);
+        return list[next];
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'F6' || e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) return;
+        if (moveRegion(e.shiftKey ? -1 : 1)) e.preventDefault();
     });
 
 })(window.sednaUi);

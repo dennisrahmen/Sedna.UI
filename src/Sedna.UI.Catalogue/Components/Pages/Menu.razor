@@ -11,9 +11,13 @@
     <i class="ri-error-warning-line"></i>
     <div class="callout-body">
         <span class="callout-title">Do not add <code>role="menu"</code></span>
-        That role promises arrow-key navigation
-        and a roving tabindex this does not implement; the items are ordinary links and buttons that
-        tab. Put <code>aria-expanded</code> on the trigger and leave the panel unlabelled by role.
+        The script moves focus between the items with <kbd>&uarr;</kbd>, <kbd>&darr;</kbd>,
+        <kbd>Home</kbd> and <kbd>End</kbd>, jumps to an item by typing its first letters, and opens a
+        submenu with the arrow towards it. But the items stay ordinary links and buttons, each its own
+        <kbd>Tab</kbd> stop &mdash; there is no roving tabindex &mdash; and a menu may hold a filter field.
+        <code>role="menu"</code> promises one tab stop and children that are all
+        <code>menuitem</code>s, and a screen reader stops announcing links as links inside it. Put
+        <code>aria-expanded</code> on the trigger and leave the panel without a role.
     </div>
 </div>
 

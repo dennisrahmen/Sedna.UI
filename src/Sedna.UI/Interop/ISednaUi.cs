@@ -276,8 +276,8 @@ public interface ISednaUi
     /// </remarks>
     Task RegisterCommandsAsync(IReadOnlyList<PaletteCommand> commands);
 
-    /// <summary>Ranks the registered commands against a query, best first.</summary>
-    /// <param name="query">The search text. Empty returns every command in registration order.</param>
+    /// <summary>Ranks the commands registered on the root page against a query, best first.</summary>
+    /// <param name="query">The search text. Empty returns every root command in registration order.</param>
     /// <returns>The matching commands.</returns>
     /// <remarks>For an app that wants the palette's ranking in its own UI.</remarks>
     Task<IReadOnlyList<PaletteCommand>> RankCommandsAsync(string query);

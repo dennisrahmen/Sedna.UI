@@ -5222,6 +5222,23 @@ window.sednaUi = window.sednaUi || {};
    .content — or the document. Focus moving into the bar brings it back, so a keyboard
    user never tabs onto an item they cannot see.
 
+   MOVING BETWEEN REGIONS. F6 moves focus to the next region of the frame and Shift+F6
+   to the previous, wrapping at both ends. A region is a landmark — header, nav, main,
+   aside, footer or an element with a landmark role (a header or footer inside an
+   article, aside, main, nav or section is not one) — a .topbar, .sidebar or .bottombar,
+   or an open dialog that is not modal: a modeless drawer or sheet. Only the outermost
+   counts, so the nav inside a sidebar is not a stop of its own; a region inside an open
+   dialog is part of the dialog. Regions are visited in document order, skipping one
+   that is not rendered, is invisible, is inert or aria-hidden, or lies wholly beside the
+   viewport, as an off-canvas drawer does.
+
+   Focus goes to the region's first element Tab would reach. A region with none takes
+   the focus itself: the script gives it tabindex="-1" for as long as it holds the
+   focus, unless it already had a tabindex, and takes the attribute away on blur.
+
+   While a modal dialog is open, F6 is left to the browser: the dialog is the only
+   region there is, and the rest of the page is inert.
+
    None of these behaviours inserts or removes an element, and each writes only attributes
    an app does not render itself, so a Blazor re-render has nothing to revert.
    ─────────────────────────────────────────────────────────────────────────── */
@@ -5286,7 +5303,10 @@ window.sednaUi = window.sednaUi || {};
                 ? document.querySelector('[data-nav-area][aria-controls="' + itemOrPanelId + '"]')
                 : itemOrPanelId;
             if (item) showArea(item);
-        }
+        },
+        // Moves the focus to the next region (1) or the previous (-1), as F6 and
+        // Shift+F6 do. Answers the region, or null.
+        moveRegion: function (step) { return moveRegion(step < 0 ? -1 : 1); }
     };
 
     // Direction, not offset: the bar leaves on the way down and returns on the way up,
@@ -5372,6 +5392,97 @@ window.sednaUi = window.sednaUi || {};
             var input = link.closest('.nav').querySelector('[data-nav-filter]');
             if (input) setTimeout(function () { clear(input); }, 0);
         }
+    });
+
+    /* ── Moving between regions ───────────────────────────────────────────────── */
+
+    var REGION = 'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], ' +
+        '[role="complementary"], [role="contentinfo"], [role="search"], [role="region"], ' +
+        '.topbar, .sidebar, .bottombar, dialog[open]';
+    var TABBABLE = 'a[href], area[href], button, input:not([type="hidden"]), select, textarea, summary, ' +
+        'iframe, audio[controls], video[controls], [contenteditable=""], [contenteditable="true"], [tabindex]';
+
+    function shown(el) {
+        if (el.closest('[inert], [aria-hidden="true"]')) return false;
+        if (el.checkVisibility && !el.checkVisibility({ visibilityProperty: true })) return false;
+        if (!el.getClientRects().length) return false;
+        var r = el.getBoundingClientRect();
+        // Wholly beside the viewport: an off-canvas drawer, moved out by a transform.
+        return r.right > 0 && r.left < window.innerWidth;
+    }
+
+    function landmark(el) {
+        if (el.tagName === 'DIALOG') return !el.matches(':modal');
+        // A header or footer scoped to a section of content is not a landmark.
+        if (!el.hasAttribute('role') && (el.tagName === 'HEADER' || el.tagName === 'FOOTER') &&
+            !el.matches('.topbar, .bottombar') &&
+            el.parentElement && el.parentElement.closest('article, aside, main, nav, section')) return false;
+        return true;
+    }
+
+    // The frame's regions, outermost only, in document order.
+    function regions() {
+        var all = Array.prototype.filter.call(document.querySelectorAll(REGION), landmark);
+        return all.filter(function (el) {
+            for (var i = 0; i < all.length; i++) {
+                // A dialog is a region of its own wherever it sits; anything else inside
+                // another region is part of it.
+                if (all[i] !== el && all[i].contains(el) && el.tagName !== 'DIALOG') return false;
+            }
+            return shown(el);
+        });
+    }
+
+    function firstTabbable(region) {
+        var all = region.querySelectorAll(TABBABLE);
+        for (var i = 0; i < all.length; i++) {
+            var el = all[i];
+            if (el.tabIndex < 0 || el.disabled) continue;
+            if (!shown(el)) continue;
+            // Inside a closed <details>, only its summary is reachable.
+            var closed = el.closest('details:not([open])');
+            if (closed && el.tagName !== 'SUMMARY' && !el.closest('summary')) continue;
+            return el;
+        }
+        return null;
+    }
+
+    function enterRegion(region) {
+        var target = firstTabbable(region);
+        if (target) { target.focus(); return; }
+        if (!region.hasAttribute('tabindex')) {
+            region.setAttribute('tabindex', '-1');
+            region.addEventListener('blur', function lose() {
+                region.removeEventListener('blur', lose);
+                region.removeAttribute('tabindex');
+            });
+        }
+        region.focus();
+    }
+
+    /* Moves the focus one region on (1) or back (-1) and answers the region, or null
+       with none to go to or while a modal dialog is open. */
+    function moveRegion(step) {
+        if (document.querySelector('dialog:modal')) return null;
+        var list = regions();
+        if (!list.length) return null;
+
+        // The innermost region holding the focus: descendants follow their ancestors in
+        // document order, so the last one that contains it.
+        var active = document.activeElement;
+        var at = -1;
+        for (var i = 0; i < list.length; i++) if (active && list[i].contains(active)) at = i;
+
+        var next = at < 0
+            ? (step > 0 ? 0 : list.length - 1)
+            : (at + (step > 0 ? 1 : -1) + list.length) % list.length;
+        enterRegion(list[next]);
+        return list[next];
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'F6' || e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) return;
+        if (moveRegion(e.shiftKey ? -1 : 1)) e.preventDefault();
     });
 
 })(window.sednaUi);
@@ -5482,7 +5593,7 @@ window.sednaUi = window.sednaUi || {};
 
 /* ── 24-palette.js ──────────────────────────────────────────────── */
 /* ── Command palette ─────────────────────────────────────────────────────────
-   sednaUi.palette.register([{ label, icon, group, note, run, href, keywords }])
+   sednaUi.palette.register([{ label, icon, group, note, run, href, keywords, page, opens, pinned }])
    sednaUi.palette.open()      — or Ctrl/Cmd-K, which is wired for you
 
    THE MARKUP IS THE APP'S. The script draws nothing: the app writes one
@@ -5524,6 +5635,38 @@ window.sednaUi = window.sednaUi || {};
    two cannot rank the same query differently. Matches in `keywords` score below
    the same match in the label, so a command is never outranked by one that
    merely mentions the word.
+
+   PAGES. A command with `opens: 'theme'` opens a page of its own commands — those
+   registered with `page: 'theme'` — instead of running; its `run`, if it has one,
+   is called as the page opens, so an app can start loading what the page lists.
+   A command with no `page` is on the root. Backspace in an empty input, and
+   Escape, go back one page; Escape on the root closes. The way back is the app's
+   too, and all of it optional:
+
+     <div class="palette-path" data-palette-path hidden>
+       <button class="btn btn--sm btn--icon" type="button" data-palette-back aria-label="Back">…</button>
+       <span class="palette-trail" data-palette-trail></span>
+     </div>
+     <template data-palette-crumb><span class="palette-crumb" data-label></span></template>
+
+   The script shows the path (removes `hidden`) on a page and hides it on the
+   root, and fills the trail with one crumb per page opened, labelled with the
+   command that opened it. Going back restores that page's query and highlight.
+
+   LOADING. While the app sets aria-busy="true" on the <dialog data-palette>,
+   the list ends with a clone of <template data-palette-loading>, and the empty
+   row is held back — "nothing matches" is not yet true. The list is redrawn when
+   the attribute changes and when register() is called while the palette is open.
+
+   GROUPS, SEPARATORS AND PINNED COMMANDS. With nothing typed the list is in
+   registration order, a heading from <template data-palette-group> over each run
+   of one group, and a clone of <template data-palette-separator> between two
+   runs. A query reorders the list, so both are dropped while one is typed. A
+   command with `pinned: true` is never ranked: it follows the matches whatever is
+   typed — "search the documentation for this" — and does not count as a match.
+
+   The arrow keys wrap: Down on the last row goes to the first, Up on the first
+   to the last.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -5537,11 +5680,21 @@ window.sednaUi = window.sednaUi || {};
     var at = 0;          // index into shown
     var wired = [];      // dialogs whose listeners are attached
     var warned = false;
+    // The pages opened since the root, innermost last: { id, label, query, at } —
+    // the page's id, the label of the command that opened it, and the query and
+    // highlight of the page it was opened FROM, which going back restores.
+    var stack = [];
 
-    function rank(query) {
+    function here() { return stack.length ? stack[stack.length - 1].id : null; }
+
+    // A command with no page is on the root; `page` names any other.
+    function on(c, page) { return (c.page || null) === (page || null); }
+
+    function rank(query, page) {
         var out = [];
         for (var i = 0; i < commands.length; i++) {
             var c = commands[i];
+            if (!on(c, page)) continue;
             var best = score(query, c.label, 0);
             if (c.keywords) {
                 // 200 keeps a keyword hit strictly below the same hit in a label.
@@ -5562,26 +5715,41 @@ window.sednaUi = window.sednaUi || {};
         return dialog.querySelector('template[data-palette-' + name + ']');
     }
 
-    function render(query) {
-        shown = rank(query);
+    function busy() { return dialog.getAttribute('aria-busy') === 'true'; }
+
+    function render(query, keep) {
+        var page = here();
+        var ranked = rank(query, page);
+        if (query) {
+            // Pinned commands are not ranked: they follow the matches, in
+            // registration order, whatever is typed.
+            ranked = ranked.filter(function (c) { return !c.pinned; });
+            shown = ranked.concat(commands.filter(function (c) { return c.pinned && on(c, page); }));
+        } else {
+            shown = ranked;
+        }
         at = 0;
         list.textContent = '';
+        trail();
 
-        if (!shown.length) {
+        if (!ranked.length && query && !busy()) {
             // Says what was searched, not just "no results" — the reader needs to
             // know the query was what they thought it was. The words are the app's.
             var empty = fill(template('empty'), { query: query });
             if (empty) list.appendChild(empty);
-            input.removeAttribute('aria-activedescendant');
-            return;
         }
 
         var lastGroup = null;
         shown.forEach(function (c, i) {
             // Groups are only meaningful in registration order, so they are dropped
             // once a query has reordered the list — a heading over unrelated results
-            // is worse than no heading.
+            // is worse than no heading. A separator goes between two runs, never
+            // above the first.
             if (!query && c.group && c.group !== lastGroup) {
+                if (lastGroup !== null) {
+                    var rule = fill(template('separator'), {});
+                    if (rule) list.appendChild(rule);
+                }
                 var head = fill(template('group'), { group: c.group });
                 if (head) list.appendChild(head);
                 lastGroup = c.group;
@@ -5606,7 +5774,50 @@ window.sednaUi = window.sednaUi || {};
             list.appendChild(row);
         });
 
-        input.setAttribute('aria-activedescendant', list.id + '-0');
+        if (busy()) {
+            var loading = fill(template('loading'), {});
+            if (loading) list.appendChild(loading);
+        }
+
+        if (shown.length && keep > 0) highlight(Math.min(keep, items().length - 1));
+        else if (shown.length) input.setAttribute('aria-activedescendant', list.id + '-0');
+        else input.removeAttribute('aria-activedescendant');
+    }
+
+    /* Shows the app's path on a page and hides it on the root, with one crumb per
+       page opened. Nothing happens without the markup: the pages still work, the
+       reader just has no trail. */
+    function trail() {
+        var path = dialog.querySelector('[data-palette-path]');
+        if (path) path.hidden = !stack.length;
+        var holder = dialog.querySelector('[data-palette-trail]');
+        if (!holder) return;
+        holder.textContent = '';
+        stack.forEach(function (p) {
+            var crumb = fill(template('crumb'), { label: p.label });
+            if (crumb) holder.appendChild(crumb);
+        });
+    }
+
+    function enter(c) {
+        stack.push({ id: c.opens, label: c.label, query: input.value, at: at });
+        input.value = '';
+        // Before the page is drawn, so a `run` that sets aria-busy or registers the
+        // page's commands is in the first render rather than a second.
+        if (typeof c.run === 'function') c.run();
+        render('');
+        input.focus();
+    }
+
+    /* One page back, to the query and the row the reader left. False on the root,
+       where there is nowhere to go. */
+    function back() {
+        if (!stack.length) return false;
+        var was = stack.pop();
+        input.value = was.query;
+        render(was.query, was.at);
+        input.focus();
+        return true;
     }
 
     function items() { return list.querySelectorAll('[role="option"]'); }
@@ -5628,6 +5839,7 @@ window.sednaUi = window.sednaUi || {};
 
     function run(i) {
         var c = shown[i];
+        if (c && c.opens) { enter(c); return; }
         close();
         // After close(), so a command that opens a modal is not fighting a dialog
         // that is still shutting.
@@ -5695,6 +5907,10 @@ window.sednaUi = window.sednaUi || {};
         if (wired.indexOf(dialog) >= 0) return true;
         wired.push(dialog);
 
+        // Closured on the element, not the module's `dialog`, which a later adopt()
+        // may have pointed at a replacement.
+        var own = dialog;
+
         input.addEventListener('input', function () { render(input.value); });
 
         input.addEventListener('keydown', function (e) {
@@ -5703,12 +5919,29 @@ window.sednaUi = window.sednaUi || {};
             else if (e.key === 'Home') { e.preventDefault(); highlight(0); }
             else if (e.key === 'End') { e.preventDefault(); highlight(items().length - 1); }
             else if (e.key === 'Enter') { e.preventDefault(); if (items().length) run(at); }
+            // Only in an EMPTY input: with text in it, Backspace is editing.
+            else if (e.key === 'Backspace' && !input.value && stack.length) { e.preventDefault(); back(); }
+        });
+
+        // On the dialog rather than the input, so it holds while the back button has
+        // the focus. Cancelling the keydown is what keeps the dialog open: its close
+        // request is that key's default action.
+        own.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && stack.length) { e.preventDefault(); back(); }
         });
 
         // Clicking the backdrop closes it. The dialog fills only part of the top
         // layer, so a click whose target IS the dialog element landed outside the
         // panel's own children.
-        dialog.addEventListener('click', function (e) { if (e.target === dialog) close(); });
+        own.addEventListener('click', function (e) {
+            if (e.target === own) { close(); return; }
+            if (e.target.closest && e.target.closest('[data-palette-back]')) back();
+        });
+
+        // The app's loading signal. Redrawn in place, keeping what is typed.
+        new MutationObserver(function () {
+            if (own === dialog && own.open) render(input.value);
+        }).observe(own, { attributes: true, attributeFilter: ['aria-busy'] });
         return true;
     }
 
@@ -5721,12 +5954,16 @@ window.sednaUi = window.sednaUi || {};
            available changes — after a permission check, or on navigation. */
         register: function (list_) {
             commands = Array.isArray(list_) ? list_.slice() : [];
+            // An app loading a page's commands registers them while the page is open;
+            // the reader sees them arrive under what they typed.
+            if (dialog && dialog.open) render(input.value);
         },
 
         open: function () {
             if (!adopt()) return false;
             if (dialog.open) return true;
 
+            stack = [];
             input.value = '';
             render('');
             dialog.showModal();
@@ -5736,8 +5973,13 @@ window.sednaUi = window.sednaUi || {};
 
         close: close,
 
+        /* One page back; false on the root. For a control of the app's own that is
+           not a `data-palette-back` button. */
+        back: function () { return !!(dialog && dialog.open) && back(); },
+
         /* Exposed for tests and for an app that wants the same ranking in its own
-           UI. Returns the matching commands, best first. */
+           UI. Returns the matching commands on one page — the root unless `page`
+           names another — best first. */
         rank: rank
     };
 

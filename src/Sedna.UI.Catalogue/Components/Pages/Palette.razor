@@ -48,6 +48,29 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Palette.PalettePages" Title="Pages, separators and loading" Demo="ex-demo--block">
+    <p>
+        A command with <code>opens</code> opens a page of the commands registered with the same
+        <code>page</code>, instead of running &mdash; &ldquo;Change theme&hellip;&rdquo; and the themes.
+        <kbd>Backspace</kbd> in an empty search, <kbd>Escape</kbd> and the app's
+        <code>data-palette-back</code> button go back one page, to the query and the row the reader left;
+        <kbd>Escape</kbd> on the root closes. The script shows <code>.palette-path</code> on a page, hides it on
+        the root, and fills <code>data-palette-trail</code> with one <code>.palette-crumb</code> per page
+        opened. With nothing typed, <code>.palette-separator</code> goes between two groups; a query drops
+        both. While the dialog has <code>aria-busy="true"</code>, the list ends with the app's
+        <code>.palette-loading</code> row and &ldquo;nothing matches&rdquo; is held back. A
+        <code>pinned</code> command follows the matches whatever is typed. The arrow keys wrap. Laid out
+        statically here, with every state at once.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Interop/PalettePages.txt" Title="Pages from C#">
+    <p>
+        <code>PaletteCommand.Opens</code>, <code>Page</code> and <code>Pinned</code> carry the same three
+        things across the interop boundary. <code>RankCommandsAsync</code> ranks the root page.
+    </p>
+</CatSnippet>
+
 <CatSnippet Name="Palette/PaletteMarkup.html" Title="The markup">
     <p>
         What the library builds, for an app rendering its own command list — if you are calling

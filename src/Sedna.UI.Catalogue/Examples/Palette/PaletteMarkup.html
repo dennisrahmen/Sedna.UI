@@ -1,8 +1,17 @@
 <!-- The palette an app writes, once, in its layout. sednaUi.palette fills the list
      from the templates and draws nothing itself, so every word here is yours to
-     translate. Leave the list empty: the script owns its children. The group and
-     empty templates are optional. -->
+     translate. Leave the list empty: the script owns its children. Everything but
+     the input, the list and the item template is optional. -->
 <dialog class="palette" data-palette aria-label="Commands">
+    <!-- Where the reader is, once a command has opened a page of its own. Hidden on
+         the root by the script; the trail gets one crumb per page opened. -->
+    <div class="palette-path" data-palette-path hidden>
+        <button class="btn btn--sm btn--icon" type="button" data-palette-back aria-label="Back">
+            <i class="ri-arrow-left-line" aria-hidden="true"></i>
+        </button>
+        <span class="palette-trail" data-palette-trail></span>
+    </div>
+
     <input class="palette-input" type="text" placeholder="Search commands…" aria-label="Search commands" />
 
     <ul class="palette-list" aria-label="Commands"></ul>
@@ -33,5 +42,21 @@
     <!-- In place of the options. Say what was searched, not just "no results". -->
     <template data-palette-empty>
         <li role="presentation"><div class="palette-empty">Nothing matches &ldquo;<span data-query></span><span>&rdquo;.</span></div></li>
+    </template>
+
+    <!-- Between two groups, while nothing is typed. -->
+    <template data-palette-separator>
+        <li role="presentation" class="palette-separator"></li>
+    </template>
+
+    <!-- The end of the list while the dialog has aria-busy="true". -->
+    <template data-palette-loading>
+        <li role="presentation"><div class="palette-loading"><span class="spinner spinner--sm" aria-hidden="true"></span> <span>Loading…</span></div></li>
+    </template>
+
+    <!-- One per page opened, in the path's trail. data-label takes the label of the
+         command that opened the page. -->
+    <template data-palette-crumb>
+        <span class="palette-crumb" data-label></span>
     </template>
 </dialog>

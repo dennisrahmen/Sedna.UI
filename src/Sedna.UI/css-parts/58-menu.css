@@ -7,11 +7,12 @@
    A menu is for *actions*. A list of values to pick one of is a <select> or a
    .segmented; a list of places to go is the sidebar.
 
-   Deliberately NOT role="menu". That role promises arrow-key navigation and a
-   roving tabindex, and a menu that claims it without implementing it is worse for
-   a screen-reader user than one that claims nothing: the items stop being reachable
-   the way they appear to be. These are ordinary links and buttons that tab. Put
-   aria-expanded on the trigger and leave the panel unlabelled by role.
+   Deliberately NOT role="menu". 22-menu.js moves focus between the items with the
+   arrow keys and typeahead, but the items stay ordinary links and buttons, each its
+   own Tab stop with no roving tabindex, and a menu may hold a filter field. The role
+   promises one tab stop and children that are all menuitems, and a screen reader
+   stops announcing a link as a link inside it. Put aria-expanded on the trigger and
+   leave the panel without a role.
 
    Dismissal is the app's: click the scrim, press Escape. There is deliberately no
    JavaScript behind this — the frame must work with scripting blocked.

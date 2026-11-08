@@ -147,6 +147,43 @@
     </div>
 </div>
 
+<h2 id="states">Interaction states</h2>
+<p class="cat-lede">
+    A state is styled through the platform's pseudo-class or the ARIA attribute that already says it
+    to a screen reader &mdash; never a state class. Write the attribute and the look follows.
+</p>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>State</th><th>Selector</th><th>Written by</th></tr></thead>
+        <tbody>
+            <tr><td>Hover</td><td><code>:hover</code>, not gated on <code>(hover: hover)</code></td><td>The browser</td></tr>
+            <tr><td>Keyboard focus</td><td><code>:focus-visible</code>, a ring; <code>:focus-within</code> on a field's frame</td><td>The browser</td></tr>
+            <tr><td>Pressed</td><td><code>[aria-pressed="true"]</code></td><td>The app; the script for <code>data-reveal</code> and <code>data-fullscreen</code></td></tr>
+            <tr><td>Selected</td><td><code>[aria-selected="true"]</code></td><td>The script for the widgets it drives; the app elsewhere</td></tr>
+            <tr><td>Current</td><td><code>[aria-current]</code>: <code>page</code>, <code>true</code>, <code>date</code>, <code>location</code></td><td><code>ActiveLink</code>, <code>SednaPager</code>, scroll-spy; the app</td></tr>
+            <tr><td>Expanded</td><td><code>[aria-expanded="true"]</code></td><td>The script for a panel it opens; the app</td></tr>
+            <tr><td>Checked</td><td><code>:checked</code>, <code>[aria-checked]</code></td><td>The browser; the script for the tree</td></tr>
+            <tr><td>Invalid</td><td><code>[aria-invalid="true"]</code></td><td>The app's validation</td></tr>
+            <tr><td>Disabled, read-only</td><td><code>:disabled</code>, <code>[aria-disabled="true"]</code>, <code>[aria-readonly="true"]</code></td><td>The app</td></tr>
+            <tr><td>Busy</td><td><code>[aria-busy="true"]</code></td><td>The app; the script for a lazy grid row or tree item</td></tr>
+            <tr><td>Open</td><td><code>[open]</code>, <code>:popover-open</code></td><td>The browser</td></tr>
+            <tr><td>Dragging</td><td><code>[data-dragging]</code>, <code>[data-drop-over]</code>, <code>[data-drop-edge]</code>, <code>[data-drop-state]</code></td><td>The script</td></tr>
+            <tr><td>Status</td><td><code>[data-state]</code> &mdash; <code>running</code>, <code>done</code>, <code>failed</code> and the rest</td><td>The app</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="callout callout--info">
+    <i class="ri-cursor-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Hover is never the only signal</span>
+        A touch browser applies <code>:hover</code> on a tap and keeps it until the next tap elsewhere, so a
+        hover style only repeats what the page already shows. The keyboard's position in a list is
+        <code>aria-selected</code>, not <code>:hover</code>: the pointer does not move it.
+    </div>
+</div>
+
 <h2 id="z-order">Z-order</h2>
 <p class="cat-lede">
     Shared by every app. Use one of these values for a new overlay — a test fails on any other. 0 to 3

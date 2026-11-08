@@ -3411,7 +3411,8 @@ window.sednaUi = window.sednaUi || {};
                 ? document.querySelector('[data-nav-area][aria-controls="' + itemOrPanelId + '"]')
                 : itemOrPanelId;
             if (item) showArea(item);
-        }
+        },
+        moveRegion: function (step) { return moveRegion(step < 0 ? -1 : 1); }
     };
     var lastY = new WeakMap();
     var SETTLE_MS = 400;
@@ -3473,6 +3474,75 @@ window.sednaUi = window.sednaUi || {};
             var input = link.closest('.nav').querySelector('[data-nav-filter]');
             if (input) setTimeout(function () { clear(input); }, 0);
         }
+    });
+    var REGION = 'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], ' +
+        '[role="complementary"], [role="contentinfo"], [role="search"], [role="region"], ' +
+        '.topbar, .sidebar, .bottombar, dialog[open]';
+    var TABBABLE = 'a[href], area[href], button, input:not([type="hidden"]), select, textarea, summary, ' +
+        'iframe, audio[controls], video[controls], [contenteditable=""], [contenteditable="true"], [tabindex]';
+    function shown(el) {
+        if (el.closest('[inert], [aria-hidden="true"]')) return false;
+        if (el.checkVisibility && !el.checkVisibility({ visibilityProperty: true })) return false;
+        if (!el.getClientRects().length) return false;
+        var r = el.getBoundingClientRect();
+        return r.right > 0 && r.left < window.innerWidth;
+    }
+    function landmark(el) {
+        if (el.tagName === 'DIALOG') return !el.matches(':modal');
+        if (!el.hasAttribute('role') && (el.tagName === 'HEADER' || el.tagName === 'FOOTER') &&
+            !el.matches('.topbar, .bottombar') &&
+            el.parentElement && el.parentElement.closest('article, aside, main, nav, section')) return false;
+        return true;
+    }
+    function regions() {
+        var all = Array.prototype.filter.call(document.querySelectorAll(REGION), landmark);
+        return all.filter(function (el) {
+            for (var i = 0; i < all.length; i++) {
+                if (all[i] !== el && all[i].contains(el) && el.tagName !== 'DIALOG') return false;
+            }
+            return shown(el);
+        });
+    }
+    function firstTabbable(region) {
+        var all = region.querySelectorAll(TABBABLE);
+        for (var i = 0; i < all.length; i++) {
+            var el = all[i];
+            if (el.tabIndex < 0 || el.disabled) continue;
+            if (!shown(el)) continue;
+            var closed = el.closest('details:not([open])');
+            if (closed && el.tagName !== 'SUMMARY' && !el.closest('summary')) continue;
+            return el;
+        }
+        return null;
+    }
+    function enterRegion(region) {
+        var target = firstTabbable(region);
+        if (target) { target.focus(); return; }
+        if (!region.hasAttribute('tabindex')) {
+            region.setAttribute('tabindex', '-1');
+            region.addEventListener('blur', function lose() {
+                region.removeEventListener('blur', lose);
+                region.removeAttribute('tabindex');
+            });
+        }
+        region.focus();
+    }
+    function moveRegion(step) {
+        if (document.querySelector('dialog:modal')) return null;
+        var list = regions();
+        if (!list.length) return null;
+        var active = document.activeElement;
+        var at = -1;
+        for (var i = 0; i < list.length; i++) if (active && list[i].contains(active)) at = i;
+        var next = at < 0
+            ? (step > 0 ? 0 : list.length - 1)
+            : (at + (step > 0 ? 1 : -1) + list.length) % list.length;
+        enterRegion(list[next]);
+        return list[next];
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'F6' || e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) return;
+        if (moveRegion(e.shiftKey ? -1 : 1)) e.preventDefault();
     });
 })(window.sednaUi);
 (function (ui) {
@@ -3542,10 +3612,14 @@ window.sednaUi = window.sednaUi || {};
     var at = 0;          // index into shown
     var wired = [];      // dialogs whose listeners are attached
     var warned = false;
-    function rank(query) {
+    var stack = [];
+    function here() { return stack.length ? stack[stack.length - 1].id : null; }
+    function on(c, page) { return (c.page || null) === (page || null); }
+    function rank(query, page) {
         var out = [];
         for (var i = 0; i < commands.length; i++) {
             var c = commands[i];
+            if (!on(c, page)) continue;
             var best = score(query, c.label, 0);
             if (c.keywords) {
                 var k = score(query, c.keywords, 200);
@@ -3560,19 +3634,30 @@ window.sednaUi = window.sednaUi || {};
     function template(name) {
         return dialog.querySelector('template[data-palette-' + name + ']');
     }
-    function render(query) {
-        shown = rank(query);
+    function busy() { return dialog.getAttribute('aria-busy') === 'true'; }
+    function render(query, keep) {
+        var page = here();
+        var ranked = rank(query, page);
+        if (query) {
+            ranked = ranked.filter(function (c) { return !c.pinned; });
+            shown = ranked.concat(commands.filter(function (c) { return c.pinned && on(c, page); }));
+        } else {
+            shown = ranked;
+        }
         at = 0;
         list.textContent = '';
-        if (!shown.length) {
+        trail();
+        if (!ranked.length && query && !busy()) {
             var empty = fill(template('empty'), { query: query });
             if (empty) list.appendChild(empty);
-            input.removeAttribute('aria-activedescendant');
-            return;
         }
         var lastGroup = null;
         shown.forEach(function (c, i) {
             if (!query && c.group && c.group !== lastGroup) {
+                if (lastGroup !== null) {
+                    var rule = fill(template('separator'), {});
+                    if (rule) list.appendChild(rule);
+                }
                 var head = fill(template('group'), { group: c.group });
                 if (head) list.appendChild(head);
                 lastGroup = c.group;
@@ -3589,7 +3674,39 @@ window.sednaUi = window.sednaUi || {};
             option.addEventListener('click', function () { run(i); });
             list.appendChild(row);
         });
-        input.setAttribute('aria-activedescendant', list.id + '-0');
+        if (busy()) {
+            var loading = fill(template('loading'), {});
+            if (loading) list.appendChild(loading);
+        }
+        if (shown.length && keep > 0) highlight(Math.min(keep, items().length - 1));
+        else if (shown.length) input.setAttribute('aria-activedescendant', list.id + '-0');
+        else input.removeAttribute('aria-activedescendant');
+    }
+    function trail() {
+        var path = dialog.querySelector('[data-palette-path]');
+        if (path) path.hidden = !stack.length;
+        var holder = dialog.querySelector('[data-palette-trail]');
+        if (!holder) return;
+        holder.textContent = '';
+        stack.forEach(function (p) {
+            var crumb = fill(template('crumb'), { label: p.label });
+            if (crumb) holder.appendChild(crumb);
+        });
+    }
+    function enter(c) {
+        stack.push({ id: c.opens, label: c.label, query: input.value, at: at });
+        input.value = '';
+        if (typeof c.run === 'function') c.run();
+        render('');
+        input.focus();
+    }
+    function back() {
+        if (!stack.length) return false;
+        var was = stack.pop();
+        input.value = was.query;
+        render(was.query, was.at);
+        input.focus();
+        return true;
     }
     function items() { return list.querySelectorAll('[role="option"]'); }
     function highlight(next) {
@@ -3604,6 +3721,7 @@ window.sednaUi = window.sednaUi || {};
     }
     function run(i) {
         var c = shown[i];
+        if (c && c.opens) { enter(c); return; }
         close();
         if (!c) return;
         if (typeof c.run === 'function') c.run();
@@ -3638,6 +3756,7 @@ window.sednaUi = window.sednaUi || {};
         input.setAttribute('autocomplete', 'off');
         if (wired.indexOf(dialog) >= 0) return true;
         wired.push(dialog);
+        var own = dialog;
         input.addEventListener('input', function () { render(input.value); });
         input.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowDown') { e.preventDefault(); highlight(at + 1); }
@@ -3645,8 +3764,18 @@ window.sednaUi = window.sednaUi || {};
             else if (e.key === 'Home') { e.preventDefault(); highlight(0); }
             else if (e.key === 'End') { e.preventDefault(); highlight(items().length - 1); }
             else if (e.key === 'Enter') { e.preventDefault(); if (items().length) run(at); }
+            else if (e.key === 'Backspace' && !input.value && stack.length) { e.preventDefault(); back(); }
         });
-        dialog.addEventListener('click', function (e) { if (e.target === dialog) close(); });
+        own.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && stack.length) { e.preventDefault(); back(); }
+        });
+        own.addEventListener('click', function (e) {
+            if (e.target === own) { close(); return; }
+            if (e.target.closest && e.target.closest('[data-palette-back]')) back();
+        });
+        new MutationObserver(function () {
+            if (own === dialog && own.open) render(input.value);
+        }).observe(own, { attributes: true, attributeFilter: ['aria-busy'] });
         return true;
     }
     function close() {
@@ -3655,10 +3784,12 @@ window.sednaUi = window.sednaUi || {};
     ui.palette = {
         register: function (list_) {
             commands = Array.isArray(list_) ? list_.slice() : [];
+            if (dialog && dialog.open) render(input.value);
         },
         open: function () {
             if (!adopt()) return false;
             if (dialog.open) return true;
+            stack = [];
             input.value = '';
             render('');
             dialog.showModal();
@@ -3666,6 +3797,7 @@ window.sednaUi = window.sednaUi || {};
             return true;
         },
         close: close,
+        back: function () { return !!(dialog && dialog.open) && back(); },
         rank: rank
     };
     document.addEventListener('keydown', function (e) {

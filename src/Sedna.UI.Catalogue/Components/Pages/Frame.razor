@@ -121,3 +121,17 @@
         script is what keeps the jump here. This site has one &mdash; press Tab on any page.
     </p>
 </CatSnippet>
+
+<CatSnippet Name="Frame/Regions.html" Title="Moving between regions">
+    <p>
+        <kbd>F6</kbd> moves focus to the next region of the frame and <kbd>Shift</kbd>+<kbd>F6</kbd> to the
+        previous, wrapping at both ends: every landmark &mdash; <code>header</code>, <code>nav</code>,
+        <code>main</code>, <code>aside</code>, <code>footer</code> or a landmark role &mdash; every
+        <code>.topbar</code>, <code>.sidebar</code> and <code>.bottombar</code>, and an open
+        <code>data-modeless</code> drawer or sheet, outermost only and in document order. A hidden region, an
+        inert one and an off-canvas drawer are skipped. Focus lands on the region's first control, or on the
+        region itself when it has none. While a modal dialog is open the key is left to the browser. Nothing
+        to write: <code>Sedna.UI.js</code> does it for the markup above, and
+        <code>sednaUi.nav.moveRegion(1)</code> does it from code. Press <kbd>F6</kbd> on this page.
+    </p>
+</CatSnippet>
