@@ -209,6 +209,8 @@
     --field-border-danger: var(--crimson-500);
     --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
+    --rating-on:          var(--field-border-warn);
+    --rating-off:         var(--control-border);
     --disabled-opacity: 0.4;
     --disabled-fg:     var(--muted);
     --disabled-bg:     var(--surface-soft);
@@ -3696,7 +3698,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .input-group .btn:not(:first-child) { border-inline-start: 1px solid var(--border); }
 .input-group .btn:not(:last-child)  { border-inline-end:   1px solid var(--border); }
 .input-group .btn:focus-visible { box-shadow: inset 0 0 0 2px var(--focus-ring); }
-.input-clear {
+.input-clear,
+.input-reveal {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -3714,10 +3717,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     line-height: 1;
     cursor: pointer;
 }
-.input-clear:hover { background: var(--bg-hover); color: var(--fg); }
-.input-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.input-clear:hover,
+.input-reveal:hover { background: var(--bg-hover); color: var(--fg); }
+.input-clear:focus-visible,
+.input-reveal:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .input-group:has(> .form-input:placeholder-shown) > .input-clear { display: none; }
 .input-group:has(> .input-clear) > .form-input::-webkit-search-cancel-button { display: none; }
+.input-reveal[aria-pressed="true"] { color: var(--fg); }
+.input-reveal:not([aria-pressed="true"]) > i + i,
+.input-reveal[aria-pressed="true"] > i:has(+ i) { display: none; }
+.input-group:has(> .input-reveal) > .form-input::-ms-reveal { display: none; }
 .form-trigger {
     display: flex;
     align-items: center;
@@ -3912,6 +3921,39 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 a.file-item { color: inherit; text-decoration: none; }
 a.file-item:hover { border-color: var(--border-strong); text-decoration: none; }
 a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+}
+@layer sedna.paint {
+.form-code {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    width: fit-content;
+}
+.form-code > .form-input {
+    flex-shrink: 0;
+    width: var(--control-height);
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-8);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+.form-code--sm > .form-input {
+    min-height: var(--control-height-sm);
+    width: var(--control-height-sm);
+    font-size: var(--text-5);
+}
+.form-code--lg > .form-input {
+    min-height: var(--control-height-lg);
+    width: var(--control-height-lg);
+    font-size: var(--text-9);
+}
+.form-code-sep {
+    color: var(--muted);
+    font-size: var(--text-6);
+    line-height: 1;
+    user-select: none;
+}
 }
 @layer sedna.paint {
 .form-range {
@@ -4598,6 +4640,76 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     cursor: not-allowed;
 }
 .choice-tile:has(> input:disabled) :is(.choice-tile-title, .choice-tile-art) { color: var(--disabled-fg); }
+}
+@layer sedna.paint {
+.rating {
+    --rating-size: 20px;
+    --rating-shape: polygon(50% 2.4%, 61.8% 38.8%, 100% 38.8%, 69.1% 61.2%, 80.9% 97.6%, 50% 75.1%, 19.1% 97.6%, 30.9% 61.2%, 0% 38.8%, 38.2% 38.8%);
+    --rating-shape-half: polygon(50% 75.1%, 19.1% 97.6%, 30.9% 61.2%, 0% 38.8%, 38.2% 38.8%, 50% 2.4%);
+    --rating-shape-outline: polygon(evenodd,
+        50% 2.4%, 61.8% 38.8%, 100% 38.8%, 69.1% 61.2%, 80.9% 97.6%, 50% 75.1%, 19.1% 97.6%, 30.9% 61.2%, 0% 38.8%, 38.2% 38.8%, 50% 2.4%,
+        50% 28.3%, 44% 46.8%, 24.6% 46.8%, 40.3% 58.2%, 34.3% 76.6%, 50% 65.2%, 65.7% 76.6%, 59.7% 58.2%, 75.4% 46.8%, 56% 46.8%, 50% 28.3%,
+        50% 2.4%);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    width: fit-content;
+    vertical-align: middle;
+}
+.rating--sm { --rating-size: 16px; }
+.rating--lg { --rating-size: 28px; }
+.rating:has(input) { min-height: var(--control-height); }
+.rating--sm:has(input) { min-height: var(--control-height-sm); }
+.rating--lg:has(input) { min-height: var(--control-height-lg); }
+.rating-star {
+    position: relative;
+    flex-shrink: 0;
+    width: var(--rating-size);
+    height: var(--rating-size);
+    border-radius: var(--radius-small);
+}
+.rating-star::before,
+.rating-star::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    print-color-adjust: exact;
+}
+.rating-star::before { background: var(--rating-off); clip-path: var(--rating-shape-outline); }
+.rating-star::after { background: var(--rating-on); clip-path: var(--rating-shape); visibility: hidden; }
+.rating-star > input,
+.rating-half > input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+.rating-star:has(> input),
+.rating-half { cursor: pointer; }
+.rating-half {
+    position: absolute;
+    inset-block: 0;
+    inline-size: 50%;
+    border-radius: var(--radius-small);
+}
+.rating-half:first-child { inset-inline-start: 0; }
+.rating-half:last-child { inset-inline-end: 0; }
+.rating-star--on::after,
+.rating-star:has(> input:checked)::after,
+.rating-star:has(> .rating-half:last-child > input:checked)::after,
+.rating-star:has(~ .rating-star input:checked)::after { visibility: visible; }
+.rating-star--half::after,
+.rating-star:has(> .rating-half:first-child > input:checked)::after { visibility: visible; clip-path: var(--rating-shape-half); }
+.rating:has(input:enabled):has(> .rating-star:hover) .rating-star::after { visibility: hidden; clip-path: var(--rating-shape); }
+.rating:has(input:enabled):has(> .rating-star:hover) :is(.rating-star:hover, .rating-star:has(~ .rating-star:hover))::after { visibility: visible; }
+.rating:has(input:enabled):has(> .rating-star:hover) .rating-star:has(> .rating-half:first-child:hover)::after { clip-path: var(--rating-shape-half); }
+.rating-star:has(> input:focus-visible),
+.rating-half:has(> input:focus-visible) { box-shadow: 0 0 0 2px var(--focus-ring); }
+.rating:has(input:disabled) .rating-star { opacity: var(--disabled-opacity); }
+.rating:has(input:disabled) :is(.rating-star, .rating-half) { cursor: not-allowed; }
 }
 @layer sedna.paint {
 .segmented {
@@ -11676,12 +11788,14 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 }
 @layer sedna.paint {
 @media (pointer: coarse) {
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
         content: "";
         position: absolute;
         inset: min(0px, calc((var(--touch-target) - 100%) / -2));
     }
+    .rating:has(input) { --rating-size: var(--touch-target); }
+    .rating:has(.rating-half) { --rating-size: calc(var(--touch-target) * 1.5); }
 }
 }
 @layer sedna.paint {
@@ -11742,6 +11856,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --workflow-flow-ahead: 225deg;
     --workflow-flow-up: 315deg;
 }
+[dir="rtl"] .rating-star::after { transform: scaleX(-1); }
+[dir="rtl"] .form-code { direction: ltr; }
 }
 @layer sedna.paint {
 @media (forced-colors: active) {
@@ -11803,6 +11919,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         --tip-fg: CanvasText;
         --agent-from: Highlight;
         --agent-to: Highlight;
+        --rating-on: Highlight;
+        --rating-off: CanvasText;
     }
     .btn:focus-visible,
     .btn-bare:focus-visible,
@@ -11890,7 +12008,10 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .editor[data-state="warn"]:focus-within,
     .editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within,
     .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within,
-    :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+    :is(a, button).workflow-node:focus-visible,
+    .input-reveal:focus-visible,
+    .rating-star:has(> input:focus-visible),
+    .rating-half:has(> input:focus-visible) { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
     .nav-link.active,
@@ -11942,7 +12063,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .progress-bar,
     .bar-previous,
     .tracker-block,
-    .gauge::before { forced-color-adjust: none; }
+    .gauge::before,
+    .rating-star::before,
+    .rating-star::after { forced-color-adjust: none; }
     .heatmap-cell { forced-color-adjust: none; outline: 1px solid GrayText; outline-offset: -1px; }
 }
 }

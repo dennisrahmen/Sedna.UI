@@ -257,6 +257,12 @@
     --field-border-danger: var(--crimson-500);
     --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
+    /* A rating's lit stars and the outline of the rest (51-rating.css). Both are the
+       graphic a reader reads the score from, so both hold 3:1: the lit star rides the
+       unusual field's amber, which every theme already keeps at that, and the outline
+       is the controls' edge. */
+    --rating-on:          var(--field-border-warn);
+    --rating-off:         var(--control-border);
 
     /* ── Disabled ───────────────────────────────────────────────────────────
        How far a disabled control's graphic fades — the check, the radio dot, the

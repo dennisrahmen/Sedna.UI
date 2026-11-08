@@ -75,7 +75,7 @@ internal static class TokenGroups
 
         // The edge of every box a reader types or picks into, at rest and focused, apart
         // from --border so fields can be firmed up without firming up every divider.
-        new("Fields", ["--field-border", "--field-border-focus", "--field-border-danger", "--field-border-warn", "--control-border", "--control-on", "--focus-ring"]),
+        new("Fields", ["--field-border", "--field-border-focus", "--field-border-danger", "--field-border-warn", "--control-border", "--control-on", "--rating-on", "--rating-off", "--focus-ring"]),
 
         // A disabled control: its label, fill and edge — the label still at 4.5:1.
         new("Disabled", ["--disabled-fg", "--disabled-bg", "--disabled-border"]),

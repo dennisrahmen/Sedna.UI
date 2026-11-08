@@ -208,6 +208,8 @@
         "--field-border-danger": "var(--crimson-500)",
         "--field-border-warn": "var(--amber-500)",
         "--control-on": "var(--brand)",
+        "--rating-on": "var(--field-border-warn)",
+        "--rating-off": "var(--control-border)",
         "--disabled-opacity": "0.4",
         "--disabled-fg": "var(--muted)",
         "--disabled-bg": "var(--surface-soft)",
@@ -931,7 +933,9 @@
         "--tip-border": "CanvasText",
         "--tip-fg": "CanvasText",
         "--agent-from": "Highlight",
-        "--agent-to": "Highlight"
+        "--agent-to": "Highlight",
+        "--rating-on": "Highlight",
+        "--rating-off": "CanvasText"
       }
     },
     {

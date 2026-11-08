@@ -50,11 +50,13 @@
      45-form-controls.css
      46-form-layout.css
      47-form-file.css
+     48-form-code.css
      48-form-numeric.css
      49-form-combo.css
      49-form-select-base.css
      50-tabs.css
      51-choice-tiles.css
+     51-rating.css
      51-segmented.css
      52-avatar.css
      53-chip.css
@@ -618,6 +620,12 @@
     --field-border-danger: var(--crimson-500);
     --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
+    /* A rating's lit stars and the outline of the rest (51-rating.css). Both are the
+       graphic a reader reads the score from, so both hold 3:1: the lit star rides the
+       unusual field's amber, which every theme already keeps at that, and the outline
+       is the controls' edge. */
+    --rating-on:          var(--field-border-warn);
+    --rating-off:         var(--control-border);
 
     /* ── Disabled ───────────────────────────────────────────────────────────
        How far a disabled control's graphic fades — the check, the radio dot, the
@@ -6913,8 +6921,25 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    is the harmless failure. The app still empties the value on click.
 
    The platform's own ✕ on `type="search"` sits in the same place and does not follow
-   the theme, so a group holding this button hides it. */
-.input-clear {
+   the theme, so a group holding this button hides it.
+
+   `.input-reveal` is the same button for a password field: it shows the password as
+   text and hides it again. 21-reveal.js switches the field's `type` and the button's
+   `aria-pressed`; the label is the app's and stays the same either way, because the
+   pressed state is what a screen reader announces as the change:
+
+     <div class="input-group">
+       <input class="form-input" id="pw" type="password" autocomplete="current-password">
+       <button class="input-reveal" type="button" data-reveal aria-controls="pw" aria-pressed="false" aria-label="Show password">
+         <i class="ri-eye-line"></i><i class="ri-eye-off-line"></i>
+       </button>
+     </div>
+
+   With two icons, the first shows while the password is hidden and the second while it
+   is shown. Edge draws an eye of its own on a password field, which a group holding
+   this button hides. */
+.input-clear,
+.input-reveal {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -6932,10 +6957,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     line-height: 1;
     cursor: pointer;
 }
-.input-clear:hover { background: var(--bg-hover); color: var(--fg); }
-.input-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.input-clear:hover,
+.input-reveal:hover { background: var(--bg-hover); color: var(--fg); }
+.input-clear:focus-visible,
+.input-reveal:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .input-group:has(> .form-input:placeholder-shown) > .input-clear { display: none; }
 .input-group:has(> .input-clear) > .form-input::-webkit-search-cancel-button { display: none; }
+.input-reveal[aria-pressed="true"] { color: var(--fg); }
+.input-reveal:not([aria-pressed="true"]) > i + i,
+.input-reveal[aria-pressed="true"] > i:has(+ i) { display: none; }
+.input-group:has(> .input-reveal) > .form-input::-ms-reveal { display: none; }
 
 /* ── Trigger field ──────────────────────────────────────────────────────────
    A <button> in the shape of a field, for a value that is chosen in a panel and
@@ -7287,6 +7318,72 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 a.file-item { color: inherit; text-decoration: none; }
 a.file-item:hover { border-color: var(--border-strong); text-decoration: none; }
 a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+}
+
+/* ── 48-form-code.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── One-time code ──────────────────────────────────────────────────────────
+   A short code typed one character to a box — a sign-in code, a PIN. The boxes are what
+   the reader types into; ONE input, `data-code-value`, holds the whole code, and it is
+   the field: it carries the `name` a form posts and the value Blazor binds. The boxes
+   carry no name, so they post nothing.
+
+     <div class="form-code" data-code-group role="group" aria-labelledby="code-label">
+       <input type="hidden" name="code" data-code-value>
+       <input class="form-input" inputmode="numeric" autocomplete="one-time-code" aria-label="Digit 1 of 6">
+       <input class="form-input" inputmode="numeric" autocomplete="off" aria-label="Digit 2 of 6">
+       …
+     </div>
+
+   23-code.js moves the reader from box to box, spreads a pasted or autofilled code over
+   all of them, and writes the joined code into the value input with that input's own
+   `input` and `change` events. The first box carries `autocomplete="one-time-code"`,
+   which is where a phone offers the code it just received; give the boxes no
+   `maxlength`, or that code arrives cut to its first character.
+
+   Each box is a `.form-input`, so its edge, its focus ring, its states — rejected on
+   `aria-invalid`, unusual on `data-state="warn"` — and its disabled look are the text
+   field's. Put the state on every box. The tier goes on the group, as on an
+   `.input-group`; a `.form-code-sep` between two runs of boxes is a gap the reader sees
+   and a screen reader skips (`aria-hidden="true"`).
+
+   A code is digits and Latin letters, which run left to right in every script, so a
+   right-to-left page keeps the boxes in that order (70-rtl.css).
+   ─────────────────────────────────────────────────────────────────────────── */
+.form-code {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    /* A column stretches its children; a code is as wide as its boxes. */
+    width: fit-content;
+}
+.form-code > .form-input {
+    flex-shrink: 0;
+    width: var(--control-height);
+    /* The box is square and its height is the tier's; the field's own block padding
+       would make the line box plus padding outgrow it at the code's larger type. */
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-8);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+.form-code--sm > .form-input {
+    min-height: var(--control-height-sm);
+    width: var(--control-height-sm);
+    font-size: var(--text-5);
+}
+.form-code--lg > .form-input {
+    min-height: var(--control-height-lg);
+    width: var(--control-height-lg);
+    font-size: var(--text-9);
+}
+.form-code-sep {
+    color: var(--muted);
+    font-size: var(--text-6);
+    line-height: 1;
+    user-select: none;
+}
 }
 
 /* ── 48-form-numeric.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -8501,6 +8598,142 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     cursor: not-allowed;
 }
 .choice-tile:has(> input:disabled) :is(.choice-tile-title, .choice-tile-art) { color: var(--disabled-fg); }
+}
+
+/* ── 51-rating.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Rating ─────────────────────────────────────────────────────────────────
+   Stars that show a score, and stars that take one. Both are the same row of
+   `.rating-star` boxes; what differs is what is inside them.
+
+   Shown — the score is the app's, so each star says how full it is and the row says
+   the number in words, because a picture of 3½ stars is not a number to a screen
+   reader:
+
+     <span class="rating" role="img" aria-label="Rated 3.5 out of 5">
+       <span class="rating-star rating-star--on"></span>
+       <span class="rating-star rating-star--on"></span>
+       <span class="rating-star rating-star--on"></span>
+       <span class="rating-star rating-star--half"></span>
+       <span class="rating-star"></span>
+     </span>
+
+   Taken — every star is a <label> around a real radio, so the platform gives the
+   keyboard (Tab into the group, the arrows between scores), a form posts the value
+   and Blazor binds it, with no script:
+
+     <div class="rating" role="radiogroup" aria-label="Rate the hand-over">
+       <label class="rating-star"><input type="radio" name="handover" value="1" aria-label="1 star"></label>
+       …
+     </div>
+
+   For half scores a star holds two labels instead of one, `.rating-half` each, the
+   first worth the half and the second the whole:
+
+       <span class="rating-star">
+         <label class="rating-half"><input type="radio" name="fit" value="0.5" aria-label="Half a star"></label>
+         <label class="rating-half"><input type="radio" name="fit" value="1" aria-label="1 star"></label>
+       </span>
+
+   A chosen radio lights its own star and every star before it, read with `:has()`, and
+   pointing at a star previews the score it would give. The stars are drawn, not set in
+   a font: an empty star is an outline in --rating-off, which is the controls' edge at
+   3:1, and a lit one is filled in --rating-on — so lit and unlit differ in shape as well
+   as colour, which is what still tells them apart in forced colours and on paper.
+
+   The first half of a star is the inline-start half, so a right-to-left page fills from
+   the right; 70-rtl.css turns the half-filled drawing to match. `--rating-size` is the
+   star; the editable row takes the control heights, so it lines up with the field and
+   the button beside it at every size.
+   ─────────────────────────────────────────────────────────────────────────── */
+.rating {
+    --rating-size: 20px;
+    /* The three drawings, as fractions of the star's own box. The outline is the star
+       with a smaller one cut out of it (evenodd), inset by the same width on every edge. */
+    --rating-shape: polygon(50% 2.4%, 61.8% 38.8%, 100% 38.8%, 69.1% 61.2%, 80.9% 97.6%, 50% 75.1%, 19.1% 97.6%, 30.9% 61.2%, 0% 38.8%, 38.2% 38.8%);
+    --rating-shape-half: polygon(50% 75.1%, 19.1% 97.6%, 30.9% 61.2%, 0% 38.8%, 38.2% 38.8%, 50% 2.4%);
+    --rating-shape-outline: polygon(evenodd,
+        50% 2.4%, 61.8% 38.8%, 100% 38.8%, 69.1% 61.2%, 80.9% 97.6%, 50% 75.1%, 19.1% 97.6%, 30.9% 61.2%, 0% 38.8%, 38.2% 38.8%, 50% 2.4%,
+        50% 28.3%, 44% 46.8%, 24.6% 46.8%, 40.3% 58.2%, 34.3% 76.6%, 50% 65.2%, 65.7% 76.6%, 59.7% 58.2%, 75.4% 46.8%, 56% 46.8%, 50% 28.3%,
+        50% 2.4%);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    /* A column stretches its children, and a row of five stars run as wide as the
+       text field above it is a row whose last star is nowhere near its others. */
+    width: fit-content;
+    vertical-align: middle;
+}
+.rating--sm { --rating-size: 16px; }
+.rating--lg { --rating-size: 28px; }
+.rating:has(input) { min-height: var(--control-height); }
+.rating--sm:has(input) { min-height: var(--control-height-sm); }
+.rating--lg:has(input) { min-height: var(--control-height-lg); }
+
+.rating-star {
+    position: relative;
+    flex-shrink: 0;
+    width: var(--rating-size);
+    height: var(--rating-size);
+    border-radius: var(--radius-small);
+}
+.rating-star::before,
+.rating-star::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* The stars are backgrounds, which a browser leaves off a printed page unless told:
+       a score in a printed report would print as nothing. */
+    print-color-adjust: exact;
+}
+.rating-star::before { background: var(--rating-off); clip-path: var(--rating-shape-outline); }
+.rating-star::after { background: var(--rating-on); clip-path: var(--rating-shape); visibility: hidden; }
+
+/* The radio is kept in the page but not drawn: the star is the control, and its focus
+   ring says where the keyboard is. */
+.rating-star > input,
+.rating-half > input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+.rating-star:has(> input),
+.rating-half { cursor: pointer; }
+.rating-half {
+    position: absolute;
+    inset-block: 0;
+    inline-size: 50%;
+    border-radius: var(--radius-small);
+}
+.rating-half:first-child { inset-inline-start: 0; }
+.rating-half:last-child { inset-inline-end: 0; }
+
+/* Lit: marked so, chosen, or before the chosen star. */
+.rating-star--on::after,
+.rating-star:has(> input:checked)::after,
+.rating-star:has(> .rating-half:last-child > input:checked)::after,
+.rating-star:has(~ .rating-star input:checked)::after { visibility: visible; }
+/* Half lit: marked so, or its first half chosen. */
+.rating-star--half::after,
+.rating-star:has(> .rating-half:first-child > input:checked)::after { visibility: visible; clip-path: var(--rating-shape-half); }
+
+/* Pointing at a star previews the score it would give: that star and every one before
+   it lit, every one after it out, whatever is chosen. A row whose radios are all
+   disabled previews nothing. */
+.rating:has(input:enabled):has(> .rating-star:hover) .rating-star::after { visibility: hidden; clip-path: var(--rating-shape); }
+.rating:has(input:enabled):has(> .rating-star:hover) :is(.rating-star:hover, .rating-star:has(~ .rating-star:hover))::after { visibility: visible; }
+.rating:has(input:enabled):has(> .rating-star:hover) .rating-star:has(> .rating-half:first-child:hover)::after { clip-path: var(--rating-shape-half); }
+
+.rating-star:has(> input:focus-visible),
+.rating-half:has(> input:focus-visible) { box-shadow: 0 0 0 2px var(--focus-ring); }
+
+/* Disabled: the stars fade as a check's box does, and take no pointer. */
+.rating:has(input:disabled) .rating-star { opacity: var(--disabled-opacity); }
+.rating:has(input:disabled) :is(.rating-star, .rating-half) { cursor: not-allowed; }
 }
 
 /* ── 51-segmented.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -19892,12 +20125,19 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    off whichever box it has. TouchTargetTests finds every control drawn under the
    target size and holds it to this list. */
 @media (pointer: coarse) {
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
         content: "";
         position: absolute;
         inset: min(0px, calc((var(--touch-target) - 100%) / -2));
     }
+
+    /* A rating's stars sit side by side, so a hit area grown around one would land on
+       its neighbour: the editable stars themselves grow to the target instead, and a
+       star split into halves grows until each half is at least the 24px WCAG asks of a
+       target. A shown score takes no pointer and keeps its size. */
+    .rating:has(input) { --rating-size: var(--touch-target); }
+    .rating:has(.rating-half) { --rating-size: calc(var(--touch-target) * 1.5); }
 }
 }
 
@@ -20056,6 +20296,15 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --workflow-flow-ahead: 225deg;
     --workflow-flow-up: 315deg;
 }
+
+/* 51 — a half-lit star is lit on its inline-start half, but a clip-path polygon is
+   measured from the physical left edge. The lit drawing turns round; a whole star is
+   the same either way. */
+[dir="rtl"] .rating-star::after { transform: scaleX(-1); }
+
+/* 48 — a one-time code is digits and Latin letters, which run left to right in every
+   script, so its boxes keep that order, and so do the arrow keys 23-code.js reads. */
+[dir="rtl"] .form-code { direction: ltr; }
 }
 
 /* ── 71-forced-colors.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -20158,6 +20407,10 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         /* An agent at work is the one thing the mode should still point at. */
         --agent-from: Highlight;
         --agent-to: Highlight;
+        /* A lit star and an empty one differ in shape, filled against outlined, so
+           both take the user's palette. */
+        --rating-on: Highlight;
+        --rating-off: CanvasText;
     }
 
     /* Focus rings. Every one in this library is a box-shadow, and box-shadow is not
@@ -20257,7 +20510,10 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .editor[data-state="warn"]:focus-within,
     .editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within,
     .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within,
-    :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+    :is(a, button).workflow-node:focus-visible,
+    .input-reveal:focus-visible,
+    .rating-star:has(> input:focus-visible),
+    .rating-half:has(> input:focus-visible) { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
@@ -20337,7 +20593,10 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .progress-bar,
     .bar-previous,
     .tracker-block,
-    .gauge::before { forced-color-adjust: none; }
+    .gauge::before,
+    /* A star is a clipped background too, and it is the score itself. */
+    .rating-star::before,
+    .rating-star::after { forced-color-adjust: none; }
 
     /* A heatmap cell keeps its step from the remap above, and an outline in the
        user's muted ink, so an empty cell is still a cell and not a hole in the grid. */

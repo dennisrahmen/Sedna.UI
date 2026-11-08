@@ -96,6 +96,10 @@
         /* An agent at work is the one thing the mode should still point at. */
         --agent-from: Highlight;
         --agent-to: Highlight;
+        /* A lit star and an empty one differ in shape, filled against outlined, so
+           both take the user's palette. */
+        --rating-on: Highlight;
+        --rating-off: CanvasText;
     }
 
     /* Focus rings. Every one in this library is a box-shadow, and box-shadow is not
@@ -195,7 +199,10 @@
     .editor[data-state="warn"]:focus-within,
     .editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within,
     .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within,
-    :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+    :is(a, button).workflow-node:focus-visible,
+    .input-reveal:focus-visible,
+    .rating-star:has(> input:focus-visible),
+    .rating-half:has(> input:focus-visible) { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
@@ -275,7 +282,10 @@
     .progress-bar,
     .bar-previous,
     .tracker-block,
-    .gauge::before { forced-color-adjust: none; }
+    .gauge::before,
+    /* A star is a clipped background too, and it is the score itself. */
+    .rating-star::before,
+    .rating-star::after { forced-color-adjust: none; }
 
     /* A heatmap cell keeps its step from the remap above, and an outline in the
        user's muted ink, so an empty cell is still a cell and not a hole in the grid. */

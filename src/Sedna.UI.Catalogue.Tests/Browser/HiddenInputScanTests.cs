@@ -20,7 +20,8 @@ namespace Sedna.UI.Catalogue.Tests;
 /// label's own edge, or for an option that draws none, the group's around it. WCAG 1.4.11
 /// asks 3:1 of it against what it sits on. A checked or disabled control is not measured:
 /// its state draws its own edge, and a disabled one is exempt. A label that shows a
-/// <c>.btn</c> — a file field — is that button, which its words identify.
+/// <c>.btn</c> — a file field — is that button, which its words identify. A rating's star is
+/// marked by its own drawn outline, which is measured instead of an edge.
 /// </para>
 /// </remarks>
 [Collection(CatalogueAppCollection.Name)]
@@ -91,6 +92,15 @@ public class HiddenInputScanTests(CatalogueAppFixture app)
             // A label that shows a button is that button, held to the buttons' own rules: its
             // words say what it is.
             if (label.querySelector('.btn')) continue;
+            // A rating's star draws no edge: its outline IS the control, drawn as a clipped
+            // background on the star's ::before, and it is held to 3:1 the same way.
+            const star = label.closest('.rating-star');
+            if (star) {
+              const outline = getComputedStyle(star, '::before').backgroundColor;
+              const ink = opaque(outline) ? ratio(rgb(outline), behind(star.parentElement)) : 0;
+              if (ink < 3) out.push('rating-star around ' + (label.className || 'label') + ': its outline is ' + ink.toFixed(2) + ':1');
+              continue;
+            }
             const control = edged(label) ? label : edged(label.parentElement) ? label.parentElement : null;
             const id = label.className || label.tagName.toLowerCase();
             if (!control) { out.push(id + ': draws no edge, and nor does its group'); continue; }

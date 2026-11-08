@@ -151,3 +151,12 @@
     --workflow-flow-ahead: 225deg;
     --workflow-flow-up: 315deg;
 }
+
+/* 51 — a half-lit star is lit on its inline-start half, but a clip-path polygon is
+   measured from the physical left edge. The lit drawing turns round; a whole star is
+   the same either way. */
+[dir="rtl"] .rating-star::after { transform: scaleX(-1); }
+
+/* 48 — a one-time code is digits and Latin letters, which run left to right in every
+   script, so its boxes keep that order, and so do the arrow keys 23-code.js reads. */
+[dir="rtl"] .form-code { direction: ltr; }

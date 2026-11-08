@@ -201,8 +201,25 @@
    is the harmless failure. The app still empties the value on click.
 
    The platform's own ✕ on `type="search"` sits in the same place and does not follow
-   the theme, so a group holding this button hides it. */
-.input-clear {
+   the theme, so a group holding this button hides it.
+
+   `.input-reveal` is the same button for a password field: it shows the password as
+   text and hides it again. 21-reveal.js switches the field's `type` and the button's
+   `aria-pressed`; the label is the app's and stays the same either way, because the
+   pressed state is what a screen reader announces as the change:
+
+     <div class="input-group">
+       <input class="form-input" id="pw" type="password" autocomplete="current-password">
+       <button class="input-reveal" type="button" data-reveal aria-controls="pw" aria-pressed="false" aria-label="Show password">
+         <i class="ri-eye-line"></i><i class="ri-eye-off-line"></i>
+       </button>
+     </div>
+
+   With two icons, the first shows while the password is hidden and the second while it
+   is shown. Edge draws an eye of its own on a password field, which a group holding
+   this button hides. */
+.input-clear,
+.input-reveal {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -220,10 +237,16 @@
     line-height: 1;
     cursor: pointer;
 }
-.input-clear:hover { background: var(--bg-hover); color: var(--fg); }
-.input-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.input-clear:hover,
+.input-reveal:hover { background: var(--bg-hover); color: var(--fg); }
+.input-clear:focus-visible,
+.input-reveal:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .input-group:has(> .form-input:placeholder-shown) > .input-clear { display: none; }
 .input-group:has(> .input-clear) > .form-input::-webkit-search-cancel-button { display: none; }
+.input-reveal[aria-pressed="true"] { color: var(--fg); }
+.input-reveal:not([aria-pressed="true"]) > i + i,
+.input-reveal[aria-pressed="true"] > i:has(+ i) { display: none; }
+.input-group:has(> .input-reveal) > .form-input::-ms-reveal { display: none; }
 
 /* ── Trigger field ──────────────────────────────────────────────────────────
    A <button> in the shape of a field, for a value that is chosen in a panel and

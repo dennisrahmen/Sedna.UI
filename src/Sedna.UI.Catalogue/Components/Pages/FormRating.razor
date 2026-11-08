@@ -1,0 +1,63 @@
+@page "/form-rating"
+
+<CatHead Title="Ratings">
+    <code>.rating</code> is a row of <code>.rating-star</code> boxes: drawn from a score the app
+    already has, or a set of radios the reader picks a score with. There is no script &mdash; the
+    keyboard, the form post and the Blazor binding are the radios&rsquo; own.
+</CatHead>
+
+<CatExample TExample="Examples.FormRating.Shown" Title="Showing a score" Demo="ex-demo--block">
+    <p>
+        Each star says how full it is &mdash; <code>.rating-star--on</code>,
+        <code>.rating-star--half</code>, or neither &mdash; and the row says the score in words with
+        <code>role="img"</code> and an <code>aria-label</code>, because five drawings are not a number
+        to a screen reader. A number printed beside the stars is for the eye, so it carries
+        <code>aria-hidden="true"</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormRating.Editable" Title="Taking a score" Demo="ex-demo--block">
+    <p>
+        Every star is a <code>&lt;label class="rating-star"&gt;</code> around a radio, and the row is a
+        <code>role="radiogroup"</code> with a name. Tab reaches the group, the arrow keys change the
+        score, and the chosen star lights every star before it. Pointing at a star previews the score
+        it would give. Give each radio an <code>aria-label</code> that says the score: the star is all a
+        sighted reader sees, and the label is all a screen reader hears.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormRating.HalfStars" Title="Half stars" Demo="ex-demo--block">
+    <p>
+        A star that takes halves holds two <code>.rating-half</code> labels instead of one radio: the
+        first is worth the half, the second the whole. The first half is the inline-start half, so a
+        right-to-left page fills its stars from the right.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormRating.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        <code>.rating--sm</code> and <code>.rating--lg</code> change the star, and an editable row takes
+        the matching <a href="/concepts">control height</a>, so it sits level with the field and the
+        button beside it. A shown score keeps to its stars and fits a list row or a table cell. On a
+        touch screen the editable stars grow to a finger&rsquo;s width; <code>--rating-size</code> is
+        the star, for a size of the app&rsquo;s own.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormRating.Disabled" Title="Closed for rating" Demo="ex-demo--block">
+    <p>
+        <code>disabled</code> on every radio fades the stars and takes the pointer away, and the
+        chosen score stays lit. Say why it is closed in a hint the group points at with
+        <code>aria-describedby</code>.
+    </p>
+</CatExample>
+
+<div class="callout callout--info">
+    <i class="ri-palette-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Colour</span>
+        A lit star is <code>--rating-on</code> and an empty one an outline in <code>--rating-off</code>,
+        both held at 3:1 in every theme. Lit and empty differ in shape as well as colour, so forced
+        colours and a printed page still tell them apart.
+    </div>
+</div>

@@ -43,6 +43,9 @@ something, it is listed below and repeated in the class's own comment.
 | A field when unusual | `data-state="warn"` on the control, and `aria-describedby` pointing at the `.form-warning`. No ARIA attribute says "unusual", so the message is what a screen reader hears. |
 | `.form-label--required` | `required` on the control. The `*` is decoration. |
 | `.segmented` | one `name` shared by every radio, and a group name via `<fieldset>` or `aria-labelledby` |
+| `.rating` | shown: `role="img"` and an `aria-label` that says the score in words. Taken: `role="radiogroup"` with a name, one `name` shared by every radio, and an `aria-label` on each radio that says its score |
+| `.form-code` | a group name (`role="group"` and `aria-labelledby`), an `aria-label` per box ("Digit 2 of 6"), `autocomplete="one-time-code"` on the first box, and the `name` on the `data-code-value` input alone |
+| `.input-reveal` | `aria-label="Show password"`, unchanged when pressed, and `aria-pressed="false"` to start; `aria-controls` naming the field |
 | `.avatar` | the person's name in text, an `alt`, or a `.visually-hidden` span. Initials are not a name. |
 | `.chip-dismiss` | `aria-label="Remove <the value>"`. `×` alone is announced as "times". |
 | `.pagination` | `<nav aria-label="Pagination">`, `aria-current="page"`, and a real `href` per page |
@@ -100,7 +103,7 @@ Four things are built on native elements specifically so the behaviour is not ha
 |---|---|
 | `<dialog>.showModal()` — `.modal`, `.drawer` and `.sheet` via `ShowModalAsync`, `.palette` | top layer, focus trap, Escape, inert content behind |
 | `<details>`/`<summary>` — `.accordion`, `.tree`, `.nav-group` | open state, keyboard operation, announcement; `name` makes an accordion exclusive with no JS |
-| `<input type="radio">` — `.segmented` | arrow keys, group semantics, chosen state |
+| `<input type="radio">` — `.segmented`, `.rating` | arrow keys, group semantics, chosen state |
 | `<label>` wrapping the input — `.form-check`, `.switch`, `.form-file` | the whole label is the target, and Enter works |
 
 A hand-rolled focus trap is a lot of code that is usually subtly wrong. If you need a modal surface,

@@ -1,0 +1,58 @@
+@page "/form-code"
+
+<CatHead Title="One-time codes">
+    <code>.form-code</code> is a row of boxes, one character each, for a sign-in code or a PIN. The
+    boxes are what the reader types into; one input marked <code>data-code-value</code> holds the
+    whole code, and that input is the field.
+</CatHead>
+
+<CatExample TExample="Examples.FormCode.Code" Title="A sign-in code" Demo="ex-demo--block">
+    <p>
+        <code>data-code-group</code> on the row hands it to the script. Typing moves to the next box,
+        Backspace in an empty box goes back one, and a code pasted into any box, or offered by a phone
+        from <code>autocomplete="one-time-code"</code> on the first box, fills them all. After every
+        change the joined code is written into the <code>data-code-value</code> input, which dispatches
+        <code>input</code> and <code>change</code> like any field &mdash; so it is the one that carries
+        the <code>name</code> a form posts, and the one a Blazor <code>@@bind</code> goes on.
+    </p>
+    <p>
+        The boxes carry no <code>name</code> and no <code>maxlength</code>: a name would post each digit
+        on its own, and a maximum of one cuts an autofilled code to its first digit.
+        <code>inputmode="numeric"</code> brings up the number pad and keeps a box to digits.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCode.Grouped" Title="Letters, in two runs" Demo="ex-demo--block">
+    <p>
+        Leave <code>inputmode</code> off for a code with letters in it. A
+        <code>.form-code-sep</code> between two runs of boxes is for the eye, so it carries
+        <code>aria-hidden="true"</code>; the code a form posts has no separator in it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCode.Sizes" Title="Three sizes" Demo="ex-demo--block">
+    <p>
+        <code>.form-code--sm</code> and <code>.form-code--lg</code> go on the row, as an
+        <a href="/form-text">input group</a>&rsquo;s tier does, and every box is square at that tier&rsquo;s
+        <a href="/concepts">control height</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCode.Rejected" Title="A rejected code" Demo="ex-demo--block">
+    <p>
+        Every box is a <code>.form-input</code>, so a rejected code is <code>aria-invalid="true"</code> on
+        every box, pointing at the message with <code>aria-describedby</code>, exactly as on a
+        <a href="/form-validation">text field</a>. A value the app writes into the
+        <code>data-code-value</code> input &mdash; the code it kept, or an empty one after a failed
+        attempt &mdash; is spread back over the boxes.
+    </p>
+</CatExample>
+
+<div class="callout callout--info">
+    <i class="ri-text-direction-r"></i>
+    <div class="callout-body">
+        <span class="callout-title">Right to left</span>
+        A code is digits and Latin letters, which run left to right in every script, so its boxes keep
+        that order on a right-to-left page, and so do the arrow keys.
+    </div>
+</div>

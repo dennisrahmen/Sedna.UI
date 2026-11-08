@@ -68,3 +68,46 @@
         stylesheet to get a short search box.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.FormText.PasswordReveal" Title="Showing a password" Demo="ex-demo--block">
+    <p>
+        An <code>.input-reveal</code> button with <code>data-reveal</code> shows the password in the
+        field its <code>aria-controls</code> names, and hides it again. The script switches the
+        field&rsquo;s <code>type</code> and the button&rsquo;s <code>aria-pressed</code>; the
+        <code>aria-label</code> is yours and stays &ldquo;Show password&rdquo; either way, because
+        &ldquo;pressed&rdquo; is what a screen reader announces as the change. The first icon shows while
+        the password is hidden and the second while it is shown.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormText.PasswordStrength" Title="A new password, and how strong it is" Demo="ex-demo--block">
+    <p>
+        <code>autocomplete="new-password"</code> is what makes a password manager offer one. The strength
+        is the app&rsquo;s to compute: write it as a <a href="/bars"><code>.meter</code></a> with its
+        words in <code>aria-label</code>, and say what to do about it in the hint the field points at.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormText.Formats" Title="Entering a format" Demo="ex-demo--block">
+    <p>
+        There is no input mask. A mask rewrites the value while it is typed, which moves the caret,
+        fights a paste and an autofill, and reads every inserted character to a screen reader. Ask the
+        platform instead:
+    </p>
+    <ul>
+        <li><code>type</code> and <code>inputmode</code> choose the keyboard &mdash; <code>tel</code>,
+            <code>numeric</code>, <code>email</code> &mdash; without restricting what can be typed.</li>
+        <li><code>autocomplete</code> lets the browser fill the value in the shape it already has:
+            <code>tel</code>, <code>postal-code</code>, <code>cc-number</code>,
+            <code>one-time-code</code>.</li>
+        <li><code>pattern</code>, <code>maxlength</code> and <code>required</code> say what is valid, and
+            the browser refuses the rest on submit. Accept spaces and dashes in <code>pattern</code>
+            and strip them on the server.</li>
+        <li>Show the expected format in the hint, and an example in the <code>placeholder</code>
+            &mdash; never in the label, and never as the only instruction, because it disappears as the
+            reader types.</li>
+    </ul>
+    <p>
+        A code typed a character to a box is <a href="/form-code">a one-time code</a>.
+    </p>
+</CatExample>

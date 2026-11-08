@@ -55,6 +55,16 @@ public class ControlHeightTests
         // not appear here on purpose: it is a label with its own type scale.
         { ".chip", "min-height" },
         { ".chip--lg", "min-height" },
+        // A one-time code's boxes are text fields, square at each tier.
+        { ".form-code > .form-input", "width" },
+        { ".form-code--sm > .form-input", "min-height" },
+        { ".form-code--sm > .form-input", "width" },
+        { ".form-code--lg > .form-input", "min-height" },
+        { ".form-code--lg > .form-input", "width" },
+        // An editable rating is a row of radios, and lines up with the field beside it.
+        { ".rating:has(input)", "min-height" },
+        { ".rating--sm:has(input)", "min-height" },
+        { ".rating--lg:has(input)", "min-height" },
     };
 
     [Theory]

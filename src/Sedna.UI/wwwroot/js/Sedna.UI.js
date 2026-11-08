@@ -527,6 +527,36 @@ window.sednaUi = window.sednaUi || {};
         if (e.target instanceof HTMLSelectElement && readonly(e.target)) e.preventDefault();
     }, true);
 })();
+(function () {
+    function fieldOf(button) {
+        var id = button.getAttribute('aria-controls');
+        if (id) {
+            var named = document.getElementById(id.split(/\s+/)[0]);
+            if (named instanceof HTMLInputElement) return named;
+        }
+        var group = button.parentElement;
+        if (!group) return null;
+        return group.querySelector('input[type="password"], input[data-sedna-revealed]');
+    }
+    function show(field, button, on) {
+        if (on) {
+            field.type = 'text';
+            field.setAttribute('data-sedna-revealed', '');
+        } else {
+            field.type = 'password';
+            field.removeAttribute('data-sedna-revealed');
+        }
+        if (button) button.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    document.addEventListener('click', function (e) {
+        var t = e.target;
+        var button = t instanceof Element ? t.closest('[data-reveal]') : null;
+        if (!button || button.disabled || button.getAttribute('aria-disabled') === 'true') return;
+        var field = fieldOf(button);
+        if (!field) return;
+        show(field, button, field.type === 'password');
+    });
+})(window.sednaUi);
 (function (ui) {
     function selectedIn(list) {
         return Array.prototype.filter.call(
@@ -1091,6 +1121,159 @@ window.sednaUi = window.sednaUi || {};
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
     else watch();
+})(window.sednaUi);
+(function () {
+    var GROUP = '[data-code-group]';
+    function groupOf(el) {
+        return el instanceof Element ? el.closest(GROUP) : null;
+    }
+    function valueOf(group) {
+        return group.querySelector('input[data-code-value]');
+    }
+    function boxesOf(group) {
+        var all = group.querySelectorAll('input:not([data-code-value])');
+        var out = [];
+        for (var i = 0; i < all.length; i++) {
+            if (all[i].closest(GROUP) === group && all[i].type !== 'hidden') out.push(all[i]);
+        }
+        return out;
+    }
+    function isBox(el) {
+        return el instanceof HTMLInputElement && !el.hasAttribute('data-code-value')
+            && el.type !== 'hidden' && !!groupOf(el) && !el.disabled && !el.readOnly;
+    }
+    function clean(box, text) {
+        text = String(text || '');
+        return box.getAttribute('inputmode') === 'numeric' ? text.replace(/\D+/g, '') : text.replace(/\s+/g, '');
+    }
+    function joined(boxes) {
+        var code = '';
+        for (var i = 0; i < boxes.length; i++) code += boxes[i].value;
+        return code;
+    }
+    function commit(group) {
+        var value = valueOf(group);
+        if (!value) return;
+        var code = joined(boxesOf(group));
+        if (value.value === code) return;
+        value.value = code;
+        value.dispatchEvent(new Event('input', { bubbles: true }));
+        value.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function spread(boxes, from, text) {
+        var i = from;
+        for (var c = 0; c < text.length && i < boxes.length; c++, i++) boxes[i].value = text.charAt(c);
+        return i;
+    }
+    function go(boxes, i) {
+        var box = boxes[Math.max(0, Math.min(i, boxes.length - 1))];
+        if (box && box !== document.activeElement) box.focus();
+    }
+    function fill(group) {
+        var value = valueOf(group);
+        if (!value) return;
+        var boxes = boxesOf(group);
+        var code = value.value || '';
+        if (joined(boxes) === code) return;
+        for (var i = 0; i < boxes.length; i++) boxes[i].value = code.charAt(i);
+    }
+    function fillAll() {
+        var groups = document.querySelectorAll(GROUP);
+        for (var i = 0; i < groups.length; i++) fill(groups[i]);
+    }
+    function paste(box, text) {
+        var group = groupOf(box);
+        var boxes = boxesOf(group);
+        var from = text.length >= boxes.length ? 0 : boxes.indexOf(box);
+        var next = spread(boxes, from, text);
+        commit(group);
+        go(boxes, next);
+    }
+    document.addEventListener('input', function (e) {
+        var box = e.target;
+        if (!isBox(box)) return;
+        var group = groupOf(box);
+        var boxes = boxesOf(group);
+        var at = boxes.indexOf(box);
+        if (e.inputType === 'insertText' && typeof e.data === 'string') {
+            var typed = clean(box, e.data);
+            if (typed.length === 1) {
+                box.value = typed;
+                commit(group);
+                if (at < boxes.length - 1) go(boxes, at + 1);
+                return;
+            }
+            if (typed.length === 0) {
+                box.value = clean(box, box.value).charAt(0);
+                return;
+            }
+        }
+        var text = clean(box, box.value);
+        if (text.length <= 1) {
+            box.value = text;
+            commit(group);
+            if (text.length === 1 && at < boxes.length - 1) go(boxes, at + 1);
+            return;
+        }
+        box.value = '';
+        paste(box, text);
+    });
+    document.addEventListener('paste', function (e) {
+        var box = e.target;
+        if (!isBox(box)) return;
+        var data = '';
+        try { data = e.clipboardData ? e.clipboardData.getData('text') : ''; } catch (err) { data = ''; }
+        e.preventDefault();
+        var text = clean(box, data);
+        if (text) paste(box, text);
+    });
+    document.addEventListener('keydown', function (e) {
+        var box = e.target;
+        if (!isBox(box) || e.ctrlKey || e.metaKey || e.altKey) return;
+        var group = groupOf(box);
+        var boxes = boxesOf(group);
+        var at = boxes.indexOf(box);
+        var rtl = getComputedStyle(group).direction === 'rtl';
+        if (e.key === 'Backspace' && box.value === '' && at > 0) {
+            e.preventDefault();
+            boxes[at - 1].value = '';
+            commit(group);
+            go(boxes, at - 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            go(boxes, at + ((e.key === 'ArrowRight') !== rtl ? 1 : -1));
+        } else if (e.key === 'Home' || e.key === 'End') {
+            e.preventDefault();
+            go(boxes, e.key === 'Home' ? 0 : boxes.length - 1);
+        }
+    });
+    document.addEventListener('focusin', function (e) {
+        if (!isBox(e.target)) return;
+        fill(groupOf(e.target));
+    });
+    document.addEventListener('reset', function (e) {
+        var form = e.target;
+        if (!(form instanceof HTMLFormElement)) return;
+        setTimeout(function () {
+            var groups = form.querySelectorAll(GROUP);
+            for (var i = 0; i < groups.length; i++) commit(groups[i]);
+        }, 0);
+    }, true);
+    var queued = false;
+    function soon() {
+        if (queued) return;
+        queued = true;
+        (window.queueMicrotask || setTimeout)(function () { queued = false; fillAll(); });
+    }
+    function init() {
+        fillAll();
+        if (typeof MutationObserver === 'function') {
+            new MutationObserver(soon).observe(document.documentElement,
+                { childList: true, subtree: true, attributes: true, attributeFilter: ['value'] });
+        }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
 })(window.sednaUi);
 (function (ui) {
     var score = ui._.score;
