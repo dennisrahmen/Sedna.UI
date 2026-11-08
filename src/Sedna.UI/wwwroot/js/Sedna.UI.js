@@ -645,6 +645,15 @@ window.sednaUi = window.sednaUi || {};
         var t = e.target;
         var button = t instanceof Element ? t.closest('[data-reveal]') : null;
         if (!button || button.disabled || button.getAttribute('aria-disabled') === 'true') return;
+        var id = button.getAttribute('aria-controls');
+        var target = id ? document.getElementById(id.split(/\s+/)[0]) : null;
+        if (target && !(target instanceof HTMLInputElement)) {
+            var on = !target.hasAttribute('data-sedna-revealed');
+            if (on) target.setAttribute('data-sedna-revealed', '');
+            else target.removeAttribute('data-sedna-revealed');
+            button.setAttribute('aria-pressed', on ? 'true' : 'false');
+            return;
+        }
         var field = fieldOf(button);
         if (!field) return;
         show(field, button, field.type === 'password');

@@ -248,6 +248,34 @@
 .input-reveal[aria-pressed="true"] > i:has(+ i) { display: none; }
 .input-group:has(> .input-reveal) > .form-input::-ms-reveal { display: none; }
 
+/* ── A value shown masked ───────────────────────────────────────────────────
+   `.secret-value` is a value read but not shown until asked — an API key, a connection
+   string, an environment variable — drawn as dots and not selectable while masked. The
+   reveal is any button with `data-reveal` and `aria-controls` naming it: 21-reveal.js
+   marks the value `data-sedna-revealed` and the button `aria-pressed`, and the button's
+   two icons swap as `.input-reveal`'s do.
+
+     <div class="kv">
+       <dt class="k text-mono">DATABASE_URL</dt>
+       <dd class="v"><span class="secret-value" id="env-db">postgres://orders:…</span></dd>
+       <dd class="kv-action">
+         <button class="btn btn--sm btn--ghost btn--icon" type="button" data-reveal aria-controls="env-db"
+                 aria-pressed="false" aria-label="Show DATABASE_URL">
+           <i class="ri-eye-line"></i><i class="ri-eye-off-line"></i></button>
+         <button class="btn btn--sm btn--ghost btn--icon" type="button" data-copy="…" aria-label="Copy DATABASE_URL">…</button>
+       </dd>
+     </div>
+
+   The value is in the page, masked by the stylesheet, so copy works either way. A
+   value the page must not hold until the reader asks for it is the app's to fetch on
+   the reveal and render then. */
+.secret-value:not([data-sedna-revealed]) {
+    -webkit-text-security: disc;
+    user-select: none;
+}
+[data-reveal]:not(.input-reveal):not([aria-pressed="true"]) > i + i,
+[data-reveal]:not(.input-reveal)[aria-pressed="true"] > i:has(+ i) { display: none; }
+
 /* ── Trigger field ──────────────────────────────────────────────────────────
    A <button> in the shape of a field, for a value that is chosen in a panel and
    shown here as a summary — "2 selected" from a popover of checkboxes, "1–15 Sep"

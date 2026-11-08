@@ -114,3 +114,55 @@
         <code>aria-busy="true"</code> for both.
     </p>
 </CatExample>
+
+<h2 id="developer-output">Developer output <CatAnchor Id="developer-output" /></h2>
+
+<CatExample TExample="Examples.Logs.Terminal" Title="Terminal" Demo="ex-demo--block">
+    <p>
+        <code>.output--terminal</code> is the pane as a shell shows it: each command an
+        <code>.output-line--prompt</code> holding <code>.output-prompt</code> &mdash; the app's
+        <code>$</code>, <code>&gt;</code> or <code>PS&gt;</code>, hidden from a screen reader and from a
+        selection &mdash; and <code>.output-cmd</code>. A command that wraps carries on under its own
+        first character, not under the prompt, and a command after earlier output stands apart from it.
+        Lines are not tinted on hover. Each command's copy button is the row's
+        <code>.output-actions</code>; the whole session is a <code>data-copy-target</code> in the head.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Logs.StackTrace" Title="Stack trace" Demo="ex-demo--block">
+    <p>
+        An <code>.output-trace</code> read frame by frame: <code>.output-exception</code> says what was
+        thrown, <code>.output-frames</code> lists the <code>.output-frame</code>s, each the call and its
+        <code>.output-frame-loc</code> &mdash; a link where the app can open the file at that line, a
+        <code>&lt;span&gt;</code> where it cannot. The location stands at the frame's end and drops under
+        the call when the row is narrow. <code>.output-frame--external</code> is a frame in code the reader
+        does not own, drawn quieter, and a run of them folds into a closed
+        <code>details.output-frames-fold</code> so the frames that matter stand together.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Logs.TestResults" Title="Test results" Demo="ex-demo--block">
+    <p>
+        The run as a whole is a <a href="/bars"><code>.stack-bar</code></a> of <code>series-go</code>,
+        <code>series-danger</code> and <code>series-muted</code> with its legend in words. Each suite is a
+        <code>details.test-suite</code>, open where something failed, its summary the
+        <code>.test-suite-name</code>, the <code>.test-suite-count</code> and the
+        <code>.test-time</code>. Each test is a <code>.test-case</code> in <code>.test-cases</code>, under
+        its suite's icon. <code>--pass</code>, <code>--fail</code> and <code>--skip</code> colour the
+        icon, and <strong>the outcome is in words as well</strong>: the count on a suite, a
+        <code>.visually-hidden</code> word on a test. A failed test's message follows it in an
+        <code>.output-trace</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Logs.EnvironmentVariables" Title="Environment variables" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; show one.</strong> <a href="/card"><code>.kv</code></a> rows with a
+        <code>.kv-action</code> column. <code>.secret-value</code> draws a value as dots, not selectable,
+        until a <code>data-reveal</code> button whose <code>aria-controls</code> names it is pressed:
+        Sedna.UI.js marks the value <code>data-sedna-revealed</code> and the button
+        <code>aria-pressed</code>, and the button's two icons swap. Copy is <code>data-copy</code> per
+        value and works masked or not. The value is in the page either way; one the page must not hold
+        until the reader asks is the app's to fetch on the reveal.
+    </p>
+</CatExample>

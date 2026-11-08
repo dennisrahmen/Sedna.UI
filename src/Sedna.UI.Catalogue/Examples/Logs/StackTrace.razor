@@ -1,0 +1,30 @@
+<ul class="output output--columns" tabindex="0" aria-label="Worker log" style="max-width:860px; max-height:none">
+    <li class="output-line output-line--error">
+        <details class="output-details" open>
+            <summary>
+                <span class="output-time">11:32:09.022</span>
+                <span class="output-level"><i class="ri-close-circle-line" aria-hidden="true"></i> <span>ERROR</span></span>
+                <span class="output-source">orders.worker</span>
+                <span class="output-msg">unhandled exception while pricing <span class="output-id">ORD-4190</span></span>
+            </summary>
+            <div class="output-trace">
+                <p class="output-exception"><strong>System.InvalidOperationException</strong>: No price list is active for currency 'CHF'.</p>
+                <ol class="output-frames">
+                    <li class="output-frame"><span>Orders.Pricing.PriceListResolver.Resolve(String currency)</span> <a class="output-frame-loc" href="#">PriceListResolver.cs:58</a></li>
+                    <li class="output-frame"><span>Orders.Pricing.OrderPricer.PriceAsync(Order order, CancellationToken ct)</span> <a class="output-frame-loc" href="#">OrderPricer.cs:112</a></li>
+                </ol>
+                <details class="output-frames-fold">
+                    <summary>3 framework frames</summary>
+                    <ol class="output-frames">
+                        <li class="output-frame output-frame--external"><span>System.Threading.Tasks.Task.InnerInvoke()</span> <span class="output-frame-loc">Task.cs:2357</span></li>
+                        <li class="output-frame output-frame--external"><span>System.Threading.ExecutionContext.RunInternal(ExecutionContext context)</span> <span class="output-frame-loc">ExecutionContext.cs:179</span></li>
+                        <li class="output-frame output-frame--external"><span>System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task currentTask)</span> <span class="output-frame-loc">Task.cs:2445</span></li>
+                    </ol>
+                </details>
+                <ol class="output-frames">
+                    <li class="output-frame"><span>Orders.Worker.BatchProcessor.ProcessAsync(Batch batch, CancellationToken ct)</span> <a class="output-frame-loc" href="#">BatchProcessor.cs:74</a></li>
+                </ol>
+            </div>
+        </details>
+    </li>
+</ul>

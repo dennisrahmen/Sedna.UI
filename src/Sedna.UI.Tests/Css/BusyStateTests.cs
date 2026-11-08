@@ -52,6 +52,7 @@ public class BusyStateTests
         "cal-resize",                           // a grip, as card-resize is
         "sticky-group-toggle",                  // folds a group; nothing of its own runs
         "badge-ai",                             // opens an explanation; nothing of its own runs
+        "output-frames-fold", "test-suite",     // fold what is already there; nothing of their own runs
         "editor",                               // a field: read-only, not busy — the form it sits in is
         "input-reveal",                         // shows the field's text; nothing of its own runs
         "rating-star", "rating-half",           // a choice, as a radio is

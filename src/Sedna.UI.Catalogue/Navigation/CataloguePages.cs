@@ -361,8 +361,8 @@ internal static class CataloguePages
             "The state of a connection, a pane of machine output, relative times and countdowns, and work still running.",
             "live connection streaming health health-badge status stale output log follow tail activity running job cancel relative time ago timeago countdown timer session timeout data-relative data-countdown degraded outage partial failure unavailable fallback"),
         new("/logs", Feedback, "Logs", "ri-file-list-2-line",
-            "An application log in columns, a live tail, highlighting, expanding rows and actions per line.",
-            "log logs logging viewer tail follow jump latest paused level debug info warn error severity stack trace exception details expand highlight token id syntax source timestamp filter wrap nowrap dense row actions copy output-columns data-follow-paused sedna-follow data-output-follow"),
+            "An application log in columns, a live tail, expanding rows, and developer output: terminal, traces, test runs, env vars.",
+            "log logs logging viewer tail follow jump latest paused level debug info warn error severity stack trace exception details expand highlight token id syntax source timestamp filter wrap nowrap dense row actions copy output-columns data-follow-paused sedna-follow data-output-follow terminal shell prompt command console frames file line test results suite passed failed skipped duration environment variables env secret masked reveal api key"),
 
         new("/modal", Overlays, "Modal", "ri-window-2-line",
             "A question that has to be answered before anything else happens.",

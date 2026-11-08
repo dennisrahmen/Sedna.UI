@@ -274,3 +274,186 @@
     box-shadow: var(--shadow-dropdown);
 }
 .output-panel:not(:has(> .output[data-follow-paused])) > .output-jump { display: none; }
+
+/* ── Terminal ───────────────────────────────────────────────────────────────
+   A command and what it printed, as a shell shows it: `.output--terminal` on the pane,
+   and each command an `.output-line--prompt` holding the prompt and the command.
+
+     <ul class="output output--terminal" aria-label="Terminal">
+       <li class="output-line output-line--prompt">
+         <span class="output-prompt" aria-hidden="true">$</span>
+         <span class="output-cmd">dotnet test src/Orders.Tests</span>
+         <div class="output-actions">…copy…</div>
+       </li>
+       <li class="output-line">  Determining projects to restore...</li>
+     </ul>
+
+   The prompt is the app's — `$`, `>`, `PS>` — and is neither read nor selected, so a
+   reader who selects a command copies the command alone. A command that wraps carries
+   on under its own first character, not under the prompt. A command after earlier
+   output stands a little apart from it. The lines are not tinted on hover: a reader
+   reads a terminal, they do not pick rows out of it. A copy button per command is the
+   row's `.output-actions`; the whole session is a `data-copy-target` in the head. */
+.output--terminal .output-line:hover { background: none; }
+.output-line--prompt {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    color: var(--fg);
+}
+.output--terminal .output-line--prompt:not(:first-child) { margin-block-start: var(--space-4); }
+.output-prompt { flex: none; color: var(--muted); user-select: none; }
+.output-cmd { flex: 1 1 auto; min-width: 0; font-weight: 600; }
+
+/* ── Stack trace ────────────────────────────────────────────────────────────
+   An exception read frame by frame, in an `.output-trace`: what was thrown, then the
+   frames, each a call and the place in the source it was made from.
+
+     <div class="output-trace">
+       <p class="output-exception"><strong>InvalidOperationException</strong>: No price list is active</p>
+       <ol class="output-frames">
+         <li class="output-frame"><span>Orders.Pricing.PriceListResolver.Resolve(String currency)</span>
+             <a class="output-frame-loc" href="…">PriceListResolver.cs:58</a></li>
+       </ol>
+       <details class="output-frames-fold">
+         <summary>9 framework frames</summary>
+         <ol class="output-frames"><li class="output-frame output-frame--external">…</li></ol>
+       </details>
+     </div>
+
+   The location is a link where the app can open the file at that line, else a <span>.
+   It stands at the end of the frame and drops under the call when the row is narrow.
+   `--external` is a frame in code the reader does not own — the framework, a library —
+   drawn quieter, and a run of them folds into an `.output-frames-fold`, closed, so the
+   frames that matter stand together. */
+.output-trace:has(> :is(.output-frames, .output-frames-fold, .output-exception)) { white-space: normal; }
+.output-exception { margin: 0 0 var(--space-3); color: var(--fg); white-space: pre-wrap; overflow-wrap: anywhere; }
+.output-exception > strong { color: var(--danger-fg); }
+.output-frames {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+}
+.output-frame {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-6);
+    padding-inline-start: var(--space-7);
+}
+.output-frame > :first-child { flex: 1 1 24ch; min-width: 0; overflow-wrap: anywhere; }
+.output-frame-loc { flex: none; margin-inline-start: auto; color: var(--accent); white-space: nowrap; }
+.output-frame--external { color: var(--muted); }
+.output-frame--external > .output-frame-loc { color: var(--muted); }
+.output-frames-fold > summary {
+    padding-inline-start: var(--space-7);
+    color: var(--muted);
+    list-style: none;
+    cursor: pointer;
+}
+.output-frames-fold > summary::-webkit-details-marker { display: none; }
+.output-frames-fold > summary::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-inline-end: var(--space-3);
+    vertical-align: middle;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.6;
+    transform: rotate(-90deg);
+}
+.output-frames-fold[open] > summary::before { transform: none; }
+.output-frames-fold > summary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); border-radius: var(--radius-inner); }
+
+/* ── Test results ───────────────────────────────────────────────────────────
+   A test run: how it went as a whole, then each suite, then each test with how long
+   it took. The whole is a `.stack-bar` with `series-go`, `series-danger` and
+   `series-muted` segments and a `.stack-bar-legend` saying the counts in words. Each
+   suite is a <details>, open where something failed:
+
+     <details class="test-suite test-suite--fail" open>
+       <summary>
+         <i class="ri-close-circle-fill" aria-hidden="true"></i>
+         <span class="test-suite-name">Orders.Tests.SyncTests</span>
+         <span class="test-suite-count">11 passed, 1 failed</span>
+         <span class="test-time">1.84 s</span>
+       </summary>
+       <ul class="test-cases">
+         <li class="test-case test-case--fail">
+           <i class="ri-close-circle-fill" aria-hidden="true"></i>
+           <span class="test-case-name">Reconcile_throws_on_an_empty_batch</span>
+           <span class="visually-hidden">failed</span>
+           <span class="test-time">12 ms</span>
+           <pre class="output-trace">…</pre>
+         </li>
+       </ul>
+     </details>
+
+   `--pass`, `--fail` and `--skip` colour the leading icon; the icon is decoration, so
+   the outcome is also in words — the suite's count, a `.visually-hidden` word on a
+   test. A failed test's message and trace follow it in an `.output-trace`, under the
+   name. Times are tabular, at the row's end, so they line up down the run. */
+.test-suite {
+    --test-caret: 8px;
+    border-top: 1px solid var(--divider);
+}
+.test-suite > summary,
+.test-case {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--list-pad-block) var(--list-pad-inline);
+}
+.test-suite > summary {
+    list-style: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+.test-suite > summary::-webkit-details-marker { display: none; }
+.test-suite > summary::before {
+    content: '';
+    flex: none;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.6;
+    transform: rotate(-90deg);
+}
+.test-suite[open] > summary::before { transform: none; }
+.test-suite > summary:hover { background: var(--bg-hover); }
+.test-suite > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
+.test-suite > summary > i,
+.test-case > i { flex: none; font-size: var(--text-5); }
+.test-suite--pass > summary > i,
+.test-case--pass > i { color: var(--go-fg); }
+.test-suite--fail > summary > i,
+.test-case--fail > i { color: var(--danger-fg); }
+.test-suite--skip > summary > i,
+.test-case--skip > i { color: var(--muted); }
+
+.test-suite-name,
+.test-case-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font-family: var(--font-mono); font-size: var(--text-3); }
+.test-suite-count { flex: none; color: var(--muted); font-size: var(--text-3); font-weight: 400; }
+.test-time { flex: none; color: var(--muted); font-size: var(--text-3); font-weight: 400; font-variant-numeric: tabular-nums; }
+.test-suite-name,
+.test-case-name,
+.test-suite-count,
+.test-time { line-height: round(1.4em, 2px); text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+
+.test-cases { margin: 0; padding: 0; list-style: none; }
+/* A test stands under its suite's icon: the caret's width and a gap further in. */
+.test-case { flex-wrap: wrap; padding-inline-start: calc(var(--list-pad-inline) + var(--test-caret) + var(--space-4)); }
+.test-case + .test-case { border-top: 1px solid var(--divider); }
+.test-case--skip > .test-case-name { color: var(--muted); }
+.test-case > .output-trace {
+    flex: 1 1 100%;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    line-height: 1.65;
+}

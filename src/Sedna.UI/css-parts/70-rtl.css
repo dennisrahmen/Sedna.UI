@@ -54,6 +54,9 @@
 /* The drawer slides in from an inline edge; `inset-inline-end` already puts it on
    the correct side, so only the direction of travel is wrong. */
 [dir="rtl"] .drawer { transform: translateX(-100%); }
+/* 67 — a closed fold's caret points along the line, toward the inline end. */
+[dir="rtl"] .output-frames-fold:not([open]) > summary::before,
+[dir="rtl"] .test-suite:not([open]) > summary::before { transform: rotate(90deg); }
 /* 54 — a meter's mark label is centred on its mark by a translate. */
 [dir="rtl"] .meter-mark-label { transform: translateX(50%); }
 /* 54 — a stack bar's boundary label is centred on its boundary the same way. */

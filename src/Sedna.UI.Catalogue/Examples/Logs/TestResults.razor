@@ -1,0 +1,109 @@
+<div class="card" style="max-width:760px">
+    <div class="card-head">
+        <h3>Orders.Tests</h3>
+        <span class="card-head-right text-muted text-sm text-nums">9 tests in 1.89 s</span>
+    </div>
+    <div class="card-body">
+        <div class="stack-bar" role="img" aria-label="9 tests: 5 passed, 2 failed, 2 skipped">
+            <span class="stack-bar-segment series-go" style="--value: 55.6%"></span>
+            <span class="stack-bar-segment series-danger" style="--value: 22.2%"></span>
+            <span class="stack-bar-segment series-muted" style="--value: 22.2%"></span>
+        </div>
+        <div class="stack-bar-legend">
+            <span class="stack-bar-key"><span class="stack-bar-swatch series-go"></span><span>5 passed</span></span>
+            <span class="stack-bar-key"><span class="stack-bar-swatch series-danger"></span><span>2 failed</span></span>
+            <span class="stack-bar-key"><span class="stack-bar-swatch series-muted"></span><span>2 skipped</span></span>
+        </div>
+    </div>
+
+    <details class="test-suite test-suite--fail" open>
+        <summary>
+            <i class="ri-close-circle-fill" aria-hidden="true"></i>
+            <span class="test-suite-name">Orders.Tests.SyncTests</span>
+            <span class="test-suite-count">3 passed, 2 failed</span>
+            <span class="test-time">1.84 s</span>
+        </summary>
+        <ul class="test-cases">
+            <li class="test-case test-case--pass">
+                <i class="ri-checkbox-circle-fill" aria-hidden="true"></i>
+                <span class="test-case-name">Reconcile_releases_a_hold_with_no_open_pick</span>
+                <span class="visually-hidden">passed</span>
+                <span class="test-time">41 ms</span>
+            </li>
+            <li class="test-case test-case--fail">
+                <i class="ri-close-circle-fill" aria-hidden="true"></i>
+                <span class="test-case-name">Reconcile_throws_on_an_empty_batch</span>
+                <span class="visually-hidden">failed</span>
+                <span class="test-time">12 ms</span>
+                <pre class="output-trace">Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+   at Orders.Tests.SyncTests.Reconcile_throws_on_an_empty_batch() in SyncTests.cs:line 88</pre>
+            </li>
+            <li class="test-case test-case--fail">
+                <i class="ri-close-circle-fill" aria-hidden="true"></i>
+                <span class="test-case-name">Sync_retries_after_a_lock_timeout</span>
+                <span class="visually-hidden">failed</span>
+                <span class="test-time">1.21 s</span>
+                <pre class="output-trace">Assert.Equal() Failure: Values differ
+Expected: 3
+Actual:   1</pre>
+            </li>
+            <li class="test-case test-case--pass">
+                <i class="ri-checkbox-circle-fill" aria-hidden="true"></i>
+                <span class="test-case-name">Sync_skips_an_order_already_on_a_belt</span>
+                <span class="visually-hidden">passed</span>
+                <span class="test-time">8 ms</span>
+            </li>
+            <li class="test-case test-case--pass">
+                <i class="ri-checkbox-circle-fill" aria-hidden="true"></i>
+                <span class="test-case-name">Sync_writes_one_audit_line_per_order</span>
+                <span class="visually-hidden">passed</span>
+                <span class="test-time">6 ms</span>
+            </li>
+        </ul>
+    </details>
+    <details class="test-suite test-suite--skip">
+        <summary>
+            <i class="ri-indeterminate-circle-line" aria-hidden="true"></i>
+            <span class="test-suite-name">Orders.Tests.CarrierTests</span>
+            <span class="test-suite-count">2 skipped</span>
+            <span class="test-time">0 s</span>
+        </summary>
+        <ul class="test-cases">
+            <li class="test-case test-case--skip">
+                <i class="ri-indeterminate-circle-line" aria-hidden="true"></i>
+                <span class="test-case-name">Label_prints_for_a_new_carrier</span>
+                <span class="visually-hidden">skipped</span>
+                <span class="test-time">0 ms</span>
+            </li>
+            <li class="test-case test-case--skip">
+                <i class="ri-indeterminate-circle-line" aria-hidden="true"></i>
+                <span class="test-case-name">Pickup_is_booked_for_tomorrow</span>
+                <span class="visually-hidden">skipped</span>
+                <span class="test-time">0 ms</span>
+            </li>
+        </ul>
+    </details>
+    <details class="test-suite test-suite--pass">
+        <summary>
+            <i class="ri-checkbox-circle-fill" aria-hidden="true"></i>
+            <span class="test-suite-name">Orders.Tests.PricingTests</span>
+            <span class="test-suite-count">2 passed</span>
+            <span class="test-time">0.05 s</span>
+        </summary>
+        <ul class="test-cases">
+            <li class="test-case test-case--pass">
+                <i class="ri-checkbox-circle-fill" aria-hidden="true"></i>
+                <span class="test-case-name">Price_uses_the_active_list_for_the_currency</span>
+                <span class="visually-hidden">passed</span>
+                <span class="test-time">14 ms</span>
+            </li>
+            <li class="test-case test-case--pass">
+                <i class="ri-checkbox-circle-fill" aria-hidden="true"></i>
+                <span class="test-case-name">Price_rounds_half_to_even</span>
+                <span class="visually-hidden">passed</span>
+                <span class="test-time">31 ms</span>
+            </li>
+        </ul>
+    </details>
+</div>
