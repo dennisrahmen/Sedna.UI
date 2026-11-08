@@ -50,6 +50,7 @@ public class BusyStateTests
         "editor",                               // a field: read-only, not busy — the form it sits in is
         "input-reveal",                         // shows the field's text; nothing of its own runs
         "rating-star", "rating-half",           // a choice, as a radio is
+        "inbox-item",                           // its ring is its title's, a link; nothing of its own runs
     };
 
     [Fact]

@@ -1,0 +1,228 @@
+/* ── Notification inbox ─────────────────────────────────────────────────────
+   What has happened while the reader was elsewhere, kept until they have seen it: a bell
+   with the unread count on it, opening a panel of notifications with tabs over them.
+
+     <button class="topbar-btn" type="button" popovertarget="inbox" aria-label="Notifications, 3 unread">
+       <span class="inbox-bell"><i class="ri-notification-3-line" aria-hidden="true"></i><span class="inbox-count" aria-hidden="true">3</span></span>
+     </button>
+
+     <div class="popover inbox" id="inbox" popover aria-labelledby="inbox-title">
+       <div class="inbox-head">
+         <strong class="inbox-title" id="inbox-title">Notifications</strong>
+         <button class="btn btn--ghost btn--sm" type="button">Mark all as read</button>
+       </div>
+       <div class="tabs inbox-tabs" role="tablist" data-tabs>…All, Unread, Archived…</div>
+       <div class="tab-panel" role="tabpanel">
+         <ul class="inbox-list">
+           <li class="inbox-item inbox-item--unread">
+             <span class="avatar">AF</span>
+             <div class="inbox-item-main">
+               <a class="inbox-item-title" href="…">Alex Fischer assigned ORD-4182 to you</a>
+               <span class="inbox-item-text">…</span>
+               <time class="inbox-item-time" datetime="…">5 min ago</time>
+               <div class="inbox-item-actions">…buttons…</div>
+             </div>
+             <div class="menu-anchor inbox-item-menu">…a .menu: mark as read, archive, snooze…</div>
+           </li>
+         </ul>
+       </div>
+       <div class="inbox-foot"><a href="…">Notification preferences</a></div>
+     </div>
+
+   Every part is the app's markup and every state is the app's: which tab is current,
+   which items are read, what the count says. The panel is a `.popover`, so the
+   platform opens, places and dismisses it; the tabs are `.tabs`, and an item's menu is
+   a `.menu`. Nothing here needs a script of its own.
+
+   A toast says something happened and goes; this keeps it. Something the reader has
+   to act on before anything else is an alert or a dialog, not a notification.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* The bell, and the unread count on its corner. The count is the app's number; an
+   empty `.inbox-count` is a dot, for "there is something new" without a number. Give
+   the trigger the count in words — its accessible name — and hide the badge from
+   assistive technology, or the number is read twice. */
+.inbox-bell { position: relative; display: inline-flex; }
+.inbox-count {
+    position: absolute;
+    inset-block-start: -5px;
+    inset-inline-start: calc(100% - 7px);
+    min-width: 16px;
+    height: 16px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--brand);
+    color: var(--on-solid);
+    font-size: var(--text-1);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    /* The number is the box's one line: trimmed to its capitals and centred in the box. */
+    text-box: trim-both cap alphabetic;
+    align-content: center;
+    /* Cut out of whatever the bell sits on, so the badge stays a shape of its own over
+       the icon's edge. */
+    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
+}
+.inbox-count:empty {
+    inset-block-start: -2px;
+    inset-inline-start: calc(100% - 6px);
+    min-width: 8px;
+    height: 8px;
+    padding: 0;
+}
+
+/* The panel. On a `.popover` it replaces the popover's reading width and padding with
+   its own: rows meet the panel's edges. Out of a popover — a drawer, a page of its own —
+   it is the same block, as wide as its place allows. */
+.inbox {
+    --inbox-width: 380px;
+    --inbox-list-height: min(440px, 60vh);
+    width: var(--inbox-width);
+    max-width: min(100%, calc(100vw - var(--space-8) * 2));
+    padding: 0;
+    overflow: hidden;
+    --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    line-height: 1.5;
+}
+/* Opened from a bell at the end of a header, there is no room toward the inline end:
+   the panel turns to line up with the bell's end edge instead. On a phone it takes the
+   width of the screen, less a margin, under the bell. */
+.popover.inbox { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+@media (max-width: 560px) {
+    .popover.inbox {
+        position-area: block-end span-all;
+        width: calc(100vw - var(--space-4) * 2);
+        max-width: none;
+        margin-inline: var(--space-4);
+    }
+}
+
+.inbox-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-4);
+    padding-inline: var(--space-6) var(--space-4);
+}
+.inbox-title {
+    flex: 1;
+    min-width: 0;
+    color: var(--fg);
+    font-size: var(--text-5);
+    font-weight: 600;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+
+/* The tabs run from edge to edge under the head, and their panels carry no gap of
+   their own: the list starts at the line. */
+.inbox-tabs { padding-inline: var(--space-4); }
+.inbox .tab-panel { padding-top: 0; }
+
+.inbox-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: var(--inbox-list-height);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.inbox-list > li + li { border-top: 1px solid var(--divider); }
+
+/* One notification: who, what, when, and what can be done about it. The title is the
+   link to what it is about, and stretches over the whole item, so the row opens it;
+   the actions and the menu stand above that stretch and stay their own controls. */
+.inbox-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: var(--space-5);
+    padding-block: var(--space-5);
+    padding-inline: var(--space-7) var(--space-4);
+}
+.inbox-item:hover { background: var(--bg-hover); }
+.inbox-item:has(.inbox-item-title:focus-visible) { box-shadow: inset 0 0 0 2px var(--focus-ring); }
+/* With no avatar the text takes the first column. */
+.inbox-item:not(:has(> .avatar, > .avatar-presence)) { grid-template-columns: minmax(0, 1fr) auto; }
+
+.inbox-item-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+}
+.inbox-item-title {
+    color: var(--fg-soft);
+    font-weight: 400;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+a.inbox-item-title::after,
+button.inbox-item-title::after { content: ""; position: absolute; inset: 0; }
+button.inbox-item-title {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+:is(a, button).inbox-item-title:focus-visible { outline: none; }
+.inbox-item-title:hover { text-decoration: none; }
+.inbox-item-title strong { color: var(--fg); font-weight: 600; }
+.inbox-item-text {
+    color: var(--muted);
+    font-size: var(--text-3);
+    overflow-wrap: anywhere;
+}
+.inbox-item-time {
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+}
+.inbox-item-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+}
+.inbox-item-menu { position: relative; z-index: 1; }
+
+/* Unread: the title in the ink of the page, and a dot in the gutter beside the first
+   line. The dot is a picture of the state, so say it in words too — "Unread" in a
+   `.visually-hidden` span in the title. */
+.inbox-item--unread .inbox-item-title { color: var(--fg); font-weight: 600; }
+.inbox-item--unread::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: var(--space-3);
+    inset-block-start: calc(var(--space-5) + 0.5lh - 3px);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand);
+}
+
+/* Each tab's empty state: one line of what is not here, in the list's place. */
+.inbox .empty-state { padding: var(--space-9) var(--space-6); }
+
+.inbox-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--divider);
+    font-size: var(--text-3);
+}

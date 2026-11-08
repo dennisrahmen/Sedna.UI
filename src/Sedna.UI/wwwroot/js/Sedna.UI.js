@@ -6,7 +6,9 @@ window.sednaUi = window.sednaUi || {};
         notifyIcon: null,
         langCookie: false,
         themeDefault: 'sedna',
-        toastDismissLabel: 'Dismiss'
+        toastDismissLabel: 'Dismiss',
+        toastPile: false,
+        toastLimit: 0
     };
     function key(k) { return config.storagePrefix + k; }
     function readRaw(k) {
@@ -5884,9 +5886,21 @@ window.sednaUi = window.sednaUi || {};
             host.setAttribute('role', 'status');
             host.setAttribute('aria-live', 'polite');
             host.setAttribute('popover', 'manual');
+            watchStack(host);
         }
+        host.classList.toggle('toast-stack--pile', !!ui._.config.toastPile);
         raise();
         return host;
+    }
+    var onStack = { hover: false, focus: false };
+    function watchStack(el) {
+        onStack.hover = onStack.focus = false;
+        el.addEventListener('mouseenter', function () { onStack.hover = true; syncAll(); });
+        el.addEventListener('mouseleave', function () { onStack.hover = false; syncAll(); });
+        el.addEventListener('focusin', function () { onStack.focus = true; syncAll(); });
+        el.addEventListener('focusout', function (e) {
+            if (!el.contains(e.relatedTarget)) { onStack.focus = false; syncAll(); }
+        });
     }
     function drop(el) {
         if (el.parentNode) el.parentNode.removeChild(el);
@@ -5894,6 +5908,23 @@ window.sednaUi = window.sednaUi || {};
             if (unwatch) { unwatch(); unwatch = null; }
             if (host.parentNode) host.parentNode.removeChild(host);
             host = null;
+        }
+        limit();
+    }
+    function entryOf(el) {
+        for (var id in live) if (live[id].el === el) return live[id];
+        return null;
+    }
+    function limit() {
+        if (!host) return;
+        var max = Math.max(0, Math.floor(Number(ui._.config.toastLimit) || 0));
+        var kids = host.children;
+        for (var i = 0; i < kids.length; i++) {
+            var over = max > 0 && i < kids.length - max;
+            if (over) kids[i].setAttribute('data-toast-queued', '');
+            else kids[i].removeAttribute('data-toast-queued');
+            var entry = entryOf(kids[i]);
+            if (entry && entry.queued !== over) { entry.queued = over; sync(entry); }
         }
     }
     layer.onChange(function (closing) { if (host && host.children.length) raise(closing); });
@@ -5908,17 +5939,82 @@ window.sednaUi = window.sednaUi || {};
         if (endedOrder.length > 100) delete ended[endedOrder.shift()];
     }
     function wire(entry, el) {
-        el.addEventListener('mouseenter', function () { hold(entry); });
-        el.addEventListener('mouseleave', function () { if (!el.contains(document.activeElement)) release(entry); });
-        el.addEventListener('focusin', function () { hold(entry); });
-        el.addEventListener('focusout', function (e) { if (!el.contains(e.relatedTarget) && !el.matches(':hover')) release(entry); });
+        el.addEventListener('mouseenter', function () { entry.hover = true; sync(entry); });
+        el.addEventListener('mouseleave', function () { entry.hover = false; sync(entry); });
+        el.addEventListener('focusin', function () { entry.focus = true; sync(entry); });
+        el.addEventListener('focusout', function (e) { if (!el.contains(e.relatedTarget)) { entry.focus = false; sync(entry); } });
+        swipe(entry, el);
         el.addEventListener('click', function (e) {
             if (!entry.template) return;
             var t = e.target instanceof Element ? e.target.closest('[data-toast-value], .toast-close') : null;
             if (!t || !el.contains(t)) return;
             entry.remove(t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null, true);
         });
+        el.addEventListener('click', function (e) {
+            if (!entry.swallow) return;
+            entry.swallow = false;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }, true);
     }
+    var SLOP = 8;           // px a press travels before it is a swipe and not a click
+    var FLICK = 32;         // px a quick swipe has to travel
+    var FLICK_SPEED = 0.5;  // px per ms
+    var FAR = 96;           // px that dismiss at any speed, or a third of a narrower toast
+    function swipe(entry, el) {
+        var s = null;
+        function settle(e) {
+            if (!s || e.pointerId !== s.id) return;
+            var was = s;
+            s = null;
+            if (!was.swiping) return;
+            entry.swallow = true;
+            var speed = was.toward / Math.max(1, e.timeStamp - was.t);
+            if (e.type === 'pointerup' && (was.toward >= Math.min(FAR, el.offsetWidth / 3) || (was.toward >= FLICK && speed >= FLICK_SPEED))) {
+                entry.remove(null);
+                return;
+            }
+            el.removeAttribute('data-toast-swiping');
+            el.style.removeProperty('--toast-swipe');
+            el.style.removeProperty('--toast-swipe-progress');
+        }
+        el.addEventListener('pointerdown', function (e) {
+            entry.swallow = false;
+            if (e.button !== 0 || !e.isPrimary || !el.querySelector('.toast-close')) return;
+            s = {
+                id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, toward: 0, swiping: false,
+                dir: getComputedStyle(el).direction === 'rtl' ? -1 : 1
+            };
+        });
+        el.addEventListener('pointermove', function (e) {
+            if (!s || e.pointerId !== s.id) return;
+            var dx = e.clientX - s.x, dy = e.clientY - s.y;
+            if (!s.swiping) {
+                if (Math.abs(dy) >= SLOP && Math.abs(dy) > Math.abs(dx)) { s = null; return; }   // a scroll, not a swipe
+                if (Math.abs(dx) < SLOP) return;
+                s.swiping = true;
+                s.t = e.timeStamp;
+                s.x = e.clientX;
+                dx = 0;
+                el.setAttribute('data-toast-swiping', '');
+                try { el.setPointerCapture(e.pointerId); } catch (x) { /* a pointer already gone */ }
+                try { window.getSelection().removeAllRanges(); } catch (x) { /* nothing selected */ }
+            }
+            var toward = dx * s.dir;
+            s.toward = toward;
+            var moved = toward >= 0 ? toward : Math.max(toward / 4, -SLOP * 2);
+            el.style.setProperty('--toast-swipe', moved * s.dir + 'px');
+            el.style.setProperty('--toast-swipe-progress', String(Math.min(1, Math.max(0, moved) / Math.max(1, el.offsetWidth))));
+        });
+        el.addEventListener('pointerup', settle);
+        el.addEventListener('pointercancel', settle);
+    }
+    function holding(entry) {
+        return !!(entry.hover || entry.focus || entry.queued ||
+            (host && entry.el.parentNode === host && host.classList.contains('toast-stack--pile') && (onStack.hover || onStack.focus)));
+    }
+    function sync(entry) { if (holding(entry)) hold(entry); else release(entry); }
+    function syncAll() { for (var id in live) sync(live[id]); }
     function timeOut(entry, opts) {
         clearTimeout(entry.timer);
         entry.timer = 0;
@@ -5988,7 +6084,10 @@ window.sednaUi = window.sednaUi || {};
     }
     function create() {
         var id = nextId++;
-        var entry = { id: id, el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0, waiters: [], template: false };
+        var entry = {
+            id: id, el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0, waiters: [], template: false,
+            hover: false, focus: false, queued: false, swallow: false
+        };
         wire(entry, entry.el);
         entry.remove = function (value, later) {
             if (live[id] !== entry) return;
@@ -6015,6 +6114,8 @@ window.sednaUi = window.sednaUi || {};
         } else {
             host.appendChild(entry.el);
         }
+        limit();
+        sync(entry);
     }
     ui.toast = function (message, opts) {
         var entry = create();
@@ -6036,6 +6137,7 @@ window.sednaUi = window.sednaUi || {};
         var entry = live[id];
         if (!entry) return ui.toast.show(message, opts);
         paint(entry, message, opts);
+        limit();
         return id;
     };
     ui.toast.present = function (template, data, opts) {
@@ -6072,6 +6174,7 @@ window.sednaUi = window.sednaUi || {};
         stack();
         host.setAttribute('aria-live', node.matches('.toast--danger') ? 'assertive' : 'polite');
         if (!node.isConnected) add(entry, fresh);
+        else limit();
         timeOut(entry, opts);
         return entry.id;
     };

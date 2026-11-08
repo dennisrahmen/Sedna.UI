@@ -47,6 +47,24 @@ public sealed class SednaUiOptions
     public string ToastDismissLabel { get; set; } = "Dismiss";
 
     /// <summary>
+    /// Lays the toast stack out as a pile: the newest toast in front and the ones before it
+    /// peeking out behind, opened out while the pointer or the focus is on it. Defaults to
+    /// <see langword="false"/>, a column of toasts.
+    /// </summary>
+    /// <remarks>
+    /// While the pile is open every toast in it holds its timer, so none goes while it is
+    /// being read. Sent to the script as <c>toastPile</c> by <see cref="ISednaUi.ConfigureAsync"/>.
+    /// </remarks>
+    public bool ToastPile { get; set; }
+
+    /// <summary>
+    /// How many toasts show at once. The oldest beyond it wait out of sight, their timers
+    /// held, and show as the toasts in front of them go. Defaults to 0, which shows every one.
+    /// </summary>
+    /// <remarks>Sent to the script as <c>toastLimit</c> by <see cref="ISednaUi.ConfigureAsync"/>.</remarks>
+    public int ToastLimit { get; set; }
+
+    /// <summary>
     /// The registered themes. <see cref="SednaBrandStyle"/> and <see cref="SednaUiBrand.ToCss"/>
     /// emit palette CSS for every one of these, reachable at <c>[data-theme="&lt;name&gt;"]</c>.
     /// </summary>

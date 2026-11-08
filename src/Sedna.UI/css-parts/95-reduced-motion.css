@@ -85,6 +85,10 @@
        reader is; only the travel goes. */
     .deck-step        { animation: none; }    /* 36 */
     .deck-dot         { transition: none; }   /* 36 */
+    /* 38 — the pile opens and closes, and a swiped toast springs back, in one step. The
+       swipe itself still follows the pointer: that is the reader's own movement. */
+    .toast-stack--pile > .toast { transition: none; }
+    [data-sedna-toasts] > .toast { transition: none; }
     .spinner          { animation: none; }    /* 39 */
     .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */

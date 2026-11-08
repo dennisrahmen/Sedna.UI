@@ -82,7 +82,9 @@ and request the token or variant upstream — see *Requesting a library change*.
 `ISednaUi.ToastAsync` returns a `SednaToast`. For work that ends later, show the running state with
 `timeoutMs: 0` and `ReplaceAsync` the outcome into it. Set `SednaUiOptions.ToastDismissLabel` in
 `AddSednaUi` when the app is not in English — the toast's close button is the only text the library
-writes. `SetTipsEnabledAsync(false)` switches hover hints off from a setting.
+writes. `ToastPile` and `ToastLimit` set the stack's shape for every toast. Nothing the reader needs or
+must act on lives only in a toast: it goes inline, in an `.alert`, or in the notification inbox.
+`SetTipsEnabledAsync(false)` switches hover hints off from a setting.
 
 ### State the markup cannot express
 

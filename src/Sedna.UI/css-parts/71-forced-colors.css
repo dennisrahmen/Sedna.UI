@@ -203,6 +203,7 @@
     .rating-star:has(> input:focus-visible),
     .rating-half:has(> input:focus-visible) { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+    .inbox-item:has(.inbox-item-title:focus-visible) { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
 
@@ -261,6 +262,8 @@
     .chip-dot,
     .th-filter--active::after,
     .avatar-presence::after,
+    .inbox-count,
+    .inbox-item--unread::before,
     .timeline > li::before { forced-color-adjust: none; }
 
     /* A workflow's wires are the diagram: each is a painted box, and forced colours

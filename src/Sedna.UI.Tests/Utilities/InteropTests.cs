@@ -245,6 +245,8 @@ public class InteropTests : BunitContext
             Themes = [northwind],
             Default = "northwind",
             ToastDismissLabel = "Schließen",
+            ToastPile = true,
+            ToastLimit = 3,
         }).ConfigureAsync();
 
         var options = Only("sednaUi.configure").Arguments[0]!;
@@ -256,6 +258,9 @@ public class InteropTests : BunitContext
         Assert.Equal("northwind", Read(options, "themeDefault"));
         // The one word the library writes into the page itself.
         Assert.Equal("Schließen", Read(options, "toastDismissLabel"));
+        // The stack's shape: a pile, and how many toasts show at once.
+        Assert.Equal(true, Read(options, "toastPile"));
+        Assert.Equal(3, Read(options, "toastLimit"));
     }
 
     [Fact]

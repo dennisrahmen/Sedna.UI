@@ -118,6 +118,8 @@ public sealed class SednaUi : ISednaUi
                 // name a theme nobody registered — on every first visit.
                 themeDefault = _options.Default,
                 toastDismissLabel = _options.ToastDismissLabel,
+                toastPile = _options.ToastPile,
+                toastLimit = _options.ToastLimit,
             }).AsTask();
 
     /// <inheritdoc />

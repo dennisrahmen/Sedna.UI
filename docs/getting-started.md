@@ -118,6 +118,9 @@ No configuration is required. `sednaUi.configure()` is only needed for the optio
 | `langCookie` | `false` | Mirror the language into a cookie for server-side prerendering. |
 | `storagePrefix` | `sedna.` | See below. Rarely needed. |
 | `themeDefault` | `sedna` | Which theme name applies with nothing stored. See [The default theme](#the-default-theme). |
+| `toastDismissLabel` | `Dismiss` | The accessible name of a toast's close button, the one word the library writes. |
+| `toastPile` | `false` | Pile the toasts, newest in front, opened under the pointer or the focus. |
+| `toastLimit` | `0` | How many toasts show at once; the older ones wait. `0` shows every one. |
 
 `ISednaUi.ConfigureAsync()` pushes these from `SednaUiOptions`, so an app registering the services
 does not call `configure()` by hand.

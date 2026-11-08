@@ -97,7 +97,14 @@ window.sednaUi = window.sednaUi || {};
         themeDefault: 'sedna',
         // The accessible name of a toast's close button: the one word the library
         // writes itself, so an app not written in English sets it once.
-        toastDismissLabel: 'Dismiss'
+        toastDismissLabel: 'Dismiss',
+        // The toast stack as a pile: the newest in front, the ones before it peeking
+        // out behind, the whole stack opening out while the pointer or the focus is on
+        // it. Off, every toast stands in its own place.
+        toastPile: false,
+        // How many toasts show at once; the oldest beyond it wait, their timers held,
+        // until one in front of them goes. 0 shows every one.
+        toastLimit: 0
     };
 
     function key(k) { return config.storagePrefix + k; }
@@ -9582,6 +9589,19 @@ window.sednaUi = window.sednaUi || {};
    as modal.show() is a dialog's; nothing calls back. `opts.replace` puts the new
    toast in the place of the one it names, keeping its id and its result — a "+3 more"
    card that counts up in place.
+
+   A PILE, A LIMIT AND A SWIPE. configure({ toastPile: true }) gives the stack
+   `.toast-stack--pile`: the newest toast in front and the ones before it peeking out
+   behind, opened out by the CSS while the pointer or the focus is on the stack — and
+   while it is open every toast in it holds its timer, so none goes while it is being
+   read. configure({ toastLimit: n }) shows the newest n; the older ones wait with
+   `data-toast-queued`, their timers held, and come back one by one as the toasts in
+   front of them go. Either applies from the next toast shown.
+   A toast with a close button can also be swiped away toward the edge the stack sits
+   on — the inline end, so leftward in a right-to-left page. The swipe writes
+   `--toast-swipe` and `--toast-swipe-progress` on the toast and `data-toast-swiping`
+   while it lasts, and the CSS moves it; a short one springs back, and the close
+   button stays the way to do it without a pointer.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -9625,9 +9645,24 @@ window.sednaUi = window.sednaUi || {};
             host.setAttribute('role', 'status');
             host.setAttribute('aria-live', 'polite');
             host.setAttribute('popover', 'manual');
+            watchStack(host);
         }
+        host.classList.toggle('toast-stack--pile', !!ui._.config.toastPile);
         raise();
         return host;
+    }
+
+    /* The pointer or the focus on a pile opens it out (the CSS), and an open pile is
+       being read: every toast in it holds its timer until both have left. */
+    var onStack = { hover: false, focus: false };
+    function watchStack(el) {
+        onStack.hover = onStack.focus = false;
+        el.addEventListener('mouseenter', function () { onStack.hover = true; syncAll(); });
+        el.addEventListener('mouseleave', function () { onStack.hover = false; syncAll(); });
+        el.addEventListener('focusin', function () { onStack.focus = true; syncAll(); });
+        el.addEventListener('focusout', function (e) {
+            if (!el.contains(e.relatedTarget)) { onStack.focus = false; syncAll(); }
+        });
     }
 
     function drop(el) {
@@ -9636,6 +9671,27 @@ window.sednaUi = window.sednaUi || {};
             if (unwatch) { unwatch(); unwatch = null; }
             if (host.parentNode) host.parentNode.removeChild(host);
             host = null;
+        }
+        limit();
+    }
+
+    function entryOf(el) {
+        for (var id in live) if (live[id].el === el) return live[id];
+        return null;
+    }
+
+    /* The newest `toastLimit` toasts show; the ones before them wait, held. Run whenever
+       the stack gains or loses a toast. */
+    function limit() {
+        if (!host) return;
+        var max = Math.max(0, Math.floor(Number(ui._.config.toastLimit) || 0));
+        var kids = host.children;
+        for (var i = 0; i < kids.length; i++) {
+            var over = max > 0 && i < kids.length - max;
+            if (over) kids[i].setAttribute('data-toast-queued', '');
+            else kids[i].removeAttribute('data-toast-queued');
+            var entry = entryOf(kids[i]);
+            if (entry && entry.queued !== over) { entry.queued = over; sync(entry); }
         }
     }
 
@@ -9657,10 +9713,11 @@ window.sednaUi = window.sednaUi || {};
     /* The hold on the timer and the values a toast the app wrote can end with. Wired once
        per element: a replaced toast the app wrote is a new element. */
     function wire(entry, el) {
-        el.addEventListener('mouseenter', function () { hold(entry); });
-        el.addEventListener('mouseleave', function () { if (!el.contains(document.activeElement)) release(entry); });
-        el.addEventListener('focusin', function () { hold(entry); });
-        el.addEventListener('focusout', function (e) { if (!el.contains(e.relatedTarget) && !el.matches(':hover')) release(entry); });
+        el.addEventListener('mouseenter', function () { entry.hover = true; sync(entry); });
+        el.addEventListener('mouseleave', function () { entry.hover = false; sync(entry); });
+        el.addEventListener('focusin', function () { entry.focus = true; sync(entry); });
+        el.addEventListener('focusout', function (e) { if (!el.contains(e.relatedTarget)) { entry.focus = false; sync(entry); } });
+        swipe(entry, el);
         el.addEventListener('click', function (e) {
             if (!entry.template) return;
             var t = e.target instanceof Element ? e.target.closest('[data-toast-value], .toast-close') : null;
@@ -9670,7 +9727,88 @@ window.sednaUi = window.sednaUi || {};
             // sees the link it came from.
             entry.remove(t.hasAttribute('data-toast-value') ? t.getAttribute('data-toast-value') : null, true);
         });
+        // A press that became a swipe is not a click on what it started on.
+        el.addEventListener('click', function (e) {
+            if (!entry.swallow) return;
+            entry.swallow = false;
+            e.preventDefault();
+            // Immediate: on a click whose target is the toast itself, this and the handler
+            // above run on the same node.
+            e.stopImmediatePropagation();
+        }, true);
     }
+
+    /* Swiping a toast away, with a pointer of any kind. Only a toast the reader could
+       close anyway — one with a `.toast-close` — and only toward the inline end, the edge
+       the stack is pinned to; the other way it gives a little and springs back. Far
+       enough, or quick enough, and it is gone as its close button would take it. The
+       script writes two custom properties and the CSS does the moving: `--toast-swipe`,
+       the distance, and `--toast-swipe-progress`, how far to gone from 0 to 1. */
+    var SLOP = 8;           // px a press travels before it is a swipe and not a click
+    var FLICK = 32;         // px a quick swipe has to travel
+    var FLICK_SPEED = 0.5;  // px per ms
+    var FAR = 96;           // px that dismiss at any speed, or a third of a narrower toast
+
+    function swipe(entry, el) {
+        var s = null;
+
+        function settle(e) {
+            if (!s || e.pointerId !== s.id) return;
+            var was = s;
+            s = null;
+            if (!was.swiping) return;
+            entry.swallow = true;
+            var speed = was.toward / Math.max(1, e.timeStamp - was.t);
+            if (e.type === 'pointerup' && (was.toward >= Math.min(FAR, el.offsetWidth / 3) || (was.toward >= FLICK && speed >= FLICK_SPEED))) {
+                entry.remove(null);
+                return;
+            }
+            el.removeAttribute('data-toast-swiping');
+            el.style.removeProperty('--toast-swipe');
+            el.style.removeProperty('--toast-swipe-progress');
+        }
+
+        el.addEventListener('pointerdown', function (e) {
+            entry.swallow = false;
+            if (e.button !== 0 || !e.isPrimary || !el.querySelector('.toast-close')) return;
+            s = {
+                id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, toward: 0, swiping: false,
+                // +1 when the inline end is the right, -1 when it is the left.
+                dir: getComputedStyle(el).direction === 'rtl' ? -1 : 1
+            };
+        });
+        el.addEventListener('pointermove', function (e) {
+            if (!s || e.pointerId !== s.id) return;
+            var dx = e.clientX - s.x, dy = e.clientY - s.y;
+            if (!s.swiping) {
+                if (Math.abs(dy) >= SLOP && Math.abs(dy) > Math.abs(dx)) { s = null; return; }   // a scroll, not a swipe
+                if (Math.abs(dx) < SLOP) return;
+                s.swiping = true;
+                s.t = e.timeStamp;
+                s.x = e.clientX;
+                dx = 0;
+                el.setAttribute('data-toast-swiping', '');
+                try { el.setPointerCapture(e.pointerId); } catch (x) { /* a pointer already gone */ }
+                try { window.getSelection().removeAllRanges(); } catch (x) { /* nothing selected */ }
+            }
+            var toward = dx * s.dir;
+            s.toward = toward;
+            var moved = toward >= 0 ? toward : Math.max(toward / 4, -SLOP * 2);
+            el.style.setProperty('--toast-swipe', moved * s.dir + 'px');
+            el.style.setProperty('--toast-swipe-progress', String(Math.min(1, Math.max(0, moved) / Math.max(1, el.offsetWidth))));
+        });
+        el.addEventListener('pointerup', settle);
+        el.addEventListener('pointercancel', settle);
+    }
+
+    /* Why a toast's timer is held: the pointer on it, the focus in it, waiting behind the
+       limit, or an open pile it is in. */
+    function holding(entry) {
+        return !!(entry.hover || entry.focus || entry.queued ||
+            (host && entry.el.parentNode === host && host.classList.contains('toast-stack--pile') && (onStack.hover || onStack.focus)));
+    }
+    function sync(entry) { if (holding(entry)) hold(entry); else release(entry); }
+    function syncAll() { for (var id in live) sync(live[id]); }
 
     function timeOut(entry, opts) {
         clearTimeout(entry.timer);
@@ -9769,7 +9907,10 @@ window.sednaUi = window.sednaUi || {};
      */
     function create() {
         var id = nextId++;
-        var entry = { id: id, el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0, waiters: [], template: false };
+        var entry = {
+            id: id, el: document.createElement('div'), timer: 0, held: false, left: 0, started: 0, waiters: [], template: false,
+            hover: false, focus: false, queued: false, swallow: false
+        };
         wire(entry, entry.el);
 
         // `value` is how it ended: a toast the app wrote ends with the value of the control
@@ -9804,6 +9945,9 @@ window.sednaUi = window.sednaUi || {};
         } else {
             host.appendChild(entry.el);
         }
+        limit();
+        // Shown into an open pile, it waits with the rest of it.
+        sync(entry);
     }
 
     ui.toast = function (message, opts) {
@@ -9835,6 +9979,7 @@ window.sednaUi = window.sednaUi || {};
         var entry = live[id];
         if (!entry) return ui.toast.show(message, opts);
         paint(entry, message, opts);
+        limit();
         return id;
     };
 
@@ -9877,6 +10022,7 @@ window.sednaUi = window.sednaUi || {};
         stack();
         host.setAttribute('aria-live', node.matches('.toast--danger') ? 'assertive' : 'polite');
         if (!node.isConnected) add(entry, fresh);
+        else limit();
         timeOut(entry, opts);
         return entry.id;
     };

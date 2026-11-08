@@ -38,7 +38,14 @@ window.sednaUi = window.sednaUi || {};
         themeDefault: 'sedna',
         // The accessible name of a toast's close button: the one word the library
         // writes itself, so an app not written in English sets it once.
-        toastDismissLabel: 'Dismiss'
+        toastDismissLabel: 'Dismiss',
+        // The toast stack as a pile: the newest in front, the ones before it peeking
+        // out behind, the whole stack opening out while the pointer or the focus is on
+        // it. Off, every toast stands in its own place.
+        toastPile: false,
+        // How many toasts show at once; the oldest beyond it wait, their timers held,
+        // until one in front of them goes. 0 shows every one.
+        toastLimit: 0
     };
 
     function key(k) { return config.storagePrefix + k; }

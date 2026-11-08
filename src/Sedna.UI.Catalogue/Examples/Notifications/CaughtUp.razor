@@ -1,0 +1,38 @@
+<section class="inbox" aria-labelledby="caught-up-title">
+    <div class="inbox-head">
+        <strong class="inbox-title" id="caught-up-title">Notifications</strong>
+        <button class="btn btn--ghost btn--sm" type="button" disabled><i class="ri-check-double-line"></i> <span>Mark all as read</span></button>
+    </div>
+    <div class="tabs inbox-tabs" role="tablist" data-tabs aria-label="Notifications">
+        <button class="tab" role="tab" aria-selected="false" id="caught-t-all" aria-controls="caught-p-all" type="button" tabindex="-1">All</button>
+        <button class="tab" role="tab" aria-selected="true" id="caught-t-unread" aria-controls="caught-p-unread" type="button">Unread</button>
+        <button class="tab" role="tab" aria-selected="false" id="caught-t-archived" aria-controls="caught-p-archived" type="button" tabindex="-1">Archived</button>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="caught-p-all" aria-labelledby="caught-t-all" hidden>
+        <ul class="inbox-list">
+            <li class="inbox-item">
+                <div class="inbox-item-main">
+                    <a class="inbox-item-title" href="#">Nightly reconciliation closed 4 stale orders</a>
+                    <time class="inbox-item-time" datetime="2026-11-08T02:00">Today, 02:00</time>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="caught-p-unread" aria-labelledby="caught-t-unread">
+        <div class="empty-state">
+            <i class="ri-check-double-line state-icon" aria-hidden="true"></i>
+            <span class="empty-state-title">You are all caught up</span>
+            <p>Anything new arrives here, and the bell says so.</p>
+        </div>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="caught-p-archived" aria-labelledby="caught-t-archived" hidden>
+        <div class="empty-state">
+            <i class="ri-archive-line state-icon" aria-hidden="true"></i>
+            <span class="empty-state-title">Nothing archived</span>
+            <p>Archive a notification to keep it out of the way without losing it.</p>
+        </div>
+    </div>
+    <div class="inbox-foot">
+        <a href="#">Notification preferences</a>
+    </div>
+</section>
