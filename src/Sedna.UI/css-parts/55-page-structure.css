@@ -29,6 +29,89 @@
    of their own, as `.toolbar-actions` does. */
 .page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
 
+/* ── A head that folds as the page scrolls ──────────────────────────────────
+   `.page-head--collapse` keeps the title row in view while the page scrolls under it:
+   over the first `--page-head-range` of scrolling the supporting line folds away, the
+   head takes a little padding of its own and an edge along its foot, and from there it
+   stays stuck to the top of what scrolls the page.
+
+   Scroll-driven, so nothing measures: the head reads its own scroller's position. The
+   page under it does not move — the room the supporting line gives up and the padding
+   the head takes are handed back in its margin as they change — so a reader's place is
+   never shifted and a short page cannot rock between the two states. That arithmetic
+   needs the supporting line's height, so in a head that folds it is held to one line
+   and cut short with an ellipsis, and the title row is at least a control tall: actions
+   of the ordinary height fit beside it, a `.btn--lg` does not.
+
+   Progressive: an engine without scroll-driven animations, and a reader who asked for
+   reduced motion, get the ordinary head, which scrolls away with the page. */
+.page-head--collapse {
+    /* The supporting line's own line height, as a length the head can do sums with. */
+    --page-head-lede: round(calc(var(--text-4) * 1.4), 2px);
+    --page-head-fold: calc(var(--space-2) + var(--page-head-lede));
+    --page-head-range: calc(var(--space-11) * 2);
+}
+/* A sticky box stops at its scroller's padding, so a head in the frame's page reaches
+   back through it to the edge, as `.form-actions--sticky` does at the foot. */
+.page .page-head--collapse:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) { inset-block-start: calc(-1 * var(--page-pad)); }
+/* A flowing page on a phone is not a scroller: the head stands under the topbar. */
+@media (max-width: 560px) {
+    .layout--flow > .content > .page .page-head--collapse:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) { inset-block-start: var(--safe-block-start); }
+    .layout--flow:has(> .content > .topbar) > .content > .page .page-head--collapse:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-start: calc(var(--safe-block-start) + var(--topbar-height));
+    }
+}
+/* Only behind @supports: an engine that drops `animation-timeline` keeps the rest of
+   the shorthand and would fold the head on a timer, once, on load. */
+@supports (animation-timeline: scroll()) {
+    .page-head--collapse {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 60;
+        background: var(--surface-here, var(--bg));
+        animation: sedna-page-head-fold linear both, sedna-page-head-edge linear both;
+        animation-composition: add, replace;
+        animation-timeline: scroll();
+        animation-range: 0 var(--page-head-range);
+    }
+    /* The title is at least as tall as the actions beside it, so folding the line under
+       it takes exactly that line off the head. */
+    .page-head--collapse .page-head-text > :is(h1, h2, h3) {
+        min-block-size: var(--control-height);
+        align-content: center;
+    }
+    .page-head--collapse .page-head-text > p {
+        overflow: hidden;
+        line-height: var(--page-head-lede);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        animation: sedna-page-head-fold-lede linear both, sedna-page-head-fade linear both;
+        animation-composition: add, replace;
+        animation-timeline: scroll();
+        animation-range: 0 var(--page-head-range);
+    }
+}
+/* Added to the margin and padding the head already has, so a head under a breadcrumb,
+   with the page's rhythm above it, folds the same. The padding and the folded line are
+   handed back in the margin below, which only grows — so it stays the larger of the
+   two margins it collapses with, and the page under the head keeps its place. */
+@keyframes sedna-page-head-fold {
+    to {
+        margin-block-end: calc(var(--page-head-fold) - 2 * var(--space-4));
+        padding-block: var(--space-4);
+    }
+}
+@keyframes sedna-page-head-edge {
+    to { box-shadow: 0 1px 0 var(--border); }
+}
+/* The line's margin takes back its own height and the gap above it. */
+@keyframes sedna-page-head-fold-lede {
+    to { margin-block-start: calc(-1 * var(--page-head-fold)); }
+}
+@keyframes sedna-page-head-fade {
+    to { opacity: 0; visibility: hidden; }
+}
+
 /* ── Confirmation ───────────────────────────────────────────────────────────
    The page a transaction ends on opens with this: what was done, as the page's heading,
    and the reference the reader will be asked for, large enough to copy down by hand and

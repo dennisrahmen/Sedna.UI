@@ -90,7 +90,22 @@
     </p>
 </CatSnippet>
 
-
+<CatSnippet Name="Interop/RouteProgress.txt" Title="While the next page loads">
+    <p>
+        <code>.progress--route</code> lays a bar along the top edge of the window, above the
+        frame, for the moment between a click and the page it leads to. Write it once, in the
+        layout, and show it with the <code>hidden</code> attribute: off by default, on when a
+        navigation starts, off again when it has arrived. It fades in only after a moment, so a
+        page that arrives at once shows nothing, and it stands still under reduced motion.
+    </p>
+    <p>
+        With interactive rendering the layout hears both ends from <code>NavigationManager</code>,
+        as here. A page that then loads its own data shows a <a href="/skeleton">skeleton</a>
+        for it. A statically rendered app with enhanced navigation has no circuit to do this from:
+        its own script takes <code>hidden</code> off when a link is followed and puts it back on
+        Blazor&rsquo;s <code>enhancedload</code> event.
+    </p>
+</CatSnippet>
 
 <CatExample TExample="Examples.Progress.RunningJobs" Title="A list of running work" Demo="ex-demo--block">
     <p>

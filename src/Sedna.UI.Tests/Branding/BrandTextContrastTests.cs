@@ -122,6 +122,8 @@ public class BrandTextContrastTests
         [".chat-feedback > .btn[aria-pressed=\"true\"]"] = (Ink.Icon, []),
         ["a.stat:hover .stat-value"] = (Ink.Text, []),
         [".page-link[aria-current=\"page\"]"] = (Ink.Text, ["--brand-tint"]),
+        // The contents link to the section in view: text on the page's own ground, no tint.
+        [".page-toc-link[aria-current=\"location\"]"] = (Ink.Text, []),
         [".table th[aria-sort=\"ascending\"]"] = (Ink.Text, ["--table-head-bg"]),
         [".table th[aria-sort=\"descending\"]"] = (Ink.Text, ["--table-head-bg"]),
         // A filtered column's heading, on the header's ground; its header filter button, a glyph

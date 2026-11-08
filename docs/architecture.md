@@ -473,7 +473,7 @@ A panel's primary action is a filled button in its semantic colour.
 | Layer | z-index | What sits there |
 |---|---|---|
 | Local stacking inside a component | 0, 1, 2, 3 | **not the overlay scale** — see the note below |
-| Topbar | 60 | `.topbar`, `.fab` |
+| Topbar | 60 | `.topbar`, `.fab`, `.back-to-top`, a stuck `.page-head--collapse` |
 | User widget | 200 | `.user-widget` |
 | Collapsed-rail flyout | 400 | `.sidebar.collapsed [data-tip]:hover::after` |
 | Drawer scrim | 480 | `.drawer-scrim` |
@@ -482,7 +482,7 @@ A panel's primary action is a filled button in its semantic colour.
 | Spotlight | 510 | `.spotlight-hole`, `.spotlight-tip` |
 | Popover, dropdown menu | 550 | `.menu`, `.search-panel`, `.popover`, `.form-combo-panel`, the user widget's own panel |
 | Toast | 600 | `.toast-stack` |
-| Hover hints, reconnect banner | 1000 | `.sedna-tip`, `#components-reconnect-modal`, `.skip-link` |
+| Hover hints, reconnect banner | 1000 | `.sedna-tip`, `#components-reconnect-modal`, `.skip-link`, `.progress--route` |
 
 A new overlay uses one of these values. `Every_z_index_comes_from_the_documented_scale` fails on any
 other, so adding a layer means adding it to this table first.
@@ -579,7 +579,8 @@ Two things the flat list does not say:
 | `workflow` | Keeps the step at work in view in a `.workflow` with `data-follow`: the last step marked `running`, else the last `waiting`, else the first `next`. When states change it scrolls the diagram — never the page — until that step's node is in the middle, smoothly unless the reader asked for reduced motion, and lands a smooth scroll at once where the tab is not painted. A scroll that follows the reader's own input and takes the step out of view releases following: the diagram carries `data-follow-paused` and a bubbling `sedna-follow` fires with `detail.following`, as for an output pane; scrolling the step back into view follows again. A scroll the reader did not start never releases it. `data-follow` is the app's switch, and adding it again goes to the step at work. A `data-workflow-follow` button follows the diagram its `aria-controls` names, or the nearest following diagram around it. It also marks each part of every `.workflow` — a step, a fork, a loop — more than half a view out of sight `data-workflow-away`, swept on a scroll, a resize or a change inside a diagram and never per frame; the stylesheet lets the browser skip rendering such a part, at the size it had, and a part in view is never contained. `follow(canvas)`, `isFollowing(canvas)` |
 | `fullscreen` | A button with `data-fullscreen` puts the element its `aria-controls` names — else the whole page — into full screen, and takes it out again; its `aria-pressed` follows, however the reader leaves. Full screen needs the reader's press, so it cannot start from a timer or on load. Make the element a surface: it is shown alone on a black backdrop. `toggle(element?)` resolves whether the element is in full screen afterwards; `isOn(element?)` |
 | `codeBlock` | `toggle(block, expanded?)` — expands or collapses a `.code-block--clamped`. Delegated from `[data-code-expand]` |
-| — | `29-fragment.js` adds no member. A click on a link written as a bare fragment (`href="#main"`) whose target is on the page is cancelled, and the target is scrolled to and focused — under `<base href="/">` the link would otherwise open the start page, and Blazor's own same-page jump never moves focus. A modified click, a click another handler already cancelled, and a fragment naming no element are left alone. The address does not change |
+| — | `29-fragment.js` adds no member. A click on a link written as a bare fragment (`href="#main"`) whose target is on the page is cancelled, and the target is scrolled to and focused — under `<base href="/">` the link would otherwise open the start page, and Blazor's own same-page jump never moves focus. `#top`, where no element has that id, scrolls the scroller the link is in — `.page`, a `.sedna-scroll` or the document — back to its start and focuses it. A modified click, a click another handler already cancelled, and a fragment naming no element are left alone. The address does not change |
+| — | `29-spy.js` adds no member. A nav carrying `data-spy` lists the page's sections as bare fragment links, and the link to the section the reader is in carries `aria-current="location"`: the one whose heading most recently came into the top two fifths of what scrolls it — the frame's `.page`, a `.sedna-scroll` or the document — as an `IntersectionObserver` reports, the first link before any heading has arrived and the last once the scroller is at its end. A click on one of the links makes it current until the reader scrolls again. Lists and headings a render adds or replaces are picked up as they land |
 | — | `29-time.js` adds no member. It keeps every `<time datetime>` with `data-relative` (time since) or `data-countdown` (time left) current from one timer, which sleeps until the soonest element changes — the next whole unit, or the next unit taking over — and not at all while the page is hidden. The words are the app's: a format per unit — `data-seconds`, `data-minutes`, `data-hours`, `data-days`, `data-weeks`, `data-months`, `data-years` — with `{n}` where the number goes, and optionally one per plural category of the nearest `lang`, `data-minutes-one` and `-two`, `-few`, `-many`, `-zero`. The script picks the unit, formats the number with `Intl.NumberFormat` and writes the result into the element's own text node; a unit with no format is counted in the next smaller one that has one, and an element with no formats is left alone. Counts are whole units rounded down; a countdown never shows zero before it is zero, and at zero dispatches a bubbling `sedna-countdown-end` with `detail.until` once per element and `datetime`. Elements a render adds, and a `datetime`, format or `lang` it changes, are picked up as they land |
 | `spotlight` | Tour geometry and the input model, not the sequence. `at(hole, target, { pad, include, scroll })` positions `.spotlight-hole` over an element, a list of them or a selector — correctly inside a CSS-zoomed frame — and returns the rectangle; `scroll: 'nearest'` or `'center'` brings the target into view first, once per step under `follow` — `null` when nothing visible is left; `tipAt(tip, rect, { placement, gap, margin, boundary })` places the bubble on any of the four sides, flips it when the side does not fit, clamps it into the viewport — or into `boundary` — and reports the side used; `follow(hole, target, opts)` keeps both attached across scroll, resize, re-render and a dialog opening or closing, returning `{ update, stop, side }`; `lock(opts)` / `unlock()` make the rest of the page inert and gate hover hints. A step whose target is inside an open modal `<dialog>` raises the hole and the bubble into the top layer after it and moves the bubble inside, and puts both back when the step leaves or the dialog closes. The steps, the copy and the order stay the app's |
 | `graph` | The graph's front door. It finds every `[data-graph]`, starts each as it comes within a screen of the viewport — importing `Sedna.UI.graph.js` and the engine, relative to itself, the first time — delegates the `data-graph-*` controls from `document`, and takes a graph down when its element leaves the document. `get(elOrId)` resolves the graph's handle, `init(root)` starts every graph in `root` at once, `invoke(id, method, args)` is the bridge `ISednaGraphs` calls, and `release()` — called by `Sedna.UI.lib.module.js` once Blazor has started — ends the wait on a prerendered page, where graphs are held so they are drawn once, in the markup the interactive render leaves. The handle, the controls and the events are in [graph.md](graph.md) |
@@ -597,7 +598,7 @@ Two things the flat list does not say:
 
 Several behaviours are delegated from `document`, so content rendered after load is covered without
 re-wiring: hover hints, `data-menu-toggle`, `data-combo`, `role="tree"`, `data-tabs`, `data-search`, `data-drag-zone`, `data-dropzone`,
-`data-sheet`, `data-close-guard`, `data-reveal`, `data-code-group`, same-page fragment links, and `data-copy` / `data-copy-target`. The last two have no
+`data-sheet`, `data-close-guard`, `data-reveal`, `data-code-group`, `data-spy`, same-page fragment links, and `data-copy` / `data-copy-target`. The last two have no
 member on the global — the attribute is the whole API. The outcome is `data-copied="ok"` or
 `"failed"` on the button for 1.4 seconds; the app's markup marks what shows at rest with
 `data-copied-hide` and what replaces it with `data-copied-show="ok"` / `"failed"`, and the stylesheet
@@ -957,9 +958,12 @@ It is also the mildest case — the pointer has to stay on the rail item for the
 leaving closes it. `AnchoredPanelTests` pins the menu and popover behaviour, including the two cases
 that must NOT close.
 
-**Scroll-driven animations are avoided** for a sharper reason: they fail *incorrectly*. A browser that
-drops `animation-timeline` leaves the rest of the `animation` shorthand running, so the animation plays
-on a timer instead of not at all.
+**Scroll-driven animations are declared only inside `@supports (animation-timeline: scroll())`**, for a
+sharper reason: they fail *incorrectly*. A browser that drops `animation-timeline` leaves the rest of the
+`animation` shorthand running, so the animation plays on a timer instead of not at all. Inside the
+block, an engine without them gets the static form — `.page-head--collapse` an ordinary head,
+`.back-to-top` a button that is always there — and `ReducedMotionTests` reads the block's rules like
+any others, so each still needs its off switch.
 
 ## Out of scope
 

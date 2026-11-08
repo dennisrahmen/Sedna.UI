@@ -29,6 +29,8 @@
     .toast-stack,
     .sedna-tip,
     .fab,
+    .back-to-top,
+    .progress--route,
     .drawer,
     .drawer-scrim,
     .spotlight-hole,
@@ -69,6 +71,8 @@
        only happens if the header is not sticky. */
     .table--sticky thead,
     .table--sticky-foot tfoot { position: static; }
+    /* A head that folds is pinned to a scroller paper does not have. */
+    .page-head--collapse { position: static; }
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
     /* A virtualized table's spacer rows stand in for rows that are not there; on paper

@@ -4622,17 +4622,28 @@ window.sednaUi = window.sednaUi || {};
     });
 })(window.sednaUi);
 (function (ui) {
+    function scrollerOf(el) {
+        for (var p = el.parentElement; p && p !== document.body && p !== document.documentElement; p = p.parentElement) {
+            var o = getComputedStyle(p).overflowY;
+            if (o === 'auto' || o === 'scroll') return p;
+        }
+        return null;
+    }
+    ui._.scrollerOf = scrollerOf;
     function targetOf(link) {
         var href = link.getAttribute('href');
         if (!href || href.length < 2 || href.charAt(0) !== '#') return null;
+        var id;
         try {
-            return document.getElementById(decodeURIComponent(href.slice(1)));
+            id = decodeURIComponent(href.slice(1));
         } catch (e) {
             return null;
         }
+        var target = document.getElementById(id);
+        if (target || id.toLowerCase() !== 'top') return target;
+        return { top: scrollerOf(link) };
     }
-    function moveTo(target) {
-        target.scrollIntoView();
+    function focusOn(target) {
         target.focus({ preventScroll: true });
         if (document.activeElement === target || target.hasAttribute('tabindex')) return;
         target.setAttribute('tabindex', '-1');
@@ -4640,6 +4651,17 @@ window.sednaUi = window.sednaUi || {};
             target.removeAttribute('tabindex');
         }, { once: true });
         target.focus({ preventScroll: true });
+    }
+    function moveTo(target) {
+        if (target.nodeType !== 1) {
+            var scroller = target.top;
+            if (scroller) scroller.scrollTop = 0;
+            else window.scrollTo(0, 0);
+            focusOn(scroller || document.querySelector('main') || document.body);
+            return;
+        }
+        target.scrollIntoView();
+        focusOn(target);
     }
     document.addEventListener('click', function (e) {
         if (e.defaultPrevented || e.button !== 0) return;
@@ -4751,6 +4773,155 @@ window.sednaUi = window.sednaUi || {};
     }
     document.addEventListener('pointerup', finish);
     document.addEventListener('pointercancel', finish);
+})(window.sednaUi);
+(function (ui) {
+    if (!('IntersectionObserver' in window)) return;
+    var spies = new Map();
+    function idOf(link) {
+        var href = link.getAttribute('href') || '';
+        if (href.length < 2 || href.charAt(0) !== '#') return null;
+        try { return decodeURIComponent(href.slice(1)); } catch (e) { return null; }
+    }
+    function linksOf(nav) {
+        var all = nav.querySelectorAll('a[href^="#"]');
+        var links = [], targets = [];
+        for (var i = 0; i < all.length; i++) {
+            var id = idOf(all[i]);
+            var target = id && document.getElementById(id);
+            if (!target) continue;
+            links.push(all[i]);
+            targets.push(target);
+        }
+        return { links: links, targets: targets };
+    }
+    function scrollerOf(el) {
+        return ui._.scrollerOf ? ui._.scrollerOf(el) : null;
+    }
+    function scrollingElement(spy) {
+        return spy.root || document.scrollingElement || document.documentElement;
+    }
+    function atEnd(spy) {
+        var el = scrollingElement(spy);
+        var max = el.scrollHeight - el.clientHeight;
+        return max > 1 && el.scrollTop >= max - 1;
+    }
+    function mark(spy, index) {
+        for (var i = 0; i < spy.links.length; i++) {
+            if (i === index) {
+                if (spy.links[i].getAttribute('aria-current') !== 'location') spy.links[i].setAttribute('aria-current', 'location');
+            } else if (spy.links[i].getAttribute('aria-current') === 'location') {
+                spy.links[i].removeAttribute('aria-current');
+            }
+        }
+    }
+    function current(spy) {
+        if (spy.links.length === 0) return -1;
+        if (atEnd(spy)) return spy.links.length - 1;
+        var above = -1;
+        for (var i = 0; i < spy.targets.length; i++) {
+            var s = spy.state.get(spy.targets[i]);
+            if (s === 'in') return i;
+            if (s === 'above') above = i;
+        }
+        return above >= 0 ? above : 0;
+    }
+    function update(spy) {
+        if (spy.pinned >= 0) mark(spy, spy.pinned);
+        else mark(spy, current(spy));
+    }
+    function stop(nav) {
+        var spy = spies.get(nav);
+        if (!spy) return;
+        spy.io.disconnect();
+        spies.delete(nav);
+    }
+    function start(nav) {
+        var found = linksOf(nav);
+        var spy = {
+            links: found.links,
+            targets: found.targets,
+            root: found.targets.length ? scrollerOf(found.targets[0]) : null,
+            state: new Map(),
+            pinned: -1,
+            pinnedAt: null,
+            io: null
+        };
+        spy.io = new IntersectionObserver(function (entries) {
+            for (var i = 0; i < entries.length; i++) {
+                var e = entries[i];
+                var top = e.rootBounds ? e.rootBounds.top : 0;
+                spy.state.set(e.target, e.isIntersecting ? 'in' : (e.boundingClientRect.top < top ? 'above' : 'below'));
+            }
+            update(spy);
+        }, { root: spy.root, rootMargin: '0px 0px -60% 0px', threshold: 0 });
+        for (var i = 0; i < spy.targets.length; i++) spy.io.observe(spy.targets[i]);
+        spies.set(nav, spy);
+        update(spy);
+    }
+    function unchanged(nav, spy) {
+        var found = linksOf(nav);
+        if (found.links.length !== spy.links.length) return false;
+        for (var i = 0; i < found.links.length; i++) {
+            if (found.links[i] !== spy.links[i] || found.targets[i] !== spy.targets[i]) return false;
+        }
+        return true;
+    }
+    function sweep() {
+        spies.forEach(function (spy, nav) {
+            if (!nav.isConnected || !nav.hasAttribute('data-spy')) stop(nav);
+        });
+        var navs = document.querySelectorAll('[data-spy]');
+        for (var i = 0; i < navs.length; i++) {
+            var spy = spies.get(navs[i]);
+            if (spy && unchanged(navs[i], spy)) continue;
+            stop(navs[i]);
+            start(navs[i]);
+        }
+    }
+    document.addEventListener('scroll', function (e) {
+        var scroller = e.target === document ? null : e.target;
+        spies.forEach(function (spy) {
+            if (spy.root !== scroller && !(scroller === document.scrollingElement && spy.root === null)) return;
+            if (spy.pinned >= 0) {
+                if (Math.abs(scrollingElement(spy).scrollTop - spy.pinnedAt) < 2) return;
+                spy.pinned = -1;
+                spy.pinnedAt = null;
+            }
+            update(spy);
+        });
+    }, true);
+    document.addEventListener('click', function (e) {
+        if (!e.defaultPrevented || !(e.target instanceof Element)) return;
+        var link = e.target.closest('[data-spy] a[href^="#"]');
+        if (!link) return;
+        var spy = spies.get(link.closest('[data-spy]'));
+        if (!spy) return;
+        var index = spy.links.indexOf(link);
+        if (index < 0) return;
+        spy.pinned = index;
+        spy.pinnedAt = scrollingElement(spy).scrollTop;
+        update(spy);
+    });
+    var queued = false;
+    function queue() {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(function () { queued = false; sweep(); });
+    }
+    function watch() {
+        sweep();
+        if (!('MutationObserver' in window)) return;
+        new MutationObserver(function (records) {
+            for (var i = 0; i < records.length; i++) {
+                if (records[i].type === 'attributes' || records[i].addedNodes.length || records[i].removedNodes.length) {
+                    queue();
+                    return;
+                }
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-spy', 'href', 'id'] });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
+    else watch();
 })(window.sednaUi);
 (function (ui) {
     var SECOND = 1000, MINUTE = 60 * SECOND, HOUR = 60 * MINUTE, DAY = 24 * HOUR;

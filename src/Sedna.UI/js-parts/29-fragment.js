@@ -18,22 +18,43 @@
    A target that cannot take focus gets tabindex="-1" until it loses it — the only
    way script has to move the point the next Tab starts from.
 
+   `#top`, with no element of that id, is the top of the page, as it is to a
+   browser: the scroller the link is in — the frame's `.page`, a `.sedna-scroll`, or
+   the document — goes back to its start, and focus moves to that scroller, so the
+   next Tab is the first control in it. A `.back-to-top` button is written that way.
+
    After every other delegated part, and a click one of them cancelled is left
    alone, so a tab or a menu item that is also a fragment link keeps its own
    behaviour. No member: the markup is the whole API. */
 (function (ui) {
+    // The element that scrolls `el`: its nearest ancestor whose overflow scrolls on
+    // the block axis, or null for the document. 29-spy.js observes against the same.
+    function scrollerOf(el) {
+        for (var p = el.parentElement; p && p !== document.body && p !== document.documentElement; p = p.parentElement) {
+            var o = getComputedStyle(p).overflowY;
+            if (o === 'auto' || o === 'scroll') return p;
+        }
+        return null;
+    }
+    ui._.scrollerOf = scrollerOf;
+
+    // An element, `{ top: scroller }` for the top of a page, or null to leave the
+    // click to the browser.
     function targetOf(link) {
         var href = link.getAttribute('href');
         if (!href || href.length < 2 || href.charAt(0) !== '#') return null;
+        var id;
         try {
-            return document.getElementById(decodeURIComponent(href.slice(1)));
+            id = decodeURIComponent(href.slice(1));
         } catch (e) {
             return null;
         }
+        var target = document.getElementById(id);
+        if (target || id.toLowerCase() !== 'top') return target;
+        return { top: scrollerOf(link) };
     }
 
-    function moveTo(target) {
-        target.scrollIntoView();
+    function focusOn(target) {
         target.focus({ preventScroll: true });
         if (document.activeElement === target || target.hasAttribute('tabindex')) return;
 
@@ -42,6 +63,18 @@
             target.removeAttribute('tabindex');
         }, { once: true });
         target.focus({ preventScroll: true });
+    }
+
+    function moveTo(target) {
+        if (target.nodeType !== 1) {
+            var scroller = target.top;
+            if (scroller) scroller.scrollTop = 0;
+            else window.scrollTo(0, 0);
+            focusOn(scroller || document.querySelector('main') || document.body);
+            return;
+        }
+        target.scrollIntoView();
+        focusOn(target);
     }
 
     document.addEventListener('click', function (e) {

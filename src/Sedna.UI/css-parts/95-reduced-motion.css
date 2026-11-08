@@ -95,7 +95,15 @@
     .progress-bar     { transition: none; }   /* 41 */
     .progress-ring    { transition: none; }   /* 41 — the arc lands on its value */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
+    .progress--route  { animation: none; }    /* 41 — there at once, filled, still saying "loading" */
     .tab              { transition: none; }   /* 50 */
+    /* 55 — the head stays as written and scrolls away with the page: no fold, and
+       nothing pinned that the page then slides under. */
+    .page-head--collapse { animation: none; position: static; }
+    .page-head--collapse .page-head-text > p { animation: none; white-space: normal; }
+    .page-toc-fold > .page-toc-title::after { transition: none; }   /* 57 — the caret */
+    /* 57 — the button comes in at once, a screen down, instead of fading in. */
+    .back-to-top { animation-timing-function: step-end; }
     a.stat            { transition: none; }   /* 54 */
     /* 54 — a running link's key holds its dashes still; they still say "running". */
     .graph-line--flow::before,

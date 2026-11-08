@@ -169,6 +169,8 @@ Consequences visible in the CSS:
   a painted caret — the two
   paths are exclusive, behind `@supports`, and neither is a script. The accessible name, the
   keyboard and typeahead are the browser's in both, because it is the same `<select>` either way.
-- **No scroll-driven animations** — they fail *incorrectly*: a browser that drops `animation-timeline`
-  leaves the rest of the `animation` shorthand running, so the animation plays on a timer instead of
-  not at all. That is a different kind of failure from the one above, which is why it stays out.
+- **Scroll-driven animations only behind `@supports (animation-timeline: scroll())`** — they fail
+  *incorrectly*: a browser that drops `animation-timeline` leaves the rest of the `animation` shorthand
+  running, so the animation plays on a timer instead of not at all. Behind the query an engine without
+  them gets the static form: `.page-head--collapse` is an ordinary head and `.back-to-top` is always
+  there. Under reduced motion the head does not fold and the button comes in without a fade.

@@ -5639,6 +5639,35 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     to   { transform: translateX(340%); }
 }
 
+/* ── Route progress ─────────────────────────────────────────────────────────
+   A thin bar along the top edge of the window while the next page loads. The app
+   writes it once, in the layout, and shows it with the `hidden` attribute — on from
+   the moment a navigation starts, off when the page has arrived:
+
+     <div class="progress progress--route progress--indeterminate" role="progressbar"
+          aria-label="Loading the page" hidden>
+       <div class="progress-bar"></div>
+     </div>
+
+   It fades in only after a moment, so a page that arrives at once shows nothing. Above
+   everything but the top layer, with the reconnect banner, so a navigation started from
+   a drawer is still seen; it takes no pointer. With a width on the bar and no
+   `.progress--indeterminate` it is a determinate bar in the same place. */
+.progress--route {
+    position: fixed;
+    inset-block-start: var(--safe-block-start);
+    inset-inline: 0;
+    z-index: 1000;
+    height: 3px;
+    background: transparent;
+    border-radius: 0;
+    pointer-events: none;
+    animation: sedna-progress-route var(--motion-mid) ease var(--motion-slow) both;
+}
+@keyframes sedna-progress-route {
+    from { opacity: 0; }
+}
+
 
 /* ── Progress ring ──────────────────────────────────────────────────────────
    The same determinate value as a ring, for a place with no width to fill — a
@@ -8747,9 +8776,6 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    browser that cannot do base appearance, and an unknown pseudo-element drops the
    whole rule. So those rules gate themselves, and only the two `appearance`
    declarations — which are valid property/value pairs either way — need asking.
-   Keeping the transitions outside the block matters for a second reason: an
-   `@supports` body is opaque to the reduced-motion guard, so motion declared in
-   one could ship with no off switch.
 
    The fallback caret lives in 45-form-controls.css behind `@supports not`, so
    nothing here has to undo it.
@@ -11398,6 +11424,89 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
    of their own, as `.toolbar-actions` does. */
 .page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
 
+/* ── A head that folds as the page scrolls ──────────────────────────────────
+   `.page-head--collapse` keeps the title row in view while the page scrolls under it:
+   over the first `--page-head-range` of scrolling the supporting line folds away, the
+   head takes a little padding of its own and an edge along its foot, and from there it
+   stays stuck to the top of what scrolls the page.
+
+   Scroll-driven, so nothing measures: the head reads its own scroller's position. The
+   page under it does not move — the room the supporting line gives up and the padding
+   the head takes are handed back in its margin as they change — so a reader's place is
+   never shifted and a short page cannot rock between the two states. That arithmetic
+   needs the supporting line's height, so in a head that folds it is held to one line
+   and cut short with an ellipsis, and the title row is at least a control tall: actions
+   of the ordinary height fit beside it, a `.btn--lg` does not.
+
+   Progressive: an engine without scroll-driven animations, and a reader who asked for
+   reduced motion, get the ordinary head, which scrolls away with the page. */
+.page-head--collapse {
+    /* The supporting line's own line height, as a length the head can do sums with. */
+    --page-head-lede: round(calc(var(--text-4) * 1.4), 2px);
+    --page-head-fold: calc(var(--space-2) + var(--page-head-lede));
+    --page-head-range: calc(var(--space-11) * 2);
+}
+/* A sticky box stops at its scroller's padding, so a head in the frame's page reaches
+   back through it to the edge, as `.form-actions--sticky` does at the foot. */
+.page .page-head--collapse:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) { inset-block-start: calc(-1 * var(--page-pad)); }
+/* A flowing page on a phone is not a scroller: the head stands under the topbar. */
+@media (max-width: 560px) {
+    .layout--flow > .content > .page .page-head--collapse:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) { inset-block-start: var(--safe-block-start); }
+    .layout--flow:has(> .content > .topbar) > .content > .page .page-head--collapse:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-start: calc(var(--safe-block-start) + var(--topbar-height));
+    }
+}
+/* Only behind @supports: an engine that drops `animation-timeline` keeps the rest of
+   the shorthand and would fold the head on a timer, once, on load. */
+@supports (animation-timeline: scroll()) {
+    .page-head--collapse {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 60;
+        background: var(--surface-here, var(--bg));
+        animation: sedna-page-head-fold linear both, sedna-page-head-edge linear both;
+        animation-composition: add, replace;
+        animation-timeline: scroll();
+        animation-range: 0 var(--page-head-range);
+    }
+    /* The title is at least as tall as the actions beside it, so folding the line under
+       it takes exactly that line off the head. */
+    .page-head--collapse .page-head-text > :is(h1, h2, h3) {
+        min-block-size: var(--control-height);
+        align-content: center;
+    }
+    .page-head--collapse .page-head-text > p {
+        overflow: hidden;
+        line-height: var(--page-head-lede);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        animation: sedna-page-head-fold-lede linear both, sedna-page-head-fade linear both;
+        animation-composition: add, replace;
+        animation-timeline: scroll();
+        animation-range: 0 var(--page-head-range);
+    }
+}
+/* Added to the margin and padding the head already has, so a head under a breadcrumb,
+   with the page's rhythm above it, folds the same. The padding and the folded line are
+   handed back in the margin below, which only grows — so it stays the larger of the
+   two margins it collapses with, and the page under the head keeps its place. */
+@keyframes sedna-page-head-fold {
+    to {
+        margin-block-end: calc(var(--page-head-fold) - 2 * var(--space-4));
+        padding-block: var(--space-4);
+    }
+}
+@keyframes sedna-page-head-edge {
+    to { box-shadow: 0 1px 0 var(--border); }
+}
+/* The line's margin takes back its own height and the gap above it. */
+@keyframes sedna-page-head-fold-lede {
+    to { margin-block-start: calc(-1 * var(--page-head-fold)); }
+}
+@keyframes sedna-page-head-fade {
+    to { opacity: 0; visibility: hidden; }
+}
+
 /* ── Confirmation ───────────────────────────────────────────────────────────
    The page a transaction ends on opens with this: what was done, as the page's heading,
    and the reference the reader will be asked for, large enough to copy down by hand and
@@ -11792,6 +11901,148 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .breadcrumb-item:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 /* A block container has no flex gap, so the separator takes the gap as its own margin. */
 .breadcrumb-item + .breadcrumb-item:not(:has(> *))::before { margin-inline-end: var(--space-3); }
+
+/* ── On this page ───────────────────────────────────────────────────────────
+   The contents of a long page: a nav of links to its section headings, one level of
+   sections inside sections, with the section in view marked. Bare fragments, so
+   29-fragment.js moves the reader and focus to the heading; `data-spy` on the nav has
+   29-spy.js mark the link to the section in view `aria-current="location"`.
+
+     <nav class="page-toc" aria-label="On this page" data-spy>
+       <details class="page-toc-fold" open>
+         <summary class="page-toc-title">On this page</summary>
+         <ol class="page-toc-list">
+           <li><a class="page-toc-link" href="#delivery">Delivery</a>
+             <ol class="page-toc-list">
+               <li><a class="page-toc-link" href="#couriers">Couriers</a></li>
+             </ol>
+           </li>
+         </ol>
+       </details>
+     </nav>
+
+   Beside the content it sits in a `.sedna-split--sticky` aside, which keeps it in view
+   while the page scrolls past; stacked above the content, `.page-toc-fold` lets the
+   reader fold it away. A `<p class="page-toc-title">` with the list after it is the
+   same contents without the fold. */
+.page-toc { font-size: var(--text-4); }
+.page-toc-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.page-toc-fold > .page-toc-title {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    border-radius: var(--radius-inner);
+}
+.page-toc-fold > .page-toc-title::-webkit-details-marker { display: none; }
+.page-toc-fold > .page-toc-title:hover { color: var(--fg); }
+.page-toc-fold > .page-toc-title:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+/* The caret the nav group draws, at the end of the title. */
+.page-toc-fold > .page-toc-title::after {
+    content: '';
+    margin-inline-start: auto;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    transition: transform var(--motion-fast) ease;
+}
+.page-toc-fold[open] > .page-toc-title::after { transform: rotate(-180deg); }
+.page-toc-fold:not([open]) > .page-toc-title { margin-bottom: 0; }
+/* The rule the current link's bar stands on. A list inside a list draws none: its links
+   reach back to the outer rule and indent their words instead. */
+.page-toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-inline-start: 1px solid var(--border);
+}
+.page-toc-list .page-toc-list { border-inline-start: none; }
+.page-toc-link {
+    display: block;
+    margin-inline-start: -1px;
+    padding: calc(var(--space-2) + var(--cap-gap)) var(--space-6);
+    border-inline-start: 2px solid transparent;
+    color: var(--muted);
+    line-height: round(1.4em, 2px);
+    text-decoration: none;
+    text-box: trim-both cap alphabetic;
+}
+.page-toc-list .page-toc-list .page-toc-link { padding-inline-start: calc(var(--space-6) * 2); }
+.page-toc-link:hover { color: var(--fg); text-decoration: none; }
+.page-toc-link:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); border-radius: var(--radius-inner); }
+.page-toc-link[aria-current="location"] {
+    border-inline-start-color: var(--brand);
+    color: var(--brand-text);
+}
+/* The section the current sub-section belongs to reads as the one the reader is in. */
+.page-toc-list > li:has(> .page-toc-list .page-toc-link[aria-current="location"]) > .page-toc-link { color: var(--fg); }
+
+/* ── Back to top ────────────────────────────────────────────────────────────
+   A round button at the end edge of the page that takes the reader back to its top,
+   for a page long enough that the way back is a long scroll. Write it as the last thing
+   in the page, as a bare `#top`; 29-fragment.js scrolls the page it is in back to the
+   start and moves focus there, so the next Tab is the page's first control:
+
+     <a class="back-to-top" href="#top" aria-label="Back to top"><i class="ri-arrow-up-line"></i></a>
+
+   It sticks to the bottom of what scrolls the page — the page pads that edge clear of
+   the home indicator and the frame's bottom bar — and comes in once the page has
+   scrolled a screen down: a scroll-driven fade, so nothing measures. Where the engine
+   has no scroll-driven animation it is always there. `--back-to-top-after` is how far
+   the page scrolls first. */
+.back-to-top {
+    --back-to-top-after: 100vh;
+    position: sticky;
+    inset-block-end: var(--space-8);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 40px;
+    block-size: 40px;
+    margin-inline-start: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--fg-soft);
+    box-shadow: var(--shadow-float);
+    text-decoration: none;
+}
+.back-to-top i { font-size: var(--text-8); }
+.back-to-top:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.back-to-top:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
+/* A flowing page on a phone is not a scroller: the viewport is, and nothing pads it
+   clear of the home indicator or the bottom bar. */
+@media (max-width: 560px) {
+    .layout--flow > .content > .page .back-to-top:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    }
+    .layout--flow:has(> .content > .bottombar) > .content > .page .back-to-top:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: calc(var(--space-8) + var(--bottombar-reach));
+    }
+}
+/* Only behind @supports: an engine that drops `animation-timeline` keeps the rest of
+   the shorthand, runs the fade once on a timer, and leaves the button hidden for good. */
+@supports (animation-timeline: scroll()) {
+    .back-to-top {
+        animation: sedna-back-to-top linear both;
+        animation-timeline: scroll();
+        animation-range: var(--back-to-top-after) calc(var(--back-to-top-after) + var(--space-11));
+    }
+}
+@keyframes sedna-back-to-top {
+    from { opacity: 0; visibility: hidden; }
+}
 }
 
 /* ── 58-menu.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -22238,6 +22489,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .tree [role="treeitem"]:focus-visible > .tree-row,
     .skip-link:focus,
     .fab:focus-visible,
+    .back-to-top:focus-visible,
+    .page-toc-link:focus-visible,
+    .page-toc-fold > .page-toc-title:focus-visible,
     .form-color:focus-visible,
     .swatch:focus-visible,
     .editor:focus-within,
@@ -22325,6 +22579,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .nav-link.active,
     .tab[aria-selected="true"],
     .page-link[aria-current="page"],
+    .page-toc-link[aria-current="location"],
     .palette-item[aria-selected="true"],
     .tree [aria-selected="true"] > .tree-row,
     .tree [aria-current]:not([aria-current="false"]) > .tree-row,
@@ -22454,6 +22709,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .toast-stack,
     .sedna-tip,
     .fab,
+    .back-to-top,
+    .progress--route,
     .drawer,
     .drawer-scrim,
     .spotlight-hole,
@@ -22494,6 +22751,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
        only happens if the header is not sticky. */
     .table--sticky thead,
     .table--sticky-foot tfoot { position: static; }
+    /* A head that folds is pinned to a scroller paper does not have. */
+    .page-head--collapse { position: static; }
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
     /* A virtualized table's spacer rows stand in for rows that are not there; on paper
@@ -23019,7 +23278,15 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .progress-bar     { transition: none; }   /* 41 */
     .progress-ring    { transition: none; }   /* 41 — the arc lands on its value */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
+    .progress--route  { animation: none; }    /* 41 — there at once, filled, still saying "loading" */
     .tab              { transition: none; }   /* 50 */
+    /* 55 — the head stays as written and scrolls away with the page: no fold, and
+       nothing pinned that the page then slides under. */
+    .page-head--collapse { animation: none; position: static; }
+    .page-head--collapse .page-head-text > p { animation: none; white-space: normal; }
+    .page-toc-fold > .page-toc-title::after { transition: none; }   /* 57 — the caret */
+    /* 57 — the button comes in at once, a screen down, instead of fading in. */
+    .back-to-top { animation-timing-function: step-end; }
     a.stat            { transition: none; }   /* 54 */
     /* 54 — a running link's key holds its dashes still; they still say "running". */
     .graph-line--flow::before,

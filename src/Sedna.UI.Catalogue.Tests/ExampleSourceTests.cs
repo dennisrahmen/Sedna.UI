@@ -254,6 +254,10 @@ public class ExampleSourceTests
             foreach (Match m in Regex.Matches(sprite, "<symbol id=\"([a-z-]+)\""))
                 ids.Add(m.Groups[1].Value);
 
+        // `#top` with no element of that id is the top of the page, to a browser and to
+        // 29-fragment.js alike, so it resolves wherever the markup is pasted.
+        ids.Add("top");
+
         var dangling = Regex.Matches(source, """href\s*=\s*"#([^"]+)""")
             .Select(m => m.Groups[1].Value)
             .Where(id => !ids.Contains(id))

@@ -2954,6 +2954,20 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     from { transform: translateX(-110%); }
     to   { transform: translateX(340%); }
 }
+.progress--route {
+    position: fixed;
+    inset-block-start: var(--safe-block-start);
+    inset-inline: 0;
+    z-index: 1000;
+    height: 3px;
+    background: transparent;
+    border-radius: 0;
+    pointer-events: none;
+    animation: sedna-progress-route var(--motion-mid) ease var(--motion-slow) both;
+}
+@keyframes sedna-progress-route {
+    from { opacity: 0; }
+}
 @property --progress {
     syntax: '<percentage>';
     inherits: true;
@@ -6243,6 +6257,59 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .page-head :is(h1, h2, h3) { margin: 0; }
 .page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
 .page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
+.page-head--collapse {
+    --page-head-lede: round(calc(var(--text-4) * 1.4), 2px);
+    --page-head-fold: calc(var(--space-2) + var(--page-head-lede));
+    --page-head-range: calc(var(--space-11) * 2);
+}
+.page .page-head--collapse:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) { inset-block-start: calc(-1 * var(--page-pad)); }
+@media (max-width: 560px) {
+    .layout--flow > .content > .page .page-head--collapse:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) { inset-block-start: var(--safe-block-start); }
+    .layout--flow:has(> .content > .topbar) > .content > .page .page-head--collapse:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-start: calc(var(--safe-block-start) + var(--topbar-height));
+    }
+}
+@supports (animation-timeline: scroll()) {
+    .page-head--collapse {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 60;
+        background: var(--surface-here, var(--bg));
+        animation: sedna-page-head-fold linear both, sedna-page-head-edge linear both;
+        animation-composition: add, replace;
+        animation-timeline: scroll();
+        animation-range: 0 var(--page-head-range);
+    }
+    .page-head--collapse .page-head-text > :is(h1, h2, h3) {
+        min-block-size: var(--control-height);
+        align-content: center;
+    }
+    .page-head--collapse .page-head-text > p {
+        overflow: hidden;
+        line-height: var(--page-head-lede);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        animation: sedna-page-head-fold-lede linear both, sedna-page-head-fade linear both;
+        animation-composition: add, replace;
+        animation-timeline: scroll();
+        animation-range: 0 var(--page-head-range);
+    }
+}
+@keyframes sedna-page-head-fold {
+    to {
+        margin-block-end: calc(var(--page-head-fold) - 2 * var(--space-4));
+        padding-block: var(--space-4);
+    }
+}
+@keyframes sedna-page-head-edge {
+    to { box-shadow: 0 1px 0 var(--border); }
+}
+@keyframes sedna-page-head-fold-lede {
+    to { margin-block-start: calc(-1 * var(--page-head-fold)); }
+}
+@keyframes sedna-page-head-fade {
+    to { opacity: 0; visibility: hidden; }
+}
 .confirmation-panel {
     margin: 0 0 var(--space-9);
     padding: var(--space-10) var(--space-8);
@@ -6497,6 +6564,102 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .page-link:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .breadcrumb-item:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .breadcrumb-item + .breadcrumb-item:not(:has(> *))::before { margin-inline-end: var(--space-3); }
+.page-toc { font-size: var(--text-4); }
+.page-toc-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.page-toc-fold > .page-toc-title {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    border-radius: var(--radius-inner);
+}
+.page-toc-fold > .page-toc-title::-webkit-details-marker { display: none; }
+.page-toc-fold > .page-toc-title:hover { color: var(--fg); }
+.page-toc-fold > .page-toc-title:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.page-toc-fold > .page-toc-title::after {
+    content: '';
+    margin-inline-start: auto;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    transition: transform var(--motion-fast) ease;
+}
+.page-toc-fold[open] > .page-toc-title::after { transform: rotate(-180deg); }
+.page-toc-fold:not([open]) > .page-toc-title { margin-bottom: 0; }
+.page-toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-inline-start: 1px solid var(--border);
+}
+.page-toc-list .page-toc-list { border-inline-start: none; }
+.page-toc-link {
+    display: block;
+    margin-inline-start: -1px;
+    padding: calc(var(--space-2) + var(--cap-gap)) var(--space-6);
+    border-inline-start: 2px solid transparent;
+    color: var(--muted);
+    line-height: round(1.4em, 2px);
+    text-decoration: none;
+    text-box: trim-both cap alphabetic;
+}
+.page-toc-list .page-toc-list .page-toc-link { padding-inline-start: calc(var(--space-6) * 2); }
+.page-toc-link:hover { color: var(--fg); text-decoration: none; }
+.page-toc-link:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); border-radius: var(--radius-inner); }
+.page-toc-link[aria-current="location"] {
+    border-inline-start-color: var(--brand);
+    color: var(--brand-text);
+}
+.page-toc-list > li:has(> .page-toc-list .page-toc-link[aria-current="location"]) > .page-toc-link { color: var(--fg); }
+.back-to-top {
+    --back-to-top-after: 100vh;
+    position: sticky;
+    inset-block-end: var(--space-8);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 40px;
+    block-size: 40px;
+    margin-inline-start: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--fg-soft);
+    box-shadow: var(--shadow-float);
+    text-decoration: none;
+}
+.back-to-top i { font-size: var(--text-8); }
+.back-to-top:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.back-to-top:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
+@media (max-width: 560px) {
+    .layout--flow > .content > .page .back-to-top:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    }
+    .layout--flow:has(> .content > .bottombar) > .content > .page .back-to-top:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: calc(var(--space-8) + var(--bottombar-reach));
+    }
+}
+@supports (animation-timeline: scroll()) {
+    .back-to-top {
+        animation: sedna-back-to-top linear both;
+        animation-timeline: scroll();
+        animation-range: var(--back-to-top-after) calc(var(--back-to-top-after) + var(--space-11));
+    }
+}
+@keyframes sedna-back-to-top {
+    from { opacity: 0; visibility: hidden; }
+}
 }
 @layer sedna.paint {
 .menu {
@@ -12975,6 +13138,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .tree [role="treeitem"]:focus-visible > .tree-row,
     .skip-link:focus,
     .fab:focus-visible,
+    .back-to-top:focus-visible,
+    .page-toc-link:focus-visible,
+    .page-toc-fold > .page-toc-title:focus-visible,
     .form-color:focus-visible,
     .swatch:focus-visible,
     .editor:focus-within,
@@ -13055,6 +13221,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .nav-link.active,
     .tab[aria-selected="true"],
     .page-link[aria-current="page"],
+    .page-toc-link[aria-current="location"],
     .palette-item[aria-selected="true"],
     .tree [aria-selected="true"] > .tree-row,
     .tree [aria-current]:not([aria-current="false"]) > .tree-row,
@@ -13132,6 +13299,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .toast-stack,
     .sedna-tip,
     .fab,
+    .back-to-top,
+    .progress--route,
     .drawer,
     .drawer-scrim,
     .spotlight-hole,
@@ -13162,6 +13331,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .media-frame { box-shadow: none; break-inside: avoid; }
     .table--sticky thead,
     .table--sticky-foot tfoot { position: static; }
+    .page-head--collapse { position: static; }
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
     .table tr:empty { display: none; }
@@ -13422,7 +13592,12 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .progress-bar     { transition: none; }
     .progress-ring    { transition: none; }
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
+    .progress--route  { animation: none; }
     .tab              { transition: none; }
+    .page-head--collapse { animation: none; position: static; }
+    .page-head--collapse .page-head-text > p { animation: none; white-space: normal; }
+    .page-toc-fold > .page-toc-title::after { transition: none; }
+    .back-to-top { animation-timing-function: step-end; }
     a.stat            { transition: none; }
     .graph-line--flow::before,
     .graph-line--flow:dir(rtl)::before { animation: none; }
