@@ -76,7 +76,7 @@ public class DragDropTests(CatalogueAppFixture app)
         await page.Keyboard.PressAsync("ArrowRight");
         await page.Keyboard.PressAsync("Space");
 
-        await page.Locator("[data-drag-zone=done] > [data-drag-item='ORD-4209']").WaitForAsync(new() { Timeout = 10_000 });
+        await page.Locator("[data-drag-zone=done] > [data-drag-item='ORD-4209']").WaitForAsync();
         Assert.Equal("ORD-4204,ORD-4187", await Order(page, "queued"));
         // The lane's count is rendered from the component's state, so it moved too.
         Assert.Equal("1", (await page.Locator("#lane-done .badge").TextContentAsync())?.Trim());

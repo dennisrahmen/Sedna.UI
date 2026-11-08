@@ -52,9 +52,9 @@ public class AnchoredPanelTests : ScriptTestBase
     private const string ClickTheToggle =
         """
         async () => {
-          const sleep = ms => new Promise(r => setTimeout(r, ms));
+          const frames = n => new Promise(r => { const step = k => k ? requestAnimationFrame(() => step(k - 1)) : r(); step(n); });
           document.getElementById('toggle').click();
-          await sleep(150);
+          await frames(2);
           return document.getElementById('panel').hidden === false;
         }
         """;
@@ -70,7 +70,7 @@ public class AnchoredPanelTests : ScriptTestBase
         var moved = await page.EvaluateAsync<double>(
             """
             async () => {
-              const sleep = ms => new Promise(r => setTimeout(r, ms));
+              const frames = n => new Promise(r => { const step = k => k ? requestAnimationFrame(() => step(k - 1)) : r(); step(n); });
               const host = document.getElementById('host');
               // Waits for the scroll itself rather than a fixed time: under load the event
               // can come later than any sleep that is short enough to keep the suite fast.
@@ -98,7 +98,7 @@ public class AnchoredPanelTests : ScriptTestBase
         var stillOpen = await page.EvaluateAsync<double>(
             """
             async () => {
-              const sleep = ms => new Promise(r => setTimeout(r, ms));
+              const frames = n => new Promise(r => { const step = k => k ? requestAnimationFrame(() => step(k - 1)) : r(); step(n); });
               const other = document.getElementById('elsewhere');
               // Waits for the scroll itself rather than a fixed time: under load the event
               // can come later than any sleep that is short enough to keep the suite fast.
@@ -141,7 +141,7 @@ public class AnchoredPanelTests : ScriptTestBase
         var stillOpen = await page.EvaluateAsync<double>(
             """
             async () => {
-              const sleep = ms => new Promise(r => setTimeout(r, ms));
+              const frames = n => new Promise(r => { const step = k => k ? requestAnimationFrame(() => step(k - 1)) : r(); step(n); });
               const panel = document.getElementById('panel');
               // Waits for the scroll itself rather than a fixed time: under load the event
               // can come later than any sleep that is short enough to keep the suite fast.
@@ -177,10 +177,10 @@ public class AnchoredPanelTests : ScriptTestBase
         var closed = await page.EvaluateAsync<double>(
             """
             async () => {
-              const sleep = ms => new Promise(r => setTimeout(r, ms));
+              const frames = n => new Promise(r => { const step = k => k ? requestAnimationFrame(() => step(k - 1)) : r(); step(n); });
               const pop = document.getElementById('detail');
               document.getElementById('invoker').click();
-              await sleep(200);
+              await frames(2);
               if (!pop.matches(':popover-open')) throw new Error('the popover did not open');
 
               const host = document.getElementById('host');

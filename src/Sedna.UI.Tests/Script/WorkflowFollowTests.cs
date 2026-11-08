@@ -60,8 +60,9 @@ public class WorkflowFollowTests : ScriptTestBase
     {
         var box = await page.Locator("#wf").BoundingBoxAsync();
         await page.Mouse.MoveAsync(box!.X + box.Width / 2, box.Y + box.Height / 2);
+        var from = await Js.ScrollPosition(page, "#wf");
         await page.Mouse.WheelAsync((float)deltaX, 0);
-        await Js.ScrollAtRest(page, "#wf");
+        await Js.ScrollAtRest(page, "#wf", from);
     }
 
     [Fact]
@@ -115,11 +116,11 @@ public class WorkflowFollowTests : ScriptTestBase
                 for (let i = 1; i < 6; i++) {
                     document.getElementById('s' + i).dataset.state = 'done';
                     document.getElementById('s' + (i + 1)).dataset.state = 'running';
-                    await new Promise(r => setTimeout(r, 60));
+                    await new Promise(r => setTimeout(r, 60)); // page-timer: the app's changes arriving inside one smooth scroll
                 }
             }
             """);
-        await page.WaitForFunctionAsync(Centred(6), null, new() { Timeout = 5000 });
+        await page.WaitForFunctionAsync(Centred(6));
     }
 
     [Fact]

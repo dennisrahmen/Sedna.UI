@@ -365,7 +365,7 @@ public class ComboTests : ScriptTestBase
         Assert.Equal(0, await page.EvaluateAsync<int>("() => more"));
 
         // Each scroll is waited for by its own event, not by a fixed time.
-        const string ScrollTo = "async top => { const done = new Promise(r => list.addEventListener('scroll', () => setTimeout(r, 50), { once: true })); list.scrollTop = top === 'end' ? list.scrollHeight : top; await done; }";
+        const string ScrollTo = "async top => { const done = new Promise(r => list.addEventListener('scroll', () => setTimeout(r, 0), { once: true })); list.scrollTop = top === 'end' ? list.scrollHeight : top; await done; }";
         await Js.Run(page, "() => list.setAttribute('aria-busy', 'true')");
         await Js.Run(page, ScrollTo, "end");
         Assert.Equal(0, await page.EvaluateAsync<int>("() => more"));

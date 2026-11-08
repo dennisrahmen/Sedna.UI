@@ -175,9 +175,15 @@ public class GraphDrawingTests : GraphTestBase
         if (NoBrowser) return;
         var page = await OpenGraph(Graph(attrs: "data-graph-eager data-graph-edge-labels=\"always\""));
         await Ready(page);
-        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => { g.cy.zoom(0.5); g.cy.emit('zoom'); })");
-        // The view settles a moment after the wheel rests.
-        await page.WaitForFunctionAsync("() => cyOf('g').edges().first().data('zoom') < 0.6");
+        // The view settles a moment after the wheel rests. Zoomed again if the graph's own
+        // first fit lands after the zoom: on a loaded machine it can come later than this.
+        await page.WaitForFunctionAsync("""
+            () => {
+                const cy = cyOf('g');
+                if (cy.zoom() > 0.55) { cy.zoom(0.5); cy.emit('zoom'); }
+                return cy.edges().first().data('zoom') < 0.6;
+            }
+            """);
         var onScreen = await page.EvaluateAsync<double>(
             "() => { const cy = cyOf('g'); const e = cy.edges().filter(e => e.data('label')).first(); return e.numericStyle('font-size') * cy.zoom(); }");
         Assert.InRange(onScreen, 9, 11);

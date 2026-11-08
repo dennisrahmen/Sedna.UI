@@ -68,7 +68,9 @@
     flex-shrink: 0;
     margin-top: 4px;
     font-size: 11px;
-    /* Its capitals in its middle, the library's own way: trimmed, the leading back in padding. */
+    /* Its capitals in its middle, the library's own way: a whole, even line, trimmed, and
+       the leading back in padding — an inherited 16.5px line starts the text between pixels. */
+    line-height: round(1.5em, 2px);
     padding: calc(3px + var(--cap-gap)) 9px;
     text-box: trim-both cap alphabetic;
     border-radius: 999px;

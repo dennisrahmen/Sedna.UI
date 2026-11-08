@@ -147,10 +147,16 @@ test is about:
 | nothing to happen after a change | `Js.Frames(page)` — not on a page whose clock is paused |
 | time to pass on the page, where its clock cannot be paused | `Js.Elapse(page, ms)` |
 | an animation's middle or end | pause and seek it, or `Js.Settle(page)` |
+| a scroll to land | `Js.ScrollAtRest(page, selector, from)` |
 
-A wait written inside a page script runs on the page's clock and is fine. An expectation keeps trying for
-fifteen seconds (`TestSupport/Expectations.cs`), so it still has to come true but is not cut off on a slow
-runner.
+The same holds inside a page script: `setTimeout(r, 300)` races the page's work against the wall clock
+just as `Task.Delay` does. A timer with a delay stays only where it is the scenario — an app that acts a
+moment later — and its line says so with `page-timer:` and why. A zero delay is a task yield and is fine.
+
+No wait is given a limit below the suite's patience. An expectation keeps trying for fifteen seconds
+(`TestSupport/Expectations.cs`) and Playwright's own waits for thirty, so a result still has to come true
+but is not cut off on a slow runner. What a test proves did not happen, it proves with the page clock or
+its frames, never with a timeout. `WaitTests` fails on all three.
 
 `Script/` uses the same browser for the `sednaUi` behaviour, over a fake HTTPS origin served by request
 interception rather than `file://`: `localStorage` needs a real origin, which `boot.js` depends on

@@ -196,8 +196,7 @@ public class OverlayLayoutTests : ScriptTestBase
         foreach (var id in new[] { "side", "start", "sheet", "p", "m" })
         {
             await page.WaitForFunctionAsync(
-                $"() => getComputedStyle(document.getElementById('{id}')).display === 'none'",
-                null, new() { Timeout = 5_000 });
+                $"() => getComputedStyle(document.getElementById('{id}')).display === 'none'");
         }
 
         Assert.Empty(errors);
@@ -400,8 +399,7 @@ public class OverlayLayoutTests : ScriptTestBase
     private static async Task<double[]> Box(Microsoft.Playwright.IPage page, string id)
     {
         await page.WaitForFunctionAsync(
-            $"() => getComputedStyle(document.getElementById('{id}')).transform === 'none'",
-            null, new() { Timeout = 5_000 });
+            $"() => getComputedStyle(document.getElementById('{id}')).transform === 'none'");
 
         return await page.EvaluateAsync<double[]>(
             $"() => {{ const r = document.getElementById('{id}').getBoundingClientRect(); "
