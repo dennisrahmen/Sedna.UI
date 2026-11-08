@@ -809,7 +809,7 @@ window.sednaUi = window.sednaUi || {};
     var holder = null;              // the grid the reader is in, kept while a render takes its focus away
     var CONTROLS = 'a[href], button, input, select, textarea, summary, [tabindex], [contenteditable=""], [contenteditable="true"]';
     var core = {
-        selector: 'table[role="grid"]',
+        selector: 'table[role="grid"], table[role="treegrid"]',
         keys: [],
         gridOf: gridOf,
         rows: rowsOf,
@@ -943,8 +943,9 @@ window.sednaUi = window.sednaUi || {};
         if (y) {
             var yb = y.getBoundingClientRect();
             var top = yb.top + y.clientTop, bottom = top + y.clientHeight;
-            var head = cell.closest('table').tHead;
+            var table = cell.closest('table'), head = table.tHead, foot = table.tFoot;
             if (head && !head.contains(cell) && getComputedStyle(head).position === 'sticky') top = Math.max(top, head.getBoundingClientRect().bottom);
+            if (foot && !foot.contains(cell) && getComputedStyle(foot).position === 'sticky') bottom = Math.min(bottom, foot.getBoundingClientRect().top);
             var c = cell.getBoundingClientRect();
             if (c.top < top) y.scrollTop -= top - c.top;
             else if (c.bottom > bottom) y.scrollTop += Math.min(c.bottom - bottom, c.top - top);
@@ -957,6 +958,7 @@ window.sednaUi = window.sednaUi || {};
             return;
         }
         var s = stateOf(grid);
+        if (isTree(grid)) { showBranches(grid); settleLoading(); }
         var rows = rowsOf(grid);
         if (!rows.length) return;
         tame(grid);
@@ -1036,7 +1038,8 @@ window.sednaUi = window.sednaUi || {};
         var height = y ? y.clientHeight : window.innerHeight;
         var row = cell.parentElement.getBoundingClientRect().height || 1;
         var head = grid.tHead && y && getComputedStyle(grid.tHead).position === 'sticky' ? grid.tHead.getBoundingClientRect().height : 0;
-        return Math.max(1, Math.floor((height - head) / row) - 1);
+        var foot = grid.tFoot && y && getComputedStyle(grid.tFoot).position === 'sticky' ? grid.tFoot.getBoundingClientRect().height : 0;
+        return Math.max(1, Math.floor((height - head - foot) / row) - 1);
     }
     function target(e, grid, cell) {
         var s = stateOf(grid);
@@ -1144,6 +1147,112 @@ window.sednaUi = window.sednaUi || {};
         e.preventDefault();
         button.click();
     }
+    var loading = [];           // rows opened with data-tree-lazy, waiting for their children
+    function isTree(grid) { return grid.getAttribute('role') === 'treegrid'; }
+    function levelOf(row) {
+        var n = parseInt(row.getAttribute('aria-level'), 10);
+        return n > 0 ? n : 1;
+    }
+    function bodyRows(grid) {
+        var out = [];
+        for (var b = 0; b < grid.tBodies.length; b++) {
+            var rows = grid.tBodies[b].rows;
+            for (var i = 0; i < rows.length; i++) if (rows[i].cells.length) out.push(rows[i]);
+        }
+        return out;
+    }
+    function treeCell(row) {
+        var toggle = row.querySelector('.tree-toggle');
+        var cell = toggle ? toggle.closest('td, th') : null;
+        return cell && cell.parentElement === row ? cell : row.cells[0] || null;
+    }
+    function expandable(row) { return row.hasAttribute('aria-expanded'); }
+    function expanded(row) { return row.getAttribute('aria-expanded') === 'true'; }
+    function valueOf(row) {
+        if (row.hasAttribute('data-value')) return row.getAttribute('data-value');
+        var cell = treeCell(row);
+        return cell ? cell.textContent.trim() : '';
+    }
+    function under(grid, row) {
+        var rows = bodyRows(grid), at = rows.indexOf(row), level = levelOf(row), out = [];
+        for (var i = at + 1; at >= 0 && i < rows.length && levelOf(rows[i]) > level; i++) out.push(rows[i]);
+        return out;
+    }
+    function parentRow(grid, row) {
+        var rows = bodyRows(grid), level = levelOf(row);
+        for (var i = rows.indexOf(row) - 1; i >= 0; i--) if (levelOf(rows[i]) < level) return rows[i];
+        return null;
+    }
+    function showBranches(grid) {
+        var open = [];      // the branches above the row: { level, open }
+        var rows = bodyRows(grid);
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i], level = levelOf(row);
+            while (open.length && open[open.length - 1].level >= level) open.pop();
+            var shown = open.every(function (o) { return o.open; });
+            if (row.hidden === shown) row.hidden = !shown;
+            open.push({ level: level, open: expanded(row) });
+        }
+    }
+    function settleLoading() {
+        loading = loading.filter(function (item) {
+            var row = item.row;
+            if (!row.isConnected) return false;
+            if (row.hasAttribute('data-tree-lazy') && !under(item.grid, row).length) return true;
+            row.removeAttribute('aria-busy');
+            return false;
+        });
+    }
+    function setOpen(grid, row, open) {
+        if (!expandable(row) || expanded(row) === open) return false;
+        if (!open && under(grid, row).some(function (r) { return r.contains(document.activeElement); })) go(grid, treeCell(row));
+        row.setAttribute('aria-expanded', String(open));
+        var lazy = open && row.hasAttribute('data-tree-lazy');
+        if (lazy && row.getAttribute('aria-busy') !== 'true') {
+            row.setAttribute('aria-busy', 'true');
+            loading.push({ grid: grid, row: row });
+        }
+        showBranches(grid);
+        row.dispatchEvent(new CustomEvent(open ? 'sedna-tree-expand' : 'sedna-tree-collapse', {
+            bubbles: true, composed: true, detail: { item: valueOf(row), lazy: lazy }
+        }));
+        return true;
+    }
+    core.keys.push(function (e, grid, cell) {
+        if (!isTree(grid) || e.target !== cell || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return false;
+        var row = cell.parentElement;
+        if (!row.parentElement || row.parentElement.tagName !== 'TBODY' || treeCell(row) !== cell) return false;
+        var forward = rtl(grid) ? 'ArrowLeft' : 'ArrowRight';
+        var back = rtl(grid) ? 'ArrowRight' : 'ArrowLeft';
+        if (e.key === forward) {
+            if (!expandable(row) || expanded(row)) return false;
+            e.preventDefault();
+            setOpen(grid, row, true);
+            return true;
+        }
+        if (e.key === back) {
+            if (expanded(row)) { e.preventDefault(); setOpen(grid, row, false); return true; }
+            var parent = parentRow(grid, row);
+            if (!parent) return false;
+            e.preventDefault();
+            clearPick(grid);
+            go(grid, treeCell(parent));
+            return true;
+        }
+        if (e.key === 'Enter' && expandable(row) && !editorOf(cell) && !controlsIn(cell).length) {
+            e.preventDefault();
+            setOpen(grid, row, !expanded(row));
+            return true;
+        }
+        return false;
+    });
+    document.addEventListener('click', function (e) {
+        var toggle = e.target instanceof Element ? e.target.closest('.tree-toggle') : null;
+        var row = toggle && toggle.closest('tr');
+        var grid = row && gridOf(row.cells[0] || row);
+        if (!grid || !isTree(grid) || !expandable(row) || treeCell(row) !== toggle.closest('td, th')) return;
+        setOpen(grid, row, !expanded(row));
+    });
     document.addEventListener('keydown', function (e) {
         if (e.defaultPrevented || !(e.target instanceof Element)) return;
         var cell = cellOf(e.target);
@@ -1233,6 +1342,11 @@ window.sednaUi = window.sednaUi || {};
             }
             return bottom < 0 ? null : { top: top, left: left, bottom: bottom, right: right };
         },
+        expanded: function (grid) {
+            grid = typeof grid === 'string' ? document.getElementById(grid) : grid;
+            if (!grid) return [];
+            return bodyRows(grid).filter(function (r) { return expandable(r) && expanded(r); }).map(valueOf);
+        },
         refresh: function (grid) {
             refresh(typeof grid === 'string' ? document.getElementById(grid) : grid || null);
         }
@@ -1249,9 +1363,9 @@ window.sednaUi = window.sednaUi || {};
             if (!document.querySelector(core.selector)) return;
             for (var i = 0; i < records.length; i++) {
                 var r = records[i];
-                if (r.type === 'childList' || (r.attributeName === 'data-editing' && r.target.tagName === 'TR')) { later(); return; }
+                if (r.type === 'childList' || r.target.tagName === 'TR') { later(); return; }
             }
-        }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-editing'] });
+        }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-editing', 'data-tree-lazy', 'aria-expanded'] });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
     else watch();

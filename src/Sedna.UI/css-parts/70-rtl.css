@@ -104,7 +104,8 @@
 
 /* The tree's caret is a logical border, so it already points the right way when
    closed; open, it turns towards the children the other way round. */
-[dir="rtl"] .tree [aria-expanded="true"] > .tree-row > .tree-toggle::before { transform: rotate(-90deg); }
+[dir="rtl"] .tree [aria-expanded="true"] > .tree-row > .tree-toggle::before,
+[dir="rtl"] .table[role="treegrid"] tr[aria-expanded="true"] > * > .tree-toggle::before { transform: rotate(-90deg); }
 
 /* A third kind of gap, and the only member of it: `box-shadow` has no logical form
    either, so the offset of a pinned column's edge shadow is physical. The two rules

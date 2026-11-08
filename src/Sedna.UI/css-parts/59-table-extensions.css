@@ -39,6 +39,47 @@
 }
 .table--sticky td { border-bottom: 1px solid var(--border); }
 
+/* ── Pinned totals, and a pinned row ────────────────────────────────────────
+   `.table--sticky-foot` holds the `<tfoot>` — the totals — at the bottom of the
+   scroller while the body scrolls under it, the header's counterpart on the other
+   edge. It needs the same scroll container, and sets the same separate borders.
+
+     <div class="sedna-scroll" style="--scroll-max: 320px">
+       <table class="table table--sticky table--sticky-foot">
+         <thead>…</thead>
+         <tbody>…</tbody>
+         <tfoot><tr><th scope="row">Total</th><td class="col-num">1,284</td></tr></tfoot>
+       </table>
+     </div>
+
+   The `<tfoot>` sticks as one box, as the `<thead>` does, at z-index 2 of the table's
+   local band: above the pinned body cells, and with the pinned columns of its own row
+   ordered inside it. Its cells are the soft surface laid over an opaque one, so the
+   rows scrolling beneath do not show through.
+
+   `.tr-pinned` is a record held at the top — the reader's own row in a ranking, the
+   order they came from — written as a row of `<td>`s in the `<thead>`, after the
+   header row. The `<thead>` is what sticks, so the row stays put under the headings
+   with no height to keep in step, and it is announced with them. It takes the brand
+   tint and a rule under it, so it reads as a record set apart rather than a heading. */
+.table--sticky-foot { border-collapse: separate; border-spacing: 0; }
+.table--sticky-foot tfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+/* Doubled, to outweigh the footer's own translucent surface further down. */
+.table.table--sticky-foot tfoot :is(td, th) {
+    background-color: var(--surface-here, var(--bg));
+    background-image: linear-gradient(var(--surface-soft), var(--surface-soft));
+}
+.table thead .tr-pinned > td {
+    background-color: var(--surface-here, var(--bg));
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+    border-bottom-color: var(--border-strong);
+}
+.table thead .tr-pinned { --pin-tint: var(--brand-tint); }
+
 /* ── Zebra ──────────────────────────────────────────────────────────────────
    For wide tables where the eye loses the row between the first and last column.
    Avoid combining it with row selection: two faint background states are hard to
@@ -47,8 +88,17 @@
    The stripe is (0,2,3) — `:nth-child` counts as a class — which is higher than the
    hover highlight in 32-tables.css at (0,2,1). Without the second rule below,
    striped rows would silently stop responding to hover, which reads as a broken
-   table rather than as a styling choice. */
-.table--zebra tbody tr:nth-child(even) > td { background: var(--surface-soft); }
+   table rather than as a styling choice.
+
+   Rows are counted past an empty `<tr>`, the spacer Blazor's `<Virtualize>` writes
+   before and after the rows it renders — counted, the leading spacer would flip every
+   stripe. A virtualized table renders a window of its rows, so a row's place among its
+   siblings changes as the reader scrolls; a row that carries `aria-rowindex` is striped
+   by that instead, its own place in the whole table, odd numbers striped — a header
+   row is row 1, so the body's second row is the first striped, as without it. Both
+   rules stay at (0,2,3) through `:where()`, so row selection still wins the tie. */
+.table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])) > td,
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) > td { background: var(--surface-soft); }
 .table--zebra .tr-clickable:hover > td { background: var(--bg-hover); }
 
 /* ── Sortable header ────────────────────────────────────────────────────────
@@ -200,7 +250,8 @@
 .table--pin-end   { --pin-edge-end:   var(--shadow-edge-end); }
 
 .table--pin-start tbody tr > td:first-child:not([colspan]),
-.table--pin-start tfoot tr > td:first-child:not([colspan]) {
+.table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+.table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]) {
     --pin-shadow: var(--pin-edge-start);
     position: sticky;
     inset-inline-start: 0;
@@ -210,7 +261,8 @@
     box-shadow: var(--pin-shadow);
 }
 .table--pin-end tbody tr > td:last-child:not([colspan]),
-.table--pin-end tfoot tr > td:last-child:not([colspan]) {
+.table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+.table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) {
     --pin-shadow: var(--pin-edge-end);
     position: sticky;
     inset-inline-end: 0;
@@ -260,22 +312,26 @@
 @container not scroll-state(scrollable: inline-start) {
     .table--pin-start thead th:first-child:not([colspan]),
     .table--pin-start tbody tr > td:first-child:not([colspan]),
-    .table--pin-start tfoot tr > td:first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+    .table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+    .table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 @container not scroll-state(scrollable: inline-end) {
     .table--pin-end thead th:last-child:not([colspan]),
     .table--pin-end tbody tr > td:last-child:not([colspan]),
-    .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+    .table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+    .table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 /* The same two facts as attributes, written by 22-scroll-edge.js, for the engine
    without scroll-state() — WebKit, where a table that fit still drew the end
    shadow. Where the query works the two agree. */
 .sedna-scroll-x[data-scroll-start] .table--pin-start thead th:first-child:not([colspan]),
 .sedna-scroll-x[data-scroll-start] .table--pin-start tbody tr > td:first-child:not([colspan]),
-.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end thead th:last-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end tbody tr > td:last-child:not([colspan]),
-.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+.sedna-scroll-x[data-scroll-end] .table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 
 /* ── Group rows ─────────────────────────────────────────────────────────────
    A row that heads the rows after it — a state, a day, a customer — written as
@@ -492,10 +548,54 @@
 .tr-busy .spinner { margin-inline-end: var(--space-4); }
 :is(.tr-empty, .list-empty) .state-art { display: block; margin: 0 auto var(--space-5); }
 
+/* ── Virtualized rows, and loading more ─────────────────────────────────────
+   Blazor's `<Virtualize>` renders the rows in view and stands an empty element in for
+   the rest, before and after them. Inside a table that element is a row:
+
+     <tbody>
+       <Virtualize Items="lines" SpacerElement="tr" ItemSize="37" Context="line">
+         <tr aria-rowindex="@(line.Index + 2)">…</tr>
+       </Virtualize>
+     </tbody>
+
+   The spacer is a `<tr>` with no cells, and nothing here paints one: a row's background,
+   rule and hover belong to its cells. The zebra stripe counts past it, a stacked table
+   does not turn it into a card, and the last row of a `.popover--flush` table is the
+   last row that has cells. `aria-rowindex` on each row — its place in the whole table,
+   the header being row 1 — tells a screen reader where the window is, and is what a
+   zebra stripe follows in a virtualized table; `aria-rowcount` on the table is the
+   total.
+
+   `.tr-more` is the row after the rows, for a list that loads the next page when asked
+   rather than as the reader scrolls: one cell spanning the table, holding the button
+   and `.tr-more-count`, how many of how many are shown. While the page is loading,
+   `aria-busy="true"` on the button lays the spinner over its label and keeps a
+   second press from starting it twice.
+
+     <tr class="tr-more"><td colspan="999">
+       <button class="btn btn--sm" type="button"><i class="ri-arrow-down-line"></i> Show 50 more</button>
+       <span class="tr-more-count">50 of 1,284</span>
+     </td></tr>
+
+   Same specificity as the zebra stripe and later, so the row is never striped. */
+.table tbody tr.tr-more > td {
+    padding-block: var(--space-4);
+    background: none;
+    text-align: center;
+}
+.tr-more-count {
+    margin-inline-start: var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
 /* The row states, mirroring the background rules above one for one. Set on the
    <tr> so a custom property carries them into the pinned cell by inheritance;
    ordering between them is the ordering the `> td` rules already have. */
-.table--zebra tbody tr:nth-child(even) { --pin-tint: var(--surface-soft); }
+.table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])),
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) { --pin-tint: var(--surface-soft); }
 .table tbody tr[aria-selected="true"] { --pin-tint: var(--brand-tint); }
 .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
@@ -515,11 +615,11 @@
    A selected range is `aria-selected` on each cell, written by the script. Its tint is
    laid over the cell's own background as an image, so a sticky header cell keeps its
    opaque surface under it, and it is handed to a pinned cell through `--pin-tint`. */
-.table[role="grid"] :is(td, th):focus-visible {
+.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
 }
-.table[role="grid"] :is(td, th)[aria-selected="true"] {
+.table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] {
     --pin-tint: var(--brand-tint);
     background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
 }
@@ -749,4 +849,6 @@
     .table--stack :is(tbody, tfoot) :is(td, th):not([data-label]) { text-align: start; }
     /* A group row is the heading of the cards under it: the full width, not a card. */
     .table--stack .tr-group { border-width: 0; }
+    /* A virtualized table's spacer row keeps its height and nothing else. */
+    .table--stack tr:empty { margin: 0; border-width: 0; }
 }

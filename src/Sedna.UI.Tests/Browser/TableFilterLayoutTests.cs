@@ -187,4 +187,35 @@ public class TableFilterLayoutTests : ScriptTestBase
         Assert.Equal(tops[2], tops[1], 0.01);                   // filter row flush under the header
         Assert.InRange(tops[4], tops[3] - 1.01, tops[3]);       // group row under both, no strip between
     }
+
+    [Fact]
+    public async Task Facet_counts_line_up_at_the_end_edge_of_the_choices()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div class="sedna-col" id="facets" style="width: 220px">
+              <label class="form-check" id="a"><input type="checkbox" checked> <span class="badge badge--info">Open</span> <span class="form-check-count" id="na">412</span></label>
+              <label class="form-check" id="b"><input type="checkbox"> <span class="badge badge--go">Shipped</span> <span class="form-check-count" id="nb">1,206</span></label>
+              <label class="form-check" id="c"><input type="checkbox" disabled> <span class="badge badge--danger">Cancelled</span> <span class="form-check-count" id="nc">0</span></label>
+            </div>
+            <label class="form-check" id="plain"><input type="checkbox"> Plain</label>
+            """);
+
+        var r = await page.EvaluateAsync<double[]>("""
+            () => {
+                const right = id => document.getElementById(id).getBoundingClientRect().right;
+                const box = document.getElementById('facets').getBoundingClientRect().right;
+                return [right('na'), right('nb'), right('nc'), box, right('a'),
+                        document.getElementById('plain').getBoundingClientRect().width];
+            }
+            """);
+        Assert.Equal(r[3], r[0], 0.5);
+        Assert.Equal(r[3], r[1], 0.5);
+        Assert.Equal(r[3], r[2], 0.5);
+        Assert.Equal(r[3], r[4], 0.5);
+        // A choice without a count keeps its own width.
+        Assert.True(r[5] < 150, $"A plain choice stretched to {r[5]}px.");
+        Assert.Equal("tabular-nums", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('na')).fontVariantNumeric"));
+        Assert.Empty(errors);
+    }
 }

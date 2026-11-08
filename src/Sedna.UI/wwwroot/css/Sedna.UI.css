@@ -2399,6 +2399,16 @@ textarea.form-input::-webkit-resizer {
 }
 .form-check:has(input:disabled) { color: var(--disabled-fg); cursor: not-allowed; }
 .form-check input:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
+.form-check:has(> .form-check-count) { display: flex; }
+.form-check-count {
+    margin-inline-start: auto;
+    padding-inline-start: var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
 .form-input:disabled,
 .form-select:disabled,
 .form-input[readonly] { cursor: not-allowed; background: var(--disabled-bg); border-color: var(--disabled-border); color: var(--disabled-fg); }
@@ -6482,7 +6492,24 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     box-shadow: inset 0 -1px 0 var(--border), 0 -1px 0 var(--bg-elevated);
 }
 .table--sticky td { border-bottom: 1px solid var(--border); }
-.table--zebra tbody tr:nth-child(even) > td { background: var(--surface-soft); }
+.table--sticky-foot { border-collapse: separate; border-spacing: 0; }
+.table--sticky-foot tfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+.table.table--sticky-foot tfoot :is(td, th) {
+    background-color: var(--surface-here, var(--bg));
+    background-image: linear-gradient(var(--surface-soft), var(--surface-soft));
+}
+.table thead .tr-pinned > td {
+    background-color: var(--surface-here, var(--bg));
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+    border-bottom-color: var(--border-strong);
+}
+.table thead .tr-pinned { --pin-tint: var(--brand-tint); }
+.table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])) > td,
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) > td { background: var(--surface-soft); }
 .table--zebra .tr-clickable:hover > td { background: var(--bg-hover); }
 .table th[aria-sort] { padding: 0; }
 .th-sort {
@@ -6526,7 +6553,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .table--pin-start { --pin-edge-start: var(--shadow-edge-start); }
 .table--pin-end   { --pin-edge-end:   var(--shadow-edge-end); }
 .table--pin-start tbody tr > td:first-child:not([colspan]),
-.table--pin-start tfoot tr > td:first-child:not([colspan]) {
+.table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+.table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]) {
     --pin-shadow: var(--pin-edge-start);
     position: sticky;
     inset-inline-start: 0;
@@ -6536,7 +6564,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     box-shadow: var(--pin-shadow);
 }
 .table--pin-end tbody tr > td:last-child:not([colspan]),
-.table--pin-end tfoot tr > td:last-child:not([colspan]) {
+.table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+.table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) {
     --pin-shadow: var(--pin-edge-end);
     position: sticky;
     inset-inline-end: 0;
@@ -6572,19 +6601,23 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 @container not scroll-state(scrollable: inline-start) {
     .table--pin-start thead th:first-child:not([colspan]),
     .table--pin-start tbody tr > td:first-child:not([colspan]),
-    .table--pin-start tfoot tr > td:first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+    .table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+    .table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 @container not scroll-state(scrollable: inline-end) {
     .table--pin-end thead th:last-child:not([colspan]),
     .table--pin-end tbody tr > td:last-child:not([colspan]),
-    .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+    .table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+    .table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 .sedna-scroll-x[data-scroll-start] .table--pin-start thead th:first-child:not([colspan]),
 .sedna-scroll-x[data-scroll-start] .table--pin-start tbody tr > td:first-child:not([colspan]),
-.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end thead th:last-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end tbody tr > td:last-child:not([colspan]),
-.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+.sedna-scroll-x[data-scroll-end] .table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 .tr-group > th,
 .tr-group > td {
     background: var(--surface-soft);
@@ -6684,7 +6717,20 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .tr-busy:hover > td { background: none; }
 .tr-busy .spinner { margin-inline-end: var(--space-4); }
 :is(.tr-empty, .list-empty) .state-art { display: block; margin: 0 auto var(--space-5); }
-.table--zebra tbody tr:nth-child(even) { --pin-tint: var(--surface-soft); }
+.table tbody tr.tr-more > td {
+    padding-block: var(--space-4);
+    background: none;
+    text-align: center;
+}
+.tr-more-count {
+    margin-inline-start: var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])),
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) { --pin-tint: var(--surface-soft); }
 .table tbody tr[aria-selected="true"] { --pin-tint: var(--brand-tint); }
 .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
@@ -6692,11 +6738,11 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
     box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
 }
-.table[role="grid"] :is(td, th):focus-visible {
+.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
 }
-.table[role="grid"] :is(td, th)[aria-selected="true"] {
+.table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] {
     --pin-tint: var(--brand-tint);
     background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
 }
@@ -6809,6 +6855,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     }
     .table--stack :is(tbody, tfoot) :is(td, th):not([data-label]) { text-align: start; }
     .table--stack .tr-group { border-width: 0; }
+    .table--stack tr:empty { margin: 0; border-width: 0; }
 }
 }
 @layer sedna.paint {
@@ -7113,7 +7160,8 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     width: var(--space-5);
     height: 1em;
 }
-.tree [aria-expanded] > .tree-row > .tree-toggle::before {
+.tree [aria-expanded] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle::before {
     content: '';
     width: 0;
     height: 0;
@@ -7122,8 +7170,10 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     opacity: 0.55;
     transition: transform var(--motion-fast) ease;
 }
-.tree [aria-expanded="true"] > .tree-row > .tree-toggle::before { transform: rotate(90deg); }
-.tree [aria-busy="true"] > .tree-row > .tree-toggle::before {
+.tree [aria-expanded="true"] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-expanded="true"] > * > .tree-toggle::before { transform: rotate(90deg); }
+.tree [aria-busy="true"] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-busy="true"] > * > .tree-toggle::before {
     width: 0.75em;
     height: 0.75em;
     border: 1.5px solid var(--border);
@@ -7133,6 +7183,23 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     transform: none;
     animation: sedna-spin var(--spin-duration) linear infinite;
 }
+.table[role="treegrid"] { --treegrid-indent: var(--space-7); }
+.table[role="treegrid"] tr[aria-level="2"] { --tree-depth: 1; }
+.table[role="treegrid"] tr[aria-level="3"] { --tree-depth: 2; }
+.table[role="treegrid"] tr[aria-level="4"] { --tree-depth: 3; }
+.table[role="treegrid"] tr[aria-level="5"] { --tree-depth: 4; }
+.table[role="treegrid"] tr[aria-level="6"] { --tree-depth: 5; }
+.table[role="treegrid"] tr[aria-level="7"] { --tree-depth: 6; }
+.table[role="treegrid"] tr[aria-level="8"] { --tree-depth: 7; }
+.table[role="treegrid"] tr > :has(> .tree-toggle) {
+    padding-inline-start: calc(var(--cell-pad-x) + var(--tree-depth, 0) * var(--treegrid-indent));
+    white-space: nowrap;
+}
+.table[role="treegrid"] .tree-toggle {
+    margin-inline-end: var(--space-2);
+    vertical-align: -0.15em;
+}
+.table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle { cursor: pointer; }
 .tree-check {
     position: relative;
     flex-shrink: 0;
@@ -8442,7 +8509,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     margin-bottom: 0;
     padding: var(--space-6) var(--space-7) var(--space-3);
 }
-.popover--flush > .table tr:last-child > td { border-bottom: none; }
+.popover--flush > .table tr:nth-last-child(1 of :where(:not(:empty))) > td { border-bottom: none; }
 }
 @layer sedna.paint {
 .text-shimmer {
@@ -12373,7 +12440,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 }
 [dir="rtl"] .avatar { --avatar-cut-x: calc(var(--avatar-overlap) - var(--avatar-size) / 2); }
 [dir="rtl"] .avatar-pair > .avatar:first-child:not(:last-child) { --avatar-cut-x: calc(var(--avatar-size) * 1.5 - var(--avatar-pair-size)); }
-[dir="rtl"] .tree [aria-expanded="true"] > .tree-row > .tree-toggle::before { transform: rotate(-90deg); }
+[dir="rtl"] .tree [aria-expanded="true"] > .tree-row > .tree-toggle::before,
+[dir="rtl"] .table[role="treegrid"] tr[aria-expanded="true"] > * > .tree-toggle::before { transform: rotate(-90deg); }
 [dir="rtl"] .table--pin-start { --pin-edge-start: var(--shadow-edge-end); }
 [dir="rtl"] .table--pin-end   { --pin-edge-end:   var(--shadow-edge-start); }
 [dir="rtl"] .cal-timeline     { --cal-label-edge: var(--shadow-edge-end); }
@@ -12580,10 +12648,10 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .workflow-node[aria-pressed="true"],
     .choice-tile:has(> input:checked) { outline: 1px solid Highlight; }
     .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
-    .table[role="grid"] :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
     .table :is(td, th)[data-editing] > .cell-editor,
     .table tr[data-editing] > :is(td, th) > .cell-editor { outline: 1px solid CanvasText; outline-offset: -1px; }
-    .table[role="grid"] :is(td, th):focus-visible,
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible,
     .table .cell-editor:focus { outline: 2px solid CanvasText; outline-offset: -2px; }
     .chat-bubble,
     .link-preview,
@@ -12662,9 +12730,11 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .callout,
     .confirmation-panel,
     .media-frame { box-shadow: none; break-inside: avoid; }
-    .table--sticky thead { position: static; }
+    .table--sticky thead,
+    .table--sticky-foot tfoot { position: static; }
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
+    .table tr:empty { display: none; }
     .table tr { break-inside: avoid; }
     .table tr:is(*, [data-editing]) > :is(td, th):is(*, [data-editing]) > .cell-editor { display: none; }
     .sedna-scroll,
@@ -12937,6 +13007,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .accordion summary::after { transition: none; }
     .tree [aria-expanded] > .tree-row > .tree-toggle::before { transition: none; }
     .tree [aria-busy="true"] > .tree-row > .tree-toggle::before { animation: none; }
+    .table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle::before { transition: none; }
+    .table[role="treegrid"] tr[aria-busy="true"] > * > .tree-toggle::before { animation: none; }
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }

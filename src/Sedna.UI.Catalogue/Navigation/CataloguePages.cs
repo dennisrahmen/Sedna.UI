@@ -42,6 +42,8 @@ internal static class CataloguePages
     public const string Utilities = "Utilities";
     /// <summary>The section of Start that holds the reference pages: the script, C#, the MCP server.</summary>
     public const string Reference = "Reference";
+    /// <summary>The section of Data that holds the table's pages: the class, the keyboard grid, and large tables.</summary>
+    public const string Tables = "Tables";
     /// <summary>The section of Data that holds the graph's pages: one family, too big for one page.</summary>
     public const string Graph = "Graph";
     /// <summary>The section of Data that holds the workflow diagram's pages.</summary>
@@ -191,10 +193,16 @@ internal static class CataloguePages
 
         new("/table", Data, "Tables", "ri-table-line",
             "One class on the table, plus sticky headers, sorting, pinned columns and a stacked layout.",
-            "sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num pinned frozen pin-start pin-end column width min-width shrink fit prose control actions group grouped rowgroup tr-group SednaSort AriaSort Toggle tr-filter filter row per column filtered col-filtered th-filter th-filter--active form-trigger input-clear multi-select checkboxes selected range date boolean yes no any reset all admin grid tr-empty tr-busy empty nothing found no results refreshing colspan"),
+            "sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num pinned frozen pin-start pin-end column width min-width shrink fit prose control actions group grouped rowgroup tr-group SednaSort AriaSort Toggle tr-filter filter row per column filtered col-filtered th-filter th-filter--active form-trigger input-clear multi-select checkboxes selected range date boolean yes no any reset all admin grid tr-empty tr-busy empty nothing found no results refreshing colspan",
+            Section: Tables),
         new("/table-editing", Data, "Editing tables", "ri-edit-box-line",
             "A table as a keyboard grid, its cells and rows edited in place.",
-            "grid role=grid keyboard arrow keys roving tabindex tab stop range selection multiselect aria-selected aria-multiselectable inline edit cell editor cell-editor data-editing row edit mode save cancel data-row-save data-row-cancel dirty changed data-dirty invalid aria-invalid spreadsheet F2 escape bind"),
+            "grid role=grid keyboard arrow keys roving tabindex tab stop range selection multiselect aria-selected aria-multiselectable inline edit cell editor cell-editor data-editing row edit mode save cancel data-row-save data-row-cancel dirty changed data-dirty invalid aria-invalid spreadsheet F2 escape bind",
+            Section: Tables),
+        new("/table-large", Data, "Large tables", "ri-database-line",
+            "Virtualized rows, loading more, a tree grid, pinned totals and filter choices with their counts.",
+            "virtualize virtualized virtualization Virtualize SpacerElement spacer infinite scroll thousands rows aria-rowindex aria-rowcount load more tr-more tr-more-count paging treegrid tree grid hierarchy aria-level aria-expanded nested rows expand collapse data-tree-lazy sedna-tree-expand sedna-tree-collapse expanded sticky footer tfoot totals table--sticky-foot pinned row tr-pinned my row facet facets counts form-check-count state",
+            Section: Tables),
         new("/stat", Data, "Stats", "ri-numbers-line",
             "One number that matters, which way it moved, and what it is measured against.",
             "kpi number metric delta tile target unavailable dashboard stat--sm small value timestamp date stat--warn stat--danger tone threshold limit budget quota over warning danger rolling count up counter animated stat-value--roll roll-to"),

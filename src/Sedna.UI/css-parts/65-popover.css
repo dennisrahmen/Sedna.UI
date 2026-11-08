@@ -90,4 +90,5 @@
     margin-bottom: 0;
     padding: var(--space-6) var(--space-7) var(--space-3);
 }
-.popover--flush > .table tr:last-child > td { border-bottom: none; }
+/* The last row with cells: a virtualized table ends with an empty spacer row. */
+.popover--flush > .table tr:nth-last-child(1 of :where(:not(:empty))) > td { border-bottom: none; }

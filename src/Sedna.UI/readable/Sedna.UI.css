@@ -4649,6 +4649,20 @@ textarea.form-input::-webkit-resizer {
 .form-check:has(input:disabled) { color: var(--disabled-fg); cursor: not-allowed; }
 .form-check input:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
+/* A count at the end of a choice: how many records it would leave — a facet beside
+   each value of a column's filter. The choice takes the width it is given, so a column
+   of counts lines up at the end edge, in figures of one width. */
+.form-check:has(> .form-check-count) { display: flex; }
+.form-check-count {
+    margin-inline-start: auto;
+    padding-inline-start: var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+
 .form-input:disabled,
 .form-select:disabled,
 .form-input[readonly] { cursor: not-allowed; background: var(--disabled-bg); border-color: var(--disabled-border); color: var(--disabled-fg); }
@@ -11822,6 +11836,47 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 }
 .table--sticky td { border-bottom: 1px solid var(--border); }
 
+/* ── Pinned totals, and a pinned row ────────────────────────────────────────
+   `.table--sticky-foot` holds the `<tfoot>` — the totals — at the bottom of the
+   scroller while the body scrolls under it, the header's counterpart on the other
+   edge. It needs the same scroll container, and sets the same separate borders.
+
+     <div class="sedna-scroll" style="--scroll-max: 320px">
+       <table class="table table--sticky table--sticky-foot">
+         <thead>…</thead>
+         <tbody>…</tbody>
+         <tfoot><tr><th scope="row">Total</th><td class="col-num">1,284</td></tr></tfoot>
+       </table>
+     </div>
+
+   The `<tfoot>` sticks as one box, as the `<thead>` does, at z-index 2 of the table's
+   local band: above the pinned body cells, and with the pinned columns of its own row
+   ordered inside it. Its cells are the soft surface laid over an opaque one, so the
+   rows scrolling beneath do not show through.
+
+   `.tr-pinned` is a record held at the top — the reader's own row in a ranking, the
+   order they came from — written as a row of `<td>`s in the `<thead>`, after the
+   header row. The `<thead>` is what sticks, so the row stays put under the headings
+   with no height to keep in step, and it is announced with them. It takes the brand
+   tint and a rule under it, so it reads as a record set apart rather than a heading. */
+.table--sticky-foot { border-collapse: separate; border-spacing: 0; }
+.table--sticky-foot tfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+/* Doubled, to outweigh the footer's own translucent surface further down. */
+.table.table--sticky-foot tfoot :is(td, th) {
+    background-color: var(--surface-here, var(--bg));
+    background-image: linear-gradient(var(--surface-soft), var(--surface-soft));
+}
+.table thead .tr-pinned > td {
+    background-color: var(--surface-here, var(--bg));
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+    border-bottom-color: var(--border-strong);
+}
+.table thead .tr-pinned { --pin-tint: var(--brand-tint); }
+
 /* ── Zebra ──────────────────────────────────────────────────────────────────
    For wide tables where the eye loses the row between the first and last column.
    Avoid combining it with row selection: two faint background states are hard to
@@ -11830,8 +11885,17 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    The stripe is (0,2,3) — `:nth-child` counts as a class — which is higher than the
    hover highlight in 32-tables.css at (0,2,1). Without the second rule below,
    striped rows would silently stop responding to hover, which reads as a broken
-   table rather than as a styling choice. */
-.table--zebra tbody tr:nth-child(even) > td { background: var(--surface-soft); }
+   table rather than as a styling choice.
+
+   Rows are counted past an empty `<tr>`, the spacer Blazor's `<Virtualize>` writes
+   before and after the rows it renders — counted, the leading spacer would flip every
+   stripe. A virtualized table renders a window of its rows, so a row's place among its
+   siblings changes as the reader scrolls; a row that carries `aria-rowindex` is striped
+   by that instead, its own place in the whole table, odd numbers striped — a header
+   row is row 1, so the body's second row is the first striped, as without it. Both
+   rules stay at (0,2,3) through `:where()`, so row selection still wins the tie. */
+.table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])) > td,
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) > td { background: var(--surface-soft); }
 .table--zebra .tr-clickable:hover > td { background: var(--bg-hover); }
 
 /* ── Sortable header ────────────────────────────────────────────────────────
@@ -11983,7 +12047,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .table--pin-end   { --pin-edge-end:   var(--shadow-edge-end); }
 
 .table--pin-start tbody tr > td:first-child:not([colspan]),
-.table--pin-start tfoot tr > td:first-child:not([colspan]) {
+.table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+.table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]) {
     --pin-shadow: var(--pin-edge-start);
     position: sticky;
     inset-inline-start: 0;
@@ -11993,7 +12058,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     box-shadow: var(--pin-shadow);
 }
 .table--pin-end tbody tr > td:last-child:not([colspan]),
-.table--pin-end tfoot tr > td:last-child:not([colspan]) {
+.table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+.table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) {
     --pin-shadow: var(--pin-edge-end);
     position: sticky;
     inset-inline-end: 0;
@@ -12043,22 +12109,26 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 @container not scroll-state(scrollable: inline-start) {
     .table--pin-start thead th:first-child:not([colspan]),
     .table--pin-start tbody tr > td:first-child:not([colspan]),
-    .table--pin-start tfoot tr > td:first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+    .table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+    .table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 @container not scroll-state(scrollable: inline-end) {
     .table--pin-end thead th:last-child:not([colspan]),
     .table--pin-end tbody tr > td:last-child:not([colspan]),
-    .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+    .table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+    .table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 /* The same two facts as attributes, written by 22-scroll-edge.js, for the engine
    without scroll-state() — WebKit, where a table that fit still drew the end
    shadow. Where the query works the two agree. */
 .sedna-scroll-x[data-scroll-start] .table--pin-start thead th:first-child:not([colspan]),
 .sedna-scroll-x[data-scroll-start] .table--pin-start tbody tr > td:first-child:not([colspan]),
-.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end thead th:last-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end tbody tr > td:last-child:not([colspan]),
-.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+.sedna-scroll-x[data-scroll-end] .table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 
 /* ── Group rows ─────────────────────────────────────────────────────────────
    A row that heads the rows after it — a state, a day, a customer — written as
@@ -12275,10 +12345,54 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .tr-busy .spinner { margin-inline-end: var(--space-4); }
 :is(.tr-empty, .list-empty) .state-art { display: block; margin: 0 auto var(--space-5); }
 
+/* ── Virtualized rows, and loading more ─────────────────────────────────────
+   Blazor's `<Virtualize>` renders the rows in view and stands an empty element in for
+   the rest, before and after them. Inside a table that element is a row:
+
+     <tbody>
+       <Virtualize Items="lines" SpacerElement="tr" ItemSize="37" Context="line">
+         <tr aria-rowindex="@(line.Index + 2)">…</tr>
+       </Virtualize>
+     </tbody>
+
+   The spacer is a `<tr>` with no cells, and nothing here paints one: a row's background,
+   rule and hover belong to its cells. The zebra stripe counts past it, a stacked table
+   does not turn it into a card, and the last row of a `.popover--flush` table is the
+   last row that has cells. `aria-rowindex` on each row — its place in the whole table,
+   the header being row 1 — tells a screen reader where the window is, and is what a
+   zebra stripe follows in a virtualized table; `aria-rowcount` on the table is the
+   total.
+
+   `.tr-more` is the row after the rows, for a list that loads the next page when asked
+   rather than as the reader scrolls: one cell spanning the table, holding the button
+   and `.tr-more-count`, how many of how many are shown. While the page is loading,
+   `aria-busy="true"` on the button lays the spinner over its label and keeps a
+   second press from starting it twice.
+
+     <tr class="tr-more"><td colspan="999">
+       <button class="btn btn--sm" type="button"><i class="ri-arrow-down-line"></i> Show 50 more</button>
+       <span class="tr-more-count">50 of 1,284</span>
+     </td></tr>
+
+   Same specificity as the zebra stripe and later, so the row is never striped. */
+.table tbody tr.tr-more > td {
+    padding-block: var(--space-4);
+    background: none;
+    text-align: center;
+}
+.tr-more-count {
+    margin-inline-start: var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
 /* The row states, mirroring the background rules above one for one. Set on the
    <tr> so a custom property carries them into the pinned cell by inheritance;
    ordering between them is the ordering the `> td` rules already have. */
-.table--zebra tbody tr:nth-child(even) { --pin-tint: var(--surface-soft); }
+.table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])),
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) { --pin-tint: var(--surface-soft); }
 .table tbody tr[aria-selected="true"] { --pin-tint: var(--brand-tint); }
 .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
@@ -12298,11 +12412,11 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    A selected range is `aria-selected` on each cell, written by the script. Its tint is
    laid over the cell's own background as an image, so a sticky header cell keeps its
    opaque surface under it, and it is handed to a pinned cell through `--pin-tint`. */
-.table[role="grid"] :is(td, th):focus-visible {
+.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
 }
-.table[role="grid"] :is(td, th)[aria-selected="true"] {
+.table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] {
     --pin-tint: var(--brand-tint);
     background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
 }
@@ -12532,6 +12646,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     .table--stack :is(tbody, tfoot) :is(td, th):not([data-label]) { text-align: start; }
     /* A group row is the heading of the cards under it: the full width, not a card. */
     .table--stack .tr-group { border-width: 0; }
+    /* A virtualized table's spacer row keeps its height and nothing else. */
+    .table--stack tr:empty { margin: 0; border-width: 0; }
 }
 }
 
@@ -13098,7 +13214,8 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     width: var(--space-5);
     height: 1em;
 }
-.tree [aria-expanded] > .tree-row > .tree-toggle::before {
+.tree [aria-expanded] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle::before {
     content: '';
     width: 0;
     height: 0;
@@ -13107,10 +13224,12 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     opacity: 0.55;
     transition: transform var(--motion-fast) ease;
 }
-.tree [aria-expanded="true"] > .tree-row > .tree-toggle::before { transform: rotate(90deg); }
+.tree [aria-expanded="true"] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-expanded="true"] > * > .tree-toggle::before { transform: rotate(90deg); }
 /* Children on their way: the caret becomes the spinner's ring until the app renders
    them and the script lifts `aria-busy`. */
-.tree [aria-busy="true"] > .tree-row > .tree-toggle::before {
+.tree [aria-busy="true"] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-busy="true"] > * > .tree-toggle::before {
     width: 0.75em;
     height: 0.75em;
     border: 1.5px solid var(--border);
@@ -13120,6 +13239,49 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     transform: none;
     animation: sedna-spin var(--spin-duration) linear infinite;
 }
+
+/* ── Tree grid ──────────────────────────────────────────────────────────────
+   A `.table` with `role="treegrid"`: records in a hierarchy, each with columns — a cost
+   centre and its teams, a folder and its files with their sizes. The rows stay flat in
+   the `<tbody>`; a row's depth is `aria-level`, a branch is `aria-expanded`, and the
+   cell holding the `.tree-toggle` is the tree column, indented a step per level.
+   22-grid.js is the keyboard and the state.
+
+     <table class="table" role="treegrid" aria-label="Cost by team">
+       <thead><tr><th>Team</th><th class="col-num">Cost</th></tr></thead>
+       <tbody>
+         <tr aria-level="1" aria-expanded="true" data-value="ops">
+           <td><span class="tree-toggle"></span>Operations</td><td class="col-num">412,000</td>
+         </tr>
+         <tr aria-level="2" data-value="ops-network">
+           <td><span class="tree-toggle"></span>Network</td><td class="col-num">96,500</td>
+         </tr>
+       </tbody>
+     </table>
+
+   Every row's tree cell starts with a toggle, so a leaf's label lines up with its
+   branch siblings' — the caret is drawn only on a row with `aria-expanded`. The step is
+   `--treegrid-indent`; the depth is read from `aria-level` up to the eighth level, and
+   `--tree-depth` on a row (its level less one) sets a deeper one. */
+.table[role="treegrid"] { --treegrid-indent: var(--space-7); }
+.table[role="treegrid"] tr[aria-level="2"] { --tree-depth: 1; }
+.table[role="treegrid"] tr[aria-level="3"] { --tree-depth: 2; }
+.table[role="treegrid"] tr[aria-level="4"] { --tree-depth: 3; }
+.table[role="treegrid"] tr[aria-level="5"] { --tree-depth: 4; }
+.table[role="treegrid"] tr[aria-level="6"] { --tree-depth: 5; }
+.table[role="treegrid"] tr[aria-level="7"] { --tree-depth: 6; }
+.table[role="treegrid"] tr[aria-level="8"] { --tree-depth: 7; }
+.table[role="treegrid"] tr > :has(> .tree-toggle) {
+    padding-inline-start: calc(var(--cell-pad-x) + var(--tree-depth, 0) * var(--treegrid-indent));
+    white-space: nowrap;
+}
+/* The caret's box is an em square on the text's baseline; lowered to centre it on the
+   capitals of the label beside it. */
+.table[role="treegrid"] .tree-toggle {
+    margin-inline-end: var(--space-2);
+    vertical-align: -0.15em;
+}
+.table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle { cursor: pointer; }
 
 /* ── The checkbox ───────────────────────────────────────────────────────────
    Drawn, not an <input>: the item is the control, and a checkbox inside it would be a
@@ -15239,7 +15401,8 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     margin-bottom: 0;
     padding: var(--space-6) var(--space-7) var(--space-3);
 }
-.popover--flush > .table tr:last-child > td { border-bottom: none; }
+/* The last row with cells: a virtualized table ends with an empty spacer row. */
+.popover--flush > .table tr:nth-last-child(1 of :where(:not(:empty))) > td { border-bottom: none; }
 }
 
 /* ── 66-agent-activity.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -21119,7 +21282,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 
 /* The tree's caret is a logical border, so it already points the right way when
    closed; open, it turns towards the children the other way round. */
-[dir="rtl"] .tree [aria-expanded="true"] > .tree-row > .tree-toggle::before { transform: rotate(-90deg); }
+[dir="rtl"] .tree [aria-expanded="true"] > .tree-row > .tree-toggle::before,
+[dir="rtl"] .table[role="treegrid"] tr[aria-expanded="true"] > * > .tree-toggle::before { transform: rotate(-90deg); }
 
 /* A third kind of gap, and the only member of it: `box-shadow` has no logical form
    either, so the offset of a pinned column's edge shadow is physical. The two rules
@@ -21423,10 +21587,10 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 
     /* A keyboard grid: a selected range is a tint, an editor's edge and ring are shadows,
        and the focused cell's ring is restated after both so it is the one that shows. */
-    .table[role="grid"] :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
     .table :is(td, th)[data-editing] > .cell-editor,
     .table tr[data-editing] > :is(td, th) > .cell-editor { outline: 1px solid CanvasText; outline-offset: -1px; }
-    .table[role="grid"] :is(td, th):focus-visible,
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible,
     .table .cell-editor:focus { outline: 2px solid CanvasText; outline-offset: -2px; }
 
     /* A chat bubble is nothing but a background; without a line around it a
@@ -21562,9 +21726,13 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 
     /* A table's header repeats on every page — that is what <thead> is for, and it
        only happens if the header is not sticky. */
-    .table--sticky thead { position: static; }
+    .table--sticky thead,
+    .table--sticky-foot tfoot { position: static; }
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
+    /* A virtualized table's spacer rows stand in for rows that are not there; on paper
+       they are only a gap. */
+    .table tr:empty { display: none; }
     .table tr { break-inside: avoid; }
     /* A cell prints its value, not the editor laid over it — in a row in edit mode as
        well, whose rule this has to outweigh. */
@@ -22106,6 +22274,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .accordion summary::after { transition: none; }   /* 60 — the disclosure caret */
     .tree [aria-expanded] > .tree-row > .tree-toggle::before { transition: none; }   /* 60 — the same caret in a tree */
     .tree [aria-busy="true"] > .tree-row > .tree-toggle::before { animation: none; }   /* 60 — the ring still says it is loading */
+    .table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle::before { transition: none; }   /* 60 — the caret in a tree grid */
+    .table[role="treegrid"] tr[aria-busy="true"] > * > .tree-toggle::before { animation: none; }   /* 60 */
 
     /* 63 — the drawer appears and disappears instead of sliding. `visibility` and
        `display` are in those transition lists only to keep the panel present while it

@@ -63,9 +63,13 @@
 
     /* A table's header repeats on every page — that is what <thead> is for, and it
        only happens if the header is not sticky. */
-    .table--sticky thead { position: static; }
+    .table--sticky thead,
+    .table--sticky-foot tfoot { position: static; }
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
+    /* A virtualized table's spacer rows stand in for rows that are not there; on paper
+       they are only a gap. */
+    .table tr:empty { display: none; }
     .table tr { break-inside: avoid; }
     /* A cell prints its value, not the editor laid over it — in a row in edit mode as
        well, whose rule this has to outweigh. */

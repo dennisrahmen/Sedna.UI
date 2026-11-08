@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+
+<div class="sedna-scroll" style="--scroll-max: 300px" tabindex="0" role="group" aria-label="Parcel scans">
+    <table class="table table--sticky table--zebra" aria-label="Parcel scans" aria-rowcount="@(_scans.Count + 1)">
+        <thead>
+            <tr aria-rowindex="1"><th>Parcel</th><th>Depot</th><th class="col-num">Weight (kg)</th></tr>
+        </thead>
+        <tbody>
+            <Virtualize Items="_scans" SpacerElement="tr" ItemSize="37" Context="scan">
+                <tr @key="scan.Index" aria-rowindex="@(scan.Index + 2)">
+                    <td>@scan.Parcel</td>
+                    <td>@scan.Depot</td>
+                    <td class="col-num">@scan.Weight.ToString("0.0")</td>
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private sealed record Scan(int Index, string Parcel, string Depot, double Weight);
+
+    private static readonly string[] Depots = ["North", "East", "South", "West"];
+
+    // Ten thousand rows, and the page holds the few in view. Virtualize stands an empty
+    // <tr> in for the rest — SpacerElement="tr", because a <div> is not allowed in a
+    // <tbody> — and the table's paint passes it by. aria-rowindex is the row's place in the
+    // whole table, the header being row 1: a screen reader is told where the window is, and
+    // the zebra stripe follows it instead of the row's place among the rows rendered.
+    private readonly List<Scan> _scans = Enumerable.Range(0, 10_000)
+        .Select(i => new Scan(i, $"PCL-{700_000 + i * 7}", Depots[i % Depots.Length], 0.4 + (i * 37 % 230) / 10.0))
+        .ToList();
+}

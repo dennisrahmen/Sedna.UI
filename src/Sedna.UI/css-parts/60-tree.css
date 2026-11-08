@@ -90,7 +90,8 @@
     width: var(--space-5);
     height: 1em;
 }
-.tree [aria-expanded] > .tree-row > .tree-toggle::before {
+.tree [aria-expanded] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle::before {
     content: '';
     width: 0;
     height: 0;
@@ -99,10 +100,12 @@
     opacity: 0.55;
     transition: transform var(--motion-fast) ease;
 }
-.tree [aria-expanded="true"] > .tree-row > .tree-toggle::before { transform: rotate(90deg); }
+.tree [aria-expanded="true"] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-expanded="true"] > * > .tree-toggle::before { transform: rotate(90deg); }
 /* Children on their way: the caret becomes the spinner's ring until the app renders
    them and the script lifts `aria-busy`. */
-.tree [aria-busy="true"] > .tree-row > .tree-toggle::before {
+.tree [aria-busy="true"] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-busy="true"] > * > .tree-toggle::before {
     width: 0.75em;
     height: 0.75em;
     border: 1.5px solid var(--border);
@@ -112,6 +115,49 @@
     transform: none;
     animation: sedna-spin var(--spin-duration) linear infinite;
 }
+
+/* ── Tree grid ──────────────────────────────────────────────────────────────
+   A `.table` with `role="treegrid"`: records in a hierarchy, each with columns — a cost
+   centre and its teams, a folder and its files with their sizes. The rows stay flat in
+   the `<tbody>`; a row's depth is `aria-level`, a branch is `aria-expanded`, and the
+   cell holding the `.tree-toggle` is the tree column, indented a step per level.
+   22-grid.js is the keyboard and the state.
+
+     <table class="table" role="treegrid" aria-label="Cost by team">
+       <thead><tr><th>Team</th><th class="col-num">Cost</th></tr></thead>
+       <tbody>
+         <tr aria-level="1" aria-expanded="true" data-value="ops">
+           <td><span class="tree-toggle"></span>Operations</td><td class="col-num">412,000</td>
+         </tr>
+         <tr aria-level="2" data-value="ops-network">
+           <td><span class="tree-toggle"></span>Network</td><td class="col-num">96,500</td>
+         </tr>
+       </tbody>
+     </table>
+
+   Every row's tree cell starts with a toggle, so a leaf's label lines up with its
+   branch siblings' — the caret is drawn only on a row with `aria-expanded`. The step is
+   `--treegrid-indent`; the depth is read from `aria-level` up to the eighth level, and
+   `--tree-depth` on a row (its level less one) sets a deeper one. */
+.table[role="treegrid"] { --treegrid-indent: var(--space-7); }
+.table[role="treegrid"] tr[aria-level="2"] { --tree-depth: 1; }
+.table[role="treegrid"] tr[aria-level="3"] { --tree-depth: 2; }
+.table[role="treegrid"] tr[aria-level="4"] { --tree-depth: 3; }
+.table[role="treegrid"] tr[aria-level="5"] { --tree-depth: 4; }
+.table[role="treegrid"] tr[aria-level="6"] { --tree-depth: 5; }
+.table[role="treegrid"] tr[aria-level="7"] { --tree-depth: 6; }
+.table[role="treegrid"] tr[aria-level="8"] { --tree-depth: 7; }
+.table[role="treegrid"] tr > :has(> .tree-toggle) {
+    padding-inline-start: calc(var(--cell-pad-x) + var(--tree-depth, 0) * var(--treegrid-indent));
+    white-space: nowrap;
+}
+/* The caret's box is an em square on the text's baseline; lowered to centre it on the
+   capitals of the label beside it. */
+.table[role="treegrid"] .tree-toggle {
+    margin-inline-end: var(--space-2);
+    vertical-align: -0.15em;
+}
+.table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle { cursor: pointer; }
 
 /* ── The checkbox ───────────────────────────────────────────────────────────
    Drawn, not an <input>: the item is the control, and a checkbox inside it would be a
