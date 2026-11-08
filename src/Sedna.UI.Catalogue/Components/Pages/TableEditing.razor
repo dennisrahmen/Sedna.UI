@@ -1,0 +1,88 @@
+@page "/table-editing"
+
+<CatHead Title="Editing tables">
+    A <a href="/table"><code>.table</code></a> with <code>role="grid"</code> is one stop in the tab
+    order and is walked cell by cell with the keyboard. Its cells can be edited in place, one at a
+    time or a whole row at once. The values, the rules and the saving stay yours.
+</CatHead>
+
+<div class="callout callout--warn">
+    <i class="ri-keyboard-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">A grid is for working in, not for reading</span>
+        <code>role="grid"</code> makes a screen reader treat the table as one control and stop
+        reading it as a table. Use it where a reader moves around and acts on cells; a list of
+        records to read stays a plain <code>.table</code>.
+    </div>
+</div>
+
+<CatExample TExample="Examples.TableEditing.KeyboardGrid" Title="A keyboard grid" Demo="ex-demo--block">
+    <p>
+        <strong>Live — Tab into it.</strong> <code>role="grid"</code> on the table is the whole
+        switch. The script keeps one cell at <code>tabindex="0"</code> and every other cell and
+        control at <code>-1</code>, so <kbd>Tab</kbd> enters and leaves the grid in one step. The
+        arrow keys move between cells — mirrored right to left — <kbd>Home</kbd> and
+        <kbd>End</kbd> go to the row's ends, <kbd>Ctrl</kbd>+<kbd>Home</kbd> and
+        <kbd>Ctrl</kbd>+<kbd>End</kbd> to the grid's, and <kbd>Page Up</kbd> and
+        <kbd>Page Down</kbd> move by the rows on screen. <kbd>Enter</kbd> moves into a cell's
+        control — the sort button, the checkbox — and <kbd>Escape</kbd> comes back out.
+    </p>
+    <p>
+        With <code>aria-multiselectable="true"</code>, <kbd>Shift</kbd> with a move or a click
+        selects a rectangle of cells as <code>aria-selected</code> on each.
+        <code>sednaUi.grid.range(grid)</code> reads it back as row and column numbers.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.TableEditing.CellEditing" Title="Editing a cell" Demo="ex-demo--block">
+    <p>
+        <strong>Live — press Enter on a cell.</strong> Put a <code>.cell-editor</code> — an
+        <code>&lt;input&gt;</code>, a <code>&lt;select&gt;</code> or a
+        <code>&lt;textarea&gt;</code> — after the cell's value. <kbd>Enter</kbd>, <kbd>F2</kbd> or a
+        double-click writes <code>data-editing</code> on the cell and lays the editor over it, so
+        the row keeps its height. <kbd>Enter</kbd> commits, <kbd>Tab</kbd> commits and edits the
+        next cell, <kbd>Escape</kbd> puts the value back. Committing is the editor's own
+        <code>change</code>, which <code>@@bind</code> picks up.
+    </p>
+    <p>
+        The states are yours to render: <code>data-dirty</code> on a cell changed and not saved,
+        <code>aria-invalid="true"</code> on a rejected cell <em>and</em> its editor. Each marks the
+        cell's corner; say the same in words for a screen reader, as the
+        <code>.visually-hidden</code> text here does.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.GridCellBinding" Title="Editing cells from Blazor" Demo="ex-demo--block">
+    <p>
+        <strong>Live — change a quantity, then set one to 0.</strong> The editor is bound with
+        <code>@@bind</code>; <code>data-dirty</code> and <code>aria-invalid</code> are rendered from
+        the component's own state, and saving is a button of the app's.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.TableEditing.RowEditMode" Title="A row in edit mode" Demo="ex-demo--block">
+    <p>
+        <code>data-editing</code> on the <code>&lt;tr&gt;</code>, rendered by the app, shows every
+        editor in the row as a field. Its controls stay in the tab order while it lasts. Mark its
+        buttons <code>data-row-save</code> and <code>data-row-cancel</code>: <kbd>Enter</kbd> in an
+        editor presses the first and <kbd>Escape</kbd> the second. Render the same size of button
+        in both modes and the row keeps its height. <strong>The buttons here do nothing</strong> —
+        the live version is next.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.GridRowEdit" Title="Row edit mode from Blazor" Demo="ex-demo--block">
+    <p>
+        <strong>Live — edit a row, empty its city.</strong> When the row enters edit mode the
+        focus moves into its first editor; when it leaves, back to the cell it was in — after
+        Blazor has re-rendered the row and the button that had the focus is gone.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.TableEditing.PinnedGrid" Title="With a pinned column and a sticky header" Demo="ex-demo--block">
+    <p>
+        <strong>Live — move with the arrows.</strong> <a href="/table"><code>.table--pin-start</code></a>,
+        <code>.table--pin-end</code> and <code>.table--sticky</code> work in a grid unchanged, and a
+        cell the keyboard reaches is scrolled clear of them rather than left underneath.
+    </p>
+</CatExample>

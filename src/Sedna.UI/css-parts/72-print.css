@@ -67,6 +67,9 @@
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
     .table tr { break-inside: avoid; }
+    /* A cell prints its value, not the editor laid over it — in a row in edit mode as
+       well, whose rule this has to outweigh. */
+    .table tr:is(*, [data-editing]) > :is(td, th):is(*, [data-editing]) > .cell-editor { display: none; }
 
     /* Scroll containers have no scrollbar on paper, so their content must be allowed
        out rather than clipped to the box it had on screen. */

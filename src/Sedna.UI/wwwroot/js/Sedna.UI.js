@@ -729,6 +729,460 @@ window.sednaUi = window.sednaUi || {};
     }, true);
 })(window.sednaUi);
 (function (ui) {
+    var state = new WeakMap();      // grid → { cell, row, col, want, anchor, picked, rowEdit }
+    var tamed = new WeakMap();      // control → the tabindex attribute it had, or null
+    var editing = new WeakMap();    // cell → { value, ending }
+    var holder = null;              // the grid the reader is in, kept while a render takes its focus away
+    var CONTROLS = 'a[href], button, input, select, textarea, summary, [tabindex], [contenteditable=""], [contenteditable="true"]';
+    var core = {
+        selector: 'table[role="grid"]',
+        keys: [],
+        gridOf: gridOf,
+        rows: rowsOf,
+        cells: cellsOf,
+        colOf: colOf,
+        cellAt: cellAt,
+        activate: activate,
+        refresh: refresh
+    };
+    ui._.grid = core;
+    function gridOf(el) {
+        var cell = el && el.closest ? el.closest('td, th') : null;
+        return cell ? cell.closest('table') : (el && el.closest ? el.closest(core.selector) : null);
+    }
+    function cellOf(el) {
+        var cell = el && el.closest ? el.closest('td, th') : null;
+        for (; cell; cell = cell.parentElement ? cell.parentElement.closest('td, th') : null) {
+            var table = cell.closest('table');
+            if (table && table.matches(core.selector)) return cell;
+        }
+        return null;
+    }
+    function stateOf(grid) {
+        var s = state.get(grid);
+        if (!s) {
+            s = { cell: null, row: 0, col: 0, want: 0, anchor: null, picked: [], rowEdit: null };
+            state.set(grid, s);
+        }
+        return s;
+    }
+    function rowsOf(grid) {
+        return Array.prototype.filter.call(grid.rows, function (r) {
+            return r.cells.length > 0 && r.getClientRects().length > 0;
+        });
+    }
+    function cellsOf(row) { return Array.prototype.slice.call(row.cells); }
+    function colOf(cell) {
+        var col = 0;
+        for (var c = cell.previousElementSibling; c; c = c.previousElementSibling) col += c.colSpan || 1;
+        return col;
+    }
+    function cellAt(row, col) {
+        var cells = row.cells, at = 0;
+        for (var i = 0; i < cells.length; i++) {
+            at += cells[i].colSpan || 1;
+            if (col < at) return cells[i];
+        }
+        return cells[cells.length - 1] || null;
+    }
+    function rtl(grid) { return getComputedStyle(grid).direction === 'rtl'; }
+    function editorOf(cell) { return cell.querySelector('.cell-editor'); }
+    function rowEditing(cell) {
+        var row = cell.parentElement;
+        return !!(row && row.hasAttribute('data-editing'));
+    }
+    function keepsKeys(el) {
+        if (el.isContentEditable) return true;
+        var tag = el.tagName;
+        if (tag === 'TEXTAREA' || tag === 'SELECT') return true;
+        if (tag !== 'INPUT') return false;
+        return !/^(button|checkbox|submit|reset|image|color|file)$/i.test(el.type);
+    }
+    function lostFocus() {
+        var a = document.activeElement;
+        return (a === null || a === document.body) && document.hasFocus();
+    }
+    function controlsIn(cell) {
+        return Array.prototype.filter.call(cell.querySelectorAll(CONTROLS), function (el) {
+            return !el.classList.contains('cell-editor') && cellOf(el) === cell;
+        });
+    }
+    function tame(grid) {
+        var all = grid.querySelectorAll(CONTROLS);
+        for (var i = 0; i < all.length; i++) {
+            var el = all[i];
+            if (el.classList.contains('cell-editor')) continue;
+            var cell = cellOf(el);
+            if (!cell || gridOf(cell) !== grid || el === cell) continue;
+            if (rowEditing(cell)) {
+                if (tamed.has(el)) {
+                    var was = tamed.get(el);
+                    tamed.delete(el);
+                    if (was === null) el.removeAttribute('tabindex');
+                    else el.setAttribute('tabindex', was);
+                }
+            } else if (!tamed.has(el) && el.getAttribute('tabindex') !== '-1') {
+                tamed.set(el, el.getAttribute('tabindex'));
+                el.setAttribute('tabindex', '-1');
+            }
+        }
+    }
+    function activate(grid, cell, keepWant) {
+        var s = stateOf(grid);
+        if (s.cell && s.cell !== cell && s.cell.isConnected && gridOf(s.cell) === grid) s.cell.setAttribute('tabindex', '-1');
+        if (cell.getAttribute('tabindex') !== '0') cell.setAttribute('tabindex', '0');
+        var rows = rowsOf(grid);
+        s.cell = cell;
+        s.row = Math.max(0, rows.indexOf(cell.parentElement));
+        s.col = colOf(cell);
+        if (!keepWant) s.want = s.col;
+    }
+    function go(grid, cell, keepWant) {
+        activate(grid, cell, keepWant);
+        cell.focus();
+        reveal(cell);
+    }
+    function scroller(el, axis) {
+        for (var p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+            var o = getComputedStyle(p)[axis === 'x' ? 'overflowX' : 'overflowY'];
+            if ((o === 'auto' || o === 'scroll') && (axis === 'x' ? p.scrollWidth > p.clientWidth : p.scrollHeight > p.clientHeight)) return p;
+        }
+        return null;
+    }
+    function reveal(cell) {
+        var x = scroller(cell, 'x');
+        if (x && getComputedStyle(cell).position !== 'sticky') {
+            var box = x.getBoundingClientRect();
+            var left = box.left + x.clientLeft, right = left + x.clientWidth, middle = (left + right) / 2;
+            var cells = cell.parentElement.cells;
+            for (var i = 0; i < cells.length; i++) {
+                if (cells[i] === cell || getComputedStyle(cells[i]).position !== 'sticky') continue;
+                var pin = cells[i].getBoundingClientRect();
+                if (pin.left + pin.width / 2 < middle) left = Math.max(left, pin.right);
+                else right = Math.min(right, pin.left);
+            }
+            var r = cell.getBoundingClientRect();
+            if (r.left < left) x.scrollLeft -= left - r.left;
+            else if (r.right > right) x.scrollLeft += Math.min(r.right - right, r.left - left);
+        }
+        var y = scroller(cell, 'y');
+        if (y) {
+            var yb = y.getBoundingClientRect();
+            var top = yb.top + y.clientTop, bottom = top + y.clientHeight;
+            var head = cell.closest('table').tHead;
+            if (head && !head.contains(cell) && getComputedStyle(head).position === 'sticky') top = Math.max(top, head.getBoundingClientRect().bottom);
+            var c = cell.getBoundingClientRect();
+            if (c.top < top) y.scrollTop -= top - c.top;
+            else if (c.bottom > bottom) y.scrollTop += Math.min(c.bottom - bottom, c.top - top);
+        }
+    }
+    function refresh(grid) {
+        if (!grid) {
+            var all = document.querySelectorAll(core.selector);
+            for (var g = 0; g < all.length; g++) refresh(all[g]);
+            return;
+        }
+        var s = stateOf(grid);
+        var rows = rowsOf(grid);
+        if (!rows.length) return;
+        tame(grid);
+        var lost = holder === grid && lostFocus();
+        var cell = s.cell;
+        if (!cell || !cell.isConnected || gridOf(cell) !== grid || rows.indexOf(cell.parentElement) < 0) {
+            if (s.cell) {
+                cell = cellAt(rows[Math.min(s.row, rows.length - 1)], s.want);
+                activate(grid, cell, true);
+            } else {
+                cell = firstStop(grid, rows);
+                activate(grid, cell);
+            }
+            if (lost) cell.focus({ preventScroll: true });
+        } else if (cell.getAttribute('tabindex') !== '0') {
+            cell.setAttribute('tabindex', '0');
+        }
+        for (var r = 0; r < rows.length; r++) {
+            var cells = rows[r].cells;
+            for (var i = 0; i < cells.length; i++) {
+                if (cells[i] !== cell && cells[i].getAttribute('tabindex') !== '-1') cells[i].setAttribute('tabindex', '-1');
+            }
+        }
+        var editRow = rowEditing(cell) ? cell.parentElement : null;
+        if (editRow && editRow !== s.rowEdit) {
+            s.rowEdit = editRow;
+            if (holder === grid && (lostFocus() || editRow.contains(document.activeElement))) {
+                var first = editRow.querySelector('.cell-editor');
+                if (first && first !== document.activeElement) first.focus();
+            }
+        } else if (!editRow) {
+            var a = document.activeElement;
+            if (s.rowEdit && holder === grid && (lostFocus() || (s.rowEdit.contains(a) && a.classList.contains('cell-editor'))))
+                cell.focus({ preventScroll: true });
+            s.rowEdit = null;
+        }
+    }
+    function firstStop(grid, rows) {
+        var marked = grid.querySelectorAll('td[tabindex="0"], th[tabindex="0"]');
+        for (var i = 0; i < marked.length; i++) if (gridOf(marked[i]) === grid) return marked[i];
+        for (var r = 0; r < rows.length; r++) if (rows[r].parentElement === grid.tBodies[0]) return rows[r].cells[0];
+        return rows[0].cells[0];
+    }
+    function multi(grid) { return grid.getAttribute('aria-multiselectable') === 'true'; }
+    function pick(grid, from, to) {
+        var s = stateOf(grid);
+        var rows = rowsOf(grid);
+        var picked = [];
+        if (from && to) {
+            var r0 = rows.indexOf(from.parentElement), r1 = rows.indexOf(to.parentElement);
+            var c0 = colOf(from), c1 = colOf(to);
+            var top = Math.min(r0, r1), bottom = Math.max(r0, r1);
+            var left = Math.min(c0, c1), right = Math.max(c0 + (from.colSpan || 1), c1 + (to.colSpan || 1)) - 1;
+            for (var r = top; r <= bottom; r++) {
+                var cells = rows[r].cells;
+                for (var i = 0; i < cells.length; i++) {
+                    var start = colOf(cells[i]), end = start + (cells[i].colSpan || 1) - 1;
+                    if (end >= left && start <= right) picked.push(cells[i]);
+                }
+            }
+        }
+        for (var k = 0; k < s.picked.length; k++) {
+            if (picked.indexOf(s.picked[k]) < 0 && s.picked[k].isConnected) s.picked[k].setAttribute('aria-selected', 'false');
+        }
+        for (var j = 0; j < picked.length; j++) {
+            if (picked[j].getAttribute('aria-selected') !== 'true') picked[j].setAttribute('aria-selected', 'true');
+        }
+        s.picked = picked;
+    }
+    function clearPick(grid) {
+        var s = stateOf(grid);
+        s.anchor = null;
+        if (s.picked.length) pick(grid, null, null);
+    }
+    function pageRows(grid, cell) {
+        var y = scroller(cell, 'y');
+        var height = y ? y.clientHeight : window.innerHeight;
+        var row = cell.parentElement.getBoundingClientRect().height || 1;
+        var head = grid.tHead && y && getComputedStyle(grid.tHead).position === 'sticky' ? grid.tHead.getBoundingClientRect().height : 0;
+        return Math.max(1, Math.floor((height - head) / row) - 1);
+    }
+    function target(e, grid, cell) {
+        var s = stateOf(grid);
+        var rows = rowsOf(grid);
+        var row = cell.parentElement;
+        var r = rows.indexOf(row);
+        if (r < 0) return null;
+        var cells = row.cells;
+        var i = cell.cellIndex;
+        var back = rtl(grid);
+        var right = back ? -1 : 1;
+        var primary = e.ctrlKey || e.metaKey;
+        switch (e.key) {
+            case 'ArrowRight': return { cell: cells[Math.max(0, Math.min(cells.length - 1, i + right))] };
+            case 'ArrowLeft': return { cell: cells[Math.max(0, Math.min(cells.length - 1, i - right))] };
+            case 'ArrowDown': return { cell: cellAt(rows[Math.min(rows.length - 1, r + 1)], s.want), keepWant: true };
+            case 'ArrowUp': return { cell: cellAt(rows[Math.max(0, r - 1)], s.want), keepWant: true };
+            case 'Home': return primary ? { cell: rows[0].cells[0] } : { cell: cells[0] };
+            case 'End':
+                if (primary) { var last = rows[rows.length - 1]; return { cell: last.cells[last.cells.length - 1] }; }
+                return { cell: cells[cells.length - 1] };
+            case 'PageDown': return { cell: cellAt(rows[Math.min(rows.length - 1, r + pageRows(grid, cell))], s.want), keepWant: true };
+            case 'PageUp': return { cell: cellAt(rows[Math.max(0, r - pageRows(grid, cell))], s.want), keepWant: true };
+        }
+        return null;
+    }
+    function move(e, grid, cell) {
+        var to = target(e, grid, cell);
+        if (!to || !to.cell) return false;
+        e.preventDefault();
+        var s = stateOf(grid);
+        if (e.shiftKey && multi(grid)) {
+            if (!s.anchor || !s.anchor.isConnected) s.anchor = cell;
+            go(grid, to.cell, to.keepWant);
+            pick(grid, s.anchor, to.cell);
+        } else {
+            clearPick(grid);
+            go(grid, to.cell, to.keepWant);
+        }
+        return true;
+    }
+    function begin(grid, cell, caretAtEnd) {
+        var editor = editorOf(cell);
+        if (!editor) return false;
+        activate(grid, cell);
+        editing.set(cell, { value: 'value' in editor ? editor.value : null, ending: false });
+        cell.setAttribute('data-editing', '');
+        editor.focus();
+        try {
+            if (caretAtEnd && editor.setSelectionRange) editor.setSelectionRange(editor.value.length, editor.value.length);
+            else if (editor.select) editor.select();
+        } catch (err) { /* a number or a date field has no text selection */ }
+        return true;
+    }
+    function end(grid, cell, commit) {
+        var edit = editing.get(cell);
+        var editor = editorOf(cell);
+        if (edit) edit.ending = true;
+        if (!commit && edit && editor && edit.value !== null && editor.value !== edit.value) {
+            editor.value = edit.value;
+            editor.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        if (grid && cell.isConnected) {
+            activate(grid, cell, true);
+            cell.focus();
+        }
+        cell.removeAttribute('data-editing');
+        editing.delete(cell);
+    }
+    function step(grid, cell, back) {
+        var rows = rowsOf(grid);
+        var row = cell.parentElement;
+        var r = rows.indexOf(row);
+        var i = cell.cellIndex + (back ? -1 : 1);
+        if (i >= 0 && i < row.cells.length) return row.cells[i];
+        var next = rows[r + (back ? -1 : 1)];
+        if (!next) return null;
+        return back ? next.cells[next.cells.length - 1] : next.cells[0];
+    }
+    function inEditor(e, grid, cell) {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            end(grid, cell, false);
+            return;
+        }
+        if (e.key === 'Enter' && !e.isComposing && (e.target.tagName !== 'TEXTAREA' || e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            end(grid, cell, true);
+            return;
+        }
+        if (e.key === 'Tab' && !e.altKey && !e.ctrlKey && !e.metaKey) {
+            var next = step(grid, cell, e.shiftKey);
+            if (!next) return;
+            e.preventDefault();
+            end(grid, cell, true);
+            if (!begin(grid, next, false)) go(grid, next);
+        }
+    }
+    function inEditingRow(e, cell) {
+        var row = cell.parentElement;
+        var button = null;
+        if (e.key === 'Escape') button = row.querySelector('[data-row-cancel]');
+        else if (e.key === 'Enter' && !e.isComposing && e.target.classList.contains('cell-editor') && e.target.tagName !== 'TEXTAREA') button = row.querySelector('[data-row-save]');
+        if (!button || button.disabled) return;
+        e.preventDefault();
+        button.click();
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.defaultPrevented || !(e.target instanceof Element)) return;
+        var cell = cellOf(e.target);
+        if (!cell) return;
+        var grid = gridOf(cell);
+        var layer = e.target.closest('[popover], [role="menu"], [role="listbox"], dialog');
+        if (layer && cell.contains(layer)) return;
+        for (var k = 0; k < core.keys.length; k++) {
+            if (core.keys[k](e, grid, cell)) return;
+        }
+        if (e.target !== cell) {
+            var editor = editorOf(cell);
+            if (cell.hasAttribute('data-editing') && editor && editor.contains(e.target)) { inEditor(e, grid, cell); return; }
+            if (rowEditing(cell)) { inEditingRow(e, cell); return; }
+            if (e.key === 'Escape') { e.preventDefault(); go(grid, cell); return; }
+            if (keepsKeys(e.target)) return;
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'F2') return;
+            move(e, grid, cell);
+            return;
+        }
+        if (e.altKey) return;
+        if (e.key === 'Enter' || e.key === 'F2') {
+            if (begin(grid, cell, e.key === 'F2')) { e.preventDefault(); return; }
+            var controls = controlsIn(cell);
+            if (controls.length) { e.preventDefault(); controls[0].focus(); }
+            return;
+        }
+        if (e.key === 'Escape') {
+            if (stateOf(grid).picked.length) { e.preventDefault(); clearPick(grid); }
+            return;
+        }
+        move(e, grid, cell);
+    });
+    document.addEventListener('focusin', function (e) {
+        var cell = cellOf(e.target);
+        if (!cell) { holder = null; return; }
+        var grid = gridOf(cell);
+        holder = grid;
+        if (stateOf(grid).cell !== cell) activate(grid, cell);
+    });
+    document.addEventListener('focusout', function (e) {
+        var cell = cellOf(e.target);
+        if (!cell || !editing.has(cell)) return;
+        Promise.resolve().then(function () {
+            var edit = editing.get(cell);
+            if (edit && !edit.ending && !cell.contains(document.activeElement) && document.hasFocus()) end(null, cell, true);
+        });
+    });
+    document.addEventListener('mousedown', function (e) {
+        if (!(e.target instanceof Element)) return;
+        var cell = cellOf(e.target);
+        if (!cell) { holder = null; return; }
+        var grid = gridOf(cell);
+        holder = grid;
+        if (e.button !== 0) return;
+        var s = stateOf(grid);
+        if (e.shiftKey && multi(grid) && s.cell && s.cell !== cell) {
+            e.preventDefault();
+            if (!s.anchor || !s.anchor.isConnected) s.anchor = s.cell;
+            go(grid, cell);
+            pick(grid, s.anchor, cell);
+            return;
+        }
+        var control = e.target.closest(CONTROLS);
+        if (control && control !== cell && cell.contains(control)) return;
+        clearPick(grid);
+        activate(grid, cell);
+    });
+    document.addEventListener('dblclick', function (e) {
+        var cell = e.target instanceof Element ? cellOf(e.target) : null;
+        if (!cell || cell.hasAttribute('data-editing') || rowEditing(cell)) return;
+        var grid = gridOf(cell);
+        begin(grid, cell, true);
+    });
+    ui.grid = {
+        range: function (grid) {
+            grid = typeof grid === 'string' ? document.getElementById(grid) : grid;
+            var s = grid && state.get(grid);
+            if (!s || !s.picked.length) return null;
+            var top = Infinity, left = Infinity, bottom = -1, right = -1;
+            for (var i = 0; i < s.picked.length; i++) {
+                var c = s.picked[i];
+                if (!c.isConnected) continue;
+                var r = c.parentElement.rowIndex, col = colOf(c);
+                top = Math.min(top, r); bottom = Math.max(bottom, r);
+                left = Math.min(left, col); right = Math.max(right, col + (c.colSpan || 1) - 1);
+            }
+            return bottom < 0 ? null : { top: top, left: left, bottom: bottom, right: right };
+        },
+        refresh: function (grid) {
+            refresh(typeof grid === 'string' ? document.getElementById(grid) : grid || null);
+        }
+    };
+    var scheduled = false;
+    function later() {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(function () { scheduled = false; refresh(null); });
+    }
+    function watch() {
+        refresh(null);
+        new MutationObserver(function (records) {
+            if (!document.querySelector(core.selector)) return;
+            for (var i = 0; i < records.length; i++) {
+                var r = records[i];
+                if (r.type === 'childList' || (r.attributeName === 'data-editing' && r.target.tagName === 'TR')) { later(); return; }
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-editing'] });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
+    else watch();
+})(window.sednaUi);
+(function (ui) {
     function rowsOf(head) {
         var rows = [];
         for (var el = head.nextElementSibling; el && !el.classList.contains('sticky-group-head'); el = el.nextElementSibling)

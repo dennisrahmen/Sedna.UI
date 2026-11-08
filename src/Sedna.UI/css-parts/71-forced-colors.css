@@ -232,6 +232,14 @@
        cell is outlined inside its own box, so the row reads as one marked band. */
     .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
 
+    /* A keyboard grid: a selected range is a tint, an editor's edge and ring are shadows,
+       and the focused cell's ring is restated after both so it is the one that shows. */
+    .table[role="grid"] :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+    .table :is(td, th)[data-editing] > .cell-editor,
+    .table tr[data-editing] > :is(td, th) > .cell-editor { outline: 1px solid CanvasText; outline-offset: -1px; }
+    .table[role="grid"] :is(td, th):focus-visible,
+    .table .cell-editor:focus { outline: 2px solid CanvasText; outline-offset: -2px; }
+
     /* A chat bubble is nothing but a background; without a line around it a
        thread is a column of text with no turns in it. */
     .chat-bubble,

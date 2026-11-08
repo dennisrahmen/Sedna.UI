@@ -506,6 +506,117 @@
     box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
 }
 
+/* ── A keyboard grid ────────────────────────────────────────────────────────
+   `role="grid"` on a `.table` makes it one tab stop with arrow-key movement between
+   cells (22-grid.js). The cell that has the focus is ringed inside its own box, as an
+   outline rather than a shadow, so it composes with a pinned cell's edge shadow and a
+   selected row's bar instead of replacing them.
+
+   A selected range is `aria-selected` on each cell, written by the script. Its tint is
+   laid over the cell's own background as an image, so a sticky header cell keeps its
+   opaque surface under it, and it is handed to a pinned cell through `--pin-tint`. */
+.table[role="grid"] :is(td, th):focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+}
+.table[role="grid"] :is(td, th)[aria-selected="true"] {
+    --pin-tint: var(--brand-tint);
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+}
+
+/* ── Editing in place ───────────────────────────────────────────────────────
+   A cell that can be edited holds its value and, after it, a `.cell-editor` — an
+   `<input>`, a `<select>` or a `<textarea>` the app binds:
+
+     <td class="col-num">12<input class="cell-editor" type="number" value="12" aria-label="Quantity, desk lamp"></td>
+
+   The editor is hidden until the cell is edited — `data-editing` on the cell, which the
+   grid's script writes on Enter, F2 or a double-click — or its row is: `data-editing`
+   on the `<tr>`, which the app renders. It is then laid over the whole cell, so the row
+   keeps its height and the column its width: the value under it still sizes both.
+
+   The states are attributes, and the app writes them:
+
+     · rejected   `aria-invalid="true"` on the editor, and on the cell too, so a screen
+                  reader moving through the grid hears it without opening the editor.
+                  The editor takes a danger edge; the cell a mark in its corner.
+     · changed    `data-dirty` on the cell, for a value edited and not yet saved.
+                  The same corner, in its own colour. A rejected value wins it.
+
+   A mark is colour and a shape, not a label: say what it means in the cell's
+   accessible description as well. `--cell-dirty-mark`, `--cell-invalid-mark` and
+   `--cell-mark-size` are the knobs.
+
+   The cell is positioned to hold the editor and the mark. A pinned cell is already
+   positioned — sticky — and keeps it: its rule weighs more than this one. */
+.table {
+    --cell-dirty-mark: var(--info-fg);
+    --cell-invalid-mark: var(--field-border-danger);
+    --cell-mark-size: 7px;
+}
+.table :is(td, th):is([data-dirty], [aria-invalid="true"], :has(> .cell-editor)) { position: relative; }
+/* A cell that holds its value and nothing visible besides its editor is a cell of words,
+   and is trimmed to its capitals as one is in 32-tables.css — so a column of edited
+   values sits on the line the rest of the row does. */
+.table :is(td, th):has(> .cell-editor):not(:has(> :not(.cell-editor, .visually-hidden))) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
+}
+.cell-editor { display: none; }
+.table :is(td, th)[data-editing] > .cell-editor,
+.table tr[data-editing] > :is(td, th) > .cell-editor {
+    display: block;
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0 var(--cell-pad-x);
+    background: var(--bg);
+    border: 0;
+    border-radius: 0;
+    color: var(--fg);
+    font: inherit;
+    text-align: inherit;
+    resize: none;
+}
+.table textarea.cell-editor { padding-block: var(--cell-pad-y); }
+/* The edge and its states weigh less than the rule above, so each state only has to
+   outweigh the one before it. */
+.table .cell-editor { box-shadow: inset 0 0 0 1px var(--field-border); }
+.table .cell-editor:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--focus-ring);
+}
+.table .cell-editor[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--field-border-danger); }
+.table .cell-editor[aria-invalid="true"]:focus {
+    box-shadow: inset 0 0 0 1px var(--field-border-danger), inset 0 0 0 3px var(--focus-ring);
+}
+
+/* The corner mark, at the cell's block-start inline-end corner, drawn with two borders
+   so it mirrors on a right-to-left page with nothing restated. Over the editor, so a
+   rejected value is marked while it is edited too. */
+.table :is(td, th):is([data-dirty], [aria-invalid="true"], :has(> .cell-editor[aria-invalid="true"]))::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    border-block-start: var(--cell-mark-size) solid var(--cell-mark, var(--cell-dirty-mark));
+    border-inline-start: var(--cell-mark-size) solid transparent;
+    pointer-events: none;
+}
+.table :is(td, th)[data-dirty] { --cell-mark: var(--cell-dirty-mark); }
+.table :is(td, th):is([aria-invalid="true"], :has(> .cell-editor[aria-invalid="true"])) { --cell-mark: var(--cell-invalid-mark); }
+
+/* A row in edit mode: every editor in it shows as a field, the row takes the soft
+   surface, and its save and cancel buttons are the app's — `data-row-save` and
+   `data-row-cancel` on them let Enter and Escape in an editor press them. Keep the
+   same size of button in the row in both modes, and the row keeps its height. */
+.table tbody tr[data-editing] > td { background: var(--surface-soft); }
+.table tbody tr[data-editing] { --pin-tint: var(--surface-soft); }
+
 /* ── Column width ───────────────────────────────────────────────────────────
    `.table` leaves column widths to the browser, which is right nearly always. It
    goes wrong when the cells in one row are not all short values, because the

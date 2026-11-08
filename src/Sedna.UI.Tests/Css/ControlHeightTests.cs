@@ -102,6 +102,25 @@ public class ControlHeightTests
         Assert.True(small >= 24, $"--control-height-sm is {small}px, under the 24px target floor.");
     }
 
+    [Fact]
+    public void A_cell_editor_takes_the_cells_height_and_no_control_height()
+    {
+        // The one control that must NOT ride --control-height: an editor laid over a table
+        // cell is exactly as tall as the cell, so editing a value cannot change the row.
+        // CellControlHeightTests measures it; this says where the rule lives.
+        var css = Assets.StripComments(Assets.Css);
+        var body = Regex.Matches(css, @"(?<selector>[^{}@;]+)\{(?<body>[^{}]*)\}").Cast<Match>()
+            .Where(m => Assets.Squash(m.Groups["selector"].Value).Contains("[data-editing] > .cell-editor", StringComparison.Ordinal))
+            .Select(m => m.Groups["body"].Value)
+            .FirstOrDefault(b => b.Contains("position", StringComparison.Ordinal));
+
+        Assert.NotNull(body);
+        Assert.Matches(@"(?<![\w-])position\s*:\s*absolute", body!);
+        Assert.Matches(@"(?<![\w-])height\s*:\s*100%", body!);
+        Assert.Matches(@"(?<![\w-])min-height\s*:\s*0", body!);
+        Assert.DoesNotContain("--control-height", body!, StringComparison.Ordinal);
+    }
+
     /// <summary>
     /// The declarations of the rule whose selector list contains
     /// <paramref name="selector"/> exactly, or null.
@@ -131,4 +150,72 @@ public class ControlHeightTests
 
     private static int Px(string value) => int.Parse(value.Replace("px", "", StringComparison.Ordinal).Trim(),
         System.Globalization.CultureInfo.InvariantCulture);
+}
+
+/// <summary>
+/// An editor in a table cell keeps the row the height it had: every kind of editor, in a
+/// cell edited alone and in a row in edit mode, at every density.
+/// </summary>
+public class CellControlHeightTests : ScriptTestBase
+{
+    [Theory]
+    [InlineData("comfortable")]
+    [InlineData("compact")]
+    [InlineData("touch")]
+    public async Task An_editor_in_a_cell_keeps_the_row_height_and_covers_the_cell(string density)
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <table class="table" role="grid" aria-label="Order lines" style="width:640px">
+              <thead><tr><th>Line</th><th class="col-num">Quantity</th><th>Store</th><th>Note</th></tr></thead>
+              <tbody>
+                <tr id="row">
+                  <td id="plain">Desk lamp</td>
+                  <td id="num" class="col-num">12<input class="cell-editor" type="number" value="12" aria-label="Quantity"></td>
+                  <td id="pick">Northwind Retail<select class="cell-editor" aria-label="Store"><option>Northwind Retail</option></select></td>
+                  <td id="note">Fragile<textarea class="cell-editor" aria-label="Note">Fragile</textarea></td>
+                </tr>
+              </tbody>
+            </table>
+            """);
+        await page.EvaluateAsync<string>("d => document.documentElement.dataset.density = d", density);
+
+        var failures = await page.EvaluateAsync<string[]>("""
+            () => {
+                const out = [], row = document.getElementById('row');
+                const box = el => el.getBoundingClientRect();
+                const restRow = box(row).height;
+                const widths = [...row.cells].map(c => box(c).width);
+                const check = (label) => {
+                    if (Math.abs(box(row).height - restRow) > 0.01) out.push(`${label}: the row is ${box(row).height}px, not ${restRow}px`);
+                    [...row.cells].forEach((c, i) => { if (Math.abs(box(c).width - widths[i]) > 0.01) out.push(`${label}: ${c.id} changed width`); });
+                    for (const c of row.querySelectorAll('td')) {
+                        const e = c.querySelector('.cell-editor');
+                        if (!e || getComputedStyle(e).display === 'none') continue;
+                        const cb = box(c), eb = box(e), cs = getComputedStyle(c);
+                        const top = cb.top + parseFloat(cs.borderTopWidth), bottom = cb.bottom - parseFloat(cs.borderBottomWidth);
+                        if (Math.abs(eb.top - top) > 1 || Math.abs(eb.bottom - bottom) > 1 || Math.abs(eb.left - cb.left) > 1 || Math.abs(eb.right - cb.right) > 1)
+                            out.push(`${label}: ${c.id}'s editor ${eb.left},${eb.top},${eb.right},${eb.bottom} does not cover its cell ${cb.left},${top},${cb.right},${bottom}`);
+                    }
+                };
+                for (const c of row.querySelectorAll('td')) {
+                    const e = c.querySelector('.cell-editor');
+                    if (e && getComputedStyle(e).display !== 'none') out.push(`${c.id}: the editor shows before editing`);
+                }
+                for (const id of ['num', 'pick', 'note']) {
+                    const c = document.getElementById(id);
+                    c.setAttribute('data-editing', '');
+                    if (getComputedStyle(c.querySelector('.cell-editor')).display === 'none') out.push(`${id}: the editor is hidden while editing`);
+                    check(id);
+                    c.removeAttribute('data-editing');
+                }
+                row.setAttribute('data-editing', '');
+                check('the row in edit mode');
+                return out;
+            }
+            """);
+
+        Assert.True(failures.Length == 0, $"{Engine}, {density}:\n  " + string.Join("\n  ", failures));
+        Assert.Empty(errors);
+    }
 }

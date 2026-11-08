@@ -1,0 +1,70 @@
+<table class="table" role="grid" aria-label="Delivery addresses">
+    <thead>
+        <tr>
+            <th>Recipient</th>
+            <th>City</th>
+            <th class="col-fit"><span class="visually-hidden">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var address in _addresses)
+        {
+            var editing = ReferenceEquals(_editing, address);
+            var bad = editing && string.IsNullOrWhiteSpace(_city);
+            <tr @key="address" data-editing="@editing">
+                <td>
+                    @address.Recipient
+                    @if (editing) { <input class="cell-editor" @bind="_recipient" aria-label="Recipient" /> }
+                </td>
+                <td aria-invalid="@(bad ? "true" : null)">
+                    @address.City
+                    @if (editing)
+                    {
+                        <input class="cell-editor" @bind="_city" @bind:event="oninput" aria-invalid="@(bad ? "true" : null)" aria-label="City" />
+                    }
+                </td>
+                <td class="col-fit">
+                    @if (editing)
+                    {
+                        <div class="sedna-row sedna-gap-0">
+                            <button class="btn btn--sm btn--ghost btn--icon" type="button" data-row-save aria-label="Save" disabled="@bad" @onclick="Save"><i class="ri-check-line"></i></button>
+                            <button class="btn btn--sm btn--ghost btn--icon" type="button" data-row-cancel aria-label="Cancel" @onclick="Cancel"><i class="ri-close-line"></i></button>
+                        </div>
+                    }
+                    else
+                    {
+                        <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="@($"Edit the address for {address.Recipient}")" @onclick="() => Edit(address)"><i class="ri-pencil-line"></i></button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private sealed class Address(string recipient, string city)
+    {
+        public string Recipient { get; set; } = recipient;
+        public string City { get; set; } = city;
+    }
+
+    private readonly List<Address> _addresses = [new("Alex Fischer", "Bern"), new("Northwind Retail", "Basel"), new("Priya Nair", "Zürich")];
+
+    // Edit mode is the app's state, rendered as data-editing on the row. The script moves the
+    // focus into the first editor when the row enters it and back to the cell when it leaves,
+    // and Enter and Escape in an editor press the buttons marked data-row-save and -cancel.
+    private Address? _editing;
+    private string _recipient = "";
+    private string _city = "";
+
+    private void Edit(Address address) => (_editing, _recipient, _city) = (address, address.Recipient, address.City);
+
+    private void Save()
+    {
+        if (_editing is null || string.IsNullOrWhiteSpace(_city)) return;
+        (_editing.Recipient, _editing.City) = (_recipient, _city);
+        _editing = null;
+    }
+
+    private void Cancel() => _editing = null;
+}

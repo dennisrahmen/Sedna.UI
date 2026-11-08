@@ -52,6 +52,7 @@ something, it is listed below and repeated in the class's own comment.
 | `.breadcrumb` | `aria-current="page"` on the last item, which stays a `<span>` |
 | `.table` sorting | `aria-sort` on the `<th>` — the arrow is drawn from it, so they cannot disagree |
 | `.table` selection | `aria-selected` on the `<tr>` |
+| `.table[role="grid"]` | an `aria-label`; `aria-multiselectable="true"` only where a range of cells may be selected; an `aria-label` on every `.cell-editor` naming the column and the row; `aria-invalid="true"` on a rejected cell **and** its editor; and the meaning of `data-dirty` and of a rejection in words, in the cell — the corner mark is colour and shape only. The script writes the roving `tabindex`, the cells' `aria-selected` and `data-editing`. Use a grid only where the reader works in the cells: a screen reader stops reading it as a table. |
 | `.stat-delta` | an arrow icon. The colour is not the direction. |
 | `.skip-link` | `href="#main"`, and `tabindex="-1"` on `<main id="main">` so the jump moves focus rather than only scrolling. Under `<base href="/">` the jump needs `Sedna.UI.js` — see [getting started](getting-started.md#base-href) |
 | any icon-only button | `aria-label`, plus `data-tip` when the purpose is not obvious — and `.btn--icon`, which squares it to the shared control height instead of leaving a wide box around one glyph |

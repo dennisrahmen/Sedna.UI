@@ -6503,6 +6503,67 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
     box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
 }
+.table[role="grid"] :is(td, th):focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+}
+.table[role="grid"] :is(td, th)[aria-selected="true"] {
+    --pin-tint: var(--brand-tint);
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+}
+.table {
+    --cell-dirty-mark: var(--info-fg);
+    --cell-invalid-mark: var(--field-border-danger);
+    --cell-mark-size: 7px;
+}
+.table :is(td, th):is([data-dirty], [aria-invalid="true"], :has(> .cell-editor)) { position: relative; }
+.table :is(td, th):has(> .cell-editor):not(:has(> :not(.cell-editor, .visually-hidden))) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
+}
+.cell-editor { display: none; }
+.table :is(td, th)[data-editing] > .cell-editor,
+.table tr[data-editing] > :is(td, th) > .cell-editor {
+    display: block;
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0 var(--cell-pad-x);
+    background: var(--bg);
+    border: 0;
+    border-radius: 0;
+    color: var(--fg);
+    font: inherit;
+    text-align: inherit;
+    resize: none;
+}
+.table textarea.cell-editor { padding-block: var(--cell-pad-y); }
+.table .cell-editor { box-shadow: inset 0 0 0 1px var(--field-border); }
+.table .cell-editor:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--focus-ring);
+}
+.table .cell-editor[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--field-border-danger); }
+.table .cell-editor[aria-invalid="true"]:focus {
+    box-shadow: inset 0 0 0 1px var(--field-border-danger), inset 0 0 0 3px var(--focus-ring);
+}
+.table :is(td, th):is([data-dirty], [aria-invalid="true"], :has(> .cell-editor[aria-invalid="true"]))::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    border-block-start: var(--cell-mark-size) solid var(--cell-mark, var(--cell-dirty-mark));
+    border-inline-start: var(--cell-mark-size) solid transparent;
+    pointer-events: none;
+}
+.table :is(td, th)[data-dirty] { --cell-mark: var(--cell-dirty-mark); }
+.table :is(td, th):is([aria-invalid="true"], :has(> .cell-editor[aria-invalid="true"])) { --cell-mark: var(--cell-invalid-mark); }
+.table tbody tr[data-editing] > td { background: var(--surface-soft); }
+.table tbody tr[data-editing] { --pin-tint: var(--surface-soft); }
 .table .col-control {
     --col-control-min: 14rem;
     --col-control-max: none;
@@ -12167,6 +12228,11 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .workflow-node[aria-pressed="true"],
     .choice-tile:has(> input:checked) { outline: 1px solid Highlight; }
     .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
+    .table[role="grid"] :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+    .table :is(td, th)[data-editing] > .cell-editor,
+    .table tr[data-editing] > :is(td, th) > .cell-editor { outline: 1px solid CanvasText; outline-offset: -1px; }
+    .table[role="grid"] :is(td, th):focus-visible,
+    .table .cell-editor:focus { outline: 2px solid CanvasText; outline-offset: -2px; }
     .chat-bubble,
     .link-preview,
     .chat-reaction,
@@ -12245,6 +12311,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
     .table tr { break-inside: avoid; }
+    .table tr:is(*, [data-editing]) > :is(td, th):is(*, [data-editing]) > .cell-editor { display: none; }
     .sedna-scroll,
     .drawer-body,
     .md-editor .md-preview,
