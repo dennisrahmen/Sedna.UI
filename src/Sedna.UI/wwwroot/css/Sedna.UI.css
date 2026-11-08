@@ -5507,6 +5507,19 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 }
 }
 @layer sedna.paint {
+.page-head:has(> .page-head-actions--fold) { container: sedna-page-head / inline-size; }
+.toolbar:has(> .toolbar-actions--fold) { container: sedna-toolbar / inline-size; }
+:is(.page-head-actions--fold, .toolbar-actions--fold) > .actions-more { display: none; }
+@container sedna-page-head (width < 40rem) {
+    .page-head-actions--fold > :not(.actions-more, .actions-keep) { display: none; }
+    .page-head-actions--fold > .actions-more { display: inline-flex; }
+}
+@container sedna-toolbar (width < 40rem) {
+    .toolbar-actions--fold > :not(.actions-more, .actions-keep) { display: none; }
+    .toolbar-actions--fold > .actions-more { display: inline-flex; }
+}
+}
+@layer sedna.paint {
 .page-head {
     display: flex;
     flex-wrap: wrap;

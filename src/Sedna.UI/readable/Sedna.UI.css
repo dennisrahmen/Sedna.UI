@@ -61,6 +61,7 @@
      54-data-viz.css
      54-graph.css
      54-stat.css
+     55-actions-fold.css
      55-page-structure.css
      56-code-block.css
      57-navigation-aids.css
@@ -10076,6 +10077,48 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
     inset-block: calc(var(--space-3) - 1px);
     inset-inline-start: calc(var(--space-3) - 1px - var(--space-7));
+}
+}
+
+/* ── 55-actions-fold.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Folding actions ───────────────────────────────────────────────────────
+   A trailing group of actions that folds into one menu button when its row is
+   narrow — a page head or a toolbar on a phone, or in a narrow column:
+
+     <div class="page-head-actions page-head-actions--fold">
+       <button class="btn" type="button">Refresh</button>
+       <button class="btn btn--brand btn--solid actions-keep" type="button">Approve all</button>
+       <div class="menu-anchor actions-more">
+         <button class="btn btn--icon" type="button" data-menu-toggle aria-expanded="false" aria-label="More actions">
+           <i class="ri-more-2-fill"></i>
+         </button>
+         <div class="menu" hidden> …the same actions, as .menu-item… </div>
+       </div>
+     </div>
+
+   The app writes the buttons and the menu both, in its own words; below 40rem of the
+   row's width the buttons go and the `.actions-more` menu comes, and a button marked
+   `.actions-keep` — the primary action — stays beside it. A hidden button is out of
+   the accessibility tree as well, so nothing is announced twice.
+
+   The page head or toolbar becomes a size container, measured on its own width rather
+   than the window's, so a head in a narrow column folds on a wide screen too. Two
+   consequences of that: its width cannot come from its content, so inside a flex row
+   it needs a width of its own; and the step is a fixed length, because a container
+   query cannot read a custom property. */
+.page-head:has(> .page-head-actions--fold) { container: sedna-page-head / inline-size; }
+.toolbar:has(> .toolbar-actions--fold) { container: sedna-toolbar / inline-size; }
+
+:is(.page-head-actions--fold, .toolbar-actions--fold) > .actions-more { display: none; }
+
+@container sedna-page-head (width < 40rem) {
+    .page-head-actions--fold > :not(.actions-more, .actions-keep) { display: none; }
+    .page-head-actions--fold > .actions-more { display: inline-flex; }
+}
+@container sedna-toolbar (width < 40rem) {
+    .toolbar-actions--fold > :not(.actions-more, .actions-keep) { display: none; }
+    .toolbar-actions--fold > .actions-more { display: inline-flex; }
 }
 }
 
