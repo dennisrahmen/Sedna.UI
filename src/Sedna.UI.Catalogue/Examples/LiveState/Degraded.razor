@@ -1,0 +1,87 @@
+<div class="layout" style="height:640px; overflow:hidden">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo" style="background:var(--brand)"></div>
+            <div class="brand-text">
+                <strong>Dispatch Console</strong>
+                <span class="brand-sub">Northwind Retail</span>
+            </div>
+        </div>
+        <nav class="nav">
+            <div class="nav-scroll">
+                <a class="nav-link active" href="#"><i class="ri-dashboard-line"></i><span>Overview</span></a>
+                <a class="nav-link" href="#"><i class="ri-inbox-line"></i><span>Orders</span></a>
+                <a class="nav-link" href="#"><i class="ri-store-2-line"></i><span>Stock</span></a>
+                <a class="nav-status-card nav-status-card--fail" href="#">
+                    <span class="nav-status-label">Warehouse system</span>
+                    <span class="nav-status-row">
+                        <span class="nav-status-dot"></span>
+                        <span class="nav-status-state">Not answering</span>
+                    </span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="content">
+        <header class="topbar">
+            <div class="topbar-spacer"></div>
+            <span class="health-badge health-badge--degraded"><span class="health-dot"></span> <span>Degraded</span></span>
+        </header>
+
+        <div class="page-banner page-banner--warn" role="region" aria-label="Service notice">
+            <i class="ri-error-warning-line" aria-hidden="true"></i>
+            <div class="page-banner-body">
+                <span>The warehouse system is not answering, so stock figures may be out of date. Orders can still be placed and dispatched.</span>
+            </div>
+            <div class="page-banner-actions"><a class="btn btn--sm" href="#">Status page</a></div>
+        </div>
+
+        <main class="page">
+            <h1>Overview</h1>
+
+            <div class="stat-row stat-row--divided">
+                <span class="stat">
+                    <span class="stat-label">Orders today</span>
+                    <span class="stat-value">1 284</span>
+                </span>
+                <span class="stat">
+                    <span class="stat-label">Dispatched</span>
+                    <span class="stat-value">248</span>
+                </span>
+                <span class="stat stat--unavailable">
+                    <span class="stat-label">Units in stock</span>
+                    <span class="stat-value">&mdash;</span>
+                    <span class="stale stale--warn"><i class="ri-time-line"></i> <span>last read 14m ago</span></span>
+                </span>
+            </div>
+
+            <div class="card">
+                <div class="card-head"><strong>Low stock</strong></div>
+                <div class="empty-state empty-state--failed">
+                    <i class="ri-error-warning-line state-icon" aria-hidden="true"></i>
+                    <span class="empty-state-title">Could not load low stock</span>
+                    <p>The warehouse system did not answer. The rest of this page is current.</p>
+                    <button class="btn btn--sm" type="button"><i class="ri-refresh-line"></i> <span>Try again</span></button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head"><strong>Waiting to dispatch</strong></div>
+                <table class="table">
+                    <thead><tr><th>Order</th><th>Customer</th><th></th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>ORD-4209</td><td>Alex Fischer</td>
+                            <td><button class="btn btn--sm btn--go btn--solid" type="button">Dispatch</button></td>
+                        </tr>
+                        <tr>
+                            <td>ORD-4211</td><td>Northwind Retail</td>
+                            <td><button class="btn btn--sm btn--go btn--solid" type="button">Dispatch</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>

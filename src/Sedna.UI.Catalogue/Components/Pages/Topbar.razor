@@ -90,7 +90,19 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Topbar.UserMenu" Title="User menu" Demo="ex-demo--block ex-demo--flush">
+<CatExample TExample="Examples.Topbar.AppSwitcher" Title="App switcher" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <strong>Live &mdash; press the grid.</strong> A <code>.topbar-btn</code> with
+        <code>popovertarget</code> opens a <a href="/popover">popover</a> holding
+        <code>.app-switcher</code>: one <code>.app-switcher-item</code> link per app, with its mark in
+        <code>.app-switcher-icon</code> and its name under it. Mark the app the reader is in with
+        <code>aria-current="page"</code>. The platform opens it, closes it on an outside click and on
+        <kbd>Escape</kbd>, and a popover holding a switcher opens towards whichever side of the button
+        has room, so it works from either end of the header.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Topbar.UserMenu" Title="User menu"Demo="ex-demo--block ex-demo--flush">
     <p>
         The panel is the library's one dropdown style, <code>.menu</code> — see
         <a href="/menu">Menus</a> for its items, labels and separators. Only the anchoring belongs

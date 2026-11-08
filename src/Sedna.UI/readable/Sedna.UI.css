@@ -22,6 +22,7 @@
      15-frame-user-widget.css
      16-frame-page-scroll.css
      17-frame-hover-hints.css
+     18-frame-banner.css
      18-frame-status-bar.css
      19-frame-responsive.css
      20-frame-kiosk.css
@@ -80,6 +81,7 @@
      64-lightbox.css
      64-media-player.css
      64-palette-spotlight.css
+     65-app-switcher.css
      65-popover.css
      66-agent-activity.css
      66-agent-avatar.css
@@ -1038,6 +1040,10 @@
        them, and the density remaps move them with the rows and cells above. */
     --page-rhythm:     var(--space-7);
     --page-pad:        var(--space-9);
+
+    /* The block padding of a `.page-banner` under the topbar; its inline padding is the
+       page's own, so its words start on the page's column. */
+    --page-banner-pad-block: var(--space-5);
 
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
@@ -2682,6 +2688,181 @@ a.topbar-version--pre:hover {
    fight it. Off on triggers only. */
 [data-tip] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 
+}
+
+/* ── 18-frame-banner.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
+/* ── Page banner ────────────────────────────────────────────────────────────
+   A full-width notice directly under the topbar, about the whole app or the whole
+   page: a maintenance window, a phase ("Beta — this is a new service"), what just
+   happened on the page before a redirect, the cookie choice.
+
+     <div class="content">
+       <header class="topbar">…</header>
+       <div class="page-banner page-banner--info" role="region" aria-label="Service notice">
+         <i class="ri-information-line" aria-hidden="true"></i>
+         <div class="page-banner-body"><span>Exports pause on Saturday, 06:00–08:00 UTC.</span></div>
+         <div class="page-banner-actions"><a class="btn btn--sm" href="…">Details</a></div>
+         <button class="page-banner-dismiss" type="button" aria-label="Dismiss">
+           <i class="ri-close-line" aria-hidden="true"></i></button>
+       </div>
+       <main class="page">…</main>
+     </div>
+
+   It is a sibling of the topbar and of `.page`, in `.content` or `.bare-layout`, so
+   the shell's flex column gives it its own height and the page scrolls below it. With
+   `.topbar--sticky`, or under `.layout--flow` on a phone, it is in the document's flow
+   and scrolls away under the header, which stays.
+
+   Four slots, placed by grid area, so any of them can be left out:
+
+     lead      an icon, or a `.badge` naming a phase
+     body      `.page-banner-body` — the words; a `.page-banner-title` first for a
+               notice of more than one line
+     actions   `.page-banner-actions` — `.btn--sm` beside the words; or inside the body,
+               where it is a row under them
+     dismiss   `.page-banner-dismiss` — the app removes the banner and remembers it
+
+   The content starts on the page's own column: the inline padding is `.page`'s, so a
+   banner's first word stands over the page's first word at every width.
+
+   With no title the slots are centred on one another — one line of words, a button,
+   a cross. With a title the banner is a block of text and every slot stands on its
+   first line instead.
+
+   A tone modifier (69-tone.css) tints it and its edge and colours its icon; the words
+   stay the page's ink. `.page-banner` and `.alert` are not one idea twice: an alert is
+   inside the page and about it, and moves with it; a banner is part of the frame and
+   about the app.
+   ─────────────────────────────────────────────────────────────────────────── */
+.page-banner {
+    --row-line: 1lh;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "lead body actions dismiss";
+    align-items: center;
+    flex-shrink: 0;
+    padding-block: var(--page-banner-pad-block);
+    padding-inline: max(var(--page-pad), calc((100% - var(--page-max)) / 2));
+    background: var(--surface-soft);
+    border-block-end: 1px solid var(--border);
+    color: var(--fg);
+    font-size: var(--text-4);
+    /* A long address or token in the message wraps instead of widening the frame. */
+    overflow-wrap: anywhere;
+}
+/* `display: grid` above outranks the browser's own `[hidden]`, and an app hides a
+   banner, or one state of the cookie banner, with the attribute. */
+.page-banner[hidden],
+.page-banner [hidden] { display: none; }
+
+.page-banner > i {
+    grid-area: lead;
+    margin-inline-end: var(--space-5);
+    color: var(--tone-fg, var(--muted));
+    font-size: var(--text-7);
+}
+.page-banner > .badge {
+    grid-area: lead;
+    margin-inline-end: var(--space-5);
+}
+
+.page-banner-body {
+    grid-area: body;
+    min-width: 0;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.page-banner-body > * { margin-block: 0; }
+.page-banner-body > * + * { margin-block-start: var(--space-3); }
+.page-banner-title {
+    display: block;
+    color: var(--fg);
+    font-size: inherit;
+    font-weight: 600;
+    line-height: inherit;
+}
+
+.page-banner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+.page-banner > .page-banner-actions {
+    grid-area: actions;
+    margin-inline-start: var(--space-7);
+}
+.page-banner-body > .page-banner-actions { margin-block-start: var(--space-6); }
+
+/* The banner's own close control, in the banner's ink, so it is legible on every tone.
+   A <button>: the app removes the banner and keeps the choice. */
+.page-banner-dismiss {
+    grid-area: dismiss;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--control-height-sm);
+    block-size: var(--control-height-sm);
+    margin-inline-start: var(--space-5);
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: var(--radius-control);
+    color: var(--tone-fg, var(--muted));
+    font: inherit;
+    font-size: var(--text-7);
+    cursor: pointer;
+}
+.page-banner-dismiss:hover { background: var(--tone-bg-hover, var(--bg-hover)); color: var(--tone-fg, var(--fg)); }
+.page-banner-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+
+/* ── A banner of more than one line ────────────────────────────────────────
+   A title makes the body a block, and a slot centred on a block floats between its
+   lines. Each slot stands on the first line instead: the icon by its em square, the
+   dismiss by its known height, the tag and the trailing actions by their own. */
+.page-banner:has(> .page-banner-body > .page-banner-title) { align-items: start; }
+.page-banner:has(> .page-banner-body > .page-banner-title) > i {
+    margin-block-start: calc((var(--row-line) - 1em) / 2);
+}
+.page-banner:has(> .page-banner-body > .page-banner-title) > .page-banner-dismiss {
+    margin-block-start: calc((var(--row-line) - var(--control-height-sm)) / 2);
+}
+.page-banner:has(> .page-banner-body > .page-banner-title) > :is(.badge, .page-banner-actions) {
+    translate: 0 calc((var(--row-line) - 100%) / 2);
+}
+
+/* ── Phase ──────────────────────────────────────────────────────────────────
+   "Alpha", "Beta", "Preview" and one line about what that means for the reader, with
+   a link to tell the team what they think. Quieter than a notice: it stays for the
+   life of the phase, and a tinted strip that never goes away trains the reader to
+   skip the strip. The tag is a `.badge` in the lead slot. */
+.page-banner--phase {
+    padding-block: calc(var(--page-banner-pad-block) * 0.6);
+    background: transparent;
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+}
+
+/* ── A phone ────────────────────────────────────────────────────────────────
+   The trailing actions go under the words rather than squeezing them to a column a
+   word wide; the dismiss stays on the first row, where it is looked for. One line of
+   words wraps to several here, so every banner stands its slots on the first line. */
+@media (max-width: 560px) {
+    .page-banner {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-areas: "lead body dismiss" ". actions actions";
+        align-items: start;
+    }
+    .page-banner > i { margin-block-start: calc((var(--row-line) - 1em) / 2); }
+    .page-banner > .page-banner-dismiss { margin-block-start: calc((var(--row-line) - var(--control-height-sm)) / 2); }
+    .page-banner > .badge { translate: 0 calc((var(--row-line) - 100%) / 2); }
+    .page-banner > .page-banner-actions {
+        margin-inline-start: 0;
+        margin-block-start: var(--space-4);
+    }
+    .page-banner:has(> .page-banner-body > .page-banner-title) > .page-banner-actions { translate: none; }
+}
 }
 
 /* ── 18-frame-status-bar.css → @layer sedna.frame ──────────────────────────────────────────────── */
@@ -15542,6 +15723,77 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .spotlight-step { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 
+/* ── 65-app-switcher.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── App switcher ───────────────────────────────────────────────────────────
+   The other apps a reader can go to, as a grid of tiles in a `.popover` opened from a
+   topbar button.
+
+     <button class="topbar-btn" type="button" popovertarget="apps" aria-label="Apps">
+       <i class="ri-apps-2-line" aria-hidden="true"></i></button>
+     <div class="popover" id="apps" popover>
+       <strong class="popover-title">Apps</strong>
+       <nav class="app-switcher" aria-label="Apps">
+         <a class="app-switcher-item" href="…" aria-current="page">
+           <span class="app-switcher-icon"><i class="ri-inbox-line" aria-hidden="true"></i></span>
+           <span>Orders</span></a>
+         …
+       </nav>
+     </div>
+
+   The tiles are links, one tab stop each, and the current app carries
+   `aria-current="page"`. The popover is the platform's, so opening, light dismiss and
+   Escape need no script.
+
+   A topbar button sits at either end of the header, and a popover spans towards the
+   inline end by default — from the last button in the header that is off the screen.
+   A popover holding a switcher tries the other side first. */
+.app-switcher {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    inline-size: 17rem;
+    max-inline-size: 100%;
+    margin: 0;
+    padding: 0;
+}
+.popover:has(> .app-switcher) { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+
+.app-switcher-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-5) var(--space-2);
+    border-radius: var(--radius-control);
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+    line-height: round(1.4em, 2px);
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+.app-switcher-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.app-switcher-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.app-switcher-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+
+/* The app's mark: an icon on a tile of its own. */
+.app-switcher-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    inline-size: var(--control-height-lg);
+    block-size: var(--control-height-lg);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--brand-text);
+    font-size: var(--text-9);
+}
+}
+
 /* ── 65-popover.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Popover ────────────────────────────────────────────────────────────────
@@ -21397,7 +21649,7 @@ button.inbox-item-title {
 
    Tones: brand go warn danger info secret, and the three categorical hues cyan orange
    teal on the families that label (badge, chip). Families: btn badge alert callout toast
-   chip stat, and a table row (tr). ToneMatrixTests holds every family to every tone it
+   chip stat, a table row (tr), and the frame's page-banner. ToneMatrixTests holds every family to every tone it
    takes, so a family cannot lack one by accident.
 
    A tone modifier sets nothing but --tone-* properties, and every family reads them
@@ -21412,7 +21664,7 @@ button.inbox-item-title {
    on it is --bg, which flips with it (SolidToneContrastTests).
    ─────────────────────────────────────────────────────────────────────────── */
 
-.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr {
+.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -21428,7 +21680,7 @@ button.inbox-item-title {
     --tone-on-solid: initial;
 }
 
-.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand {
+.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -21444,7 +21696,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go {
+.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -21460,7 +21712,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn {
+.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -21476,7 +21728,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger {
+.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -21492,7 +21744,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info {
+.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -21508,7 +21760,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--info-on-solid);
 }
 
-.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret {
+.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -21605,6 +21857,12 @@ button.inbox-item-title {
 .toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) { border-inline-start-color: var(--tone-solid); }
 .toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) i { color: var(--tone-fg); }
 
+/* A page banner under the topbar: its tint, its edge, and its icon and dismiss in its ink
+   (18-frame-banner.css reads --tone-fg for those); the words keep the page's ink. A link in
+   its words takes that ink and an underline, as in an alert. */
+.page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) { background: var(--tone-bg); border-block-end-color: var(--tone-border); }
+.page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) .page-banner-body a:not([class]) { color: inherit; text-decoration: underline; }
+
 /* Chips. */
 .chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
 
@@ -21656,8 +21914,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    off whichever box it has. TouchTargetTests finds every control drawn under the
    target size and holds it to this list. */
 @media (pointer: coarse) {
-    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
-    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, .page-banner-dismiss, button.cal-mark) { position: relative; }
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, .page-banner-dismiss, button.cal-mark)::before {
         content: "";
         position: absolute;
         inset: min(0px, calc((var(--touch-target) - 100%) / -2));
@@ -22052,7 +22310,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     :is(a, button).workflow-node:focus-visible,
     .input-reveal:focus-visible,
     .rating-star:has(> input:focus-visible),
-    .rating-half:has(> input:focus-visible) { outline: 2px solid CanvasText; outline-offset: 1px; }
+    .rating-half:has(> input:focus-visible),
+    .page-banner-dismiss:focus-visible,
+    .app-switcher-item:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* Inside its header cell, which clips what is drawn past its edge. */
     .col-resize:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
@@ -22081,7 +22341,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .cal-pick:is([aria-pressed="true"], [aria-current]:not([aria-current="false"])),
     .editor-toolbar [aria-pressed="true"],
     .workflow-node[aria-pressed="true"],
-    .choice-tile:has(> input:checked) { outline: 1px solid Highlight; }
+    .choice-tile:has(> input:checked),
+    .app-switcher-item[aria-current]:not([aria-current="false"]) { outline: 1px solid Highlight; }
     /* A selected table row is a tint and an inset bar, and neither is painted here. Each
        cell is outlined inside its own box, so the row reads as one marked band. */
     .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
@@ -22198,6 +22459,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .spotlight-hole,
     .spotlight-tip,
     .status-bar,
+    .page-banner,
     .modal-backdrop,
     .page-head-actions,
     .form-actions,
@@ -22602,7 +22864,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 
    What moves: table cells (--cell-pad-*), card parts (--card-pad-*), list rows
    (--list-pad-*, plus --list-gap between the cards of `.list--cards`), the page's
-   rhythm and padding, and the three control heights every button, field, select,
+   rhythm and padding and a page banner's, and the three control heights every button, field, select,
    segmented control and toolbar reads. Compact keeps the small tier at 24px, the
    WCAG 2.5.8 floor; touch puts the default tier at 44px, the 2.5.5 target size.
    Anything else that should tighten with them reads the same tokens and gets it for
@@ -22624,6 +22886,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --list-gap: var(--space-2);
     --page-rhythm: var(--space-5);
     --page-pad: var(--space-7);
+    --page-banner-pad-block: var(--space-3);
     --control-height-sm: 24px;
     --control-height: 30px;
     --control-height-lg: 38px;
@@ -22638,6 +22901,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --list-pad-inline: var(--space-7);
     --list-gap: var(--space-6);
     --page-rhythm: var(--space-8);
+    --page-banner-pad-block: var(--space-7);
     --control-height-sm: 36px;
     --control-height: 44px;
     --control-height-lg: 52px;

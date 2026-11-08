@@ -11,8 +11,8 @@
    off whichever box it has. TouchTargetTests finds every control drawn under the
    target size and holds it to this list. */
 @media (pointer: coarse) {
-    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
-    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, .page-banner-dismiss, button.cal-mark) { position: relative; }
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, .page-banner-dismiss, button.cal-mark)::before {
         content: "";
         position: absolute;
         inset: min(0px, calc((var(--touch-target) - 100%) / -2));

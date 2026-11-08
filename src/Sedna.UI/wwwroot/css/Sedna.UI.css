@@ -394,6 +394,7 @@
     --list-gap:        var(--space-4);
     --page-rhythm:     var(--space-7);
     --page-pad:        var(--space-9);
+    --page-banner-pad-block: var(--space-5);
     --list-lines: 1;
     --kv-key-width: 30%;
     --agent-from:  var(--coral-500);
@@ -1301,6 +1302,111 @@ a.topbar-version--pre:hover {
 .sedna-tip--visible { opacity: 1; transform: none; }
 .btn[data-tip] { cursor: pointer; }
 [data-tip] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+}
+@layer sedna.frame {
+.page-banner {
+    --row-line: 1lh;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "lead body actions dismiss";
+    align-items: center;
+    flex-shrink: 0;
+    padding-block: var(--page-banner-pad-block);
+    padding-inline: max(var(--page-pad), calc((100% - var(--page-max)) / 2));
+    background: var(--surface-soft);
+    border-block-end: 1px solid var(--border);
+    color: var(--fg);
+    font-size: var(--text-4);
+    overflow-wrap: anywhere;
+}
+.page-banner[hidden],
+.page-banner [hidden] { display: none; }
+.page-banner > i {
+    grid-area: lead;
+    margin-inline-end: var(--space-5);
+    color: var(--tone-fg, var(--muted));
+    font-size: var(--text-7);
+}
+.page-banner > .badge {
+    grid-area: lead;
+    margin-inline-end: var(--space-5);
+}
+.page-banner-body {
+    grid-area: body;
+    min-width: 0;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.page-banner-body > * { margin-block: 0; }
+.page-banner-body > * + * { margin-block-start: var(--space-3); }
+.page-banner-title {
+    display: block;
+    color: var(--fg);
+    font-size: inherit;
+    font-weight: 600;
+    line-height: inherit;
+}
+.page-banner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+.page-banner > .page-banner-actions {
+    grid-area: actions;
+    margin-inline-start: var(--space-7);
+}
+.page-banner-body > .page-banner-actions { margin-block-start: var(--space-6); }
+.page-banner-dismiss {
+    grid-area: dismiss;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--control-height-sm);
+    block-size: var(--control-height-sm);
+    margin-inline-start: var(--space-5);
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: var(--radius-control);
+    color: var(--tone-fg, var(--muted));
+    font: inherit;
+    font-size: var(--text-7);
+    cursor: pointer;
+}
+.page-banner-dismiss:hover { background: var(--tone-bg-hover, var(--bg-hover)); color: var(--tone-fg, var(--fg)); }
+.page-banner-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.page-banner:has(> .page-banner-body > .page-banner-title) { align-items: start; }
+.page-banner:has(> .page-banner-body > .page-banner-title) > i {
+    margin-block-start: calc((var(--row-line) - 1em) / 2);
+}
+.page-banner:has(> .page-banner-body > .page-banner-title) > .page-banner-dismiss {
+    margin-block-start: calc((var(--row-line) - var(--control-height-sm)) / 2);
+}
+.page-banner:has(> .page-banner-body > .page-banner-title) > :is(.badge, .page-banner-actions) {
+    translate: 0 calc((var(--row-line) - 100%) / 2);
+}
+.page-banner--phase {
+    padding-block: calc(var(--page-banner-pad-block) * 0.6);
+    background: transparent;
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+}
+@media (max-width: 560px) {
+    .page-banner {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-areas: "lead body dismiss" ". actions actions";
+        align-items: start;
+    }
+    .page-banner > i { margin-block-start: calc((var(--row-line) - 1em) / 2); }
+    .page-banner > .page-banner-dismiss { margin-block-start: calc((var(--row-line) - var(--control-height-sm)) / 2); }
+    .page-banner > .badge { translate: 0 calc((var(--row-line) - 100%) / 2); }
+    .page-banner > .page-banner-actions {
+        margin-inline-start: 0;
+        margin-block-start: var(--space-4);
+    }
+    .page-banner:has(> .page-banner-body > .page-banner-title) > .page-banner-actions { translate: none; }
+}
 }
 @layer sedna.frame {
 #components-reconnect-modal,
@@ -8596,6 +8702,49 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .spotlight-step { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 @layer sedna.paint {
+.app-switcher {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    inline-size: 17rem;
+    max-inline-size: 100%;
+    margin: 0;
+    padding: 0;
+}
+.popover:has(> .app-switcher) { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+.app-switcher-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-5) var(--space-2);
+    border-radius: var(--radius-control);
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+    line-height: round(1.4em, 2px);
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+.app-switcher-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.app-switcher-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.app-switcher-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+.app-switcher-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    inline-size: var(--control-height-lg);
+    block-size: var(--control-height-lg);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--brand-text);
+    font-size: var(--text-9);
+}
+}
+@layer sedna.paint {
 .popover {
     inset: auto;
     margin: 0;
@@ -12474,7 +12623,7 @@ button.inbox-item-title {
 .timeline--aside > li > .timeline-what { display: block; line-height: var(--timeline-lead); }
 }
 @layer sedna.paint {
-.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr {
+.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -12489,7 +12638,7 @@ button.inbox-item-title {
     --tone-ring-solid: initial;
     --tone-on-solid: initial;
 }
-.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand {
+.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -12504,7 +12653,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--on-solid);
 }
-.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go {
+.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -12519,7 +12668,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--go-ring);
     --tone-on-solid: var(--on-solid);
 }
-.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn {
+.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -12534,7 +12683,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--warn-ring-solid);
     --tone-on-solid: var(--on-solid);
 }
-.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger {
+.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -12549,7 +12698,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--danger-ring);
     --tone-on-solid: var(--on-solid);
 }
-.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info {
+.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -12564,7 +12713,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--info-ring);
     --tone-on-solid: var(--info-on-solid);
 }
-.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret {
+.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -12646,6 +12795,8 @@ button.inbox-item-title {
 .callout:is(.callout--brand, .callout--go, .callout--warn, .callout--danger, .callout--info, .callout--secret) a { color: inherit; text-decoration: underline; }
 .toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) { border-inline-start-color: var(--tone-solid); }
 .toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) i { color: var(--tone-fg); }
+.page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) { background: var(--tone-bg); border-block-end-color: var(--tone-border); }
+.page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) .page-banner-body a:not([class]) { color: inherit; text-decoration: underline; }
 .chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) { background: var(--tone-bg); border-color: var(--tone-border); }
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) .stat-value, a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover .stat-value { color: var(--tone-fg); }
@@ -12667,8 +12818,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 }
 @layer sedna.paint {
 @media (pointer: coarse) {
-    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
-    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, .page-banner-dismiss, button.cal-mark) { position: relative; }
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, .page-banner-dismiss, button.cal-mark)::before {
         content: "";
         position: absolute;
         inset: min(0px, calc((var(--touch-target) - 100%) / -2));
@@ -12894,7 +13045,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     :is(a, button).workflow-node:focus-visible,
     .input-reveal:focus-visible,
     .rating-star:has(> input:focus-visible),
-    .rating-half:has(> input:focus-visible) { outline: 2px solid CanvasText; outline-offset: 1px; }
+    .rating-half:has(> input:focus-visible),
+    .page-banner-dismiss:focus-visible,
+    .app-switcher-item:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     .col-resize:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     .inbox-item:has(.inbox-item-title:focus-visible) { outline: 2px solid CanvasText; outline-offset: -2px; }
@@ -12918,7 +13071,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .cal-pick:is([aria-pressed="true"], [aria-current]:not([aria-current="false"])),
     .editor-toolbar [aria-pressed="true"],
     .workflow-node[aria-pressed="true"],
-    .choice-tile:has(> input:checked) { outline: 1px solid Highlight; }
+    .choice-tile:has(> input:checked),
+    .app-switcher-item[aria-current]:not([aria-current="false"]) { outline: 1px solid Highlight; }
     .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
     .table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
     .table :is(td, th)[data-editing] > .cell-editor,
@@ -12983,6 +13137,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .spotlight-hole,
     .spotlight-tip,
     .status-bar,
+    .page-banner,
     .modal-backdrop,
     .page-head-actions,
     .form-actions,
@@ -13183,6 +13338,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --list-gap: var(--space-2);
     --page-rhythm: var(--space-5);
     --page-pad: var(--space-7);
+    --page-banner-pad-block: var(--space-3);
     --control-height-sm: 24px;
     --control-height: 30px;
     --control-height-lg: 38px;
@@ -13196,6 +13352,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --list-pad-inline: var(--space-7);
     --list-gap: var(--space-6);
     --page-rhythm: var(--space-8);
+    --page-banner-pad-block: var(--space-7);
     --control-height-sm: 36px;
     --control-height: 44px;
     --control-height-lg: 52px;

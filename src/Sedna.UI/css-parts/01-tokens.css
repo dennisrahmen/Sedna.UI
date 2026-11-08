@@ -673,6 +673,10 @@
     --page-rhythm:     var(--space-7);
     --page-pad:        var(--space-9);
 
+    /* The block padding of a `.page-banner` under the topbar; its inline padding is the
+       page's own, so its words start on the page's column. */
+    --page-banner-pad-block: var(--space-5);
+
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
        every line inside and aligns the row's slots to the first line; set on one

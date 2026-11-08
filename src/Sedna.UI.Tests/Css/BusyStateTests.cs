@@ -52,6 +52,8 @@ public class BusyStateTests
         "input-reveal",                         // shows the field's text; nothing of its own runs
         "rating-star", "rating-half",           // a choice, as a radio is
         "inbox-item",                           // its ring is its title's, a link; nothing of its own runs
+        "page-banner-dismiss",                  // removes the banner; nothing of its own runs
+        "app-switcher-item",                    // a link to another app
     };
 
     [Fact]

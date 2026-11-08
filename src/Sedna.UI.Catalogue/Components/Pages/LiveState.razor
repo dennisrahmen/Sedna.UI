@@ -83,3 +83,17 @@
         runs.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.LiveState.Degraded" Title="A degraded page" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        When a service behind a page is down, the page keeps working around it. <strong>Replace each
+        failed part where it stands</strong>: a figure that could not be read is
+        <code>.stat--unavailable</code> with a <code>.stale</code> saying how old the last good one is, a
+        panel that could not load is an <code>.empty-state--failed</code> in its own card with a retry,
+        and every part that did load shows as usual. Say what is down once &mdash; a
+        <a href="/banner"><code>.page-banner</code></a> under the topbar, and at most a few outage
+        messages on a page &mdash; and what still works. <strong>Never hide the navigation, and never
+        disable a control because a service is down</strong>: the reader can still dispatch an order,
+        and an action that fails says so when it is taken.
+    </p>
+</CatExample>

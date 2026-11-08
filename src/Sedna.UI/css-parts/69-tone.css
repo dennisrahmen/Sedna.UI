@@ -9,7 +9,7 @@
 
    Tones: brand go warn danger info secret, and the three categorical hues cyan orange
    teal on the families that label (badge, chip). Families: btn badge alert callout toast
-   chip stat, and a table row (tr). ToneMatrixTests holds every family to every tone it
+   chip stat, a table row (tr), and the frame's page-banner. ToneMatrixTests holds every family to every tone it
    takes, so a family cannot lack one by accident.
 
    A tone modifier sets nothing but --tone-* properties, and every family reads them
@@ -24,7 +24,7 @@
    on it is --bg, which flips with it (SolidToneContrastTests).
    ─────────────────────────────────────────────────────────────────────────── */
 
-.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr {
+.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -40,7 +40,7 @@
     --tone-on-solid: initial;
 }
 
-.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand {
+.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -56,7 +56,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go {
+.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -72,7 +72,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn {
+.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -88,7 +88,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger {
+.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -104,7 +104,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info {
+.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -120,7 +120,7 @@
     --tone-on-solid: var(--info-on-solid);
 }
 
-.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret {
+.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -216,6 +216,12 @@
 /* A toast the library draws: its tone is its edge and its icon. */
 .toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) { border-inline-start-color: var(--tone-solid); }
 .toast:is(.toast--brand, .toast--go, .toast--warn, .toast--danger, .toast--info, .toast--secret) i { color: var(--tone-fg); }
+
+/* A page banner under the topbar: its tint, its edge, and its icon and dismiss in its ink
+   (18-frame-banner.css reads --tone-fg for those); the words keep the page's ink. A link in
+   its words takes that ink and an underline, as in an alert. */
+.page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) { background: var(--tone-bg); border-block-end-color: var(--tone-border); }
+.page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) .page-banner-body a:not([class]) { color: inherit; text-decoration: underline; }
 
 /* Chips. */
 .chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
