@@ -575,7 +575,7 @@ window.sednaUi = window.sednaUi || {};
         if (!field) return;
         show(field, button, field.type === 'password');
     });
-})(window.sednaUi);
+})();
 (function (ui) {
     function selectedIn(list) {
         return Array.prototype.filter.call(
@@ -1618,7 +1618,7 @@ window.sednaUi = window.sednaUi || {};
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
-})(window.sednaUi);
+})();
 (function (ui) {
     var score = ui._.score;
     var MATCH = 'sedna-combo-match';

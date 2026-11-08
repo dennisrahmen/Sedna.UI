@@ -1097,7 +1097,7 @@ window.sednaUi = window.sednaUi || {};
         show(field, button, field.type === 'password');
     });
 
-})(window.sednaUi);
+})();
 
 /* ── 21-transfer.js ──────────────────────────────────────────────── */
 /* ── Transfer list, delegated ────────────────────────────────────────────────
@@ -2702,7 +2702,7 @@ window.sednaUi = window.sednaUi || {};
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
 
-})(window.sednaUi);
+})();
 
 /* ── 23-combo.js ──────────────────────────────────────────────── */
 /* ── Combo field, delegated ──────────────────────────────────────────────────

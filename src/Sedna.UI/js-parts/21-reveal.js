@@ -47,4 +47,4 @@
         show(field, button, field.type === 'password');
     });
 
-})(window.sednaUi);
+})();

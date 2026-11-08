@@ -62,8 +62,9 @@ public class HeatmapTests : ScriptTestBase
             var slot = i + 2;   // two bare spans before the first day
             Assert.Equal(cell, boxes[i][2], 0.5);
             Assert.Equal(cell, boxes[i][3], 0.5);
-            Assert.Equal(slot / 7 * step, boxes[i][0], 0.5);
-            Assert.Equal(slot % 7 * step, boxes[i][1], 0.5);
+            int week = slot / 7, day = slot % 7;
+            Assert.Equal(week * step, boxes[i][0], 0.5);
+            Assert.Equal(day * step, boxes[i][1], 0.5);
         }
         Assert.Empty(errors);
     }
