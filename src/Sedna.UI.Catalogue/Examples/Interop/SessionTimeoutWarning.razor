@@ -1,0 +1,101 @@
+@inject ISednaUi Ui
+@implements IDisposable
+
+<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+    <button class="btn" type="button" @onclick="SignIn">Start a short session</button>
+    <span class="badge">@_state</span>
+</div>
+
+@* An alertdialog, so a screen reader reads the warning as it opens. The countdown is the
+   library's: the words are the app's, and sedna-countdown-end says when it reached zero. *@
+<dialog id="session-timeout" class="modal modal--sm" role="alertdialog"
+        aria-labelledby="session-timeout-title" aria-describedby="session-timeout-text">
+    <form method="dialog">
+        <div class="modal-header">
+            <h3 id="session-timeout-title">You are about to be signed out</h3>
+        </div>
+        <div class="modal-body">
+            <p id="session-timeout-text">
+                For your security, you will be signed out in
+                <time datetime="@_expires?.ToString("O")" data-countdown @onsedna-countdown-end="Expired"
+                      data-minutes-one="{n} minute" data-minutes="{n} minutes"
+                      data-seconds-one="{n} second" data-seconds="{n} seconds">2 minutes</time>.
+                Anything you have not saved will be lost.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" value="sign-out">Sign out</button>
+            <button class="btn btn--brand btn--solid" value="stay" autofocus>Stay signed in</button>
+        </div>
+    </form>
+</dialog>
+
+@code {
+    private const string DialogId = "session-timeout";
+
+    // The warning opens two minutes before the session ends, which leaves the reader well
+    // over the twenty seconds WCAG 2.2.1 asks for. The session here is two minutes and three
+    // seconds long so the warning comes at once; an app's is its server's.
+    private static readonly TimeSpan WarnBefore = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan Lifetime = TimeSpan.FromSeconds(123);
+
+    // No session, no datetime: a countdown without one is left alone.
+    private DateTimeOffset? _expires;
+    private string _state = "signed out";
+    private CancellationTokenSource? _session;
+
+    private async Task SignIn()
+    {
+        _session?.Cancel();
+        _session?.Dispose();
+        _session = new CancellationTokenSource();
+        var token = _session.Token;
+        _state = "signed in";
+
+        try
+        {
+            while (true)
+            {
+                // Signing in, and staying signed in, is the server's to grant: this is where
+                // an app asks it and reads back the new end.
+                _expires = DateTimeOffset.UtcNow + Lifetime;
+                StateHasChanged();
+
+                var warnIn = _expires.Value - WarnBefore - DateTimeOffset.UtcNow;
+                await Task.Delay(warnIn > TimeSpan.Zero ? warnIn : TimeSpan.Zero, token);
+
+                // Waits on the reader, so it takes the session's token: disposing the page,
+                // or the countdown ending, gives up the wait instead of leaving it to time out.
+                var answer = await Ui.ShowModalAsync(DialogId, token);
+
+                // Escape closes the warning with no value, and that is an answer too: the
+                // reader is there.
+                if (answer == "sign-out") break;
+            }
+            _state = "signed out";
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            // Expired, or a new session started; either has set the state already.
+            return;
+        }
+
+        _expires = null;
+    }
+
+    // Fires once when the countdown reaches zero. The token goes first, so the wait above
+    // ends as cancelled rather than reading the dialog's close as "stay".
+    private async Task Expired(SednaCountdownEventArgs e)
+    {
+        _session?.Cancel();
+        _state = "signed out: the session ended";
+        _expires = null;
+        await Ui.CloseModalAsync(DialogId);
+    }
+
+    public void Dispose()
+    {
+        _session?.Cancel();
+        _session?.Dispose();
+    }
+}

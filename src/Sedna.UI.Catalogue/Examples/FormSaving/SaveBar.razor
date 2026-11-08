@@ -1,0 +1,43 @@
+<div class="sedna-scroll" style="max-height:360px; max-width:640px">
+    <form data-dirty>
+        <fieldset class="form-section">
+            <legend>Depot opening hours</legend>
+            <div class="form-section-body">
+                <div class="sedna-grid sedna-grid--sm sedna-grid--fit">
+                    <div class="form-field">
+                        <label class="form-label" for="sb-open">Opens</label>
+                        <input class="form-input" id="sb-open" type="time" value="06:30" />
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label" for="sb-close">Closes</label>
+                        <input class="form-input" id="sb-close" type="time" value="18:00" />
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="sb-cutoff">Same-day cut-off</label>
+                    <input class="form-input" id="sb-cutoff" type="time" value="14:00" />
+                    <p class="form-hint">Orders placed after this leave the next working day.</p>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="form-section">
+            <legend>Goods in</legend>
+            <div class="form-section-body">
+                <div class="form-field">
+                    <label class="form-label" for="sb-dock">Loading dock</label>
+                    <input class="form-input" id="sb-dock" type="text" value="Dock 3, rear entrance" />
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="sb-notes">Instructions for drivers</label>
+                    <textarea class="form-input" id="sb-notes" rows="4">Ring the bell at the shutter. Pallets over 1.2 m go to dock 4.</textarea>
+                </div>
+                <label class="form-check"><input type="checkbox" checked /> <span>Accept deliveries on Saturdays</span></label>
+            </div>
+        </fieldset>
+        <div class="form-actions form-actions--save-bar">
+            <p class="form-actions-status"><i class="ri-error-warning-line"></i><span>Unsaved changes</span></p>
+            <button class="btn" type="reset">Discard</button>
+            <button class="btn btn--brand btn--solid" type="submit">Save</button>
+        </div>
+    </form>
+</div>

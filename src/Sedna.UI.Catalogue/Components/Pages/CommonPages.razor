@@ -62,6 +62,23 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.SessionTimeoutWarning" Title="Before the session ends" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; start the session; the warning opens a few seconds later.</strong> A session
+        that ends on its own warns first, with a way to stay, so nobody loses work to a timer they could
+        not see. Open it at least <strong>two minutes</strong> before the end: an app's own
+        <code>&lt;dialog class="modal" role="alertdialog"&gt;</code>, shown with
+        <code>ShowModalAsync</code> and the session's <code>CancellationToken</code>, with
+        <em>Stay signed in</em> and <em>Sign out</em>.
+    </p>
+    <p>
+        The countdown is a <a href="/live-state#countdown"><code>&lt;time data-countdown&gt;</code></a>
+        in the app's words. When it reaches zero, <code>sedna-countdown-end</code> closes the warning
+        and the app goes to the session-expired page above. The server still ends the session on its
+        own clock; the page only shows it.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.CommonPages.Maintenance" Title="Maintenance" Demo="ex-demo--block">
     <p>
         <strong>The title is the time it comes back</strong>, not the word

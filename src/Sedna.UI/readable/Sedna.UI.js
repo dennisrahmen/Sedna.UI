@@ -8992,6 +8992,20 @@ window.sednaUi = window.sednaUi || {};
    cancelable, so the app is asked every time. Escape another handler already took
    — a combo, a drag — and Escape meant for an open popover are left alone, exactly
    as the platform would leave them.
+
+   ASKING BEFORE THE PAGE IS LEFT — data-close-guard with data-dirty. A form, or any
+   element, that carries both holds work that is not saved, and closing the tab,
+   reloading or following a link out of the app raises the browser's own "leave
+   this page?" prompt. Whether the work is unsaved is the app's to say: it writes
+   `data-dirty` while what is on screen differs from what was saved and takes it off
+   when it saves or discards, and the guard is answered from the attribute as it
+   stands when the page is left — nothing is tracked here. In Blazor:
+
+     <form data-close-guard data-dirty="@_dirty" @onsubmit="Save">
+
+   The prompt's words are the browser's; no page can set them. A navigation inside a
+   Blazor app never unloads the page, so it raises no prompt: that is NavigationLock's
+   OnBeforeInternalNavigation, which asks with the app's own dialog.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -9140,6 +9154,13 @@ window.sednaUi = window.sednaUi || {};
             e.preventDefault();
         }
     }, true);
+
+    // preventDefault() is the standard ask; a returnValue is what older engines read.
+    window.addEventListener('beforeunload', function (e) {
+        if (!document.querySelector('[data-close-guard][data-dirty]')) return;
+        e.preventDefault();
+        e.returnValue = true;
+    });
 
 })(window.sednaUi);
 

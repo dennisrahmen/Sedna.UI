@@ -1,0 +1,63 @@
+@page "/form-saving"
+
+<CatHead Title="Saving and leaving">
+    Keeping <strong>Save</strong> in reach on a form longer than the screen, saying that the work is
+    not saved yet, and asking before the reader leaves it. The actions are a
+    <a href="/form#where-the-actions-sit"><code>.form-actions</code></a> row; whether the work is saved
+    is the app's to say, as one attribute.
+</CatHead>
+
+<CatExample TExample="Examples.FormSaving.SaveBar" Title="The save bar" Demo="ex-demo--block">
+    <p>
+        <strong>Scroll the form.</strong> <code>.form-actions--save-bar</code> is there only while
+        <code>data-dirty</code> is on the form, or on any element around the row, and sticks to the
+        bottom of the page while the form runs past it. <code>.form-actions-status</code> says why it
+        is there, on the leading side. Write <code>data-dirty</code> while what is on screen differs
+        from what was saved, and take it off when the reader saves or discards &mdash; the app knows
+        that; the library does not track it.
+    </p>
+    <p>
+        The <code>.sedna-scroll</code> box stands in for the page here. In an app the row sticks to
+        <code>.page</code> and needs no box; a scroller of your own inside the page is a
+        <code>.sedna-scroll</code>, which is how the row knows to stop at its edge.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSaving.StickyActions" Title="Actions that stay in reach" Demo="ex-demo--block">
+    <p>
+        <code>.form-actions--sticky</code> is the same row, always shown, for a long editor whose
+        actions must not wait at the bottom: it sticks while the form is in view and settles at the
+        form's end. It works inside a <code>.card</code> too. Use it instead of the save bar on a page
+        that has to save with no script, where nothing would write <code>data-dirty</code>.
+    </p>
+    <p>
+        On a phone the row pads itself clear of the home indicator, and stands on the
+        <a href="/bottombar">bottom bar</a> rather than under it &mdash; with the shell's bar in its
+        place, under <code>.layout--flow</code> as well. A form in a <a href="/modal">modal</a> or a
+        <a href="/drawer">drawer</a> keeps its actions in <code>.modal-footer</code> or
+        <code>.drawer-foot</code>, which never scroll.
+    </p>
+</CatExample>
+
+<CatSnippet Name="FormSaving/LeaveGuard.html" Title="Asking before the page is left">
+    <p>
+        <code>data-close-guard</code> on a form, beside <code>data-dirty</code>, raises the browser's
+        own &ldquo;leave this page?&rdquo; prompt on a reload, a closed tab or a link out of the app.
+        The words of that prompt are the browser's, and a browser asks only on a page the reader has
+        used. With <code>data-dirty</code> off, nothing is asked. It is the same attribute that makes
+        a <a href="/modal#asking-before-it-closes">dialog ask before it closes</a>.
+    </p>
+</CatSnippet>
+
+<CatExample TExample="Examples.Interop.UnsavedChanges" Title="Leaving from Blazor" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; change a field, then follow a link in the sidebar.</strong> A link inside
+        a Blazor app never unloads the page, so the browser does not ask. Blazor's own
+        <code>&lt;NavigationLock&gt;</code> does: its <code>OnBeforeInternalNavigation</code> opens the
+        app's dialog with <code>ShowModalAsync</code>, passing the context's
+        <code>CancellationToken</code>, and calls <code>PreventNavigation()</code> unless the reader
+        chose to leave. Leave its <code>ConfirmExternalNavigation</code> off:
+        <code>data-close-guard</code> already asks for that, from the first render, before the circuit
+        is up.
+    </p>
+</CatExample>

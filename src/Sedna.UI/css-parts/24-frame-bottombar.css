@@ -307,3 +307,28 @@
     .layout--bottombar .bottombar { display: none; }
     .layout--bottombar .content:has(> .bottombar) > .page { padding-block-end: calc(var(--space-9) + var(--safe-block-end)); }
 }
+
+/* ── What the bar takes from a page that flows ──────────────────────────────
+   Under .layout--flow on a phone the bar is stuck to the bottom of the viewport, over
+   the document. --bottombar-reach is how much of the viewport's bottom edge it takes,
+   for a row in the page that sticks to that edge and has to stand on the bar instead
+   of under it — `.form-actions--sticky` and `--save-bar`. A sticky box cannot read
+   another box's size (anchor-size() resolves only for an absolutely positioned one),
+   so the shell states it here, beside the heights it is made of: the items row and
+   its top rule, the accessory, and the inset the bar pads itself by. The bar with
+   its items stepped away is shorter, and the row then stands a little above it.
+
+   An app that gives the bar a height of its own sets --bottombar-reach on .layout
+   with it. */
+@media (max-width: 560px) {
+    .layout--flow:has(> .content > .bottombar) {
+        --bottombar-reach-items: calc(46px + 1px);
+        --bottombar-reach-accessory: 0px;
+        --bottombar-reach: calc(var(--bottombar-reach-items) + var(--bottombar-reach-accessory) + var(--safe-block-end));
+    }
+    .layout--flow:has(> .content > .bottombar--tint)  { --bottombar-reach-items: calc(52px + 1px); }
+    .layout--flow:has(> .content > .bottombar--icons) { --bottombar-reach-items: calc(48px + 1px); }
+    .layout--flow:has(> .content > .bottombar--card)  { --bottombar-reach-items: calc(50px + var(--space-5)); }
+    .layout--flow:has(> .content > .bottombar > .bottombar-accessory) { --bottombar-reach-accessory: 38px; }
+    .layout--flow:has(> .content > .bottombar--card > .bottombar-accessory) { --bottombar-reach-accessory: calc(38px + var(--space-3)); }
+}

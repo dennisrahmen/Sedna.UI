@@ -3994,6 +3994,31 @@ a.topbar-version--pre:hover {
     .layout--bottombar .bottombar { display: none; }
     .layout--bottombar .content:has(> .bottombar) > .page { padding-block-end: calc(var(--space-9) + var(--safe-block-end)); }
 }
+
+/* ── What the bar takes from a page that flows ──────────────────────────────
+   Under .layout--flow on a phone the bar is stuck to the bottom of the viewport, over
+   the document. --bottombar-reach is how much of the viewport's bottom edge it takes,
+   for a row in the page that sticks to that edge and has to stand on the bar instead
+   of under it — `.form-actions--sticky` and `--save-bar`. A sticky box cannot read
+   another box's size (anchor-size() resolves only for an absolutely positioned one),
+   so the shell states it here, beside the heights it is made of: the items row and
+   its top rule, the accessory, and the inset the bar pads itself by. The bar with
+   its items stepped away is shorter, and the row then stands a little above it.
+
+   An app that gives the bar a height of its own sets --bottombar-reach on .layout
+   with it. */
+@media (max-width: 560px) {
+    .layout--flow:has(> .content > .bottombar) {
+        --bottombar-reach-items: calc(46px + 1px);
+        --bottombar-reach-accessory: 0px;
+        --bottombar-reach: calc(var(--bottombar-reach-items) + var(--bottombar-reach-accessory) + var(--safe-block-end));
+    }
+    .layout--flow:has(> .content > .bottombar--tint)  { --bottombar-reach-items: calc(52px + 1px); }
+    .layout--flow:has(> .content > .bottombar--icons) { --bottombar-reach-items: calc(48px + 1px); }
+    .layout--flow:has(> .content > .bottombar--card)  { --bottombar-reach-items: calc(50px + var(--space-5)); }
+    .layout--flow:has(> .content > .bottombar > .bottombar-accessory) { --bottombar-reach-accessory: 38px; }
+    .layout--flow:has(> .content > .bottombar--card > .bottombar-accessory) { --bottombar-reach-accessory: calc(38px + var(--space-3)); }
+}
 }
 
 /* ── 30-cards.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -7153,6 +7178,103 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    children — wrap each side in a <div> if either has more than one button. */
 .form-actions--split { justify-content: space-between; }
 .form-actions--start { justify-content: flex-start; }
+
+/* ── Sticky actions and the save bar ────────────────────────────────────────
+   A form longer than the screen keeps its actions in reach: the row sticks to the
+   bottom of what scrolls it — the page, or a `.sedna-scroll` — while the form is in
+   view, and settles at the form's end when the reader gets there. A form in a modal
+   or a drawer has `.modal-footer` or `.drawer-foot` for this, which never scroll.
+
+     <form>
+       …
+       <div class="form-actions form-actions--sticky">
+         <button class="btn" type="button">Cancel</button>
+         <button class="btn btn--brand btn--solid" type="submit">Save</button>
+       </div>
+     </form>
+
+   `--save-bar` is the same row shown only while the work is unsaved: the app puts
+   `data-dirty` on the form, or on any element around the row, while what is on
+   screen differs from what was saved, and takes it off when it saves or discards.
+   The row then says so in `.form-actions-status`, which sits on the leading side:
+
+     <form data-close-guard data-dirty>
+       …
+       <div class="form-actions form-actions--save-bar">
+         <p class="form-actions-status"><i class="ri-error-warning-line"></i><span>Unsaved changes</span></p>
+         <button class="btn" type="reset">Discard</button>
+         <button class="btn btn--brand btn--solid" type="submit">Save</button>
+       </div>
+     </form>
+
+   With no `data-dirty` the save bar is not there at all, so a form that must save
+   on a page with no script uses `--sticky`, which always shows. `data-close-guard`
+   beside `data-dirty` asks before the page is left (42-modal.js).
+
+   The row paints the surface it sits on, so the fields scrolling under it do not
+   show through, and draws a rule on the edge they scroll under. It pads itself
+   clear of the home indicator where it reaches the device's edge, which is in a
+   page with no bottom bar below it; with one, the bar does that. Under
+   `.layout--flow` on a phone, where the document scrolls and the bar is stuck to
+   the bottom of the viewport, the row stands on the bar instead of under it —
+   `--bottombar-reach`, in 24-frame-bottombar.css. z-index 3 is local: it keeps the
+   row above a sticky table header or a pinned column it scrolls over. */
+.form-actions--sticky,
+.form-actions--save-bar {
+    position: sticky;
+    inset-block-end: 0;
+    z-index: 3;
+    padding-block: var(--space-5);
+    background: var(--surface-here, var(--bg));
+    border-top: 1px solid var(--border);
+}
+/* A sticky box stops at its scroller's padding, and the page pads its bottom edge,
+   so the row in a page reaches through that padding to the edge itself — otherwise
+   the fields show through the gap under it. The pairs below follow the page's own
+   padding in 16-frame-page-scroll.css and 24-frame-bottombar.css. A row in a
+   scroller inside the page sticks to that scroller instead, so give a scroller of
+   the app's own `.sedna-scroll`, which is how the rule knows it is one. */
+.page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+    inset-block-end: calc(-1 * (var(--page-pad) + var(--safe-block-end)));
+    padding-block-end: calc(var(--space-5) + var(--safe-block-end));
+}
+.content:has(> .bottombar) > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+    inset-block-end: calc(-1 * var(--space-9));
+    padding-block-end: var(--space-5);
+}
+@media (min-width: 561px) {
+    .layout--bottombar .content:has(> .bottombar) > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: calc(-1 * (var(--space-9) + var(--safe-block-end)));
+        padding-block-end: calc(var(--space-5) + var(--safe-block-end));
+    }
+}
+/* A flowing page is not a scroller: the viewport is, and it has no padding. */
+@media (max-width: 560px) {
+    .layout--flow > .content > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) { inset-block-end: 0; }
+    .layout--flow:has(> .content > .bottombar) > .content > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: var(--bottombar-reach);
+    }
+}
+
+/* A card clips its content to its corners with `overflow: hidden`, which makes it a
+   scroll container of its own, and a row cannot stick inside a box that never
+   scrolls. `clip` cuts to the same corners without being one, so the row sticks to
+   the scroller around the card. */
+.card:has(.form-actions--sticky, .form-actions--save-bar) { overflow: clip; }
+
+.form-actions--save-bar { display: none; }
+[data-dirty] .form-actions--save-bar { display: flex; }
+
+.form-actions-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    margin-inline-end: auto;
+    color: var(--muted-here, var(--muted));
+    font-size: var(--text-3);
+}
+.form-actions-status i { color: var(--warn-fg); font-size: var(--text-5); }
 
 /* ── Form section ───────────────────────────────────────────────────────────
    A titled group of fields. Use <fieldset> + <legend>: the legend is then

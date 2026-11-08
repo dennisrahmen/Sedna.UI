@@ -5642,6 +5642,11 @@ window.sednaUi = window.sednaUi || {};
             e.preventDefault();
         }
     }, true);
+    window.addEventListener('beforeunload', function (e) {
+        if (!document.querySelector('[data-close-guard][data-dirty]')) return;
+        e.preventDefault();
+        e.returnValue = true;
+    });
 })(window.sednaUi);
 (function (ui) {
     var here = (function () {

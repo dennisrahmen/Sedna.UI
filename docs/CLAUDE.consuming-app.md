@@ -156,6 +156,18 @@ the `<dialog>`, point its close buttons at the same `Dismiss`, and have it ask a
 `Overlay.CancelAsync()`. Escape then never closes the dialog by itself. Do not write
 `@oncancel:preventDefault` — Razor renders it as a literal attribute and the render throws.
 
+A form holding unsaved work **asks before the page is left**: put `data-close-guard` on the `<form>` and
+render `data-dirty="@_dirty"` from the app's own comparison with what was saved. The browser then asks on
+a reload, a closed tab or a link out of the app. A link inside the app never unloads the page, so add
+`<NavigationLock OnBeforeInternalNavigation="ConfirmLeave" />` and, while dirty, open the app's own
+dialog with `ShowModalAsync(id, context.CancellationToken)` and call `context.PreventNavigation()`
+unless the reader chose to leave. Leave `ConfirmExternalNavigation` off. A long form's actions are a
+`.form-actions--sticky` row, or a `.form-actions--save-bar` that shows only under `data-dirty`.
+
+A session that ends on its own warns **two minutes** before the end, in an app-written
+`<dialog class="modal" role="alertdialog">` holding a `<time data-countdown>`; `@onsedna-countdown-end`
+closes it and signs out.
+
 A tour step is `ISednaUi.FollowSpotlightAsync(hole, target, options)`; dispose the `SednaSpotlight` it
 returns when the step ends.
 

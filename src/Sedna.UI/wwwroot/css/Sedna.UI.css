@@ -2063,6 +2063,18 @@ a.topbar-version--pre:hover {
     .layout--bottombar .bottombar { display: none; }
     .layout--bottombar .content:has(> .bottombar) > .page { padding-block-end: calc(var(--space-9) + var(--safe-block-end)); }
 }
+@media (max-width: 560px) {
+    .layout--flow:has(> .content > .bottombar) {
+        --bottombar-reach-items: calc(46px + 1px);
+        --bottombar-reach-accessory: 0px;
+        --bottombar-reach: calc(var(--bottombar-reach-items) + var(--bottombar-reach-accessory) + var(--safe-block-end));
+    }
+    .layout--flow:has(> .content > .bottombar--tint)  { --bottombar-reach-items: calc(52px + 1px); }
+    .layout--flow:has(> .content > .bottombar--icons) { --bottombar-reach-items: calc(48px + 1px); }
+    .layout--flow:has(> .content > .bottombar--card)  { --bottombar-reach-items: calc(50px + var(--space-5)); }
+    .layout--flow:has(> .content > .bottombar > .bottombar-accessory) { --bottombar-reach-accessory: 38px; }
+    .layout--flow:has(> .content > .bottombar--card > .bottombar-accessory) { --bottombar-reach-accessory: calc(38px + var(--space-3)); }
+}
 }
 @layer sedna.paint {
 .card {
@@ -3836,6 +3848,48 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 .form-actions--split { justify-content: space-between; }
 .form-actions--start { justify-content: flex-start; }
+.form-actions--sticky,
+.form-actions--save-bar {
+    position: sticky;
+    inset-block-end: 0;
+    z-index: 3;
+    padding-block: var(--space-5);
+    background: var(--surface-here, var(--bg));
+    border-top: 1px solid var(--border);
+}
+.page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+    inset-block-end: calc(-1 * (var(--page-pad) + var(--safe-block-end)));
+    padding-block-end: calc(var(--space-5) + var(--safe-block-end));
+}
+.content:has(> .bottombar) > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+    inset-block-end: calc(-1 * var(--space-9));
+    padding-block-end: var(--space-5);
+}
+@media (min-width: 561px) {
+    .layout--bottombar .content:has(> .bottombar) > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: calc(-1 * (var(--space-9) + var(--safe-block-end)));
+        padding-block-end: calc(var(--space-5) + var(--safe-block-end));
+    }
+}
+@media (max-width: 560px) {
+    .layout--flow > .content > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) { inset-block-end: 0; }
+    .layout--flow:has(> .content > .bottombar) > .content > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: var(--bottombar-reach);
+    }
+}
+.card:has(.form-actions--sticky, .form-actions--save-bar) { overflow: clip; }
+.form-actions--save-bar { display: none; }
+[data-dirty] .form-actions--save-bar { display: flex; }
+.form-actions-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    margin-inline-end: auto;
+    color: var(--muted-here, var(--muted));
+    font-size: var(--text-3);
+}
+.form-actions-status i { color: var(--warn-fg); font-size: var(--text-5); }
 .form-section {
     margin: 0 0 var(--space-8);
     padding: 0;

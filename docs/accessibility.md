@@ -42,6 +42,8 @@ something, it is listed below and repeated in the class's own comment.
 | A field when rejected | `aria-invalid="true"` on the control — on the input inside an `.input-group` or a combo box, not on the frame; the styling keys off it, not off a class — and `aria-describedby` pointing at the `.form-error` |
 | A field when unusual | `data-state="warn"` on the control, and `aria-describedby` pointing at the `.form-warning`. No ARIA attribute says "unusual", so the message is what a screen reader hears. |
 | `.form-label--required` | `required` on the control. The `*` is decoration. |
+| `.form-actions--save-bar` | the reason in words in `.form-actions-status` — the warning icon is decoration — and `data-dirty` taken off as soon as the work is saved, so the bar and the leave prompt go with it |
+| A session timeout warning | `role="alertdialog"` with `aria-labelledby` and `aria-describedby` on the app's `<dialog class="modal">`, opened at least two minutes before the end (WCAG 2.2.1), a button that extends the session, and the countdown as a `<time data-countdown>` that is not a live region |
 | `.segmented` | one `name` shared by every radio, and a group name via `<fieldset>` or `aria-labelledby` |
 | `.rating` | shown: `role="img"` and an `aria-label` that says the score in words. Taken: `role="radiogroup"` with a name, one `name` shared by every radio, and an `aria-label` on each radio that says its score |
 | `.form-code` | a group name (`role="group"` and `aria-labelledby`), an `aria-label` per box ("Digit 2 of 6"), `autocomplete="one-time-code"` on the first box, and the `name` on the `data-code-value` input alone |
