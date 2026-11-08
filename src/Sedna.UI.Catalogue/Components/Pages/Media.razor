@@ -57,12 +57,26 @@
         <code>.media-frame--transparency</code> paints a checkerboard behind the picture, so a
         transparent background can be told from a white or grey one &mdash; a logo, an icon, a
         cut-out, an upload being checked. It is behind the picture alone, so a letterbox stays plain.
-        Every picture frame takes the same modifier: <code>.file-tile-thumb--transparency</code>,
-        <code>.file-thumb--transparency</code>, <code>.choice-tile-art--transparency</code> and
-        <code>.lightbox-stage--transparency</code>. The squares are <code>--surface-soft</code> and
+        The squares are <code>--surface-soft</code> and
         <code>--border</code>, so they follow the theme; <code>--checker-size</code> is one square.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.Media.TransparencyFrames" Title="Transparency in every frame" Demo="ex-demo--block">
+    <p>
+        Every frame that shows a picture takes the same modifier: <code>.file-tile-thumb--transparency</code>
+        on a file tile, <code>.file-thumb--transparency</code> on an attachment waiting to upload, and
+        <code>.choice-tile-art--transparency</code> on a choice between pictures &mdash; where telling a
+        transparent logo from a boxed one is the whole decision. The lightbox's stage takes
+        <code>.lightbox-stage--transparency</code>, below.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Media/LightboxTransparency.html" Title="Transparency in the lightbox">
+    <p>
+        The same modifier on the stage of a <code>.lightbox</code>, for a picture opened full size.
+    </p>
+</CatSnippet>
 
 <CatExample TExample="Examples.Media.Gallery" Title="A gallery of attachments" Demo="ex-demo--block">
     <p>

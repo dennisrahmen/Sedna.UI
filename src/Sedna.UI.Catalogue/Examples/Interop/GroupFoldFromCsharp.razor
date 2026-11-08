@@ -1,0 +1,35 @@
+<div class="card sedna-scroll" style="max-width:460px; max-height:260px; overflow-y:auto">
+    <ul class="list">
+        @for (var i = 0; i < _groups.Length; i++)
+        {
+            var group = _groups[i];
+            <li class="sticky-group-head sticky-group-head--rule" style="--group-head-index: @i">
+                <button class="sticky-group-toggle" type="button" data-group-toggle="managed"
+                        aria-expanded="@(group.Open ? "true" : "false")" @onclick="() => group.Open = !group.Open">@group.Name</button>
+                <span class="sticky-group-count">@group.Rows.Length</span>
+            </li>
+            @foreach (var row in group.Rows)
+            {
+                <li><a class="list-row" href="#"><span class="list-main"><span class="list-title">@row</span></span></a></li>
+            }
+        }
+    </ul>
+</div>
+
+@code {
+    private sealed class Group(string name, bool open, params string[] rows)
+    {
+        public string Name { get; } = name;
+        public bool Open { get; set; } = open;
+        public string[] Rows { get; } = rows;
+    }
+
+    // The folds are the app's state, kept per reader; the script hides the rows of a group
+    // whose rendered aria-expanded is false and never flips it itself.
+    private readonly Group[] _groups =
+    [
+        new("Overdue", true, "Confirm ORD-4182 delivery", "Chase the EU-West stock count"),
+        new("Today", true, "Approve the Nordics returns"),
+        new("Later", false, "Review the carrier contract", "Archive last quarter's orders"),
+    ];
+}
