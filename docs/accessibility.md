@@ -105,8 +105,9 @@ hold a filter field. `role="menu"` promises a single tab stop and children that 
 and a screen reader stops announcing a link as a link inside it. The disclosure pattern —
 `aria-expanded` on the trigger, no role on the panel — is correct and complete.
 
-**No `role="listbox"` on the palette.** A combobox needs `aria-activedescendant` on the input, which is
-what the palette does, rather than a listbox whose keyboard contract it would only half implement.
+**The palette is a combobox over a listbox.** The script writes `role="combobox"` and
+`aria-activedescendant` on the input and `role="listbox"` on the list, so focus stays in the input while
+the arrows move the active option. Do not add these roles in the markup; the script owns them.
 
 ## The tree
 
