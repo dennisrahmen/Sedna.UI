@@ -98,6 +98,8 @@
 /* Label at the start instead of centred, for a run of sections where a centred
    label makes the page look like a series of title cards. */
 .divider-labelled--start::before { flex: 0 0 0; }
+/* A control in the break — "Restore to here" on a checkpoint — keeps its own case. */
+.divider-labelled > .btn { text-transform: none; letter-spacing: normal; }
 
 /* ── Callout ────────────────────────────────────────────────────────────────
    An editorial aside inside prose: a note, a caveat, a worked example. It is part

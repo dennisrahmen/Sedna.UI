@@ -38,6 +38,7 @@ public class BusyStateTests
         "chip-dismiss", "modal-close", "toast-close", "th-sort", "th-filter", "skip-link", "swatch",
         "deck-dot", "drag-item", "drag-handle", "card-resize", "split-resize", "col-resize", "value-trigger",
         "accordion", "tree", "nav-group", "nav-area", "topbar-nav-link", "reasoning",
+        "agent-tool",                           // opens on a call; the call's state is its badge
         "output-details", "media-transcript", "media-transcript-time", "media-open", "lightbox-prev",
         "lightbox-next", "code-block-copy", "code-block-expand", "file-item", "file-tile", "file-tile-open",
         "link-preview", "gallery", "media-frame", "chat-reaction", "chat-emoji", "chat-jump", "chat-launcher",

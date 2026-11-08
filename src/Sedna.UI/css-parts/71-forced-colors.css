@@ -170,6 +170,7 @@
     .lightbox-next:focus-visible,
     .media-open:focus-visible,
     .reasoning > summary:focus-visible,
+    .agent-tool > summary:focus-visible,
     button.cal-weeknum:focus-visible,
     .cal-event:focus-visible,
     .cal-block:focus-visible,

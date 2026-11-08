@@ -22,9 +22,24 @@
    `.badge-ai` says a piece of content was generated. `.confidence[data-level]` (1–3)
    says how sure the agent is, in bars and in the app's words beside them.
    `.context-ring` shows how much of a context window is used, from `--value` (0–100).
+   `.context-usage` is what it is made of, in a hover card opened from the ring:
+     <button class="btn btn--sm btn--ghost" type="button" data-popover="ctx" data-popover-hover>
+       <span class="context-ring" style="--value: 62"></span><span>62%</span></button>
+     <div class="popover context-usage" id="ctx" popover>
+       <div class="context-usage-head"><strong>Context</strong><span>124k / 200k</span></div>
+       <div class="meter meter--sm">…</div>
+       <dl class="context-usage-rows">
+         <div><dt>Input</dt><dd>92,410</dd><dd>$0.28</dd></div>
+         …
+       </dl>
+       <div class="context-usage-foot"><span>Total cost</span><strong>$0.41</strong></div>
+     </div>
+   The rows share three columns — what, how many tokens, what they cost — so the
+   figures line up down the card.
    `.skeleton--agent` is a placeholder the agent is filling.
    ─────────────────────────────────────────────────────────────────────────── */
-.text-shimmer {
+.text-shimmer,
+.reasoning[data-state="running"] .reasoning-label {
     background: linear-gradient(90deg, var(--muted) 0 38%, var(--fg) 50%, var(--muted) 62% 100%) 0 0 / 300% 100%;
     -webkit-background-clip: text;
     background-clip: text;
@@ -97,6 +112,31 @@
 .context-ring--danger { --ring: var(--danger-fg); }
 .context-ring--sm { --ring-size: 14px; --ring-width: 2px; }
 .context-ring--lg { --ring-size: 56px; --ring-width: 5px; }
+
+/* Block flow, with no `display` of its own: on a `.popover`, a display would outrank the
+   rule that keeps a closed popover hidden. */
+.context-usage { min-inline-size: min(240px, 100%); font-size: var(--text-3); }
+.context-usage > * + * { margin-block-start: var(--space-5); }
+.context-usage-head,
+.context-usage-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); }
+.context-usage-head > strong { color: var(--fg); font-size: var(--text-4); }
+.context-usage-head > :last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+/* The bar fills in the ring's colour, so the two read as one measure. */
+.context-usage .meter-fill { color: var(--agent-to); }
+.context-usage-rows {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    column-gap: var(--space-7);
+    row-gap: var(--space-3);
+    margin: 0;
+}
+/* A row's box gives way to its cells, so every row's figures share the list's columns. */
+.context-usage-rows > div { display: contents; }
+.context-usage-rows dt { color: var(--fg-soft); }
+.context-usage-rows dd { margin: 0; color: var(--muted); font-variant-numeric: tabular-nums; text-align: end; }
+.context-usage-rows :is(dt, dd) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+.context-usage-foot { padding-block-start: var(--space-5); border-block-start: 1px solid var(--border); color: var(--fg); }
+.context-usage-foot > strong { font-variant-numeric: tabular-nums; }
 
 .skeleton--agent {
     background-image: linear-gradient(90deg,

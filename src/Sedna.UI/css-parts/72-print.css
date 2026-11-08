@@ -47,6 +47,8 @@
     .chat-jump,
     .chat-quick-replies,
     .col-resize { display: none; }
+    .agent-plan-actions,
+    .reasoning-bar > .btn { display: none; }
 
     /* A thread prints whole: the scroller lets its messages out, and a message is
        not cut across a page. */

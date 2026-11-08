@@ -31,6 +31,27 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.AgentChat.ContextUsage" Title="What the context holds" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; rest the pointer on the ring, or tab to it.</strong> The
+        <a href="/agent-status"><code>.context-ring</code></a> in a ghost button opens a hover card
+        (<a href="/popover"><code>data-popover</code> with <code>data-popover-hover</code></a>); a click
+        pins it. <code>.context-usage</code> on the <code>.popover</code> is what the window is made of:
+        <code>.context-usage-head</code> with the total, a <a href="/bars"><code>.meter</code></a> in
+        the ring's colour, <code>dl.context-usage-rows</code> &mdash; input, output, reasoning and cached
+        tokens, with what each cost, the figures in shared columns &mdash; and
+        <code>.context-usage-foot</code> for the total cost.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentChat.Checkpoint" Title="A checkpoint" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A <a href="/structure"><code>.divider-labelled</code></a> across the thread marks a point the
+        conversation and its changes can go back to: a bookmark icon, the time, and a button that
+        restores to there. A button in the break keeps its own case.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.AgentChat.Streaming" Title="While the answer streams" Demo="ex-demo--block ex-demo--pad">
     <p>
         <code>.chat-bubble--streaming</code> puts a caret after the last block while text is still arriving.

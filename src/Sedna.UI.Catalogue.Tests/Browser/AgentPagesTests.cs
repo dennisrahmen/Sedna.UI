@@ -92,4 +92,45 @@ public class AgentPagesTests(CatalogueAppFixture app)
         Assert.Empty(errors);
         await page.Context.CloseAsync();
     }
+
+    [Fact]
+    public async Task A_failed_tool_call_is_open_and_a_question_waits_for_its_answer()
+    {
+        if (app.NoBrowser) return;
+        var errors = new List<string>();
+        var page = await Open("/agent-steps", errors);
+
+        // Open from the markup alone, as the example writes it, through the interactive render.
+        await Assertions.Expect(page.Locator(".agent-tool[data-state='failed']").First).ToHaveAttributeAsync("open", "");
+        await Assertions.Expect(page.Locator(".agent-tool[data-state='failed'] .agent-tool-error").First).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator(".agent-tool[data-state='done'] .agent-tool-body").First).ToBeHiddenAsync();
+        await page.Locator(".agent-tool[data-state='done'] > summary").First.ClickAsync();
+        await Assertions.Expect(page.Locator(".agent-tool[data-state='done'] .agent-tool-body").First).ToBeVisibleAsync();
+
+        await Assertions.Expect(page.Locator(".agent-approval--question [type='submit']").First).ToBeDisabledAsync();
+        await Assertions.Expect(page.Locator(".reasoning[data-state='running'] .reasoning-label").First)
+            .ToHaveCSSAsync("animation-name", "text-shimmer");
+
+        Assert.Empty(errors);
+        await page.Context.CloseAsync();
+    }
+
+    [Fact]
+    public async Task Resting_on_the_context_ring_opens_what_the_context_holds()
+    {
+        if (app.NoBrowser) return;
+        var errors = new List<string>();
+        var page = await Open("/agent-chat", errors);
+        var card = page.Locator("#context-usage");
+
+        await Assertions.Expect(card).ToBeHiddenAsync();
+        var ring = page.Locator("[data-popover='context-usage']");
+        await ring.ScrollIntoViewIfNeededAsync();
+        await ring.HoverAsync();
+        await Assertions.Expect(card).ToBeVisibleAsync();
+        await Assertions.Expect(card.Locator(".context-usage-foot")).ToContainTextAsync("Total cost");
+
+        Assert.Empty(errors);
+        await page.Context.CloseAsync();
+    }
 }

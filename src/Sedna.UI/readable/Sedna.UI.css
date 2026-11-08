@@ -84,6 +84,7 @@
      66-agent-activity.css
      66-agent-avatar.css
      66-agent-steps.css
+     66-agent-tools.css
      66-calendar.css
      66-chat.css
      66-inbox.css
@@ -11285,6 +11286,8 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* Label at the start instead of centred, for a run of sections where a centred
    label makes the page look like a series of title cards. */
 .divider-labelled--start::before { flex: 0 0 0; }
+/* A control in the break — "Restore to here" on a checkpoint — keeps its own case. */
+.divider-labelled > .btn { text-transform: none; letter-spacing: normal; }
 
 /* ── Callout ────────────────────────────────────────────────────────────────
    An editorial aside inside prose: a note, a caveat, a worked example. It is part
@@ -15663,9 +15666,24 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    `.badge-ai` says a piece of content was generated. `.confidence[data-level]` (1–3)
    says how sure the agent is, in bars and in the app's words beside them.
    `.context-ring` shows how much of a context window is used, from `--value` (0–100).
+   `.context-usage` is what it is made of, in a hover card opened from the ring:
+     <button class="btn btn--sm btn--ghost" type="button" data-popover="ctx" data-popover-hover>
+       <span class="context-ring" style="--value: 62"></span><span>62%</span></button>
+     <div class="popover context-usage" id="ctx" popover>
+       <div class="context-usage-head"><strong>Context</strong><span>124k / 200k</span></div>
+       <div class="meter meter--sm">…</div>
+       <dl class="context-usage-rows">
+         <div><dt>Input</dt><dd>92,410</dd><dd>$0.28</dd></div>
+         …
+       </dl>
+       <div class="context-usage-foot"><span>Total cost</span><strong>$0.41</strong></div>
+     </div>
+   The rows share three columns — what, how many tokens, what they cost — so the
+   figures line up down the card.
    `.skeleton--agent` is a placeholder the agent is filling.
    ─────────────────────────────────────────────────────────────────────────── */
-.text-shimmer {
+.text-shimmer,
+.reasoning[data-state="running"] .reasoning-label {
     background: linear-gradient(90deg, var(--muted) 0 38%, var(--fg) 50%, var(--muted) 62% 100%) 0 0 / 300% 100%;
     -webkit-background-clip: text;
     background-clip: text;
@@ -15738,6 +15756,31 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .context-ring--danger { --ring: var(--danger-fg); }
 .context-ring--sm { --ring-size: 14px; --ring-width: 2px; }
 .context-ring--lg { --ring-size: 56px; --ring-width: 5px; }
+
+/* Block flow, with no `display` of its own: on a `.popover`, a display would outrank the
+   rule that keeps a closed popover hidden. */
+.context-usage { min-inline-size: min(240px, 100%); font-size: var(--text-3); }
+.context-usage > * + * { margin-block-start: var(--space-5); }
+.context-usage-head,
+.context-usage-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); }
+.context-usage-head > strong { color: var(--fg); font-size: var(--text-4); }
+.context-usage-head > :last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+/* The bar fills in the ring's colour, so the two read as one measure. */
+.context-usage .meter-fill { color: var(--agent-to); }
+.context-usage-rows {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    column-gap: var(--space-7);
+    row-gap: var(--space-3);
+    margin: 0;
+}
+/* A row's box gives way to its cells, so every row's figures share the list's columns. */
+.context-usage-rows > div { display: contents; }
+.context-usage-rows dt { color: var(--fg-soft); }
+.context-usage-rows dd { margin: 0; color: var(--muted); font-variant-numeric: tabular-nums; text-align: end; }
+.context-usage-rows :is(dt, dd) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+.context-usage-foot { padding-block-start: var(--space-5); border-block-start: 1px solid var(--border); color: var(--fg); }
+.context-usage-foot > strong { font-variant-numeric: tabular-nums; }
 
 .skeleton--agent {
     background-image: linear-gradient(90deg,
@@ -15862,10 +15905,26 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
        <div class="reasoning-body"><p>…</p></div>
      </details>
 
+   While the agent is still thinking, `data-state="running"` on the `<details>` sets the
+   words in `.reasoning-label` shimmering, and `.reasoning-bar` holds it beside a stop
+   button. Once the thought is done, the app drops the state and changes the words —
+   "Thinking…" becomes "Thought for 4 s, 3 tools".
+     <div class="reasoning-bar">
+       <details class="reasoning" data-state="running">
+         <summary><i class="ri-arrow-right-s-line reasoning-chevron"></i><span class="reasoning-label">Thinking…</span></summary>
+         …
+       </details>
+       <button class="btn btn--sm btn--ghost" type="button">Stop</button>
+     </div>
+
+   Reasoning states: running.
+
    ── Steps ──
    The tool calls behind an answer, in order, each a <details> that opens on its input
    and output. `data-state` on each <li> — pending, running, done, failed — the same
    vocabulary as `.steps`. A 20px marker column with a 2px connector centred under it.
+
+   Step states: pending, running, done, failed.
      <ol class="agent-steps">
        <li data-state="done">
          <span class="agent-step-icon"><i class="ri-check-line"></i></span>
@@ -15881,11 +15940,25 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    What the agent means to do and how far it got: `data-state` on each <li> — done,
    current, skipped, or none for one still to come.
 
+   Plan states: done, current, skipped.
+
+   `.agent-plan--todo` is a list the reader works through with the agent — a todo list,
+   the messages queued behind the one being answered: a done item is struck through as
+   well as dimmed. `.agent-plan-actions` at the end of an item holds its ghost icon
+   buttons — edit, send now, remove — shown while the pointer is on the item or the focus
+   is in it, and always where there is no hover. Put the lists in an `.accordion`, one
+   `<details>` per list, its count in the summary.
+
    ── Approval ──
    The agent asks before it acts. `.agent-approval` on a `.card`; `data-state="approved"`
    or `"denied"` once the reader has answered, which swaps the actions for the result
    line. Approve is `.btn--go.btn--solid` — it lets the action out — and taking control back is
    `.btn--warn`, the library's own meanings for both.
+
+   Approval states: approved, denied, answered.
+
+   `answered` is a question the reader has answered: see `.agent-approval--question` in
+   66-agent-tools.css.
    ─────────────────────────────────────────────────────────────────────────── */
 .reasoning { font-size: var(--text-4); }
 .reasoning > summary {
@@ -15914,6 +15987,16 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 }
 .reasoning-body > p { margin: 0 0 var(--space-4); }
 .reasoning-body > p:last-child { margin: 0; }
+/* Trimmed to its capitals, with its line in its padding: see 06-base-elements.css. */
+.reasoning-label { min-inline-size: 0; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+/* The shimmer itself is `.text-shimmer`'s, in 66-agent-activity.css; running, the chevron
+   takes the agent's colour. */
+.reasoning[data-state="running"] .reasoning-chevron { color: var(--agent-to); }
+.reasoning-bar { display: flex; align-items: flex-start; gap: var(--space-4); min-inline-size: 0; }
+.reasoning-bar > .reasoning { flex: 1; min-inline-size: 0; }
+/* Beside a small button, the summary takes the button's height, so the two share a line. */
+.reasoning-bar > .reasoning > summary { block-size: var(--control-height-sm); }
+.reasoning-bar > .btn { flex: none; }
 
 .agent-steps { --step-icon: 20px; list-style: none; margin: 0; padding: 0; font-size: var(--text-4); }
 .agent-steps > li { position: relative; padding-inline-start: calc(var(--step-icon) + var(--space-4)); padding-block-end: var(--space-5); }
@@ -15960,14 +16043,14 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .agent-step-meta { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .agent-step > .code-block { margin-block-start: var(--space-4); }
 
-.agent-plan { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); font-size: var(--text-4); }
-.agent-plan > li { display: flex; align-items: center; gap: var(--space-5); min-block-size: 20px; }
+.agent-plan { --plan-mark: 20px; list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); font-size: var(--text-4); }
+.agent-plan > li { display: flex; align-items: center; gap: var(--space-5); min-block-size: var(--plan-mark); }
 .agent-plan-mark {
     display: grid;
     place-items: center;
     flex: none;
-    inline-size: 20px;
-    block-size: 20px;
+    inline-size: var(--plan-mark);
+    block-size: var(--plan-mark);
     border-radius: 50%;
     box-shadow: inset 0 0 0 1.5px var(--border-strong);
     font-size: var(--text-3);
@@ -15980,6 +16063,23 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .agent-plan > li[data-state="skipped"] { color: var(--muted); }
 .agent-plan > li[data-state="skipped"] .agent-plan-label { text-decoration: line-through; }
 .agent-plan > li[data-state="skipped"] .agent-plan-mark { box-shadow: inset 0 0 0 1.5px var(--border); }
+.agent-plan-label { min-inline-size: 0; overflow-wrap: anywhere; }
+.agent-plan--todo > li[data-state="done"] .agent-plan-label { text-decoration: line-through; }
+/* The buttons stand on the item's line, the mark's height, so a row with them is no taller. */
+.agent-plan-actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+    margin-block: calc((var(--plan-mark) - var(--control-height-sm)) / 2);
+    margin-inline-start: auto;
+    opacity: 0;
+}
+.agent-plan > li:hover .agent-plan-actions,
+.agent-plan > li:focus-within .agent-plan-actions { opacity: 1; }
+@media (hover: none) {
+    .agent-plan-actions { opacity: 1; }
+}
 
 .agent-approval { border-color: var(--warn-border); }
 .agent-approval-head { display: flex; align-items: center; gap: var(--space-5); min-inline-size: 0; }
@@ -16024,6 +16124,154 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .agent-approval[data-state="denied"] { border-color: var(--border); }
 .agent-approval[data-state="denied"] .agent-approval-result { color: var(--muted); }
 .agent-approval[data-state="denied"] .agent-approval-icon { background: var(--surface-strong); color: var(--muted); }
+.agent-approval[data-state="answered"] { border-color: var(--border); }
+.agent-approval[data-state="answered"] .agent-approval-result { color: var(--fg-soft); }
+}
+
+/* ── 66-agent-tools.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Agent tool calls and questions ───────────────────────────────────────────
+   One tool call as a card the reader can open, and a question the agent puts to the
+   reader before it goes on. Markup the app writes, in the app's words; what the call
+   sent and what came back are shown as they were, never described.
+
+   ── A tool call ──
+   `.agent-tool` on a `<details class="card">`: the summary names the tool and its state,
+   the body holds what it was called with and what it returned, each a `.code-block` with
+   a `.code-block-head`. Write `open` on one the reader has to see — a failed call, one
+   waiting for approval — and leave the rest closed.
+
+     <details class="card agent-tool" data-state="failed" open>
+       <summary>
+         <span class="agent-tool-icon"><i class="ri-database-2-line"></i></span>
+         <span class="agent-tool-name">query_locks</span>
+         <span class="badge agent-tool-status"><i class="ri-close-line"></i><span>Error</span></span>
+         <span class="agent-tool-meta">0.8 s</span>
+         <i class="ri-arrow-down-s-line agent-tool-chevron"></i>
+       </summary>
+       <div class="agent-tool-body">
+         <div class="code-block"><div class="code-block-head"><span>Parameters</span></div><pre><code>…</code></pre></div>
+         <div class="code-block agent-tool-error"><div class="code-block-head"><span>Error</span></div><pre><code>…</code></pre></div>
+       </div>
+     </details>
+
+   `data-state` on the card paints the status badge; the words in it are the app's.
+
+   Tool states: streaming, running, waiting, approved, done, failed, denied.
+
+     streaming  the agent is still writing the call's input     a dashed badge
+     running    the tool is working                              info
+     waiting    the call waits for the reader's approval         warn, and the card's edge
+     approved   the reader said yes; the call has not run yet    go, quiet
+     done       it returned                                      go
+     failed     it returned an error                             danger, and the card's edge
+     denied     the reader said no; it never ran                 muted, the name struck
+
+   The words of the vocabulary are the library's own: `running`, `done` and `failed` as on
+   `.agent-steps`, `waiting` as on `.workflow`, `approved` and `denied` as on
+   `.agent-approval`. A model API names them otherwise — input-streaming, approval-requested,
+   approval-responded, output-available, output-error, output-denied — and the app maps one
+   to the other once. A call waiting for approval holds `.agent-approval-actions` in its body.
+
+   ── A question ──
+   The agent asks and waits: one choice, several, or words of the reader's own. An
+   `.agent-approval--question` card — the approval's head, body and actions, in the info
+   colours, because nothing is being let out — with a `fieldset.agent-question` per
+   question. Single choice is `.choice-tiles` (radios), several is `.form-check` boxes;
+   free text is a `div.agent-question` whose first child is the `<label>` of its
+   `.form-input`. The send button stays `disabled` until every question that
+   needs an answer has one: the app's logic, the platform's state. Once sent,
+   `data-state="answered"` swaps the actions for `.agent-approval-result`.
+   ─────────────────────────────────────────────────────────────────────────── */
+.agent-tool { font-size: var(--text-4); }
+.agent-tool > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-block-size: 40px;
+    padding: var(--space-3) var(--space-5);
+    cursor: pointer;
+    list-style: none;
+    transition: background var(--motion-fast);
+}
+.agent-tool > summary::-webkit-details-marker { display: none; }
+.agent-tool > summary:hover { background: var(--bg-hover); }
+.agent-tool > summary:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; border-radius: var(--radius-surface); }
+.agent-tool[open] > summary { border-block-end: 1px solid var(--border); }
+.agent-tool-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 24px;
+    block-size: 24px;
+    border-radius: var(--radius-inner);
+    background: var(--surface-strong);
+    color: var(--muted);
+    font-size: var(--text-5);
+    line-height: 1;
+}
+.agent-tool-name {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    font-weight: 600;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.agent-tool-status { flex: none; }
+.agent-tool-meta {
+    flex: none;
+    margin-inline-start: auto;
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.agent-tool-chevron {
+    flex: none;
+    margin-inline-start: auto;
+    color: var(--muted);
+    font-size: var(--text-6);
+    transition: rotate var(--motion-fast);
+}
+.agent-tool-meta + .agent-tool-chevron { margin-inline-start: 0; }
+.agent-tool[open] .agent-tool-chevron { rotate: 180deg; }
+.agent-tool-body { display: grid; gap: var(--space-5); padding: var(--space-5); min-inline-size: 0; }
+.agent-tool-body > .agent-approval-actions { justify-content: flex-end; }
+.agent-tool-error { border-color: var(--danger-border); }
+.agent-tool-error > .code-block-head { color: var(--danger-fg); }
+
+.agent-tool[data-state="streaming"] .agent-tool-status { border-style: dashed; background: none; color: var(--muted); }
+.agent-tool[data-state="running"]   .agent-tool-status { border-color: var(--info-border); background: var(--info-bg); color: var(--info-fg); }
+.agent-tool[data-state="waiting"]   { border-color: var(--warn-border); }
+.agent-tool[data-state="waiting"]   .agent-tool-status { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-fg); }
+.agent-tool[data-state="approved"]  .agent-tool-status { border-color: var(--go-border); background: none; color: var(--go-fg); }
+.agent-tool[data-state="done"]      .agent-tool-status { border-color: var(--go-border); background: var(--go-bg); color: var(--go-fg); }
+.agent-tool[data-state="failed"]    { border-color: var(--danger-border); }
+.agent-tool[data-state="failed"]    .agent-tool-status { border-color: var(--danger-border); background: var(--danger-bg); color: var(--danger-fg); }
+.agent-tool[data-state="failed"]    .agent-tool-icon { background: var(--danger-bg); color: var(--danger-fg); }
+.agent-tool[data-state="denied"]    .agent-tool-status { background: var(--surface-strong); color: var(--muted); }
+.agent-tool[data-state="denied"]    .agent-tool-name { color: var(--muted); text-decoration: line-through; }
+
+.agent-approval--question { border-color: var(--info-border); }
+.agent-approval--question .agent-approval-icon { background: var(--info-bg); color: var(--info-fg); }
+.agent-question { display: grid; gap: var(--space-4); min-inline-size: 0; margin: 0; padding: 0; border: 0; }
+.agent-question > legend,
+.agent-question > label:first-child {
+    /* Floated, a legend is laid out as any other child, so the gap sets it off. */
+    float: inline-start;
+    padding: 0;
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-weight: 600;
+}
+.agent-question > .choice-tiles { --choice-min: 140px; }
 }
 
 /* ── 66-calendar.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -17172,6 +17420,13 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 /* Not delivered. The border says it, the status icon says why, the retry is a
    real button in the meta line. */
 .chat-bubble--failed { box-shadow: inset 0 0 0 1px var(--danger-border); }
+/* Being edited: the bubble holds the field, and Cancel and Send under it. The message
+   takes the width it may have, so the field is not as narrow as the words it held.
+   Sending it again starts a branch; `.chat-versions` under it pages between them. */
+.chat-message:has(> .chat-body > .chat-bubble--editing) { inline-size: min(72%, 40rem); }
+.chat-message:has(> .chat-body > .chat-bubble--editing) > .chat-body { flex: 1; }
+.chat-bubble--editing { display: grid; gap: var(--space-4); inline-size: 100%; padding: var(--space-4); }
+.chat-bubble--editing > .form-input { inline-size: 100%; }
 /* Taken back: the bubble stays, so the thread keeps its shape, and says so. */
 .chat-bubble--deleted { font-style: italic; color: var(--muted); }
 /* Passed on from somewhere else: a line above the text that says so. */
@@ -18055,6 +18310,11 @@ button.inbox-item-title {
    (`aria-pressed`), and `.chat-versions` to page between regenerated answers. Its first
    icon's glyph lines up with the text edge above it.
 
+   ── When it goes wrong ──
+   An answer that failed is `.chat-bubble--failed` with the error in the app's words, and
+   a retry in the `.chat-feedback` under it. On an agent's turn the bubble has no ground
+   of its own, so a failed one is given its edge and padding back.
+
    ── The prompt ──
    `.chat-composer--prompt` is a `.chat-composer` drawn as one rounded field, with
    `.chat-composer-tools` under the text for attachments, toggles and a model choice,
@@ -18073,6 +18333,12 @@ button.inbox-item-title {
     line-height: 1.65;
 }
 .chat-message--agent .chat-bubble > p { margin: 0 0 var(--space-5); }
+.chat-message--agent .chat-bubble.chat-bubble--failed {
+    padding: var(--space-5) var(--space-6);
+    border-radius: var(--radius-surface);
+    background: var(--danger-bg);
+    font-size: var(--text-4);
+}
 .chat-message--agent .chat-bubble > p:last-child { margin-block-end: 0; }
 .chat-bubble--streaming > :last-child::after {
     content: '';
@@ -21754,6 +22020,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .lightbox-next:focus-visible,
     .media-open:focus-visible,
     .reasoning > summary:focus-visible,
+    .agent-tool > summary:focus-visible,
     button.cal-weeknum:focus-visible,
     .cal-event:focus-visible,
     .cal-block:focus-visible,
@@ -21944,6 +22211,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .chat-jump,
     .chat-quick-replies,
     .col-resize { display: none; }
+    .agent-plan-actions,
+    .reasoning-bar > .btn { display: none; }
 
     /* A thread prints whole: the scroller lets its messages out, and a message is
        not cut across a page. */
@@ -22548,11 +22817,14 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
        stops turning, the reasoning and the steps open at once. Nothing is lost: the
        label still says what the agent is doing, and the orb draws a still frame of
        the state on its own. */
-    .text-shimmer { animation: none; }
+    .text-shimmer,
+    .reasoning[data-state="running"] .reasoning-label { animation: none; }
     .agent-avatar,
     .agent-avatar::before { animation: none; transition: none; }
     .reasoning > summary,
     .reasoning-chevron { transition: none; }
+    .agent-tool > summary,
+    .agent-tool-chevron { transition: none; }
 
     /* 67 — the caret is a steady bar, links and the prompt change state at once,
        and the voice bars stand at their level instead of easing to it. */

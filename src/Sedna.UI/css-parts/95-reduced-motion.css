@@ -157,11 +157,14 @@
        stops turning, the reasoning and the steps open at once. Nothing is lost: the
        label still says what the agent is doing, and the orb draws a still frame of
        the state on its own. */
-    .text-shimmer { animation: none; }
+    .text-shimmer,
+    .reasoning[data-state="running"] .reasoning-label { animation: none; }
     .agent-avatar,
     .agent-avatar::before { animation: none; transition: none; }
     .reasoning > summary,
     .reasoning-chevron { transition: none; }
+    .agent-tool > summary,
+    .agent-tool-chevron { transition: none; }
 
     /* 67 — the caret is a steady bar, links and the prompt change state at once,
        and the voice bars stand at their level instead of easing to it. */

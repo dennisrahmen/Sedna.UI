@@ -10,10 +10,26 @@
        <div class="reasoning-body"><p>…</p></div>
      </details>
 
+   While the agent is still thinking, `data-state="running"` on the `<details>` sets the
+   words in `.reasoning-label` shimmering, and `.reasoning-bar` holds it beside a stop
+   button. Once the thought is done, the app drops the state and changes the words —
+   "Thinking…" becomes "Thought for 4 s, 3 tools".
+     <div class="reasoning-bar">
+       <details class="reasoning" data-state="running">
+         <summary><i class="ri-arrow-right-s-line reasoning-chevron"></i><span class="reasoning-label">Thinking…</span></summary>
+         …
+       </details>
+       <button class="btn btn--sm btn--ghost" type="button">Stop</button>
+     </div>
+
+   Reasoning states: running.
+
    ── Steps ──
    The tool calls behind an answer, in order, each a <details> that opens on its input
    and output. `data-state` on each <li> — pending, running, done, failed — the same
    vocabulary as `.steps`. A 20px marker column with a 2px connector centred under it.
+
+   Step states: pending, running, done, failed.
      <ol class="agent-steps">
        <li data-state="done">
          <span class="agent-step-icon"><i class="ri-check-line"></i></span>
@@ -29,11 +45,25 @@
    What the agent means to do and how far it got: `data-state` on each <li> — done,
    current, skipped, or none for one still to come.
 
+   Plan states: done, current, skipped.
+
+   `.agent-plan--todo` is a list the reader works through with the agent — a todo list,
+   the messages queued behind the one being answered: a done item is struck through as
+   well as dimmed. `.agent-plan-actions` at the end of an item holds its ghost icon
+   buttons — edit, send now, remove — shown while the pointer is on the item or the focus
+   is in it, and always where there is no hover. Put the lists in an `.accordion`, one
+   `<details>` per list, its count in the summary.
+
    ── Approval ──
    The agent asks before it acts. `.agent-approval` on a `.card`; `data-state="approved"`
    or `"denied"` once the reader has answered, which swaps the actions for the result
    line. Approve is `.btn--go.btn--solid` — it lets the action out — and taking control back is
    `.btn--warn`, the library's own meanings for both.
+
+   Approval states: approved, denied, answered.
+
+   `answered` is a question the reader has answered: see `.agent-approval--question` in
+   66-agent-tools.css.
    ─────────────────────────────────────────────────────────────────────────── */
 .reasoning { font-size: var(--text-4); }
 .reasoning > summary {
@@ -62,6 +92,16 @@
 }
 .reasoning-body > p { margin: 0 0 var(--space-4); }
 .reasoning-body > p:last-child { margin: 0; }
+/* Trimmed to its capitals, with its line in its padding: see 06-base-elements.css. */
+.reasoning-label { min-inline-size: 0; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+/* The shimmer itself is `.text-shimmer`'s, in 66-agent-activity.css; running, the chevron
+   takes the agent's colour. */
+.reasoning[data-state="running"] .reasoning-chevron { color: var(--agent-to); }
+.reasoning-bar { display: flex; align-items: flex-start; gap: var(--space-4); min-inline-size: 0; }
+.reasoning-bar > .reasoning { flex: 1; min-inline-size: 0; }
+/* Beside a small button, the summary takes the button's height, so the two share a line. */
+.reasoning-bar > .reasoning > summary { block-size: var(--control-height-sm); }
+.reasoning-bar > .btn { flex: none; }
 
 .agent-steps { --step-icon: 20px; list-style: none; margin: 0; padding: 0; font-size: var(--text-4); }
 .agent-steps > li { position: relative; padding-inline-start: calc(var(--step-icon) + var(--space-4)); padding-block-end: var(--space-5); }
@@ -108,14 +148,14 @@
 .agent-step-meta { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 .agent-step > .code-block { margin-block-start: var(--space-4); }
 
-.agent-plan { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); font-size: var(--text-4); }
-.agent-plan > li { display: flex; align-items: center; gap: var(--space-5); min-block-size: 20px; }
+.agent-plan { --plan-mark: 20px; list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); font-size: var(--text-4); }
+.agent-plan > li { display: flex; align-items: center; gap: var(--space-5); min-block-size: var(--plan-mark); }
 .agent-plan-mark {
     display: grid;
     place-items: center;
     flex: none;
-    inline-size: 20px;
-    block-size: 20px;
+    inline-size: var(--plan-mark);
+    block-size: var(--plan-mark);
     border-radius: 50%;
     box-shadow: inset 0 0 0 1.5px var(--border-strong);
     font-size: var(--text-3);
@@ -128,6 +168,23 @@
 .agent-plan > li[data-state="skipped"] { color: var(--muted); }
 .agent-plan > li[data-state="skipped"] .agent-plan-label { text-decoration: line-through; }
 .agent-plan > li[data-state="skipped"] .agent-plan-mark { box-shadow: inset 0 0 0 1.5px var(--border); }
+.agent-plan-label { min-inline-size: 0; overflow-wrap: anywhere; }
+.agent-plan--todo > li[data-state="done"] .agent-plan-label { text-decoration: line-through; }
+/* The buttons stand on the item's line, the mark's height, so a row with them is no taller. */
+.agent-plan-actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+    margin-block: calc((var(--plan-mark) - var(--control-height-sm)) / 2);
+    margin-inline-start: auto;
+    opacity: 0;
+}
+.agent-plan > li:hover .agent-plan-actions,
+.agent-plan > li:focus-within .agent-plan-actions { opacity: 1; }
+@media (hover: none) {
+    .agent-plan-actions { opacity: 1; }
+}
 
 .agent-approval { border-color: var(--warn-border); }
 .agent-approval-head { display: flex; align-items: center; gap: var(--space-5); min-inline-size: 0; }
@@ -172,3 +229,5 @@
 .agent-approval[data-state="denied"] { border-color: var(--border); }
 .agent-approval[data-state="denied"] .agent-approval-result { color: var(--muted); }
 .agent-approval[data-state="denied"] .agent-approval-icon { background: var(--surface-strong); color: var(--muted); }
+.agent-approval[data-state="answered"] { border-color: var(--border); }
+.agent-approval[data-state="answered"] .agent-approval-result { color: var(--fg-soft); }
