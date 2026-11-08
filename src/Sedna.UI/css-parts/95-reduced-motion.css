@@ -136,6 +136,7 @@
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    button.badge-ai   { transition: none; }   /* 66 — the AI label's hover edge */
     .fab-dial > .fab i { transition: none; }   /* 61 — the speed dial's icon turns at once */
 
     /* 42 — every drawing's moving part rests. Each animation's first frame is the

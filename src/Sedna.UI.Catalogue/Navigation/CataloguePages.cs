@@ -278,7 +278,7 @@ internal static class CataloguePages
 
         new("/badge", Labels, "Badges", "ri-price-tag-3-line",
             "Semantic pills in three sizes, plus three categorical hues.",
-            "pill status cyan orange teal small large severity"),
+            "pill status cyan orange teal small large severity ai label generated sparkle badge-ai-icon explain revert"),
         new("/chip", Labels, "Chips", "ri-price-tag-line",
             "Removable filters and recipients, and the set they sit in.",
             "chip tag filter dismissible removable chip-set"),
@@ -329,6 +329,9 @@ internal static class CataloguePages
         new("/agent-chat", Agents, "Asking an agent", "ri-chat-ai-line",
             "An agent's turn in a chat: reasoning, steps, a streamed answer, citations, feedback and the prompt.",
             "agent chat assistant answer stream streaming caret citation source footnote feedback thumbs regenerate versions prompt composer model toggle copilot ai"),
+        new("/assistant-panels", Agents, "Assistant panels", "ri-layout-right-2-line",
+            "An assistant docked beside the page, and what it generated kept open beside the conversation.",
+            "assistant sidebar dock docked drawer--dock push copilot side panel artifact artifact-head artifact-title artifact-actions artifact-body generated file document code canvas version copy download open"),
         new("/voice", Agents, "Voice", "ri-voice-ai-line",
             "A spoken conversation with an agent: the stage, live captions, the bars and the mic button.",
             "voice call speech microphone mic mute listening speaking caption transcript level audio bars waveform realtime"),

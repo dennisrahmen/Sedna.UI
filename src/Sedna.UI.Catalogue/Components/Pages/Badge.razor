@@ -47,3 +47,21 @@
             Demo="ex-demo--block">
     <p>The two places badges actually live.</p>
 </CatExample>
+
+<CatExample TExample="Examples.Badge.AiLabel" Title="The AI label on a generated value" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; open each.</strong> <a href="/agent-status"><code>.badge-ai</code></a> as a
+        <code>&lt;button&gt;</code> marks one value an agent filled in and opens a
+        <a href="/popover"><code>.popover</code></a> through <code>popovertarget</code> that says which
+        model, from what, how sure &mdash; <code>.confidence</code> &mdash; and what was there before.
+        <code>.popover-actions</code> holds the way back, &ldquo;Revert to the original&rdquo;, at the
+        panel's foot; reverting is the app's, which then drops the label.
+    </p>
+    <p>
+        <code>.badge-ai--icon</code> is the sparkle alone, a square the height of a word badge, for a
+        field or a cell where a word would crowd the value. It has no words on screen, so
+        <strong>its name is a <code>.visually-hidden</code> span</strong> and says that the value was
+        generated. In an <code>.input-group</code> it sits inside the field's border after the value; in a
+        cell or a line of text, after the value it marks.
+    </p>
+</CatExample>

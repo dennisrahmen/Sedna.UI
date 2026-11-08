@@ -83,6 +83,43 @@
 }
 .badge-ai > i { color: var(--agent-from); }
 
+/* ── The AI label ───────────────────────────────────────────────────────────
+   The same mark on one value an agent filled in — a field, a table cell, a figure on a
+   card — as a button that opens what the reader needs to judge it: which model, from
+   what, how sure, and the way back to what was there before. The panel is the app's
+   `.popover`, opened by `popovertarget`, so the platform anchors and dismisses it.
+
+     <button class="badge badge-ai badge-ai--icon" type="button" popovertarget="why-eta">
+       <i class="ri-sparkling-2-line" aria-hidden="true"></i>
+       <span class="visually-hidden">AI-generated — why this value</span>
+     </button>
+
+   `--icon` is the sparkle alone, a square the height of a word badge, for a field or a
+   cell where a word would crowd the value. It has no words on screen, so its name is a
+   `.visually-hidden` span or an `aria-label`, and says that the value was generated.
+
+   In an `.input-group` it sits inside the field's border after the value; in a cell
+   or a line of text, after the value it marks, on the value's line. */
+button.badge-ai {
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+}
+button.badge-ai:hover { border-color: var(--agent-to); }
+button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.badge-ai--icon {
+    --badge-ai-pad: var(--space-1);
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    inline-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
+    block-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
+    padding: 0;
+}
+.badge--sm.badge-ai--icon { --badge-ai-pad: 0px; }
+.badge--lg.badge-ai--icon { --badge-ai-pad: var(--space-2); }
+.input-group > .badge-ai { align-self: center; margin-inline: var(--space-3); }
+
 .confidence { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); color: var(--muted); line-height: 1; }
 .confidence-bars { display: inline-flex; align-items: flex-end; gap: var(--space-1); block-size: 12px; }
 .confidence-bars > i { inline-size: 3px; border-radius: 1px; background: var(--border-strong); }

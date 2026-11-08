@@ -315,3 +315,46 @@ button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--f
    No fill of its own either. The sheet is already an elevated surface and a tint per
    row would be a second surface inside it; separation is the divider `.list` draws
    between its items, and the states are what say the row is live. */
+
+/* ── Docked beside the page ─────────────────────────────────────────────────
+   `.drawer--dock` on a `<dialog class="drawer" data-modeless>` that is a direct child
+   of `.layout`, after `.content`: an assistant, a generated document, a record's
+   detail — a panel the reader keeps open while they work.
+
+     <div class="layout">
+       <aside class="sidebar">…</aside>
+       <div class="content">…</div>
+       <dialog class="drawer drawer--dock" data-modeless id="assistant" aria-labelledby="assistant-title">
+         <div class="drawer-header">…</div>
+         <div class="chat-pane">…</div>
+       </dialog>
+     </div>
+
+   From 900px wide it is a column of the frame: open, it takes `--drawer-width` (at most
+   half the layout) at the inline end and the content beside it narrows, so nothing is
+   covered; closed, it takes no room. Below 900px it is the drawer it always was, over
+   the page's inline edge, and the page keeps its width. It sits at the inline end, so it
+   mirrors under dir="rtl" with no rule of its own.
+
+   Opened and closed like any modeless drawer: `sednaUi.modal.show(id)` or
+   `ISednaUi.ShowModalAsync(id)`, and its own close button. A toggle carrying
+   `aria-controls` that names the dialog and an `aria-expanded` is kept in step with it
+   by 42-modal.js.
+
+   As a column it does not slide — the content beside it would reflow on every frame —
+   so it appears and goes at once. Its block-end safe-area inset is the drawer's own
+   padding, at every width. */
+@media (min-width: 900px) {
+    .layout > dialog.drawer.drawer--dock {
+        position: relative;
+        inset: auto;
+        z-index: auto;
+        flex: none;
+        width: var(--drawer-width);
+        max-width: 50%;
+        height: auto;
+        box-shadow: none;
+        transform: none;
+        transition: none;
+    }
+}

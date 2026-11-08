@@ -96,6 +96,7 @@
        out rather than clipped to the box it had on screen. */
     .sedna-scroll,
     .drawer-body,
+    .artifact-body,
     .md-editor .md-preview,
     .palette-list { max-height: none; overflow: visible; }
 

@@ -1,0 +1,103 @@
+/* ── Artifact ─────────────────────────────────────────────────────────────────
+   Something an agent generated that the reader keeps beside the conversation: a file,
+   a query, a draft. A head naming it, with what it is in a line under the name and the
+   actions that act on all of it, and the thing itself under that.
+
+     <section class="artifact" aria-labelledby="art-title">
+       <header class="artifact-head">
+         <div class="artifact-head-text">
+           <h3 class="artifact-title" id="art-title">reconcile_holds.sql</h3>
+           <p>Releases holds older than 48 hours · version 2 of 3</p>
+         </div>
+         <div class="artifact-actions">
+           <span class="chat-versions">…</span>
+           <button class="btn btn--sm btn--ghost btn--icon" type="button" data-copy-target="#art-code" aria-label="Copy">…</button>
+           <a class="btn btn--sm btn--ghost btn--icon" href="…" download aria-label="Download">…</a>
+         </div>
+       </header>
+       <div class="artifact-body artifact-body--flush">
+         <div class="code-block code-block--flush"><pre id="art-code"><code>…</code></pre></div>
+       </div>
+     </section>
+
+   The actions are `.btn--ghost .btn--icon .btn--sm`, each with its name; copy is
+   `data-copy-target`, download a link with `download`, and the version switcher is
+   `.chat-versions`, as under an answer. A close button goes last.
+
+   `.artifact-body` pads its content for prose; `--flush` gives the edge to content
+   that draws its own — a `.code-block--flush`, a table. The body scrolls when the
+   artifact is given less height than its content.
+
+   Where it goes: the aside of a `.sedna-split` beside the conversation, or a
+   `.drawer--dock` — `<dialog class="drawer drawer--dock" data-modeless>` holding the
+   `.artifact` and nothing else, which then gives up its own frame for the drawer's.
+   ─────────────────────────────────────────────────────────────────────────── */
+.artifact {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+}
+/* The title takes the room the actions leave and wraps in it; below 12rem the actions
+   drop under it, at the end edge. The title's first line is a small control tall, so
+   it stands on the line the action buttons do. */
+.artifact-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-4) var(--space-6);
+    flex-shrink: 0;
+    padding: var(--card-pad-block) var(--card-pad-inline);
+    border-bottom: 1px solid var(--border);
+}
+.artifact-head-text { flex: 1 1 12rem; min-width: 0; }
+.artifact-title {
+    display: block;
+    min-height: var(--control-height-sm);
+    align-content: center;
+    margin: 0;
+    color: var(--fg);
+    font-size: var(--text-6);
+    font-weight: 600;
+    line-height: round(1.4em, 2px);
+    overflow-wrap: anywhere;
+}
+.artifact-head-text > p {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-3);
+    line-height: round(1.5em, 2px);
+}
+.artifact-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-inline-start: auto;
+}
+.artifact-actions > .btn { color: var(--muted); }
+.artifact-actions > .btn:hover { color: var(--fg); }
+.artifact-actions > .chat-versions { margin-inline-end: var(--space-4); }
+
+.artifact-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: var(--card-pad-block) var(--card-pad-inline);
+}
+.artifact-body--flush { padding: 0; }
+
+/* In a drawer the drawer is the frame: the artifact fills it, on its surface. */
+.drawer > .artifact {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+    background: none;
+    --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
+}

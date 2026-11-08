@@ -54,7 +54,8 @@ selectors that outweigh theirs. `64` holds `64-files.css`, `64-lightbox.css`, `6
 `44-markdown.css`, whose `.editor` chrome it builds on. Chat reuses `.file-item` and `.audio-wave` from earlier parts
 and adds only its bubble context, so it stays after them. The agent parts share `66`–`69` the same way:
 `66-agent-*.css` and `66-orb.css` stand alone; `67-agent-chat.css` builds on `66-chat.css` and
-`67-voice.css` on `.audio-wave`, so both come after them, and `67-ghost-text.css` fits a textarea into the composer's row; `65-selection-toolbar.css` sits after `65-popover.css`, the other floating panel; `68-mochi.css` beside `68-guard.css`, and `68-workflow.css` after them — it builds on `.orb`, `.confidence` and `.meter` and draws its running step's edge itself; and
+`67-voice.css` on `.audio-wave`, so both come after them, `67-artifact.css` sits after `67-agent-chat.css`, whose
+`.chat-versions` its head carries, and `67-ghost-text.css` fits a textarea into the composer's row; `65-selection-toolbar.css` sits after `65-popover.css`, the other floating panel; `68-mochi.css` beside `68-guard.css`, and `68-workflow.css` after them — it builds on `.orb`, `.confidence` and `.meter` and draws its running step's edge itself; and
 `69-beam.css` after every component whose background it replaces — `.card`, `.form-input`, `.btn`, the
 composer — which is why it is not numbered lower. `70`–`72` are RTL, forced colours and print, which must stay after
 every component.

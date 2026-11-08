@@ -409,6 +409,9 @@
     --muted-here: var(--muted);
 }
 .card .chat-pane { --surface-here: var(--card-bg); --muted-here: var(--muted); }
+/* As a drawer's body — an assistant docked beside the page — under its header: the
+   pane takes the height the header leaves, on the drawer's own surface. */
+.drawer > .chat-pane { flex: 1; height: auto; --surface-here: var(--bg-elevated); --muted-here: var(--muted); }
 /* No top padding: a sticky day cannot leave its parent's content box, so padding
    there would be a strip the messages scroll through above it. The jump anchors
    to this box. */

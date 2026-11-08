@@ -17,6 +17,11 @@
    followed those rules otherwise fell back to a `.modal-backdrop` div behind an
    `@if` and lost all four.
 
+   A TOGGLE KEPT IN STEP. A control that carries `aria-controls` naming a dialog and an
+   `aria-expanded` of its own — the button that opens and closes a docked assistant —
+   has its `aria-expanded` set from the dialog's `open` whenever that changes, by
+   whatever route: the toggle, the dialog's own close button, Escape, the app.
+
    show() resolves with the dialog's returnValue when it closes, or null when it
    closed without one — Escape, close() with no value, a button whose value is
    empty. So a confirmation is the app's own markup and one comparison:
@@ -225,6 +230,25 @@
         e.preventDefault();
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
+
+    // A toggle's aria-expanded follows the dialog it controls.
+    function syncToggles(d) {
+        if (!d.id) return;
+        var toggles = document.querySelectorAll('[aria-controls][aria-expanded]');
+        for (var i = 0; i < toggles.length; i++) {
+            var names = (toggles[i].getAttribute('aria-controls') || '').split(/\s+/);
+            if (names.indexOf(d.id) < 0) continue;
+            var value = d.open ? 'true' : 'false';
+            if (toggles[i].getAttribute('aria-expanded') !== value) toggles[i].setAttribute('aria-expanded', value);
+        }
+    }
+    if (typeof MutationObserver === 'function') {
+        new MutationObserver(function (records) {
+            for (var i = 0; i < records.length; i++) {
+                if (records[i].target.tagName === 'DIALOG') syncToggles(records[i].target);
+            }
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
+    }
 
     // `cancel` does not bubble, so it is caught on the way down.
     document.addEventListener('cancel', function (e) {

@@ -1,0 +1,37 @@
+<button class="btn" type="button" onclick="sednaUi.modal.show('art-doc')">
+    <i class="ri-file-text-line"></i> <span>Open the incident summary</span>
+</button>
+
+<dialog class="drawer" data-modeless id="art-doc" aria-labelledby="art-doc-title">
+    <section class="artifact">
+        <header class="artifact-head">
+            <div class="artifact-head-text">
+                <h3 class="artifact-title" id="art-doc-title">Incident summary: EU-West order sync</h3>
+                <p>Drafted from the sync log and the runbook</p>
+            </div>
+            <div class="artifact-actions">
+                <span class="chat-versions">
+                    <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Previous version" disabled><i class="ri-arrow-left-s-line"></i></button>
+                    <span>1 / 2</span>
+                    <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Next version"><i class="ri-arrow-right-s-line"></i></button>
+                </span>
+                <button class="btn btn--sm btn--ghost btn--icon" type="button" data-copy-target="#art-doc-text" aria-label="Copy the summary">
+                    <i class="ri-file-copy-line"></i>
+                </button>
+                <a class="btn btn--sm btn--ghost btn--icon" href="#" download="incident-summary.md" aria-label="Download the summary"><i class="ri-download-2-line"></i></a>
+                <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Close the summary"
+                        onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+            </div>
+        </header>
+        <div class="artifact-body">
+            <div class="prose" id="art-doc-text">
+                <h4>What happened</h4>
+                <p>The nightly order sync timed out at 02:14 waiting for a lock on the orders table. The vacuum on src-db-14 held the lock from 02:00 to 02:25.</p>
+                <h4>Impact</h4>
+                <p>214 orders reached the warehouse 40 minutes late. None were lost; the 03:00 retry carried them.</p>
+                <h4>Next step</h4>
+                <p>Move the vacuum to 03:30, after the sync window.</p>
+            </div>
+        </div>
+    </section>
+</dialog>

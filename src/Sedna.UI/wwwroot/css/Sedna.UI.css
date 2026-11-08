@@ -8341,6 +8341,20 @@ button.sheet-handle {
     cursor: pointer;
 }
 button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+@media (min-width: 900px) {
+    .layout > dialog.drawer.drawer--dock {
+        position: relative;
+        inset: auto;
+        z-index: auto;
+        flex: none;
+        width: var(--drawer-width);
+        max-width: 50%;
+        height: auto;
+        box-shadow: none;
+        transform: none;
+        transition: none;
+    }
+}
 }
 @layer sedna.paint {
 .file-icon {
@@ -9112,6 +9126,13 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     font-size: var(--text-4);
     font-weight: 600;
 }
+.popover-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-block-start: var(--space-6);
+}
 .popover--flush { padding: 0; overflow: hidden; }
 .popover--flush > .popover-title {
     margin-bottom: 0;
@@ -9182,6 +9203,25 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     color: var(--fg-soft);
 }
 .badge-ai > i { color: var(--agent-from); }
+button.badge-ai {
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+}
+button.badge-ai:hover { border-color: var(--agent-to); }
+button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.badge-ai--icon {
+    --badge-ai-pad: var(--space-1);
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    inline-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
+    block-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
+    padding: 0;
+}
+.badge--sm.badge-ai--icon { --badge-ai-pad: 0px; }
+.badge--lg.badge-ai--icon { --badge-ai-pad: var(--space-2); }
+.input-group > .badge-ai { align-self: center; margin-inline: var(--space-3); }
 .confidence { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); color: var(--muted); line-height: 1; }
 .confidence-bars { display: inline-flex; align-items: flex-end; gap: var(--space-1); block-size: 12px; }
 .confidence-bars > i { inline-size: 3px; border-radius: 1px; background: var(--border-strong); }
@@ -10746,6 +10786,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     --muted-here: var(--muted);
 }
 .card .chat-pane { --surface-here: var(--card-bg); --muted-here: var(--muted); }
+.drawer > .chat-pane { flex: 1; height: auto; --surface-here: var(--bg-elevated); --muted-here: var(--muted); }
 .chat-pane > .chat {
     flex: 1;
     min-height: 0;
@@ -11271,6 +11312,71 @@ button.inbox-item-title {
 .citation:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .source-card-n:not(:has(> *)) { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .chat-message--agent .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }
+}
+@layer sedna.paint {
+.artifact {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+}
+.artifact-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-4) var(--space-6);
+    flex-shrink: 0;
+    padding: var(--card-pad-block) var(--card-pad-inline);
+    border-bottom: 1px solid var(--border);
+}
+.artifact-head-text { flex: 1 1 12rem; min-width: 0; }
+.artifact-title {
+    display: block;
+    min-height: var(--control-height-sm);
+    align-content: center;
+    margin: 0;
+    color: var(--fg);
+    font-size: var(--text-6);
+    font-weight: 600;
+    line-height: round(1.4em, 2px);
+    overflow-wrap: anywhere;
+}
+.artifact-head-text > p {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-3);
+    line-height: round(1.5em, 2px);
+}
+.artifact-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-inline-start: auto;
+}
+.artifact-actions > .btn { color: var(--muted); }
+.artifact-actions > .btn:hover { color: var(--fg); }
+.artifact-actions > .chat-versions { margin-inline-end: var(--space-4); }
+.artifact-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: var(--card-pad-block) var(--card-pad-inline);
+}
+.artifact-body--flush { padding: 0; }
+.drawer > .artifact {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+    background: none;
+    --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
+}
 }
 @layer sedna.paint {
 .ghost-field { position: relative; display: block; min-inline-size: 0; }
@@ -13675,6 +13781,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within,
     :is(a, button).workflow-node:focus-visible,
     .input-reveal:focus-visible,
+    button.badge-ai:focus-visible,
     .rating-star:has(> input:focus-visible),
     .rating-half:has(> input:focus-visible),
     .page-banner-dismiss:focus-visible,
@@ -13813,6 +13920,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .table tr:is(*, [data-editing]) > :is(td, th):is(*, [data-editing]) > .cell-editor { display: none; }
     .sedna-scroll,
     .drawer-body,
+    .artifact-body,
     .md-editor .md-preview,
     .palette-list { max-height: none; overflow: visible; }
     .prose a[href^="http"]::after,
@@ -14093,6 +14201,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    button.badge-ai   { transition: none; }
     .fab-dial > .fab i { transition: none; }
     .sedna-art-bob,
     .sedna-art-sweep,

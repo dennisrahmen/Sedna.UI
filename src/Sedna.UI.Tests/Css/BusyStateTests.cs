@@ -51,6 +51,7 @@ public class BusyStateTests
         "cal-agenda-title",                     // a link to an event, as a list row's title is
         "cal-resize",                           // a grip, as card-resize is
         "sticky-group-toggle",                  // folds a group; nothing of its own runs
+        "badge-ai",                             // opens an explanation; nothing of its own runs
         "editor",                               // a field: read-only, not busy — the form it sits in is
         "input-reveal",                         // shows the field's text; nothing of its own runs
         "rating-star", "rating-half",           // a choice, as a radio is

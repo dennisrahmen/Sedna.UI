@@ -6566,6 +6566,23 @@ window.sednaUi = window.sednaUi || {};
         e.preventDefault();
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
+    function syncToggles(d) {
+        if (!d.id) return;
+        var toggles = document.querySelectorAll('[aria-controls][aria-expanded]');
+        for (var i = 0; i < toggles.length; i++) {
+            var names = (toggles[i].getAttribute('aria-controls') || '').split(/\s+/);
+            if (names.indexOf(d.id) < 0) continue;
+            var value = d.open ? 'true' : 'false';
+            if (toggles[i].getAttribute('aria-expanded') !== value) toggles[i].setAttribute('aria-expanded', value);
+        }
+    }
+    if (typeof MutationObserver === 'function') {
+        new MutationObserver(function (records) {
+            for (var i = 0; i < records.length; i++) {
+                if (records[i].target.tagName === 'DIALOG') syncToggles(records[i].target);
+            }
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
+    }
     document.addEventListener('cancel', function (e) {
         var d = e.target;
         if (d instanceof Element && d.tagName === 'DIALOG' && d.hasAttribute('data-close-guard')) {

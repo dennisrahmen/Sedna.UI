@@ -95,6 +95,7 @@
      66-orb.css
      66-status-indicator.css
      67-agent-chat.css
+     67-artifact.css
      67-ghost-text.css
      67-output.css
      67-voice.css
@@ -15219,6 +15220,49 @@ button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--f
    No fill of its own either. The sheet is already an elevated surface and a tint per
    row would be a second surface inside it; separation is the divider `.list` draws
    between its items, and the states are what say the row is live. */
+
+/* ── Docked beside the page ─────────────────────────────────────────────────
+   `.drawer--dock` on a `<dialog class="drawer" data-modeless>` that is a direct child
+   of `.layout`, after `.content`: an assistant, a generated document, a record's
+   detail — a panel the reader keeps open while they work.
+
+     <div class="layout">
+       <aside class="sidebar">…</aside>
+       <div class="content">…</div>
+       <dialog class="drawer drawer--dock" data-modeless id="assistant" aria-labelledby="assistant-title">
+         <div class="drawer-header">…</div>
+         <div class="chat-pane">…</div>
+       </dialog>
+     </div>
+
+   From 900px wide it is a column of the frame: open, it takes `--drawer-width` (at most
+   half the layout) at the inline end and the content beside it narrows, so nothing is
+   covered; closed, it takes no room. Below 900px it is the drawer it always was, over
+   the page's inline edge, and the page keeps its width. It sits at the inline end, so it
+   mirrors under dir="rtl" with no rule of its own.
+
+   Opened and closed like any modeless drawer: `sednaUi.modal.show(id)` or
+   `ISednaUi.ShowModalAsync(id)`, and its own close button. A toggle carrying
+   `aria-controls` that names the dialog and an `aria-expanded` is kept in step with it
+   by 42-modal.js.
+
+   As a column it does not slide — the content beside it would reflow on every frame —
+   so it appears and goes at once. Its block-end safe-area inset is the drawer's own
+   padding, at every width. */
+@media (min-width: 900px) {
+    .layout > dialog.drawer.drawer--dock {
+        position: relative;
+        inset: auto;
+        z-index: auto;
+        flex: none;
+        width: var(--drawer-width);
+        max-width: 50%;
+        height: auto;
+        box-shadow: none;
+        transform: none;
+        transition: none;
+    }
+}
 }
 
 /* ── 64-files.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -16378,6 +16422,16 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     font-weight: 600;
 }
 
+/* The buttons that act on what the panel explains — "Revert to the original", "Keep
+   it" — at its foot, at the end edge. */
+.popover-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-block-start: var(--space-6);
+}
+
 /* For content that brings its own edge — a table, a list. The panel's padding then
    draws a frame inside a frame, and a table in it cannot reach the corners it is
    rounded to. The title keeps its own inset, because a heading pressed against the
@@ -16522,6 +16576,43 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     color: var(--fg-soft);
 }
 .badge-ai > i { color: var(--agent-from); }
+
+/* ── The AI label ───────────────────────────────────────────────────────────
+   The same mark on one value an agent filled in — a field, a table cell, a figure on a
+   card — as a button that opens what the reader needs to judge it: which model, from
+   what, how sure, and the way back to what was there before. The panel is the app's
+   `.popover`, opened by `popovertarget`, so the platform anchors and dismisses it.
+
+     <button class="badge badge-ai badge-ai--icon" type="button" popovertarget="why-eta">
+       <i class="ri-sparkling-2-line" aria-hidden="true"></i>
+       <span class="visually-hidden">AI-generated — why this value</span>
+     </button>
+
+   `--icon` is the sparkle alone, a square the height of a word badge, for a field or a
+   cell where a word would crowd the value. It has no words on screen, so its name is a
+   `.visually-hidden` span or an `aria-label`, and says that the value was generated.
+
+   In an `.input-group` it sits inside the field's border after the value; in a cell
+   or a line of text, after the value it marks, on the value's line. */
+button.badge-ai {
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+}
+button.badge-ai:hover { border-color: var(--agent-to); }
+button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.badge-ai--icon {
+    --badge-ai-pad: var(--space-1);
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    inline-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
+    block-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
+    padding: 0;
+}
+.badge--sm.badge-ai--icon { --badge-ai-pad: 0px; }
+.badge--lg.badge-ai--icon { --badge-ai-pad: var(--space-2); }
+.input-group > .badge-ai { align-self: center; margin-inline: var(--space-3); }
 
 .confidence { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); color: var(--muted); line-height: 1; }
 .confidence-bars { display: inline-flex; align-items: flex-end; gap: var(--space-1); block-size: 12px; }
@@ -18902,6 +18993,9 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     --muted-here: var(--muted);
 }
 .card .chat-pane { --surface-here: var(--card-bg); --muted-here: var(--muted); }
+/* As a drawer's body — an assistant docked beside the page — under its header: the
+   pane takes the height the header leaves, on the drawer's own surface. */
+.drawer > .chat-pane { flex: 1; height: auto; --surface-here: var(--bg-elevated); --muted-here: var(--muted); }
 /* No top padding: a sticky day cannot leave its parent's content box, so padding
    there would be a strip the messages scroll through above it. The jump anchors
    to this box. */
@@ -19675,6 +19769,113 @@ button.inbox-item-title {
 .citation:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .source-card-n:not(:has(> *)) { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .chat-message--agent .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }
+}
+
+/* ── 67-artifact.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Artifact ─────────────────────────────────────────────────────────────────
+   Something an agent generated that the reader keeps beside the conversation: a file,
+   a query, a draft. A head naming it, with what it is in a line under the name and the
+   actions that act on all of it, and the thing itself under that.
+
+     <section class="artifact" aria-labelledby="art-title">
+       <header class="artifact-head">
+         <div class="artifact-head-text">
+           <h3 class="artifact-title" id="art-title">reconcile_holds.sql</h3>
+           <p>Releases holds older than 48 hours · version 2 of 3</p>
+         </div>
+         <div class="artifact-actions">
+           <span class="chat-versions">…</span>
+           <button class="btn btn--sm btn--ghost btn--icon" type="button" data-copy-target="#art-code" aria-label="Copy">…</button>
+           <a class="btn btn--sm btn--ghost btn--icon" href="…" download aria-label="Download">…</a>
+         </div>
+       </header>
+       <div class="artifact-body artifact-body--flush">
+         <div class="code-block code-block--flush"><pre id="art-code"><code>…</code></pre></div>
+       </div>
+     </section>
+
+   The actions are `.btn--ghost .btn--icon .btn--sm`, each with its name; copy is
+   `data-copy-target`, download a link with `download`, and the version switcher is
+   `.chat-versions`, as under an answer. A close button goes last.
+
+   `.artifact-body` pads its content for prose; `--flush` gives the edge to content
+   that draws its own — a `.code-block--flush`, a table. The body scrolls when the
+   artifact is given less height than its content.
+
+   Where it goes: the aside of a `.sedna-split` beside the conversation, or a
+   `.drawer--dock` — `<dialog class="drawer drawer--dock" data-modeless>` holding the
+   `.artifact` and nothing else, which then gives up its own frame for the drawer's.
+   ─────────────────────────────────────────────────────────────────────────── */
+.artifact {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+}
+/* The title takes the room the actions leave and wraps in it; below 12rem the actions
+   drop under it, at the end edge. The title's first line is a small control tall, so
+   it stands on the line the action buttons do. */
+.artifact-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-4) var(--space-6);
+    flex-shrink: 0;
+    padding: var(--card-pad-block) var(--card-pad-inline);
+    border-bottom: 1px solid var(--border);
+}
+.artifact-head-text { flex: 1 1 12rem; min-width: 0; }
+.artifact-title {
+    display: block;
+    min-height: var(--control-height-sm);
+    align-content: center;
+    margin: 0;
+    color: var(--fg);
+    font-size: var(--text-6);
+    font-weight: 600;
+    line-height: round(1.4em, 2px);
+    overflow-wrap: anywhere;
+}
+.artifact-head-text > p {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-3);
+    line-height: round(1.5em, 2px);
+}
+.artifact-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-inline-start: auto;
+}
+.artifact-actions > .btn { color: var(--muted); }
+.artifact-actions > .btn:hover { color: var(--fg); }
+.artifact-actions > .chat-versions { margin-inline-end: var(--space-4); }
+
+.artifact-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: var(--card-pad-block) var(--card-pad-inline);
+}
+.artifact-body--flush { padding: 0; }
+
+/* In a drawer the drawer is the frame: the artifact fills it, on its surface. */
+.drawer > .artifact {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+    background: none;
+    --surface-here: var(--bg-elevated);
+    --muted-here: var(--muted);
+}
 }
 
 /* ── 67-ghost-text.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -23344,6 +23545,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within,
     :is(a, button).workflow-node:focus-visible,
     .input-reveal:focus-visible,
+    button.badge-ai:focus-visible,
     .rating-star:has(> input:focus-visible),
     .rating-half:has(> input:focus-visible),
     .page-banner-dismiss:focus-visible,
@@ -23563,6 +23765,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
        out rather than clipped to the box it had on screen. */
     .sedna-scroll,
     .drawer-body,
+    .artifact-body,
     .md-editor .md-preview,
     .palette-list { max-height: none; overflow: visible; }
 
@@ -24115,6 +24318,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    button.badge-ai   { transition: none; }   /* 66 — the AI label's hover edge */
     .fab-dial > .fab i { transition: none; }   /* 61 — the speed dial's icon turns at once */
 
     /* 42 — every drawing's moving part rests. Each animation's first frame is the

@@ -80,6 +80,16 @@
     font-weight: 600;
 }
 
+/* The buttons that act on what the panel explains — "Revert to the original", "Keep
+   it" — at its foot, at the end edge. */
+.popover-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-block-start: var(--space-6);
+}
+
 /* For content that brings its own edge — a table, a list. The panel's padding then
    draws a frame inside a frame, and a table in it cannot reach the corners it is
    rounded to. The title keeps its own inset, because a heading pressed against the

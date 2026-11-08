@@ -116,7 +116,10 @@ A `.drawer` or `.sheet` that carries `data-modeless` is opened with `show()` ins
 backdrop, no focus trap and nothing behind it made inert, so the page stays usable beside it. The call,
 its `CancellationToken` and its result are unchanged, and Escape with the focus inside it closes it
 through `requestClose()`, so `data-close-guard` still asks. The option is the dialog's attribute, so
-`ISednaOverlays.ShowAsync` honours it the same way.
+`ISednaOverlays.ShowAsync` honours it the same way. A `.drawer--dock` that is a direct child of `.layout`
+is a column of the frame from 900px wide: open, the content beside it narrows instead of being covered.
+A control carrying `aria-controls` that names a dialog and an `aria-expanded` has its `aria-expanded`
+set from the dialog's `open` whenever that changes, however the dialog opened or closed.
 `ISednaOverlays.ShowAsync<TComponent, TResult>` builds on it: `SednaOverlayHost` renders the component,
 which writes its own `<dialog id="@Overlay.Id">`; the dialog is opened once the component has rendered,
 awaited, and removed only after `modal.idle()` reports its closing transition has finished. Nothing in

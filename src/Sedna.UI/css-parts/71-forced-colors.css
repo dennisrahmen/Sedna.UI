@@ -208,6 +208,7 @@
     .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within,
     :is(a, button).workflow-node:focus-visible,
     .input-reveal:focus-visible,
+    button.badge-ai:focus-visible,
     .rating-star:has(> input:focus-visible),
     .rating-half:has(> input:focus-visible),
     .page-banner-dismiss:focus-visible,
