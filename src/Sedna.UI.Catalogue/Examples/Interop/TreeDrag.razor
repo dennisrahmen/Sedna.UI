@@ -1,0 +1,68 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}. Arrow keys move it, Space drops it, Escape cancels."
+   data-drag-move="{item}: {zone}, position {position} of {count}."
+   data-drag-drop="{item} dropped in {zone} at position {position}."
+   data-drag-cancel="Cancelled. {item} is back in {zone}."></p>
+
+<ul class="tree" role="tree" aria-label="Release plan" style="max-width:360px"
+    data-drag-zone="stages" data-drag-group="plan" data-drag-accept="stage" data-drag-label="Stages"
+    @onsedna-drop="Drop">
+    @foreach (var stage in _stages)
+    {
+        <li role="treeitem" @key="stage.Id" aria-expanded="true" data-value="@stage.Id" tabindex="@(stage == _stages[0] ? "0" : "-1")"
+            data-drag-item="@stage.Id" data-drag-type="stage" data-drag-label="@stage.Title">
+            <span class="tree-row">
+                <span class="tree-toggle"></span>
+                <i class="ri-stack-line"></i>
+                <span class="tree-label">@stage.Title</span>
+                <span class="tree-count">@stage.Steps.Count</span>
+            </span>
+            <ul role="group" data-drag-zone="@stage.Id" data-drag-group="plan" data-drag-accept="task" data-drag-label="@stage.Title">
+                @foreach (var step in stage.Steps)
+                {
+                    <li role="treeitem" @key="step.Id" data-value="@step.Id" tabindex="-1"
+                        data-drag-item="@step.Id" data-drag-type="task" data-drag-label="@step.Title">
+                        <span class="tree-row">
+                            <span class="tree-toggle"></span>
+                            <i class="ri-checkbox-blank-circle-line"></i>
+                            <span class="tree-label">@step.Title</span>
+                        </span>
+                    </li>
+                }
+            </ul>
+        </li>
+    }
+</ul>
+
+@code {
+    private sealed record Step(string Id, string Title);
+    private sealed record Stage(string Id, string Title, List<Step> Steps);
+
+    private readonly List<Stage> _stages =
+    [
+        new("build", "Build", [new("compile", "Compile"), new("test", "Run the tests")]),
+        new("ship", "Ship", [new("package", "Package"), new("sign", "Sign the package")]),
+        new("verify", "Verify", [new("smoke", "Smoke test build-runner-04")]),
+    ];
+
+    // The tree is the app's: the script says which item went where, and this moves it.
+    // Stages reorder among stages; a step moves within or between stages.
+    private void Drop(SednaDropEventArgs e)
+    {
+        if (e.Type == "stage")
+        {
+            var stage = _stages.Find(s => s.Id == e.Item);
+            if (stage is null) return;
+            _stages.Remove(stage);
+            _stages.Insert(Math.Min(e.Index, _stages.Count), stage);
+            return;
+        }
+
+        var from = _stages.Find(s => s.Id == e.From)?.Steps;
+        var to = _stages.Find(s => s.Id == e.To)?.Steps;
+        var step = from?.Find(t => t.Id == e.Item);
+        if (to is null || step is null) return;
+        from!.Remove(step);
+        to.Insert(Math.Min(e.Index, to.Count), step);
+    }
+}

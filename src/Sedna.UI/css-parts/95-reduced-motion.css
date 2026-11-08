@@ -112,7 +112,8 @@
     .code-block-copy  { transition: none; }   /* 56 */
     .code-block-expand { transition: none; }  /* 56 */
     .accordion summary::after { transition: none; }   /* 60 — the disclosure caret */
-    .tree summary::before     { transition: none; }   /* 63 — the same caret in a tree */
+    .tree [aria-expanded] > .tree-row > .tree-toggle::before { transition: none; }   /* 60 — the same caret in a tree */
+    .tree [aria-busy="true"] > .tree-row > .tree-toggle::before { animation: none; }   /* 60 — the ring still says it is loading */
 
     /* 63 — the drawer appears and disappears instead of sliding. `visibility` and
        `display` are in those transition lists only to keep the panel present while it

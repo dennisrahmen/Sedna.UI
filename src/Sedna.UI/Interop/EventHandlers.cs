@@ -8,8 +8,9 @@ namespace Sedna.UI;
 /// the graph — <c>@onsedna-graph-select</c>, <c>-open</c>, <c>-hover</c>, <c>-context</c>,
 /// <c>-connect</c>, <c>-expand</c>, <c>-collapse</c>, <c>-change</c> and <c>-ready</c> — and the
 /// rich-text editor — <c>@onsedna-editor-change</c>, <c>@onsedna-editor-ready</c> and
-/// <c>@onsedna-editor-media</c> — and a pane or a diagram following what is newest,
-/// <c>@onsedna-follow</c>.
+/// <c>@onsedna-editor-media</c> — a pane or a diagram following what is newest,
+/// <c>@onsedna-follow</c> — and a tree, <c>@onsedna-tree-expand</c>, <c>-collapse</c>,
+/// <c>-select</c> and <c>-check</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -42,6 +43,10 @@ namespace Sedna.UI;
 [EventHandler("onsedna-editor-file", typeof(SednaEditorFileEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-follow", typeof(SednaFollowEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-resize", typeof(SednaResizeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-tree-expand", typeof(SednaTreeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-tree-collapse", typeof(SednaTreeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-tree-select", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-tree-check", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 public static class EventHandlers
 {
 }

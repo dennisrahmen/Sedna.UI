@@ -21,6 +21,7 @@ const events = [
     'sedna-graph-context', 'sedna-graph-connect', 'sedna-graph-expand', 'sedna-graph-collapse',
     'sedna-editor-ready', 'sedna-editor-change', 'sedna-editor-media', 'sedna-editor-file',
     'sedna-follow', 'sedna-resize',
+    'sedna-tree-expand', 'sedna-tree-collapse', 'sedna-tree-select', 'sedna-tree-check',
 ];
 
 let registered = false;

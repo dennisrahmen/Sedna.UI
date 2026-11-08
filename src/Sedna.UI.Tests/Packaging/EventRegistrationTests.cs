@@ -126,4 +126,36 @@ public class EventRegistrationTests
         Assert.Contains($"register({export.Groups["arg"].Value})", export.Groups["body"].Value, StringComparison.Ordinal);
         Assert.NotEqual("", export.Groups["arg"].Value);
     }
+
+    /// <summary>
+    /// The tree's events by name, so a refactor that stops dispatching one — and so drops it
+    /// from every list at once, which the agreement test above would accept — still fails.
+    /// </summary>
+    [Theory]
+    [InlineData("sedna-tree-expand", typeof(SednaTreeEventArgs))]
+    [InlineData("sedna-tree-collapse", typeof(SednaTreeEventArgs))]
+    [InlineData("sedna-tree-select", typeof(SednaTreeSelectEventArgs))]
+    [InlineData("sedna-tree-check", typeof(SednaTreeSelectEventArgs))]
+    public void The_tree_s_events_are_dispatched_registered_and_bindable_with_their_data(string name, Type args)
+    {
+        Assert.True(Dispatched().ContainsKey(name), $"No shipped script dispatches {name}.");
+        Assert.Contains(name, Registered());
+        Assert.Equal(args, Declared()[name].EventArgsType);
+    }
+
+    [Fact]
+    public void The_tree_s_event_data_reads_into_its_arguments()
+    {
+        // The initializer passes event.detail through as it is; these are the script's names.
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var expand = System.Text.Json.JsonSerializer.Deserialize<SednaTreeEventArgs>("""{"item":"2024","lazy":true}""", web)!;
+        Assert.Equal("2024", expand.Item);
+        Assert.True(expand.Lazy);
+
+        var check = System.Text.Json.JsonSerializer.Deserialize<SednaTreeSelectEventArgs>(
+            """{"item":"north","selected":true,"items":["north","north-inbound"]}""", web)!;
+        Assert.Equal("north", check.Item);
+        Assert.True(check.Selected);
+        Assert.Equal(["north", "north-inbound"], check.Items);
+    }
 }

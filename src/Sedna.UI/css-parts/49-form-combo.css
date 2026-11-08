@@ -15,6 +15,7 @@
        .form-combo-panel              the drop-down
          .form-combo-head             optional count or "Clear all" line
          .form-combo-list             role="listbox"
+         .tree                        role="tree", in place of the list — a tree select
            .form-combo-group          a heading; may hold one .form-combo-group-action
            .form-combo-option         role="option", aria-selected
          .form-combo-empty            shown by CSS when no option is visible
@@ -289,6 +290,16 @@
     overflow-y: auto;
     overscroll-behavior: contain;
 }
+/* A tree select: the panel holds a `.tree` instead of the listbox, scrolling the way
+   the list does. Its items are the options — `aria-selected` on each one the field
+   may pick, `aria-checked` for a field that ticks whole branches — and the keyboard
+   stays in the input, so the item it is on is `data-active`, not focused. */
+.form-combo-panel > .tree {
+    max-height: 16rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
 /* Busy keeps the rows that are there, dimmed, until the new ones land: a list
    that empties on every keystroke flickers, and reads as "no results" between. */
 .form-combo-list[aria-busy="true"] > .form-combo-option { opacity: 0.5; }
@@ -475,7 +486,7 @@
    and for a server result that came back empty — so neither the script nor the
    app has to toggle it. */
 .form-combo-empty { display: none; }
-.form-combo-panel:not(:has(.form-combo-option:not([hidden]))):not(:has([aria-busy="true"])) > .form-combo-empty { display: flex; }
+.form-combo-panel:not(:has(.form-combo-option:not([hidden]), [role="treeitem"]:not([hidden]))):not(:has([aria-busy="true"])) > .form-combo-empty { display: flex; }
 .form-combo-status--error { color: var(--danger-fg); }
 .form-combo-status .btn { margin-inline-start: auto; }
 

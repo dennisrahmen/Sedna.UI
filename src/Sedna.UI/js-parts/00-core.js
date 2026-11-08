@@ -154,7 +154,42 @@ window.sednaUi = window.sednaUi || {};
         return /^(https?:|mailto:|tel:|[^:\/?#]*(?:[\/?#]|$))/i.test(s) ? s : null;
     }
 
-    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD, safeHref: safeHref };
+    /* Typeahead: where a printable key moves the keyboard in a list of items — a tree's
+       visible items, a menu's items. `state` is any object the caller keeps per list;
+       the letters typed so far and when are held on it. `labelOf(item)` is the text an
+       item is found by.
+
+       The rule every platform list follows: a letter goes to the next item after
+       `current` that starts with it; letters typed within half a second of each other
+       are one search, matched from `current` itself; the same letter pressed again
+       cycles through the items starting with it. Returns the item, or null when
+       nothing starts with what was typed — the caller then leaves the keyboard where
+       it is. */
+    var TYPEAHEAD_PAUSE = 500;
+
+    function typeahead(state, key, items, current, labelOf) {
+        if (!key || key.length !== 1 || !items.length) return null;
+        var now = Date.now();
+        if (!state.text || now - state.at > TYPEAHEAD_PAUSE) state.text = '';
+        state.at = now;
+        state.text += key.toLowerCase();
+
+        var text = state.text;
+        var repeated = text.split('').every(function (c) { return c === text[0]; });
+        var search = repeated ? text[0] : text;
+        var at = items.indexOf(current);
+        // A fresh letter, or one pressed again, starts after the current item; a
+        // longer word keeps the current item in play, so "ch" stays on "Chai".
+        var from = repeated ? at + 1 : Math.max(at, 0);
+        for (var i = 0; i < items.length; i++) {
+            var item = items[(from + i) % items.length];
+            var label = String(labelOf(item) || '').trim().toLowerCase();
+            if (label.indexOf(search) === 0) return item;
+        }
+        return null;
+    }
+
+    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD, safeHref: safeHref, typeahead: typeahead };
 
     ui.configure = function (opts) {
         if (!opts) return;

@@ -128,7 +128,9 @@ public class BrandTextContrastTests
         [".th-filter--active"] = (Ink.Icon, ["--table-head-bg", "--brand-tint"]),
         [".th-filter--active:hover"] = (Ink.Icon, ["--table-head-bg", "--brand-tint"]),
         [".steps > li[data-state=\"current\"]::before"] = (Ink.Text, []),
-        [".tree-leaf[aria-current=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
+        // A tree's picked or current row, on the tint it fills with.
+        [".tree [aria-selected=\"true\"] > .tree-row"] = (Ink.Text, ["--brand-tint"]),
+        [".tree [aria-current]:not([aria-current=\"false\"]) > .tree-row"] = (Ink.Text, ["--brand-tint"]),
         [".palette-item[aria-selected=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".palette-item[aria-selected=\"true\"] i"] = (Ink.Icon, ["--brand-tint"]),
         [".editor-toolbar [aria-pressed=\"true\"]"] = (Ink.Text, ["--brand-tint"]),

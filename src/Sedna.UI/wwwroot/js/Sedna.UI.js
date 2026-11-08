@@ -61,7 +61,26 @@ window.sednaUi = window.sednaUi || {};
         if (!s) return null;
         return /^(https?:|mailto:|tel:|[^:\/?#]*(?:[\/?#]|$))/i.test(s) ? s : null;
     }
-    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD, safeHref: safeHref };
+    var TYPEAHEAD_PAUSE = 500;
+    function typeahead(state, key, items, current, labelOf) {
+        if (!key || key.length !== 1 || !items.length) return null;
+        var now = Date.now();
+        if (!state.text || now - state.at > TYPEAHEAD_PAUSE) state.text = '';
+        state.at = now;
+        state.text += key.toLowerCase();
+        var text = state.text;
+        var repeated = text.split('').every(function (c) { return c === text[0]; });
+        var search = repeated ? text[0] : text;
+        var at = items.indexOf(current);
+        var from = repeated ? at + 1 : Math.max(at, 0);
+        for (var i = 0; i < items.length; i++) {
+            var item = items[(from + i) % items.length];
+            var label = String(labelOf(item) || '').trim().toLowerCase();
+            if (label.indexOf(search) === 0) return item;
+        }
+        return null;
+    }
+    ui._ = { config: config, key: key, readRaw: readRaw, score: score, fill: fill, hold: HOLD, safeHref: safeHref, typeahead: typeahead };
     ui.configure = function (opts) {
         if (!opts) return;
         Object.keys(opts).forEach(function (k) {
@@ -1122,6 +1141,331 @@ window.sednaUi = window.sednaUi || {};
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
     else watch();
 })(window.sednaUi);
+(function (ui) {
+    var typed = typeof WeakMap === 'function' ? new WeakMap() : null;
+    var loading = [];
+    function toArray(list) { return Array.prototype.slice.call(list); }
+    function isItem(el) { return !!el && el.nodeType === 1 && el.getAttribute('role') === 'treeitem'; }
+    function treeOf(el) { return el && el.closest ? el.closest('[role="tree"]') : null; }
+    function inCombo(tree) { return !!tree.closest('.form-combo-panel'); }
+    function groupOf(item) {
+        for (var c = item.firstElementChild; c; c = c.nextElementSibling) {
+            if (c.getAttribute('role') === 'group') return c;
+        }
+        return null;
+    }
+    function childrenOf(item) {
+        var group = groupOf(item);
+        return group ? toArray(group.children).filter(isItem) : [];
+    }
+    function parentOf(item) {
+        var group = item.parentElement;
+        if (!group || group.getAttribute('role') !== 'group') return null;
+        var parent = group.parentElement && group.parentElement.closest('[role="treeitem"]');
+        return parent && treeOf(parent) === treeOf(item) ? parent : null;
+    }
+    function topItems(tree) { return toArray(tree.children).filter(isItem); }
+    function itemsOf(tree) {
+        return toArray(tree.querySelectorAll('[role="treeitem"]')).filter(function (i) { return treeOf(i) === tree; });
+    }
+    function rowOf(item) {
+        for (var c = item.firstElementChild; c; c = c.nextElementSibling) {
+            if (c.classList.contains('tree-row')) return c;
+        }
+        return null;
+    }
+    function labelEl(item) {
+        var row = rowOf(item);
+        return (row && row.querySelector('.tree-label')) || row || item;
+    }
+    function labelOf(item) {
+        return item.hasAttribute('data-label') ? item.getAttribute('data-label') : labelEl(item).textContent.trim();
+    }
+    function valueOf(item) { return item.hasAttribute('data-value') ? item.getAttribute('data-value') : labelOf(item); }
+    function expandable(item) { return item.hasAttribute('aria-expanded'); }
+    function expanded(item) { return item.getAttribute('aria-expanded') === 'true'; }
+    function disabled(item) { return item.getAttribute('aria-disabled') === 'true'; }
+    function selectable(item) { return item.hasAttribute('aria-selected'); }
+    function selected(item) { return item.getAttribute('aria-selected') === 'true'; }
+    function checkable(item) { return item.hasAttribute('aria-checked'); }
+    function multi(tree) { return tree.getAttribute('aria-multiselectable') === 'true'; }
+    function rtl(tree) {
+        try { return getComputedStyle(tree).direction === 'rtl'; } catch (e) { return false; }
+    }
+    function visible(tree) {
+        var out = [];
+        (function walk(list) {
+            list.forEach(function (item) {
+                if (item.hidden) return;
+                out.push(item);
+                if (expanded(item)) walk(childrenOf(item));
+            });
+        })(topItems(tree));
+        return out;
+    }
+    function send(el, name, detail) {
+        el.dispatchEvent(new CustomEvent(name, { bubbles: true, composed: true, detail: detail }));
+    }
+    function settleStop(tree) {
+        if (inCombo(tree)) return;
+        var all = itemsOf(tree);
+        if (!all.length) return;
+        var rows = visible(tree);
+        var stop = rows.filter(function (i) { return i.getAttribute('tabindex') === '0'; })[0]
+            || rows.filter(selected)[0] || rows[0];
+        all.forEach(function (i) {
+            var want = i === stop ? '0' : '-1';
+            if (i.getAttribute('tabindex') !== want) i.setAttribute('tabindex', want);
+        });
+    }
+    function focusItem(tree, item, options) {
+        itemsOf(tree).forEach(function (i) {
+            var want = i === item ? '0' : '-1';
+            if (i.getAttribute('tabindex') !== want) i.setAttribute('tabindex', want);
+        });
+        item.focus(options);
+    }
+    function setExpanded(item, open) {
+        if (!expandable(item) || expanded(item) === open) return false;
+        var tree = treeOf(item);
+        item.setAttribute('aria-expanded', String(open));
+        var lazy = open && item.hasAttribute('data-tree-lazy');
+        if (lazy && item.getAttribute('aria-busy') !== 'true') {
+            item.setAttribute('aria-busy', 'true');
+            loading.push(item);
+        }
+        if (!open && tree && !inCombo(tree)) {
+            var group = groupOf(item);
+            if (group && group.contains(document.activeElement)) focusItem(tree, item);
+            settleStop(tree);
+        }
+        if (open) send(item, 'sedna-tree-expand', { item: valueOf(item), lazy: lazy });
+        else send(item, 'sedna-tree-collapse', { item: valueOf(item), lazy: false });
+        return true;
+    }
+    function settleLoading() {
+        loading = loading.filter(function (item) {
+            if (!item.isConnected) return false;
+            if (item.hasAttribute('data-tree-lazy') && !childrenOf(item).length) return true;
+            item.removeAttribute('aria-busy');
+            return false;
+        });
+    }
+    function step(item, key) {
+        var tree = treeOf(item);
+        var forward = rtl(tree) ? 'ArrowLeft' : 'ArrowRight';
+        if (key === forward) {
+            if (expandable(item) && !expanded(item)) { setExpanded(item, true); return null; }
+            if (expanded(item)) return childrenOf(item).filter(function (c) { return !c.hidden; })[0] || null;
+            return null;
+        }
+        if (expanded(item)) { setExpanded(item, false); return null; }
+        return parentOf(item);
+    }
+    function selectedValues(tree) {
+        return itemsOf(tree).filter(selected).map(valueOf);
+    }
+    function checkedValues(tree) {
+        return itemsOf(tree).filter(function (i) { return i.getAttribute('aria-checked') === 'true'; }).map(valueOf);
+    }
+    function setSelected(item, on) {
+        var tree = treeOf(item);
+        if (!tree || !selectable(item)) return false;
+        if (on && !multi(tree)) {
+            itemsOf(tree).forEach(function (i) {
+                if (i !== item && selected(i)) i.setAttribute('aria-selected', 'false');
+            });
+        }
+        if (selected(item) === on) return false;
+        item.setAttribute('aria-selected', String(on));
+        send(item, 'sedna-tree-select', { item: valueOf(item), selected: on, items: selectedValues(tree) });
+        return true;
+    }
+    function mixOf(parent) {
+        var kids = childrenOf(parent).filter(checkable);
+        if (!kids.length) return parent.getAttribute('aria-checked');
+        var on = 0, off = 0;
+        kids.forEach(function (k) {
+            var state = k.getAttribute('aria-checked');
+            if (state === 'true') on++;
+            else if (state === 'false') off++;
+        });
+        return on === kids.length ? 'true' : off === kids.length ? 'false' : 'mixed';
+    }
+    function setChecked(item, on) {
+        var tree = treeOf(item);
+        if (!tree || !checkable(item)) return false;
+        var state = on ? 'true' : 'false';
+        if (item.getAttribute('aria-checked') === state && childrenOf(item).every(function (c) {
+            return !checkable(c) || disabled(c) || c.getAttribute('aria-checked') === state;
+        })) return false;
+        item.setAttribute('aria-checked', state);
+        toArray(item.querySelectorAll('[role="treeitem"][aria-checked]')).forEach(function (d) {
+            if (!disabled(d) && d.getAttribute('aria-checked') !== state) d.setAttribute('aria-checked', state);
+        });
+        for (var p = parentOf(item); p && checkable(p); p = parentOf(p)) {
+            var mix = mixOf(p);
+            if (p.getAttribute('aria-checked') !== mix) p.setAttribute('aria-checked', mix);
+        }
+        send(item, 'sedna-tree-check', { item: valueOf(item), selected: on, items: checkedValues(tree) });
+        return true;
+    }
+    function pick(item) {
+        if (disabled(item)) return checkable(item) || selectable(item);
+        if (checkable(item)) { setChecked(item, item.getAttribute('aria-checked') !== 'true'); return true; }
+        if (selectable(item)) {
+            var tree = treeOf(item);
+            setSelected(item, multi(tree) ? !selected(item) : true);
+            return true;
+        }
+        return false;
+    }
+    function picked(tree) {
+        var items = itemsOf(tree);
+        if (items.some(checkable)) {
+            return items.filter(function (i) {
+                if (i.getAttribute('aria-checked') !== 'true') return false;
+                var p = parentOf(i);
+                return !(p && p.getAttribute('aria-checked') === 'true');
+            });
+        }
+        return items.filter(selected);
+    }
+    function filter(tree, query) {
+        var items = itemsOf(tree);
+        if (!query) {
+            items.forEach(function (i) { if (i.hidden) i.hidden = false; });
+            return;
+        }
+        for (var n = items.length - 1; n >= 0; n--) {
+            var item = items[n];
+            var under = childrenOf(item).some(function (c) { return !c.hidden; });
+            var keep = under || ui._.score(query, labelOf(item), 0) >= 0;
+            if (item.hidden === keep) item.hidden = !keep;
+            if (under) setExpanded(item, true);
+        }
+    }
+    function sameOwner(item, tree) { return !!item && treeOf(item) === tree; }
+    ui._.tree = {
+        items: itemsOf,
+        visible: visible,
+        labelEl: labelEl,
+        labelOf: labelOf,
+        valueOf: valueOf,
+        rowOf: rowOf,
+        step: step,
+        pick: pick,
+        picked: picked,
+        setSelected: setSelected,
+        setChecked: setChecked,
+        filter: filter,
+        disabled: disabled
+    };
+    document.addEventListener('focusin', function (e) {
+        var item = e.target;
+        if (!isItem(item)) return;
+        var tree = treeOf(item);
+        if (!tree || inCombo(tree) || item.getAttribute('tabindex') === '0') return;
+        itemsOf(tree).forEach(function (i) {
+            var want = i === item ? '0' : '-1';
+            if (i.getAttribute('tabindex') !== want) i.setAttribute('tabindex', want);
+        });
+    });
+    document.addEventListener('click', function (e) {
+        var target = e.target;
+        if (!(target instanceof Element)) return;
+        var row = target.closest('.tree-row');
+        var item = row && row.parentElement;
+        if (!isItem(item)) return;
+        var tree = treeOf(item);
+        if (!tree) return;
+        if (!inCombo(tree) && document.activeElement !== item) focusItem(tree, item, { preventScroll: true });
+        if (target.closest('.tree-toggle')) { setExpanded(item, !expanded(item)); return; }
+        if (pick(item)) return;
+        if (expandable(item) && !target.closest('a[href]')) setExpanded(item, !expanded(item));
+    });
+    function dragsItself(item) {
+        if (!item.hasAttribute('data-drag-item')) return false;
+        var handles = item.querySelectorAll('[data-drag-handle]');
+        for (var i = 0; i < handles.length; i++) {
+            if (handles[i].closest('[data-drag-item]') === item) return false;
+        }
+        return true;
+    }
+    document.addEventListener('keydown', function (e) {
+        var item = e.target;
+        if (!isItem(item) || e.isComposing || e.altKey) return;
+        var tree = treeOf(item);
+        if (!tree || inCombo(tree)) return;
+        if (ui.drag && ui.drag.active && ui.drag.active() !== null) return;
+        var rows = visible(tree), at = rows.indexOf(item), to = null;
+        var key = e.key;
+        if (e.ctrlKey || e.metaKey) {
+            if ((key === 'a' || key === 'A') && multi(tree)) {
+                e.preventDefault();
+                rows.forEach(function (i) { if (!disabled(i)) setSelected(i, true); });
+            }
+            return;
+        }
+        switch (key) {
+            case 'ArrowDown': to = rows[at + 1]; break;
+            case 'ArrowUp': to = rows[at - 1]; break;
+            case 'Home': to = rows[0]; break;
+            case 'End': to = rows[rows.length - 1]; break;
+            case 'ArrowRight':
+            case 'ArrowLeft':
+                e.preventDefault();
+                to = step(item, key);
+                if (!to) { settleStop(tree); return; }
+                break;
+            case '*':
+                e.preventDefault();
+                (parentOf(item) ? childrenOf(parentOf(item)) : topItems(tree)).forEach(function (i) { setExpanded(i, true); });
+                return;
+            case ' ':
+                if (dragsItself(item)) return;
+                e.preventDefault();
+                pick(item);
+                return;
+            case 'Enter':
+                if (dragsItself(item)) return;
+                var row = rowOf(item);
+                var link = row && (row.matches('a[href]') ? row : row.querySelector('a[href]'));
+                e.preventDefault();
+                if (link) { link.click(); return; }
+                if (!pick(item) && expandable(item)) setExpanded(item, !expanded(item));
+                return;
+            default:
+                if (key.length !== 1) return;
+                var state = typed ? typed.get(tree) : null;
+                if (!state) { state = {}; if (typed) typed.set(tree, state); }
+                to = ui._.typeahead(state, key, rows, item, labelOf);
+                if (!to) return;
+        }
+        if (!sameOwner(to, tree)) return;
+        e.preventDefault();
+        focusItem(tree, to);
+        if (e.shiftKey && multi(tree) && (key === 'ArrowDown' || key === 'ArrowUp') && !disabled(to)) {
+            setSelected(to, !selected(to));
+        }
+    });
+    function sweep() {
+        toArray(document.querySelectorAll('[role="tree"]')).forEach(settleStop);
+        settleLoading();
+    }
+    if (typeof MutationObserver === 'function') {
+        var queued = false;
+        new MutationObserver(function () {
+            if (queued) return;
+            queued = true;
+            Promise.resolve().then(function () { queued = false; sweep(); });
+        }).observe(document.documentElement, {
+            childList: true, subtree: true, attributes: true, attributeFilter: ['data-tree-lazy']
+        });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sweep);
+    else sweep();
+})(window.sednaUi);
 (function () {
     var GROUP = '[data-code-group]';
     function groupOf(el) {
@@ -1290,7 +1634,9 @@ window.sednaUi = window.sednaUi || {};
     }
     function inputOf(host) { return host.querySelector('.form-combo-input'); }
     function boxOf(host) { return host.querySelector('.form-combo-box'); }
-    function listOf(host) { return host.querySelector('.form-combo-list'); }
+    function listOf(host) { return host.querySelector('.form-combo-list, .form-combo-panel > [role="tree"]'); }
+    function treeOf(host) { return host.querySelector('.form-combo-panel > [role="tree"]'); }
+    function isTreeItem(el) { return !!el && el.getAttribute('role') === 'treeitem'; }
     function inline(host) { return host.classList.contains('form-combo--inline'); }
     function managed(host) { return host.hasAttribute('data-combo-managed'); }
     function fromServer(host) { return host.getAttribute('data-combo-source') === 'server'; }
@@ -1312,9 +1658,12 @@ window.sednaUi = window.sednaUi || {};
     function enabled(option) { return option.getAttribute('aria-disabled') !== 'true'; }
     function selected(option) { return option.getAttribute('aria-selected') === 'true'; }
     function reachable(host) {
+        var tree = treeOf(host);
+        if (tree) return ui._.tree.visible(tree).filter(enabled);
         return options(host).filter(function (o) { return !o.hidden && enabled(o); });
     }
     function stops(host) {
+        if (treeOf(host)) return reachable(host);
         var list = listOf(host);
         if (!list) return [];
         return toArray(list.querySelectorAll('.form-combo-option, .form-combo-group-action')).filter(function (el) {
@@ -1358,6 +1707,7 @@ window.sednaUi = window.sednaUi || {};
         return box ? toArray(box.querySelectorAll(':scope > .chip')) : [];
     }
     function textOf(option) {
+        if (isTreeItem(option)) return ui._.tree.labelEl(option);
         return option.querySelector('.form-combo-option-text') || option;
     }
     function labelOf(option) {
@@ -1380,6 +1730,12 @@ window.sednaUi = window.sednaUi || {};
         finally { quiet = false; }
     }
     function filter(host) {
+        var tree = treeOf(host);
+        if (tree) {
+            if (!fromServer(host)) ui._.tree.filter(tree, query(host));
+            paint(host);
+            return;
+        }
         if (!fromServer(host)) {
             var q = query(host);
             options(host).forEach(function (o) {
@@ -1447,7 +1803,8 @@ window.sednaUi = window.sednaUi || {};
         var q = query(host);
         if (!q || !isOpen(host)) { CSS.highlights.delete(MATCH); return; }
         var highlight = new Highlight();
-        options(host).forEach(function (o) {
+        var tree = treeOf(host);
+        (tree ? ui._.tree.items(tree) : options(host)).forEach(function (o) {
             if (o.hidden) return;
             var target = textOf(o);
             rangesIn(target, runs(q, target.textContent)).forEach(function (r) { highlight.add(r); });
@@ -1456,7 +1813,7 @@ window.sednaUi = window.sednaUi || {};
     }
     function activeOf(host) {
         var list = listOf(host);
-        return list ? list.querySelector('.form-combo-option[data-active], .form-combo-group-action[data-active]') : null;
+        return list ? list.querySelector('.form-combo-option[data-active], .form-combo-group-action[data-active], [role="treeitem"][data-active]') : null;
     }
     function setActive(host, option, scroll) {
         var input = inputOf(host), list = listOf(host);
@@ -1477,7 +1834,11 @@ window.sednaUi = window.sednaUi || {};
         if (!fresh && active && stops(host).indexOf(active) >= 0) { setActive(host, active); return; }
         if (modeOf(host) === 'free') { setActive(host, null); return; }
         var chosen = rows.filter(function (o) { return o.getAttribute('aria-selected') === 'true'; })[0];
-        setActive(host, (!query(host) && chosen) || rows[0] || null, true);
+        var q = query(host);
+        var first = q && treeOf(host)
+            ? rows.filter(function (o) { return score(q, ui._.tree.labelOf(o), 0) >= 0; })[0]
+            : null;
+        setActive(host, (!q && chosen) || first || rows[0] || null, true);
     }
     function move(host, step) {
         var rows = stops(host);
@@ -1571,6 +1932,48 @@ window.sednaUi = window.sednaUi || {};
             if (chip) chip.remove();
         }
         validate(host);
+    }
+    function syncTree(host) {
+        var tree = treeOf(host);
+        var picks = ui._.tree.picked(tree);
+        if (modeOf(host) === 'single') {
+            var one = picks[0];
+            var shown = host.querySelector('.form-combo-value');
+            if (shown) shown.textContent = one ? ui._.tree.labelOf(one) : '';
+            var field = host.querySelector('input[data-combo-field]');
+            if (field) field.value = one ? ui._.tree.valueOf(one) : '';
+            return;
+        }
+        var values = picks.map(ui._.tree.valueOf);
+        chips(host).forEach(function (c) {
+            if (values.indexOf(c.getAttribute('data-value')) < 0) c.remove();
+        });
+        picks.forEach(function (item) { addChip(host, ui._.tree.valueOf(item), ui._.tree.labelOf(item)); });
+        validate(host);
+    }
+    function untree(host, value) {
+        var tree = treeOf(host);
+        ui._.tree.items(tree).forEach(function (item) {
+            if (ui._.tree.valueOf(item) !== value) return;
+            if (item.hasAttribute('aria-checked')) ui._.tree.setChecked(item, false);
+            else ui._.tree.setSelected(item, false);
+        });
+        syncTree(host);
+    }
+    function pickedTree(host, item, onToggle) {
+        var input = inputOf(host);
+        var pickable = (item.hasAttribute('aria-selected') || item.hasAttribute('aria-checked')) && enabled(item);
+        if (managed(host) && pickable && !onToggle) syncTree(host);
+        var clear = function () { if (input.value) setQuery(input, ''); };
+        if (onToggle || !pickable || modeOf(host) === 'multi') {
+            if (isOpen(host)) setActive(host, item);
+            input.focus();
+            if (pickable && !onToggle) setTimeout(clear, 0);
+            return;
+        }
+        close(host);
+        input.focus();
+        setTimeout(clear, 0);
     }
     function picked(host, option) {
         if (option.getAttribute('aria-disabled') === 'true') return;
@@ -1668,6 +2071,8 @@ window.sednaUi = window.sednaUi || {};
         }
         var option = e.target.closest('.form-combo-option');
         if (option && host.contains(option)) { picked(host, option); return; }
+        var item = treeOf(host) && e.target.closest('[role="treeitem"]');
+        if (item && host.contains(item)) { pickedTree(host, item, !!e.target.closest('.tree-toggle')); return; }
         var action = e.target.closest('.form-combo-group-action');
         if (action && host.contains(action)) {
             if (action.hasAttribute('data-combo-toggle-group')) toggleGroup(host, action);
@@ -1681,7 +2086,10 @@ window.sednaUi = window.sednaUi || {};
                 var chip = dismiss.closest('.chip');
                 var value = chip.getAttribute('data-value');
                 chip.remove();
-                if (value !== null) unselect(host, value);
+                if (value !== null) {
+                    if (treeOf(host)) untree(host, value);
+                    else unselect(host, value);
+                }
                 validate(host);
             }
             input.focus();
@@ -1701,6 +2109,11 @@ window.sednaUi = window.sednaUi || {};
             if (managed(host)) {
                 chips(host).forEach(function (c) { c.remove(); });
                 options(host).forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
+                var tree = treeOf(host);
+                if (tree) ui._.tree.items(tree).forEach(function (i) {
+                    if (i.hasAttribute('aria-checked')) ui._.tree.setChecked(i, false);
+                    else ui._.tree.setSelected(i, false);
+                });
                 var shown = host.querySelector('.form-combo-value');
                 if (shown) shown.textContent = '';
                 var field = host.querySelector('input[data-combo-field]');
@@ -1735,13 +2148,25 @@ window.sednaUi = window.sednaUi || {};
                 return;
             case 'Enter':
                 var active = openNow ? activeOf(host) : null;
-                if (active) { e.preventDefault(); active.click(); return; }
+                if (active) {
+                    e.preventDefault();
+                    (isTreeItem(active) ? ui._.tree.rowOf(active) || active : active).click();
+                    return;
+                }
                 if (mode === 'free') {
                     if (input.value.trim()) { e.preventDefault(); commit(host, input.value); }
                     return;
                 }
                 e.preventDefault();
                 if (!openNow) open(host);
+                return;
+            case 'ArrowRight':
+            case 'ArrowLeft':
+                var at = openNow && !input.value && treeOf(host) ? activeOf(host) : null;
+                if (!at || !isTreeItem(at)) return;
+                e.preventDefault();
+                var to = ui._.tree.step(at, e.key);
+                setActive(host, to && enabled(to) ? to : at, true);
                 return;
             case 'Escape':
                 if (openNow && !inline(host)) {

@@ -82,18 +82,29 @@ interaction once more:
 - **Motion is decoration.** Layout transitions and view animations are skipped under
   `prefers-reduced-motion`, and the result is the same drawing.
 
-## Three deliberate omissions
+## Deliberate omissions
 
 **No `role="menu"`.** That role promises arrow-key navigation and a roving tabindex, and a menu that
 claims it without implementing it is *worse* than one that claims nothing: the items stop being
 reachable the way they appear to be. `.menu` items are ordinary links and buttons that tab. The
 disclosure pattern — `aria-expanded` on the trigger, no role on the panel — is correct and complete.
 
-**No `role="tree"`.** Same reasoning. `.tree` is built from `<details>`, which is honest about being a
-set of disclosures; a real tree needs single-tab-stop navigation through a flattened view.
-
 **No `role="listbox"` on the palette.** A combobox needs `aria-activedescendant` on the input, which is
 what the palette does, rather than a listbox whose keyboard contract it would only half implement.
+
+## The tree
+
+`.tree` is a full ARIA tree, `role="tree"` with `role="treeitem"` items and `role="group"` children,
+and the script implements the whole keyboard contract: one tab stop with a roving `tabindex`, the arrow
+keys mirrored in a right-to-left page, Home and End, `*`, typeahead, Space and Enter, and Shift+arrows
+and Ctrl+A in a multiselectable tree. Every state is the ARIA attribute a screen reader announces —
+`aria-expanded`, `aria-selected`, `aria-checked` with `mixed`, `aria-busy`, `aria-disabled` — and the
+stylesheet paints from those attributes alone. An item's level comes from the nesting, so no
+`aria-level` is written. A row that navigates is a link with `tabindex="-1"`, so the tree stays one tab
+stop.
+
+In a tree select the tree is the combobox's popup: `aria-haspopup="tree"` on the input, and
+`aria-activedescendant` naming the item the keyboard is on, since focus stays in the input.
 
 ## Where the platform does the work
 
@@ -102,7 +113,7 @@ Four things are built on native elements specifically so the behaviour is not ha
 | Built on | What comes free |
 |---|---|
 | `<dialog>.showModal()` — `.modal`, `.drawer` and `.sheet` via `ShowModalAsync`, `.palette` | top layer, focus trap, Escape, inert content behind |
-| `<details>`/`<summary>` — `.accordion`, `.tree`, `.nav-group` | open state, keyboard operation, announcement; `name` makes an accordion exclusive with no JS |
+| `<details>`/`<summary>` — `.accordion`, `.nav-group` | open state, keyboard operation, announcement; `name` makes an accordion exclusive with no JS |
 | `<input type="radio">` — `.segmented`, `.rating` | arrow keys, group semantics, chosen state |
 | `<label>` wrapping the input — `.form-check`, `.switch`, `.form-file` | the whole label is the target, and Enter works |
 
