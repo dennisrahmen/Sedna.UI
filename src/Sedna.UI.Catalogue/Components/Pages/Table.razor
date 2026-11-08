@@ -195,6 +195,9 @@
     <p>
         <code>.table--stack</code> turns each row into a card below 640px, taking each cell's label
         from <code>data-label</code>; a cell without one — an actions cell — keeps the full width.
+        Everything else in a cell is one value at the end edge, laid out as it is in a wide cell, so a
+        link with a line under it stays a link with a line under it. A <code>.tr-group</code> row
+        spans the width as the heading of the cards below it.
         <strong>It throws away column alignment</strong>, so it is right for records read one at a
         time and wrong for anything scanned down a column. Narrow this window to see it.
     </p>

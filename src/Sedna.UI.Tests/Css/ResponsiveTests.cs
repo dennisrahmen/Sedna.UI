@@ -28,7 +28,7 @@ public class ResponsiveTests
         "flex-basis", "align-items", "align-self", "justify-content", "order",
         "gap", "row-gap", "column-gap",
         "grid-template-columns", "grid-template-rows", "grid-column", "grid-row",
-        "position", "top", "right", "bottom", "left",
+        "position", "top", "right", "bottom", "left", "float", "clear",
         "inset", "inset-block", "inset-inline", "inset-block-start", "inset-block-end",
         "inset-inline-start", "inset-inline-end",
         "transform", "translate", "rotate", "scale",

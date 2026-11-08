@@ -254,8 +254,14 @@
    `width: max-content` — where `space-between` has no free space to distribute and
    the key ran straight into the value with nothing between them. */
 .kv { display: flex; justify-content: space-between; gap: var(--space-7); padding: var(--space-2) 0; }
-.kv .k { color: var(--muted); }
+/* The key keeps its words: it does not shrink, up to half the row, so a narrow row
+   wraps the value rather than breaking a short key mid-word. A key longer than half
+   the row breaks there. */
+.kv .k { color: var(--muted); flex-shrink: 0; max-width: 50%; overflow-wrap: break-word; }
 .kv .v { font-family: var(--font-mono); }
 /* Either side may be long — a path, an id — and neither may push the row wider. */
 .kv > * { min-width: 0; overflow-wrap: anywhere; }
+/* A value that is prose — a role, a date, a name: the body font, broken only where a
+   single word is wider than the row. */
+.kv--text .v { font-family: var(--font-sans); overflow-wrap: break-word; }
 
