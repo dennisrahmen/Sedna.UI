@@ -30,6 +30,7 @@ builder.Services.AddSednaUi(o =>
 // Built once from the embedded examples, the embedded pages and the stylesheet the
 // app serves — so the MCP server and the site cannot describe different bytes.
 builder.Services.AddSingleton<CatalogueIndex>();
+builder.Services.AddSingleton<ApiReference>();
 builder.Services.AddSingleton<VersionEnvelope>();
 // The latest release's own class history, read at runtime so the site is right
 // between a tag and the next deploy. ReleasedHistory:Url empty turns it off.
@@ -46,6 +47,7 @@ builder.Services
     // the heap. That is an abuse-control property, not only a scaling one.
     .WithHttpTransport(options => options.Stateless = true)
     .WithTools<CatalogueTools>()
+    .WithTools<ReferenceTools>()
     // Every call's arguments are checked against the tool's own schema first, so a
     // mistake is answered in words rather than "An error occurred invoking …".
     .WithRequestFilters(filters => filters.AddCallToolFilter(ArgumentGuard.Wrap))
@@ -59,8 +61,8 @@ builder.Services.AddRateLimiter(options =>
     // is nothing to spoof your way around.
     options.AddConcurrencyLimiter("mcp-concurrency", concurrency =>
     {
-        concurrency.PermitLimit = 16;
-        concurrency.QueueLimit = 8;
+        concurrency.PermitLimit = 64;
+        concurrency.QueueLimit = 32;
     });
 
     // Fairness between callers. Behind a proxy whose address range we do not
@@ -73,9 +75,10 @@ builder.Services.AddRateLimiter(options =>
             _ => new TokenBucketRateLimiterOptions
             {
                 // Configurable only so the test suite, which calls every tool many times
-                // from one address, does not run into it; production keeps 60.
-                TokenLimit = builder.Configuration.GetValue("Mcp:CallerTokenLimit", 60),
-                TokensPerPeriod = 30,
+                // from one address, does not run into it; production keeps 240. Sized for
+                // several agent sessions on one developer machine, which share an address.
+                TokenLimit = builder.Configuration.GetValue("Mcp:CallerTokenLimit", 240),
+                TokensPerPeriod = 120,
                 ReplenishmentPeriod = TimeSpan.FromMinutes(1),
                 QueueLimit = 0,
             }));

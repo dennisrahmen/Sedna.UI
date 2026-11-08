@@ -88,7 +88,12 @@ internal sealed class CatalogueIndex
         Classes = WithUsage(declaredClasses, Examples, e => e.Classes);
         Ids = WithUsage(declaredIds, Examples, e => e.Ids);
         Tokens = ReadTokens(environment);
+        Icons = Regex.Matches(ReadStaticAsset(environment, "lib/remixicon/remixicon.css"), @"\.(ri-[a-z0-9-]+):+before")
+            .Select(m => m.Groups[1].Value).ToHashSet(StringComparer.Ordinal);
     }
+
+    /// <summary>Every Remix Icon class the bundled icon font declares, for <c>check_markup</c>.</summary>
+    public IReadOnlySet<string> Icons { get; }
 
     /// <summary>The shipped stylesheet, verbatim — served as an MCP resource.</summary>
     public string RawStylesheet { get; }
@@ -172,8 +177,10 @@ internal sealed class CatalogueIndex
 
             var markup = ExampleSource.For($"{folder}/{name}.{extension}");
             var meta = metadata.GetValueOrDefault(id);
-            var route = CataloguePages.All
-                .FirstOrDefault(p => string.Equals(PageId(p), meta?.Page ?? folder,
+            // The page that renders it, read off that page's @page directive. Only an example
+            // no page renders falls back to the page its folder is named after.
+            var route = meta?.Route ?? CataloguePages.All
+                .FirstOrDefault(p => string.Equals(PageId(p), folder,
                     StringComparison.OrdinalIgnoreCase))?.Route ?? "/";
 
             examples.Add(new IndexedExample(
@@ -197,7 +204,10 @@ internal sealed class CatalogueIndex
         return examples.OrderBy(e => e.Id, StringComparer.Ordinal).ToList();
     }
 
-    private sealed record ExampleMeta(string Page, string Title, string Blurb);
+    private sealed record ExampleMeta(string Page, string Route, string Title, string Blurb);
+
+    private static readonly Regex PageDirective = new(
+        @"^@page\s+""(?<route>[^""]+)""", RegexOptions.Compiled | RegexOptions.Multiline);
 
     /// <summary>
     /// Each example's title and prose, read out of the page that renders it.
@@ -207,11 +217,20 @@ internal sealed class CatalogueIndex
     /// silently lose an example: the index is built from the example resources, and
     /// a page tag that fails to match only costs the title, which
     /// <c>McpIndexTests</c> asserts is present for every one.
+    /// <para>
+    /// An example belongs to the page that renders it, never to the folder it is filed in:
+    /// the C# examples all live in <c>Examples/Interop/</c> and are rendered on
+    /// <c>/graph-blazor</c>, <c>/workflow-run</c> and <c>/card</c> as well, and the MCP
+    /// server's own snippets live in <c>Examples/Mcp/</c> for a page routed
+    /// <c>/mcp-server</c>. Filed by folder, those pages answered <c>get_page</c> with no
+    /// examples at all. An example two pages render belongs to the one its folder is named
+    /// after, and otherwise to the first by route.
+    /// </para>
     /// </remarks>
     private static Dictionary<string, ExampleMeta> PageMetadata()
     {
         var assembly = typeof(CatalogueIndex).Assembly;
-        var found = new Dictionary<string, ExampleMeta>(StringComparer.OrdinalIgnoreCase);
+        var all = new List<(string Id, ExampleMeta Meta)>();
 
         foreach (var resource in assembly.GetManifestResourceNames()
                      .Where(n => n.Contains(".Components.Pages.", StringComparison.Ordinal)))
@@ -220,6 +239,14 @@ internal sealed class CatalogueIndex
             if (stream is null) continue;
             using var reader = new StreamReader(stream);
             var source = reader.ReadToEnd();
+            var route = PageDirective.Match(source) is { Success: true } directive
+                ? directive.Groups["route"].Value
+                : null;
+            var page = route is null ? null
+                : CataloguePages.All.FirstOrDefault(p => string.Equals(p.Route, route, StringComparison.OrdinalIgnoreCase));
+            // A component that is not a registered page — the layout, a shared part — files
+            // nothing: its examples belong to whichever page renders them.
+            if (page is null) continue;
 
             foreach (var tag in ExampleTag.Matches(source).Cast<Match>())
             {
@@ -242,22 +269,30 @@ internal sealed class CatalogueIndex
                 if (id is null || !attrs.TryGetValue("Title", out var title)) continue;
 
                 var blurb = Blurb(source, tag.Index + tag.Length);
-                found[id] = new ExampleMeta(id.Split('/')[0], CatTitle.Plain(title), blurb);
+                all.Add((id, new ExampleMeta(PageId(page), page.Route, CatTitle.Plain(title), blurb)));
 
                 // A companion file is printed by the same example, so it is found under
                 // that example's page and title rather than as an untitled orphan.
                 if (attrs.TryGetValue("Companion", out var companion))
                 {
                     var companionId = Path.ChangeExtension(companion, null);
-                    found[companionId] = new ExampleMeta(
-                        id.Split('/')[0],
+                    all.Add((companionId, new ExampleMeta(
+                        PageId(page),
+                        page.Route,
                         $"{CatTitle.Plain(title)} — {Path.GetFileName(companion)}",
-                        blurb);
+                        blurb)));
                 }
             }
         }
 
-        return found;
+        return all
+            .GroupBy(x => x.Id, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderByDescending(x => string.Equals(x.Meta.Page, g.Key.Split('/')[0], StringComparison.OrdinalIgnoreCase))
+                      .ThenBy(x => x.Meta.Route, StringComparer.Ordinal)
+                      .First().Meta,
+                StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>The prose between an example's opening tag and its close.</summary>

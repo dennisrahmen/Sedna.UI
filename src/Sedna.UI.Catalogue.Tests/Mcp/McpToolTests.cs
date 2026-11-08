@@ -21,7 +21,7 @@ public class McpToolTests(CatalogueAppFixture app)
 {
     private static readonly string[] Expected =
         ["search", "get_example", "describe_class", "get_page", "get_tokens",
-         "get_integration_guide"];
+         "get_integration_guide", "check_markup", "get_changes", "describe_api"];
 
     /// <summary>One valid call per tool.</summary>
     private static readonly (string Name, object Arguments)[] EveryTool =
@@ -32,6 +32,9 @@ public class McpToolTests(CatalogueAppFixture app)
         ("get_page", new { }),
         ("get_tokens", new { filter = "brand" }),
         ("get_integration_guide", new { }),
+        ("check_markup", new { markup = "<span class=\"badge\">x</span>" }),
+        ("get_changes", new { from = "0.27.0" }),
+        ("describe_api", new { names = new[] { "ISednaUi" } }),
     ];
 
     [Fact]
@@ -48,7 +51,7 @@ public class McpToolTests(CatalogueAppFixture app)
     {
         // The endpoint is public and unauthenticated, and a client honouring the
         // read-only hint calls these without prompting. There must never be a
-        // seventh tool that writes.
+        // tool that writes.
         foreach (var tool in (await Rpc("tools/list")).GetProperty("tools").EnumerateArray())
         {
             var hints = tool.GetProperty("annotations");

@@ -755,9 +755,9 @@ card that should be behind it.
 ## The MCP server
 
 `/mcp` on the catalogue application: Streamable HTTP, stateless, **public, unauthenticated and
-read-only**. Six tools, plus four resources — `sednaui://stylesheet`, `sednaui://tokens`,
-`sednaui://version` and `sednaui://docs/{name}`. There must never be a seventh tool that writes: a
-client honouring the read-only hint calls these without prompting.
+read-only**. The tools below, plus four resources — `sednaui://stylesheet`, `sednaui://tokens`,
+`sednaui://version` and `sednaui://docs/{name}`. There must never be a tool that writes: a client
+honouring the read-only hint calls these without prompting.
 
 | Tool | Returns |
 | --- | --- |
@@ -767,6 +767,9 @@ client honouring the read-only hint calls these without prompting.
 | `get_page` | Every example on one catalogue page, or the list of pages. |
 | `get_tokens` | The token export, as an ordered array of blocks. |
 | `get_integration_guide` | This repository's own documentation, verbatim: `host-page`, `branding`, `javascript`, `rules`, `graph`, `editor` — and `upgrade`, every class each release renamed, from `docs/renames/`. |
+| `check_markup` | For markup an agent wrote: every class the stylesheet does not declare, with the nearest library class; every class a release renamed or removed, judged against the installed version; every class newer than it; every icon the font does not have. Classes only. |
+| `get_changes` | What two releases differ by: classes, tokens and public C# members added and removed, the renames, and each release between with its notes. Removals come from `build/class-history.sh`, which records the release that removed each name. |
+| `describe_api` | A C# type or member's signatures, XML documentation, release and the examples using it, read by reflection and from the documentation file the library's build writes; a `sednaUi` member's row of the table under **JavaScript** above. |
 
 Nothing in the index is hand-listed. Examples come from the same embedded resources the pages render,
 classes from the stylesheet the app serves, docs from `docs/`.
@@ -779,7 +782,7 @@ A tool's payload is the JSON text of its response, read from `content[0].text`. 
 The tools return anonymous objects, which the SDK cannot describe, so enabling structured content made
 every one of them advertise the placeholder `{"type":"object","properties":{"result":true}}`. That is
 legal JSON Schema and the Zod validator in the MCP TypeScript SDK rejects it, so a client validating the
-tool list dropped all six tools — while the server stayed connected and its instructions loaded. The
+tool list dropped every tool — while the server stayed connected and its instructions loaded. The
 whole surface vanished with no error anywhere.
 
 ### The version envelope

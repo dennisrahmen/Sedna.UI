@@ -1,0 +1,44 @@
+@page "/page-recipes"
+
+<CatHead Title="Page recipes" Tier="@CatHead.Tier2">
+    Whole pages, composed from the classes on the other pages: the list a record is found in, the
+    record itself, and the settings behind it. Each one is the content of the shell's
+    <code>.page</code> &mdash; take the frame from <a href="/frame">Shell</a>.
+</CatHead>
+
+<div class="callout callout--info">
+    <i class="ri-information-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">These are compositions, not new classes</span>
+        Copy a recipe whole and change its content. Every class in it has a page of its own that says
+        what it is for; a part a recipe leaves out is still on that page.
+    </div>
+</div>
+
+<CatExample TExample="Examples.PageRecipes.ListPage" Title="A list page" Demo="ex-demo--block">
+    <p>
+        A page head whose actions fold into a menu on a narrow screen, keeping the primary one; a
+        toolbar with the filters on the leading side and the count on the trailing one; a card holding
+        a sortable table that stacks into cards on a phone; and the pager under it. When no row
+        matches, the table keeps its head and shows one <code>.tr-empty</code> row, as on
+        <a href="/table">Tables</a> &mdash; the page does not swap to an empty state for a filter
+        that found nothing.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.DetailPage" Title="A detail page" Demo="ex-demo--block">
+    <p>
+        The trail back to the list, a page head naming the record, and <code>.sedna-split</code>: the
+        record's fields in a card of <code>.kv</code> rows &mdash; <code>.kv--text</code> for a value
+        that is prose &mdash; beside an aside holding its history. The aside drops under the card when
+        the split runs out of room.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.SettingsPage" Title="A settings page" Demo="ex-demo--block">
+    <p>
+        One <code>.form-section</code> per subject, each with a line saying what it is for, and one
+        <code>.form-actions</code> row for the whole form. A switch applies a choice; Save applies
+        the fields &mdash; if a switch should wait for Save too, make it a checkbox.
+    </p>
+</CatExample>

@@ -47,7 +47,7 @@ public class BrandNamingTests
     /// </summary>
     /// <remarks>
     /// <c>Mcp/*.cs</c> (<c>CatalogueTools.cs</c>, <c>McpInstructions.cs</c>,
-    /// <c>Docs.cs</c> and friends) holds the six tool descriptions served by the
+    /// <c>Docs.cs</c> and friends) holds the tool descriptions served by the
     /// public, unauthenticated MCP endpoint — the most externally visible text in
     /// the app. <c>Program.cs</c> is the host. <c>wwwroot/catalogue.js</c>'s absence
     /// from <c>ContentFiles()</c> was incidental, unlike <c>wwwroot/catalogue.css</c>,

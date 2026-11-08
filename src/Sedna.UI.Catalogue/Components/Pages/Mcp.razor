@@ -5,7 +5,7 @@
    and not /mcp, because Program.cs maps the MCP transport itself at /mcp. *@
 
 <CatHead Title="MCP server" Tier="@CatHead.Site">
-    This site answers to agents as well as to people. One read-only endpoint, six tools and four
+    This site answers to agents as well as to people. One read-only endpoint, its tools and four
     resources, over the same bytes the pages render.
 </CatHead>
 
@@ -15,7 +15,7 @@
         <span class="callout-title">Public, unauthenticated and read-only</span>
         Every tool is annotated
         <code>readOnlyHint</code>, so a client that honours the hint calls them without prompting, and
-        <strong>there will never be a seventh tool that writes</strong> — enforced by a test.
+        <strong>there will never be a tool that writes</strong> — enforced by a test.
     </div>
 </div>
 
@@ -33,10 +33,11 @@
     <p>Or add it to a project's <code>.mcp.json</code> with the block above.</p>
 </CatSnippet>
 
-<h2 id="tools">The six tools</h2>
+<h2 id="tools">The tools</h2>
 <p class="cat-lede">
-    Six verbs, no overlap, shaped around one workflow: an agent writing a page in a consuming app and
-    needing the exact markup plus enough semantics to pick the right variant.
+    One verb each, no overlap, shaped around one workflow: an agent writing a page in a consuming app
+    and needing the exact markup plus enough semantics to pick the right variant &mdash; then checking
+    what it wrote, and upgrading the app later.
 </p>
 
 <div class="card sedna-mb-3">
@@ -87,6 +88,32 @@
                     each release renamed, old name to the classes that look the same.
                 </td>
             </tr>
+            <tr>
+                <td><code>check_markup</code></td>
+                <td>
+                    For markup the agent wrote: every class the stylesheet does not declare, with the
+                    nearest library class in case it is a typo; every class a release renamed or
+                    removed, judged against the installed version; every class newer than it; and
+                    every icon the font does not have. Classes only &mdash; it does not judge structure.
+                </td>
+            </tr>
+            <tr>
+                <td><code>get_changes</code></td>
+                <td>
+                    What two releases differ by: every class, token and public C# member added and
+                    removed, every rename, and each release in between with a link to its notes,
+                    where the breaking changes are listed first. <code>to: "main"</code> includes
+                    what is merged and in no release yet.
+                </td>
+            </tr>
+            <tr>
+                <td><code>describe_api</code></td>
+                <td>
+                    The C# and script API, member by member: a type's members, a member's signatures,
+                    its documentation, the release it first shipped in and the examples that use it
+                    &mdash; <code>ISednaUi.ShowModalAsync</code>, or <code>sednaUi.toast</code>.
+                </td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -94,7 +121,7 @@
 <CatSnippet Name="Mcp/SearchCall.txt" Title="The whole loop">
     <p>
         <code>search</code> → <code>get_example</code> → <code>describe_class</code>. Nothing else
-        is needed to write a page.
+        is needed to write a page; <code>check_markup</code> then checks it.
     </p>
 </CatSnippet>
 
@@ -136,8 +163,9 @@
                 <td><code>sednaui://docs/{name}</code></td>
                 <td class="col-muted"><code>text/markdown</code></td>
                 <td>
-                    One documentation file: <code>getting-started</code>, <code>architecture</code>,
-                    <code>CLAUDE.consuming-app</code>, <code>releasing</code>.
+                    Any file in the repository's <code>docs/</code>, by name without
+                    <code>.md</code> &mdash; <code>getting-started</code>, <code>architecture</code>,
+                    <code>CLAUDE.consuming-app</code> and the rest. A wrong name is answered with the list.
                 </td>
             </tr>
         </tbody>
@@ -146,8 +174,8 @@
 
 <h2 id="versions">Say which version you have</h2>
 <p class="cat-lede">
-    This site is built from <code>main</code> and can be ahead of any release, so every tool takes
-    <code>installedVersion</code>. Pass it and the <code>meta.warning</code> block names everything
+    This site is built from <code>main</code> and can be ahead of any release, so every tool that
+    answers with classes, tokens, examples or API takes <code>installedVersion</code>. Pass it and the <code>meta.warning</code> block names everything
     in the answer your version does not have — including anything with no <code>since</code> at all,
     which is in <em>no</em> release yet. The results still come back.
 </p>
@@ -164,11 +192,11 @@
         <thead><tr><th>Limit</th><th>Value</th><th>Why</th></tr></thead>
         <tbody>
             <tr>
-                <td>Concurrent requests</td><td class="col-num">16, plus 8 queued</td>
+                <td>Concurrent requests</td><td class="col-num">64, plus 32 queued</td>
                 <td>The actual control. Not partitioned, so there is nothing to spoof around.</td>
             </tr>
             <tr>
-                <td>Per caller</td><td class="col-num">60 burst, 30/min</td>
+                <td>Per caller</td><td class="col-num">240 burst, 120/min</td>
                 <td>
                     Fairness, not security: behind a proxy whose addresses we do not control, per-IP
                     limiting is not a security measure.
@@ -184,7 +212,8 @@
                 <td>
                     Hits from <code>search</code>, ids per <code>get_example</code>, names per
                     <code>describe_class</code>. Markup is capped at 8&nbsp;KB per example and cut
-                    at a tag boundary, so a truncated response still parses.
+                    at a tag boundary, so a truncated response still parses. <code>describe_api</code>
+                    takes 10 names, and <code>check_markup</code> up to 64&nbsp;KB of markup.
                 </td>
             </tr>
         </tbody>

@@ -127,8 +127,7 @@ immune.
 
 ## The MCP server
 
-`Mcp/` — six read-only tools and four resources at `/mcp`. **There must never be a seventh tool that
-writes.** The endpoint is public and unauthenticated, and a client honouring the read-only hint calls
+`Mcp/` — read-only tools and four resources at `/mcp`. **There must never be a tool that writes.** The endpoint is public and unauthenticated, and a client honouring the read-only hint calls
 these without prompting.
 
 Nothing in the index is hand-listed: examples come from the same embedded resources the pages render,
@@ -139,7 +138,7 @@ anything it still calls unreleased, the latest release's own copy, which `Releas
 **No tool declares an `outputSchema`.** They return anonymous objects the SDK cannot describe, so
 `UseStructuredContent` made each one advertise `{"type":"object","properties":{"result":true}}` — a
 boolean subschema, legal JSON Schema and rejected by the MCP TypeScript SDK's Zod validator, which
-dropped all six tools in every client that validates a tool list while the server stayed connected and
+dropped every tool in every client that validates a tool list while the server stayed connected and
 its instructions loaded. A test fails on any boolean subschema a tool publishes.
 
 **Every rejection is an `McpException`.** Its message is the only one the SDK propagates; any other

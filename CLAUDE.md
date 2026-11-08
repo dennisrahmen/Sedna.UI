@@ -287,10 +287,11 @@ would be reverted on the next render, silently and only sometimes.
 
 ### The MCP server
 
-`/mcp` on the same app: Streamable HTTP, **public, unauthenticated and read-only**. Six tools —
-`search`, `get_example`, `describe_class`, `get_page`, `get_tokens`, `get_integration_guide` — plus
-four resources. **There must never be a seventh tool that writes.** A client honouring the read-only
-hint calls these without prompting, which is only safe while that stays true.
+`/mcp` on the same app: Streamable HTTP, **public, unauthenticated and read-only**. The tools —
+`search`, `get_example`, `describe_class`, `get_page`, `get_tokens`, `get_integration_guide`,
+`check_markup`, `get_changes`, `describe_api` — and four resources. **There must never be a tool that
+writes.** A client honouring the read-only hint calls these without prompting, which is only safe while
+that stays true.
 
 Rate limited on `/mcp` alone, never globally: a global limiter would also count Blazor's SignalR
 upgrades, so one person browsing would trip a limit sized for MCP calls. A concurrency limiter is the
@@ -324,7 +325,7 @@ src/
   Sedna.UI.Catalogue/             the hosted catalogue and the MCP server
     Components/Pages/                 one .razor page per class family
     Examples/                         one file per example — rendered AND printed
-    Mcp/                              the six tools, the ranker, the version envelope
+    Mcp/                              the tools, the ranker, the version envelope
     Navigation/                       the page registry
     Dockerfile                        build context is the REPOSITORY ROOT
   Sedna.UI.Catalogue.Tests/       WebApplicationFactory + Kestrel + Playwright
