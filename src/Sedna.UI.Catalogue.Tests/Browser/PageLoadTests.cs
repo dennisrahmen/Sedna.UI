@@ -263,6 +263,9 @@ public class PageLoadTests(CatalogueAppFixture app)
             for (var i = 0; i < toggles; i++)
             {
                 var toggle = page.Locator(".ex-demo [data-menu-toggle]").Nth(i);
+                // A menu folded away by .page-head-actions--fold or .toolbar-actions--fold
+                // has no box at this width, and no reader can open it there.
+                if (await toggle.EvaluateAsync<bool>("el => el.getClientRects().length === 0")) continue;
                 // A toggle inside a chat message's action row is hidden until the
                 // message is hovered, which a real reader does before reaching it.
                 await toggle.HoverAsync(new() { Force = true });
