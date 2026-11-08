@@ -95,6 +95,9 @@ internal static class CataloguePages
         new("/common-pages", Frame, "Common pages", "ri-signpost-line",
             "Access denied, not found, the error, the expired session, the maintenance window.",
             "403 404 500 503 401 access denied forbidden unauthorized permission role not found missing error crash session expired signed out timeout maintenance outage unavailable downtime status code reference trace correlation"),
+        new("/page-recipes", Frame, "Page recipes", "ri-layout-masonry-line",
+            "Whole pages to start from: a list, the record it leads to, and a settings page.",
+            "recipe template composition whole page list index detail record view settings preferences form layout page-head toolbar table pager split aside start"),
 
         new("/structure", Structure, "Page structure", "ri-layout-top-line",
             "Title rows, dividers, callouts and code blocks.",

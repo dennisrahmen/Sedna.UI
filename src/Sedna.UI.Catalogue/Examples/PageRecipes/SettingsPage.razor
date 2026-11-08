@@ -1,0 +1,54 @@
+<div class="page-head">
+    <div class="page-head-text">
+        <h1>Settings</h1>
+        <p>How the queue behaves for you. Saved to your account.</p>
+    </div>
+</div>
+
+<form style="max-width:560px">
+    <fieldset class="form-section">
+        <legend>Notifications</legend>
+        <p class="form-section-hint">What reaches you while the queue is open in another tab.</p>
+        <div class="form-section-body">
+            <label class="switch">
+                <input type="checkbox" checked />
+                <span class="choice-text">
+                    <span>Notify me about new pending orders</span>
+                    <span class="choice-hint">A desktop notification, at most one a minute.</span>
+                </span>
+            </label>
+            <label class="switch"><input type="checkbox" /> <span>Play a sound on new orders</span></label>
+            <div class="form-field">
+                <label class="form-label" for="settings-quiet">Quiet hours</label>
+                <input class="form-input" id="settings-quiet" type="text" value="22:00 – 07:00" />
+                <p class="form-hint">No notifications in this window. The queue still updates.</p>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="form-section">
+        <legend>Escalation</legend>
+        <p class="form-section-hint">Who is paged when nobody has acknowledged an order in time.</p>
+        <div class="form-section-body">
+            <div class="form-field">
+                <label class="form-label form-label--required" for="settings-team">Team</label>
+                <select class="form-input form-select" id="settings-team" required>
+                    <option selected>Fulfilment</option>
+                    <option>Returns</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="settings-after">Escalate after</label>
+                <div class="input-group">
+                    <input class="form-input" id="settings-after" type="number" value="15" />
+                    <span class="input-affix">minutes</span>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="form-actions">
+        <button class="btn" type="button">Cancel</button>
+        <button class="btn btn--brand btn--solid" type="submit">Save</button>
+    </div>
+</form>
