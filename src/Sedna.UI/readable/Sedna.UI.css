@@ -7647,6 +7647,80 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     .transfer > * { grid-column: 1 / span 3; }
     .transfer-actions { flex-direction: row; justify-content: center; }
 }
+
+/* ── Rule group ─────────────────────────────────────────────────────────────
+   A query builder's frame: conditions that combine with AND or OR, and groups of them
+   nested inside one another — "status is Held AND (region is EU-West OR amount is over
+   500)". The fields are the library's own controls; this is only the frame, the
+   indentation that shows what belongs to which group, and a row that keeps its fields
+   in columns.
+
+     <div class="rule-group" role="group" aria-label="Conditions">
+       <div class="rule-group-head">  the AND/OR `.segmented`, the group's own buttons  </div>
+       <div class="rule-group-body">
+         <div class="rule-group-row">  field, operator, value, remove — the remove button last  </div>
+         <div class="rule-group">  a nested group, the same shape  </div>
+         <div class="rule-group-actions">  Add condition, Add group  </div>
+       </div>
+     </div>
+
+   The body is indented from the head's inline start and drawn with a line down that
+   edge, so a nested group's line sits inside its parent's and the nesting reads at a
+   glance, in either direction. Nothing here evaluates anything: what a group means,
+   adding and removing rows, and turning the tree into a query are the app's.
+
+   A row is four columns while the group is wide enough — field, operator, value at half
+   as wide again, and the remove button — and below 480px of the group's own width the
+   fields go one under the other with the remove button beside the first. Measured on
+   the group, so a deeply nested one stacks before its parent does. */
+.rule-group {
+    container: sedna-rule-group / inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+}
+.rule-group .rule-group {
+    padding: var(--space-5);
+    background: var(--surface-soft);
+}
+.rule-group-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+}
+.rule-group-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+    margin-inline-start: var(--space-3);
+    padding-inline-start: var(--space-6);
+    border-inline-start: 2px solid var(--border);
+}
+.rule-group-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 3fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+}
+.rule-group-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+@container sedna-rule-group (width < 480px) {
+    .rule-group-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .rule-group-row > :not(:last-child) { grid-column: 1; }
+    .rule-group-row > :last-child { grid-column: 2; grid-row: 1; }
+}
 }
 
 /* ── 47-form-file.css → @layer sedna.paint ──────────────────────────────────────────────── */

@@ -4081,6 +4081,54 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     .transfer > * { grid-column: 1 / span 3; }
     .transfer-actions { flex-direction: row; justify-content: center; }
 }
+.rule-group {
+    container: sedna-rule-group / inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+}
+.rule-group .rule-group {
+    padding: var(--space-5);
+    background: var(--surface-soft);
+}
+.rule-group-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+}
+.rule-group-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+    margin-inline-start: var(--space-3);
+    padding-inline-start: var(--space-6);
+    border-inline-start: 2px solid var(--border);
+}
+.rule-group-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 3fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+}
+.rule-group-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+@container sedna-rule-group (width < 480px) {
+    .rule-group-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .rule-group-row > :not(:last-child) { grid-column: 1; }
+    .rule-group-row > :last-child { grid-column: 2; grid-row: 1; }
+}
 }
 @layer sedna.paint {
 .form-file { position: relative; display: inline-flex; align-items: center; gap: var(--space-5); }
