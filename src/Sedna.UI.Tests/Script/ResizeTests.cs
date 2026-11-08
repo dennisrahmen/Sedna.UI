@@ -252,7 +252,7 @@ public class ResizeTests : ScriptTestBase
         var (page, errors) = await OpenStyled(Columns(dir));
         var box = (await page.Locator("#g").BoundingBoxAsync())!;
         var (x, y) = (box.X + box.Width / 2, box.Y + box.Height / 2);
-        var outward = dir == "rtl" ? -1 : 1;
+        float outward = dir == "rtl" ? -1f : 1f;
 
         await page.Mouse.MoveAsync(x, y);
         await page.Mouse.DownAsync();
