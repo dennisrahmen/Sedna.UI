@@ -1,13 +1,18 @@
 /* ── Progress ───────────────────────────────────────────────────────────────
    Determinate: set the inline width on .progress-bar, which is the one value
-   only the app knows. Indeterminate: omit the width and add the modifier. */
+   only the app knows. Indeterminate: omit the width and add the modifier.
+   Both are blocks whatever element carries them, so a bar written as <span>s inside a
+   line of phrasing content — a file item's name and meta — has a height and a width. */
 .progress {
+    display: block;
     height: 6px;
     background: var(--progress-track);
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
+.progress[hidden] { display: none; }
 .progress-bar {
+    display: block;
     height: 100%;
     background: var(--brand);
     border-radius: inherit;

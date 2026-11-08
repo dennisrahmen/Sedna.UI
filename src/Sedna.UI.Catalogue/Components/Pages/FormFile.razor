@@ -61,7 +61,38 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.FormFile.DropzoneLarge" Title="Large, as the page's main action" Demo="ex-demo--block">
+<CatExample TExample="Examples.FormFile.Limits" Title="Limits, and a file turned away" Demo="ex-demo--block">
+    <p>
+        Say the limits before the reader picks: how many files, which types and how large, as a
+        <code>.form-hint</code> inside the zone that the input names in <code>aria-describedby</code>.
+        Put the types in <code>accept</code> too, so the picker offers only those.
+    </p>
+    <p>
+        A file the app turns away stays in the list as a <code>.file-item--error</code>, with the reason
+        in its <code>.file-meta</code> &mdash; &ldquo;24 MB is over the 10 MB limit&rdquo;, not
+        &ldquo;invalid file&rdquo; &mdash; and a <code>.form-error</code> under the zone says how many were
+        not added. The checks are the app's; nothing here reads a file.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormFile.PageDrop" Title="The whole page as a drop target" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; drag a file anywhere over this page.</strong> Write the overlay once, as a
+        <code>.dropzone.dropzone--page</code> with <code>data-dropzone="page"</code>, and name the input that
+        takes the drop with <code>data-dropzone-input</code> &mdash; without it, the overlay's own
+        <code>input[type=file]</code>. While files are dragged over the window the script sets
+        <code>.dropzone--over</code> on it, which is what shows it; leaving the window, dropping, ending the
+        drag and <kbd class="kbd">Esc</kbd> take it away. A drag that carries no files never shows it.
+    </p>
+    <p>
+        A drop anywhere reaches the input as a <code>change</code> event, as an ordinary zone's does, so
+        the same handler serves the picker and the page. The overlay takes no pointer: an ordinary zone
+        under it still lights up and keeps its own drop. It is <code>aria-hidden</code>, because the
+        picker is the way in without a pointer.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormFile.DropzoneLarge"Title="Large, as the page's main action" Demo="ex-demo--block">
     <p>
         <code>.dropzone--lg</code> is a zone that is the reason the page exists &mdash; an import, a
         first upload &mdash; with more room and a larger glyph. Everything else about it is the same

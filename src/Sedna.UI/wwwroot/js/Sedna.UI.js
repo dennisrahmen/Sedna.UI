@@ -4716,7 +4716,37 @@ window.sednaUi = window.sednaUi || {};
     var DEPTH = '_drDropDepth';
     var OVER = 'dropzone--over';
     function zoneOf(target) {
-        return target instanceof Element ? target.closest('.dropzone[data-dropzone]') : null;
+        return target instanceof Element ? target.closest('.dropzone[data-dropzone]:not([data-dropzone="page"])') : null;
+    }
+    function pageZone() { return document.querySelector('[data-dropzone="page"]'); }
+    function carriesFiles(e) {
+        var types = e.dataTransfer && e.dataTransfer.types;
+        if (!types) return false;
+        for (var i = 0; i < types.length; i++) if (types[i] === 'Files') return true;
+        return false;
+    }
+    var pageDepth = 0;
+    function setPage(on) {
+        var page = pageZone();
+        if (!on) pageDepth = 0;
+        if (page) page.classList.toggle(OVER, on);
+    }
+    function deliver(input, list) {
+        if (!input || !list || !list.length) return;
+        try {
+            var transfer = new DataTransfer();
+            var many = input.multiple ? list.length : Math.min(1, list.length);
+            for (var i = 0; i < many; i++) transfer.items.add(list[i]);
+            input.files = transfer.files;
+        } catch (err) {
+            return;    // no DataTransfer constructor: the drop simply does nothing
+        }
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function pageInput(page) {
+        var id = page.getAttribute('data-dropzone-input');
+        var named = id ? document.getElementById(id) : null;
+        return named && named.matches('input[type="file"]') ? named : page.querySelector('input[type="file"]');
     }
     function setOver(zone, on) {
         zone.classList.toggle(OVER, on);
@@ -4726,6 +4756,7 @@ window.sednaUi = window.sednaUi || {};
         reset: function () {
             var zones = document.querySelectorAll('.dropzone.' + OVER);
             for (var i = 0; i < zones.length; i++) setOver(zones[i], false);
+            pageDepth = 0;
         }
     };
     document.addEventListener('dragenter', function (e) {
@@ -4752,18 +4783,38 @@ window.sednaUi = window.sednaUi || {};
         if (!zone) return;
         e.preventDefault();
         setOver(zone, false);
-        var input = zone.querySelector('input[type="file"]');
-        if (!input || !e.dataTransfer || !e.dataTransfer.files.length) return;
-        try {
-            var transfer = new DataTransfer();
-            var files = e.dataTransfer.files;
-            var many = input.multiple ? files.length : Math.min(1, files.length);
-            for (var i = 0; i < many; i++) transfer.items.add(files[i]);
-            input.files = transfer.files;
-        } catch (err) {
-            return;    // no DataTransfer constructor: the drop simply does nothing
-        }
-        input.dispatchEvent(new Event('change', { bubbles: true }));
+        deliver(zone.querySelector('input[type="file"]'), e.dataTransfer && e.dataTransfer.files);
+    });
+    document.addEventListener('dragenter', function (e) {
+        if (!pageZone() || !carriesFiles(e)) return;
+        e.preventDefault();
+        pageDepth++;
+        setPage(true);
+    });
+    document.addEventListener('dragover', function (e) {
+        if (!pageZone() || !carriesFiles(e) || zoneOf(e.target)) return;
+        e.preventDefault();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+        setPage(true);
+    });
+    document.addEventListener('dragleave', function (e) {
+        if (!pageZone() || !carriesFiles(e)) return;
+        pageDepth--;
+        if (pageDepth <= 0) setPage(false);
+    });
+    document.addEventListener('drop', function (e) {
+        var page = pageZone();
+        if (!page || !carriesFiles(e)) return;
+        setPage(false);
+        if (zoneOf(e.target)) return;    // an ordinary zone took it
+        e.preventDefault();
+        deliver(pageInput(page), e.dataTransfer && e.dataTransfer.files);
+    });
+    document.addEventListener('dragend', function () { if (pageDepth) setPage(false); });
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        var page = pageZone();
+        if (page && page.classList.contains(OVER)) setPage(false);
     });
 })(window.sednaUi);
 (function (ui) {

@@ -2926,12 +2926,15 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 @layer sedna.paint {
 .progress {
+    display: block;
     height: 6px;
     background: var(--progress-track);
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
+.progress[hidden] { display: none; }
 .progress-bar {
+    display: block;
     height: 100%;
     background: var(--brand);
     border-radius: inherit;
@@ -4198,6 +4201,24 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .dropzone--sm i { font-size: var(--text-4); }
 .dropzone--lg { padding: var(--space-11); gap: var(--space-5); font-size: var(--text-5); }
 .dropzone--lg i { font-size: var(--text-10); }
+.dropzone--page {
+    display: none;
+    position: fixed;
+    inset: var(--space-6);
+    z-index: 500;
+    justify-content: center;
+    padding: var(--space-11);
+    border-width: 2px;
+    background-color: var(--bg-elevated);
+    box-shadow: var(--shadow-modal);
+    font-size: var(--text-6);
+    pointer-events: none;
+}
+.dropzone--page.dropzone--over {
+    display: flex;
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+}
+.dropzone--page i { font-size: var(--text-11); }
 .file-list { list-style: none; margin: var(--space-4) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
 .file-item {
     display: flex;
@@ -4228,9 +4249,48 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .file-item--error .file-item-status { color: var(--danger-fg); }
 .file-item--error .file-meta { color: var(--danger-fg); }
 .file-item-actions { display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0; }
+.file-item--paused .progress-bar { background: var(--muted); }
+.file-item--paused .file-meta { color: var(--muted); }
 a.file-item { color: inherit; text-decoration: none; }
 a.file-item:hover { border-color: var(--border-strong); text-decoration: none; }
 a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.file-batch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-4);
+    row-gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+    font-size: var(--text-3);
+}
+.file-batch-status { flex-shrink: 0; font-size: var(--text-7); color: var(--brand-text); }
+.file-batch-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-4);
+    row-gap: var(--space-1);
+}
+.file-batch-title {
+    font-weight: 600;
+    color: var(--fg);
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.file-batch-actions { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+.file-batch > .progress { flex-basis: 100%; height: 4px; }
+.file-batch--paused .file-batch-status { color: var(--muted); }
+.file-batch--paused .progress-bar { background: var(--muted); }
+.file-batch--done .file-batch-status { color: var(--go-fg); }
+.file-batch--done .progress-bar { background: var(--go-solid); }
+.file-batch--error { border-color: var(--danger-border); }
+.file-batch--error .file-batch-status { color: var(--danger-fg); }
+.file-batch--error .progress-bar { background: var(--danger-solid); }
 }
 @layer sedna.paint {
 .form-code {
@@ -14084,6 +14144,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .fab,
     .back-to-top,
     .progress--route,
+    .dropzone--page,
     .fab-dial,
     .drawer,
     .drawer-scrim,

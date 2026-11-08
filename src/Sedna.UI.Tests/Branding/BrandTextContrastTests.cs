@@ -79,6 +79,7 @@ public class BrandTextContrastTests
         [".avatar"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over i"] = (Ink.Icon, ["--brand-tint"]),
+        [".file-batch-status"] = (Ink.Icon, ["--surface-soft"]),
         ["button.cal-mark[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         ["button.cal-more[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         // Today's agenda heading, on the heading's own shade.

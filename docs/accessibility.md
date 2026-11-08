@@ -75,6 +75,7 @@ something, it is listed below and repeated in the class's own comment.
 | `data-clamp-toggle` | `aria-controls` naming the clamped block, `aria-expanded="false"` to start, and both labels as `.text-clamp-more` and `.text-clamp-less` |
 | `.rule-group` | `role="group"` and a name on every group; an `aria-label` on each field of a `.rule-group-row` ("Field", "Operator", "Value"); an `aria-label` on each remove button naming the condition or the group it removes; and the group's AND/OR `.segmented` as `role="radiogroup"` with a name and one `name` shared by its two radios |
 | `.dropzone` | a real `<input type="file">` inside it. Drag and drop alone is unreachable by keyboard; `data-dropzone` adds the drag handling on top of the input, never instead of it. |
+| `.dropzone--page` | `aria-hidden="true"`, and a visible picker on the page — the input `data-dropzone-input` names — which is the way in without a pointer. The overlay only shows during a drag. |
 
 ## The graph
 

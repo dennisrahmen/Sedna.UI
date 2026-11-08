@@ -1,3 +1,4 @@
+using Microsoft.Playwright;
 using Sedna.UI.Tests.TestSupport;
 
 namespace Sedna.UI.Tests;
@@ -272,5 +273,143 @@ public class FileLayoutTests : ScriptTestBase
         var b = (await page.Locator("#b").BoundingBoxAsync())!.X;
         var c = (await page.Locator("#c").BoundingBoxAsync())!.X;
         Assert.True(Math.Abs(a - b) < 0.5 && Math.Abs(a - c) < 0.5, $"The titles start at {a}, {b} and {c}.");
+    }
+
+    // ── Uploads: progress, paused, failed, and the whole batch ───────────────
+
+    private static string Uploads(string dir = "ltr") => $$"""
+        <div dir="{{dir}}" style="width:520px">
+          <div class="file-batch" id="batch">
+            <i class="ri-upload-cloud-2-line file-batch-status" id="batch-glyph" aria-hidden="true"></i>
+            <span class="file-batch-main" id="batch-main">
+              <span class="file-batch-title">Uploading 3 of 5</span>
+              <span class="file-meta"><span>45%</span><span>2.1 MB/s</span><span>12 s left</span></span>
+            </span>
+            <span class="file-batch-actions" id="batch-actions">
+              <button class="btn btn--ghost btn--sm" type="button">Pause all</button>
+              <button class="btn btn--ghost btn--sm" type="button">Cancel all</button>
+            </span>
+            <span class="progress" id="batch-bar" role="progressbar" aria-label="All"><span class="progress-bar" style="width:45%"></span></span>
+          </div>
+          <ul class="file-list">
+            <li class="file-item" id="running">
+              <span class="file-item-main" id="running-main">
+                <span class="file-item-name" id="running-name">stock-check.xlsx</span>
+                <span class="progress" id="running-bar" role="progressbar" aria-label="Uploading"><span class="progress-bar" style="width:64%"></span></span>
+                <span class="file-meta" id="running-meta"><span>2.6 of 4.1 MB</span><span>2 s left</span></span>
+              </span>
+              <span class="file-item-actions" id="running-actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Pause">P</button></span>
+            </li>
+            <li class="file-item file-item--paused" id="paused">
+              <span class="file-item-main">
+                <span class="file-item-name">dock-4.mp4</span>
+                <span class="progress" role="progressbar" aria-label="Paused"><span class="progress-bar" style="width:30%"></span></span>
+                <span class="file-meta"><span>Paused</span></span>
+              </span>
+              <i class="ri-pause-circle-line file-item-status" role="img" aria-label="Paused"></i>
+            </li>
+            <li class="file-item file-item--error" id="failed">
+              <span class="file-item-main">
+                <span class="file-item-name">checklist.docx</span>
+                <span class="file-meta" id="failed-meta"><span>The connection dropped at 40%</span></span>
+              </span>
+              <i class="ri-error-warning-fill file-item-status" id="failed-glyph" role="img" aria-label="Failed"></i>
+            </li>
+          </ul>
+        </div>
+        """;
+
+    private static Task<string> Fill(IPage page, string selector) =>
+        page.EvaluateAsync<string>($"() => getComputedStyle(document.querySelector('{selector} .progress-bar')).backgroundColor");
+
+    [Fact]
+    public async Task An_upload_stacks_its_name_its_bar_and_its_speed_and_a_paused_one_greys_its_bar()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Uploads());
+
+        var name = (await page.Locator("#running-name").BoundingBoxAsync())!;
+        var bar = (await page.Locator("#running-bar").BoundingBoxAsync())!;
+        var meta = (await page.Locator("#running-meta").BoundingBoxAsync())!;
+        var main = (await page.Locator("#running-main").BoundingBoxAsync())!;
+        Assert.True(name.Y + name.Height <= bar.Y + 0.5 && bar.Y + bar.Height <= meta.Y + 0.5, "Name, bar and meta are not stacked in that order.");
+        Assert.Equal(main.Width, bar.Width, 0.5);   // the bar takes the row's room
+
+        var running = await Fill(page, "#running");
+        var paused = await Fill(page, "#paused");
+        var muted = await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('#paused .file-meta')).color");
+        Assert.NotEqual(running, paused);
+        Assert.Equal(muted, paused);
+
+        // A failure says so in its meta line and its glyph, in the danger ink.
+        Assert.Equal(
+            await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('failed-meta')).color"),
+            await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('failed-glyph')).color"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task The_batch_line_has_its_words_and_buttons_on_one_row_and_its_bar_along_its_foot()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Uploads());
+
+        var batch = (await page.Locator("#batch").BoundingBoxAsync())!;
+        var main = (await page.Locator("#batch-main").BoundingBoxAsync())!;
+        var actions = (await page.Locator("#batch-actions").BoundingBoxAsync())!;
+        var bar = (await page.Locator("#batch-bar").BoundingBoxAsync())!;
+        var glyph = (await page.Locator("#batch-glyph").BoundingBoxAsync())!;
+
+        Assert.True(actions.Y < main.Y + main.Height && main.Y < actions.Y + actions.Height, "The buttons wrapped under the words.");
+        Assert.True(actions.X > main.X, "The buttons should trail the words.");
+        Assert.True(bar.Y >= Math.Max(main.Y + main.Height, actions.Y + actions.Height) - 0.5, "The bar is not under the row.");
+        Assert.Equal(glyph.X, bar.X, 0.5);                                   // from the start edge
+        Assert.Equal(actions.X + actions.Width, bar.X + bar.Width, 0.5);     // to the end edge
+        Assert.True(bar.Y + bar.Height <= batch.Y + batch.Height, "The bar left its box.");
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task The_batch_modifiers_colour_its_bar()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div class="file-batch" id="run"><span class="file-batch-main">a</span><span class="progress"><span class="progress-bar" style="width:50%"></span></span></div>
+            <div class="file-batch file-batch--paused" id="paused"><span class="file-batch-main">a</span><span class="progress"><span class="progress-bar" style="width:50%"></span></span></div>
+            <div class="file-batch file-batch--done" id="done"><span class="file-batch-main">a</span><span class="progress"><span class="progress-bar" style="width:50%"></span></span></div>
+            <div class="file-batch file-batch--error" id="error"><span class="file-batch-main">a</span><span class="progress"><span class="progress-bar" style="width:50%"></span></span></div>
+            """);
+
+        var colours = new List<string>();
+        foreach (var f in new[] { "#run", "#paused", "#done", "#error" }) colours.Add(await Fill(page, f));
+        Assert.Equal(colours.Count, colours.Distinct().Count());
+        Assert.NotEqual(
+            await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('run')).borderTopColor"),
+            await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('error')).borderTopColor"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task Uploads_mirror_in_rtl()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Uploads("rtl"));
+
+        var main = (await page.Locator("#batch-main").BoundingBoxAsync())!;
+        var actions = (await page.Locator("#batch-actions").BoundingBoxAsync())!;
+        var glyph = (await page.Locator("#batch-glyph").BoundingBoxAsync())!;
+        Assert.True(glyph.X > main.X && main.X > actions.X, "The batch line did not mirror.");
+
+        var row = (await page.Locator("#running-main").BoundingBoxAsync())!;
+        var buttons = (await page.Locator("#running-actions").BoundingBoxAsync())!;
+        Assert.True(buttons.X < row.X, "An item's buttons should sit at its inline end, on the left.");
+        // The bar fills from the right.
+        var fill = await page.EvaluateAsync<double[]>("""
+            () => { const t = document.getElementById('running-bar').getBoundingClientRect(),
+                          f = document.querySelector('#running-bar .progress-bar').getBoundingClientRect();
+                    return [t.right, f.right]; }
+            """);
+        Assert.Equal(fill[0], fill[1], 0.5);
+        Assert.Empty(errors);
     }
 }

@@ -79,7 +79,23 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Files.Waiting" Title="Attached, not yet uploaded" Demo="ex-demo--block">
+<CatExample TExample="Examples.Files.UploadControls" Title="Pause, resume, retry, and the whole batch" Demo="ex-demo--block">
+    <p>
+        Each upload carries its own buttons in <code>.file-item-actions</code> &mdash; pause and cancel while
+        it goes, resume when paused, retry when it failed &mdash; and a <code>.file-meta</code> under its bar
+        with how much is done, the speed and the time left. <code>.file-item--paused</code> takes the colour
+        out of the bar, so a stopped row does not read as a moving one. The app pauses, resumes and
+        retries; the classes only say which.
+    </p>
+    <p>
+        <code>.file-batch</code> is one line over the list: how far the whole batch has got, &ldquo;3 of
+        5&rdquo;, and the buttons that act on all of it, with a bar along its foot.
+        <code>.file-batch--paused</code>, <code>--done</code> and <code>--error</code> colour its glyph and
+        bar as the item modifiers colour an item's. Keep the counts in words, not only in the bar.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Files.Waiting"Title="Attached, not yet uploaded" Demo="ex-demo--block">
     <p>
         A picture waiting to go is a <code>.file-thumb</code>: the thumbnail with its remove button
         over the corner, beside the <a href="/chip">chips</a> of the other files. It is what a

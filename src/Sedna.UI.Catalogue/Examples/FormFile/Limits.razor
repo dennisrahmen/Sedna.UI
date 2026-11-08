@@ -1,0 +1,47 @@
+<div class="sedna-col sedna-gap-3" style="max-width:520px">
+    <div>
+        <label class="dropzone" data-dropzone aria-invalid="true">
+            <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" class="visually-hidden" aria-describedby="lim-hint lim-error" />
+            <i class="ri-upload-cloud-2-line"></i>
+            <span>Drop files here, or click to choose</span>
+            <span class="form-hint" id="lim-hint">Up to 5 files &middot; PDF, JPG or PNG &middot; 10 MB each</span>
+        </label>
+        <p class="form-error" id="lim-error">
+            <i class="ri-error-warning-line"></i> <span>2 files were not added. The reason is beside each one.</span>
+        </p>
+    </div>
+    <ul class="file-list" aria-label="Chosen files">
+        <li class="file-item">
+            <span class="file-icon file-icon--sm file-icon--pdf"><i class="ri-file-pdf-2-line"></i></span>
+            <span class="file-item-main">
+                <span class="file-item-name">customs-declaration.pdf</span>
+                <span class="file-meta"><span>1.2 MB</span><span>Ready</span></span>
+            </span>
+            <span class="file-item-actions">
+                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove customs-declaration.pdf"><i class="ri-close-line"></i></button>
+            </span>
+        </li>
+        <li class="file-item file-item--error">
+            <span class="file-icon file-icon--sm file-icon--media"><i class="ri-file-video-line"></i></span>
+            <span class="file-item-main">
+                <span class="file-item-name">loading-bay-walkthrough.mov</span>
+                <span class="file-meta"><span>Not a PDF, JPG or PNG</span></span>
+            </span>
+            <i class="ri-forbid-line file-item-status" role="img" aria-label="Rejected"></i>
+            <span class="file-item-actions">
+                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Dismiss loading-bay-walkthrough.mov"><i class="ri-close-line"></i></button>
+            </span>
+        </li>
+        <li class="file-item file-item--error">
+            <span class="file-icon file-icon--sm file-icon--image"><i class="ri-image-line"></i></span>
+            <span class="file-item-main">
+                <span class="file-item-name">pallet-scan-full-resolution.png</span>
+                <span class="file-meta"><span>24 MB is over the 10 MB limit</span></span>
+            </span>
+            <i class="ri-forbid-line file-item-status" role="img" aria-label="Rejected"></i>
+            <span class="file-item-actions">
+                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Dismiss pallet-scan-full-resolution.png"><i class="ri-close-line"></i></button>
+            </span>
+        </li>
+    </ul>
+</div>
