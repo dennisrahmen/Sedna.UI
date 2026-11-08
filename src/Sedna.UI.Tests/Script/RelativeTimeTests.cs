@@ -211,7 +211,7 @@ public class RelativeTimeTests : ScriptTestBase
 
         // A render that replaces the element hands the new one its own report — the one a
         // Blazor handler on the interactive markup is listening to.
-        await page.EvaluateAsync($$"""
+        await Js.Run(page, $$"""
             async () => {
                 document.getElementById('c').outerHTML = '<time id="c2" datetime="{{until}}" data-countdown data-seconds="{n} s left">x</time>';
                 await null; await null;
