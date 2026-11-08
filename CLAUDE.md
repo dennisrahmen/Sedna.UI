@@ -508,7 +508,7 @@ engine is [Quill](https://quilljs.com/) 2, vendored with the licences of what it
 
 `Sedna.UI.js` holds generic UI behaviour only: hover hints, theme settings, clipboard, notifications,
 toasts, the dialog presenter, delegated menus, tabs, combo fields, the command palette and the header
-search, drag and drop, the Markdown editor, the inert state of a dimmed dependent block, a closing
+search, drag and drop, the Markdown editor, the inert state of a dimmed dependent block, the two ends and the fill of a range box, a closing
 drawer's slide where the engine cannot keep a closed dialog displayed, and the graph's front door, which imports the graph module
 when a page first shows a graph. Drag and drop moves no node: it writes attributes and dispatches
 `sedna-drop`, and the app moves the item; a link drawn on a graph is `sedna-graph-connect` the same way.

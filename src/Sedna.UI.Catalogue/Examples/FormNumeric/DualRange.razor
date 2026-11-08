@@ -1,0 +1,10 @@
+<div class="form-field" role="group" aria-labelledby="ov-label" style="max-width:420px">
+    <span class="form-label" id="ov-label">Order value, EUR</span>
+    <div class="form-range-box">
+        <output class="form-range-bubble" for="ov-lo" data-range-value>150</output>
+        <output class="form-range-bubble" for="ov-hi" data-range-value>650</output>
+        <input class="form-range" id="ov-lo" name="value-from" type="range" min="0" max="1000" step="10" value="150" aria-label="Lowest order value" />
+        <input class="form-range" id="ov-hi" name="value-to" type="range" min="0" max="1000" step="10" value="650" aria-label="Highest order value" />
+    </div>
+    <p class="form-hint">Orders between the two values are routed to the priority queue.</p>
+</div>

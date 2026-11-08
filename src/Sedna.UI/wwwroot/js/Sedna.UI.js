@@ -526,6 +526,78 @@ window.sednaUi = window.sednaUi || {};
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
 })(window.sednaUi);
+(function (ui) {
+    var BOX = '.form-range-box';
+    function rangesOf(box) {
+        var out = [];
+        for (var i = 0; i < box.children.length; i++) {
+            var c = box.children[i];
+            if (c.tagName === 'INPUT' && c.type === 'range') out.push(c);
+        }
+        return out;
+    }
+    function ratio(input) {
+        var min = parseFloat(input.min), max = parseFloat(input.max), v = parseFloat(input.value);
+        if (isNaN(min)) min = 0;
+        if (isNaN(max)) max = 100;
+        if (!(max > min) || isNaN(v)) return 0;
+        return Math.min(1, Math.max(0, (v - min) / (max - min)));
+    }
+    function inputFor(output, ranges) {
+        var ids = (output.getAttribute('for') || '').split(/\s+/);
+        for (var i = 0; i < ranges.length; i++) {
+            if (ranges[i].id && ids.indexOf(ranges[i].id) >= 0) return ranges[i];
+        }
+        return ranges.length === 1 ? ranges[0] : null;
+    }
+    function sync(box, moved) {
+        var ranges = rangesOf(box);
+        if (!ranges.length) return;
+        var lo = ranges.length > 1 ? ranges[0] : null;
+        var hi = ranges[ranges.length - 1];
+        if (lo && parseFloat(lo.value) > parseFloat(hi.value)) {
+            if (moved === hi) hi.value = lo.value;
+            else lo.value = hi.value;
+        }
+        box.style.setProperty('--range-start', String(lo ? ratio(lo) : 0));
+        box.style.setProperty('--range-end', String(ratio(hi)));
+        for (var i = 0; i < box.children.length; i++) {
+            var out = box.children[i];
+            if (out.tagName !== 'OUTPUT') continue;
+            var input = inputFor(out, ranges);
+            if (!input) continue;
+            out.style.setProperty('--range-at', String(ratio(input)));
+            var slot = out.hasAttribute('data-range-value') ? out : out.querySelector('[data-range-value]');
+            if (slot && slot.textContent !== input.value) slot.textContent = input.value;
+        }
+    }
+    function syncAll() {
+        var boxes = document.querySelectorAll(BOX);
+        for (var i = 0; i < boxes.length; i++) sync(boxes[i]);
+    }
+    var queued = false;
+    function soon() {
+        if (queued) return;
+        queued = true;
+        (window.queueMicrotask || setTimeout)(function () { queued = false; syncAll(); });
+    }
+    function onInput(e) {
+        var t = e.target;
+        if (!(t instanceof HTMLInputElement) || t.type !== 'range') return;
+        var box = t.parentElement;
+        if (box && box.matches(BOX)) sync(box, t);
+    }
+    function init() {
+        syncAll();
+        document.addEventListener('input', onInput, true);
+        document.addEventListener('reset', function () { setTimeout(soon, 0); }, true);
+        if (typeof MutationObserver === 'function') {
+            new MutationObserver(soon).observe(document.documentElement, { childList: true, subtree: true });
+        }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+})(window.sednaUi);
 (function () {
     function readonly(el) {
         return el instanceof Element && !!el.closest('[aria-readonly="true"]')

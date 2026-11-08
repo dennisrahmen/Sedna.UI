@@ -184,7 +184,7 @@ internal static class CataloguePages
             "file dropzone upload attachment drag drop file-list"),
         new("/form-numeric", Forms, "Ranges and steppers", "ri-number-1",
             "Ranges, steppers and date inputs — the controls whose internals are per-engine.",
-            "range slider stepper number spinner appearance disabled"),
+            "range slider stepper number spinner appearance disabled dual two-thumb span ticks datalist vertical bubble output"),
         new("/form-color", Forms, "Colour", "ri-palette-line",
             "The platform's colour picker in the field's chrome, and a preset palette of swatches.",
             "color colour picker form-color swatch swatch-grid palette aria-pressed label category"),

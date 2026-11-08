@@ -1,0 +1,38 @@
+<div class="sedna-col" style="max-width:420px; gap:20px">
+    <div class="form-field">
+        <label class="form-label" for="rs-off">Retry backoff, seconds</label>
+        <div class="form-range-box">
+            <input class="form-range" id="rs-off" type="range" min="0" max="60" value="20" list="rs-off-marks" disabled />
+            <datalist class="form-range-ticks" id="rs-off-marks">
+                <option value="0">0</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+            </datalist>
+        </div>
+        <p class="form-hint">Set by policy. The value still reads, which is the point of disabling rather than hiding.</p>
+    </div>
+    <div class="form-field" role="group" aria-labelledby="rs-label">
+        <span class="form-label" id="rs-label">Quiet hours</span>
+        <div class="form-range-box">
+            <output class="form-range-bubble" for="rs-lo" data-range-value>2</output>
+            <output class="form-range-bubble" for="rs-hi" data-range-value>20</output>
+            <input class="form-range" id="rs-lo" type="range" min="0" max="24" value="2" aria-label="Quiet from" aria-invalid="true" aria-describedby="rs-err" />
+            <input class="form-range" id="rs-hi" type="range" min="0" max="24" value="20" aria-label="Quiet until" aria-invalid="true" aria-describedby="rs-err" />
+        </div>
+        <p class="form-error" id="rs-err">
+            <i class="ri-error-warning-line"></i>
+            <span>Quiet hours can last twelve hours at most.</span>
+        </p>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="rs-keep">Retention, days</label>
+        <div class="form-range-box">
+            <output class="form-range-bubble" for="rs-keep" data-range-value>330</output>
+            <input class="form-range" id="rs-keep" type="range" min="0" max="365" value="330" data-state="warn" aria-describedby="rs-keep-msg" />
+        </div>
+        <p class="form-warning" id="rs-keep-msg">
+            <i class="ri-alert-line"></i>
+            <span>Far past the usual 30 days.</span>
+        </p>
+    </div>
+</div>

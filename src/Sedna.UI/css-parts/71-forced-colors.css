@@ -277,7 +277,8 @@
     .workflow-branch > .workflow-path::after,
     .workflow-loop > .workflow-path::after { forced-color-adjust: none; }
 
-    /* A bar is nothing but a background, and so is a meter's mark: forced colours
+    /* A bar is nothing but a background, and so are a meter's mark and a range box's
+       track and fill: forced colours
        paints every one of them Canvas, on a Canvas track, and the chart is blank. The
        previous value behind a bar is a hatch, which the mode removes outright. Each
        opts out, and each reads its colour from a token remapped above — the brand to
@@ -288,6 +289,7 @@
     .stack-bar-swatch,
     .meter-fill,
     .meter-mark,
+    .form-range-box::before,
     .progress-bar,
     .bar-previous,
     .tracker-block,

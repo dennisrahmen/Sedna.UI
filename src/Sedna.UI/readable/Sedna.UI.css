@@ -7451,38 +7451,60 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    invalidates the entire rule, so a shared `::-webkit-…, ::-moz-…` list would apply
    in neither browser. Hence two blocks that look copy-pasted.
 
+   Every length is logical — inline along the track, block across it — so the same
+   rules draw a vertical range, whose writing mode turns both axes.
+
    A range gives no readout. Put the value in text beside it — the thumb position is
-   not a number, and it is unreadable to a screen reader on its own. */
+   not a number, and it is unreadable to a screen reader on its own.
+
+   The tokens, on the input and on a `.form-range-box`:
+
+     --range-thumb   the thumb's diameter
+     --range-track   the track's thickness
+     --range-on      the thumb and the fill: --control-on, or the field state's edge
+
+   `.form-range--sm` and `.form-range--lg` are the size steps. `aria-invalid="true"`
+   and `data-state="warn"` on the input colour its thumb, and the fill of the box
+   around it, as a rejected or an unusual field's edge (46-form-layout.css). */
 .form-range {
+    --range-thumb: 14px;
+    --range-track: 4px;
+    --range-on: var(--control-on);
     appearance: none;
-    width: 100%;
-    height: 18px;
+    inline-size: 100%;
+    block-size: calc(var(--range-thumb) + 4px);
     background: none;
     cursor: pointer;
 }
+.form-range--sm { --range-thumb: 12px; --range-track: 3px; }
+.form-range--lg { --range-thumb: 20px; --range-track: 6px; }
+.form-range[data-state="warn"] { --range-on: var(--field-border-warn); }
+.form-range[aria-invalid="true"] { --range-on: var(--field-border-danger); }
 .form-range::-webkit-slider-runnable-track {
-    height: 4px;
+    block-size: var(--range-track);
     background: var(--progress-track);
     border-radius: var(--radius-pill);
 }
 .form-range::-webkit-slider-thumb {
     appearance: none;
-    width: 14px;
-    height: 14px;
-    margin-top: -5px;              /* centres the thumb on the 4px track */
-    background: var(--control-on);
+    inline-size: var(--range-thumb);
+    block-size: var(--range-thumb);
+    /* Centres the thumb on the track: WebKit-derived engines hang it from the track's
+       block-start edge. */
+    margin-block-start: calc((var(--range-track) - var(--range-thumb)) / 2);
+    background: var(--range-on);
     border: none;
     border-radius: 50%;
 }
 .form-range::-moz-range-track {
-    height: 4px;
+    block-size: var(--range-track);
     background: var(--progress-track);
     border-radius: var(--radius-pill);
 }
 .form-range::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    background: var(--control-on);
+    inline-size: var(--range-thumb);
+    block-size: var(--range-thumb);
+    background: var(--range-on);
     border: none;
     border-radius: 50%;
 }
@@ -7492,13 +7514,213 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .form-range:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
 /* The value readout beside a range. Tabular and fixed-width, so the track does not
-   shift as the number's width changes while dragging. */
+   shift as the number's width changes while dragging. A label in a row, so it is
+   trimmed to its capitals and given its line back, and sits on the row's centre line
+   beside the track (06-base-elements.css, "The line a row is centred on"). */
 .form-range-value {
     min-width: 4ch;
     color: var(--fg);
     font-size: var(--text-4);
+    line-height: round(1.4em, 2px);
     font-variant-numeric: tabular-nums;
     text-align: end;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+
+/* ── Range box: two thumbs, a fill, ticks and a value bubble ─────────────────
+   A box around one or two `.form-range` inputs that draws their track itself, and the
+   fill along it. Each input stays a native range with its own label, keyboard and
+   form value; the box only paints.
+
+     <div class="form-range-box">
+       <output class="form-range-bubble" for="price-lo" data-range-value>200</output>
+       <output class="form-range-bubble" for="price-hi" data-range-value>800</output>
+       <input class="form-range" id="price-lo" type="range" min="0" max="1000" step="50" value="200" aria-label="Lowest price" list="price-ticks">
+       <input class="form-range" id="price-hi" type="range" min="0" max="1000" step="50" value="800" aria-label="Highest price" list="price-ticks">
+       <datalist class="form-range-ticks" id="price-ticks">
+         <option value="0">0</option> <option value="500">500</option> <option value="1000">1000</option>
+       </datalist>
+     </div>
+
+   One input fills from the track's start to its thumb. Two are the low and the high
+   end of one span, in that order, laid over each other: only their thumbs take the
+   pointer, and the fill runs between them. Both carry the same min, max and step.
+
+   Sedna.UI.js (21-range.js) keeps the low end at or below the high end and writes
+   where each value stands as a ratio of the track, 0 to 1: `--range-start` and
+   `--range-end` on the box, `--range-at` on a bubble. Nothing is measured. Without the
+   script the inputs still work and post, and the fill and the bubbles wait for it.
+
+   `.form-range-ticks` is the inputs' own `<datalist>`, shown: one `<option>` per mark,
+   spread evenly from min to max, its text the label under the mark. Leave an option
+   empty for a mark without a label.
+
+   `.form-range-bubble` is an `<output>` whose `for` names its input; it rides above
+   that input's thumb. With `data-range-value` the script writes the input's value into
+   it — or into the element inside it that carries the attribute, so a unit around the
+   number stays the app's — and without it the text is the app's to keep current.
+
+   `.form-range-box--vertical` stands the box on end, low at the bottom in either
+   direction, `--range-length` tall. */
+.form-range-box {
+    --range-thumb: 14px;
+    --range-track: 4px;
+    --range-on: var(--control-on);
+    --range-start: 0;
+    --range-end: 0;
+    --range-toward: to right;
+    --range-length: 160px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    inline-size: 100%;
+}
+.form-range-box:has(> .form-range--sm) { --range-thumb: 12px; --range-track: 3px; }
+.form-range-box:has(> .form-range--lg) { --range-thumb: 20px; --range-track: 6px; }
+.form-range-box:has(> .form-range[data-state="warn"]) { --range-on: var(--field-border-warn); }
+.form-range-box:has(> .form-range[aria-invalid="true"]) { --range-on: var(--field-border-danger); }
+
+/* The track, with the fill as a hard-stopped gradient from the low thumb's leading edge
+   to the high thumb's trailing edge, so the fill meets each thumb wherever it is. One
+   input fills from the start of the track. Painted before the inputs, under them. */
+.form-range-box::before {
+    --range-from: calc(var(--range-start) * (100% - var(--range-thumb)));
+    --range-to: calc(var(--range-thumb) + var(--range-end) * (100% - var(--range-thumb)));
+    content: "";
+    grid-area: 2 / 1;
+    block-size: var(--range-track);
+    border-radius: var(--radius-pill);
+    background: linear-gradient(var(--range-toward),
+        var(--progress-track) var(--range-from),
+        var(--range-on) var(--range-from) var(--range-to),
+        var(--progress-track) var(--range-to));
+}
+.form-range-box:not(:has(> .form-range ~ .form-range))::before { --range-from: 0px; }
+
+/* Each input in the second row, over the track, drawing only its thumb. The later
+   input paints over the earlier; the low end is lifted above it once it reaches the
+   top half, so two thumbs that meet at either end can still be pulled apart. 1 and 2
+   are local stacking, not rungs on the documented scale. */
+.form-range-box > .form-range {
+    grid-area: 2 / 1;
+    z-index: 1;
+    margin: 0;
+}
+.form-range-box > .form-range:first-of-type:has(~ .form-range) {
+    z-index: calc(1 + min(1, round(down, var(--range-start) * 2, 1)));
+}
+.form-range-box > .form-range::-webkit-slider-runnable-track { background: none; }
+.form-range-box > .form-range::-moz-range-track { background: none; }
+.form-range-box > .form-range:disabled { opacity: 1; }
+.form-range-box:has(> .form-range:disabled) { opacity: var(--disabled-opacity); }
+
+/* Two inputs lie over each other, so neither may take a press meant for the other:
+   only the thumbs take the pointer. A read-only range takes none (69-busy.css). */
+.form-range-box:has(> .form-range ~ .form-range) > .form-range { pointer-events: none; }
+.form-range-box:has(> .form-range ~ .form-range) > .form-range::-webkit-slider-thumb { pointer-events: auto; }
+.form-range-box:has(> .form-range ~ .form-range) > .form-range::-moz-range-thumb { pointer-events: auto; }
+.form-range-box:has(> .form-range ~ .form-range) > .form-range[aria-readonly="true"]::-webkit-slider-thumb { pointer-events: none; }
+.form-range-box:has(> .form-range ~ .form-range) > .form-range[aria-readonly="true"]::-moz-range-thumb { pointer-events: none; }
+
+/* The marks and their labels, in the third row: each option is a zero-width point,
+   spread from the thumb's centre at min to its centre at max, with its mark and its
+   label centred on it. */
+.form-range-ticks {
+    grid-area: 3 / 1;
+    display: flex;
+    justify-content: space-between;
+    padding-inline: calc(var(--range-thumb) / 2);
+    margin-block-start: var(--space-1);
+    color: var(--muted);
+    font-size: var(--text-2);
+    line-height: round(1.4em, 2px);
+    font-variant-numeric: tabular-nums;
+}
+.form-range-ticks > option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    inline-size: 0;
+    min-block-size: 0;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    white-space: nowrap;
+}
+.form-range-ticks > option::before {
+    content: "";
+    inline-size: 0;
+    block-size: var(--space-3);
+    margin-block-end: var(--space-1);
+    border-inline-start: 1px solid var(--border-strong);
+}
+
+/* The value over its thumb, in the first row: as far along as its value, less the
+   half thumb the track gives up at each end, and centred there. */
+.form-range-bubble {
+    --range-at: 0;
+    grid-area: 1 / 1;
+    justify-self: start;
+    display: block;
+    block-size: 22px;
+    min-inline-size: 22px;
+    margin-inline-start: calc(var(--range-thumb) / 2 + var(--range-at) * (100% - var(--range-thumb)));
+    margin-block-end: var(--space-3);
+    padding-inline: var(--space-3);
+    box-sizing: border-box;
+    translate: -50% 0;
+    align-content: center;
+    text-align: center;
+    background: var(--tip-bg);
+    color: var(--tip-fg);
+    border: 1px solid var(--tip-border);
+    border-radius: var(--radius-surface);
+    font-size: var(--text-3);
+    line-height: round(1.4em, 2px);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-box: trim-both cap alphabetic;
+    pointer-events: none;
+}
+/* On end: the box turns its writing mode, so the track, the fill, the rows and the
+   ticks all turn with it, and runs from the bottom up whatever the page's direction.
+   The labels and the bubble are set upright again. */
+.form-range-box--vertical {
+    --range-toward: to top;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    inline-size: var(--range-length);
+    block-size: fit-content;
+}
+/* Chromium lays out the track of a vertical range that has a `list` in a box at least
+   22px across, from the range's block-start edge, so in a narrower range the thumb
+   lands off the track the box draws. At 24px it fits in every theme. */
+.form-range-box--vertical > .form-range { block-size: max(calc(var(--range-thumb) + 4px), 24px); }
+.form-range-box--vertical > .form-range-ticks > option {
+    writing-mode: horizontal-tb;
+    flex-direction: row;
+    inline-size: auto;
+    block-size: 0;
+    direction: ltr;
+}
+.form-range-box--vertical > .form-range-ticks > option::before {
+    inline-size: var(--space-3);
+    block-size: 0;
+    margin-block-end: 0;
+    margin-inline-end: var(--space-2);
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--border-strong);
+}
+.form-range-box--vertical > .form-range-bubble {
+    writing-mode: horizontal-tb;
+    direction: ltr;
+    margin: 0;
+    /* rtl-ok: a vertical range runs bottom to top in either direction, so its bubble
+       stands off the track's physical side and rises from its physical bottom. */
+    margin-right: var(--space-3);
+    margin-bottom: calc(var(--range-thumb) / 2 + var(--range-at) * (100% - var(--range-thumb)));
+    translate: 0 50%;
 }
 
 /* ── Stepper ────────────────────────────────────────────────────────────────
@@ -20543,6 +20765,14 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 [dir="rtl"] .meter-mark-label { transform: translateX(50%); }
 /* 54 — a stack bar's boundary label is centred on its boundary the same way. */
 [dir="rtl"] .stack-bar-label { translate: 50% 0; }
+
+/* 48 — a range runs from the right, so its fill's gradient does and its bubble is
+   centred over the thumb by a translate the other way. A vertical box runs from the
+   bottom in either direction, and keeps both. */
+[dir="rtl"] .form-range-box { --range-toward: to left; }
+[dir="rtl"] .form-range-bubble { translate: 50% 0; }
+[dir="rtl"] .form-range-box--vertical { --range-toward: to top; }
+[dir="rtl"] .form-range-box--vertical > .form-range-bubble { translate: 0 50%; }
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
 
 /* A sheet is one of those too — `<div class="drawer sheet">` — but it travels along
@@ -20927,7 +21157,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .workflow-branch > .workflow-path::after,
     .workflow-loop > .workflow-path::after { forced-color-adjust: none; }
 
-    /* A bar is nothing but a background, and so is a meter's mark: forced colours
+    /* A bar is nothing but a background, and so are a meter's mark and a range box's
+       track and fill: forced colours
        paints every one of them Canvas, on a Canvas track, and the chart is blank. The
        previous value behind a bar is a hatch, which the mode removes outright. Each
        opts out, and each reads its colour from a token remapped above — the brand to
@@ -20938,6 +21169,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .stack-bar-swatch,
     .meter-fill,
     .meter-mark,
+    .form-range-box::before,
     .progress-bar,
     .bar-previous,
     .tracker-block,

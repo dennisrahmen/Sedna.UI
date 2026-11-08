@@ -58,6 +58,14 @@
 [dir="rtl"] .meter-mark-label { transform: translateX(50%); }
 /* 54 — a stack bar's boundary label is centred on its boundary the same way. */
 [dir="rtl"] .stack-bar-label { translate: 50% 0; }
+
+/* 48 — a range runs from the right, so its fill's gradient does and its bubble is
+   centred over the thumb by a translate the other way. A vertical box runs from the
+   bottom in either direction, and keeps both. */
+[dir="rtl"] .form-range-box { --range-toward: to left; }
+[dir="rtl"] .form-range-bubble { translate: 50% 0; }
+[dir="rtl"] .form-range-box--vertical { --range-toward: to top; }
+[dir="rtl"] .form-range-box--vertical > .form-range-bubble { translate: 0 50%; }
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
 
 /* A sheet is one of those too — `<div class="drawer sheet">` — but it travels along

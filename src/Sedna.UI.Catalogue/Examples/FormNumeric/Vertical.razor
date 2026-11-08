@@ -1,0 +1,23 @@
+<div class="sedna-row-wrap" style="gap:32px">
+    <div class="form-field">
+        <label class="form-label" for="vt-in">Input gain, dB</label>
+        <div class="form-range-box form-range-box--vertical">
+            <output class="form-range-bubble" for="vt-in" data-range-value>6</output>
+            <input class="form-range" id="vt-in" type="range" min="-12" max="12" step="3" value="6" list="vt-marks" />
+            <datalist class="form-range-ticks" id="vt-marks">
+                <option value="-12">-12</option>
+                <option value="-6"></option>
+                <option value="0">0</option>
+                <option value="6"></option>
+                <option value="12">+12</option>
+            </datalist>
+        </div>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="vt-out">Output gain, dB</label>
+        <div class="form-range-box form-range-box--vertical" style="--range-length:120px">
+            <output class="form-range-bubble" for="vt-out" data-range-value>-3</output>
+            <input class="form-range" id="vt-out" type="range" min="-12" max="12" step="3" value="-3" />
+        </div>
+    </div>
+</div>
