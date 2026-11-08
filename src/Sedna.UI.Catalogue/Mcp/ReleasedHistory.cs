@@ -37,13 +37,13 @@ internal sealed class ReleasedHistory
     internal void Set(HistoryMaps? maps) => _current = maps;
 }
 
-/// <summary>Fetches the latest release's class history at startup and every hour after.</summary>
+/// <summary>Fetches the latest release's class history at startup and every five minutes after.</summary>
 internal sealed class ReleasedHistoryFetcher(
     ReleasedHistory target,
     IConfiguration configuration,
     ILogger<ReleasedHistoryFetcher> log) : BackgroundService
 {
-    private static readonly TimeSpan Every = TimeSpan.FromHours(1);
+    private static readonly TimeSpan Every = TimeSpan.FromMinutes(5);
 
     protected override async Task ExecuteAsync(CancellationToken stopping)
     {
@@ -70,7 +70,7 @@ internal sealed class ReleasedHistoryFetcher(
             catch (Exception ex)
             {
                 // Logged in one line, never thrown: the embedded copy stays in charge, and
-                // a release with no asset yet is a 404 every hour, not a stack trace.
+                // a release with no asset yet is a 404 every five minutes, not a stack trace.
                 log.LogWarning("The released class history could not be fetched from {Url}: {Reason}", url, ex.Message);
             }
 

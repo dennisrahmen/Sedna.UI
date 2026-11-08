@@ -34,7 +34,7 @@ COPY docs/ docs/
 # The class history is not committed: the tags date it, and this build context has no
 # .git. So the context becomes a commit of its own, the release tags are fetched from
 # GitHub, and the same generator CI runs writes the file (docs/releasing.md). The
-# running site still re-reads the latest release's copy every hour (ReleasedHistory),
+# running site still re-reads the latest release's copy every five minutes (ReleasedHistory),
 # so a tag made after this deploy is dated without another one.
 COPY .gitignore ./
 COPY build/ build/

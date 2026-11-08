@@ -31,7 +31,7 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` â€
 4. Nothing follows the tag in the repo. `class-history.json` is never committed: CI, `release.yml`
    and the catalogue image each run `build/class-history.sh` where they build, `release.yml` attaches
    the copy computed at the tag to the GitHub release, and the running site fetches the latest
-   release's copy hourly to date whatever its own copy still calls unreleased. A fetch that fails
+   release's copy every five minutes to date whatever its own copy still calls unreleased. A fetch that fails
    leaves the site's own copy in charge, which under-reports and never over-reports. Locally, run the
    script after cloning and after fetching a new tag; it needs bash 4 or later.
 
