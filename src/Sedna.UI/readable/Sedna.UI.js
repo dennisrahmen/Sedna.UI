@@ -6219,7 +6219,8 @@ window.sednaUi = window.sednaUi || {};
                                 empty value takes nothing, which is a source-only zone
      data-drag-type="task"      an item's type, for data-drag-accept
      data-drag-axis="grid"      how items are laid out: y (default), x or grid. A table's
-                                header row is a zone along x, its header cells the items
+                                header row is a zone along x, its header cells the items.
+                                `slot` is a place with no order of its own: see below
      data-drag-label="…"        what an announcement calls an item or a zone; an item
                                 falls back to its text, a zone to its aria-label
      aria-disabled="true"       on an item, it does not lift; on a zone, nothing lifts
@@ -6231,12 +6232,23 @@ window.sednaUi = window.sednaUi || {};
    attributes only, and the move itself is an event the app handles:
 
      sedna-dragstart   on the item, cancelable       { item, items, type, zone, index, keyboard }
-     sedna-drop        on the zone it landed in      { item, items, type, from, to, index, fromIndex, keyboard }
+     sedna-drop        on the zone it landed in      { item, items, type, from, to, index, fromIndex, keyboard, fromSlot }
      sedna-dragend     on the item, always, last     { item, items, type, zone, index, keyboard, dropped }
 
    `index` in sedna-drop is where the item goes in `to` once it has left `from`, so
    the app's whole handler is a remove and an insert. A drop back where it started
    sends no sedna-drop.
+
+   SLOTS. A zone with data-drag-axis="slot" is a place an item is put rather than a list
+   it joins — a day of a month, a half hour of a week. It holds no items; the items come
+   from a zone of their own, usually one that takes nothing back (data-drag-accept="").
+   A slot under an item that refuses the drop is still found, so a pill dropped on top of
+   another day's pill lands on that day. sedna-drop then names the slot as `to`, and
+   `fromSlot` names the slot the drag started over — under the pointer where it lifted,
+   or under the item's own start for the keyboard — so the app can move the item by the
+   distance between the two. Dropped back on `fromSlot` it sends no sedna-drop. From the
+   keyboard the item starts on that slot, and the arrows move it to the nearest slot
+   that way on screen. Every other drop has `fromSlot: null`.
 
    SEVERAL AT ONCE. An item lifted while it is selected carries every other selected
    item of its zone with it. Selected is what the app already writes: aria-selected="true"
@@ -6354,6 +6366,24 @@ window.sednaUi = window.sednaUi || {};
 
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
 
+    function isSlot(zone) { return !!zone && axisOf(zone) === 'slot'; }
+
+    function validSlot(zone) { return isSlot(zone) && zone.getAttribute('data-drop-state') === 'valid'; }
+
+    /* The slot that takes the item under (x, y): the first in the stack below anything the
+       item itself covers, walking out from each element hit. */
+    function slotAt(x, y, from) {
+        var stack = document.elementsFromPoint(x, y);
+        for (var i = from || 0; i < stack.length; i++) {
+            if (drag.item.contains(stack[i])) continue;
+            for (var z = stack[i].closest('[data-drag-zone]'); z;
+                 z = z.parentElement && z.parentElement.closest('[data-drag-zone]')) {
+                if (validSlot(z)) return z;
+            }
+        }
+        return null;
+    }
+
     function rtl(zone) {
         try { return getComputedStyle(zone).direction === 'rtl'; } catch (e) { return false; }
     }
@@ -6434,7 +6464,7 @@ window.sednaUi = window.sednaUi || {};
         if (!sentence) return;
 
         var back = kind === 'cancel' || !drag.zone;
-        var zone = back ? drag.from : drag.zone;
+        var zone = back ? (drag.home || drag.from) : drag.zone;
         var count = others(zone).length + 1;
         var index = back ? drag.start : drag.index;
         var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
@@ -6535,6 +6565,16 @@ window.sednaUi = window.sednaUi || {};
             drag.zones.push(zone);
         });
 
+        // The slot the drag starts over, when it is going to slots at all: under the
+        // pointer, or under the item's own start for the keyboard.
+        drag.home = null;
+        if (drag.zones.some(validSlot)) {
+            var flipped = rtl(from);
+            drag.home = mode === 'keyboard'
+                ? slotAt(flipped ? rect.right - 4 : rect.left + 4, rect.top + Math.min(4, rect.height / 2))
+                : slotAt(x, y);
+        }
+
         item.setAttribute('data-dragging', mode);
         if (carried.length > 1) {
             item.setAttribute('data-drag-count', String(carried.length));
@@ -6545,7 +6585,8 @@ window.sednaUi = window.sednaUi || {};
         try { window.getSelection().removeAllRanges(); } catch (e) { /* nothing selected */ }
 
         if (mode === 'keyboard') {
-            target(from, start);
+            if (drag.home) target(drag.home, 0);
+            else target(from, start);
             announce('pickup');
         } else {
             target(from, start, y);
@@ -6649,7 +6690,7 @@ window.sednaUi = window.sednaUi || {};
 
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
-        var moved = landed && (zone !== d.from || !d.together || d.index !== d.start);
+        var moved = landed && (zone !== d.from || !d.together || d.index !== d.start) && zone !== d.home;
 
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
 
@@ -6678,7 +6719,8 @@ window.sednaUi = window.sednaUi || {};
                 to: zone.getAttribute('data-drag-zone'),
                 index: d.index,
                 fromIndex: d.fromIndex,
-                keyboard: d.mode === 'keyboard'
+                keyboard: d.mode === 'keyboard',
+                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null
             });
         }
 
@@ -6749,6 +6791,9 @@ window.sednaUi = window.sednaUi || {};
             if (state === 'valid') return zone;
             innermost = innermost || zone;
         }
+        // Over something that refuses the item — another event lying over a day — a slot
+        // underneath it still takes the drop.
+        if (innermost && drag.zones.some(validSlot)) return slotAt(x, y, i + 1) || innermost;
         return innermost;
     }
 
@@ -6970,8 +7015,36 @@ window.sednaUi = window.sednaUi || {};
         return Math.max(1, n);
     }
 
+    /* The nearest slot that takes the item in the arrow's direction on screen: along the
+       same row for left and right, the same column for up and down. On screen rather than
+       in the document, because a week's slots run down each day in turn. */
+    function slotToward(zone, key) {
+        var r = zone.getBoundingClientRect();
+        var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        var across = key === 'ArrowLeft' || key === 'ArrowRight';
+        var sign = key === 'ArrowLeft' || key === 'ArrowUp' ? -1 : 1;
+        var best = null, bestDistance = Infinity;
+        reachable().forEach(function (z) {
+            if (z === zone || !isSlot(z)) return;
+            var c = z.getBoundingClientRect();
+            var inLine = across ? c.top < r.bottom - 1 && c.bottom > r.top + 1 : c.left < r.right - 1 && c.right > r.left + 1;
+            if (!inLine) return;
+            var distance = (across ? c.left + c.width / 2 - cx : c.top + c.height / 2 - cy) * sign;
+            if (distance > 1 && distance < bestDistance) { best = z; bestDistance = distance; }
+        });
+        return best;
+    }
+
     function move(key) {
         var zone = drag.zone && drag.zone.getAttribute('data-drop-state') === 'valid' ? drag.zone : drag.from;
+        if (isSlot(zone)) {
+            var next = /^Arrow/.test(key) ? slotToward(zone, key) : null;
+            if (!next) return;
+            target(next, 0);
+            try { next.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* old engine */ }
+            announce('move');
+            return;
+        }
         var max = others(zone).length;
         var axis = axisOf(zone);
         var flip = rtl(zone);

@@ -80,6 +80,10 @@ public class BrandTextContrastTests
         [".dropzone--over"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over i"] = (Ink.Icon, ["--brand-tint"]),
         ["button.cal-mark[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
+        ["button.cal-more[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
+        // Today's agenda heading, on the heading's own shade.
+        [".cal-agenda-day[aria-current=\"date\"] > .cal-agenda-head"] = (Ink.Text, ["--surface-strong"]),
+        [".cal-agenda-day[aria-current=\"date\"] > .cal-agenda-head > .cal-agenda-date"] = (Ink.Text, ["--surface-strong"]),
         [".app-switcher-item[aria-current]:not([aria-current=\"false\"])"] = (Ink.Text, ["--brand-tint"]),
         [".app-switcher-icon"] = (Ink.Icon, ["--surface-soft"]),
         [".choice-tile:has(> input:checked) .choice-tile-art"] = (Ink.Icon, ["--brand-tint"]),

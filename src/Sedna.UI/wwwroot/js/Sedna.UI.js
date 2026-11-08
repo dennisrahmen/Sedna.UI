@@ -3975,6 +3975,19 @@ window.sednaUi = window.sednaUi || {};
         return handle && !pointerOnly(handle) ? handle : item;
     }
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
+    function isSlot(zone) { return !!zone && axisOf(zone) === 'slot'; }
+    function validSlot(zone) { return isSlot(zone) && zone.getAttribute('data-drop-state') === 'valid'; }
+    function slotAt(x, y, from) {
+        var stack = document.elementsFromPoint(x, y);
+        for (var i = from || 0; i < stack.length; i++) {
+            if (drag.item.contains(stack[i])) continue;
+            for (var z = stack[i].closest('[data-drag-zone]'); z;
+                 z = z.parentElement && z.parentElement.closest('[data-drag-zone]')) {
+                if (validSlot(z)) return z;
+            }
+        }
+        return null;
+    }
     function rtl(zone) {
         try { return getComputedStyle(zone).direction === 'rtl'; } catch (e) { return false; }
     }
@@ -4023,7 +4036,7 @@ window.sednaUi = window.sednaUi || {};
         var sentence = live && live.getAttribute('data-drag-' + kind);
         if (!sentence) return;
         var back = kind === 'cancel' || !drag.zone;
-        var zone = back ? drag.from : drag.zone;
+        var zone = back ? (drag.home || drag.from) : drag.zone;
         var count = others(zone).length + 1;
         var index = back ? drag.start : drag.index;
         var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
@@ -4101,6 +4114,13 @@ window.sednaUi = window.sednaUi || {};
             zone.setAttribute('data-drop-state', takes ? 'valid' : 'invalid');
             drag.zones.push(zone);
         });
+        drag.home = null;
+        if (drag.zones.some(validSlot)) {
+            var flipped = rtl(from);
+            drag.home = mode === 'keyboard'
+                ? slotAt(flipped ? rect.right - 4 : rect.left + 4, rect.top + Math.min(4, rect.height / 2))
+                : slotAt(x, y);
+        }
         item.setAttribute('data-dragging', mode);
         if (carried.length > 1) {
             item.setAttribute('data-drag-count', String(carried.length));
@@ -4110,7 +4130,8 @@ window.sednaUi = window.sednaUi || {};
         if (ui.tips && ui.tips.hide) ui.tips.hide();
         try { window.getSelection().removeAllRanges(); } catch (e) { /* nothing selected */ }
         if (mode === 'keyboard') {
-            target(from, start);
+            if (drag.home) target(drag.home, 0);
+            else target(from, start);
             announce('pickup');
         } else {
             target(from, start, y);
@@ -4183,7 +4204,7 @@ window.sednaUi = window.sednaUi || {};
         cancelAnimationFrame(d.frame);
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
-        var moved = landed && (zone !== d.from || !d.together || d.index !== d.start);
+        var moved = landed && (zone !== d.from || !d.together || d.index !== d.start) && zone !== d.home;
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
         clearEdge();
         setOver(null);
@@ -4209,7 +4230,8 @@ window.sednaUi = window.sednaUi || {};
                 to: zone.getAttribute('data-drag-zone'),
                 index: d.index,
                 fromIndex: d.fromIndex,
-                keyboard: d.mode === 'keyboard'
+                keyboard: d.mode === 'keyboard',
+                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null
             });
         }
         var end = {
@@ -4262,6 +4284,7 @@ window.sednaUi = window.sednaUi || {};
             if (state === 'valid') return zone;
             innermost = innermost || zone;
         }
+        if (innermost && drag.zones.some(validSlot)) return slotAt(x, y, i + 1) || innermost;
         return innermost;
     }
     function indexAt(zone, x, y) {
@@ -4432,8 +4455,32 @@ window.sednaUi = window.sednaUi || {};
         while (n < items.length && Math.abs(items[n].getBoundingClientRect().top - top) < 2) n++;
         return Math.max(1, n);
     }
+    function slotToward(zone, key) {
+        var r = zone.getBoundingClientRect();
+        var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        var across = key === 'ArrowLeft' || key === 'ArrowRight';
+        var sign = key === 'ArrowLeft' || key === 'ArrowUp' ? -1 : 1;
+        var best = null, bestDistance = Infinity;
+        reachable().forEach(function (z) {
+            if (z === zone || !isSlot(z)) return;
+            var c = z.getBoundingClientRect();
+            var inLine = across ? c.top < r.bottom - 1 && c.bottom > r.top + 1 : c.left < r.right - 1 && c.right > r.left + 1;
+            if (!inLine) return;
+            var distance = (across ? c.left + c.width / 2 - cx : c.top + c.height / 2 - cy) * sign;
+            if (distance > 1 && distance < bestDistance) { best = z; bestDistance = distance; }
+        });
+        return best;
+    }
     function move(key) {
         var zone = drag.zone && drag.zone.getAttribute('data-drop-state') === 'valid' ? drag.zone : drag.from;
+        if (isSlot(zone)) {
+            var next = /^Arrow/.test(key) ? slotToward(zone, key) : null;
+            if (!next) return;
+            target(next, 0);
+            try { next.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* old engine */ }
+            announce('move');
+            return;
+        }
         var max = others(zone).length;
         var axis = axisOf(zone);
         var flip = rtl(zone);

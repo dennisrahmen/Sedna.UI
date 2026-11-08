@@ -44,6 +44,8 @@ internal static class CataloguePages
     public const string Reference = "Reference";
     /// <summary>The section of Data that holds the table's pages: the class, the keyboard grid, large tables and the reader's columns.</summary>
     public const string Tables = "Tables";
+    /// <summary>The section of Data that holds the calendar's pages: the views, then the agenda and editing.</summary>
+    public const string Calendar = "Calendar";
     /// <summary>The section of Data that holds the graph's pages: one family, too big for one page.</summary>
     public const string Graph = "Graph";
     /// <summary>The section of Data that holds the workflow diagram's pages.</summary>
@@ -230,7 +232,12 @@ internal static class CataloguePages
             "tracker tracker-block uptime status history availability incident builds runs blocks heatmap heatmap-cell heatmap-legend contribution calendar activity intensity heat level step days weeks hours grid"),
         new("/calendar", Data, "Calendar", "ri-calendar-2-line",
             "A month with event pills, a week or day on a time axis, a year, and a date picker on the same grid.",
-            "calendar cal-month cal-row cal-day cal-day-num cal-event cal-more cal-week cal-day-col cal-block cal-now cal-year cal-month--mini cal-weeknum cal-month--weeknums cal-month--grow cal-week--by-lanes cal-event--filled cal-event--outline cal-event--tentative cal-event-title cal-event-icon cal-event-dot cal-event-avatars cal-day--holiday cal-holiday datepicker date picker range schedule booking shift agenda appointment assignee tentative holiday week number iso month week day year today"),
+            "calendar cal-month cal-row cal-day cal-day-num cal-event cal-more cal-week cal-day-col cal-block cal-now cal-year cal-month--mini cal-weeknum cal-month--weeknums cal-month--grow cal-week--by-lanes cal-event--filled cal-event--outline cal-event--tentative cal-event-title cal-event-icon cal-event-dot cal-event-avatars cal-day--holiday cal-holiday datepicker date picker range schedule booking shift agenda appointment assignee tentative holiday week number iso month week day year today",
+            Section: Calendar),
+        new("/calendar-agenda", Data, "Agenda and editing", "ri-calendar-schedule-line",
+            "An agenda list, business hours, background events, a busy day's popover, and events dragged and resized.",
+            "calendar agenda list view upcoming cal-agenda cal-agenda-day cal-agenda-head cal-agenda-event cal-agenda-time cal-agenda-title cal-agenda-meta cal-agenda-empty past business hours opening hours closed cal-closed cal-day-col--closed background event cal-event--background freeze maintenance more popover cal-more cal-event-list drag drop move reschedule resize stretch duration end time cal-slots cal-slot cal-resize data-drag-axis slot fromSlot sedna-drop sedna-resize data-resize-key",
+            Section: Calendar),
         new("/pager", Data, "Pagination", "ri-more-line",
             "Moving through a long result set, and the breadcrumb trail that says where it sits.",
             "pagination page-link page-gap breadcrumb trail button view state server paged SednaPager Window PagerSlot"),

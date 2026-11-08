@@ -193,6 +193,9 @@
     .sticky-group-toggle:focus-visible,
     .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
+    .cal-resize:focus-visible,
+    button.cal-more:focus-visible,
+    a.cal-agenda-title:focus-visible,
     :is(a, button).toast-body:focus-visible,
     :is(.form-input, .form-select)[data-state="warn"]:focus,
     :is(.form-input, .form-select)[aria-invalid="true"]:focus,
@@ -260,6 +263,12 @@
     .chat-jump,
     .cal-event,
     .cal-block { outline: 1px solid CanvasText; outline-offset: -1px; }
+    /* A background event and a closed band are a tint and a hatch, and forced colours
+       paint neither: a dashed line round the stretch is what says it is there. The
+       agenda's dot is its event's hue, the one thing that tells two rows apart. */
+    .cal-event--background,
+    .cal-closed { outline: 1px dashed GrayText; outline-offset: -1px; }
+    .cal-agenda-event > .cal-event-dot { forced-color-adjust: none; }
 
     /* A filtered column's heading is marked by a colour and an inset shadow, and
        neither survives; an outline inside the cell is what is left. */

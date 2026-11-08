@@ -309,5 +309,6 @@
     }
     .choice-tile { transition: none; }
     button.cal-mark { transition: none; }
+    .cal-resize::after { transition: none; }   /* 66 — the grip appears at once */
     .sticky-group-toggle::before { transition: none; }
 }

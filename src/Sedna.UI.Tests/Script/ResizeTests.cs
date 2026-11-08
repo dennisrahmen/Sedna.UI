@@ -358,4 +358,79 @@ public class ResizeTests : ScriptTestBase
         Assert.Equal("h-customer", await page.EvaluateAsync<string>("() => document.activeElement.id"));
         Assert.Empty(errors);
     }
+
+    private const string CalendarBlock = """
+        <div class="cal-week" style="--cal-days: 1; --cal-hours: 8; --cal-hour-height: 48px; width: 300px">
+          <div class="cal-week-body">
+            <div class="cal-hours"></div>
+            <div class="cal-day-col" id="col" data-drag-zone="mon" data-drag-group="cal" data-drag-accept="">
+              <div class="cal-block" id="b" tabindex="0" data-drag-item="e1" style="--cal-start: 1; --cal-span: 1.5">Stand-up
+                <div class="cal-resize" id="g" data-resize="--cal-height" data-resize-key="e1" data-resize-step="24"
+                     role="separator" aria-orientation="horizontal" aria-label="End of Stand-up"
+                     aria-valuemin="24" aria-valuenow="72" tabindex="0"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+          window.ended = []; window.drags = 0;
+          document.addEventListener('sedna-resize', e => window.ended.push(e.detail));
+          document.addEventListener('sedna-dragstart', () => window.drags++);
+        </script>
+        """;
+
+    private static async Task<string[]> EndedOn(IPage page) =>
+        await page.EvaluateAsync<string[]>("() => window.ended.map(d => d.property + '|' + d.value + '|' + d.key)");
+
+    [Fact]
+    public async Task A_calendar_events_end_moves_by_its_grip_in_slots_and_says_which_event()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(CalendarBlock);
+        var top = await page.EvaluateAsync<double>("() => document.getElementById('b').getBoundingClientRect().top");
+        var box = (await page.Locator("#g").BoundingBoxAsync())!;
+        var (x, y) = (box.X + box.Width / 2, box.Y + box.Height / 2);
+
+        await page.Mouse.MoveAsync(x, y);
+        await page.Mouse.DownAsync();
+        await page.Mouse.MoveAsync(x, y + 50, new() { Steps = 4 });
+        await page.Mouse.UpAsync();
+
+        // 1.5 hours is 72px; 50px more is two half-hour slots, so 120px, less the gap between blocks.
+        Assert.Equal(118, await Height(page, "b"), 0.5);
+        Assert.Equal("120px", await page.EvaluateAsync<string>("() => document.getElementById('b').style.getPropertyValue('--cal-height')"));
+        Assert.Equal(top, await page.EvaluateAsync<double>("() => document.getElementById('b').getBoundingClientRect().top"), 0.5);
+        Assert.Equal(["--cal-height|120|e1"], await EndedOn(page));
+        // The grip is a control inside the event: pressing it resizes and never lifts the event.
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => window.drags"));
+        Assert.Null(await page.GetAttributeAsync("#b", "data-dragging"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_calendar_events_grip_takes_the_arrows_a_slot_at_a_time_and_Home_gives_back_its_span()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(CalendarBlock);
+        await page.FocusAsync("#g");
+
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal(94, await Height(page, "b"), 0.5);           // 96px: 2 hours
+        await page.Keyboard.PressAsync("ArrowUp");
+        await page.Keyboard.PressAsync("ArrowUp");
+        Assert.Equal(46, await Height(page, "b"), 0.5);           // 48px: 1 hour
+        await page.Keyboard.PressAsync("ArrowUp");
+        await page.Keyboard.PressAsync("ArrowUp");
+        Assert.Equal(22, await Height(page, "b"), 0.5);           // aria-valuemin, one slot
+        Assert.Equal("24", await page.GetAttributeAsync("#g", "aria-valuenow"));
+
+        await page.Keyboard.PressAsync("Home");
+        Assert.Equal(70, await Height(page, "b"), 0.5);           // its span again
+        Assert.Equal(
+            ["--cal-height|96|e1", "--cal-height|72|e1", "--cal-height|48|e1", "--cal-height|24|e1", "--cal-height|24|e1", "--cal-height|null|e1"],
+            await EndedOn(page));
+        // And the arrows on the grip moved the end, not the event.
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => window.drags"));
+        Assert.Empty(errors);
+    }
 }

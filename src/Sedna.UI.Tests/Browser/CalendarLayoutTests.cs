@@ -1,3 +1,4 @@
+using Microsoft.Playwright;
 using Sedna.UI.Tests.TestSupport;
 
 namespace Sedna.UI.Tests;
@@ -536,5 +537,318 @@ public class CalendarLayoutTests : ScriptTestBase
         Assert.InRange(m[6], 0, 16);         // its last lane is inside it
         Assert.Equal("none", shadows[0]);    // no edge while nothing is under the label
         Assert.NotEqual("none", shadows[1]); // and an edge once columns are
+    }
+
+    // ── Agenda ─────────────────────────────────────────────────────────────────
+
+    private const string AgendaBody = """
+        <div class="cal-agenda" id="ag">
+          <section class="cal-agenda-day" aria-current="date">
+            <h3 class="cal-agenda-head" id="head"><span class="cal-agenda-weekday">Monday</span><span class="cal-agenda-date" id="date">14 September</span></h3>
+            <ul class="cal-agenda-events">
+              <li class="cal-agenda-event cal-event--go" id="row">
+                <span class="cal-agenda-time" id="time">09:00 – 09:30</span>
+                <span class="cal-event-dot" id="dot"></span>
+                <a class="cal-agenda-title" id="title" href="#">Dispatch ORD-4209 to the north hub, with the carrier and the dock named in a title that wraps</a>
+                <span class="cal-agenda-meta" id="meta">Dock 2</span>
+              </li>
+              <li class="cal-agenda-event cal-agenda-event--past" id="row2">
+                <span class="cal-agenda-time" id="time2">12:00 – 13:00</span>
+                <span class="cal-event-dot"></span>
+                <a class="cal-agenda-title" id="title2" href="#">Audit</a>
+              </li>
+            </ul>
+          </section>
+          <section class="cal-agenda-day">
+            <h3 class="cal-agenda-head" id="head2"><span class="cal-agenda-weekday">Tuesday</span><span class="cal-agenda-date">15 September</span></h3>
+            <p class="cal-agenda-empty" id="empty">Nothing planned</p>
+          </section>
+        </div>
+        """;
+
+    [Theory]
+    [InlineData("ltr", 640)]
+    [InlineData("rtl", 640)]
+    [InlineData("ltr", 320)]
+    [InlineData("rtl", 320)]
+    public async Task An_agenda_sets_time_dot_and_title_on_one_line_and_stacks_them_when_narrow(string dir, int width)
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled($"""<div dir="{dir}" style="width: {width}px">{AgendaBody}</div>""");
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const r = id => document.getElementById(id).getBoundingClientRect();
+                const flip = getComputedStyle(document.getElementById('ag')).direction === 'rtl' ? -1 : 1;
+                // Distance from the row's start edge, in the direction of reading.
+                const row = r('row');
+                const from = x => flip > 0 ? x - row.left : row.right - x;
+                const startOf = b => flip > 0 ? from(b.left) : from(b.right);
+                const endOf = b => flip > 0 ? from(b.right) : from(b.left);
+                const time = r('time'), dot = r('dot'), title = r('title'), meta = r('meta');
+                const lh = parseFloat(getComputedStyle(document.getElementById('title')).lineHeight);
+                const head = r('head'), date = r('date');
+                const headStyle = getComputedStyle(document.getElementById('head'));
+                const bar1 = getComputedStyle(document.getElementById('head'), '::before');
+                const bar2 = getComputedStyle(document.getElementById('head2'), '::before');
+                const bar = s => flip > 0 ? s.borderLeftColor : s.borderRightColor;
+                return [
+                    startOf(time), endOf(time), startOf(dot), endOf(dot), startOf(title), startOf(meta),
+                    meta.top - title.bottom, (dot.top + dot.height / 2) - (title.top + lh / 2),
+                    time.top - title.top,
+                    flip > 0 ? head.right - date.right : date.left - head.left,
+                    bar(bar1) === 'rgba(0, 0, 0, 0)' ? 0 : 1,
+                    bar(bar2) === 'rgba(0, 0, 0, 0)' ? 0 : 1,
+                    headStyle.position === 'sticky' ? 1 : 0,
+                    getComputedStyle(document.getElementById('title2')).color === getComputedStyle(document.getElementById('title')).color ? 0 : 1,
+                    r('empty').height,
+                ];
+            }
+            """);
+
+        if (width > 500)
+        {
+            // Time, then the dot, then the title, each after the last along the line.
+            Assert.True(m[2] >= m[1], $"The dot ({m[2]}) starts before the time ends ({m[1]}).");
+            Assert.True(m[4] >= m[3], $"The title ({m[4]}) starts before the dot ends ({m[3]}).");
+            Assert.InRange(m[8], -2, 2);              // the time on the title's first line
+            Assert.InRange(m[7], -1, 1);              // the dot in the middle of that line
+        }
+        else
+        {
+            // The time above the title, both in the column after the dot.
+            Assert.True(m[8] < 0, "Narrow, the time should sit above the title.");
+            Assert.InRange(m[0] - m[4], -1, 1);
+            Assert.True(m[2] < m[0], "Narrow, the dot should still lead the row.");
+        }
+        Assert.InRange(m[5] - m[4], -1, 1);           // the detail lines up under the title
+        Assert.True(m[6] >= 0, "The detail overlaps the title.");
+        Assert.InRange(m[9], 0, 24);                  // the date at the heading's end
+        Assert.Equal(1, m[10]);                       // today has its bar
+        Assert.Equal(0, m[11]);                       // another day does not
+        Assert.Equal(1, m[12]);                       // the headings pin
+        Assert.Equal(1, m[13]);                       // an event that is over is muted
+        Assert.True(m[14] > 20, "An empty day has no room for its words.");
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task An_agenda_heading_stays_at_the_top_of_the_scroller_while_its_day_is_in_view()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled($"""<div class="sedna-scroll" id="sc" style="width: 480px; height: 140px; overflow: auto">{AgendaBody}</div>""");
+
+        var m = await page.EvaluateAsync<double[]>("""
+            async () => {
+                const sc = document.getElementById('sc');
+                sc.scrollTop = 40;
+                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+                const head = document.getElementById('head').getBoundingClientRect();
+                const row = document.getElementById('row').getBoundingClientRect();
+                return [head.top - sc.getBoundingClientRect().top, sc.scrollTop, head.bottom > row.top ? 1 : 0];
+            }
+            """);
+
+        Assert.Equal(40, m[1], 1.0);                  // it did scroll
+        Assert.InRange(m[0], -1.5, 1.5);              // and the heading stayed at the scroller's top
+        Assert.Equal(1, m[2]);                        // over the row that went under it
+    }
+
+    // ── Background events and closed hours ─────────────────────────────────────
+
+    [Theory]
+    [InlineData("ltr", false)]
+    [InlineData("rtl", false)]
+    [InlineData("ltr", true)]
+    [InlineData("rtl", true)]
+    public async Task A_background_event_covers_its_days_under_the_pills_and_takes_no_pointer(string dir, bool grow)
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled($"""
+            <div dir="{dir}" class="cal-month{(grow ? " cal-month--grow" : "")}" style="--cal-lanes: 2; width: 700px">
+              <div class="cal-row" id="row">
+                {Days(7)}
+                <div class="cal-row-events">
+                  <span class="cal-event cal-event--background cal-event--warn" id="bg" style="grid-column: 2 / span 2">Stock freeze</span>
+                  <a class="cal-event" id="pill" href="#" style="grid-column: 2; grid-row: 1">Stand-up</a>
+                  <a class="cal-event" id="low" href="#" style="grid-column: 3; grid-row: {(grow ? 4 : 2)}">Late</a>
+                </div>
+              </div>
+            </div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const days = [...document.querySelectorAll('#row .cal-day')];
+                const d = days.map(x => x.getBoundingClientRect());
+                const r = id => document.getElementById(id).getBoundingClientRect();
+                const bg = r('bg'), row = r('row'), pill = r('pill'), low = r('low');
+                const flip = getComputedStyle(document.getElementById('row')).direction === 'rtl';
+                const start = flip ? d[1].right : d[1].left, end = flip ? d[2].left : d[2].right;
+                const hit = (x, y) => document.elementFromPoint(x, y);
+                const text = document.createRange();
+                text.selectNodeContents(document.getElementById('bg'));
+                const t = text.getBoundingClientRect();
+                const num = days[1].querySelector('.cal-day-num').getBoundingClientRect();
+                return [
+                    Math.abs((flip ? bg.right : bg.left) - start), Math.abs((flip ? bg.left : bg.right) - end),
+                    bg.top - row.top, row.bottom - bg.bottom,
+                    hit(pill.left + pill.width / 2, pill.top + pill.height / 2) === document.getElementById('pill') ? 1 : 0,
+                    hit(low.left + low.width / 2, low.top + low.height / 2) === document.getElementById('low') ? 1 : 0,
+                    hit(d[2].left + d[2].width / 2, bg.bottom - 4)?.closest('.cal-day') === days[2] ? 1 : 0,
+                    flip ? num.left - t.right : t.left - num.right,
+                    (t.top + t.height / 2) - (num.top + num.height / 2),
+                ];
+            }
+            """);
+
+        Assert.InRange(m[0], 0, 1.5);     // from the start of its first day
+        Assert.InRange(m[1], 0, 1.5);     // to the end of its last
+        Assert.InRange(m[2], -0.5, 1.5);  // over the day's head
+        Assert.InRange(m[3], -0.5, 1.5);  // to the foot of the row, however many lanes it grew
+        Assert.Equal(1, m[4]);            // a pill over it is the pill
+        Assert.Equal(1, m[5]);            // a pill in a lower lane too
+        Assert.Equal(1, m[6]);            // and a click on its tint reaches the day
+        Assert.True(m[7] > 0, $"The title overlaps the day number by {-m[7]}px.");
+        Assert.InRange(m[8], -2, 2);      // on the number's line
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task Closed_hours_and_a_background_block_sit_under_the_blocks_across_the_whole_column()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div class="cal-week" style="--cal-days: 2; --cal-hours: 8; --cal-hour-height: 40px; width: 500px">
+              <div class="cal-week-body">
+                <div class="cal-hours"></div>
+                <div class="cal-day-col" id="col">
+                  <div class="cal-closed" id="closed" style="--cal-start: 0; --cal-span: 2"></div>
+                  <div class="cal-block cal-event--background cal-event--info" id="bg" style="--cal-start: 3; --cal-span: 3">Maintenance window</div>
+                  <a class="cal-block" id="b" href="#" style="--cal-start: 4; --cal-span: 1; --cal-lane: 1; --cal-lanes: 2">Deploy</a>
+                </div>
+                <div class="cal-day-col cal-day-col--closed" id="shut"></div>
+              </div>
+            </div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const r = id => document.getElementById(id).getBoundingClientRect();
+                const col = r('col'), closed = r('closed'), bg = r('bg'), b = r('b');
+                const hit = (x, y) => document.elementFromPoint(x, y);
+                const colEl = document.getElementById('col');
+                return [
+                    closed.top - col.top, closed.height, closed.width - col.width,
+                    getComputedStyle(document.getElementById('closed')).backgroundImage === 'none' ? 0 : 1,
+                    hit(closed.left + 10, closed.top + 10) === colEl ? 1 : 0,
+                    bg.top - col.top, bg.height, bg.left - col.left, bg.width - col.width,
+                    hit(b.left + b.width / 2, b.top + b.height / 2)?.closest('#b') ? 1 : 0,
+                    hit(bg.left + 10, bg.top + bg.height - 10) === colEl ? 1 : 0,
+                    getComputedStyle(document.getElementById('shut')).backgroundImage.split('gradient').length - 1,
+                ];
+            }
+            """);
+
+        Assert.Equal(0, m[0], 1.0);       // closed from the top of the axis
+        Assert.Equal(80, m[1], 1.0);      // for two hours
+        Assert.Equal(0, m[2], 1.0);       // across the whole day
+        Assert.Equal(1, m[3]);            // hatched
+        Assert.Equal(1, m[4]);            // and a click on it reaches the day
+        Assert.Equal(120, m[5], 1.0);     // the background at 3 hours
+        Assert.Equal(120, m[6], 1.0);     // for its full three, with no gap taken off
+        Assert.Equal(0, m[7], 1.0);       // full width, whatever lanes the blocks take
+        Assert.Equal(0, m[8], 1.0);
+        Assert.Equal(1, m[9]);            // a block over it is the block
+        Assert.Equal(1, m[10]);           // and it takes no pointer itself
+        Assert.Equal(2, m[11]);           // a closed day keeps its hour lines under the hatch
+        Assert.Empty(errors);
+    }
+
+    // ── More, opened ───────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task More_opens_the_days_list_of_pills_each_on_a_line_of_its_own()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled($"""
+            <div class="cal-month" style="--cal-lanes: 1; width: 700px">
+              <div class="cal-row">
+                {Days(7)}
+                <div class="cal-row-events">
+                  <a class="cal-event" href="#" style="grid-column: 3; grid-row: 1">Stand-up</a>
+                  <button class="cal-more" id="more" type="button" data-popover="more-3" style="grid-column: 3" aria-label="2 more on day 3">+2 more</button>
+                </div>
+              </div>
+            </div>
+            <div class="popover" id="more-3" popover>
+              <strong class="popover-title">Day 3</strong>
+              <ul class="cal-event-list" id="list">
+                <li><a class="cal-event" id="p1" href="#"><span class="cal-event-time">09:00</span> Stand-up</a></li>
+                <li><a class="cal-event cal-event--go" id="p2" href="#"><span class="cal-event-time">14:00</span> Dispatch</a></li>
+                <li><a class="cal-event cal-event--danger" id="p3" href="#">Audit</a></li>
+              </ul>
+            </div>
+            """);
+
+        await page.ClickAsync("#more");
+        await Assertions.Expect(page.Locator("#more")).ToHaveAttributeAsync("aria-expanded", "true");
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const r = id => document.getElementById(id).getBoundingClientRect();
+                const list = r('list'), p1 = r('p1'), p2 = r('p2'), p3 = r('p3');
+                const more = getComputedStyle(document.getElementById('more'));
+                return [document.getElementById('more-3').matches(':popover-open') ? 1 : 0,
+                        p1.width - list.width, p3.width - list.width, p2.top - p1.bottom, p3.top - p2.bottom, p1.height,
+                        more.backgroundColor === 'rgba(0, 0, 0, 0)' ? 0 : 1];
+            }
+            """);
+
+        Assert.Equal(1, m[0]);
+        Assert.Equal(0, m[1], 1.0);       // each pill the list's width
+        Assert.Equal(0, m[2], 1.0);
+        Assert.True(m[3] >= 0 && m[4] >= 0, "Pills in the list overlap.");
+        Assert.Equal(24, m[5], 1.0);      // the list's own pill height
+        Assert.Equal(1, m[6]);            // the open "+2 more" says so
+        Assert.Empty(errors);
+    }
+
+    // ── Resizing ───────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task A_grip_lies_along_the_blocks_end_and_a_height_in_pixels_replaces_the_span()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div class="cal-week" style="--cal-days: 1; --cal-hours: 6; --cal-hour-height: 48px; width: 300px">
+              <div class="cal-week-body">
+                <div class="cal-hours"></div>
+                <div class="cal-day-col" id="col">
+                  <div class="cal-block" id="b" tabindex="0" style="--cal-start: 1; --cal-span: 1.5">Stand-up
+                    <div class="cal-resize" id="g" role="separator" aria-orientation="horizontal" aria-label="End of Stand-up" aria-valuenow="72" tabindex="0"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => {
+                const r = id => document.getElementById(id).getBoundingClientRect();
+                const b = r('b'), g = r('g');
+                const before = [b.bottom - g.bottom, g.width - document.getElementById('b').clientWidth, b.height,
+                                document.elementFromPoint(g.left + g.width / 2, g.bottom - 2) === document.getElementById('g') ? 1 : 0];
+                document.getElementById('b').style.setProperty('--cal-height', '120px');
+                return before.concat([r('b').height, r('b').top - r('col').top]);
+            }
+            """);
+
+        Assert.Equal(0, m[0], 0.5);       // at the very end of the block
+        Assert.Equal(0, m[1], 0.5);       // across all of it inside its accent edge
+        Assert.Equal(70, m[2], 0.5);      // 1.5 h less the gap between blocks
+        Assert.Equal(1, m[3]);            // over the block's own last-line cover
+        Assert.Equal(118, m[4], 0.5);     // 120px less the same gap
+        Assert.Equal(48, m[5], 0.5);      // and its start has not moved
+        Assert.Empty(errors);
     }
 }

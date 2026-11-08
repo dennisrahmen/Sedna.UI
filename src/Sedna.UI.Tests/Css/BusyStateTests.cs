@@ -47,6 +47,9 @@ public class BusyStateTests
         "form-combo-group-action", "form-combo-input", "form-combo-option", "form-combo",
         "choice-tile",                          // a choice, read-only not busy
         "cal-mark",                             // opens a list; nothing of its own runs
+        "cal-more",                             // opens a day's list; nothing of its own runs
+        "cal-agenda-title",                     // a link to an event, as a list row's title is
+        "cal-resize",                           // a grip, as card-resize is
         "sticky-group-toggle",                  // folds a group; nothing of its own runs
         "editor",                               // a field: read-only, not busy — the form it sits in is
         "input-reveal",                         // shows the field's text; nothing of its own runs

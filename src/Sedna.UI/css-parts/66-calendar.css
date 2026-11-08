@@ -437,7 +437,11 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     inset-block-start: calc(var(--cal-start) * var(--cal-hour-height));
     inset-inline-start: calc(100% * var(--cal-lane) / var(--cal-lanes));
     inline-size: calc(100% / var(--cal-lanes) - var(--space-2));
-    block-size: calc(var(--cal-span) * var(--cal-hour-height) - var(--space-1));
+    /* The length a block runs: its span in hours, or `--cal-height` in pixels while a
+       grip resizes it — see "Moving and resizing" below. */
+    --cal-height: initial;
+    --cal-length: var(--cal-height, calc(var(--cal-span) * var(--cal-hour-height)));
+    block-size: calc(var(--cal-length) - var(--space-1));
     z-index: 1;
     padding: var(--space-1) var(--space-3);
     background: var(--cal-fill);
@@ -455,7 +459,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
        too, because both boxes start their gradient at the same bottom corner. Every
        engine on the floor draws it alike; Safari has no overflow-clip-margin. */
     --cal-edge: 0px;
-    --cal-block-inner: calc(var(--cal-span) * var(--cal-hour-height) - 2 * var(--space-1) - 2 * var(--cal-edge));
+    --cal-block-inner: calc(var(--cal-length) - 2 * var(--space-1) - 2 * var(--cal-edge));
     --cal-block-rest: max(0px, var(--cal-block-inner) - max(1lh, round(down, var(--cal-block-inner) - var(--space-1), 1lh)));
     padding-block-end: var(--cal-block-rest);
     overflow: clip;
@@ -997,6 +1001,237 @@ button.datepicker-title > i { color: var(--muted); font-size: var(--text-5); }
 .cal-month--mini .cal-day--range-start { border-start-end-radius: 0; border-end-end-radius: 0; }
 .cal-month--mini .cal-day--range-end { border-start-start-radius: 0; border-end-start-radius: 0; }
 .cal-month--mini .cal-day--range-start.cal-day--range-end { border-radius: var(--radius-inner); }
+
+/* ── More, opened ──────────────────────────────────────────────────────────
+   "+2 more" that shows the rest is a <button class="cal-more"> with `data-popover`, and
+   the popover is the app's own: a `.popover-title` naming the day, then every event of
+   that day — not only the hidden ones — as a `.cal-event-list` of the same pills.
+
+     <button class="cal-more" type="button" data-popover="more-16" style="grid-column: 3"
+             aria-label="2 more on Wednesday 16 September, show the day">+2 more</button>
+     …
+     <div class="popover" id="more-16" popover>
+       <strong class="popover-title">Wednesday 16 September</strong>
+       <ul class="cal-event-list">
+         <li><a class="cal-event cal-event--go" href="…"><span class="cal-event-time">09:00</span> Stand-up</a></li> …
+       </ul>
+     </div>
+
+   The pills keep their hues, fills and slots; in the list each takes the whole width
+   and a line of its own. */
+button.cal-more:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: var(--brand-text); }
+
+.cal-event-list {
+    --cal-event-height: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-inline-size: min(14rem, 100%);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.cal-event-list > li { display: flex; flex-direction: column; }
+.cal-event-list .cal-event { margin-inline: 0; }
+
+/* ── Background events and closed hours ────────────────────────────────────
+   What is true of a stretch of time without being an appointment: a stock freeze, a
+   maintenance window, the hours a site is shut. Both sit under the events and take no
+   pointer, so the days and the slots under them stay clickable and droppable.
+
+   `.cal-event--background` is an event drawn as a tint across its days or hours,
+   positioned exactly as its kind is — a pill's `grid-column` in a month or a timeline,
+   a block's `--cal-start` and `--cal-span` in a week — and written before the events
+   it sits under. It takes a hue modifier like any event. Its title is short: in a month
+   it sits in the day's head beside the number, in a week at the top of the band, in a
+   timeline in the row `.cal-more` uses. Say what it means in that title; a tint is not
+   a word.
+
+     <div class="cal-row-events">
+       <span class="cal-event cal-event--background cal-event--warn" style="grid-column: 3 / span 2">Stock freeze</span>
+       <a class="cal-event" href="…" style="grid-column: 3; grid-row: 1">Stand-up</a>
+     </div>
+
+     <div class="cal-day-col">
+       <div class="cal-closed" style="--cal-start: 0; --cal-span: 2"></div>
+       <div class="cal-block cal-event--background cal-event--info" style="--cal-start: 9; --cal-span: 3">Maintenance window</div>
+       <a class="cal-block" href="…" style="--cal-start: 3; --cal-span: 1">Stand-up</a>
+     </div>
+
+   `.cal-closed` is a hatched band for the hours outside business hours, at
+   `--cal-start` for `--cal-span` hours, one per stretch; a day that is closed
+   throughout is `.cal-day-col--closed`. A band says nothing to a screen reader, so the
+   hours belong in the page's own text; in an editable week, the slots under it are
+   `aria-disabled="true"`, which refuses a drop there. */
+:is(.cal-event, .cal-block).cal-event--background {
+    background: var(--cal-fill);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--fg-soft);
+    font-size: var(--text-1);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+}
+/* Over the whole day, the head included, and past the lanes' own inset: positioned
+   against the row's events with no row of its own, so it covers every lane however many
+   the row grows to, and under the events, which are raised over it (local stacking, 1
+   over 0). No `grid-row` on it. */
+.cal-row-events > .cal-event--background {
+    position: absolute;
+    grid-row: auto;
+    inset-inline: 0;
+    inset-block: calc(-1 * (var(--cal-day-head) + var(--space-2))) calc(-1 * var(--space-2));
+    z-index: 0;
+    align-items: flex-start;
+    margin: 0;
+    padding-block-start: var(--space-2);
+    /* Past the day number, which keeps the start of the head: its padding, then a
+       head's height, which a number's pill is no wider than. */
+    padding-inline: calc(var(--space-3) + var(--cal-day-head) + var(--space-1)) var(--space-3);
+    line-height: 24px;
+}
+.cal-row-events > .cal-event--background ~ :not(.cal-event--background) { position: relative; z-index: 1; }
+.cal-timeline-row > .cal-row-events > .cal-event--background {
+    inset-block: calc(-1 * var(--space-2));
+    align-items: flex-end;
+    padding: 0 var(--space-3) var(--space-2);
+    line-height: var(--cal-event-height);
+}
+.cal-block.cal-event--background {
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: var(--cal-length);
+    /* Local stacking: under the blocks' 1. */
+    z-index: 0;
+    /* One short line, so no part-line to cover: the cover would lay a second tint
+       along its foot. */
+    padding-block-end: var(--space-1);
+}
+.cal-block.cal-event--background::after { content: none; }
+
+.cal-closed {
+    --cal-start: 0;
+    --cal-span: 1;
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: calc(var(--cal-start) * var(--cal-hour-height));
+    block-size: calc(var(--cal-span) * var(--cal-hour-height));
+    background: repeating-linear-gradient(-45deg, var(--divider) 0 1px, transparent 1px 7px), var(--surface-strong);
+    pointer-events: none;
+}
+.cal-day-col.cal-day-col--closed {
+    background-color: var(--surface-strong);
+    background-image:
+        linear-gradient(var(--divider) 1px, transparent 1px),
+        repeating-linear-gradient(-45deg, var(--divider) 0 1px, transparent 1px 7px);
+    background-size: 100% var(--cal-hour-height), auto;
+}
+
+/* ── Moving and resizing ───────────────────────────────────────────────────
+   An editable calendar is drag and drop (26-drag.js) with the days or the times as the
+   places an event can land. The library moves nothing: a drop is `sedna-drop` naming
+   the slot, and the app moves the event in its own data and renders it there.
+
+   A month: each `.cal-day` is a drop slot — `data-drag-zone` naming the date,
+   `data-drag-axis="slot"` and the calendar's `data-drag-group` — and each week's
+   `.cal-row-events` is where the pills come from, a zone that takes nothing back:
+
+     <div class="cal-row">
+       <div class="cal-day" data-drag-zone="2026-09-14" data-drag-group="cal" data-drag-axis="slot"
+            data-drag-label="Monday 14 September">…</div> …
+       <div class="cal-row-events" data-drag-zone="week-38" data-drag-group="cal" data-drag-accept="">
+         <button class="cal-event" type="button" data-drag-item="e1" style="grid-column: 1; grid-row: 1">Stand-up</button>
+       </div>
+     </div>
+
+   A week: each `.cal-day-col` is the zone its blocks come from, and a `.cal-slots`
+   inside it, written first, holds one `.cal-slot` per `--cal-slot-hours` (half an hour
+   unless set) down the axis, each a drop slot naming its time. A slot inside a
+   `.cal-closed` band is `aria-disabled="true"`, so a drop there is refused:
+
+     <div class="cal-day-col" data-drag-zone="2026-09-14" data-drag-group="cal" data-drag-accept="">
+       <div class="cal-slots">
+         <div class="cal-slot" data-drag-zone="2026-09-14T07:00" data-drag-group="cal" data-drag-axis="slot"
+              data-drag-label="Monday 07:00"></div> …
+       </div>
+       <div class="cal-block" tabindex="0" data-drag-item="e1" style="--cal-start: 2; --cal-span: 1.5">
+         Stand-up
+         <div class="cal-resize" data-resize="--cal-height" data-resize-key="e1" data-resize-step="24"
+              role="separator" aria-orientation="horizontal" aria-label="End of Stand-up"
+              aria-valuemin="24" aria-valuenow="72" aria-valuetext="Ends 10:30" tabindex="0"></div>
+       </div>
+     </div>
+
+   `sedna-drop` names the slot it landed on as `to`, and the slot the drag started from
+   as `fromSlot` — under the pointer where it was picked up, or the event's own start
+   from the keyboard — so moving the event by the distance between the two keeps the
+   part the reader held under the pointer. A drop back on `fromSlot` sends nothing.
+
+   `.cal-resize` is a grip along a block's end edge, a 26-resize.js handle on
+   `--cal-height`: it writes the block's length in pixels while it moves, snapped to
+   `data-resize-step` — one slot's height — and `sedna-resize` says where it ended, with
+   `data-resize-key` as `key`. The app turns the pixels into an end time, renders the
+   block's new `--cal-span`, and drops `--cal-height`. The keyboard has both: Space
+   picks the event up and the arrows move it slot by slot, by where the slots are on
+   screen; the grip takes the arrows itself. */
+.cal-slots {
+    --cal-slot-hours: 0.5;
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-auto-rows: calc(var(--cal-slot-hours) * var(--cal-hour-height));
+}
+.cal-slot { min-width: 0; }
+
+/* While something is carried: no dashed outline round every day and every slot, only
+   the one under the event, and the zones the events come from stay as they are. */
+:is(.cal-day, .cal-slot)[data-drop-state] { outline: none; }
+:is(.cal-day, .cal-slot)[data-drop-state="valid"][data-drop-over] {
+    outline: 2px solid var(--brand);
+    outline-offset: -2px;
+    background-color: var(--brand-tint);
+}
+:is(.cal-day, .cal-slot)[data-drop-state="invalid"][data-drop-over] {
+    outline: 2px dotted var(--danger-border-strong);
+    outline-offset: -2px;
+    background-color: var(--danger-bg);
+}
+:is(.cal-row-events, .cal-day-col)[data-drop-state] { outline: none; }
+:is(.cal-row-events, .cal-day-col)[data-drop-state] > [data-drag-item] { opacity: 1; }
+
+.cal-resize {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: var(--space-3);
+    /* Local stacking: over the block's own ::after, which covers its last part-line. */
+    z-index: 1;
+    cursor: ns-resize;
+    touch-action: none;
+}
+/* A short bar in the event's hue, shown where the grip can be used. A border, so forced
+   colours still draw it. */
+.cal-resize::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-block-end: 3px;
+    inline-size: 16px;
+    margin-inline-start: -8px;
+    border-block-start: 2px solid var(--cal-accent);
+    border-radius: var(--radius-pill);
+    opacity: 0;
+    transition: opacity var(--motion-fast);
+}
+.cal-block:is(:hover, :focus-within) > .cal-resize::after,
+.cal-resize[data-resizing]::after { opacity: 1; }
+.cal-resize:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
+@media (hover: none) {
+    .cal-resize::after { opacity: 1; }
+}
 
 /* ── A word on its own ─────────────────────────────────────────────────────
    Holding nothing but its text, it is a block container instead of a flex one, so its

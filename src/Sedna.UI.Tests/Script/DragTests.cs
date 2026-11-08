@@ -842,4 +842,212 @@ public class DragTests : ScriptTestBase
         Assert.Equal("TD", await page.EvaluateAsync<string>("() => document.activeElement.tagName"));
         await AssertNothingLeftBehind(page);
     }
+
+    // ── Calendar slots ─────────────────────────────────────────────────────────
+
+    private const string SlotLive = """
+        <p class="visually-hidden" aria-live="assertive" data-drag-live
+           data-drag-pickup="Picked up {item} on {zone}."
+           data-drag-move="{zone}."
+           data-drag-drop="{item} moved to {zone}."
+           data-drag-cancel="{item} stays on {zone}."></p>
+        """;
+
+    /// <summary>Two weeks of a month: every day a slot, every week's events a zone that takes nothing back.</summary>
+    private const string MonthPills = """
+        <button class="cal-event" type="button" data-drag-item="e1" data-drag-label="Stand-up" style="grid-column: 1; grid-row: 1">Stand-up</button>
+        <button class="cal-event" type="button" data-drag-item="e2" data-drag-label="Stocktake" style="grid-column: 3 / span 3; grid-row: 1">Stocktake</button>
+        """;
+
+    private const string WeekBlock =
+        """<div class="cal-block" tabindex="0" data-drag-item="b1" data-drag-label="Stand-up" style="--cal-start: 1; --cal-span: 1">Stand-up</div>""";
+
+    private static string CalMonth(string dir = "ltr")
+    {
+        static string Row(int week, string events) =>
+            "<div class=\"cal-row\">"
+            + string.Concat(Enumerable.Range(1, 7).Select(i =>
+            {
+                var n = week * 7 + i;
+                return $"""<div class="cal-day" data-drag-zone="d{n}" data-drag-group="cal" data-drag-axis="slot" data-drag-label="Day {n}"><span class="cal-day-num">{n}</span></div>""";
+            }))
+            + $"""<div class="cal-row-events" data-drag-zone="week-{week}" data-drag-group="cal" data-drag-accept="">{events}</div></div>""";
+
+        var first = Row(0, MonthPills);
+        var second = Row(1, "");
+        return SlotLive + $"""<div dir="{dir}" class="cal-month" style="--cal-lanes: 2; width: 700px">{first}{second}</div>""";
+    }
+
+    /// <summary>Two days of half-hour slots, the first hour of the first day closed.</summary>
+    private static string CalWeek()
+    {
+        static string Col(string day, bool closedFirstHour, string blocks) =>
+            $"""<div class="cal-day-col" data-drag-zone="{day}" data-drag-group="cal" data-drag-accept=""><div class="cal-slots">"""
+            + string.Concat(Enumerable.Range(0, 8).Select(s =>
+                $"""<div class="cal-slot" data-drag-zone="{day}-{s}" data-drag-group="cal" data-drag-axis="slot" data-drag-label="{day} slot {s}"{(closedFirstHour && s < 2 ? " aria-disabled=\"true\"" : "")}></div>"""))
+            + "</div>"
+            + (closedFirstHour ? """<div class="cal-closed" style="--cal-span: 1"></div>""" : "")
+            + blocks + "</div>";
+
+        var mon = Col("mon", true, WeekBlock);
+        var tue = Col("tue", false, "");
+        return SlotLive + $"""
+            <div class="cal-week" style="--cal-days: 2; --cal-hours: 4; --cal-hour-height: 48px; width: 420px">
+              <div class="cal-week-body"><div class="cal-hours"></div>{mon}{tue}</div>
+            </div>
+            """;
+    }
+
+    private static void AssertSlotDrop(Logged drop, string item, string from, string to, string fromSlot, bool keyboard)
+    {
+        Assert.Equal("sedna-drop", drop.Name);
+        Assert.Equal(item, drop.Detail.GetProperty("item").GetString());
+        Assert.Equal(from, drop.Detail.GetProperty("from").GetString());
+        Assert.Equal(to, drop.Detail.GetProperty("to").GetString());
+        Assert.Equal(fromSlot, drop.Detail.GetProperty("fromSlot").GetString());
+        Assert.Equal(keyboard, drop.Detail.GetProperty("keyboard").GetBoolean());
+    }
+
+    [Fact]
+    public async Task A_pill_dropped_on_another_days_pill_lands_on_that_day_and_names_the_day_it_left()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(CalMonth());
+
+        // Stand-up, from day 1 onto the middle of Stocktake, which covers days 3 to 5.
+        await MouseDrag(page, await Point(page, "[data-drag-item=e1]"), await Point(page, "[data-drag-item=e2]"), release: false);
+        await Assertions.Expect(page.Locator("[data-drag-zone=d4]")).ToHaveAttributeAsync("data-drop-over", "");
+        await Assertions.Expect(page.Locator("[data-drag-zone=d4]")).ToHaveAttributeAsync("data-drop-state", "valid");
+        await Assertions.Expect(page.Locator("[data-drag-zone=week-0]")).ToHaveAttributeAsync("data-drop-state", "invalid");
+        // Only the day under the pill is outlined; the other days and the lanes are left alone,
+        // and the pills that stay keep their full colour.
+        var looks = await page.EvaluateAsync<string[]>("""
+            () => [getComputedStyle(document.querySelector('[data-drag-zone=d4]')).outlineStyle,
+                   getComputedStyle(document.querySelector('[data-drag-zone=d2]')).outlineStyle,
+                   getComputedStyle(document.querySelector('[data-drag-zone=week-0]')).outlineStyle,
+                   getComputedStyle(document.querySelector('[data-drag-item=e2]')).opacity]
+            """);
+        Assert.Equal(["solid", "none", "none", "1"], looks);
+        await page.Mouse.UpAsync();
+
+        var log = await Log(page);
+        Assert.Equal(["sedna-dragstart", "sedna-drop", "sedna-dragend"], log.Select(l => l.Name));
+        AssertSlotDrop(log[1], "e1", "week-0", "d4", fromSlot: "d1", keyboard: false);
+        Assert.Equal("d4", log[2].Detail.GetProperty("zone").GetString());
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task A_span_held_by_a_later_day_names_that_day_and_a_drop_back_on_it_sends_nothing()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(CalMonth());
+
+        // Stocktake held by its last day, day 5, and put down on day 9 in the next week.
+        await MouseDrag(page, await Point(page, "[data-drag-item=e2]", fx: 0.85f), await Point(page, "[data-drag-zone=d9]"));
+        AssertSlotDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "e2", "week-0", "d9", fromSlot: "d5", keyboard: false);
+
+        // Put down on the day it was held by: nothing moved.
+        await Js.Run(page, "() => dragLog.length = 0");
+        var held = await Point(page, "[data-drag-item=e2]", fx: 0.5f);
+        await MouseDrag(page, held, (held.X + 6, held.Y));
+        var log = await Log(page);
+        Assert.Equal(["sedna-dragstart", "sedna-dragend"], log.Select(l => l.Name));
+        Assert.False(log[1].Detail.GetProperty("dropped").GetBoolean());
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Theory]
+    [InlineData("ltr")]
+    [InlineData("rtl")]
+    public async Task From_the_keyboard_a_pill_starts_on_its_day_and_the_arrows_move_it_by_days_and_weeks(string dir)
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(CalMonth(dir));
+        var live = page.Locator("[data-drag-live]");
+
+        await page.Locator("[data-drag-item=e2]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await Assertions.Expect(live).ToHaveTextAsync("Picked up Stocktake on Day 3.");
+        await Assertions.Expect(page.Locator("[data-drag-zone=d3]")).ToHaveAttributeAsync("data-drop-over", "");
+
+        // Right on screen is the next day, or the one before in RTL; down is a week on.
+        await page.Keyboard.PressAsync("ArrowRight");
+        await Assertions.Expect(live).ToHaveTextAsync(dir == "rtl" ? "Day 2." : "Day 4.");
+        await page.Keyboard.PressAsync("ArrowDown");
+        await Assertions.Expect(live).ToHaveTextAsync(dir == "rtl" ? "Day 9." : "Day 11.");
+        await page.Keyboard.PressAsync("ArrowDown");   // no third week: it stays
+        await Assertions.Expect(page.Locator(dir == "rtl" ? "[data-drag-zone=d9]" : "[data-drag-zone=d11]")).ToHaveAttributeAsync("data-drop-over", "");
+
+        await page.Keyboard.PressAsync("Enter");
+        await Assertions.Expect(live).ToHaveTextAsync(dir == "rtl" ? "Stocktake moved to Day 9." : "Stocktake moved to Day 11.");
+        AssertSlotDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "e2", "week-0", dir == "rtl" ? "d9" : "d11", fromSlot: "d3", keyboard: true);
+        await AssertNothingLeftBehind(page);
+
+        // Picked up and put straight back down: no drop, and it says it stayed.
+        await Js.Run(page, "() => dragLog.length = 0");
+        await page.Locator("[data-drag-item=e1]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await page.Keyboard.PressAsync("Space");
+        await Assertions.Expect(live).ToHaveTextAsync("Stand-up stays on Day 1.");
+        Assert.Equal(["sedna-dragstart", "sedna-dragend"], (await Log(page)).Select(l => l.Name));
+    }
+
+    [Fact]
+    public async Task A_block_moves_to_another_time_and_day_and_a_closed_slot_refuses_it()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(CalWeek());
+
+        // Held a quarter of the way down — the 1:00 to 1:30 slot — and put down at 2:30 on Tuesday.
+        await MouseDrag(page, await Point(page, "[data-drag-item=b1]", fy: 0.25f), await Point(page, "[data-drag-zone=tue-5]"));
+        AssertSlotDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "b1", "mon", "tue-5", fromSlot: "mon-2", keyboard: false);
+
+        // Into the closed hour: marked as refusing, and letting go there moves nothing.
+        await Js.Run(page, "() => dragLog.length = 0");
+        await MouseDrag(page, await Point(page, "[data-drag-item=b1]"), await Point(page, "[data-drag-zone=mon-0]"), release: false);
+        await Assertions.Expect(page.Locator("[data-drag-zone=mon-0]")).ToHaveAttributeAsync("data-drop-state", "invalid");
+        await Assertions.Expect(page.Locator("[data-drag-zone=mon-0]")).ToHaveAttributeAsync("data-drop-over", "");
+        await page.Mouse.UpAsync();
+        Assert.Equal(["sedna-dragstart", "sedna-dragend"], (await Log(page)).Select(l => l.Name));
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task From_the_keyboard_a_block_moves_by_slots_down_and_days_across_and_never_into_closed_hours()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(CalWeek());
+        var live = page.Locator("[data-drag-live]");
+
+        await page.Locator("[data-drag-item=b1]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await Assertions.Expect(live).ToHaveTextAsync("Picked up Stand-up on mon slot 2.");
+
+        // Up from the first open slot: the closed hour above takes nothing, so it stays.
+        await page.Keyboard.PressAsync("ArrowUp");
+        await Assertions.Expect(page.Locator("[data-drag-zone=mon-2]")).ToHaveAttributeAsync("data-drop-over", "");
+        await page.Keyboard.PressAsync("ArrowDown");
+        await Assertions.Expect(live).ToHaveTextAsync("mon slot 3.");
+        await page.Keyboard.PressAsync("ArrowRight");
+        await Assertions.Expect(live).ToHaveTextAsync("tue slot 3.");
+        await page.Keyboard.PressAsync("ArrowUp");
+        await page.Keyboard.PressAsync("ArrowUp");
+        await page.Keyboard.PressAsync("ArrowUp");
+        await Assertions.Expect(live).ToHaveTextAsync("tue slot 0.");
+        await page.Keyboard.PressAsync("Enter");
+
+        AssertSlotDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "b1", "mon", "tue-0", fromSlot: "mon-2", keyboard: true);
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task A_drop_that_is_not_on_a_slot_says_fromSlot_null()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Queue);
+        await MouseDrag(page, await Point(page, "[data-drag-item=a]"), await Point(page, "[data-drag-item=c]", fy: 0.8f));
+        var drop = (await Log(page)).Single(l => l.Name == "sedna-drop");
+        Assert.Equal(JsonValueKind.Null, drop.Detail.GetProperty("fromSlot").ValueKind);
+    }
 }

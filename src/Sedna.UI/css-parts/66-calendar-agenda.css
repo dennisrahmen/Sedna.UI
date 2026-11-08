@@ -1,0 +1,170 @@
+/* ── Calendar: agenda ───────────────────────────────────────────────────────
+   A list of what is on, a day at a time: a heading per day, then a row per event with
+   its time, a dot in its hue, its title and a line of detail. The view a phone shows
+   instead of a week, and the one a screen reader follows most easily. The days, their
+   order and which of them to show — every day, or only those with something on — are
+   the app's; so are the words, "All day" and "Nothing planned" among them.
+
+     <div class="cal-agenda">
+       <section class="cal-agenda-day" aria-current="date" aria-labelledby="ag-14">
+         <h3 class="cal-agenda-head" id="ag-14">
+           <span class="cal-agenda-weekday">Monday</span>
+           <span class="badge badge--info">Today</span>
+           <span class="cal-agenda-date">14 September 2026</span>
+         </h3>
+         <ul class="cal-agenda-events">
+           <li class="cal-agenda-event cal-event--go">
+             <span class="cal-agenda-time">09:00 – 09:30</span>
+             <span class="cal-event-dot"></span>
+             <a class="cal-agenda-title" href="…">Stand-up</a>
+             <span class="cal-agenda-meta">Dock 2 · Alex Fischer</span>
+           </li> …
+         </ul>
+       </section>
+       <section class="cal-agenda-day" aria-labelledby="ag-15">
+         <h3 class="cal-agenda-head" id="ag-15">…</h3>
+         <p class="cal-agenda-empty">Nothing planned</p>
+       </section>
+     </div>
+
+   Today is `aria-current="date"` on its day: a bar at the start of its heading, in the
+   brand colour, and the heading's words in it too. A row takes the event hues —
+   `.cal-event--go` to `--teal` — for its dot, and `.cal-agenda-event--past` fades an event
+   that is over without making it unreadable. The headings stay at the top of a
+   scrolling agenda while their day is in view.
+
+   The time column is `--cal-agenda-time` wide. In a narrow agenda — under 30rem, by the
+   agenda's own width, so it holds in a side panel as on a phone — the time moves above
+   the title and the column goes. */
+.cal-agenda {
+    --cal-agenda-time: 8.5rem;
+    --cal-fill: var(--brand-tint);
+    --cal-accent: var(--brand);
+    --cal-solid: var(--brand-text);
+    container: cal-agenda / inline-size;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    /* Clipped rather than hidden: a hidden overflow is a scroll container, and the
+       headings would stick to it instead of to the page or panel that scrolls. */
+    overflow: clip;
+    background: var(--card-bg);
+    --surface-here: var(--card-bg);
+    --muted-here: var(--muted);
+}
+.cal-agenda-day + .cal-agenda-day { border-top: 1px solid var(--border); }
+
+/* The heading keeps the surface under its own tint, so a row sliding under it while it
+   is pinned does not show through. Local stacking: over the rows. */
+.cal-agenda-head {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin: 0;
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--divider);
+    background-color: var(--card-bg);
+    background-image: linear-gradient(var(--surface-strong), var(--surface-strong));
+    color: var(--fg);
+    font-size: var(--text-3);
+    font-weight: 600;
+    line-height: round(1.4em, 2px);
+}
+.cal-agenda-date {
+    margin-inline-start: auto;
+    color: var(--fg-soft);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+/* Today's bar, at the heading's start edge. A border rather than a fill, so forced
+   colours draw it. */
+.cal-agenda-head::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    border-inline-start: 3px solid transparent;
+}
+.cal-agenda-day[aria-current="date"] > .cal-agenda-head { color: var(--brand-text); }
+.cal-agenda-day[aria-current="date"] > .cal-agenda-head::before { border-inline-start-color: var(--brand); }
+.cal-agenda-day[aria-current="date"] > .cal-agenda-head > .cal-agenda-date { color: var(--brand-text); }
+
+.cal-agenda-events {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Time, dot, then the title over its detail. Every cell starts on the first line; the
+   dot stands in the middle of it. */
+.cal-agenda-event {
+    --row-line: 1lh;
+    display: grid;
+    grid-template-columns: var(--cal-agenda-time) auto minmax(0, 1fr);
+    column-gap: var(--space-4);
+    align-items: start;
+    padding: var(--space-3) var(--space-5);
+    color: var(--fg);
+    font-size: var(--text-3);
+    line-height: round(1.45em, 2px);
+}
+.cal-agenda-event + .cal-agenda-event { border-top: 1px solid var(--divider); }
+.cal-agenda-event > .cal-agenda-time  { grid-column: 1; grid-row: 1; }
+.cal-agenda-event > .cal-event-dot    { grid-column: 2; grid-row: 1; margin-block-start: calc((var(--row-line) - 6px) / 2); vertical-align: 0; }
+.cal-agenda-event > .cal-agenda-title { grid-column: 3; grid-row: 1; }
+.cal-agenda-event > .cal-agenda-meta  { grid-column: 3; grid-row: 2; }
+
+.cal-agenda-time {
+    color: var(--fg-soft);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.cal-agenda-title {
+    min-width: 0;
+    color: var(--fg);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+a.cal-agenda-title:hover { text-decoration: underline; }
+a.cal-agenda-title:focus-visible { outline: none; border-radius: var(--radius-small); box-shadow: 0 0 0 2px var(--focus-ring); }
+.cal-agenda-meta {
+    min-width: 0;
+    margin-block-start: var(--space-1);
+    color: var(--muted);
+    font-size: var(--text-2);
+    line-height: round(1.45em, 2px);
+}
+
+/* An event that is over: the words stay readable, at the muted step and no fainter. */
+.cal-agenda-event--past > :is(.cal-agenda-time, .cal-agenda-title) { color: var(--muted); }
+.cal-agenda-event--past > .cal-event-dot { opacity: 0.55; }
+
+.cal-agenda-empty {
+    margin: 0;
+    padding: var(--space-3) var(--space-5);
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-style: italic;
+}
+
+@container cal-agenda (max-width: 30rem) {
+    .cal-agenda-event { grid-template-columns: auto minmax(0, 1fr); column-gap: var(--space-3); }
+    .cal-agenda-event > .cal-event-dot    { grid-column: 1; grid-row: 1; }
+    .cal-agenda-event > .cal-agenda-time  { grid-column: 2; grid-row: 1; }
+    .cal-agenda-event > .cal-agenda-title { grid-column: 2; grid-row: 2; }
+    .cal-agenda-event > .cal-agenda-meta  { grid-column: 2; grid-row: 3; }
+    .cal-agenda-head,
+    .cal-agenda-event,
+    .cal-agenda-empty { padding-inline: var(--space-4); }
+}
+
+/* Each label holds only its words, so its line is trimmed to its capitals and given back
+   — see "The line a row is centred on" in 06-base-elements.css. */
+:is(.cal-agenda-weekday, .cal-agenda-date, .cal-agenda-time):not(:has(> *)) {
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}

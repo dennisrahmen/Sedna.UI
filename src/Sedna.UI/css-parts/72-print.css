@@ -61,6 +61,11 @@
        not cut across a page. */
     .chat-pane > .chat { overflow: visible; }
     .chat-message { break-inside: avoid; }
+    /* An agenda prints as a list: a day's heading is not pinned, and a day with its
+       events is not cut across a page. The grips and the drop slots are for the screen. */
+    .cal-agenda-head { position: relative; inset-block-start: auto; }
+    .cal-agenda-day { break-inside: avoid; }
+    .cal-resize { display: none; }
 
     /* A card is a box on screen; on paper the border is what keeps it a box, and the
        shadow is nothing. Kept whole across a page break: a card split in half loses
