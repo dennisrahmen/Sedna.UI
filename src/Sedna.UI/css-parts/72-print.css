@@ -87,6 +87,9 @@
         word-break: break-all;
     }
 
+    /* A figure that counts up prints as the app wrote it, not part way there. */
+    .stat-value--roll { animation: none; }
+
     /* Headings should not be the last line on a page. */
     h1, h2, h3, .card-head, .page-head { break-after: avoid; }
 }

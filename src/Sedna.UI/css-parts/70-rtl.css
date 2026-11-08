@@ -56,6 +56,8 @@
 [dir="rtl"] .drawer { transform: translateX(-100%); }
 /* 54 — a meter's mark label is centred on its mark by a translate. */
 [dir="rtl"] .meter-mark-label { transform: translateX(50%); }
+/* 54 — a stack bar's boundary label is centred on its boundary the same way. */
+[dir="rtl"] .stack-bar-label { translate: 50% 0; }
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
 
 /* A sheet is one of those too — `<div class="drawer sheet">` — but it travels along

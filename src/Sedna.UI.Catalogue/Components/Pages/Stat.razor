@@ -42,6 +42,19 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Stat.Rolling" Title="Counting up to the figure" Demo="ex-demo--block">
+    <p>
+        <code>.stat-value--roll</code> counts up from zero when the tile first renders &mdash; for the
+        one figure a wall screen or a landing tile leads with, not for every tile on a page.
+        <code>--roll-to</code> is the figure as a plain integer, and the element's text stays the
+        figure the app wrote: a screen reader reads it from the start, the count is drawn over it and
+        never read, and when the count ends the text is what is left, formatted as written. A fraction
+        counts its whole part and lands on the fraction. A new value does not replay it; render a new
+        element, with <code>@@key</code> on the value, where it should. Under reduced motion and in
+        print the figure is simply there.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Stat.Tones" Title="Over a threshold" Demo="ex-demo--block">
     <p>
         <code>.stat--warn</code> and <code>.stat--danger</code> tint a tile whose figure has crossed

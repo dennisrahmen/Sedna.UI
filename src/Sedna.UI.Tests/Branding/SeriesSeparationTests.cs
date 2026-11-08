@@ -42,7 +42,7 @@ public class SeriesSeparationTests
     private static readonly string[] Series = ["--viz-1", "--viz-2", "--viz-3", "--viz-4", "--viz-5", "--viz-6"];
 
     /// <summary>Machado, Oliveira and Fernandes (2009), severity 1.0, on linear sRGB.</summary>
-    private static readonly (string Name, double[,] Matrix)[] Simulations =
+    internal static readonly (string Name, double[,] Matrix)[] Simulations =
     [
         ("protanopia", new[,]
         {
@@ -94,13 +94,16 @@ public class SeriesSeparationTests
     }
 
     /// <summary>OKLab distance ×100, optionally after simulating a colour-vision deficiency.</summary>
-    private static double Distance(
+    internal static double Distance(
         (double R, double G, double B) a, (double R, double G, double B) b, double[,]? simulation)
     {
         var (l1, a1, b1) = Oklab(a, simulation);
         var (l2, a2, b2) = Oklab(b, simulation);
         return 100 * Math.Sqrt((l1 - l2) * (l1 - l2) + (a1 - a2) * (a1 - a2) + (b1 - b2) * (b1 - b2));
     }
+
+    /// <summary>OKLab lightness, 0 to 1 — what orders the steps of a ramp for every colour vision.</summary>
+    internal static double Lightness((double R, double G, double B) srgb) => Oklab(srgb, simulation: null).L;
 
     /// <summary>
     /// OKLab through <see cref="Oklch.FromHex"/>, so the conversion has one implementation. A

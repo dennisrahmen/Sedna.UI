@@ -126,6 +126,11 @@
     --skeleton-bg:    var(--slate-800);
     --skeleton-sheen: var(--slate-700);
     --progress-track: var(--slate-700);
+    /* The track is solid here, so the first step clears it by a step of its own. */
+    --heat-1:         var(--orbit-700);
+    --heat-2:         var(--orbit-500);
+    --heat-3:         var(--orbit-300);
+    --heat-4:         var(--orbit-100);
     --btn-active-bg:  var(--slate-700);
     --code-fg:        var(--indigo-200);
     --code-bg:        var(--indigo-900);
@@ -217,6 +222,10 @@
     --skeleton-sheen: var(--slate-300);
     --progress-track: var(--slate-300);
     --viz-previous:   var(--slate-600);
+    --heat-1:         var(--orbit-400);
+    --heat-2:         var(--orbit-600);
+    --heat-3:         var(--orbit-800);
+    --heat-4:         var(--orbit-950);
     --btn-active-bg:  var(--slate-400);
     --code-fg:        var(--indigo-900);
     --code-bg:        var(--indigo-200);

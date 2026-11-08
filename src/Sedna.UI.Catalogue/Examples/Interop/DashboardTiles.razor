@@ -1,0 +1,66 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}. Arrow keys move it, Space drops it, Escape cancels."
+   data-drag-move="{item}, panel {position} of {count}."
+   data-drag-drop="{item} dropped at panel {position} of {count}."
+   data-drag-cancel="Cancelled. {item} is back at panel {position}."></p>
+
+<ul class="drag-grid" style="--drag-grid-min: 15rem" data-drag-zone="dashboard" data-drag-axis="grid"
+    aria-label="Dashboard panels" @onsedna-drop="Drop">
+    @foreach (var tile in _tiles)
+    {
+        <li class="card card--resizable" @key="tile.Id" id="@tile.Id" data-drag-item="@tile.Id" data-drag-label="@tile.Title"
+            style="--card-height: @(tile.Height)px" @onsedna-resize="e => Resized(tile, e)">
+            <div class="card-head">
+                <span class="card-head-lead">
+                    <button class="drag-handle" type="button" data-drag-handle aria-label="@($"Move {tile.Title}")">
+                        <i class="ri-draggable" aria-hidden="true"></i>
+                    </button>
+                </span>
+                <h3 id="@($"{tile.Id}-title")">@tile.Title</h3>
+            </div>
+            <div class="card-body">
+                <div class="stat">
+                    <span class="stat-label">@tile.Label</span>
+                    <span class="stat-value">@tile.Value</span>
+                    <span class="stat-note">@tile.Note</span>
+                </div>
+            </div>
+            <div class="card-resize" data-resize="--card-height" data-resize-step="20" role="separator"
+                 aria-orientation="horizontal" aria-labelledby="@($"{tile.Id}-title")"
+                 aria-valuemin="120" aria-valuenow="@tile.Height" tabindex="0"></div>
+        </li>
+    }
+</ul>
+
+@code {
+    private sealed class Tile(string id, string title, string label, string value, string note, int height)
+    {
+        public string Id { get; } = id;
+        public string Title { get; } = title;
+        public string Label { get; } = label;
+        public string Value { get; } = value;
+        public string Note { get; } = note;
+        public int Height { get; set; } = height;
+    }
+
+    // The layout a reader arranged — order and heights — which an app keeps per user.
+    private readonly List<Tile> _tiles =
+    [
+        new("tile-orders", "Orders", "Open now", "1 204", "37 awaiting stock", 160),
+        new("tile-dispatch", "Dispatch", "Median time", "4.2 h", "20 min faster than last week", 160),
+        new("tile-returns", "Returns", "This week", "12", "3 awaiting inspection", 160),
+        new("tile-uptime", "Uptime", "orders-console-01", "99.86%", "Last 30 days", 160),
+    ];
+
+    // data-drag-axis="grid" counts panels in reading order, so Index is a place in this flat
+    // list whatever the number of columns at the reader's width.
+    private void Drop(SednaDropEventArgs e)
+    {
+        var tile = _tiles.Find(t => t.Id == e.Item);
+        if (tile is null) return;
+        _tiles.Remove(tile);
+        _tiles.Insert(Math.Min(e.Index, _tiles.Count), tile);
+    }
+
+    private static void Resized(Tile tile, SednaResizeEventArgs e) => tile.Height = (int)(e.Value ?? 160);
+}

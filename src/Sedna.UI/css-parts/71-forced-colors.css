@@ -79,6 +79,13 @@
         --skeleton-sheen: Canvas;
         --progress-track: Canvas;
         --viz-previous: GrayText;
+        /* A heatmap's steps are its data, so they stay steps: the user's own ink mixed
+           into the user's own canvas, from none to all of it. */
+        --heat-0: Canvas;
+        --heat-1: color-mix(in srgb, CanvasText 25%, Canvas);
+        --heat-2: color-mix(in srgb, CanvasText 50%, Canvas);
+        --heat-3: color-mix(in srgb, CanvasText 75%, Canvas);
+        --heat-4: CanvasText;
         --code-bg: Canvas;
         --code-fg: CanvasText;
         --backdrop: Canvas;
@@ -266,5 +273,11 @@
     .meter-fill,
     .meter-mark,
     .progress-bar,
-    .bar-previous { forced-color-adjust: none; }
+    .bar-previous,
+    .tracker-block,
+    .gauge::before { forced-color-adjust: none; }
+
+    /* A heatmap cell keeps its step from the remap above, and an outline in the
+       user's muted ink, so an empty cell is still a cell and not a hole in the grid. */
+    .heatmap-cell { forced-color-adjust: none; outline: 1px solid GrayText; outline-offset: -1px; }
 }

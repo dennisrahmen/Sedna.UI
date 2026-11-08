@@ -269,6 +269,10 @@
     .stack-bar-segment,
     .meter-fill,
     .bar-previous { transition: none; }
+    .gauge { transition: none; }          /* 54 — the arc lands on its value */
+    .tracker-block { transition: none; }  /* 54 — the rest dim at once; the hint names the block */
+    /* 54 — the figure is there from the start, as the app wrote it. */
+    .stat-value--roll { animation: none; }
 
     /* 69-motion — rows arrive at once. */
     .table--stagger tbody > tr,
