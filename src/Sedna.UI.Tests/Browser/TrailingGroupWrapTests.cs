@@ -3,11 +3,32 @@ using Sedna.UI.Tests.TestSupport;
 namespace Sedna.UI.Tests;
 
 /// <summary>
-/// <c>.toolbar-actions</c> is the trailing group: on a line of its own after the toolbar
-/// wraps, it stays at the end edge.
+/// A trailing group — <c>.toolbar-actions</c>, <c>.page-head-actions</c> — stays at the end
+/// edge on a line of its own after its row wraps.
 /// </summary>
-public class ToolbarWrapTests : ScriptTestBase
+public class TrailingGroupWrapTests : ScriptTestBase
 {
+    [Fact]
+    public async Task A_page_heads_actions_keep_to_the_end_edge_when_they_wrap()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled("""
+            <div class="page-head" id="head" style="width:360px">
+              <div class="page-head-text" id="text"><h1>Approval queue</h1></div>
+              <div class="page-head-actions" id="actions"><button class="btn" type="button">Refresh</button></div>
+            </div>
+            """);
+
+        var r = await page.EvaluateAsync<double[]>("""
+            () => {
+                const box = id => document.getElementById(id).getBoundingClientRect();
+                return [box('actions').top - box('text').bottom, box('head').right - box('actions').right];
+            }
+            """);
+        Assert.True(r[0] >= 0, "The fixture did not wrap.");
+        Assert.True(r[1] < 1, $"The wrapped actions stop {r[1]:0.0}px short of the end edge.");
+    }
+
     [Fact]
     public async Task The_trailing_group_keeps_to_the_end_edge_when_the_toolbar_wraps()
     {

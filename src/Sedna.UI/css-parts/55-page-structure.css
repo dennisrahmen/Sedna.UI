@@ -25,7 +25,9 @@
    is as ordinary as a top-level page opening on an h1. */
 .page-head :is(h1, h2, h3) { margin: 0; }
 .page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
-.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+/* The auto margin keeps the actions at the end edge when the head wraps them onto a line
+   of their own, as `.toolbar-actions` does. */
+.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
 
 /* ── Divider ────────────────────────────────────────────────────────────────
    A rule between sections. Use it when two blocks are related but distinct; use
