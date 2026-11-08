@@ -4591,6 +4591,24 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     z-index: 550;
 }
 .form-combo:has(> .form-combo-box > .form-combo-input[aria-expanded="true"]) > .form-combo-panel { display: block; }
+@media (max-width: 767px) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        inset: auto 0 0;
+        position-area: none;
+        position-try-fallbacks: none;
+        position-visibility: always;
+        align-self: normal;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        margin: 0;
+        padding: var(--space-3) var(--space-3) calc(var(--space-3) + var(--safe-block-end));
+        border-bottom: none;
+        border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+        box-shadow: var(--shadow-modal);
+    }
+    .form-combo:not(.form-combo--inline) > .form-combo-panel > :is(.form-combo-list, .tree) { max-height: 50dvh; }
+}
 .form-combo--fit { --form-combo-panel-width: max-content; }
 .form-combo--fit > .form-combo-panel { max-width: min(36rem, 100vw - 2 * var(--space-7)); }
 .form-combo--wrap .form-combo-option-text {
@@ -6814,6 +6832,71 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .menu > .form-check > input:disabled { cursor: not-allowed; }
 .menu-scrim { position: fixed; inset: 0; cursor: default; }
 .menu-item:not(:has(> *)) { display: block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-4) + var(--cap-gap)); }
+.menu-item[hidden],
+.menu-label[hidden] { display: none; }
+.menu-filter {
+    display: block;
+    width: 100%;
+    margin-block-end: var(--space-2);
+}
+.menu-empty {
+    display: none;
+    padding: var(--space-4) var(--space-5);
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+.menu[data-menu-empty] > .menu-empty {
+    display: block;
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--space-4) + var(--cap-gap));
+}
+@media (max-width: 767px) {
+    .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu,
+    .menu[popover] {
+        position: fixed;
+        inset: auto 0 0;
+        position-area: none;
+        position-try-fallbacks: none;
+        position-visibility: always;
+        align-self: normal;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        max-height: 70dvh;
+        overflow-y: auto;
+        margin: 0;
+        padding: var(--space-3) var(--space-3) calc(var(--space-3) + var(--safe-block-end));
+        border-bottom: none;
+        border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+        box-shadow: var(--shadow-modal);
+        z-index: 550;
+    }
+    .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu { box-shadow: var(--shadow-modal), 0 0 0 100vmax var(--backdrop); }
+    .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]):not(:has(> .menu-scrim)) > .menu::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+    }
+    .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]):not(:has(> .menu-scrim)) > .menu > * { position: relative; z-index: 1; }
+    .menu[popover]::backdrop { background: var(--backdrop); }
+    :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item { padding-block: var(--space-5); }
+    :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item:not(:has(> *)) {
+        padding-block: calc(var(--space-5) + var(--cap-gap));
+    }
+    :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-sub-anchor > .menu-sub {
+        position: static;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        padding-inline-start: var(--space-7);
+        background: none;
+        border: none;
+        box-shadow: none;
+    }
+}
 }
 @layer sedna.paint {
 .table--sticky { border-collapse: separate; border-spacing: 0; }
@@ -7696,6 +7779,43 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .fab:hover { background: var(--brand-hover); }
 .fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 .fab--icon { width: 48px; padding: 0; }
+.menu-anchor.fab-dial {
+    position: fixed;
+    inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    inset-block-end: calc(var(--space-8) + anchor-size(--sedna-bottombar block, var(--safe-block-end)));
+    inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
+    z-index: 60;
+}
+.fab-dial > .fab { position: static; }
+.fab-dial > .fab i { transition: transform var(--motion-fast) ease; }
+.fab-dial > .fab[aria-expanded="true"] i { transform: rotate(45deg); }
+.fab-dial > .menu {
+    position-area: block-start span-inline-start;
+    justify-self: end;
+    align-self: end;
+    position-try-fallbacks: flip-block;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-3);
+    width: max-content;
+    min-width: 0;
+    margin-block: 0 var(--space-4);
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+.fab-dial > .menu[hidden] { display: none; }
+.fab-dial > .menu > .menu-item {
+    width: auto;
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-dropdown);
+}
+.fab-dial > .menu > .menu-item:hover { background: var(--bg-hover); }
 }
 @layer sedna.paint {
 .media-frame {
@@ -8201,6 +8321,17 @@ dialog.sheet[data-sheet] > .drawer-header { touch-action: none; user-select: non
 dialog.sheet[data-sheet] > .drawer-header { cursor: grab; }
 dialog.sheet[data-sheet].sheet--dragging > .drawer-header { cursor: grabbing; }
 dialog.sheet.sheet--dragging { transition: none; }
+dialog.sheet[data-sheet-snap] { --sheet-rest: 0%; height: 85dvh; }
+dialog.sheet[data-sheet-snap][open] { transform: translateY(var(--sheet-rest)); }
+@starting-style {
+    dialog.sheet[data-sheet-snap][open] { transform: translateY(100%); }
+}
+button.sheet-handle {
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+}
+button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 }
 @layer sedna.paint {
 .file-icon {
@@ -8949,6 +9080,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     padding: var(--space-6) var(--space-7) var(--space-3);
 }
 .popover--flush > .table tr:nth-last-child(1 of :where(:not(:empty))) > td { border-bottom: none; }
+:where([data-popover][data-popover-hover]) { -webkit-touch-callout: none; }
 }
 @layer sedna.paint {
 .text-shimmer,
@@ -13141,6 +13273,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .back-to-top:focus-visible,
     .page-toc-link:focus-visible,
     .page-toc-fold > .page-toc-title:focus-visible,
+    button.sheet-handle:focus-visible,
     .form-color:focus-visible,
     .swatch:focus-visible,
     .editor:focus-within,
@@ -13301,6 +13434,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .fab,
     .back-to-top,
     .progress--route,
+    .fab-dial,
     .drawer,
     .drawer-scrim,
     .spotlight-hole,
@@ -13619,6 +13753,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    .fab-dial > .fab i { transition: none; }
     .sedna-art-bob,
     .sedna-art-sweep,
     .sedna-art-nudge,

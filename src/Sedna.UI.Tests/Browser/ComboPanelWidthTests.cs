@@ -112,7 +112,9 @@ public class ComboPanelWidthTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var (page, errors) = await OpenStyled(Field(place, style: "--form-combo-panel-width: 60rem", width: "200px"));
-        await page.SetViewportSizeAsync(640, 700);
+        // The narrowest window where the panel is still anchored: below 768px it is a sheet
+        // the full width of the screen (AnchoredPanelTests).
+        await page.SetViewportSizeAsync(800, 700);
 
         var m = await OpenAndMeasure(page);
 

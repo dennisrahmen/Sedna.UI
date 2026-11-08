@@ -276,6 +276,28 @@ dialog.sheet[data-sheet].sheet--dragging > .drawer-header { cursor: grabbing; }
    lags the finger. */
 dialog.sheet.sheet--dragging { transition: none; }
 
+/* ── Snap points ────────────────────────────────────────────────────────────
+   `data-sheet-snap="50%"` beside `data-sheet` makes the sheet rest at the heights it
+   lists as well as at its full height (29-sheet.js). It is as tall as a sheet may be,
+   so a share of it is a share of the screen, and it rests lower by translating down:
+   `--sheet-rest` is how far, in percent of its own height, which the script writes and
+   the transition slides between. The part below the screen's edge is still the sheet's
+   own body, scrolled to and reached by dragging it up. */
+dialog.sheet[data-sheet-snap] { --sheet-rest: 0%; height: 85dvh; }
+dialog.sheet[data-sheet-snap][open] { transform: translateY(var(--sheet-rest)); }
+@starting-style {
+    dialog.sheet[data-sheet-snap][open] { transform: translateY(100%); }
+}
+
+/* The handle as the keyboard's way between the heights: a <button data-sheet-expand>
+   in the same place, drawn the same, with a focus ring. */
+button.sheet-handle {
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+}
+button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+
 /* ── A sheet of actions ─────────────────────────────────────────────────────
    The phone form of a menu: one action per row, with room for a second line saying
    what it will do, and a target big enough for a thumb.

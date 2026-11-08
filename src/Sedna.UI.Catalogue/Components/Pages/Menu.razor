@@ -56,6 +56,24 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Menu.Filter" Title="A menu that filters" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; open it and type.</strong> An <code>&lt;input data-menu-filter&gt;</code>
+        with <code>.menu-filter</code> at the top of the panel narrows the items as the reader types,
+        ranked by the same matcher as the command palette: an item that does not match is
+        <code>hidden</code>, and so is a <code>.menu-label</code> with nothing left under it. Your
+        <code>.menu-empty</code> row shows while nothing matches &mdash; the panel carries
+        <code>data-menu-empty</code> then. The menu opens with the filter cleared and focused;
+        <kbd>↓</kbd> moves to the first item and <kbd>↑</kbd> from it comes back, and
+        <kbd>Enter</kbd> chooses the first item.
+    </p>
+    <p>
+        Without a filter, a letter typed on an item moves to the next item whose label starts with
+        it, and letters typed quickly together find a whole word &mdash; the label is
+        <code>data-label</code> when the item carries one, else its text.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Menu.ValueTriggerInATable" Title="A value trigger in a table cell" Demo="ex-demo--block">
     <p>
         <strong>Live — open one, then scroll the table sideways.</strong>
@@ -68,6 +86,18 @@
         <code>td</code> gives the column its floor — see <a href="/table">Tables</a>.
     </p>
 </CatExample>
+
+<div class="callout callout--info">
+    <i class="ri-smartphone-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">On a phone, a sheet</span>
+        Below 768px a dropdown and a menu at the pointer open as a bottom sheet: the full width of
+        the screen, on its bottom edge and clear of the home indicator, with taller rows and the page
+        above it dimmed. A press on the dimmed page closes the menu and lands on nothing under it; a
+        submenu opens in place under its item. Nothing changes in the markup. The
+        <a href="/button">speed dial</a> keeps its fan.
+    </div>
+</div>
 
 <CatSnippet Name="Menu/Dismissing.txt" Title="Dismissing it">
     <p>

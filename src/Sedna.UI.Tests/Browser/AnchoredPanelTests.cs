@@ -197,4 +197,161 @@ public class AnchoredPanelTests : ScriptTestBase
         Assert.Equal(1, closed);
         Assert.Empty(errors);
     }
+
+    // ── On a phone ──────────────────────────────────────────────────────────
+
+    private const string PhoneFixture =
+        """
+        <div style="height:120px"></div>
+        <div class="menu-anchor" id="anchor">
+          <button class="btn" id="toggle" data-menu-toggle aria-expanded="false">Actions</button>
+          <div class="menu menu--start" id="panel" hidden>
+            <button class="menu-item" type="button">Reassign</button>
+            <button class="menu-item" type="button">Snooze</button>
+          </div>
+        </div>
+        <button class="btn" id="under" type="button" style="margin-top:40px"
+                onclick="window.underClicks = (window.underClicks || 0) + 1">Under the dim</button>
+        <div id="row" data-menu-context="ctx" style="margin-top:40px">ORD-4209</div>
+        <div class="menu" id="ctx" popover>
+          <button class="menu-item" type="button">Copy the number</button>
+        </div>
+        <div class="form-combo" data-combo="single" id="combo" style="margin-top:40px; max-width:200px">
+          <div class="form-combo-box">
+            <input class="form-combo-input" id="combo-input" type="text" role="combobox" placeholder=" "
+                   aria-expanded="false" aria-controls="combo-list" aria-autocomplete="list" autocomplete="off" aria-label="Product">
+          </div>
+          <div class="form-combo-panel" id="combo-panel">
+            <div class="form-combo-list" id="combo-list" role="listbox" aria-label="Products">
+              <div class="form-combo-option" role="option" id="chai" data-value="chai" aria-selected="false">Chai</div>
+              <div class="form-combo-option" role="option" id="chang" data-value="chang" aria-selected="false">Chang</div>
+            </div>
+          </div>
+        </div>
+        <div style="height:1200px"></div>
+        """;
+
+    /// <summary>The element's box against the viewport: its start, end and bottom gaps, and its share of the width.</summary>
+    private static Task<double[]> Edges(Microsoft.Playwright.IPage page, string id) =>
+        page.EvaluateAsync<double[]>("""
+            id => {
+              const r = document.getElementById(id).getBoundingClientRect();
+              const w = document.documentElement.clientWidth;
+              return [r.left, w - r.right, innerHeight - r.bottom, r.width / w];
+            }
+            """, id);
+
+    [Fact]
+    public async Task On_a_phone_a_dropdown_is_a_sheet_on_the_bottom_edge_and_a_press_above_it_closes_it()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(PhoneFixture);
+        await page.SetViewportSizeAsync(375, 700);
+
+        await page.Locator("#toggle").ClickAsync();
+        await Js.Frames(page);
+        var edges = await Edges(page, "panel");
+        Assert.Equal(0, edges[0], 0);
+        Assert.Equal(0, edges[1], 0);
+        Assert.Equal(0, edges[2], 0);
+        Assert.Equal(1, edges[3], 2);
+
+        // The press on the dimmed page lands on the menu's own scrim, not on the button under it.
+        var under = await page.Locator("#under").BoundingBoxAsync();
+        Assert.NotNull(under);
+        await page.Mouse.ClickAsync(under!.X + under.Width / 2, under.Y + under.Height / 2);
+        Assert.Equal("false", await page.Locator("#toggle").GetAttributeAsync("aria-expanded"));
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => window.underClicks || 0"));
+        // With the menu closed the same press reaches the page again.
+        await page.Locator("#under").ClickAsync();
+        Assert.Equal(1, await page.EvaluateAsync<int>("() => window.underClicks || 0"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task On_a_phone_a_menu_at_the_pointer_and_a_combo_panel_are_sheets_too()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(PhoneFixture);
+        await page.SetViewportSizeAsync(375, 700);
+
+        await page.Locator("#row").ClickAsync(new() { Button = Microsoft.Playwright.MouseButton.Right });
+        await page.WaitForFunctionAsync("() => document.getElementById('ctx').matches(':popover-open')");
+        var edges = await Edges(page, "ctx");
+        Assert.Equal(0, edges[0], 0);
+        Assert.Equal(0, edges[1], 0);
+        Assert.Equal(0, edges[2], 0);
+        await page.Keyboard.PressAsync("Escape");
+
+        await page.Locator("#combo-input").ClickAsync();
+        await Microsoft.Playwright.Assertions.Expect(page.Locator("#combo-panel")).ToBeVisibleAsync();
+        edges = await Edges(page, "combo-panel");
+        // The full width of the screen, though the field is 200px.
+        Assert.Equal(0, edges[0], 0);
+        Assert.Equal(0, edges[1], 0);
+        Assert.Equal(0, edges[2], 0);
+        Assert.Equal(1, edges[3], 2);
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task On_a_wide_screen_the_same_dropdown_stays_anchored_under_its_trigger()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(PhoneFixture);
+        await page.SetViewportSizeAsync(1024, 700);
+
+        await page.Locator("#toggle").ClickAsync();
+        await Js.Frames(page);
+        var gap = await page.EvaluateAsync<double>("""
+            () => document.getElementById('panel').getBoundingClientRect().top
+                - document.getElementById('toggle').getBoundingClientRect().bottom
+            """);
+        Assert.InRange(gap, 0, 8);
+        Assert.True((await Edges(page, "panel"))[3] < 0.5, "A wide screen's dropdown spans the screen.");
+        Assert.Empty(errors);
+    }
+
+    // ── A speed dial ────────────────────────────────────────────────────────
+
+    [Theory]
+    [InlineData(375)]
+    [InlineData(1280)]
+    public async Task A_speed_dial_fans_its_actions_out_above_the_button_at_its_end_edge(int width)
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div class="menu-anchor fab-dial">
+              <button class="fab fab--icon" id="fab" type="button" data-menu-toggle aria-expanded="false" aria-label="Create"><i class="ri-add-line"></i></button>
+              <div class="menu" id="dial" hidden>
+                <button class="menu-item" type="button" id="first"><i class="ri-shopping-bag-3-line"></i> <span>Order</span></button>
+                <button class="menu-item" type="button"><i class="ri-truck-line"></i> <span>Shipment</span></button>
+              </div>
+            </div>
+            """);
+        await page.SetViewportSizeAsync(width, 700);
+
+        await page.Locator("#fab").ClickAsync();
+        await Js.Frames(page);
+        var box = await page.EvaluateAsync<double[]>("""
+            () => {
+              const fab = document.getElementById('fab').getBoundingClientRect();
+              const dial = document.getElementById('dial').getBoundingClientRect();
+              const item = document.getElementById('first').getBoundingClientRect();
+              return [fab.top - dial.bottom, fab.right - dial.right, fab.right - item.right,
+                      document.documentElement.clientWidth - fab.right];
+            }
+            """);
+        Assert.InRange(box[0], 0, 24);        // above the button, close to it
+        Assert.Equal(0, box[1], 0);           // lined up on its end edge
+        Assert.Equal(0, box[2], 0);
+        Assert.True(box[3] > 0 && box[3] < 64, "The dial is not in the corner.");
+
+        // A menu's keyboard: Escape gives the focus back to the button.
+        await page.Locator("#first").FocusAsync();
+        await page.Keyboard.PressAsync("Escape");
+        Assert.Equal("false", await page.Locator("#fab").GetAttributeAsync("aria-expanded"));
+        Assert.Equal("fab", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+        Assert.Empty(errors);
+    }
 }

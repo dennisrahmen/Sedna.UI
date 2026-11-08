@@ -314,3 +314,96 @@
    line can be trimmed to its capitals and stand in the middle of its height — the same
    height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
 .menu-item:not(:has(> *)) { display: block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-4) + var(--cap-gap)); }
+
+/* ── A menu that filters ────────────────────────────────────────────────────
+   An `<input class="form-input form-input--sm menu-filter" data-menu-filter>` at the
+   top of the panel narrows the items as the reader types (22-menu.js). An item that
+   does not match is `hidden`, which `.menu-item`'s own display would otherwise
+   outrank, and so is a heading with nothing left under it. `.menu-empty` is the app's
+   row for a query that matches nothing; the script marks the panel `data-menu-empty`
+   while it does, and this shows it. */
+.menu-item[hidden],
+.menu-label[hidden] { display: none; }
+.menu-filter {
+    display: block;
+    width: 100%;
+    margin-block-end: var(--space-2);
+}
+.menu-empty {
+    display: none;
+    padding: var(--space-4) var(--space-5);
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+.menu[data-menu-empty] > .menu-empty {
+    display: block;
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--space-4) + var(--cap-gap));
+}
+
+/* ── On a phone, a sheet ────────────────────────────────────────────────────
+   Below 768px a dropdown and a menu at the pointer open as a bottom sheet: the full
+   width of the screen, on its bottom edge and clear of the home indicator, with rows a
+   thumb can reach, where an anchored panel would be a narrow box flipping off the edge
+   of a narrow screen. Nothing is anchored, so nothing goes stale on a scroll.
+
+   The page above it is dimmed. A dropdown draws the dim as a shadow and catches a press
+   on it with its own ::before, so the press closes the menu (22-menu.js) rather than
+   landing on whatever is under it; a menu at the pointer is a popover, whose ::backdrop
+   does both. A submenu opens in place, under its item, since there is no side to open
+   it on. The speed dial keeps its fan.
+
+   A dropdown is a sheet while its trigger says it is open — `aria-expanded="true"` on the
+   anchor's own child or on its `data-menu-toggle` — so a panel shown open for another
+   reason, a field's results under it, keeps its place under its anchor. */
+@media (max-width: 767px) {
+    .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu,
+    .menu[popover] {
+        position: fixed;
+        inset: auto 0 0;
+        position-area: none;
+        position-try-fallbacks: none;
+        position-visibility: always;
+        align-self: normal;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        max-height: 70dvh;
+        overflow-y: auto;
+        margin: 0;
+        padding: var(--space-3) var(--space-3) calc(var(--space-3) + var(--safe-block-end));
+        border-bottom: none;
+        border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+        box-shadow: var(--shadow-modal);
+        z-index: 550;
+    }
+    .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu { box-shadow: var(--shadow-modal), 0 0 0 100vmax var(--backdrop); }
+    /* Not beside a `.menu-scrim`, which is already where the app catches that press. */
+    .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]):not(:has(> .menu-scrim)) > .menu::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+    }
+    /* Above the catcher, which is the panel's first box: the rows are what a press on
+       the panel reaches. */
+    .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]):not(:has(> .menu-scrim)) > .menu > * { position: relative; z-index: 1; }
+    .menu[popover]::backdrop { background: var(--backdrop); }
+
+    :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item { padding-block: var(--space-5); }
+    :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item:not(:has(> *)) {
+        padding-block: calc(var(--space-5) + var(--cap-gap));
+    }
+    :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-sub-anchor > .menu-sub {
+        position: static;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        padding-inline-start: var(--space-7);
+        background: none;
+        border: none;
+        box-shadow: none;
+    }
+}

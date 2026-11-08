@@ -2415,6 +2415,7 @@ window.sednaUi = window.sednaUi || {};
     function setOpen(toggle, panel, open) {
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        if (open) startFilter(panel);
         // A render that removes the toggle of an open menu leaves the panel pointing at
         // nothing; it closes, as a hint does when its trigger goes.
         if (open && ui._.layer) {
@@ -2429,6 +2430,14 @@ window.sednaUi = window.sednaUi || {};
             var panel = panelOf(toggles[i]);
             if (panel) setOpen(toggles[i], panel, false);
         }
+    }
+
+    /* On a phone a dropdown is a bottom sheet (58-menu.css), and the page above it is
+       the panel's own ::before: a press there is on the panel element and outside its box,
+       which is a press outside the menu. */
+    function outside(panel, e) {
+        var r = panel.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
     }
 
     ui.menu = {
@@ -2457,7 +2466,8 @@ window.sednaUi = window.sednaUi || {};
         var item = e.target.closest('.menu-item');
         if (item && item.hasAttribute('data-menu-sub')) return;
         if (item) { closeAll(null); return; }
-        if (e.target.closest('.menu')) return;
+        var menu = e.target.closest('.menu');
+        if (menu && !(e.target === menu && outside(menu, e))) return;
 
         closeAll(null);
     });
@@ -2466,6 +2476,8 @@ window.sednaUi = window.sednaUi || {};
         if (e.key !== 'Escape') return;
         var open = document.querySelector('[data-menu-toggle][aria-expanded="true"]');
         if (!open) return;
+        // The Escape closed the menu, and nothing else: not a dialog or a drawer it is in.
+        e.preventDefault();
         closeAll(null);
         // Focus goes back to the control that opened it. Without this, focus is left
         // on a node that has just been hidden and the next Tab starts from the top
@@ -2501,8 +2513,9 @@ window.sednaUi = window.sednaUi || {};
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
         var menu = item ? item.closest('.menu') : null;
         if (!menu) return;
-        var list = items(menu), at = list.indexOf(item), next = null;
+        var list = items(menu), at = list.indexOf(item), next = null, filter = filterOf(menu);
         if (e.key === 'ArrowDown') next = list[(at + 1) % list.length];
+        else if (e.key === 'ArrowUp' && at === 0 && filter) next = filter;
         else if (e.key === 'ArrowUp') next = list[(at - 1 + list.length) % list.length];
         else if (e.key === 'Home') next = list[0];
         else if (e.key === 'End') next = list[list.length - 1];
@@ -2512,10 +2525,98 @@ window.sednaUi = window.sednaUi || {};
         } else if (e.key === (getComputedStyle(menu).direction === 'rtl' ? 'ArrowRight' : 'ArrowLeft') && menu.classList.contains('menu-sub')) {
             var opener = menu.parentElement && menu.parentElement.querySelector(':scope > [data-menu-sub]');
             if (opener) { setSub(opener, false); next = opener; }
+        } else if (e.key.length === 1 && e.key !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            // A letter goes to the next item whose label starts with it, as in a platform menu.
+            if (!typed.has(menu)) typed.set(menu, {});
+            next = ui._.typeahead(typed.get(menu), e.key, list, item, labelOf);
         }
         if (!next) return;
         e.preventDefault();
         next.focus();
+    });
+
+    var typed = new WeakMap();   // a menu -> the letters typed into it so far
+
+    function labelOf(item) { return item.getAttribute('data-label') || item.textContent; }
+
+    /* ── A menu that filters ───────────────────────────────────────────────
+       An `<input data-menu-filter>` the app writes inside a `.menu` narrows its items as
+       the reader types, ranked by the same matcher as the palette (ui._.score): an item
+       that does not match is `hidden`, and so is a `.menu-label` or a `.menu-sep` with
+       nothing left under it. The panel carries `data-menu-empty` while nothing matches,
+       which shows the app's own `.menu-empty` row. The menu opens with the filter empty
+       and focused; Down moves to the first item and Up from it comes back, Enter chooses
+       the first item, and the arrows skip what is hidden. Submenus are not searched. */
+    function filterOf(menu) {
+        var f = menu.querySelector('[data-menu-filter]');
+        return f && f.closest('.menu') === menu ? f : null;
+    }
+
+    function own(menu, el) { return el.closest('.menu') === menu; }
+
+    function applyFilter(input) {
+        var menu = input.closest('.menu');
+        if (!menu) return;
+        var query = input.value.trim(), shown = 0;
+        var all = menu.querySelectorAll('.menu-item');
+        for (var i = 0; i < all.length; i++) {
+            if (!own(menu, all[i])) continue;
+            var match = !query || ui._.score(query, String(labelOf(all[i]) || '').trim(), 0) >= 0;
+            all[i].hidden = !match;
+            if (match) shown++;
+        }
+        // A child that holds items — a submenu's anchor — goes with them, and a heading or
+        // a rule goes with the items after it, up to the next one.
+        var kids = menu.children, group = [], live = false;
+        function close() {
+            for (var g = 0; g < group.length; g++) {
+                // A rule divides groups the filter has already mixed; a heading stays over what is left of its own.
+                group[g].hidden = !!query && (group[g].classList.contains('menu-sep') || !live);
+            }
+            group = []; live = false;
+        }
+        for (var k = 0; k < kids.length; k++) {
+            var kid = kids[k];
+            if (kid.classList.contains('menu-label') || kid.classList.contains('menu-sep')) { close(); group.push(kid); continue; }
+            if (kid.classList.contains('menu-item')) { if (!kid.hidden) live = true; continue; }
+            var inner = Array.prototype.filter.call(kid.querySelectorAll('.menu-item'), function (el) { return own(menu, el); });
+            if (!inner.length) continue;
+            var visible = inner.some(function (el) { return !el.hidden; });
+            kid.hidden = !visible;
+            if (visible) live = true;
+        }
+        close();
+        if (query && !shown) menu.setAttribute('data-menu-empty', ''); else menu.removeAttribute('data-menu-empty');
+    }
+
+    /* Opening starts from the whole list, with the reader typing. The value is cleared
+       through an input event, so a Blazor binding on the filter hears it. */
+    function startFilter(menu) {
+        var filter = filterOf(menu);
+        if (!filter) return false;
+        if (filter.value) {
+            filter.value = '';
+            filter.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+            applyFilter(filter);
+        }
+        try { filter.focus(); } catch (err) { /* not focusable */ }
+        return true;
+    }
+
+    document.addEventListener('input', function (e) {
+        var filter = e.target instanceof Element && e.target.hasAttribute('data-menu-filter') ? e.target : null;
+        if (filter) applyFilter(filter);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        var filter = e.target instanceof Element && e.target.hasAttribute('data-menu-filter') ? e.target : null;
+        var menu = filter ? filter.closest('.menu') : null;
+        if (!menu || e.isComposing) return;
+        var first = items(menu)[0];
+        if (!first) return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); first.focus(); }
+        else if (e.key === 'Enter') { e.preventDefault(); first.click(); }
     });
 
     /* A submenu says it is open while the pointer or the focus is in it. The CSS opens it
@@ -2595,6 +2696,7 @@ window.sednaUi = window.sednaUi || {};
         if (on) on.setAttribute('data-menu-context-target', '');
         try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* closed */ }
         try { panel.showPopover(); } catch (err2) { return; }
+        if (startFilter(panel)) return;
         var first = items(panel)[0];
         if (first) first.focus();
     }
@@ -2820,27 +2922,99 @@ window.sednaUi = window.sednaUi || {};
         }, 200);
     }
 
+    // A finger has no hover: a touch that lands on a trigger is a tap or a long press,
+    // never a pointer resting on it.
     document.addEventListener('pointerover', function (e) {
         var el = e.target instanceof Element ? e.target : null;
-        if (!el) return;
+        if (!el || e.pointerType === 'touch') return;
         var trigger = el.closest('[data-popover][data-popover-hover]');
         if (trigger && !trigger.contains(e.relatedTarget)) { enter(trigger); return; }
         if (hovered && hovered.contains(el)) clearTimeout(leaveTimer);
     });
     document.addEventListener('pointerout', function (e) {
         var el = e.target instanceof Element ? e.target : null;
-        if (!el || !hovered) return;
+        if (!el || !hovered || e.pointerType === 'touch') return;
         var from = el.closest('[data-popover][data-popover-hover]') || (hovered.contains(el) ? hovered : null);
         if (from && !from.contains(e.relatedTarget)) leave();
     });
     document.addEventListener('focusin', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover][data-popover-hover]') : null;
-        if (trigger) enter(trigger);
+        // The focus a finger's press brings is not the keyboard arriving: a press is a tap
+        // or a long press, below.
+        if (trigger && !press) enter(trigger);
     });
     document.addEventListener('focusout', function (e) {
         var el = e.target instanceof Element ? e.target : null;
         if (el && (el.closest('[data-popover][data-popover-hover]') || (hovered && hovered.contains(el)))) leave();
     });
+
+    /* ── A long press ──────────────────────────────────────────────────────
+       Touch has no hover, so a finger held on a hover card's trigger for `LONG_PRESS`
+       opens the card and pins it, as a click pins it for a mouse. The press does not
+       also act: the click that follows it is taken, so a link is not followed and an
+       "only" trigger's own action does not run, and the platform's own long-press menu
+       is refused. A finger that moves is scrolling, and a tap is unchanged.
+
+       The release is outside the card, which is a light dismiss to the platform — the
+       card opened while the finger was down — and so is the mouse press an engine makes
+       up from it. So a card a long press opened opens again when the platform closes it,
+       until the next press or key: that is where the reader dismisses it. */
+    var LONG_PRESS = 500, SLOP = 10;
+    var press = null;     // { trigger, panel, id, x, y, timer, fired } while a finger is down
+    var pressed = null;   // the trigger whose long press opened its card, until its click
+    var held = null;      // { trigger, panel } of that card, until the next press or key
+
+    function cancelPress() {
+        if (press) clearTimeout(press.timer);
+        press = null;
+    }
+
+    document.addEventListener('pointerdown', function (e) {
+        cancelPress();
+        pressed = null;
+        held = null;
+        if (e.pointerType !== 'touch') return;
+        var trigger = e.target instanceof Element ? e.target.closest('[data-popover][data-popover-hover]') : null;
+        var panel = trigger ? target(trigger) : null;
+        if (!panel) return;
+        var p = press = { trigger: trigger, panel: panel, id: e.pointerId, x: e.clientX, y: e.clientY, fired: false };
+        p.timer = setTimeout(function () {
+            p.fired = true;
+            pressed = trigger;
+            held = { trigger: trigger, panel: panel };
+            clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            pinned.add(panel);
+            show(panel, trigger);
+        }, LONG_PRESS);
+    }, true);
+
+    document.addEventListener('pointermove', function (e) {
+        if (!press || press.fired || e.pointerId !== press.id) return;
+        if (Math.abs(e.clientX - press.x) > SLOP || Math.abs(e.clientY - press.y) > SLOP) cancelPress();
+    }, true);
+
+    function lift(e) {
+        if (!press || e.pointerId !== press.id) return;
+        var fired = press.fired;
+        cancelPress();
+        // A press the platform took over — a scroll — opened nothing it should keep.
+        if (fired && e.type === 'pointercancel') held = null;
+    }
+    document.addEventListener('pointerup', lift, true);
+    document.addEventListener('pointercancel', lift, true);
+
+    // Before the trigger's own click handlers, and before the pin above: the press has acted.
+    document.addEventListener('click', function (e) {
+        if (!pressed || !(e.target instanceof Node) || !pressed.contains(e.target)) return;
+        pressed = null;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    }, true);
+
+    document.addEventListener('contextmenu', function (e) {
+        if ((press && press.trigger.contains(e.target)) || (pressed && pressed.contains(e.target))) e.preventDefault();
+    }, true);
+    document.addEventListener('keydown', function () { held = null; }, true);
 
     /* The trigger says whether its panel is open, however the panel was closed:
        light dismiss, Escape, or the app. */
@@ -2848,6 +3022,11 @@ window.sednaUi = window.sednaUi || {};
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
         if (e.newState === 'closed') pinned.delete(panel);
+        if (e.newState === 'closed' && held && held.panel === panel && held.trigger.isConnected) {
+            pinned.add(panel);
+            show(panel, held.trigger);
+            return;
+        }
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
@@ -7534,6 +7713,17 @@ window.sednaUi = window.sednaUi || {};
    The close button is still what makes a sheet dismissible. This is an addition on
    top of it and never the only way out: the handle is not focusable, so a drag is
    not reachable from the keyboard by design.
+
+   SNAP POINTS — data-sheet-snap. A sheet that carries `data-sheet-snap="50%"` rests at
+   the heights it lists as well as at its full height: each is the share of the sheet
+   that shows. It opens at the first one listed, a drag lets go at the nearest one — a
+   flick goes on to the next in its direction — and a drag down past the lowest closes
+   it. The sheet is never measured into a coordinate: the rest is written as
+   `--sheet-rest`, a translate in percent of the sheet's own height, and the share it
+   rests at as `data-sheet-at`. A control inside it with `data-sheet-expand` — the
+   handle itself, written as a <button> — is the keyboard's way: it steps to the next
+   height up, from the full one back to the first, and says `aria-expanded` while the
+   sheet is at its full height.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -7553,7 +7743,9 @@ window.sednaUi = window.sednaUi || {};
        a gesture instead. */
     function gripped(target) {
         if (!(target instanceof Element)) return null;
-        if (target.closest('button, a, input, select, textarea, [contenteditable]')) return null;
+        var control = target.closest('button, a, input, select, textarea, [contenteditable]');
+        // A handle written as a button is still the handle: a press drags, a click steps.
+        if (control && !control.classList.contains('sheet-handle')) return null;
 
         var grip = target.closest('.sheet-handle, .drawer-header');
         if (!grip) return null;
@@ -7580,26 +7772,94 @@ window.sednaUi = window.sednaUi || {};
         sheet.style.transform = '';
     }
 
+    /* The shares a snapping sheet rests at, smallest first, its full height always
+       among them; and the one it opens at. Null for a sheet that does not snap. */
+    function snaps(sheet) {
+        var raw = sheet.getAttribute('data-sheet-snap');
+        if (raw === null) return null;
+        var list = [], first = null;
+        raw.split(/[\s,]+/).forEach(function (part) {
+            var n = parseFloat(part);
+            if (!isFinite(n) || n <= 0 || n > 100) return;
+            n = Math.round(n * 100) / 10000;
+            if (first === null) first = n;
+            if (list.indexOf(n) < 0) list.push(n);
+        });
+        if (list.indexOf(1) < 0) list.push(1);
+        list.sort(function (a, b) { return a - b; });
+        return { list: list, first: first === null ? 1 : first };
+    }
+
+    function shareOf(sheet) {
+        var at = parseFloat(sheet.getAttribute('data-sheet-at'));
+        return isFinite(at) ? at / 100 : 1;
+    }
+
+    function format(share) { return Math.round(share * 10000) / 100 + '%'; }
+
+    /* One task with the drag's own end, for the reason slideOut gives: the platform
+       then slides from where the finger let go to the new rest. */
+    function rest(sheet, share) {
+        sheet.classList.remove(DRAGGING);
+        sheet.style.transform = '';
+        sheet.style.setProperty('--sheet-rest', format(1 - share));
+        sheet.setAttribute('data-sheet-at', format(share));
+        var expand = sheet.querySelectorAll('[data-sheet-expand]');
+        for (var i = 0; i < expand.length; i++) expand[i].setAttribute('aria-expanded', String(share >= 1));
+    }
+
+    /* A snapping sheet opens at its first height, however it was opened — the presenter,
+       the app's own showModal() or show(). The open attribute changes synchronously and
+       this runs before the first frame, so the panel slides in to that height. */
+    function opened(sheet) {
+        var s = sheet.matches && sheet.matches('dialog.sheet[data-sheet-snap]') && sheet.open ? snaps(sheet) : null;
+        if (s) rest(sheet, s.first);
+    }
+    if (typeof MutationObserver === 'function') {
+        new MutationObserver(function (records) {
+            records.forEach(function (r) { opened(r.target); });
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
+    }
+    document.querySelectorAll('dialog.sheet[data-sheet-snap][open]').forEach(opened);
+
+    var dragged = false;   // the last press moved the sheet, so its click is not a step
+
+    document.addEventListener('click', function (e) {
+        var control = e.target instanceof Element ? e.target.closest('[data-sheet-expand]') : null;
+        var sheet = control ? control.closest('dialog.sheet[data-sheet-snap]') : null;
+        if (!sheet || !sheet.open) return;
+        // detail 0 is a click from the keyboard, which no drag came before.
+        if (dragged && e.detail !== 0) { dragged = false; return; }
+        var list = snaps(sheet).list, now = shareOf(sheet), next = list[0];
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] > now + 0.001) { next = list[i]; break; }
+        }
+        rest(sheet, next);
+    });
+
     document.addEventListener('pointerdown', function (e) {
         if (drag || (e.pointerType === 'mouse' && e.button !== 0)) return;
 
+        dragged = false;
         var sheet = gripped(e.target);
         if (!sheet) return;
 
+        var height = sheet.getBoundingClientRect().height;
+        var snap = snaps(sheet);
         drag = {
             sheet: sheet,
             id: e.pointerId,
             y0: e.clientY,
             t0: e.timeStamp,
             dy: 0,
-            height: sheet.getBoundingClientRect().height
+            moved: 0,
+            captured: false,
+            height: height,
+            snap: snap,
+            // Where it rests now, in px below its full height: zero for a sheet that does not snap.
+            rest: snap ? (1 - shareOf(sheet)) * height : 0
         };
         sheet.classList.add(DRAGGING);
-
-        // Capture on the sheet, so the gesture survives the pointer leaving the grip —
-        // which it does immediately, because the grip is at the top and the drag goes
-        // down. Not fatal if the browser refuses it: the listeners are on document.
-        try { sheet.setPointerCapture(e.pointerId); } catch (err) { /* carry on */ }
 
         // Stops the drag selecting the header's text. Focus is untouched — a control
         // never reaches here, and the dialog already holds focus.
@@ -7609,10 +7869,23 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('pointermove', function (e) {
         if (!drag || e.pointerId !== drag.id) return;
 
-        // Downward only. A sheet is anchored to the bottom edge, so dragging it up
-        // lifts it off that edge and shows the page through the gap.
-        drag.dy = Math.max(0, e.clientY - drag.y0);
-        drag.sheet.style.transform = 'translateY(' + drag.dy + 'px)';
+        // Capture on the sheet once the pointer moves, so the gesture survives it leaving
+        // the grip — which it does at once, because the grip is at the top and the drag
+        // goes down. Not on the press: a press that does not move is a click, and a handle
+        // written as a button has to receive it. Not fatal if the browser refuses it: the
+        // listeners are on document.
+        var moved = Math.abs(e.clientY - drag.y0);
+        if (moved > 3 && !drag.captured) {
+            drag.captured = true;
+            try { drag.sheet.setPointerCapture(e.pointerId); } catch (err) { /* carry on */ }
+        }
+        drag.moved = Math.max(drag.moved, moved);
+
+        // Never above its full height. A sheet is anchored to the bottom edge, so dragging
+        // it further up lifts it off that edge and shows the page through the gap; a sheet
+        // resting lower may be dragged up as far as that.
+        drag.dy = Math.max(-drag.rest, e.clientY - drag.y0);
+        drag.sheet.style.transform = 'translateY(' + (drag.rest + drag.dy) + 'px)';
     });
 
     function finish(e) {
@@ -7624,9 +7897,38 @@ window.sednaUi = window.sednaUi || {};
         try { d.sheet.releasePointerCapture(e.pointerId); } catch (err) { /* already gone */ }
 
         var speed = d.dy / Math.max(1, e.timeStamp - d.t0);
+        if (d.moved > 3) dragged = true;
 
+        if (d.snap) { settle(d, speed); return; }
         if (d.dy > d.height * DISTANCE || (speed > FLICK && d.dy > FLICK_FLOOR)) slideOut(d.sheet);
         else springBack(d.sheet);
+    }
+
+    /* Where a snapping sheet goes when the finger lifts. A flick goes to the next height
+       in its direction, or closes the sheet from its lowest; a slow drag goes to the
+       nearest height, and closes the sheet once it is past a quarter of what the lowest
+       one shows. */
+    function settle(d, speed) {
+        var list = d.snap.list, h = Math.max(1, d.height);
+        var share = 1 - (d.rest + d.dy) / h;   // what shows where the finger let go
+        var from = 1 - d.rest / h;
+        var flick = Math.abs(speed) > FLICK && Math.abs(d.dy) > FLICK_FLOOR;
+        var lowest = list[0], i;
+
+        if (flick && speed > 0) {
+            for (i = list.length - 1; i >= 0; i--) if (list[i] < from - 0.001) { rest(d.sheet, list[i]); return; }
+            slideOut(d.sheet);
+            return;
+        }
+        if (flick) {
+            for (i = 0; i < list.length; i++) if (list[i] > from + 0.001) { rest(d.sheet, list[i]); return; }
+            rest(d.sheet, 1);
+            return;
+        }
+        if (share < lowest * (1 - DISTANCE)) { slideOut(d.sheet); return; }
+        var best = lowest;
+        for (i = 0; i < list.length; i++) if (Math.abs(list[i] - share) < Math.abs(best - share)) best = list[i];
+        rest(d.sheet, best);
     }
 
     document.addEventListener('pointerup', finish);
@@ -9268,7 +9570,14 @@ window.sednaUi = window.sednaUi || {};
    await sednaUi.modal.idle(id)    → resolves once a closed dialog's transition ends
 
    The presenter for markup the app wrote: a `.modal`, a `.drawer` or a `.sheet`,
-   each a <dialog>. The platform gives the top layer, a focus trap, Escape-to-close
+   each a <dialog>.
+
+   NOT MODAL — data-modeless. A drawer or a sheet that carries `data-modeless` is
+   opened with show() instead: no backdrop, nothing behind it made inert and no focus
+   trap, so the page stays usable while it is open — a filter panel the reader keeps
+   beside the list it filters. Everything else is the same: show() resolves with its
+   returnValue when it closes, and Escape with the focus inside it closes it, which the
+   platform does only for a modal one. The platform gives the top layer, a focus trap, Escape-to-close
    and inert content behind it — all four, none reachable from Blazor without
    IJSRuntime, which the consuming rules say an app should not inject. An app that
    followed those rules otherwise fell back to a `.modal-backdrop` div behind an
@@ -9388,7 +9697,7 @@ window.sednaUi = window.sednaUi || {};
             // showModal() on an open dialog throws InvalidStateError, so join the wait.
             if (!d.open) {
                 d.returnValue = '';
-                try { d.showModal(); }
+                try { if (d.hasAttribute('data-modeless')) d.show(); else d.showModal(); }
                 catch (e) {
                     console.warn('sednaUi.modal.show: ' + e.message);
                     return Promise.resolve(null);
@@ -9470,6 +9779,17 @@ window.sednaUi = window.sednaUi || {};
 
         e.preventDefault();
         d.requestClose();
+    });
+
+    /* Escape inside a dialog opened without a modal closes it, as it closes a modal one:
+       a close request, so a guarded one asks first. */
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
+        var d = e.target instanceof Element ? e.target.closest('dialog[data-modeless][open]') : null;
+        if (!d || d.matches(':modal')) return;
+        if (document.querySelector(':popover-open:not([popover="manual"])')) return;
+        e.preventDefault();
+        if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
 
     // `cancel` does not bubble, so it is caught on the way down.

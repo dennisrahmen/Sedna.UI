@@ -171,27 +171,99 @@
         }, 200);
     }
 
+    // A finger has no hover: a touch that lands on a trigger is a tap or a long press,
+    // never a pointer resting on it.
     document.addEventListener('pointerover', function (e) {
         var el = e.target instanceof Element ? e.target : null;
-        if (!el) return;
+        if (!el || e.pointerType === 'touch') return;
         var trigger = el.closest('[data-popover][data-popover-hover]');
         if (trigger && !trigger.contains(e.relatedTarget)) { enter(trigger); return; }
         if (hovered && hovered.contains(el)) clearTimeout(leaveTimer);
     });
     document.addEventListener('pointerout', function (e) {
         var el = e.target instanceof Element ? e.target : null;
-        if (!el || !hovered) return;
+        if (!el || !hovered || e.pointerType === 'touch') return;
         var from = el.closest('[data-popover][data-popover-hover]') || (hovered.contains(el) ? hovered : null);
         if (from && !from.contains(e.relatedTarget)) leave();
     });
     document.addEventListener('focusin', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover][data-popover-hover]') : null;
-        if (trigger) enter(trigger);
+        // The focus a finger's press brings is not the keyboard arriving: a press is a tap
+        // or a long press, below.
+        if (trigger && !press) enter(trigger);
     });
     document.addEventListener('focusout', function (e) {
         var el = e.target instanceof Element ? e.target : null;
         if (el && (el.closest('[data-popover][data-popover-hover]') || (hovered && hovered.contains(el)))) leave();
     });
+
+    /* ── A long press ──────────────────────────────────────────────────────
+       Touch has no hover, so a finger held on a hover card's trigger for `LONG_PRESS`
+       opens the card and pins it, as a click pins it for a mouse. The press does not
+       also act: the click that follows it is taken, so a link is not followed and an
+       "only" trigger's own action does not run, and the platform's own long-press menu
+       is refused. A finger that moves is scrolling, and a tap is unchanged.
+
+       The release is outside the card, which is a light dismiss to the platform — the
+       card opened while the finger was down — and so is the mouse press an engine makes
+       up from it. So a card a long press opened opens again when the platform closes it,
+       until the next press or key: that is where the reader dismisses it. */
+    var LONG_PRESS = 500, SLOP = 10;
+    var press = null;     // { trigger, panel, id, x, y, timer, fired } while a finger is down
+    var pressed = null;   // the trigger whose long press opened its card, until its click
+    var held = null;      // { trigger, panel } of that card, until the next press or key
+
+    function cancelPress() {
+        if (press) clearTimeout(press.timer);
+        press = null;
+    }
+
+    document.addEventListener('pointerdown', function (e) {
+        cancelPress();
+        pressed = null;
+        held = null;
+        if (e.pointerType !== 'touch') return;
+        var trigger = e.target instanceof Element ? e.target.closest('[data-popover][data-popover-hover]') : null;
+        var panel = trigger ? target(trigger) : null;
+        if (!panel) return;
+        var p = press = { trigger: trigger, panel: panel, id: e.pointerId, x: e.clientX, y: e.clientY, fired: false };
+        p.timer = setTimeout(function () {
+            p.fired = true;
+            pressed = trigger;
+            held = { trigger: trigger, panel: panel };
+            clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            pinned.add(panel);
+            show(panel, trigger);
+        }, LONG_PRESS);
+    }, true);
+
+    document.addEventListener('pointermove', function (e) {
+        if (!press || press.fired || e.pointerId !== press.id) return;
+        if (Math.abs(e.clientX - press.x) > SLOP || Math.abs(e.clientY - press.y) > SLOP) cancelPress();
+    }, true);
+
+    function lift(e) {
+        if (!press || e.pointerId !== press.id) return;
+        var fired = press.fired;
+        cancelPress();
+        // A press the platform took over — a scroll — opened nothing it should keep.
+        if (fired && e.type === 'pointercancel') held = null;
+    }
+    document.addEventListener('pointerup', lift, true);
+    document.addEventListener('pointercancel', lift, true);
+
+    // Before the trigger's own click handlers, and before the pin above: the press has acted.
+    document.addEventListener('click', function (e) {
+        if (!pressed || !(e.target instanceof Node) || !pressed.contains(e.target)) return;
+        pressed = null;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    }, true);
+
+    document.addEventListener('contextmenu', function (e) {
+        if ((press && press.trigger.contains(e.target)) || (pressed && pressed.contains(e.target))) e.preventDefault();
+    }, true);
+    document.addEventListener('keydown', function () { held = null; }, true);
 
     /* The trigger says whether its panel is open, however the panel was closed:
        light dismiss, Escape, or the app. */
@@ -199,6 +271,11 @@
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
         if (e.newState === 'closed') pinned.delete(panel);
+        if (e.newState === 'closed' && held && held.panel === panel && held.trigger.isConnected) {
+            pinned.add(panel);
+            show(panel, held.trigger);
+            return;
+        }
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');

@@ -248,6 +248,32 @@
 }
 .form-combo:has(> .form-combo-box > .form-combo-input[aria-expanded="true"]) > .form-combo-panel { display: block; }
 
+/* On a phone the panel is a sheet on the bottom edge, the full width of the screen and
+   clear of the home indicator, as a menu is there (58-menu.css): an anchored panel as
+   wide as a field is a narrow box beside a thumb. The field keeps the focus, so the
+   reader still types into it; nothing dims the page, because the field is on it. A
+   tap outside moves the focus and closes the list, as it does anywhere. On a page whose
+   viewport does not resize for the on-screen keyboard the keyboard covers the bottom
+   edge — such a page sets `interactive-widget=resizes-content` in its viewport meta. */
+@media (max-width: 767px) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        inset: auto 0 0;
+        position-area: none;
+        position-try-fallbacks: none;
+        position-visibility: always;
+        align-self: normal;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        margin: 0;
+        padding: var(--space-3) var(--space-3) calc(var(--space-3) + var(--safe-block-end));
+        border-bottom: none;
+        border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+        box-shadow: var(--shadow-modal);
+    }
+    .form-combo:not(.form-combo--inline) > .form-combo-panel > :is(.form-combo-list, .tree) { max-height: 50dvh; }
+}
+
 /* `.form-combo--fit` sizes the panel to its longest row, so a long name is read
    whole rather than cut — up to 36rem, past which a row is cut again. Never
    narrower than the box, and never past the viewport. */

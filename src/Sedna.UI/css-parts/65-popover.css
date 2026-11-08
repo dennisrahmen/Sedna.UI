@@ -92,3 +92,8 @@
 }
 /* The last row with cells: a virtualized table ends with an empty spacer row. */
 .popover--flush > .table tr:nth-last-child(1 of :where(:not(:empty))) > td { border-bottom: none; }
+
+/* A hover card's trigger opens its card on a long press under a finger (22-popover.js),
+   so the platform's own long-press callout — a link's preview, its address — must not
+   open over it. */
+:where([data-popover][data-popover-hover]) { -webkit-touch-callout: none; }

@@ -133,6 +133,7 @@
     .back-to-top:focus-visible,
     .page-toc-link:focus-visible,
     .page-toc-fold > .page-toc-title:focus-visible,
+    button.sheet-handle:focus-visible,
     .form-color:focus-visible,
     .swatch:focus-visible,
     .editor:focus-within,

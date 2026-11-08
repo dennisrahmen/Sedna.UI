@@ -1436,6 +1436,7 @@ window.sednaUi = window.sednaUi || {};
     function setOpen(toggle, panel, open) {
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        if (open) startFilter(panel);
         if (open && ui._.layer) {
             ui._.layer.whenGone(toggle, function () { if (panel.isConnected) panel.hidden = true; });
         }
@@ -1447,6 +1448,10 @@ window.sednaUi = window.sednaUi || {};
             var panel = panelOf(toggles[i]);
             if (panel) setOpen(toggles[i], panel, false);
         }
+    }
+    function outside(panel, e) {
+        var r = panel.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
     }
     ui.menu = {
         closeAll: function () { closeAll(null); }
@@ -1465,13 +1470,15 @@ window.sednaUi = window.sednaUi || {};
         var item = e.target.closest('.menu-item');
         if (item && item.hasAttribute('data-menu-sub')) return;
         if (item) { closeAll(null); return; }
-        if (e.target.closest('.menu')) return;
+        var menu = e.target.closest('.menu');
+        if (menu && !(e.target === menu && outside(menu, e))) return;
         closeAll(null);
     });
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') return;
         var open = document.querySelector('[data-menu-toggle][aria-expanded="true"]');
         if (!open) return;
+        e.preventDefault();
         closeAll(null);
         try { open.focus(); } catch (err) { /* detached */ }
     });
@@ -1495,8 +1502,9 @@ window.sednaUi = window.sednaUi || {};
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
         var menu = item ? item.closest('.menu') : null;
         if (!menu) return;
-        var list = items(menu), at = list.indexOf(item), next = null;
+        var list = items(menu), at = list.indexOf(item), next = null, filter = filterOf(menu);
         if (e.key === 'ArrowDown') next = list[(at + 1) % list.length];
+        else if (e.key === 'ArrowUp' && at === 0 && filter) next = filter;
         else if (e.key === 'ArrowUp') next = list[(at - 1 + list.length) % list.length];
         else if (e.key === 'Home') next = list[0];
         else if (e.key === 'End') next = list[list.length - 1];
@@ -1506,10 +1514,76 @@ window.sednaUi = window.sednaUi || {};
         } else if (e.key === (getComputedStyle(menu).direction === 'rtl' ? 'ArrowRight' : 'ArrowLeft') && menu.classList.contains('menu-sub')) {
             var opener = menu.parentElement && menu.parentElement.querySelector(':scope > [data-menu-sub]');
             if (opener) { setSub(opener, false); next = opener; }
+        } else if (e.key.length === 1 && e.key !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            if (!typed.has(menu)) typed.set(menu, {});
+            next = ui._.typeahead(typed.get(menu), e.key, list, item, labelOf);
         }
         if (!next) return;
         e.preventDefault();
         next.focus();
+    });
+    var typed = new WeakMap();   // a menu -> the letters typed into it so far
+    function labelOf(item) { return item.getAttribute('data-label') || item.textContent; }
+    function filterOf(menu) {
+        var f = menu.querySelector('[data-menu-filter]');
+        return f && f.closest('.menu') === menu ? f : null;
+    }
+    function own(menu, el) { return el.closest('.menu') === menu; }
+    function applyFilter(input) {
+        var menu = input.closest('.menu');
+        if (!menu) return;
+        var query = input.value.trim(), shown = 0;
+        var all = menu.querySelectorAll('.menu-item');
+        for (var i = 0; i < all.length; i++) {
+            if (!own(menu, all[i])) continue;
+            var match = !query || ui._.score(query, String(labelOf(all[i]) || '').trim(), 0) >= 0;
+            all[i].hidden = !match;
+            if (match) shown++;
+        }
+        var kids = menu.children, group = [], live = false;
+        function close() {
+            for (var g = 0; g < group.length; g++) {
+                group[g].hidden = !!query && (group[g].classList.contains('menu-sep') || !live);
+            }
+            group = []; live = false;
+        }
+        for (var k = 0; k < kids.length; k++) {
+            var kid = kids[k];
+            if (kid.classList.contains('menu-label') || kid.classList.contains('menu-sep')) { close(); group.push(kid); continue; }
+            if (kid.classList.contains('menu-item')) { if (!kid.hidden) live = true; continue; }
+            var inner = Array.prototype.filter.call(kid.querySelectorAll('.menu-item'), function (el) { return own(menu, el); });
+            if (!inner.length) continue;
+            var visible = inner.some(function (el) { return !el.hidden; });
+            kid.hidden = !visible;
+            if (visible) live = true;
+        }
+        close();
+        if (query && !shown) menu.setAttribute('data-menu-empty', ''); else menu.removeAttribute('data-menu-empty');
+    }
+    function startFilter(menu) {
+        var filter = filterOf(menu);
+        if (!filter) return false;
+        if (filter.value) {
+            filter.value = '';
+            filter.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+            applyFilter(filter);
+        }
+        try { filter.focus(); } catch (err) { /* not focusable */ }
+        return true;
+    }
+    document.addEventListener('input', function (e) {
+        var filter = e.target instanceof Element && e.target.hasAttribute('data-menu-filter') ? e.target : null;
+        if (filter) applyFilter(filter);
+    });
+    document.addEventListener('keydown', function (e) {
+        var filter = e.target instanceof Element && e.target.hasAttribute('data-menu-filter') ? e.target : null;
+        var menu = filter ? filter.closest('.menu') : null;
+        if (!menu || e.isComposing) return;
+        var first = items(menu)[0];
+        if (!first) return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); first.focus(); }
+        else if (e.key === 'Enter') { e.preventDefault(); first.click(); }
     });
     document.addEventListener('focusout', function (e) {
         var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
@@ -1564,6 +1638,7 @@ window.sednaUi = window.sednaUi || {};
         if (on) on.setAttribute('data-menu-context-target', '');
         try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* closed */ }
         try { panel.showPopover(); } catch (err2) { return; }
+        if (startFilter(panel)) return;
         var first = items(panel)[0];
         if (first) first.focus();
     }
@@ -1723,29 +1798,82 @@ window.sednaUi = window.sednaUi || {};
     }
     document.addEventListener('pointerover', function (e) {
         var el = e.target instanceof Element ? e.target : null;
-        if (!el) return;
+        if (!el || e.pointerType === 'touch') return;
         var trigger = el.closest('[data-popover][data-popover-hover]');
         if (trigger && !trigger.contains(e.relatedTarget)) { enter(trigger); return; }
         if (hovered && hovered.contains(el)) clearTimeout(leaveTimer);
     });
     document.addEventListener('pointerout', function (e) {
         var el = e.target instanceof Element ? e.target : null;
-        if (!el || !hovered) return;
+        if (!el || !hovered || e.pointerType === 'touch') return;
         var from = el.closest('[data-popover][data-popover-hover]') || (hovered.contains(el) ? hovered : null);
         if (from && !from.contains(e.relatedTarget)) leave();
     });
     document.addEventListener('focusin', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover][data-popover-hover]') : null;
-        if (trigger) enter(trigger);
+        if (trigger && !press) enter(trigger);
     });
     document.addEventListener('focusout', function (e) {
         var el = e.target instanceof Element ? e.target : null;
         if (el && (el.closest('[data-popover][data-popover-hover]') || (hovered && hovered.contains(el)))) leave();
     });
+    var LONG_PRESS = 500, SLOP = 10;
+    var press = null;     // { trigger, panel, id, x, y, timer, fired } while a finger is down
+    var pressed = null;   // the trigger whose long press opened its card, until its click
+    var held = null;      // { trigger, panel } of that card, until the next press or key
+    function cancelPress() {
+        if (press) clearTimeout(press.timer);
+        press = null;
+    }
+    document.addEventListener('pointerdown', function (e) {
+        cancelPress();
+        pressed = null;
+        held = null;
+        if (e.pointerType !== 'touch') return;
+        var trigger = e.target instanceof Element ? e.target.closest('[data-popover][data-popover-hover]') : null;
+        var panel = trigger ? target(trigger) : null;
+        if (!panel) return;
+        var p = press = { trigger: trigger, panel: panel, id: e.pointerId, x: e.clientX, y: e.clientY, fired: false };
+        p.timer = setTimeout(function () {
+            p.fired = true;
+            pressed = trigger;
+            held = { trigger: trigger, panel: panel };
+            clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            pinned.add(panel);
+            show(panel, trigger);
+        }, LONG_PRESS);
+    }, true);
+    document.addEventListener('pointermove', function (e) {
+        if (!press || press.fired || e.pointerId !== press.id) return;
+        if (Math.abs(e.clientX - press.x) > SLOP || Math.abs(e.clientY - press.y) > SLOP) cancelPress();
+    }, true);
+    function lift(e) {
+        if (!press || e.pointerId !== press.id) return;
+        var fired = press.fired;
+        cancelPress();
+        if (fired && e.type === 'pointercancel') held = null;
+    }
+    document.addEventListener('pointerup', lift, true);
+    document.addEventListener('pointercancel', lift, true);
+    document.addEventListener('click', function (e) {
+        if (!pressed || !(e.target instanceof Node) || !pressed.contains(e.target)) return;
+        pressed = null;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    }, true);
+    document.addEventListener('contextmenu', function (e) {
+        if ((press && press.trigger.contains(e.target)) || (pressed && pressed.contains(e.target))) e.preventDefault();
+    }, true);
+    document.addEventListener('keydown', function () { held = null; }, true);
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
         if (e.newState === 'closed') pinned.delete(panel);
+        if (e.newState === 'closed' && held && held.panel === panel && held.trigger.isConnected) {
+            pinned.add(panel);
+            show(panel, held.trigger);
+            return;
+        }
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
         trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
@@ -4725,7 +4853,8 @@ window.sednaUi = window.sednaUi || {};
     var drag = null;
     function gripped(target) {
         if (!(target instanceof Element)) return null;
-        if (target.closest('button, a, input, select, textarea, [contenteditable]')) return null;
+        var control = target.closest('button, a, input, select, textarea, [contenteditable]');
+        if (control && !control.classList.contains('sheet-handle')) return null;
         var grip = target.closest('.sheet-handle, .drawer-header');
         if (!grip) return null;
         var sheet = grip.closest('dialog.sheet[data-sheet]');
@@ -4741,26 +4870,88 @@ window.sednaUi = window.sednaUi || {};
         sheet.classList.remove(DRAGGING);
         sheet.style.transform = '';
     }
+    function snaps(sheet) {
+        var raw = sheet.getAttribute('data-sheet-snap');
+        if (raw === null) return null;
+        var list = [], first = null;
+        raw.split(/[\s,]+/).forEach(function (part) {
+            var n = parseFloat(part);
+            if (!isFinite(n) || n <= 0 || n > 100) return;
+            n = Math.round(n * 100) / 10000;
+            if (first === null) first = n;
+            if (list.indexOf(n) < 0) list.push(n);
+        });
+        if (list.indexOf(1) < 0) list.push(1);
+        list.sort(function (a, b) { return a - b; });
+        return { list: list, first: first === null ? 1 : first };
+    }
+    function shareOf(sheet) {
+        var at = parseFloat(sheet.getAttribute('data-sheet-at'));
+        return isFinite(at) ? at / 100 : 1;
+    }
+    function format(share) { return Math.round(share * 10000) / 100 + '%'; }
+    function rest(sheet, share) {
+        sheet.classList.remove(DRAGGING);
+        sheet.style.transform = '';
+        sheet.style.setProperty('--sheet-rest', format(1 - share));
+        sheet.setAttribute('data-sheet-at', format(share));
+        var expand = sheet.querySelectorAll('[data-sheet-expand]');
+        for (var i = 0; i < expand.length; i++) expand[i].setAttribute('aria-expanded', String(share >= 1));
+    }
+    function opened(sheet) {
+        var s = sheet.matches && sheet.matches('dialog.sheet[data-sheet-snap]') && sheet.open ? snaps(sheet) : null;
+        if (s) rest(sheet, s.first);
+    }
+    if (typeof MutationObserver === 'function') {
+        new MutationObserver(function (records) {
+            records.forEach(function (r) { opened(r.target); });
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
+    }
+    document.querySelectorAll('dialog.sheet[data-sheet-snap][open]').forEach(opened);
+    var dragged = false;   // the last press moved the sheet, so its click is not a step
+    document.addEventListener('click', function (e) {
+        var control = e.target instanceof Element ? e.target.closest('[data-sheet-expand]') : null;
+        var sheet = control ? control.closest('dialog.sheet[data-sheet-snap]') : null;
+        if (!sheet || !sheet.open) return;
+        if (dragged && e.detail !== 0) { dragged = false; return; }
+        var list = snaps(sheet).list, now = shareOf(sheet), next = list[0];
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] > now + 0.001) { next = list[i]; break; }
+        }
+        rest(sheet, next);
+    });
     document.addEventListener('pointerdown', function (e) {
         if (drag || (e.pointerType === 'mouse' && e.button !== 0)) return;
+        dragged = false;
         var sheet = gripped(e.target);
         if (!sheet) return;
+        var height = sheet.getBoundingClientRect().height;
+        var snap = snaps(sheet);
         drag = {
             sheet: sheet,
             id: e.pointerId,
             y0: e.clientY,
             t0: e.timeStamp,
             dy: 0,
-            height: sheet.getBoundingClientRect().height
+            moved: 0,
+            captured: false,
+            height: height,
+            snap: snap,
+            rest: snap ? (1 - shareOf(sheet)) * height : 0
         };
         sheet.classList.add(DRAGGING);
-        try { sheet.setPointerCapture(e.pointerId); } catch (err) { /* carry on */ }
         e.preventDefault();
     });
     document.addEventListener('pointermove', function (e) {
         if (!drag || e.pointerId !== drag.id) return;
-        drag.dy = Math.max(0, e.clientY - drag.y0);
-        drag.sheet.style.transform = 'translateY(' + drag.dy + 'px)';
+        var moved = Math.abs(e.clientY - drag.y0);
+        if (moved > 3 && !drag.captured) {
+            drag.captured = true;
+            try { drag.sheet.setPointerCapture(e.pointerId); } catch (err) { /* carry on */ }
+        }
+        drag.moved = Math.max(drag.moved, moved);
+        drag.dy = Math.max(-drag.rest, e.clientY - drag.y0);
+        drag.sheet.style.transform = 'translateY(' + (drag.rest + drag.dy) + 'px)';
     });
     function finish(e) {
         if (!drag || e.pointerId !== drag.id) return;
@@ -4768,8 +4959,31 @@ window.sednaUi = window.sednaUi || {};
         drag = null;
         try { d.sheet.releasePointerCapture(e.pointerId); } catch (err) { /* already gone */ }
         var speed = d.dy / Math.max(1, e.timeStamp - d.t0);
+        if (d.moved > 3) dragged = true;
+        if (d.snap) { settle(d, speed); return; }
         if (d.dy > d.height * DISTANCE || (speed > FLICK && d.dy > FLICK_FLOOR)) slideOut(d.sheet);
         else springBack(d.sheet);
+    }
+    function settle(d, speed) {
+        var list = d.snap.list, h = Math.max(1, d.height);
+        var share = 1 - (d.rest + d.dy) / h;   // what shows where the finger let go
+        var from = 1 - d.rest / h;
+        var flick = Math.abs(speed) > FLICK && Math.abs(d.dy) > FLICK_FLOOR;
+        var lowest = list[0], i;
+        if (flick && speed > 0) {
+            for (i = list.length - 1; i >= 0; i--) if (list[i] < from - 0.001) { rest(d.sheet, list[i]); return; }
+            slideOut(d.sheet);
+            return;
+        }
+        if (flick) {
+            for (i = 0; i < list.length; i++) if (list[i] > from + 0.001) { rest(d.sheet, list[i]); return; }
+            rest(d.sheet, 1);
+            return;
+        }
+        if (share < lowest * (1 - DISTANCE)) { slideOut(d.sheet); return; }
+        var best = lowest;
+        for (i = 0; i < list.length; i++) if (Math.abs(list[i] - share) < Math.abs(best - share)) best = list[i];
+        rest(d.sheet, best);
     }
     document.addEventListener('pointerup', finish);
     document.addEventListener('pointercancel', finish);
@@ -5794,7 +6008,7 @@ window.sednaUi = window.sednaUi || {};
             if (!d) return Promise.resolve(null);
             if (!d.open) {
                 d.returnValue = '';
-                try { d.showModal(); }
+                try { if (d.hasAttribute('data-modeless')) d.show(); else d.showModal(); }
                 catch (e) {
                     console.warn('sednaUi.modal.show: ' + e.message);
                     return Promise.resolve(null);
@@ -5847,6 +6061,14 @@ window.sednaUi = window.sednaUi || {};
         if (!d) return;
         e.preventDefault();
         d.requestClose();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
+        var d = e.target instanceof Element ? e.target.closest('dialog[data-modeless][open]') : null;
+        if (!d || d.matches(':modal')) return;
+        if (document.querySelector(':popover-open:not([popover="manual"])')) return;
+        e.preventDefault();
+        if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
     document.addEventListener('cancel', function (e) {
         var d = e.target;

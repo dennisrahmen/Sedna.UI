@@ -4,7 +4,14 @@
    await sednaUi.modal.idle(id)    → resolves once a closed dialog's transition ends
 
    The presenter for markup the app wrote: a `.modal`, a `.drawer` or a `.sheet`,
-   each a <dialog>. The platform gives the top layer, a focus trap, Escape-to-close
+   each a <dialog>.
+
+   NOT MODAL — data-modeless. A drawer or a sheet that carries `data-modeless` is
+   opened with show() instead: no backdrop, nothing behind it made inert and no focus
+   trap, so the page stays usable while it is open — a filter panel the reader keeps
+   beside the list it filters. Everything else is the same: show() resolves with its
+   returnValue when it closes, and Escape with the focus inside it closes it, which the
+   platform does only for a modal one. The platform gives the top layer, a focus trap, Escape-to-close
    and inert content behind it — all four, none reachable from Blazor without
    IJSRuntime, which the consuming rules say an app should not inject. An app that
    followed those rules otherwise fell back to a `.modal-backdrop` div behind an
@@ -124,7 +131,7 @@
             // showModal() on an open dialog throws InvalidStateError, so join the wait.
             if (!d.open) {
                 d.returnValue = '';
-                try { d.showModal(); }
+                try { if (d.hasAttribute('data-modeless')) d.show(); else d.showModal(); }
                 catch (e) {
                     console.warn('sednaUi.modal.show: ' + e.message);
                     return Promise.resolve(null);
@@ -206,6 +213,17 @@
 
         e.preventDefault();
         d.requestClose();
+    });
+
+    /* Escape inside a dialog opened without a modal closes it, as it closes a modal one:
+       a close request, so a guarded one asks first. */
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
+        var d = e.target instanceof Element ? e.target.closest('dialog[data-modeless][open]') : null;
+        if (!d || d.matches(':modal')) return;
+        if (document.querySelector(':popover-open:not([popover="manual"])')) return;
+        e.preventDefault();
+        if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
 
     // `cancel` does not bubble, so it is caught on the way down.
