@@ -130,6 +130,24 @@ public class GraphKeyboardTests : GraphTestBase
     }
 
     [Fact]
+    public async Task A_press_held_before_it_is_let_go_focuses_the_graph_without_a_ring()
+    {
+        if (NoBrowser) return;
+        // However long the press: a reader holding it, or a slow device between the two.
+        var page = await OpenCompass();
+
+        var box = await page.Locator("#g .graph-canvas").BoundingBoxAsync();
+        await page.Mouse.MoveAsync(box!.X + 6, box.Y + 6);
+        await page.Mouse.DownAsync();
+        await Js.Elapse(page, 1200);
+        await page.Mouse.UpAsync();
+
+        Assert.Equal("g", await Eval<string>(page, "() => document.activeElement.id"));
+        Assert.Null(await Ringed(page));
+        AssertQuiet();
+    }
+
+    [Fact]
     public async Task The_arrows_move_the_ring_to_the_nearest_record_in_that_direction()
     {
         if (NoBrowser) return;
@@ -270,8 +288,9 @@ public class GraphKeyboardTests : GraphTestBase
         await page.Keyboard.PressAsync("ArrowRight");
         await page.Keyboard.PressAsync("Space");
 
+        await page.WaitForFunctionAsync("() => cyOf('g').$(':selected').length === 1");
         await page.Keyboard.PressAsync("Escape");
-        Assert.Equal(0, await Eval<int>(page, "() => cyOf('g').$(':selected').length"));
+        await page.WaitForFunctionAsync("() => cyOf('g').$(':selected').length === 0");
         Assert.Equal("east", await Ringed(page));
 
         await page.Keyboard.PressAsync("Escape");

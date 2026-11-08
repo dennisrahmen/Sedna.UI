@@ -213,7 +213,7 @@ public class SearchTests : ScriptTestBase
         // failed at random. A predicate re-evaluated in whichever document is current
         // cannot race it.
         await page.WaitForFunctionAsync(
-            "() => location.pathname.endsWith('/queue')", null, new() { Timeout = 10_000 });
+            "() => location.pathname.endsWith('/queue')");
     }
 
     [Fact]

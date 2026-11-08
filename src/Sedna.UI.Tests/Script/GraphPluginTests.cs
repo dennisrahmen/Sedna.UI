@@ -94,22 +94,26 @@ public class GraphPluginTests : GraphTestBase
         // fcose starts from random positions; the drawing a reader learned yesterday has
         // to be the one that comes back, so the start is seeded.
         var page = await OpenGraph(
-            Graph(id: "one", inside: Nested, attrs: "data-graph-eager data-graph-layout=\"fcose\"")
+            "<script>window.ownRandom = Math.random;</script>"
+            + Graph(id: "one", inside: Nested, attrs: "data-graph-eager data-graph-layout=\"fcose\"")
             + Graph(id: "two", inside: Nested, attrs: "data-graph-eager data-graph-layout=\"fcose\""));
         await Ready(page, "one");
         await Ready(page, "two");
 
         var one = await Positions(page, "one");
         var two = await Positions(page, "two");
-        foreach (var (id, at) in one) Assert.Equal(at, two[id]);
+        var views = await Eval<string>(page, "() => ['one', 'two'].map(id => { const cy = cyOf(id); return id + ' ' + cy.width() + 'x' + cy.height() + ' at ' + cy.zoom().toFixed(4); }).join('; ')");
+        foreach (var (id, at) in one)
+            Assert.True(at == two[id], $"{id} is at {at} in one and {two[id]} in two ({views}).");
         Assert.Equal(one.Count, one.Values.Distinct().Count());
         Assert.True(await Eval<bool>(page, """
             () => ['runner', 'db', 'web', 'cache'].every(id => {
                 const n = cyOf('one').getElementById(id), b = n.parent().boundingBox(), p = n.position();
                 return p.x > b.x1 && p.x < b.x2 && p.y > b.y1 && p.y < b.y2; })
             """));
-        // The page's own randomness is given back once the layout has run.
-        Assert.True(await Eval<bool>(page, "() => Math.random !== undefined && Math.random() !== Math.random()"));
+        // The page's own randomness is given back once the layouts have run — its own
+        // function, not the seeded one, however the two graphs' layouts overlapped.
+        Assert.True(await Eval<bool>(page, "() => Math.random === window.ownRandom"));
         Assert.True(Fetched(Requests, "cytoscape-fcose.js"));
         AssertQuiet();
     }
@@ -133,7 +137,9 @@ public class GraphPluginTests : GraphTestBase
 
         var one = await Positions(page, "one");
         var two = await Positions(page, "two");
-        foreach (var (id, at) in one) Assert.Equal(at, two[id]);
+        var views = await Eval<string>(page, "() => ['one', 'two'].map(id => { const cy = cyOf(id); return id + ' ' + cy.width() + 'x' + cy.height() + ' at ' + cy.zoom().toFixed(4); }).join('; ')");
+        foreach (var (id, at) in one)
+            Assert.True(at == two[id], $"{id} is at {at} in one and {two[id]} in two ({views}).");
         // And every record has a place of its own.
         Assert.Equal(one.Count, one.Values.Distinct().Count());
         AssertQuiet();
@@ -633,12 +639,29 @@ public class GraphPluginTests : GraphTestBase
         AssertQuiet();
     }
 
+    /// <summary>
+    /// Until a record stands still: the same rendered position two polls running and nothing
+    /// in the drawing animated — where a pointer has to aim at it.
+    /// </summary>
+    private static Task AtRest(IPage page, string id) =>
+        page.WaitForFunctionAsync("""
+            id => {
+                const cy = cyOf('g'), p = cy.getElementById(id).renderedPosition();
+                const at = Math.round(p.x) + ',' + Math.round(p.y);
+                const still = window.__restAt === at && !cy.elements().some(e => e.animated());
+                window.__restAt = at;
+                return still;
+            }
+            """, id, new() { PollingInterval = 100 });
+
     [Fact]
     public async Task A_double_click_folds_a_group_and_unfolds_it_again()
     {
         if (NoBrowser) return;
         var page = await OpenGraph(Graph(inside: Folding, attrs: "data-graph-eager data-graph-collapse"));
         await Ready(page);
+        // Aimed where the group has come to rest, not where it was a frame ago.
+        await AtRest(page, "team");
 
         var inside = await page.EvaluateAsync<JsonElement>("""
             () => { const r = document.querySelector('#g .graph-canvas').getBoundingClientRect();
@@ -648,16 +671,8 @@ public class GraphPluginTests : GraphTestBase
         await page.Mouse.DblClickAsync((float)inside.GetProperty("x").GetDouble(), (float)inside.GetProperty("y").GetDouble());
         await page.WaitForFunctionAsync("() => cyOf('g').getElementById('team').hasClass('cy-expand-collapse-collapsed-node')");
         // Folding moves the drawing; the second double click aims where the folded group
-        // has come to rest, not where it was a frame ago.
-        await page.WaitForFunctionAsync("""
-            () => {
-                const cy = cyOf('g'), p = cy.getElementById('team').renderedPosition();
-                const at = Math.round(p.x) + ',' + Math.round(p.y);
-                const still = window.teamAt === at && !cy.elements().some(e => e.animated());
-                window.teamAt = at;
-                return still;
-            }
-            """, null, new() { PollingInterval = 100 });
+        // has come to rest too.
+        await AtRest(page, "team");
 
         var (x, y) = await PointOf(page, "team");
         await page.Mouse.DblClickAsync(x, y);

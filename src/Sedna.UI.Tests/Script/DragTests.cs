@@ -331,7 +331,7 @@ public class DragTests : ScriptTestBase
         await page.WaitForFunctionAsync("""
             () => document.getElementById('scroller').scrollTop > 120
                && [...document.querySelectorAll('#scroller [data-drag-item]')].findIndex(e => e.hasAttribute('data-drop-edge')) > 7
-            """, null, new() { Timeout = 10_000 });
+            """);
 
         var scrolled = await page.EvaluateAsync<double>("() => document.getElementById('scroller').scrollTop");
         Assert.True(scrolled > 120, $"The scroller moved {scrolled}px under a drag held at its edge.");
@@ -502,7 +502,7 @@ public class DragTests : ScriptTestBase
                 const zone = document.querySelector(`[data-drag-zone="${e.detail.to}"]`);
                 const item = document.querySelector(`[data-drag-item="${e.detail.item}"]`);
                 const rest = [...zone.children].filter(el => el !== item && el.hasAttribute('data-drag-item'));
-                setTimeout(() => zone.insertBefore(item, rest[e.detail.index] || null), 30);
+                setTimeout(() => zone.insertBefore(item, rest[e.detail.index] || null), 30); // page-timer: an app that moves the item a moment later
             })
             """);
 

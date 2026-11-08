@@ -21,9 +21,11 @@ public class SpotlightZoomTests : ScriptTestBase
             </div>
             """);
 
+        await Js.Run(page, "() => sednaUi.spotlight.at(document.getElementById('hole'), document.getElementById('target'), { pad: 0 })");
+        // Where the hole comes to rest: it slides between placements.
+        await Js.Settle(page);
         var drawn = await page.EvaluateAsync<double[]>("""
             () => {
-              sednaUi.spotlight.at(document.getElementById('hole'), document.getElementById('target'), { pad: 0 });
               const h = document.getElementById('hole').getBoundingClientRect();
               const t = document.getElementById('target').getBoundingClientRect();
               return [h.left - t.left, h.top - t.top, h.width - t.width, h.height - t.height];

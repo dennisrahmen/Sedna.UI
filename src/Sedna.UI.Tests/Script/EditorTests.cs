@@ -52,8 +52,13 @@ public class EditorTests : ScriptTestBase
         return page;
     }
 
-    private static Task<string> Value(IPage page) =>
-        page.EvaluateAsync<string>("() => document.getElementById('note-value').value");
+    // Read two frames on: the editor writes the field back when Quill reports a change, and
+    // Quill hears typing through a mutation observer that runs after the key has landed.
+    private static async Task<string> Value(IPage page)
+    {
+        await Js.Frames(page);
+        return await page.EvaluateAsync<string>("() => document.getElementById('note-value').value");
+    }
 
     private static Task<string?> Pressed(IPage page, string id) =>
         page.Locator("#" + id).GetAttributeAsync("aria-pressed");

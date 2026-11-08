@@ -170,7 +170,7 @@ public class ToastPresentTests : ScriptTestBase
         await Js.Run(page, "() => { sednaUi.toast.result(sednaUi.toast.present('review', { title: 'Check this' }, { timeout: 0 })).then(v => window.ended = v); }");
         await page.WaitForFunctionAsync("() => document.querySelector('[data-sedna-toasts]').parentElement.id === 'dlg' && !document.querySelector('.toast').hidden");
 
-        await page.Locator("#later").ClickAsync(new() { Timeout = 2000 });
+        await page.Locator("#later").ClickAsync();
         await page.WaitForFunctionAsync("() => window.ended === 'later'");
     }
 

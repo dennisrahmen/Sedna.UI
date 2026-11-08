@@ -250,6 +250,8 @@ public class MochiTests : ScriptTestBase
         if (NoBrowser) return;
         // A plain card, so a pixel of the body over it would stand out.
         var page = await OpenMochi(OnCard(perch, 160));
+        // Measured and sampled where everything has come to rest and been painted.
+        await Js.Settle(page);
         var card = await CardBox(page);
         var mochi = await page.EvaluateAsync<JsonElement>(
             "() => { const r = document.getElementById('m').getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; }");
@@ -520,7 +522,7 @@ public class MochiTests : ScriptTestBase
         var page = await OpenMochi($"""<span class="mochi mochi--still" id="m" data-action="{action}" role="img" aria-label="Ops agent">""" + Svg + "</span>", reduced: false);
 
         // A loop with a delay waits it out before it ends, so give the longest one time.
-        await page.WaitForFunctionAsync($"() => ({Running})() === 0", null, new() { Timeout = 5000 });
+        await page.WaitForFunctionAsync($"() => ({Running})() === 0");
         Assert.Equal(0, await page.EvaluateAsync<int>(RunningOverTime));
 
         // Paused on its first frame, a prop's loop would hold it unseen — a bubble at
@@ -537,7 +539,7 @@ public class MochiTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenMochi("""<span class="mochi mochi--still" id="m" data-action="idle" role="img" aria-label="Ops agent">""" + Svg + "</span>", reduced: false);
-        await page.WaitForFunctionAsync($"() => ({Running})() === 0", null, new() { Timeout = 5000 });
+        await page.WaitForFunctionAsync($"() => ({Running})() === 0");
 
         // Out of view the script holds every loop; back in view it lets them go. A still
         // Mochi has none to let go.

@@ -86,13 +86,13 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         var orders = await At(page, "owned-services", "orders");
         await page.Mouse.ClickAsync(orders.X, orders.Y);
         // data-owner and data-on-call, as Fields["owner"] and Fields["onCall"].
-        await demo.Locator("aside", new() { HasText = "Jordan Weiss" }).WaitForAsync(new() { Timeout = 5_000 });
+        await demo.Locator("aside", new() { HasText = "Jordan Weiss" }).WaitForAsync();
         Assert.Contains("Priya Nair", await demo.Locator("aside").InnerTextAsync(), StringComparison.Ordinal);
 
         var url = page.Url;
         var payments = await At(page, "owned-services", "payments");
         await page.Mouse.DblClickAsync(payments.X, payments.Y);
-        await page.Locator(".toast", new() { HasText = "/services/payments" }).WaitForAsync(new() { Timeout = 5_000 });
+        await page.Locator(".toast", new() { HasText = "/services/payments" }).WaitForAsync();
         // :preventDefault reached the script, so the record's data-href was not followed.
         Assert.Equal(url, page.Url);
 
@@ -111,7 +111,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
 
         var before = await Cy<Dictionary<string, Dictionary<string, double>>>(page, "fulfilment", positions);
         await demo.GetByRole(AriaRole.Button, new() { Name = "Open a warehouse" }).ClickAsync();
-        await demo.GetByText("6 records, 7 links").WaitForAsync(new() { Timeout = 5_000 });
+        await demo.GetByText("6 records, 7 links").WaitForAsync();
         await Js.Elapse(page, 600);
         var after = await Cy<Dictionary<string, Dictionary<string, double>>>(page, "fulfilment", positions);
 
@@ -136,8 +136,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         await Example(page, "release-pipeline").Locator("label.switch", new() { HasText = "Load test" }).ClickAsync();
 
         await page.WaitForFunctionAsync(
-            "() => document.getElementById('release-pipeline').querySelector('.graph-canvas')._cyreg.cy.edges('[source = \"load\"]').length === 1",
-            null, new() { Timeout = 5_000 });
+            "() => document.getElementById('release-pipeline').querySelector('.graph-canvas')._cyreg.cy.edges('[source = \"load\"]').length === 1");
 
         await page.Context.CloseAsync();
     }
@@ -151,7 +150,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         var demo = Example(page, "drawn-calls");
 
         await demo.Locator("label.switch", new() { HasText = "Draw links" }).ClickAsync();
-        await page.WaitForSelectorAsync("#drawn-calls[data-graph-drawing]", new() { Timeout = 5_000 });
+        await page.WaitForSelectorAsync("#drawn-calls[data-graph-drawing]");
 
         var from = await At(page, "drawn-calls", "orders");
         var to = await At(page, "drawn-calls", "payments");
@@ -163,7 +162,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         await Js.Elapse(page, 300);
         await page.Mouse.UpAsync();
 
-        await demo.Locator(".chip", new() { HasText = "Orders API calls Payments" }).WaitForAsync(new() { Timeout = 5_000 });
+        await demo.Locator(".chip", new() { HasText = "Orders API calls Payments" }).WaitForAsync();
         Assert.True(await Cy<bool>(page, "drawn-calls", "cy.edges('[source = \"orders\"][target = \"payments\"]').length === 1"));
 
         await page.Context.CloseAsync();
@@ -178,19 +177,19 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         await Ready(page, "filtered-services");
         var filters = Example(page, "filtered-services");
         await filters.Locator("select").SelectOptionAsync("checkout");
-        await filters.GetByText("Showing 4 of 12 services").WaitForAsync(new() { Timeout = 5_000 });
+        await filters.GetByText("Showing 4 of 12 services").WaitForAsync();
         await filters.Locator("label.form-check", new() { HasText = "Stores" }).ClickAsync();
-        await filters.GetByText("Showing 3 of 12 services").WaitForAsync(new() { Timeout = 5_000 });
+        await filters.GetByText("Showing 3 of 12 services").WaitForAsync();
 
         await Ready(page, "explored-services");
         var explore = Example(page, "explored-services");
         await explore.Locator("input[type=search]").FillAsync("orders");
-        await explore.GetByText("2 found").WaitForAsync(new() { Timeout = 5_000 });
+        await explore.GetByText("2 found").WaitForAsync();
         await explore.Locator("select").SelectOptionAsync("payments");
-        await explore.GetByText("2 of 7 services shown").WaitForAsync(new() { Timeout = 5_000 });
+        await explore.GetByText("2 of 7 services shown").WaitForAsync();
 
         await explore.GetByRole(AriaRole.Button, new() { Name = "Picture" }).ClickAsync();
-        await explore.Locator("img[src^='data:image/svg+xml']").WaitForAsync(new() { Timeout = 5_000 });
+        await explore.Locator("img[src^='data:image/svg+xml']").WaitForAsync();
 
         await page.Context.CloseAsync();
     }
@@ -292,10 +291,10 @@ public class GraphBlazorTests(CatalogueAppFixture app)
 
         var step = demo.GetByRole(AriaRole.Button, new() { Name = "Step" });
         await step.ClickAsync();
-        await page.WaitForFunctionAsync($"() => ({state})('received').data('state') === 'running'", null, new() { Timeout = 5_000 });
+        await page.WaitForFunctionAsync($"() => ({state})('received').data('state') === 'running'");
         await step.ClickAsync();
-        await page.WaitForFunctionAsync($"() => ({state})('stock').data('state') === 'running'", null, new() { Timeout = 5_000 });
-        await demo.GetByText("1 of 8 steps done").WaitForAsync(new() { Timeout = 5_000 });
+        await page.WaitForFunctionAsync($"() => ({state})('stock').data('state') === 'running'");
+        await demo.GetByText("1 of 8 steps done").WaitForAsync();
 
         // The links carry no state of their own and take their targets'.
         Assert.Null(await Cy<string?>(page, graph, "cy.getElementById('received→stock').data('state')"));
@@ -309,7 +308,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         }
 
         await demo.GetByRole(AriaRole.Button, new() { Name = "Reset" }).ClickAsync();
-        await page.WaitForFunctionAsync($"() => ({state})('stock').data('state') === null", null, new() { Timeout = 5_000 });
+        await page.WaitForFunctionAsync($"() => ({state})('stock').data('state') === null");
         Assert.Equal("next", await Cy<string>(page, graph, "cy.getElementById('received').data('state')"));
 
         await page.Context.CloseAsync();
@@ -325,7 +324,7 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         // pins. The same records written as markup, with data-collapsed, start folded; sent by a
         // call they do not — setData() folds only the groups that were folded before it, and
         // plugins() reads `collapsed` once, from the records a graph starts with.
-        var folded = await page.EvaluateAsync<string>(
+        await Js.Run(page,
             """
             async () => {
                 document.body.insertAdjacentHTML('beforeend',
@@ -341,10 +340,13 @@ public class GraphBlazorTests(CatalogueAppFixture app)
                     ],
                     edges: [{ source: 'basket', target: 'search' }],
                 });
-                await new Promise(r => setTimeout(r, 800));
-                return graph.cy.nodes('.cy-expand-collapse-collapsed-node').map(n => n.id()).join(',');
+                window.__probe = graph;
             }
             """);
+        // Until the group has folded, which the plugin does after the drawing has settled.
+        const string Folded = "() => __probe.cy.nodes('.cy-expand-collapse-collapsed-node').map(n => n.id()).join(',')";
+        await page.WaitForFunctionAsync($"() => ({Folded})() === 'checkout'");
+        var folded = await page.EvaluateAsync<string>(Folded);
 
         Assert.Equal("checkout", folded);
 

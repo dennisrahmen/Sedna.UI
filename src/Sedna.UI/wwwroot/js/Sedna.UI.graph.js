@@ -972,6 +972,12 @@ async function arrangeWith(cy, name, options, frame) {
 }
 async function nestedSprings(visible, count, spacing, box) {
     await plugin('fcose');
+    const turn = springsQueue.then(() => nestedSpringsNow(visible, count, spacing, box));
+    springsQueue = turn.catch(() => {});
+    return turn;
+}
+let springsQueue = Promise.resolve();
+async function nestedSpringsNow(visible, count, spacing, box) {
     if (visible.cy().destroyed()) return;
     seeded();
     try {
@@ -2174,8 +2180,7 @@ function keyboard(g) {
         if (handled) e.preventDefault();
     }
     function onFocus() {
-        const pointer = Date.now() - (g.pointerAt || 0) < 800;
-        if (!g.keyed && !pointer && el.matches(':focus-visible')) key(start());
+        if (!g.keyed && !g.pressing && el.matches(':focus-visible')) key(start());
     }
     function onBlur(e) {
         if (e.relatedTarget && el.contains(e.relatedTarget)) return;
@@ -3606,11 +3611,13 @@ function wire(g) {
     const pointed = yes => {
         if (yes !== el.hasAttribute('data-graph-pointer')) el.toggleAttribute('data-graph-pointer', yes);
     };
-    on(g.host, 'pointerdown', () => { g.pointerAt = Date.now(); });
+    on(g.host, 'pointerdown', () => { g.pressing = true; });
     on(g.host, 'pointerup', () => {
         if (document.activeElement !== el) el.focus({ preventScroll: true });
         pointed(document.activeElement === el);
     });
+    on(window, 'pointerup', () => { g.pressing = false; });
+    on(window, 'pointercancel', () => { g.pressing = false; });
     on(el, 'keydown', e => { if (!['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) pointed(false); });
     on(el, 'focusout', e => { if (!el.contains(e.relatedTarget)) pointed(false); });
     let was = null;

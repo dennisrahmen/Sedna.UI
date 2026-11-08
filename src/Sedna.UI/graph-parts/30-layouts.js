@@ -322,6 +322,15 @@ async function arrangeWith(cy, name, options, frame) {
    (untangle, from atScale in 70-graph.js). */
 async function nestedSprings(visible, count, spacing, box) {
     await plugin('fcose');
+    // One fcose layout at a time: the seed is the page's own Math.random, so two graphs
+    // laying out at once would draw from one sequence and put back each other's.
+    const turn = springsQueue.then(() => nestedSpringsNow(visible, count, spacing, box));
+    springsQueue = turn.catch(() => {});
+    return turn;
+}
+let springsQueue = Promise.resolve();
+
+async function nestedSpringsNow(visible, count, spacing, box) {
     if (visible.cy().destroyed()) return;
     seeded();
     try {

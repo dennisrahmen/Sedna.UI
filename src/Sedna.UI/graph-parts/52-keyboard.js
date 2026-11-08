@@ -198,8 +198,7 @@ function keyboard(g) {
 
     function onFocus() {
         // Only for the keyboard: a click that focuses the graph has already chosen a record.
-        const pointer = Date.now() - (g.pointerAt || 0) < 800;
-        if (!g.keyed && !pointer && el.matches(':focus-visible')) key(start());
+        if (!g.keyed && !g.pressing && el.matches(':focus-visible')) key(start());
     }
     function onBlur(e) {
         if (e.relatedTarget && el.contains(e.relatedTarget)) return;

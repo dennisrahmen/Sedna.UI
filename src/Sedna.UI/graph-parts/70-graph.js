@@ -758,11 +758,15 @@ function wire(g) {
     const pointed = yes => {
         if (yes !== el.hasAttribute('data-graph-pointer')) el.toggleAttribute('data-graph-pointer', yes);
     };
-    on(g.host, 'pointerdown', () => { g.pointerAt = Date.now(); });
+    // Pressing from the press to its release, however long it is held: the focus the
+    // release gives is the pointer's. Cleared on the window, which hears every release last.
+    on(g.host, 'pointerdown', () => { g.pressing = true; });
     on(g.host, 'pointerup', () => {
         if (document.activeElement !== el) el.focus({ preventScroll: true });
         pointed(document.activeElement === el);
     });
+    on(window, 'pointerup', () => { g.pressing = false; });
+    on(window, 'pointercancel', () => { g.pressing = false; });
     on(el, 'keydown', e => { if (!['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) pointed(false); });
     on(el, 'focusout', e => { if (!el.contains(e.relatedTarget)) pointed(false); });
 

@@ -1128,7 +1128,7 @@ public class GraphTests : GraphTestBase
         // identical one; Blazor's initializer says it has started.
         var held = await Eval<bool>(page, """
             async () => {
-                await new Promise(r => setTimeout(r, 300));
+                await new Promise(r => setTimeout(r, 300)); // page-timer: fires before the loader's own 4s hold on the same clock
                 const old = document.getElementById('g');
                 const waited = !old.hasAttribute('data-graph-state');
                 window.oldGraph = old;
@@ -1153,7 +1153,7 @@ public class GraphTests : GraphTestBase
         // A page whose circuit never starts still shows its graph, a few seconds late.
         var page = await OpenGraph(BlazorMarker + Graph());
         Assert.True(await Eval<bool>(page,
-            "async () => { await new Promise(r => setTimeout(r, 300)); return !document.getElementById('g').hasAttribute('data-graph-state'); }"));
+            "async () => { await new Promise(r => setTimeout(r, 300)); /* page-timer: before the 4s hold */ return !document.getElementById('g').hasAttribute('data-graph-state'); }"));
 
         await page.WaitForFunctionAsync(
             "() => document.getElementById('g').getAttribute('data-graph-state') === 'ready'",
