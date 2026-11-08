@@ -371,7 +371,7 @@ neither touches the type, which the reader sizes with the browser's zoom. Compac
 small control tier at 24px; touch loosens and puts the default control at 44px. Both move the page's
 rhythm and padding (`--page-rhythm`, `--page-pad`) and the three control heights
 (`--control-height-sm`, `--control-height`, `--control-height-lg`). Each tightens table cells through `--cell-pad-y` /
-`--cell-pad-x`, and every card part — `.card-head`, `.card-body`, `.card-foot` — through `--card-pad-block` / `--card-pad-inline`, and every `.list-row` — in a card or not — through `--list-pad-block` / `--list-pad-inline`, with `--list-gap` between the cards of a `.list--cards`. An app's own component tightens with them by reading
+`--cell-pad-x` — and the rows of a check-answers list, `.kv` rows beside a `.kv-action`, through `--cell-pad-y` too — and every card part — `.card-head`, `.card-body`, `.card-foot` — through `--card-pad-block` / `--card-pad-inline`, and every `.list-row` — in a card or not — through `--list-pad-block` / `--list-pad-inline`, with `--list-gap` between the cards of a `.list--cards`. An app's own component tightens with them by reading
 the same tokens; page-specific components with other spacing are the app's to tighten.
 
 On a coarse pointer every text field — `input` of a typed kind, `select`, `textarea`, the library's and
