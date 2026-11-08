@@ -498,7 +498,8 @@ a decision's diamond and a loop's count.
 
 **The local values are a scale of their own, and a sticky table uses three of them.** They order
 cells inside one table and never anything else: `1` is a pinned column's body cells, above the static
-cells they slide across; `2` is `.table--sticky`'s header row, above those; `3` is the corner cell of a
+cells they slide across; `2` is `.table--sticky`'s header row and `.table--sticky-foot`'s footer row,
+above those; `3` is the corner cell of a
 pinned column, which is sticky on both axes and has to beat the other header cells as well — it is
 first in DOM order, so at an equal z-index every one of them paints over it. That is the whole reason
 the band is three wide rather than two.

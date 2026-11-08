@@ -224,7 +224,8 @@
    band this wide. Each level is load-bearing:
 
      · 1  the pinned body cells, above the static cells they slide across.
-     · 2  `.table--sticky`'s header row, above those.
+     · 2  `.table--sticky`'s header row and `.table--sticky-foot`'s footer row,
+          above those.
      · 3  the corner cell, which is sticky on BOTH axes. It has to beat the other
           header cells as well as the column beneath it, and it is first in DOM
           order, so at an equal z-index every other header cell paints over it — the
@@ -573,7 +574,7 @@
    second press from starting it twice.
 
      <tr class="tr-more"><td colspan="999">
-       <button class="btn btn--sm" type="button"><i class="ri-arrow-down-line"></i> Show 50 more</button>
+       <button class="btn btn--sm" type="button"><i class="ri-arrow-down-line"></i><span>Show 50 more</span></button>
        <span class="tr-more-count">50 of 1,284</span>
      </td></tr>
 

@@ -195,7 +195,7 @@ public class VirtualizedRowsTests : ScriptTestBase
                 <tr id="striped"><td>b</td><td>2</td></tr>
                 <tr><td>c</td><td>3</td></tr>
                 <tr class="tr-more" id="more"><td colspan="999">
-                  <button class="btn btn--sm" type="button" id="go"><i class="ri-arrow-down-line"></i> Show 50 more</button>
+                  <button class="btn btn--sm" type="button" id="go"><i class="ri-arrow-down-line"></i><span>Show 50 more</span></button>
                   <span class="tr-more-count" id="count">3 of 1,284</span>
                 </td></tr>
               </tbody>
