@@ -19,6 +19,15 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.List.Stagger" Title="Rows that arrive" Demo="ex-demo--block">
+    <p>
+        <code>.list--stagger</code> lets the first rows fade in one after another as the list appears,
+        <code>--stagger-step</code> apart, as <a href="/table"><code>.table--stagger</code></a> does for a
+        table; <code>--row-index</code> on a row counts a later page from its own first row. It is off
+        for a reader who asked for reduced motion.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.List.EmptyList" Title="Nothing in it" Demo="ex-demo--block">
     <p>
         <code>.list-empty</code> is the one <code>&lt;li&gt;</code> a list holds when this view of it
@@ -83,6 +92,14 @@
         tree. The count stays in the head. Render <code>aria-expanded</code> from the state you keep
         to restore a fold, and use <code>data-group-toggle="managed"</code> where your own click
         handler flips it; the rows follow either way.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.GroupFoldFromCsharp" Title="Folds the app keeps" Demo="ex-demo--block">
+    <p>
+        With <code>data-group-toggle="managed"</code> the script never flips the button: your
+        <code>@@onclick</code> changes the state you keep, Blazor renders <code>aria-expanded</code> from
+        it, and the rows follow that. This is how a fold survives a reload.
     </p>
 </CatExample>
 

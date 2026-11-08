@@ -115,7 +115,9 @@
         hidden while none is. Every <code>[data-graph-field]</code> in it takes that field of the record as text
         &mdash; a <code>data-*</code> of the record's own names one, as <code>team</code>, <code>owner</code> and
         <code>host</code> do here &mdash; and <code>[data-graph-icon]</code> takes its icon. A field the record does
-        not have is hidden.
+        not have is hidden. A label written beside it goes with it when the row says which field it belongs to:
+        <code>data-graph-if="contract"</code> on the row hides the whole Contract line for a service that has
+        none, and shows it for the two outside services.
     </p>
     <p>
         The neighbours are rows cloned from <code>&lt;template data-graph-neighbour&gt;</code> into
@@ -254,10 +256,11 @@
         </thead>
         <tbody>
             <tr><td><code>data-graph-field="name"</code></td><td>the tooltip, the menu, the panel, a row</td><td>That field of the record, as text. Hidden when the record has none.</td></tr>
+            <tr><td><code>data-graph-if="name"</code></td><td>any element in the same places</td><td>Nothing: hidden with the field it names when the record has none, for a label beside a value.</td></tr>
             <tr><td><code>data-graph-icon</code></td><td>the same</td><td>The record's icon class, added to the element's own.</td></tr>
             <tr><td><code>data-graph-tone</code></td><td>written on the tooltip and the panel</td><td>The record's tone, for the app's own styling.</td></tr>
             <tr><td><code>data-graph-tip</code>, <code>data-graph-tip="edge"</code></td><td>inside the graph</td><td>The tooltip for records, and for links.</td></tr>
-            <tr><td><code>data-graph-menu</code></td><td>a <code>.menu</code> inside the graph</td><td>Opened on a record, or on the background.</td></tr>
+            <tr><td><code>data-graph-menu</code></td><td>a <code>.menu</code> inside the graph</td><td>Opened on a record, or on the background. <code>data-graph-always</code> on its <code>open</code> item keeps it for a record with no <code>data-href</code>, for an app that opens records itself &mdash; <a href="/graph-blazor#the-reader-s-clicks-as-events">Graph in Blazor</a> shows it.</td></tr>
             <tr><td><code>data-graph-detail</code></td><td>in the frame, or with <code>data-graph-for</code></td><td>Shown while a record is selected.</td></tr>
             <tr><td><code>data-graph-neighbours</code>, <code>&lt;template data-graph-neighbour&gt;</code></td><td>in the panel</td><td>One row per linked record, with <code>data-graph-direction</code> and a <code>[data-graph-link]</code> for the link's label.</td></tr>
             <tr><td><code>data-graph-live</code></td><td>a polite live region</td><td>The sentence in <code>data-graph-announce</code> for each record the keyboard reaches, and in <code>data-graph-announce-select</code> for a selection: <code>{label}</code>, <code>{kind}</code>, <code>{meta}</code>, any field, and <code>{links}</code>.</td></tr>

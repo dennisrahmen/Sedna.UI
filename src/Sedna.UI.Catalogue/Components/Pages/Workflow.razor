@@ -21,7 +21,8 @@
         and where it is without reading a node. A diagram wider than its container scrolls, so it takes
         <code>tabindex="0"</code> for the keyboard, and <code>data-follow</code> keeps the step at work in
         view: the diagram scrolls to it as states change, lets go when the reader scrolls away, and takes
-        up again when they scroll back.
+        up again when they scroll back. A <code>data-workflow-follow</code> button brings the step back
+        and follows again &mdash; the diagram its <code>aria-controls</code> names.
     </p>
 </CatExample>
 
@@ -182,6 +183,13 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Workflow.Centred" Title="A short flow, centred" Demo="ex-demo--block">
+    <p>
+        <code>.workflow--center</code> centres a diagram narrower than its container, and still starts it
+        at the edge once it is wider, so nothing is cut off.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Workflow.Detail" Title="A step and what it did" Demo="ex-demo--block">
     <p>
         A node that opens its detail is a <code>&lt;button class="workflow-node"&gt;</code> with spans inside,
@@ -190,8 +198,7 @@
         runs out &mdash; holding whatever explains the step: what it read, what it weighed, the tools it ran.
     </p>
     <p>
-        <code>.workflow--grid</code> dots the canvas and <code>.workflow--center</code> centres a diagram
-        narrower than its container. For a graph too large to write by hand &mdash; a flow generated from an
+        <code>.workflow--grid</code> dots the canvas. For a graph too large to write by hand &mdash; a flow generated from an
         automation's own definition &mdash; the <a href="/graph-gallery">graph</a> draws the same states on a
         canvas.
     </p>

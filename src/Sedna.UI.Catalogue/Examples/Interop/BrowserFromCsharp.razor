@@ -1,0 +1,70 @@
+@inject ISednaUi Ui
+
+<div class="card" style="max-width:560px">
+    <div class="card-head card-head--tabs">
+        <div class="tabs" role="tablist" data-tabs aria-label="ORD-4209">
+            <button class="tab" role="tab" aria-selected="true" id="br-lines" aria-controls="br-lines-panel" type="button">Lines</button>
+            <button class="tab" role="tab" aria-selected="false" id="br-parcel" aria-controls="br-parcel-panel" type="button" tabindex="-1">Parcel</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-panel" role="tabpanel" id="br-lines-panel" aria-labelledby="br-lines">
+            <div class="kv"><span class="k">Lines per page</span><span class="v">@(_pageSize?.ToString() ?? "not decided yet")</span></div>
+            <div class="kv"><span class="k">Pinned order</span><span class="v">@(_pinned ?? "none")</span></div>
+        </div>
+        <div class="tab-panel" role="tabpanel" id="br-parcel-panel" aria-labelledby="br-parcel" hidden>
+            <div class="kv"><span class="k">Carrier</span><span>Next-day courier</span></div>
+            <div class="kv"><span class="k">Tracking number</span><span class="v">PKG-58301-224</span></div>
+        </div>
+    </div>
+    <div class="card-foot card-foot--start">
+        <button class="btn btn--sm" type="button" @onclick="Share"><i class="ri-link"></i> <span>Copy a share link</span></button>
+        <button class="btn btn--sm" type="button" @onclick="Pin"><i class="ri-pushpin-line"></i> <span>Pin this order</span></button>
+        <button class="btn btn--sm" type="button" @onclick="Track"><i class="ri-truck-line"></i> <span>Where is it?</span></button>
+        <span class="form-hint sedna-push" role="status">@_status</span>
+    </div>
+</div>
+
+@code {
+    // The app's own key. GetItemAsync and SetItemAsync take it as it is: the library's
+    // storage prefix is for its own settings, not for this.
+    private const string PinKey = "orders.pinned";
+
+    private int? _pageSize;
+    private string? _pinned;
+    private string _status = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        // A decision only the server can make — how many lines to fetch — on a number only
+        // the browser knows. Layout is the stylesheet's, and stays there.
+        _pageSize = await Ui.ViewportWidthAsync() < 720 ? 10 : 50;
+        _pinned = await Ui.GetItemAsync(PinKey);
+        StateHasChanged();
+    }
+
+    // A value the server has only just made, so there is no data-copy attribute to write.
+    private async Task Share()
+    {
+        var token = Guid.NewGuid().ToString("N")[..12];
+        var link = $"https://orders.example.com/s/{token}";
+        _status = await Ui.CopyTextAsync(link) ? "Link copied." : "The browser did not allow the copy.";
+    }
+
+    private async Task Pin()
+    {
+        await Ui.SetItemAsync(PinKey, "ORD-4209");
+        _pinned = "ORD-4209";
+        _status = "Pinned in this browser.";
+    }
+
+    // Selects the tab by the panel it controls, as a click on it would, then opens the carrier's
+    // page beside this one.
+    private async Task Track()
+    {
+        await Ui.SelectTabAsync("br-parcel-panel");
+        await Ui.OpenTabAsync("https://tracking.example.org/PKG-58301-224");
+    }
+}

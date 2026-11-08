@@ -1,0 +1,120 @@
+@inject ISednaGraphs Graphs
+
+<div class="card">
+    <div class="card-head">
+        <div class="toolbar-filters">
+            <select class="form-input form-select form-select--sm sedna-w-fit" aria-label="Layout"
+                    @bind="_layout" @bind:after="Relayout">
+                @foreach (var choice in Layouts)
+                {
+                    <option value="@choice.Key">@choice.Value.Label</option>
+                }
+            </select>
+            <select class="form-input form-select form-select--sm sedna-w-fit" aria-label="Colour by"
+                    @bind="_colour" @bind:after="Recolour">
+                <option value="tone">Colour by team</option>
+                <option value="health">Colour by health</option>
+            </select>
+            <label class="switch"><input type="checkbox" @bind="_outlines" @bind:after="Outline" /> <span>Card data</span></label>
+        </div>
+        <span class="form-hint text-nowrap">@Shown</span>
+    </div>
+    <div class="graph graph--sm" data-graph data-graph-deferred data-graph-collapse data-graph-layout="fcose"
+         data-graph-arrows="target" id="release-map" aria-label="The shop's services, by team"
+         @onsedna-graph-collapse="Recount" @onsedna-graph-expand="Recount">
+        <div class="graph-canvas"></div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="card-foot card-foot--start">
+        <button class="btn btn--sm" type="button" @onclick="FoldAll"><i class="ri-checkbox-indeterminate-line"></i> <span>Fold every team</span></button>
+        <button class="btn btn--sm" type="button" @onclick="OpenAll"><i class="ri-add-box-line"></i> <span>Open every team</span></button>
+        <div class="btn-group sedna-push" role="group" aria-label="Zoom">
+            <button class="btn btn--sm btn--icon" type="button" aria-label="Zoom out" @onclick="() => Graphs.ZoomAsync(Id, 0.8)"><i class="ri-zoom-out-line"></i></button>
+            <button class="btn btn--sm btn--icon" type="button" aria-label="Zoom in" @onclick="() => Graphs.ZoomAsync(Id, 1.25)"><i class="ri-zoom-in-line"></i></button>
+            <button class="btn btn--sm btn--icon" type="button" aria-label="Fit" @onclick="() => Graphs.FitAsync(Id)"><i class="ri-focus-3-line"></i></button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private const string Id = "release-map";
+
+    // A layout and, for dagre and tree, its direction; null keeps what the layout does by default.
+    private static readonly Dictionary<string, (string Label, string Layout, string? Direction)> Layouts = new()
+    {
+        ["fcose"] = ("By team", SednaGraphLayout.Fcose, null),
+        ["dagre-lr"] = ("Left to right", SednaGraphLayout.Dagre, "LR"),
+        ["dagre-tb"] = ("Top to bottom", SednaGraphLayout.Dagre, "TB"),
+    };
+
+    private string _layout = "fcose";
+    private string _colour = "tone";
+    private bool _outlines;
+    private SednaGraphStats? _shown;
+
+    private string Shown => _shown is null ? "Loading…" : $"{_shown.Nodes} records, {_shown.Edges} links";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        _shown = await Graphs.SetDataAsync(Id, new SednaGraphData(Services, Calls));
+        StateHasChanged();
+    }
+
+    private Task Relayout()
+    {
+        var chosen = Layouts[_layout];
+        return Graphs.LayoutAsync(Id, chosen.Layout, chosen.Direction);
+    }
+
+    // "tone" is each record's own Tone; any other value names one of its Tones.
+    private Task Recolour() => Graphs.SetOptionAsync(Id, "colour", _colour);
+
+    // The outline goes around every record of one Group: here, what handles card data.
+    private Task Outline() => Graphs.SetHullsAsync(Id, _outlines);
+
+    // A null group folds or opens every group, and answers what is on screen afterwards.
+    private async Task FoldAll()
+    {
+        _shown = await Graphs.CollapseAsync(Id);
+        await Graphs.FitAsync(Id);
+    }
+
+    private async Task OpenAll() => _shown = await Graphs.ExpandAsync(Id);
+
+    // A group the reader folds with its own cue says so as an event; the count asks again.
+    private async Task Recount() => _shown = await Graphs.StatsAsync(Id);
+
+    private static Dictionary<string, string> Health(string tone) => new() { ["health"] = tone };
+
+    private static readonly SednaGraphNode[] Services =
+    [
+        new("checkout", "Checkout") { Tone = SednaGraphTone.Series(2) },
+        new("storefront", "Storefront") { Parent = "checkout", Tone = SednaGraphTone.Series(2), Icon = "ri-store-2-line", Tones = Health(SednaGraphTone.Go) },
+        new("basket", "Basket") { Parent = "checkout", Tone = SednaGraphTone.Series(2), Icon = "ri-shopping-cart-2-line", Tones = Health(SednaGraphTone.Go) },
+        new("payments", "Payments") { Parent = "checkout", Tone = SednaGraphTone.Series(2), Icon = "ri-bank-card-line", Group = "card-data", Tones = Health(SednaGraphTone.Warn) },
+
+        new("fulfilment", "Fulfilment") { Tone = SednaGraphTone.Series(3) },
+        new("orders", "Orders API") { Parent = "fulfilment", Tone = SednaGraphTone.Series(3), Icon = "ri-server-line", Meta = "orders-console-01", Tones = Health(SednaGraphTone.Go) },
+        new("orders-db", "Orders database") { Parent = "fulfilment", Tone = SednaGraphTone.Series(3), Shape = SednaGraphShape.Square, Icon = "ri-database-2-line", Meta = "src-db-14", Group = "card-data", Tones = Health(SednaGraphTone.Go) },
+        new("shipping", "Shipping") { Parent = "fulfilment", Tone = SednaGraphTone.Series(3), Icon = "ri-truck-line", Tones = Health(SednaGraphTone.Danger) },
+
+        new("platform", "Platform") { Tone = SednaGraphTone.Series(5) },
+        new("events", "Order events") { Parent = "platform", Tone = SednaGraphTone.Series(5), Shape = SednaGraphShape.Diamond, Icon = "ri-stack-line", Tones = Health(SednaGraphTone.Go) },
+        new("mail", "Order e-mails") { Parent = "platform", Tone = SednaGraphTone.Series(5), Icon = "ri-mail-send-line", Tones = Health(SednaGraphTone.Warn) },
+
+        new("card-processor", "Card processor") { Tone = SednaGraphTone.Muted, Shape = SednaGraphShape.Hexagon, Icon = "ri-global-line", Group = "card-data", Tones = Health(SednaGraphTone.Go) },
+    ];
+
+    private static readonly SednaGraphEdge[] Calls =
+    [
+        new("storefront", "basket") { Label = "calls" },
+        new("basket", "orders") { Label = "places" },
+        new("orders", "payments") { Label = "charges" },
+        new("payments", "card-processor") { Label = "authorises" },
+        new("orders", "orders-db") { Label = "writes" },
+        new("orders", "events") { Label = "publishes" },
+        new("events", "mail") { Label = "feeds" },
+        new("events", "shipping") { Label = "feeds" },
+    ];
+}

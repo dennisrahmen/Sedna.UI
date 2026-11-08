@@ -6,12 +6,17 @@
 
     var config = ui._.config;
 
+    // Resolves whether notifications may be shown: at once when the reader has already
+    // answered, else once they answer the browser's question. Always a boolean, never
+    // undefined — ISednaUi.RequestNotifyAsync reads the answer as one.
     ui.requestNotify = function () {
         try {
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-        } catch (e) { /* notifications unavailable */ }
+            if (!('Notification' in window)) return Promise.resolve(false);
+            if (Notification.permission !== 'default') return Promise.resolve(Notification.permission === 'granted');
+            return Promise.resolve(Notification.requestPermission()).then(
+                function (answer) { return answer === 'granted'; },
+                function () { return false; });
+        } catch (e) { return Promise.resolve(false); /* notifications unavailable */ }
     };
 
     ui.notify = function (title, body) {

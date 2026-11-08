@@ -28,6 +28,18 @@
     </p>
 </CatSnippet>
 
+<CatSnippet Name="Interop/FromTheLayout.txt" Title="Once per circuit, and after every navigation">
+    <p>
+        The layout outlives every page, so it is where the app says what holds for the whole session:
+        <code>ConfigureAsync</code> pushes the options given to <code>AddSednaUi</code>, and
+        <code>RegisterSearchAsync</code> and <code>RegisterCommandsAsync</code> hand over the header search's index
+        and the palette's commands, each replacing the last list. A navigation in Blazor is not a page load, so
+        nothing the browser would reset is reset: <code>CloseSearchAsync</code>, <code>ClosePaletteAsync</code>,
+        <code>CloseMenusAsync</code> and <code>HideTipsAsync</code> put away what belonged to the last page, and
+        <code>ScrollPageTopAsync</code> starts the new one at its top. This site's own layout does the same.
+    </p>
+</CatSnippet>
+
 <CatExample TExample="Examples.Interop.ToastsFromCsharp" Title="Toasts" Demo="ex-demo--block">
     <p>
         <code>ToastAsync</code> takes the message and a <code>ToastKind</code>, whose members are the
@@ -75,6 +87,52 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.SettingsPanelFromCsharp" Title="A settings panel" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; these are this site's settings.</strong> <code>SetThemeAsync</code> takes a theme
+        registered with <code>AddSednaUi</code>; <code>SetDensityAsync</code> takes <code>comfortable</code>,
+        <code>compact</code> or <code>touch</code>; <code>SetColourBlindAsync</code> switches the colour-vision
+        palette; <code>SetLanguageAsync</code> sets the document's <code>lang</code>, for the app to render its own
+        words in; and <code>SetDirectionAsync</code> takes <code>ltr</code> or <code>rtl</code>. Each stores the
+        choice and lets <code>Changed</code> come back, so the controls are drawn from <code>Current</code> and
+        nothing else.
+    </p>
+    <p>
+        <code>ISednaUi</code> reaches the same settings without listening. <code>LoadSettingsAsync</code> is right
+        for a value taken once, such as what a problem report attaches. <code>SaveSettingAsync</code> stores one
+        key &mdash; <code>theme</code>, <code>variant</code>, <code>cvd</code>, <code>density</code>,
+        <code>lang</code>, or an app's own name listed in the boot script's <code>data-app-attrs</code> &mdash; and
+        the panel follows it all the same.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.BrowserFromCsharp" Title="The browser, from C#" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> The small calls a component cannot make by itself. <code>CopyTextAsync</code> copies
+        a value the server has only just made, where <a href="/script"><code>data-copy</code></a> needs a value
+        written in the markup, and answers whether the browser allowed it. <code>ViewportWidthAsync</code> is for a
+        decision the server has to make &mdash; how many lines to fetch &mdash; and never for layout, which the
+        stylesheet's breakpoints keep. <code>GetItemAsync</code> and <code>SetItemAsync</code> read and write
+        <code>localStorage</code> under the key exactly as given, with no prefix.
+    </p>
+    <p>
+        <code>SelectTabAsync</code> selects a <code>data-tabs</code> tab by the id of the panel it controls, as a
+        click would; in a <code>data-tabs="managed"</code> tablist it clicks the tab, and the app's handler
+        answers. <code>OpenTabAsync</code> opens an address in a new tab with <code>noopener</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.DesktopNotifyFromCsharp" Title="Desktop notifications" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; your browser asks first.</strong> <code>RequestNotifyAsync</code> asks for permission,
+        and only works from a click: a browser refuses the question outside a user gesture.
+        <code>NotifyAsync</code> shows a notification by the system, outside the page, and
+        <code>PingAsync</code> plays a short tone, with no file to ship. Both are best effort &mdash; without
+        permission nothing is shown &mdash; so say the same on the page, with a
+        <a href="/toast">toast</a> or a status line.
+    </p>
+</CatExample>
+
 <h2 id="elsewhere">The rest of the surface</h2>
 <div class="card">
     <table class="table">
@@ -85,10 +143,12 @@
             <tr><td><code>ISednaOverlays</code>, <code>SednaOverlayHost</code></td><td><a href="/modal#a-modal-that-is-its-own-component">Modal</a> and <a href="/drawer#a-drawer-as-its-own-component">drawers and sheets</a> — a modal, drawer or sheet that is its own component, with a typed result. A dialog with a <code>.razor</code> file of its own goes this way, not inline in the page</td></tr>
             <tr><td><code>SetTipsEnabledAsync</code></td><td><a href="/hover-hints">Hover hints</a> — switching every hint off from a setting</td></tr>
             <tr><td><code>FollowSpotlightAsync</code></td><td><a href="/spotlight">Spotlight</a> — a tour step that stays attached to its target</td></tr>
-            <tr><td><code>InitMarkdownAsync</code></td><td><a href="/markdown">Markdown</a> — wiring the editor after first render</td></tr>
-            <tr><td><code>RegisterSearchAsync</code>, <code>RegisterCommandsAsync</code></td><td><a href="/topbar">Topbar</a> and the <a href="/palette">command palette</a> — the index and the commands</td></tr>
-            <tr><td><code>CopyTextAsync</code></td><td><a href="/script">The script</a> — where <code>data-copy</code> needs no C# at all</td></tr>
-            <tr><td><code>ConfigureAsync</code></td><td><a href="/script">The script</a> — only for an app whose default theme is not the built-in one</td></tr>
+            <tr><td><code>InitMarkdownAsync</code>, <code>InsertMarkdownAsync</code></td><td><a href="/markdown">Markdown</a> — wiring the editor after first render, and inserting at the caret</td></tr>
+            <tr><td><code>RankCommandsAsync</code>, <code>OpenPaletteAsync</code></td><td>The <a href="/palette">command palette</a> — its ranking in a list of the app's own</td></tr>
+            <tr><td><code>RankSearchAsync</code></td><td><a href="/topbar">Topbar</a> — the header search's ranking, for pages near a missing address</td></tr>
+            <tr><td><code>PresentToastAsync</code>, <code>SednaToast</code></td><td><a href="/toast">Toast</a> — a handle for work that ends later, and notifications written in a template</td></tr>
+            <tr><td><code>ISednaGraphs</code></td><td><a href="/graph-blazor">Graph in Blazor</a></td></tr>
+            <tr><td><code>ISednaEditors</code></td><td><a href="/editor">Rich-text editor</a></td></tr>
         </tbody>
     </table>
 </div>

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Sedna.UI.Catalogue.Tests.TestSupport;
 using Sedna.UI.Tests.TestSupport;
 
@@ -32,12 +33,12 @@ namespace Sedna.UI.Catalogue.Tests;
 /// them to the stylesheet in both directions instead.
 /// </para>
 /// <para>
-/// A stricter version of this, asserting every class is <i>rendered or printed</i>
-/// by a page rather than merely mentioned in a file, currently reports eleven
-/// classes that exist only while JavaScript is mid-interaction —
-/// <c>.sedna-tip--visible</c>, <c>.drawer-scrim--open</c>, <c>.dropzone--over</c>,
-/// <c>.tab--active</c> and the rest. They are real documentation gaps rather than
-/// test noise, and closing them is editorial work on several pages.
+/// The second test is stricter: a class an app writes is in an <i>example</i>, the
+/// markup a reader copies, and not only named in a page's prose. A class nobody writes
+/// is exempt by where it comes from, never by a list — the library's own script writes
+/// it (a whole word of a string literal in a shipped script), or Blazor's reconnect
+/// UI owns it. The state-art drawing classes are not exempt: an app draws its own
+/// scene with them.
 /// </para>
 /// </remarks>
 public class CoverageTests
@@ -70,4 +71,48 @@ public class CoverageTests
             + string.Join(", ", missing));
     }
 
+    [Fact]
+    public void Every_class_an_app_writes_is_in_an_example()
+    {
+        var examples = string.Concat(
+            Directory.EnumerateFiles(CatalogueAssets.ExamplesDir, "*", SearchOption.AllDirectories)
+                .OrderBy(p => p, StringComparer.Ordinal)
+                .Select(File.ReadAllText));
+        var inExamples = new HashSet<string>(
+            Regex.Matches(examples, @"[A-Za-z0-9_-]+").Select(m => m.Value), StringComparer.Ordinal);
+
+        var scriptWritten = ScriptWrittenWords();
+
+        var missing = Declared()
+            .Where(name => !name.StartsWith("ql-", StringComparison.Ordinal))
+            .Where(name => !name.StartsWith("sedna-mochi-", StringComparison.Ordinal))
+            .Where(name => !name.StartsWith("components-reconnect-", StringComparison.Ordinal))
+            .Where(name => !scriptWritten.Contains(name))
+            .Where(name => !inExamples.Contains(name))
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToList();
+
+        Assert.True(missing.Count == 0,
+            $"{missing.Count} classes an app writes are in no example under Examples/ — only "
+            + "named in prose, which a reader cannot copy. Show each in the markup of an example: "
+            + string.Join(", ", missing));
+    }
+
+    /// <summary>
+    /// Every whitespace-separated word of every string literal in the shipped scripts —
+    /// the class names the library writes itself, as <c>classList.add('x')</c> or
+    /// <c>className = 'x y'</c> do. A selector such as <c>'.x'</c> is a different word, so
+    /// a class the script only reads is not counted.
+    /// </summary>
+    private static ISet<string> ScriptWrittenWords()
+    {
+        var scripts = Directory.EnumerateFiles(Path.Combine(Assets.WwwrootDir, "js"), "*.js")
+            .Append(Path.Combine(Assets.WwwrootDir, "Sedna.UI.lib.module.js"))
+            .Select(File.ReadAllText);
+        var literal = new Regex(@"'(?:[^'\\\n]|\\.)*'|""(?:[^""\\\n]|\\.)*""|`[^`]*`");
+        return new HashSet<string>(
+            scripts.SelectMany(js => literal.Matches(js))
+                .SelectMany(m => m.Value[1..^1].Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)),
+            StringComparer.Ordinal);
+    }
 }
