@@ -88,7 +88,12 @@ internal sealed class CatalogueIndex
         Classes = WithUsage(declaredClasses, Examples, e => e.Classes);
         Ids = WithUsage(declaredIds, Examples, e => e.Ids);
         Tokens = ReadTokens(environment);
+        Icons = Regex.Matches(ReadStaticAsset(environment, "lib/remixicon/remixicon.css"), @"\.(ri-[a-z0-9-]+):+before")
+            .Select(m => m.Groups[1].Value).ToHashSet(StringComparer.Ordinal);
     }
+
+    /// <summary>Every Remix Icon class the bundled icon font declares, for <c>check_markup</c>.</summary>
+    public IReadOnlySet<string> Icons { get; }
 
     /// <summary>The shipped stylesheet, verbatim — served as an MCP resource.</summary>
     public string RawStylesheet { get; }

@@ -272,6 +272,70 @@ emit_example_first_seen() {
     done | sort
 }
 
+# Every name some release shipped that the working tree no longer has: the release it
+# first shipped in and the first release without it, tab-separated. The removal is
+# blank when the last release still had it, which means main removed it and no
+# release has shipped the removal yet. get_changes reads these; a name that was
+# removed and later added back is current and is not listed.
+#     emit_removed css <kind>      classes or tokens, from each tag's stylesheet
+#     emit_removed csharp          public C# members, from each tag's library source
+emit_removed() {
+    local source="$1" kind="${2:-}" name tag version i
+    local -A first=() last=() current=()
+    local versions=()
+
+    if [[ "$source" == css ]]; then
+        while IFS= read -r name; do [[ -n "$name" ]] && current["$name"]=1; done \
+            < <("$inventory" "$root/$sheet" "$kind")
+    else
+        while IFS= read -r name; do [[ -n "$name" ]] && current["$name"]=1; done \
+            < <("$api" "$root/$library")
+    fi
+
+    for tag in "${tags[@]}"; do
+        version="${tag#v}"
+        if [[ "$source" == css ]]; then
+            local tag_sheet
+            tag_sheet="$("$root/build/css-path.sh" "$tag" 2>/dev/null || true)"
+            [[ -n "$tag_sheet" ]] || continue
+            git -C "$root" show "$tag:$tag_sheet" >"$tmp/removed.css" 2>/dev/null || continue
+        else
+            rm -rf "$tmp/removed-api" && mkdir -p "$tmp/removed-api"
+            git -C "$root" archive "$tag" "$library" 2>/dev/null | tar -x -C "$tmp/removed-api" 2>/dev/null || continue
+            [[ -d "$tmp/removed-api/$library" ]] || continue
+        fi
+        versions+=("$version")
+        while IFS= read -r name; do
+            [[ -z "$name" || -n "${current[$name]:-}" ]] && continue
+            [[ -n "${first[$name]:-}" ]] || first["$name"]="$version"
+            last["$name"]="$version"
+        done < <(if [[ "$source" == css ]]; then "$inventory" "$tmp/removed.css" "$kind"; else "$api" "$tmp/removed-api/$library"; fi)
+    done
+
+    for name in "${!first[@]}"; do
+        local removed=""
+        for ((i = 0; i < ${#versions[@]} - 1; i++)); do
+            if [[ "${versions[$i]}" == "${last[$name]}" ]]; then removed="${versions[$((i + 1))]}"; break; fi
+        done
+        printf '%s\t%s\t%s\n' "$name" "${first[$name]}" "$removed"
+    done | sort
+}
+
+json_removed() {
+    local first=1
+    while IFS=$'\t' read -r name since removed; do
+        [[ -z "$name" ]] && continue
+        [[ $first -eq 0 ]] && printf ',\n'
+        first=0
+        if [[ -z "$removed" ]]; then
+            printf '      "%s": { "since": "%s", "removed": null }' "$name" "$since"
+        else
+            printf '      "%s": { "since": "%s", "removed": "%s" }' "$name" "$since" "$removed"
+        fi
+    done
+    printf '\n'
+}
+
 json_map() {
     local first=1
     while IFS=$'\t' read -r name version; do
@@ -304,6 +368,17 @@ latest="${tags[-1]#v}"
     printf '  },\n'
     printf '  "examples": {\n'
     emit_example_first_seen | json_map
+    printf '  },\n'
+    printf '  "removed": {\n'
+    printf '    "classes": {\n'
+    emit_removed css classes | json_removed
+    printf '    },\n'
+    printf '    "tokens": {\n'
+    emit_removed css tokens | json_removed
+    printf '    },\n'
+    printf '    "csharp": {\n'
+    emit_removed csharp | json_removed
+    printf '    }\n'
     printf '  }\n'
     printf '}\n'
 } >"$tmp/class-history.json"

@@ -30,6 +30,7 @@ builder.Services.AddSednaUi(o =>
 // Built once from the embedded examples, the embedded pages and the stylesheet the
 // app serves — so the MCP server and the site cannot describe different bytes.
 builder.Services.AddSingleton<CatalogueIndex>();
+builder.Services.AddSingleton<ApiReference>();
 builder.Services.AddSingleton<VersionEnvelope>();
 // The latest release's own class history, read at runtime so the site is right
 // between a tag and the next deploy. ReleasedHistory:Url empty turns it off.
@@ -46,6 +47,7 @@ builder.Services
     // the heap. That is an abuse-control property, not only a scaling one.
     .WithHttpTransport(options => options.Stateless = true)
     .WithTools<CatalogueTools>()
+    .WithTools<ReferenceTools>()
     // Every call's arguments are checked against the tool's own schema first, so a
     // mistake is answered in words rather than "An error occurred invoking …".
     .WithRequestFilters(filters => filters.AddCallToolFilter(ArgumentGuard.Wrap))

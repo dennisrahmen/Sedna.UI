@@ -32,6 +32,15 @@ internal sealed record HistoryMaps(
     Dictionary<string, string?> Examples,
     Dictionary<string, string?> ByMemberName)
 {
+    /// <summary>
+    /// Every name a release shipped that the build no longer has, by kind — <c>classes</c>,
+    /// <c>tokens</c>, <c>csharp</c> — with the release it first shipped in and the first
+    /// release without it, null where main removed it and no release has yet. Empty for a
+    /// copy generated before the history recorded removals.
+    /// </summary>
+    public IReadOnlyDictionary<string, IReadOnlyDictionary<string, (string Since, string? Removed)>> Removed { get; init; } =
+        new Dictionary<string, IReadOnlyDictionary<string, (string Since, string? Removed)>>();
+
     public static HistoryMaps Parse(JsonElement root)
     {
         var csharp = Map(root.GetProperty("csharp"));
@@ -56,13 +65,31 @@ internal sealed record HistoryMaps(
                 byMemberName[bare] = since;
         }
 
+        var removed = new Dictionary<string, IReadOnlyDictionary<string, (string Since, string? Removed)>>(StringComparer.Ordinal);
+        if (root.TryGetProperty("removed", out var gone))
+        {
+            foreach (var kind in gone.EnumerateObject())
+            {
+                removed[kind.Name] = kind.Value.EnumerateObject().ToDictionary(
+                    p => p.Name,
+                    p => (p.Value.GetProperty("since").GetString() ?? "0.0.0",
+                          p.Value.GetProperty("removed").ValueKind == JsonValueKind.Null
+                              ? null
+                              : p.Value.GetProperty("removed").GetString()),
+                    StringComparer.Ordinal);
+            }
+        }
+
         return new HistoryMaps(
             root.GetProperty("latestRelease").GetString() ?? "0.0.0",
             Map(root.GetProperty("classes")),
             Map(root.GetProperty("tokens")),
             csharp,
             Map(root.GetProperty("examples")),
-            byMemberName);
+            byMemberName)
+        {
+            Removed = removed,
+        };
     }
 
     private static Dictionary<string, string?> Map(JsonElement element) =>
@@ -176,6 +203,38 @@ internal sealed class VersionEnvelope
 
     private static string Reported(string? commit) =>
         string.IsNullOrWhiteSpace(commit) ? "unknown" : commit.Trim();
+
+    /// <summary>Every name of one kind the build has — <c>classes</c>, <c>tokens</c> or
+    /// <c>csharp</c> — with the release it first shipped in, null for one in no release.</summary>
+    public IEnumerable<(string Name, string? Since)> Current(string kind)
+    {
+        Func<HistoryMaps, Dictionary<string, string?>> map = kind switch
+        {
+            "classes" => m => m.Classes,
+            "tokens" => m => m.Tokens,
+            "csharp" => m => m.Csharp,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+        };
+        return map(_embedded).Keys.Select(name => (name, Since(map, name)));
+    }
+
+    /// <summary>Every name of one kind a release shipped and the build no longer has: the
+    /// release it first shipped in, and the first release without it — null where main
+    /// removed it and no release has shipped the removal yet.</summary>
+    public IEnumerable<(string Name, string Since, string? Removed)> Gone(string kind)
+    {
+        var embedded = _embedded.Removed.GetValueOrDefault(kind);
+        if (embedded is null) yield break;
+        var released = _released.Current?.Removed.GetValueOrDefault(kind);
+
+        foreach (var (name, (since, removed)) in embedded)
+        {
+            // Between a tag and the next deploy the build says main removed it; the
+            // release's own copy knows which release did.
+            var atRelease = removed ?? (released is not null && released.TryGetValue(name, out var r) ? r.Removed : null);
+            yield return (name, since, atRelease);
+        }
+    }
 
     /// <summary>The release a class first shipped in, or null if it is unreleased.</summary>
     public string? SinceClass(string name) => Since(m => m.Classes, name.TrimStart('.'));
