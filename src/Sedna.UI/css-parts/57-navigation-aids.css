@@ -107,3 +107,5 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    height, given back by its minimum height, or in a margin. See "The line a row is centred on" in 06-base-elements.css. */
 .page-link:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .breadcrumb-item:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+/* A block container has no flex gap, so the separator takes the gap as its own margin. */
+.breadcrumb-item + .breadcrumb-item:not(:has(> *))::before { margin-inline-end: var(--space-3); }

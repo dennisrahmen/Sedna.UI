@@ -792,7 +792,7 @@ never a hand-kept list. `since` is the literal `"unreleased"` rather than a miss
 
 Two copies of that data answer at runtime. The embedded one is generated when the image is built, so
 a tag made after the last deploy still reads `null` there for everything the release shipped. The latest release's own copy — `release.yml` computes it at the tag and attaches it to the
-GitHub release — is fetched at startup and hourly (`ReleasedHistory`) and asked only where the embedded
+GitHub release — is fetched at startup and every five minutes (`ReleasedHistory`) and asked only where the embedded
 copy says `null`. It can therefore move an entry from "unreleased" to the release that shipped it and
 nothing else; an entry merged after the tag is absent from it and stays unreleased, and a fetch that
 fails leaves the embedded copy in charge. `ReleasedHistory:Url` empty turns the fetch off, which the

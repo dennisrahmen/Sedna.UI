@@ -9,7 +9,18 @@
     <p>
         Heading, an optional supporting line, and the actions that apply to the whole page. It
         wraps rather than shrinking the title, so on a narrow screen the actions drop below the
-        heading instead of truncating it.
+        heading, at the end edge, instead of truncating it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Structure.PageHeadFold" Title="Actions that fold into a menu" Demo="ex-demo--block">
+    <p>
+        <code>.page-head-actions--fold</code> folds the actions into one menu button when the head is
+        narrower than 40rem &mdash; its own width, not the window&rsquo;s, so a head in a narrow column
+        folds on a wide screen too. Write the buttons and the menu both: below the step the buttons go
+        and the <code>.actions-more</code> menu comes. Mark the primary action
+        <code>.actions-keep</code> and it stays beside the menu. The head becomes a size container,
+        so inside a flex row it needs a width of its own.
     </p>
 </CatExample>
 

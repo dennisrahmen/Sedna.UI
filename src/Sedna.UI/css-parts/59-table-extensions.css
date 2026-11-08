@@ -92,6 +92,10 @@
 .table th[aria-sort="none"] .th-sort:hover::after { border-top: 5px solid currentColor; opacity: 0.4; }
 .table th[aria-sort="ascending"] .th-sort::after { border-bottom: 5px solid currentColor; opacity: 1; }
 .table th[aria-sort="descending"] .th-sort::after { border-top: 5px solid currentColor; opacity: 1; }
+/* In a numeric column the label stands over its digits: the button packs to the end edge,
+   and the caret goes before the label, so the label's last letter lines up with the
+   column's last digit instead of stopping short by the caret's width. */
+.table .col-num > .th-sort { flex-direction: row-reverse; text-align: end; }
 .table th[aria-sort="ascending"],
 .table th[aria-sort="descending"] { color: var(--brand-text); }
 
@@ -613,11 +617,16 @@
 @media (max-width: 640px) {
     .table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     .table--stack tr { display: block; margin-bottom: var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
-    .table--stack td { display: flex; justify-content: space-between; gap: var(--space-6); border-bottom: 1px solid var(--divider); }
-    .table--stack tr > td:last-child { border-bottom: none; }
-    .table--stack td::before {
+    /* A body cell is one block: its label floats at the start, and everything else in
+       it — a link, a line under it, an icon beside a word — flows at the end edge as one
+       value, laid out the way it is in a wide cell. A flex row made each child a value
+       of its own and spaced them apart. */
+    .table--stack :is(tbody, tfoot) :is(td, th) { display: flow-root; text-align: end; border-bottom: 1px solid var(--divider); }
+    .table--stack tr > :is(td, th):last-child { border-bottom: none; }
+    .table--stack :is(td, th)[data-label]::before {
         content: attr(data-label);
-        flex-shrink: 0;
+        float: inline-start;
+        margin-inline-end: var(--space-6);
         color: var(--muted);
         font-size: var(--text-2);
         font-weight: 600;
@@ -626,6 +635,7 @@
     }
     /* A cell with no data-label — an actions cell — keeps the full width instead of
        leaving an empty gutter where the label would be. */
-    .table--stack td:not([data-label])::before { content: none; }
-    .table--stack .col-num { text-align: end; }
+    .table--stack :is(tbody, tfoot) :is(td, th):not([data-label]) { text-align: start; }
+    /* A group row is the heading of the cards under it: the full width, not a card. */
+    .table--stack .tr-group { border-width: 0; }
 }

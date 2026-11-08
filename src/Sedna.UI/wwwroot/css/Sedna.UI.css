@@ -2156,9 +2156,10 @@ a.topbar-version--pre:hover {
 .card--fill > .card-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 .card--fill > :is(.card-foot, .card-warning):not(:is(.card-foot, .card-warning) + *) { margin-block-start: auto; }
 .kv { display: flex; justify-content: space-between; gap: var(--space-7); padding: var(--space-2) 0; }
-.kv .k { color: var(--muted); }
+.kv .k { color: var(--muted); flex-shrink: 0; max-width: 50%; overflow-wrap: break-word; }
 .kv .v { font-family: var(--font-mono); }
 .kv > * { min-width: 0; overflow-wrap: anywhere; }
+.kv--text .v { font-family: var(--font-sans); overflow-wrap: break-word; }
 }
 @layer sedna.paint {
 .badge {
@@ -2377,7 +2378,7 @@ textarea.form-input::-webkit-resizer {
     flex-wrap: wrap;
 }
 .toolbar-filters { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
-.toolbar-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+.toolbar-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-inline-start: auto; }
 .toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); }
 .toolbar-input--wide { --toolbar-input-width: 280px; }
 .toolbar-input--grow { --toolbar-input-width: auto; flex: 1 1 12rem; min-width: 12rem; }
@@ -5506,6 +5507,19 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 }
 }
 @layer sedna.paint {
+.page-head:has(> .page-head-actions--fold) { container: sedna-page-head / inline-size; }
+.toolbar:has(> .toolbar-actions--fold) { container: sedna-toolbar / inline-size; }
+:is(.page-head-actions--fold, .toolbar-actions--fold) > .actions-more { display: none; }
+@container sedna-page-head (width < 40rem) {
+    .page-head-actions--fold > :not(.actions-more, .actions-keep) { display: none; }
+    .page-head-actions--fold > .actions-more { display: inline-flex; }
+}
+@container sedna-toolbar (width < 40rem) {
+    .toolbar-actions--fold > :not(.actions-more, .actions-keep) { display: none; }
+    .toolbar-actions--fold > .actions-more { display: inline-flex; }
+}
+}
+@layer sedna.paint {
 .page-head {
     display: flex;
     flex-wrap: wrap;
@@ -5517,7 +5531,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .page-head-text { flex: 1 1 20rem; min-width: 0; }
 .page-head :is(h1, h2, h3) { margin: 0; }
 .page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
-.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
 .divider { border: none; border-top: 1px solid var(--border); margin: var(--space-8) 0; }
 .divider-labelled {
     display: flex;
@@ -5746,6 +5760,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .breadcrumb-item[aria-current="page"] { color: var(--fg); }
 .page-link:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .breadcrumb-item:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+.breadcrumb-item + .breadcrumb-item:not(:has(> *))::before { margin-inline-end: var(--space-3); }
 }
 @layer sedna.paint {
 .menu {
@@ -5933,6 +5948,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .table th[aria-sort="none"] .th-sort:hover::after { border-top: 5px solid currentColor; opacity: 0.4; }
 .table th[aria-sort="ascending"] .th-sort::after { border-bottom: 5px solid currentColor; opacity: 1; }
 .table th[aria-sort="descending"] .th-sort::after { border-top: 5px solid currentColor; opacity: 1; }
+.table .col-num > .th-sort { flex-direction: row-reverse; text-align: end; }
 .table th[aria-sort="ascending"],
 .table th[aria-sort="descending"] { color: var(--brand-text); }
 .table .col-num { text-align: end; font-variant-numeric: tabular-nums; }
@@ -6153,19 +6169,20 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 @media (max-width: 640px) {
     .table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     .table--stack tr { display: block; margin-bottom: var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
-    .table--stack td { display: flex; justify-content: space-between; gap: var(--space-6); border-bottom: 1px solid var(--divider); }
-    .table--stack tr > td:last-child { border-bottom: none; }
-    .table--stack td::before {
+    .table--stack :is(tbody, tfoot) :is(td, th) { display: flow-root; text-align: end; border-bottom: 1px solid var(--divider); }
+    .table--stack tr > :is(td, th):last-child { border-bottom: none; }
+    .table--stack :is(td, th)[data-label]::before {
         content: attr(data-label);
-        flex-shrink: 0;
+        float: inline-start;
+        margin-inline-end: var(--space-6);
         color: var(--muted);
         font-size: var(--text-2);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.06em;
     }
-    .table--stack td:not([data-label])::before { content: none; }
-    .table--stack .col-num { text-align: end; }
+    .table--stack :is(tbody, tfoot) :is(td, th):not([data-label]) { text-align: start; }
+    .table--stack .tr-group { border-width: 0; }
 }
 }
 @layer sedna.paint {

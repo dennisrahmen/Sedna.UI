@@ -61,6 +61,7 @@
      54-data-viz.css
      54-graph.css
      54-stat.css
+     55-actions-fold.css
      55-page-structure.css
      56-code-block.css
      57-navigation-aids.css
@@ -4211,10 +4212,16 @@ a.topbar-version--pre:hover {
    `width: max-content` — where `space-between` has no free space to distribute and
    the key ran straight into the value with nothing between them. */
 .kv { display: flex; justify-content: space-between; gap: var(--space-7); padding: var(--space-2) 0; }
-.kv .k { color: var(--muted); }
+/* The key keeps its words: it does not shrink, up to half the row, so a narrow row
+   wraps the value rather than breaking a short key mid-word. A key longer than half
+   the row breaks there. */
+.kv .k { color: var(--muted); flex-shrink: 0; max-width: 50%; overflow-wrap: break-word; }
 .kv .v { font-family: var(--font-mono); }
 /* Either side may be long — a path, an id — and neither may push the row wider. */
 .kv > * { min-width: 0; overflow-wrap: anywhere; }
+/* A value that is prose — a role, a date, a name: the body font, broken only where a
+   single word is wider than the row. */
+.kv--text .v { font-family: var(--font-sans); overflow-wrap: break-word; }
 
 }
 
@@ -4602,7 +4609,10 @@ textarea.form-input::-webkit-resizer {
    different ways — a second `.toolbar-filters` (those are not filters), a
    `.sedna-row sedna-gap-2`, and a `.sedna-push` on a bare span, which is the one
    that was visibly broken on the landing page. */
-.toolbar-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+/* The auto margin keeps it at the end edge on a line of its own, where `space-between` has
+   nothing to distribute; on a shared line it takes the same free space `space-between`
+   would, so a toolbar that fits is laid out as before. */
+.toolbar-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-inline-start: auto; }
 /* 160px is right for a filter dropdown and short for a search box, so the width is
    a knob on the element rather than a value baked into the class — the same shape
    of fix as `--prose-measure` and `--deck-height`. Set it per instance
@@ -10070,6 +10080,48 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 }
 }
 
+/* ── 55-actions-fold.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Folding actions ───────────────────────────────────────────────────────
+   A trailing group of actions that folds into one menu button when its row is
+   narrow — a page head or a toolbar on a phone, or in a narrow column:
+
+     <div class="page-head-actions page-head-actions--fold">
+       <button class="btn" type="button">Refresh</button>
+       <button class="btn btn--brand btn--solid actions-keep" type="button">Approve all</button>
+       <div class="menu-anchor actions-more">
+         <button class="btn btn--icon" type="button" data-menu-toggle aria-expanded="false" aria-label="More actions">
+           <i class="ri-more-2-fill"></i>
+         </button>
+         <div class="menu" hidden> …the same actions, as .menu-item… </div>
+       </div>
+     </div>
+
+   The app writes the buttons and the menu both, in its own words; below 40rem of the
+   row's width the buttons go and the `.actions-more` menu comes, and a button marked
+   `.actions-keep` — the primary action — stays beside it. A hidden button is out of
+   the accessibility tree as well, so nothing is announced twice.
+
+   The page head or toolbar becomes a size container, measured on its own width rather
+   than the window's, so a head in a narrow column folds on a wide screen too. Two
+   consequences of that: its width cannot come from its content, so inside a flex row
+   it needs a width of its own; and the step is a fixed length, because a container
+   query cannot read a custom property. */
+.page-head:has(> .page-head-actions--fold) { container: sedna-page-head / inline-size; }
+.toolbar:has(> .toolbar-actions--fold) { container: sedna-toolbar / inline-size; }
+
+:is(.page-head-actions--fold, .toolbar-actions--fold) > .actions-more { display: none; }
+
+@container sedna-page-head (width < 40rem) {
+    .page-head-actions--fold > :not(.actions-more, .actions-keep) { display: none; }
+    .page-head-actions--fold > .actions-more { display: inline-flex; }
+}
+@container sedna-toolbar (width < 40rem) {
+    .toolbar-actions--fold > :not(.actions-more, .actions-keep) { display: none; }
+    .toolbar-actions--fold > .actions-more { display: inline-flex; }
+}
+}
+
 /* ── 55-page-structure.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Page head ──────────────────────────────────────────────────────────────
@@ -10099,7 +10151,9 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
    is as ordinary as a top-level page opening on an h1. */
 .page-head :is(h1, h2, h3) { margin: 0; }
 .page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
-.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+/* The auto margin keeps the actions at the end edge when the head wraps them onto a line
+   of their own, as `.toolbar-actions` does. */
+.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
 
 /* ── Divider ────────────────────────────────────────────────────────────────
    A rule between sections. Use it when two blocks are related but distinct; use
@@ -10452,6 +10506,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    height, given back by its minimum height, or in a margin. See "The line a row is centred on" in 06-base-elements.css. */
 .page-link:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .breadcrumb-item:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+/* A block container has no flex gap, so the separator takes the gap as its own margin. */
+.breadcrumb-item + .breadcrumb-item:not(:has(> *))::before { margin-inline-end: var(--space-3); }
 }
 
 /* ── 58-menu.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -10855,6 +10911,10 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .table th[aria-sort="none"] .th-sort:hover::after { border-top: 5px solid currentColor; opacity: 0.4; }
 .table th[aria-sort="ascending"] .th-sort::after { border-bottom: 5px solid currentColor; opacity: 1; }
 .table th[aria-sort="descending"] .th-sort::after { border-top: 5px solid currentColor; opacity: 1; }
+/* In a numeric column the label stands over its digits: the button packs to the end edge,
+   and the caret goes before the label, so the label's last letter lines up with the
+   column's last digit instead of stopping short by the caret's width. */
+.table .col-num > .th-sort { flex-direction: row-reverse; text-align: end; }
 .table th[aria-sort="ascending"],
 .table th[aria-sort="descending"] { color: var(--brand-text); }
 
@@ -11376,11 +11436,16 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 @media (max-width: 640px) {
     .table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     .table--stack tr { display: block; margin-bottom: var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
-    .table--stack td { display: flex; justify-content: space-between; gap: var(--space-6); border-bottom: 1px solid var(--divider); }
-    .table--stack tr > td:last-child { border-bottom: none; }
-    .table--stack td::before {
+    /* A body cell is one block: its label floats at the start, and everything else in
+       it — a link, a line under it, an icon beside a word — flows at the end edge as one
+       value, laid out the way it is in a wide cell. A flex row made each child a value
+       of its own and spaced them apart. */
+    .table--stack :is(tbody, tfoot) :is(td, th) { display: flow-root; text-align: end; border-bottom: 1px solid var(--divider); }
+    .table--stack tr > :is(td, th):last-child { border-bottom: none; }
+    .table--stack :is(td, th)[data-label]::before {
         content: attr(data-label);
-        flex-shrink: 0;
+        float: inline-start;
+        margin-inline-end: var(--space-6);
         color: var(--muted);
         font-size: var(--text-2);
         font-weight: 600;
@@ -11389,8 +11454,9 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     }
     /* A cell with no data-label — an actions cell — keeps the full width instead of
        leaving an empty gutter where the label would be. */
-    .table--stack td:not([data-label])::before { content: none; }
-    .table--stack .col-num { text-align: end; }
+    .table--stack :is(tbody, tfoot) :is(td, th):not([data-label]) { text-align: start; }
+    /* A group row is the heading of the cards under it: the full width, not a card. */
+    .table--stack .tr-group { border-width: 0; }
 }
 }
 

@@ -83,7 +83,9 @@
 <CatExample TExample="Examples.Card.KeyValueRows" Title="Key/value rows" Demo="ex-demo--block">
     <p>
         <code>.kv</code> pushes label and value apart; the value takes the monospace token, so
-        numbers and IDs align down the column.
+        numbers and IDs align down the column. A value that is prose &mdash; a name, a role, a
+        date &mdash; takes <code>.kv--text</code> on the row: the body font, broken only between
+        words. In a narrow row the key keeps its words, up to half the row, and the value wraps.
     </p>
 </CatExample>
 

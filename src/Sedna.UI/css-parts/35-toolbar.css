@@ -18,7 +18,10 @@
    different ways — a second `.toolbar-filters` (those are not filters), a
    `.sedna-row sedna-gap-2`, and a `.sedna-push` on a bare span, which is the one
    that was visibly broken on the landing page. */
-.toolbar-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+/* The auto margin keeps it at the end edge on a line of its own, where `space-between` has
+   nothing to distribute; on a shared line it takes the same free space `space-between`
+   would, so a toolbar that fits is laid out as before. */
+.toolbar-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-inline-start: auto; }
 /* 160px is right for a filter dropdown and short for a search box, so the width is
    a knob on the element rather than a value baked into the class — the same shape
    of fix as `--prose-measure` and `--deck-height`. Set it per instance
