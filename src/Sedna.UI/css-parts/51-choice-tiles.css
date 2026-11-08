@@ -30,7 +30,9 @@
     min-inline-size: 0;
     padding: var(--space-5);
     background: var(--card-bg);
-    border: 1px solid var(--border);
+    /* The radio is not drawn, so the edge is what says this is a control: the controls'
+       edge, at 3:1, as a radio's own is. */
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-surface);
     color: var(--fg-soft);
     font-size: var(--text-4);
@@ -45,7 +47,7 @@
     opacity: 0;
     pointer-events: none;
 }
-.choice-tile:hover { border-color: var(--border-strong); }
+.choice-tile:hover { border-color: var(--border-hover); }
 .choice-tile-art {
     display: grid;
     place-items: center;

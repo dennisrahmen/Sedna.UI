@@ -7086,7 +7086,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 
    `::file-selector-button` is styled too, for anyone who uses the input bare.
    ─────────────────────────────────────────────────────────────────────────── */
-.form-file { display: inline-flex; align-items: center; gap: var(--space-5); }
+/* Positioned, so the hidden input's box is the label's: unpositioned, the input is laid
+   out against whatever positioned ancestor comes next — in a modal, the dialog — and
+   focusing it scrolls that instead of the body it sits in. Every control that hides its
+   input is its input's containing block. */
+.form-file { position: relative; display: inline-flex; align-items: center; gap: var(--space-5); }
 /* Hidden, not display:none — the input must stay focusable and in the accessibility
    tree, or the label becomes a button that a keyboard cannot reach. */
 .form-file input[type="file"] {
@@ -7141,14 +7145,17 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    a dropped file to the zone's own <input type="file"> as a `change` event; an app
    that would rather own the drag handling leaves the attribute off and sets the
    class itself. */
+/* Positioned for the input it hides, as `.form-file` is; its dashed edge is what marks
+   it as a control, so it is the controls' edge, at 3:1. */
 .dropzone {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-9);
     background: var(--surface-soft);
-    border: 1px dashed var(--border-strong);
+    border: 1px dashed var(--control-border);
     border-radius: var(--radius-surface);
     color: var(--muted);
     font-size: var(--text-4);
@@ -8410,7 +8417,9 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     min-inline-size: 0;
     padding: var(--space-5);
     background: var(--card-bg);
-    border: 1px solid var(--border);
+    /* The radio is not drawn, so the edge is what says this is a control: the controls'
+       edge, at 3:1, as a radio's own is. */
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-surface);
     color: var(--fg-soft);
     font-size: var(--text-4);
@@ -8425,7 +8434,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     opacity: 0;
     pointer-events: none;
 }
-.choice-tile:hover { border-color: var(--border-strong); }
+.choice-tile:hover { border-color: var(--border-hover); }
 .choice-tile-art {
     display: grid;
     place-items: center;
@@ -8507,7 +8516,9 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     min-height: var(--control-height);
     padding: var(--space-1);
     background: var(--surface-strong);
-    border: 1px solid var(--border);
+    /* The options draw no edge of their own and their radios none at all: the track's
+       is what marks the group as a control, so it is the controls' edge, at 3:1. */
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-control);
 }
 

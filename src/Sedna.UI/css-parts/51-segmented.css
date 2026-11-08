@@ -46,7 +46,9 @@
     min-height: var(--control-height);
     padding: var(--space-1);
     background: var(--surface-strong);
-    border: 1px solid var(--border);
+    /* The options draw no edge of their own and their radios none at all: the track's
+       is what marks the group as a control, so it is the controls' edge, at 3:1. */
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-control);
 }
 
