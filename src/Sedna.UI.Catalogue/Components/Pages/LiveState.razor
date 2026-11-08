@@ -2,7 +2,8 @@
 
 <CatHead Title="Live states">
     What a view shows while something is still happening: the state of the connection behind it,
-    the lines a job is writing, and work the reader can watch and cancel. A view with nothing to
+    the lines a job is writing, how long ago something changed or how long is left, and work the
+    reader can watch and cancel. A view with nothing to
     show yet is an <a href="/empty-state">empty state</a>; a wait with a known shape is a
     <a href="/progress">skeleton</a>.
 </CatHead>
@@ -29,6 +30,46 @@
         <code>sednaUi.output.follow(pane)</code> re-attaches it from a &ldquo;jump to
         latest&rdquo; button. An application log in columns, with levels, rows that expand and
         actions per line, is on <a href="/logs">Logs</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.LiveState.RelativeList" Title="Relative time in a list" Demo="ex-demo--block">
+    <p>
+        <code>&lt;time datetime data-relative&gt;</code> keeps &ldquo;how long ago&rdquo; current
+        from one timer for the whole page, which sleeps until the next whole unit and stops while
+        the tab is hidden. <strong>The words are the app's</strong>: a format per unit &mdash;
+        <code>data-seconds</code>, <code>data-minutes</code>, <code>data-hours</code>,
+        <code>data-days</code>, <code>data-weeks</code>, <code>data-months</code>,
+        <code>data-years</code> &mdash; with <code>{n}</code> where the number goes, and one per
+        plural category of the page's language where it needs them: <code>data-days-one</code>,
+        and <code>-two</code>, <code>-few</code>, <code>-many</code> or <code>-zero</code>. Sedna.UI.js
+        picks the unit and writes the number in that language. A unit with no format is counted in
+        the next smaller one; an element with no formats is left as written. Write the absolute
+        time inside, for a reader without the script, and in <code>data-tip</code> or
+        <code>title</code>; keep the element to its text, and put an icon beside it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.LiveState.RelativeTable" Title="Relative time in a table" Demo="ex-demo--block">
+    <p>
+        The same element in a cell, with formats short enough for a column &mdash;
+        <code>{n} min</code>, <code>{n} h</code>. The counts round down: an order updated
+        ninety seconds ago is one minute ago. A time a little ahead of the reader's clock reads
+        as the smallest unit at zero until it passes.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.SessionCountdown" Title="Countdown" Demo="ex-demo--block">
+    <p>
+        <code>data-countdown</code> instead of <code>data-relative</code> counts down to the
+        <code>datetime</code>, in the same formats. It never reads zero before it is zero &mdash;
+        under its smallest unit it shows 1 &mdash; and at zero it dispatches a bubbling
+        <code>sedna-countdown-end</code> with <code>detail.until</code>, once per element and
+        <code>datetime</code>: also for a countdown already over when it is found, and when the
+        reader comes back to a tab hidden while it ended. In Blazor it is
+        <code>@@onsedna-countdown-end</code> with a <code>SednaCountdownEventArgs</code>. Render
+        a later <code>datetime</code> and it counts again. The deadline is the server's: the
+        countdown tells the reader, it does not end the session.
     </p>
 </CatExample>
 

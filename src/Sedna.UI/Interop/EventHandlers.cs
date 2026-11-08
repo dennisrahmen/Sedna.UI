@@ -9,8 +9,9 @@ namespace Sedna.UI;
 /// <c>-connect</c>, <c>-expand</c>, <c>-collapse</c>, <c>-change</c> and <c>-ready</c> — and the
 /// rich-text editor — <c>@onsedna-editor-change</c>, <c>@onsedna-editor-ready</c> and
 /// <c>@onsedna-editor-media</c> — a pane or a diagram following what is newest,
-/// <c>@onsedna-follow</c> — and a tree, <c>@onsedna-tree-expand</c>, <c>-collapse</c>,
-/// <c>-select</c> and <c>-check</c>.
+/// <c>@onsedna-follow</c> — a tree, <c>@onsedna-tree-expand</c>, <c>-collapse</c>,
+/// <c>-select</c> and <c>-check</c> — and a <c>&lt;time data-countdown&gt;</c> reaching zero,
+/// <c>@onsedna-countdown-end</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -47,6 +48,7 @@ namespace Sedna.UI;
 [EventHandler("onsedna-tree-collapse", typeof(SednaTreeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-tree-select", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-tree-check", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-countdown-end", typeof(SednaCountdownEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 public static class EventHandlers
 {
 }

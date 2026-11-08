@@ -63,6 +63,25 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.FormDatetime.TimeRange" Title="A time range with quick select and auto-refresh" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; open both.</strong> A dashboard or a log asks for a span of time, and
+        most of the time it is a relative one. There is no range-picker class: an
+        <code>.input-group</code> holds a button that opens the quick select and a
+        <a href="/form-text"><code>.form-trigger</code></a> showing the range, which opens a
+        <a href="/calendar"><code>.datepicker</code></a> for an absolute start and end, with the
+        range marked by <code>--range-start</code> and <code>--range-end</code> and the times in a
+        <code>.datepicker-time</code> row. The quick select is a <code>.popover</code>: a relative
+        range built from a select, a number and a unit, the common ranges as
+        <a href="/chip"><code>.chip</code></a> buttons with <code>aria-pressed</code> on the one in
+        force, the reader's recent ranges as <code>.btn-bare--link</code> buttons, and the
+        auto-refresh interval with a button that starts and stops it. The group is the anchor of
+        both panels, named by <code>anchor-name</code> and each panel's
+        <code>position-anchor</code>. The app keeps the range, the recent list and the timer; the
+        refresh button says what interval is running.
+    </p>
+</CatExample>
+
 <h2 id="memorable-dates">Dates the reader already knows <CatAnchor Id="memorable-dates" /></h2>
 <p class="cat-lede">
     A date of birth or the day a business started is typed faster than it is found in a picker,

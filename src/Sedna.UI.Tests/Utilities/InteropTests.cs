@@ -394,4 +394,12 @@ public class InteropTests : BunitContext
             """{"following":false}""", new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
         Assert.False(follow.Following);
     }
+
+    [Fact]
+    public void The_countdown_event_carries_what_the_script_sends()
+    {
+        var ended = System.Text.Json.JsonSerializer.Deserialize<SednaCountdownEventArgs>(
+            """{"until":"2026-11-08T14:35:00Z"}""", new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+        Assert.Equal("2026-11-08T14:35:00Z", ended.Until);
+    }
 }

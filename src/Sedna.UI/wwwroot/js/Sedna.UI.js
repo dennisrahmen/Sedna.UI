@@ -4595,6 +4595,164 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('pointerup', finish);
     document.addEventListener('pointercancel', finish);
 })(window.sednaUi);
+(function (ui) {
+    var SECOND = 1000, MINUTE = 60 * SECOND, HOUR = 60 * MINUTE, DAY = 24 * HOUR;
+    var UNITS = [
+        { name: 'seconds', size: SECOND },
+        { name: 'minutes', size: MINUTE },
+        { name: 'hours', size: HOUR },
+        { name: 'days', size: DAY },
+        { name: 'weeks', size: 7 * DAY },
+        { name: 'months', size: 30 * DAY },
+        { name: 'years', size: 365 * DAY }
+    ];
+    var CATEGORIES = ['zero', 'one', 'two', 'few', 'many'];
+    var SELECTOR = 'time[data-relative], time[data-countdown]';
+    var LONGEST = HOUR;
+    var timer = 0;
+    var shown = new WeakMap();
+    var ended = new WeakMap();
+    var formats = {};
+    function intl(locale) {
+        var key = locale || '';
+        if (formats[key]) return formats[key];
+        var made = { number: null, plural: null };
+        if (typeof Intl === 'object' && Intl) {
+            try { made.number = new Intl.NumberFormat(locale || undefined); }
+            catch (e) { try { made.number = new Intl.NumberFormat(); } catch (e2) { made.number = null; } }
+            try { made.plural = new Intl.PluralRules(locale || undefined); }
+            catch (e) { try { made.plural = new Intl.PluralRules(); } catch (e2) { made.plural = null; } }
+        }
+        formats[key] = made;
+        return made;
+    }
+    function natural(ms) {
+        var i = UNITS.length - 1;
+        while (i > 0 && UNITS[i].size > ms) i--;
+        return i;
+    }
+    function has(el, i) { return el.hasAttribute('data-' + UNITS[i].name); }
+    function unitFor(el, ms) {
+        var start = natural(ms), i;
+        for (i = start; i >= 0; i--) if (has(el, i)) return i;
+        for (i = start + 1; i < UNITS.length; i++) if (has(el, i)) return i;
+        return -1;
+    }
+    function text(el, unit, n) {
+        var host = el.closest('[lang]');
+        var tools = intl(host ? host.getAttribute('lang') : '');
+        var name = 'data-' + UNITS[unit].name;
+        var format = null;
+        if (tools.plural) {
+            var category = tools.plural.select(n);
+            if (CATEGORIES.indexOf(category) >= 0) format = el.getAttribute(name + '-' + category);
+        }
+        if (format === null) format = el.getAttribute(name);
+        var number = tools.number ? tools.number.format(n) : String(n);
+        return format.split('{n}').join(number);
+    }
+    function measure(el, now) {
+        var at = Date.parse(el.getAttribute('datetime') || '');
+        if (isNaN(at)) return null;
+        var countdown = el.hasAttribute('data-countdown');
+        var ms = countdown ? at - now : now - at;
+        var ahead = 0;
+        if (ms < 0) { ahead = -ms; ms = 0; }
+        var unit = unitFor(el, ms);
+        if (unit < 0) return null;
+        var size = UNITS[unit].size;
+        var n, wait;
+        if (countdown) {
+            n = ms > 0 ? Math.max(1, Math.floor(ms / size)) : 0;
+            wait = ms <= 0 ? Infinity : Math.floor(ms / size) === 0 ? ms : ms % size + 1;
+            var floor = UNITS[natural(ms)].size;
+            if (ms > floor) wait = Math.min(wait, ms - floor + 1);
+        } else {
+            n = Math.floor(ms / size);
+            wait = size - ms % size;
+            var next = natural(ms) + 1;
+            if (next < UNITS.length) wait = Math.min(wait, UNITS[next].size - ms);
+            wait += ahead;
+        }
+        return { text: text(el, unit, n), wait: wait, over: countdown && ms === 0 };
+    }
+    function write(el, value) {
+        shown.set(el, value);
+        var first = null;
+        for (var node = el.firstChild; node; node = node.nextSibling) {
+            if (node.nodeType !== 3) continue;
+            if (!first) first = node;
+            else if (node.nodeValue) node.nodeValue = '';
+        }
+        if (!first) el.appendChild(document.createTextNode(value));
+        else if (first.nodeValue !== value) first.nodeValue = value;
+    }
+    function update() {
+        clearTimeout(timer);
+        timer = 0;
+        if (document.visibilityState === 'hidden') return;
+        var now = Date.now(), soonest = Infinity, done = [];
+        var all = document.querySelectorAll(SELECTOR);
+        for (var i = 0; i < all.length; i++) {
+            var el = all[i], m = measure(el, now);
+            if (!m) continue;
+            write(el, m.text);
+            if (m.over) {
+                var until = el.getAttribute('datetime');
+                if (ended.get(el) !== until) { ended.set(el, until); done.push(el); }
+            } else {
+                ended.delete(el);
+            }
+            if (m.wait < soonest) soonest = m.wait;
+        }
+        if (soonest !== Infinity) timer = setTimeout(update, Math.min(soonest, LONGEST));
+        for (var j = 0; j < done.length; j++) {
+            done[j].dispatchEvent(new CustomEvent('sedna-countdown-end', {
+                bubbles: true,
+                detail: { until: done[j].getAttribute('datetime') }
+            }));
+        }
+    }
+    function concerns(records) {
+        for (var i = 0; i < records.length; i++) {
+            var r = records[i], t = r.target;
+            if (r.type === 'characterData') {
+                var el = t.parentNode;
+                if (el && el.nodeType === 1 && el.matches(SELECTOR) && t.nodeValue !== shown.get(el)
+                    && t.nodeValue !== '') return true;
+            } else if (r.type === 'attributes') {
+                if (r.attributeName === 'lang' || (t.matches && t.matches(SELECTOR))) return true;
+            } else {
+                for (var j = 0; j < r.addedNodes.length; j++) {
+                    var node = r.addedNodes[j];
+                    if (node.nodeType !== 1) continue;
+                    if (node.matches(SELECTOR) || node.querySelector(SELECTOR)) return true;
+                }
+                if (t.nodeType === 1 && t.matches(SELECTOR)) return true;
+            }
+        }
+        return false;
+    }
+    function watch() {
+        update();
+        if (!('MutationObserver' in window)) return;
+        var names = ['datetime', 'data-relative', 'data-countdown', 'lang'];
+        for (var i = 0; i < UNITS.length; i++) {
+            names.push('data-' + UNITS[i].name);
+            for (var c = 0; c < CATEGORIES.length; c++) names.push('data-' + UNITS[i].name + '-' + CATEGORIES[c]);
+        }
+        new MutationObserver(function (records) {
+            if (concerns(records)) update();
+        }).observe(document.documentElement, {
+            childList: true, subtree: true, characterData: true,
+            attributes: true, attributeFilter: names
+        });
+    }
+    document.addEventListener('visibilitychange', update);
+    window.addEventListener('pageshow', update);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
+    else watch();
+})(window.sednaUi);
 (function () {
     var timer = 0, nudged = false;
     function typing() {

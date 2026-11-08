@@ -1,0 +1,40 @@
+@if (_signedOut)
+{
+    <div class="alert alert--danger" role="alert">
+        <i class="ri-lock-line"></i>
+        <span>You were signed out to keep this account safe.</span>
+        <button class="btn btn--sm sedna-push" type="button" @onclick="StaySignedIn">Sign in again</button>
+    </div>
+}
+else
+{
+    <div class="alert alert--warn" role="status">
+        <i class="ri-timer-line"></i>
+        <span>
+            Your session ends in
+            <time datetime="@_until.ToString("O")" data-countdown @onsedna-countdown-end="SignedOut"
+                  data-minutes-one="{n} minute" data-minutes="{n} minutes"
+                  data-seconds-one="{n} second" data-seconds="{n} seconds">@Remaining</time>.
+        </span>
+        <button class="btn btn--sm sedna-push" type="button" @onclick="StaySignedIn">Stay signed in</button>
+    </div>
+}
+
+@code {
+    // The server's own deadline. The browser counts down to it; the server still ends the
+    // session whether or not a page is open to see it.
+    private DateTimeOffset _until = DateTimeOffset.UtcNow.AddMinutes(2);
+    private bool _signedOut;
+
+    // What a reader without the script sees, and what the first render shows.
+    private string Remaining => $"{Math.Max(1, (int)(_until - DateTimeOffset.UtcNow).TotalMinutes)} minutes";
+
+    private void StaySignedIn()
+    {
+        _until = DateTimeOffset.UtcNow.AddMinutes(2);
+        _signedOut = false;
+    }
+
+    // Fires once for this deadline, when it is reached or when the page is shown again after it.
+    private void SignedOut(SednaCountdownEventArgs e) => _signedOut = true;
+}
