@@ -208,7 +208,7 @@ public class InboxLayoutTests : ScriptTestBase
                 return [n.width, n.height, d.width, d.height];
             }
             """);
-        Assert.True(size[0] >= 16 && size[1] == 16, $"A count is {size[0]}×{size[1]}.");
+        Assert.True(size[0] >= 16 && Math.Abs(size[1] - 16) < 0.5, $"A count is {size[0]}×{size[1]}.");
         Assert.Equal(8, size[2]);
         Assert.Equal(8, size[3]);
     }

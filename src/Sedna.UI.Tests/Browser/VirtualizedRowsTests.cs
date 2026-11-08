@@ -42,7 +42,7 @@ public class VirtualizedRowsTests : ScriptTestBase
         var cut = ctx.Render(b =>
         {
             b.OpenComponent<Virtualize<int>>(0);
-            b.AddAttribute(1, "Items", (ICollection<int>)items);
+            b.AddAttribute(1, "Items", items);
             b.AddAttribute(2, "SpacerElement", "tr");
             b.AddAttribute(3, "ItemSize", 37f);
             b.AddAttribute(4, "ChildContent", row);

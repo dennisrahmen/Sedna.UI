@@ -454,9 +454,9 @@ public class ToastTests : ScriptTestBase
     {
         var box = (await page.Locator("[data-sedna-toasts] > .toast").Last.BoundingBoxAsync())!;
         var (x, y) = (box.X + box.Width / 2, box.Y + box.Height / 2);
-        await page.Mouse.MoveAsync((float)x, (float)y);
+        await page.Mouse.MoveAsync(x, y);
         await page.Mouse.DownAsync();
-        await page.Mouse.MoveAsync((float)(x + dx), (float)y, new() { Steps = 10 });
+        await page.Mouse.MoveAsync((float)(x + dx), y, new() { Steps = 10 });
         await page.Mouse.UpAsync();
     }
 
@@ -545,7 +545,7 @@ public class ToastTests : ScriptTestBase
         await ShowAll(page);
 
         var box = (await page.Locator(".toast").BoundingBoxAsync())!;
-        var (x, y) = ((float)(box.X + box.Width / 2), (float)(box.Y + box.Height / 2));
+        var (x, y) = (box.X + box.Width / 2, box.Y + box.Height / 2);
         await page.Mouse.MoveAsync(x, y);
         await page.Mouse.DownAsync();
         await page.Mouse.MoveAsync(x + 60, y, new() { Steps = 6 });
