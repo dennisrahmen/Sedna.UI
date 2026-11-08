@@ -203,6 +203,8 @@
     .rating-star:has(> input:focus-visible),
     .rating-half:has(> input:focus-visible) { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+    /* Inside its header cell, which clips what is drawn past its edge. */
+    .col-resize:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     .inbox-item:has(.inbox-item-title:focus-visible) { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }

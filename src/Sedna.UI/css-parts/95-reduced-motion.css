@@ -285,7 +285,8 @@
     .table--stagger tbody > tr,
     .list--stagger > li { animation: none; }
     .card-resize::before,
-    .split-resize::before { transition: none; }
+    .split-resize::before,
+    .col-resize::before { transition: none; }
     /* 69-busy — the spinner stands still; the bar is full width and still. */
     :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
         .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }

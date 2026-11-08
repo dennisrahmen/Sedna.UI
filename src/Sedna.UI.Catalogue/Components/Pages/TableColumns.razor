@@ -1,0 +1,76 @@
+@page "/table-columns"
+
+<CatHead Title="Table columns">
+    A <a href="/table"><code>.table</code></a> whose reader sets the columns: how wide each one is, the
+    order they stand in, and which of them are shown. Each is markup you write and state you keep &mdash;
+    the script says what the reader did, and your render does it.
+</CatHead>
+
+<div class="callout callout--info">
+    <i class="ri-information-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">The columns are the app's</span>
+        Widths, order and the shown set are the reader's preferences: keep them per user, and render the
+        table from them. <code>sedna-resize</code> says which column took which width, by the grip's
+        <code>data-resize-key</code>; <code>sedna-drop</code> says where a column went; the chooser is
+        checkboxes you bind. Nothing here moves a cell or hides a column for you.
+    </div>
+</div>
+
+<CatExample TExample="Examples.TableColumns.Resize" Title="Resizing a column" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; drag a column's edge, or Tab to it and use <kbd>&larr;</kbd> <kbd>&rarr;</kbd>.</strong>
+        <code>.table--fixed</code> sizes each column from the <code>--col-width</code> of the cell that heads
+        it, between <code>--col-min</code> and <code>--col-max</code>, and the table is as wide as its
+        columns &mdash; in a <code>.sedna-scroll-x</code>, it scrolls once they outgrow the box. A value too
+        long for its column ends in an ellipsis. Set <code>--col-width</code> on the table for every
+        column's default, and on a header cell for that column's.
+    </p>
+    <p>
+        The <code>.col-resize</code> grip at the cell's inline-end edge is a separator: a drag snaps to
+        <code>data-resize-step</code> (8&nbsp;px unless set), <kbd>Shift</kbd> with an arrow moves four steps,
+        <kbd>Home</kbd> or a double-click puts the column back. It takes its bounds from the column, so
+        <code>--col-min</code> on a header cell &mdash; the State column here &mdash; holds that column
+        alone. Pinned and sticky columns keep their grips, and the grip mirrors right to left.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.TableColumns.Reorder" Title="Moving a column" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; drag a heading along the row, or Tab to it and press <kbd>Space</kbd>.</strong>
+        The header row is a <a href="/drag-drop">drag zone</a> along x: <code>data-drag-zone</code> and
+        <code>data-drag-axis="x"</code> on the <code>&lt;tr&gt;</code>, <code>data-drag-item</code> on each
+        heading that moves. The heading is carried along its row, the line shows where it will land, and
+        carried off the row it fades &mdash; letting go there puts it back. A column that stays put, like
+        the order number here, is no item, and <code>index</code> in <code>sedna-drop</code> counts only
+        the columns that move. Move every cell of the column in your render.
+    </p>
+    <p>
+        A sort button is the heading's handle for the pointer alone,
+        <code>data-drag-handle="pointer"</code>: a press that moves carries the column, a click still sorts,
+        and from the keyboard <kbd>Space</kbd> on the heading picks it up while <kbd>Enter</kbd> on the
+        button sorts. In a <a href="/table-editing">keyboard grid</a> the heading cell is the tab stop:
+        <kbd>Space</kbd> picks it up, <kbd>Enter</kbd> moves into its sort button, and a grip there keeps
+        its own arrows &mdash; or <kbd>Alt</kbd>+<kbd>Shift</kbd> with <kbd>&larr;</kbd> or <kbd>&rarr;</kbd>
+        on the heading resizes without leaving it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.TableColumns.Chooser" Title="Choosing the columns" Demo="ex-demo--block">
+    <p>
+        A <a href="/menu"><code>.menu</code></a> of <code>.form-check</code> rows, one per column, with the
+        checkbox bound to whether you render it. A choice leaves the menu open, so the reader can change
+        several; a <code>.menu-item</code> such as <em>Reset columns</em> closes it. A column the table
+        cannot do without is <code>checked disabled</code>. <strong>The checkboxes here change
+        nothing</strong> &mdash; the example below binds them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.TableColumnsFromCsharp" Title="All three from Blazor" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> <code>@@onsedna-resize</code> on the table keeps each column's width by its
+        <code>Key</code> and renders it back as the heading's <code>--col-width</code>, and a reset
+        (<code>Value</code> null) returns it to your default. <code>@@onsedna-drop</code> moves the column
+        in your list, and the chooser binds each checkbox to whether the column is rendered.
+    </p>
+</CatExample>

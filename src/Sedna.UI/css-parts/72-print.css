@@ -45,7 +45,8 @@
     .chat-closed,
     .chat-actions,
     .chat-jump,
-    .chat-quick-replies { display: none; }
+    .chat-quick-replies,
+    .col-resize { display: none; }
 
     /* A thread prints whole: the scroller lets its messages out, and a message is
        not cut across a page. */

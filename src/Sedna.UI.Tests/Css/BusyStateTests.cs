@@ -36,7 +36,7 @@ public class BusyStateTests
         "form-check", "switch", "form-range", "form-color", "form-combo-btn", "input-clear", "form-input",
         "form-select", "form-combo-box", "dropzone", "form-file",   // fields: read-only, not busy
         "chip-dismiss", "modal-close", "toast-close", "th-sort", "th-filter", "skip-link", "swatch",
-        "deck-dot", "drag-item", "drag-handle", "card-resize", "split-resize", "value-trigger",
+        "deck-dot", "drag-item", "drag-handle", "card-resize", "split-resize", "col-resize", "value-trigger",
         "accordion", "tree", "nav-group", "nav-area", "topbar-nav-link", "reasoning",
         "output-details", "media-transcript", "media-transcript-time", "media-open", "lightbox-prev",
         "lightbox-next", "code-block-copy", "code-block-expand", "file-item", "file-tile", "file-tile-open",

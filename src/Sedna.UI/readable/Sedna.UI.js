@@ -1585,6 +1585,11 @@ window.sednaUi = window.sednaUi || {};
    A cell the keyboard reaches is kept clear of a sticky `<thead>` and a sticky
    `<tfoot>` alike.
 
+   A header cell that is a drag item (26-drag.js) is picked up with Space, which the
+   grid has no use for; Enter still moves into the cell's controls, and while the cell
+   is carried every key is the drag's. A column's resize grip keeps the arrows along its
+   axis — 26-resize.js says so through `keys`.
+
    `ui._.grid` is the core a later part extends: the selector a grid is found by, the
    row and cell walks, and `keys`, a list of `function (event, grid, cell)` consulted
    before the default keys — one that returns true has handled the key.
@@ -2148,6 +2153,8 @@ window.sednaUi = window.sednaUi || {};
 
     document.addEventListener('keydown', function (e) {
         if (e.defaultPrevented || !(e.target instanceof Element)) return;
+        // While a header cell is carried from the keyboard, the arrows move it.
+        if (ui.drag && ui.drag.active && ui.drag.active() !== null) return;
         var cell = cellOf(e.target);
         if (!cell) return;
         var grid = gridOf(cell);
@@ -3287,12 +3294,13 @@ window.sednaUi = window.sednaUi || {};
         if (expandable(item) && !target.closest('a[href]')) setExpanded(item, !expanded(item));
     });
 
-    /* An item that drags from itself, with no handle: Space and Enter are the drag's. */
+    /* An item that drags from itself — no handle, or one for the pointer alone: Space and
+       Enter are the drag's. */
     function dragsItself(item) {
         if (!item.hasAttribute('data-drag-item')) return false;
         var handles = item.querySelectorAll('[data-drag-handle]');
         for (var i = 0; i < handles.length; i++) {
-            if (handles[i].closest('[data-drag-item]') === item) return false;
+            if (handles[i].closest('[data-drag-item]') === item && handles[i].getAttribute('data-drag-handle') !== 'pointer') return false;
         }
         return true;
     }
@@ -5549,13 +5557,17 @@ window.sednaUi = window.sednaUi || {};
    carrying data-drag-item. Anything else inside the zone — a heading, a .drag-empty —
    is not counted. An item with a [data-drag-handle] of its own drags from the handle
    and nowhere else, so the rest of it stays selectable and clickable.
+   `data-drag-handle="pointer"` is a handle for the pointer alone: a control that also
+   does a job of its own — a header cell's sort button — drags the item under a mouse
+   or a finger and stays that control for the keyboard, which picks up the item itself.
 
      data-drag-group="board"    zones sharing a group trade items; a zone with none
                                 only reorders its own
      data-drag-accept="task"    the item types a zone takes, space-separated; an
                                 empty value takes nothing, which is a source-only zone
      data-drag-type="task"      an item's type, for data-drag-accept
-     data-drag-axis="grid"      how items are laid out: y (default), x or grid
+     data-drag-axis="grid"      how items are laid out: y (default), x or grid. A table's
+                                header row is a zone along x, its header cells the items
      data-drag-label="…"        what an announcement calls an item or a zone; an item
                                 falls back to its text, a zone to its aria-label
      aria-disabled="true"       on an item, it does not lift; on a zone, nothing lifts
@@ -5621,7 +5633,8 @@ window.sednaUi = window.sednaUi || {};
     var EDGE = 48;         // px from a scroller's edge where auto-scroll starts
     var SPEED = 16;        // px per frame at the edge itself
 
-    var CONTROL = 'a[href], button, input, select, textarea, label, summary, [contenteditable]';
+    // A resize grip is a control too: a press on a column's grip resizes the column.
+    var CONTROL = 'a[href], button, input, select, textarea, label, summary, [contenteditable], [data-resize]';
 
     var drag = null;           // the drag in progress
     var press = null;          // a press that may become one
@@ -5676,6 +5689,15 @@ window.sednaUi = window.sednaUi || {};
             if (handles[i].closest('[data-drag-item]') === item) return handles[i];
         }
         return null;
+    }
+
+    /* A handle for the pointer alone; the keyboard picks up the item itself. */
+    function pointerOnly(handle) { return handle.getAttribute('data-drag-handle') === 'pointer'; }
+
+    /* What a keyboard picks the item up from: its handle, else the item. */
+    function keyOwner(item) {
+        var handle = handleOf(item);
+        return handle && !pointerOnly(handle) ? handle : item;
     }
 
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
@@ -5895,11 +5917,15 @@ window.sednaUi = window.sednaUi || {};
        is pinned to its own column instead, which keeps every tile in its cell.
 
        All of it in one task, so neither the popover's hidden state nor the closed-up list
-       is ever painted. */
+       is ever painted.
+
+       A table cell is not raised: out of its row it is no longer a cell, and every cell
+       after it would shift a column. A header cell is carried along its row in place. */
     function lift(item, rect) {
         drag.lifted = false;
         drag.slot = null;
         if (typeof item.showPopover !== 'function' || item.hasAttribute('popover')) return;
+        if (getComputedStyle(item).display === 'table-cell') return;
 
         var zone = drag.from;
         var axis = axisOf(zone);
@@ -6013,7 +6039,7 @@ window.sednaUi = window.sednaUi || {};
         };
         send(d.item.isConnected ? d.item : document, 'sedna-dragend', end);
 
-        if (moved && d.mode === 'keyboard') refocus(id, !!handleOf(d.item));
+        if (moved && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
     }
 
     /* The app's render moves the item it was told about, and moving a focused node drops
@@ -6035,7 +6061,7 @@ window.sednaUi = window.sednaUi || {};
             var items = document.querySelectorAll('[data-drag-item]');
             for (var i = 0; i < items.length; i++) {
                 if (items[i].getAttribute('data-drag-item') !== id) continue;
-                var el = viaHandle ? handleOf(items[i]) || items[i] : items[i];
+                var el = viaHandle ? keyOwner(items[i]) : items[i];
                 el.focus({ preventScroll: false });
                 return document.activeElement === el;
             }
@@ -6344,8 +6370,7 @@ window.sednaUi = window.sednaUi || {};
         if (!(el instanceof Element)) return null;
         var item = el.closest('[data-drag-item]');
         if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item))) return null;
-        var handle = handleOf(item);
-        return (handle ? el === handle : el === item) ? item : null;
+        return el === keyOwner(item) ? item : null;
     }
 
     var MOVES = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'];
@@ -6370,7 +6395,9 @@ window.sednaUi = window.sednaUi || {};
             return;
         }
 
-        if ((e.key !== ' ' && e.key !== 'Enter') || e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
+        // A key another part has already used — a keyboard grid's Enter, moving into the
+        // cell's sort button — is not a pick-up.
+        if ((e.key !== ' ' && e.key !== 'Enter') || e.repeat || e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
         var item = keyTarget(e.target);
         if (!item) return;
         // A handle is a button, and Space or Enter would click it as well.
@@ -6388,7 +6415,7 @@ window.sednaUi = window.sednaUi || {};
     // Leaving the item — Tab, a click elsewhere — puts it back.
     document.addEventListener('focusout', function (e) {
         if (!drag || drag.mode !== 'keyboard') return;
-        var owner = handleOf(drag.item) || drag.item;
+        var owner = keyOwner(drag.item);
         if (e.target === owner && !owner.contains(e.relatedTarget)) finish(false);
     });
 
@@ -6531,6 +6558,16 @@ window.sednaUi = window.sednaUi || {};
    on the handle, and the property on the element. A bubbling `sedna-resize` on that element, with `property` and `value` in
    pixels (null once reset), says where it ended, so an app can keep it.
 
+   A TABLE COLUMN. A `.col-resize` grip in a header cell of a `.table--fixed` is a handle
+   on `--col-width`, written on that cell. `data-resize-key` names the column, and
+   `sedna-resize` carries it as `key`, so an app keeps a width per column. Without
+   `aria-valuemin` and `aria-valuemax`, the bounds are the handle's `--resize-min` and
+   `--resize-max` — lengths, which a grip takes from its column's `--col-min` and
+   `--col-max`. In a keyboard grid the grip is one of the cell's controls and keeps the
+   arrows along its axis and Home; the rest of the keys are the grid's. On a cell that
+   holds a grip, Alt+Shift with an arrow moves it a step, and Alt+Shift+Home resets it,
+   without leaving the cell.
+
    FOLDING. `data-resize-fold="<px>"` lets the reader put a thing away by dragging it
    small: a drag that ends with the pointer below that size, or an arrow key towards
    smaller when the size is already at its minimum, folds instead of resizing. The size
@@ -6550,7 +6587,10 @@ window.sednaUi = window.sednaUi || {};
         var measured = sel ? target.querySelector(sel) : target;
         if (!measured) return null;
         var block = handle.getAttribute('aria-orientation') !== 'vertical';
-        return { target: target, measured: measured, block: block, property: handle.getAttribute('data-resize') };
+        return {
+            target: target, measured: measured, block: block,
+            property: handle.getAttribute('data-resize'), key: handle.getAttribute('data-resize-key')
+        };
     }
 
     function size(p) {
@@ -6568,9 +6608,17 @@ window.sednaUi = window.sednaUi || {};
         return before ? 1 : -1;
     }
 
+    /* `aria-valuemin` and `aria-valuemax`, else the handle's `--resize-min` and
+       `--resize-max`: registered lengths, so the browser has already resolved a rem or a
+       percentage to pixels, and `none` where nothing set one. */
     function bounds(handle) {
         var min = parseFloat(handle.getAttribute('aria-valuemin'));
         var max = parseFloat(handle.getAttribute('aria-valuemax'));
+        if (isNaN(min) || isNaN(max)) {
+            var cs = getComputedStyle(handle);
+            if (isNaN(min)) min = parseFloat(cs.getPropertyValue('--resize-min'));
+            if (isNaN(max)) max = parseFloat(cs.getPropertyValue('--resize-max'));
+        }
         return { min: isNaN(min) ? 48 : min, max: isNaN(max) ? Infinity : max };
     }
 
@@ -6590,7 +6638,7 @@ window.sednaUi = window.sednaUi || {};
     function done(p, value, folded) {
         p.target.dispatchEvent(new CustomEvent('sedna-resize', {
             bubbles: true,
-            detail: { property: p.property, value: value, folded: !!folded }
+            detail: { property: p.property, value: value, folded: !!folded, key: p.key }
         }));
     }
 
@@ -6666,25 +6714,64 @@ window.sednaUi = window.sednaUi || {};
         if (handle) reset(handle);
     });
 
-    document.addEventListener('keydown', function (e) {
-        var handle = e.target instanceof Element ? e.target : null;
-        if (!handle || !handle.hasAttribute('data-resize')) return;
+    /* +1 or -1 for an arrow along the handle's axis — the way it moves the handle on
+       screen, as a drag would — or 0 for any other key. */
+    function arrow(handle, key) {
+        var block = handle.getAttribute('aria-orientation') !== 'vertical';
+        var forward = block ? { ArrowDown: 1, ArrowUp: -1 } : { ArrowRight: 1, ArrowLeft: -1 };
+        return forward[key] || 0;
+    }
+
+    /* One key on a handle: Home resets it, an arrow along its axis moves it `steps` steps.
+       False for any other key. */
+    function press(handle, key, steps) {
         var p = parts(handle);
-        if (!p) return;
-        if (e.key === 'Home') { e.preventDefault(); reset(handle); return; }
-        // An arrow moves the handle that way on screen, as a drag would.
-        var forward = p.block ? { ArrowDown: 1, ArrowUp: -1 } : { ArrowRight: 1, ArrowLeft: -1 };
-        var by = forward[e.key];
-        if (!by) return;
-        e.preventDefault();
-        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1);
+        if (!p) return false;
+        if (key === 'Home') { reset(handle); return true; }
+        var by = arrow(handle, key);
+        if (!by) return false;
+        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * steps;
         // Already as small as it goes, and asked for less: put it away.
         if (foldAt(handle) !== null && wanted < current && current <= bounds(handle).min + 0.5) {
             fold(handle, p, p.target.style.getPropertyValue(p.property), handle.getAttribute('aria-valuenow'));
-            return;
+            return true;
         }
         done(p, apply(handle, p, wanted));
+        return true;
+    }
+
+    /* The grip that belongs to `el` itself — a header cell's own — not one further in. */
+    function ownGrip(el) {
+        for (var c = el.firstElementChild; c; c = c.nextElementSibling) {
+            if (c.hasAttribute('data-resize')) return c;
+        }
+        return null;
+    }
+
+    document.addEventListener('keydown', function (e) {
+        var el = e.target instanceof Element ? e.target : null;
+        if (!el || e.ctrlKey || e.metaKey) return;
+        if (el.hasAttribute('data-resize')) {
+            if (e.altKey) return;
+            if (press(el, e.key, e.shiftKey ? 4 : 1)) e.preventDefault();
+            return;
+        }
+        // Alt+Shift on the cell a grip sits in: the column resizes and the focus stays.
+        if (!e.altKey || !e.shiftKey) return;
+        var grip = ownGrip(el);
+        if (grip && press(grip, e.key, 1)) e.preventDefault();
     });
+
+    /* In a keyboard grid the grip is one of its cell's controls, and the grid moves on from
+       a control with the arrows. Its own axis and Home are the grip's; the grid keeps the
+       rest — the other axis, Escape back to the cell. */
+    if (ui._.grid) {
+        ui._.grid.keys.push(function (e, grid, cell) {
+            var el = e.target;
+            if (el === cell || !el.hasAttribute('data-resize') || e.altKey || e.ctrlKey || e.metaKey) return false;
+            return e.key === 'Home' || arrow(el, e.key) !== 0;
+        });
+    }
 
 })(window.sednaUi);
 

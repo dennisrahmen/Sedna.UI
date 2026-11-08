@@ -1255,6 +1255,7 @@ window.sednaUi = window.sednaUi || {};
     });
     document.addEventListener('keydown', function (e) {
         if (e.defaultPrevented || !(e.target instanceof Element)) return;
+        if (ui.drag && ui.drag.active && ui.drag.active() !== null) return;
         var cell = cellOf(e.target);
         if (!cell) return;
         var grid = gridOf(cell);
@@ -2030,7 +2031,7 @@ window.sednaUi = window.sednaUi || {};
         if (!item.hasAttribute('data-drag-item')) return false;
         var handles = item.querySelectorAll('[data-drag-handle]');
         for (var i = 0; i < handles.length; i++) {
-            if (handles[i].closest('[data-drag-item]') === item) return false;
+            if (handles[i].closest('[data-drag-item]') === item && handles[i].getAttribute('data-drag-handle') !== 'pointer') return false;
         }
         return true;
     }
@@ -3482,7 +3483,7 @@ window.sednaUi = window.sednaUi || {};
     var TOUCH_SLOP = 10;   // px a finger may drift during the hold before it is a scroll
     var EDGE = 48;         // px from a scroller's edge where auto-scroll starts
     var SPEED = 16;        // px per frame at the edge itself
-    var CONTROL = 'a[href], button, input, select, textarea, label, summary, [contenteditable]';
+    var CONTROL = 'a[href], button, input, select, textarea, label, summary, [contenteditable], [data-resize]';
     var drag = null;           // the drag in progress
     var press = null;          // a press that may become one
     var swallowUntil = 0;      // the click that follows a pointer drag is not a click
@@ -3522,6 +3523,11 @@ window.sednaUi = window.sednaUi || {};
             if (handles[i].closest('[data-drag-item]') === item) return handles[i];
         }
         return null;
+    }
+    function pointerOnly(handle) { return handle.getAttribute('data-drag-handle') === 'pointer'; }
+    function keyOwner(item) {
+        var handle = handleOf(item);
+        return handle && !pointerOnly(handle) ? handle : item;
     }
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
     function rtl(zone) {
@@ -3672,6 +3678,7 @@ window.sednaUi = window.sednaUi || {};
         drag.lifted = false;
         drag.slot = null;
         if (typeof item.showPopover !== 'function' || item.hasAttribute('popover')) return;
+        if (getComputedStyle(item).display === 'table-cell') return;
         var zone = drag.from;
         var axis = axisOf(zone);
         var items = itemsOf(zone);
@@ -3768,7 +3775,7 @@ window.sednaUi = window.sednaUi || {};
             dropped: !!moved
         };
         send(d.item.isConnected ? d.item : document, 'sedna-dragend', end);
-        if (moved && d.mode === 'keyboard') refocus(id, !!handleOf(d.item));
+        if (moved && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
     }
     function refocus(id, viaHandle) {
         var observer = null;
@@ -3783,7 +3790,7 @@ window.sednaUi = window.sednaUi || {};
             var items = document.querySelectorAll('[data-drag-item]');
             for (var i = 0; i < items.length; i++) {
                 if (items[i].getAttribute('data-drag-item') !== id) continue;
-                var el = viaHandle ? handleOf(items[i]) || items[i] : items[i];
+                var el = viaHandle ? keyOwner(items[i]) : items[i];
                 el.focus({ preventScroll: false });
                 return document.activeElement === el;
             }
@@ -4028,8 +4035,7 @@ window.sednaUi = window.sednaUi || {};
         if (!(el instanceof Element)) return null;
         var item = el.closest('[data-drag-item]');
         if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item))) return null;
-        var handle = handleOf(item);
-        return (handle ? el === handle : el === item) ? item : null;
+        return el === keyOwner(item) ? item : null;
     }
     var MOVES = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'];
     document.addEventListener('keydown', function (e) {
@@ -4051,7 +4057,7 @@ window.sednaUi = window.sednaUi || {};
             }
             return;
         }
-        if ((e.key !== ' ' && e.key !== 'Enter') || e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
+        if ((e.key !== ' ' && e.key !== 'Enter') || e.repeat || e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
         var item = keyTarget(e.target);
         if (!item) return;
         e.preventDefault();
@@ -4065,7 +4071,7 @@ window.sednaUi = window.sednaUi || {};
     }, true);
     document.addEventListener('focusout', function (e) {
         if (!drag || drag.mode !== 'keyboard') return;
-        var owner = handleOf(drag.item) || drag.item;
+        var owner = keyOwner(drag.item);
         if (e.target === owner && !owner.contains(e.relatedTarget)) finish(false);
     });
     ui.drag = {
@@ -4136,7 +4142,10 @@ window.sednaUi = window.sednaUi || {};
         var measured = sel ? target.querySelector(sel) : target;
         if (!measured) return null;
         var block = handle.getAttribute('aria-orientation') !== 'vertical';
-        return { target: target, measured: measured, block: block, property: handle.getAttribute('data-resize') };
+        return {
+            target: target, measured: measured, block: block,
+            property: handle.getAttribute('data-resize'), key: handle.getAttribute('data-resize-key')
+        };
     }
     function size(p) {
         var r = p.measured.getBoundingClientRect();
@@ -4151,6 +4160,11 @@ window.sednaUi = window.sednaUi || {};
     function bounds(handle) {
         var min = parseFloat(handle.getAttribute('aria-valuemin'));
         var max = parseFloat(handle.getAttribute('aria-valuemax'));
+        if (isNaN(min) || isNaN(max)) {
+            var cs = getComputedStyle(handle);
+            if (isNaN(min)) min = parseFloat(cs.getPropertyValue('--resize-min'));
+            if (isNaN(max)) max = parseFloat(cs.getPropertyValue('--resize-max'));
+        }
         return { min: isNaN(min) ? 48 : min, max: isNaN(max) ? Infinity : max };
     }
     function stepOf(handle) {
@@ -4167,7 +4181,7 @@ window.sednaUi = window.sednaUi || {};
     function done(p, value, folded) {
         p.target.dispatchEvent(new CustomEvent('sedna-resize', {
             bubbles: true,
-            detail: { property: p.property, value: value, folded: !!folded }
+            detail: { property: p.property, value: value, folded: !!folded, key: p.key }
         }));
     }
     function foldAt(handle) {
@@ -4231,23 +4245,50 @@ window.sednaUi = window.sednaUi || {};
         var handle = e.target instanceof Element ? e.target.closest('[data-resize]') : null;
         if (handle) reset(handle);
     });
-    document.addEventListener('keydown', function (e) {
-        var handle = e.target instanceof Element ? e.target : null;
-        if (!handle || !handle.hasAttribute('data-resize')) return;
+    function arrow(handle, key) {
+        var block = handle.getAttribute('aria-orientation') !== 'vertical';
+        var forward = block ? { ArrowDown: 1, ArrowUp: -1 } : { ArrowRight: 1, ArrowLeft: -1 };
+        return forward[key] || 0;
+    }
+    function press(handle, key, steps) {
         var p = parts(handle);
-        if (!p) return;
-        if (e.key === 'Home') { e.preventDefault(); reset(handle); return; }
-        var forward = p.block ? { ArrowDown: 1, ArrowUp: -1 } : { ArrowRight: 1, ArrowLeft: -1 };
-        var by = forward[e.key];
-        if (!by) return;
-        e.preventDefault();
-        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1);
+        if (!p) return false;
+        if (key === 'Home') { reset(handle); return true; }
+        var by = arrow(handle, key);
+        if (!by) return false;
+        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * steps;
         if (foldAt(handle) !== null && wanted < current && current <= bounds(handle).min + 0.5) {
             fold(handle, p, p.target.style.getPropertyValue(p.property), handle.getAttribute('aria-valuenow'));
-            return;
+            return true;
         }
         done(p, apply(handle, p, wanted));
+        return true;
+    }
+    function ownGrip(el) {
+        for (var c = el.firstElementChild; c; c = c.nextElementSibling) {
+            if (c.hasAttribute('data-resize')) return c;
+        }
+        return null;
+    }
+    document.addEventListener('keydown', function (e) {
+        var el = e.target instanceof Element ? e.target : null;
+        if (!el || e.ctrlKey || e.metaKey) return;
+        if (el.hasAttribute('data-resize')) {
+            if (e.altKey) return;
+            if (press(el, e.key, e.shiftKey ? 4 : 1)) e.preventDefault();
+            return;
+        }
+        if (!e.altKey || !e.shiftKey) return;
+        var grip = ownGrip(el);
+        if (grip && press(grip, e.key, 1)) e.preventDefault();
     });
+    if (ui._.grid) {
+        ui._.grid.keys.push(function (e, grid, cell) {
+            var el = e.target;
+            if (el === cell || !el.hasAttribute('data-resize') || e.altKey || e.ctrlKey || e.metaKey) return false;
+            return e.key === 'Home' || arrow(el, e.key) !== 0;
+        });
+    }
 })(window.sednaUi);
 (function (ui) {
     var STATE = '_sednaFollow';

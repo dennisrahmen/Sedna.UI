@@ -158,4 +158,27 @@ public class EventRegistrationTests
         Assert.True(check.Selected);
         Assert.Equal(["north", "north-inbound"], check.Items);
     }
+
+    [Fact]
+    public void The_resize_event_carries_the_column_key_into_its_arguments()
+    {
+        Assert.True(Dispatched().ContainsKey("sedna-resize"), "No shipped script dispatches sedna-resize.");
+        Assert.Equal(typeof(SednaResizeEventArgs), Declared()["sedna-resize"].EventArgsType);
+        Assert.Matches(@"detail:\s*\{[^}]*\bkey:", Script("26-resize.js"));
+
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var column = System.Text.Json.JsonSerializer.Deserialize<SednaResizeEventArgs>(
+            """{"property":"--col-width","value":240,"folded":false,"key":"customer"}""", web)!;
+        Assert.Equal("--col-width", column.Property);
+        Assert.Equal(240, column.Value);
+        Assert.Equal("customer", column.Key);
+
+        var card = System.Text.Json.JsonSerializer.Deserialize<SednaResizeEventArgs>(
+            """{"property":"--card-height","value":null,"folded":false,"key":null}""", web)!;
+        Assert.Null(card.Value);
+        Assert.Null(card.Key);
+    }
+
+    private static string Script(string part) =>
+        File.ReadAllText(Path.Combine(Assets.ProjectDir, "js-parts", part));
 }

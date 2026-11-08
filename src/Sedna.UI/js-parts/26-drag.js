@@ -14,13 +14,17 @@
    carrying data-drag-item. Anything else inside the zone — a heading, a .drag-empty —
    is not counted. An item with a [data-drag-handle] of its own drags from the handle
    and nowhere else, so the rest of it stays selectable and clickable.
+   `data-drag-handle="pointer"` is a handle for the pointer alone: a control that also
+   does a job of its own — a header cell's sort button — drags the item under a mouse
+   or a finger and stays that control for the keyboard, which picks up the item itself.
 
      data-drag-group="board"    zones sharing a group trade items; a zone with none
                                 only reorders its own
      data-drag-accept="task"    the item types a zone takes, space-separated; an
                                 empty value takes nothing, which is a source-only zone
      data-drag-type="task"      an item's type, for data-drag-accept
-     data-drag-axis="grid"      how items are laid out: y (default), x or grid
+     data-drag-axis="grid"      how items are laid out: y (default), x or grid. A table's
+                                header row is a zone along x, its header cells the items
      data-drag-label="…"        what an announcement calls an item or a zone; an item
                                 falls back to its text, a zone to its aria-label
      aria-disabled="true"       on an item, it does not lift; on a zone, nothing lifts
@@ -86,7 +90,8 @@
     var EDGE = 48;         // px from a scroller's edge where auto-scroll starts
     var SPEED = 16;        // px per frame at the edge itself
 
-    var CONTROL = 'a[href], button, input, select, textarea, label, summary, [contenteditable]';
+    // A resize grip is a control too: a press on a column's grip resizes the column.
+    var CONTROL = 'a[href], button, input, select, textarea, label, summary, [contenteditable], [data-resize]';
 
     var drag = null;           // the drag in progress
     var press = null;          // a press that may become one
@@ -141,6 +146,15 @@
             if (handles[i].closest('[data-drag-item]') === item) return handles[i];
         }
         return null;
+    }
+
+    /* A handle for the pointer alone; the keyboard picks up the item itself. */
+    function pointerOnly(handle) { return handle.getAttribute('data-drag-handle') === 'pointer'; }
+
+    /* What a keyboard picks the item up from: its handle, else the item. */
+    function keyOwner(item) {
+        var handle = handleOf(item);
+        return handle && !pointerOnly(handle) ? handle : item;
     }
 
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
@@ -360,11 +374,15 @@
        is pinned to its own column instead, which keeps every tile in its cell.
 
        All of it in one task, so neither the popover's hidden state nor the closed-up list
-       is ever painted. */
+       is ever painted.
+
+       A table cell is not raised: out of its row it is no longer a cell, and every cell
+       after it would shift a column. A header cell is carried along its row in place. */
     function lift(item, rect) {
         drag.lifted = false;
         drag.slot = null;
         if (typeof item.showPopover !== 'function' || item.hasAttribute('popover')) return;
+        if (getComputedStyle(item).display === 'table-cell') return;
 
         var zone = drag.from;
         var axis = axisOf(zone);
@@ -478,7 +496,7 @@
         };
         send(d.item.isConnected ? d.item : document, 'sedna-dragend', end);
 
-        if (moved && d.mode === 'keyboard') refocus(id, !!handleOf(d.item));
+        if (moved && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
     }
 
     /* The app's render moves the item it was told about, and moving a focused node drops
@@ -500,7 +518,7 @@
             var items = document.querySelectorAll('[data-drag-item]');
             for (var i = 0; i < items.length; i++) {
                 if (items[i].getAttribute('data-drag-item') !== id) continue;
-                var el = viaHandle ? handleOf(items[i]) || items[i] : items[i];
+                var el = viaHandle ? keyOwner(items[i]) : items[i];
                 el.focus({ preventScroll: false });
                 return document.activeElement === el;
             }
@@ -809,8 +827,7 @@
         if (!(el instanceof Element)) return null;
         var item = el.closest('[data-drag-item]');
         if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item))) return null;
-        var handle = handleOf(item);
-        return (handle ? el === handle : el === item) ? item : null;
+        return el === keyOwner(item) ? item : null;
     }
 
     var MOVES = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'];
@@ -835,7 +852,9 @@
             return;
         }
 
-        if ((e.key !== ' ' && e.key !== 'Enter') || e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
+        // A key another part has already used — a keyboard grid's Enter, moving into the
+        // cell's sort button — is not a pick-up.
+        if ((e.key !== ' ' && e.key !== 'Enter') || e.repeat || e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
         var item = keyTarget(e.target);
         if (!item) return;
         // A handle is a button, and Space or Enter would click it as well.
@@ -853,7 +872,7 @@
     // Leaving the item — Tab, a click elsewhere — puts it back.
     document.addEventListener('focusout', function (e) {
         if (!drag || drag.mode !== 'keyboard') return;
-        var owner = handleOf(drag.item) || drag.item;
+        var owner = keyOwner(drag.item);
         if (e.target === owner && !owner.contains(e.relatedTarget)) finish(false);
     });
 

@@ -684,4 +684,162 @@ public class DragTests : ScriptTestBase
         Assert.Equal(["sedna-dragstart", "sedna-dragend"], (await Log(page)).Select(l => l.Name));
         await AssertNothingLeftBehind(page);
     }
+
+    // ── Table columns ──────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// A header row that reorders its columns. Order stays put and is no item; Customer and
+    /// State drag from their sort buttons under a pointer, Total from anywhere in it, and
+    /// Customer has a resize grip.
+    /// </summary>
+    private static string Columns(string dir = "ltr", string role = "", string tab = "tabindex=\"0\"") => Live + $$"""
+        <div dir="{{dir}}">
+          <table class="table table--fixed" id="t" {{role}} aria-label="Orders" style="--col-width: 140px">
+            <thead><tr data-drag-zone="cols" data-drag-axis="x" aria-label="Columns">
+              <th id="h-order">Order</th>
+              <th id="h-customer" data-drag-item="customer" data-drag-label="Customer" {{tab}} aria-sort="none">
+                <button class="th-sort" id="sort-customer" type="button" data-drag-handle="pointer">Customer</button>
+                <div class="col-resize" id="grip" data-resize="--col-width" data-resize-key="customer" role="separator"
+                     aria-orientation="vertical" aria-label="Resize Customer" tabindex="0"></div>
+              </th>
+              <th id="h-state" data-drag-item="state" data-drag-label="State" {{tab}} aria-sort="none">
+                <button class="th-sort" id="sort-state" type="button" data-drag-handle="pointer">State</button>
+              </th>
+              <th id="h-total" data-drag-item="total" data-drag-label="Total" {{tab}}>Total</th>
+            </tr></thead>
+            <tbody>
+              <tr><td id="c-order">ORD-4209</td><td id="c-customer">Northwind Retail</td><td>Pending</td><td>1,248.00</td></tr>
+              <tr><td>ORD-4204</td><td>Alex Fischer</td><td>Approved</td><td>86.40</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <script>window.sorts = []; document.addEventListener('click', e => { const b = e.target.closest('.th-sort'); if (b) sorts.push(b.id); });</script>
+        """;
+
+    private static Task<string> Focused(IPage page) => page.EvaluateAsync<string>("() => document.activeElement.id");
+
+    [Theory]
+    [InlineData("ltr")]
+    [InlineData("rtl")]
+    public async Task A_column_is_carried_along_its_row_and_its_index_counts_only_the_columns_that_move(string dir)
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Columns(dir));
+        var from = await Point(page, "#h-total", fx: 0.5f);
+        var start = await page.EvaluateAsync<double>("() => document.getElementById('h-total').getBoundingClientRect().top");
+
+        // Total, carried over the first half of Customer — the inline-start half, on either side.
+        await MouseDrag(page, from, await Point(page, "#h-customer", fx: dir == "rtl" ? 0.8f : 0.2f, fy: 0.9f), release: false);
+
+        await Assertions.Expect(page.Locator("#h-total")).ToHaveAttributeAsync("data-dragging", "pointer");
+        await Assertions.Expect(page.Locator("#h-customer")).ToHaveAttributeAsync("data-drop-edge", "before");
+        // Still a cell in its row, moved along it and not up or down.
+        Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('h-total').matches(':popover-open')"));
+        Assert.Equal(start, await page.EvaluateAsync<double>("() => document.getElementById('h-total').getBoundingClientRect().top"), 0.5);
+        var travelled = await page.EvaluateAsync<double>("() => parseFloat(getComputedStyle(document.getElementById('h-total')).translate)");
+        Assert.True(dir == "rtl" ? travelled > 100 : travelled < -100, $"The heading travelled {travelled}px.");
+
+        await page.Mouse.UpAsync();
+        var log = await Log(page);
+        // In front of Customer: position 0 among the columns that move, not 1 among the cells.
+        AssertDrop(log.Single(l => l.Name == "sedna-drop"), "total", "cols", "cols", index: 0, fromIndex: 2, keyboard: false);
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task Carried_off_its_row_a_column_fades_and_letting_go_puts_it_back()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Columns());
+        await MouseDrag(page, await Point(page, "#h-total"), await Point(page, "#c-customer"), release: false);
+
+        await Assertions.Expect(page.Locator("#h-total")).ToHaveAttributeAsync("data-dragging", "pointer");
+        Assert.Null(await page.Locator("[data-drag-zone=cols]").GetAttributeAsync("data-drop-over"));
+        Assert.Equal(0, await page.Locator("[data-drop-edge]").CountAsync());
+        Assert.Equal("0.5", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('h-total')).opacity"));
+
+        await page.Mouse.UpAsync();
+        Assert.Equal(["sedna-dragstart", "sedna-dragend"], (await Log(page)).Select(l => l.Name));
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task A_sort_button_that_is_a_pointer_handle_drags_the_column_and_a_click_still_sorts()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Columns());
+
+        await page.ClickAsync("#sort-state");
+        Assert.Equal("[\"sort-state\"]", await page.EvaluateAsync<string>("() => JSON.stringify(sorts)"));
+        Assert.Empty(await Log(page));
+
+        await MouseDrag(page, await Point(page, "#sort-state"), await Point(page, "#h-customer", fx: 0.2f));
+        AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "state", "cols", "cols", index: 0, fromIndex: 1, keyboard: false);
+        // The click that ends a drag is not a sort.
+        Assert.Equal("[\"sort-state\"]", await page.EvaluateAsync<string>("() => JSON.stringify(sorts)"));
+
+        // A press on the resize grip resizes, and lifts nothing.
+        await Js.Run(page, "() => dragLog.length = 0");
+        await MouseDrag(page, await Point(page, "#grip"), await Point(page, "#h-total"));
+        Assert.Empty(await Log(page));
+        Assert.NotEqual("", await page.EvaluateAsync<string>("() => document.getElementById('h-customer').style.getPropertyValue('--col-width')"));
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task From_the_keyboard_Space_on_the_heading_picks_it_up_and_Enter_on_its_sort_button_sorts()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Columns());
+
+        await page.FocusAsync("#sort-customer");
+        await page.Keyboard.PressAsync("Enter");
+        Assert.Equal("[\"sort-customer\"]", await page.EvaluateAsync<string>("() => JSON.stringify(sorts)"));
+        Assert.Empty(await Log(page));
+
+        await page.FocusAsync("#h-customer");
+        await page.Keyboard.PressAsync("Space");
+        await Assertions.Expect(page.Locator("#h-customer")).ToHaveAttributeAsync("data-dragging", "keyboard");
+        await Assertions.Expect(page.Locator("[data-drag-live]")).ToHaveTextAsync("Picked up Customer.");
+        await page.Keyboard.PressAsync("ArrowRight");
+        await page.Keyboard.PressAsync("ArrowRight");
+        await Assertions.Expect(page.Locator("[data-drag-live]")).ToHaveTextAsync(new Regex(@"^Customer: 3 of 3 in Columns\.\s?$"));
+        await page.Keyboard.PressAsync("Space");
+
+        AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "customer", "cols", "cols", index: 2, fromIndex: 0, keyboard: true);
+        Assert.Equal("h-customer", await Focused(page));
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Theory]
+    [InlineData("ltr")]
+    [InlineData("rtl")]
+    public async Task In_a_keyboard_grid_Space_carries_the_heading_and_the_arrows_are_the_drags(string dir)
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Columns(dir, role: "role=\"grid\"", tab: ""));
+        await Js.Run(page, "() => document.getElementById('h-state').focus()");
+
+        // Enter is the grid's: it moves into the cell's sort button and picks nothing up.
+        await page.Keyboard.PressAsync("Enter");
+        Assert.Equal("sort-state", await Focused(page));
+        Assert.Empty(await Log(page));
+        await page.Keyboard.PressAsync("Escape");
+        Assert.Equal("h-state", await Focused(page));
+
+        await page.Keyboard.PressAsync("Space");
+        await Assertions.Expect(page.Locator("#h-state")).ToHaveAttributeAsync("data-dragging", "keyboard");
+        // Back towards the start of the row, which is to the right in RTL; the focus stays.
+        await page.Keyboard.PressAsync(dir == "rtl" ? "ArrowRight" : "ArrowLeft");
+        await Assertions.Expect(page.Locator("#h-customer")).ToHaveAttributeAsync("data-drop-edge", "before");
+        Assert.Equal("h-state", await Focused(page));
+        await page.Keyboard.PressAsync("Space");
+
+        AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "state", "cols", "cols", index: 0, fromIndex: 1, keyboard: true);
+        Assert.Equal("h-state", await Focused(page));
+        // The grid is still the grid: the arrows move between cells again.
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal("TD", await page.EvaluateAsync<string>("() => document.activeElement.tagName"));
+        await AssertNothingLeftBehind(page);
+    }
 }

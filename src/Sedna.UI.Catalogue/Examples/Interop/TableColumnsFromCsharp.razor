@@ -1,0 +1,116 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up the {item} column. Left and right move it, Space drops it, Escape cancels."
+   data-drag-move="{item}, column {position} of {count}."
+   data-drag-drop="{item} moved to column {position} of {count}."
+   data-drag-cancel="Cancelled. {item} is back at column {position}."></p>
+<div class="toolbar">
+    <span class="toolbar-count">@_rows.Length orders</span>
+    <div class="toolbar-actions">
+        <div class="menu-anchor">
+            <button class="btn btn--sm" type="button" data-menu-toggle aria-expanded="false">
+                <i class="ri-layout-column-line"></i> <span>Columns</span>
+            </button>
+            <div class="menu" hidden>
+                <span class="menu-label">Show columns</span>
+                @foreach (var column in _columns)
+                {
+                    <label class="form-check" @key="column.Key">
+                        <input type="checkbox" checked="@column.Visible" disabled="@column.Locked"
+                               @onchange="e => column.Visible = (bool)e.Value!" />
+                        <span>@column.Title</span>
+                    </label>
+                }
+                <hr class="menu-sep" />
+                <button class="menu-item" type="button" @onclick="Reset"><i class="ri-arrow-go-back-line"></i> <span>Reset columns</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="sedna-scroll-x">
+    <table class="table table--fixed table--pin-start" aria-label="Open orders"
+           @onsedna-resize="Resized" @onsedna-drop="Moved">
+        <thead>
+            <tr data-drag-zone="order-columns" data-drag-axis="x" aria-label="Columns">
+                @foreach (var column in Shown)
+                {
+                    <th @key="column.Key" class="@(column.Numeric ? "col-num" : null)" style="--col-width: @(column.Width)px"
+                        data-drag-item="@(column.Locked ? null : column.Key)" data-drag-label="@column.Title"
+                        tabindex="@(column.Locked ? null : "0")">
+                        <span>@column.Title</span>
+                        <div class="col-resize" data-resize="--col-width" data-resize-key="@column.Key" role="separator"
+                             aria-orientation="vertical" aria-label="Resize @column.Title" aria-valuenow="@column.Width" tabindex="0"></div>
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in _rows)
+            {
+                <tr @key="row[0]">
+                    @foreach (var column in Shown)
+                    {
+                        <td class="@(column.Numeric ? "col-num" : null)">@row[column.Index]</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<p class="text-muted sedna-mt-3">Saved for the reader: @string.Join(", ", Shown.Select(c => $"{c.Title} {c.Width}px"))</p>
+
+@code {
+    private sealed class Column(string key, int index, string title, int width, bool numeric = false, bool locked = false)
+    {
+        public string Key { get; } = key;
+        public int Index { get; } = index;
+        public string Title { get; } = title;
+        public int DefaultWidth { get; } = width;
+        public int Width { get; set; } = width;
+        public bool Numeric { get; } = numeric;
+        public bool Locked { get; } = locked;
+        public bool Visible { get; set; } = true;
+    }
+
+    private static Column[] Defaults() =>
+    [
+        new("order", 0, "Order", 112, locked: true),
+        new("customer", 1, "Customer", 208),
+        new("state", 2, "State", 120),
+        new("ship-to", 3, "Ship to", 160),
+        new("total", 4, "Total (EUR)", 120, numeric: true),
+    ];
+
+    private List<Column> _columns = [.. Defaults()];
+
+    private readonly string[][] _rows =
+    [
+        ["ORD-4209", "Northwind Retail, Central Warehouse", "Pending", "Hamburg, Dock 4", "1,248.00"],
+        ["ORD-4204", "Alex Fischer", "Approved", "Berlin", "86.40"],
+        ["ORD-4198", "Northwind Retail, Returns Desk", "Rejected", "Leipzig, Gate B", "412.90"],
+    ];
+
+    private IEnumerable<Column> Shown => _columns.Where(c => c.Visible);
+
+    // Each reader's own widths, which an app would keep per user. Value is null once the reader
+    // reset the column with Home or a double-click.
+    private void Resized(SednaResizeEventArgs e)
+    {
+        var column = _columns.Find(c => c.Key == e.Key);
+        if (column is not null) column.Width = (int)(e.Value ?? column.DefaultWidth);
+    }
+
+    // The order is the app's: the script says where the column went, among the columns that
+    // move, and the render puts every cell of it there.
+    private void Moved(SednaDropEventArgs e)
+    {
+        var moving = Shown.Where(c => !c.Locked).ToList();
+        var column = moving.Find(c => c.Key == e.Item);
+        if (column is null) return;
+        moving.Remove(column);
+        var before = e.Index < moving.Count ? moving[e.Index] : null;
+        _columns.Remove(column);
+        _columns.Insert(before is null ? _columns.Count : _columns.IndexOf(before), column);
+    }
+
+    private void Reset() => _columns = [.. Defaults()];
+}

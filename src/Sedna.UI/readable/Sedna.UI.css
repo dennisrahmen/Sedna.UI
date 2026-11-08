@@ -11902,6 +11902,21 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 }
 .menu-sep { border: none; border-top: 1px solid var(--divider); margin: var(--space-2) var(--space-1); }
 
+/* A choice in the panel — a column shown or hidden, a filter on or off: a `.form-check`
+   row, as tall and as far in as an item. A click on it leaves the menu open, because
+   the reader is choosing several; the panel's `.menu-item`s still close it. */
+.menu > .form-check {
+    display: flex;
+    width: 100%;
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    line-height: normal;   /* the line an item's label sits on, so the rows match */
+}
+.menu > .form-check:hover { background: var(--bg-hover); }
+.menu > .form-check:has(> input:disabled) { cursor: not-allowed; color: var(--muted); }
+.menu > .form-check > input:disabled { cursor: not-allowed; }
+
 /* Catches the click that dismisses the panel. Transparent and undecorated: this is
    a menu, not a modal, so it must not dim the page. Put it immediately BEFORE the
    panel in the markup — the panel then paints above it on source order, and the
@@ -12691,6 +12706,100 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     overflow-wrap: anywhere;
 }
 .table .col-fit { width: 1%; white-space: nowrap; }
+
+/* ── Columns the reader sizes and moves ─────────────────────────────────────
+   `.table--fixed` lays the table out from its header: each column is as wide as the
+   `--col-width` of the cell that heads it, held between `--col-min` and `--col-max`,
+   and the table is as wide as its columns add up to — inside a `.sedna-scroll-x`, so a
+   table wider than its box scrolls. A fixed layout needs a width that is not `auto`;
+   `0` is the smallest, so the sum of the columns is the width. The widths come from
+   the first header row: one row of header cells, or the first of them carrying the
+   widths. A cell's content no longer sets its column, so a value too long for it ends
+   in an ellipsis rather than running into the next.
+
+   `--col-width` on the table is every column's default; on a header cell it is that
+   column's. A reader's width is written on the cell by the grip, and the app keeps it
+   from `sedna-resize` — `key` is the grip's `data-resize-key` — and renders it back as
+   the cell's own `--col-width`.
+
+   The grip is the app's `.col-resize`, a `[data-resize="--col-width"]` separator at the
+   inline-end edge of its header cell: dragged, moved with the arrow keys, reset with
+   Home or a double-click (26-resize.js). It takes its bounds from its column through
+   `--resize-min` and `--resize-max`, which are registered lengths so the script reads
+   them in pixels whatever unit the column states them in. */
+@property --resize-min {
+    syntax: '<length> | none';
+    inherits: false;
+    initial-value: none;
+}
+@property --resize-max {
+    syntax: '<length> | none';
+    inherits: false;
+    initial-value: none;
+}
+.table--fixed {
+    --col-width: 10rem;
+    --col-min: 4rem;
+    --col-max: 40rem;
+    table-layout: fixed;
+    inline-size: 0;
+}
+.table--fixed > thead > tr:first-child > :is(th, td) {
+    inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
+}
+.table--fixed :is(th, td) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.table--fixed .th-sort { min-inline-size: 0; }
+
+/* The grip's cell holds it; a sticky or pinned cell is positioned already, and zero
+   specificity leaves it so. */
+:where(.table th:has(> .col-resize)) { position: relative; }
+.col-resize {
+    --resize-min: var(--col-min);
+    --resize-max: var(--col-max);
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: var(--space-4);
+    cursor: col-resize;
+    touch-action: none;
+}
+/* The column's edge, drawn at rest so the reader sees it can be moved, and full height
+   and in the selection colour while it is held. A border, which forced colours paints. */
+.col-resize::before {
+    content: "";
+    position: absolute;
+    inset-block: 25%;
+    inset-inline-end: 0;
+    border-inline-end: 2px solid var(--border-strong);
+    transition: border-color var(--motion-fast);
+}
+.col-resize:hover::before,
+.col-resize:focus-visible::before,
+.col-resize[data-resizing]::before { inset-block: 0; border-inline-end-color: var(--selected); }
+.col-resize:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
+
+/* A header row the reader reorders is a drag zone along x, and its header cells the
+   items (26-drag.js, 63-drag.css). A cell is carried along its row, never off it, and
+   the line where it would land is drawn inside the cell's edge, where a clipped cell
+   still shows it. Carried off the row, it fades: letting go there puts it back. A
+   column that does not move — a pinned identity column — is no item, and the drop's
+   `index` counts only the columns that move. */
+tr[data-drag-zone] > [data-dragging="pointer"] { translate: var(--drag-x) 0; }
+tr[data-drop-state="valid"]:not([data-drop-over]) > [data-dragging="pointer"] { opacity: 0.5; }
+tr[data-drag-zone] > [data-drop-edge]::before {
+    inset-block: 0;
+    inset-inline: auto;
+    width: 0;
+    height: auto;
+    border-top: 0;
+    border-inline-start: 3px solid var(--brand);
+}
+tr[data-drag-zone] > [data-drop-edge="before"]::before { inset-inline-start: 0; }
+tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
 
 /* ── Expandable and nested rows ─────────────────────────────────────────────
    The detail row is a real <tr> after its parent, so it moves with it when the
@@ -21678,6 +21787,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .rating-star:has(> input:focus-visible),
     .rating-half:has(> input:focus-visible) { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+    /* Inside its header cell, which clips what is drawn past its edge. */
+    .col-resize:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     .inbox-item:has(.inbox-item-title:focus-visible) { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
@@ -21831,7 +21942,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .chat-closed,
     .chat-actions,
     .chat-jump,
-    .chat-quick-replies { display: none; }
+    .chat-quick-replies,
+    .col-resize { display: none; }
 
     /* A thread prints whole: the scroller lets its messages out, and a message is
        not cut across a page. */
@@ -22564,7 +22676,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .table--stagger tbody > tr,
     .list--stagger > li { animation: none; }
     .card-resize::before,
-    .split-resize::before { transition: none; }
+    .split-resize::before,
+    .col-resize::before { transition: none; }
     /* 69-busy — the spinner stands still; the bar is full width and still. */
     :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
         .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }

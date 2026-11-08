@@ -1,0 +1,30 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up the {item} column. Left and right move it, Space drops it, Escape cancels."
+   data-drag-move="{item}, column {position} of {count}."
+   data-drag-drop="{item} moved to column {position} of {count}."
+   data-drag-cancel="Cancelled. {item} is back at column {position}."></p>
+<div class="sedna-scroll-x">
+    <table class="table" aria-label="Open orders">
+        <thead>
+            <tr data-drag-zone="order-columns" data-drag-axis="x" aria-label="Columns">
+                <th>Order</th>
+                <th data-drag-item="customer" data-drag-label="Customer" tabindex="0" aria-sort="none">
+                    <button class="th-sort" type="button" data-drag-handle="pointer">Customer</button>
+                </th>
+                <th data-drag-item="state" data-drag-label="State" tabindex="0" aria-sort="none">
+                    <button class="th-sort" type="button" data-drag-handle="pointer">State</button>
+                </th>
+                <th data-drag-item="ship-to" data-drag-label="Ship to" tabindex="0">Ship to</th>
+                <th class="col-num" data-drag-item="total" data-drag-label="Total" tabindex="0" aria-sort="descending">
+                    <button class="th-sort" type="button" data-drag-handle="pointer">Total (EUR)</button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>ORD-4187</td><td>Northwind Retail, Store 112</td><td><span class="badge badge--info">Packed</span></td><td>Köln</td><td class="col-num">2,030.15</td></tr>
+            <tr><td>ORD-4209</td><td>Northwind Retail, Central Warehouse</td><td><span class="badge badge--warn">Pending</span></td><td>Hamburg, Dock 4</td><td class="col-num">1,248.00</td></tr>
+            <tr><td>ORD-4198</td><td>Northwind Retail, Returns Desk</td><td><span class="badge badge--danger">Rejected</span></td><td>Leipzig, Gate B</td><td class="col-num">412.90</td></tr>
+            <tr><td>ORD-4204</td><td>Alex Fischer</td><td><span class="badge badge--go">Approved</span></td><td>Berlin</td><td class="col-num">86.40</td></tr>
+        </tbody>
+    </table>
+</div>

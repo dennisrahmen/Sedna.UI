@@ -372,12 +372,13 @@
         if (expandable(item) && !target.closest('a[href]')) setExpanded(item, !expanded(item));
     });
 
-    /* An item that drags from itself, with no handle: Space and Enter are the drag's. */
+    /* An item that drags from itself — no handle, or one for the pointer alone: Space and
+       Enter are the drag's. */
     function dragsItself(item) {
         if (!item.hasAttribute('data-drag-item')) return false;
         var handles = item.querySelectorAll('[data-drag-handle]');
         for (var i = 0; i < handles.length; i++) {
-            if (handles[i].closest('[data-drag-item]') === item) return false;
+            if (handles[i].closest('[data-drag-item]') === item && handles[i].getAttribute('data-drag-handle') !== 'pointer') return false;
         }
         return true;
     }

@@ -288,6 +288,21 @@
 }
 .menu-sep { border: none; border-top: 1px solid var(--divider); margin: var(--space-2) var(--space-1); }
 
+/* A choice in the panel — a column shown or hidden, a filter on or off: a `.form-check`
+   row, as tall and as far in as an item. A click on it leaves the menu open, because
+   the reader is choosing several; the panel's `.menu-item`s still close it. */
+.menu > .form-check {
+    display: flex;
+    width: 100%;
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    line-height: normal;   /* the line an item's label sits on, so the rows match */
+}
+.menu > .form-check:hover { background: var(--bg-hover); }
+.menu > .form-check:has(> input:disabled) { cursor: not-allowed; color: var(--muted); }
+.menu > .form-check > input:disabled { cursor: not-allowed; }
+
 /* Catches the click that dismisses the panel. Transparent and undecorated: this is
    a menu, not a modal, so it must not dim the page. Put it immediately BEFORE the
    panel in the markup — the panel then paints above it on source order, and the

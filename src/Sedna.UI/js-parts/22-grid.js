@@ -64,6 +64,11 @@
    A cell the keyboard reaches is kept clear of a sticky `<thead>` and a sticky
    `<tfoot>` alike.
 
+   A header cell that is a drag item (26-drag.js) is picked up with Space, which the
+   grid has no use for; Enter still moves into the cell's controls, and while the cell
+   is carried every key is the drag's. A column's resize grip keeps the arrows along its
+   axis — 26-resize.js says so through `keys`.
+
    `ui._.grid` is the core a later part extends: the selector a grid is found by, the
    row and cell walks, and `keys`, a list of `function (event, grid, cell)` consulted
    before the default keys — one that returns true has handled the key.
@@ -627,6 +632,8 @@
 
     document.addEventListener('keydown', function (e) {
         if (e.defaultPrevented || !(e.target instanceof Element)) return;
+        // While a header cell is carried from the keyboard, the arrows move it.
+        if (ui.drag && ui.drag.active && ui.drag.active() !== null) return;
         var cell = cellOf(e.target);
         if (!cell) return;
         var grid = gridOf(cell);

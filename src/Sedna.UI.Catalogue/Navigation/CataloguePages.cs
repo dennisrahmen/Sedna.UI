@@ -42,7 +42,7 @@ internal static class CataloguePages
     public const string Utilities = "Utilities";
     /// <summary>The section of Start that holds the reference pages: the script, C#, the MCP server.</summary>
     public const string Reference = "Reference";
-    /// <summary>The section of Data that holds the table's pages: the class, the keyboard grid, and large tables.</summary>
+    /// <summary>The section of Data that holds the table's pages: the class, the keyboard grid, large tables and the reader's columns.</summary>
     public const string Tables = "Tables";
     /// <summary>The section of Data that holds the graph's pages: one family, too big for one page.</summary>
     public const string Graph = "Graph";
@@ -205,6 +205,10 @@ internal static class CataloguePages
         new("/table-large", Data, "Large tables", "ri-database-line",
             "Virtualized rows, loading more, a tree grid, pinned totals and filter choices with their counts.",
             "virtualize virtualized virtualization Virtualize SpacerElement spacer infinite scroll thousands rows aria-rowindex aria-rowcount load more tr-more tr-more-count paging treegrid tree grid hierarchy aria-level aria-expanded nested rows expand collapse data-tree-lazy sedna-tree-expand sedna-tree-collapse expanded sticky footer tfoot totals table--sticky-foot pinned row tr-pinned my row facet facets counts form-check-count state",
+            Section: Tables),
+        new("/table-columns", Data, "Table columns", "ri-layout-column-line",
+            "Columns the reader resizes, moves and chooses, kept as the app's own state.",
+            "column columns resize resizable width widths col-width col-min col-max table--fixed table-layout fixed col-resize grip separator data-resize data-resize-key sedna-resize SednaResizeEventArgs reorder move drag header data-drag-zone data-drag-axis data-drag-item data-drag-handle pointer sedna-drop chooser picker show hide visible menu form-check persist preferences",
             Section: Tables),
         new("/stat", Data, "Stats", "ri-numbers-line",
             "One number that matters, which way it moved, and what it is measured against.",
