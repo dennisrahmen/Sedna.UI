@@ -179,6 +179,28 @@ public class EventRegistrationTests
         Assert.Null(card.Key);
     }
 
+    [Fact]
+    public void The_selection_event_carries_the_action_the_text_and_where_it_came_from()
+    {
+        Assert.True(Dispatched().ContainsKey("sedna-selection"), "No shipped script dispatches sedna-selection.");
+        Assert.Contains("sedna-selection", Registered());
+        Assert.Equal(typeof(SednaSelectionEventArgs), Declared()["sedna-selection"].EventArgsType);
+        Assert.False(Declared()["sedna-selection"].EnablePreventDefault);
+
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var quote = System.Text.Json.JsonSerializer.Deserialize<SednaSelectionEventArgs>(
+            """{"action":"quote","text":"nightly sync","item":"m-1","source":"thread"}""", web)!;
+        Assert.Equal("quote", quote.Action);
+        Assert.Equal("nightly sync", quote.Text);
+        Assert.Equal("m-1", quote.Item);
+        Assert.Equal("thread", quote.Source);
+
+        var across = System.Text.Json.JsonSerializer.Deserialize<SednaSelectionEventArgs>(
+            """{"action":"copy","text":"two messages","item":null,"source":null}""", web)!;
+        Assert.Null(across.Item);
+        Assert.Null(across.Source);
+    }
+
     private static string Script(string part) =>
         File.ReadAllText(Path.Combine(Assets.ProjectDir, "js-parts", part));
 }

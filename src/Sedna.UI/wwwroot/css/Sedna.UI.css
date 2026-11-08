@@ -4720,6 +4720,15 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     font-size: var(--text-2);
     white-space: nowrap;
 }
+.form-combo-option > i { flex-shrink: 0; color: var(--muted); font-size: var(--text-6); }
+.form-combo-option-note {
+    display: block;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: var(--text-2);
+    text-overflow: ellipsis;
+}
+.form-combo-option > .kbd { flex-shrink: 0; margin-inline-start: auto; }
 .form-combo-group {
     display: flex;
     align-items: center;
@@ -9083,6 +9092,26 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 :where([data-popover][data-popover-hover]) { -webkit-touch-callout: none; }
 }
 @layer sedna.paint {
+.selection-toolbar {
+    inset: auto;
+    margin: 0;
+    position: fixed;
+    z-index: 550;
+    align-items: center;
+    gap: var(--space-1);
+    max-inline-size: calc(100vw - 16px);
+    padding: var(--space-1);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    color: var(--fg);
+}
+.selection-toolbar:popover-open { display: flex; }
+.selection-toolbar > .btn { flex-shrink: 0; }
+.selection-toolbar-sep { flex: none; inline-size: 1px; block-size: 16px; margin-inline: var(--space-1); background: var(--border); }
+}
+@layer sedna.paint {
 .text-shimmer,
 .reasoning[data-state="running"] .reasoning-label {
     background: linear-gradient(90deg, var(--muted) 0 38%, var(--fg) 50%, var(--muted) 62% 100%) 0 0 / 300% 100%;
@@ -10957,7 +10986,9 @@ button.inbox-item-title {
 }
 .chat-composer--prompt:focus-within { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
 .chat-composer--prompt .chat-composer-row > .form-input,
-.chat-composer--prompt .chat-composer-row > .form-input:focus {
+.chat-composer--prompt .chat-composer-row > .form-input:focus,
+.chat-composer--prompt .chat-composer-row > .ghost-field > .form-input,
+.chat-composer--prompt .chat-composer-row > .ghost-field > .form-input:focus {
     min-height: var(--control-height-lg);
     padding: var(--space-3) var(--space-4);
     border: 0;
@@ -10968,9 +10999,44 @@ button.inbox-item-title {
 .chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
 .chat-composer-send > .btn { border-radius: 50%; }
+.chat-composer-send [data-when] { display: none; }
+.chat-composer-send:not([data-state]) [data-when~="idle"],
+.chat-composer-send[data-state="idle"] [data-when~="idle"],
+.chat-composer-send[data-state="submitted"] [data-when~="submitted"],
+.chat-composer-send[data-state="streaming"] [data-when~="streaming"],
+.chat-composer-send[data-state="error"] [data-when~="error"] { display: contents; }
 .citation:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .source-card-n:not(:has(> *)) { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .chat-message--agent .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }
+}
+@layer sedna.paint {
+.ghost-field { position: relative; display: block; min-inline-size: 0; }
+.ghost-field > textarea { display: block; }
+.ghost-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    margin: 0;
+    overflow: hidden;
+    border: 0 solid transparent;
+    background: none;
+    color: var(--placeholder);
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    pointer-events: none;
+    user-select: none;
+}
+.ghost-text[data-ghost-rest] { display: block; }
+.ghost-text::before { content: attr(data-ghost-typed); color: transparent; }
+.ghost-text::after { content: attr(data-ghost-rest); }
+.ghost-field:has(> .ghost-text[data-ghost-rest]) > textarea::placeholder { color: transparent; }
+.chat-composer-row > .ghost-field { flex: 1; }
+.chat-composer-row > .ghost-field > .form-input {
+    resize: none;
+    field-sizing: content;
+    max-height: 9.5em;
+}
 }
 @layer sedna.paint {
 .output {
@@ -13454,6 +13520,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .chat-jump,
     .chat-quick-replies,
     .col-resize { display: none; }
+    .ghost-text[data-ghost-rest] { display: none; }
+    .selection-toolbar:popover-open { display: none; }
     .agent-plan-actions,
     .reasoning-bar > .btn { display: none; }
     .chat-pane > .chat { overflow: visible; }

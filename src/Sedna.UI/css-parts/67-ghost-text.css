@@ -1,0 +1,46 @@
+/* ── Ghost text ──────────────────────────────────────────────────────────────
+   An inline suggestion after the caret, accepted with Tab (23-ghost.js). The app
+   writes the suggestion and an empty mirror; the script fills the mirror:
+
+     <div class="ghost-field">
+       <textarea class="form-input" data-suggestion="…" aria-describedby="…"></textarea>
+       <div class="ghost-text" aria-hidden="true"></div>
+     </div>
+
+   `.ghost-field` is the textarea's box, and the mirror is laid over it. The mirror
+   draws the reader's text invisibly, then the rest of the suggestion in the
+   placeholder's colour, so the rest starts where the caret is. It is shown only while
+   the script has a suggestion in it, and the placeholder steps aside meanwhile.
+
+   In a `.chat-composer-row` the field takes the row's room, and its textarea grows
+   with the text as a bare one does there.
+   ─────────────────────────────────────────────────────────────────────────── */
+.ghost-field { position: relative; display: block; min-inline-size: 0; }
+.ghost-field > textarea { display: block; }
+.ghost-text {
+    position: absolute;
+    top: 0;
+    /* rtl-ok: the script writes the textarea's own physical offset here. */
+    left: 0;
+    display: none;
+    margin: 0;
+    overflow: hidden;
+    border: 0 solid transparent;
+    background: none;
+    color: var(--placeholder);
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    pointer-events: none;
+    user-select: none;
+}
+.ghost-text[data-ghost-rest] { display: block; }
+.ghost-text::before { content: attr(data-ghost-typed); color: transparent; }
+.ghost-text::after { content: attr(data-ghost-rest); }
+.ghost-field:has(> .ghost-text[data-ghost-rest]) > textarea::placeholder { color: transparent; }
+
+.chat-composer-row > .ghost-field { flex: 1; }
+.chat-composer-row > .ghost-field > .form-input {
+    resize: none;
+    field-sizing: content;
+    max-height: 9.5em;
+}

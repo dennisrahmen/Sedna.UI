@@ -22,6 +22,7 @@ const events = [
     'sedna-editor-ready', 'sedna-editor-change', 'sedna-editor-media', 'sedna-editor-file',
     'sedna-follow', 'sedna-resize', 'sedna-countdown-end',
     'sedna-tree-expand', 'sedna-tree-collapse', 'sedna-tree-select', 'sedna-tree-check',
+    'sedna-selection',
 ];
 
 let registered = false;

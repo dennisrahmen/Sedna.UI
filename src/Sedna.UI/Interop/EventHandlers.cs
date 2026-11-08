@@ -10,8 +10,9 @@ namespace Sedna.UI;
 /// rich-text editor — <c>@onsedna-editor-change</c>, <c>@onsedna-editor-ready</c> and
 /// <c>@onsedna-editor-media</c> — a pane or a diagram following what is newest,
 /// <c>@onsedna-follow</c> — a tree, <c>@onsedna-tree-expand</c>, <c>-collapse</c>,
-/// <c>-select</c> and <c>-check</c> — and a <c>&lt;time data-countdown&gt;</c> reaching zero,
-/// <c>@onsedna-countdown-end</c>.
+/// <c>-select</c> and <c>-check</c> — a <c>&lt;time data-countdown&gt;</c> reaching zero,
+/// <c>@onsedna-countdown-end</c> — and an action pressed in a selection toolbar,
+/// <c>@onsedna-selection</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -49,6 +50,7 @@ namespace Sedna.UI;
 [EventHandler("onsedna-tree-select", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-tree-check", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-countdown-end", typeof(SednaCountdownEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-selection", typeof(SednaSelectionEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 public static class EventHandlers
 {
 }

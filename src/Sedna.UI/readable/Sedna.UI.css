@@ -83,6 +83,7 @@
      64-palette-spotlight.css
      65-app-switcher.css
      65-popover.css
+     65-selection-toolbar.css
      66-agent-activity.css
      66-agent-avatar.css
      66-agent-steps.css
@@ -93,6 +94,7 @@
      66-orb.css
      66-status-indicator.css
      67-agent-chat.css
+     67-ghost-text.css
      67-output.css
      67-voice.css
      68-guard.css
@@ -8636,6 +8638,17 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     font-size: var(--text-2);
     white-space: nowrap;
 }
+/* A richer row — a model in a model picker: a leading icon, a short note on a line
+   of its own under the name, and a shortcut at the end. */
+.form-combo-option > i { flex-shrink: 0; color: var(--muted); font-size: var(--text-6); }
+.form-combo-option-note {
+    display: block;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: var(--text-2);
+    text-overflow: ellipsis;
+}
+.form-combo-option > .kbd { flex-shrink: 0; margin-inline-start: auto; }
 .form-combo-group {
     display: flex;
     align-items: center;
@@ -16342,6 +16355,45 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 :where([data-popover][data-popover-hover]) { -webkit-touch-callout: none; }
 }
 
+/* ── 65-selection-toolbar.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Selection toolbar ───────────────────────────────────────────────────────
+   The app's row of actions over text the reader has selected — quote, copy, ask
+   about it. 22-selection.js opens it when text inside the element naming it in
+   `data-selection-toolbar` is selected, and places it:
+
+     <div class="selection-toolbar" id="sel-bar" popover="manual" role="toolbar" aria-label="Selected text">
+       <button class="btn btn--sm btn--ghost" type="button" data-selection-action="quote">
+         <i class="ri-double-quotes-l"></i><span>Quote</span>
+       </button>
+       …
+     </div>
+
+   A manual popover, so it is in the top layer; the script writes `left` and `top`,
+   because a selection is no element and cannot be an anchor. `data-side` says
+   whether it went above the selection or below it.
+   ─────────────────────────────────────────────────────────────────────────── */
+.selection-toolbar {
+    /* inset: auto and margin: 0 undo the UA rule that centres a popover. */
+    inset: auto;
+    margin: 0;
+    position: fixed;
+    z-index: 550;
+    align-items: center;
+    gap: var(--space-1);
+    max-inline-size: calc(100vw - 16px);
+    padding: var(--space-1);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    color: var(--fg);
+}
+.selection-toolbar:popover-open { display: flex; }
+.selection-toolbar > .btn { flex-shrink: 0; }
+.selection-toolbar-sep { flex: none; inline-size: 1px; block-size: 16px; margin-inline: var(--space-1); background: var(--border); }
+}
+
 /* ── 66-agent-activity.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Agent activity ───────────────────────────────────────────────────────────
@@ -19022,6 +19074,23 @@ button.inbox-item-title {
    `.chat-composer-tools` under the text for attachments, toggles and a model choice,
    and `.chat-composer-send` holding the send button at the end. Put `.beam` on the
    composer while an answer is being written.
+
+   ── The submit button's state ──
+   `data-state` on `.chat-composer-send` — `idle`, `submitted`, `streaming` or
+   `error` — shows the children of the button whose `data-when` names that state and
+   hides the rest, so the app writes send, stop and retry once, each with its own
+   icon and words, and changes one attribute. Without `data-state` it is idle.
+
+     <span class="chat-composer-send" data-state="streaming">
+       <button class="btn btn--brand btn--solid btn--icon" type="submit">
+         <span data-when="idle"><i class="ri-arrow-up-line" aria-hidden="true"></i><span class="visually-hidden">Send</span></span>
+         <span data-when="submitted streaming"><i class="ri-stop-fill" aria-hidden="true"></i><span class="visually-hidden">Stop</span></span>
+         <span data-when="error"><i class="ri-restart-line" aria-hidden="true"></i><span class="visually-hidden">Retry</span></span>
+       </button>
+     </span>
+
+   A hidden child is out of the accessibility tree as well, so the button's name is
+   the shown state's words. Give each icon `aria-hidden`, or its glyph joins the name.
    ─────────────────────────────────────────────────────────────────────────── */
 .chat-message--agent { max-width: 100%; align-items: flex-start; gap: var(--space-6); }
 .chat-message--agent > .agent-avatar { --size: 28px; }
@@ -19128,7 +19197,9 @@ button.inbox-item-title {
 }
 .chat-composer--prompt:focus-within { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
 .chat-composer--prompt .chat-composer-row > .form-input,
-.chat-composer--prompt .chat-composer-row > .form-input:focus {
+.chat-composer--prompt .chat-composer-row > .form-input:focus,
+.chat-composer--prompt .chat-composer-row > .ghost-field > .form-input,
+.chat-composer--prompt .chat-composer-row > .ghost-field > .form-input:focus {
     min-height: var(--control-height-lg);
     padding: var(--space-3) var(--space-4);
     border: 0;
@@ -19139,6 +19210,12 @@ button.inbox-item-title {
 .chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
 .chat-composer-send > .btn { border-radius: 50%; }
+.chat-composer-send [data-when] { display: none; }
+.chat-composer-send:not([data-state]) [data-when~="idle"],
+.chat-composer-send[data-state="idle"] [data-when~="idle"],
+.chat-composer-send[data-state="submitted"] [data-when~="submitted"],
+.chat-composer-send[data-state="streaming"] [data-when~="streaming"],
+.chat-composer-send[data-state="error"] [data-when~="error"] { display: contents; }
 
 /* ── A word on its own ─────────────────────────────────────────────────────
    Holding nothing but its text, it is a block container instead of a flex one, so its
@@ -19147,6 +19224,56 @@ button.inbox-item-title {
 .citation:not(:has(> *)) { display: inline-block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .source-card-n:not(:has(> *)) { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
 .chat-message--agent .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }
+}
+
+/* ── 67-ghost-text.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Ghost text ──────────────────────────────────────────────────────────────
+   An inline suggestion after the caret, accepted with Tab (23-ghost.js). The app
+   writes the suggestion and an empty mirror; the script fills the mirror:
+
+     <div class="ghost-field">
+       <textarea class="form-input" data-suggestion="…" aria-describedby="…"></textarea>
+       <div class="ghost-text" aria-hidden="true"></div>
+     </div>
+
+   `.ghost-field` is the textarea's box, and the mirror is laid over it. The mirror
+   draws the reader's text invisibly, then the rest of the suggestion in the
+   placeholder's colour, so the rest starts where the caret is. It is shown only while
+   the script has a suggestion in it, and the placeholder steps aside meanwhile.
+
+   In a `.chat-composer-row` the field takes the row's room, and its textarea grows
+   with the text as a bare one does there.
+   ─────────────────────────────────────────────────────────────────────────── */
+.ghost-field { position: relative; display: block; min-inline-size: 0; }
+.ghost-field > textarea { display: block; }
+.ghost-text {
+    position: absolute;
+    top: 0;
+    /* rtl-ok: the script writes the textarea's own physical offset here. */
+    left: 0;
+    display: none;
+    margin: 0;
+    overflow: hidden;
+    border: 0 solid transparent;
+    background: none;
+    color: var(--placeholder);
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    pointer-events: none;
+    user-select: none;
+}
+.ghost-text[data-ghost-rest] { display: block; }
+.ghost-text::before { content: attr(data-ghost-typed); color: transparent; }
+.ghost-text::after { content: attr(data-ghost-rest); }
+.ghost-field:has(> .ghost-text[data-ghost-rest]) > textarea::placeholder { color: transparent; }
+
+.chat-composer-row > .ghost-field { flex: 1; }
+.chat-composer-row > .ghost-field > .form-input {
+    resize: none;
+    field-sizing: content;
+    max-height: 9.5em;
+}
 }
 
 /* ── 67-output.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -22931,6 +23058,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .chat-jump,
     .chat-quick-replies,
     .col-resize { display: none; }
+    .ghost-text[data-ghost-rest] { display: none; }
+    /* On its own: a selector a browser does not know drops the whole list with it. */
+    .selection-toolbar:popover-open { display: none; }
     .agent-plan-actions,
     .reasoning-bar > .btn { display: none; }
 

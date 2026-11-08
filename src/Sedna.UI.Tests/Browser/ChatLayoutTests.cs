@@ -142,4 +142,104 @@ public class ChatLayoutTests : ScriptTestBase
                     && front.Y + front.Height <= pair.Y + pair.Height + 0.5, "The stacked avatars leave their square.");
         Assert.True(front.X > back.X && front.Y > back.Y, "The front avatar is not stacked corner to corner.");
     }
+    // The submit button with send, stop and retry written once each, and a state on its holder.
+    private static string Send(string? state) => $$"""
+        <span class="chat-composer-send" id="send" {{(state is null ? "" : "data-state=\"" + state + "\"")}}>
+            <button class="btn btn--brand btn--solid btn--icon" type="submit" id="submit">
+                <span data-when="idle" id="w-send"><i class="ri-arrow-up-line" aria-hidden="true"></i><span class="visually-hidden">Send</span></span>
+                <span data-when="submitted streaming" id="w-stop"><i class="ri-stop-fill" aria-hidden="true"></i><span class="visually-hidden">Stop</span></span>
+                <span data-when="error" id="w-retry"><i class="ri-restart-line" aria-hidden="true"></i><span class="visually-hidden">Retry</span></span>
+            </button>
+        </span>
+        """;
+
+    [Theory]
+    [InlineData(null, "w-send", "Send")]
+    [InlineData("idle", "w-send", "Send")]
+    [InlineData("submitted", "w-stop", "Stop")]
+    [InlineData("streaming", "w-stop", "Stop")]
+    [InlineData("error", "w-retry", "Retry")]
+    public async Task The_submit_button_shows_the_words_of_its_state_and_nothing_else(string? state, string shown, string name)
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled($"""<form class="chat-composer chat-composer--prompt" style="width:480px"><div class="chat-composer-tools">{Send(state)}</div></form>""");
+
+        foreach (var id in new[] { "w-send", "w-stop", "w-retry" })
+        {
+            var display = await page.EvaluateAsync<string>("id => getComputedStyle(document.getElementById(id)).display", id);
+            Assert.Equal(id == shown ? "contents" : "none", display);
+        }
+        await Assertions.Expect(page.Locator("#submit")).ToHaveAccessibleNameAsync(name);
+
+        // One glyph in the button, centred in its round box.
+        var button = (await page.Locator("#submit").BoundingBoxAsync())!;
+        var glyph = (await page.Locator($"#{shown} > i").BoundingBoxAsync())!;
+        Assert.Equal(button.X + button.Width / 2, glyph.X + glyph.Width / 2, 1.0);
+        Assert.Equal(button.Y + button.Height / 2, glyph.Y + glyph.Height / 2, 1.0);
+        Assert.Equal(1, await page.EvaluateAsync<int>("() => [...document.querySelectorAll('#submit i')].filter(i => i.getClientRects().length).length"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_ghost_field_in_a_composer_row_takes_the_row_and_grows_like_a_bare_field()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <form class="chat-composer chat-composer--prompt" style="width:480px">
+                <div class="chat-composer-row" id="row">
+                    <div class="ghost-field" id="host">
+                        <textarea class="form-input" id="field" rows="1" data-suggestion="Restart the sync worker"></textarea>
+                        <div class="ghost-text" aria-hidden="true"></div>
+                    </div>
+                </div>
+            </form>
+            """);
+
+        var row = (await page.Locator("#row").BoundingBoxAsync())!;
+        var host = (await page.Locator("#host").BoundingBoxAsync())!;
+        var field = page.Locator("#field");
+        var box = (await field.BoundingBoxAsync())!;
+        Assert.Equal(row.Width, host.Width, 0.5);
+        Assert.Equal(host.Width, box.Width, 0.5);
+        // The prompt's field has no box of its own: the composer is the box.
+        Assert.Equal("0px", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('field')).borderTopWidth"));
+
+        await field.FillAsync("one\ntwo\nthree\nfour");
+        Assert.True((await field.BoundingBoxAsync())!.Height > box.Height * 2, "The field in a ghost field did not grow with the text.");
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_model_option_puts_its_note_under_the_name_and_its_shortcut_at_the_end()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div class="form-combo form-combo--inline" style="width:320px">
+                <div class="form-combo-panel">
+                    <div class="form-combo-list" role="listbox" aria-label="Models">
+                        <div class="form-combo-option" role="option" id="opt" aria-selected="true">
+                            <i class="ri-cloud-line" id="icon" aria-hidden="true"></i>
+                            <span class="form-combo-option-text" id="text">Balanced<span class="form-combo-option-note" id="note">Good for most questions, and a note long enough to need cutting short</span></span>
+                            <kbd class="kbd" id="kbd">Alt 2</kbd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            """);
+
+        var opt = (await page.Locator("#opt").BoundingBoxAsync())!;
+        var text = (await page.Locator("#text").BoundingBoxAsync())!;
+        var note = (await page.Locator("#note").BoundingBoxAsync())!;
+        var kbd = (await page.Locator("#kbd").BoundingBoxAsync())!;
+        var icon = (await page.Locator("#icon").BoundingBoxAsync())!;
+
+        Assert.True(note.Y >= text.Y + 10, "The note is not on a line of its own under the name.");
+        Assert.True(note.X + note.Width <= kbd.X + 0.5, "The note runs under the shortcut.");
+        Assert.True(icon.X + icon.Width <= text.X, "The icon does not lead the row.");
+        var padEnd = await page.EvaluateAsync<double>("() => parseFloat(getComputedStyle(document.getElementById('opt')).paddingRight)");
+        Assert.Equal(opt.X + opt.Width - padEnd, kbd.X + kbd.Width, 1.0);
+        Assert.True(await page.EvaluateAsync<bool>("() => { const n = document.getElementById('note'); return n.scrollWidth > n.clientWidth; }"),
+            "A long note should be cut short, not wrap the row.");
+        Assert.Empty(errors);
+    }
 }

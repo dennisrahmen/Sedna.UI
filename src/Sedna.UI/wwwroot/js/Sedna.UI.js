@@ -1913,6 +1913,196 @@ window.sednaUi = window.sednaUi || {};
     else watch();
 })(window.sednaUi);
 (function (ui) {
+    var GAP = 8;            // between the selection and the toolbar
+    var MARGIN = 8;         // between the toolbar and the viewport's edge
+    var open = null;        // { bar, host, text, item, from, stop } while one is open
+    var pressing = false;   // a pointer is down: a selection being dragged is not made yet
+    function elementOf(node) {
+        return node ? (node.nodeType === 1 ? node : node.parentElement) : null;
+    }
+    function hostOf(node) {
+        var el = elementOf(node);
+        return el && el.closest ? el.closest('[data-selection-toolbar]') : null;
+    }
+    function barOf(host) {
+        var id = host.getAttribute('data-selection-toolbar');
+        return id ? document.getElementById(id) : null;
+    }
+    function isOpen(bar) {
+        try { return bar.matches(':popover-open'); } catch (e) { return false; }
+    }
+    function read() {
+        var sel = window.getSelection ? window.getSelection() : null;
+        if (!sel || !sel.rangeCount || sel.isCollapsed) return null;
+        var host = hostOf(sel.anchorNode);
+        if (!host || hostOf(sel.focusNode) !== host) return null;
+        var active = document.activeElement;
+        if (active && host.contains(active) && active.matches('input, textarea')) return null;
+        var text = sel.toString();
+        if (!text || !text.trim()) return null;
+        var bar = barOf(host);
+        if (!bar) return null;
+        var range = sel.getRangeAt(0);
+        var rect = range.getBoundingClientRect();
+        if (!rect.width && !rect.height) {
+            var rects = range.getClientRects();
+            if (!rects.length) return null;
+            rect = rects[0];
+        }
+        var common = elementOf(range.commonAncestorContainer);
+        var item = common ? common.closest('[data-selection-item]') : null;
+        return {
+            host: host, bar: bar, text: text, rect: rect,
+            item: item && host.contains(item) ? item.getAttribute('data-selection-item') : null
+        };
+    }
+    function place(bar, rect) {
+        bar.style.left = '0px';
+        bar.style.top = '0px';
+        var w = bar.offsetWidth, h = bar.offsetHeight;
+        var vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+        var side = 'top';
+        var top = rect.top - GAP - h;
+        if (top < MARGIN) { side = 'bottom'; top = rect.bottom + GAP; }
+        top = Math.max(MARGIN, Math.min(top, vh - MARGIN - h));
+        var left = rect.left + rect.width / 2 - w / 2;
+        left = Math.max(MARGIN, Math.min(left, vw - MARGIN - w));
+        bar.style.left = Math.round(left) + 'px';
+        bar.style.top = Math.round(top) + 'px';
+        bar.setAttribute('data-side', side);
+    }
+    function show(found) {
+        var bar = found.bar;
+        if (open && open.bar !== bar) close(false);
+        if (!bar.hasAttribute('popover')) bar.setAttribute('popover', 'manual');
+        try { if (!isOpen(bar)) bar.showPopover(); } catch (e) { return; }
+        place(bar, found.rect);
+        var from = open && open.bar === bar ? open.from : null;
+        if (open && open.stop) open.stop();
+        open = {
+            bar: bar, host: found.host, text: found.text, item: found.item, from: from,
+            stop: ui._.layer.whenGone(found.host, function () { close(false); })
+        };
+    }
+    function close(restore) {
+        if (!open) return;
+        var was = open;
+        open = null;
+        if (was.stop) was.stop();
+        var inside = was.bar.contains(document.activeElement);
+        try { if (isOpen(was.bar)) was.bar.hidePopover(); } catch (e) { /* already closed */ }
+        if (restore && inside) {
+            var back = was.from && was.from.isConnected && was.from !== document.body ? was.from : null;
+            try {
+                if (back) back.focus({ preventScroll: true });
+                else if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+            } catch (e) { /* refused */ }
+        }
+    }
+    function update() {
+        var found = read();
+        if (found) { show(found); return; }
+        if (open && !open.bar.contains(document.activeElement)) close(false);
+    }
+    function controls(bar) {
+        var all = bar.querySelectorAll('button, [href], input, select, textarea, [tabindex]');
+        var list = [];
+        for (var i = 0; i < all.length; i++) {
+            var c = all[i];
+            if (c.disabled || c.getAttribute('tabindex') === '-1' || !c.getClientRects().length) continue;
+            list.push(c);
+        }
+        return list;
+    }
+    document.addEventListener('pointerdown', function (e) {
+        if (open && open.bar.contains(e.target)) return;
+        pressing = true;
+    }, true);
+    document.addEventListener('mousedown', function (e) {
+        if (open && open.bar.contains(e.target)) e.preventDefault();
+    }, true);
+    function released() {
+        if (!pressing) return;
+        pressing = false;
+        setTimeout(update, 0);
+    }
+    document.addEventListener('pointerup', released, true);
+    document.addEventListener('pointercancel', released, true);
+    document.addEventListener('selectionchange', function () {
+        if (pressing) {
+            if (open) {
+                var sel = window.getSelection();
+                if (!sel || sel.isCollapsed) close(false);
+            }
+            return;
+        }
+        update();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (!open || e.defaultPrevented) return;
+        var bar = open.bar;
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            close(true);
+            return;
+        }
+        if (e.key === 'F10' && e.altKey) {
+            var first = controls(bar)[0];
+            if (!first) return;
+            e.preventDefault();
+            if (!bar.contains(document.activeElement)) open.from = document.activeElement;
+            try { first.focus({ preventScroll: true }); } catch (err) { /* refused */ }
+            return;
+        }
+        if (!bar.contains(e.target)) return;
+        var list = controls(bar);
+        var at = list.indexOf(document.activeElement);
+        if (at < 0) return;
+        var rtl = getComputedStyle(bar).direction === 'rtl';
+        var next = -1;
+        if (e.key === 'ArrowRight') next = at + (rtl ? -1 : 1);
+        else if (e.key === 'ArrowLeft') next = at + (rtl ? 1 : -1);
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = list.length - 1;
+        else return;
+        e.preventDefault();
+        next = (next + list.length) % list.length;
+        list[next].focus({ preventScroll: true });
+    }, true);
+    document.addEventListener('focusout', function (e) {
+        if (!open || !open.bar.contains(e.target)) return;
+        var to = e.relatedTarget;
+        if (to && !open.bar.contains(to)) close(false);
+    });
+    document.addEventListener('click', function (e) {
+        var control = e.target && e.target.closest ? e.target.closest('[data-selection-action]') : null;
+        if (!control || !open || !open.bar.contains(control)) return;
+        var was = open;
+        var detail = {
+            action: control.getAttribute('data-selection-action'),
+            text: was.text,
+            item: was.item,
+            source: was.host.id || null
+        };
+        close(true);
+        was.bar.dispatchEvent(new CustomEvent('sedna-selection', { bubbles: true, detail: detail }));
+    });
+    document.addEventListener('scroll', function (e) {
+        if (!open) return;
+        var t = e.target;
+        if (t && t.nodeType === 1 && open.bar.contains(t)) return;
+        close(false);
+    }, true);
+    window.addEventListener('resize', function () { if (open) update(); });
+    ui.selection = {
+        current: function () {
+            return open ? { text: open.text, item: open.item, source: open.host.id || null } : null;
+        },
+        close: function () { close(true); }
+    };
+})(window.sednaUi);
+(function (ui) {
     var typed = typeof WeakMap === 'function' ? new WeakMap() : null;
     var loading = [];
     function toArray(list) { return Array.prototype.slice.call(list); }
@@ -3044,6 +3234,133 @@ window.sednaUi = window.sednaUi || {};
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', markAll);
     else markAll();
+})(window.sednaUi);
+(function (ui) {
+    var COPIED = [
+        'boxSizing', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'fontVariant', 'fontStretch',
+        'fontFeatureSettings', 'lineHeight', 'letterSpacing', 'wordSpacing', 'textIndent', 'textTransform',
+        'tabSize', 'direction', 'textAlign', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+        'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth'
+    ];
+    var dismissed = typeof WeakMap === 'function' ? new WeakMap() : null;
+    function field(el) {
+        return el && el.nodeType === 1 && el.matches('textarea[data-suggestion]') ? el : null;
+    }
+    function mirrorOf(area) {
+        var host = area.closest('.ghost-field');
+        return host ? host.querySelector('.ghost-text') : null;
+    }
+    function clear(mirror) {
+        if (!mirror) return;
+        mirror.removeAttribute('data-ghost-typed');
+        mirror.removeAttribute('data-ghost-rest');
+    }
+    function rest(area) {
+        var suggestion = area.getAttribute('data-suggestion') || '';
+        var value = area.value;
+        if (!suggestion || suggestion.length <= value.length) return '';
+        if (dismissed && dismissed.get(area) === suggestion) return '';
+        if (suggestion.slice(0, value.length).toLowerCase() !== value.toLowerCase()) return '';
+        return suggestion.slice(value.length);
+    }
+    function lay(area, mirror) {
+        var cs = getComputedStyle(area);
+        for (var i = 0; i < COPIED.length; i++) mirror.style[COPIED[i]] = cs[COPIED[i]];
+        mirror.style.borderStyle = 'solid';
+        var bar = area.offsetWidth - area.clientWidth
+            - (parseFloat(cs.borderLeftWidth) || 0) - (parseFloat(cs.borderRightWidth) || 0);
+        if (bar > 0) {
+            var side = cs.direction === 'rtl' ? 'paddingLeft' : 'paddingRight';
+            mirror.style[side] = ((parseFloat(cs[side]) || 0) + bar) + 'px';
+        }
+        mirror.style.left = area.offsetLeft + 'px';
+        mirror.style.top = area.offsetTop + 'px';
+        mirror.style.width = area.offsetWidth + 'px';
+        mirror.style.height = area.offsetHeight + 'px';
+        mirror.scrollTop = area.scrollTop;
+    }
+    function refresh(area) {
+        var mirror = mirrorOf(area);
+        if (!mirror) return;
+        var shown = '';
+        if (document.activeElement === area && area.selectionStart === area.value.length
+            && area.selectionEnd === area.value.length) {
+            shown = rest(area);
+        }
+        if (!shown) { clear(mirror); return; }
+        mirror.setAttribute('data-ghost-typed', area.value);
+        mirror.setAttribute('data-ghost-rest', shown);
+        lay(area, mirror);
+    }
+    function accept(area) {
+        var mirror = mirrorOf(area);
+        if (!mirror || !mirror.hasAttribute('data-ghost-rest')) return false;
+        var value = area.value + mirror.getAttribute('data-ghost-rest');
+        clear(mirror);
+        area.value = value;
+        area.setSelectionRange(value.length, value.length);
+        area.dispatchEvent(new Event('input', { bubbles: true }));
+        return true;
+    }
+    function dismiss(area) {
+        if (dismissed) dismissed.set(area, area.getAttribute('data-suggestion') || '');
+        clear(mirrorOf(area));
+    }
+    document.addEventListener('input', function (e) {
+        var area = field(e.target);
+        if (!area) return;
+        if (e.isComposing) { clear(mirrorOf(area)); return; }
+        var suggestion = area.getAttribute('data-suggestion') || '';
+        var value = area.value;
+        if (suggestion && value && suggestion.slice(0, value.length).toLowerCase() !== value.toLowerCase()) {
+            dismiss(area);
+            return;
+        }
+        refresh(area);
+    });
+    document.addEventListener('keydown', function (e) {
+        var area = field(e.target);
+        if (!area || e.defaultPrevented || e.isComposing) return;
+        var mirror = mirrorOf(area);
+        if (!mirror || !mirror.hasAttribute('data-ghost-rest')) return;
+        if (e.key === 'Tab' && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            accept(area);
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            dismiss(area);
+        }
+    }, true);
+    function follow() {
+        var area = field(document.activeElement);
+        if (area) refresh(area);
+    }
+    document.addEventListener('selectionchange', follow);
+    document.addEventListener('keyup', follow);
+    document.addEventListener('pointerup', follow);
+    document.addEventListener('focusin', function (e) { var area = field(e.target); if (area) refresh(area); });
+    document.addEventListener('focusout', function (e) { var area = field(e.target); if (area) clear(mirrorOf(area)); });
+    document.addEventListener('scroll', function (e) {
+        var area = field(e.target);
+        var mirror = area ? mirrorOf(area) : null;
+        if (mirror) mirror.scrollTop = area.scrollTop;
+    }, true);
+    window.addEventListener('resize', follow);
+    if (typeof MutationObserver === 'function') {
+        new MutationObserver(function (records) {
+            for (var i = 0; i < records.length; i++) {
+                var area = field(records[i].target);
+                if (area && area === document.activeElement) refresh(area);
+                else if (area) clear(mirrorOf(area));
+            }
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-suggestion'], subtree: true });
+    }
+    ui.ghost = {
+        refresh: function (area) { area = field(area); if (area) refresh(area); },
+        accept: function (area) { area = field(area); return area ? accept(area) : false; },
+        dismiss: function (area) { area = field(area); if (area) dismiss(area); }
+    };
 })(window.sednaUi);
 (function (ui) {
     function words(text) {

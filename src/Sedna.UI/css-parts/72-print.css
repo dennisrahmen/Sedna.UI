@@ -51,6 +51,9 @@
     .chat-jump,
     .chat-quick-replies,
     .col-resize { display: none; }
+    .ghost-text[data-ghost-rest] { display: none; }
+    /* On its own: a selector a browser does not know drops the whole list with it. */
+    .selection-toolbar:popover-open { display: none; }
     .agent-plan-actions,
     .reasoning-bar > .btn { display: none; }
 

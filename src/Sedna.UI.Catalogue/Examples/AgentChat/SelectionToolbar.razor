@@ -1,0 +1,18 @@
+<div class="chat" role="log" aria-label="Conversation" data-selection-toolbar="sel-bar" id="sel-thread" style="max-width: 640px">
+    <div class="chat-message chat-message--agent" data-selection-item="answer-42">
+        <span class="agent-avatar" role="img" aria-label="Ops agent"></span>
+        <div class="chat-body">
+            <div class="chat-meta"><span class="chat-author">Ops agent</span><time class="chat-time">09:12</time></div>
+            <div class="chat-bubble">
+                <p>The nightly sync stopped at 02:14 when src-db-14 refused new connections. Its pool was full: the export job opened 200 connections and never released them.</p>
+                <p>Restarting the export worker frees the pool. To keep it from happening again, cap the job at 50 connections.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="selection-toolbar" id="sel-bar" popover="manual" role="toolbar" aria-label="Selected text">
+    <button class="btn btn--sm btn--ghost" type="button" data-selection-action="quote"><i class="ri-double-quotes-l"></i><span>Quote</span></button>
+    <button class="btn btn--sm btn--ghost" type="button" data-selection-action="explain"><i class="ri-question-line"></i><span>Explain</span></button>
+    <span class="selection-toolbar-sep" aria-hidden="true"></span>
+    <button class="btn btn--sm btn--ghost btn--icon" type="button" data-selection-action="copy" aria-label="Copy"><i class="ri-file-copy-line"></i></button>
+</div>

@@ -1,0 +1,35 @@
+/* ── Selection toolbar ───────────────────────────────────────────────────────
+   The app's row of actions over text the reader has selected — quote, copy, ask
+   about it. 22-selection.js opens it when text inside the element naming it in
+   `data-selection-toolbar` is selected, and places it:
+
+     <div class="selection-toolbar" id="sel-bar" popover="manual" role="toolbar" aria-label="Selected text">
+       <button class="btn btn--sm btn--ghost" type="button" data-selection-action="quote">
+         <i class="ri-double-quotes-l"></i><span>Quote</span>
+       </button>
+       …
+     </div>
+
+   A manual popover, so it is in the top layer; the script writes `left` and `top`,
+   because a selection is no element and cannot be an anchor. `data-side` says
+   whether it went above the selection or below it.
+   ─────────────────────────────────────────────────────────────────────────── */
+.selection-toolbar {
+    /* inset: auto and margin: 0 undo the UA rule that centres a popover. */
+    inset: auto;
+    margin: 0;
+    position: fixed;
+    z-index: 550;
+    align-items: center;
+    gap: var(--space-1);
+    max-inline-size: calc(100vw - 16px);
+    padding: var(--space-1);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    color: var(--fg);
+}
+.selection-toolbar:popover-open { display: flex; }
+.selection-toolbar > .btn { flex-shrink: 0; }
+.selection-toolbar-sep { flex: none; inline-size: 1px; block-size: 16px; margin-inline: var(--space-1); background: var(--border); }

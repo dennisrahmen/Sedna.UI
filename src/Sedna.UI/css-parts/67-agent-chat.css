@@ -39,6 +39,23 @@
    `.chat-composer-tools` under the text for attachments, toggles and a model choice,
    and `.chat-composer-send` holding the send button at the end. Put `.beam` on the
    composer while an answer is being written.
+
+   ── The submit button's state ──
+   `data-state` on `.chat-composer-send` — `idle`, `submitted`, `streaming` or
+   `error` — shows the children of the button whose `data-when` names that state and
+   hides the rest, so the app writes send, stop and retry once, each with its own
+   icon and words, and changes one attribute. Without `data-state` it is idle.
+
+     <span class="chat-composer-send" data-state="streaming">
+       <button class="btn btn--brand btn--solid btn--icon" type="submit">
+         <span data-when="idle"><i class="ri-arrow-up-line" aria-hidden="true"></i><span class="visually-hidden">Send</span></span>
+         <span data-when="submitted streaming"><i class="ri-stop-fill" aria-hidden="true"></i><span class="visually-hidden">Stop</span></span>
+         <span data-when="error"><i class="ri-restart-line" aria-hidden="true"></i><span class="visually-hidden">Retry</span></span>
+       </button>
+     </span>
+
+   A hidden child is out of the accessibility tree as well, so the button's name is
+   the shown state's words. Give each icon `aria-hidden`, or its glyph joins the name.
    ─────────────────────────────────────────────────────────────────────────── */
 .chat-message--agent { max-width: 100%; align-items: flex-start; gap: var(--space-6); }
 .chat-message--agent > .agent-avatar { --size: 28px; }
@@ -145,7 +162,9 @@
 }
 .chat-composer--prompt:focus-within { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
 .chat-composer--prompt .chat-composer-row > .form-input,
-.chat-composer--prompt .chat-composer-row > .form-input:focus {
+.chat-composer--prompt .chat-composer-row > .form-input:focus,
+.chat-composer--prompt .chat-composer-row > .ghost-field > .form-input,
+.chat-composer--prompt .chat-composer-row > .ghost-field > .form-input:focus {
     min-height: var(--control-height-lg);
     padding: var(--space-3) var(--space-4);
     border: 0;
@@ -156,6 +175,12 @@
 .chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
 .chat-composer-send > .btn { border-radius: 50%; }
+.chat-composer-send [data-when] { display: none; }
+.chat-composer-send:not([data-state]) [data-when~="idle"],
+.chat-composer-send[data-state="idle"] [data-when~="idle"],
+.chat-composer-send[data-state="submitted"] [data-when~="submitted"],
+.chat-composer-send[data-state="streaming"] [data-when~="streaming"],
+.chat-composer-send[data-state="error"] [data-when~="error"] { display: contents; }
 
 /* ── A word on its own ─────────────────────────────────────────────────────
    Holding nothing but its text, it is a block container instead of a flex one, so its
