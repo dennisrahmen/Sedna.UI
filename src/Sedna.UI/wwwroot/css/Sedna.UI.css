@@ -395,6 +395,7 @@
     --page-rhythm:     var(--space-7);
     --page-pad:        var(--space-9);
     --list-lines: 1;
+    --kv-key-width: 30%;
     --agent-from:  var(--coral-500);
     --agent-to:    var(--orbit-400);
     --level: initial;
@@ -2180,6 +2181,22 @@ a.topbar-version--pre:hover {
 .kv .v { font-family: var(--font-mono); }
 .kv > * { min-width: 0; overflow-wrap: anywhere; }
 .kv--text .v { font-family: var(--font-sans); overflow-wrap: break-word; }
+.kv > :is(dt, dd) { margin: 0; }
+:has(> .kv > .kv-action) > .kv {
+    container: sedna-kv / inline-size;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-start;
+    row-gap: var(--space-2);
+    padding-block: var(--cell-pad-y);
+}
+:has(> .kv > .kv-action) > .kv + .kv { border-top: 1px solid var(--divider); }
+:has(> .kv > .kv-action) > .kv > .k { flex: 0 0 var(--kv-key-width); max-width: none; }
+:has(> .kv > .kv-action) > .kv > .v { flex: 1 1 0; }
+.kv-action { flex-shrink: 0; margin-inline-start: auto; text-align: end; white-space: nowrap; }
+@container sedna-kv (width < 30rem) {
+    :has(> .kv > .kv-action) > .kv > .k { flex-basis: 100%; }
+}
 }
 @layer sedna.paint {
 .badge {
@@ -3788,6 +3805,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     flex-direction: column;
     gap: var(--space-7);
 }
+.form-section--question > legend {
+    padding-block-end: 0;
+    margin-bottom: var(--space-6);
+    border-bottom: none;
+    font-size: inherit;
+}
+.form-section--question > legend > :is(h1, h2) { margin: 0; }
+.form-section--question > legend > .eyebrow { margin-bottom: var(--space-2); }
 .choice-dependent {
     display: flex;
     flex-direction: column;
@@ -5859,6 +5884,30 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .page-head :is(h1, h2, h3) { margin: 0; }
 .page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
 .page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
+.confirmation-panel {
+    margin: 0 0 var(--space-9);
+    padding: var(--space-10) var(--space-8);
+    background: var(--go-solid);
+    border: 1px solid var(--go-solid);
+    border-radius: var(--radius-surface);
+    color: var(--on-solid);
+    text-align: center;
+    overflow-wrap: anywhere;
+    print-color-adjust: exact;
+}
+.confirmation-panel-title { margin: 0; color: inherit; font-size: var(--text-10); }
+.confirmation-panel > p:not(.confirmation-panel-ref) { margin: var(--space-6) 0 0; font-size: var(--text-7); }
+.confirmation-panel-ref {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    margin: var(--space-2) 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-9);
+    font-weight: 700;
+}
 .divider { border: none; border-top: 1px solid var(--border); margin: var(--space-8) 0; }
 .divider-labelled {
     display: flex;
@@ -6587,6 +6636,18 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .list--cards > .sticky-group-head,
 .card > .list--cards > .sticky-group-head { padding-inline: calc(var(--list-pad-inline) + 1px); }
 .list-row--flush { padding: 0; gap: var(--space-5); }
+.list--tasks { --list-lines: none; }
+.list--tasks > li > .list-row > :is(.list-main, .list-status) { align-self: baseline; }
+.list--tasks > li > a.list-row .list-title { color: var(--accent); }
+.list-status {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    color: var(--fg);
+    font-size: var(--text-3);
+    font-weight: 500;
+    text-align: end;
+}
+.list-status--muted { color: var(--muted); font-weight: 400; }
 .steps {
     --step-marker: 28px;
     list-style: none;
@@ -12165,6 +12226,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .page-head-actions,
     .form-actions,
     .code-block-copy,
+    .confirmation-panel [data-copy],
     .chat-launcher,
     .chat-flyover,
     .chat-composer,
@@ -12177,6 +12239,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .card,
     .code-block,
     .callout,
+    .confirmation-panel,
     .media-frame { box-shadow: none; break-inside: avoid; }
     .table--sticky thead { position: static; }
     .table thead { display: table-header-group; }

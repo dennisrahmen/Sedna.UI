@@ -63,6 +63,32 @@
     </p>
 </CatExample>
 
+<h2 id="memorable-dates">Dates the reader already knows <CatAnchor Id="memorable-dates" /></h2>
+<p class="cat-lede">
+    A date of birth or the day a business started is typed faster than it is found in a picker,
+    and a picker that opens on today makes the reader page back through decades. Ask for it as
+    separate day, month and year fields in a <code>.form-section</code>, each
+    <code>type="text"</code> with <code>inputmode="numeric"</code>, sized to its answer with
+    <code>.sedna-w-fit</code> and <code>size</code>, under a legend that names the date.
+</p>
+
+<CatExample TExample="Examples.FormDatetime.AskDateOfBirth" Title="Date of birth" Demo="ex-demo--block">
+    <p>
+        <code>bday-day</code>, <code>bday-month</code> and <code>bday-year</code> let a phone fill it
+        in. The hint gives an example in the order the fields come; accept a month as
+        <code>3</code>, <code>03</code> or <code>March</code>, and a day without its leading zero.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormDatetime.AskDateErrors" Title="When a date is incomplete" Demo="ex-demo--block">
+    <p>
+        One message for the whole date, under the hint, naming what is missing or wrong: &ldquo;must
+        include a year&rdquo;, &ldquo;must be in the past&rdquo;, &ldquo;must be a real
+        date&rdquo;. <code>aria-invalid</code> goes only on the fields that are wrong, so the reader
+        is taken to the year and not to the month they already gave.
+    </p>
+</CatExample>
+
 <h2 id="platform">What the browser draws</h2>
 <p class="cat-lede">
     The calendar glyph is a browser glyph in a fixed colour, invisible on a dark surface until it

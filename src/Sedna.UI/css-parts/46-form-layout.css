@@ -342,6 +342,18 @@
     flex-direction: column;
     gap: var(--space-7);
 }
+/* A page that asks one question: the legend holds the page's <h1>, so the question is
+   the heading and the name of the group at once. It is the page's title rather than a
+   group's, so it has no rule under it and takes the heading's size, and the heading
+   gives up its own margin to the legend's. */
+.form-section--question > legend {
+    padding-block-end: 0;
+    margin-bottom: var(--space-6);
+    border-bottom: none;
+    font-size: inherit;
+}
+.form-section--question > legend > :is(h1, h2) { margin: 0; }
+.form-section--question > legend > .eyebrow { margin-bottom: var(--space-2); }
 
 /* ── Dependent options ──────────────────────────────────────────────────────
    Fields that only matter while the option above them is on: the recipients under

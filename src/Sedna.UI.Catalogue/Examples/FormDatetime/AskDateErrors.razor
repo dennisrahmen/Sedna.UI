@@ -1,0 +1,20 @@
+<fieldset class="form-section" style="max-width:520px">
+    <legend>When did the business start trading?</legend>
+    <p class="form-section-hint" id="ade-hint">For example, 3 2019</p>
+    <p class="form-error" id="ade-err">
+        <i class="ri-error-warning-line"></i>
+        <span>The date the business started trading must include a year</span>
+    </p>
+    <div class="sedna-row sedna-row-wrap" style="gap:12px">
+        <div class="form-field">
+            <label class="form-label" for="ade-month">Month</label>
+            <input class="form-input sedna-w-fit" id="ade-month" type="text" name="start-month" size="2"
+                   inputmode="numeric" value="3" aria-describedby="ade-hint ade-err" />
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="ade-year">Year</label>
+            <input class="form-input sedna-w-fit" id="ade-year" type="text" name="start-year" size="4"
+                   inputmode="numeric" aria-invalid="true" aria-describedby="ade-hint ade-err" />
+        </div>
+    </div>
+</fieldset>

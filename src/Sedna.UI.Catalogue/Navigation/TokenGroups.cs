@@ -182,7 +182,7 @@ internal static class TokenGroups
 
         new("Density and metrics", [
             "--page-max", "--cell-pad-x", "--cell-pad-y", "--card-pad-block", "--card-pad-inline",
-            "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--code-clamp", "--page-rhythm", "--page-pad",
+            "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--kv-key-width", "--code-clamp", "--page-rhythm", "--page-pad",
             "--cap-gap",
         ], Swatch: false),
 

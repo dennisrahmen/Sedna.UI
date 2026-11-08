@@ -1,0 +1,35 @@
+<fieldset class="form-section" style="max-width:520px">
+    <legend>Bank account for refunds</legend>
+    <div class="form-section-body">
+        <div class="form-field">
+            <label class="form-label" for="ab-holder">Name on the account</label>
+            <input class="form-input sedna-w sedna-w--lg" id="ab-holder" type="text" name="account-holder"
+                   autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="ab-iban">IBAN</label>
+            <p class="form-hint" id="ab-iban-hint">Starts with the two letters of the bank's country. Spaces are fine.</p>
+            <input class="form-input sedna-w" id="ab-iban" type="text" name="iban" style="--sedna-w: 22rem"
+                   autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="ab-iban-hint" />
+        </div>
+        <div class="sedna-grid sedna-grid--sm sedna-grid--fit">
+            <div class="form-field">
+                <label class="form-label" for="ab-sort">Sort code</label>
+                <p class="form-hint" id="ab-sort-hint">Six digits</p>
+                <input class="form-input sedna-w sedna-w--sm" id="ab-sort" type="text" name="sort-code"
+                       inputmode="numeric" autocomplete="off" spellcheck="false" aria-describedby="ab-sort-hint" />
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="ab-acc">Account number</label>
+                <p class="form-hint" id="ab-acc-hint">Six to eight digits</p>
+                <input class="form-input sedna-w sedna-w--md" id="ab-acc" type="text" name="account-number"
+                       inputmode="numeric" autocomplete="off" spellcheck="false" value="1234"
+                       aria-invalid="true" aria-describedby="ab-acc-hint ab-acc-err" />
+                <p class="form-error" id="ab-acc-err">
+                    <i class="ri-error-warning-line"></i>
+                    <span>Account number must be between 6 and 8 digits</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</fieldset>

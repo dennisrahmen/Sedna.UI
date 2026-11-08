@@ -1,0 +1,71 @@
+@page "/form-flow"
+
+<CatHead Title="Multi-page forms">
+    A long transaction as a run of pages: one question to a page, a task list where the parts
+    can be done in any order, a page that checks the answers before they are sent, and the page
+    that confirms they were. Every one is built from <a href="/form">form</a>,
+    <a href="/list">list</a> and <a href="/card">card</a> markup; the classes this page adds are
+    the answer's action column, the task status and the confirmation panel.
+</CatHead>
+
+<CatExample TExample="Examples.FormFlow.QuestionPage" Title="One question to a page" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.form-section--question</code> puts the page's <code>&lt;h1&gt;</code> inside the
+        <code>&lt;legend&gt;</code>, so the question is the page's heading and the name the radios
+        are announced with &mdash; one sentence, said once. An <code>.eyebrow</code> above it names
+        the step and the section. A <a href="/frame"><code>.back-link</code></a> goes to the
+        previous page, never to the browser's history, and Continue is the only button.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormFlow.QuestionText" Title="One field to a page" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A single field takes the heading as its label: a plain <code>&lt;label&gt;</code> inside
+        the <code>&lt;h1&gt;</code>, at the heading's size. Show where the reader is with
+        <a href="/collections"><code>.steps</code></a> when the pages are few and fixed, and with an
+        eyebrow's &ldquo;Step 3 of 5&rdquo; when they branch.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormFlow.TaskList" Title="Task list" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.list--tasks</code> on a <a href="/list"><code>.list</code></a>, one card per section.
+        A task that can be started is an <code>&lt;a&gt;</code> row and its name reads as a link;
+        one that cannot start yet is a <code>&lt;span&gt;</code> row with
+        <code>.list-status--muted</code>, because there is nothing to follow. In
+        <code>.list-status</code>, Completed is plain text and a status that needs attention is a
+        <a href="/badge"><code>.badge</code></a>: <code>--info</code> in progress, the plain badge
+        not started, <code>--danger</code> a problem. Names wrap, and the status stays on the
+        first line of a name that wraps.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormFlow.CheckAnswers" Title="Check answers" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A <code>&lt;dl&gt;</code> of <a href="/card"><code>.kv</code></a> rows per section, each with
+        a <code>.kv-action</code>: &ldquo;Change&rdquo; and, in a <code>.visually-hidden</code>
+        span, which answer it changes &mdash; a list of links all called &ldquo;Change&rdquo; says
+        nothing to a screen reader. Once one row carries an action, every row beside it takes the
+        same columns, so the answers start on one edge and a row with nothing to change keeps the
+        column empty. The key's share is <code>--kv-key-width</code>; in a box narrower than 30rem
+        the key goes above its answer. The declaration and the send button close the page.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormFlow.CheckAnswersCards" Title="Answers about several things" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        When the reader added the same kind of thing more than once &mdash; addresses, people,
+        depots &mdash; each gets a <a href="/card">card</a> with its name and the action on the
+        whole of it in the head, and its answers in the body.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormFlow.Confirmation" Title="Confirmation" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.confirmation-panel</code> opens the last page: what was done as the page's
+        <code>&lt;h1&gt;</code>, and the reference in <code>.confirmation-panel-ref</code> with a
+        <a href="/button"><code>data-copy</code></a> button beside it. What happens next is the
+        page's own prose under the panel. The panel is for success only &mdash; a submission that
+        failed goes back to the page it came from, with an <a href="/form-validation">error</a>.
+    </p>
+</CatExample>

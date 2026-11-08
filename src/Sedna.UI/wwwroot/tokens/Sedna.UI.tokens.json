@@ -394,6 +394,7 @@
         "--page-rhythm": "var(--space-7)",
         "--page-pad": "var(--space-9)",
         "--list-lines": "1",
+        "--kv-key-width": "30%",
         "--agent-from": "var(--coral-500)",
         "--agent-to": "var(--orbit-400)",
         "--level": "initial",

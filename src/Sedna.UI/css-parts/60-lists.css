@@ -173,6 +173,30 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    already provides it: a table cell, a card header, a form row. */
 .list-row--flush { padding: 0; gap: var(--space-5); }
 
+/* ── Tasks ──────────────────────────────────────────────────────────────────
+   `.list--tasks` is the front page of a long form: its parts, each with how far the
+   reader has got. A task that can be started is an <a> row and its name reads as a
+   link; one that cannot start yet is a plain <span> row, with nothing to follow.
+
+   `.list-status` is the status at the row's inline end. Completed is its plain text;
+   a status that needs the reader's eye — not started, in progress, a problem — is a
+   `.badge` inside it; `.list-status--muted` is Cannot start yet. Names wrap rather than
+   clamp, because the name is what the reader chooses by, and the name and the status
+   stand on the first line's baseline, so a status stays beside the first line of a
+   name that runs to two. */
+.list--tasks { --list-lines: none; }
+.list--tasks > li > .list-row > :is(.list-main, .list-status) { align-self: baseline; }
+.list--tasks > li > a.list-row .list-title { color: var(--accent); }
+.list-status {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    color: var(--fg);
+    font-size: var(--text-3);
+    font-weight: 500;
+    text-align: end;
+}
+.list-status--muted { color: var(--muted); font-weight: 400; }
+
 /* ── Steps ──────────────────────────────────────────────────────────────────
    Progress through a sequence that has an order — a wizard, an approval chain.
 

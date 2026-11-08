@@ -29,6 +29,45 @@
    of their own, as `.toolbar-actions` does. */
 .page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
 
+/* ── Confirmation ───────────────────────────────────────────────────────────
+   The page a transaction ends on opens with this: what was done, as the page's heading,
+   and the reference the reader will be asked for, large enough to copy down by hand and
+   with a `data-copy` button beside it. What happens next follows the panel as the page's
+   own prose — the panel says it is done, the page says what comes after.
+
+   For an outcome the reader asked for and got. A submission that failed is a page with
+   an `.alert`, never this panel in another colour.
+
+   The border is the fill's own colour, so it shows only where the fill does not: in
+   forced colours, which drop backgrounds. The words stand on the fill, so the fill
+   prints with them rather than leaving white text on paper. */
+.confirmation-panel {
+    margin: 0 0 var(--space-9);
+    padding: var(--space-10) var(--space-8);
+    background: var(--go-solid);
+    border: 1px solid var(--go-solid);
+    border-radius: var(--radius-surface);
+    color: var(--on-solid);
+    text-align: center;
+    overflow-wrap: anywhere;
+    print-color-adjust: exact;
+}
+.confirmation-panel-title { margin: 0; color: inherit; font-size: var(--text-10); }
+.confirmation-panel > p:not(.confirmation-panel-ref) { margin: var(--space-6) 0 0; font-size: var(--text-7); }
+/* The reference and its copy button, centred together; the reference is set in the
+   mono face so a 0 cannot be read as an O. */
+.confirmation-panel-ref {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    margin: var(--space-2) 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-9);
+    font-weight: 700;
+}
+
 /* ── Divider ────────────────────────────────────────────────────────────────
    A rule between sections. Use it when two blocks are related but distinct; use
    whitespace when they are simply sequential, and a .card when one of them is an

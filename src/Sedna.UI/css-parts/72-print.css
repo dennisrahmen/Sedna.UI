@@ -38,6 +38,7 @@
     .page-head-actions,
     .form-actions,
     .code-block-copy,
+    .confirmation-panel [data-copy],
     .chat-launcher,
     .chat-flyover,
     .chat-composer,
@@ -57,6 +58,7 @@
     .card,
     .code-block,
     .callout,
+    .confirmation-panel,
     .media-frame { box-shadow: none; break-inside: avoid; }
 
     /* A table's header repeats on every page — that is what <thead> is for, and it

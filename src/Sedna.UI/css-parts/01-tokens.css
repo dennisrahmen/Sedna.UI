@@ -679,6 +679,11 @@
        `.list-title` or `.list-sub` it shapes that line alone. */
     --list-lines: 1;
 
+    /* The key column's share of a `.kv` row once the rows beside it carry a `.kv-action`
+       — a check-answers list — so every value starts on one edge. Set on the list to
+       give the keys more room, or on one row. */
+    --kv-key-width: 30%;
+
     /* ── Agents ─────────────────────────────────────────────────────────────
        The two bodies of the Sedna mark: Sedna Red is the focal body, Orbit Blue the
        orbit. The orb, the beam, the shimmer and the reasoning all draw with these two,
