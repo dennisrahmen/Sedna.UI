@@ -127,6 +127,25 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.EditorStateFromCsharp" Title="State, review and files, from C#" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; send the step for review, then paste a screenshot into it.</strong>
+        <code>GetStateAsync</code> reads what the document holds when the app needs to know &mdash; its HTML, its
+        text, its length and whether it is empty &mdash; and <code>SetEnabledAsync</code> stops the reader editing,
+        or lets them again; a page that renders the textarea's <code>disabled</code> needs neither call.
+        <code>InsertVideoAsync(id, url, label)</code> puts a video where the caret was, here from a button of the
+        app's own: <code>data-editor-formats</code> names <code>video</code>, which the toolbar does not offer.
+    </p>
+    <p>
+        A file pasted or dropped into the document is never inlined. The editor sends
+        <code>@@onsedna-editor-file</code> with an id, a name, a type and a size for each, and keeps the last few;
+        <code>OpenFileAsync(id, fileId)</code> opens one as a stream reference, which
+        <code>OpenReadStreamAsync(maxAllowedSize)</code> reads. This one counts the bytes and lists the file as an
+        attachment. An app uploads them there, and answers an image meant for the text with
+        <code>InsertImageAsync</code> once it has its address.
+    </p>
+</CatExample>
+
 <h2 id="controls">Controls <CatAnchor Id="controls" /></h2>
 <div class="sedna-scroll-x">
     <table class="table">
@@ -155,6 +174,7 @@
             <tr><td><code>sedna-editor-ready</code></td><td><code>{ html, text, length, isEmpty }</code>, once the document has loaded.</td></tr>
             <tr><td><code>sedna-editor-change</code></td><td>The same, after each change.</td></tr>
             <tr><td><code>sedna-editor-media</code></td><td><code>{ kind, src, alt }</code>, cancelable, before the media form opens: the image or video under the caret, or empty strings.</td></tr>
+            <tr><td><code>sedna-editor-file</code></td><td><code>{ files: [{ id, name, type, size }], index }</code>, when an image or a video file is pasted or dropped. Nothing is inserted: read each by its <code>id</code>.</td></tr>
             <tr><td>the textarea's <code>input</code>, <code>change</code></td><td>As a textarea sends them: at each change, and when the focus leaves after one.</td></tr>
         </tbody>
     </table>

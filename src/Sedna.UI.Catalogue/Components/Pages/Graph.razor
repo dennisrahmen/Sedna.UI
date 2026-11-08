@@ -165,6 +165,21 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Graph.FillPane" Title="A graph that fills its pane" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.graph--fill</code> is as tall as its container, for a pane of a dashboard whose height is set by
+        the layout rather than by the graph. Here the container is the body of a <code>.card.card--fill</code>
+        with a height, so the graph takes what the head leaves.
+    </p>
+    <p>
+        <code>data-graph-colour</code> names the colouring the graph starts in: <code>tone</code>, or the name
+        after a record's <code>data-tone-</code> &mdash; <code>today</code> here, so the legend is the day's state
+        and the kinds are left to the shapes. <code>[data-graph-canvas]</code> names the element the engine draws
+        into, in place of <code>.graph-canvas</code>, for an app whose canvas element carries a class of its own;
+        that element has to take the graph's one grid cell, as the inline style does here.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Graph.WallScreen" Title="A few records on a wall screen" Demo="ex-demo--block ex-demo--pad">
     <p>
         A fit stops a little past full size, so a handful of records in a big frame stay small and close

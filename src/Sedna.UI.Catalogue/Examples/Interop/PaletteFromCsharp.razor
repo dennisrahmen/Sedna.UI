@@ -1,0 +1,46 @@
+@inject ISednaUi Ui
+
+<div class="card" style="max-width:520px">
+    <div class="card-head">
+        <input class="form-input form-input--sm" type="search" placeholder="What do you want to do?"
+               aria-label="What do you want to do?" @bind="_query" @bind:event="oninput" @bind:after="Rank" />
+        <button class="btn btn--sm" type="button" @onclick="Ui.OpenPaletteAsync">
+            <i class="ri-command-line"></i> <span>All commands</span>
+        </button>
+    </div>
+    @if (_best.Count == 0)
+    {
+        <div class="card-body">
+            <p class="form-hint sedna-mt-0 sedna-mb-0">@(_query.Trim() == "" ? "Type to see the best three commands." : "No command matches that.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="card-body card-body--flush">
+            <ul class="list" aria-label="Best matches">
+                @foreach (var command in _best)
+                {
+                    <li>
+                        <a class="list-row" href="@command.Href">
+                            <i class="@command.Icon" aria-hidden="true"></i>
+                            <span class="list-main">
+                                <span class="list-title">@command.Label</span>
+                                <span class="list-sub">@command.Group</span>
+                            </span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+@code {
+    private string _query = "";
+    private IReadOnlyList<PaletteCommand> _best = [];
+
+    // The commands this site registered, ranked by the palette's own matcher — so the three
+    // here are the three the palette would put first for the same words.
+    private async Task Rank() =>
+        _best = _query.Trim() == "" ? [] : (await Ui.RankCommandsAsync(_query)).Take(3).ToList();
+}

@@ -1,0 +1,49 @@
+@inject ISednaUi Ui
+
+<div class="card" style="max-width:520px">
+    <div class="card-head">
+        <strong>Nothing at <code>@_missing</code></strong>
+    </div>
+    <div class="card-body">
+        <label class="form-label" for="ex-missing">The address that was asked for</label>
+        <input class="form-input form-input--sm" id="ex-missing" type="text" spellcheck="false"
+               @bind="_missing" @bind:event="oninput" @bind:after="Suggest" />
+        <p class="form-hint">@(_pages is null ? "Pages like it appear once the page is live." : $"{_pages.Count} pages match. The closest:")</p>
+        @if (_pages is { Count: > 0 })
+        {
+            <ul class="list list--cards" aria-label="Pages like it">
+                @foreach (var match in _pages.Take(3))
+                {
+                    <li>
+                        <a class="list-row" href="@match.Href">
+                            <span class="list-main">
+                                <span class="list-title">@match.Title</span>
+                                <span class="list-sub">@match.Meta</span>
+                            </span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>
+
+@code {
+    private string _missing = "/drawers-and-sheet";
+    private IReadOnlyList<SearchItem>? _pages;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Suggest();
+        StateHasChanged();
+    }
+
+    // The header search's own index and ranking, against the words of the address. Every
+    // match comes back, best first, with no cut: the cut is the app's.
+    private async Task Suggest()
+    {
+        var words = string.Join(' ', _missing.Split('/', '-', '_', '.').Where(w => w.Length > 3));
+        _pages = await Ui.RankSearchAsync(words);
+    }
+}

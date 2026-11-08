@@ -16,11 +16,21 @@
                         data-owner="Jordan Weiss" data-on-call="Alex Fischer" data-href="/services/payments">Payments</li>
                     <li data-node="orders-db" data-kind="Database" data-tone="4" data-shape="square" data-icon="ri-database-2-line"
                         data-meta="src-db-14" data-owner="Rin Nakamura" data-on-call="Priya Nair" data-href="/services/orders-db">Orders database</li>
+                    <li data-node="courier" data-kind="Outside service" data-tone="muted" data-shape="hexagon" data-icon="ri-truck-line"
+                        data-owner="Jordan Weiss" data-on-call="Rin Nakamura">Courier gateway</li>
                     <li data-edge data-source="storefront" data-target="orders" data-label="places orders">The storefront places orders with the orders API</li>
                     <li data-edge data-source="orders" data-target="payments" data-label="charges">The orders API charges payments</li>
                     <li data-edge data-source="orders" data-target="orders-db" data-label="writes">The orders API writes the orders database</li>
+                    <li data-edge data-source="orders" data-target="courier" data-label="books">The orders API books parcels with the courier gateway</li>
                 </ul>
                 <div class="graph-canvas"></div>
+                @* data-graph-always keeps Open for the courier gateway, which has no data-href:
+                   opening is the app's, below, whatever the record carries. *@
+                <div class="menu graph-menu" data-graph-menu role="menu" hidden>
+                    <span class="menu-label" data-graph-field="label"></span>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="select"><i class="ri-user-line"></i> <span>Who owns it</span></button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="open" data-graph-always><i class="ri-external-link-line"></i> <span>Open</span></button>
+                </div>
                 <div class="graph-wait skeleton skeleton-block"></div>
             </div>
         </div>
@@ -47,7 +57,7 @@
                     <div class="empty-state empty-state--bare">
                         <i class="ri-cursor-line state-icon state-icon--sm" aria-hidden="true"></i>
                         <span class="empty-state-title">No service selected</span>
-                        <p>Click one to see who owns it. Double-click opens it.</p>
+                        <p>Click one to see who owns it. Double-click or right-click opens it.</p>
                     </div>
                 </div>
             }
@@ -68,6 +78,6 @@
     // Cancelled by :preventDefault above, so the record's data-href is not followed and the
     // app decides what opening means — its own page, a drawer, or here, a toast.
     private Task Opened(SednaGraphNodeEventArgs e) => Ui.ToastAsync(
-        $"{e.Label} would open {e.Href}", ToastKind.Info,
-        title: e.Keyboard ? "Opened with Enter" : "Opened with a double-click");
+        $"{e.Label} would open {e.Href ?? "its supplier record"}", ToastKind.Info,
+        title: e.Keyboard ? "Opened with Enter" : "Opened");
 }

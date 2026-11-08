@@ -1,0 +1,29 @@
+@inject ISednaUi Ui
+
+<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+    <button class="btn" type="button" @onclick="Watch"><i class="ri-notification-badge-line"></i> <span>Tell me when ORD-4209 leaves</span></button>
+    <button class="btn btn--go" type="button" disabled="@(!_watching)" @onclick="Dispatched"><i class="ri-truck-line"></i> <span>The warehouse dispatches it</span></button>
+    <span class="text-muted" role="status">@_status</span>
+</div>
+
+@code {
+    private bool _watching;
+    private string _status = "";
+
+    // From the click itself: a browser refuses to ask for permission outside a user gesture.
+    private async Task Watch()
+    {
+        var allowed = await Ui.RequestNotifyAsync();
+        _watching = true;
+        _status = allowed ? "You will be told, even from another tab." : "You will be told on this page only.";
+    }
+
+    // What the server hears from the warehouse. Both calls are best effort: without permission
+    // the notification is skipped, and the tone still plays, so say it on the page as well.
+    private async Task Dispatched()
+    {
+        await Ui.NotifyAsync("ORD-4209 has left the warehouse", "Next-day courier · PKG-58301-224");
+        await Ui.PingAsync();
+        _status = "ORD-4209 left the warehouse at " + DateTime.UtcNow.ToString("HH:mm") + " UTC.";
+    }
+}
