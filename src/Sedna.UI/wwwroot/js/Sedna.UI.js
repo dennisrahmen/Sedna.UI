@@ -5221,6 +5221,73 @@ window.sednaUi = window.sednaUi || {};
     else watchAll();
 })(window.sednaUi);
 (function (ui) {
+    var OPEN = 'data-clamp-open';
+    var FITS = 'data-clamp-fits';
+    function blockOf(button) {
+        var id = button.getAttribute('aria-controls');
+        var named = id && document.getElementById(id);
+        return named || button.previousElementSibling;
+    }
+    function isOpen(button) { return button.getAttribute('aria-expanded') === 'true'; }
+    function measure(button) {
+        var block = blockOf(button);
+        if (!block) return;
+        var open = isOpen(button);
+        block.toggleAttribute(OPEN, open);
+        if (open) { button.removeAttribute(FITS); return; }
+        button.toggleAttribute(FITS, block.scrollHeight <= block.clientHeight + 1);
+    }
+    var sizes = 'ResizeObserver' in window ? new ResizeObserver(function () { schedule(); }) : null;
+    var watched = typeof WeakSet === 'function' ? new WeakSet() : null;
+    var pending = false;
+    function refresh(root) {
+        var scope = root && root.querySelectorAll ? root : document;
+        var all = scope.querySelectorAll('[data-clamp-toggle]');
+        for (var i = 0; i < all.length; i++) {
+            measure(all[i]);
+            var block = blockOf(all[i]);
+            if (sizes && block && watched && !watched.has(block)) {
+                watched.add(block);
+                sizes.observe(block);
+            }
+        }
+        return all.length;
+    }
+    function schedule() {
+        if (pending) return;
+        pending = true;
+        requestAnimationFrame(function () { pending = false; refresh(); });
+    }
+    ui.clamp = {
+        toggle: function (button, open) {
+            if (typeof button === 'string') button = document.getElementById(button);
+            if (!button) return false;
+            var next = open === undefined ? !isOpen(button) : !!open;
+            button.setAttribute('aria-expanded', String(next));
+            measure(button);
+            var block = blockOf(button);
+            if (!next && block && block.getBoundingClientRect().top < 0) block.scrollIntoView({ block: 'start' });
+            return next;
+        },
+        refresh: refresh
+    };
+    document.addEventListener('click', function (e) {
+        var button = e.target.closest('[data-clamp-toggle]');
+        if (!button) return;
+        e.preventDefault();
+        ui.clamp.toggle(button);
+    });
+    function watch() {
+        refresh();
+        window.addEventListener('resize', schedule);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule, function () {});
+        if (!('MutationObserver' in window)) return;
+        new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
+    else watch();
+})(window.sednaUi);
+(function (ui) {
     var CLAMPED = 'code-block--clamped';
     function labelFor(button, expanded) {
         var other = expanded ? button.getAttribute('data-code-collapse')
@@ -5253,6 +5320,181 @@ window.sednaUi = window.sednaUi || {};
             if (pre) pre.scrollTop = 0;
         }
     });
+})(window.sednaUi);
+(function (ui) {
+    var reduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    var said = typeof WeakMap === 'function' ? new WeakMap() : null;
+    var settling = typeof WeakMap === 'function' ? new WeakMap() : null;
+    function rootOf(el) {
+        if (typeof el === 'string') el = document.getElementById(el);
+        return el && el.closest ? el.closest('[data-carousel]') : null;
+    }
+    function trackOf(c) { return c.querySelector('.carousel-track'); }
+    function slidesOf(track) {
+        var out = [];
+        for (var i = 0; i < track.children.length; i++) out.push(track.children[i]);
+        return out;
+    }
+    function rtl(track) { return getComputedStyle(track).direction === 'rtl'; }
+    function offset(track, slide, backwards) {
+        var t = track.getBoundingClientRect(), s = slide.getBoundingClientRect();
+        return backwards ? t.right - s.right : s.left - t.left;
+    }
+    function current(c) {
+        var track = trackOf(c);
+        if (!track) return -1;
+        var slides = slidesOf(track), back = rtl(track), best = -1, bestAt = Infinity;
+        for (var i = 0; i < slides.length; i++) {
+            var at = Math.abs(offset(track, slides[i], back));
+            if (at < bestAt - 0.5) { best = i; bestAt = at; }
+        }
+        return best;
+    }
+    function edges(track) {
+        var max = track.scrollWidth - track.clientWidth;
+        var pos = Math.abs(track.scrollLeft);
+        return { start: max <= 1 || pos <= 1, end: max <= 1 || pos >= max - 1 };
+    }
+    function dotIndex(dot, order) {
+        var n = parseInt(dot.getAttribute('data-carousel-to'), 10);
+        return isNaN(n) ? order : n - 1;
+    }
+    function setFlag(el, name, on, value) {
+        if (on) { if (el.getAttribute(name) !== value) el.setAttribute(name, value); }
+        else if (el.hasAttribute(name)) el.removeAttribute(name);
+    }
+    function announce(c, index, slides) {
+        var live = c.querySelector('[data-carousel-live]');
+        if (!live || index < 0) return;
+        var slide = slides[index];
+        var label = slide.getAttribute('aria-label') || '';
+        var sentence = live.getAttribute('data-carousel-say');
+        var text = sentence
+            ? sentence.replace(/\{(position|count|label)\}/g, function (all, name) {
+                if (name === 'position') return String(index + 1);
+                if (name === 'count') return String(slides.length);
+                return label;
+            })
+            : label;
+        if (!text) return;
+        live.textContent = live.textContent === text ? text + ' ' : text;
+    }
+    function mark(c, speak) {
+        var track = trackOf(c);
+        if (!track) return;
+        var slides = slidesOf(track), index = current(c), end = edges(track);
+        for (var i = 0; i < slides.length; i++) setFlag(slides[i], 'aria-current', i === index, 'true');
+        var dots = c.querySelectorAll('[data-carousel-to]');
+        for (var d = 0; d < dots.length; d++) setFlag(dots[d], 'aria-current', dotIndex(dots[d], d) === index, 'true');
+        var prev = c.querySelectorAll('[data-carousel-prev]'), next = c.querySelectorAll('[data-carousel-next]');
+        for (var p = 0; p < prev.length; p++) setFlag(prev[p], 'aria-disabled', end.start, 'true');
+        for (var n = 0; n < next.length; n++) setFlag(next[n], 'aria-disabled', end.end, 'true');
+        if (!said) return;
+        if (!said.has(c)) { said.set(c, index); return; }
+        if (!speak || said.get(c) === index) return;
+        said.set(c, index);
+        announce(c, index, slides);
+    }
+    function go(el, index) {
+        var c = rootOf(el);
+        if (!c) return -1;
+        var track = trackOf(c);
+        if (!track) return -1;
+        var slides = slidesOf(track);
+        if (!slides.length) return -1;
+        index = Math.max(0, Math.min(slides.length - 1, index | 0));
+        var back = rtl(track);
+        var by = offset(track, slides[index], back);
+        var left = track.scrollLeft + (back ? -by : by);
+        var smooth = !(reduce && reduce.matches);
+        track.scrollTo({ left: left, behavior: smooth ? 'smooth' : 'auto' });
+        if (!smooth) mark(c, true);
+        return index;
+    }
+    ui.carousel = {
+        go: go,
+        next: function (el) { var c = rootOf(el); return c ? go(c, current(c) + 1) : -1; },
+        prev: function (el) { var c = rootOf(el); return c ? go(c, current(c) - 1) : -1; },
+        current: function (el) { var c = rootOf(el); return c ? current(c) : -1; }
+    };
+    document.addEventListener('click', function (e) {
+        var button = e.target.closest('[data-carousel-prev], [data-carousel-next], [data-carousel-to]');
+        if (!button) return;
+        var c = rootOf(button);
+        if (!c) return;
+        e.preventDefault();
+        if (button.getAttribute('aria-disabled') === 'true') return;
+        if (button.hasAttribute('data-carousel-prev')) ui.carousel.prev(c);
+        else if (button.hasAttribute('data-carousel-next')) ui.carousel.next(c);
+        else {
+            var dots = c.querySelectorAll('[data-carousel-to]');
+            go(c, dotIndex(button, Array.prototype.indexOf.call(dots, button)));
+        }
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+        var track = e.target.closest && e.target.closest('.carousel-track');
+        if (!track) return;
+        if (e.target !== track && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) return;
+        var c = rootOf(track);
+        if (!c) return;
+        var back = rtl(track), now = current(c), to;
+        if (e.key === 'ArrowRight') to = back ? now - 1 : now + 1;
+        else if (e.key === 'ArrowLeft') to = back ? now + 1 : now - 1;
+        else if (e.key === 'Home') to = 0;
+        else if (e.key === 'End') to = slidesOf(track).length - 1;
+        else return;
+        e.preventDefault();
+        go(c, to);
+    });
+    var frame = null;
+    function settle(c) {
+        if (!settling) return;
+        clearTimeout(settling.get(c));
+        settling.delete(c);
+        mark(c, true);
+    }
+    document.addEventListener('scroll', function (e) {
+        var track = e.target;
+        if (!track || !track.classList || !track.classList.contains('carousel-track')) return;
+        var c = rootOf(track);
+        if (!c) return;
+        if (!frame) frame = requestAnimationFrame(function () { frame = null; mark(c, false); });
+        if (settling) {
+            clearTimeout(settling.get(c));
+            settling.set(c, setTimeout(function () { settle(c); }, 150));
+        }
+    }, true);
+    document.addEventListener('scrollend', function (e) {
+        var track = e.target;
+        if (!track || !track.classList || !track.classList.contains('carousel-track')) return;
+        var c = rootOf(track);
+        if (c) settle(c);
+    }, true);
+    function markAll(root) {
+        var scope = root && root.querySelectorAll ? root : document;
+        var all = scope.querySelectorAll('[data-carousel]');
+        for (var i = 0; i < all.length; i++) mark(all[i], false);
+        if (scope !== document && scope.matches && scope.matches('[data-carousel]')) mark(scope, false);
+    }
+    function watch() {
+        markAll();
+        window.addEventListener('resize', function () { markAll(); });
+        if (!('MutationObserver' in window)) return;
+        new MutationObserver(function (records) {
+            for (var i = 0; i < records.length; i++) {
+                var added = records[i].addedNodes;
+                for (var j = 0; j < added.length; j++) {
+                    if (added[j].nodeType !== 1) continue;
+                    var c = rootOf(added[j]);
+                    if (c) mark(c, false);
+                    else markAll(added[j]);
+                }
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
+    else watch();
 })(window.sednaUi);
 (function (ui) {
     function scrollerOf(el) {

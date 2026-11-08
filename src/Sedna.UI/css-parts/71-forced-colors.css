@@ -165,6 +165,7 @@
     a.stat:focus-visible,
     .code-block-copy:focus-visible,
     .code-block-expand:focus-visible,
+    .carousel-track:focus-visible,
     .value-trigger:focus-visible,
     .list--cards > li > :is(a, button).list-row:is([aria-current="true"], [aria-selected="true"]):focus-visible,
     .gallery > *:focus-visible .media-frame,

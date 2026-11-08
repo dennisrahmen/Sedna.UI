@@ -117,6 +117,12 @@
     /* A figure that counts up prints as the app wrote it, not part way there. */
     .stat-value--roll { animation: none; }
 
+    /* A carousel prints every slide, one under the other, and not the controls that
+       moved between them. */
+    .carousel-track { flex-direction: column; overflow: visible; }
+    .carousel-slide { flex-basis: auto; break-inside: avoid; }
+    .carousel-controls { display: none; }
+
     /* Headings should not be the last line on a page. */
     h1, h2, h3, .card-head, .page-head { break-after: avoid; }
 }

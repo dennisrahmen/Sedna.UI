@@ -1,0 +1,90 @@
+/* ── Carousel ───────────────────────────────────────────────────────────────
+   A row of slides the reader moves through one at a time — the features of a release,
+   the steps of a setup, a handful of records worth a look. Use it for content that is
+   fine to miss: what is on the second slide is seen by fewer readers than what is on
+   the first. A list everyone needs belongs in a list.
+
+   The track is a horizontal scroller with scroll snapping, so the layout and the
+   swiping are the platform's and work with scripting blocked: a finger, a trackpad
+   and the arrow keys on the focused track all move it a slide at a time. The
+   previous and next buttons, the dots and the live region are the app's markup;
+   29-carousel.js wires them, marks the current slide and dot with `aria-current`, and
+   says the position in the app's words:
+
+     <section class="carousel" aria-roledescription="carousel" aria-label="What is new" data-carousel>
+       <div class="carousel-track" tabindex="0" aria-label="Slides">
+         <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="1 of 3">…</div>
+         …
+       </div>
+       <div class="carousel-controls">
+         <button class="btn btn--icon btn--sm" type="button" data-carousel-prev aria-label="Previous slide">…</button>
+         <div class="deck-dots">
+           <button class="deck-dot" type="button" data-carousel-to="1" aria-label="Slide 1"></button>
+           …
+         </div>
+         <button class="btn btn--icon btn--sm" type="button" data-carousel-next aria-label="Next slide">…</button>
+       </div>
+       <p class="visually-hidden" aria-live="polite" data-carousel-live></p>
+     </section>
+
+   The dots are the deck's, `.deck-dot`: one drawing for "where am I in a sequence",
+   whichever sequence it is.
+
+   Three knobs on `.carousel`, set there or on one instance:
+     --carousel-per-view   how many slides show at once (1);
+     --carousel-peek       how much of the track the next slide shows in, past the
+                           ones in view — `.carousel--peek` sets a share of it, so the
+                           reader sees there is more;
+     --carousel-gap        the gap between slides.
+   ─────────────────────────────────────────────────────────────────────────── */
+.carousel {
+    --carousel-per-view: 1;
+    --carousel-peek: 0px;
+    --carousel-gap: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+}
+/* Some of the next slide shows at the inline end. A share of the track rather than a
+   length, so a phone and a wide page both show a sliver and neither shows half. */
+.carousel--peek { --carousel-peek: 15%; }
+
+.carousel-track {
+    display: flex;
+    gap: var(--carousel-gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: inline mandatory;
+    /* The buttons and the dots are the way to see where it is; a scrollbar under a row
+       of cards is a second, worse one. */
+    scrollbar-width: none;
+    border-radius: var(--radius-surface);
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+
+/* A slide's width is the track's, less the peek and the gaps between the slides in
+   view, shared between them. The peek holds the gap before the next slide, so what
+   shows of that slide is the peek less one gap. `snap-stop: always` stops a fast swipe flying past
+   several. */
+.carousel-slide {
+    flex: 0 0 calc((100% - var(--carousel-peek) - var(--carousel-gap) * (var(--carousel-per-view) - 1)) / var(--carousel-per-view));
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
+/* Previous, the dots, next — centred under the track. */
+.carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-6);
+}
+/* At either end the button that has nowhere to go stays focusable, so the reader who
+   pressed it is not dropped to the top of the page: it is `aria-disabled`, which the
+   script writes and reads. */
+.carousel :is([data-carousel-prev], [data-carousel-next])[aria-disabled="true"] {
+    color: var(--muted);
+    cursor: not-allowed;
+}

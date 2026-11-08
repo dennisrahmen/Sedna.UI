@@ -50,7 +50,7 @@ The `30`–`69` components band is full as well, so a new component shares a num
 and all three are in `sedna.paint`. `66-calendar-agenda.css` sorts before `66-calendar.css` (`-` precedes `.`)
 and depends on nothing of it coming first: its rows take `.cal-event-dot` and the hue modifiers through
 selectors that outweigh theirs. `64` holds `64-files.css`, `64-lightbox.css`, `64-media-player.css` and
-`64-palette-spotlight.css` the same way, `60` holds `60-lists.css` and `60-tree.css`, and `44` holds `44-rich-text.css` after
+`64-palette-spotlight.css` the same way, `60` holds `60-lists.css` and `60-tree.css`, `62` holds `62-carousel.css` before `62-media-and-prose.css`, and `44` holds `44-rich-text.css` after
 `44-markdown.css`, whose `.editor` chrome it builds on. Chat reuses `.file-item` and `.audio-wave` from earlier parts
 and adds only its bubble context, so it stays after them. The agent parts share `66`–`69` the same way:
 `66-agent-*.css` and `66-orb.css` stand alone; `67-agent-chat.css` builds on `66-chat.css` and

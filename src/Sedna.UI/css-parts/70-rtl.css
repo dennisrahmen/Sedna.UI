@@ -171,3 +171,8 @@
 /* 48 — a one-time code is digits and Latin letters, which run left to right in every
    script, so its boxes keep that order, and so do the arrow keys 23-code.js reads. */
 [dir="rtl"] .form-code { direction: ltr; }
+
+/* 62 — a carousel's previous and next buttons hold arrows that point the way the slides
+   go, and in RTL the next slide is on the left. The arrow turns round; the button keeps
+   its place at the inline start or end, which already mirrors. */
+[dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }

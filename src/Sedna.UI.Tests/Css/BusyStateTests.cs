@@ -62,6 +62,7 @@ public class BusyStateTests
         "page-toc-fold", "page-toc-link",       // folds the contents, jumps within the page; nothing runs
         "back-to-top",                          // scrolls the page it is in; nothing runs
         "sheet-handle",                         // moves its sheet between heights; nothing of its own runs
+        "carousel-track",                       // a scroller the arrow keys move; nothing of its own runs
     };
 
     [Fact]

@@ -7833,6 +7833,45 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .fab-dial > .menu > .menu-item:hover { background: var(--bg-hover); }
 }
 @layer sedna.paint {
+.carousel {
+    --carousel-per-view: 1;
+    --carousel-peek: 0px;
+    --carousel-gap: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+}
+.carousel--peek { --carousel-peek: 15%; }
+.carousel-track {
+    display: flex;
+    gap: var(--carousel-gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: none;
+    border-radius: var(--radius-surface);
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.carousel-slide {
+    flex: 0 0 calc((100% - var(--carousel-peek) - var(--carousel-gap) * (var(--carousel-per-view) - 1)) / var(--carousel-per-view));
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
+.carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-6);
+}
+.carousel :is([data-carousel-prev], [data-carousel-next])[aria-disabled="true"] {
+    color: var(--muted);
+    cursor: not-allowed;
+}
+}
+@layer sedna.paint {
 .media-frame {
     display: flex;
     align-items: center;
@@ -13739,6 +13778,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 }
 [dir="rtl"] .rating-star::after { transform: scaleX(-1); }
 [dir="rtl"] .form-code { direction: ltr; }
+[dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
 }
 @layer sedna.paint {
 @media (forced-colors: active) {
@@ -13855,6 +13895,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     a.stat:focus-visible,
     .code-block-copy:focus-visible,
     .code-block-expand:focus-visible,
+    .carousel-track:focus-visible,
     .value-trigger:focus-visible,
     .list--cards > li > :is(a, button).list-row:is([aria-current="true"], [aria-selected="true"]):focus-visible,
     .gallery > *:focus-visible .media-frame,
@@ -14049,6 +14090,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         word-break: break-all;
     }
     .stat-value--roll { animation: none; }
+    .carousel-track { flex-direction: column; overflow: visible; }
+    .carousel-slide { flex-basis: auto; break-inside: avoid; }
+    .carousel-controls { display: none; }
     h1, h2, h3, .card-head, .page-head { break-after: avoid; }
 }
 }
@@ -14102,6 +14146,14 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 }
 .text-clamp-2 { -webkit-line-clamp: 2; }
 .text-clamp-3 { -webkit-line-clamp: 3; }
+:is(.text-clamp-2, .text-clamp-3)[data-clamp-open] {
+    display: block;
+    -webkit-line-clamp: none;
+    overflow: visible;
+}
+[data-clamp-toggle][data-clamp-fits] { display: none; }
+[data-clamp-toggle][aria-expanded="true"] .text-clamp-more,
+[data-clamp-toggle]:not([aria-expanded="true"]) .text-clamp-less { display: none; }
 .text-truncate {
     min-width: 0;
     overflow: hidden;

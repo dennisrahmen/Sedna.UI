@@ -1,0 +1,52 @@
+@page "/carousel"
+
+<CatHead Title="Carousel">
+    A row of slides the reader moves through one at a time &mdash; what a release brings, the records worth
+    a look, the steps of a setup. Use it for content that is fine to miss: fewer readers reach the second
+    slide than read the first. Content everybody needs is a <a href="/collections">list</a>, and a
+    sequence that has to be finished is a <a href="/modal">deck</a>.
+</CatHead>
+
+<div class="callout callout--info">
+    <i class="ri-information-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">The scrolling is the platform's; the controls are the app's</span>
+        <code>.carousel-track</code> is a horizontal scroller that snaps a slide at a time, so a finger, a
+        trackpad and the arrow keys on the focused track move it with scripting blocked. With
+        <code>data-carousel</code> on the <code>.carousel</code>, the script wires the app's
+        <code>data-carousel-prev</code>, <code>data-carousel-next</code> and <code>data-carousel-to</code>
+        buttons, marks the slide in view and its dot <code>aria-current="true"</code>, gives the button that
+        has nowhere to go <code>aria-disabled="true"</code>, and says the position through the app's
+        <code>[data-carousel-live]</code> region. It never moves on its own.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Carousel.Slides" Title="Slides with dots" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; press the arrows or a dot, swipe, or Tab to the track and use
+        <kbd class="kbd">&larr;</kbd> <kbd class="kbd">&rarr;</kbd> <kbd class="kbd">Home</kbd>
+        <kbd class="kbd">End</kbd>.</strong> The <code>.carousel</code> is a <code>section</code> with
+        <code>aria-roledescription="carousel"</code> and a name; each <code>.carousel-slide</code> is a
+        <code>role="group"</code> with <code>aria-roledescription="slide"</code> and a label giving its
+        position, in the app's words. The dots are the deck's <code>.deck-dot</code> buttons:
+        <code>data-carousel-to</code> is the slide they go to, counted from 1.
+    </p>
+    <p>
+        Once the track comes to rest on another slide, the script writes the live region's
+        <code>data-carousel-say</code> with <code>{position}</code>, <code>{count}</code> and
+        <code>{label}</code> filled in &mdash; or the slide's own <code>aria-label</code> when there is no
+        sentence. A press moves smoothly, and lands at once for a reader who asked for reduced motion. In a
+        right-to-left page the slides run from the right, <kbd class="kbd">&larr;</kbd> goes on, and the arrow
+        icons turn round.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Carousel.Peek" Title="Several in view, and a peek" Demo="ex-demo--block">
+    <p>
+        <code>--carousel-per-view</code> on the <code>.carousel</code> shows that many slides side by side,
+        and <code>.carousel--peek</code> leaves part of the next one showing at the inline end, so the reader
+        can see there is more without a control telling them. <code>--carousel-peek</code> is how much of the
+        track that takes, and <code>--carousel-gap</code> the space between slides. Previous and next move one
+        slide at a time; with no dots, the label on each slide carries the position.
+    </p>
+</CatExample>
