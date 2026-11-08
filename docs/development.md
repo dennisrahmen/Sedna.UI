@@ -352,8 +352,8 @@ Abuse controls, all on `/mcp` alone:
 
 | Control | Value |
 |---|---|
-| Concurrency limiter (the actual control — not partitioned, so not spoofable) | 16 permits, 8 queued |
-| Per-caller token bucket (fairness only) | 60 tokens, 30/minute, no queue |
+| Concurrency limiter (the actual control — not partitioned, so not spoofable) | 64 permits, 32 queued |
+| Per-caller token bucket (fairness only) | 240 tokens, 120/minute, no queue |
 | `search` results | clamped to 25 |
 | `get_example` ids / `describe_class` names / `describe_api` names | 5 / 10 / 10 per call |
 | `check_markup` markup | 64 KB |

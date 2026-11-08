@@ -192,11 +192,11 @@
         <thead><tr><th>Limit</th><th>Value</th><th>Why</th></tr></thead>
         <tbody>
             <tr>
-                <td>Concurrent requests</td><td class="col-num">16, plus 8 queued</td>
+                <td>Concurrent requests</td><td class="col-num">64, plus 32 queued</td>
                 <td>The actual control. Not partitioned, so there is nothing to spoof around.</td>
             </tr>
             <tr>
-                <td>Per caller</td><td class="col-num">60 burst, 30/min</td>
+                <td>Per caller</td><td class="col-num">240 burst, 120/min</td>
                 <td>
                     Fairness, not security: behind a proxy whose addresses we do not control, per-IP
                     limiting is not a security measure.
