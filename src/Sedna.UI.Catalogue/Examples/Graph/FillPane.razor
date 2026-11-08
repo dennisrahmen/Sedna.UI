@@ -1,0 +1,34 @@
+<div class="card card--fill" style="height:22rem; max-width:640px">
+    <div class="card-head">
+        <h3>Deliveries today</h3>
+        <div class="graph-legend">
+            <span class="graph-key"><span class="graph-swatch series-go"></span> <span>On time</span></span>
+            <span class="graph-key"><span class="graph-swatch series-warn"></span> <span>Late</span></span>
+            <span class="graph-key"><span class="graph-swatch series-danger"></span> <span>Stopped</span></span>
+        </div>
+    </div>
+    <div class="card-body card-body--flush">
+        <div class="graph graph--fill" data-graph id="graph-fill-pane" data-graph-colour="today" data-graph-arrows="target"
+             aria-label="Today's deliveries from the hub through the depots">
+            <ul class="graph-data" data-graph-data>
+                <li data-node="hub" data-tone="3" data-tone-today="go" data-shape="star" data-icon="ri-building-4-line" data-meta="Hub · on time" data-root>North hub</li>
+                <li data-node="hilltop" data-tone="5" data-tone-today="go" data-shape="rounded" data-meta="Depot · on time">Hilltop depot</li>
+                <li data-node="harbour" data-tone="5" data-tone-today="warn" data-shape="rounded" data-meta="Depot · 40 minutes late">Harbour depot</li>
+                <li data-node="airport" data-tone="5" data-tone-today="danger" data-shape="rounded" data-meta="Depot · stopped at 11:20">Airport depot</li>
+                <li data-node="old-town" data-tone="2" data-tone-today="go" data-meta="Store · on time">Old Town store</li>
+                <li data-node="seafront" data-tone="2" data-tone-today="warn" data-meta="Store · late">Seafront store</li>
+                <li data-node="stadium" data-tone="2" data-tone-today="danger" data-meta="Store · waiting">Stadium store</li>
+                <li data-edge data-source="hub" data-target="hilltop" data-label="supplies">North hub supplies Hilltop depot</li>
+                <li data-edge data-source="hub" data-target="harbour" data-label="supplies">North hub supplies Harbour depot</li>
+                <li data-edge data-source="hub" data-target="airport" data-label="supplies">North hub supplies Airport depot</li>
+                <li data-edge data-source="hilltop" data-target="old-town" data-label="delivers">Hilltop depot delivers to Old Town store</li>
+                <li data-edge data-source="harbour" data-target="seafront" data-label="delivers">Harbour depot delivers to Seafront store</li>
+                <li data-edge data-source="airport" data-target="stadium" data-label="delivers">Airport depot delivers to Stadium store</li>
+            </ul>
+            <!-- The app's own element for the canvas, named by data-graph-canvas. The style stands in
+                 for the app's own rule: it takes the graph's one grid cell, as .graph-canvas does. -->
+            <div data-graph-canvas style="grid-area: 1 / 1 / -1 / -1; position: relative; z-index: 0; min-width: 0; min-height: 0"></div>
+            <div class="graph-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

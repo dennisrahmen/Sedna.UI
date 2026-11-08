@@ -1,0 +1,101 @@
+@inject ISednaSettings Settings
+@inject ISednaUi Ui
+@implements IDisposable
+
+<div class="card" style="max-width:560px">
+    <div class="card-body sedna-col sedna-gap-3">
+        <div class="form-field">
+            <label class="form-label" for="ex-theme">Theme</label>
+            <select class="form-input form-select" id="ex-theme" value="@Settings.Current.Theme"
+                    @onchange="@(e => Settings.SetThemeAsync(e.Value?.ToString() ?? "sedna"))">
+                <option value="sedna">Sedna</option>
+                <option value="forest">Forest</option>
+                <option value="cobalt">Cobalt</option>
+                <option value="graphite">Graphite</option>
+            </select>
+        </div>
+
+        <div class="segmented" role="radiogroup" aria-label="Density">
+            @foreach (var density in Densities)
+            {
+                <label class="segmented-option">
+                    <input type="radio" name="ex-density" checked="@(Settings.Current.Density == density.Value)"
+                           @onchange="@(() => Settings.SetDensityAsync(density.Value))" />
+                    <span>@density.Label</span>
+                </label>
+            }
+        </div>
+
+        <label class="switch">
+            <input type="checkbox" checked="@Settings.Current.ColourBlind"
+                   @onchange="@(e => Settings.SetColourBlindAsync(e.Value is true))" />
+            <span>Colours for colour-blind readers</span>
+        </label>
+
+        <div class="sedna-row-wrap sedna-gap-3">
+            <select class="form-input form-select sedna-w-fit" aria-label="Language" value="@Settings.Current.Language"
+                    @onchange="@(e => Settings.SetLanguageAsync(e.Value?.ToString() ?? "en"))">
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+            </select>
+            <div class="segmented" role="radiogroup" aria-label="Direction">
+                <label class="segmented-option">
+                    <input type="radio" name="ex-dir" checked="@(Settings.Current.Direction == "ltr")"
+                           @onchange="@(() => Settings.SetDirectionAsync("ltr"))" />
+                    <span>Left to right</span>
+                </label>
+                <label class="segmented-option">
+                    <input type="radio" name="ex-dir" checked="@(Settings.Current.Direction == "rtl")"
+                           @onchange="@(() => Settings.SetDirectionAsync("rtl"))" />
+                    <span>Right to left</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="card-foot card-foot--split">
+        <button class="btn btn--sm" type="button" @onclick="AttachToReport"><i class="ri-bug-line"></i> <span>Attach to a problem report</span></button>
+        <button class="btn btn--ghost btn--sm" type="button" @onclick="Defaults">Back to the defaults</button>
+    </div>
+    @if (_report is not null)
+    {
+        <div class="card-section">
+            <p class="text-sm text-muted sedna-mt-0 sedna-mb-0">@_report</p>
+        </div>
+    }
+</div>
+
+@code {
+    private static readonly (string Value, string Label)[] Densities =
+        [("comfortable", "Comfortable"), ("compact", "Compact"), ("touch", "Touch")];
+
+    private string? _report;
+
+    protected override void OnInitialized() => Settings.Changed += Refresh;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Settings.StartAsync();
+    }
+
+    private void Refresh(SednaUiSettings settings) => InvokeAsync(StateHasChanged);
+
+    // A value taken once, at the moment it is asked for: ISednaUi reads it without listening.
+    private async Task AttachToReport()
+    {
+        var s = await Ui.LoadSettingsAsync();
+        _report = $"Theme {s.Theme}, {s.Variant}, density {s.Density}, colour-blind {(s.ColourBlind ? "on" : "off")}, "
+                  + $"language {s.Language}, {s.Direction}.";
+    }
+
+    // The raw keys, stored and applied one by one. The panel above redraws from Changed,
+    // which fires whoever stored the value.
+    private async Task Defaults()
+    {
+        await Ui.SaveSettingAsync("theme", "sedna");
+        await Ui.SaveSettingAsync("variant", "dark");
+        await Ui.SaveSettingAsync("density", "comfortable");
+        await Ui.SaveSettingAsync("cvd", "0");
+    }
+
+    public void Dispose() => Settings.Changed -= Refresh;
+}

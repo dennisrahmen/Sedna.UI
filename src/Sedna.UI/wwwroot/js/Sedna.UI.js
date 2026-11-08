@@ -4528,10 +4528,12 @@ window.sednaUi = window.sednaUi || {};
     var config = ui._.config;
     ui.requestNotify = function () {
         try {
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-        } catch (e) { /* notifications unavailable */ }
+            if (!('Notification' in window)) return Promise.resolve(false);
+            if (Notification.permission !== 'default') return Promise.resolve(Notification.permission === 'granted');
+            return Promise.resolve(Notification.requestPermission()).then(
+                function (answer) { return answer === 'granted'; },
+                function () { return false; });
+        } catch (e) { return Promise.resolve(false); /* notifications unavailable */ }
     };
     ui.notify = function (title, body) {
         try {

@@ -25,6 +25,17 @@
     </p>
 </CatSnippet>
 
+<CatExample TExample="Examples.Interop.PaletteFromCsharp" Title="Its ranking, from C#" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; type &ldquo;drawer&rdquo;.</strong> <code>RankCommandsAsync</code> ranks the registered
+        commands against a query with the palette's own matcher and answers them best first &mdash; an empty query
+        answers every one in registration order &mdash; for an app that shows the same ranking in a list of its own:
+        the start of a page, an empty state. <code>OpenPaletteAsync</code> opens the palette itself, and
+        <code>ClosePaletteAsync</code> closes it, which a layout does after a navigation the palette did not
+        start; <a href="/interop">From C#</a> has that layout.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Palette.PaletteStates" Title="Matching, and nothing found" Demo="ex-demo--block">
     <p>
         The two states side by side, laid out statically here so both are visible at once, with

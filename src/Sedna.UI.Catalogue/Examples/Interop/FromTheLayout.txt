@@ -1,0 +1,46 @@
+@* MainLayout.razor — the layout lives as long as the circuit, so what is said once per
+   browser is said here, and what has to follow a navigation is done here too. *@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject ISednaUi Ui
+@inject NavigationManager Nav
+
+@code {
+    protected override void OnInitialized() => Nav.LocationChanged += Navigated;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        // The options given to AddSednaUi: the default theme, the toast's close label, the
+        // notification icon. The boot script reads its own data-theme-default before this.
+        await Ui.ConfigureAsync();
+
+        // Each replaces the whole list. Call again whenever what the reader may reach
+        // changes — after signing in, or a permission check.
+        await Ui.RegisterSearchAsync(
+        [
+            new SearchItem { Title = "Open orders", Href = "/orders", Code = "/orders", Meta = "Everything not yet dispatched" },
+            new SearchItem { Title = "Held orders", Href = "/orders/held", Meta = "Waiting on stock", Tag = "3", Tone = "warn" },
+            new SearchItem { Title = "Carriers", Href = "/settings/carriers", Meta = "Settings", Keywords = "courier shipping" },
+        ]);
+        await Ui.RegisterCommandsAsync(
+        [
+            new PaletteCommand { Label = "Open the queue", Href = "/orders", Icon = "ri-inbox-line", Group = "Go to" },
+            new PaletteCommand { Label = "Account settings", Href = "/settings", Icon = "ri-user-line", Group = "Go to", Keywords = "profile theme" },
+        ]);
+    }
+
+    // What a page opened over the last one must not inherit. A navigation in Blazor is not a
+    // page load, so none of it is reset by the browser.
+    private void Navigated(object? sender, LocationChangedEventArgs e)
+    {
+        _ = Ui.CloseSearchAsync();    // results for the page that has gone
+        _ = Ui.ClosePaletteAsync();   // open across a back navigation
+        _ = Ui.CloseMenusAsync();     // a dropdown can survive one too
+        _ = Ui.HideTipsAsync();       // a hint about an element that is no longer there
+        _ = Ui.ScrollPageTopAsync();  // .page is the scroller, and the router never moves it
+    }
+
+    public void Dispose() => Nav.LocationChanged -= Navigated;
+}

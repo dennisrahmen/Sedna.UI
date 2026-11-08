@@ -51,7 +51,12 @@
         <code>@@onsedna-graph-open</code> fires on a double-click or <kbd class="kbd">Enter</kbd>. Cancelled
         with <code>:preventDefault</code>, the record's <code>data-href</code> is not followed, and opening
         means whatever the app decides &mdash; a page, a drawer, or here a toast. <code>Keyboard</code>
-        says which way it came.
+        says whether <kbd class="kbd">Enter</kbd> opened it.
+    </p>
+    <p>
+        The menu's <code>open</code> item sends the same event. It hides itself on a record with no
+        <code>data-href</code> unless it carries <code>data-graph-always</code>, which is right for an app that
+        opens records itself: the courier gateway has no page, and still opens.
     </p>
 </CatExample>
 
@@ -145,6 +150,26 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.GraphViewFromCsharp" Title="The view, from C#" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; change the layout, colour by health, then fold every team.</strong> What a
+        <code>data-graph-option</code> control or a <code>data-graph-action</code> button does without a line of
+        C#, a component does with a call when its own state decides it. <code>LayoutAsync</code> takes a
+        <code>SednaGraphLayout</code> and, for <code>dagre</code> and <code>tree</code>, a direction.
+        <code>SetOptionAsync</code> changes one drawing option by the name its control uses &mdash; here
+        <code>colour</code>, which is <code>tone</code> or the name of one of each record's <code>Tones</code>.
+        <code>SetHullsAsync</code> outlines every <code>Group</code>, which is not a container: card data runs
+        through two teams and one outside service.
+    </p>
+    <p>
+        <code>CollapseAsync</code> and <code>ExpandAsync</code> fold and open the group named, or every group with
+        null, and answer what is on screen afterwards; <code>FitAsync</code> after a fold fills the frame with
+        what is left. <code>ZoomAsync</code> takes a factor about the middle. A group the reader folds with its
+        own cue &mdash; <code>data-graph-collapse</code> &mdash; arrives as <code>@@onsedna-graph-collapse</code>, and
+        <code>StatsAsync</code> asks what is on screen now.
+    </p>
+</CatExample>
+
 <h2 id="large-graphs">A large graph over a circuit <CatAnchor Id="large-graphs" /></h2>
 <p>
     A list rendered by Razor lives in the circuit's render tree: every record is held in server memory for
@@ -161,7 +186,8 @@
     <p>
         The endpoint is ordinary ASP.NET Core, so it is authorised like any other; the browser sends the
         page's cookies with the request. Until the records arrive the wait shows, and if they cannot be read
-        the graph shows its <code>.graph-empty--error</code>.
+        the graph shows its <code>.graph-empty--error</code>. Refresh calls <code>ReloadAsync</code>, which fetches
+        the URL again and answers what is on screen afterwards; the records still never cross the circuit.
     </p>
 </CatSnippet>
 

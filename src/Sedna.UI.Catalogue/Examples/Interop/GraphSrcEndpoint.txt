@@ -10,8 +10,15 @@ app.MapGet("/api/service-map", async (IServiceCatalog catalog) =>
         JsonSerializerOptions.Web);
 }).RequireAuthorization();
 
-@* ServiceMap.razor — markup only. The browser fetches the records itself, with the
-   page's cookies, and not one of them passes through the circuit. *@
+@* ServiceMap.razor — the browser fetches the records itself, with the page's cookies,
+   and not one of them passes through the circuit. *@
+@inject ISednaGraphs Graphs
+@inject NavigationManager Nav
+
+<div class="toolbar">
+    <span class="toolbar-count" data-graph-for="service-map" data-graph-stats="{nodes} services"></span>
+    <button class="btn btn--sm" type="button" @onclick="Refresh"><i class="ri-refresh-line"></i> <span>Refresh</span></button>
+</div>
 <div class="graph graph--viewport" data-graph data-graph-src="/api/service-map"
      data-graph-layout="islands" id="service-map" aria-label="Every service, by team"
      @onsedna-graph-open="Open" @onsedna-graph-open:preventDefault>
@@ -21,3 +28,11 @@ app.MapGet("/api/service-map", async (IServiceCatalog catalog) =>
         <span class="empty-state-title">The service map could not be loaded</span>
     </div>
 </div>
+
+@code {
+    // When the component learns the map changed — a deploy finished, a message on the app's
+    // own hub — the browser fetches it again and shows what changed, as SetDataAsync does.
+    private Task Refresh() => Graphs.ReloadAsync("service-map");
+
+    private void Open(SednaGraphNodeEventArgs e) => Nav.NavigateTo($"/services/{e.Id}");
+}

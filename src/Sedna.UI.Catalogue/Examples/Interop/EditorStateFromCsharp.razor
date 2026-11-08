@@ -1,0 +1,111 @@
+@inject ISednaEditors Editors
+
+@* data-editor-formats names video, which the toolbar does not offer, so the app's own button
+   below can put one in. A screenshot pasted or dropped in arrives as sedna-editor-file. *@
+<div class="sedna-stack">
+    <div class="editor" data-editor id="runbook-step" data-editor-formats="bold list video"
+         @onsedna-editor-file="FilesArrived">
+        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="ordered" aria-label="Numbered list"><i class="ri-list-ordered"></i></button>
+        </div>
+        <div class="editor-body prose" data-editor-body></div>
+        <textarea data-editor-value hidden aria-label="Runbook step" @bind="_step"></textarea>
+    </div>
+
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <button class="btn btn--sm" type="button" disabled="@_inReview" @onclick="AddVideo"><i class="ri-video-add-line"></i> <span>Add the training video</span></button>
+            @if (_inReview)
+            {
+                <button class="btn btn--sm" type="button" @onclick="BackToEditing"><i class="ri-edit-line"></i> <span>Back to editing</span></button>
+            }
+            else
+            {
+                <button class="btn btn--go btn--solid btn--sm" type="button" @onclick="SendForReview"><i class="ri-send-plane-line"></i> <span>Send for review</span></button>
+            }
+        </div>
+        <span class="toolbar-count" role="status">@_status</span>
+    </div>
+
+    @if (_attachments.Count > 0)
+    {
+        <ul class="list list--cards" aria-label="Attachments">
+            @foreach (var file in _attachments)
+            {
+                <li>
+                    <div class="list-row">
+                        <i class="ri-image-line" aria-hidden="true"></i>
+                        <span class="list-main">
+                            <span class="list-title">@file.Name</span>
+                            <span class="list-sub">@file.Type · @file.Bytes.ToString("N0") bytes read</span>
+                        </span>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    private const string Id = "runbook-step";
+    private const int Shortest = 40;
+
+    private sealed record Attachment(string Name, string Type, long Bytes);
+
+    private string _step = "<p>Check the racking label before the pallet leaves the dock.</p>";
+    private bool _inReview;
+    private string _status = "Paste or drop a screenshot to attach it.";
+    private readonly List<Attachment> _attachments = [];
+
+    // What the document holds now, read when it is needed rather than tracked on every change.
+    private async Task SendForReview()
+    {
+        var state = await Editors.GetStateAsync(Id);
+        if (state is null) return;
+        if (state.Length < Shortest)
+        {
+            _status = $"{state.Length} characters: a step needs at least {Shortest}.";
+            return;
+        }
+
+        // The document stays on screen, read-only, while someone reviews it.
+        await Editors.SetEnabledAsync(Id, false);
+        _inReview = true;
+        _status = $"Sent for review: {state.Length} characters.";
+    }
+
+    private async Task BackToEditing()
+    {
+        await Editors.SetEnabledAsync(Id, true);
+        _inReview = false;
+        _status = "Editing again.";
+    }
+
+    // Where the caret was. The address is the app's own, a file its video library serves;
+    // this site serves none, so the player here has nothing to play.
+    private async Task AddVideo()
+    {
+        var after = await Editors.InsertVideoAsync(Id, "media/receiving-a-pallet.mp4", "Receiving a pallet at dock 4");
+        _status = after is null ? "The editor did not keep the video." : "Video added.";
+    }
+
+    // The editor inlines no file. Each one is read here by its id, as a stream: this is where
+    // an app uploads the bytes and, for an image in the text, answers with InsertImageAsync.
+    private async Task FilesArrived(SednaEditorFileEventArgs e)
+    {
+        foreach (var file in e.Files)
+        {
+            var reference = await Editors.OpenFileAsync(Id, file.Id);
+            if (reference is null) continue;
+            await using (reference)
+            {
+                await using var bytes = await reference.OpenReadStreamAsync(maxAllowedSize: 10_000_000);
+                using var copy = new MemoryStream();
+                await bytes.CopyToAsync(copy);
+                _attachments.Add(new(file.Name == "" ? "Pasted image" : file.Name, file.Type, copy.Length));
+            }
+        }
+        _status = $"{_attachments.Count} attached.";
+    }
+}

@@ -14,8 +14,8 @@
                     <li data-node="orders-db" data-kind="Database" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="src-db-14" data-tone="4" data-shape="square" data-icon="ri-database-2-line" data-meta="Orders, lines and their history">Orders database</li>
                     <li data-node="catalogue-db" data-kind="Database" data-team="Catalogue" data-owner="Rin Nakamura" data-host="src-db-11" data-tone="4" data-shape="square" data-icon="ri-database-2-line" data-meta="Products and prices">Catalogue database</li>
                     <li data-node="events" data-kind="Queue" data-team="Platform" data-owner="Priya Nair" data-host="bus-broker-01" data-tone="5" data-shape="diamond" data-icon="ri-stack-line" data-meta="Everything that happens to an order">Order events</li>
-                    <li data-node="card-processor" data-kind="Outside service" data-team="Checkout" data-owner="Alex Fischer" data-host="api.example.net" data-tone="6" data-shape="hexagon" data-icon="ri-global-line" data-meta="Authorises card payments">Card processor</li>
-                    <li data-node="carrier" data-kind="Outside service" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="tracking.example.org" data-tone="6" data-shape="hexagon" data-icon="ri-global-line" data-meta="Parcel labels and tracking">Carrier</li>
+                    <li data-node="card-processor" data-kind="Outside service" data-team="Checkout" data-owner="Alex Fischer" data-host="api.example.net" data-contract="Renewed every March" data-tone="6" data-shape="hexagon" data-icon="ri-global-line" data-meta="Authorises card payments">Card processor</li>
+                    <li data-node="carrier" data-kind="Outside service" data-team="Fulfilment" data-owner="Jordan Weiss" data-host="tracking.example.org" data-contract="Rolling, 90 days notice" data-tone="6" data-shape="hexagon" data-icon="ri-global-line" data-meta="Parcel labels and tracking">Carrier</li>
 
                     <li data-edge data-source="storefront" data-target="checkout" data-label="calls">The storefront calls the checkout API</li>
                     <li data-edge data-source="storefront" data-target="catalogue" data-label="calls">The storefront calls the catalogue API</li>
@@ -55,6 +55,7 @@
                 <div class="kv"><span class="k">Team</span><span data-graph-field="team"></span></div>
                 <div class="kv"><span class="k">Owner</span><span data-graph-field="owner"></span></div>
                 <div class="kv"><span class="k">Host</span><span class="v" data-graph-field="host"></span></div>
+                <div class="kv" data-graph-if="contract"><span class="k">Contract</span><span data-graph-field="contract"></span></div>
                 <div class="card-section">
                     <p class="text-muted text-sm sedna-mt-0 sedna-mb-2">Linked services</p>
                     <ul class="list list--cards" data-graph-neighbours aria-label="Linked services">
