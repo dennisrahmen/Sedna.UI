@@ -345,7 +345,7 @@ with the **repository root** as the build context. The deploy settings live on t
 repository's own `.mcp.json` — and the loop an agent runs is `search` → `get_example` →
 `describe_class`.
 
-Six tools, all read-only. **There must never be a seventh that writes**, because the endpoint is public
+Every tool is read-only. **There must never be one that writes**, because the endpoint is public
 and unauthenticated and a client honouring the read-only hint calls these without prompting.
 
 Abuse controls, all on `/mcp` alone:
@@ -355,7 +355,8 @@ Abuse controls, all on `/mcp` alone:
 | Concurrency limiter (the actual control — not partitioned, so not spoofable) | 16 permits, 8 queued |
 | Per-caller token bucket (fairness only) | 60 tokens, 30/minute, no queue |
 | `search` results | clamped to 25 |
-| `get_example` ids / `describe_class` names | 5 / 10 per call |
+| `get_example` ids / `describe_class` names / `describe_api` names | 5 / 10 / 10 per call |
+| `check_markup` markup | 64 KB |
 | Any single markup value | truncated at 8 KB, on a tag boundary |
 | Request body | 256 KB |
 

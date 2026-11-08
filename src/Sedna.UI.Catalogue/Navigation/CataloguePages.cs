@@ -351,7 +351,7 @@ internal static class CataloguePages
             Section: Reference),
         // Not "/mcp": that route is the MCP endpoint itself, mapped in Program.cs.
         new("/mcp-server", Start, "MCP server", "ri-robot-2-line",
-            "The read-only endpoint an agent points at, its six tools and four resources.",
+            "The read-only endpoint an agent points at, its tools and its resources.",
             "mcp agent ai claude tool resource read-only streamable http rate limit since",
             Section: Reference),
     ];

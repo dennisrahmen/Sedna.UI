@@ -30,7 +30,9 @@ internal static class McpInstructions
 
         Use search first, then get_example for the exact markup. Do not write shared-UI markup
         from memory, and do not invent class names: a class that is not in the stylesheet does
-        nothing at all, silently.
+        nothing at all, silently. Before handing a page over, pass it to check_markup, which names
+        every class the stylesheet does not declare. describe_api answers for a C# or sednaUi
+        member: its signatures, its documentation and the examples that use it.
 
         This catalogue is built from the main branch and can be ahead of any released NuGet
         version. Every class, token and example carries `since` — the release it first shipped
@@ -38,9 +40,10 @@ internal static class McpInstructions
         (the version the app has pinned) to search, get_example, describe_class and get_tokens,
         and `meta.warning` names anything that version does not have. Do not copy those.
 
-        Upgrading an app to a newer release: read get_integration_guide with section "upgrade",
-        which lists every class each release renamed, old name to the class or classes that look
-        the same. describe_class answers an old name the same way, under `renamed`. Replace the
+        Upgrading an app to a newer release: call get_changes with the version the app has as
+        from, which lists every class, token and C# member the releases in between added, removed
+        and renamed, and links each release's notes. get_integration_guide with section "upgrade"
+        lists every rename too. describe_class answers an old name the same way, under `renamed`. Replace the
         whole class, never a prefix — one old class can become two.
 
         Never override a library class in an app's own stylesheet. If something is missing,

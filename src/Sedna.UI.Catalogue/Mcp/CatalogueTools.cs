@@ -7,7 +7,8 @@ using ModelContextProtocol.Server;
 namespace Sedna.UI.Catalogue.Mcp;
 
 /// <summary>
-/// The MCP tool surface: six tools, six verbs, no overlap.
+/// The MCP tools for writing a page: one verb each, no overlap. <see cref="ReferenceTools"/>
+/// holds the ones around that loop.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -17,7 +18,7 @@ namespace Sedna.UI.Catalogue.Mcp;
 /// <c>search</c> → <c>get_example</c> → <c>describe_class</c> is the whole loop.
 /// </para>
 /// <para>
-/// Every tool is read-only, and <b>there must never be a seventh that writes</b>.
+/// Every tool is read-only, and <b>there must never be one that writes</b>.
 /// The endpoint is public and unauthenticated; a client honouring the read-only
 /// hint calls these without prompting, which is only safe while that stays true.
 /// </para>
@@ -30,8 +31,8 @@ namespace Sedna.UI.Catalogue.Mcp;
 /// object, which the SDK cannot describe, so <c>UseStructuredContent</c> made it
 /// advertise the placeholder <c>{"type":"object","properties":{"result":true}}</c> —
 /// a boolean subschema, legal JSON Schema and rejected by the Zod validator in the
-/// MCP TypeScript SDK. A client that validates a tool list therefore dropped all six
-/// tools while the server stayed connected and its instructions loaded, which is a
+/// MCP TypeScript SDK. A client that validates a tool list therefore dropped every
+/// tool while the server stayed connected and its instructions loaded, which is a
 /// failure with no error anywhere. The payload is the JSON text of the response, read
 /// from <c>content[0].text</c> as it always was.
 /// </para>
@@ -319,13 +320,15 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         """)]
     public object GetPage(
         [Description("A route from search, e.g. \"/table\". Omit to list every page.")]
-        string? id = null)
+        string? id = null,
+        [Description("The Sedna.UI version your app has installed.")]
+        string? installedVersion = null)
     {
         if (id is null)
         {
             return new
             {
-                meta = versions.For(null),
+                meta = versions.For(installedVersion),
                 pages = CataloguePages.All.Select(p => new
                 {
                     id = p.Route,
@@ -343,15 +346,16 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
             string.Equals(p.Route, route, StringComparison.OrdinalIgnoreCase));
 
         if (page is null)
-            return new { meta = versions.For(null), notFound = id };
+            return new { meta = versions.For(installedVersion), notFound = id };
 
+        var examples = index.Examples.Where(e => e.Route == page.Route).ToList();
         return new
         {
-            meta = versions.For(null),
+            meta = versions.For(installedVersion, examples.Select(e => (e.Id, SinceExample(e)))),
             id = page.Route,
             title = page.Label,
             blurb = page.Blurb,
-            examples = index.Examples.Where(e => e.Route == page.Route).Select(e => new
+            examples = examples.Select(e => new
             {
                 id = e.Id,
                 title = e.Title,
@@ -417,7 +421,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     [McpServerTool(Name = "get_integration_guide", ReadOnly = true, Destructive = false,
         Idempotent = true, OpenWorld = false)]
     [Description("""
-        How to wire Sedna.UI into an app: the host page with its load order, the branding
+        How to install, set up and configure Sedna.UI in an app: the host page with its load order, the branding
         recipe, the JavaScript and C# surface, the rules a consuming app follows, the graph's and
         the rich-text editor's references, and — for an app moving to a newer release — every
         class each release renamed, old name to the classes that look the same. Call once when
