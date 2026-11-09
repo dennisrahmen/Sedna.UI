@@ -88,6 +88,13 @@ jobs:
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
+      # The image has no Python, and the app tooling (build/app-tooling.sh,
+      # rename-classes.py) is tested by running it. One package, with a timeout so a slow
+      # mirror fails the slice instead of holding it.
+      - name: Install Python
+        timeout-minutes: 5
+        run: apt-get update && apt-get install -y --no-install-recommends python3
+
       - name: Generate the class history
         run: bash build/class-history.sh
 
