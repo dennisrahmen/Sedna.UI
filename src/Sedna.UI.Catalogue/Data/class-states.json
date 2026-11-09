@@ -1354,6 +1354,176 @@
         ":focus"
       ]
     },
+    "chart": {
+      "family": "chart",
+      "variants": [
+        "chart--fill",
+        "chart--lg",
+        "chart--sm"
+      ],
+      "attributes": [
+        ":not([aria-busy=\"true\"])",
+        ":not([data-chart-pointer])",
+        "[data-chart-error]",
+        "[data-chart-state=\"empty\"]",
+        "[data-chart-state]"
+      ],
+      "pseudoClasses": [
+        ":focus",
+        ":focus-visible"
+      ]
+    },
+    "chart--fill": {
+      "family": "chart"
+    },
+    "chart--lg": {
+      "family": "chart"
+    },
+    "chart--sm": {
+      "family": "chart"
+    },
+    "chart-area": {
+      "family": "chart-area"
+    },
+    "chart-axis": {
+      "family": "chart-axis"
+    },
+    "chart-band": {
+      "family": "chart-band"
+    },
+    "chart-category": {
+      "family": "chart-category"
+    },
+    "chart-data": {
+      "family": "chart-data"
+    },
+    "chart-empty": {
+      "family": "chart-empty",
+      "variants": [
+        "chart-empty--error"
+      ]
+    },
+    "chart-empty--error": {
+      "family": "chart-empty"
+    },
+    "chart-grid": {
+      "family": "chart-grid"
+    },
+    "chart-guide": {
+      "family": "chart-guide"
+    },
+    "chart-key": {
+      "family": "chart-key",
+      "attributes": [
+        "[aria-pressed=\"false\"]"
+      ],
+      "pseudoClasses": [
+        ":focus-visible",
+        ":hover"
+      ]
+    },
+    "chart-legend": {
+      "family": "chart-legend"
+    },
+    "chart-line": {
+      "family": "chart-line"
+    },
+    "chart-mark": {
+      "family": "chart-mark"
+    },
+    "chart-marker": {
+      "family": "chart-marker",
+      "variants": [
+        "chart-marker--active"
+      ]
+    },
+    "chart-marker--active": {
+      "family": "chart-marker"
+    },
+    "chart-marks": {
+      "family": "chart-marks"
+    },
+    "chart-plot": {
+      "family": "chart-plot"
+    },
+    "chart-ring": {
+      "family": "chart-ring"
+    },
+    "chart-slice": {
+      "family": "chart-slice"
+    },
+    "chart-svg": {
+      "family": "chart-svg",
+      "attributes": [
+        "[data-chart-enter]"
+      ]
+    },
+    "chart-swatch": {
+      "family": "chart-swatch",
+      "variants": [
+        "chart-swatch--block",
+        "chart-swatch--cross",
+        "chart-swatch--diamond",
+        "chart-swatch--line",
+        "chart-swatch--square",
+        "chart-swatch--triangle",
+        "chart-swatch--triangle-down"
+      ]
+    },
+    "chart-swatch--block": {
+      "family": "chart-swatch"
+    },
+    "chart-swatch--cross": {
+      "family": "chart-swatch"
+    },
+    "chart-swatch--diamond": {
+      "family": "chart-swatch"
+    },
+    "chart-swatch--line": {
+      "family": "chart-swatch"
+    },
+    "chart-swatch--square": {
+      "family": "chart-swatch"
+    },
+    "chart-swatch--triangle": {
+      "family": "chart-swatch"
+    },
+    "chart-swatch--triangle-down": {
+      "family": "chart-swatch"
+    },
+    "chart-tick": {
+      "family": "chart-tick"
+    },
+    "chart-tip": {
+      "family": "chart-tip"
+    },
+    "chart-tip-row": {
+      "family": "chart-tip-row",
+      "attributes": [
+        "[data-chart-current]"
+      ]
+    },
+    "chart-tip-swatch": {
+      "family": "chart-tip-swatch"
+    },
+    "chart-tip-title": {
+      "family": "chart-tip-title"
+    },
+    "chart-tip-value": {
+      "family": "chart-tip-value"
+    },
+    "chart-total": {
+      "family": "chart-total"
+    },
+    "chart-total-label": {
+      "family": "chart-total-label"
+    },
+    "chart-total-value": {
+      "family": "chart-total-value"
+    },
+    "chart-wait": {
+      "family": "chart-wait"
+    },
     "chat": {
       "family": "chat",
       "variants": [

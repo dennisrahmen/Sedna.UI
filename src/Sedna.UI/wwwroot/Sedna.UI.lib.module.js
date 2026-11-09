@@ -20,6 +20,7 @@ const events = [
     'sedna-graph-ready', 'sedna-graph-change', 'sedna-graph-select', 'sedna-graph-open', 'sedna-graph-hover',
     'sedna-graph-context', 'sedna-graph-connect', 'sedna-graph-edge', 'sedna-graph-expand', 'sedna-graph-collapse',
     'sedna-editor-ready', 'sedna-editor-change', 'sedna-editor-media', 'sedna-editor-file',
+    'sedna-chart-select',
     'sedna-follow', 'sedna-resize', 'sedna-countdown-end',
     'sedna-tree-expand', 'sedna-tree-collapse', 'sedna-tree-select', 'sedna-tree-check',
     'sedna-selection',

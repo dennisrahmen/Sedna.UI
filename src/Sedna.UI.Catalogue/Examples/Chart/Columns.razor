@@ -1,0 +1,47 @@
+<div class="card" data-chart-frame>
+    <div class="card-head">
+        <h3>Parcels shipped, by carrier</h3>
+    </div>
+    <div class="card-body">
+        <div class="chart" data-chart="column" id="chart-carriers"
+             data-chart-format='{"notation":"compact"}'
+             aria-label="Parcels shipped per quarter by road, rail and air" aria-roledescription="chart">
+            <table class="chart-data" data-chart-data>
+                <caption>Parcels shipped per quarter</caption>
+                <thead>
+                    <tr><th scope="col">Quarter</th><th scope="col">Road</th><th scope="col">Rail</th><th scope="col">Air</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">Q1</th><td data-value="18400">18 400</td><td data-value="9200">9 200</td><td data-value="3100">3 100</td></tr>
+                    <tr><th scope="row">Q2</th><td data-value="21250">21 250</td><td data-value="10800">10 800</td><td data-value="2950">2 950</td></tr>
+                    <tr><th scope="row">Q3</th><td data-value="19900">19 900</td><td data-value="12400">12 400</td><td data-value="3480">3 480</td></tr>
+                    <tr><th scope="row">Q4</th><td data-value="24600">24 600</td><td data-value="13150">13 150</td><td data-value="4720">4 720</td></tr>
+                </tbody>
+            </table>
+            <div class="chart-plot"></div>
+            <div class="chart-tip" data-chart-tip hidden>
+                <span class="chart-tip-title" data-chart-field="category"></span>
+                <template data-chart-tip-row>
+                    <span class="chart-tip-row">
+                        <span class="chart-tip-swatch"></span>
+                        <span data-chart-field="series"></span>
+                        <span class="chart-tip-value" data-chart-field="value"></span>
+                    </span>
+                </template>
+            </div>
+            <div class="chart-wait skeleton skeleton-block"></div>
+        </div>
+        <p class="visually-hidden" data-chart-live aria-live="polite"
+           data-chart-announce="{category}, {series}: {value} parcels."></p>
+    </div>
+    <div class="card-foot">
+        <div class="chart-legend">
+            <button class="chart-key" type="button" data-chart-toggle="Road" aria-pressed="true">
+                <span class="chart-swatch chart-swatch--block series-1"></span><span>Road</span></button>
+            <button class="chart-key" type="button" data-chart-toggle="Rail" aria-pressed="true">
+                <span class="chart-swatch chart-swatch--block series-2"></span><span>Rail</span></button>
+            <button class="chart-key" type="button" data-chart-toggle="Air" aria-pressed="true">
+                <span class="chart-swatch chart-swatch--block series-3"></span><span>Air</span></button>
+        </div>
+    </div>
+</div>

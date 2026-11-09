@@ -1,0 +1,35 @@
+<div class="card" data-chart-frame>
+    <div class="card-head">
+        <h3>Orders per month</h3>
+    </div>
+    <div class="card-body">
+        <div class="chart-legend">
+            <span class="chart-key"><span class="chart-swatch series-1"></span><span>2026</span></span>
+            <span class="chart-key"><span class="chart-swatch chart-swatch--square series-2"></span><span>2025</span></span>
+        </div>
+        <div class="chart" data-chart="line" id="chart-orders-line"
+             aria-label="Orders per month, 2026 against 2025" aria-roledescription="chart">
+            <table class="chart-data" data-chart-data>
+                <caption>Orders per month</caption>
+                <thead>
+                    <tr><th scope="col">Month</th><th scope="col">2026</th><th scope="col">2025</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">Jan</th><td>1240</td><td>1105</td></tr>
+                    <tr><th scope="row">Feb</th><td>1310</td><td>1180</td></tr>
+                    <tr><th scope="row">Mar</th><td>1482</td><td>1264</td></tr>
+                    <tr><th scope="row">Apr</th><td>1396</td><td>1302</td></tr>
+                    <tr><th scope="row">May</th><td>1621</td><td>1418</td></tr>
+                    <tr><th scope="row">Jun</th><td>1754</td><td>1496</td></tr>
+                    <tr><th scope="row">Jul</th><td>1690</td><td>1530</td></tr>
+                    <tr><th scope="row">Aug</th><td>1582</td><td>1471</td></tr>
+                    <tr><th scope="row">Sep</th><td></td><td>1610</td></tr>
+                </tbody>
+            </table>
+            <div class="chart-plot"></div>
+            <div class="chart-wait skeleton skeleton-block"></div>
+        </div>
+        <p class="visually-hidden" data-chart-live aria-live="polite"
+           data-chart-announce="{category}, {series}: {value} orders."></p>
+    </div>
+</div>

@@ -19,6 +19,7 @@ paths-ignore:
   - src/Sedna.UI/graph-parts
   - src/Sedna.UI/editor-parts
   - src/Sedna.UI/orb-parts
+  - src/Sedna.UI/chart-parts
 
 query-filters:
   # `cs/path-combine` warns that Path.Combine silently drops its earlier

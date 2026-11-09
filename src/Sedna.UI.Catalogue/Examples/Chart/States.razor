@@ -1,0 +1,52 @@
+<div class="sedna-grid sedna-grid--sm">
+    <div class="card">
+        <div class="card-head"><h3>Loading</h3></div>
+        <div class="card-body">
+            <div class="chart chart--sm" data-chart="column" id="chart-state-loading" aria-busy="true"
+                 aria-label="Refunds per day, loading">
+                <table class="chart-data" data-chart-data>
+                    <thead><tr><th scope="col">Day</th><th scope="col">Refunds</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <div class="chart-plot"></div>
+                <div class="chart-wait skeleton skeleton-block"></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h3>Nothing to show</h3></div>
+        <div class="card-body">
+            <div class="chart chart--sm" data-chart="column" id="chart-state-empty" aria-label="Refunds per day this week">
+                <table class="chart-data" data-chart-data>
+                    <thead><tr><th scope="col">Day</th><th scope="col">Refunds</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <div class="chart-plot"></div>
+                <div class="chart-wait skeleton skeleton-block"></div>
+                <div class="chart-empty empty-state">
+                    <span class="empty-state-title">No refunds this week</span>
+                    <p>Refunds appear here the day they are issued.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h3>Could not load</h3></div>
+        <div class="card-body">
+            <div class="chart chart--sm" data-chart="column" id="chart-state-error" data-chart-error
+                 aria-label="Refunds per day, could not be loaded">
+                <table class="chart-data" data-chart-data>
+                    <thead><tr><th scope="col">Day</th><th scope="col">Refunds</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <div class="chart-plot"></div>
+                <div class="chart-wait skeleton skeleton-block"></div>
+                <div class="chart-empty chart-empty--error empty-state empty-state--failed">
+                    <span class="empty-state-title">Could not load the refunds</span>
+                    <span class="empty-state-detail">GET /api/refunds/daily · 503 · 12:04:31</span>
+                    <button class="btn btn--sm" type="button"><i class="ri-refresh-line"></i> <span>Try again</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

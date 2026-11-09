@@ -1,0 +1,1392 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   GENERATED FILE — DO NOT EDIT.
+
+   Built by build/bundle-js.sh from src/Sedna.UI/chart-parts/. Edit the part
+   that owns the behaviour and re-run that script; a guard test fails the build
+   if this file and the parts disagree. Adding a part needs no change here —
+   the directory is the source of truth.
+
+   Contents, in load order:
+     10-model.js
+     20-scale.js
+     30-svg.js
+     40-axes.js
+     41-marks.js
+     50-active.js
+     51-tip.js
+     52-keyboard.js
+     60-chart.js
+     99-exports.js
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 10-model.js ──────────────────────────────────────────────── */
+/* ── The model: the app's table, or its JSON, read into one shape ────────────────
+   A chart's data is the app's markup. The table is the data and the text alternative
+   at once — visually hidden, read by a screen reader, readable with scripting off:
+
+     <table class="chart-data" data-chart-data>
+       <thead><tr><th>Month</th><th data-tone="1">2026</th><th data-tone="6">2025</th></tr></thead>
+       <tbody>
+         <tr><th>Jan</th><td>1 240</td><td data-value="1100">1,100</td></tr>
+       </tbody>
+     </table>
+
+   The header row names the series, one column each, after the first; each body row is
+   one category — its `<th>` the label, each cell a value. A cell's number is its
+   `data-value`, else its text read as a plain number (`1240`, `-3.5`; spaces dropped).
+   Its text is what the tooltip and the announcement say, so it is written the way the
+   app writes a number. An empty cell, or one that is no number, is a gap.
+
+   For a long series the app writes JSON instead, in `data-chart-json` on the chart's
+   element — an attribute, so a Blazor component binds it and a render redraws — or
+   hands the handle `set(data)`:
+
+     data-chart-json='{ "categories": ["Jan", "Feb"],
+       "series": [{ "name": "2026", "tone": "1", "values": [1240, 1310] }] }'
+
+   Every shape lands here as { categories: [{ label, x, tone }], series: [{ name, tone,
+   shape, values: [{ v, text }] }] }.
+   ─────────────────────────────────────────────────────────────────────────── */
+const TYPES = ['line', 'area', 'column', 'bar', 'pie', 'donut', 'scatter'];
+const TONES = new Set(['1', '2', '3', '4', '5', '6', 'go', 'warn', 'danger', 'info', 'muted']);
+
+/* A marker shape per series, so a series is told apart by its shape as well as its
+   colour — the second channel the closest series colours need. In this order, so a
+   legend swatch can name the same shape: `.chart-swatch--square` is series two's. */
+const SHAPES = ['circle', 'square', 'diamond', 'triangle', 'triangle-down', 'cross'];
+
+const warned = new Set();
+function warnOnce(key, message) {
+    if (warned.has(key)) return;
+    warned.add(key);
+    try { console.warn('Sedna.UI chart: ' + message); } catch (e) { /* ignore */ }
+}
+
+function text(value) {
+    if (value === undefined || value === null) return '';
+    return String(value).trim();
+}
+
+function toneOf(value, fallback) {
+    const s = text(value);
+    if (!s) return fallback;
+    if (TONES.has(s)) return s;
+    warnOnce('tone:' + s, `"${s}" is not a series tone. Use 1–6, go, warn, danger, info or muted.`);
+    return fallback;
+}
+
+function shapeOf(value, index) {
+    const s = text(value);
+    if (s && SHAPES.includes(s)) return s;
+    if (s) warnOnce('shape:' + s, `"${s}" is not a marker shape. Use ${SHAPES.join(', ')}.`);
+    return SHAPES[index % SHAPES.length];
+}
+
+/* A plain number from a cell or an attribute: digits, one point, a sign. Spaces of any
+   width are dropped, so `1 240` reads; a comma is not guessed at, because it is a
+   decimal point in half the world — such a cell carries `data-value`. */
+function plainNumber(value) {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+    const s = text(value).replace(/[\s  ]/g, '').replace(/^−/, '-');
+    if (!s || !/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s)) return null;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : null;
+}
+
+function cellNumber(cell) {
+    return plainNumber(cell.hasAttribute('data-value') ? cell.getAttribute('data-value') : cell.textContent);
+}
+
+function fromTable(table) {
+    const head = table.tHead && table.tHead.rows.length ? table.tHead.rows[0] : table.rows[0];
+    if (!head) return { categories: [], series: [] };
+    const series = Array.from(head.cells).slice(1).map((th, i) => ({
+        name: text(th.textContent),
+        tone: toneOf(th.getAttribute('data-tone'), String((i % 6) + 1)),
+        shape: shapeOf(th.getAttribute('data-shape'), i),
+        values: [],
+    }));
+    const rows = [];
+    for (const body of Array.from(table.tBodies)) rows.push(...Array.from(body.rows));
+    const categories = [];
+    for (const row of rows) {
+        if (row === head || !row.cells.length) continue;
+        const cells = Array.from(row.cells);
+        categories.push({
+            label: text(cells[0].textContent),
+            x: cellNumber(cells[0]),
+            tone: row.hasAttribute('data-tone') ? toneOf(row.getAttribute('data-tone'), null) : null,
+        });
+        series.forEach((s, i) => {
+            const cell = cells[i + 1];
+            s.values.push(cell ? { v: cellNumber(cell), text: text(cell.textContent) } : { v: null, text: '' });
+        });
+    }
+    return { categories, series };
+}
+
+/* The JSON shape, and what `set(data)` takes. A category is a label or { label, x,
+   tone }; a value is a number, null, or { value, text }. */
+function fromObject(data, format) {
+    if (!data || typeof data !== 'object') return { categories: [], series: [] };
+    const categories = (Array.isArray(data.categories) ? data.categories : []).map(c =>
+        c !== null && typeof c === 'object'
+            ? { label: text(c.label), x: plainNumber(c.x ?? c.label), tone: c.tone ? toneOf(c.tone, null) : null }
+            : { label: text(c), x: plainNumber(c), tone: null });
+    const series = (Array.isArray(data.series) ? data.series : []).map((s, i) => ({
+        name: text(s && s.name),
+        tone: toneOf(s && s.tone, String((i % 6) + 1)),
+        shape: shapeOf(s && s.shape, i),
+        values: categories.map((_, j) => {
+            const raw = s && Array.isArray(s.values) ? s.values[j] : null;
+            const v = raw !== null && typeof raw === 'object' ? plainNumber(raw.value) : plainNumber(raw);
+            const said = raw !== null && typeof raw === 'object' && raw.text !== undefined ? text(raw.text) : '';
+            return { v, text: said || (v === null ? '' : format.value(v)) };
+        }),
+    }));
+    return { categories, series };
+}
+
+function readJson(raw) {
+    try {
+        return JSON.parse(raw || 'null');
+    } catch (e) {
+        warnOnce('json', 'data-chart-json is not valid JSON.');
+        return null;
+    }
+}
+
+/* Where a chart's data is: an app's call, else its JSON, else its table. */
+function readData(c) {
+    if (c.given) return fromObject(c.given, c.format);
+    if (c.el.hasAttribute('data-chart-json')) return fromObject(readJson(c.el.getAttribute('data-chart-json')), c.format);
+    const table = c.el.querySelector('table[data-chart-data]');
+    return table ? fromTable(table) : { categories: [], series: [] };
+}
+
+function typeOf(el) {
+    const t = text(el.getAttribute('data-chart')) || 'line';
+    if (TYPES.includes(t)) return t;
+    warnOnce('type:' + t, `"${t}" is not a chart type. Use ${TYPES.join(', ')}.`);
+    return 'line';
+}
+
+/* ── 20-scale.js ──────────────────────────────────────────────── */
+/* ── Numbers and scales ───────────────────────────────────────────────────────
+   The one thing the chart writes that the app did not is the numbers on an axis —
+   a tick is no value in the data. They are written in the page's language, through
+   `Intl.NumberFormat`, with the options the app names in `data-chart-format` as JSON:
+
+     data-chart-format='{"notation":"compact"}'
+     data-chart-format='{"style":"currency","currency":"EUR","maximumFractionDigits":0}'
+     data-chart-format='{"style":"percent"}'
+
+   A value in the data is said in the app's own words — the cell's text — and the
+   format only writes one the app gave as a bare number, in JSON or a call.
+
+   The value axis runs over nice steps (1, 2, 2.5, 5 × 10ⁿ), as many as there is room
+   for, and takes in zero unless `data-chart-min` says otherwise: a bar that does not
+   start at zero misstates its value. `data-chart-min` and `data-chart-max` fix either
+   end; `data-chart-min="auto"` lets a line or a scatter start near its lowest value.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+function languageOf(el) {
+    const holder = el.closest('[lang]');
+    return (holder && holder.getAttribute('lang')) || document.documentElement.lang || undefined;
+}
+
+function formatter(el) {
+    const lang = languageOf(el);
+    let options = {};
+    const raw = el.getAttribute('data-chart-format');
+    if (raw) {
+        try {
+            options = JSON.parse(raw) || {};
+        } catch (e) {
+            warnOnce('format:' + raw, 'data-chart-format is not JSON. Write the Intl.NumberFormat options, e.g. {"notation":"compact"}.');
+        }
+    }
+    let full, percent;
+    try {
+        full = new Intl.NumberFormat(lang, options);
+    } catch (e) {
+        warnOnce('format-options:' + raw, 'data-chart-format names options Intl.NumberFormat refuses.');
+        full = new Intl.NumberFormat(lang);
+    }
+    try { percent = new Intl.NumberFormat(lang, { style: 'percent', maximumFractionDigits: 1 }); }
+    catch (e) { percent = new Intl.NumberFormat(undefined, { style: 'percent' }); }
+    // A tick needs no more digits than its step has, and no trailing zeros.
+    const ticks = new Map();
+    return {
+        lang,
+        value: v => full.format(v),
+        percent: v => percent.format(v),
+        /* Every tick of an axis, with as many digits as it takes for no two to read
+           alike — a compact `2K` beside `2K` says nothing. */
+        ticksOf(axis) {
+            let out = [];
+            for (let extra = 0; extra <= 3; extra++) {
+                out = axis.ticks.map(t => this.tick(t, axis.step, extra));
+                if (new Set(out).size === out.length) break;
+            }
+            return out;
+        },
+        tick(v, step, extra = 0) {
+            const decimals = (String(clean(Math.abs(step))).split('.')[1] || '').length;
+            // A percentage is a hundred times the number, so it needs two digits fewer.
+            const digits = Math.max(0, Math.min(6, decimals + extra - (options.style === 'percent' ? 2 : 0)));
+            const key = digits;
+            if (!ticks.has(key)) {
+                const o = Object.assign({}, options, { maximumFractionDigits: digits });
+                o.minimumFractionDigits = Math.min(o.minimumFractionDigits ?? 0, digits);
+                delete o.maximumSignificantDigits;
+                delete o.minimumSignificantDigits;
+                let f;
+                try { f = new Intl.NumberFormat(lang, o); } catch (e) { f = full; }
+                ticks.set(key, f);
+            }
+            return ticks.get(key).format(v);
+        },
+    };
+}
+
+const clean = v => +v.toFixed(10);
+
+function niceStep(span, count) {
+    const raw = span / Math.max(1, count);
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const f = raw / mag;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag;
+}
+
+/* Ticks from lo to hi, about `count` of them, widened to whole steps. */
+function niceAxis(lo, hi, count, fixed) {
+    if (!Number.isFinite(lo) || !Number.isFinite(hi)) { lo = 0; hi = 1; }
+    if (lo === hi) {
+        if (lo === 0) hi = 1;
+        else if (lo > 0) lo = fixed.min ?? 0;
+        else hi = fixed.max ?? 0;
+        if (lo === hi) { lo -= 1; hi += 1; }
+    }
+    const step = niceStep(hi - lo, count);
+    const a = fixed.min ?? clean(Math.floor(lo / step + 1e-9) * step);
+    const b = fixed.max ?? clean(Math.ceil(hi / step - 1e-9) * step);
+    const ticks = [];
+    const first = clean(Math.ceil(a / step - 1e-9) * step);
+    for (let t = first; t <= b + step * 1e-6; t = clean(t + step)) ticks.push(t);
+    return { lo: a, hi: b > a ? b : a + step, step, ticks };
+}
+
+function attrNumber(el, name) {
+    const raw = el.getAttribute(name);
+    return raw === null || raw === 'auto' ? null : plainNumber(raw);
+}
+
+/* A linear scale from data to pixels. */
+function linear(lo, hi, from, to) {
+    const span = hi - lo || 1;
+    const f = v => from + ((v - lo) / span) * (to - from);
+    f.lo = lo; f.hi = hi; f.from = from; f.to = to;
+    return f;
+}
+
+/* ── 30-svg.js ──────────────────────────────────────────────── */
+/* ── Drawing in SVG ───────────────────────────────────────────────────────────
+   The chart is SVG elements in the page, so its colour is CSS: every mark carries
+   the `.series-*` class of its tone, and `54-chart.css` paints it `currentColor`.
+   The browser resolves the token through every layer of the theme — the variant,
+   colour vision, contrast, forced colours, the app's brand — exactly as it does for a
+   legend swatch wearing the same class, and repaints it the moment any of them
+   changes. The class is the probe; nothing here reads or names a colour.
+
+   Every element is made with `createElementNS` and every word goes in as
+   `textContent` — a category label and a tick are data, never markup.
+   ─────────────────────────────────────────────────────────────────────────── */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function node(tag, attrs, parent) {
+    const e = document.createElementNS(SVG_NS, tag);
+    if (attrs) for (const k in attrs) if (attrs[k] !== null && attrs[k] !== undefined) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+}
+
+function label(parent, x, y, words, cls, anchor, baseline) {
+    const t = node('text', { x: round(x), y: round(y), class: cls, 'text-anchor': anchor || 'middle', 'dominant-baseline': baseline || 'auto' }, parent);
+    t.textContent = words;
+    return t;
+}
+
+const round = v => Math.round(v * 10) / 10;
+
+function toneClass(tone) {
+    return 'series-' + (tone || '1');
+}
+
+/* A series' marker, centred on (x, y), about `r` across its middle. */
+function markerPath(shape, x, y, r) {
+    const p = (...pts) => 'M' + pts.map(([px, py]) => `${round(px)} ${round(py)}`).join(' L') + ' Z';
+    switch (shape) {
+        case 'square': {
+            const s = r * 0.88;
+            return p([x - s, y - s], [x + s, y - s], [x + s, y + s], [x - s, y + s]);
+        }
+        case 'diamond': {
+            const s = r * 1.25;
+            return p([x, y - s], [x + s, y], [x, y + s], [x - s, y]);
+        }
+        case 'triangle':
+            return p([x, y - r * 1.2], [x + r * 1.15, y + r * 0.8], [x - r * 1.15, y + r * 0.8]);
+        case 'triangle-down':
+            return p([x, y + r * 1.2], [x + r * 1.15, y - r * 0.8], [x - r * 1.15, y - r * 0.8]);
+        case 'cross': {
+            const a = r * 1.1, w = r * 0.42;
+            return p([x - w, y - a], [x + w, y - a], [x + w, y - w], [x + a, y - w], [x + a, y + w], [x + w, y + w],
+                [x + w, y + a], [x - w, y + a], [x - w, y + w], [x - a, y + w], [x - a, y - w], [x - w, y - w]);
+        }
+        default: {
+            // A circle as a path, so every marker is one kind of element.
+            return `M${round(x - r)} ${round(y)} a${round(r)} ${round(r)} 0 1 0 ${round(2 * r)} 0 a${round(r)} ${round(r)} 0 1 0 ${round(-2 * r)} 0 Z`;
+        }
+    }
+}
+
+/* Text widths, measured in the chart's own font without putting anything on screen. */
+let measurer = null;
+function measure(svg) {
+    if (!measurer) measurer = document.createElement('canvas').getContext('2d');
+    const style = getComputedStyle(svg);
+    measurer.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    const size = parseFloat(style.fontSize) || 12;
+    return { size, width: words => measurer.measureText(words).width };
+}
+
+/* A label longer than `room` is cut, and ends in an ellipsis; the whole of it is in
+   the table, the tooltip and the announcement. */
+function fit(words, room, width) {
+    if (width(words) <= room) return words;
+    let lo = 0, hi = words.length;
+    while (lo < hi) {
+        const mid = (lo + hi + 1) >> 1;
+        if (width(words.slice(0, mid) + '…') <= room) lo = mid; else hi = mid - 1;
+    }
+    return lo > 0 ? words.slice(0, lo).trimEnd() + '…' : '';
+}
+
+/* ── 40-axes.js ──────────────────────────────────────────────── */
+/* ── Axes ─────────────────────────────────────────────────────────────────────
+   Every chart but a pie sits on two axes: one of categories (or, for a scatter, of
+   numbers) and one of values. A column, a line and an area run their categories
+   across, a bar runs them down. The value axis's numbers sit at the start of the
+   line, its gridlines run across the plot, and zero gets a stronger line of its own.
+
+   Right to left, the categories run from the right and the value axis's numbers sit on
+   the right — the first category is where a reader of that language starts. A bar
+   grows from the right. The value axis itself still rises upwards: up is more in every
+   script.
+
+   Labels are thinned to every second, third… when they would collide, and cut with an
+   ellipsis when a single one has no room; every one is whole in the table.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Visible series, with their index in the data, in order. */
+function shownSeries(c) {
+    const out = [];
+    c.data.series.forEach((s, i) => { if (!c.hidden.has(s.name)) out.push({ s, i }); });
+    return out;
+}
+
+/* The lowest and highest the value axis has to show. */
+function valueExtent(c, shown, stacked) {
+    let lo = Infinity, hi = -Infinity;
+    const n = c.data.categories.length;
+    if (stacked) {
+        for (let j = 0; j < n; j++) {
+            let up = 0, down = 0;
+            for (const { s } of shown) {
+                const v = s.values[j] && s.values[j].v;
+                if (v === null || v === undefined) continue;
+                if (v >= 0) up += v; else down += v;
+            }
+            lo = Math.min(lo, down);
+            hi = Math.max(hi, up);
+        }
+    } else {
+        for (const { s } of shown) for (const p of s.values) {
+            if (p.v === null) continue;
+            lo = Math.min(lo, p.v);
+            hi = Math.max(hi, p.v);
+        }
+    }
+    if (lo === Infinity) { lo = 0; hi = 0; }
+    return { lo, hi };
+}
+
+/* Where everything goes: the plot's rectangle, the value scale and the category
+   positions, worked out from the room there is and the width of the labels. */
+function layoutCartesian(c, shown, stacked) {
+    const { w, h } = c.size;
+    const m = c.measure;
+    const fs = m.size;
+    const across = c.type !== 'bar';
+    const scatter = c.type === 'scatter';
+    const cats = c.data.categories;
+    const n = cats.length;
+
+    const fixed = { min: attrNumber(c.el, 'data-chart-min'), max: attrNumber(c.el, 'data-chart-max') };
+    const auto = c.el.getAttribute('data-chart-min') === 'auto' && (c.type === 'line' || scatter);
+    let { lo, hi } = valueExtent(c, shown, stacked);
+    if (!auto && fixed.min === null) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    if (fixed.min !== null) lo = Math.min(fixed.min, hi);
+    if (fixed.max !== null) hi = Math.max(fixed.max, lo);
+
+    const pad = 8;
+    const top = Math.ceil(fs * 0.6) + 2;
+    const catWidths = cats.map(cat => m.width(cat.label));
+    const widest = catWidths.length ? Math.max(...catWidths) : 0;
+
+    let plot, values, catAt, band, xAxis = null;
+    if (across) {
+        const bottom = fs + 12;
+        const plotH = Math.max(10, h - top - bottom);
+        const axis = niceAxis(lo, hi, Math.max(2, Math.floor(plotH / (fs * 3.2))), fixed);
+        const tickText = c.format.ticksOf(axis);
+        const gutter = Math.ceil(Math.max(0, ...tickText.map(m.width))) + 10;
+        const startPad = gutter;
+        let endPad = pad;
+        // A scatter's last number, or a line's last category, needs half its width past the plot.
+        if (scatter || c.type === 'line' || c.type === 'area') endPad = Math.max(pad, Math.ceil((scatter ? 0 : Math.min(widest, 120)) / 2));
+        const x0 = c.rtl ? endPad : startPad;
+        const x1 = w - (c.rtl ? startPad : endPad);
+        plot = { x0, x1, y0: top, y1: top + plotH };
+        values = linear(axis.lo, axis.hi, plot.y1, plot.y0);
+        values.axis = axis;
+        values.text = tickText;
+        const span = x1 - x0;
+        if (scatter) {
+            const xs = cats.map(cat => cat.x).filter(x => x !== null);
+            const xAxisTicks = niceAxis(Math.min(...xs, Infinity) === Infinity ? 0 : Math.min(...xs),
+                xs.length ? Math.max(...xs) : 1, Math.max(2, Math.floor(span / 90)), {});
+            const sx = c.rtl ? linear(xAxisTicks.lo, xAxisTicks.hi, x1, x0) : linear(xAxisTicks.lo, xAxisTicks.hi, x0, x1);
+            xAxis = { scale: sx, axis: xAxisTicks, text: c.format.ticksOf(xAxisTicks) };
+            catAt = j => (cats[j].x === null ? null : sx(cats[j].x));
+            band = 0;
+        } else if (c.type === 'column') {
+            band = span / Math.max(1, n);
+            catAt = j => (c.rtl ? x1 - (j + 0.5) * band : x0 + (j + 0.5) * band);
+        } else {
+            band = span / Math.max(1, n);
+            const inset = n > 1 ? Math.min(band / 2, Math.max(pad, Math.min(widest, 120) / 2)) : span / 2;
+            const step = n > 1 ? (span - 2 * inset) / (n - 1) : 0;
+            catAt = j => (c.rtl ? x1 - inset - j * step : x0 + inset + j * step);
+        }
+    } else {
+        const bottom = fs + 12;
+        const labelRoom = Math.min(Math.ceil(widest), Math.floor(w * 0.35)) + 10;
+        const x0 = c.rtl ? pad : labelRoom;
+        const x1 = w - (c.rtl ? labelRoom : pad);
+        // The number at the far end needs half its width inside the box.
+        const axisGuess = niceAxis(lo, hi, Math.max(2, Math.floor((x1 - x0) / 80)), fixed);
+        const tickText = c.format.ticksOf(axisGuess);
+        const half = Math.ceil(Math.max(0, ...tickText.map(m.width)) / 2);
+        plot = { x0: c.rtl ? x0 + half : x0, x1: c.rtl ? x1 : x1 - half, y0: pad, y1: h - bottom };
+        values = c.rtl ? linear(axisGuess.lo, axisGuess.hi, plot.x1, plot.x0) : linear(axisGuess.lo, axisGuess.hi, plot.x0, plot.x1);
+        values.axis = axisGuess;
+        values.text = tickText;
+        values.labelRoom = labelRoom;
+        band = (plot.y1 - plot.y0) / Math.max(1, n);
+        catAt = j => plot.y0 + (j + 0.5) * band;
+    }
+    return { plot, values, catAt, band, across, xAxis, catWidths };
+}
+
+function drawAxes(c, g, L) {
+    const { plot, values, across, xAxis } = L;
+    const m = c.measure;
+    const fs = m.size;
+    const grid = node('g', { class: 'chart-grid' }, g);
+    const ticks = node('g', { class: 'chart-ticks' }, g);
+    const axisLine = (x1, y1, x2, y2) => node('line', { x1: round(x1), y1: round(y1), x2: round(x2), y2: round(y2), class: 'chart-axis' }, g);
+
+    values.axis.ticks.forEach((t, k) => {
+        const p = round(values(t));
+        if (across) {
+            node('line', { x1: plot.x0, x2: plot.x1, y1: p, y2: p }, grid);
+            label(ticks, c.rtl ? plot.x1 + 8 : plot.x0 - 8, p, values.text[k], 'chart-tick', c.rtl ? 'start' : 'end', 'central');
+        } else {
+            node('line', { x1: p, x2: p, y1: plot.y0, y2: plot.y1 }, grid);
+            label(ticks, p, plot.y1 + fs + 4, values.text[k], 'chart-tick', 'middle');
+        }
+    });
+
+    // Zero, where the values cross it; else the axis the values stand on.
+    const zero = values.axis.lo <= 0 && values.axis.hi >= 0 ? 0 : values.axis.lo;
+    const z = values(zero);
+    if (across) axisLine(plot.x0, z, plot.x1, z);
+    else axisLine(z, plot.y0, z, plot.y1);
+
+    if (xAxis) {
+        xAxis.axis.ticks.forEach((t, k) => {
+            const p = round(xAxis.scale(t));
+            node('line', { x1: p, x2: p, y1: plot.y0, y2: plot.y1 }, grid);
+            label(ticks, p, plot.y1 + fs + 4, xAxis.text[k], 'chart-tick', 'middle');
+        });
+        return;
+    }
+
+    const cats = c.data.categories;
+    const n = cats.length;
+    if (!n) return;
+    if (across) {
+        const spacing = n > 1 ? Math.abs(L.catAt(1) - L.catAt(0)) : plot.x1 - plot.x0;
+        const widest = Math.max(...L.catWidths);
+        const every = Math.max(1, Math.ceil((widest + 12) / Math.max(1, spacing)));
+        const room = Math.max(24, every * spacing - 8);
+        for (let j = 0; j < n; j += every) {
+            let anchor = 'middle';
+            const x = L.catAt(j);
+            // The first and the last label of a line keep inside the box.
+            if (c.type !== 'column') {
+                const halfW = Math.min(L.catWidths[j], room) / 2;
+                if (x - halfW < 0) anchor = 'start';
+                else if (x + halfW > c.size.w) anchor = 'end';
+            }
+            label(ticks, anchor === 'start' ? 0 : anchor === 'end' ? c.size.w : x, plot.y1 + fs + 4,
+                fit(cats[j].label, room, m.width), 'chart-tick chart-category', anchor);
+        }
+    } else {
+        const every = Math.max(1, Math.ceil((fs + 4) / Math.max(1, L.band)));
+        const room = values.labelRoom - 10;
+        for (let j = 0; j < n; j += every) {
+            label(ticks, c.rtl ? plot.x1 + 8 : plot.x0 - 8, L.catAt(j), fit(cats[j].label, room, m.width),
+                'chart-tick chart-category', c.rtl ? 'start' : 'end', 'central');
+        }
+    }
+}
+
+/* ── 41-marks.js ──────────────────────────────────────────────── */
+/* ── Marks ────────────────────────────────────────────────────────────────────
+   What each type draws, and the points the reader moves between. Every point is
+   recorded in `c.points` — its series, its category, where it is on the plot and the
+   box it fills — so the pointer, the keyboard and the tooltip all read one list.
+
+     line      a line per series, with a marker at every value; a gap where a value is missing
+     area      a line per series over its filled area; stacked with data-chart-stack
+     column    a bar per value, side by side in its category; stacked with data-chart-stack
+     bar       the same, lying down: categories run down the side
+     scatter   a marker per value, at the category's own number across and the value up
+     pie       one series, a slice per category; donut is the same with a hole
+
+   A single series in a column or a bar chart may colour a category on its own:
+   `data-tone` on the row.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* A marker on every value while there is room for it; past this many in a series,
+   only the point the reader is on is marked. */
+const MARKERS_UP_TO = 60;
+
+function drawCartesian(c, g) {
+    const shown = shownSeries(c);
+    const stacked = c.el.hasAttribute('data-chart-stack') && (c.type === 'column' || c.type === 'bar' || c.type === 'area');
+    const L = layoutCartesian(c, shown, stacked);
+    c.layout = L;
+    drawAxes(c, g, L);
+    const marks = node('g', { class: 'chart-marks' }, g);
+    const cats = c.data.categories;
+    const n = cats.length;
+    const v = L.values;
+
+    if (c.type === 'column' || c.type === 'bar') {
+        const across = L.across;
+        const width = L.band * (stacked || shown.length < 2 ? 0.62 : 0.78);
+        const each = stacked ? width : width / Math.max(1, shown.length);
+        for (let j = 0; j < n; j++) {
+            let up = 0, down = 0;
+            shown.forEach(({ s, i }, k) => {
+                const value = s.values[j] && s.values[j].v;
+                if (value === null || value === undefined) return;
+                let from, to;
+                if (stacked) {
+                    from = value >= 0 ? up : down;
+                    to = from + value;
+                    if (value >= 0) up = to; else down = to;
+                } else {
+                    from = Math.max(v.axis.lo, Math.min(0, v.axis.hi));
+                    to = value;
+                }
+                const a = v(from), b = v(to);
+                const centre = L.catAt(j);
+                const offset = stacked ? 0 : (k - (shown.length - 1) / 2) * each * (across && c.rtl ? -1 : 1);
+                const mid = centre + offset;
+                const gap = each > 6 && !stacked ? 1 : 0;
+                const box = across
+                    ? { x: mid - each / 2 + gap, y: Math.min(a, b), w: Math.max(1, each - 2 * gap), h: Math.max(0.5, Math.abs(b - a)) }
+                    : { x: Math.min(a, b), y: mid - each / 2 + gap, w: Math.max(0.5, Math.abs(b - a)), h: Math.max(1, each - 2 * gap) };
+                const tone = shown.length === 1 && cats[j].tone ? cats[j].tone : s.tone;
+                node('rect', {
+                    x: round(box.x), y: round(box.y), width: round(box.w), height: round(box.h),
+                    rx: Math.min(2, box.w / 2, box.h / 2) > 0 ? round(Math.min(2, box.w / 2, box.h / 2)) : null,
+                    class: 'chart-mark chart-bar ' + toneClass(tone),
+                }, marks);
+                const tip = across ? { x: mid, y: value >= 0 ? box.y : box.y + box.h } : { x: (value >= 0) === !c.rtl ? box.x + box.w : box.x, y: mid };
+                c.points.push({ s: i, i: j, x: tip.x, y: tip.y, box, tone, shape: s.shape });
+            });
+        }
+        return;
+    }
+
+    // Lines, areas, scatter: a point per value.
+    const lowest = v(Math.max(v.axis.lo, Math.min(0, v.axis.hi)));
+    const running = new Array(n).fill(0);
+    const areas = node('g', { class: 'chart-areas' }, marks);
+    const lines = node('g', { class: 'chart-lines' }, marks);
+    const dots = node('g', { class: 'chart-markers' }, marks);
+    for (const { s, i } of shown) {
+        const pts = [];
+        for (let j = 0; j < n; j++) {
+            let value = s.values[j] && s.values[j].v;
+            const x = L.catAt(j);
+            // A stack has no gap: a missing value adds nothing to the layer below.
+            if ((value === null || value === undefined) && stacked) value = 0;
+            if (value === null || value === undefined || x === null) { pts.push(null); continue; }
+            const before = stacked ? running[j] : null;
+            const total = stacked ? before + value : value;
+            if (stacked) running[j] = total;
+            const p = { s: i, i: j, x, y: v(total), floor: stacked ? v(before) : lowest, tone: s.tone, shape: s.shape };
+            pts.push(p);
+            c.points.push(p);
+        }
+        if (c.type !== 'scatter') {
+            // A path of runs; a missing value breaks the line rather than inventing one.
+            let d = '', area = '', run = [];
+            const flush = () => {
+                if (!run.length) return;
+                d += 'M' + run.map(p => `${round(p.x)} ${round(p.y)}`).join(' L');
+                if (c.type === 'area') {
+                    area += 'M' + run.map(p => `${round(p.x)} ${round(p.y)}`).join(' L')
+                        + ' L' + run.slice().reverse().map(p => `${round(p.x)} ${round(p.floor)}`).join(' L') + ' Z';
+                }
+                run = [];
+            };
+            for (const p of pts) { if (p) run.push(p); else flush(); }
+            flush();
+            if (area) node('path', { d: area, class: 'chart-mark chart-area ' + toneClass(s.tone) }, areas);
+            if (d) node('path', { d, class: 'chart-mark chart-line ' + toneClass(s.tone) }, lines);
+        }
+        const count = pts.filter(Boolean).length;
+        const markers = c.type === 'scatter' || (c.type === 'line' && count <= MARKERS_UP_TO) || (c.type === 'area' && count <= 24 && !stacked);
+        if (markers) {
+            const r = c.type === 'scatter' ? 4.5 : 3.5;
+            for (const p of pts) {
+                if (!p) continue;
+                node('path', { d: markerPath(s.shape, p.x, p.y, r), class: 'chart-mark chart-marker ' + toneClass(s.tone) }, dots);
+            }
+        }
+    }
+}
+
+function drawPie(c, g) {
+    const series = shownSeries(c)[0] || (c.data.series[0] ? { s: c.data.series[0], i: 0 } : null);
+    c.layout = null;
+    if (!series) return;
+    const { w, h } = c.size;
+    const r = Math.max(4, Math.min(w, h) / 2 - 6);
+    const r0 = c.type === 'donut' ? r * 0.62 : 0;
+    const cx = w / 2, cy = h / 2;
+    const cats = c.data.categories;
+    const slices = [];
+    let total = 0;
+    cats.forEach((cat, j) => {
+        if (c.hidden.has(cat.label)) return;
+        const value = series.s.values[j] && series.s.values[j].v;
+        if (value === null || value === undefined || value <= 0) return;
+        slices.push({ j, value, tone: cat.tone || String((j % 6) + 1) });
+        total += value;
+    });
+    c.pie = { cx, cy, r, r0, total };
+    const marks = node('g', { class: 'chart-marks' }, g);
+    let angle = -Math.PI / 2;
+    for (const slice of slices) {
+        const sweep = (slice.value / total) * Math.PI * 2;
+        const a0 = angle, a1 = angle + sweep;
+        angle = a1;
+        node('path', { d: slicePath(cx, cy, r0, r, a0, a1), class: 'chart-mark chart-slice ' + toneClass(slice.tone) }, marks);
+        const mid = (a0 + a1) / 2;
+        const at = r0 ? (r0 + r) / 2 : r * 0.62;
+        c.points.push({
+            s: series.i, i: slice.j, x: cx + Math.cos(mid) * at, y: cy + Math.sin(mid) * at,
+            slice: { a0, a1, r0, r }, tone: slice.tone, shape: series.s.shape, share: slice.value / total,
+        });
+    }
+}
+
+function slicePath(cx, cy, r0, r, a0, a1) {
+    const pt = (rad, a) => `${round(cx + Math.cos(a) * rad)} ${round(cy + Math.sin(a) * rad)}`;
+    if (a1 - a0 >= Math.PI * 2 - 1e-6) {
+        // The whole circle: two half arcs, since one arc cannot end where it starts.
+        const mid = a0 + Math.PI;
+        const outer = `M${pt(r, a0)} A${round(r)} ${round(r)} 0 1 1 ${pt(r, mid)} A${round(r)} ${round(r)} 0 1 1 ${pt(r, a0)} Z`;
+        if (!r0) return outer;
+        return outer + ` M${pt(r0, a0)} A${round(r0)} ${round(r0)} 0 1 0 ${pt(r0, mid)} A${round(r0)} ${round(r0)} 0 1 0 ${pt(r0, a0)} Z`;
+    }
+    const large = a1 - a0 > Math.PI ? 1 : 0;
+    if (!r0) return `M${round(cx)} ${round(cy)} L${pt(r, a0)} A${round(r)} ${round(r)} 0 ${large} 1 ${pt(r, a1)} Z`;
+    return `M${pt(r, a0)} A${round(r)} ${round(r)} 0 ${large} 1 ${pt(r, a1)} L${pt(r0, a1)} A${round(r0)} ${round(r0)} 0 ${large} 0 ${pt(r0, a0)} Z`;
+}
+
+/* ── 50-active.js ──────────────────────────────────────────────── */
+/* ── The point the reader is on ───────────────────────────────────────────────
+   One point at a time is active: the one under the pointer, or the one the keyboard
+   moved to. It is ringed, its category is marked — a guide line through a line or an
+   area, a band behind a column or a bar — and the tooltip says what it is. The ring is
+   drawn in a layer of its own, so moving it never redraws the chart.
+
+   `fields` is everything the app's words can name, for the tooltip's slots and the
+   announcements alike:
+
+     {series}    the series' name, its column heading
+     {category}  the category's label, its row heading
+     {value}     the value as the app wrote it — the cell's text
+     {number}    the bare number
+     {percent}   its share of the category's total — of the whole, in a pie
+     {total}     the category's total, in the format
+     {index}     which category, from 1;  {count}  how many there are
+   ─────────────────────────────────────────────────────────────────────────── */
+
+function fields(c, p) {
+    const s = c.data.series[p.s];
+    const cat = c.data.categories[p.i];
+    const cell = s && s.values[p.i];
+    const v = cell ? cell.v : null;
+    let total = 0;
+    if (c.pie) total = c.pie.total;
+    else for (const { s: other } of shownSeries(c)) {
+        const o = other.values[p.i] && other.values[p.i].v;
+        if (o !== null && o !== undefined) total += o;
+    }
+    const share = p.share ?? (total ? v / total : null);
+    return {
+        series: s ? s.name : '',
+        category: cat ? cat.label : '',
+        value: cell ? cell.text || (v === null ? '' : c.format.value(v)) : '',
+        number: v === null ? '' : String(v),
+        percent: share === null || !Number.isFinite(share) ? '' : c.format.percent(share),
+        total: c.format.value(total),
+        index: String(p.i + 1),
+        count: String(c.data.categories.length),
+    };
+}
+
+function fillTemplate(template, f) {
+    return template.replace(/\{([a-z]+)\}/g, (_, name) => (f[name] ?? ''))
+        .replace(/\s+([,.;:])/g, '$1')
+        .replace(/([,.;:])(?=[,.;:])/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+}
+
+function samePoint(a, b) {
+    return !!a && !!b && a.s === b.s && a.i === b.i;
+}
+
+/* The point under the pointer, by what is drawn there. */
+function pick(c, x, y) {
+    const pts = c.points;
+    if (!pts.length) return null;
+    if (c.pie) {
+        const { cx, cy, r, r0 } = c.pie;
+        const d = Math.hypot(x - cx, y - cy);
+        if (d > r + 4 || d < r0 - 2) return null;
+        let a = Math.atan2(y - cy, x - cx);
+        if (a < -Math.PI / 2) a += Math.PI * 2;
+        return pts.find(p => a >= p.slice.a0 && a < p.slice.a1) || null;
+    }
+    const L = c.layout;
+    if (!L) return null;
+    const { plot } = L;
+    if (x < plot.x0 - 24 || x > plot.x1 + 24 || y < plot.y0 - 24 || y > plot.y1 + 24) return null;
+    if (c.type === 'scatter') {
+        let best = null, bestD = 32;
+        for (const p of pts) {
+            const d = Math.hypot(p.x - x, p.y - y);
+            if (d < bestD) { bestD = d; best = p; }
+        }
+        return best;
+    }
+    if (c.type === 'column' || c.type === 'bar') {
+        const hit = pts.find(p => x >= p.box.x - 1 && x <= p.box.x + p.box.w + 1 && y >= p.box.y - 1 && y <= p.box.y + p.box.h + 1);
+        if (hit) return hit;
+    }
+    // The nearest category along the axis, then the nearest of its points across it.
+    const along = L.across ? x : y;
+    let j = -1, jd = Infinity;
+    for (const p of pts) {
+        const d = Math.abs((L.across ? p.x : p.y) - along);
+        const centre = Math.abs(L.catAt(p.i) - along);
+        const dd = c.type === 'column' || c.type === 'bar' ? centre : d;
+        if (dd < jd) { jd = dd; j = p.i; }
+    }
+    if (j < 0 || jd > Math.max(L.band, 24)) return null;
+    let best = null, bestD = Infinity;
+    for (const p of pts) {
+        if (p.i !== j) continue;
+        const d = L.across ? Math.abs((p.box ? p.box.y + p.box.h / 2 : p.y) - y) : Math.abs((p.box ? p.box.x + p.box.w / 2 : p.x) - x);
+        if (d < bestD) { bestD = d; best = p; }
+    }
+    return best;
+}
+
+function drawActive(c) {
+    const layer = c.focusLayer, under = c.underLayer;
+    if (!layer || !under) return;
+    layer.replaceChildren();
+    under.replaceChildren();
+    const p = c.active;
+    c.el.toggleAttribute('data-chart-active', !!p);
+    if (!p) return;
+    const L = c.layout;
+    if (p.slice) {
+        node('path', { d: slicePath(c.pie.cx, c.pie.cy, p.slice.r0, p.slice.r + 3, p.slice.a0, p.slice.a1), class: 'chart-ring' }, layer);
+        return;
+    }
+    if (L && (c.type === 'line' || c.type === 'area')) {
+        node('line', { x1: round(p.x), x2: round(p.x), y1: L.plot.y0, y2: L.plot.y1, class: 'chart-guide' }, under);
+    } else if (L && (c.type === 'column' || c.type === 'bar')) {
+        const at = L.catAt(p.i);
+        const half = L.band / 2;
+        const band = L.across
+            ? { x: at - half, y: L.plot.y0, width: L.band, height: L.plot.y1 - L.plot.y0 }
+            : { x: L.plot.x0, y: at - half, width: L.plot.x1 - L.plot.x0, height: L.band };
+        // Behind the bars, in the layer drawn before them.
+        node('rect', { x: round(band.x), y: round(band.y), width: round(band.width), height: round(band.height), class: 'chart-band' }, under);
+    }
+    if (p.box) {
+        node('rect', { x: round(p.box.x - 2), y: round(p.box.y - 2), width: round(p.box.w + 4), height: round(p.box.h + 4), rx: 3, class: 'chart-ring' }, layer);
+        return;
+    }
+    node('path', { d: markerPath(p.shape, p.x, p.y, 4.5), class: 'chart-mark chart-marker chart-marker--active ' + toneClass(p.tone) }, layer);
+    node('circle', { cx: round(p.x), cy: round(p.y), r: 8.5, class: 'chart-ring' }, layer);
+}
+
+/* ── 51-tip.js ──────────────────────────────────────────────── */
+/* ── The tooltip ──────────────────────────────────────────────────────────────
+   Pointing at a point, or reaching it by keyboard, says what it is.
+
+   With nothing else written, that is the library's own hover-hint bubble — the same
+   `.sedna-tip` every `data-tip` on the page uses — holding the category, the series and
+   the value as the app wrote them.
+
+   A richer tooltip is the app's markup, written once inside the chart and filled per
+   point:
+
+     <div class="chart-tip" data-chart-tip hidden>
+       <span class="chart-tip-title" data-chart-field="category"></span>
+       <span class="chart-tip-row">
+         <span class="chart-tip-swatch"></span>
+         <span data-chart-field="series"></span>
+         <span class="chart-tip-value" data-chart-field="value"></span>
+       </span>
+     </div>
+
+   Every `[data-chart-field]` gets that field of the point as text — never as markup —
+   and one that is empty is hidden, with any element marked `data-chart-if="name"`.
+   `data-chart-tone` on the tip is the point's tone, which colours `.chart-tip-swatch`.
+
+   A `<template data-chart-tip-row>` inside the tip makes it say the whole category:
+   the row is cloned once per series shown, in the place the template sits, and filled
+   with that series' point; the one the reader is on carries `data-chart-current`.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Fills the slots in `root`, itself included; `outside` leaves the cloned rows alone. */
+function fillSlots(root, f, outside) {
+    const all = (sel) => (root.matches(sel) ? [root] : []).concat(Array.from(root.querySelectorAll(sel)));
+    for (const slot of all('[data-chart-field]')) {
+        if (outside && slot.closest('[data-chart-row]')) continue;
+        const value = f[slot.getAttribute('data-chart-field')] ?? '';
+        slot.textContent = value;
+        slot.hidden = value === '';
+    }
+    for (const dep of all('[data-chart-if]')) {
+        if (outside && dep.closest('[data-chart-row]')) continue;
+        dep.hidden = !(f[dep.getAttribute('data-chart-if')] ?? '');
+    }
+}
+
+function tipOf(c) {
+    return c.el.querySelector('[data-chart-tip]');
+}
+
+function showTip(c, p) {
+    const tip = tipOf(c);
+    if (!tip) {
+        const f = fields(c, p);
+        const said = c.data.series.length > 1 && !c.pie ? `${f.series}: ${f.value}` : f.value;
+        const words = [f.category, said].filter(Boolean).join(' — ');
+        const host = c.svg.getBoundingClientRect();
+        const r = p.box
+            ? { left: host.left + p.box.x, top: host.top + p.box.y, width: p.box.w, height: p.box.h }
+            : { left: host.left + p.x - 6, top: host.top + p.y - 6, width: 12, height: 12 };
+        r.right = r.left + r.width;
+        r.bottom = r.top + r.height;
+        if (words && window.sednaUi && window.sednaUi.tips && window.sednaUi.tips.at) window.sednaUi.tips.at(r, words, 'top');
+        return;
+    }
+    const f = fields(c, p);
+    for (const old of tip.querySelectorAll('[data-chart-row]')) old.remove();
+    const row = tip.querySelector('template[data-chart-tip-row]');
+    if (row && !c.pie) {
+        let after = row;
+        for (const { s, i } of shownSeries(c)) {
+            const point = c.points.find(q => q.s === i && q.i === p.i);
+            if (!point) continue;
+            const frag = row.content.cloneNode(true);
+            const made = Array.from(frag.children);
+            for (const el of made) {
+                el.setAttribute('data-chart-row', '');
+                el.setAttribute('data-chart-tone', point.tone || s.tone);
+                el.toggleAttribute('data-chart-current', i === p.s);
+                fillSlots(el, fields(c, point), false);
+            }
+            row.parentNode.insertBefore(frag, after.nextSibling);
+            if (made.length) after = made[made.length - 1];
+        }
+        // The rows say each series; the rest of the tip says the category.
+        fillSlots(tip, f, true);
+    } else {
+        fillSlots(tip, f, false);
+    }
+    tip.setAttribute('data-chart-tone', p.tone || '1');
+    placeTip(c, tip, p);
+}
+
+function placeTip(c, tip, p) {
+    const stage = c.el.getBoundingClientRect();
+    const host = c.svg.getBoundingClientRect();
+    tip.hidden = false;
+    tip.style.transform = 'translate(0px, 0px)';
+    const t = tip.getBoundingClientRect();
+    const ox = host.left - stage.left, oy = host.top - stage.top;
+    const px = ox + p.x, py = oy + p.y;
+    const gap = 12;
+    // Beside the point, on the side the reading runs to; the other side when that has no room.
+    let x = c.rtl ? px - gap - t.width : px + gap;
+    if (x + t.width > stage.width - 4 || x < 4) x = c.rtl ? px + gap : px - gap - t.width;
+    let y = py - t.height - gap;
+    if (y < 4) y = py + gap;
+    x = Math.max(4, Math.min(x, stage.width - t.width - 4));
+    y = Math.max(4, Math.min(y, Math.max(4, stage.height - t.height - 4)));
+    tip.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+}
+
+function hideTip(c) {
+    const tip = tipOf(c);
+    if (tip) tip.hidden = true;
+    else if (window.sednaUi && window.sednaUi.tips && window.sednaUi.tips.hide) window.sednaUi.tips.hide();
+}
+
+/* ── 52-keyboard.js ──────────────────────────────────────────────── */
+/* ── The keyboard, and what a screen reader hears ─────────────────────────────
+   The chart is one stop in the tab order, and inside it the keys move between points:
+
+     ← →            the previous / next category — across the chart, as it is drawn,
+                    so right is the next one in a left-to-right page and the previous
+                    one in a right-to-left page
+     ↑ ↓            the next / previous series at the same category
+                    (a bar chart lies down, so there ↑ ↓ move between categories and
+                    ← → between series)
+     Home / End     the first / last category
+     Enter, Space   choose the point: `sedna-chart-select`
+     Escape         let go of the point
+
+   A pie has one series, so every arrow walks its slices.
+
+   Every move is said through the app's live region, in the app's words:
+
+     <p class="visually-hidden" data-chart-live aria-live="polite"
+        data-chart-announce="{category}, {series}: {value}."
+        data-chart-announce-select="{category} chosen."></p>
+
+   The region is the one inside the chart, else the one inside the `[data-chart-frame]`
+   around it. With none, the ring still moves and the tooltip still says the point.
+
+   The chart's element gets `tabindex="0"` and `role="application"` unless the app wrote
+   its own. Its name — `aria-label` — and `aria-roledescription`, if the app wants the
+   word "chart" said, are the app's to write. The table inside it is the text
+   alternative a screen reader can read as a table.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+function liveOf(c) {
+    const inside = c.el.querySelector('[data-chart-live]');
+    if (inside) return inside;
+    const frame = c.el.closest('[data-chart-frame]');
+    return frame ? frame.querySelector('[data-chart-live]') : null;
+}
+
+function announce(c, p, which) {
+    const region = liveOf(c);
+    if (!region || !p) return;
+    const template = region.getAttribute(which === 'select' ? 'data-chart-announce-select' : 'data-chart-announce')
+        ?? (which === 'select' ? '' : '{category} {series} {value}');
+    if (!template) return;
+    const words = fillTemplate(template, fields(c, p));
+    // Cleared first, so the same point said twice is still a change.
+    region.textContent = '';
+    clearTimeout(c.saying);
+    c.saying = setTimeout(() => { region.textContent = words; }, 30);
+}
+
+/* The points of one series in the order a reader meets them: by category, or for a
+   scatter by its number across. */
+function inOrder(c, series) {
+    const pts = c.points.filter(p => p.s === series);
+    if (c.type === 'scatter') pts.sort((a, b) => (c.data.categories[a.i].x - c.data.categories[b.i].x) || a.i - b.i);
+    return pts;
+}
+
+function firstPoint(c) {
+    if (c.pie) return c.points[0] || null;
+    const shown = shownSeries(c);
+    for (const { i } of shown) {
+        const pts = inOrder(c, i);
+        if (pts.length) return pts[0];
+    }
+    return null;
+}
+
+function along(c, from, step) {
+    if (c.pie) {
+        const at = c.points.findIndex(p => samePoint(p, from));
+        return c.points[(at + step + c.points.length) % c.points.length] || null;
+    }
+    const pts = inOrder(c, from.s);
+    const at = pts.findIndex(p => samePoint(p, from));
+    return pts[at + step] || null;
+}
+
+function across(c, from, step) {
+    if (c.pie) return along(c, from, step);
+    const shown = shownSeries(c).map(x => x.i);
+    let k = shown.indexOf(from.s);
+    for (k += step; k >= 0 && k < shown.length; k += step) {
+        const hit = c.points.find(p => p.s === shown[k] && p.i === from.i);
+        if (hit) return hit;
+    }
+    return null;
+}
+
+function ends(c, from, last) {
+    if (c.pie) return c.points[last ? c.points.length - 1 : 0] || null;
+    const pts = inOrder(c, from ? from.s : (firstPoint(c) || {}).s);
+    return pts[last ? pts.length - 1 : 0] || null;
+}
+
+function onKey(c, e) {
+    if (e.target !== c.el || e.altKey || e.ctrlKey || e.metaKey) return;
+    c.el.removeAttribute('data-chart-pointer');
+    const from = c.active;
+    const lying = c.type === 'bar';
+    const forward = c.rtl ? -1 : 1;
+    let next = undefined;
+    // A pie is one ring of slices: down and right are clockwise, up and left back.
+    if (c.pie && /^Arrow/.test(e.key)) {
+        next = !from ? firstPoint(c) : along(c, from, e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1);
+        e.preventDefault();
+        if (next) activate(c, next, true);
+        return;
+    }
+    switch (e.key) {
+        case 'ArrowRight':
+            next = !from ? firstPoint(c) : lying ? across(c, from, forward) : along(c, from, forward);
+            break;
+        case 'ArrowLeft':
+            next = !from ? firstPoint(c) : lying ? across(c, from, -forward) : along(c, from, -forward);
+            break;
+        case 'ArrowDown':
+            next = !from ? firstPoint(c) : lying ? along(c, from, 1) : across(c, from, -1);
+            break;
+        case 'ArrowUp':
+            next = !from ? firstPoint(c) : lying ? along(c, from, -1) : across(c, from, 1);
+            break;
+        case 'Home':
+            next = ends(c, from, false);
+            break;
+        case 'End':
+            next = ends(c, from, true);
+            break;
+        case 'Enter': case ' ': case 'Spacebar':
+            if (!from) next = firstPoint(c);
+            else { choose(c, from); e.preventDefault(); return; }
+            break;
+        case 'Escape':
+            if (!from) return;
+            activate(c, null);
+            e.preventDefault();
+            return;
+        default:
+            return;
+    }
+    e.preventDefault();
+    if (next) activate(c, next, true);
+}
+
+/* A point chosen — by Enter, Space or a click. The app decides what that means. */
+function choose(c, p) {
+    const f = fields(c, p);
+    const cell = c.data.series[p.s] && c.data.series[p.s].values[p.i];
+    c.el.dispatchEvent(new CustomEvent('sedna-chart-select', {
+        bubbles: true,
+        detail: {
+            chart: c.el.id || '',
+            series: f.series,
+            category: f.category,
+            value: cell && cell.v !== null ? cell.v : null,
+            text: f.value,
+            index: p.i,
+            seriesIndex: p.s,
+        },
+    }));
+    announce(c, p, 'select');
+}
+
+/* ── 60-chart.js ──────────────────────────────────────────────── */
+/* ── A chart ──────────────────────────────────────────────────────────────────
+   `attach` starts one on the app's element: an `<svg>` inside its `.chart-plot`, sized
+   to it, drawn from its data. From there what changes a chart is watched, never polled:
+
+     * its data — the table inside it, or its `data-chart-json`, changed by a render:
+       read again and drawn again, the point the reader was on kept where it still exists;
+     * its options — `data-chart`, `data-chart-stack`, `data-chart-min`,
+       `data-chart-max`, `data-chart-format` — and its direction and language;
+     * its size — a ResizeObserver on the plot, so the chart follows its container;
+     * a series switched off or on by a legend button (`data-chart-toggle`, in the
+       front door) — redrawn without it, the axis fitted to what is left.
+
+   A change of theme needs nothing: the marks are coloured by their `.series-*`
+   classes, and the browser repaints them itself.
+
+   The first drawing fades in, once, unless the reader asked for less motion — the
+   stylesheet decides, from `data-chart-enter` on the svg. Nothing after it moves.
+
+   `sweep` lets go of every chart whose element has left the document.
+   ─────────────────────────────────────────────────────────────────────────── */
+const charts = new Set();
+const OPTIONS = ['data-chart', 'data-chart-json', 'data-chart-stack', 'data-chart-min', 'data-chart-max', 'data-chart-format', 'dir', 'lang'];
+
+function plotOf(el) {
+    const plot = el.querySelector('.chart-plot');
+    if (plot) return plot;
+    warnOnce('plot', 'a [data-chart] has no .chart-plot to draw into; it draws into the element itself.');
+    return el;
+}
+
+function hasValues(data) {
+    return data.categories.length > 0 && data.series.some(s => s.values.some(v => v.v !== null));
+}
+
+function render(c) {
+    c.queued = false;
+    c.type = typeOf(c.el);
+    c.format = formatter(c.el);
+    c.data = readData(c);
+    c.rtl = getComputedStyle(c.el).direction === 'rtl';
+    c.el.setAttribute('data-chart-state', hasValues(c.data) ? 'ready' : 'empty');
+
+    const box = c.plot.getBoundingClientRect();
+    c.size = { w: Math.round(box.width), h: Math.round(box.height) };
+    const svg = c.svg;
+    if (c.drawn) svg.removeAttribute('data-chart-enter');
+    svg.replaceChildren();
+    c.points = [];
+    c.pie = null;
+    c.layout = null;
+    svg.setAttribute('viewBox', `0 0 ${Math.max(1, c.size.w)} ${Math.max(1, c.size.h)}`);
+    if (c.size.w < 16 || c.size.h < 16 || !hasValues(c.data)) {
+        c.focusLayer = c.underLayer = null;
+        setActive(c, null);
+        return;
+    }
+    c.measure = measure(svg);
+    c.underLayer = node('g', { class: 'chart-under' }, svg);
+    const body = node('g', null, svg);
+    if (c.type === 'pie' || c.type === 'donut') drawPie(c, body);
+    else drawCartesian(c, body);
+    // The guide and the band go over the axes and under the marks.
+    const marks = body.querySelector('.chart-marks');
+    if (marks) body.insertBefore(c.underLayer, marks);
+    c.focusLayer = node('g', { class: 'chart-focus' }, svg);
+    c.drawn = true;
+    // The point the reader was on, if it is still drawn.
+    const was = c.active;
+    c.active = null;
+    if (was) setActive(c, c.points.find(p => samePoint(p, was)) || null, c.keyed, true);
+}
+
+function schedule(c) {
+    if (c.queued) return;
+    c.queued = true;
+    // A timer, never an animation frame: a tab that is not painted gets no frames.
+    setTimeout(() => { if (c.queued && charts.has(c)) render(c); }, 0);
+}
+
+/* Makes `p` the active point: ringed, its tooltip shown. `quiet` skips the announcement. */
+function setActive(c, p, keyed, quiet) {
+    const same = samePoint(c.active, p);
+    c.active = p || null;
+    c.keyed = !!(p && keyed);
+    drawActive(c);
+    if (!p) { hideTip(c); return; }
+    showTip(c, p);
+    if (keyed && !quiet && !same) announce(c, p, 'focus');
+}
+
+function activate(c, p, keyed) { setActive(c, p, keyed, false); }
+
+function pointerAt(c, e) {
+    const r = c.svg.getBoundingClientRect();
+    return pick(c, e.clientX - r.left, e.clientY - r.top);
+}
+
+const sizes = new ResizeObserver(entries => {
+    for (const e of entries) {
+        const c = e.target.__sednaChartOf;
+        if (!c) continue;
+        const box = e.contentRect;
+        if (c.size && Math.round(box.width) === c.size.w && Math.round(box.height) === c.size.h) continue;
+        render(c);
+    }
+});
+
+let watchingRoot = false;
+function watchTheRoot() {
+    if (watchingRoot) return;
+    watchingRoot = true;
+    // The page's direction and language change the axes; nothing else on the root does.
+    new MutationObserver(() => { for (const c of charts) schedule(c); })
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['dir', 'lang'] });
+}
+
+/** Starts the chart on an element the app wrote. Resolves its handle. */
+function attach(el) {
+    if (el.__sednaChart) return el.__sednaChart.handle;
+    watchTheRoot();
+    const plot = plotOf(el);
+    const svg = node('svg', { class: 'chart-svg', 'aria-hidden': 'true', focusable: 'false', 'data-chart-enter': '' });
+    plot.appendChild(svg);
+    const c = {
+        el, plot, svg,
+        type: 'line', data: { categories: [], series: [] }, given: null,
+        hidden: new Set(), points: [], active: null, keyed: false,
+        size: null, drawn: false, queued: false, saying: 0,
+    };
+    el.__sednaChart = c;
+    plot.__sednaChartOf = c;
+    charts.add(c);
+
+    // The data, wherever the app re-renders it: the element's own attributes and
+    // children, and everything inside the table — but never the svg, the tooltip or the
+    // live region, which this module writes itself.
+    c.watch = new MutationObserver(records => {
+        for (const r of records) {
+            const t = r.target.nodeType === 1 ? r.target : r.target.parentElement;
+            if (!t) continue;
+            if (t === el) { if (r.type === 'attributes' || Array.from(r.addedNodes).concat(Array.from(r.removedNodes)).some(n => n !== svg)) { schedule(c); return; } continue; }
+            if (t.closest('table[data-chart-data]')) { schedule(c); return; }
+        }
+    });
+    c.watch.observe(el, { attributes: true, attributeFilter: OPTIONS, childList: true, subtree: true, characterData: true });
+
+    c.listeners = {
+        move: e => {
+            if (e.pointerType === 'touch' && e.type === 'pointermove' && !c.active) return;
+            const p = pointerAt(c, e);
+            if (!samePoint(p, c.active)) setActive(c, p, false);
+        },
+        leave: e => { if (e.pointerType !== 'touch' && !c.keyed) setActive(c, null); },
+        down: e => {
+            el.setAttribute('data-chart-pointer', '');
+            const p = pointerAt(c, e);
+            if (p && !samePoint(p, c.active)) setActive(c, p, false);
+        },
+        click: e => {
+            const p = pointerAt(c, e);
+            if (p) choose(c, p);
+        },
+        key: e => onKey(c, e),
+        focus: () => {
+            if (el.hasAttribute('data-chart-pointer') || c.active) return;
+            const first = firstPoint(c);
+            if (first) activate(c, first, true);
+        },
+        blur: () => {
+            el.removeAttribute('data-chart-pointer');
+            setActive(c, null);
+        },
+    };
+    svg.addEventListener('pointermove', c.listeners.move);
+    svg.addEventListener('pointerdown', c.listeners.down);
+    svg.addEventListener('pointerleave', c.listeners.leave);
+    svg.addEventListener('click', c.listeners.click);
+    el.addEventListener('keydown', c.listeners.key);
+    el.addEventListener('focus', c.listeners.focus);
+    el.addEventListener('blur', c.listeners.blur);
+
+    c.handle = {
+        element: el,
+        get type() { return c.type; },
+        /** The data drawn, as plain data: categories and series with their numbers. */
+        get data() {
+            return {
+                categories: c.data.categories.map(cat => cat.label),
+                series: c.data.series.map(s => ({ name: s.name, tone: s.tone, hidden: c.hidden.has(s.name), values: s.values.map(v => v.v) })),
+            };
+        },
+        /** Draws this data instead of the markup's, until `reset()`. */
+        set(data) { c.given = data || null; render(c); return c.handle; },
+        /** Back to the data in the markup. */
+        reset() { c.given = null; render(c); return c.handle; },
+        /** Hides or shows a series by its name — a slice by its category in a pie. */
+        toggle(name, shown) {
+            const key = String(name);
+            const on = shown === undefined ? c.hidden.has(key) : !!shown;
+            if (on) c.hidden.delete(key); else c.hidden.add(key);
+            render(c);
+            return on;
+        },
+        /** Draws again now. */
+        redraw() { render(c); return c.handle; },
+    };
+
+    render(c);
+    sizes.observe(plot);
+    return c.handle;
+}
+
+/** Lets go of every chart whose element is no longer in the document. */
+function sweep() {
+    for (const c of charts) {
+        if (c.el.isConnected) continue;
+        charts.delete(c);
+        sizes.unobserve(c.plot);
+        c.watch.disconnect();
+        clearTimeout(c.saying);
+        c.svg.removeEventListener('pointermove', c.listeners.move);
+        c.svg.removeEventListener('pointerdown', c.listeners.down);
+        c.svg.removeEventListener('pointerleave', c.listeners.leave);
+        c.svg.removeEventListener('click', c.listeners.click);
+        c.el.removeEventListener('keydown', c.listeners.key);
+        c.el.removeEventListener('focus', c.listeners.focus);
+        c.el.removeEventListener('blur', c.listeners.blur);
+        c.svg.remove();
+        delete c.plot.__sednaChartOf;
+        delete c.el.__sednaChart;
+    }
+}
+
+/* ── 99-exports.js ──────────────────────────────────────────────── */
+/* ── The module's surface ─────────────────────────────────────────────────────
+   Only the front door in Sedna.UI.js imports this module, and it calls these two. A
+   script reaches a chart through `sednaUi.chart.get()`, never through an import of
+   this file, whose URL is the package's business.
+   ─────────────────────────────────────────────────────────────────────────── */
+export { attach, sweep };
+

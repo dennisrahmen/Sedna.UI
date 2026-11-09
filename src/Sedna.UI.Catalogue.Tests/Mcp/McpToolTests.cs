@@ -677,6 +677,7 @@ public class McpToolTests(CatalogueAppFixture app)
     [Theory]
     [InlineData("editor", "editor.md")]
     [InlineData("graph", "graph.md")]
+    [InlineData("charts", "charts.md")]
     public async Task A_surface_s_reference_is_its_own_guide_section(string section, string file)
     {
         var markdown = (await Tool("get_integration_guide", new { section }))

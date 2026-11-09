@@ -46,6 +46,8 @@ internal static class CataloguePages
     public const string Tables = "Tables";
     /// <summary>The section of Data that holds the calendar's pages: the views, then the agenda and editing.</summary>
     public const string Calendar = "Calendar";
+    /// <summary>The section of Data that holds the chart surface: lines, areas, columns, bars, pies and scatters.</summary>
+    public const string Charts = "Charts";
     /// <summary>The section of Data that holds the graph's pages: one family, too big for one page.</summary>
     public const string Graph = "Graph";
     /// <summary>The section of Data that holds the workflow diagram's pages.</summary>
@@ -248,6 +250,11 @@ internal static class CataloguePages
         new("/pager", Data, "Pagination", "ri-more-line",
             "Moving through a long result set, and the breadcrumb trail that says where it sits.",
             "pagination page-link page-gap breadcrumb trail button view state server paged SednaPager Window PagerSlot"),
+
+        new("/chart", Data, "Charts", "ri-bar-chart-2-line",
+            "Lines, areas, columns, bars, pies and scatters drawn from the app's own table, with a tooltip, a legend and the keyboard.",
+            "chart charts data-chart line area column bar pie donut scatter stacked stack axis axes ticks gridlines legend tooltip series colour shape marker keyboard screen reader accessible table text alternative svg chart-data chart-plot chart-tip chart-legend chart-key chart-swatch chart-total chart-wait chart-empty sedna-chart-select data-chart-toggle data-chart-format intl number format compact currency percent rtl reduced motion",
+            Section: Charts),
 
         new("/graph", Data, "Graph", "ri-share-circle-line",
             "Records and the links between them on a canvas: the markup, the frame, and how a reader moves through it.",

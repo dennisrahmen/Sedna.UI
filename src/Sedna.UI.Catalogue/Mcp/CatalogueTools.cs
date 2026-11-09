@@ -59,7 +59,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     private static readonly string[] Kinds = ["example", "class", "token", "page"];
 
     /// <summary>The sections <c>get_integration_guide</c> serves.</summary>
-    private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules", "graph", "editor", "upgrade"];
+    private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules", "graph", "editor", "charts", "upgrade"];
 
     [McpServerTool(Name = "search", ReadOnly = true, Destructive = false, Idempotent = true,
         OpenWorld = false)]
@@ -435,13 +435,13 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         Idempotent = true, OpenWorld = false)]
     [Description("""
         How to install, set up and configure Sedna.UI in an app: the host page with its load order, the branding
-        recipe, the JavaScript and C# surface, the rules a consuming app follows, the graph's and
-        the rich-text editor's references, and — for an app moving to a newer release — every
+        recipe, the JavaScript and C# surface, the rules a consuming app follows, the graph's,
+        the rich-text editor's and the chart's references, and — for an app moving to a newer release — every
         class each release renamed, old name to the classes that look the same. Call once when
         integrating or upgrading, not per page.
         """)]
     public object GetIntegrationGuide(
-        [Description("One of: host-page, branding, javascript, rules, graph, editor, upgrade. Omit for host-page.")]
+        [Description("One of: host-page, branding, javascript, rules, graph, editor, charts, upgrade. Omit for host-page.")]
         string? section = null)
     {
         var name = section?.ToLowerInvariant() ?? "host-page";
@@ -453,6 +453,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
             "rules" => Docs.Read("CLAUDE.consuming-app.md"),
             "graph" => Docs.Read("graph.md"),
             "editor" => Docs.Read("editor.md"),
+            "charts" => Docs.Read("charts.md"),
             "upgrade" => Upgrade(),
             _ => throw new McpException(
                 $"Unknown section \"{section}\". Use one of: {string.Join(", ", Sections)} — "

@@ -1,0 +1,21 @@
+<div class="card">
+    <div class="card-head">
+        <h3>Queue depth, last two hours</h3>
+    </div>
+    <div class="card-body">
+        <div class="chart-legend">
+            <span class="chart-key"><span class="chart-swatch chart-swatch--line series-2"></span><span>Inbound</span></span>
+            <span class="chart-key"><span class="chart-swatch chart-swatch--line series-6"></span><span>Retry</span></span>
+        </div>
+        <div class="chart chart--sm" data-chart="line" id="chart-queue"
+             aria-label="Queue depth every ten minutes over the last two hours: inbound peaked at 1,940 at 10:30, retry stayed under 300"
+             aria-roledescription="chart"
+             data-chart-json='{ "categories": ["09:10", "09:20", "09:30", "09:40", "09:50", "10:00", "10:10", "10:20", "10:30", "10:40", "10:50", "11:00"],
+               "series": [
+                 { "name": "Inbound", "tone": "2", "values": [620, 710, 840, 1120, 1380, 1610, 1820, 1890, 1940, 1520, 1100, 760] },
+                 { "name": "Retry", "tone": "6", "shape": "square", "values": [40, 52, 61, 90, 140, 210, 260, 280, 240, 180, 120, 70] } ] }'>
+            <div class="chart-plot"></div>
+            <div class="chart-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

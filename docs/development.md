@@ -18,10 +18,12 @@ src/
     js-parts/                         the script, one short file per behaviour
     graph-parts/                      the graph module, one file per concern
     editor-parts/                     the rich-text editor module, one file per concern
+    orb-parts/, chart-parts/          the orb's and the chart's modules, one file per concern
     wwwroot/css/Sedna.UI.css      GENERATED from css-parts/ — do not edit
     wwwroot/js/Sedna.UI.js        GENERATED from js-parts/ — do not edit
     wwwroot/js/Sedna.UI.graph.js  GENERATED from graph-parts/ — do not edit
     wwwroot/js/Sedna.UI.editor.js GENERATED from editor-parts/ — do not edit
+    wwwroot/js/Sedna.UI.chart.js  GENERATED from chart-parts/ — do not edit
     wwwroot/lib/cytoscape/            VENDORED by build/vendor-cytoscape.sh — the graph engine
     wwwroot/lib/quill/                VENDORED by build/vendor-quill.sh — the editor's engine
     wwwroot/js/Sedna.UI.boot.js   pre-paint theme, loaded in <head>; standalone
@@ -234,7 +236,7 @@ that ships:
 
 ```bash
 build/bundle-css.sh            # regenerate wwwroot/css/Sedna.UI.css from css-parts/
-build/bundle-js.sh             # regenerate wwwroot/js/Sedna.UI.js  from js-parts/, and Sedna.UI.graph.js and Sedna.UI.editor.js from their parts
+build/bundle-js.sh             # regenerate wwwroot/js/Sedna.UI.js  from js-parts/, and every surface module from its parts
 build/export-tokens.sh         # regenerate wwwroot/tokens/Sedna.UI.tokens.json and the Design Tokens files
 build/bundle-css.sh --check    # fail if it is out of date
 build/bundle-js.sh  --check
@@ -276,6 +278,7 @@ Conventions live next to the files themselves, one `CLAUDE.md` per directory:
 [`js-parts/`](../src/Sedna.UI/js-parts/CLAUDE.md),
 [`graph-parts/`](../src/Sedna.UI/graph-parts/CLAUDE.md),
 [`editor-parts/`](../src/Sedna.UI/editor-parts/CLAUDE.md),
+[`chart-parts/`](../src/Sedna.UI/chart-parts/CLAUDE.md),
 and [`Sedna.UI.Catalogue/`](../src/Sedna.UI.Catalogue/CLAUDE.md).
 
 Two things deliberately not done:

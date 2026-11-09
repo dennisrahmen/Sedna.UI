@@ -224,6 +224,9 @@
     .inbox-item:has(.inbox-item-title:focus-visible) { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
+    /* So is the chart's, and a legend key that switches a series rings like a button. */
+    .chart:focus-visible:not([data-chart-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
+    button.chart-key:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
 
     /* Selected and current states are backgrounds, which are flattened away. An
        outline is what is left that the mode still paints. */
@@ -326,6 +329,14 @@
     /* A star is a clipped background too, and it is the score itself. */
     .rating-star::before,
     .rating-star::after { forced-color-adjust: none; }
+
+    /* A chart's marks are its data, and each series is told from the next by its colour
+       and its shape: forced colours would paint every mark CanvasText through
+       `currentColor`. The drawing, its legend's swatches and the tooltip's opt out, and
+       read the series tokens — the brand among them already the user's Highlight. */
+    .chart-svg,
+    .chart-swatch,
+    .chart-tip-swatch { forced-color-adjust: none; }
 
     /* A heatmap cell keeps its step from the remap above, and an outline in the
        user's muted ink, so an empty cell is still a cell and not a hole in the grid. */

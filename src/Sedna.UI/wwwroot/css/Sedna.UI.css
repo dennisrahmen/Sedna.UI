@@ -5654,6 +5654,268 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .chip-label { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 @layer sedna.paint {
+.chart {
+    position: relative;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    height: var(--chart-height, 16rem);
+    min-width: 0;
+    overflow: hidden;
+    border-radius: inherit;
+}
+.chart--sm { --chart-height: 10rem; }
+.chart--lg { --chart-height: 24rem; }
+.chart--fill { height: 100%; min-height: 8rem; }
+.chart:focus { outline: none; }
+.chart:focus-visible:not([data-chart-pointer])::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px var(--focus-ring);
+    pointer-events: none;
+}
+.chart-plot {
+    position: relative;
+    grid-area: 1 / 1 / -1 / -1;
+    min-width: 0;
+    min-height: 0;
+}
+.chart [hidden] { display: none; }
+.chart-data {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    table-layout: fixed;
+    border-spacing: 0;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+.chart-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    direction: ltr;
+    font-family: var(--font-sans);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.chart-grid line {
+    stroke: var(--border);
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+.chart-axis {
+    stroke: var(--border-strong);
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+.chart-tick { fill: var(--muted); }
+.chart-category { fill: var(--fg-soft); }
+.chart-mark { fill: currentColor; stroke: none; }
+.chart-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+.chart-area { fill-opacity: 0.18; }
+.chart-marker { stroke: var(--surface-here, var(--bg)); stroke-width: 1.5; }
+.chart-marker--active { stroke-width: 2; }
+.chart-slice { stroke: var(--surface-here, var(--bg)); stroke-width: 2; stroke-linejoin: round; }
+.chart-ring {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 2;
+    pointer-events: none;
+}
+.chart-guide {
+    stroke: var(--border-strong);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+    pointer-events: none;
+}
+.chart-band { fill: var(--bg-hover); pointer-events: none; }
+.chart-svg[data-chart-enter] .chart-marks { animation: sedna-chart-in var(--motion-slow) ease-out both; }
+@keyframes sedna-chart-in { from { opacity: 0; } }
+.chart-tip {
+    --chart-tip-tone: var(--viz-1);
+    position: absolute;
+    left: 0;
+    inset-block-start: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 8rem;
+    max-width: 18rem;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-3);
+    line-height: 1.4;
+    color: var(--tip-fg);
+    background: var(--tip-bg);
+    border: 1px solid var(--tip-border);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-tip);
+    pointer-events: none;
+}
+.chart-tip-title { font-weight: 600; }
+.chart-tip-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--muted);
+}
+.chart-tip-row[data-chart-current] { color: var(--tip-fg); }
+.chart-tip-swatch {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    color: var(--chart-tip-tone);
+    background: currentColor;
+    border-radius: 2px;
+}
+.chart-tip-value {
+    margin-inline-start: auto;
+    padding-inline-start: var(--space-5);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--tip-fg);
+}
+[data-chart-tone="1"] { --chart-tip-tone: var(--viz-1); }
+[data-chart-tone="2"] { --chart-tip-tone: var(--viz-2); }
+[data-chart-tone="3"] { --chart-tip-tone: var(--viz-3); }
+[data-chart-tone="4"] { --chart-tip-tone: var(--viz-4); }
+[data-chart-tone="5"] { --chart-tip-tone: var(--viz-5); }
+[data-chart-tone="6"] { --chart-tip-tone: var(--viz-6); }
+[data-chart-tone="go"] { --chart-tip-tone: var(--go-solid); }
+[data-chart-tone="warn"] { --chart-tip-tone: var(--warn-solid); }
+[data-chart-tone="danger"] { --chart-tip-tone: var(--danger-solid); }
+[data-chart-tone="info"] { --chart-tip-tone: var(--info-solid); }
+[data-chart-tone="muted"] { --chart-tip-tone: var(--muted); }
+.chart-wait,
+.chart-empty {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+.chart-wait { height: auto; }
+.chart[data-chart-state]:not([aria-busy="true"]) .chart-wait { display: none; }
+.chart-empty {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+.chart[data-chart-state="empty"]:not([aria-busy="true"], [data-chart-error]) .chart-empty:not(.chart-empty--error),
+.chart[data-chart-error]:not([aria-busy="true"]) .chart-empty--error { display: flex; }
+.chart:is([aria-busy="true"], [data-chart-error]) .chart-plot { visibility: hidden; }
+.chart-total {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    pointer-events: none;
+    text-align: center;
+}
+.chart-total-value {
+    font-size: var(--text-9);
+    font-weight: 650;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+}
+.chart-total-label { font-size: var(--text-2); color: var(--muted); }
+.chart--sm .chart-total-value { font-size: var(--text-6); }
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-6);
+    font-size: var(--text-3);
+    color: var(--fg-soft);
+}
+.chart-legend + .chart,
+.chart + .chart-legend { margin-block-start: var(--space-5); }
+.chart-key {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font: inherit;
+    color: inherit;
+}
+button.chart-key {
+    padding: var(--space-1) var(--space-2);
+    margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2));
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-control);
+    cursor: pointer;
+}
+button.chart-key:hover { background: var(--bg-hover); }
+button.chart-key:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+button.chart-key[aria-pressed="false"] { color: var(--muted); text-decoration: line-through; }
+button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
+.chart-swatch {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    background: currentColor;
+    border-radius: 50%;
+}
+.chart-swatch--square { border-radius: 1px; }
+.chart-swatch--diamond { border-radius: 1px; transform: rotate(45deg) scale(0.86); }
+.chart-swatch--triangle { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.chart-swatch--triangle-down { border-radius: 0; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.chart-swatch--cross {
+    border-radius: 0;
+    clip-path: polygon(30% 0, 70% 0, 70% 30%, 100% 30%, 100% 70%, 70% 70%, 70% 100%, 30% 100%, 30% 70%, 0 70%, 0 30%, 30% 30%);
+}
+.chart-swatch--block { border-radius: 2px; }
+.chart-swatch--line {
+    width: 16px;
+    height: 2px;
+    border-radius: 1px;
+}
+@media (scripting: none) {
+    .chart {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+    .chart-plot,
+    .chart-wait,
+    .chart-total { display: none; }
+    .chart-data {
+        position: static;
+        width: auto;
+        height: auto;
+        table-layout: auto;
+        margin: 0;
+        overflow: visible;
+        clip-path: none;
+        white-space: normal;
+    }
+}
+@media print {
+    .chart-tip { display: none; }
+}
+}
+@layer sedna.paint {
 .bar-list {
     --bar-list-label: 9rem;
     display: grid;
@@ -14383,6 +14645,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .test-suite > summary:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     .inbox-item:has(.inbox-item-title:focus-visible) { outline: 2px solid CanvasText; outline-offset: -2px; }
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
+    .chart:focus-visible:not([data-chart-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
+    button.chart-key:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .nav-link.active,
     .tab[aria-selected="true"],
     .page-link[aria-current="page"],
@@ -14450,6 +14714,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .gauge::before,
     .rating-star::before,
     .rating-star::after { forced-color-adjust: none; }
+    .chart-svg,
+    .chart-swatch,
+    .chart-tip-swatch { forced-color-adjust: none; }
     .heatmap-cell { forced-color-adjust: none; outline: 1px solid GrayText; outline-offset: -1px; }
     .diff-code :is(ins, del) { outline: 1px solid CanvasText; outline-offset: -1px; }
     .form-color-area,
@@ -14796,6 +15063,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .page-toc-fold > .page-toc-title::after { transition: none; }
     .back-to-top { animation-timing-function: step-end; }
     a.stat            { transition: none; }
+    .chart-svg[data-chart-enter] .chart-marks { animation: none; }
     .graph-line--flow::before,
     .graph-line--flow:dir(rtl)::before { animation: none; }
     .health-badge--live .health-dot,

@@ -7500,6 +7500,44 @@ window.sednaUi = window.sednaUi || {};
     else setTimeout(boot, 0);
 })(window.sednaUi);
 (function (ui) {
+    var SELECTOR = '[data-chart]';
+    var charts = ui._.surface({
+        name: 'chart',
+        selector: SELECTOR,
+        module: 'Sedna.UI.chart.js',
+        eager: 'data-chart-eager',
+        found: function (el) {
+            if (!el.hasAttribute('role')) el.setAttribute('role', 'application');
+            if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+        }
+    });
+    function chartOf(el) {
+        var named = el.closest('[data-chart-for]');
+        if (named && named.getAttribute('data-chart-for')) {
+            var target = document.getElementById(named.getAttribute('data-chart-for'));
+            if (target && target.matches(SELECTOR)) return target;
+        }
+        var inside = el.closest(SELECTOR);
+        if (inside) return inside;
+        var frame = el.closest('[data-chart-frame]');
+        return frame ? frame.querySelector(SELECTOR) : null;
+    }
+    ui.chart = {
+        get: charts.get,
+        init: charts.init
+    };
+    document.addEventListener('click', function (e) {
+        var key = e.target && e.target.closest ? e.target.closest('[data-chart-toggle]') : null;
+        if (!key) return;
+        var el = chartOf(key);
+        if (!el) return;
+        var shown = key.getAttribute('aria-pressed') === 'false';
+        key.setAttribute('aria-pressed', shown ? 'true' : 'false');
+        var name = key.getAttribute('data-chart-toggle');
+        charts.get(el).then(function (chart) { chart.toggle(name, shown); }).catch(charts.report);
+    });
+})(window.sednaUi);
+(function (ui) {
     var SELECTOR = '[data-graph]';
     var CONTROLS = '[data-graph-action],[data-graph-filter],[data-graph-show],[data-graph-search],[data-graph-option]';
     var graphs = ui._.surface({

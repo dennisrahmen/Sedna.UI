@@ -29,7 +29,7 @@ public class ScriptAttributeDocsTests
     [Fact]
     public void Every_attribute_the_scripts_read_from_the_app_is_documented()
     {
-        var code = string.Concat(new[] { "Sedna.UI.js", "Sedna.UI.graph.js", "Sedna.UI.editor.js" }
+        var code = string.Concat(new[] { "Sedna.UI.js", "Sedna.UI.graph.js", "Sedna.UI.editor.js", "Sedna.UI.chart.js" }
             .Select(f => File.ReadAllText(Path.Combine(Assets.WwwrootDir, "js", f))));
 
         // A name followed by a hyphen is a prefix the script builds names from, 'data-app-' + name.

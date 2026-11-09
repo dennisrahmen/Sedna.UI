@@ -1,0 +1,45 @@
+<div class="card" data-chart-frame>
+    <div class="card-head">
+        <h3>Returns per week</h3>
+        <div class="card-head-right">
+            <button class="btn btn--sm" type="button" @onclick="AddWeek"><i class="ri-add-line"></i> <span>Add a week</span></button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="chart chart--sm" data-chart="column" id="chart-returns" aria-roledescription="chart"
+             aria-label="Returns per week" @onsedna-chart-select="Choose">
+            <table class="chart-data" data-chart-data>
+                <thead><tr><th scope="col">Week</th><th scope="col">Returns</th></tr></thead>
+                <tbody>
+                    @foreach (var (week, returns) in _weeks)
+                    {
+                        <tr @key="week"><th scope="row">@week</th><td>@returns</td></tr>
+                    }
+                </tbody>
+            </table>
+            <div class="chart-plot"></div>
+            <div class="chart-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+    <div class="card-foot">
+        <p class="form-hint" id="chart-returns-chosen" role="status">@(_chosen ?? "Choose a column, by pointer or with Enter.")</p>
+    </div>
+</div>
+
+@code {
+    private readonly List<(string Week, int Returns)> _weeks =
+        [("Week 41", 38), ("Week 42", 44), ("Week 43", 29), ("Week 44", 51)];
+
+    private string? _chosen;
+
+    // The chart only reports the choice; what it means — here, a line of text — is the app's.
+    private void Choose(SednaChartEventArgs e) =>
+        _chosen = $"{e.Category}: {e.Text} returns. Open the week's return list from here.";
+
+    // A render that changes the table redraws the chart: there is nothing to call.
+    private void AddWeek()
+    {
+        var next = 41 + _weeks.Count;
+        _weeks.Add(($"Week {next}", 20 + (next * 7) % 35));
+    }
+}

@@ -201,6 +201,30 @@ public class EventRegistrationTests
         Assert.Null(across.Source);
     }
 
+    [Fact]
+    public void The_chart_s_choice_carries_its_point_into_its_arguments()
+    {
+        Assert.True(Dispatched().ContainsKey("sedna-chart-select"), "No shipped script dispatches sedna-chart-select.");
+        Assert.Contains("sedna-chart-select", Registered());
+        Assert.Equal(typeof(SednaChartEventArgs), Declared()["sedna-chart-select"].EventArgsType);
+        Assert.False(Declared()["sedna-chart-select"].EnablePreventDefault);
+
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var point = System.Text.Json.JsonSerializer.Deserialize<SednaChartEventArgs>(
+            """{"chart":"orders","series":"2026","category":"Mar","value":1480.5,"text":"1 480.5","index":2,"seriesIndex":0}""", web)!;
+        Assert.Equal("orders", point.Chart);
+        Assert.Equal("2026", point.Series);
+        Assert.Equal("Mar", point.Category);
+        Assert.Equal(1480.5, point.Value!.Value, 6);
+        Assert.Equal("1 480.5", point.Text);
+        Assert.Equal(2, point.Index);
+        Assert.Equal(0, point.SeriesIndex);
+
+        var gap = System.Text.Json.JsonSerializer.Deserialize<SednaChartEventArgs>(
+            """{"chart":"","series":"2025","category":"Mar","value":null,"text":"","index":2,"seriesIndex":1}""", web)!;
+        Assert.Null(gap.Value);
+    }
+
     private static string Script(string part) =>
         File.ReadAllText(Path.Combine(Assets.ProjectDir, "js-parts", part));
 }

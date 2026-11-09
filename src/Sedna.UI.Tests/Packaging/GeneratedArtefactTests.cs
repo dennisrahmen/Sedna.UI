@@ -94,6 +94,10 @@ public class GeneratedArtefactTests
         => AssertBundleMatchesParts("orb-parts", "*.js", Assets.Readable("Sedna.UI.orb.js"), "build/bundle-js.sh");
 
     [Fact]
+    public void The_chart_module_matches_its_parts()
+        => AssertBundleMatchesParts("chart-parts", "*.js", Assets.Readable("Sedna.UI.chart.js"), "build/bundle-js.sh");
+
+    [Fact]
     public void The_shipped_stylesheet_matches_its_parts()
         => AssertBundleMatchesParts("css-parts", "*.css", Assets.Readable("Sedna.UI.css"), "build/bundle-css.sh");
 
@@ -115,6 +119,7 @@ public class GeneratedArtefactTests
     [InlineData("js/Sedna.UI.graph.js")]
     [InlineData("js/Sedna.UI.editor.js")]
     [InlineData("js/Sedna.UI.orb.js")]
+    [InlineData("js/Sedna.UI.chart.js")]
     public void The_served_copy_is_the_readable_one_without_comments(string served)
     {
         var name = Path.GetFileName(served);

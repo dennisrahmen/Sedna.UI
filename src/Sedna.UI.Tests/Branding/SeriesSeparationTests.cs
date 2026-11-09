@@ -93,6 +93,41 @@ public class SeriesSeparationTests
             + "by lightness — and re-run; see the comment above --viz-1 in 01-tokens.css.");
     }
 
+    /// <summary>
+    /// The chart is the figure that puts the most series side by side, so it carries the second
+    /// channel the floor above relies on: every one of the six series has a marker of its own,
+    /// in the order the series take by default, and the legend has a swatch for each shape.
+    /// Its colours are the series' own — no chart palette beside them for a theme to miss.
+    /// </summary>
+    [Fact]
+    public void A_chart_gives_every_series_a_shape_of_its_own_and_no_colour_but_the_series()
+    {
+        var model = File.ReadAllText(Path.Combine(Assets.ProjectDir, "chart-parts", "10-model.js"));
+        var list = System.Text.RegularExpressions.Regex.Match(model, @"const SHAPES = \[(?<list>[^\]]+)\]");
+        Assert.True(list.Success, "chart-parts/10-model.js no longer declares SHAPES.");
+        var shapes = System.Text.RegularExpressions.Regex.Matches(list.Groups["list"].Value, "'([a-z-]+)'")
+            .Select(m => m.Groups[1].Value).ToArray();
+        Assert.Equal(Series.Length, shapes.Length);
+        Assert.Equal(shapes.Length, shapes.Distinct(StringComparer.Ordinal).Count());
+
+        // A series with no tone of its own takes the run 1 to 6, in the shapes' order.
+        Assert.Contains("String((i % 6) + 1)", model, StringComparison.Ordinal);
+        Assert.Contains("SHAPES[index % SHAPES.length]", model, StringComparison.Ordinal);
+
+        // The legend names every shape; the first is the swatch's own circle.
+        var classes = Assets.ClassSelectors(Assets.StripComments(Assets.Css));
+        Assert.Equal("circle", shapes[0]);
+        foreach (var shape in shapes.Skip(1))
+            Assert.Contains("chart-swatch--" + shape, classes);
+
+        // Marks paint the series class they wear; there is no chart colour token.
+        var css = Assets.StripComments(File.ReadAllText(Path.Combine(Assets.ProjectDir, "css-parts", "54-chart.css")));
+        Assert.Matches(@"\.chart-mark\s*\{[^}]*fill:\s*currentColor", css);
+        Assert.DoesNotMatch(@"--chart-\d", Assets.Css);
+        foreach (var token in Series)
+            Assert.Contains($"var({token})", css, StringComparison.Ordinal);
+    }
+
     /// <summary>OKLab distance ×100, optionally after simulating a colour-vision deficiency.</summary>
     internal static double Distance(
         (double R, double G, double B) a, (double R, double G, double B) b, double[,]? simulation)

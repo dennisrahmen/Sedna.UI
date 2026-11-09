@@ -34,6 +34,7 @@ public class ShippedPathTests
     [InlineData("wwwroot/lib/quill/quill.js")]
     [InlineData("wwwroot/lib/quill/VENDORED.txt")]
     [InlineData("wwwroot/js/Sedna.UI.orb.js")]
+    [InlineData("wwwroot/js/Sedna.UI.chart.js")]
     public void Shipped_asset_exists_at_its_documented_path(string relativePath)
     {
         // Consuming apps write these paths out by hand as

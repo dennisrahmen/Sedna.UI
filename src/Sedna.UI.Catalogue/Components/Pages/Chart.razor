@@ -1,0 +1,193 @@
+@page "/chart"
+
+<CatHead Title="Charts" Tier="@CatHead.Tier3">
+    Lines, areas, columns, bars, pies, donuts and scatters, drawn in SVG from a table the app writes. The
+    table is the data and the text alternative at once; the library draws the chart beside it. The drawing
+    is the one thing it paints &mdash; the legend, the tooltip, the wait, the empty state and every word
+    around the chart are the app's own markup with the classes on this page.
+</CatHead>
+
+<div class="callout callout--info">
+    <i class="ri-bar-chart-2-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Nothing goes in the host page</span>
+        <code>Sedna.UI.js</code> finds every <code>[data-chart]</code> and imports the drawing the first time one
+        comes within a screen of the viewport, so a page without a chart never downloads it. There is no engine
+        behind it and no C# service: a component renders the table, and the chart follows. Every attribute,
+        field, key and member is in <code>docs/charts.md</code>. For a handful of bars beside a number, the
+        <a href="/bars">bars and meters</a> and <a href="/sparkline">sparklines</a> need no script at all.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Chart.Line" Title="A line from a table" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        The least a chart needs: a <code>.chart</code> with <code>data-chart</code>, an <code>id</code> and an
+        <code>aria-label</code>; its data as a <code>.chart-data</code> table; a <code>.chart-plot</code> to draw
+        into; and a <code>.chart-wait</code> covering it until the drawing is there. The header row names the
+        series, one column each; every body row is a category, its <code>&lt;th&gt;</code> the label. An empty
+        cell is a gap in the line, not a zero.
+    </p>
+    <p>
+        <strong>The table is the data and the text alternative.</strong> It is visually hidden and a screen reader
+        reads it as a table; with scripting off, it is shown in place of the drawing. A cell's number is its
+        <code>data-value</code>, else its text read as a plain number, and its text is what the tooltip and the
+        announcement say &mdash; so a value is written the way the app writes a number. Point at the chart to see
+        a value; with no tooltip of the app's, the library's own hover-hint bubble says the category, the series
+        and the value.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.Columns" Title="Columns, a tooltip and a legend that switches" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-chart="column"</code> sets each category's series side by side. The tooltip is the app's
+        <code>.chart-tip</code>, written once inside the chart and filled per point: every
+        <code>[data-chart-field]</code> gets that field as text, and a
+        <code>&lt;template data-chart-tip-row&gt;</code> makes it say the whole category &mdash; a
+        <code>.chart-tip-row</code> per series, its <code>.chart-tip-swatch</code> in the series' colour and its
+        <code>.chart-tip-value</code>.
+    </p>
+    <p>
+        A <code>button.chart-key</code> with <code>data-chart-toggle</code> and <code>aria-pressed</code> hides and
+        shows its series, and the value axis fits what is left. It drives the chart in its
+        <code>[data-chart-frame]</code>, or the one <code>data-chart-for</code> names. <code>data-chart-format</code>
+        is the <code>Intl.NumberFormat</code> options the axis writes its numbers with &mdash; compact here &mdash;
+        in the page's language.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.Stacked" Title="Stacked, in semantic tones" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-chart-stack</code> stacks a column, a bar or an area chart. <code>data-tone</code> on a header
+        cell names a series' colour: <code>1</code>&ndash;<code>6</code> for series that are merely different, and
+        <code>go</code>, <code>warn</code> and <code>danger</code> only where the series <em>means</em> that &mdash;
+        a red series says &ldquo;danger&rdquo; whether or not the data does. <code>{percent}</code> in the
+        announcement is a value's share of its category.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.Area" Title="Areas" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-chart="area"</code> draws a line over its filled area; stacked, the layers add up to the
+        whole, and a missing value adds nothing to the layer below.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.Bars" Title="Bars, for long names" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-chart="bar"</code> lays the columns down, so the category names run down the side and have the
+        room a column chart's would not. With a single series, <code>data-tone</code> on a row colours that one
+        category &mdash; the zone below its target here &mdash; and the chart's <code>aria-label</code> says why.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.Donut" Title="Pies and donuts" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-chart="pie"</code> and <code>"donut"</code> draw the first series, a slice per category from
+        twelve o'clock, taking the series colours in order unless a row names its tone. <code>.chart-total</code>
+        puts the app's figure in a donut's hole: a <code>.chart-total-value</code> and a
+        <code>.chart-total-label</code>. In a pie a legend key's <code>data-chart-toggle</code> names a category,
+        and the arrow keys walk the slices.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.Scatter" Title="Scatter" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-chart="scatter"</code> puts each value at its row's own number across &mdash; the row
+        heading's <code>data-value</code> or text &mdash; and the value up. <code>data-chart-min="auto"</code> lets
+        a line or a scatter start near its lowest value; everywhere else the value axis takes in zero, because a
+        bar that does not start at zero misstates its value. <code>data-chart-min</code> and
+        <code>data-chart-max</code> fix either end.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.Shapes" Title="A shape for every series" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>A series is told apart by its shape as well as its colour.</strong> The closest series colours
+        rely on it under colour-vision deficiency, so every series has its own marker &mdash; circle, square,
+        diamond, triangle, the triangle turned down, a cross &mdash; and the legend names it with the
+        <code>.chart-swatch</code> of the same shape: <code>--square</code>, <code>--diamond</code>,
+        <code>--triangle</code>, <code>--triangle-down</code>, <code>--cross</code>. <code>data-shape</code> on a
+        header cell picks another. A filled mark's key is <code>--block</code>, a line's <code>--line</code>.
+    </p>
+    <p>
+        Every mark is an SVG element wearing the <code>.series-*</code> class of its tone, so the browser paints it
+        the theme's colour in every variant, colour vision, contrast setting and under forced colours, and
+        repaints it with no script when any of them changes. There are no chart colour tokens: a chart's colours
+        are the series every other figure uses.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.FromJson" Title="Data as JSON" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        For a series too long to read as a table, the data goes in <code>data-chart-json</code> on the chart's
+        element &mdash; an attribute, so a component binds it and a render redraws. A value given as a bare
+        number is said in the chart's format. With no table there is no text alternative but the chart's own
+        name, so the <code>aria-label</code> says what the data shows.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.Sizes" Title="Sizes" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.chart</code> is 16rem tall, <code>.chart--sm</code> 10rem and <code>.chart--lg</code> 24rem;
+        <code>--chart-height</code> sets any other, and <code>.chart--fill</code> takes its container's height.
+        The width is always the container's, and the drawing follows it as the container resizes.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.States" Title="Loading, empty and failed" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        The script writes <code>data-chart-state</code> &mdash; <code>ready</code>, or <code>empty</code> when the
+        data holds no value &mdash; and the app's <code>.chart-wait</code> covers the plot until it does.
+        <code>.chart-empty</code> on an <code>.empty-state</code> shows when the data is empty. Loading and failing
+        are the app's to say, because only the app knows: <code>aria-busy="true"</code> while it fetches brings
+        the wait back, and <code>data-chart-error</code> shows <code>.chart-empty--error</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.Keyboard" Title="The keyboard and the screen reader" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>The chart is one stop in the tab order.</strong> Reaching it puts the reader on the first point;
+        <kbd>&larr;</kbd> <kbd>&rarr;</kbd> move between categories as they are drawn, <kbd>&uarr;</kbd>
+        <kbd>&darr;</kbd> between series, <kbd>Home</kbd> and <kbd>End</kbd> to the ends, <kbd>Enter</kbd> or
+        <kbd>Space</kbd> chooses the point and <kbd>Escape</kbd> lets go. A bar chart lies down, so there the two
+        pairs of arrows swap. The point is ringed and the tooltip shows it.
+    </p>
+    <p>
+        Every move is said through the app's <code>data-chart-live</code> region, in the app's words:
+        <code>data-chart-announce</code> with <code>{category}</code>, <code>{series}</code>, <code>{value}</code>,
+        <code>{percent}</code>, <code>{index}</code> and <code>{count}</code>, and
+        <code>data-chart-announce-select</code> when a point is chosen. The chart gets
+        <code>role="application"</code> and <code>tabindex="0"</code> unless the app wrote its own; its name and
+        <code>aria-roledescription</code> are the app's.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.ChartSelect" Title="A chosen point in Blazor" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>@@onsedna-chart-select</code> receives a <code>SednaChartEventArgs</code>
+        &mdash; the chart, the series, the category, the value as a number and as the app wrote it &mdash; when a
+        point is clicked, tapped, or chosen with <kbd>Enter</kbd>. What it means is the app's. Adding a week
+        re-renders the table, and the chart draws it: there is nothing to call.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chart.RightToLeft" Title="Right to left" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        In a right-to-left page the categories run from the right, the value axis's numbers sit on the right and
+        a bar grows from the right; <kbd>&rarr;</kbd> still moves to the point drawn to the right. The axis writes
+        its numbers in the page's language. The value axis still rises upwards.
+    </p>
+</CatExample>
+
+<h2 id="drawing">The drawing's classes <CatAnchor Id="drawing" /></h2>
+<p>
+    The script draws one <code>.chart-svg</code> into the plot and writes these classes on what is inside it:
+    <code>.chart-grid</code> and <code>.chart-axis</code> for the gridlines and the zero line,
+    <code>.chart-tick</code> and <code>.chart-category</code> for the numbers and the labels,
+    <code>.chart-mark</code> on every mark with <code>.chart-line</code>, <code>.chart-area</code>,
+    <code>.chart-bar</code>, <code>.chart-marker</code> or <code>.chart-slice</code>, and for the point the reader
+    is on <code>.chart-ring</code>, <code>.chart-marker--active</code>, <code>.chart-guide</code> through a line
+    and <code>.chart-band</code> behind a column. An app never writes one, and may restyle one from its own
+    stylesheet like any class. The marks are grouped in <code>.chart-marks</code>, which fades in on the first
+    drawing; under <code>prefers-reduced-motion</code> it is shown whole at once.
+</p>

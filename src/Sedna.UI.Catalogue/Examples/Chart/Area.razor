@@ -1,0 +1,38 @@
+<div class="card" data-chart-frame>
+    <div class="card-head">
+        <h3>Visits by channel</h3>
+    </div>
+    <div class="card-body">
+        <div class="chart-legend">
+            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-1"></span><span>Search</span></span>
+            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-2"></span><span>Direct</span></span>
+            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-4"></span><span>E-mail</span></span>
+        </div>
+        <div class="chart" data-chart="area" data-chart-stack id="chart-visits"
+             data-chart-format='{"notation":"compact"}'
+             aria-label="Visits per day this week, by channel" aria-roledescription="chart">
+            <table class="chart-data" data-chart-data>
+                <caption>Visits per day, by channel</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Day</th>
+                        <th scope="col">Search</th>
+                        <th scope="col">Direct</th>
+                        <th scope="col" data-tone="4">E-mail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">Mon</th><td>4210</td><td>2380</td><td>640</td></tr>
+                    <tr><th scope="row">Tue</th><td>4580</td><td>2510</td><td>1920</td></tr>
+                    <tr><th scope="row">Wed</th><td>4390</td><td>2440</td><td>880</td></tr>
+                    <tr><th scope="row">Thu</th><td>4720</td><td>2620</td><td>710</td></tr>
+                    <tr><th scope="row">Fri</th><td>4105</td><td>2290</td><td>560</td></tr>
+                    <tr><th scope="row">Sat</th><td>2960</td><td>1510</td><td>320</td></tr>
+                    <tr><th scope="row">Sun</th><td>2740</td><td>1430</td><td>290</td></tr>
+                </tbody>
+            </table>
+            <div class="chart-plot"></div>
+            <div class="chart-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

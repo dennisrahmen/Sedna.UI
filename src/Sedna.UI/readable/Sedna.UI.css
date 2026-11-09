@@ -62,6 +62,7 @@
      51-segmented.css
      52-avatar.css
      53-chip.css
+     54-chart.css
      54-data-viz.css
      54-graph.css
      54-heatmap.css
@@ -10452,6 +10453,366 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 /* A label in a row, trimmed to its capitals with its line in its padding: see "The line a
    row is centred on" in 06-base-elements.css. */
 .chip-label { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+}
+
+/* ── 54-chart.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Chart ────────────────────────────────────────────────────────────────────
+   Lines, areas, columns, bars, pies, donuts and scatters, drawn in SVG from the app's
+   own table. The drawing is a tier 3 surface (docs/surfaces.md, docs/charts.md); the
+   frame around it — the legend, the tooltip, the wait, the empty state, the card it
+   sits in — is the app's markup, and this file styles both:
+
+     <div class="chart" data-chart="column" id="orders" aria-label="Orders per month">
+       <table class="chart-data" data-chart-data> … the data, and its text … </table>
+       <div class="chart-plot"></div>
+       <div class="chart-tip" data-chart-tip hidden> … slots … </div>
+       <div class="chart-wait skeleton skeleton-block"></div>
+       <div class="chart-empty empty-state"> … </div>
+     </div>
+     <div class="chart-legend"> … keys … </div>
+
+   ── Colour ──
+   Every mark the script draws carries the `.series-*` class of its tone — the same
+   classes a legend swatch, a bar list and a graph record wear — and paints
+   `currentColor`, so a chart is in the theme's series colours in every variant, colour
+   vision and contrast setting, with no colour of its own and no script to repaint it.
+
+   ── What the script writes, and what this file reads ──
+   `data-chart-state` on `.chart`: `ready`, or `empty` when the data holds no value.
+   Until it is written the app's `.chart-wait` covers the plot; `aria-busy="true"`,
+   which the app sets while it fetches, brings the wait back. `.chart-empty` shows
+   when the data is empty, and `.chart-empty--error` when the app sets
+   `data-chart-error` on the chart.
+
+   ── Height ──
+   SVG has no height of its own, so the chart sets one: `--chart-height`, 16rem by
+   default; `--sm` and `--lg` are the two others, and `.chart--fill` takes its
+   container's height. The width is always its container's: the drawing follows it.
+   ─────────────────────────────────────────────────────────────────────────── */
+.chart {
+    position: relative;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    height: var(--chart-height, 16rem);
+    min-width: 0;
+    /* The hidden table keeps the size of its rows, which no width on a table can shrink;
+       the chart is what clips it. */
+    overflow: hidden;
+    border-radius: inherit;
+}
+.chart--sm { --chart-height: 10rem; }
+.chart--lg { --chart-height: 24rem; }
+.chart--fill { height: 100%; min-height: 8rem; }
+
+/* One stop in the tab order; the arrow keys move between points inside it. The ring
+   is drawn inside the frame, so a card around the chart does not clip it, and not for
+   a focus the pointer gave — `data-chart-pointer`, which the first key takes off. */
+.chart:focus { outline: none; }
+.chart:focus-visible:not([data-chart-pointer])::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px var(--focus-ring);
+    pointer-events: none;
+}
+
+/* What the script draws into: the chart's one grid cell. */
+.chart-plot {
+    position: relative;
+    grid-area: 1 / 1 / -1 / -1;
+    min-width: 0;
+    min-height: 0;
+}
+
+/* The script fills the app's tooltip, and hides a slot with the `hidden` attribute
+   when a point has nothing for it; a class that sets `display` would otherwise
+   outrank the attribute's own `display: none`. */
+.chart [hidden] { display: none; }
+
+/* The data as markup: read by the script, read out by a screen reader as a table — so
+   visually hidden, not hidden. Add `hidden` when the page shows the same numbers
+   another way, such as a table beside the chart. A table grows to its content
+   whatever its width says, unless its layout is fixed. */
+.chart-data {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    table-layout: fixed;
+    border-spacing: 0;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ── The drawing ───────────────────────────────────────────────────────────────
+   The classes below are the script's: it writes them on the SVG elements it draws.
+   An app never writes one, and may restyle one from its own stylesheet like any class.
+   The svg's text runs left to right whatever the page's direction, because the script
+   places every label by its own edge; the words inside a label still read in their
+   own direction. */
+.chart-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    direction: ltr;
+    font-family: var(--font-sans);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.chart-grid line {
+    stroke: var(--border);
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+.chart-axis {
+    stroke: var(--border-strong);
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+.chart-tick { fill: var(--muted); }
+.chart-category { fill: var(--fg-soft); }
+
+/* Every mark paints the colour of its `.series-*` class. */
+.chart-mark { fill: currentColor; stroke: none; }
+.chart-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+.chart-area { fill-opacity: 0.18; }
+.chart-marker { stroke: var(--surface-here, var(--bg)); stroke-width: 1.5; }
+.chart-marker--active { stroke-width: 2; }
+/* Slices are parted by the ground they sit on, so neighbours never touch. */
+.chart-slice { stroke: var(--surface-here, var(--bg)); stroke-width: 2; stroke-linejoin: round; }
+
+/* The point the reader is on: a ring, and its category marked under the marks. */
+.chart-ring {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 2;
+    pointer-events: none;
+}
+.chart-guide {
+    stroke: var(--border-strong);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+    pointer-events: none;
+}
+.chart-band { fill: var(--bg-hover); pointer-events: none; }
+
+/* The first drawing fades in, once. */
+.chart-svg[data-chart-enter] .chart-marks { animation: sedna-chart-in var(--motion-slow) ease-out both; }
+@keyframes sedna-chart-in { from { opacity: 0; } }
+
+/* ── The tooltip ───────────────────────────────────────────────────────────────
+   The app's markup, filled and placed by the script: `.chart-tip-title` for the
+   category, a `.chart-tip-row` per series with its `.chart-tip-swatch`, name and
+   `.chart-tip-value`. `data-chart-tone` on the tip, or on a row cloned from the
+   `<template data-chart-tip-row>`, colours the swatch in that series. */
+.chart-tip {
+    --chart-tip-tone: var(--viz-1);
+    position: absolute;
+    /* rtl-ok: the script places the tip with a transform from the frame's left edge,
+       in pixels, in either direction. */
+    left: 0;
+    inset-block-start: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 8rem;
+    max-width: 18rem;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-3);
+    line-height: 1.4;
+    color: var(--tip-fg);
+    background: var(--tip-bg);
+    border: 1px solid var(--tip-border);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-tip);
+    pointer-events: none;
+}
+.chart-tip-title { font-weight: 600; }
+.chart-tip-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--muted);
+}
+.chart-tip-row[data-chart-current] { color: var(--tip-fg); }
+.chart-tip-swatch {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    color: var(--chart-tip-tone);
+    background: currentColor;
+    border-radius: 2px;
+}
+.chart-tip-value {
+    margin-inline-start: auto;
+    padding-inline-start: var(--space-5);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--tip-fg);
+}
+[data-chart-tone="1"] { --chart-tip-tone: var(--viz-1); }
+[data-chart-tone="2"] { --chart-tip-tone: var(--viz-2); }
+[data-chart-tone="3"] { --chart-tip-tone: var(--viz-3); }
+[data-chart-tone="4"] { --chart-tip-tone: var(--viz-4); }
+[data-chart-tone="5"] { --chart-tip-tone: var(--viz-5); }
+[data-chart-tone="6"] { --chart-tip-tone: var(--viz-6); }
+[data-chart-tone="go"] { --chart-tip-tone: var(--go-solid); }
+[data-chart-tone="warn"] { --chart-tip-tone: var(--warn-solid); }
+[data-chart-tone="danger"] { --chart-tip-tone: var(--danger-solid); }
+[data-chart-tone="info"] { --chart-tip-tone: var(--info-solid); }
+[data-chart-tone="muted"] { --chart-tip-tone: var(--muted); }
+
+/* ── Waiting, empty, failed ───────────────────────────────────────────────────── */
+.chart-wait,
+.chart-empty {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+.chart-wait { height: auto; }
+.chart[data-chart-state]:not([aria-busy="true"]) .chart-wait { display: none; }
+.chart-empty {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+.chart[data-chart-state="empty"]:not([aria-busy="true"], [data-chart-error]) .chart-empty:not(.chart-empty--error),
+.chart[data-chart-error]:not([aria-busy="true"]) .chart-empty--error { display: flex; }
+/* What would be drawn under a wait or a message is not drawn twice. */
+.chart:is([aria-busy="true"], [data-chart-error]) .chart-plot { visibility: hidden; }
+
+/* ── The donut's middle ─────────────────────────────────────────────────────────
+   A figure in the hole — the total, the share that matters — as the app's markup,
+   centred over the plot: `.chart-total`, its `.chart-total-value` and a
+   `.chart-total-label` under it. */
+.chart-total {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    pointer-events: none;
+    text-align: center;
+}
+.chart-total-value {
+    font-size: var(--text-9);
+    font-weight: 650;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+}
+.chart-total-label { font-size: var(--text-2); color: var(--muted); }
+.chart--sm .chart-total-value { font-size: var(--text-6); }
+
+/* ── The legend ────────────────────────────────────────────────────────────────
+   A row of keys, each a `.chart-swatch` in its series' `.series-*` colour and
+   shape — the marker the line or the scatter draws for that series — and the name.
+   A key that is a `button` with `data-chart-toggle` and `aria-pressed` hides and shows
+   its series: pressed is shown. */
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-6);
+    font-size: var(--text-3);
+    color: var(--fg-soft);
+}
+/* A legend just above or below its chart keeps a gap from it. */
+.chart-legend + .chart,
+.chart + .chart-legend { margin-block-start: var(--space-5); }
+.chart-key {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font: inherit;
+    color: inherit;
+}
+button.chart-key {
+    padding: var(--space-1) var(--space-2);
+    margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2));
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-control);
+    cursor: pointer;
+}
+button.chart-key:hover { background: var(--bg-hover); }
+button.chart-key:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+button.chart-key[aria-pressed="false"] { color: var(--muted); text-decoration: line-through; }
+button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
+
+.chart-swatch {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    background: currentColor;
+    border-radius: 50%;
+}
+.chart-swatch--square { border-radius: 1px; }
+.chart-swatch--diamond { border-radius: 1px; transform: rotate(45deg) scale(0.86); }
+.chart-swatch--triangle { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.chart-swatch--triangle-down { border-radius: 0; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.chart-swatch--cross {
+    border-radius: 0;
+    clip-path: polygon(30% 0, 70% 0, 70% 30%, 100% 30%, 100% 70%, 70% 70%, 70% 100%, 30% 100%, 30% 70%, 0 70%, 0 30%, 30% 30%);
+}
+/* A filled key for an area, a column, a bar or a slice. */
+.chart-swatch--block { border-radius: 2px; }
+/* A line's key: the line, with its marker on it when it has one. */
+.chart-swatch--line {
+    width: 16px;
+    height: 2px;
+    border-radius: 1px;
+}
+
+/* ── Without scripting ─────────────────────────────────────────────────────────
+   With scripting off a chart is its table: the numbers, readable, in place of a wait
+   that would never end. A table the app marked `hidden` stays hidden. */
+@media (scripting: none) {
+    .chart {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+    .chart-plot,
+    .chart-wait,
+    .chart-total { display: none; }
+    .chart-data {
+        position: static;
+        width: auto;
+        height: auto;
+        table-layout: auto;
+        margin: 0;
+        overflow: visible;
+        clip-path: none;
+        white-space: normal;
+    }
+}
+
+/* On paper the drawing is the point: the tooltip is left behind. */
+@media print {
+    .chart-tip { display: none; }
+}
 }
 
 /* ── 54-data-viz.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -24584,6 +24945,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .inbox-item:has(.inbox-item-title:focus-visible) { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
+    /* So is the chart's, and a legend key that switches a series rings like a button. */
+    .chart:focus-visible:not([data-chart-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
+    button.chart-key:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
 
     /* Selected and current states are backgrounds, which are flattened away. An
        outline is what is left that the mode still paints. */
@@ -24686,6 +25050,14 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     /* A star is a clipped background too, and it is the score itself. */
     .rating-star::before,
     .rating-star::after { forced-color-adjust: none; }
+
+    /* A chart's marks are its data, and each series is told from the next by its colour
+       and its shape: forced colours would paint every mark CanvasText through
+       `currentColor`. The drawing, its legend's swatches and the tooltip's opt out, and
+       read the series tokens — the brand among them already the user's Highlight. */
+    .chart-svg,
+    .chart-swatch,
+    .chart-tip-swatch { forced-color-adjust: none; }
 
     /* A heatmap cell keeps its step from the remap above, and an outline in the
        user's muted ink, so an empty cell is still a cell and not a hole in the grid. */
@@ -25359,6 +25731,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     /* 57 — the button comes in at once, a screen down, instead of fading in. */
     .back-to-top { animation-timing-function: step-end; }
     a.stat            { transition: none; }   /* 54 */
+    /* 54 — a chart is drawn whole at once, rather than fading in. */
+    .chart-svg[data-chart-enter] .chart-marks { animation: none; }
     /* 54 — a running link's key holds its dashes still; they still say "running". */
     .graph-line--flow::before,
     .graph-line--flow:dir(rtl)::before { animation: none; }

@@ -58,6 +58,8 @@ public class BusyStateTests
         "rating-star", "rating-half",           // a choice, as a radio is
         "inbox-item",                           // its ring is its title's, a link; nothing of its own runs
         "page-banner-dismiss",                  // removes the banner; nothing of its own runs
+        "chart",                                // a figure; the app says it loads with aria-busy on it, 54-chart.css
+        "chart-key",                            // hides a series at once; nothing of its own runs
         "app-switcher-item",                    // a link to another app
         "page-toc-fold", "page-toc-link",       // folds the contents, jumps within the page; nothing runs
         "back-to-top",                          // scrolls the page it is in; nothing runs
