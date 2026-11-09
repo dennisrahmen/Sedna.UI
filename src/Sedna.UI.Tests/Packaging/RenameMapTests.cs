@@ -37,6 +37,26 @@ public class RenameMapTests
     }
 
     /// <summary>
+    /// The class check in an app's build and <c>build/rename-classes.py</c> both match an old
+    /// name as a whole class token, so each name has to be one, and an old name appears once:
+    /// two entries for it would leave the replacement to whichever is read last.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(Maps))]
+    public void Every_name_is_one_class_token_and_every_old_name_appears_once(string file)
+    {
+        using var doc = JsonDocument.Parse(File.ReadAllText(Path.Combine(Assets.RepoRoot, "docs", "renames", file)));
+        var renames = doc.RootElement.GetProperty("renames").EnumerateArray().ToList();
+        var token = new Regex(@"^-?[A-Za-z_][A-Za-z0-9_-]*$");
+
+        var olds = renames.Select(r => r.GetProperty("old").GetString()!).ToList();
+        var names = olds.Concat(renames.SelectMany(r => r.GetProperty("new").EnumerateArray().Select(n => n.GetString()!)));
+        Assert.All(names, n => Assert.Matches(token, n));
+        Assert.All(renames, r => Assert.NotEqual(0, r.GetProperty("new").GetArrayLength()));
+        Assert.Equal(olds.Count, olds.Distinct(StringComparer.Ordinal).Count());
+    }
+
+    /// <summary>
     /// The release notes call the attached map renames-&lt;version&gt;.json. An asset is
     /// named after its file, and the file in the repository is named after the version
     /// alone, so the release has to upload it under the other name.

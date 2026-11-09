@@ -1,0 +1,142 @@
+<Project>
+
+  <!--
+    Sedna.UI: the class check.
+
+    Packed as build/Sedna.UI.targets, so NuGet imports it into every project that references
+    the package. After each build it reads the app's markup and stylesheets for class names a
+    release of Sedna.UI renamed or removed, and warns once per use with the file, the line, the
+    old class and what replaced it:
+
+      SEDNAUI001  a class a release renamed, with the class or classes that look the same now
+      SEDNAUI002  a class a release removed with no rename
+
+    The renames are the maps in docs/renames/, packed as tooling/renames/*.json. The removals
+    are the class history build/class-history.sh generates, packed as tooling/class-history.json.
+    Both describe the installed version, so the check never names a class that version has.
+
+    Turn it off:          <SednaUiClassCheck>false</SednaUiClassCheck>
+    Silence one kind:     <NoWarn>$(NoWarn);SEDNAUI002</NoWarn>
+    Choose the files:     <SednaUiClassCheckFile Include="Pages/**/*.razor" />  (replaces the default set)
+
+    Pure MSBuild and an inline task compiled by the SDK's own RoslynCodeTaskFactory, against
+    netstandard only, so it runs under `dotnet build` and Visual Studio alike and adds no package.
+  -->
+
+  <PropertyGroup>
+    <SednaUiClassCheck Condition="'$(SednaUiClassCheck)' == ''">true</SednaUiClassCheck>
+    <SednaUiToolingDirectory Condition="'$(SednaUiToolingDirectory)' == ''">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'tooling'))</SednaUiToolingDirectory>
+    <SednaUiRenameMapDirectory Condition="'$(SednaUiRenameMapDirectory)' == ''">$([MSBuild]::NormalizeDirectory('$(SednaUiToolingDirectory)', 'renames'))</SednaUiRenameMapDirectory>
+    <SednaUiClassHistory Condition="'$(SednaUiClassHistory)' == ''">$(SednaUiToolingDirectory)class-history.json</SednaUiClassHistory>
+  </PropertyGroup>
+
+  <Target Name="SednaUiClassCheck"
+          AfterTargets="Build"
+          Condition="'$(SednaUiClassCheck)' == 'true' and '$(DesignTimeBuild)' != 'true'">
+    <ItemGroup Condition="'@(SednaUiClassCheckFile)' == ''">
+      <SednaUiClassCheckFile Include="$(MSBuildProjectDirectory)/**/*.razor;$(MSBuildProjectDirectory)/**/*.cshtml;$(MSBuildProjectDirectory)/**/*.html;$(MSBuildProjectDirectory)/**/*.htm;$(MSBuildProjectDirectory)/**/*.css"
+                             Exclude="$(MSBuildProjectDirectory)/bin/**;$(MSBuildProjectDirectory)/obj/**;$(MSBuildProjectDirectory)/**/node_modules/**;$(MSBuildProjectDirectory)/wwwroot/lib/**" />
+    </ItemGroup>
+    <ItemGroup>
+      <_SednaUiRenameMap Include="$(SednaUiRenameMapDirectory)*.json" />
+    </ItemGroup>
+    <SednaUiClassCheckTask Files="@(SednaUiClassCheckFile)" Maps="@(_SednaUiRenameMap)" History="$(SednaUiClassHistory)" />
+  </Target>
+
+  <UsingTask TaskName="SednaUiClassCheckTask"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <Maps ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+      <History ParameterType="System.String" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.Collections.Generic" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Runtime.Serialization.Json" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Using Namespace="System.Xml" />
+      <Using Namespace="System.Xml.Linq" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        // A JSON object read as XML: a key that is no XML name is an <item item="key">.
+        Func<XElement, string, XElement> child = (e, key) => e == null ? null : e.Elements().FirstOrDefault(c =>
+            c.Attribute("item") != null ? (string)c.Attribute("item") == key : c.Name.LocalName == key);
+        Func<string, XElement> read = path =>
+        {
+            var bytes = File.ReadAllBytes(path);
+            using (var reader = JsonReaderWriterFactory.CreateJsonReader(bytes, XmlDictionaryReaderQuotas.Max))
+                return XElement.Load(reader);
+        };
+        Func<string, Version> version = s => { Version v; return Version.TryParse(s, out v) ? v : new Version(0, 0); };
+
+        // old name -> (release, replacement); a later map wins, so a chain reads to its end.
+        var renamed = new Dictionary<string, Tuple<string, string>>(StringComparer.Ordinal);
+        var maps = (Maps ?? new ITaskItem[0])
+            .Select(m => read(m.ItemSpec))
+            .Select(root => Tuple.Create((string)child(root, "release") ?? "", root))
+            .OrderBy(t => version(t.Item1));
+        foreach (var map in maps)
+        {
+            var list = child(map.Item2, "renames");
+            if (list == null) continue;
+            foreach (var entry in list.Elements())
+            {
+                var old = (string)child(entry, "old");
+                var replacement = child(entry, "new");
+                if (string.IsNullOrEmpty(old) || replacement == null) continue;
+                renamed[old] = Tuple.Create(map.Item1, string.Join(" ", replacement.Elements().Select(n => (string)n)));
+            }
+        }
+
+        // old name -> the release that removed it, or "" for one removed since the last release.
+        var removed = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (!string.IsNullOrEmpty(History) && File.Exists(History))
+        {
+            var classes = child(child(read(History), "removed"), "classes");
+            if (classes != null)
+                foreach (var entry in classes.Elements())
+                {
+                    var name = entry.Attribute("item") != null ? (string)entry.Attribute("item") : entry.Name.LocalName;
+                    if (!renamed.ContainsKey(name)) removed[name] = (string)child(entry, "removed") ?? "";
+                }
+        }
+
+        var names = renamed.Keys.Concat(removed.Keys).OrderByDescending(n => n.Length).Select(Regex.Escape).ToList();
+        if (names.Count == 0) return true;
+        var alternation = "(" + string.Join("|", names) + ")";
+        // A stylesheet names a class as a selector; markup names it as a whole token in an attribute.
+        var selector = new Regex(@"\." + alternation + @"(?![\w-])", RegexOptions.CultureInvariant);
+        var token = new Regex(@"(?<![\w-])" + alternation + @"(?![\w-])", RegexOptions.CultureInvariant);
+
+        foreach (var file in Files.Select(f => f.GetMetadata("FullPath")).Distinct(StringComparer.Ordinal))
+        {
+            if (!File.Exists(file)) continue;
+            var pattern = file.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ? selector : token;
+            var lines = File.ReadAllLines(file);
+            for (var i = 0; i < lines.Length; i++)
+            {
+                foreach (Match m in pattern.Matches(lines[i]))
+                {
+                    var name = m.Groups[1].Value;
+                    var column = m.Groups[1].Index + 1;
+                    Tuple<string, string> rename;
+                    if (renamed.TryGetValue(name, out rename))
+                        Log.LogWarning("Sedna.UI", "SEDNAUI001", null, file, i + 1, column, i + 1, column + name.Length,
+                            "Sedna.UI " + rename.Item1 + " renamed the class '" + name + "' to '" + rename.Item2
+                            + "'. Replace the whole class, never a prefix: tooling/rename-classes.py in the package does it.");
+                    else
+                        Log.LogWarning("Sedna.UI", "SEDNAUI002", null, file, i + 1, column, i + 1, column + name.Length,
+                            (removed[name].Length == 0 ? "Sedna.UI removed the class '" + name + "'"
+                                : "Sedna.UI " + removed[name] + " removed the class '" + name + "'")
+                            + " with no rename, so it styles nothing. The release notes say what to use instead.");
+                }
+            }
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+</Project>

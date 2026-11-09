@@ -230,6 +230,10 @@ Before bumping the pinned version, read the class names the release adds and gre
 for each one. Where a name collides, delete the local rule and use the library's, or rename the local one
 into this app's own prefix.
 
+If this app runs Stylelint, extend the package's `tooling/stylelint/sedna-ui.stylelintrc.json`, copied
+beside this app's own config: it reports a selector naming a library class and a colour literal outside
+`brand.css`.
+
 ### Graphs
 
 Records and the links between them are a `[data-graph]` element — copy it from the catalogue's Graph
@@ -411,3 +415,9 @@ The version is pinned and does not float. Before bumping it:
 2. Grep this app's stylesheets for every class name the release adds — see above.
 3. Check the pages this app renders, in each theme and variant (`data-theme`, `data-variant`,
    `data-cvd`, `data-density`).
+
+After bumping it, build. The package's class check warns `SEDNAUI001` for each use of a class a release
+renamed, with the classes that replace it, and `SEDNAUI002` for one it removed. Apply the renames with the
+package's script — `python3 -I ~/.nuget/packages/sedna.ui/<VERSION>/tooling/rename-classes.py --from
+<the previous version> --dry-run .` prints the diff, and without `--dry-run` it writes it. Replace a
+removed class by the release notes. Do not silence either warning to finish an upgrade.

@@ -438,6 +438,10 @@ internal static class CataloguePages
             "The read-only endpoint an agent points at, its tools and its resources.",
             "mcp agent ai claude tool resource read-only streamable http rate limit since",
             Section: Reference),
+        new("/tooling", Start, "App tooling", "ri-tools-line",
+            "The build warning on a renamed class, the rename script, the Stylelint config and the agent skill.",
+            "stylelint lint linter msbuild targets build warning SEDNAUI001 SEDNAUI002 rename codemod upgrade migrate removed class skill SKILL.md claude agent nowarn",
+            Section: Reference),
     ];
 
     /// <summary>The group names, in the order the sidebar's rail shows them.</summary>

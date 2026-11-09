@@ -19,6 +19,10 @@
     /// runs here and is not in the .nupkg, and the badge is where that is said.
     public const string Site = "this site, not the package";
 
+    /// For a page about what the package carries for the app's own build, linter and agent
+    /// rather than for its pages.
+    public const string Tooling = "the app's build and tools";
+
     [Parameter, EditorRequired] public string Title { get; set; } = default!;
     [Parameter] public string Tier { get; set; } = Tier2;
 

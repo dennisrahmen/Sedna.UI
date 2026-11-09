@@ -1,0 +1,8 @@
+$ npx stylelint "wwwroot/**/*.css"
+
+wwwroot/css/app.css
+  3:1   ×  Selector ".orders-summary .card-body" names a class Sedna.UI owns. Set the component's token, use a variant the library ships, or put a class with this app's own prefix on the element  selector-disallowed-list
+  9:24  ×  "#1f6feb" is a colour literal. Use a Sedna.UI token (var(--…)); a colour value belongs only in brand.css, as the value of a token the library declares  color-no-hex
+
+wwwroot/css/brand.css
+  4:3   ×  "--orders-accent" is no token Sedna.UI declares, and brand.css may only redefine one. Put a value of this app's own in another stylesheet, under this app's prefix (--<app>-…)  custom-property-pattern

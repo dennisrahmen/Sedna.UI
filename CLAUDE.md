@@ -111,7 +111,10 @@ to every interop call that does not, so a dialog left open for a minute would th
 
 The package is the stylesheet, the script, the icons, the token export, the engines of the tier 3
 surfaces that ship one, and the C# surface above: `ActiveLink`, `SednaSort`, `SednaPager`, `SednaTabs`, `ISednaUi`, `ISednaSettings`,
-`ISednaOverlays`, `ISednaGraphs`, `ISednaEditors`, `SednaContract` and `AddSednaUi()`. Most of this library is CSS.
+`ISednaOverlays`, `ISednaGraphs`, `ISednaEditors`, `SednaContract` and `AddSednaUi()` — plus the app's
+tooling: the class check the app's build imports, the rename maps and `rename-classes.py`, the Stylelint
+config and the agent skill. The class check is MSBuild and an inline task, never a package or an
+analyzer. Most of this library is CSS.
 
 ## The stylesheet and the script are generated
 
@@ -331,6 +334,7 @@ src/
     Navigation/ActiveLink.cs          which link is the current page
     State/                            SednaSort, SednaPager, SednaTabs — the state helpers
     Interop/                          ISednaUi, ISednaSettings, ISednaOverlays, ISednaGraphs and ISednaEditors — typed access to the browser API
+    Tooling/Sedna.UI.targets          the class check, packed as build/ and buildTransitive/Sedna.UI.targets into every app's build
   Sedna.UI.Tests/                 xUnit + bUnit + Playwright, over the shipped assets
   Sedna.UI.Catalogue/             the hosted catalogue and the MCP server
     Components/Pages/                 one .razor page per class family
@@ -342,6 +346,10 @@ src/
 assets/brand/                         icon, logo, favicon, social preview
 build/api-inventory.sh                lists the public C# surface — the C# half of css-inventory.sh
 build/verify-package.sh               unpacks the .nupkg and asserts its contents
+build/rename-classes.py               applies docs/renames/ to an app's files; packed as tooling/rename-classes.py
+build/app-tooling.sh                  GENERATES tooling/stylelint/ from the stylesheet and skills/sedna-ui/ from docs/CLAUDE.consuming-app.md
+tooling/stylelint/                    GENERATED — the Stylelint config an app extends; packed under tooling/
+skills/sedna-ui/SKILL.md              GENERATED — the consuming-app block as an agent skill; packed under tooling/skills/
 docs/                                 long-form documentation
 ```
 

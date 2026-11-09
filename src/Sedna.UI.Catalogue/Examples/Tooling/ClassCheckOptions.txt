@@ -1,0 +1,14 @@
+<!-- In the app's .csproj. Each is optional: with none, every build checks the app's
+     .razor, .cshtml, .html and .css files, skipping bin/, obj/, node_modules/ and wwwroot/lib/. -->
+<PropertyGroup>
+  <!-- Turn the check off. -->
+  <SednaUiClassCheck>false</SednaUiClassCheck>
+
+  <!-- Or silence one kind: SEDNAUI001 is a rename, SEDNAUI002 a removal. -->
+  <NoWarn>$(NoWarn);SEDNAUI002</NoWarn>
+</PropertyGroup>
+
+<ItemGroup>
+  <!-- Or name the files to read. Any item replaces the whole default set. -->
+  <SednaUiClassCheckFile Include="Components/**/*.razor;wwwroot/css/*.css" />
+</ItemGroup>

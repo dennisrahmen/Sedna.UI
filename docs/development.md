@@ -175,7 +175,11 @@ build/bundle-css.sh          # wwwroot/css/Sedna.UI.css   from css-parts/
 build/bundle-js.sh           # wwwroot/js/Sedna.UI.js     from js-parts/, and each surface module from its parts
 build/export-tokens.sh       # wwwroot/tokens/…tokens.json    from the token parts, and the …tokens.dtcg*.json files from it
 build/class-states.sh        # the catalogue's Data/class-states.json   from the shipped stylesheet
+build/app-tooling.sh         # tooling/stylelint/…stylelintrc.json from the shipped stylesheet, skills/sedna-ui/SKILL.md from docs/CLAUDE.consuming-app.md
 ```
+
+`bundle-css.sh` runs `class-states.sh` and `app-tooling.sh` after it writes the stylesheet. After editing
+`docs/CLAUDE.consuming-app.md`, run `app-tooling.sh` yourself: the agent skill is that file.
 
 One is generated and never committed, because the release tags date it. Run it after cloning and after
 fetching a new tag (it needs bash 4 or later); CI, the release and the catalogue image run it themselves:
@@ -225,6 +229,8 @@ not the CSS.
 - the packed stylesheet still contains the token layer
 - the catalogue's relative CSS link resolves inside the package
 - a scoped-CSS bundle is present if any `.razor.css` exists
+- the app tooling is packed: the class check as `build/` and `buildTransitive/Sedna.UI.targets`, and under
+  `tooling/` every rename map, the class history, `rename-classes.py`, the Stylelint config and the agent skill
 
 Static web assets can be dropped from a package without failing the build, and the result is a runtime
 404. CI runs this on every push.

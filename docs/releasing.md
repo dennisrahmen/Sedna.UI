@@ -17,7 +17,10 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` â€
    which `build/release-inventory.sh` prints first for that reason. A release that renames classes also
    commits `docs/renames/<version>.json` before the tag: each old name with the class or classes that
    look the same, so an app converts by the map and not by a prefix. `release.yml` attaches it to the
-   release, and `RenameMapTests` holds it to the stylesheet.
+   release, and `RenameMapTests` holds it to the stylesheet. The package carries every map under
+   `tooling/renames/`: the class check in each app's build warns by it, and `rename-classes.py` converts
+   by it. A class removed with nothing alike is no entry in a map; the class history names it, and the
+   class check warns on it from there.
 3. Tag `main` and push. There is no release PR and nothing to prepare in the tree:
 
    ```bash

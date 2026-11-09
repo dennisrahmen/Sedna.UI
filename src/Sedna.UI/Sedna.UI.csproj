@@ -67,6 +67,20 @@
     <None Include="readable\*" Pack="true" PackagePath="readable\" Visible="false" />
   </ItemGroup>
 
+  <!-- The app's own tooling, matched to this version: the class check NuGet imports into the
+       app's build, the maps and the history it reads, the rename script, the Stylelint config
+       and the agent skill. None of it is a static web asset; tooling/ is no folder NuGet acts on. -->
+  <ItemGroup>
+    <None Update="Tooling\Sedna.UI.targets" Pack="true" PackagePath="build\Sedna.UI.targets;buildTransitive\Sedna.UI.targets" />
+    <None Include="..\..\docs\renames\*.json" Pack="true" PackagePath="tooling\renames\" Visible="false" />
+    <None Include="..\..\build\rename-classes.py" Pack="true" PackagePath="tooling\" Visible="false" />
+    <None Include="..\..\tooling\stylelint\sedna-ui.stylelintrc.json" Pack="true" PackagePath="tooling\stylelint\" Visible="false" />
+    <None Include="..\..\skills\sedna-ui\SKILL.md" Pack="true" PackagePath="tooling\skills\sedna-ui\" Visible="false" />
+    <!-- The Razor SDK makes every .json a Content item, which would pack the history as contentFiles
+         into the app's own project. It is packed under tooling/ for the class check, and nowhere else. -->
+    <Content Update="Contract\class-history.json" Pack="true" PackagePath="tooling\class-history.json" />
+  </ItemGroup>
+
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>

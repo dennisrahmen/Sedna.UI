@@ -45,6 +45,7 @@ jobs:
           bash build/bundle-js.sh --check
           bash build/export-tokens.sh --check
           bash build/class-states.sh --check
+          bash build/app-tooling.sh --check
 
       # Not committed: it is dated by the tags, so it is generated wherever it is built.
       - name: Generate the class history

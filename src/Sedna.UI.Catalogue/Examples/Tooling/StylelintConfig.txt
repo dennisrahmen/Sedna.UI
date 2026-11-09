@@ -1,0 +1,6 @@
+$ cp ~/.nuget/packages/sedna.ui/0.28.0/tooling/stylelint/sedna-ui.stylelintrc.json .
+
+// .stylelintrc.json, in the same folder
+{
+  "extends": ["./sedna-ui.stylelintrc.json"]
+}

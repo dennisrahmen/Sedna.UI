@@ -162,3 +162,6 @@ echo "wrote   $(basename "$OUT") from ${#FILES[@]} parts ($(wc -l < "$READABLE")
 # The catalogue's class states are read from the stylesheet just written, so a part that
 # adds a state cannot leave them behind.
 bash "$ROOT/build/class-states.sh"
+
+# So is the Stylelint config an app extends: its list of the classes the library owns.
+bash "$ROOT/build/app-tooling.sh"
