@@ -69,8 +69,9 @@ public class GraphBlazorTests(CatalogueAppFixture app)
         var page = await Open();
 
         Assert.Equal(7, await Cy<int>(page, "checkout-services", "cy.nodes().length"));
-        // Rendered by the component from the SednaGraphStats that SetDataAsync answered.
-        Assert.Contains("7 services, 7 calls", await Example(page, "checkout-services").InnerTextAsync(), StringComparison.Ordinal);
+        // Rendered by the component from the SednaGraphStats that SetDataAsync answered — a
+        // render that follows the drawing, so it is waited for rather than read at once.
+        await Assertions.Expect(Example(page, "checkout-services")).ToContainTextAsync("7 services, 7 calls");
 
         await page.Context.CloseAsync();
     }
