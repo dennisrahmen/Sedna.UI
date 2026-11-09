@@ -3372,6 +3372,162 @@ window.sednaUi = window.sednaUi || {};
     };
 })(window.sednaUi);
 (function (ui) {
+    var TRIGGER = /(^|\s)@([^\s@]{0,40})$/;
+    var ids = 0;
+    var open = null;    // { field, list, start, end } while a list is open
+    var dismissed = typeof WeakMap === 'function' ? new WeakMap() : null;
+    function fieldOf(el) {
+        return el && el.nodeType === 1 && el.matches('textarea[data-mention], input[data-mention]') ? el : null;
+    }
+    function listOf(field) {
+        var id = field.getAttribute('data-mention');
+        return id ? document.getElementById(id) : null;
+    }
+    function itemsOf(list) {
+        return Array.prototype.filter.call(list.querySelectorAll('.menu-item[data-mention-value]'), function (item) {
+            return !item.disabled && item.getAttribute('aria-disabled') !== 'true';
+        });
+    }
+    function shown(list) {
+        return itemsOf(list).filter(function (item) { return !item.hidden; });
+    }
+    function labelOf(item) {
+        return String(item.getAttribute('data-label') || item.textContent || '').trim();
+    }
+    function setActive(list, field, item) {
+        var all = itemsOf(list);
+        for (var i = 0; i < all.length; i++) {
+            var on = all[i] === item;
+            all[i].toggleAttribute('data-active', on);
+            all[i].setAttribute('aria-selected', on ? 'true' : 'false');
+        }
+        if (item) {
+            field.setAttribute('aria-activedescendant', item.id);
+            try { item.scrollIntoView({ block: 'nearest' }); } catch (err) { /* detached */ }
+        } else {
+            field.removeAttribute('aria-activedescendant');
+        }
+    }
+    function close() {
+        if (!open) return;
+        var was = open;
+        open = null;
+        was.list.hidden = true;
+        setActive(was.list, was.field, null);
+    }
+    function triggerIn(field) {
+        if (field.selectionStart !== field.selectionEnd) return null;
+        var end = field.selectionStart;
+        var m = TRIGGER.exec(field.value.slice(0, end));
+        if (!m) return null;
+        return { start: end - m[2].length - 1, end: end, query: m[2] };
+    }
+    function update(field, typed) {
+        var at = triggerIn(field);
+        var list = listOf(field);
+        if (!at || !list) {
+            if (dismissed) dismissed.delete(field);
+            if (open && open.field === field) close();
+            return;
+        }
+        if (dismissed && dismissed.get(field) === at.start) return;
+        if (!typed && !(open && open.field === field)) return;
+        var all = itemsOf(list), any = false;
+        for (var i = 0; i < all.length; i++) {
+            var item = all[i];
+            var match = !at.query
+                || ui._.score(at.query, labelOf(item), 0) >= 0
+                || ui._.score(at.query, item.getAttribute('data-mention-value') || '', 0) >= 0;
+            item.hidden = !match;
+            if (match) any = true;
+        }
+        if (!any) {
+            if (open && open.field === field) close();
+            return;
+        }
+        if (open && open.list !== list) close();
+        list.setAttribute('role', 'listbox');
+        if (!list.id) list.id = 'sedna-mention-list-' + (++ids);
+        for (var k = 0; k < all.length; k++) {
+            all[k].setAttribute('role', 'option');
+            if (!all[k].id) all[k].id = 'sedna-mention-' + (++ids);
+        }
+        if (!field.hasAttribute('aria-controls')) field.setAttribute('aria-controls', list.id);
+        list.hidden = false;
+        open = { field: field, list: list, start: at.start, end: at.end };
+        var visible = shown(list);
+        var current = visible.filter(function (it) { return it.hasAttribute('data-active'); })[0];
+        setActive(list, field, current || visible[0]);
+    }
+    function choose(item) {
+        if (!open || !item) return;
+        var field = open.field, start = open.start;
+        var end = field.selectionStart;
+        var text = '@' + item.getAttribute('data-mention-value') + ' ';
+        close();
+        field.setRangeText(text, start, end, 'end');
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    function move(step) {
+        var visible = shown(open.list);
+        if (!visible.length) return;
+        var at = -1;
+        for (var i = 0; i < visible.length; i++) if (visible[i].hasAttribute('data-active')) at = i;
+        setActive(open.list, open.field, visible[(at + step + visible.length) % visible.length]);
+    }
+    ui.mention = {
+        close: close
+    };
+    document.addEventListener('input', function (e) {
+        var field = fieldOf(e.target);
+        if (field) update(field, true);
+    });
+    document.addEventListener('keyup', function (e) {
+        if (!open || e.target !== open.field) return;
+        if (/^(ArrowLeft|ArrowRight|Home|End)$/.test(e.key)) update(open.field, false);
+    });
+    document.addEventListener('click', function (e) {
+        if (open && e.target === open.field) update(open.field, false);
+    });
+    window.addEventListener('keydown', function (e) {
+        if (!open || e.target !== open.field || e.isComposing) return;
+        var plain = !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey;
+        if (e.key === 'ArrowDown' && plain) move(1);
+        else if (e.key === 'ArrowUp' && plain) move(-1);
+        else if ((e.key === 'Enter' || e.key === 'Tab') && plain) {
+            choose(shown(open.list).filter(function (it) { return it.hasAttribute('data-active'); })[0]);
+        } else if (e.key === 'Escape') {
+            if (dismissed) dismissed.set(open.field, open.start);
+            close();
+        } else return;
+        e.preventDefault();
+        e.stopPropagation();
+    }, true);
+    document.addEventListener('mousedown', function (e) {
+        if (open && e.target instanceof Element && open.list.contains(e.target) && e.target.closest('.menu-item')) e.preventDefault();
+    });
+    document.addEventListener('click', function (e) {
+        if (!open || !(e.target instanceof Element)) return;
+        var item = e.target.closest('.menu-item[data-mention-value]');
+        if (item && open.list.contains(item) && !item.hidden) choose(item);
+    });
+    document.addEventListener('pointermove', function (e) {
+        if (!open || !(e.target instanceof Element)) return;
+        var item = e.target.closest('.menu-item[data-mention-value]');
+        if (item && open.list.contains(item) && !item.hidden && !item.hasAttribute('data-active')) setActive(open.list, open.field, item);
+    });
+    document.addEventListener('focusout', function (e) {
+        if (open && e.target === open.field) close();
+    });
+    document.addEventListener('scroll', function (e) {
+        if (!open) return;
+        var scroller = e.target === document ? document.documentElement : e.target;
+        if (!scroller || scroller.nodeType !== 1 || scroller === open.field) return;
+        if (open.list === scroller || open.list.contains(scroller)) return;
+        if (scroller.contains(open.field)) close();
+    }, true);
+})(window.sednaUi);
+(function (ui) {
     function words(text) {
         return text.toLowerCase().split(/\s+/).filter(function (w) { return w.length > 0; });
     }

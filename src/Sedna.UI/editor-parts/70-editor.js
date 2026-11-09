@@ -1,7 +1,7 @@
 /* ── An editor ────────────────────────────────────────────────────────────────
    One `[data-editor]` element, from its markup to a document being edited:
 
-     1. its textarea, body, toolbar, link form and media form, from the markup;
+     1. its textarea, body, toolbar, link form, media form and slash menu, from the markup;
      2. Quill, made in the body, accepting the formats the toolbar offers, with no toolbar
         or theme of its own — the app's toolbar is the toolbar;
      3. the document loaded from the textarea, and every change written back to it;
@@ -61,15 +61,16 @@ function describe(e) {
 }
 
 function start(e) {
-    const { value, body, toolbar, link, media } = readMarkup(e.el);
+    const { value, body, toolbar, link, media, slash } = readMarkup(e.el);
     if (!value || !body) {
         e.el.setAttribute('data-editor-state', 'error');
         throw new Error('a [data-editor] element needs a <textarea data-editor-value> and a <div class="editor-body"> inside it.');
     }
-    Object.assign(e, { value, body, toolbar, link, media, controls: controlsOf(e.el) });
+    Object.assign(e, { value, body, toolbar, link, media, slash, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
 
     const formats = formatsOf(e.el);
+    e.formats = formats;
     e.quill = new Quill(body, {
         formats,
         modules: {
@@ -99,6 +100,7 @@ function start(e) {
     wireToolbar(e);
     wireLink(e);
     wireMedia(e);
+    wireSlash(e);
 
     const q = e.quill;
     q.on('text-change', () => written(e));

@@ -13,7 +13,7 @@
    it. */
 .editor { position: relative; }
 @media (scripting: none) {
-    .editor :is(.editor-toolbar, .editor-body, [data-editor-link], [data-editor-media]) { display: none; }
+    .editor :is(.editor-toolbar, .editor-body, [data-editor-link], [data-editor-media], [data-editor-slash]) { display: none; }
     .editor textarea[data-editor-value] {
         display: block;
         box-sizing: border-box;
@@ -271,3 +271,19 @@
 /* The media form is the one with a second field; it wraps rather than leaving the frame. */
 .editor-media { flex-wrap: wrap; max-inline-size: calc(100% - 2 * var(--space-4)); }
 .editor-media .form-input { flex: 1 1 12rem; inline-size: auto; }
+
+/* ── The slash menu ──────────────────────────────────────────────────────────
+   The app's `.menu` with `data-editor-slash`, which "/" opens at the caret to turn the
+   line into another block. The script places it with a transform from the frame's
+   top-left corner, as it places the link form, so its origin is physical; it scrolls
+   past a screenful of items. On the dropdown rung. */
+.editor-slash {
+    position: absolute;
+    inset-block-start: 0;
+    /* rtl-ok: the script measures its offset from the frame's left edge in either direction. */
+    left: 0;
+    z-index: 550;
+    max-block-size: min(18rem, 60vh);
+    overflow-y: auto;
+}
+.editor-slash[hidden] { display: none; }

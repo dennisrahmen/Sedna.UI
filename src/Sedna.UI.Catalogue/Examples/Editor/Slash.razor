@@ -1,0 +1,30 @@
+<div class="form-field">
+    <label class="form-label" for="runbook-value">Runbook</label>
+    <div class="editor" data-editor id="runbook">
+        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold" data-tip="Bold · Ctrl+B"><i class="ri-bold"></i></button>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="italic" aria-label="Italic" data-tip="Italic · Ctrl+I"><i class="ri-italic"></i></button>
+            <span class="editor-sep" role="separator"></span>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="header" value="2" aria-label="Heading" data-tip="Heading"><i class="ri-h-2"></i></button>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="header" value="3" aria-label="Subheading" data-tip="Subheading"><i class="ri-h-3"></i></button>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list" data-tip="Bulleted list"><i class="ri-list-unordered"></i></button>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="ordered" aria-label="Numbered list" data-tip="Numbered list"><i class="ri-list-ordered"></i></button>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="check" aria-label="Checklist" data-tip="Checklist"><i class="ri-list-check-2"></i></button>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="blockquote" aria-label="Quote" data-tip="Quote"><i class="ri-double-quotes-l"></i></button>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="code-block" aria-label="Code block" data-tip="Code block"><i class="ri-code-box-line"></i></button>
+        </div>
+        <div class="editor-body prose" data-editor-body></div>
+        <div class="menu editor-slash" data-editor-slash hidden aria-label="Turn the line into">
+            <div class="menu-label">Turn into</div>
+            <button class="menu-item" type="button" tabindex="-1" data-editor-block="paragraph"><i class="ri-text"></i><span>Text</span></button>
+            <button class="menu-item" type="button" tabindex="-1" data-editor-block="header" value="2"><i class="ri-h-2"></i><span>Heading</span></button>
+            <button class="menu-item" type="button" tabindex="-1" data-editor-block="header" value="3"><i class="ri-h-3"></i><span>Subheading</span></button>
+            <button class="menu-item" type="button" tabindex="-1" data-editor-block="list" value="bullet"><i class="ri-list-unordered"></i><span>Bulleted list</span></button>
+            <button class="menu-item" type="button" tabindex="-1" data-editor-block="list" value="ordered"><i class="ri-list-ordered"></i><span>Numbered list</span></button>
+            <button class="menu-item" type="button" tabindex="-1" data-editor-block="list" value="check"><i class="ri-list-check-2"></i><span>Checklist</span></button>
+            <button class="menu-item" type="button" tabindex="-1" data-editor-block="blockquote"><i class="ri-double-quotes-l"></i><span>Quote</span></button>
+            <button class="menu-item" type="button" tabindex="-1" data-editor-block="code-block"><i class="ri-code-box-line"></i><span>Code</span></button>
+        </div>
+        <textarea id="runbook-value" name="runbook" data-editor-value hidden placeholder="Type / for a heading, a list or a quote">&lt;h2&gt;When the sync stops&lt;/h2&gt;&lt;p&gt;Check the queue on build-runner-04 first.&lt;/p&gt;</textarea>
+    </div>
+</div>

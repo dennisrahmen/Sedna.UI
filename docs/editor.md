@@ -80,6 +80,38 @@ It is filled with the address of the link under the caret, and **Remove** shows 
 With no text selected, the address is written as the link's text. Only `http`, `https`, `mailto`,
 `tel` and `sms` addresses are kept; anything else is written as `about:blank`.
 
+## The slash menu
+
+The app's own `.menu`, written once inside the editor, which "/" opens at the caret — typed at the start
+of a line or after a space — to turn the line into another block:
+
+```html
+<div class="menu editor-slash" data-editor-slash hidden aria-label="Turn the line into">
+  <div class="menu-label">Turn into</div>
+  <button class="menu-item" type="button" tabindex="-1" data-editor-block="paragraph"><i class="ri-text"></i><span>Text</span></button>
+  <button class="menu-item" type="button" tabindex="-1" data-editor-block="header" value="2"><i class="ri-h-2"></i><span>Heading</span></button>
+  <button class="menu-item" type="button" tabindex="-1" data-editor-block="list" value="bullet"><i class="ri-list-unordered"></i><span>Bulleted list</span></button>
+  <button class="menu-item" type="button" tabindex="-1" data-editor-block="blockquote"><i class="ri-double-quotes-l"></i><span>Quote</span></button>
+</div>
+```
+
+- **`data-editor-block`** names a block format and `value` its value, as a toolbar control does:
+  `header` 1–6, `list` `bullet`, `ordered` or `check`, `blockquote`, `code-block`, `align`.
+  `paragraph` takes every block format off the line.
+- **The menu offers only what the editor accepts.** An item whose format the toolbar does not offer, and
+  `data-editor-formats` does not name, is never shown.
+- What follows the "/" filters the items, against an item's `data-label` or its text. A non-matching item
+  is `hidden`, and every `.menu-label` and `.menu-sep` is hidden while anything is typed. Nothing
+  matching, a space after the "/", the caret leaving the word, or the focus leaving the document closes it.
+- The focus stays in the document, which points at the item marked `data-active` with
+  `aria-activedescendant`. Up and Down move it; Enter or Tab removes the "/" and what was typed after it
+  and turns the line into the item; Escape closes the menu until another "/" is typed. A press on an item
+  does the same as Enter.
+- It opens under the "/" and above it where the window has no room below, placed with a transform.
+  Give the items `tabindex="-1"`: the menu is never a Tab stop.
+
+A handle on a block's side, to drag it or open a menu of what to do with it, is not offered.
+
 ## Images and videos
 
 An image sits in its line as `<img src alt>`; a video is a block of its own, `<video controls src>`,
@@ -153,6 +185,7 @@ take that kind.
 | Ctrl+Z, Ctrl+Y / Ctrl+Shift+Z | Undo, redo. |
 | Tab, Shift+Tab | In a list or a code block, indent and outdent; elsewhere, leave the document as from a textarea. |
 | Alt+F10 | To the toolbar. Escape there comes back. |
+| / | At the start of a line or after a space, the slash menu, if the editor has one. Up, Down, Enter, Tab and Escape then belong to it. |
 
 Cmd replaces Ctrl on macOS.
 

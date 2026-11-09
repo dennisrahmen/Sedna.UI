@@ -3430,7 +3430,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 @layer sedna.paint {
 .editor { position: relative; }
 @media (scripting: none) {
-    .editor :is(.editor-toolbar, .editor-body, [data-editor-link], [data-editor-media]) { display: none; }
+    .editor :is(.editor-toolbar, .editor-body, [data-editor-link], [data-editor-media], [data-editor-slash]) { display: none; }
     .editor textarea[data-editor-value] {
         display: block;
         box-sizing: border-box;
@@ -3655,6 +3655,15 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .editor-media .form-input { inline-size: 16rem; }
 .editor-media { flex-wrap: wrap; max-inline-size: calc(100% - 2 * var(--space-4)); }
 .editor-media .form-input { flex: 1 1 12rem; inline-size: auto; }
+.editor-slash {
+    position: absolute;
+    inset-block-start: 0;
+    left: 0;
+    z-index: 550;
+    max-block-size: min(18rem, 60vh);
+    overflow-y: auto;
+}
+.editor-slash[hidden] { display: none; }
 }
 @layer sedna.paint {
 .form-select { cursor: pointer; }
@@ -6972,6 +6981,36 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     display: block;
     text-box: trim-both cap alphabetic;
     padding-block: calc(var(--space-4) + var(--cap-gap));
+}
+.menu-item[data-active] { background: var(--bg-hover); }
+.mention-field {
+    position: relative;
+    display: block;
+    min-inline-size: 0;
+    anchor-name: --sedna-mention;
+    anchor-scope: --sedna-mention;
+}
+.mention-field > textarea,
+.mention-field > input { display: block; inline-size: 100%; }
+.mention-field > .menu {
+    position: fixed;
+    position-anchor: --sedna-mention;
+    position-area: block-end span-inline-end;
+    justify-self: start;
+    align-self: start;
+    position-try-fallbacks: flip-block;
+    position-visibility: anchors-visible;
+    margin-block-start: var(--space-2);
+    max-block-size: 16rem;
+    overflow-y: auto;
+    z-index: 550;
+}
+.mention-field > .menu[hidden] { display: none; }
+.chat-composer-row > .mention-field { flex: 1; }
+.chat-composer-row > .mention-field > .form-input {
+    resize: none;
+    field-sizing: content;
+    max-height: 9.5em;
 }
 @media (max-width: 767px) {
     .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu,

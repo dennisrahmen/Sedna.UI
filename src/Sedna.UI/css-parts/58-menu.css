@@ -342,6 +342,48 @@
     padding-block: calc(var(--space-4) + var(--cap-gap));
 }
 
+/* ── The item a field points at ─────────────────────────────────────────────
+   A menu the reader filters by typing in a field that keeps the focus — the editor's
+   slash menu, a mention list — marks the item Enter would choose with `data-active`,
+   which the field names in `aria-activedescendant`. It is lit as a hovered item is. */
+.menu-item[data-active] { background: var(--bg-hover); }
+
+/* ── A list at a field: mentions ─────────────────────────────────────────────
+   `.mention-field` wraps a textarea with `data-mention` and the `.menu` of people it
+   names, which "@" opens (23-mention.js). The list hangs under the field, lined up with
+   its inline-start edge, and above it where there is no room below — a composer at the
+   foot of a pane. It is anchored to the field and not to the caret, so nothing is
+   measured. */
+.mention-field {
+    position: relative;
+    display: block;
+    min-inline-size: 0;
+    anchor-name: --sedna-mention;
+    anchor-scope: --sedna-mention;
+}
+.mention-field > textarea,
+.mention-field > input { display: block; inline-size: 100%; }
+.mention-field > .menu {
+    position: fixed;
+    position-anchor: --sedna-mention;
+    position-area: block-end span-inline-end;
+    justify-self: start;
+    align-self: start;
+    position-try-fallbacks: flip-block;
+    position-visibility: anchors-visible;
+    margin-block-start: var(--space-2);
+    max-block-size: 16rem;
+    overflow-y: auto;
+    z-index: 550;
+}
+.mention-field > .menu[hidden] { display: none; }
+.chat-composer-row > .mention-field { flex: 1; }
+.chat-composer-row > .mention-field > .form-input {
+    resize: none;
+    field-sizing: content;
+    max-height: 9.5em;
+}
+
 /* ── On a phone, a sheet ────────────────────────────────────────────────────
    Below 768px a dropdown and a menu at the pointer open as a bottom sheet: the full
    width of the screen, on its bottom edge and clear of the home indicator, with rows a

@@ -39,6 +39,23 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Editor.Slash" Title="The slash menu" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; type <kbd class="kbd">/</kbd> at the start of a line.</strong> Write a
+        <code>.menu.editor-slash</code> with <code>data-editor-slash</code> inside the editor, one
+        <code>.menu-item</code> per kind of block with <code>data-editor-block</code> and a <code>value</code>, as
+        a toolbar button names its format. What follows the <kbd class="kbd">/</kbd> filters it; the focus stays in
+        the document, which points at the lit item. <kbd class="kbd">&uarr;</kbd> <kbd class="kbd">&darr;</kbd>
+        choose, <kbd class="kbd">Enter</kbd> turns the line into it and removes what was typed,
+        <kbd class="kbd">Esc</kbd> closes it.
+    </p>
+    <p>
+        The menu offers only what the toolbar does: an item whose format the editor does not accept is never
+        shown. <code>paragraph</code> takes every block format off the line. Give the items
+        <code>tabindex="-1"</code>, so the menu is never a Tab stop.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Editor.Comment" Title="A short one" Demo="ex-demo--block ex-demo--pad">
     <p>
         Four buttons, four formats: a comment cannot be given a heading or a list, however it is pasted in.
