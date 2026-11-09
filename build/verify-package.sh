@@ -46,6 +46,10 @@ REQUIRED=(
     # The token export. A design tool reads this path out of the restored package,
     # so it is as much a shipped contract as the stylesheet.
     "staticwebassets/tokens/Sedna.UI.tokens.json"
+    # The same tokens for design tools that read the Design Tokens format: the default file,
+    # which lists the others, and the light variant beside it.
+    "staticwebassets/tokens/Sedna.UI.tokens.dtcg.json"
+    "staticwebassets/tokens/Sedna.UI.tokens.dtcg.variant-light.json"
     "staticwebassets/lib/remixicon/remixicon.css"
     "staticwebassets/lib/remixicon/remixicon.woff2"
     "staticwebassets/lib/remixicon/LICENSE"

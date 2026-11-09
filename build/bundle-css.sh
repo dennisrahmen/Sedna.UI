@@ -158,3 +158,7 @@ mkdir -p "$(dirname "$READABLE")"
 cat "$TMP" > "$READABLE"
 cat "$SERVED" > "$OUT"
 echo "wrote   $(basename "$OUT") from ${#FILES[@]} parts ($(wc -l < "$READABLE") lines readable, $(wc -l < "$OUT") served)"
+
+# The catalogue's class states are read from the stylesheet just written, so a part that
+# adds a state cannot leave them behind.
+bash "$ROOT/build/class-states.sh"

@@ -63,7 +63,8 @@
                 <td><code>describe_class</code></td>
                 <td>
                     What a class actually does: the declarations from the shipped stylesheet, its
-                    cascade layer, its modifiers, and which examples use it. Also the way to check a
+                    cascade layer, its modifiers, its family's variants, the attributes and
+                    pseudo-classes that put it in a state, and which examples use it. Also the way to check a
                     class your app already styles before upgrading; a class a release renamed comes
                     back with the classes that replace it.
                 </td>
@@ -129,6 +130,8 @@
     <p>
         Up to ten class names per call. The declarations come from the stylesheet the running app
         serves, and <code>usedByExamples</code> points at the pages that show the class in context.
+        <code>variants</code> and <code>states</code> are derived from the selectors: a state is an
+        attribute or a pseudo-class written on the class itself, never one on an ancestor.
     </p>
 </CatSnippet>
 

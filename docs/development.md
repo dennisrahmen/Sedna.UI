@@ -171,7 +171,8 @@ CI runs every one before the build:
 ```bash
 build/bundle-css.sh          # wwwroot/css/Sedna.UI.css   from css-parts/
 build/bundle-js.sh           # wwwroot/js/Sedna.UI.js     from js-parts/, and each surface module from its parts
-build/export-tokens.sh       # wwwroot/tokens/…tokens.json    from the token parts
+build/export-tokens.sh       # wwwroot/tokens/…tokens.json    from the token parts, and the …tokens.dtcg*.json files from it
+build/class-states.sh        # the catalogue's Data/class-states.json   from the shipped stylesheet
 ```
 
 One is generated and never committed, because the release tags date it. Run it after cloning and after
@@ -234,7 +235,7 @@ that ships:
 ```bash
 build/bundle-css.sh            # regenerate wwwroot/css/Sedna.UI.css from css-parts/
 build/bundle-js.sh             # regenerate wwwroot/js/Sedna.UI.js  from js-parts/, and Sedna.UI.graph.js and Sedna.UI.editor.js from their parts
-build/export-tokens.sh         # regenerate wwwroot/tokens/Sedna.UI.tokens.json
+build/export-tokens.sh         # regenerate wwwroot/tokens/Sedna.UI.tokens.json and the Design Tokens files
 build/bundle-css.sh --check    # fail if it is out of date
 build/bundle-js.sh  --check
 build/export-tokens.sh --check
@@ -243,7 +244,8 @@ build/export-tokens.sh --check
 The token export is the design contract for consumers that are not CSS — a Figma import, a report
 generator picking chart colours, a contrast audit. It is an ordered array of blocks with their media
 conditions rather than a map of themes, because `:root` appears twice (once at the top level and again
-inside `prefers-contrast`) and a map would silently lose one.
+inside `prefers-contrast`) and a map would silently lose one. `build/export-tokens-dtcg.py` writes the
+same blocks in the Design Tokens format, one file per block; `docs/architecture.md` says how to load them.
 
 `Sedna.UI.boot.js` is deliberately outside this: it is a standalone ~40-line file loaded in
 `<head>` to apply the stored theme before first paint, and bundling it would defeat its purpose.

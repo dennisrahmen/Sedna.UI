@@ -1,0 +1,176 @@
+@page "/theme-builder"
+@using Sedna.UI.Catalogue.Theming
+
+<CatHead Title="Theme builder">
+    Pick a brand colour and this page takes it on at once &mdash; the frame, the buttons, the tabs,
+    the focus rings, in both variants. The <code>brand.css</code> at the bottom is what does it, and
+    it is what your app pastes.
+</CatHead>
+
+@* The generated brand.css, applied to this page as it is. Rendered by Blazor from state, so
+   nothing here writes to the DOM. *@
+<style>@result.Css</style>
+
+<h2 id="colours">Your colours <CatAnchor Id="colours" /></h2>
+
+<div class="card">
+    <div class="card-body sedna-col sedna-gap-3">
+        <div class="form-field">
+            <label class="form-label" for="theme-brand">Brand colour</label>
+            <div class="sedna-row sedna-gap-2">
+                <input class="form-color" id="theme-brand" type="color"
+                       value="@brand" @oninput="BrandChanged" />
+                <input class="form-input" type="text" value="@brand" @onchange="BrandChanged"
+                       aria-label="Brand colour as hex" spellcheck="false" id="theme-brand-hex" />
+            </div>
+            <p class="form-hint">
+                The colour your brand is seen in. The step buttons fill with is solved from it for
+                white text.
+            </p>
+        </div>
+
+        <label class="form-check">
+            <input type="checkbox" checked="@changeAccent" @onchange="AccentToggled" />
+            <span>Change the accent too</span>
+        </label>
+
+        <div class="form-field">
+            <label class="form-label" for="theme-accent">Accent colour</label>
+            <div class="sedna-row sedna-gap-2">
+                <input class="form-color" id="theme-accent" type="color" value="@accent"
+                       @oninput="AccentChanged" disabled="@(!changeAccent)" />
+                <input class="form-input" type="text" value="@accent" @onchange="AccentChanged"
+                       aria-label="Accent colour as hex" spellcheck="false" disabled="@(!changeAccent)" />
+            </div>
+            <p class="form-hint">Links, and the info family.</p>
+        </div>
+    </div>
+</div>
+
+@if (result.Problem is not null)
+{
+    <div class="callout callout--warn" role="status">
+        <i class="ri-alert-line"></i>
+        <div class="callout-body">
+            <span class="callout-title">That colour was not used</span>
+            @result.Problem
+        </div>
+    </div>
+}
+
+<h2 id="preview">On the library's components <CatAnchor Id="preview" /></h2>
+
+<div class="card">
+    <div class="card-head"><h3>Orders</h3></div>
+    <div class="card-body sedna-col sedna-gap-3">
+        <div class="sedna-row sedna-gap-2 sedna-wrap">
+            <button class="btn btn--brand btn--solid" type="button">Save</button>
+            <button class="btn" type="button">Cancel</button>
+            <button class="btn btn--brand" type="button">Export</button>
+            <span class="badge badge--brand">New</span>
+            <span class="badge badge--info"><i class="ri-information-line"></i> <span>Scheduled</span></span>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Order views">
+            <button class="tab" role="tab" aria-selected="true" type="button">Open</button>
+            <button class="tab" role="tab" aria-selected="false" type="button" tabindex="-1">Assigned to me</button>
+            <button class="tab" role="tab" aria-selected="false" type="button" tabindex="-1">Everything</button>
+        </div>
+        <div class="sedna-col sedna-gap-2">
+            <label class="switch"><input type="checkbox" checked /> <span>Auto-refresh the queue</span></label>
+            <label class="form-check"><input type="checkbox" checked /> <span>Notify me about new orders</span></label>
+        </div>
+        <div>
+            <div class="progress"><div class="progress-bar" style="width:64%"></div></div>
+            <p class="form-hint">Exporting: 64%</p>
+        </div>
+        <div class="alert alert--brand"><i class="ri-megaphone-line"></i><span>The new pick list is live.</span></div>
+        <div class="alert alert--info">
+            <i class="ri-information-line"></i>
+            <span>Links take the accent. <a href="/tokens">See every token a theme moves</a></span>
+        </div>
+    </div>
+</div>
+
+<h2 id="checks">Contrast and hue checks <CatAnchor Id="checks" /></h2>
+
+<p class="cat-lede">
+    The rules every theme is held to, measured on these colours. A failing check names what to change.
+</p>
+
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Check</th><th class="col-num">Measured</th><th class="col-num">Needs</th><th>Result</th></tr></thead>
+        <tbody>
+            @foreach (var check in result.Checks)
+            {
+                <tr>
+                    <td>
+                        @check.Pair
+                        @if (!check.Passes)
+                        {
+                            <span class="form-hint">@check.Fix</span>
+                        }
+                    </td>
+                    <td class="col-num">@check.MeasuredText</td>
+                    <td class="col-num">@check.FloorText</td>
+                    <td>
+                        @if (check.Passes)
+                        {
+                            <span class="badge badge--go"><i class="ri-check-line"></i> <span>Passes</span></span>
+                        }
+                        else
+                        {
+                            <span class="badge badge--danger"><i class="ri-close-line"></i> <span>Fails</span></span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<h2 id="brand-css">Your brand.css <CatAnchor Id="brand-css" /></h2>
+
+<p class="cat-lede">
+    Palette steps only: every brand role, tint, ring and glow points at them already, in dark and
+    light. Load the file after <code>Sedna.UI.css</code> &mdash; <a href="/getting-started">Getting
+    started</a> has the host page. To register it as a theme in C# instead, pass the same colour to
+    <code>SednaRamp.FromAnchor</code>; <a href="/branding">Branding</a> shows how.
+</p>
+
+<div id="theme-css">
+    <CatCode Source="@result.Css" Label="Generated brand.css" />
+</div>
+
+@code {
+    private string brand = BrandCssBuilder.SednaRed;
+    private string accent = BrandCssBuilder.OrbitBlue;
+    private bool changeAccent;
+    private ThemeResult result = BrandCssBuilder.Build(BrandCssBuilder.SednaRed, null);
+
+    private void BrandChanged(ChangeEventArgs e)
+    {
+        brand = e.Value?.ToString() ?? brand;
+        Rebuild();
+    }
+
+    private void AccentChanged(ChangeEventArgs e)
+    {
+        accent = e.Value?.ToString() ?? accent;
+        Rebuild();
+    }
+
+    private void AccentToggled(ChangeEventArgs e)
+    {
+        changeAccent = e.Value is true;
+        Rebuild();
+    }
+
+    private void Rebuild()
+    {
+        result = BrandCssBuilder.Build(brand, changeAccent ? accent : null);
+        // A hex that was refused shows the colour that was used instead.
+        brand = result.Brand;
+        if (result.Accent is not null) accent = result.Accent;
+    }
+}

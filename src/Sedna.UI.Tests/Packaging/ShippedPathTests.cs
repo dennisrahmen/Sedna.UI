@@ -15,6 +15,9 @@ public class ShippedPathTests
     [InlineData("wwwroot/js/Sedna.UI.boot.js")]
     // build/verify-package.sh has always required this; nothing here pinned it.
     [InlineData("wwwroot/tokens/Sedna.UI.tokens.json")]
+    // A design tool's import points at this one; it names every other DTCG file by path.
+    [InlineData("wwwroot/tokens/Sedna.UI.tokens.dtcg.json")]
+    [InlineData("wwwroot/tokens/Sedna.UI.tokens.dtcg.variant-light.json")]
     [InlineData("wwwroot/lib/remixicon/remixicon.css")]
     [InlineData("wwwroot/lib/remixicon/remixicon.woff2")]
     [InlineData("wwwroot/lib/remixicon/LICENSE")]

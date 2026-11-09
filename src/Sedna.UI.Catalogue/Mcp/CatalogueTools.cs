@@ -220,8 +220,10 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         OpenWorld = false)]
     [Description("""
         What a CSS class actually does: the rules the shipped stylesheet declares for it, its
-        cascade layer, its modifiers, and which examples use it. Use it to choose between
-        variants, or to check a class an app already styles before upgrading.
+        cascade layer, its modifiers, its family's variants, the states its rules answer to —
+        the attribute selectors and pseudo-classes written on the class itself — and which
+        examples use it. Use it to choose between variants, to find the attribute that puts a
+        class in a state, or to check a class an app already styles before upgrading.
         """)]
     public object DescribeClass(
         [Description("Class names, with or without the leading dot. At most 10.")]
@@ -262,6 +264,17 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 // what a browser would apply.
                 declarations = c.Declarations,
                 modifiers = c.Modifiers.Select(m => "." + m),
+                // Derived from the selectors by build/class-states.sh: the block, its
+                // block--modifier classes, and what is written on the same compound as this
+                // class — so an attribute on an ancestor is never reported as its state.
+                family = "." + c.States.Family,
+                variants = c.States.Variants.Select(m => "." + m),
+                states = new
+                {
+                    attributes = c.States.Attributes,
+                    pseudoClasses = c.States.PseudoClasses,
+                },
+                combinedWith = c.States.CombinedWith.Select(m => "." + m),
                 usedByExamples = c.UsedByExamples,
                 since = Since(versions.SinceClass(c.Name)),
             }),

@@ -74,6 +74,9 @@
     <!-- The class history build/class-history.sh writes into the library, which embeds it
          for SednaContract; the MCP server embeds the same file. Never committed. -->
     <EmbeddedResource Include="..\Sedna.UI\Contract\class-history.json" Link="Data\class-history.json" WithCulture="false" />
+    <!-- Each class's variants and states, derived from the stylesheet by build/class-states.sh
+         and committed; describe_class answers with it. -->
+    <EmbeddedResource Include="Data\class-states.json" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>

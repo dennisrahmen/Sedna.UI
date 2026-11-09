@@ -486,7 +486,7 @@ The catalogue has an MCP server. Add one URL:
 |---|---|
 | `search` | "What is there for a sortable table with status badges?" Returns references, never markup. |
 | `get_example` | The exact markup for an example, byte-for-byte what the site renders. |
-| `describe_class` | What a class does: its rules from the shipped stylesheet, its layer, its modifiers. |
+| `describe_class` | What a class does: its rules from the shipped stylesheet, its layer, its variants, and the attributes and pseudo-classes that put it in a state. |
 | `get_page` | Everything on one page, or the list of pages. |
 | `get_tokens` | The design tokens, for writing `brand.css`. |
 | `get_integration_guide` | This document, the branding recipe, the JavaScript surface, the rules, the graph's or the editor's reference, or — when upgrading — every class each release renamed. |

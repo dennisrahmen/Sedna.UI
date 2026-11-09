@@ -74,6 +74,9 @@ internal static class CataloguePages
         new("/branding", Start, "Branding", "ri-drop-line",
             "The mark, its detail tiers, the palette read live, and the decisions behind it.",
             "logo mark tile wordmark lockup clear space misuse svg outfit theme forest cobalt switch"),
+        new("/theme-builder", Start, "Theme builder", "ri-paint-brush-line",
+            "Pick a brand colour, see the components take it on, and copy the brand.css that does it.",
+            "theme builder generator brand colour color picker brand.css ramp palette accent rebrand contrast check"),
 
         new("/frame", Frame, "Shell", "ri-layout-3-line",
             "The three page shells, the rhythm inside them, and the skip link.",
