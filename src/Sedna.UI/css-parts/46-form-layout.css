@@ -338,7 +338,7 @@
    A form longer than the screen keeps its actions in reach: the row sticks to the
    bottom of what scrolls it — the page, or a `.sedna-scroll` — while the form is in
    view, and settles at the form's end when the reader gets there. A form in a modal
-   or a drawer has `.modal-footer` or `.drawer-foot` for this, which never scroll.
+   or a drawer has `.modal-footer` or `.drawer-footer` for this, which never scroll.
 
      <form>
        …

@@ -97,6 +97,18 @@ public class TabsTests : ScriptTestBase
         Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('p3').hidden"));
     }
 
+    [Fact]
+    public async Task Tabs_can_be_selected_programmatically_by_their_own_id()
+    {
+        if (NoBrowser) return;
+        var page = await Open(TabsFixture);
+
+        await Js.Run(page, "() => sednaUi.tabs.select('t3')");
+
+        Assert.Equal("true", await page.Locator("#t3").GetAttributeAsync("aria-selected"));
+        Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('p3').hidden"));
+    }
+
     // ── declarative copy ────────────────────────────────────────────────────
 
     [Fact]

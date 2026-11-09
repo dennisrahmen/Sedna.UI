@@ -221,8 +221,10 @@ public sealed class SednaUi : ISednaUi
         => _js.InvokeVoidAsync("sednaUi.setItem", key, value).AsTask();
 
     /// <inheritdoc />
-    public Task<bool> RequestNotifyAsync()
-        => _js.InvokeAsync<bool>("sednaUi.requestNotify").AsTask();
+    public Task<bool> RequestNotifyAsync(CancellationToken cancellationToken = default)
+        // The token overload, always: Blazor does not wrap it in its one-minute timeout,
+        // and the permission prompt waits on the reader.
+        => _js.InvokeAsync<bool>("sednaUi.requestNotify", cancellationToken, []).AsTask();
 
     /// <inheritdoc />
     public Task NotifyAsync(string title, string? body = null)

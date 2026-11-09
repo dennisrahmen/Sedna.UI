@@ -35,6 +35,9 @@ public class StatusBarTests : ScriptTestBase
           <div class="status-bar status-bar--failed">
             <i class="ri-close-circle-line"></i><span>Could not reconnect.</span>
           </div>
+          <div class="status-bar status-bar--resume-failed">
+            <i class="ri-close-circle-line"></i><span>Could not resume.</span>
+          </div>
           <div class="status-bar status-bar--expired">
             <i class="ri-error-warning-line"></i><span>Session expired.</span>
           </div>
@@ -57,7 +60,7 @@ public class StatusBarTests : ScriptTestBase
         { "components-reconnect-retrying", "status-bar--reconnecting" },
         { "components-reconnect-paused", "status-bar--paused" },
         { "components-reconnect-failed", "status-bar--failed" },
-        { "components-reconnect-resume-failed", "status-bar--failed" },
+        { "components-reconnect-resume-failed", "status-bar--resume-failed" },
         { "components-reconnect-rejected", "status-bar--expired" },
     };
 
@@ -99,6 +102,17 @@ public class StatusBarTests : ScriptTestBase
         var (page, errors) = await OpenStyled(ThreeRows);
 
         Assert.Equal(["status-bar--reconnecting"], await Shown(page, "components-reconnect-paused"));
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_failed_resume_falls_back_to_the_failed_row()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(ThreeRows);
+
+        Assert.Equal(["status-bar--failed"], await Shown(page, "components-reconnect-resume-failed"));
 
         Assert.Empty(errors);
     }

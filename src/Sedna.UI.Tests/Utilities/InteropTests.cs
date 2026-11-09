@@ -190,6 +190,17 @@ public class InteropTests : BunitContext
     }
 
     [Fact]
+    public async Task RequestNotify_uses_the_overload_Blazor_does_not_time_out()
+    {
+        JSInterop.Setup<bool>("sednaUi.requestNotify", _ => true).SetResult(true);
+
+        Assert.True(await Wrapper().RequestNotifyAsync());
+
+        // The browser's permission prompt waits on the reader, as a dialog does.
+        Assert.NotNull(Only("sednaUi.requestNotify").CancellationToken);
+    }
+
+    [Fact]
     public async Task A_cancelled_ShowModal_closes_the_dialog_it_stopped_waiting_for()
     {
         var show = JSInterop.Setup<string?>("sednaUi.modal.show", _ => true);

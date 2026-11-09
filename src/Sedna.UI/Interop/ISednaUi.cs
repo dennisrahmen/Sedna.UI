@@ -411,9 +411,13 @@ public interface ISednaUi
     Task SetItemAsync(string key, string value);
 
     /// <summary>Asks the browser for permission to show desktop notifications.</summary>
+    /// <param name="cancellationToken">
+    /// Stops waiting for the reader's answer. The prompt can stay open for as long as the
+    /// reader leaves it, so the call is not subject to Blazor's one-minute interop timeout.
+    /// </param>
     /// <returns><see langword="true"/> if permission was granted.</returns>
     /// <remarks>Must be called from a user gesture, or browsers refuse it outright.</remarks>
-    Task<bool> RequestNotifyAsync();
+    Task<bool> RequestNotifyAsync(CancellationToken cancellationToken = default);
 
     /// <summary>Shows a desktop notification, if permission was granted.</summary>
     /// <param name="title">The notification's title.</param>

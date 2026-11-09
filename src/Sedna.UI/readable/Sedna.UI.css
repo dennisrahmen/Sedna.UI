@@ -422,10 +422,10 @@
     --border:          var(--slate-700);
     --border-strong:   var(--slate-600);
     --border-hover:    var(--slate-500);
-    --divider:         rgba(255, 255, 255, 0.06);
+    --divider:         color-mix(in srgb, var(--white) 6%, transparent);
     --card-bg:         var(--slate-800);
-    --surface-soft:    rgba(255, 255, 255, 0.03);
-    --surface-strong:  rgba(255, 255, 255, 0.05);
+    --surface-soft:    color-mix(in srgb, var(--white) 3%, transparent);
+    --surface-strong:  color-mix(in srgb, var(--white) 5%, transparent);
     /* ── Named surfaces ─────────────────────────────────────────────────
        Which surface a thing IS, rather than which colour it happens to take.
        An app asking "what colour is the navigation?" had to know that the
@@ -823,15 +823,15 @@
     --sev-5-fg:     var(--slate-300);
 
     /* ── Component surfaces ─────────────────────────────────────────────── */
-    --badge-bg:      rgba(255, 255, 255, 0.07);
-    --table-head-bg: rgba(255, 255, 255, 0.04);
+    --badge-bg:      color-mix(in srgb, var(--white) 7%, transparent);
+    --table-head-bg: color-mix(in srgb, var(--white) 4%, transparent);
 
     /* Feedback surfaces. Tinted from the theme rather than the brand: a loading
        placeholder is not a branded element, and a brand-tinted skeleton reads as
        content that is already there. */
-    --skeleton-bg:    rgba(255, 255, 255, 0.06);
-    --skeleton-sheen: rgba(255, 255, 255, 0.11);
-    --progress-track: rgba(255, 255, 255, 0.08);
+    --skeleton-bg:    color-mix(in srgb, var(--white) 6%, transparent);
+    --skeleton-sheen: color-mix(in srgb, var(--white) 11%, transparent);
+    --progress-track: color-mix(in srgb, var(--white) 8%, transparent);
     --btn-active-bg: var(--slate-850);
     --code-fg:       var(--indigo-300);
     --code-bg:       color-mix(in srgb, var(--indigo-500) 10%, transparent);
@@ -841,7 +841,7 @@
        own near-black navy under Graphite, over a canvas that had gone neutral grey.
        --backdrop is the exception that proves it — pure black belongs to no ramp,
        has no hue to drift, and is what a modal backdrop should be in every theme. */
-    --backdrop:      rgba(0, 0, 0, 0.65);       /* modal backdrop */
+    --backdrop:      color-mix(in srgb, var(--black) 65%, transparent);       /* modal backdrop */
     /* A video's letterbox, and the scrim under a label or a play glyph on a picture.
        Black in every theme for the same reason as --backdrop: a film is framed in
        black, and a label on a photograph cannot know what the photograph is. */
@@ -857,7 +857,7 @@
     --tip-fg:        var(--slate-50);
     --scrollbar:       var(--slate-700);
     --scrollbar-hover: var(--slate-600);
-    --scroll-shade:    rgba(0, 0, 0, 0.3);      /* scroll-edge fade */
+    --scroll-shade:    color-mix(in srgb, var(--black) 30%, transparent);      /* scroll-edge fade */
 
     /* ── Shadows (full box-shadow values — themes swap the colour) ─────────
        A shadow's own black has no palette step to trace to, so these carry
@@ -866,21 +866,21 @@
        on a white surface, which is how .menu, the select panel and the
        search panel came to cast near-black in light mode. ShadowTokenTests
        asserts the two blocks list the same names. */
-    --shadow-topbar:    0 3px 8px rgba(0, 0, 0, 0.28);
-    --shadow-bottombar: 0 -3px 8px rgba(0, 0, 0, 0.28);
-    --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.18);
-    --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.5);
-    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.42);
-    --shadow-flyout:    0 6px 18px rgba(0, 0, 0, 0.38);
-    --shadow-dropdown:  0 10px 30px rgba(0, 0, 0, 0.3);
-    --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.34);
-    --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.45);
+    --shadow-topbar:    0 3px 8px color-mix(in srgb, var(--black) 28%, transparent);
+    --shadow-bottombar: 0 -3px 8px color-mix(in srgb, var(--black) 28%, transparent);
+    --shadow-nav-tools: 0 -6px 12px 0 color-mix(in srgb, var(--black) 18%, transparent);
+    --shadow-modal:     0 24px 64px color-mix(in srgb, var(--black) 50%, transparent);
+    --shadow-tip:       0 8px 22px color-mix(in srgb, var(--black) 42%, transparent);
+    --shadow-flyout:    0 6px 18px color-mix(in srgb, var(--black) 38%, transparent);
+    --shadow-dropdown:  0 10px 30px color-mix(in srgb, var(--black) 30%, transparent);
+    --shadow-float:     0 10px 30px color-mix(in srgb, var(--black) 34%, transparent);
+    --shadow-pop:       0 14px 40px color-mix(in srgb, var(--black) 45%, transparent);
     /* A hairline ring plus a long drop, for a SMALL element that should read as
        lifted clean off the page — a logo tile, an icon plate over a hero. Every
        other shadow here is panel-sized: a 32px tile under --shadow-float shows a
        soft smudge and no edge, because the edge is what sells the lift at that
        size. The ring is inside the token so it cannot be forgotten. */
-    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.38);
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px color-mix(in srgb, var(--black) 38%, transparent);
     /* The edge of a horizontally scrolled region — a pinned table column, a
        sticky first cell. Every shadow above casts downwards; this pair casts
        sideways, which is the axis a sideways scroller needs and the only one the
@@ -890,8 +890,8 @@
        start and end are the two PHYSICAL directions, named for the logical edge
        they belong to under dir="ltr"; 70-rtl.css swaps which one a pinned column
        reaches for, because box-shadow has no logical form. */
-    --shadow-edge-start:  6px 0 8px -6px rgba(0, 0, 0, 0.45);
-    --shadow-edge-end:   -6px 0 8px -6px rgba(0, 0, 0, 0.45);
+    --shadow-edge-start:  6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
+    --shadow-edge-end:   -6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
        Not covered by docs/BRANDING.md's per-token tables. The border and the
@@ -1215,10 +1215,10 @@
        --border-strong, so the three still ascend — because inheriting it was an
        accident, not a decision, and the next ramp edit would not know that. */
     --border-hover:   var(--slate-500);
-    --divider:        rgba(15, 23, 42, 0.07);    /* slate-900 / Deep Space */
+    --divider:        color-mix(in srgb, var(--slate-900) 7%, transparent);
     --card-bg:        var(--white);
-    --surface-soft:   rgba(15, 23, 42, 0.03);    /* slate-900 */
-    --surface-strong: rgba(15, 23, 42, 0.055);   /* slate-900 */
+    --surface-soft:   color-mix(in srgb, var(--slate-900) 3%, transparent);
+    --surface-strong: color-mix(in srgb, var(--slate-900) 5.5%, transparent);
     /* Elevation runs the other way here: level 1 is white, so a raised surface
        gets darker rather than lighter. --surface-app, --surface-chrome,
        --surface-content and --surface-raised-1 are aliases and follow --bg,
@@ -1348,15 +1348,15 @@
     --sev-5-border: var(--slate-300);
     --sev-5-fg:     var(--slate-600);
 
-    --badge-bg:      rgba(15, 23, 42, 0.04);    /* slate-900 */
-    --table-head-bg: rgba(15, 23, 42, 0.03);    /* slate-900 */
+    --badge-bg:      color-mix(in srgb, var(--slate-900) 4%, transparent);
+    --table-head-bg: color-mix(in srgb, var(--slate-900) 3%, transparent);
 
     /* Orbit Blue at full strength is too pale to read as a line on white; the orbit
        takes the step that holds 3:1 against the light card. */
     --agent-to:       var(--orbit-600);
-    --skeleton-bg:    rgba(15, 23, 42, 0.06);    /* slate-900 */
-    --skeleton-sheen: rgba(15, 23, 42, 0.11);    /* slate-900 */
-    --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */
+    --skeleton-bg:    color-mix(in srgb, var(--slate-900) 6%, transparent);
+    --skeleton-sheen: color-mix(in srgb, var(--slate-900) 11%, transparent);
+    --progress-track: color-mix(in srgb, var(--slate-900) 8%, transparent);
     --btn-active-bg: var(--slate-300);
     --code-fg:       var(--indigo-800);
     --code-bg:       color-mix(in srgb, var(--indigo-700) 8%, transparent);
@@ -1374,20 +1374,20 @@
     --tip-fg:        var(--slate-900);
     --scrollbar:       var(--slate-300);
     --scrollbar-hover: var(--slate-400);
-    --scroll-shade:    rgba(15, 23, 42, 0.16);    /* slate-900 */
+    --scroll-shade:    color-mix(in srgb, var(--slate-900) 16%, transparent);
 
-    --shadow-topbar:    0 3px 8px rgba(15, 23, 42, 0.1);      /* slate-900 */
-    --shadow-bottombar: 0 -3px 8px rgba(15, 23, 42, 0.1);     /* slate-900 */
-    --shadow-nav-tools: 0 -6px 12px 0 rgba(15, 23, 42, 0.06); /* slate-900 */
-    --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.22);   /* slate-900 */
-    --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.22);    /* slate-900 */
-    --shadow-flyout:    0 6px 18px rgba(15, 23, 42, 0.16);    /* slate-900 */
-    --shadow-dropdown:  0 10px 30px rgba(15, 23, 42, 0.14);   /* slate-900 */
-    --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.2);    /* slate-900 */
-    --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.16);   /* slate-900 */
-    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(15, 23, 42, 0.18);   /* slate-900 */
-    --shadow-edge-start:  6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
-    --shadow-edge-end:   -6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-topbar:    0 3px 8px color-mix(in srgb, var(--slate-900) 10%, transparent);
+    --shadow-bottombar: 0 -3px 8px color-mix(in srgb, var(--slate-900) 10%, transparent);
+    --shadow-nav-tools: 0 -6px 12px 0 color-mix(in srgb, var(--slate-900) 6%, transparent);
+    --shadow-modal:     0 24px 64px color-mix(in srgb, var(--slate-900) 22%, transparent);
+    --shadow-tip:       0 8px 22px color-mix(in srgb, var(--slate-900) 22%, transparent);
+    --shadow-flyout:    0 6px 18px color-mix(in srgb, var(--slate-900) 16%, transparent);
+    --shadow-dropdown:  0 10px 30px color-mix(in srgb, var(--slate-900) 14%, transparent);
+    --shadow-pop:       0 14px 40px color-mix(in srgb, var(--slate-900) 20%, transparent);
+    --shadow-float:     0 10px 30px color-mix(in srgb, var(--slate-900) 16%, transparent);
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px color-mix(in srgb, var(--slate-900) 18%, transparent);
+    --shadow-edge-start:  6px 0 8px -6px color-mix(in srgb, var(--slate-900) 18%, transparent);
+    --shadow-edge-end:   -6px 0 8px -6px color-mix(in srgb, var(--slate-900) 18%, transparent);
 }
 }
 
@@ -1586,8 +1586,8 @@
     --btn-active-bg:  var(--slate-700);
     --code-fg:        var(--indigo-200);
     --code-bg:        var(--indigo-900);
-    --backdrop:       rgba(0, 0, 0, 0.85);
-    --overlay:        rgba(0, 0, 0, 0.85);
+    --backdrop:       color-mix(in srgb, var(--black) 85%, transparent);
+    --overlay:        color-mix(in srgb, var(--black) 85%, transparent);
     --scrollbar:       var(--slate-400);
     --scrollbar-hover: var(--slate-300);
 }
@@ -1681,8 +1681,8 @@
     --btn-active-bg:  var(--slate-400);
     --code-fg:        var(--indigo-900);
     --code-bg:        var(--indigo-200);
-    --backdrop:       rgba(0, 0, 0, 0.6);
-    --overlay:        rgba(255, 255, 255, 0.9);
+    --backdrop:       color-mix(in srgb, var(--black) 60%, transparent);
+    --overlay:        color-mix(in srgb, var(--white) 90%, transparent);
     /* Follows the light variant's hint rather than inheriting the dark bubble
        from 01-tokens.css, which would leave this the one light surface in the
        library still painted dark. The border goes to full strength, as every
@@ -2880,11 +2880,12 @@ a.topbar-version--pre:hover {
 @layer sedna.frame {
 /* ── Status bar ─────────────────────────────────────────────────────────────
    One strip across the bottom of the window that says the app is not working
-   normally, and ONE class family for every case of it. Five modifiers:
+   normally, and ONE class family for every case of it. Six modifiers:
 
      --reconnecting   the circuit dropped and is being re-established   pulses
      --paused         the server released the circuit and kept the state
-     --failed         reconnecting is over — only a reload helps
+     --failed         reconnecting is over — retry, then reload
+     --resume-failed  the held state could not be resumed — optional, falls back to --failed
      --expired        the session is gone from the server
      --error          an unhandled error reached the browser
 
@@ -2912,7 +2913,7 @@ a.topbar-version--pre:hover {
    A `.status-bar` outside either id is visible on its own, which is how the
    catalogue shows all five at once.
 
-   Blazor sets six state classes on the modal. They map onto four of the five
+   Blazor sets six state classes on the modal. They map onto the five connection
    rows — `--error` is not a connection state and belongs to the other id:
 
    | Blazor sets                          | The row that shows                          |
@@ -2921,13 +2922,14 @@ a.topbar-version--pre:hover {
    | `components-reconnect-retrying`      | `.status-bar--reconnecting`, plus its counter |
    | `components-reconnect-paused`        | `.status-bar--paused`, or reconnecting if absent |
    | `components-reconnect-failed`        | `.status-bar--failed`                       |
-   | `components-reconnect-resume-failed` | `.status-bar--failed`                       |
+   | `components-reconnect-resume-failed` | `.status-bar--resume-failed`, or failed if absent |
    | `components-reconnect-rejected`      | `.status-bar--expired`                      |
    | `components-reconnect-hide`          | nothing — this is the connected state       |
 
    `retrying` is added alongside `show`; every other state replaces the last.
-   `.status-bar--paused` is optional and falls back to the reconnecting row, so a
-   host page written without it only misses the softer wording.
+   `.status-bar--paused` is optional and falls back to the reconnecting row, and
+   `.status-bar--resume-failed` to the failed row, so a host page written without
+   them only misses the more precise wording.
 
    The palette tokens are still named `--reconnect-*`. They are the two
    severities this bar has, and a token rename is its own break in its own
@@ -2979,6 +2981,7 @@ a.topbar-version--pre:hover {
 
 /* Crimson: over. A reload is the only way forward. */
 .status-bar--failed,
+.status-bar--resume-failed,
 .status-bar--expired,
 .status-bar--error {
     background: var(--reconnect-fail-bg);
@@ -3040,6 +3043,7 @@ a.topbar-version--pre:hover {
 .status-bar--reconnecting .status-bar-action,
 .status-bar--paused .status-bar-action { background: var(--warn-solid); }
 .status-bar--failed .status-bar-action,
+.status-bar--resume-failed .status-bar-action,
 .status-bar--expired .status-bar-action,
 .status-bar--error .status-bar-action { background: var(--danger-solid); }
 
@@ -3080,8 +3084,10 @@ a.topbar-version--pre:hover {
 #components-reconnect-modal.components-reconnect-paused   .status-bar--paused       { display: flex; }
 #components-reconnect-modal.components-reconnect-failed   .status-bar--failed       { display: flex; }
 #components-reconnect-modal.components-reconnect-rejected .status-bar--expired      { display: flex; }
-/* A failed resume reads as a failed reconnect. */
-#components-reconnect-modal.components-reconnect-resume-failed .status-bar--failed { display: flex; }
+#components-reconnect-modal.components-reconnect-resume-failed .status-bar--resume-failed { display: flex; }
+/* A failed resume with no row of its own reads as a failed reconnect. */
+#components-reconnect-modal.components-reconnect-resume-failed:not(:has(.status-bar--resume-failed))
+    .status-bar--failed { display: flex; }
 /* Paused with no row of its own falls back to reconnecting, rather than to an
    empty bar. */
 #components-reconnect-modal.components-reconnect-paused:not(:has(.status-bar--paused))
@@ -4649,7 +4655,9 @@ a.topbar-version--pre:hover {
 .btn:hover         { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
 .btn:active        { background: var(--btn-active-bg); }
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
-.btn:disabled      { cursor: not-allowed; pointer-events: none; }
+/* A disabled button still takes the pointer, so a hint on it says why it cannot be
+   used; the browser never activates it. */
+.btn:disabled      { cursor: not-allowed; }
 
 /* Three tiers. Each sets its height from the matching token and scales its padding,
    text and icon with it. */
@@ -4657,6 +4665,14 @@ a.topbar-version--pre:hover {
 .btn--sm i { font-size: var(--text-4); }
 .btn--lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
 .btn--lg i { font-size: var(--text-8); }
+
+/* ── Filling the row ────────────────────────────────────────────────────────
+   `--fill` on a control that sits in a row of its own makes it as wide as its
+   container: a lone action under a list on a phone, a large touch target. The button
+   keeps its tier's height and centres its label; a label too long for the width wraps.
+   `.tabs--fill` and `.segmented--fill` are the same modifier for a row of options,
+   which share the width equally. */
+.btn.btn--fill { display: flex; width: 100%; white-space: normal; }
 
 /* A label that may run to two lines — a recipient's name over their organisation in a
    picker, a long choice. It wraps and starts at the inline start; the height grows from
@@ -5113,9 +5129,12 @@ dialog.modal::backdrop {
     overflow-y: auto;
     min-height: 0;
 }
-.modal-body p { margin: 0; }
+/* A bare paragraph's margin is reset at the weight of the element alone, so a classed
+   one — a section hint, a field hint — keeps its own spacing inside a modal. */
+:where(.modal-body) p { margin: 0; }
 .modal-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     align-items: center;
     flex-shrink: 0;
@@ -5176,6 +5195,7 @@ dialog.modal::backdrop {
 }
 .deck-footer {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
@@ -7610,7 +7630,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    A form longer than the screen keeps its actions in reach: the row sticks to the
    bottom of what scrolls it — the page, or a `.sedna-scroll` — while the form is in
    view, and settles at the form's end when the reader gets there. A form in a modal
-   or a drawer has `.modal-footer` or `.drawer-foot` for this, which never scroll.
+   or a drawer has `.modal-footer` or `.drawer-footer` for this, which never scroll.
 
      <form>
        …
@@ -8799,6 +8819,11 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     grid-column: 1;
 }
 .form-combo-box:has(> .form-combo-value) > .form-combo-actions { grid-row: 1; grid-column: 2; }
+/* A leading icon takes a column of its own before the value. */
+.form-combo-box:has(> .form-combo-value):has(> .form-combo-icon) { grid-template-columns: auto minmax(0, 1fr) auto; }
+.form-combo-box:has(> .form-combo-value) > .form-combo-icon { grid-row: 1; grid-column: 1; }
+.form-combo-box:has(> .form-combo-value):has(> .form-combo-icon) > :is(.form-combo-value, .form-combo-input) { grid-column: 2; }
+.form-combo-box:has(> .form-combo-value):has(> .form-combo-icon) > .form-combo-actions { grid-column: 3; }
 .form-combo-value {
     overflow: hidden;
     padding: 0 var(--space-3);
@@ -9722,6 +9747,17 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 
 .tab-panel { padding-top: var(--space-7); }
 
+/* Tabs that share the row equally, so a short strip of them — four on a phone — stays
+   in view without scrolling. A long label wraps onto a second line inside its tab. */
+.tabs--fill > .tab {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 /* A strip inside a card head is `.card-head--tabs`, declared beside `.card-head` in
    30-cards.css because it is that head's modifier. It drops this padding, the strip's
    own bottom border and the head's block padding, so the indicator meets the body
@@ -10032,6 +10068,16 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     transition: background var(--motion-fast), color var(--motion-fast);
 }
 .segmented-option i { font-size: var(--text-5); line-height: 1; }
+
+/* A track as wide as its container, its options sharing it equally. */
+.segmented.segmented--fill { display: flex; width: 100%; }
+.segmented--fill > .segmented-option {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+}
 .segmented-option input {
     position: absolute;
     inset: 0;
@@ -14515,6 +14561,10 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
        value, laid out the way it is in a wide cell. A flex row made each child a value
        of its own and spaced them apart. */
     .table--stack :is(tbody, tfoot) :is(td, th) { display: flow-root; text-align: end; border-bottom: 1px solid var(--divider); }
+    /* The value wraps at the end edge whatever keeps a wide cell on one line — a muted
+       column, a fitted one, a fixed table's ellipsis: a card has no column to run into,
+       and a value that cannot wrap makes the table wider than the screen. */
+    .table.table--stack :is(tbody, tfoot) :is(td, th) { white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
     .table--stack tr > :is(td, th):last-child { border-bottom: none; }
     .table--stack :is(td, th)[data-label]::before {
         content: attr(data-label);
@@ -16435,6 +16485,7 @@ dialog.drawer[open] { visibility: visible; transform: none; }
 .drawer-body--flush > .list > .sticky-group-head { padding-inline: var(--space-8); }
 .drawer-footer {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
     gap: var(--space-4);
@@ -19479,6 +19530,15 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
     margin-inline-start: auto;
     padding-block-start: 2px;
 }
+/* In a column's head — a `.cal-weekday` holding its date and the markers — they follow
+   the date instead of keeping to the end edge. */
+.cal-weekday:has(> .cal-marks) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+.cal-weekday > .cal-marks { justify-content: flex-start; margin-inline-start: 0; padding-block-start: 0; }
 .cal-mark {
     display: inline-flex;
     align-items: center;
@@ -19511,6 +19571,18 @@ button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: va
      <div class="cal-month cal-month--day-tones">…</div> */
 .cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--info-bg); color: var(--info-fg); }
 .cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--danger-bg); color: var(--danger-fg); }
+
+/* A column's head takes the tone whole — the head of a week view's day, of a timeline's
+   day, of a row of next days: give the `.cal-weekday` the day's `.cal-day--weekend` or
+   `.cal-day--holiday` under a `--day-tones` modifier, and the head is tinted while the
+   column under it keeps its plain shade.
+
+     <div class="cal-week cal-week--day-tones">
+       <div class="cal-week-head">… <span class="cal-weekday cal-day--weekend">Sat 7</span> …</div>
+       …
+     </div> */
+:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--weekend:not([aria-current="date"]) { background: var(--info-bg); color: var(--info-fg); }
+:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--holiday:not([aria-current="date"]) { background: var(--danger-bg); color: var(--danger-fg); }
 
 /* ── Date picker ───────────────────────────────────────────────────────────
    A panel for a date — or a range — that looks the same in every engine, for the app
@@ -20030,8 +20102,8 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     border-end-start-radius: var(--radius-surface);
     border-end-end-radius: var(--radius-inner);
 }
-.chat-bubble p { margin: 0; }
-.chat-bubble p + p { margin-top: var(--space-3); }
+:where(.chat-bubble) p { margin: 0; }
+:where(.chat-bubble) p + p { margin-top: var(--space-3); }
 /* Not delivered. The border says it, the status icon says why, the retry is a
    real button in the meta line. */
 .chat-bubble--failed { box-shadow: inset 0 0 0 1px var(--danger-border); }

@@ -31,10 +31,10 @@
        --border-strong, so the three still ascend — because inheriting it was an
        accident, not a decision, and the next ramp edit would not know that. */
     --border-hover:   var(--slate-500);
-    --divider:        rgba(15, 23, 42, 0.07);    /* slate-900 / Deep Space */
+    --divider:        color-mix(in srgb, var(--slate-900) 7%, transparent);
     --card-bg:        var(--white);
-    --surface-soft:   rgba(15, 23, 42, 0.03);    /* slate-900 */
-    --surface-strong: rgba(15, 23, 42, 0.055);   /* slate-900 */
+    --surface-soft:   color-mix(in srgb, var(--slate-900) 3%, transparent);
+    --surface-strong: color-mix(in srgb, var(--slate-900) 5.5%, transparent);
     /* Elevation runs the other way here: level 1 is white, so a raised surface
        gets darker rather than lighter. --surface-app, --surface-chrome,
        --surface-content and --surface-raised-1 are aliases and follow --bg,
@@ -164,15 +164,15 @@
     --sev-5-border: var(--slate-300);
     --sev-5-fg:     var(--slate-600);
 
-    --badge-bg:      rgba(15, 23, 42, 0.04);    /* slate-900 */
-    --table-head-bg: rgba(15, 23, 42, 0.03);    /* slate-900 */
+    --badge-bg:      color-mix(in srgb, var(--slate-900) 4%, transparent);
+    --table-head-bg: color-mix(in srgb, var(--slate-900) 3%, transparent);
 
     /* Orbit Blue at full strength is too pale to read as a line on white; the orbit
        takes the step that holds 3:1 against the light card. */
     --agent-to:       var(--orbit-600);
-    --skeleton-bg:    rgba(15, 23, 42, 0.06);    /* slate-900 */
-    --skeleton-sheen: rgba(15, 23, 42, 0.11);    /* slate-900 */
-    --progress-track: rgba(15, 23, 42, 0.08);    /* slate-900 */
+    --skeleton-bg:    color-mix(in srgb, var(--slate-900) 6%, transparent);
+    --skeleton-sheen: color-mix(in srgb, var(--slate-900) 11%, transparent);
+    --progress-track: color-mix(in srgb, var(--slate-900) 8%, transparent);
     --btn-active-bg: var(--slate-300);
     --code-fg:       var(--indigo-800);
     --code-bg:       color-mix(in srgb, var(--indigo-700) 8%, transparent);
@@ -190,18 +190,18 @@
     --tip-fg:        var(--slate-900);
     --scrollbar:       var(--slate-300);
     --scrollbar-hover: var(--slate-400);
-    --scroll-shade:    rgba(15, 23, 42, 0.16);    /* slate-900 */
+    --scroll-shade:    color-mix(in srgb, var(--slate-900) 16%, transparent);
 
-    --shadow-topbar:    0 3px 8px rgba(15, 23, 42, 0.1);      /* slate-900 */
-    --shadow-bottombar: 0 -3px 8px rgba(15, 23, 42, 0.1);     /* slate-900 */
-    --shadow-nav-tools: 0 -6px 12px 0 rgba(15, 23, 42, 0.06); /* slate-900 */
-    --shadow-modal:     0 24px 64px rgba(15, 23, 42, 0.22);   /* slate-900 */
-    --shadow-tip:       0 8px 22px rgba(15, 23, 42, 0.22);    /* slate-900 */
-    --shadow-flyout:    0 6px 18px rgba(15, 23, 42, 0.16);    /* slate-900 */
-    --shadow-dropdown:  0 10px 30px rgba(15, 23, 42, 0.14);   /* slate-900 */
-    --shadow-pop:       0 14px 40px rgba(15, 23, 42, 0.2);    /* slate-900 */
-    --shadow-float:     0 10px 30px rgba(15, 23, 42, 0.16);   /* slate-900 */
-    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(15, 23, 42, 0.18);   /* slate-900 */
-    --shadow-edge-start:  6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
-    --shadow-edge-end:   -6px 0 8px -6px rgba(15, 23, 42, 0.18);   /* slate-900 */
+    --shadow-topbar:    0 3px 8px color-mix(in srgb, var(--slate-900) 10%, transparent);
+    --shadow-bottombar: 0 -3px 8px color-mix(in srgb, var(--slate-900) 10%, transparent);
+    --shadow-nav-tools: 0 -6px 12px 0 color-mix(in srgb, var(--slate-900) 6%, transparent);
+    --shadow-modal:     0 24px 64px color-mix(in srgb, var(--slate-900) 22%, transparent);
+    --shadow-tip:       0 8px 22px color-mix(in srgb, var(--slate-900) 22%, transparent);
+    --shadow-flyout:    0 6px 18px color-mix(in srgb, var(--slate-900) 16%, transparent);
+    --shadow-dropdown:  0 10px 30px color-mix(in srgb, var(--slate-900) 14%, transparent);
+    --shadow-pop:       0 14px 40px color-mix(in srgb, var(--slate-900) 20%, transparent);
+    --shadow-float:     0 10px 30px color-mix(in srgb, var(--slate-900) 16%, transparent);
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px color-mix(in srgb, var(--slate-900) 18%, transparent);
+    --shadow-edge-start:  6px 0 8px -6px color-mix(in srgb, var(--slate-900) 18%, transparent);
+    --shadow-edge-end:   -6px 0 8px -6px color-mix(in srgb, var(--slate-900) 18%, transparent);
 }

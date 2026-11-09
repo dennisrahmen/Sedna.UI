@@ -127,8 +127,8 @@
     border-end-start-radius: var(--radius-surface);
     border-end-end-radius: var(--radius-inner);
 }
-.chat-bubble p { margin: 0; }
-.chat-bubble p + p { margin-top: var(--space-3); }
+:where(.chat-bubble) p { margin: 0; }
+:where(.chat-bubble) p + p { margin-top: var(--space-3); }
 /* Not delivered. The border says it, the status icon says why, the retry is a
    real button in the meta line. */
 .chat-bubble--failed { box-shadow: inset 0 0 0 1px var(--danger-border); }

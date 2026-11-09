@@ -821,6 +821,15 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
     margin-inline-start: auto;
     padding-block-start: 2px;
 }
+/* In a column's head — a `.cal-weekday` holding its date and the markers — they follow
+   the date instead of keeping to the end edge. */
+.cal-weekday:has(> .cal-marks) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+.cal-weekday > .cal-marks { justify-content: flex-start; margin-inline-start: 0; padding-block-start: 0; }
 .cal-mark {
     display: inline-flex;
     align-items: center;
@@ -853,6 +862,18 @@ button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: va
      <div class="cal-month cal-month--day-tones">…</div> */
 .cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--info-bg); color: var(--info-fg); }
 .cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--danger-bg); color: var(--danger-fg); }
+
+/* A column's head takes the tone whole — the head of a week view's day, of a timeline's
+   day, of a row of next days: give the `.cal-weekday` the day's `.cal-day--weekend` or
+   `.cal-day--holiday` under a `--day-tones` modifier, and the head is tinted while the
+   column under it keeps its plain shade.
+
+     <div class="cal-week cal-week--day-tones">
+       <div class="cal-week-head">… <span class="cal-weekday cal-day--weekend">Sat 7</span> …</div>
+       …
+     </div> */
+:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--weekend:not([aria-current="date"]) { background: var(--info-bg); color: var(--info-fg); }
+:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--holiday:not([aria-current="date"]) { background: var(--danger-bg); color: var(--danger-fg); }
 
 /* ── Date picker ───────────────────────────────────────────────────────────
    A panel for a date — or a range — that looks the same in every engine, for the app

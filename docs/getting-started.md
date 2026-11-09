@@ -100,7 +100,9 @@ carries the render mode:
 
 - **`#components-reconnect-modal`**, holding one `.status-bar` row per state. Supply
   `.status-bar--reconnecting`, `.status-bar--failed` and `.status-bar--expired`; `.status-bar--paused`
-  is optional and falls back to the reconnecting row. Blazor puts its state classes on the id and the
+  is optional and falls back to the reconnecting row, and `.status-bar--resume-failed` falls back to
+  the failed row. The actions call `Blazor.resumeCircuit()` and `Blazor.reconnect()`, which keep the
+  reader's state, and reload only when those fail. Blazor puts its state classes on the id and the
   stylesheet shows one row at a time — omit a required row and that state renders as an empty strip.
 - **`#blazor-error-ui`**, the unhandled-error bar: `.status-bar--error` on a strip *inside* the id.
   Blazor reveals the id with an inline `display: block`, which beats every rule, so a bar on the id

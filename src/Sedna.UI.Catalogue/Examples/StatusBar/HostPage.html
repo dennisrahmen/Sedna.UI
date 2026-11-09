@@ -13,11 +13,21 @@
     <div class="status-bar status-bar--paused">
         <i class="ri-pause-circle-line"></i>
         <span>Paused. Your work is held on the server.</span>
+        <!-- Resume keeps the reader's state; a reload is the fallback. -->
+        <button class="status-bar-action" type="button" onclick="Blazor.resumeCircuit().then(ok => ok || location.reload(), () => location.reload())">
+            <i class="ri-play-circle-line"></i> <span>Resume</span>
+        </button>
     </div>
     <div class="status-bar status-bar--failed">
         <i class="ri-close-circle-line"></i><span>Could not reconnect.</span>
-        <button class="status-bar-action" type="button" onclick="location.reload()">
+        <button class="status-bar-action" type="button" onclick="Blazor.reconnect().then(ok => ok || Blazor.resumeCircuit()).then(ok => ok || location.reload(), () => location.reload())">
             <i class="ri-refresh-line"></i> <span>Retry</span>
+        </button>
+    </div>
+    <div class="status-bar status-bar--resume-failed">
+        <i class="ri-close-circle-line"></i><span>Could not resume the session.</span>
+        <button class="status-bar-action" type="button" onclick="Blazor.resumeCircuit().then(ok => ok || location.reload(), () => location.reload())">
+            <i class="ri-play-circle-line"></i> <span>Resume</span>
         </button>
     </div>
     <div class="status-bar status-bar--expired">

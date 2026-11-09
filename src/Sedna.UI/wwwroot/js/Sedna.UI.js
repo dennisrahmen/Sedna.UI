@@ -4021,9 +4021,13 @@ window.sednaUi = window.sednaUi || {};
     function managed(list) { return list.getAttribute('data-tabs') === 'managed'; }
     ui.tabs = {
         select: function (tabOrPanelId) {
-            var tab = typeof tabOrPanelId === 'string'
-                ? document.querySelector('[role="tab"][aria-controls="' + tabOrPanelId + '"]')
-                : tabOrPanelId;
+            var tab = tabOrPanelId;
+            if (typeof tabOrPanelId === 'string') {
+                var own = document.getElementById(tabOrPanelId);
+                tab = own && own.getAttribute('role') === 'tab'
+                    ? own
+                    : document.querySelector('[role="tab"][aria-controls="' + CSS.escape(tabOrPanelId) + '"]');
+            }
             var list = tab && tab.closest('[data-tabs]');
             if (!list) return;
             if (managed(list)) tab.click();

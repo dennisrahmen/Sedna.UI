@@ -1,0 +1,24 @@
+<div class="form-field" style="max-width:360px">
+    <label class="form-label" for="cb-task">Task</label>
+    <div class="form-combo" data-combo="single" data-combo-managed>
+        <div class="form-combo-box">
+            <i class="form-combo-icon ri-search-line"></i>
+            <span class="form-combo-value">Restock the north shelf</span>
+            <input class="form-combo-input" id="cb-task" type="text" role="combobox" placeholder="Pick a task…"
+                   aria-expanded="false" aria-controls="cb-task-list" aria-autocomplete="list" autocomplete="off" />
+            <span class="form-combo-actions">
+                <button class="form-combo-btn form-combo-clear" type="button" aria-label="Clear the task"><i class="ri-close-line"></i></button>
+                <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show tasks"><i class="ri-arrow-down-s-line"></i></button>
+            </span>
+        </div>
+        <input type="hidden" name="task" value="restock" data-combo-field />
+        <div class="form-combo-panel">
+            <div class="form-combo-list" id="cb-task-list" role="listbox" aria-label="Tasks">
+                <div class="form-combo-option" role="option" id="cb-task-restock" data-value="restock" aria-selected="true">Restock the north shelf</div>
+                <div class="form-combo-option" role="option" id="cb-task-count" data-value="count" aria-selected="false">Count the returns</div>
+                <div class="form-combo-option" role="option" id="cb-task-label" data-value="label" aria-selected="false">Label the new pallets</div>
+            </div>
+            <div class="form-combo-empty"><i class="ri-search-line"></i><span>No task matches.</span></div>
+        </div>
+    </div>
+</div>

@@ -7,9 +7,9 @@ namespace Sedna.UI.Tests.Css;
 /// Every shadow the dark default declares is remapped by the light variant.
 /// </summary>
 /// <remarks>
-/// A shadow's own black has no palette step to trace to, so shadow tokens carry a
-/// literal <c>rgba()</c> rather than a ramp step — which puts them outside every
-/// other token guard in this suite. <c>TokenDeclarationTests</c> asks whether a
+/// A shadow is a palette step mixed with transparency — <c>--black</c> in the dark
+/// default, <c>--slate-900</c> in the light variant — rather than a plain ramp step,
+/// which puts it outside most other token guards in this suite. <c>TokenDeclarationTests</c> asks whether a
 /// <c>var(--x)</c> is declared, and an unremapped shadow *is* declared: at
 /// <c>:root</c>, in the dark value. So the failure mode is silent by construction,
 /// and it is not theoretical. <c>--shadow-dropdown</c> and <c>--shadow-flyout</c>

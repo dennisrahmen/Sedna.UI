@@ -111,6 +111,11 @@
     grid-column: 1;
 }
 .form-combo-box:has(> .form-combo-value) > .form-combo-actions { grid-row: 1; grid-column: 2; }
+/* A leading icon takes a column of its own before the value. */
+.form-combo-box:has(> .form-combo-value):has(> .form-combo-icon) { grid-template-columns: auto minmax(0, 1fr) auto; }
+.form-combo-box:has(> .form-combo-value) > .form-combo-icon { grid-row: 1; grid-column: 1; }
+.form-combo-box:has(> .form-combo-value):has(> .form-combo-icon) > :is(.form-combo-value, .form-combo-input) { grid-column: 2; }
+.form-combo-box:has(> .form-combo-value):has(> .form-combo-icon) > .form-combo-actions { grid-column: 3; }
 .form-combo-value {
     overflow: hidden;
     padding: 0 var(--space-3);

@@ -693,6 +693,7 @@
       "variants": [
         "btn--brand",
         "btn--danger",
+        "btn--fill",
         "btn--ghost",
         "btn--go",
         "btn--icon",
@@ -718,6 +719,7 @@
       ],
       "combinedWith": [
         "beam",
+        "btn--fill",
         "btn--ghost",
         "btn--solid",
         "btn--wrap",
@@ -729,6 +731,12 @@
     },
     "btn--danger": {
       "family": "btn"
+    },
+    "btn--fill": {
+      "family": "btn",
+      "combinedWith": [
+        "btn"
+      ]
     },
     "btn--ghost": {
       "family": "btn",
@@ -901,6 +909,9 @@
       "family": "cal-day",
       "attributes": [
         ":not([aria-current=\"date\"])"
+      ],
+      "combinedWith": [
+        "cal-weekday"
       ]
     },
     "cal-day--in-range": {
@@ -928,6 +939,9 @@
       "family": "cal-day",
       "attributes": [
         ":not([aria-current=\"date\"])"
+      ],
+      "combinedWith": [
+        "cal-weekday"
       ]
     },
     "cal-day-col": {
@@ -1173,10 +1187,14 @@
     "cal-week": {
       "family": "cal-week",
       "variants": [
-        "cal-week--by-lanes"
+        "cal-week--by-lanes",
+        "cal-week--day-tones"
       ]
     },
     "cal-week--by-lanes": {
+      "family": "cal-week"
+    },
+    "cal-week--day-tones": {
       "family": "cal-week"
     },
     "cal-week-body": {
@@ -1188,7 +1206,12 @@
     "cal-weekday": {
       "family": "cal-weekday",
       "attributes": [
+        ":not([aria-current=\"date\"])",
         "[aria-current=\"date\"]"
+      ],
+      "combinedWith": [
+        "cal-day--holiday",
+        "cal-day--weekend"
       ]
     },
     "cal-weekdays": {
@@ -5685,8 +5708,18 @@
     "segmented": {
       "family": "segmented",
       "variants": [
+        "segmented--fill",
         "segmented--lg",
         "segmented--sm"
+      ],
+      "combinedWith": [
+        "segmented--fill"
+      ]
+    },
+    "segmented--fill": {
+      "family": "segmented",
+      "combinedWith": [
+        "segmented"
       ]
     },
     "segmented--lg": {
@@ -6162,7 +6195,8 @@
         "status-bar--expired",
         "status-bar--failed",
         "status-bar--paused",
-        "status-bar--reconnecting"
+        "status-bar--reconnecting",
+        "status-bar--resume-failed"
       ]
     },
     "status-bar--error": {
@@ -6178,6 +6212,9 @@
       "family": "status-bar"
     },
     "status-bar--reconnecting": {
+      "family": "status-bar"
+    },
+    "status-bar--resume-failed": {
       "family": "status-bar"
     },
     "status-bar-action": {
@@ -6284,6 +6321,7 @@
         "[role=\"treegrid\"]"
       ],
       "combinedWith": [
+        "table--stack",
         "table--sticky-foot"
       ]
     },
@@ -6303,7 +6341,10 @@
       ]
     },
     "table--stack": {
-      "family": "table"
+      "family": "table",
+      "combinedWith": [
+        "table"
+      ]
     },
     "table--stagger": {
       "family": "table"
@@ -6325,6 +6366,12 @@
       "family": "table"
     },
     "tabs": {
+      "family": "tabs",
+      "variants": [
+        "tabs--fill"
+      ]
+    },
+    "tabs--fill": {
       "family": "tabs"
     },
     "test-case": {

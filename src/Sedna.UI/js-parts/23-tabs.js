@@ -48,12 +48,17 @@
     function managed(list) { return list.getAttribute('data-tabs') === 'managed'; }
 
     ui.tabs = {
-        // Selects a tab programmatically, by element or by its aria-controls id. In a
-        // managed tablist that is a click on it, which the app's handler answers.
+        // Selects a tab programmatically: by element, by the tab's own id or by the id of
+        // the panel it controls. In a managed tablist that is a click on it, which the
+        // app's handler answers.
         select: function (tabOrPanelId) {
-            var tab = typeof tabOrPanelId === 'string'
-                ? document.querySelector('[role="tab"][aria-controls="' + tabOrPanelId + '"]')
-                : tabOrPanelId;
+            var tab = tabOrPanelId;
+            if (typeof tabOrPanelId === 'string') {
+                var own = document.getElementById(tabOrPanelId);
+                tab = own && own.getAttribute('role') === 'tab'
+                    ? own
+                    : document.querySelector('[role="tab"][aria-controls="' + CSS.escape(tabOrPanelId) + '"]');
+            }
             var list = tab && tab.closest('[data-tabs]');
             if (!list) return;
             if (managed(list)) tab.click();

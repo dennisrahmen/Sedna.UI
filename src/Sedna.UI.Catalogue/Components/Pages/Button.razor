@@ -110,6 +110,25 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Button.Fill" Title="As wide as its container" Demo="ex-demo--block">
+    <p>
+        <code>.btn--fill</code> makes a lone action as wide as its container &mdash; one large touch
+        target under a list on a phone. It keeps its size tier's height, and a label too long for the
+        width wraps. <code>.tabs--fill</code> and <code>.segmented--fill</code> are the same modifier
+        for a row of options.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Button.DisabledWithHint" Title="A disabled button that says why">
+    <p>
+        A disabled button still takes the pointer, so a <code>data-tip</code> on it shows on hover and
+        says why it cannot be used. A <code>disabled</code> button is never focused, so a keyboard
+        reader cannot reach its hint; where the reason matters to them, use
+        <code>aria-disabled="true"</code>, which stays in the tab order and looks the same &mdash; and
+        have the handler ignore it.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Button.FooterRow" Title="In a footer row">
     <p>Cancel on the left of the primary, primary last — the reading order ends on the action.</p>
 </CatExample>

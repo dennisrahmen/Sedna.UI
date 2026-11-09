@@ -73,6 +73,16 @@
     transition: background var(--motion-fast), color var(--motion-fast);
 }
 .segmented-option i { font-size: var(--text-5); line-height: 1; }
+
+/* A track as wide as its container, its options sharing it equally. */
+.segmented.segmented--fill { display: flex; width: 100%; }
+.segmented--fill > .segmented-option {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+}
 .segmented-option input {
     position: absolute;
     inset: 0;
