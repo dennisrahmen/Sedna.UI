@@ -46,9 +46,11 @@ public class FieldStateTests : ScriptTestBase
 
     /// <summary>
     /// They draw a field's edge and hold no value to judge: the frame's search box and nav filter,
-    /// and a read-only value shown in the shape of a field.
+    /// and a read-only value shown in the shape of a field. And a signature pad, which takes no
+    /// focus — nothing in it is operated from the keyboard — so it has no focused state to hold;
+    /// <c>SignatureTests</c> holds its edge to the field states at rest.
     /// </summary>
-    private static readonly string[] Exempt = ["nav-filter-input", "search-input", "form-value-display"];
+    private static readonly string[] Exempt = ["nav-filter-input", "search-input", "form-value-display", "form-signature-pad"];
 
     [Theory]
     [InlineData("dark")]

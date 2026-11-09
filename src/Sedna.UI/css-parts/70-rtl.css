@@ -54,8 +54,21 @@
 /* The drawer slides in from an inline edge; `inset-inline-end` already puts it on
    the correct side, so only the direction of travel is wrong. */
 [dir="rtl"] .drawer { transform: translateX(-100%); }
+/* 67 — a closed fold's caret points along the line, toward the inline end. */
+[dir="rtl"] .output-frames-fold:not([open]) > summary::before,
+[dir="rtl"] .test-suite:not([open]) > summary::before { transform: rotate(90deg); }
 /* 54 — a meter's mark label is centred on its mark by a translate. */
 [dir="rtl"] .meter-mark-label { transform: translateX(50%); }
+/* 54 — a stack bar's boundary label is centred on its boundary the same way. */
+[dir="rtl"] .stack-bar-label { translate: 50% 0; }
+
+/* 48 — a range runs from the right, so its fill's gradient does and its bubble is
+   centred over the thumb by a translate the other way. A vertical box runs from the
+   bottom in either direction, and keeps both. */
+[dir="rtl"] .form-range-box { --range-toward: to left; }
+[dir="rtl"] .form-range-bubble { translate: 50% 0; }
+[dir="rtl"] .form-range-box--vertical { --range-toward: to top; }
+[dir="rtl"] .form-range-box--vertical > .form-range-bubble { translate: 0 50%; }
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
 
 /* A sheet is one of those too — `<div class="drawer sheet">` — but it travels along
@@ -92,10 +105,10 @@
    minus its own width. */
 [dir="rtl"] .avatar-pair > .avatar:first-child:not(:last-child) { --avatar-cut-x: calc(var(--avatar-size) * 1.5 - var(--avatar-pair-size)); }
 
-/* The tree's disclosure caret points along the inline axis, so it starts mirrored
-   and rotates the other way when open. */
-[dir="rtl"] .tree summary::before { transform: rotate(180deg); }
-[dir="rtl"] .tree details[open] > summary::before { transform: rotate(90deg); }
+/* The tree's caret is a logical border, so it already points the right way when
+   closed; open, it turns towards the children the other way round. */
+[dir="rtl"] .tree [aria-expanded="true"] > .tree-row > .tree-toggle::before,
+[dir="rtl"] .table[role="treegrid"] tr[aria-expanded="true"] > * > .tree-toggle::before { transform: rotate(-90deg); }
 
 /* A third kind of gap, and the only member of it: `box-shadow` has no logical form
    either, so the offset of a pinned column's edge shadow is physical. The two rules
@@ -149,3 +162,21 @@
     --workflow-flow-ahead: 225deg;
     --workflow-flow-up: 315deg;
 }
+
+/* 51 — a half-lit star is lit on its inline-start half, but a clip-path polygon is
+   measured from the physical left edge. The lit drawing turns round; a whole star is
+   the same either way. */
+[dir="rtl"] .rating-star::after { transform: scaleX(-1); }
+
+/* 48 — a one-time code is digits and Latin letters, which run left to right in every
+   script, so its boxes keep that order, and so do the arrow keys 23-code.js reads. */
+[dir="rtl"] .form-code { direction: ltr; }
+
+/* 62 — a carousel's previous and next buttons hold arrows that point the way the slides
+   go, and in RTL the next slide is on the left. The arrow turns round; the button keeps
+   its place at the inline start or end, which already mirrors. */
+[dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
+
+/* 56 — a diff's lines are code and stay left to right (56-diff.css sets the body
+   `direction: ltr`); a fold row holds the app's own words, which follow the page. */
+[dir="rtl"] .diff-fold > td { direction: rtl; }

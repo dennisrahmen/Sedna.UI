@@ -65,6 +65,7 @@
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
     .editor           { transition: none; }   /* 44 */
     .form-color       { transition: none; }   /* 45 */
+    .form-signature-pad { transition: none; } /* 47 */
     /* 49 — the caret is drawn in its open position instead of turning over, and the
        drop-down is simply there. Neither carries information: `:open` already
        changes the border, and a panel that appears is a panel. */
@@ -85,14 +86,28 @@
        reader is; only the travel goes. */
     .deck-step        { animation: none; }    /* 36 */
     .deck-dot         { transition: none; }   /* 36 */
+    /* 38 — the pile opens and closes, and a swiped toast springs back, in one step. The
+       swipe itself still follows the pointer: that is the reader's own movement. */
+    .toast-stack--pile > .toast { transition: none; }
+    [data-sedna-toasts] > .toast { transition: none; }
     .spinner          { animation: none; }    /* 39 */
     .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
     .progress-bar     { transition: none; }   /* 41 */
     .progress-ring    { transition: none; }   /* 41 — the arc lands on its value */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
+    .progress--route  { animation: none; }    /* 41 — there at once, filled, still saying "loading" */
     .tab              { transition: none; }   /* 50 */
+    /* 55 — the head stays as written and scrolls away with the page: no fold, and
+       nothing pinned that the page then slides under. */
+    .page-head--collapse { animation: none; position: static; }
+    .page-head--collapse .page-head-text > p { animation: none; white-space: normal; }
+    .page-toc-fold > .page-toc-title::after { transition: none; }   /* 57 — the caret */
+    /* 57 — the button comes in at once, a screen down, instead of fading in. */
+    .back-to-top { animation-timing-function: step-end; }
     a.stat            { transition: none; }   /* 54 */
+    /* 54 — a chart is drawn whole at once, rather than fading in. */
+    .chart-svg[data-chart-enter] .chart-marks { animation: none; }
     /* 54 — a running link's key holds its dashes still; they still say "running". */
     .graph-line--flow::before,
     .graph-line--flow:dir(rtl)::before { animation: none; }
@@ -112,7 +127,10 @@
     .code-block-copy  { transition: none; }   /* 56 */
     .code-block-expand { transition: none; }  /* 56 */
     .accordion summary::after { transition: none; }   /* 60 — the disclosure caret */
-    .tree summary::before     { transition: none; }   /* 63 — the same caret in a tree */
+    .tree [aria-expanded] > .tree-row > .tree-toggle::before { transition: none; }   /* 60 — the same caret in a tree */
+    .tree [aria-busy="true"] > .tree-row > .tree-toggle::before { animation: none; }   /* 60 — the ring still says it is loading */
+    .table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle::before { transition: none; }   /* 60 — the caret in a tree grid */
+    .table[role="treegrid"] tr[aria-busy="true"] > * > .tree-toggle::before { animation: none; }   /* 60 */
 
     /* 63 — the drawer appears and disappears instead of sliding. `visibility` and
        `display` are in those transition lists only to keep the panel present while it
@@ -121,6 +139,8 @@
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    button.badge-ai   { transition: none; }   /* 66 — the AI label's hover edge */
+    .fab-dial > .fab i { transition: none; }   /* 61 — the speed dial's icon turns at once */
 
     /* 42 — every drawing's moving part rests. Each animation's first frame is the
        resting pose, so the part with no animation is the still drawing, not a broken
@@ -150,11 +170,14 @@
        stops turning, the reasoning and the steps open at once. Nothing is lost: the
        label still says what the agent is doing, and the orb draws a still frame of
        the state on its own. */
-    .text-shimmer { animation: none; }
+    .text-shimmer,
+    .reasoning[data-state="running"] .reasoning-label { animation: none; }
     .agent-avatar,
     .agent-avatar::before { animation: none; transition: none; }
     .reasoning > summary,
     .reasoning-chevron { transition: none; }
+    .agent-tool > summary,
+    .agent-tool-chevron { transition: none; }
 
     /* 67 — the caret is a steady bar, links and the prompt change state at once,
        and the voice bars stand at their level instead of easing to it. */
@@ -269,12 +292,17 @@
     .stack-bar-segment,
     .meter-fill,
     .bar-previous { transition: none; }
+    .gauge { transition: none; }          /* 54 — the arc lands on its value */
+    .tracker-block { transition: none; }  /* 54 — the rest dim at once; the hint names the block */
+    /* 54 — the figure is there from the start, as the app wrote it. */
+    .stat-value--roll { animation: none; }
 
     /* 69-motion — rows arrive at once. */
     .table--stagger tbody > tr,
     .list--stagger > li { animation: none; }
     .card-resize::before,
-    .split-resize::before { transition: none; }
+    .split-resize::before,
+    .col-resize::before { transition: none; }
     /* 69-busy — the spinner stands still; the bar is full width and still. */
     :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
         .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }
@@ -285,5 +313,6 @@
     }
     .choice-tile { transition: none; }
     button.cal-mark { transition: none; }
+    .cal-resize::after { transition: none; }   /* 66 — the grip appears at once */
     .sticky-group-toggle::before { transition: none; }
 }

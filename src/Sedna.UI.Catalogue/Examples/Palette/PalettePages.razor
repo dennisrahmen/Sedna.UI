@@ -1,0 +1,27 @@
+<div class="sedna-col sedna-gap-3" style="max-width:520px">
+    <div class="palette" style="position:static; inset:auto; display:flex; flex-direction:column">
+        <div class="palette-path">
+            <button class="btn btn--sm btn--icon" type="button" aria-label="Back"><i class="ri-arrow-left-line" aria-hidden="true"></i></button>
+            <span class="palette-trail">
+                <span class="palette-crumb">Change theme…</span>
+            </span>
+        </div>
+        <input class="palette-input" type="text" value="" readonly aria-label="Run a command" placeholder="Choose a theme" />
+        <ul class="palette-list" role="listbox" aria-label="Themes">
+            <li role="presentation"><div class="palette-group">Built in</div></li>
+            <li class="palette-item" role="option" aria-selected="true">
+                <i class="ri-moon-line"></i> <span>Dark</span>
+            </li>
+            <li class="palette-item" role="option" aria-selected="false">
+                <i class="ri-sun-line"></i> <span>Light</span>
+            </li>
+            <li role="presentation" class="palette-separator"></li>
+            <li role="presentation"><div class="palette-group">Shared with you</div></li>
+            <li role="presentation"><div class="palette-loading"><span class="spinner spinner--sm" aria-hidden="true"></span> <span>Loading themes…</span></div></li>
+        </ul>
+        <div class="palette-footer">
+            <span><span class="kbd">Backspace</span> or <span class="kbd">Esc</span> to go back</span>
+            <span><span class="kbd">Enter</span> to choose</span>
+        </div>
+    </div>
+</div>

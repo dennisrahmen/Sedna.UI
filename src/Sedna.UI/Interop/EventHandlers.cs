@@ -6,10 +6,13 @@ namespace Sedna.UI;
 /// Makes the events <c>Sedna.UI.js</c> dispatches bindable from Razor, with their data:
 /// drag and drop — <c>@onsedna-drop</c>, <c>@onsedna-dragstart</c>, <c>@onsedna-dragend</c> — and
 /// the graph — <c>@onsedna-graph-select</c>, <c>-open</c>, <c>-hover</c>, <c>-context</c>,
-/// <c>-connect</c>, <c>-expand</c>, <c>-collapse</c>, <c>-change</c> and <c>-ready</c> — and the
+/// <c>-connect</c>, <c>-edge</c>, <c>-expand</c>, <c>-collapse</c>, <c>-change</c> and <c>-ready</c> — and the
 /// rich-text editor — <c>@onsedna-editor-change</c>, <c>@onsedna-editor-ready</c> and
-/// <c>@onsedna-editor-media</c> — and a pane or a diagram following what is newest,
-/// <c>@onsedna-follow</c>.
+/// <c>@onsedna-editor-media</c> — a chart's point chosen, <c>@onsedna-chart-select</c> — a pane or a diagram following what is newest,
+/// <c>@onsedna-follow</c> — a tree, <c>@onsedna-tree-expand</c>, <c>-collapse</c>,
+/// <c>-select</c> and <c>-check</c> — a <c>&lt;time data-countdown&gt;</c> reaching zero,
+/// <c>@onsedna-countdown-end</c> — and an action pressed in a selection toolbar,
+/// <c>@onsedna-selection</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -36,12 +39,20 @@ namespace Sedna.UI;
 [EventHandler("onsedna-graph-connect", typeof(SednaGraphConnectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-graph-expand", typeof(SednaGraphNodeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-graph-collapse", typeof(SednaGraphNodeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-graph-edge", typeof(SednaGraphEdgeEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
+[EventHandler("onsedna-chart-select", typeof(SednaChartEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-editor-ready", typeof(SednaEditorEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-editor-change", typeof(SednaEditorEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-editor-media", typeof(SednaEditorMediaEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
 [EventHandler("onsedna-editor-file", typeof(SednaEditorFileEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-follow", typeof(SednaFollowEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-resize", typeof(SednaResizeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-tree-expand", typeof(SednaTreeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-tree-collapse", typeof(SednaTreeEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-tree-select", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-tree-check", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-countdown-end", typeof(SednaCountdownEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-selection", typeof(SednaSelectionEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 public static class EventHandlers
 {
 }

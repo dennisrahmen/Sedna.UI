@@ -109,3 +109,145 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .breadcrumb-item:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 /* A block container has no flex gap, so the separator takes the gap as its own margin. */
 .breadcrumb-item + .breadcrumb-item:not(:has(> *))::before { margin-inline-end: var(--space-3); }
+
+/* ── On this page ───────────────────────────────────────────────────────────
+   The contents of a long page: a nav of links to its section headings, one level of
+   sections inside sections, with the section in view marked. Bare fragments, so
+   29-fragment.js moves the reader and focus to the heading; `data-spy` on the nav has
+   29-spy.js mark the link to the section in view `aria-current="location"`.
+
+     <nav class="page-toc" aria-label="On this page" data-spy>
+       <details class="page-toc-fold" open>
+         <summary class="page-toc-title">On this page</summary>
+         <ol class="page-toc-list">
+           <li><a class="page-toc-link" href="#delivery">Delivery</a>
+             <ol class="page-toc-list">
+               <li><a class="page-toc-link" href="#couriers">Couriers</a></li>
+             </ol>
+           </li>
+         </ol>
+       </details>
+     </nav>
+
+   Beside the content it sits in a `.sedna-split--sticky` aside, which keeps it in view
+   while the page scrolls past; stacked above the content, `.page-toc-fold` lets the
+   reader fold it away. A `<p class="page-toc-title">` with the list after it is the
+   same contents without the fold. */
+.page-toc { font-size: var(--text-4); }
+.page-toc-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.page-toc-fold > .page-toc-title {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    border-radius: var(--radius-inner);
+}
+.page-toc-fold > .page-toc-title::-webkit-details-marker { display: none; }
+.page-toc-fold > .page-toc-title:hover { color: var(--fg); }
+.page-toc-fold > .page-toc-title:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+/* The caret the nav group draws, at the end of the title. */
+.page-toc-fold > .page-toc-title::after {
+    content: '';
+    margin-inline-start: auto;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    transition: transform var(--motion-fast) ease;
+}
+.page-toc-fold[open] > .page-toc-title::after { transform: rotate(-180deg); }
+.page-toc-fold:not([open]) > .page-toc-title { margin-bottom: 0; }
+/* The rule the current link's bar stands on. A list inside a list draws none: its links
+   reach back to the outer rule and indent their words instead. */
+.page-toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-inline-start: 1px solid var(--border);
+}
+.page-toc-list .page-toc-list { border-inline-start: none; }
+.page-toc-link {
+    display: block;
+    margin-inline-start: -1px;
+    padding: calc(var(--space-2) + var(--cap-gap)) var(--space-6);
+    border-inline-start: 2px solid transparent;
+    color: var(--muted);
+    line-height: round(1.4em, 2px);
+    text-decoration: none;
+    text-box: trim-both cap alphabetic;
+}
+.page-toc-list .page-toc-list .page-toc-link { padding-inline-start: calc(var(--space-6) * 2); }
+.page-toc-link:hover { color: var(--fg); text-decoration: none; }
+.page-toc-link:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); border-radius: var(--radius-inner); }
+.page-toc-link[aria-current="location"] {
+    border-inline-start-color: var(--brand);
+    color: var(--brand-text);
+}
+/* The section the current sub-section belongs to reads as the one the reader is in. */
+.page-toc-list > li:has(> .page-toc-list .page-toc-link[aria-current="location"]) > .page-toc-link { color: var(--fg); }
+
+/* ── Back to top ────────────────────────────────────────────────────────────
+   A round button at the end edge of the page that takes the reader back to its top,
+   for a page long enough that the way back is a long scroll. Write it as the last thing
+   in the page, as a bare `#top`; 29-fragment.js scrolls the page it is in back to the
+   start and moves focus there, so the next Tab is the page's first control:
+
+     <a class="back-to-top" href="#top" aria-label="Back to top"><i class="ri-arrow-up-line"></i></a>
+
+   It sticks to the bottom of what scrolls the page — the page pads that edge clear of
+   the home indicator and the frame's bottom bar — and comes in once the page has
+   scrolled a screen down: a scroll-driven fade, so nothing measures. Where the engine
+   has no scroll-driven animation it is always there. `--back-to-top-after` is how far
+   the page scrolls first. */
+.back-to-top {
+    --back-to-top-after: 100vh;
+    position: sticky;
+    inset-block-end: var(--space-8);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 40px;
+    block-size: 40px;
+    margin-inline-start: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--fg-soft);
+    box-shadow: var(--shadow-float);
+    text-decoration: none;
+}
+.back-to-top i { font-size: var(--text-8); }
+.back-to-top:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.back-to-top:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
+/* A flowing page on a phone is not a scroller: the viewport is, and nothing pads it
+   clear of the home indicator or the bottom bar. */
+@media (max-width: 560px) {
+    .layout--flow > .content > .page .back-to-top:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    }
+    .layout--flow:has(> .content > .bottombar) > .content > .page .back-to-top:not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: calc(var(--space-8) + var(--bottombar-reach));
+    }
+}
+/* Only behind @supports: an engine that drops `animation-timeline` keeps the rest of
+   the shorthand, runs the fade once on a timer, and leaves the button hidden for good. */
+@supports (animation-timeline: scroll()) {
+    .back-to-top {
+        animation: sedna-back-to-top linear both;
+        animation-timeline: scroll();
+        animation-range: var(--back-to-top-after) calc(var(--back-to-top-after) + var(--space-11));
+    }
+}
+@keyframes sedna-back-to-top {
+    from { opacity: 0; visibility: hidden; }
+}

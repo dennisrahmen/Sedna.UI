@@ -182,4 +182,67 @@ public class CloseGuardTests : ScriptTestBase
 
         Assert.False(await IsOpen(page, "sheet"));
     }
+
+    private const string FormFixture = """
+        <form id="edit" data-close-guard>
+            <label class="form-label" for="notes">Delivery notes</label>
+            <textarea class="form-input" id="notes"></textarea>
+        </form>
+        """;
+
+    /// <summary>
+    /// Closes the page the way a reader closing the tab does, and reports whether the
+    /// browser asked first. An asked prompt is answered "stay", so the page is still open
+    /// afterwards; an unasked close completes.
+    /// </summary>
+    private static async Task<bool> LeaveAsks(IPage page)
+    {
+        // A browser asks only on a page the reader has touched.
+        await page.Locator("#notes").ClickAsync();
+        await page.Keyboard.TypeAsync("Leave at the back door");
+
+        var asked = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        page.Dialog += async (_, dialog) =>
+        {
+            if (dialog.Type != DialogType.BeforeUnload) return;
+            asked.TrySetResult(true);
+            await dialog.DismissAsync();
+        };
+        page.Close += (_, _) => asked.TrySetResult(false);
+
+        await page.CloseAsync(new() { RunBeforeUnload = true });
+        return await asked.Task;
+    }
+
+    [Fact]
+    public async Task Leaving_the_page_with_a_dirty_guarded_form_asks_first()
+    {
+        if (NoBrowser) return;
+        var page = await Open(FormFixture);
+        await Js.Run(page, "() => document.getElementById('edit').setAttribute('data-dirty', '')");
+
+        Assert.True(await LeaveAsks(page));
+        Assert.False(page.IsClosed);
+    }
+
+    [Theory]
+    [InlineData(true, false, false)]  // guarded, nothing changed
+    [InlineData(false, true, false)]  // dirty, but the app asked for no guard
+    [InlineData(true, true, true)]    // dirty, then saved: the app took the attribute off
+    public async Task Leaving_the_page_does_not_ask_unless_the_form_is_guarded_and_dirty(bool guarded, bool dirty, bool saved)
+    {
+        if (NoBrowser) return;
+        var page = await Open(FormFixture);
+        await Js.Run(page, """
+            ([guarded, dirty, saved]) => {
+              const form = document.getElementById('edit');
+              if (!guarded) form.removeAttribute('data-close-guard');
+              if (dirty) form.setAttribute('data-dirty', '');
+              if (saved) form.removeAttribute('data-dirty');
+            }
+            """, new object[] { guarded, dirty, saved });
+
+        Assert.False(await LeaveAsks(page));
+        Assert.True(page.IsClosed);
+    }
 }

@@ -1,0 +1,32 @@
+<div class="form-field">
+    <span class="form-label" id="series-colour-label">Series colour</span>
+    <div class="form-color-picker" data-color-picker role="group" aria-labelledby="series-colour-label">
+        <div class="form-color-area" data-color-area role="slider" tabindex="0"
+             aria-label="Saturation and brightness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="84"
+             data-color-valuetext="Saturation {s}%, brightness {v}%, {hex}"></div>
+        <input class="form-range form-range--hue" data-color-hue type="range" min="0" max="360" value="160" aria-label="Hue" />
+        <input class="form-range form-range--alpha" data-color-alpha type="range" min="0" max="100" value="80" aria-label="Opacity" />
+        <div class="sedna-row sedna-gap-2">
+            <span class="form-color-preview" aria-hidden="true"></span>
+            <input class="form-input" data-color-value data-color-format="rgb" name="series" type="text" value="rgb(32 204 147 / 0.8)" aria-label="Series colour as RGB" spellcheck="false" autocomplete="off" />
+        </div>
+        <div class="sedna-row sedna-gap-2">
+            <div class="form-field">
+                <label class="form-label" for="series-r">Red</label>
+                <input class="form-input" id="series-r" data-color-channel="r" type="number" min="0" max="255" value="32" />
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="series-g">Green</label>
+                <input class="form-input" id="series-g" data-color-channel="g" type="number" min="0" max="255" value="204" />
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="series-b">Blue</label>
+                <input class="form-input" id="series-b" data-color-channel="b" type="number" min="0" max="255" value="147" />
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="series-a">Opacity</label>
+                <input class="form-input" id="series-a" data-color-channel="a" type="number" min="0" max="100" value="80" />
+            </div>
+        </div>
+    </div>
+</div>

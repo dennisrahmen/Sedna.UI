@@ -17,6 +17,16 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.AgentSteps.Thinking" Title="While it thinks" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-state="running"</code> on a <code>details.reasoning</code> sets the words in
+        <code>.reasoning-label</code> shimmering while the agent is still thinking, and
+        <code>.reasoning-bar</code> holds it beside a stop button. When the thought is done the app
+        removes the state and changes the words to what it took &mdash; &ldquo;Thought for 4 s, 3
+        tools&rdquo;. Under reduced motion the words hold still; they still say what is happening.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.AgentSteps.Steps" Title="Steps" Demo="ex-demo--block ex-demo--pad">
     <p>
         <code>ol.agent-steps</code> is the tool calls behind an answer, in order. Each <code>&lt;li&gt;</code>
@@ -29,6 +39,30 @@
     <p>
         <strong>Show the call, not a description of it.</strong> The <code>.code-block</code> inside is
         what lets a reader check the agent's work; a failed step keeps the error in its own words.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentSteps.ToolCalls" Title="Tool calls" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.agent-tool</code> on a <code>details.card</code> is one tool call the reader can open:
+        <code>.agent-tool-icon</code>, the tool's <code>.agent-tool-name</code>, a
+        <code>.badge.agent-tool-status</code> in the app's words, <code>.agent-tool-meta</code> for the
+        time, and <code>.agent-tool-chevron</code>. <code>.agent-tool-body</code> holds what the call
+        was sent and what came back, each a <a href="/structure"><code>.code-block</code></a> with a
+        <code>.code-block-head</code>; <code>.agent-tool-error</code> marks the block that holds an error.
+        Give each <code>&lt;pre&gt;</code> <code>tabindex="0"</code>: a long line scrolls, and a scroller
+        the keyboard cannot reach cannot be read.
+    </p>
+    <p>
+        <code>data-state</code> on the card paints the badge: <code>streaming</code> while the agent is
+        still writing the input, <code>running</code>, <code>waiting</code> for approval,
+        <code>approved</code>, <code>done</code>, <code>failed</code> and <code>denied</code> &mdash; the
+        words <code>.agent-steps</code>, <code>.workflow</code> and <code>.agent-approval</code> already
+        use. A model API names them input-streaming, approval-requested, approval-responded,
+        output-available, output-error and output-denied; map them once. <strong>Write
+        <code>open</code> on a failed call and on one waiting for approval</strong>, so the reader sees
+        the error or the request without looking for it; a call waiting holds
+        <code>.agent-approval-actions</code>.
     </p>
 </CatExample>
 
@@ -53,5 +87,33 @@
         Once the reader answers, <code>data-state="approved"</code> or <code>"denied"</code> swaps
         <code>.agent-approval-actions</code> for <code>.agent-approval-result</code>, which names who
         answered and when. Keep an undo there while the change can still be taken back.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentSteps.Question" Title="Asking the reader" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.agent-approval--question</code> is the agent asking rather than asking leave: the
+        approval's head, body and actions in the info colours. Each question is a
+        <code>fieldset.agent-question</code> with its <code>&lt;legend&gt;</code> &mdash; one choice as
+        <a href="/form-choice"><code>.choice-tiles</code></a>, several as <code>.form-check</code> boxes
+        &mdash; and free text is a <code>div.agent-question</code> led by the field's
+        <code>&lt;label&gt;</code>.
+    </p>
+    <p>
+        Send stays <code>disabled</code> until every question that needs an answer has one; that is the
+        app's logic and the platform's state. Once sent, <code>data-state="answered"</code> swaps the
+        actions for <code>.agent-approval-result</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AgentSteps.Queue" Title="Queue and todo" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; hover an item, or tab into it.</strong> <code>.agent-plan--todo</code> is a
+        list the reader works through with the agent: the messages queued behind the one being answered,
+        and the agent's todo list. A done item is struck through as well as dimmed.
+        <code>.agent-plan-actions</code> at the end of an item holds its icon buttons, shown while the
+        pointer is on the item or the focus is in it, and always on a touch screen. Each list is a
+        <code>&lt;details&gt;</code> in an <a href="/collections"><code>.accordion</code></a>, its count in the
+        summary.
     </p>
 </CatExample>

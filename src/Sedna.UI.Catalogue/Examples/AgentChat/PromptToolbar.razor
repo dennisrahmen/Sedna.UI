@@ -1,0 +1,30 @@
+<form class="chat-composer chat-composer--prompt" style="max-width: 640px">
+    <div class="chat-composer-files">
+        <span class="chip"><i class="ri-file-text-line"></i> <span>sync-02-14.log</span> <button class="chip-dismiss" type="button" aria-label="Remove sync-02-14.log"><i class="ri-close-line"></i></button></span>
+        <span class="chip"><i class="ri-image-line"></i> <span>queue-depth.png</span> <button class="chip-dismiss" type="button" aria-label="Remove queue-depth.png"><i class="ri-close-line"></i></button></span>
+    </div>
+    <p class="form-hint" id="pt-limits">Up to 5 files, 10 MB each &middot; PDF, PNG, CSV or a log</p>
+    <div class="chat-composer-row">
+        <textarea class="form-input" rows="1" placeholder="Ask Ops agent" aria-label="Message" aria-describedby="pt-limits"></textarea>
+    </div>
+    <div class="chat-composer-tools">
+        <div class="menu-anchor">
+            <button class="btn btn--sm btn--ghost btn--icon" type="button" data-menu-toggle aria-expanded="false" aria-label="Add"><i class="ri-add-line"></i></button>
+            <div class="menu menu--start" hidden>
+                <button class="menu-item" type="button"><i class="ri-attachment-2"></i> <span>Attach a file</span></button>
+                <button class="menu-item" type="button"><i class="ri-screenshot-2-line"></i> <span>Take a screenshot</span></button>
+                <button class="menu-item" type="button"><i class="ri-links-line"></i> <span>Add a link</span></button>
+            </div>
+        </div>
+        <button class="btn btn--sm btn--ghost" type="button"><i class="ri-cloud-line"></i><span>Balanced</span><i class="ri-arrow-down-s-line"></i></button>
+        <span class="chat-composer-send" data-state="idle">
+            <button class="btn btn--ghost btn--icon" type="button" aria-label="Take a screenshot"><i class="ri-screenshot-2-line"></i></button>
+            <button class="btn btn--ghost btn--icon btn-mic" type="button" aria-label="Talk"><i class="ri-mic-line"></i></button>
+            <button class="btn btn--brand btn--solid btn--icon" type="submit">
+                <span data-when="idle"><i class="ri-arrow-up-line" aria-hidden="true"></i><span class="visually-hidden">Send</span></span>
+                <span data-when="submitted streaming"><i class="ri-stop-fill" aria-hidden="true"></i><span class="visually-hidden">Stop</span></span>
+                <span data-when="error"><i class="ri-restart-line" aria-hidden="true"></i><span class="visually-hidden">Retry</span></span>
+            </button>
+        </span>
+    </div>
+</form>

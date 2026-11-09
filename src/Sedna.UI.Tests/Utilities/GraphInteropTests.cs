@@ -296,6 +296,7 @@ public class GraphInteropTests : BunitContext
             Y = -20,
             Display = SednaGraphDisplay.Box,
             State = SednaGraphState.Running,
+            Placeholder = true,
             Fields = new Dictionary<string, string?> { ["owner"] = "Alex Fischer", ["teamLead"] = "Priya Nair", ["pager"] = null },
         };
 
@@ -314,6 +315,7 @@ public class GraphInteropTests : BunitContext
         Assert.Equal("rounded", (string?)json["shape"]);
         Assert.Equal("box", (string?)json["display"]);
         Assert.Equal("running", (string?)json["state"]);
+        Assert.True((bool?)json["placeholder"]);
         Assert.Equal(2.5, (double?)json["weight"]);
         Assert.Equal(-20, (double?)json["y"]);
         Assert.Equal(["critical", "eu"], json["tags"]!.AsArray().Select(t => (string?)t));
@@ -544,7 +546,7 @@ public class GraphInteropTests : BunitContext
             {"id":"orders-api","label":"Orders API","kind":"service","group":"orders","cluster":null,
              "parent":"checkout","meta":"orders-console-01","href":"/services/orders-api","tone":"2","state":"waiting",
              "tags":["critical","eu"],"fields":{"owner":"Alex Fischer","collapsed":"true","pager":null},
-             "keyboard":true}
+             "placeholder":true,"keyboard":true}
             """, Wire)!;
 
         Assert.Equal("orders-api", e.Id);
@@ -554,6 +556,7 @@ public class GraphInteropTests : BunitContext
         Assert.Equal(["critical", "eu"], e.Tags);
         Assert.Equal("Alex Fischer", e.Fields["owner"]);
         Assert.Null(e.Fields["pager"]);
+        Assert.True(e.Placeholder);
         Assert.True(e.Keyboard);
     }
 
@@ -584,6 +587,28 @@ public class GraphInteropTests : BunitContext
         Assert.Equal((312, 88), (context.X, context.Y));
         Assert.Equal(("storefront", "search"), (connect.Source, connect.Target));
         Assert.Equal((5, 7, 9), (change.Nodes, change.TotalNodes, change.TotalEdges));
+    }
+
+    [Fact]
+    public void A_button_pressed_on_a_link_reads_as_edge_event_args()
+    {
+        // edgeDetail() in 56-edge-tools.js: the link's fields as strings or null, and the button's value.
+        var e = JsonSerializer.Deserialize<SednaGraphEdgeEventArgs>(
+            """
+            {"id":"api→db","source":"api","target":"db","label":"reads","kind":"reads","tone":null,"state":"done",
+             "fields":{"owner":"Alex Fischer","pager":null},"value":"remove"}
+            """, Wire)!;
+
+        Assert.Equal(("api→db", "api", "db"), (e.Id, e.Source, e.Target));
+        Assert.Equal("reads", e.Kind);
+        Assert.Null(e.Tone);
+        Assert.Equal(SednaGraphState.Done, e.State);
+        Assert.Equal("Alex Fischer", e.Fields["owner"]);
+        Assert.Equal("remove", e.Value);
+
+        var bare = JsonSerializer.Deserialize<SednaGraphEdgeEventArgs>("""{"id":"a-b","source":"a","target":"b","value":null}""", Wire)!;
+        Assert.Null(bare.Value);
+        Assert.Empty(bare.Fields);
     }
 
     [Fact]
@@ -624,6 +649,7 @@ public class GraphInteropTests : BunitContext
 
         Assert.Equal(typeof(SednaGraphContextEventArgs), handlers["sedna-graph-context"].EventArgsType);
         Assert.Equal(typeof(SednaGraphConnectEventArgs), handlers["sedna-graph-connect"].EventArgsType);
+        Assert.Equal(typeof(SednaGraphEdgeEventArgs), handlers["sedna-graph-edge"].EventArgsType);
         Assert.Equal(typeof(SednaGraphEventArgs), handlers["sedna-graph-change"].EventArgsType);
         Assert.Equal(typeof(SednaGraphNodeEventArgs), handlers["sedna-graph-select"].EventArgsType);
     }

@@ -40,9 +40,6 @@
    browser that cannot do base appearance, and an unknown pseudo-element drops the
    whole rule. So those rules gate themselves, and only the two `appearance`
    declarations — which are valid property/value pairs either way — need asking.
-   Keeping the transitions outside the block matters for a second reason: an
-   `@supports` body is opaque to the reduced-motion guard, so motion declared in
-   one could ship with no off switch.
 
    The fallback caret lives in 45-form-controls.css behind `@supports not`, so
    nothing here has to undo it.

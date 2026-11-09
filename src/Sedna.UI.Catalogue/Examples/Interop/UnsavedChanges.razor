@@ -1,0 +1,66 @@
+@inject ISednaUi Ui
+
+@* data-dirty is rendered from the comparison below, so typing a value back to what was
+   saved takes the bar away again. data-close-guard with data-dirty asks the browser to
+   confirm a reload, a closed tab or a link out of the app; NavigationLock asks before a
+   link inside it, which never unloads the page. *@
+<form style="max-width:560px" data-close-guard data-dirty="@Dirty" @onsubmit="Save">
+    <div class="form-section-body">
+        <div class="form-field">
+            <label class="form-label" for="uc-name">Depot name</label>
+            <input class="form-input" id="uc-name" @bind="_name" @bind:event="oninput" />
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="uc-dock">Loading dock</label>
+            <input class="form-input" id="uc-dock" @bind="_dock" @bind:event="oninput" />
+        </div>
+    </div>
+    <div class="form-actions form-actions--save-bar">
+        <p class="form-actions-status"><i class="ri-error-warning-line"></i><span>Unsaved changes</span></p>
+        <button class="btn" type="button" @onclick="Discard">Discard</button>
+        <button class="btn btn--brand btn--solid" type="submit">Save</button>
+    </div>
+</form>
+<p class="form-hint">Saved: @_saved.Name, @_saved.Dock</p>
+
+<NavigationLock OnBeforeInternalNavigation="ConfirmLeave" />
+
+@* The question is the app's own dialog, in the app's words; "stay" comes first, so it is
+   the button the dialog focuses. *@
+<dialog id="leave-unsaved" class="modal modal--sm" aria-labelledby="leave-unsaved-title">
+    <form method="dialog">
+        <div class="modal-header">
+            <h3 id="leave-unsaved-title">Leave without saving?</h3>
+        </div>
+        <div class="modal-body">
+            <p>Your changes to the depot are not saved. They are lost if you leave this page.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" value="stay">Stay on this page</button>
+            <button class="btn btn--danger" value="leave">Leave and discard</button>
+        </div>
+    </form>
+</dialog>
+
+@code {
+    private sealed record Depot(string Name, string Dock);
+
+    private Depot _saved = new("North depot", "Dock 3, rear entrance");
+    private string _name = "North depot";
+    private string _dock = "Dock 3, rear entrance";
+
+    private bool Dirty => _name != _saved.Name || _dock != _saved.Dock;
+
+    private void Save() => _saved = new(_name, _dock);
+
+    private void Discard() => (_name, _dock) = (_saved.Name, _saved.Dock);
+
+    // Blazor waits for this before it navigates. The context's token is cancelled when the
+    // reader starts another navigation meanwhile, and the wait on the dialog with it.
+    private async Task ConfirmLeave(LocationChangingContext context)
+    {
+        if (!Dirty) return;
+        var answer = await Ui.ShowModalAsync("leave-unsaved", context.CancellationToken);
+        if (answer != "leave") context.PreventNavigation();
+    }
+}

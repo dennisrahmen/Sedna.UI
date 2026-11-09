@@ -1,0 +1,102 @@
+@page "/tree"
+
+<CatHead Title="Trees">
+    Nested structure the reader walks and picks from &mdash; a team hierarchy, a folder of files, a
+    configuration path. <code>.tree</code> is a real ARIA tree: one tab stop, the arrow keys, typeahead,
+    single or multiple selection, tri-state checkboxes and children loaded when a branch opens. To pick
+    from a tree inside a field, put one in a <a href="/form-combo">combo field</a>'s panel. Detail that
+    merely unfolds is an <a href="/collections">accordion</a>.
+</CatHead>
+
+<div class="callout callout--info">
+    <i class="ri-information-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">The state is ARIA, and the script keeps it</span>
+        Open is <code>aria-expanded</code>, picked is <code>aria-selected</code>, ticked is
+        <code>aria-checked</code>, unavailable is <code>aria-disabled</code> &mdash; the attributes a screen
+        reader announces are the ones that paint. The script writes them as the reader works the tree, and
+        says what changed with <code>sedna-tree-select</code>, <code>sedna-tree-check</code>,
+        <code>sedna-tree-expand</code> and <code>sedna-tree-collapse</code> on the item, each naming it by
+        its <code>data-value</code>. A Blazor page keeps its own copy from those events, with
+        <code>@@using Sedna.UI</code> in <code>_Imports.razor</code>.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Tree.Teams" Title="Expanded and selected" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; Tab in, then use the arrow keys, or type a letter.</strong> Each item is an
+        <code>li[role=treeitem]</code> holding its <code>.tree-row</code> and, for a branch, a
+        <code>ul[role=group]</code> of children. One item is <code>tabindex="0"</code> and the rest
+        <code>-1</code>: <kbd class="kbd">&darr;</kbd> <kbd class="kbd">&uarr;</kbd> walk the visible items,
+        <kbd class="kbd">&rarr;</kbd> opens a branch and then enters it, <kbd class="kbd">&larr;</kbd>
+        closes it and then climbs to the parent &mdash; mirrored in a right-to-left page &mdash;,
+        <kbd class="kbd">Home</kbd> and <kbd class="kbd">End</kbd> jump, <kbd class="kbd">*</kbd> opens every
+        sibling, and a letter goes to the next item starting with it.
+    </p>
+    <p>
+        Every row starts with a <code>.tree-toggle</code>, even a leaf's, where it draws nothing and keeps
+        the labels in line. <kbd class="kbd">Space</kbd>, <kbd class="kbd">Enter</kbd> or a click on the row
+        picks an item with <code>aria-selected</code>; a click on the caret only opens or closes. Write
+        <code>aria-selected="false"</code> on every item that can be picked &mdash; an item without it is a
+        heading the reader opens, not a choice.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Tree.Multi" Title="Several picked" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> <code>aria-multiselectable="true"</code> on the tree makes
+        <kbd class="kbd">Space</kbd> and a click toggle an item, <kbd class="kbd">Shift</kbd>+<kbd class="kbd">&darr;</kbd>
+        move and toggle the next one, and <kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">A</kbd> pick every
+        visible item. An item with <code>aria-disabled="true"</code> is still reached by the keys, so the
+        reader learns it is there, and cannot be picked.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Tree.Checkboxes" Title="Tri-state checkboxes" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> <code>aria-checked</code> on the items and a <code>.tree-check</code> in
+        each row. Ticking a branch ticks everything under it, and every parent above it becomes ticked,
+        unticked or <code>mixed</code> from its children; <code>sedna-tree-check</code> carries every ticked
+        value afterwards, so the app replaces its copy instead of repeating the arithmetic. The box is drawn
+        rather than an <code>&lt;input&gt;</code>: the item is the control, and an input inside it would be a
+        second tab stop.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Tree.Loading" Title="Children loaded on demand" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; open 2024.</strong> A branch whose children are not in the page yet carries
+        <code>data-tree-lazy</code> and <code>aria-expanded="false"</code>. Opening it marks the item
+        <code>aria-busy="true"</code>, which turns the caret into a spinner, and sends
+        <code>sedna-tree-expand</code> with <code>lazy: true</code>. Nothing answers on this page, so the
+        branch stays busy, as 2025 is from the start.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.TreeLazy" Title="Answering a lazy branch in Blazor" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> The handler loads the year's months and renders the item's
+        <code>role="group"</code>, and the same render drops <code>data-tree-lazy</code>; the script lifts
+        <code>aria-busy</code> as soon as either lands. A year with nothing under it renders no group and
+        no <code>aria-expanded</code>, which makes it a leaf.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Tree.Links" Title="A tree of links" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> A row that navigates is an <code>&lt;a class="tree-row"&gt;</code> with
+        <code>tabindex="-1"</code>, so the tree stays one tab stop; <kbd class="kbd">Enter</kbd> on the item
+        follows it. The page the reader is on is <code>aria-current="page"</code> on its item.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.TreeDrag" Title="Reordering by drag" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; drag a row, or focus one and press <kbd class="kbd">Space</kbd>.</strong> The
+        <a href="/drag-drop">drag and drop</a> attributes, on the tree's own lists: <code>data-drag-zone</code>
+        on the tree and on each <code>role="group"</code>, <code>data-drag-item</code> on each item. An item
+        that drags from itself takes <kbd class="kbd">Space</kbd> and <kbd class="kbd">Enter</kbd> for the
+        drag; give it a <code>[data-drag-handle]</code> to keep them for picking. The move is a
+        <code>sedna-drop</code> the app handles in its own list, as for any drag.
+    </p>
+</CatExample>

@@ -250,6 +250,7 @@ function nodeDetail(ele, extra) {
         href: d.href ?? null,
         tone: d.tone ?? null,
         state: d.state ?? null,
+        placeholder: !!d.placeholder,
         tags: d.tags || [],
         fields,
         keyboard: false,
@@ -286,6 +287,8 @@ function changed(g) {
     if (g.failed) g.el.setAttribute('data-graph-state', 'error');
     else if (!g.awaiting) g.el.setAttribute('data-graph-state', empty ? 'empty' : s.nodes === 0 ? 'filtered' : 'ready');
     writeStats(g, s);
+    g.edgeTools?.sync();
+    showZoom(g, true);
     g.emit('sedna-graph-change', s);
     return s;
 }
@@ -657,6 +660,8 @@ function wire(g) {
     // never comes for a tab that is not being painted.
     let pending = 0;
     cy.on('viewport', () => {
+        // A zoom control follows the zoom as it moves, not once it rests.
+        showZoom(g, false);
         clearTimeout(pending);
         pending = setTimeout(() => {
             pending = 0;
@@ -712,7 +717,8 @@ function wire(g) {
         const node = event.target;
         if (node.hasClass('eh-handle') || node.hasClass('eh-ghost') || g.drawing) return;
         g.menu.close(false);
-        if (g.options.open === 'tap') {
+        // A placeholder is an affordance, not a record to read: one click opens it.
+        if (g.options.open === 'tap' || (node.data('placeholder') && g.options.open !== 'none')) {
             open(g, node, false);
             return;
         }
@@ -723,7 +729,8 @@ function wire(g) {
         if (g.drawing) return;
         // A group that folds is folded or unfolded by a double click; any other record opens.
         if (toggleFold(g, event.target)) return;
-        if (g.options.open !== 'none' && !event.target.isParent()) open(g, event.target, false);
+        // A placeholder opened at the first click of the two.
+        if (g.options.open !== 'none' && !event.target.isParent() && !event.target.data('placeholder')) open(g, event.target, false);
     });
     cy.on('tap', event => {
         if (event.target !== cy) return;
@@ -928,6 +935,7 @@ async function start(g) {
 
     g.tip = tips(g);
     g.menu = menus(g);
+    g.edgeTools = edgeTools(g);
     wire(g);
     g.keys = keyboard(g);
     rememberControls(g);
@@ -980,6 +988,7 @@ function dispose(g) {
     g.observers.splice(0).forEach(o => o.disconnect());
     g.keys?.destroy();
     g.menu?.destroy();
+    g.edgeTools?.destroy();
     g.minimap?.destroy();
     g.tip?.hide();
     try { g.eh?.destroy(); } catch (e) { /* ignore */ }

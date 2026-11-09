@@ -1,0 +1,15 @@
+<div class="sedna-col sedna-gap-3" style="max-width:520px">
+    <div class="form-field">
+        <label class="form-label" for="pd-files">Photos of the delivery</label>
+        <label class="form-file">
+            <input type="file" id="pd-files" multiple accept="image/*" aria-describedby="pd-hint" />
+            <span class="btn"><i class="ri-image-add-line"></i> <span>Choose photos</span></span>
+        </label>
+        <span class="form-hint" id="pd-hint">Or drop them anywhere on this page.</span>
+    </div>
+    <div class="dropzone dropzone--page" data-dropzone="page" data-dropzone-input="pd-files" aria-hidden="true">
+        <i class="ri-upload-cloud-2-line"></i>
+        <span>Drop to add the photos to the delivery</span>
+        <span class="form-hint">JPG or PNG, up to 10 MB each</span>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+@page "/page-navigation"
+
+<CatHead Title="In-page navigation">
+    Moving around inside one long page: its contents, with the section in view marked, and a
+    way back to the top.
+</CatHead>
+
+<CatExample TExample="Examples.PageNavigation.Contents" Title="On this page" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; scroll it, or follow a link.</strong> <code>.page-toc</code> is a
+        <code>&lt;nav&gt;</code> of bare fragment links to the page&rsquo;s section headings, with one
+        level of sub-sections in a nested <code>.page-toc-list</code>. Following one moves the reader
+        and focus to its heading. With <code>data-spy</code> on the nav the script marks the link to
+        the section in view <code>aria-current="location"</code>: the one whose heading has most
+        recently reached the top of the scroller, the first before any has, and the last once the
+        page is scrolled to its end.
+    </p>
+    <p>
+        Beside the content, put it in the aside of a
+        <a href="/grid"><code>.sedna-split--sticky</code></a> split, which keeps it in view while the
+        page scrolls past. Stacked above the content on a narrow screen,
+        <code>.page-toc-fold</code> lets the reader fold it away; a <code>&lt;p&gt;</code> title and the
+        list alone are the same contents without the fold.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageNavigation.BackToTop" Title="Back to top" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; scroll it.</strong> <code>.back-to-top</code> is the last thing in the
+        page, a link to <code>#top</code>: the scroller it is in goes back to its start and focus
+        moves there, so the next Tab is the first control on the page. It sticks to the bottom
+        corner, clear of the home indicator and the bottom bar, and comes in once the page has
+        scrolled a screen down &mdash; <code>--back-to-top-after</code>, shortened here to fit the
+        box. Where the engine has no scroll-driven animation it is always there.
+    </p>
+</CatExample>

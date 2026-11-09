@@ -47,12 +47,15 @@ have pushed `04-theme-contrast.css` into `05`, i.e. into `sedna.base`.
 
 The `30`–`69` components band is full as well, so a new component shares a number: `66` holds
 `66-calendar.css`, `66-chat.css` and `66-status-indicator.css`, in that order. None depends on another,
-and all three are in `sedna.paint`. `64` holds `64-files.css`, `64-lightbox.css`, `64-media-player.css` and
-`64-palette-spotlight.css` the same way, and `44` holds `44-rich-text.css` after
+and all three are in `sedna.paint`. `66-calendar-agenda.css` sorts before `66-calendar.css` (`-` precedes `.`)
+and depends on nothing of it coming first: its rows take `.cal-event-dot` and the hue modifiers through
+selectors that outweigh theirs. `64` holds `64-files.css`, `64-lightbox.css`, `64-media-player.css` and
+`64-palette-spotlight.css` the same way, `45` holds `45-colour-picker.css` before `45-form-controls.css` — its range modifiers name `.form-range` twice to outweigh the plain track drawn later in `48-form-numeric.css` — `60` holds `60-lists.css` and `60-tree.css`, `62` holds `62-carousel.css` before `62-media-and-prose.css`, `62-pdf.css` and `62-qr.css`, `47` holds `47-form-file.css` before `47-form-signature.css`, and `44` holds `44-rich-text.css` after
 `44-markdown.css`, whose `.editor` chrome it builds on. Chat reuses `.file-item` and `.audio-wave` from earlier parts
 and adds only its bubble context, so it stays after them. The agent parts share `66`–`69` the same way:
 `66-agent-*.css` and `66-orb.css` stand alone; `67-agent-chat.css` builds on `66-chat.css` and
-`67-voice.css` on `.audio-wave`, so both come after them; `68-mochi.css` beside `68-guard.css`, and `68-workflow.css` after them — it builds on `.orb`, `.confidence` and `.meter` and draws its running step's edge itself; and
+`67-voice.css` on `.audio-wave`, so both come after them, `67-artifact.css` sits after `67-agent-chat.css`, whose
+`.chat-versions` its head carries, and `67-ghost-text.css` fits a textarea into the composer's row; `65-selection-toolbar.css` sits after `65-popover.css`, the other floating panel; `68-mochi.css` beside `68-guard.css`, and `68-workflow.css` after them — it builds on `.orb`, `.confidence` and `.meter` and draws its running step's edge itself; and
 `69-beam.css` after every component whose background it replaces — `.card`, `.form-input`, `.btn`, the
 composer — which is why it is not numbered lower. `70`–`72` are RTL, forced colours and print, which must stay after
 every component.
@@ -71,6 +74,12 @@ Two consequences to keep in mind while writing a rule:
   `01-tokens.css` and remapped in `02-theme-light.css` / `03-theme-colour-blind.css`. `transparent`
   and `currentColor` are the only literals allowed; system colour keywords (`Canvas`, `CanvasText`, …)
   are allowed **only** as a `:root` remap inside `@media (forced-colors: active)`.
+  **The one exception is the colour picker's spectrum** in `45-colour-picker.css`: the hue rainbow,
+  the area's white and black and the pure hue are literal values, each declared once as a
+  `--spectrum-*` property on `.form-color-picker`, and remapped by no theme. A literal is allowed on a
+  `--spectrum-*` declaration in that part and nowhere else — `ColourTests` and `TokenTierTests` name
+  both the part and the prefix. Do not add a second exception, and do not use a `--spectrum-*` value
+  for anything that is not the spectrum or a thumb drawn on it.
 - **The token layer has two tiers, and neither leaks into the other.** `00-palette.css` is tier 1: the
   ramps, holding literals, declared once at bare `:root` and never remapped by variant, colour-vision
   or contrast — a ramp step is a colour, not a decision. Everything in `01`–`04` is tier 2: roles, each

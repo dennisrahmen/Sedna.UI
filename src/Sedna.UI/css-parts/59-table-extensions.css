@@ -39,6 +39,47 @@
 }
 .table--sticky td { border-bottom: 1px solid var(--border); }
 
+/* ── Pinned totals, and a pinned row ────────────────────────────────────────
+   `.table--sticky-foot` holds the `<tfoot>` — the totals — at the bottom of the
+   scroller while the body scrolls under it, the header's counterpart on the other
+   edge. It needs the same scroll container, and sets the same separate borders.
+
+     <div class="sedna-scroll" style="--scroll-max: 320px">
+       <table class="table table--sticky table--sticky-foot">
+         <thead>…</thead>
+         <tbody>…</tbody>
+         <tfoot><tr><th scope="row">Total</th><td class="col-num">1,284</td></tr></tfoot>
+       </table>
+     </div>
+
+   The `<tfoot>` sticks as one box, as the `<thead>` does, at z-index 2 of the table's
+   local band: above the pinned body cells, and with the pinned columns of its own row
+   ordered inside it. Its cells are the soft surface laid over an opaque one, so the
+   rows scrolling beneath do not show through.
+
+   `.tr-pinned` is a record held at the top — the reader's own row in a ranking, the
+   order they came from — written as a row of `<td>`s in the `<thead>`, after the
+   header row. The `<thead>` is what sticks, so the row stays put under the headings
+   with no height to keep in step, and it is announced with them. It takes the brand
+   tint and a rule under it, so it reads as a record set apart rather than a heading. */
+.table--sticky-foot { border-collapse: separate; border-spacing: 0; }
+.table--sticky-foot tfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+/* Doubled, to outweigh the footer's own translucent surface further down. */
+.table.table--sticky-foot tfoot :is(td, th) {
+    background-color: var(--surface-here, var(--bg));
+    background-image: linear-gradient(var(--surface-soft), var(--surface-soft));
+}
+.table thead .tr-pinned > td {
+    background-color: var(--surface-here, var(--bg));
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+    border-bottom-color: var(--border-strong);
+}
+.table thead .tr-pinned { --pin-tint: var(--brand-tint); }
+
 /* ── Zebra ──────────────────────────────────────────────────────────────────
    For wide tables where the eye loses the row between the first and last column.
    Avoid combining it with row selection: two faint background states are hard to
@@ -47,8 +88,17 @@
    The stripe is (0,2,3) — `:nth-child` counts as a class — which is higher than the
    hover highlight in 32-tables.css at (0,2,1). Without the second rule below,
    striped rows would silently stop responding to hover, which reads as a broken
-   table rather than as a styling choice. */
-.table--zebra tbody tr:nth-child(even) > td { background: var(--surface-soft); }
+   table rather than as a styling choice.
+
+   Rows are counted past an empty `<tr>`, the spacer Blazor's `<Virtualize>` writes
+   before and after the rows it renders — counted, the leading spacer would flip every
+   stripe. A virtualized table renders a window of its rows, so a row's place among its
+   siblings changes as the reader scrolls; a row that carries `aria-rowindex` is striped
+   by that instead, its own place in the whole table, odd numbers striped — a header
+   row is row 1, so the body's second row is the first striped, as without it. Both
+   rules stay at (0,2,3) through `:where()`, so row selection still wins the tie. */
+.table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])) > td,
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) > td { background: var(--surface-soft); }
 .table--zebra .tr-clickable:hover > td { background: var(--bg-hover); }
 
 /* ── Sortable header ────────────────────────────────────────────────────────
@@ -174,7 +224,8 @@
    band this wide. Each level is load-bearing:
 
      · 1  the pinned body cells, above the static cells they slide across.
-     · 2  `.table--sticky`'s header row, above those.
+     · 2  `.table--sticky`'s header row and `.table--sticky-foot`'s footer row,
+          above those.
      · 3  the corner cell, which is sticky on BOTH axes. It has to beat the other
           header cells as well as the column beneath it, and it is first in DOM
           order, so at an equal z-index every other header cell paints over it — the
@@ -200,7 +251,8 @@
 .table--pin-end   { --pin-edge-end:   var(--shadow-edge-end); }
 
 .table--pin-start tbody tr > td:first-child:not([colspan]),
-.table--pin-start tfoot tr > td:first-child:not([colspan]) {
+.table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+.table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]) {
     --pin-shadow: var(--pin-edge-start);
     position: sticky;
     inset-inline-start: 0;
@@ -210,7 +262,8 @@
     box-shadow: var(--pin-shadow);
 }
 .table--pin-end tbody tr > td:last-child:not([colspan]),
-.table--pin-end tfoot tr > td:last-child:not([colspan]) {
+.table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+.table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) {
     --pin-shadow: var(--pin-edge-end);
     position: sticky;
     inset-inline-end: 0;
@@ -260,22 +313,26 @@
 @container not scroll-state(scrollable: inline-start) {
     .table--pin-start thead th:first-child:not([colspan]),
     .table--pin-start tbody tr > td:first-child:not([colspan]),
-    .table--pin-start tfoot tr > td:first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+    .table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+    .table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 @container not scroll-state(scrollable: inline-end) {
     .table--pin-end thead th:last-child:not([colspan]),
     .table--pin-end tbody tr > td:last-child:not([colspan]),
-    .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+    .table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+    .table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 }
 /* The same two facts as attributes, written by 22-scroll-edge.js, for the engine
    without scroll-state() — WebKit, where a table that fit still drew the end
    shadow. Where the query works the two agree. */
 .sedna-scroll-x[data-scroll-start] .table--pin-start thead th:first-child:not([colspan]),
 .sedna-scroll-x[data-scroll-start] .table--pin-start tbody tr > td:first-child:not([colspan]),
-.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start thead .tr-pinned > td:first-child:not([colspan]),
+.sedna-scroll-x[data-scroll-start] .table--pin-start tfoot tr > :is(td, th):first-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end thead th:last-child:not([colspan]),
 .sedna-scroll-x[data-scroll-end] .table--pin-end tbody tr > td:last-child:not([colspan]),
-.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > td:last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
+.sedna-scroll-x[data-scroll-end] .table--pin-end thead .tr-pinned > td:last-child:not([colspan]),
+.sedna-scroll-x[data-scroll-end] .table--pin-end tfoot tr > :is(td, th):last-child:not([colspan]) { --pin-shadow: 0 0 0 transparent; }
 
 /* ── Group rows ─────────────────────────────────────────────────────────────
    A row that heads the rows after it — a state, a day, a customer — written as
@@ -492,10 +549,54 @@
 .tr-busy .spinner { margin-inline-end: var(--space-4); }
 :is(.tr-empty, .list-empty) .state-art { display: block; margin: 0 auto var(--space-5); }
 
+/* ── Virtualized rows, and loading more ─────────────────────────────────────
+   Blazor's `<Virtualize>` renders the rows in view and stands an empty element in for
+   the rest, before and after them. Inside a table that element is a row:
+
+     <tbody>
+       <Virtualize Items="lines" SpacerElement="tr" ItemSize="37" Context="line">
+         <tr aria-rowindex="@(line.Index + 2)">…</tr>
+       </Virtualize>
+     </tbody>
+
+   The spacer is a `<tr>` with no cells, and nothing here paints one: a row's background,
+   rule and hover belong to its cells. The zebra stripe counts past it, a stacked table
+   does not turn it into a card, and the last row of a `.popover--flush` table is the
+   last row that has cells. `aria-rowindex` on each row — its place in the whole table,
+   the header being row 1 — tells a screen reader where the window is, and is what a
+   zebra stripe follows in a virtualized table; `aria-rowcount` on the table is the
+   total.
+
+   `.tr-more` is the row after the rows, for a list that loads the next page when asked
+   rather than as the reader scrolls: one cell spanning the table, holding the button
+   and `.tr-more-count`, how many of how many are shown. While the page is loading,
+   `aria-busy="true"` on the button lays the spinner over its label and keeps a
+   second press from starting it twice.
+
+     <tr class="tr-more"><td colspan="999">
+       <button class="btn btn--sm" type="button"><i class="ri-arrow-down-line"></i><span>Show 50 more</span></button>
+       <span class="tr-more-count">50 of 1,284</span>
+     </td></tr>
+
+   Same specificity as the zebra stripe and later, so the row is never striped. */
+.table tbody tr.tr-more > td {
+    padding-block: var(--space-4);
+    background: none;
+    text-align: center;
+}
+.tr-more-count {
+    margin-inline-start: var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
 /* The row states, mirroring the background rules above one for one. Set on the
    <tr> so a custom property carries them into the pinned cell by inheritance;
    ordering between them is the ordering the `> td` rules already have. */
-.table--zebra tbody tr:nth-child(even) { --pin-tint: var(--surface-soft); }
+.table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])),
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) { --pin-tint: var(--surface-soft); }
 .table tbody tr[aria-selected="true"] { --pin-tint: var(--brand-tint); }
 .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
@@ -505,6 +606,117 @@
 .table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
     box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
 }
+
+/* ── A keyboard grid ────────────────────────────────────────────────────────
+   `role="grid"` on a `.table` makes it one tab stop with arrow-key movement between
+   cells (22-grid.js). The cell that has the focus is ringed inside its own box, as an
+   outline rather than a shadow, so it composes with a pinned cell's edge shadow and a
+   selected row's bar instead of replacing them.
+
+   A selected range is `aria-selected` on each cell, written by the script. Its tint is
+   laid over the cell's own background as an image, so a sticky header cell keeps its
+   opaque surface under it, and it is handed to a pinned cell through `--pin-tint`. */
+.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+}
+.table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] {
+    --pin-tint: var(--brand-tint);
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+}
+
+/* ── Editing in place ───────────────────────────────────────────────────────
+   A cell that can be edited holds its value and, after it, a `.cell-editor` — an
+   `<input>`, a `<select>` or a `<textarea>` the app binds:
+
+     <td class="col-num">12<input class="cell-editor" type="number" value="12" aria-label="Quantity, desk lamp"></td>
+
+   The editor is hidden until the cell is edited — `data-editing` on the cell, which the
+   grid's script writes on Enter, F2 or a double-click — or its row is: `data-editing`
+   on the `<tr>`, which the app renders. It is then laid over the whole cell, so the row
+   keeps its height and the column its width: the value under it still sizes both.
+
+   The states are attributes, and the app writes them:
+
+     · rejected   `aria-invalid="true"` on the editor, and on the cell too, so a screen
+                  reader moving through the grid hears it without opening the editor.
+                  The editor takes a danger edge; the cell a mark in its corner.
+     · changed    `data-dirty` on the cell, for a value edited and not yet saved.
+                  The same corner, in its own colour. A rejected value wins it.
+
+   A mark is colour and a shape, not a label: say what it means in the cell's
+   accessible description as well. `--cell-dirty-mark`, `--cell-invalid-mark` and
+   `--cell-mark-size` are the knobs.
+
+   The cell is positioned to hold the editor and the mark. A pinned cell is already
+   positioned — sticky — and keeps it: its rule weighs more than this one. */
+.table {
+    --cell-dirty-mark: var(--info-fg);
+    --cell-invalid-mark: var(--field-border-danger);
+    --cell-mark-size: 7px;
+}
+.table :is(td, th):is([data-dirty], [aria-invalid="true"], :has(> .cell-editor)) { position: relative; }
+/* A cell that holds its value and nothing visible besides its editor is a cell of words,
+   and is trimmed to its capitals as one is in 32-tables.css — so a column of edited
+   values sits on the line the rest of the row does. */
+.table :is(td, th):has(> .cell-editor):not(:has(> :not(.cell-editor, .visually-hidden))) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
+}
+.cell-editor { display: none; }
+.table :is(td, th)[data-editing] > .cell-editor,
+.table tr[data-editing] > :is(td, th) > .cell-editor {
+    display: block;
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0 var(--cell-pad-x);
+    background: var(--bg);
+    border: 0;
+    border-radius: 0;
+    color: var(--fg);
+    font: inherit;
+    text-align: inherit;
+    resize: none;
+}
+.table textarea.cell-editor { padding-block: var(--cell-pad-y); }
+/* The edge and its states weigh less than the rule above, so each state only has to
+   outweigh the one before it. */
+.table .cell-editor { box-shadow: inset 0 0 0 1px var(--field-border); }
+.table .cell-editor:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--focus-ring);
+}
+.table .cell-editor[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--field-border-danger); }
+.table .cell-editor[aria-invalid="true"]:focus {
+    box-shadow: inset 0 0 0 1px var(--field-border-danger), inset 0 0 0 3px var(--focus-ring);
+}
+
+/* The corner mark, at the cell's block-start inline-end corner, drawn with two borders
+   so it mirrors on a right-to-left page with nothing restated. Over the editor, so a
+   rejected value is marked while it is edited too. */
+.table :is(td, th):is([data-dirty], [aria-invalid="true"], :has(> .cell-editor[aria-invalid="true"]))::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    border-block-start: var(--cell-mark-size) solid var(--cell-mark, var(--cell-dirty-mark));
+    border-inline-start: var(--cell-mark-size) solid transparent;
+    pointer-events: none;
+}
+.table :is(td, th)[data-dirty] { --cell-mark: var(--cell-dirty-mark); }
+.table :is(td, th):is([aria-invalid="true"], :has(> .cell-editor[aria-invalid="true"])) { --cell-mark: var(--cell-invalid-mark); }
+
+/* A row in edit mode: every editor in it shows as a field, the row takes the soft
+   surface, and its save and cancel buttons are the app's — `data-row-save` and
+   `data-row-cancel` on them let Enter and Escape in an editor press them. Keep the
+   same size of button in the row in both modes, and the row keeps its height. */
+.table tbody tr[data-editing] > td { background: var(--surface-soft); }
+.table tbody tr[data-editing] { --pin-tint: var(--surface-soft); }
 
 /* ── Column width ───────────────────────────────────────────────────────────
    `.table` leaves column widths to the browser, which is right nearly always. It
@@ -560,6 +772,100 @@
     overflow-wrap: anywhere;
 }
 .table .col-fit { width: 1%; white-space: nowrap; }
+
+/* ── Columns the reader sizes and moves ─────────────────────────────────────
+   `.table--fixed` lays the table out from its header: each column is as wide as the
+   `--col-width` of the cell that heads it, held between `--col-min` and `--col-max`,
+   and the table is as wide as its columns add up to — inside a `.sedna-scroll-x`, so a
+   table wider than its box scrolls. A fixed layout needs a width that is not `auto`;
+   `0` is the smallest, so the sum of the columns is the width. The widths come from
+   the first header row: one row of header cells, or the first of them carrying the
+   widths. A cell's content no longer sets its column, so a value too long for it ends
+   in an ellipsis rather than running into the next.
+
+   `--col-width` on the table is every column's default; on a header cell it is that
+   column's. A reader's width is written on the cell by the grip, and the app keeps it
+   from `sedna-resize` — `key` is the grip's `data-resize-key` — and renders it back as
+   the cell's own `--col-width`.
+
+   The grip is the app's `.col-resize`, a `[data-resize="--col-width"]` separator at the
+   inline-end edge of its header cell: dragged, moved with the arrow keys, reset with
+   Home or a double-click (26-resize.js). It takes its bounds from its column through
+   `--resize-min` and `--resize-max`, which are registered lengths so the script reads
+   them in pixels whatever unit the column states them in. */
+@property --resize-min {
+    syntax: '<length> | none';
+    inherits: false;
+    initial-value: none;
+}
+@property --resize-max {
+    syntax: '<length> | none';
+    inherits: false;
+    initial-value: none;
+}
+.table--fixed {
+    --col-width: 10rem;
+    --col-min: 4rem;
+    --col-max: 40rem;
+    table-layout: fixed;
+    inline-size: 0;
+}
+.table--fixed > thead > tr:first-child > :is(th, td) {
+    inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
+}
+.table--fixed :is(th, td) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.table--fixed .th-sort { min-inline-size: 0; }
+
+/* The grip's cell holds it; a sticky or pinned cell is positioned already, and zero
+   specificity leaves it so. */
+:where(.table th:has(> .col-resize)) { position: relative; }
+.col-resize {
+    --resize-min: var(--col-min);
+    --resize-max: var(--col-max);
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: var(--space-4);
+    cursor: col-resize;
+    touch-action: none;
+}
+/* The column's edge, drawn at rest so the reader sees it can be moved, and full height
+   and in the selection colour while it is held. A border, which forced colours paints. */
+.col-resize::before {
+    content: "";
+    position: absolute;
+    inset-block: 25%;
+    inset-inline-end: 0;
+    border-inline-end: 2px solid var(--border-strong);
+    transition: border-color var(--motion-fast);
+}
+.col-resize:hover::before,
+.col-resize:focus-visible::before,
+.col-resize[data-resizing]::before { inset-block: 0; border-inline-end-color: var(--selected); }
+.col-resize:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
+
+/* A header row the reader reorders is a drag zone along x, and its header cells the
+   items (26-drag.js, 63-drag.css). A cell is carried along its row, never off it, and
+   the line where it would land is drawn inside the cell's edge, where a clipped cell
+   still shows it. Carried off the row, it fades: letting go there puts it back. A
+   column that does not move — a pinned identity column — is no item, and the drop's
+   `index` counts only the columns that move. */
+tr[data-drag-zone] > [data-dragging="pointer"] { translate: var(--drag-x) 0; }
+tr[data-drop-state="valid"]:not([data-drop-over]) > [data-dragging="pointer"] { opacity: 0.5; }
+tr[data-drag-zone] > [data-drop-edge]::before {
+    inset-block: 0;
+    inset-inline: auto;
+    width: 0;
+    height: auto;
+    border-top: 0;
+    border-inline-start: 3px solid var(--brand);
+}
+tr[data-drag-zone] > [data-drop-edge="before"]::before { inset-inline-start: 0; }
+tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
 
 /* ── Expandable and nested rows ─────────────────────────────────────────────
    The detail row is a real <tr> after its parent, so it moves with it when the
@@ -638,4 +944,6 @@
     .table--stack :is(tbody, tfoot) :is(td, th):not([data-label]) { text-align: start; }
     /* A group row is the heading of the cards under it: the full width, not a card. */
     .table--stack .tr-group { border-width: 0; }
+    /* A virtualized table's spacer row keeps its height and nothing else. */
+    .table--stack tr:empty { margin: 0; border-width: 0; }
 }

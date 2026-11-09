@@ -434,6 +434,73 @@ public class WorkflowLayoutTests : ScriptTestBase
         await page.WaitForFunctionAsync("() => document.getElementById('wf').scrollLeft > 0");
     }
 
+    private const string AddNode = """
+        <button class="workflow-node workflow-node--add" type="button" id="{0}">
+            <span class="workflow-node-head">
+                <span class="workflow-node-icon"><i class="ri-add-line" aria-hidden="true"></i></span>
+                <span class="workflow-node-title">Add a step</span>
+            </span>
+        </button>
+        """;
+
+    private static readonly string Adding = $"""
+        <ol class="workflow" id="wf" style="width: 3600px">
+            <li class="workflow-step" data-state="done">{Node("x0", "Start")}</li>
+            <li class="workflow-fork workflow-fork--decision" id="xf">
+                <div class="workflow-branch" id="xb0"><ol class="workflow-path">
+                    <li class="workflow-step" data-state="done">{Node("x1", "Label")}</li>
+                    <li class="workflow-step" id="s-add">{string.Format(System.Globalization.CultureInfo.InvariantCulture, AddNode, "add")}</li>
+                </ol></div>
+                <div class="workflow-branch" id="xb1"><ol class="workflow-path">
+                    <li class="workflow-step" id="s-first">{string.Format(System.Globalization.CultureInfo.InvariantCulture, AddNode, "first")}</li>
+                </ol></div>
+                <div class="workflow-branch" id="xb2"><ol class="workflow-path">
+                    <li class="workflow-step" id="s-plain">{Node("x2", "Plain")}</li>
+                </ol></div>
+            </li>
+        </ol>
+        <span id="probe"></span>
+        """;
+
+    [Fact]
+    public async Task A_step_to_add_is_a_dashed_unfilled_control_on_the_line_with_a_dashed_way_in()
+    {
+        if (NoBrowser) return;
+        var page = await OpenRun(Adding);
+
+        // Dashed, unfilled, and no state mark: it is no step the run will take.
+        Assert.Equal("dashed", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('add')).borderTopStyle"));
+        Assert.Equal("rgba(0, 0, 0, 0)", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('add')).backgroundColor"));
+        Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('add'), '::before').content"));
+        Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('add'), '::after').content"));
+        // Its head is on the line every other node's is.
+        Assert.True(Math.Abs(await Eval(page, "() => port('add')") - await Eval(page, "() => port('x1')")) < 0.6, "The step to add is off the line.");
+        Assert.True(Math.Abs(await Eval(page, "() => box('s-add', '::before').cy") - await Eval(page, "() => port('add')")) < 0.6, "Its wire is off the line.");
+
+        // The wire into it is dashed — a repeating paint — where the wire into a plain step is solid.
+        Assert.Contains("repeating-linear-gradient", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('s-add'), '::before').backgroundImage"), StringComparison.Ordinal);
+        // First in a branch, the branch's way in is dashed; a plain branch's is not.
+        Assert.Equal("dashed", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('xb1'), '::before').borderTopStyle"));
+        Assert.Equal("solid", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('xb2'), '::before').borderTopStyle"));
+
+        // A control: it takes the focus, and a hover paints it in the brand's tint.
+        await page.Locator("#add").HoverAsync();
+        Assert.Equal(await page.EvaluateAsync<string>("() => colour('--brand-tint')"),
+            await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('add')).backgroundColor"));
+        await page.Locator("#add").FocusAsync();
+        Assert.Equal("add", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+    }
+
+    [Fact]
+    public async Task A_step_to_add_is_left_off_the_printed_page()
+    {
+        if (NoBrowser) return;
+        var page = await OpenRun(Adding);
+        await page.EmulateMediaAsync(new() { Media = Media.Print });
+        Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('s-add')).display"));
+        Assert.NotEqual("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('s-plain')).display"));
+    }
+
     [Fact]
     public async Task A_state_is_drawn_on_the_node_s_mark()
     {

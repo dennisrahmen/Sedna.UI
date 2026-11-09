@@ -182,7 +182,18 @@
        the pair holds in the colour-blind palette and in greyscale. At least 3:1 against
        the track and the card, the floor for a graphical object that carries a value. */
     --viz-previous: var(--slate-400);
-    --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
+    /* The intensity steps of a `.heatmap`: how much happened in a cell, from nothing to
+       the most. One hue on one ramp, so the order is carried by lightness, which no
+       colour vision changes; each step moves away from the card, so "more" is always
+       the step furthest from the surface. Step 0 is the empty track. Every remap keeps
+       adjacent steps apart, the empty cell included, and HeatmapStepTests measures them
+       in every palette and every built-in theme. */
+    --heat-0: var(--progress-track);
+    --heat-1: var(--orbit-800);
+    --heat-2: var(--orbit-600);
+    --heat-3: var(--orbit-400);
+    --heat-4: var(--orbit-200);
+    --brand-tint:      color-mix(in srgb, var(--brand) 14%, transparent);
     /* One step up from --brand-tint, for hovering something already tinted by it.
        Pointing at a chosen row must not replace its tint with the neutral hover:
        that erases the state under the pointer. Both move together — a tint remapped
@@ -246,6 +257,12 @@
     --field-border-danger: var(--crimson-500);
     --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
+    /* A rating's lit stars and the outline of the rest (51-rating.css). Both are the
+       graphic a reader reads the score from, so both hold 3:1: the lit star rides the
+       unusual field's amber, which every theme already keeps at that, and the outline
+       is the controls' edge. */
+    --rating-on:          var(--field-border-warn);
+    --rating-off:         var(--control-border);
 
     /* ── Disabled ───────────────────────────────────────────────────────────
        How far a disabled control's graphic fades — the check, the radio dot, the
@@ -601,6 +618,7 @@
     --shimmer-duration:  2.2s;   /* .text-shimmer, words an agent is still deciding */
     --caret-duration:    1s;     /* the caret on a streaming answer */
     --flow-duration:     1.6s;   /* a .workflow streak, one spacing along its way */
+    --roll-duration:     1.2s;   /* a .stat-value--roll counting up to its figure */
     --stagger-step:      30ms;
     --hover-delay:       400ms;  /* before a hover card opens under a resting pointer */   /* between two rows arriving in .table--stagger, .list--stagger */
 
@@ -655,11 +673,20 @@
     --page-rhythm:     var(--space-7);
     --page-pad:        var(--space-9);
 
+    /* The block padding of a `.page-banner` under the topbar; its inline padding is the
+       page's own, so its words start on the page's column. */
+    --page-banner-pad-block: var(--space-5);
+
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
        every line inside and aligns the row's slots to the first line; set on one
        `.list-title` or `.list-sub` it shapes that line alone. */
     --list-lines: 1;
+
+    /* The key column's share of a `.kv` row once the rows beside it carry a `.kv-action`
+       — a check-answers list — so every value starts on one edge. Set on the list to
+       give the keys more room, or on one row. */
+    --kv-key-width: 30%;
 
     /* ── Agents ─────────────────────────────────────────────────────────────
        The two bodies of the Sedna mark: Sedna Red is the focal body, Orbit Blue the

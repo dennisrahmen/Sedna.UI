@@ -1,0 +1,51 @@
+<ul class="tree" role="tree" aria-label="Order archive" style="max-width:360px" @onsedna-tree-expand="Expand">
+    @foreach (var year in _years)
+    {
+        <li role="treeitem" @key="year.Id" aria-expanded="false" data-value="@year.Id"
+            data-tree-lazy="@(year.Months is null ? "" : null)" tabindex="@(year == _years[0] ? "0" : "-1")">
+            <span class="tree-row">
+                <span class="tree-toggle"></span>
+                <i class="ri-archive-line"></i>
+                <span class="tree-label">@year.Id</span>
+                <span class="tree-count">@year.Orders.ToString("N0")</span>
+            </span>
+            @if (year.Months is not null)
+            {
+                <ul role="group">
+                    @foreach (var month in year.Months)
+                    {
+                        <li role="treeitem" @key="month" data-value="@($"{year.Id}-{month}")" tabindex="-1">
+                            <span class="tree-row">
+                                <span class="tree-toggle"></span>
+                                <i class="ri-calendar-line"></i>
+                                <span class="tree-label">@month</span>
+                            </span>
+                        </li>
+                    }
+                </ul>
+            }
+        </li>
+    }
+</ul>
+
+@code {
+    private sealed class Year(string id, int orders)
+    {
+        public string Id { get; } = id;
+        public int Orders { get; } = orders;
+        public List<string>? Months { get; set; }
+    }
+
+    private readonly List<Year> _years = [new("2025", 1312), new("2024", 1208), new("2023", 1140)];
+
+    // A branch with data-tree-lazy has no children yet. Opening it shows the item busy and
+    // sends Lazy; the app loads the children, renders the group and drops data-tree-lazy, and
+    // the busy state lifts on its own.
+    private async Task Expand(SednaTreeEventArgs e)
+    {
+        var year = _years.Find(y => y.Id == e.Item);
+        if (!e.Lazy || year is null || year.Months is not null) return;
+        await Task.Delay(800); // stands in for the query
+        year.Months = ["October", "November", "December"];
+    }
+}

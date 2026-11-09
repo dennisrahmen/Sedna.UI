@@ -37,4 +37,23 @@ public sealed record PaletteCommand
     /// below the same match in <see cref="Label"/>.
     /// </summary>
     public string? Keywords { get; init; }
+
+    /// <summary>
+    /// The page the command is listed on. <see langword="null"/> lists it on the root; any
+    /// other value lists it on the page a command with the same <see cref="Opens"/> opens.
+    /// </summary>
+    public string? Page { get; init; }
+
+    /// <summary>
+    /// The page choosing this command opens, in place of navigating. Backspace in an empty
+    /// search, or Escape, goes back one page. The commands on it are those whose
+    /// <see cref="Page"/> is this value.
+    /// </summary>
+    public string? Opens { get; init; }
+
+    /// <summary>
+    /// Whether the command is shown whatever is typed. A pinned command is never ranked:
+    /// it follows the matches on its page and does not count as one.
+    /// </summary>
+    public bool Pinned { get; init; }
 }

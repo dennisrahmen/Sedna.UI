@@ -15,6 +15,14 @@ something, it is listed below and repeated in the class's own comment.
 - **No colour-only signals.** Every state that matters carries a second channel — a leading rule, a
   filled-versus-outlined marker, an arrow, an icon. Deltas are the clearest case: `--good` / `--bad`
   set the colour, and the arrow you put inside carries the direction.
+- **F6 moves between the frame's regions.** F6 and Shift+F6 cycle focus through the landmarks, the
+  topbar, sidebar and bottom bar and an open modeless drawer, skipping hidden ones; inside a modal
+  dialog the key is left to the browser. The rules are in
+  [architecture](architecture.md#moving-between-regions).
+- **States are ARIA attributes, not classes.** The library styles `aria-pressed`, `aria-selected`,
+  `aria-current`, `aria-expanded`, `aria-invalid`, `aria-busy` and the platform's pseudo-classes, so
+  the look and what a screen reader hears cannot disagree. The full list is in
+  [architecture](architecture.md#interaction-states).
 - **The colour-blind palette is a token remap**, so it composes with either theme and changes no
   layout. A browser test asserts that flipping it moves no geometry.
 - **Focus is always visible.** Every interactive class has a `:focus-visible` ring. Mouse focus does
@@ -42,19 +50,32 @@ something, it is listed below and repeated in the class's own comment.
 | A field when rejected | `aria-invalid="true"` on the control — on the input inside an `.input-group` or a combo box, not on the frame; the styling keys off it, not off a class — and `aria-describedby` pointing at the `.form-error` |
 | A field when unusual | `data-state="warn"` on the control, and `aria-describedby` pointing at the `.form-warning`. No ARIA attribute says "unusual", so the message is what a screen reader hears. |
 | `.form-label--required` | `required` on the control. The `*` is decoration. |
+| `.form-actions--save-bar` | the reason in words in `.form-actions-status` — the warning icon is decoration — and `data-dirty` taken off as soon as the work is saved, so the bar and the leave prompt go with it |
+| A session timeout warning | `role="alertdialog"` with `aria-labelledby` and `aria-describedby` on the app's `<dialog class="modal">`, opened at least two minutes before the end (WCAG 2.2.1), a button that extends the session, and the countdown as a `<time data-countdown>` that is not a live region |
 | `.segmented` | one `name` shared by every radio, and a group name via `<fieldset>` or `aria-labelledby` |
+| `.rating` | shown: `role="img"` and an `aria-label` that says the score in words. Taken: `role="radiogroup"` with a name, one `name` shared by every radio, and an `aria-label` on each radio that says its score |
+| `.form-code` | a group name (`role="group"` and `aria-labelledby`), an `aria-label` per box ("Digit 2 of 6"), `autocomplete="one-time-code"` on the first box, and the `name` on the `data-code-value` input alone |
+| `.input-reveal` | `aria-label="Show password"`, unchanged when pressed, and `aria-pressed="false"` to start; `aria-controls` naming the field |
 | `.avatar` | the person's name in text, an `alt`, or a `.visually-hidden` span. Initials are not a name. |
 | `.chip-dismiss` | `aria-label="Remove <the value>"`. `×` alone is announced as "times". |
 | `.pagination` | `<nav aria-label="Pagination">`, `aria-current="page"`, and a real `href` per page |
 | `.breadcrumb` | `aria-current="page"` on the last item, which stays a `<span>` |
 | `.table` sorting | `aria-sort` on the `<th>` — the arrow is drawn from it, so they cannot disagree |
 | `.table` selection | `aria-selected` on the `<tr>` |
+| `.table[role="grid"]` | an `aria-label`; `aria-multiselectable="true"` only where a range of cells may be selected; an `aria-label` on every `.cell-editor` naming the column and the row; `aria-invalid="true"` on a rejected cell **and** its editor; and the meaning of `data-dirty` and of a rejection in words, in the cell — the corner mark is colour and shape only. The script writes the roving `tabindex`, the cells' `aria-selected` and `data-editing`. Use a grid only where the reader works in the cells: a screen reader stops reading it as a table. |
+| `.table[role="treegrid"]` | everything a grid needs; `aria-level` on every body row and `aria-expanded` on every branch, rendered by the app; a `.tree-toggle` in the tree column of every row, a leaf's included; `aria-posinset` and `aria-setsize` on a row whose siblings are not all rendered. The script writes `aria-expanded` as the reader opens and closes, `aria-busy` on a `data-tree-lazy` row, and `hidden` on the rows under a closed branch. |
+| `.table` with `<Virtualize>` | `aria-rowindex` on every row — the header is row 1 — and `aria-rowcount` on the table, so a screen reader announces a row's place in the whole table, not in the rows rendered. |
 | `.stat-delta` | an arrow icon. The colour is not the direction. |
 | `.skip-link` | `href="#main"`, and `tabindex="-1"` on `<main id="main">` so the jump moves focus rather than only scrolling. Under `<base href="/">` the jump needs `Sedna.UI.js` — see [getting started](getting-started.md#base-href) |
 | any icon-only button | `aria-label`, plus `data-tip` when the purpose is not obvious — and `.btn--icon`, which squares it to the shared control height instead of leaving a wide box around one glyph |
 | `data-drag-zone` | `tabindex="0"` on a whole item, or a real `<button>` as its `data-drag-handle`, with an `aria-label` naming what it moves; a `[data-drag-live]` region carrying the sentences a keyboard drag is announced in; and `aria-disabled="true"` on an item that cannot move. |
 | `.graph` | an `aria-label` naming what the graph shows; the `.graph-data` list written as sentences a screen reader reads out ("Orders API reads the orders database"), with `data-label` for the short word the canvas writes; a `[data-graph-live]` polite region carrying the sentences a keyboard move is announced in; `aria-label` and `data-tip` on every icon-only tool; and colour never the only carrier — a kind gets a shape, a link a line style and a label. `aria-roledescription="graph"` is yours to add in your own language. See **The graph** below. |
+| `.col-resize` | `role="separator"`, `aria-orientation="vertical"`, an `aria-label` naming the column, the starting `aria-valuenow`, and `tabindex="0"` — a keyboard grid takes it out of the tab order and Alt+Shift with ← or → on the header cell resizes instead. A reordered header row needs a `[data-drag-live]` region and a header cell the keyboard reaches: `tabindex="0"`, or a keyboard grid's own tab stop. |
+| `.carousel` | `aria-roledescription="carousel"` and a name on the `.carousel`; `role="group"`, `aria-roledescription="slide"` and an `aria-label` giving its position ("2 of 5") on every slide; `tabindex="0"` and a name on the `.carousel-track`; an `aria-label` on the previous, next and dot buttons; and a `.visually-hidden` `aria-live="polite"` `[data-carousel-live]` region, left empty, for the position the script says. Nothing may move on a timer. |
+| `data-clamp-toggle` | `aria-controls` naming the clamped block, `aria-expanded="false"` to start, and both labels as `.text-clamp-more` and `.text-clamp-less` |
+| `.rule-group` | `role="group"` and a name on every group; an `aria-label` on each field of a `.rule-group-row` ("Field", "Operator", "Value"); an `aria-label` on each remove button naming the condition or the group it removes; and the group's AND/OR `.segmented` as `role="radiogroup"` with a name and one `name` shared by its two radios |
 | `.dropzone` | a real `<input type="file">` inside it. Drag and drop alone is unreachable by keyboard; `data-dropzone` adds the drag handling on top of the input, never instead of it. |
+| `.dropzone--page` | `aria-hidden="true"`, and a visible picker on the page — the input `data-dropzone-input` names — which is the way in without a pointer. The overlay only shows during a drag. |
 
 ## The graph
 
@@ -79,18 +100,32 @@ interaction once more:
 - **Motion is decoration.** Layout transitions and view animations are skipped under
   `prefers-reduced-motion`, and the result is the same drawing.
 
-## Three deliberate omissions
+## Deliberate omissions
 
-**No `role="menu"`.** That role promises arrow-key navigation and a roving tabindex, and a menu that
-claims it without implementing it is *worse* than one that claims nothing: the items stop being
-reachable the way they appear to be. `.menu` items are ordinary links and buttons that tab. The
-disclosure pattern — `aria-expanded` on the trigger, no role on the panel — is correct and complete.
+**No `role="menu"`.** The script moves focus between a `.menu`'s items with the arrow keys, Home and
+End, jumps to an item by its first letters and opens a submenu with the arrow towards it — but the
+items stay ordinary links and buttons, each its own Tab stop, with no roving tabindex, and a menu may
+hold a filter field. `role="menu"` promises a single tab stop and children that are all `menuitem`s,
+and a screen reader stops announcing a link as a link inside it. The disclosure pattern —
+`aria-expanded` on the trigger, no role on the panel — is correct and complete.
 
-**No `role="tree"`.** Same reasoning. `.tree` is built from `<details>`, which is honest about being a
-set of disclosures; a real tree needs single-tab-stop navigation through a flattened view.
+**The palette is a combobox over a listbox.** The script writes `role="combobox"` and
+`aria-activedescendant` on the input and `role="listbox"` on the list, so focus stays in the input while
+the arrows move the active option. Do not add these roles in the markup; the script owns them.
 
-**No `role="listbox"` on the palette.** A combobox needs `aria-activedescendant` on the input, which is
-what the palette does, rather than a listbox whose keyboard contract it would only half implement.
+## The tree
+
+`.tree` is a full ARIA tree, `role="tree"` with `role="treeitem"` items and `role="group"` children,
+and the script implements the whole keyboard contract: one tab stop with a roving `tabindex`, the arrow
+keys mirrored in a right-to-left page, Home and End, `*`, typeahead, Space and Enter, and Shift+arrows
+and Ctrl+A in a multiselectable tree. Every state is the ARIA attribute a screen reader announces —
+`aria-expanded`, `aria-selected`, `aria-checked` with `mixed`, `aria-busy`, `aria-disabled` — and the
+stylesheet paints from those attributes alone. An item's level comes from the nesting, so no
+`aria-level` is written. A row that navigates is a link with `tabindex="-1"`, so the tree stays one tab
+stop.
+
+In a tree select the tree is the combobox's popup: `aria-haspopup="tree"` on the input, and
+`aria-activedescendant` naming the item the keyboard is on, since focus stays in the input.
 
 ## Where the platform does the work
 
@@ -99,8 +134,8 @@ Four things are built on native elements specifically so the behaviour is not ha
 | Built on | What comes free |
 |---|---|
 | `<dialog>.showModal()` — `.modal`, `.drawer` and `.sheet` via `ShowModalAsync`, `.palette` | top layer, focus trap, Escape, inert content behind |
-| `<details>`/`<summary>` — `.accordion`, `.tree`, `.nav-group` | open state, keyboard operation, announcement; `name` makes an accordion exclusive with no JS |
-| `<input type="radio">` — `.segmented` | arrow keys, group semantics, chosen state |
+| `<details>`/`<summary>` — `.accordion`, `.nav-group` | open state, keyboard operation, announcement; `name` makes an accordion exclusive with no JS |
+| `<input type="radio">` — `.segmented`, `.rating` | arrow keys, group semantics, chosen state |
 | `<label>` wrapping the input — `.form-check`, `.switch`, `.form-file` | the whole label is the target, and Enter works |
 
 A hand-rolled focus trap is a lot of code that is usually subtly wrong. If you need a modal surface,
@@ -149,6 +184,8 @@ Consequences visible in the CSS:
   a painted caret — the two
   paths are exclusive, behind `@supports`, and neither is a script. The accessible name, the
   keyboard and typeahead are the browser's in both, because it is the same `<select>` either way.
-- **No scroll-driven animations** — they fail *incorrectly*: a browser that drops `animation-timeline`
-  leaves the rest of the `animation` shorthand running, so the animation plays on a timer instead of
-  not at all. That is a different kind of failure from the one above, which is why it stays out.
+- **Scroll-driven animations only behind `@supports (animation-timeline: scroll())`** — they fail
+  *incorrectly*: a browser that drops `animation-timeline` leaves the rest of the `animation` shorthand
+  running, so the animation plays on a timer instead of not at all. Behind the query an engine without
+  them gets the static form: `.page-head--collapse` is an ordinary head and `.back-to-top` is always
+  there. Under reduced motion the head does not fold and the button comes in without a fade.

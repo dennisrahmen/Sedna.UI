@@ -1,0 +1,18 @@
+// C# — a page of commands. "Open an order…" opens the page "orders"; the commands
+// whose Page is "orders" are listed on it. A pinned command follows the matches
+// whatever is typed.
+await Ui.RegisterCommandsAsync(
+[
+    new PaletteCommand { Label = "Open the queue", Icon = "ri-inbox-line", Href = "/queue" },
+    new PaletteCommand { Label = "Open an order…", Icon = "ri-file-list-3-line", Opens = "orders" },
+
+    new PaletteCommand { Page = "orders", Label = "Order 1042", Note = "Northwind Retail", Href = "/orders/1042" },
+    new PaletteCommand { Page = "orders", Label = "Order 1043", Note = "Alex Fischer", Href = "/orders/1043" },
+    new PaletteCommand { Page = "orders", Label = "Search every order", Icon = "ri-search-line",
+                         Href = "/orders", Pinned = true },
+]);
+
+// While the app fetches a page's commands, it sets aria-busy on its own dialog, and
+// the list ends with the app's loading row. Register the commands, then clear it.
+//
+// <dialog class="palette" data-palette aria-label="Commands" aria-busy="@(_loading ? "true" : "false")">

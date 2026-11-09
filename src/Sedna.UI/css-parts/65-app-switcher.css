@@ -1,0 +1,67 @@
+/* ── App switcher ───────────────────────────────────────────────────────────
+   The other apps a reader can go to, as a grid of tiles in a `.popover` opened from a
+   topbar button.
+
+     <button class="topbar-btn" type="button" popovertarget="apps" aria-label="Apps">
+       <i class="ri-apps-2-line" aria-hidden="true"></i></button>
+     <div class="popover" id="apps" popover>
+       <strong class="popover-title">Apps</strong>
+       <nav class="app-switcher" aria-label="Apps">
+         <a class="app-switcher-item" href="…" aria-current="page">
+           <span class="app-switcher-icon"><i class="ri-inbox-line" aria-hidden="true"></i></span>
+           <span>Orders</span></a>
+         …
+       </nav>
+     </div>
+
+   The tiles are links, one tab stop each, and the current app carries
+   `aria-current="page"`. The popover is the platform's, so opening, light dismiss and
+   Escape need no script.
+
+   A topbar button sits at either end of the header, and a popover spans towards the
+   inline end by default — from the last button in the header that is off the screen.
+   A popover holding a switcher tries the other side first. */
+.app-switcher {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    inline-size: 17rem;
+    max-inline-size: 100%;
+    margin: 0;
+    padding: 0;
+}
+.popover:has(> .app-switcher) { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+
+.app-switcher-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-5) var(--space-2);
+    border-radius: var(--radius-control);
+    color: var(--fg-soft);
+    font-size: var(--text-3);
+    line-height: round(1.4em, 2px);
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+.app-switcher-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.app-switcher-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.app-switcher-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+
+/* The app's mark: an icon on a tile of its own. */
+.app-switcher-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    inline-size: var(--control-height-lg);
+    block-size: var(--control-height-lg);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--brand-text);
+    font-size: var(--text-9);
+}

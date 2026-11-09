@@ -1,0 +1,142 @@
+/* ── Agent tool calls and questions ───────────────────────────────────────────
+   One tool call as a card the reader can open, and a question the agent puts to the
+   reader before it goes on. Markup the app writes, in the app's words; what the call
+   sent and what came back are shown as they were, never described.
+
+   ── A tool call ──
+   `.agent-tool` on a `<details class="card">`: the summary names the tool and its state,
+   the body holds what it was called with and what it returned, each a `.code-block` with
+   a `.code-block-head`. Write `open` on one the reader has to see — a failed call, one
+   waiting for approval — and leave the rest closed.
+
+     <details class="card agent-tool" data-state="failed" open>
+       <summary>
+         <span class="agent-tool-icon"><i class="ri-database-2-line"></i></span>
+         <span class="agent-tool-name">query_locks</span>
+         <span class="badge agent-tool-status"><i class="ri-close-line"></i><span>Error</span></span>
+         <span class="agent-tool-meta">0.8 s</span>
+         <i class="ri-arrow-down-s-line agent-tool-chevron"></i>
+       </summary>
+       <div class="agent-tool-body">
+         <div class="code-block"><div class="code-block-head"><span>Parameters</span></div><pre><code>…</code></pre></div>
+         <div class="code-block agent-tool-error"><div class="code-block-head"><span>Error</span></div><pre><code>…</code></pre></div>
+       </div>
+     </details>
+
+   `data-state` on the card paints the status badge; the words in it are the app's.
+
+   Tool states: streaming, running, waiting, approved, done, failed, denied.
+
+     streaming  the agent is still writing the call's input     a dashed badge
+     running    the tool is working                              info
+     waiting    the call waits for the reader's approval         warn, and the card's edge
+     approved   the reader said yes; the call has not run yet    go, quiet
+     done       it returned                                      go
+     failed     it returned an error                             danger, and the card's edge
+     denied     the reader said no; it never ran                 muted, the name struck
+
+   The words of the vocabulary are the library's own: `running`, `done` and `failed` as on
+   `.agent-steps`, `waiting` as on `.workflow`, `approved` and `denied` as on
+   `.agent-approval`. A model API names them otherwise — input-streaming, approval-requested,
+   approval-responded, output-available, output-error, output-denied — and the app maps one
+   to the other once. A call waiting for approval holds `.agent-approval-actions` in its body.
+
+   ── A question ──
+   The agent asks and waits: one choice, several, or words of the reader's own. An
+   `.agent-approval--question` card — the approval's head, body and actions, in the info
+   colours, because nothing is being let out — with a `fieldset.agent-question` per
+   question. Single choice is `.choice-tiles` (radios), several is `.form-check` boxes;
+   free text is a `div.agent-question` whose first child is the `<label>` of its
+   `.form-input`. The send button stays `disabled` until every question that
+   needs an answer has one: the app's logic, the platform's state. Once sent,
+   `data-state="answered"` swaps the actions for `.agent-approval-result`.
+   ─────────────────────────────────────────────────────────────────────────── */
+.agent-tool { font-size: var(--text-4); }
+.agent-tool > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-block-size: 40px;
+    padding: var(--space-3) var(--space-5);
+    cursor: pointer;
+    list-style: none;
+    transition: background var(--motion-fast);
+}
+.agent-tool > summary::-webkit-details-marker { display: none; }
+.agent-tool > summary:hover { background: var(--bg-hover); }
+.agent-tool > summary:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; border-radius: var(--radius-surface); }
+.agent-tool[open] > summary { border-block-end: 1px solid var(--border); }
+.agent-tool-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 24px;
+    block-size: 24px;
+    border-radius: var(--radius-inner);
+    background: var(--surface-strong);
+    color: var(--muted);
+    font-size: var(--text-5);
+    line-height: 1;
+}
+.agent-tool-name {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    font-weight: 600;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.agent-tool-status { flex: none; }
+.agent-tool-meta {
+    flex: none;
+    margin-inline-start: auto;
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.agent-tool-chevron {
+    flex: none;
+    margin-inline-start: auto;
+    color: var(--muted);
+    font-size: var(--text-6);
+    transition: rotate var(--motion-fast);
+}
+.agent-tool-meta + .agent-tool-chevron { margin-inline-start: 0; }
+.agent-tool[open] .agent-tool-chevron { rotate: 180deg; }
+.agent-tool-body { display: grid; gap: var(--space-5); padding: var(--space-5); min-inline-size: 0; }
+.agent-tool-body > .agent-approval-actions { justify-content: flex-end; }
+.agent-tool-error { border-color: var(--danger-border); }
+.agent-tool-error > .code-block-head { color: var(--danger-fg); }
+
+.agent-tool[data-state="streaming"] .agent-tool-status { border-style: dashed; background: none; color: var(--muted); }
+.agent-tool[data-state="running"]   .agent-tool-status { border-color: var(--info-border); background: var(--info-bg); color: var(--info-fg); }
+.agent-tool[data-state="waiting"]   { border-color: var(--warn-border); }
+.agent-tool[data-state="waiting"]   .agent-tool-status { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-fg); }
+.agent-tool[data-state="approved"]  .agent-tool-status { border-color: var(--go-border); background: none; color: var(--go-fg); }
+.agent-tool[data-state="done"]      .agent-tool-status { border-color: var(--go-border); background: var(--go-bg); color: var(--go-fg); }
+.agent-tool[data-state="failed"]    { border-color: var(--danger-border); }
+.agent-tool[data-state="failed"]    .agent-tool-status { border-color: var(--danger-border); background: var(--danger-bg); color: var(--danger-fg); }
+.agent-tool[data-state="failed"]    .agent-tool-icon { background: var(--danger-bg); color: var(--danger-fg); }
+.agent-tool[data-state="denied"]    .agent-tool-status { background: var(--surface-strong); color: var(--muted); }
+.agent-tool[data-state="denied"]    .agent-tool-name { color: var(--muted); text-decoration: line-through; }
+
+.agent-approval--question { border-color: var(--info-border); }
+.agent-approval--question .agent-approval-icon { background: var(--info-bg); color: var(--info-fg); }
+.agent-question { display: grid; gap: var(--space-4); min-inline-size: 0; margin: 0; padding: 0; border: 0; }
+.agent-question > legend,
+.agent-question > label:first-child {
+    /* Floated, a legend is laid out as any other child, so the gap sets it off. */
+    float: inline-start;
+    padding: 0;
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-weight: 600;
+}
+.agent-question > .choice-tiles { --choice-min: 140px; }

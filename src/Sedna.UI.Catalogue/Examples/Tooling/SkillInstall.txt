@@ -1,0 +1,8 @@
+$ mkdir -p .claude/skills
+$ cp -r ~/.nuget/packages/sedna.ui/0.28.0/tooling/skills/sedna-ui .claude/skills/
+
+.claude/skills/sedna-ui/SKILL.md
+---
+name: sedna-ui
+description: How to build and change UI in an app that uses the Sedna.UI NuGet package - …
+---

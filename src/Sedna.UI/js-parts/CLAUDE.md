@@ -60,7 +60,8 @@ Ordering still works â€” the generator sorts by filename, and `s` precedes `t` â
 depends on load order anyway. Renumbering to make room would move every part after it, which is a
 change to nine files to avoid a duplicate digit. `27` holds two the same way: `27-output.js` and
 `27-workflow.js`, which keep a pane and a diagram on what is happening now and share the `data-follow`
-switch and the `sedna-follow` event.
+switch and the `sedna-follow` event. `28` holds `28-clamp.js` before `28-code-block.js`, the two show-more controls, and
+`29` holds `29-carousel.js` and the in-page parts after it; none depends on another.
 
 ## `ui._` is private
 

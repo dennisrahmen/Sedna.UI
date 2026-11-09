@@ -1,0 +1,63 @@
+<table class="table" role="treegrid" aria-label="Orders by year and month"
+       @onsedna-tree-expand="Expand" @onsedna-tree-collapse="Collapse">
+    <thead>
+        <tr><th>Period</th><th class="col-num">Orders</th><th class="col-num">Revenue (EUR)</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var year in _years)
+        {
+            <tr @key="year.Id" aria-level="1" aria-expanded="@(year.Open ? "true" : "false")" data-value="@year.Id"
+                data-tree-lazy="@(year.Months is null ? "" : null)">
+                <td><span class="tree-toggle"></span>@year.Id</td>
+                <td class="col-num">@year.Orders.ToString("N0")</td>
+                <td class="col-num">@year.Revenue.ToString("N0")</td>
+            </tr>
+            @if (year.Open && year.Months is not null)
+            {
+                foreach (var month in year.Months)
+                {
+                    <tr @key="@($"{year.Id}-{month.Name}")" aria-level="2" data-value="@($"{year.Id}-{month.Name}")">
+                        <td><span class="tree-toggle"></span>@month.Name</td>
+                        <td class="col-num">@month.Orders.ToString("N0")</td>
+                        <td class="col-num">@month.Revenue.ToString("N0")</td>
+                    </tr>
+                }
+            }
+        }
+    </tbody>
+</table>
+<p class="text-muted sedna-mt-3">Open: @(_years.Any(y => y.Open) ? string.Join(", ", _years.Where(y => y.Open).Select(y => y.Id)) : "none")</p>
+
+@code {
+    private sealed record Month(string Name, int Orders, int Revenue);
+
+    private sealed class Year(string id, int orders, int revenue)
+    {
+        public string Id { get; } = id;
+        public int Orders { get; } = orders;
+        public int Revenue { get; } = revenue;
+        public bool Open { get; set; }
+        public List<Month>? Months { get; set; }
+    }
+
+    private readonly List<Year> _years = [new("2025", 1312, 486_200), new("2024", 1208, 431_900), new("2023", 1140, 402_300)];
+
+    // The script opens and closes the row and says so; the app keeps its own copy of what is
+    // open and renders the rows under it. A row with data-tree-lazy has no rows under it yet:
+    // opening it shows the row busy until the app renders them and drops the attribute.
+    private async Task Expand(SednaTreeEventArgs e)
+    {
+        var year = _years.Find(y => y.Id == e.Item);
+        if (year is null) return;
+        year.Open = true;
+        if (!e.Lazy || year.Months is not null) return;
+        await Task.Delay(800); // stands in for the query
+        year.Months = [new("October", year.Orders / 3, year.Revenue / 3), new("November", year.Orders / 3, year.Revenue / 3), new("December", year.Orders - 2 * (year.Orders / 3), year.Revenue - 2 * (year.Revenue / 3))];
+    }
+
+    private void Collapse(SednaTreeEventArgs e)
+    {
+        var year = _years.Find(y => y.Id == e.Item);
+        if (year is not null) year.Open = false;
+    }
+}

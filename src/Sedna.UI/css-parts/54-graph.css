@@ -137,6 +137,18 @@
     background: var(--border);
 }
 .graph-tools--stack .graph-tools-sep { width: auto; height: 1px; }
+/* A zoom slider among the tools — `<input class="form-range form-range--sm" type="range"
+   data-graph-option="zoom">` — has a width of its own rather than the row's. */
+.graph-tools > .form-range {
+    inline-size: 7rem;
+    align-self: center;
+    margin-inline: var(--space-2);
+}
+/* In a column of tools it stands on end, zoomed in at the top whatever the page's direction. */
+.graph-tools--stack > .form-range {
+    writing-mode: vertical-lr;
+    direction: rtl;
+}
 /* A toggle tool that is on: the drawing mode, the outlines, full screen. */
 .graph-tools .btn[aria-pressed="true"] {
     background: var(--brand-tint);
@@ -224,6 +236,28 @@
     min-width: 12rem;
 }
 .graph-menu[hidden] { display: none; }
+
+/* ── A button on a link ────────────────────────────────────────────────────────
+   Copies of the app's `<template data-graph-edge-tool>`, one per link on screen, each set
+   by the script on its link's midpoint with a transform and hidden while the midpoint is
+   outside the frame. `.graph-edge-tool` holds a button or a few — `.btn--sm .btn--icon`
+   — on a raised pill, so the line under it does not run through them. */
+.graph-edge-tool {
+    position: absolute;
+    /* rtl-ok: the script places it in the canvas's own pixels, which count from the left. */
+    left: 0;
+    inset-block-start: 0;
+    z-index: 1;
+    display: flex;
+    gap: var(--space-1);
+    padding: 1px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-float);
+    translate: -50% -50%;
+}
+.graph-edge-tool > .btn { border-radius: var(--radius-pill); }
 
 /* ── Waiting and empty ─────────────────────────────────────────────────────────
    Both cover the canvas. The wait is shown until the script has drawn — a canvas that
@@ -446,5 +480,6 @@
     .graph-tools,
     .graph-minimap,
     .graph-tip,
-    .graph-menu { display: none; }
+    .graph-menu,
+    .graph-edge-tool { display: none; }
 }

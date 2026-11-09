@@ -1,0 +1,117 @@
+<div style="max-width:640px; border:1px solid var(--border); border-radius:var(--radius-surface); overflow:hidden">
+    <header class="topbar">
+        <div class="bare-brand"><div class="brand-logo" style="background:var(--brand)"></div><strong>Dispatch</strong></div>
+        <div class="topbar-spacer"></div>
+        <button class="topbar-btn" type="button" popovertarget="inbox" aria-label="Notifications, 2 unread">
+            <span class="inbox-bell"><i class="ri-notification-3-line" aria-hidden="true"></i><span class="inbox-count" aria-hidden="true">2</span></span>
+        </button>
+    </header>
+</div>
+
+<div class="popover inbox" id="inbox" popover role="dialog" aria-labelledby="inbox-title">
+    <div class="inbox-head">
+        <strong class="inbox-title" id="inbox-title">Notifications</strong>
+        <button class="btn btn--ghost btn--sm" type="button"><i class="ri-check-double-line"></i> <span>Mark all as read</span></button>
+    </div>
+    <div class="tabs inbox-tabs" role="tablist" data-tabs aria-label="Notifications">
+        <button class="tab" role="tab" aria-selected="true" id="inbox-t-all" aria-controls="inbox-p-all" type="button">All</button>
+        <button class="tab" role="tab" aria-selected="false" id="inbox-t-unread" aria-controls="inbox-p-unread" type="button" tabindex="-1">
+            <span>Unread</span> <span class="tab-count">2</span>
+        </button>
+        <button class="tab" role="tab" aria-selected="false" id="inbox-t-archived" aria-controls="inbox-p-archived" type="button" tabindex="-1">Archived</button>
+    </div>
+
+    <div class="tab-panel" role="tabpanel" id="inbox-p-all" aria-labelledby="inbox-t-all">
+        <ul class="inbox-list">
+            <li class="inbox-item inbox-item--unread">
+                <span class="avatar avatar--viz-1" aria-hidden="true">AF</span>
+                <div class="inbox-item-main">
+                    <a class="inbox-item-title" href="#"><span class="visually-hidden">Unread: </span><strong>Alex Fischer</strong> assigned ORD-4182 to you</a>
+                    <span class="inbox-item-text">Northwind Retail &middot; 3 items, leaves the dock at 14:30</span>
+                    <time class="inbox-item-time" datetime="2026-11-08T09:40">5 minutes ago</time>
+                    <div class="inbox-item-actions">
+                        <button class="btn btn--sm btn--brand btn--solid" type="button">Accept</button>
+                        <button class="btn btn--sm" type="button">Hand it back</button>
+                    </div>
+                </div>
+                <div class="menu-anchor inbox-item-menu">
+                    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-menu-toggle aria-expanded="false" aria-label="More for ORD-4182"><i class="ri-more-2-fill"></i></button>
+                    <div class="menu" hidden>
+                        <button class="menu-item" type="button"><i class="ri-check-line"></i> <span>Mark as read</span></button>
+                        <div class="menu-sub-anchor">
+                            <button class="menu-item" type="button" data-menu-sub aria-haspopup="menu" aria-expanded="false">
+                                <i class="ri-time-line"></i> <span>Snooze</span> <i class="ri-arrow-right-s-line"></i>
+                            </button>
+                            <div class="menu menu-sub">
+                                <button class="menu-item" type="button">For an hour</button>
+                                <button class="menu-item" type="button">Until tomorrow</button>
+                                <button class="menu-item" type="button">Until Monday</button>
+                            </div>
+                        </div>
+                        <button class="menu-item" type="button"><i class="ri-archive-line"></i> <span>Archive</span></button>
+                    </div>
+                </div>
+            </li>
+            <li class="inbox-item inbox-item--unread">
+                <span class="avatar avatar--muted" aria-hidden="true"><i class="ri-alert-line"></i></span>
+                <div class="inbox-item-main">
+                    <a class="inbox-item-title" href="#"><span class="visually-hidden">Unread: </span>Two of five lines on ORD-4209 are short</a>
+                    <span class="inbox-item-text">The rest is packed and waiting.</span>
+                    <time class="inbox-item-time" datetime="2026-11-08T08:55">50 minutes ago</time>
+                </div>
+                <div class="menu-anchor inbox-item-menu">
+                    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-menu-toggle aria-expanded="false" aria-label="More for ORD-4209"><i class="ri-more-2-fill"></i></button>
+                    <div class="menu" hidden>
+                        <button class="menu-item" type="button"><i class="ri-check-line"></i> <span>Mark as read</span></button>
+                        <button class="menu-item" type="button"><i class="ri-time-line"></i> <span>Snooze for an hour</span></button>
+                        <button class="menu-item" type="button"><i class="ri-archive-line"></i> <span>Archive</span></button>
+                    </div>
+                </div>
+            </li>
+            <li class="inbox-item">
+                <span class="avatar avatar--viz-3" aria-hidden="true">NR</span>
+                <div class="inbox-item-main">
+                    <a class="inbox-item-title" href="#"><strong>Northwind Retail</strong> confirmed delivery of ORD-4170</a>
+                    <time class="inbox-item-time" datetime="2026-11-07T16:20">Yesterday, 16:20</time>
+                </div>
+                <div class="menu-anchor inbox-item-menu">
+                    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-menu-toggle aria-expanded="false" aria-label="More for ORD-4170"><i class="ri-more-2-fill"></i></button>
+                    <div class="menu" hidden>
+                        <button class="menu-item" type="button"><i class="ri-mail-unread-line"></i> <span>Mark as unread</span></button>
+                        <button class="menu-item" type="button"><i class="ri-archive-line"></i> <span>Archive</span></button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="inbox-p-unread" aria-labelledby="inbox-t-unread" hidden>
+        <ul class="inbox-list">
+            <li class="inbox-item inbox-item--unread">
+                <span class="avatar avatar--viz-1" aria-hidden="true">AF</span>
+                <div class="inbox-item-main">
+                    <a class="inbox-item-title" href="#"><span class="visually-hidden">Unread: </span><strong>Alex Fischer</strong> assigned ORD-4182 to you</a>
+                    <time class="inbox-item-time" datetime="2026-11-08T09:40">5 minutes ago</time>
+                </div>
+            </li>
+            <li class="inbox-item inbox-item--unread">
+                <span class="avatar avatar--muted" aria-hidden="true"><i class="ri-alert-line"></i></span>
+                <div class="inbox-item-main">
+                    <a class="inbox-item-title" href="#"><span class="visually-hidden">Unread: </span>Two of five lines on ORD-4209 are short</a>
+                    <time class="inbox-item-time" datetime="2026-11-08T08:55">50 minutes ago</time>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="inbox-p-archived" aria-labelledby="inbox-t-archived" hidden>
+        <div class="empty-state">
+            <i class="ri-archive-line state-icon" aria-hidden="true"></i>
+            <span class="empty-state-title">Nothing archived</span>
+            <p>Archive a notification to keep it out of the way without losing it.</p>
+        </div>
+    </div>
+
+    <div class="inbox-foot">
+        <a href="#">Notification preferences</a>
+        <a href="#">See every notification</a>
+    </div>
+</div>

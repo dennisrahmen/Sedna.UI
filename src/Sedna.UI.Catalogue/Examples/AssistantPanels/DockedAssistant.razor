@@ -1,0 +1,57 @@
+<div class="layout" style="height:480px; overflow:hidden">
+    <div class="content">
+        <header class="topbar">
+            <div class="topbar-section"><strong>Order queue</strong></div>
+            <div class="topbar-spacer"></div>
+            <button class="topbar-btn" type="button" aria-label="Assistant" aria-controls="dock-assistant" aria-expanded="false"
+                    onclick="var d = document.getElementById('dock-assistant'); if (d.open) d.close(); else sednaUi.modal.show('dock-assistant')">
+                <i class="ri-sparkling-2-line"></i>
+            </button>
+        </header>
+        <div class="page">
+            <table class="table">
+                <thead><tr><th>Order</th><th>Customer</th><th>State</th><th class="col-num">Lines</th></tr></thead>
+                <tbody>
+                    <tr><td>ORD-4209</td><td>Northwind Retail</td><td><span class="badge badge--warn">On hold</span></td><td class="col-num">5</td></tr>
+                    <tr><td>ORD-4213</td><td>Alex Fischer</td><td><span class="badge badge--go">Released</span></td><td class="col-num">2</td></tr>
+                    <tr><td>ORD-4250</td><td>Northwind Retail</td><td><span class="badge badge--info">Rerouted</span></td><td class="col-num">8</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <dialog class="drawer drawer--dock" data-modeless id="dock-assistant" aria-labelledby="dock-assistant-title">
+        <div class="drawer-header">
+            <h3 id="dock-assistant-title">Ops agent</h3>
+            <button class="modal-close" type="button" aria-label="Close the assistant"
+                    onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="chat-pane">
+            <div class="chat" role="log" aria-live="polite" aria-label="Conversation with Ops agent" tabindex="0">
+                <div class="chat-message chat-message--mine">
+                    <div class="chat-body">
+                        <div class="chat-bubble">Why is ORD-4209 on hold?</div>
+                    </div>
+                </div>
+                <div class="chat-message chat-message--agent">
+                    <span class="agent-avatar agent-avatar--sm" role="img" aria-label="Ops agent"></span>
+                    <div class="chat-body">
+                        <div class="chat-bubble">
+                            <p>Lines 3 and 5 have no free stock in any warehouse. The order ships when either arrives, or you can split it and send the other three today.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form class="chat-composer chat-composer--prompt">
+                <div class="chat-composer-row">
+                    <textarea class="form-input" rows="1" placeholder="Ask Ops agent" aria-label="Message"></textarea>
+                </div>
+                <div class="chat-composer-tools">
+                    <span class="chat-composer-send">
+                        <button class="btn btn--brand btn--solid btn--icon" type="submit" aria-label="Send"><i class="ri-arrow-up-line"></i></button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </dialog>
+</div>

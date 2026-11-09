@@ -1,0 +1,62 @@
+/* ── One-time code ──────────────────────────────────────────────────────────
+   A short code typed one character to a box — a sign-in code, a PIN. The boxes are what
+   the reader types into; ONE input, `data-code-value`, holds the whole code, and it is
+   the field: it carries the `name` a form posts and the value Blazor binds. The boxes
+   carry no name, so they post nothing.
+
+     <div class="form-code" data-code-group role="group" aria-labelledby="code-label">
+       <input type="hidden" name="code" data-code-value>
+       <input class="form-input" inputmode="numeric" autocomplete="one-time-code" aria-label="Digit 1 of 6">
+       <input class="form-input" inputmode="numeric" autocomplete="off" aria-label="Digit 2 of 6">
+       …
+     </div>
+
+   23-code.js moves the reader from box to box, spreads a pasted or autofilled code over
+   all of them, and writes the joined code into the value input with that input's own
+   `input` and `change` events. The first box carries `autocomplete="one-time-code"`,
+   which is where a phone offers the code it just received; give the boxes no
+   `maxlength`, or that code arrives cut to its first character.
+
+   Each box is a `.form-input`, so its edge, its focus ring, its states — rejected on
+   `aria-invalid`, unusual on `data-state="warn"` — and its disabled look are the text
+   field's. Put the state on every box. The tier goes on the group, as on an
+   `.input-group`; a `.form-code-sep` between two runs of boxes is a gap the reader sees
+   and a screen reader skips (`aria-hidden="true"`).
+
+   A code is digits and Latin letters, which run left to right in every script, so a
+   right-to-left page keeps the boxes in that order (70-rtl.css).
+   ─────────────────────────────────────────────────────────────────────────── */
+.form-code {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    /* A column stretches its children; a code is as wide as its boxes. */
+    width: fit-content;
+}
+.form-code > .form-input {
+    flex-shrink: 0;
+    width: var(--control-height);
+    /* The box is square and its height is the tier's; the field's own block padding
+       would make the line box plus padding outgrow it at the code's larger type. */
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-8);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+.form-code--sm > .form-input {
+    min-height: var(--control-height-sm);
+    width: var(--control-height-sm);
+    font-size: var(--text-5);
+}
+.form-code--lg > .form-input {
+    min-height: var(--control-height-lg);
+    width: var(--control-height-lg);
+    font-size: var(--text-9);
+}
+.form-code-sep {
+    color: var(--muted);
+    font-size: var(--text-6);
+    line-height: 1;
+    user-select: none;
+}

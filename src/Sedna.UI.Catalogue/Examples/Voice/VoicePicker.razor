@@ -1,0 +1,55 @@
+<fieldset class="form-section" style="max-width: 520px">
+    <legend>Microphone and voice</legend>
+    <div class="form-section-body">
+        <div class="form-field">
+            <label class="form-label" for="vp-mic">Microphone</label>
+            <select class="form-select" id="vp-mic" aria-describedby="vp-mic-hint">
+                <option value="default" selected>System default</option>
+                <option value="headset">USB headset</option>
+                <option value="built-in">Built-in microphone</option>
+            </select>
+            <p class="form-hint" id="vp-mic-hint">The list fills once the browser is allowed to use a microphone.</p>
+        </div>
+        <div class="form-field" role="radiogroup" aria-labelledby="vp-voice-label">
+            <span class="form-label" id="vp-voice-label">The agent's voice</span>
+            <ul class="list">
+                <li>
+                    <div class="list-row">
+                        <label class="form-check sedna-fill">
+                            <input type="radio" name="vp-voice" value="juniper" checked />
+                            <span class="choice-text">
+                                <span>Juniper</span>
+                                <span class="choice-hint">Warm and unhurried</span>
+                            </span>
+                        </label>
+                        <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Play a sample of Juniper"><i class="ri-play-line"></i></button>
+                    </div>
+                </li>
+                <li>
+                    <div class="list-row">
+                        <label class="form-check sedna-fill">
+                            <input type="radio" name="vp-voice" value="harbor" />
+                            <span class="choice-text">
+                                <span>Harbor</span>
+                                <span class="choice-hint">Clear and brisk</span>
+                            </span>
+                        </label>
+                        <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Stop the sample of Harbor"><i class="ri-stop-line"></i></button>
+                    </div>
+                </li>
+                <li>
+                    <div class="list-row">
+                        <label class="form-check sedna-fill">
+                            <input type="radio" name="vp-voice" value="meadow" />
+                            <span class="choice-text">
+                                <span>Meadow</span>
+                                <span class="choice-hint">Soft, for a quiet room</span>
+                            </span>
+                        </label>
+                        <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Play a sample of Meadow"><i class="ri-play-line"></i></button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</fieldset>

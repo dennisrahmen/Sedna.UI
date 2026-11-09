@@ -1,0 +1,60 @@
+<div class="form-field" style="max-width:460px">
+    <label class="form-label" for="cb-routes">Send alerts for</label>
+    <div class="form-combo" data-combo="multi" data-combo-managed>
+        <div class="form-combo-box">
+            <span class="chip" data-value="north">
+                <span class="chip-label">North hub</span>
+                <button class="chip-dismiss" type="button" aria-label="Remove North hub"><i class="ri-close-line"></i></button>
+                <input type="hidden" name="routes" value="north" />
+            </span>
+            <span class="chip" data-value="south-inbound">
+                <span class="chip-label">South inbound</span>
+                <button class="chip-dismiss" type="button" aria-label="Remove South inbound"><i class="ri-close-line"></i></button>
+                <input type="hidden" name="routes" value="south-inbound" />
+            </span>
+            <input class="form-combo-input" id="cb-routes" type="text" role="combobox" placeholder="Add locations…"
+                   aria-expanded="false" aria-haspopup="tree" aria-controls="cb-routes-tree" aria-autocomplete="list" autocomplete="off" />
+            <span class="form-combo-actions">
+                <button class="form-combo-btn form-combo-clear" type="button" aria-label="Remove every location"><i class="ri-close-line"></i></button>
+                <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show locations"><i class="ri-arrow-down-s-line"></i></button>
+            </span>
+        </div>
+        <template data-combo-chip>
+            <span class="chip">
+                <span class="chip-label"></span>
+                <button class="chip-dismiss" type="button" aria-label="Remove {label}"><i class="ri-close-line"></i></button>
+                <input type="hidden" name="routes" />
+            </span>
+        </template>
+        <div class="form-combo-panel">
+            <ul class="tree" id="cb-routes-tree" role="tree" aria-label="Locations" aria-multiselectable="true">
+                <li role="treeitem" id="cb-routes-north" aria-expanded="true" aria-checked="true" data-value="north">
+                    <span class="tree-row"><span class="tree-toggle"></span><span class="tree-check"></span><span class="tree-label">North hub</span></span>
+                    <ul role="group">
+                        <li role="treeitem" id="cb-routes-north-inbound" aria-checked="true" data-value="north-inbound" data-label="North inbound">
+                            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-check"></span><span class="tree-label">Inbound dock</span></span>
+                        </li>
+                        <li role="treeitem" id="cb-routes-north-outbound" aria-checked="true" data-value="north-outbound" data-label="North outbound">
+                            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-check"></span><span class="tree-label">Outbound dock</span></span>
+                        </li>
+                    </ul>
+                </li>
+                <li role="treeitem" id="cb-routes-south" aria-expanded="true" aria-checked="mixed" data-value="south">
+                    <span class="tree-row"><span class="tree-toggle"></span><span class="tree-check"></span><span class="tree-label">South hub</span></span>
+                    <ul role="group">
+                        <li role="treeitem" id="cb-routes-south-inbound" aria-checked="true" data-value="south-inbound" data-label="South inbound">
+                            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-check"></span><span class="tree-label">Inbound dock</span></span>
+                        </li>
+                        <li role="treeitem" id="cb-routes-south-cold" aria-checked="false" data-value="south-cold" data-label="South cold store">
+                            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-check"></span><span class="tree-label">Cold store</span></span>
+                        </li>
+                    </ul>
+                </li>
+                <li role="treeitem" id="cb-routes-returns" aria-checked="false" data-value="returns">
+                    <span class="tree-row"><span class="tree-toggle"></span><span class="tree-check"></span><span class="tree-label">Returns centre</span></span>
+                </li>
+            </ul>
+            <div class="form-combo-empty"><i class="ri-search-line"></i><span>No location matches.</span></div>
+        </div>
+    </div>
+</div>

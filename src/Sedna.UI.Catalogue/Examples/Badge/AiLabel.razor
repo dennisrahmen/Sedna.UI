@@ -1,0 +1,62 @@
+<div style="max-width:560px; display:flex; flex-direction:column; gap:20px">
+    <div class="form-field">
+        <label class="form-label" for="ai-eta">Expected delivery</label>
+        <div class="input-group">
+            <input class="form-input" id="ai-eta" type="text" value="Thu 14 Nov, 09:00–11:00" />
+            <button class="badge badge-ai badge-ai--icon" type="button" popovertarget="ai-eta-why">
+                <i class="ri-sparkling-2-line" aria-hidden="true"></i>
+                <span class="visually-hidden">AI-generated: why this delivery date</span>
+            </button>
+        </div>
+    </div>
+    <div class="popover" id="ai-eta-why" popover>
+        <strong class="popover-title">Suggested by the dispatch agent</strong>
+        <p>From the carrier's slot for this postcode and the last 30 deliveries on the route.</p>
+        <div class="kv"><span class="k">Model</span><span class="v">route-planner 3</span></div>
+        <div class="kv"><span class="k">Confidence</span><span class="confidence" data-level="2"><span class="confidence-bars"><i></i><i></i><i></i></span><span>Fairly sure</span></span></div>
+        <div class="kv"><span class="k">Was</span><span class="v">Wed 13 Nov, 14:00–16:00</span></div>
+        <div class="popover-actions">
+            <button class="btn btn--sm" type="button" popovertarget="ai-eta-why" popovertargetaction="hide"><i class="ri-arrow-go-back-line"></i> <span>Revert to the original</span></button>
+            <button class="btn btn--sm btn--brand btn--solid" type="button" popovertarget="ai-eta-why" popovertargetaction="hide">Keep it</button>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead><tr><th>Order</th><th>Category</th><th class="col-num">Weight</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>ORD-4209</td>
+                <td>
+                    <span>Fragile goods</span>
+                    <button class="badge badge-ai badge-ai--icon" type="button" popovertarget="ai-cat-why">
+                        <i class="ri-sparkling-2-line" aria-hidden="true"></i>
+                        <span class="visually-hidden">AI-generated: why this category</span>
+                    </button>
+                </td>
+                <td class="col-num">12.4 kg</td>
+            </tr>
+            <tr><td>ORD-4213</td><td><span>General</span></td><td class="col-num">3.1 kg</td></tr>
+        </tbody>
+    </table>
+    <div class="popover" id="ai-cat-why" popover>
+        <strong class="popover-title">Categorised by the intake agent</strong>
+        <p>The packing list names glassware on two lines.</p>
+        <div class="kv"><span class="k">Confidence</span><span class="confidence" data-level="3"><span class="confidence-bars"><i></i><i></i><i></i></span><span>Sure</span></span></div>
+        <div class="popover-actions">
+            <button class="btn btn--sm" type="button" popovertarget="ai-cat-why" popovertargetaction="hide"><i class="ri-arrow-go-back-line"></i> <span>Revert to General</span></button>
+        </div>
+    </div>
+
+    <p>
+        <span>Forecast for Friday: 1,240 orders</span>
+        <button class="badge badge-ai" type="button" popovertarget="ai-forecast-why">
+            <i class="ri-sparkling-2-line" aria-hidden="true"></i><span>AI</span>
+            <span class="visually-hidden">— why this forecast</span>
+        </button>
+    </p>
+    <div class="popover" id="ai-forecast-why" popover>
+        <strong class="popover-title">Forecast by the planning agent</strong>
+        <p>From the last eight Fridays and the promotion starting on Thursday.</p>
+        <div class="kv"><span class="k">Confidence</span><span class="confidence" data-level="1"><span class="confidence-bars"><i></i><i></i><i></i></span><span>A guess</span></span></div>
+    </div>
+</div>

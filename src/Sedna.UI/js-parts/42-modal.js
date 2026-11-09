@@ -4,11 +4,23 @@
    await sednaUi.modal.idle(id)    → resolves once a closed dialog's transition ends
 
    The presenter for markup the app wrote: a `.modal`, a `.drawer` or a `.sheet`,
-   each a <dialog>. The platform gives the top layer, a focus trap, Escape-to-close
+   each a <dialog>.
+
+   NOT MODAL — data-modeless. A drawer or a sheet that carries `data-modeless` is
+   opened with show() instead: no backdrop, nothing behind it made inert and no focus
+   trap, so the page stays usable while it is open — a filter panel the reader keeps
+   beside the list it filters. Everything else is the same: show() resolves with its
+   returnValue when it closes, and Escape with the focus inside it closes it, which the
+   platform does only for a modal one. The platform gives the top layer, a focus trap, Escape-to-close
    and inert content behind it — all four, none reachable from Blazor without
    IJSRuntime, which the consuming rules say an app should not inject. An app that
    followed those rules otherwise fell back to a `.modal-backdrop` div behind an
    `@if` and lost all four.
+
+   A TOGGLE KEPT IN STEP. A control that carries `aria-controls` naming a dialog and an
+   `aria-expanded` of its own — the button that opens and closes a docked assistant —
+   has its `aria-expanded` set from the dialog's `open` whenever that changes, by
+   whatever route: the toggle, the dialog's own close button, Escape, the app.
 
    show() resolves with the dialog's returnValue when it closes, or null when it
    closed without one — Escape, close() with no value, a button whose value is
@@ -53,6 +65,20 @@
    cancelable, so the app is asked every time. Escape another handler already took
    — a combo, a drag — and Escape meant for an open popover are left alone, exactly
    as the platform would leave them.
+
+   ASKING BEFORE THE PAGE IS LEFT — data-close-guard with data-dirty. A form, or any
+   element, that carries both holds work that is not saved, and closing the tab,
+   reloading or following a link out of the app raises the browser's own "leave
+   this page?" prompt. Whether the work is unsaved is the app's to say: it writes
+   `data-dirty` while what is on screen differs from what was saved and takes it off
+   when it saves or discards, and the guard is answered from the attribute as it
+   stands when the page is left — nothing is tracked here. In Blazor:
+
+     <form data-close-guard data-dirty="@_dirty" @onsubmit="Save">
+
+   The prompt's words are the browser's; no page can set them. A navigation inside a
+   Blazor app never unloads the page, so it raises no prompt: that is NavigationLock's
+   OnBeforeInternalNavigation, which asks with the app's own dialog.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -110,7 +136,7 @@
             // showModal() on an open dialog throws InvalidStateError, so join the wait.
             if (!d.open) {
                 d.returnValue = '';
-                try { d.showModal(); }
+                try { if (d.hasAttribute('data-modeless')) d.show(); else d.showModal(); }
                 catch (e) {
                     console.warn('sednaUi.modal.show: ' + e.message);
                     return Promise.resolve(null);
@@ -194,6 +220,36 @@
         d.requestClose();
     });
 
+    /* Escape inside a dialog opened without a modal closes it, as it closes a modal one:
+       a close request, so a guarded one asks first. */
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
+        var d = e.target instanceof Element ? e.target.closest('dialog[data-modeless][open]') : null;
+        if (!d || d.matches(':modal')) return;
+        if (document.querySelector(':popover-open:not([popover="manual"])')) return;
+        e.preventDefault();
+        if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
+    });
+
+    // A toggle's aria-expanded follows the dialog it controls.
+    function syncToggles(d) {
+        if (!d.id) return;
+        var toggles = document.querySelectorAll('[aria-controls][aria-expanded]');
+        for (var i = 0; i < toggles.length; i++) {
+            var names = (toggles[i].getAttribute('aria-controls') || '').split(/\s+/);
+            if (names.indexOf(d.id) < 0) continue;
+            var value = d.open ? 'true' : 'false';
+            if (toggles[i].getAttribute('aria-expanded') !== value) toggles[i].setAttribute('aria-expanded', value);
+        }
+    }
+    if (typeof MutationObserver === 'function') {
+        new MutationObserver(function (records) {
+            for (var i = 0; i < records.length; i++) {
+                if (records[i].target.tagName === 'DIALOG') syncToggles(records[i].target);
+            }
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
+    }
+
     // `cancel` does not bubble, so it is caught on the way down.
     document.addEventListener('cancel', function (e) {
         var d = e.target;
@@ -201,5 +257,12 @@
             e.preventDefault();
         }
     }, true);
+
+    // preventDefault() is the standard ask; a returnValue is what older engines read.
+    window.addEventListener('beforeunload', function (e) {
+        if (!document.querySelector('[data-close-guard][data-dirty]')) return;
+        e.preventDefault();
+        e.returnValue = true;
+    });
 
 })(window.sednaUi);

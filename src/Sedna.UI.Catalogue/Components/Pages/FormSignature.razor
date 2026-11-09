@@ -1,0 +1,60 @@
+@page "/form-signature"
+
+<CatHead Title="Signature" Tier="@CatHead.Tier3">
+    A signature drawn with a mouse, a pen or a finger, posted with the form. Your markup is the frame,
+    the hint, the undo and clear buttons, the field that holds the value and the typed name beside it;
+    the library draws the strokes on a canvas inside the pad and writes them to the field.
+</CatHead>
+
+<div class="callout callout--info">
+    <i class="ri-quill-pen-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">A pad is never the only way to sign</span>
+        Nobody can draw with a keyboard, a screen reader, a switch or voice control. Write a typed full
+        name beside every pad, accept it in place of a drawing, and point the pad's
+        <code>aria-describedby</code> at the sentence that says so. Every attribute, state and token is in
+        <code>docs/signature.md</code>.
+    </div>
+</div>
+
+<CatExample TExample="Examples.FormSignature.Pad" Title="A signature pad" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; sign in the box, then undo a stroke or clear it.</strong>
+        <code>[data-signature]</code> on the <code>.form-signature</code> frame makes it one. The strokes are
+        drawn in <code>[data-signature-pad]</code> on <code>.form-signature-pad</code>, which is given
+        <code>role="img"</code>; its name is yours, through <code>aria-labelledby</code> or
+        <code>aria-label</code>. <code>.form-signature-hint</code> is your words on an empty pad, and steps
+        aside once there is ink.
+    </p>
+    <p>
+        <strong>The field is the value.</strong> <code>input[data-signature-value]</code> &mdash; hidden, or
+        a textarea &mdash; is what the form posts: the pad loads from it, and writes it with an
+        <code>input</code> and a <code>change</code> event each time a stroke is finished, undone or
+        cleared, so <code>@@bind</code> reads it in Blazor. A value set on the field from code is drawn. The
+        value is SVG path data, never pixels, so it is the same on every screen and in every theme.
+    </p>
+    <p>
+        <code>[data-signature-undo]</code> takes the last stroke away and <code>[data-signature-clear]</code>
+        every stroke; both are <code>disabled</code> while there is nothing to take. The frame carries
+        <code>data-signature-inked</code> while the pad holds a stroke.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormSignature.States" Title="Read-only, disabled and rejected" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        The pad takes its state from the field. <code>readonly</code> shows the signature at full strength
+        and takes no stroke, and the form still posts it &mdash; a signed record on review.
+        <code>disabled</code> dims the pad and the form leaves it out. <code>aria-invalid="true"</code> on the
+        field draws the pad's edge in the danger colour, as on every control; whether a signature is
+        required is your check to make.
+    </p>
+</CatExample>
+
+<CatSnippet Name="FormSignature/Shown.html" Title="Showing a stored signature">
+    <p>
+        The value is a path in a box 1000 units wide, as tall as the pad's ratio makes it &mdash; 1000
+        &times; 333 at the default <code>--signature-ratio</code> of <code>3 / 1</code>. It carries no colour:
+        draw it where the signature is shown, in the ink that place needs, and give it a name.
+        <code>--signature-ink</code> and <code>--signature-ink-width</code> set the ink on the pad itself.
+    </p>
+</CatSnippet>

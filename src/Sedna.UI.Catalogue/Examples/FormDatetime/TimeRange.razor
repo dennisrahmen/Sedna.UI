@@ -1,0 +1,152 @@
+<div class="toolbar" style="max-width:720px">
+    <div class="toolbar-filters">
+        <!-- The group anchors both panels, so each lines up with the field's start. -->
+        <div class="input-group input-group--sm" style="anchor-name: --orders-range">
+            <button class="btn" type="button" popovertarget="orders-range-quick" aria-label="Quick select a time range">
+                <i class="ri-calendar-event-line"></i> <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <button class="form-input form-trigger" type="button" popovertarget="orders-range-custom"
+                    aria-label="Time range: the last 15 minutes. Choose a start and an end">
+                <span>Last 15 minutes</span>
+            </button>
+        </div>
+    </div>
+    <div class="toolbar-actions">
+        <button class="btn btn--sm" type="button" aria-label="Refresh now. Refreshes every 30 seconds">
+            <i class="ri-refresh-line"></i> <span>30 s</span>
+        </button>
+    </div>
+</div>
+
+<div class="popover" id="orders-range-quick" popover style="position-anchor: --orders-range">
+    <strong class="popover-title">Quick select</strong>
+    <div class="input-group input-group--sm">
+        <select class="form-select" aria-label="Before or after now">
+            <option selected>Last</option>
+            <option>Next</option>
+        </select>
+        <input class="form-input" type="number" value="15" min="1" aria-label="How many" />
+        <select class="form-select" aria-label="Unit">
+            <option>seconds</option>
+            <option selected>minutes</option>
+            <option>hours</option>
+            <option>days</option>
+            <option>weeks</option>
+        </select>
+        <button class="btn" type="button" popovertarget="orders-range-quick" popovertargetaction="hide">Apply</button>
+    </div>
+
+    <strong class="popover-title sedna-mt-4">Commonly used</strong>
+    <div class="chip-set" role="group" aria-label="Commonly used ranges">
+        <button class="chip" type="button" aria-pressed="false">Today</button>
+        <button class="chip" type="button" aria-pressed="false">This week</button>
+        <button class="chip chip--active" type="button" aria-pressed="true">Last 15 minutes</button>
+        <button class="chip" type="button" aria-pressed="false">Last hour</button>
+        <button class="chip" type="button" aria-pressed="false">Last 24 hours</button>
+        <button class="chip" type="button" aria-pressed="false">Last 7 days</button>
+        <button class="chip" type="button" aria-pressed="false">Last 30 days</button>
+    </div>
+
+    <strong class="popover-title sedna-mt-4">Recently used</strong>
+    <div class="sedna-col sedna-gap-2">
+        <button class="btn-bare btn-bare--link" type="button">Last 4 hours</button>
+        <button class="btn-bare btn-bare--link" type="button">7 Nov, 22:00 &rarr; 8 Nov, 06:00</button>
+        <button class="btn-bare btn-bare--link" type="button">Yesterday</button>
+    </div>
+
+    <strong class="popover-title sedna-mt-4">Refresh every</strong>
+    <div class="input-group input-group--sm">
+        <input class="form-input" type="number" value="30" min="1" aria-label="Refresh interval" />
+        <select class="form-select" aria-label="Interval unit">
+            <option selected>seconds</option>
+            <option>minutes</option>
+            <option>hours</option>
+        </select>
+        <button class="btn" type="button" aria-pressed="true"><i class="ri-pause-line"></i> <span>Stop</span></button>
+    </div>
+</div>
+
+<div class="popover datepicker" id="orders-range-custom" popover style="position-anchor: --orders-range">
+    <div class="datepicker-head">
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous month"><i class="ri-arrow-left-s-line"></i></button>
+        <span class="datepicker-title">November 2026</span>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next month"><i class="ri-arrow-right-s-line"></i></button>
+    </div>
+    <div class="cal-month cal-month--mini">
+        <div class="cal-weekdays" aria-hidden="true">
+            <span class="cal-weekday">Mo</span>
+            <span class="cal-weekday">Tu</span>
+            <span class="cal-weekday">We</span>
+            <span class="cal-weekday">Th</span>
+            <span class="cal-weekday">Fr</span>
+            <span class="cal-weekday">Sa</span>
+            <span class="cal-weekday">Su</span>
+        </div>
+        <div class="cal-row">
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Sunday 1 November 2026" aria-pressed="false">1</button>
+        </div>
+        <div class="cal-row">
+            <button class="cal-day" type="button" aria-label="Monday 2 November 2026" aria-pressed="false">2</button>
+            <button class="cal-day" type="button" aria-label="Tuesday 3 November 2026" aria-pressed="false">3</button>
+            <button class="cal-day" type="button" aria-label="Wednesday 4 November 2026" aria-pressed="false">4</button>
+            <button class="cal-day" type="button" aria-label="Thursday 5 November 2026" aria-pressed="false">5</button>
+            <button class="cal-day" type="button" aria-label="Friday 6 November 2026" aria-pressed="false">6</button>
+            <button class="cal-day cal-day--weekend cal-day--range-start" type="button" aria-label="Saturday 7 November 2026" aria-pressed="true">7</button>
+            <button class="cal-day cal-day--weekend cal-day--range-end" type="button" aria-label="Sunday 8 November 2026" aria-pressed="true" aria-current="date">8</button>
+        </div>
+        <div class="cal-row">
+            <button class="cal-day" type="button" aria-label="Monday 9 November 2026" aria-pressed="false">9</button>
+            <button class="cal-day" type="button" aria-label="Tuesday 10 November 2026" aria-pressed="false">10</button>
+            <button class="cal-day" type="button" aria-label="Wednesday 11 November 2026" aria-pressed="false">11</button>
+            <button class="cal-day" type="button" aria-label="Thursday 12 November 2026" aria-pressed="false">12</button>
+            <button class="cal-day" type="button" aria-label="Friday 13 November 2026" aria-pressed="false">13</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Saturday 14 November 2026" aria-pressed="false">14</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Sunday 15 November 2026" aria-pressed="false">15</button>
+        </div>
+        <div class="cal-row">
+            <button class="cal-day" type="button" aria-label="Monday 16 November 2026" aria-pressed="false">16</button>
+            <button class="cal-day" type="button" aria-label="Tuesday 17 November 2026" aria-pressed="false">17</button>
+            <button class="cal-day" type="button" aria-label="Wednesday 18 November 2026" aria-pressed="false">18</button>
+            <button class="cal-day" type="button" aria-label="Thursday 19 November 2026" aria-pressed="false">19</button>
+            <button class="cal-day" type="button" aria-label="Friday 20 November 2026" aria-pressed="false">20</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Saturday 21 November 2026" aria-pressed="false">21</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Sunday 22 November 2026" aria-pressed="false">22</button>
+        </div>
+        <div class="cal-row">
+            <button class="cal-day" type="button" aria-label="Monday 23 November 2026" aria-pressed="false">23</button>
+            <button class="cal-day" type="button" aria-label="Tuesday 24 November 2026" aria-pressed="false">24</button>
+            <button class="cal-day" type="button" aria-label="Wednesday 25 November 2026" aria-pressed="false">25</button>
+            <button class="cal-day" type="button" aria-label="Thursday 26 November 2026" aria-pressed="false">26</button>
+            <button class="cal-day" type="button" aria-label="Friday 27 November 2026" aria-pressed="false">27</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Saturday 28 November 2026" aria-pressed="false">28</button>
+            <button class="cal-day cal-day--weekend" type="button" aria-label="Sunday 29 November 2026" aria-pressed="false">29</button>
+        </div>
+        <div class="cal-row">
+            <button class="cal-day" type="button" aria-label="Monday 30 November 2026" aria-pressed="false">30</button>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+            <span class="cal-day cal-day--outside"></span>
+        </div>
+    </div>
+    <div class="datepicker-time">
+        <label for="orders-range-from">From</label>
+        <input class="form-input form-input--sm" id="orders-range-from" type="time" value="22:00" />
+        <span aria-hidden="true">&ndash;</span>
+        <label class="visually-hidden" for="orders-range-to">Until</label>
+        <input class="form-input form-input--sm" id="orders-range-to" type="time" value="06:00" />
+    </div>
+    <div class="datepicker-actions">
+        <button class="btn btn--ghost btn--sm" type="button">Until now</button>
+        <button class="btn btn--sm" type="button" popovertarget="orders-range-custom" popovertargetaction="hide">Cancel</button>
+        <button class="btn btn--brand btn--solid btn--sm" type="button" popovertarget="orders-range-custom" popovertargetaction="hide">Apply</button>
+    </div>
+</div>

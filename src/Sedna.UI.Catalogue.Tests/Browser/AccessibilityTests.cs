@@ -86,4 +86,33 @@ public class AccessibilityTests(CatalogueAppFixture app)
 
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
     }
+
+    [Fact]
+    public async Task F6_moves_between_the_frames_regions_and_never_into_an_example()
+    {
+        if (app.NoBrowser) return;
+        // The /frame page is full of example topbars, sidebars and bottom bars. Each sits
+        // inside <main>, so none is a stop: F6 visits this site's own frame and nothing else.
+        var page = await app.OpenInteractiveAsync("/frame");
+
+        var seen = new List<string>();
+        for (var i = 0; i < 5; i++)
+        {
+            await page.Keyboard.PressAsync("F6");
+            seen.Add(await page.EvaluateAsync<string>("""
+                () => {
+                    const r = document.activeElement.closest('aside.sidebar, header.topbar, main, footer.cat-footer');
+                    return r ? r.tagName.toLowerCase() : document.activeElement.tagName;
+                }
+                """));
+        }
+
+        Assert.Equal(["aside", "header", "main", "footer", "aside"], seen);
+
+        await page.Keyboard.PressAsync("Shift+F6");
+        Assert.Equal("footer", await page.EvaluateAsync<string>(
+            "() => document.activeElement.closest('footer') ? 'footer' : document.activeElement.tagName"));
+
+        await page.CloseAsync();
+    }
 }

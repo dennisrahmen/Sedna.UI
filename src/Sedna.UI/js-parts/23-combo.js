@@ -41,6 +41,14 @@
    input the template holds so the form posts it. `{label}` in the template's
    attributes is replaced with the chip's label. Leave data-combo-managed off
    wherever C# renders the chips: both would add one.
+
+   A TREE SELECT is the same field with a `.tree` (role="tree") in the panel in place of
+   the listbox. Its items are the options: ↓ ↑ move between the visible ones, → ← open
+   and close a branch while nothing is typed (mirrored in RTL), Enter clicks the item's
+   row, and typing hides the branches with no match and opens those holding one. The
+   tree's own script (22-tree.js) picks or ticks the item on that click and dispatches
+   its events; a managed field then shows the picks — the picked item's label, or a chip
+   per picked item, a whole ticked branch being one chip.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -66,7 +74,9 @@
 
     function inputOf(host) { return host.querySelector('.form-combo-input'); }
     function boxOf(host) { return host.querySelector('.form-combo-box'); }
-    function listOf(host) { return host.querySelector('.form-combo-list'); }
+    function listOf(host) { return host.querySelector('.form-combo-list, .form-combo-panel > [role="tree"]'); }
+    function treeOf(host) { return host.querySelector('.form-combo-panel > [role="tree"]'); }
+    function isTreeItem(el) { return !!el && el.getAttribute('role') === 'treeitem'; }
     function inline(host) { return host.classList.contains('form-combo--inline'); }
     function managed(host) { return host.hasAttribute('data-combo-managed'); }
     function fromServer(host) { return host.getAttribute('data-combo-source') === 'server'; }
@@ -94,6 +104,8 @@
     function selected(option) { return option.getAttribute('aria-selected') === 'true'; }
 
     function reachable(host) {
+        var tree = treeOf(host);
+        if (tree) return ui._.tree.visible(tree).filter(enabled);
         return options(host).filter(function (o) { return !o.hidden && enabled(o); });
     }
 
@@ -102,6 +114,7 @@
        keyboard starts — settle() picks from the options — so Enter straight after
        opening never ticks a whole group. */
     function stops(host) {
+        if (treeOf(host)) return reachable(host);
         var list = listOf(host);
         if (!list) return [];
         return toArray(list.querySelectorAll('.form-combo-option, .form-combo-group-action')).filter(function (el) {
@@ -163,6 +176,7 @@
     /* The text an option is matched on. `.form-combo-option-text` when the row has
        one, so a trailing code or count is not searched as if it were the name. */
     function textOf(option) {
+        if (isTreeItem(option)) return ui._.tree.labelEl(option);
         return option.querySelector('.form-combo-option-text') || option;
     }
 
@@ -194,6 +208,12 @@
     // ── Filtering and the highlight ────────────────────────────────────────
 
     function filter(host) {
+        var tree = treeOf(host);
+        if (tree) {
+            if (!fromServer(host)) ui._.tree.filter(tree, query(host));
+            paint(host);
+            return;
+        }
         if (!fromServer(host)) {
             var q = query(host);
             options(host).forEach(function (o) {
@@ -272,7 +292,8 @@
         if (!q || !isOpen(host)) { CSS.highlights.delete(MATCH); return; }
 
         var highlight = new Highlight();
-        options(host).forEach(function (o) {
+        var tree = treeOf(host);
+        (tree ? ui._.tree.items(tree) : options(host)).forEach(function (o) {
             if (o.hidden) return;
             var target = textOf(o);
             rangesIn(target, runs(q, target.textContent)).forEach(function (r) { highlight.add(r); });
@@ -284,7 +305,7 @@
 
     function activeOf(host) {
         var list = listOf(host);
-        return list ? list.querySelector('.form-combo-option[data-active], .form-combo-group-action[data-active]') : null;
+        return list ? list.querySelector('.form-combo-option[data-active], .form-combo-group-action[data-active], [role="treeitem"][data-active]') : null;
     }
 
     /* `option` is an option or a group action: both are where the keyboard can be. */
@@ -312,7 +333,13 @@
         if (modeOf(host) === 'free') { setActive(host, null); return; }
 
         var chosen = rows.filter(function (o) { return o.getAttribute('aria-selected') === 'true'; })[0];
-        setActive(host, (!query(host) && chosen) || rows[0] || null, true);
+        // In a filtered tree the first row may be a parent kept only for its match; the
+        // keyboard starts on the first item that matches itself.
+        var q = query(host);
+        var first = q && treeOf(host)
+            ? rows.filter(function (o) { return score(q, ui._.tree.labelOf(o), 0) >= 0; })[0]
+            : null;
+        setActive(host, (!q && chosen) || first || rows[0] || null, true);
     }
 
     function move(host, step) {
@@ -428,6 +455,56 @@
             if (chip) chip.remove();
         }
         validate(host);
+    }
+
+    /* A managed tree select's picks, read back from the tree after its script has
+       changed them: the label of the one picked, or a chip per pick. */
+    function syncTree(host) {
+        var tree = treeOf(host);
+        var picks = ui._.tree.picked(tree);
+        if (modeOf(host) === 'single') {
+            var one = picks[0];
+            var shown = host.querySelector('.form-combo-value');
+            if (shown) shown.textContent = one ? ui._.tree.labelOf(one) : '';
+            var field = host.querySelector('input[data-combo-field]');
+            if (field) field.value = one ? ui._.tree.valueOf(one) : '';
+            return;
+        }
+        var values = picks.map(ui._.tree.valueOf);
+        chips(host).forEach(function (c) {
+            if (values.indexOf(c.getAttribute('data-value')) < 0) c.remove();
+        });
+        picks.forEach(function (item) { addChip(host, ui._.tree.valueOf(item), ui._.tree.labelOf(item)); });
+        validate(host);
+    }
+
+    /* Unpicks or unticks the tree item a dismissed chip stood for. */
+    function untree(host, value) {
+        var tree = treeOf(host);
+        ui._.tree.items(tree).forEach(function (item) {
+            if (ui._.tree.valueOf(item) !== value) return;
+            if (item.hasAttribute('aria-checked')) ui._.tree.setChecked(item, false);
+            else ui._.tree.setSelected(item, false);
+        });
+        syncTree(host);
+    }
+
+    /* A tree item's row was clicked. The tree's script, which hears the click first, has
+       already picked, ticked, opened or closed it. */
+    function pickedTree(host, item, onToggle) {
+        var input = inputOf(host);
+        var pickable = (item.hasAttribute('aria-selected') || item.hasAttribute('aria-checked')) && enabled(item);
+        if (managed(host) && pickable && !onToggle) syncTree(host);
+        var clear = function () { if (input.value) setQuery(input, ''); };
+        if (onToggle || !pickable || modeOf(host) === 'multi') {
+            if (isOpen(host)) setActive(host, item);
+            input.focus();
+            if (pickable && !onToggle) setTimeout(clear, 0);
+            return;
+        }
+        close(host);
+        input.focus();
+        setTimeout(clear, 0);
     }
 
     function picked(host, option) {
@@ -585,6 +662,9 @@
         var option = e.target.closest('.form-combo-option');
         if (option && host.contains(option)) { picked(host, option); return; }
 
+        var item = treeOf(host) && e.target.closest('[role="treeitem"]');
+        if (item && host.contains(item)) { pickedTree(host, item, !!e.target.closest('.tree-toggle')); return; }
+
         /* A group heading's action. Without data-combo-toggle-group it is the app's
            button, and this only keeps the keyboard on it. */
         var action = e.target.closest('.form-combo-group-action');
@@ -601,7 +681,10 @@
                 var chip = dismiss.closest('.chip');
                 var value = chip.getAttribute('data-value');
                 chip.remove();
-                if (value !== null) unselect(host, value);
+                if (value !== null) {
+                    if (treeOf(host)) untree(host, value);
+                    else unselect(host, value);
+                }
                 validate(host);
             }
             input.focus();
@@ -624,6 +707,11 @@
             if (managed(host)) {
                 chips(host).forEach(function (c) { c.remove(); });
                 options(host).forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
+                var tree = treeOf(host);
+                if (tree) ui._.tree.items(tree).forEach(function (i) {
+                    if (i.hasAttribute('aria-checked')) ui._.tree.setChecked(i, false);
+                    else ui._.tree.setSelected(i, false);
+                });
                 var shown = host.querySelector('.form-combo-value');
                 if (shown) shown.textContent = '';
                 var field = host.querySelector('input[data-combo-field]');
@@ -663,7 +751,13 @@
 
             case 'Enter':
                 var active = openNow ? activeOf(host) : null;
-                if (active) { e.preventDefault(); active.click(); return; }
+                if (active) {
+                    e.preventDefault();
+                    // A tree item is picked through its row, which is what the tree's own
+                    // click handler listens on.
+                    (isTreeItem(active) ? ui._.tree.rowOf(active) || active : active).click();
+                    return;
+                }
                 if (mode === 'free') {
                     if (input.value.trim()) { e.preventDefault(); commit(host, input.value); }
                     return;
@@ -671,6 +765,17 @@
                 // A combo never submits its form on Enter, as a <select> does not.
                 e.preventDefault();
                 if (!openNow) open(host);
+                return;
+
+            case 'ArrowRight':
+            case 'ArrowLeft':
+                // In a tree select with nothing typed, the branch keys; with a query they
+                // move the caret in it, as in any text field.
+                var at = openNow && !input.value && treeOf(host) ? activeOf(host) : null;
+                if (!at || !isTreeItem(at)) return;
+                e.preventDefault();
+                var to = ui._.tree.step(at, e.key);
+                setActive(host, to && enabled(to) ? to : at, true);
                 return;
 
             case 'Escape':

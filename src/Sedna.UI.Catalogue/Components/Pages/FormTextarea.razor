@@ -30,6 +30,23 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.FormTextarea.Mention" Title="Naming someone in the text" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; type <kbd class="kbd">@@</kbd> in it.</strong> Wrap the text area and a
+        <a href="/menu"><code>.menu</code></a> of the people it can name in <code>.mention-field</code>, and point
+        <code>data-mention</code> at the menu's id. Each item carries the text to write in
+        <code>data-mention-value</code>, and <code>data-label</code> for the name it is found by.
+    </p>
+    <p>
+        <kbd class="kbd">@@</kbd> at the start or after a space opens the list under the field, and what is
+        typed after it filters the list. The focus stays in the field: <kbd class="kbd">&uarr;</kbd>
+        <kbd class="kbd">&darr;</kbd> choose, <kbd class="kbd">Enter</kbd> writes <code>@@alex.fischer</code> in
+        place of what was typed and sends <code>input</code>, <kbd class="kbd">Esc</kbd> closes. The list is
+        anchored to the field, not the caret. To search a directory, fill the menu from your own search as the
+        reader types; the script filters what is there.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.FormTextarea.Invalid" Title="Rejected" Demo="ex-demo--block">
     <p>
         <code>aria-invalid</code> and <code>.form-error</code> reach a text area unchanged &mdash; see

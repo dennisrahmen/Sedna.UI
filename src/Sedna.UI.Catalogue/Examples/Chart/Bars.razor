@@ -1,0 +1,25 @@
+<div class="card">
+    <div class="card-head">
+        <h3>Orders picked per hour, this shift</h3>
+    </div>
+    <div class="card-body">
+        <div class="chart" data-chart="bar" id="chart-picking"
+             aria-label="Orders picked per hour by warehouse zone; cold store is below target" aria-roledescription="chart">
+            <table class="chart-data" data-chart-data>
+                <caption>Orders picked per hour, by zone</caption>
+                <thead>
+                    <tr><th scope="col">Zone</th><th scope="col">Orders per hour</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">Small parts, aisles 1–12</th><td>148</td></tr>
+                    <tr><th scope="row">Bulky goods</th><td>96</td></tr>
+                    <tr><th scope="row">Returns and rework</th><td>61</td></tr>
+                    <tr data-tone="danger"><th scope="row">Cold store</th><td>38</td></tr>
+                    <tr><th scope="row">Hazardous goods cage</th><td>22</td></tr>
+                </tbody>
+            </table>
+            <div class="chart-plot"></div>
+            <div class="chart-wait skeleton skeleton-block"></div>
+        </div>
+    </div>
+</div>

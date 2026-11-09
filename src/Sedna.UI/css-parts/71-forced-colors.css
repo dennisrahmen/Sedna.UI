@@ -79,6 +79,13 @@
         --skeleton-sheen: Canvas;
         --progress-track: Canvas;
         --viz-previous: GrayText;
+        /* A heatmap's steps are its data, so they stay steps: the user's own ink mixed
+           into the user's own canvas, from none to all of it. */
+        --heat-0: Canvas;
+        --heat-1: color-mix(in srgb, CanvasText 25%, Canvas);
+        --heat-2: color-mix(in srgb, CanvasText 50%, Canvas);
+        --heat-3: color-mix(in srgb, CanvasText 75%, Canvas);
+        --heat-4: CanvasText;
         --code-bg: Canvas;
         --code-fg: CanvasText;
         --backdrop: Canvas;
@@ -89,6 +96,10 @@
         /* An agent at work is the one thing the mode should still point at. */
         --agent-from: Highlight;
         --agent-to: Highlight;
+        /* A lit star and an empty one differ in shape, filled against outlined, so
+           both take the user's palette. */
+        --rating-on: Highlight;
+        --rating-off: CanvasText;
     }
 
     /* Focus rings. Every one in this library is a box-shadow, and box-shadow is not
@@ -116,11 +127,15 @@
     .th-filter:focus-visible,
     .input-clear:focus-visible,
     .accordion summary:focus-visible,
-    .tree summary:focus-visible,
-    .tree-leaf:focus-visible,
+    .tree [role="treeitem"]:focus-visible > .tree-row,
     .skip-link:focus,
     .fab:focus-visible,
+    .back-to-top:focus-visible,
+    .page-toc-link:focus-visible,
+    .page-toc-fold > .page-toc-title:focus-visible,
+    button.sheet-handle:focus-visible,
     .form-color:focus-visible,
+    .form-color-area:focus-visible,
     .swatch:focus-visible,
     .editor:focus-within,
     a.file-item:focus-visible,
@@ -151,6 +166,7 @@
     a.stat:focus-visible,
     .code-block-copy:focus-visible,
     .code-block-expand:focus-visible,
+    .carousel-track:focus-visible,
     .value-trigger:focus-visible,
     .list--cards > li > :is(a, button).list-row:is([aria-current="true"], [aria-selected="true"]):focus-visible,
     .gallery > *:focus-visible .media-frame,
@@ -160,6 +176,7 @@
     .lightbox-next:focus-visible,
     .media-open:focus-visible,
     .reasoning > summary:focus-visible,
+    .agent-tool > summary:focus-visible,
     button.cal-weeknum:focus-visible,
     .cal-event:focus-visible,
     .cal-block:focus-visible,
@@ -172,12 +189,16 @@
     .chat-jump:focus-visible,
     .chat-launcher:focus-visible,
     .output-details > summary:focus-visible,
+    .output-frames-fold > summary:focus-visible,
     .card-resize:focus-visible,
     .choice-tile:has(> input:focus-visible),
     button.cal-mark:focus-visible,
     .sticky-group-toggle:focus-visible,
     .choice-tile:has(> input:checked:focus-visible),
     .split-resize:focus-visible,
+    .cal-resize:focus-visible,
+    button.cal-more:focus-visible,
+    a.cal-agenda-title:focus-visible,
     :is(a, button).toast-body:focus-visible,
     :is(.form-input, .form-select)[data-state="warn"]:focus,
     :is(.form-input, .form-select)[aria-invalid="true"]:focus,
@@ -188,18 +209,35 @@
     .editor[data-state="warn"]:focus-within,
     .editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]):focus-within,
     .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]):focus-within,
-    :is(a, button).workflow-node:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
+    :is(a, button).workflow-node:focus-visible,
+    .input-reveal:focus-visible,
+    button.badge-ai:focus-visible,
+    .rating-star:has(> input:focus-visible),
+    .rating-half:has(> input:focus-visible),
+    .page-banner-dismiss:focus-visible,
+    .app-switcher-item:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+    /* Inside its header cell, which clips what is drawn past its edge. */
+    .col-resize:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+    /* Inside the run's frame, which meets its edge. */
+    .test-suite > summary:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+    .inbox-item:has(.inbox-item-title:focus-visible) { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* The graph's ring is an overlay inside its frame, so it is restated there. */
     .graph:focus-visible:not([data-graph-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
+    /* So is the chart's, and a legend key that switches a series rings like a button. */
+    .chart:focus-visible:not([data-chart-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
+    button.chart-key:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
 
     /* Selected and current states are backgrounds, which are flattened away. An
        outline is what is left that the mode still paints. */
     .nav-link.active,
     .tab[aria-selected="true"],
     .page-link[aria-current="page"],
+    .page-toc-link[aria-current="location"],
     .palette-item[aria-selected="true"],
-    .tree-leaf[aria-current="true"],
+    .tree [aria-selected="true"] > .tree-row,
+    .tree [aria-current]:not([aria-current="false"]) > .tree-row,
+    .tree [role="treeitem"][data-active] > .tree-row,
     .list-row[aria-current="true"],
     .list-row[aria-selected="true"],
     .file-tile:has(.file-tile-check :checked),
@@ -212,10 +250,19 @@
     .cal-pick:is([aria-pressed="true"], [aria-current]:not([aria-current="false"])),
     .editor-toolbar [aria-pressed="true"],
     .workflow-node[aria-pressed="true"],
-    .choice-tile:has(> input:checked) { outline: 1px solid Highlight; }
+    .choice-tile:has(> input:checked),
+    .app-switcher-item[aria-current]:not([aria-current="false"]) { outline: 1px solid Highlight; }
     /* A selected table row is a tint and an inset bar, and neither is painted here. Each
        cell is outlined inside its own box, so the row reads as one marked band. */
     .table tbody tr[aria-selected="true"] > td { outline: 2px solid Highlight; outline-offset: -2px; }
+
+    /* A keyboard grid: a selected range is a tint, an editor's edge and ring are shadows,
+       and the focused cell's ring is restated after both so it is the one that shows. */
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+    .table :is(td, th)[data-editing] > .cell-editor,
+    .table tr[data-editing] > :is(td, th) > .cell-editor { outline: 1px solid CanvasText; outline-offset: -1px; }
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible,
+    .table .cell-editor:focus { outline: 2px solid CanvasText; outline-offset: -2px; }
 
     /* A chat bubble is nothing but a background; without a line around it a
        thread is a column of text with no turns in it. */
@@ -225,6 +272,12 @@
     .chat-jump,
     .cal-event,
     .cal-block { outline: 1px solid CanvasText; outline-offset: -1px; }
+    /* A background event and a closed band are a tint and a hatch, and forced colours
+       paint neither: a dashed line round the stretch is what says it is there. The
+       agenda's dot is its event's hue, the one thing that tells two rows apart. */
+    .cal-event--background,
+    .cal-closed { outline: 1px dashed GrayText; outline-offset: -1px; }
+    .cal-agenda-event > .cal-event-dot { forced-color-adjust: none; }
 
     /* A filtered column's heading is marked by a colour and an inset shadow, and
        neither survives; an outline inside the cell is what is left. */
@@ -238,6 +291,8 @@
     .chip-dot,
     .th-filter--active::after,
     .avatar-presence::after,
+    .inbox-count,
+    .inbox-item--unread::before,
     .timeline > li::before { forced-color-adjust: none; }
 
     /* A workflow's wires are the diagram: each is a painted box, and forced colours
@@ -254,7 +309,8 @@
     .workflow-branch > .workflow-path::after,
     .workflow-loop > .workflow-path::after { forced-color-adjust: none; }
 
-    /* A bar is nothing but a background, and so is a meter's mark: forced colours
+    /* A bar is nothing but a background, and so are a meter's mark and a range box's
+       track and fill: forced colours
        paints every one of them Canvas, on a Canvas track, and the chart is blank. The
        previous value behind a bar is a hatch, which the mode removes outright. Each
        opts out, and each reads its colour from a token remapped above — the brand to
@@ -265,6 +321,39 @@
     .stack-bar-swatch,
     .meter-fill,
     .meter-mark,
+    .form-range-box::before,
     .progress-bar,
-    .bar-previous { forced-color-adjust: none; }
+    .bar-previous,
+    .tracker-block,
+    .gauge::before,
+    /* A star is a clipped background too, and it is the score itself. */
+    .rating-star::before,
+    .rating-star::after { forced-color-adjust: none; }
+
+    /* A chart's marks are its data, and each series is told from the next by its colour
+       and its shape: forced colours would paint every mark CanvasText through
+       `currentColor`. The drawing, its legend's swatches and the tooltip's opt out, and
+       read the series tokens — the brand among them already the user's Highlight. */
+    .chart-svg,
+    .chart-swatch,
+    .chart-tip-swatch { forced-color-adjust: none; }
+
+    /* A heatmap cell keeps its step from the remap above, and an outline in the
+       user's muted ink, so an empty cell is still a cell and not a hole in the grid. */
+    .heatmap-cell { forced-color-adjust: none; outline: 1px solid GrayText; outline-offset: -1px; }
+
+    /* A diff's row tints are not painted here; the + and − markers still say which
+       side a line is on, and a word that changed inside a line keeps a box round it. */
+    .diff-code :is(ins, del) { outline: 1px solid CanvasText; outline-offset: -1px; }
+
+    /* A colour picker's spectrum is the choice itself, and its thumbs are drawn in the
+       spectrum's own white and black so they show on any colour of it. All of it opts
+       out (45-colour-picker.css); the focus ring above is still the user's Highlight. */
+    .form-color-area,
+    .form-range--hue,
+    .form-range--alpha,
+    .form-color-preview { forced-color-adjust: none; }
+    /* A QR code is read by a camera, not the reader: it keeps its dark ink on light paper,
+       as an image does, or a dark palette would invert it into a code few cameras read. */
+    .qr { forced-color-adjust: none; }
 }

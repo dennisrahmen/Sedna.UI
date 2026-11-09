@@ -276,6 +276,28 @@ dialog.sheet[data-sheet].sheet--dragging > .drawer-header { cursor: grabbing; }
    lags the finger. */
 dialog.sheet.sheet--dragging { transition: none; }
 
+/* ── Snap points ────────────────────────────────────────────────────────────
+   `data-sheet-snap="50%"` beside `data-sheet` makes the sheet rest at the heights it
+   lists as well as at its full height (29-sheet.js). It is as tall as a sheet may be,
+   so a share of it is a share of the screen, and it rests lower by translating down:
+   `--sheet-rest` is how far, in percent of its own height, which the script writes and
+   the transition slides between. The part below the screen's edge is still the sheet's
+   own body, scrolled to and reached by dragging it up. */
+dialog.sheet[data-sheet-snap] { --sheet-rest: 0%; height: 85dvh; }
+dialog.sheet[data-sheet-snap][open] { transform: translateY(var(--sheet-rest)); }
+@starting-style {
+    dialog.sheet[data-sheet-snap][open] { transform: translateY(100%); }
+}
+
+/* The handle as the keyboard's way between the heights: a <button data-sheet-expand>
+   in the same place, drawn the same, with a focus ring. */
+button.sheet-handle {
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+}
+button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+
 /* ── A sheet of actions ─────────────────────────────────────────────────────
    The phone form of a menu: one action per row, with room for a second line saying
    what it will do, and a target big enough for a thumb.
@@ -294,52 +316,45 @@ dialog.sheet.sheet--dragging { transition: none; }
    row would be a second surface inside it; separation is the divider `.list` draws
    between its items, and the states are what say the row is live. */
 
-/* ── Tree ───────────────────────────────────────────────────────────────────
-   Nested structure the reader expands — a group hierarchy, a folder of files, a
-   configuration path.
+/* ── Docked beside the page ─────────────────────────────────────────────────
+   `.drawer--dock` on a `<dialog class="drawer" data-modeless>` that is a direct child
+   of `.layout`, after `.content`: an assistant, a generated document, a record's
+   detail — a panel the reader keeps open while they work.
 
-   Built from nested <ul> inside <details>, so expansion, keyboard operation and the
-   announcement come from the platform. A real ARIA `role="tree"` needs single-tab-stop
-   navigation with arrow keys through a flattened view, and implementing half of it is
-   worse than not claiming it: <details> is honest about being a set of disclosures.
+     <div class="layout">
+       <aside class="sidebar">…</aside>
+       <div class="content">…</div>
+       <dialog class="drawer drawer--dock" data-modeless id="assistant" aria-labelledby="assistant-title">
+         <div class="drawer-header">…</div>
+         <div class="chat-pane">…</div>
+       </dialog>
+     </div>
 
-   The indent is one padding step per level, applied by nesting rather than by a
-   `--depth` variable the markup has to keep correct. */
-.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
-.tree ul { padding-inline-start: var(--space-7); border-inline-start: 1px solid var(--divider); margin-inline-start: var(--space-4); }
-.tree li { font-size: var(--text-4); }
+   From 900px wide it is a column of the frame: open, it takes `--drawer-width` (at most
+   half the layout) at the inline end and the content beside it narrows, so nothing is
+   covered; closed, it takes no room. Below 900px it is the drawer it always was, over
+   the page's inline edge, and the page keeps its width. It sits at the inline end, so it
+   mirrors under dir="rtl" with no rule of its own.
 
-.tree summary,
-.tree-leaf {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-inner);
-    color: var(--fg-soft);
-    text-decoration: none;
-    cursor: pointer;
-    list-style: none;
+   Opened and closed like any modeless drawer: `sednaUi.modal.show(id)` or
+   `ISednaUi.ShowModalAsync(id)`, and its own close button. A toggle carrying
+   `aria-controls` that names the dialog and an `aria-expanded` is kept in step with it
+   by 42-modal.js.
+
+   As a column it does not slide — the content beside it would reflow on every frame —
+   so it appears and goes at once. Its block-end safe-area inset is the drawer's own
+   padding, at every width. */
+@media (min-width: 900px) {
+    .layout > dialog.drawer.drawer--dock {
+        position: relative;
+        inset: auto;
+        z-index: auto;
+        flex: none;
+        width: var(--drawer-width);
+        max-width: 50%;
+        height: auto;
+        box-shadow: none;
+        transform: none;
+        transition: none;
+    }
 }
-.tree summary::-webkit-details-marker { display: none; }
-.tree summary:hover,
-.tree-leaf:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
-.tree summary:focus-visible,
-.tree-leaf:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
-.tree summary::before {
-    content: '';
-    flex-shrink: 0;
-    width: 0;
-    height: 0;
-    border-block: 4px solid transparent;
-    border-inline-start: 5px solid currentColor;
-    opacity: 0.55;
-    transition: transform var(--motion-fast) ease;
-}
-.tree details[open] > summary::before { transform: rotate(90deg); }
-/* A leaf has no caret, so it needs the same indent to line up with its siblings. */
-/* Same derivation as the nav group: a leaf has no caret, so it takes the summary's
-   padding plus the space the caret and its gap would have occupied. */
-.tree-leaf { padding-inline-start: calc(var(--space-3) + var(--space-6)); }
-.tree-leaf[aria-current="true"] { background: var(--brand-tint); color: var(--brand-text); }
-.tree-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }

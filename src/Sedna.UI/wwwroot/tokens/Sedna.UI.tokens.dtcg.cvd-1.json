@@ -1,0 +1,195 @@
+{
+  "$description": "Sedna.UI design tokens for :root[data-cvd=\"1\"]. Load after the files in load.",
+  "$extensions": {
+    "com.sedna-ui": {
+      "selector": ":root[data-cvd=\"1\"]",
+      "media": null,
+      "load": [
+        "Sedna.UI.tokens.dtcg.json"
+      ],
+      "cssOnly": {}
+    }
+  },
+  "danger": {
+    "danger-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7382,
+          0.1892,
+          0.4363
+        ],
+        "hex": "#bc306f"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--danger-solid), var(--danger-fg) 25%)"
+        }
+      }
+    },
+    "danger-fg": {
+      "$type": "color",
+      "$value": "{crimson.crimson-300}"
+    },
+    "danger-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7033,
+          0.1229,
+          0.392
+        ],
+        "hex": "#b31f64"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--danger-solid), var(--danger-fg) 15%)"
+        }
+      }
+    },
+    "danger-solid": {
+      "$type": "color",
+      "$value": "{crimson.crimson-800}"
+    }
+  },
+  "go": {
+    "go-active": {
+      "$type": "color",
+      "$value": "{orbit.orbit-900}"
+    },
+    "go-bg": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.349,
+          0.7647,
+          1.0
+        ],
+        "alpha": 0.14,
+        "hex": "#59c3ff"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--orbit-400) 14%, transparent)"
+        }
+      }
+    },
+    "go-bg-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.1253,
+          0.5737,
+          0.7738
+        ],
+        "alpha": 0.312,
+        "hex": "#2092c5"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--go-bg), var(--go-solid) 20%)"
+        }
+      }
+    },
+    "go-bg-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.1768,
+          0.6176,
+          0.8259
+        ],
+        "alpha": 0.2432,
+        "hex": "#2d9dd3"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--go-bg), var(--go-solid) 12%)"
+        }
+      }
+    },
+    "go-border": {
+      "$type": "color",
+      "$value": "{orbit.orbit-800}"
+    },
+    "go-fg": {
+      "$type": "color",
+      "$value": "{orbit.orbit-300}"
+    },
+    "go-hover": {
+      "$type": "color",
+      "$value": "{orbit.orbit-800}"
+    },
+    "go-ring": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.349,
+          0.7647,
+          1.0
+        ],
+        "alpha": 0.5,
+        "hex": "#59c3ff"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--orbit-400) 50%, transparent)"
+        }
+      }
+    },
+    "go-solid": {
+      "$type": "color",
+      "$value": "{orbit.orbit-700}"
+    }
+  },
+  "sev": {
+    "sev-1-bg": {
+      "$type": "color",
+      "$value": "{crimson.crimson-900}"
+    },
+    "sev-1-border": {
+      "$type": "color",
+      "$value": "{crimson.crimson-800}"
+    },
+    "sev-1-solid": {
+      "$type": "color",
+      "$value": "{crimson.crimson-900}"
+    },
+    "sev-2-bg": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6353,
+          0.5137,
+          1.0
+        ],
+        "alpha": 0.28,
+        "hex": "#a283ff"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--violet-500) 28%, transparent)"
+        }
+      }
+    },
+    "sev-2-border": {
+      "$type": "color",
+      "$value": "{violet.violet-700}"
+    },
+    "sev-2-fg": {
+      "$type": "color",
+      "$value": "{violet.violet-300}"
+    },
+    "sev-2-solid": {
+      "$type": "color",
+      "$value": "{violet.violet-700}"
+    }
+  }
+}

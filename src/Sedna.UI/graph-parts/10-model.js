@@ -10,7 +10,8 @@
      3. a call    graph.set({ nodes, edges }) from script; ISednaGraph.SetDataAsync.
 
    A node:  { id, label, kind, tone, tones, shape, icon, group, cluster, parent,
-              weight, muted, root, hub, href, meta, tags, x, y, display, state, fields }
+              weight, muted, root, hub, href, meta, tags, x, y, display, state, placeholder,
+              fields }
    An edge: { id, source, target, label, kind, tone, line, weight, arrow, muted, state, fields }
 
    In markup each is the attribute of the same name — `data-tone="3"`, `data-muted` —
@@ -107,7 +108,7 @@ function listOf(value) {
 }
 
 const NODE_KEYS = new Set(['id', 'node', 'label', 'kind', 'tone', 'tones', 'shape', 'icon', 'group', 'cluster',
-    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'state', 'fields']);
+    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'state', 'placeholder', 'fields']);
 const EDGE_KEYS = new Set(['id', 'edge', 'source', 'target', 'label', 'kind', 'tone', 'line', 'weight', 'arrow',
     'muted', 'state', 'fields']);
 
@@ -126,6 +127,8 @@ function node(raw) {
     const shape = text(raw.shape);
     if (shape && !own(SHAPES, shape)) warnOnce('shape:' + shape, `"${shape}" is not a shape; drawing a circle.`);
     const display = text(raw.display);
+    // A place a record can go: its "+" unless the app chose another icon.
+    const placeholder = flag(raw.placeholder);
     return {
         id,
         label: text(raw.label) ?? id,
@@ -133,7 +136,7 @@ function node(raw) {
         tone: toneOf(raw.tone),
         tones,
         shape: shape ? (own(SHAPES, shape) || null) : null,
-        icon: text(raw.icon),
+        icon: text(raw.icon) ?? (placeholder ? 'ri-add-line' : null),
         group: text(raw.group),
         cluster: text(raw.cluster),
         parent: text(raw.parent),
@@ -148,6 +151,7 @@ function node(raw) {
         y: number(raw.y),
         display: display === 'box' || display === 'dot' ? display : null,
         state: stateOf(raw.state),
+        placeholder,
         fields,
     };
 }

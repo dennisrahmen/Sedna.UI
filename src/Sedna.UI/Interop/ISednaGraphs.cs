@@ -72,7 +72,7 @@ public interface ISednaGraphs
     /// Changes how the graph is drawn: <c>labels</c> (auto, all, none), <c>edge-labels</c> (always,
     /// hover, none), <c>colour</c> (a name from <see cref="SednaGraphNode.Tones"/>, or <c>tone</c>),
     /// <c>nodes</c> (dot, box), <c>curve</c>, <c>arrows</c>, <c>spacing</c>, <c>direction</c>,
-    /// <c>layout</c> or <c>depth</c>.
+    /// <c>layout</c>, <c>depth</c>, or <c>zoom</c> (a percentage of the drawing's own size).
     /// </summary>
     Task SetOptionAsync(string graphId, string option, string value, CancellationToken cancellationToken = default);
 

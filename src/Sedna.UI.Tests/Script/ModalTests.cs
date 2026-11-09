@@ -242,4 +242,74 @@ public class ModalTests : ScriptTestBase
 
         Assert.Equal("resolved:null", outcome);
     }
+
+    // ── data-modeless ───────────────────────────────────────────────────────
+
+    private const string ModelessFixture = """
+        <button type="button" id="behind" onclick="window.behindClicks = (window.behindClicks || 0) + 1">Next order</button>
+        <dialog id="filters" class="drawer" data-modeless>
+            <div class="drawer-header"><h3>Filter the queue</h3></div>
+            <div class="drawer-body">
+                <input class="form-input" id="status" aria-label="Status">
+                <form method="dialog"><button class="btn" id="done" value="done">Done</button></form>
+            </div>
+        </dialog>
+        """;
+
+    private const string ShowFilters = "() => { window.__settled = undefined; sednaUi.modal.show('filters').then(v => { window.__settled = 'settled:' + v; }); }";
+
+    [Fact]
+    public async Task A_modeless_drawer_opens_without_a_modal_and_leaves_the_page_usable()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(ModelessFixture);
+
+        await Js.Run(page, ShowFilters);
+        Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('filters').open"));
+        // show(), not showModal(): nothing is inert behind it and there is no backdrop.
+        Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('filters').matches(':modal')"));
+        await Assertions.Expect(page.Locator("#filters")).ToBeVisibleAsync();
+
+        await page.Locator("#behind").ClickAsync();
+        Assert.Equal(1, await page.EvaluateAsync<int>("() => window.behindClicks || 0"));
+        Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('filters').open"));
+
+        // Awaited the same way: the dialog-method button's value is the answer.
+        await page.Locator("#done").ClickAsync();
+        Assert.Equal("settled:done", await Settled(page));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task Escape_inside_a_modeless_drawer_closes_it_and_a_guarded_one_asks_first()
+    {
+        if (NoBrowser) return;
+        var page = await Open(ModelessFixture);
+
+        await Js.Run(page, ShowFilters);
+        await page.Locator("#status").FocusAsync();
+        await page.Keyboard.PressAsync("Escape");
+        Assert.Equal("settled:null", await Settled(page));
+
+        // Guarded, the Escape is a close request the app answers: it raises cancel and stays open.
+        await Js.Run(page, """
+            () => {
+                const d = document.getElementById('filters');
+                d.setAttribute('data-close-guard', '');
+                window.asked = 0;
+                d.addEventListener('cancel', () => window.asked++);
+            }
+            """);
+        await Js.Run(page, ShowFilters);
+        await page.Locator("#status").FocusAsync();
+        await page.Keyboard.PressAsync("Escape");
+        await page.WaitForFunctionAsync("() => window.asked === 1");
+        Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('filters').open"));
+
+        // Escape with the focus elsewhere on the page is not the drawer's.
+        await page.Locator("#behind").FocusAsync();
+        await page.Keyboard.PressAsync("Escape");
+        await Js.Frames(page);
+        Assert.Equal(1, await page.EvaluateAsync<int>("() => window.asked"));
+    }
 }

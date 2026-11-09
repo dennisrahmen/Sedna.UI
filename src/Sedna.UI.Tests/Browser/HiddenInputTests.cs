@@ -14,6 +14,8 @@ public class HiddenInputTests : ScriptTestBase
     {
         { "dropzone", """<label class="dropzone" data-dropzone><input type="file" multiple class="visually-hidden" id="hidden"><i class="ri-upload-cloud-2-line"></i> <span>Drop files here, or click to choose</span></label>""" },
         { "form-file", """<label class="form-file"><input type="file" id="hidden"><span class="btn"><i class="ri-attachment-2"></i> <span>Choose a file</span></span></label>""" },
+        { "rating", """<div class="rating" role="radiogroup" aria-label="Rate the hand-over"><label class="rating-star"><input type="radio" name="r" id="hidden" aria-label="1 star"></label><label class="rating-star"><input type="radio" name="r" aria-label="2 stars"></label></div>""" },
+        { "rating-half", """<div class="rating" role="radiogroup" aria-label="Rate the fit"><span class="rating-star"><label class="rating-half"><input type="radio" name="h" id="hidden" aria-label="Half a star"></label><label class="rating-half"><input type="radio" name="h" aria-label="1 star"></label></span></div>""" },
     };
 
     [Theory]

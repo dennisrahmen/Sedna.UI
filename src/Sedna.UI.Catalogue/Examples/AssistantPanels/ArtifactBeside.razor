@@ -1,0 +1,51 @@
+<div class="sedna-split sedna-split--lg sedna-split--stack-md">
+    <div class="chat" role="log" aria-label="Conversation with Ops agent">
+        <div class="chat-message chat-message--mine">
+            <div class="chat-body">
+                <div class="chat-bubble">Write the query that releases holds older than two days.</div>
+            </div>
+        </div>
+        <div class="chat-message chat-message--agent">
+            <span class="agent-avatar agent-avatar--sm" role="img" aria-label="Ops agent"></span>
+            <div class="chat-body">
+                <div class="chat-bubble">
+                    <p>Here it is, beside the conversation. It only touches holds with no open pick, so nothing already on a belt is released.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="artifact sedna-split-aside" aria-labelledby="art-sql-title">
+        <header class="artifact-head">
+            <div class="artifact-head-text">
+                <h3 class="artifact-title" id="art-sql-title">release_old_holds.sql</h3>
+                <p>Releases holds older than 48 hours</p>
+            </div>
+            <div class="artifact-actions">
+                <span class="chat-versions">
+                    <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Previous version"><i class="ri-arrow-left-s-line"></i></button>
+                    <span>2 / 3</span>
+                    <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Next version"><i class="ri-arrow-right-s-line"></i></button>
+                </span>
+                <button class="btn btn--sm btn--ghost btn--icon" type="button" data-copy-target="#art-sql-code" aria-label="Copy the query">
+                    <i class="ri-file-copy-line"></i>
+                </button>
+                <a class="btn btn--sm btn--ghost btn--icon" href="#" download="release_old_holds.sql" aria-label="Download the query"><i class="ri-download-2-line"></i></a>
+                <a class="btn btn--sm btn--ghost btn--icon" href="#" target="_blank" aria-label="Open the query in a new tab"><i class="ri-external-link-line"></i></a>
+            </div>
+        </header>
+        <div class="artifact-body artifact-body--flush">
+            <div class="code-block code-block--flush">
+                <pre id="art-sql-code"><code>UPDATE holds
+   SET state = 'released',
+       released_at = now()
+ WHERE state = 'held'
+   AND created_at &lt; now() - interval '48 hours'
+   AND NOT EXISTS (
+       SELECT 1 FROM picks
+        WHERE picks.order_id = holds.order_id
+          AND picks.state = 'open');</code></pre>
+            </div>
+        </div>
+    </section>
+</div>

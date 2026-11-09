@@ -1,0 +1,51 @@
+{
+  "$description": "Sedna.UI design tokens for :root inside @media (prefers-contrast: more). Load after the files in load.",
+  "$extensions": {
+    "com.sedna-ui": {
+      "selector": ":root",
+      "media": "(prefers-contrast: more)",
+      "load": [
+        "Sedna.UI.tokens.dtcg.json"
+      ],
+      "cssOnly": {}
+    }
+  },
+  "border": {
+    "border": {
+      "$type": "color",
+      "$value": "{slate.slate-400}"
+    },
+    "border-strong": {
+      "$type": "color",
+      "$value": "{slate.slate-300}"
+    }
+  },
+  "divider": {
+    "divider": {
+      "$type": "color",
+      "$value": "{slate.slate-500}"
+    }
+  },
+  "fg": {
+    "fg-soft": {
+      "$type": "color",
+      "$value": "{white.white}"
+    }
+  },
+  "muted": {
+    "muted": {
+      "$type": "color",
+      "$value": "{slate.slate-300}"
+    }
+  },
+  "surface": {
+    "surface-soft": {
+      "$type": "color",
+      "$value": "{slate.slate-900}"
+    },
+    "surface-strong": {
+      "$type": "color",
+      "$value": "{slate.slate-800}"
+    }
+  }
+}

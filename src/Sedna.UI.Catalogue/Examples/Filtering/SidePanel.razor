@@ -1,0 +1,73 @@
+<div class="sedna-split" style="--split-aside: 15rem">
+    <aside class="card sedna-split-aside" aria-labelledby="fp-title">
+        <div class="card-head">
+            <h3 id="fp-title">Filters</h3>
+        </div>
+        <form class="card-body" id="fp-form" aria-labelledby="fp-title">
+            <fieldset class="form-section">
+                <legend>Status</legend>
+                <div class="form-section-body">
+                    <label class="form-check"><input type="checkbox" checked /> <span>Open</span> <span class="form-check-count">412</span></label>
+                    <label class="form-check"><input type="checkbox" checked /> <span>Held</span> <span class="form-check-count">38</span></label>
+                    <label class="form-check"><input type="checkbox" /> <span>Shipped</span> <span class="form-check-count">1,206</span></label>
+                    <label class="form-check"><input type="checkbox" disabled /> <span>Cancelled</span> <span class="form-check-count">0</span></label>
+                </div>
+            </fieldset>
+            <fieldset class="form-section">
+                <legend>Region</legend>
+                <div class="form-section-body">
+                    <label class="form-check"><input type="checkbox" checked /> <span>EU-West</span> <span class="form-check-count">301</span></label>
+                    <label class="form-check"><input type="checkbox" /> <span>EU-Central</span> <span class="form-check-count">97</span></label>
+                    <label class="form-check"><input type="checkbox" /> <span>US-East</span> <span class="form-check-count">52</span></label>
+                </div>
+            </fieldset>
+            <fieldset class="form-section">
+                <legend>Amount</legend>
+                <div class="input-group input-group--sm">
+                    <input class="form-input" type="number" value="100" placeholder="Min" aria-label="Lowest amount" />
+                    <span class="input-affix">–</span>
+                    <input class="form-input" type="number" placeholder="Max" aria-label="Highest amount" />
+                </div>
+            </fieldset>
+        </form>
+        <div class="card-foot card-foot--split">
+            <button class="btn btn--sm btn--ghost" type="reset" form="fp-form">Reset</button>
+            <button class="btn btn--sm btn--brand btn--solid" type="submit" form="fp-form">Show 302 orders</button>
+        </div>
+    </aside>
+
+    <div class="sedna-col">
+        <div class="toolbar">
+            <div class="toolbar-filters">
+                <span class="chip chip--active">
+                    <span class="chip-label">Status: Open, Held</span>
+                    <button class="chip-dismiss" type="button" aria-label="Remove the status filter"><i class="ri-close-line"></i></button>
+                </span>
+                <span class="chip chip--active">
+                    <span class="chip-label">Region: EU-West</span>
+                    <button class="chip-dismiss" type="button" aria-label="Remove the region filter"><i class="ri-close-line"></i></button>
+                </span>
+                <span class="chip chip--active">
+                    <span class="chip-label">Amount: from 100</span>
+                    <button class="chip-dismiss" type="button" aria-label="Remove the amount filter"><i class="ri-close-line"></i></button>
+                </span>
+                <button class="btn btn--sm btn--ghost" type="button"><i class="ri-filter-off-line"></i> <span>Clear all</span></button>
+            </div>
+            <div class="toolbar-actions">
+                <span class="toolbar-count">302 of 1,656 orders</span>
+            </div>
+        </div>
+        <div class="card">
+            <table class="table">
+                <thead>
+                    <tr><th>Order</th><th>Customer</th><th>Status</th><th class="col-num">Amount</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>ORD-4209</td><td>Alex Fischer</td><td><span class="badge badge--info">Open</span></td><td class="col-num">318.50</td></tr>
+                    <tr><td>ORD-4204</td><td>Priya Nair</td><td><span class="badge badge--warn">Held</span></td><td class="col-num">142.00</td></tr>
+                    <tr><td>ORD-4187</td><td>Jordan Weiss</td><td><span class="badge badge--info">Open</span></td><td class="col-num">489.90</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

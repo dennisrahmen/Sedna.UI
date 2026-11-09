@@ -25,6 +25,7 @@
     function setOpen(toggle, panel, open) {
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        if (open) startFilter(panel);
         // A render that removes the toggle of an open menu leaves the panel pointing at
         // nothing; it closes, as a hint does when its trigger goes.
         if (open && ui._.layer) {
@@ -39,6 +40,14 @@
             var panel = panelOf(toggles[i]);
             if (panel) setOpen(toggles[i], panel, false);
         }
+    }
+
+    /* On a phone a dropdown is a bottom sheet (58-menu.css), and the page above it is
+       the panel's own ::before: a press there is on the panel element and outside its box,
+       which is a press outside the menu. */
+    function outside(panel, e) {
+        var r = panel.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
     }
 
     ui.menu = {
@@ -67,7 +76,8 @@
         var item = e.target.closest('.menu-item');
         if (item && item.hasAttribute('data-menu-sub')) return;
         if (item) { closeAll(null); return; }
-        if (e.target.closest('.menu')) return;
+        var menu = e.target.closest('.menu');
+        if (menu && !(e.target === menu && outside(menu, e))) return;
 
         closeAll(null);
     });
@@ -76,6 +86,8 @@
         if (e.key !== 'Escape') return;
         var open = document.querySelector('[data-menu-toggle][aria-expanded="true"]');
         if (!open) return;
+        // The Escape closed the menu, and nothing else: not a dialog or a drawer it is in.
+        e.preventDefault();
         closeAll(null);
         // Focus goes back to the control that opened it. Without this, focus is left
         // on a node that has just been hidden and the next Tab starts from the top
@@ -111,8 +123,9 @@
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
         var menu = item ? item.closest('.menu') : null;
         if (!menu) return;
-        var list = items(menu), at = list.indexOf(item), next = null;
+        var list = items(menu), at = list.indexOf(item), next = null, filter = filterOf(menu);
         if (e.key === 'ArrowDown') next = list[(at + 1) % list.length];
+        else if (e.key === 'ArrowUp' && at === 0 && filter) next = filter;
         else if (e.key === 'ArrowUp') next = list[(at - 1 + list.length) % list.length];
         else if (e.key === 'Home') next = list[0];
         else if (e.key === 'End') next = list[list.length - 1];
@@ -122,10 +135,98 @@
         } else if (e.key === (getComputedStyle(menu).direction === 'rtl' ? 'ArrowRight' : 'ArrowLeft') && menu.classList.contains('menu-sub')) {
             var opener = menu.parentElement && menu.parentElement.querySelector(':scope > [data-menu-sub]');
             if (opener) { setSub(opener, false); next = opener; }
+        } else if (e.key.length === 1 && e.key !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            // A letter goes to the next item whose label starts with it, as in a platform menu.
+            if (!typed.has(menu)) typed.set(menu, {});
+            next = ui._.typeahead(typed.get(menu), e.key, list, item, labelOf);
         }
         if (!next) return;
         e.preventDefault();
         next.focus();
+    });
+
+    var typed = new WeakMap();   // a menu -> the letters typed into it so far
+
+    function labelOf(item) { return item.getAttribute('data-label') || item.textContent; }
+
+    /* ── A menu that filters ───────────────────────────────────────────────
+       An `<input data-menu-filter>` the app writes inside a `.menu` narrows its items as
+       the reader types, ranked by the same matcher as the palette (ui._.score): an item
+       that does not match is `hidden`, and so is a `.menu-label` or a `.menu-sep` with
+       nothing left under it. The panel carries `data-menu-empty` while nothing matches,
+       which shows the app's own `.menu-empty` row. The menu opens with the filter empty
+       and focused; Down moves to the first item and Up from it comes back, Enter chooses
+       the first item, and the arrows skip what is hidden. Submenus are not searched. */
+    function filterOf(menu) {
+        var f = menu.querySelector('[data-menu-filter]');
+        return f && f.closest('.menu') === menu ? f : null;
+    }
+
+    function own(menu, el) { return el.closest('.menu') === menu; }
+
+    function applyFilter(input) {
+        var menu = input.closest('.menu');
+        if (!menu) return;
+        var query = input.value.trim(), shown = 0;
+        var all = menu.querySelectorAll('.menu-item');
+        for (var i = 0; i < all.length; i++) {
+            if (!own(menu, all[i])) continue;
+            var match = !query || ui._.score(query, String(labelOf(all[i]) || '').trim(), 0) >= 0;
+            all[i].hidden = !match;
+            if (match) shown++;
+        }
+        // A child that holds items — a submenu's anchor — goes with them, and a heading or
+        // a rule goes with the items after it, up to the next one.
+        var kids = menu.children, group = [], live = false;
+        function close() {
+            for (var g = 0; g < group.length; g++) {
+                // A rule divides groups the filter has already mixed; a heading stays over what is left of its own.
+                group[g].hidden = !!query && (group[g].classList.contains('menu-sep') || !live);
+            }
+            group = []; live = false;
+        }
+        for (var k = 0; k < kids.length; k++) {
+            var kid = kids[k];
+            if (kid.classList.contains('menu-label') || kid.classList.contains('menu-sep')) { close(); group.push(kid); continue; }
+            if (kid.classList.contains('menu-item')) { if (!kid.hidden) live = true; continue; }
+            var inner = Array.prototype.filter.call(kid.querySelectorAll('.menu-item'), function (el) { return own(menu, el); });
+            if (!inner.length) continue;
+            var visible = inner.some(function (el) { return !el.hidden; });
+            kid.hidden = !visible;
+            if (visible) live = true;
+        }
+        close();
+        if (query && !shown) menu.setAttribute('data-menu-empty', ''); else menu.removeAttribute('data-menu-empty');
+    }
+
+    /* Opening starts from the whole list, with the reader typing. The value is cleared
+       through an input event, so a Blazor binding on the filter hears it. */
+    function startFilter(menu) {
+        var filter = filterOf(menu);
+        if (!filter) return false;
+        if (filter.value) {
+            filter.value = '';
+            filter.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+            applyFilter(filter);
+        }
+        try { filter.focus(); } catch (err) { /* not focusable */ }
+        return true;
+    }
+
+    document.addEventListener('input', function (e) {
+        var filter = e.target instanceof Element && e.target.hasAttribute('data-menu-filter') ? e.target : null;
+        if (filter) applyFilter(filter);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        var filter = e.target instanceof Element && e.target.hasAttribute('data-menu-filter') ? e.target : null;
+        var menu = filter ? filter.closest('.menu') : null;
+        if (!menu || e.isComposing) return;
+        var first = items(menu)[0];
+        if (!first) return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); first.focus(); }
+        else if (e.key === 'Enter') { e.preventDefault(); first.click(); }
     });
 
     /* A submenu says it is open while the pointer or the focus is in it. The CSS opens it
@@ -205,6 +306,7 @@
         if (on) on.setAttribute('data-menu-context-target', '');
         try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* closed */ }
         try { panel.showPopover(); } catch (err2) { return; }
+        if (startFilter(panel)) return;
         var first = items(panel)[0];
         if (first) first.focus();
     }

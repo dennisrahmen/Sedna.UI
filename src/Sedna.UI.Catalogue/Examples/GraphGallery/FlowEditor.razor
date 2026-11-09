@@ -1,0 +1,44 @@
+<div class="graph-frame" data-graph-frame>
+    <div class="toolbar">
+        <strong>New-order flow</strong>
+        <span class="badge badge--ghost"><i class="ri-draft-line"></i> <span>Draft</span></span>
+        <span class="toolbar-count" data-graph-stats="{nodes} steps · {edges} links"></span>
+    </div>
+    <div class="graph card" data-graph id="flow-editor" data-graph-layout="dagre" data-graph-direction="LR" data-graph-nodes="box"
+         data-graph-arrows="target" data-graph-edge-labels="none" data-graph-drag="false" data-graph-managed
+         aria-label="New-order flow, being edited" aria-roledescription="automation flow">
+        <ul class="graph-data" data-graph-data>
+            <li data-node="order" data-tone="1" data-icon="ri-shopping-cart-2-line" data-meta="Trigger">Order placed</li>
+            <li data-node="stock" data-tone="2" data-icon="ri-archive-line" data-meta="Lookup">Check stock</li>
+            <li data-node="pay" data-tone="3" data-icon="ri-bank-card-line" data-meta="Action">Take payment</li>
+            <li data-node="pick" data-tone="3" data-icon="ri-inbox-archive-line" data-meta="Action">Send to the warehouse</li>
+            <li data-node="mail" data-tone="3" data-icon="ri-mail-send-line" data-meta="Action">Confirm by email</li>
+            <li data-node="add-next" data-placeholder>Add a step</li>
+
+            <li data-edge data-source="order" data-target="stock" data-kind="flow">A new order's lines are checked against the stock.</li>
+            <li data-edge data-source="stock" data-target="pay" data-kind="flow">Once every line is in stock, the payment is taken.</li>
+            <li data-edge data-source="pay" data-target="pick" data-kind="flow">A paid order is sent to the warehouse.</li>
+            <li data-edge data-source="pay" data-target="mail" data-kind="flow">A paid order is confirmed to the customer.</li>
+            <li data-edge data-source="pick" data-target="add-next" data-line="dashed">A step can be added after the warehouse.</li>
+        </ul>
+        <div class="graph-canvas"></div>
+        <template data-graph-edge-tool="flow">
+            <span class="graph-edge-tool">
+                <button class="btn btn--ghost btn--sm btn--icon" type="button" value="remove" data-tip="Remove the link">
+                    <i class="ri-close-line" aria-hidden="true"></i>
+                    <span class="visually-hidden">Remove the link from <span data-graph-field="source"></span> to <span data-graph-field="target"></span></span>
+                </button>
+            </span>
+        </template>
+        <div class="graph-tools" role="toolbar" aria-label="View">
+            <button class="btn btn--ghost btn--sm btn--icon" type="button" data-graph-action="fit" aria-label="Fit to the frame" data-tip="Fit to the frame"><i class="ri-focus-3-line"></i></button>
+        </div>
+        <div class="graph-wait skeleton skeleton-block"></div>
+    </div>
+    <div class="graph-legend" role="group" aria-label="Steps">
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-1"></span> <span>Trigger</span></span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-2"></span> <span>Lookup</span></span>
+        <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-3"></span> <span>Action</span></span>
+        <span class="graph-key"><span class="graph-line graph-line--dashed"></span> <span>Where a step can go</span></span>
+    </div>
+</div>

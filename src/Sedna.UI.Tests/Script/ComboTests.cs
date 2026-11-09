@@ -550,4 +550,178 @@ public class ComboTests : ScriptTestBase
         Assert.True(m.GetProperty("nameLeft").GetDouble() < 20);
         Assert.Empty(errors);
     }
+
+    // ── Tree select ────────────────────────────────────────────────────────────
+
+    private static string TreeItem(string value, string label, string attributes = "", string children = "") =>
+        $"""
+        <li role="treeitem" id="t-{value}" data-value="{value}" {attributes}>
+            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-label">{label}</span></span>
+            {(children.Length > 0 ? $"<ul role=\"group\">{children}</ul>" : "")}
+        </li>
+        """;
+
+    /// <summary>North (open) › Aisle 1, Aisle 2; South (closed) › Cold store; Returns.</summary>
+    private static string TreePanel(string pick = "aria-selected=\"false\"", string treeAttributes = "") =>
+        $"""
+        <div class="form-combo-panel">
+            <ul class="tree" id="list" role="tree" aria-label="Locations" {treeAttributes}>
+                {TreeItem("north", "North hub", $"aria-expanded=\"true\" {pick}",
+                    TreeItem("a1", "Aisle 1", pick) + TreeItem("a2", "Aisle 2", pick))}
+                {TreeItem("south", "South hub", $"aria-expanded=\"false\" {pick}", TreeItem("cold", "Cold store", pick))}
+                {TreeItem("returns", "Returns centre", pick)}
+            </ul>
+            <div class="form-combo-empty">Nothing matches.</div>
+        </div>
+        """;
+
+    private const string Active = "() => q.getAttribute('aria-activedescendant')";
+
+    private static Task<string> TreeAttr(Microsoft.Playwright.IPage page, string id, string name) =>
+        page.EvaluateAsync<string>($"() => document.querySelector('#{id}').getAttribute('{name}')");
+
+    [Fact]
+    public async Task A_tree_select_walks_opens_and_picks_from_the_input_and_shows_the_pick()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Field("single", chips: "<span class=\"form-combo-value\"></span>",
+            attributes: "data-combo-managed", panel: "<input type=\"hidden\" data-combo-field>" + TreePanel()));
+        await Js.Run(page, "() => { window.log = []; document.addEventListener('sedna-tree-select', e => log.push(e.detail.item)); }");
+
+        await page.Locator("#q").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal("t-north", await page.EvaluateAsync<string>(Active));
+
+        // The closed branch's child is skipped; the open one's are walked.
+        await page.Keyboard.PressAsync("ArrowDown");
+        await page.Keyboard.PressAsync("ArrowDown");
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal("t-south", await page.EvaluateAsync<string>(Active));
+
+        // → opens the branch while nothing is typed, then enters it; focus never leaves the input.
+        await page.Keyboard.PressAsync("ArrowRight");
+        Assert.Equal("true", await TreeAttr(page, "t-south", "aria-expanded"));
+        await page.Keyboard.PressAsync("ArrowRight");
+        Assert.Equal("t-cold", await page.EvaluateAsync<string>(Active));
+        Assert.True(await page.EvaluateAsync<bool>("() => document.activeElement === q"));
+
+        await page.Keyboard.PressAsync("Enter");
+        var state = await page.EvaluateAsync<JsonElement>("""
+            () => ({
+                open: q.getAttribute('aria-expanded'),
+                shown: document.querySelector('.form-combo-value').textContent,
+                field: document.querySelector('[data-combo-field]').value,
+                picked: [...document.querySelectorAll('[aria-selected=true]')].map(i => i.id),
+                log: window.log
+            })
+            """);
+        Assert.Equal("false", state.GetProperty("open").GetString());
+        Assert.Equal("Cold store", state.GetProperty("shown").GetString());
+        Assert.Equal("cold", state.GetProperty("field").GetString());
+        Assert.Equal(["t-cold"], state.GetProperty("picked").EnumerateArray().Select(e => e.GetString()!).ToArray());
+        Assert.Equal(["cold"], state.GetProperty("log").EnumerateArray().Select(e => e.GetString()!).ToArray());
+
+        // Reopened, the keyboard starts on the pick.
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal("t-cold", await page.EvaluateAsync<string>(Active));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task Right_and_left_in_a_tree_select_are_mirrored_in_RTL_and_are_the_text_fields_once_something_is_typed()
+    {
+        if (NoBrowser) return;
+        var page = await Open($"<div dir=\"rtl\">{Field("single", panel: TreePanel())}</div>");
+        await page.Locator("#q").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowDown");
+        for (var i = 0; i < 3; i++) await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal("t-south", await page.EvaluateAsync<string>(Active));
+
+        await page.Keyboard.PressAsync("ArrowRight");
+        Assert.Equal("false", await TreeAttr(page, "t-south", "aria-expanded"));
+        await page.Keyboard.PressAsync("ArrowLeft");
+        Assert.Equal("true", await TreeAttr(page, "t-south", "aria-expanded"));
+        await page.Keyboard.PressAsync("ArrowLeft");
+        Assert.Equal("t-cold", await page.EvaluateAsync<string>(Active));
+        await page.Keyboard.PressAsync("ArrowRight");
+        Assert.Equal("t-south", await page.EvaluateAsync<string>(Active));
+
+        // With a query the arrows move the caret in it, and the tree is left alone.
+        await page.Keyboard.TypeAsync("so");
+        await page.Keyboard.PressAsync("ArrowRight");
+        // South is the first match, and → is the key that would close it in RTL.
+        Assert.Equal("t-south", await page.EvaluateAsync<string>(Active));
+        Assert.Equal("true", await TreeAttr(page, "t-south", "aria-expanded"));
+    }
+
+    [Fact]
+    public async Task Typing_in_a_tree_select_keeps_a_match_with_its_parents_and_opens_them()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Field("single", panel: TreePanel()));
+        await page.Locator("#q").FocusAsync();
+        await page.Keyboard.TypeAsync("cold");
+
+        const string Shown = """
+            () => [...document.querySelectorAll('[role=treeitem]')]
+                .filter(i => i.getBoundingClientRect().height > 0).map(i => i.dataset.value)
+            """;
+        Assert.Equal(["south", "cold"], await page.EvaluateAsync<string[]>(Shown));
+        Assert.Equal("t-cold", await page.EvaluateAsync<string>(Active));
+        Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('.form-combo-empty')).display"));
+
+        // Nothing matches: the panel says so.
+        await page.Keyboard.TypeAsync("zz");
+        Assert.Equal("flex", await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('.form-combo-empty')).display"));
+
+        // Cleared and opened again, every item is back.
+        await page.Keyboard.PressAsync("Escape");
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => document.querySelectorAll('[role=treeitem][hidden]').length"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_managed_tree_select_that_ticks_shows_a_whole_branch_as_one_chip_and_unticks_by_its_dismiss()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Field("multi", attributes: "data-combo-managed",
+            panel: TreePanel("aria-checked=\"false\"", "aria-multiselectable=\"true\"") + Template));
+
+        await page.Locator("#q").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowDown");
+        // Enter on North ticks it and both its aisles; the list stays open for more.
+        await page.Keyboard.PressAsync("Enter");
+
+        const string Chips = "() => [...document.querySelectorAll('.form-combo-box > .chip')].map(c => c.getAttribute('data-value'))";
+        Assert.Equal(["north"], await page.EvaluateAsync<string[]>(Chips));
+        Assert.Equal("true", await page.EvaluateAsync<string>("() => q.getAttribute('aria-expanded')"));
+        Assert.Equal("true", await TreeAttr(page, "t-a2", "aria-checked"));
+
+        // Unticking one aisle leaves the other as the pick.
+        await page.Locator("#t-a1 > .tree-row").ClickAsync();
+        Assert.Equal(["a2"], await page.EvaluateAsync<string[]>(Chips));
+        Assert.Equal("mixed", await TreeAttr(page, "t-north", "aria-checked"));
+
+        // A chip's dismiss unticks what it stands for.
+        await page.Locator(".chip[data-value=a2] .chip-dismiss").ClickAsync();
+        Assert.Empty(await page.EvaluateAsync<string[]>(Chips));
+        Assert.Equal("false", await TreeAttr(page, "t-north", "aria-checked"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_click_on_a_tree_select_caret_opens_the_branch_and_keeps_the_list_open()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled(Field("single", panel: TreePanel()));
+        await page.Locator("#q").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowDown");
+
+        await page.Locator("#t-south > .tree-row > .tree-toggle").ClickAsync();
+        Assert.Equal("true", await TreeAttr(page, "t-south", "aria-expanded"));
+        Assert.Equal("false", await TreeAttr(page, "t-south", "aria-selected"));
+        Assert.Equal("true", await page.EvaluateAsync<string>("() => q.getAttribute('aria-expanded')"));
+        Assert.True(await page.EvaluateAsync<bool>("() => document.activeElement === q"));
+    }
 }

@@ -66,6 +66,18 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Bars.StackBarMarked" Title="A target on a bar in parts, and its totals" Demo="ex-demo--block">
+    <p>
+        <code>.stack-bar-figure</code> holds a <code>.stack-bar</code> with the marks and labels a
+        bare bar has no room for. A target is the meter's own <code>.meter-mark</code> at
+        <code>--at</code>, with its <code>.meter-mark-label</code> over the bar and a
+        <code>data-tip</code> that says the whole target on hover. The
+        <code>.stack-bar-labels</code> line under the bar puts a <code>.stack-bar-label</code> on each
+        boundary, at the running total's <code>--at</code>, and a <code>.stack-bar-total</code> at the
+        end. The bar's label says every number, so the line of labels is <code>aria-hidden</code>.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Bars.Meter" Title="A value against its thresholds" Demo="ex-demo--block">
     <p>
         <code>.meter</code> differs from a <a href="/progress">progress bar</a> in what the marks
@@ -127,5 +139,26 @@
         same day. On a meter the previous value's line sits beside the threshold marks, so keep the
         legend. A <code>.stack-bar</code> takes no previous value: its parts are shares of one
         total, and two totals compare better as two stack bars, one above the other.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bars.Gauge" Title="A value on a dial" Demo="ex-demo--block">
+    <p>
+        <code>.gauge</code> is a half circle for a figure read against its range; <code>.gauge--arc</code>
+        is three quarters of a circle with the figure in the middle. The arc is
+        <code>--value</code>, as on a meter, and glides to a new one. Its colour is the same series
+        modifier, the brand by default. The figure is the app's text in a <code>.gauge-value</code>,
+        with an optional one-word <code>.gauge-label</code> under it; give the gauge
+        <code>role="img"</code> and a label that says the figure and what it is measured against.
+        Use a gauge where one figure is the point of a tile &mdash; a row of figures to compare reads
+        better as a <code>.bar-list</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Bars.GaugeSizes" Title="Three sizes of gauge" Demo="ex-demo--block">
+    <p>
+        <code>.gauge--sm</code>, the bare <code>.gauge</code> and <code>.gauge--lg</code> each scale
+        the ring, its thickness and the figure together, so a figure and a one-word caption fit inside
+        a half circle at every size.
     </p>
 </CatExample>

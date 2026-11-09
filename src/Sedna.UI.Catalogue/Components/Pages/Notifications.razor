@@ -1,0 +1,57 @@
+@page "/notifications"
+
+<CatHead Title="Notification inbox">
+    What happened while the reader was elsewhere, kept until they have seen it: a bell with the
+    unread count, opening a panel of notifications. A <a href="/toast">toast</a> says something
+    happened and goes; the inbox is where it can still be found afterwards.
+</CatHead>
+
+<CatExample TExample="Examples.Notifications.Inbox" Title="From the bell" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; open it.</strong> The panel is a <a href="/popover"><code>.popover</code></a>
+        with <code>.inbox</code>, opened by a <code>popovertarget</code> button, so the platform
+        places it, closes it on <kbd>Escape</kbd> and on a click outside, and returns the focus.
+        Give it <code>role="dialog"</code> and name it by its title. The tabs are
+        <a href="/tabs"><code>.tabs</code></a> with <code>.inbox-tabs</code>, and an item's
+        <kbd>&hellip;</kbd> is a <a href="/menu"><code>.menu</code></a> &mdash; mark as read,
+        snooze as a submenu, archive.
+    </p>
+    <p>
+        Each <code>.inbox-item</code> is who (an <a href="/avatar"><code>.avatar</code></a>, or an
+        icon in one for the system), what (<code>.inbox-item-title</code>, the link to what it is
+        about, which opens from anywhere on the row), detail (<code>.inbox-item-text</code>), when
+        (<code>.inbox-item-time</code> on a <code>&lt;time&gt;</code>) and what can be done
+        (<code>.inbox-item-actions</code>). <code>.inbox-item--unread</code> draws the dot and the
+        heavier title; say it in words too, with a <code>.visually-hidden</code> &ldquo;Unread&rdquo;
+        in the title. Which items are read, which tab is current and what the count says are all
+        your state &mdash; render them, and the classes paint them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Notifications.Bell" Title="The bell and its count" Demo="ex-demo--pad">
+    <p>
+        <code>.inbox-bell</code> holds the icon and an <code>.inbox-count</code> on its corner,
+        inside any button &mdash; a <code>.topbar-btn</code>, a <code>.btn--icon</code>. Cap a large
+        number yourself (<code>99+</code>); an empty count is a dot, for &ldquo;something new&rdquo;
+        without a number, and no count at all is nothing new. The count is hidden from assistive
+        technology, so put it in the button's name instead: <em>Notifications, 3 unread</em>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Notifications.CaughtUp" Title="Every tab says when it is empty" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A tab with nothing in it shows an <a href="/empty-state"><code>.empty-state</code></a> in the
+        list's place, in words for that tab &mdash; <em>all caught up</em> for Unread,
+        <em>nothing archived</em> for Archived &mdash; and <em>Mark all as read</em> is disabled
+        while there is nothing to mark. Out of a popover, written into a page or a
+        <a href="/drawer">drawer</a>, <code>.inbox</code> is the same block.
+    </p>
+</CatExample>
+
+<h2 id="arrives">When a notification arrives <CatAnchor Id="arrives" /></h2>
+<p class="cat-lede">
+    Update the count and add the item to the list; that is the record. To say so as it happens,
+    present it as a <a href="/toast#yours">toast you write</a> as well &mdash; but never only as a
+    toast, which goes on its own and can be missed. Something the reader must act on before anything
+    else is a <a href="/modal">dialog</a>, not a notification.
+</p>

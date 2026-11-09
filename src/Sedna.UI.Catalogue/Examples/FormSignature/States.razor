@@ -1,0 +1,35 @@
+<div class="sedna-grid sedna-grid--fit sedna-grid--lg" style="max-width:900px">
+    <div class="form-field">
+        <span class="form-label" id="sig-ro-label">Signed by Alex Fischer</span>
+        <div class="form-signature" data-signature>
+            <div class="form-signature-pad" data-signature-pad aria-labelledby="sig-ro-label">
+                <span class="form-signature-hint">Not signed</span>
+            </div>
+            <input type="hidden" name="signedSignature" data-signature-value readonly value="M140 165.5Q177.7 137.2 190.6 139.2Q203.5 141.2 207.5 157.8Q211.4 174.4 207.6 197.1Q203.7 219.8 197.1 237.6Q190.5 255.3 187.3 259.5Q184.1 263.7 189.1 252.5Q194 241.3 207.9 220.1Q221.7 198.8 240.9 177.7Q260 156.5 278.5 145.2Q296.9 133.9 308.9 137.4Q320.9 140.8 323.8 156.8Q326.7 172.7 322.3 193Q317.9 213.3 311.3 228.1Q304.7 242.8 302.3 244.9Q299.9 246.9 305.9 235.5Q311.9 224 326.5 204.6Q341.1 185.2 360.5 167Q379.9 148.7 397.9 140Q415.9 131.3 427 135.8Q438 140.2 440 155.1Q441.9 170.1 436.9 187.9Q431.9 205.6 425.5 217.5Q419.1 229.4 417.5 229.7Q415.9 230 422.9 218.8Q429.9 207.5 445.3 190.1Q460.7 172.6 480.3 157.3Q499.9 141.9 517.3 135.5Q534.7 129.1 544.8 134.2Q554.9 139.3 555.9 152.9Q556.9 166.5 551.5 181.6Q546 196.7 539.9 206Q533.7 215.2 532.9 214.2Q532 213.1 540.1 202.4Q548.1 191.7 564.3 176.5Q580.5 161.3 600.1 148.7Q619.7 136 636.6 131.6Q653.4 127.2 662.5 132.6Q671.5 137.9 671.6 149.9L671.7 161.8M180 262Q240 255.9 270 253.1Q300 250.2 330 247.8Q360 245.3 390 243.4Q420 241.5 450 240.3Q480 239 510 238.5Q540 237.9 570 238Q600 238.1 630 238.8Q660 239.4 690 240.5Q720 241.5 750 242.8L780 244M702 128L702 128" />
+            <div class="form-signature-actions">
+                <button class="btn btn--sm btn--ghost" type="button" data-signature-clear><i class="ri-eraser-line"></i> <span>Clear</span></button>
+            </div>
+        </div>
+        <p class="form-hint">Read-only: the signature shows in full, and the form still posts it.</p>
+    </div>
+    <div class="form-field">
+        <span class="form-label" id="sig-off-label">Witness</span>
+        <div class="form-signature" data-signature>
+            <div class="form-signature-pad" data-signature-pad aria-labelledby="sig-off-label">
+                <span class="form-signature-hint">Opens once the recipient has signed</span>
+            </div>
+            <input type="hidden" name="witnessSignature" data-signature-value disabled />
+        </div>
+        <p class="form-hint">Disabled: nothing can be drawn, and the form does not post it.</p>
+    </div>
+    <div class="form-field">
+        <span class="form-label" id="sig-bad-label">Signature</span>
+        <div class="form-signature" data-signature>
+            <div class="form-signature-pad" data-signature-pad aria-labelledby="sig-bad-label" aria-describedby="sig-bad-error">
+                <span class="form-signature-hint">Sign here</span>
+            </div>
+            <input type="hidden" name="requiredSignature" data-signature-value aria-invalid="true" />
+        </div>
+        <p class="form-error" id="sig-bad-error">Sign, or type your full name, to confirm the handover.</p>
+    </div>
+</div>

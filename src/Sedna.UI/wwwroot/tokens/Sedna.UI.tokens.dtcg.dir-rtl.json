@@ -1,0 +1,16 @@
+{
+  "$description": "Sedna.UI design tokens for :root[dir=\"rtl\"]. Load after the files in load.",
+  "$extensions": {
+    "com.sedna-ui": {
+      "selector": ":root[dir=\"rtl\"]",
+      "media": null,
+      "load": [
+        "Sedna.UI.tokens.dtcg.json"
+      ],
+      "cssOnly": {
+        "safe-inline-end": "env(safe-area-inset-left, 0px)",
+        "safe-inline-start": "env(safe-area-inset-right, 0px)"
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+<table class="table" role="grid" aria-label="Order ORD-4204, lines">
+    <thead>
+        <tr>
+            <th>Line</th>
+            <th>Store</th>
+            <th class="col-num">Quantity</th>
+            <th>Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Desk lamp</td>
+            <td>Northwind Retail<select class="cell-editor" aria-label="Store, desk lamp"><option selected>Northwind Retail</option><option>Northwind Outlet</option></select></td>
+            <td class="col-num" data-dirty>14<span class="visually-hidden">, changed</span><input class="cell-editor" type="number" value="14" min="1" aria-label="Quantity, desk lamp" /></td>
+            <td>Warm white<input class="cell-editor" value="Warm white" aria-label="Note, desk lamp" /></td>
+        </tr>
+        <tr>
+            <td>Monitor arm</td>
+            <td>Northwind Retail<select class="cell-editor" aria-label="Store, monitor arm"><option selected>Northwind Retail</option><option>Northwind Outlet</option></select></td>
+            <td class="col-num" aria-invalid="true">0<span class="visually-hidden" id="qty-arm-error">, must be at least 1</span><input class="cell-editor" type="number" value="0" min="1" aria-invalid="true" aria-describedby="qty-arm-error" aria-label="Quantity, monitor arm" /></td>
+            <td>Clamp mount<input class="cell-editor" value="Clamp mount" aria-label="Note, monitor arm" /></td>
+        </tr>
+        <tr>
+            <td>Footrest</td>
+            <td>Northwind Outlet<select class="cell-editor" aria-label="Store, footrest"><option>Northwind Retail</option><option selected>Northwind Outlet</option></select></td>
+            <td class="col-num">1<input class="cell-editor" type="number" value="1" min="1" aria-label="Quantity, footrest" /></td>
+            <td>Black<input class="cell-editor" value="Black" aria-label="Note, footrest" /></td>
+        </tr>
+    </tbody>
+</table>

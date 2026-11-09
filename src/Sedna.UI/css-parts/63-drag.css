@@ -75,10 +75,13 @@
     flex-direction: column;
     gap: var(--drop-gap);
 }
+/* `--drag-grid-min` is the narrowest a tile may be: 7.5rem for an icon and a word, wider
+   for a grid of cards — a dashboard the reader arranges. */
 .drag-grid {
     --drop-gap: var(--space-4);
+    --drag-grid-min: 7.5rem;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 7.5rem), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--drag-grid-min)), 1fr));
     gap: var(--drop-gap);
 }
 

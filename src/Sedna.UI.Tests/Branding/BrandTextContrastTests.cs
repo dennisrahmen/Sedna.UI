@@ -79,13 +79,24 @@ public class BrandTextContrastTests
         [".avatar"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over"] = (Ink.Text, ["--brand-tint"]),
         [".dropzone--over i"] = (Ink.Icon, ["--brand-tint"]),
+        [".file-batch-status"] = (Ink.Icon, ["--surface-soft"]),
         ["button.cal-mark[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
+        ["button.cal-more[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
+        // Today's agenda heading, on the heading's own shade.
+        [".cal-agenda-day[aria-current=\"date\"] > .cal-agenda-head"] = (Ink.Text, ["--surface-strong"]),
+        [".cal-agenda-day[aria-current=\"date\"] > .cal-agenda-head > .cal-agenda-date"] = (Ink.Text, ["--surface-strong"]),
+        [".app-switcher-item[aria-current]:not([aria-current=\"false\"])"] = (Ink.Text, ["--brand-tint"]),
+        [".app-switcher-icon"] = (Ink.Icon, ["--surface-soft"]),
         [".choice-tile:has(> input:checked) .choice-tile-art"] = (Ink.Icon, ["--brand-tint"]),
         ["[data-drop-state=\"valid\"][data-drop-over] > .drag-empty"] = (Ink.Text, ["--brand-tint"]),
         // A chosen row is tinted, and pointing at it or arrowing onto it deepens the tint — so
         // the label sits on either one.
         [".form-select option:checked"] = (Ink.Text, ["--brand-tint", "--brand-tint-strong"]),
         [".form-select option::checkmark"] = (Ink.Icon, ["--brand-tint", "--brand-tint-strong"]),
+        // A workflow's step to add, pointed at: on the tint it takes then.
+        [".workflow-node.workflow-node--add:hover"] = (Ink.Text, ["--brand-tint"]),
+        [".workflow-node.workflow-node--add:hover .workflow-node-title"] = (Ink.Text, ["--brand-tint"]),
+        [".workflow-node.workflow-node--add:hover .workflow-node-icon"] = (Ink.Icon, ["--brand-tint"]),
         [".tab--active"] = (Ink.Text, []),
         [".tab[aria-selected=\"true\"]"] = (Ink.Text, []),
         [".tab--active:hover"] = (Ink.Text, []),
@@ -120,6 +131,8 @@ public class BrandTextContrastTests
         [".chat-feedback > .btn[aria-pressed=\"true\"]"] = (Ink.Icon, []),
         ["a.stat:hover .stat-value"] = (Ink.Text, []),
         [".page-link[aria-current=\"page\"]"] = (Ink.Text, ["--brand-tint"]),
+        // The contents link to the section in view: text on the page's own ground, no tint.
+        [".page-toc-link[aria-current=\"location\"]"] = (Ink.Text, []),
         [".table th[aria-sort=\"ascending\"]"] = (Ink.Text, ["--table-head-bg"]),
         [".table th[aria-sort=\"descending\"]"] = (Ink.Text, ["--table-head-bg"]),
         // A filtered column's heading, on the header's ground; its header filter button, a glyph
@@ -128,7 +141,9 @@ public class BrandTextContrastTests
         [".th-filter--active"] = (Ink.Icon, ["--table-head-bg", "--brand-tint"]),
         [".th-filter--active:hover"] = (Ink.Icon, ["--table-head-bg", "--brand-tint"]),
         [".steps > li[data-state=\"current\"]::before"] = (Ink.Text, []),
-        [".tree-leaf[aria-current=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
+        // A tree's picked or current row, on the tint it fills with.
+        [".tree [aria-selected=\"true\"] > .tree-row"] = (Ink.Text, ["--brand-tint"]),
+        [".tree [aria-current]:not([aria-current=\"false\"]) > .tree-row"] = (Ink.Text, ["--brand-tint"]),
         [".palette-item[aria-selected=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".palette-item[aria-selected=\"true\"] i"] = (Ink.Icon, ["--brand-tint"]),
         [".editor-toolbar [aria-pressed=\"true\"]"] = (Ink.Text, ["--brand-tint"]),

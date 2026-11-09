@@ -1,0 +1,20 @@
+<button class="btn" type="button" onclick="sednaUi.modal.show('side-filters')">
+    <i class="ri-filter-3-line"></i> <span>Filters beside the list</span>
+</button>
+
+<dialog class="drawer" data-modeless id="side-filters" aria-labelledby="side-filters-title">
+    <div class="drawer-header">
+        <h3 id="side-filters-title">Filter the queue</h3>
+        <button class="modal-close" type="button" aria-label="Close"
+                onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="drawer-body">
+        <div class="form-field">
+            <label class="form-label" for="m-status">Status</label>
+            <select class="form-input form-select" id="m-status">
+                <option>Any</option><option selected>Waiting</option>
+            </select>
+        </div>
+        <p class="form-hint">The list behind stays usable while this is open.</p>
+    </div>
+</dialog>

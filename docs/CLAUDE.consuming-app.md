@@ -82,7 +82,9 @@ and request the token or variant upstream — see *Requesting a library change*.
 `ISednaUi.ToastAsync` returns a `SednaToast`. For work that ends later, show the running state with
 `timeoutMs: 0` and `ReplaceAsync` the outcome into it. Set `SednaUiOptions.ToastDismissLabel` in
 `AddSednaUi` when the app is not in English — the toast's close button is the only text the library
-writes. `SetTipsEnabledAsync(false)` switches hover hints off from a setting.
+writes. `ToastPile` and `ToastLimit` set the stack's shape for every toast. Nothing the reader needs or
+must act on lives only in a toast: it goes inline, in an `.alert`, or in the notification inbox.
+`SetTipsEnabledAsync(false)` switches hover hints off from a setting.
 
 ### State the markup cannot express
 
@@ -154,6 +156,18 @@ the `<dialog>`, point its close buttons at the same `Dismiss`, and have it ask a
 `Overlay.CancelAsync()`. Escape then never closes the dialog by itself. Do not write
 `@oncancel:preventDefault` — Razor renders it as a literal attribute and the render throws.
 
+A form holding unsaved work **asks before the page is left**: put `data-close-guard` on the `<form>` and
+render `data-dirty="@_dirty"` from the app's own comparison with what was saved. The browser then asks on
+a reload, a closed tab or a link out of the app. A link inside the app never unloads the page, so add
+`<NavigationLock OnBeforeInternalNavigation="ConfirmLeave" />` and, while dirty, open the app's own
+dialog with `ShowModalAsync(id, context.CancellationToken)` and call `context.PreventNavigation()`
+unless the reader chose to leave. Leave `ConfirmExternalNavigation` off. A long form's actions are a
+`.form-actions--sticky` row, or a `.form-actions--save-bar` that shows only under `data-dirty`.
+
+A session that ends on its own warns **two minutes** before the end, in an app-written
+`<dialog class="modal" role="alertdialog">` holding a `<time data-countdown>`; `@onsedna-countdown-end`
+closes it and signs out.
+
 A tour step is `ISednaUi.FollowSpotlightAsync(hole, target, options)`; dispose the `SednaSpotlight` it
 returns when the step ends.
 
@@ -199,6 +213,13 @@ Assert.True(SednaContract.Classes.ContainsKey("card-head"), ".card-head is not a
 `SednaContract.LatestRelease` is the newest release the history knows, so a test can say which
 version a class map was checked against.
 
+### Words
+
+Buttons are verbs and saving is **Save**; an empty state's headline says what to do; an error says
+what went wrong and how to fix it; status is never colour alone; sentence case; no "please"; numbers
+as digits; dates that cannot be read two ways. The full table is under **Writing the words** on
+<https://www.sedna-ui.com/concepts#words>.
+
 ### Do not style a class name the library owns
 
 Every class in the catalogue belongs to the library. If this app defines a rule for one of those names,
@@ -208,6 +229,10 @@ this repo.
 Before bumping the pinned version, read the class names the release adds and grep this app's stylesheets
 for each one. Where a name collides, delete the local rule and use the library's, or rename the local one
 into this app's own prefix.
+
+If this app runs Stylelint, extend the package's `tooling/stylelint/sedna-ui.stylelintrc.json`, copied
+beside this app's own config: it reports a selector naming a library class and a colour literal outside
+`brand.css`.
 
 ### Graphs
 
@@ -227,6 +252,8 @@ library ships the engine and loads it itself; the host page needs nothing added.
   `@onsedna-graph-*` events. Records that arrive by call want `data-graph-deferred`; a large graph wants
   `data-graph-src` or `SetDataAsync` rather than a Razor-rendered list.
 - **A link the reader draws is yours to add** (`@onsedna-graph-connect`), as a drop is.
+- **A button on a link is yours to act on** (`@onsedna-graph-edge`, with the button's `value`), and so is a
+  placeholder record opened (`@onsedna-graph-open`, `Placeholder` true): change your data and render.
 
 ### Workflows
 
@@ -245,6 +272,8 @@ the catalogue's Workflow pages. It is markup and classes; no script draws it.
 - **Write the structure, not positions.** A fork holds branches, a branch holds a path, a loop holds the
   path it repeats; the connectors are drawn from that. A flow too large to write by hand — generated from
   the automation's own definition — is a graph with `data-state` on its records instead.
+- **A step the reader adds** is a `<button class="workflow-node workflow-node--add">` in a step of its
+  own with no state, handled by your `@onclick`: it is dashed and unfilled, and so is the wire into it.
 - **A diagram that scrolls takes `tabindex="0"`**, so the keyboard can reach it, and `data-follow` keeps
   the step at work in view in one wider than its container.
 - **On a phone or a tablet held upright** the diagram runs down: `--down`, or `--auto` to run across on
@@ -386,3 +415,9 @@ The version is pinned and does not float. Before bumping it:
 2. Grep this app's stylesheets for every class name the release adds — see above.
 3. Check the pages this app renders, in each theme and variant (`data-theme`, `data-variant`,
    `data-cvd`, `data-density`).
+
+After bumping it, build. The package's class check warns `SEDNAUI001` for each use of a class a release
+renamed, with the classes that replace it, and `SEDNAUI002` for one it removed. Apply the renames with the
+package's script — `python3 -I ~/.nuget/packages/sedna.ui/<VERSION>/tooling/rename-classes.py --from
+<the previous version> --dry-run .` prints the diff, and without `--dry-run` it writes it. Replace a
+removed class by the release notes. Do not silence either warning to finish an upgrade.

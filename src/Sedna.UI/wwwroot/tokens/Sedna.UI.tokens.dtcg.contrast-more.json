@@ -1,0 +1,895 @@
+{
+  "$description": "Sedna.UI design tokens for :root[data-contrast=\"more\"]. Load after the files in load.",
+  "$extensions": {
+    "com.sedna-ui": {
+      "selector": ":root[data-contrast=\"more\"]",
+      "media": null,
+      "load": [
+        "Sedna.UI.tokens.dtcg.json"
+      ],
+      "cssOnly": {}
+    }
+  },
+  "accent": {
+    "accent": {
+      "$type": "color",
+      "$value": "{orbit.orbit-300}"
+    }
+  },
+  "agent": {
+    "agent-skeleton-cool": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.1732,
+          0.3057,
+          0.4158
+        ],
+        "hex": "#2c4e6a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--agent-to) 24%, var(--skeleton-bg))"
+        }
+      }
+    },
+    "agent-skeleton-warm": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3294,
+          0.2229,
+          0.2455
+        ],
+        "hex": "#54393f"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--agent-from) 24%, var(--skeleton-bg))"
+        }
+      }
+    },
+    "agent-trail": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "alpha": 0.3,
+        "hex": "#ffffff"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--fg) 30%, transparent)"
+        }
+      }
+    }
+  },
+  "backdrop": {
+    "backdrop": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": 0.85,
+        "hex": "#000000"
+      }
+    }
+  },
+  "badge": {
+    "badge-bg": {
+      "$type": "color",
+      "$value": "{slate.slate-800}"
+    },
+    "badge-cyan-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4588,
+          0.7647,
+          0.8225
+        ],
+        "hex": "#75c3d2"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-cyan-fg), var(--badge-cyan-bg) 25%)"
+        }
+      }
+    },
+    "badge-cyan-bg": {
+      "$type": "color",
+      "$value": "{cyan.cyan-900}"
+    },
+    "badge-cyan-bg-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.1101,
+          0.3981,
+          0.4448
+        ],
+        "hex": "#1c6671"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-cyan-bg), var(--badge-cyan-fg) 18%)"
+        }
+      }
+    },
+    "badge-cyan-bg-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0612,
+          0.3467,
+          0.3918
+        ],
+        "hex": "#105864"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-cyan-bg), var(--badge-cyan-fg) 10%)"
+        }
+      }
+    },
+    "badge-cyan-border": {
+      "$type": "color",
+      "$value": "{cyan.cyan-300}"
+    },
+    "badge-cyan-fg": {
+      "$type": "color",
+      "$value": "{cyan.cyan-200}"
+    },
+    "badge-cyan-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.52,
+          0.829,
+          0.8888
+        ],
+        "hex": "#85d3e3"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-cyan-fg), var(--badge-cyan-bg) 15%)"
+        }
+      }
+    },
+    "badge-orange-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8461,
+          0.6706,
+          0.5118
+        ],
+        "hex": "#d8ab82"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-orange-fg), var(--badge-orange-bg) 25%)"
+        }
+      }
+    },
+    "badge-orange-bg": {
+      "$type": "color",
+      "$value": "{orange.orange-900}"
+    },
+    "badge-orange-bg-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4951,
+          0.304,
+          0.1228
+        ],
+        "hex": "#7e4e1f"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-orange-bg), var(--badge-orange-fg) 18%)"
+        }
+      }
+    },
+    "badge-orange-bg-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4459,
+          0.2525,
+          0.0682
+        ],
+        "hex": "#724011"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-orange-bg), var(--badge-orange-fg) 10%)"
+        }
+      }
+    },
+    "badge-orange-border": {
+      "$type": "color",
+      "$value": "{orange.orange-300}"
+    },
+    "badge-orange-fg": {
+      "$type": "color",
+      "$value": "{orange.orange-200}"
+    },
+    "badge-orange-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.9076,
+          0.7349,
+          0.58
+        ],
+        "hex": "#e7bb94"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-orange-fg), var(--badge-orange-bg) 15%)"
+        }
+      }
+    },
+    "badge-teal-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4853,
+          0.7735,
+          0.7265
+        ],
+        "hex": "#7cc5b9"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-teal-fg), var(--badge-teal-bg) 25%)"
+        }
+      }
+    },
+    "badge-teal-bg": {
+      "$type": "color",
+      "$value": "{teal.teal-900}"
+    },
+    "badge-teal-bg-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.1165,
+          0.4092,
+          0.3711
+        ],
+        "hex": "#1e685f"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-teal-bg), var(--badge-teal-fg) 18%)"
+        }
+      }
+    },
+    "badge-teal-bg-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0647,
+          0.358,
+          0.3212
+        ],
+        "hex": "#105b52"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-teal-bg), var(--badge-teal-fg) 10%)"
+        }
+      }
+    },
+    "badge-teal-border": {
+      "$type": "color",
+      "$value": "{teal.teal-300}"
+    },
+    "badge-teal-fg": {
+      "$type": "color",
+      "$value": "{teal.teal-200}"
+    },
+    "badge-teal-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.55,
+          0.8375,
+          0.7888
+        ],
+        "hex": "#8cd6c9"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--badge-teal-fg), var(--badge-teal-bg) 15%)"
+        }
+      }
+    }
+  },
+  "bg": {
+    "bg": {
+      "$type": "color",
+      "$value": "{black.black}"
+    },
+    "bg-elevated": {
+      "$type": "color",
+      "$value": "{slate.slate-950}"
+    },
+    "bg-hover": {
+      "$type": "color",
+      "$value": "{slate.slate-800}"
+    }
+  },
+  "border": {
+    "border": {
+      "$type": "color",
+      "$value": "{slate.slate-400}"
+    },
+    "border-hover": {
+      "$type": "color",
+      "$value": "{white.white}"
+    },
+    "border-strong": {
+      "$type": "color",
+      "$value": "{slate.slate-300}"
+    }
+  },
+  "brand": {
+    "brand-soft": {
+      "$type": "color",
+      "$value": "{coral.coral-400}"
+    },
+    "brand-text": {
+      "$type": "color",
+      "$value": "{coral.coral-300}"
+    },
+    "brand-tint": {
+      "$type": "color",
+      "$value": "{coral.coral-950}"
+    },
+    "brand-tint-strong": {
+      "$type": "color",
+      "$value": "{coral.coral-900}"
+    }
+  },
+  "btn": {
+    "btn-active-bg": {
+      "$type": "color",
+      "$value": "{slate.slate-700}"
+    }
+  },
+  "card": {
+    "card-bg": {
+      "$type": "color",
+      "$value": "{slate.slate-950}"
+    }
+  },
+  "code": {
+    "code-bg": {
+      "$type": "color",
+      "$value": "{indigo.indigo-900}"
+    },
+    "code-fg": {
+      "$type": "color",
+      "$value": "{indigo.indigo-200}"
+    }
+  },
+  "danger": {
+    "danger-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8353,
+          0.2716,
+          0.498
+        ],
+        "hex": "#d5457f"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--danger-solid), var(--danger-fg) 25%)"
+        }
+      }
+    },
+    "danger-bg": {
+      "$type": "color",
+      "$value": "{crimson.crimson-900}"
+    },
+    "danger-border": {
+      "$type": "color",
+      "$value": "{crimson.crimson-400}"
+    },
+    "danger-border-strong": {
+      "$type": "color",
+      "$value": "{crimson.crimson-300}"
+    },
+    "danger-fg": {
+      "$type": "color",
+      "$value": "{crimson.crimson-300}"
+    },
+    "danger-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8133,
+          0.2163,
+          0.462
+        ],
+        "hex": "#cf3776"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--danger-solid), var(--danger-fg) 15%)"
+        }
+      }
+    }
+  },
+  "divider": {
+    "divider": {
+      "$type": "color",
+      "$value": "{slate.slate-500}"
+    }
+  },
+  "fg": {
+    "fg": {
+      "$type": "color",
+      "$value": "{white.white}"
+    },
+    "fg-soft": {
+      "$type": "color",
+      "$value": "{white.white}"
+    }
+  },
+  "field": {
+    "field-border-danger": {
+      "$type": "color",
+      "$value": "{crimson.crimson-300}"
+    },
+    "field-border-warn": {
+      "$type": "color",
+      "$value": "{amber.amber-300}"
+    }
+  },
+  "go": {
+    "go-bg": {
+      "$type": "color",
+      "$value": "{green.green-900}"
+    },
+    "go-bg-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0,
+          0.3482,
+          0.109
+        ],
+        "hex": "#00591c"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--go-bg), var(--go-solid) 20%)"
+        }
+      }
+    },
+    "go-bg-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0,
+          0.3313,
+          0.0999
+        ],
+        "hex": "#005419"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--go-bg), var(--go-solid) 12%)"
+        }
+      }
+    },
+    "go-border": {
+      "$type": "color",
+      "$value": "{green.green-400}"
+    },
+    "go-fg": {
+      "$type": "color",
+      "$value": "{green.green-300}"
+    }
+  },
+  "heat": {
+    "heat-1": {
+      "$type": "color",
+      "$value": "{orbit.orbit-700}"
+    },
+    "heat-2": {
+      "$type": "color",
+      "$value": "{orbit.orbit-500}"
+    },
+    "heat-3": {
+      "$type": "color",
+      "$value": "{orbit.orbit-300}"
+    },
+    "heat-4": {
+      "$type": "color",
+      "$value": "{orbit.orbit-100}"
+    }
+  },
+  "info": {
+    "info-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6088,
+          0.8402,
+          1.0
+        ],
+        "hex": "#9bd6ff"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--info-solid), var(--info-fg) 25%)"
+        }
+      }
+    },
+    "info-bg": {
+      "$type": "color",
+      "$value": "{orbit.orbit-950}"
+    },
+    "info-bg-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.1129,
+          0.3027,
+          0.3976
+        ],
+        "hex": "#1d4d65"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--info-bg), var(--info-solid) 20%)"
+        }
+      }
+    },
+    "info-bg-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0678,
+          0.2507,
+          0.3374
+        ],
+        "hex": "#114056"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--info-bg), var(--info-solid) 12%)"
+        }
+      }
+    },
+    "info-border": {
+      "$type": "color",
+      "$value": "{orbit.orbit-300}"
+    },
+    "info-fg": {
+      "$type": "color",
+      "$value": "{orbit.orbit-200}"
+    },
+    "info-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5912,
+          0.8335,
+          1.0
+        ],
+        "hex": "#97d5ff"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--info-solid), var(--info-fg) 15%)"
+        }
+      }
+    },
+    "info-on-solid": {
+      "$type": "color",
+      "$value": "{black.black}"
+    },
+    "info-solid": {
+      "$type": "color",
+      "$value": "{orbit.orbit-300}"
+    }
+  },
+  "muted": {
+    "muted": {
+      "$type": "color",
+      "$value": "{slate.slate-300}"
+    }
+  },
+  "overlay": {
+    "overlay": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": 0.85,
+        "hex": "#000000"
+      }
+    }
+  },
+  "progress": {
+    "progress-track": {
+      "$type": "color",
+      "$value": "{slate.slate-700}"
+    }
+  },
+  "scrollbar": {
+    "scrollbar": {
+      "$type": "color",
+      "$value": "{slate.slate-400}"
+    },
+    "scrollbar-hover": {
+      "$type": "color",
+      "$value": "{slate.slate-300}"
+    }
+  },
+  "secret": {
+    "secret-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7206,
+          0.6696,
+          0.8804
+        ],
+        "hex": "#b8abe0"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--secret-fg), var(--secret-bg) 25%)"
+        }
+      }
+    },
+    "secret-bg": {
+      "$type": "color",
+      "$value": "{violet.violet-900}"
+    },
+    "secret-bg-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3786,
+          0.274,
+          0.6077
+        ],
+        "hex": "#61469b"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--secret-bg), var(--secret-fg) 18%)"
+        }
+      }
+    },
+    "secret-bg-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3306,
+          0.2184,
+          0.5694
+        ],
+        "hex": "#543891"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--secret-bg), var(--secret-fg) 10%)"
+        }
+      }
+    },
+    "secret-border": {
+      "$type": "color",
+      "$value": "{violet.violet-300}"
+    },
+    "secret-fg": {
+      "$type": "color",
+      "$value": "{violet.violet-200}"
+    },
+    "secret-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7806,
+          0.739,
+          0.9282
+        ],
+        "hex": "#c7bced"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--secret-fg), var(--secret-bg) 15%)"
+        }
+      }
+    }
+  },
+  "sev": {
+    "sev-1-bg": {
+      "$type": "color",
+      "$value": "{crimson.crimson-800}"
+    },
+    "sev-1-border": {
+      "$type": "color",
+      "$value": "{crimson.crimson-300}"
+    },
+    "sev-1-fg": {
+      "$type": "color",
+      "$value": "{white.white}"
+    },
+    "sev-1-solid": {
+      "$type": "color",
+      "$value": "{crimson.crimson-800}"
+    },
+    "sev-2-bg": {
+      "$type": "color",
+      "$value": "{orange.orange-900}"
+    },
+    "sev-2-border": {
+      "$type": "color",
+      "$value": "{orange.orange-300}"
+    },
+    "sev-2-fg": {
+      "$type": "color",
+      "$value": "{orange.orange-200}"
+    },
+    "sev-2-solid": {
+      "$type": "color",
+      "$value": "{orange.orange-300}"
+    },
+    "sev-3-bg": {
+      "$type": "color",
+      "$value": "{amber.amber-900}"
+    },
+    "sev-3-border": {
+      "$type": "color",
+      "$value": "{amber.amber-400}"
+    },
+    "sev-3-fg": {
+      "$type": "color",
+      "$value": "{amber.amber-300}"
+    },
+    "sev-3-solid": {
+      "$type": "color",
+      "$value": "{amber.amber-300}"
+    },
+    "sev-4-bg": {
+      "$type": "color",
+      "$value": "{orbit.orbit-950}"
+    },
+    "sev-4-border": {
+      "$type": "color",
+      "$value": "{orbit.orbit-300}"
+    },
+    "sev-4-fg": {
+      "$type": "color",
+      "$value": "{orbit.orbit-200}"
+    },
+    "sev-4-solid": {
+      "$type": "color",
+      "$value": "{orbit.orbit-300}"
+    },
+    "sev-5-bg": {
+      "$type": "color",
+      "$value": "{slate.slate-800}"
+    },
+    "sev-5-border": {
+      "$type": "color",
+      "$value": "{slate.slate-300}"
+    },
+    "sev-5-fg": {
+      "$type": "color",
+      "$value": "{slate.slate-200}"
+    },
+    "sev-5-solid": {
+      "$type": "color",
+      "$value": "{slate.slate-300}"
+    }
+  },
+  "sidebar": {
+    "sidebar-bg": {
+      "$type": "color",
+      "$value": "{black.black}"
+    },
+    "sidebar-border": {
+      "$type": "color",
+      "$value": "{slate.slate-400}"
+    },
+    "sidebar-fg": {
+      "$type": "color",
+      "$value": "{white.white}"
+    },
+    "sidebar-hover": {
+      "$type": "color",
+      "$value": "{slate.slate-700}"
+    }
+  },
+  "skeleton": {
+    "skeleton-bg": {
+      "$type": "color",
+      "$value": "{slate.slate-800}"
+    },
+    "skeleton-sheen": {
+      "$type": "color",
+      "$value": "{slate.slate-700}"
+    }
+  },
+  "surface": {
+    "surface-soft": {
+      "$type": "color",
+      "$value": "{slate.slate-900}"
+    },
+    "surface-strong": {
+      "$type": "color",
+      "$value": "{slate.slate-800}"
+    }
+  },
+  "table": {
+    "table-head-bg": {
+      "$type": "color",
+      "$value": "{slate.slate-800}"
+    }
+  },
+  "warn": {
+    "warn-bg": {
+      "$type": "color",
+      "$value": "{amber.amber-900}"
+    },
+    "warn-border": {
+      "$type": "color",
+      "$value": "{amber.amber-400}"
+    },
+    "warn-fg": {
+      "$type": "color",
+      "$value": "{amber.amber-300}"
+    }
+  }
+}

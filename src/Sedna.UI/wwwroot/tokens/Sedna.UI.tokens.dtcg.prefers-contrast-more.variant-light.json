@@ -1,0 +1,53 @@
+{
+  "$description": "Sedna.UI design tokens for :root[data-variant=\"light\"] inside @media (prefers-contrast: more). Load after the files in load.",
+  "$extensions": {
+    "com.sedna-ui": {
+      "selector": ":root[data-variant=\"light\"]",
+      "media": "(prefers-contrast: more)",
+      "load": [
+        "Sedna.UI.tokens.dtcg.json",
+        "Sedna.UI.tokens.dtcg.prefers-contrast-more.json",
+        "Sedna.UI.tokens.dtcg.variant-light.json"
+      ],
+      "cssOnly": {}
+    }
+  },
+  "border": {
+    "border": {
+      "$type": "color",
+      "$value": "{slate.slate-600}"
+    },
+    "border-strong": {
+      "$type": "color",
+      "$value": "{slate.slate-800}"
+    }
+  },
+  "divider": {
+    "divider": {
+      "$type": "color",
+      "$value": "{slate.slate-400}"
+    }
+  },
+  "fg": {
+    "fg-soft": {
+      "$type": "color",
+      "$value": "{black.black}"
+    }
+  },
+  "muted": {
+    "muted": {
+      "$type": "color",
+      "$value": "{slate.slate-800}"
+    }
+  },
+  "surface": {
+    "surface-soft": {
+      "$type": "color",
+      "$value": "{slate.slate-100}"
+    },
+    "surface-strong": {
+      "$type": "color",
+      "$value": "{slate.slate-200}"
+    }
+  }
+}

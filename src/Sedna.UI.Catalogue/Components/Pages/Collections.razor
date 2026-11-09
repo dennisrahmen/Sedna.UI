@@ -2,7 +2,8 @@
 
 <CatHead Title="Collections">
     A set the reader follows or expands: an order with an end (<code>.steps</code>), and detail
-    that unfolds (<code>.accordion</code>, <code>.tree</code>). Rows the reader opens are a
+    that unfolds (<code>.accordion</code>). Nested structure the reader walks and picks from is a
+    <a href="/tree">tree</a>. Rows the reader opens are a
     <a href="/list">list</a>, values compared down a column are a <a href="/table">table</a>, and
     a record of what happened, with when, is a <a href="/timeline">timeline</a>.
 </CatHead>
@@ -29,15 +30,5 @@
         <strong>If code has to open one, bind <code>open</code> one way and never write it
         back</strong> — <code>toggle</code> fires when the framework's own diff sets the attribute,
         so a handler that mirrors the state back into a field will fight it.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Collections.Tree" Title="Tree" Demo="ex-demo--block">
-    <p>
-        Nested structure the reader expands — a group hierarchy, a folder of files: nested
-        <code>&lt;ul&gt;</code> inside <code>&lt;details&gt;</code>, for the same reason as the
-        accordion. Do <strong>not</strong> declare <code>role="tree"</code>, which promises
-        single-tab-stop arrow-key navigation through a flattened view that this markup does not
-        implement; <code>.tree-leaf</code> is an item with nothing under it.
     </p>
 </CatExample>

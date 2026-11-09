@@ -63,6 +63,51 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.FormDatetime.TimeRange" Title="A time range with quick select and auto-refresh" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; open both.</strong> A dashboard or a log asks for a span of time, and
+        most of the time it is a relative one. There is no range-picker class: an
+        <code>.input-group</code> holds a button that opens the quick select and a
+        <a href="/form-text"><code>.form-trigger</code></a> showing the range, which opens a
+        <a href="/calendar"><code>.datepicker</code></a> for an absolute start and end, with the
+        range marked by <code>--range-start</code> and <code>--range-end</code> and the times in a
+        <code>.datepicker-time</code> row. The quick select is a <code>.popover</code>: a relative
+        range built from a select, a number and a unit, the common ranges as
+        <a href="/chip"><code>.chip</code></a> buttons with <code>aria-pressed</code> on the one in
+        force, the reader's recent ranges as <code>.btn-bare--link</code> buttons, and the
+        auto-refresh interval with a button that starts and stops it. The group is the anchor of
+        both panels, named by <code>anchor-name</code> and each panel's
+        <code>position-anchor</code>. The app keeps the range, the recent list and the timer; the
+        refresh button says what interval is running.
+    </p>
+</CatExample>
+
+<h2 id="memorable-dates">Dates the reader already knows <CatAnchor Id="memorable-dates" /></h2>
+<p class="cat-lede">
+    A date of birth or the day a business started is typed faster than it is found in a picker,
+    and a picker that opens on today makes the reader page back through decades. Ask for it as
+    separate day, month and year fields in a <code>.form-section</code>, each
+    <code>type="text"</code> with <code>inputmode="numeric"</code>, sized to its answer with
+    <code>.sedna-w-fit</code> and <code>size</code>, under a legend that names the date.
+</p>
+
+<CatExample TExample="Examples.FormDatetime.AskDateOfBirth" Title="Date of birth" Demo="ex-demo--block">
+    <p>
+        <code>bday-day</code>, <code>bday-month</code> and <code>bday-year</code> let a phone fill it
+        in. The hint gives an example in the order the fields come; accept a month as
+        <code>3</code>, <code>03</code> or <code>March</code>, and a day without its leading zero.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormDatetime.AskDateErrors" Title="When a date is incomplete" Demo="ex-demo--block">
+    <p>
+        One message for the whole date, under the hint, naming what is missing or wrong: &ldquo;must
+        include a year&rdquo;, &ldquo;must be in the past&rdquo;, &ldquo;must be a real
+        date&rdquo;. <code>aria-invalid</code> goes only on the fields that are wrong, so the reader
+        is taken to the year and not to the month they already gave.
+    </p>
+</CatExample>
+
 <h2 id="platform">What the browser draws</h2>
 <p class="cat-lede">
     The calendar glyph is a browser glyph in a fixed colour, invisible on a dark surface until it

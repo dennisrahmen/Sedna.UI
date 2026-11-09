@@ -63,7 +63,7 @@ public class GraphInteractionTests : GraphTestBase
         """;
 
     private static readonly string[] RecordKeys =
-        ["cluster", "fields", "group", "href", "id", "keyboard", "kind", "label", "meta", "parent", "state", "tags", "tone"];
+        ["cluster", "fields", "group", "href", "id", "keyboard", "kind", "label", "meta", "parent", "placeholder", "state", "tags", "tone"];
 
     private static async Task Click(IPage page, string node, MouseButton button = MouseButton.Left)
     {
@@ -402,6 +402,38 @@ public class GraphInteractionTests : GraphTestBase
         Assert.False(open.Detail.GetProperty("keyboard").GetBoolean());
         await Js.Elapse(page, 100);
         Assert.EndsWith("/fixture.html", page.Url, StringComparison.Ordinal);
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task One_click_opens_a_placeholder_where_a_record_is_only_selected()
+    {
+        if (NoBrowser) return;
+        // A placeholder is the "add a step" affordance: one click is the app's to act on.
+        var page = await OpenGraph(Graph(inside: Services.Replace("</ul>", """
+              <li data-node="add" data-placeholder>Add a step</li>
+              <li data-edge data-source="runner" data-target="add"></li>
+            </ul>
+            """, StringComparison.Ordinal)));
+        await Ready(page);
+
+        var (x, y) = await PointOf(page, "add");
+        await page.Mouse.ClickAsync(x, y);
+        await Heard(page, "sedna-graph-open");
+        var open = (await Log(page, "sedna-graph-open")).Single();
+        Assert.Equal("add", open.Detail.GetProperty("id").GetString());
+        Assert.True(open.Detail.GetProperty("placeholder").GetBoolean());
+        Assert.Empty(await Log(page, "sedna-graph-select"));
+
+        await ClearLog(page);
+        // Past the engine's double-click window, so the next click is a click of its own.
+        await Js.Elapse(page, 600);
+        (x, y) = await PointOf(page, "db");
+        await page.Mouse.ClickAsync(x, y);
+        await Heard(page, "sedna-graph-select");
+        var select = (await Log(page, "sedna-graph-select")).Single();
+        Assert.False(select.Detail.GetProperty("placeholder").GetBoolean());
+        Assert.Empty(await Log(page, "sedna-graph-open"));
         AssertQuiet();
     }
 

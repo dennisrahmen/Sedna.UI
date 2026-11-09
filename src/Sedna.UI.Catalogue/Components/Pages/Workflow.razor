@@ -114,6 +114,20 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Workflow.AddStep" Title="A step to add" Demo="ex-demo--block">
+    <p>
+        Where the reader builds the flow, the next step is a control: a
+        <code>&lt;button class="workflow-node workflow-node--add"&gt;</code> in a step of its own with no state,
+        its head a <code>.workflow-node-icon</code> with a plus and your words. It is dashed and unfilled with no
+        state mark, and so is the wire into it, so it never reads as a step the run will take. Your
+        <code>@@onclick</code> adds the step to your data and renders it in its place.
+    </p>
+    <p>
+        Put one at the end of a path, and as the only step in a decision's branch that has nothing in it yet.
+        It is left off the page when it is printed.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Workflow.Down" Title="Top to bottom" Demo="ex-demo--block">
     <p>
         <code>.workflow--down</code> runs the diagram down the page for a phone, a tablet held upright or a side

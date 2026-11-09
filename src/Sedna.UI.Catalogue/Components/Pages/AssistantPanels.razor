@@ -1,0 +1,57 @@
+@page "/assistant-panels"
+
+<CatHead Title="Assistant panels">
+    Where an agent's work sits beside the app rather than over it: a conversation docked at the edge of
+    the frame, and the file, query or document it generated kept open next to the conversation. Both are
+    the app's markup in classes the library already has &mdash; a <a href="/drawer">drawer</a>, a
+    <a href="/chat"><code>.chat-pane</code></a>, a <a href="/grid"><code>.sedna-split</code></a> &mdash;
+    with one variant to dock the drawer and one small family for the generated thing.
+</CatHead>
+
+<CatExample TExample="Examples.AssistantPanels.DockedAssistant" Title="An assistant docked beside the page" Demo="ex-demo--block ex-demo--flush">
+    <p>
+        <strong>Live &mdash; open it with the sparkle in the header.</strong>
+        <code>.drawer--dock</code> on a <code>&lt;dialog class="drawer" data-modeless&gt;</code> that is a
+        direct child of <code>.layout</code>, after <code>.content</code>. From 900px wide it is a column
+        of the frame: open, it takes <code>--drawer-width</code> at the inline end and
+        <strong>the content narrows instead of being covered</strong>; closed, it takes no room. Below
+        900px it is the ordinary drawer over the page's edge, and the page keeps its width. It sits at the
+        inline end, so it mirrors under <code>dir="rtl"</code>.
+    </p>
+    <p>
+        It opens and closes like any <a href="/drawer">modeless drawer</a>:
+        <code>sednaUi.modal.show(id)</code> or <code>ISednaUi.ShowModalAsync(id)</code>, and its own close
+        button. The toggle carries <code>aria-controls</code> naming the dialog and an
+        <code>aria-expanded</code>, which Sedna.UI.js keeps in step with the dialog however it closes.
+        A <code>.chat-pane</code> straight after the <code>.drawer-header</code> takes the height that is
+        left, with the composer at the foot.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AssistantPanels.ArtifactBeside" Title="A generated file beside the conversation" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.artifact</code> is what an agent generated, kept where the reader can read it while they
+        talk about it. <code>.artifact-head</code> holds <code>.artifact-head-text</code> &mdash; the
+        <code>.artifact-title</code> and a line under it saying what it is &mdash; and
+        <code>.artifact-actions</code>: the <a href="/agent-chat"><code>.chat-versions</code></a> switcher,
+        copy with <code>data-copy-target</code>, download as a link with <code>download</code>, open in a
+        new tab, and a close button last when there is one. Each action is a
+        <code>.btn--ghost .btn--icon .btn--sm</code> with its own name.
+    </p>
+    <p>
+        <code>.artifact-body</code> pads prose; <code>.artifact-body--flush</code> gives the edge to a
+        <code>.code-block--flush</code> or a table. Here it is the aside of a
+        <code>.sedna-split--lg .sedna-split--stack-md</code>, so it sits beside the conversation and moves
+        under it when the split is narrow.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.AssistantPanels.ArtifactDrawer" Title="A generated document in a drawer" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; open it.</strong> A <code>.drawer</code> holding an <code>.artifact</code> and
+        nothing else: the artifact gives up its own frame for the drawer's and fills it, its head standing
+        in for the <code>.drawer-header</code>. With <code>data-modeless</code> the conversation stays usable
+        beside it; in a <code>.layout</code>, <code>.drawer--dock</code> makes it a column of the frame like
+        the assistant above.
+    </p>
+</CatExample>

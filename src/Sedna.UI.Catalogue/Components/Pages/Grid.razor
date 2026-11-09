@@ -30,6 +30,19 @@
     <p>Resize the window to watch it collapse: the two columns stack below 48rem.</p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.DashboardTiles" Title="Panels the reader arranges" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; drag a panel by its grip, or pull its bottom edge.</strong> A dashboard the
+        reader lays out is a <a href="/drag-drop"><code>.drag-grid</code></a> of
+        <a href="/card"><code>.card--resizable</code></a> panels, with nothing added:
+        <code>data-drag-axis="grid"</code> numbers the panels in reading order, and the app moves one
+        in its own list on <code>sedna-drop</code>; each panel's <code>.card-resize</code> writes
+        <code>--card-height</code>, and the app keeps it from <code>sedna-resize</code>. Store both per
+        reader and render them back. <code>--drag-grid-min</code> on the grid is the narrowest a panel
+        may be, which sets how many fit side by side.
+    </p>
+</CatExample>
+
 <h2 id="tall-panel">One tall panel</h2>
 <p>
     A grid row is as tall as its tallest panel. One long list beside three short tiles leaves holes

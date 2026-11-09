@@ -1,0 +1,44 @@
+<form class="card agent-approval agent-approval--question" style="max-width: 520px">
+    <div class="card-head">
+        <div class="agent-approval-head">
+            <span class="agent-approval-icon"><i class="ri-question-answer-line"></i></span>
+            <span class="agent-approval-title"><strong>Before I draft the change</strong><span>Ops agent needs two answers</span></span>
+        </div>
+    </div>
+    <div class="card-body sedna-col sedna-gap-5">
+        <fieldset class="agent-question">
+            <legend>Where should the new window go first?</legend>
+            <div class="choice-tiles" role="radiogroup" aria-label="Where should the new window go first?">
+                <label class="choice-tile">
+                    <input type="radio" name="question-target" value="staging" />
+                    <span class="choice-tile-title">Staging</span>
+                    <span class="choice-tile-hint">Try it for a night first</span>
+                </label>
+                <label class="choice-tile">
+                    <input type="radio" name="question-target" value="production" />
+                    <span class="choice-tile-title">Production</span>
+                    <span class="choice-tile-hint">From tonight</span>
+                </label>
+            </div>
+        </fieldset>
+        <fieldset class="agent-question">
+            <legend>Who should hear about it?</legend>
+            <label class="form-check"><input type="checkbox" name="question-notify" value="ops" /> <span>The ops channel</span></label>
+            <label class="form-check"><input type="checkbox" name="question-notify" value="owners" /> <span>The owners of src-db-14</span></label>
+            <label class="form-check"><input type="checkbox" name="question-notify" value="customers" /> <span>Northwind Retail's contact</span></label>
+        </fieldset>
+        <div class="agent-question">
+            <label for="question-note">Anything else? <span class="text-muted">Optional</span></label>
+            <textarea class="form-input" id="question-note" rows="2" placeholder="A detail the agent should know"></textarea>
+        </div>
+    </div>
+    <div class="card-foot">
+        <div class="agent-approval-actions">
+            <button class="btn btn--ghost" type="button">Skip</button>
+            <button class="btn btn--solid sedna-push" type="submit" disabled>Send answers</button>
+        </div>
+        <div class="agent-approval-result">
+            <i class="ri-checkbox-circle-fill"></i><span>Answered by Alex Fischer</span>
+        </div>
+    </div>
+</form>

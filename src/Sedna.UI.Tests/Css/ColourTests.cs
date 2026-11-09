@@ -41,10 +41,100 @@ public class ColourTests
         @"SelectedItemText|AccentColor|AccentColorText)(?![\w-])",
         RegexOptions.Compiled);
 
+    /// <summary>
+    /// The one part allowed to hold literal colours: the colour picker's spectrum. A spectrum
+    /// is a fact about colour rather than a brand decision — red is at hue 0 in every theme —
+    /// so its values are fixed, and each is declared once as a <c>--spectrum-*</c> property.
+    /// </summary>
+    public const string SpectrumPart = "45-colour-picker.css";
+
+    /// <summary>The prefix every spectrum property carries, and the only place a literal may sit.</summary>
+    public const string SpectrumPrefix = "--spectrum-";
+
+    private static readonly Regex SpectrumDeclaration = new(
+        @"^\s*--spectrum-[a-z0-9-]+\s*:", RegexOptions.Compiled);
+
+    // `── 45-colour-picker.css → @layer sedna.paint ──`, the marker the bundler writes before
+    // each part in the readable copy.
+    private static readonly Regex PartMarker = new(
+        @"^/\* ── (?<part>\d\d-[^ ]+\.css) → @layer", RegexOptions.Compiled);
+
+    private static string ReadableCss => File.ReadAllText(Assets.Readable("Sedna.UI.css"));
+
     [Fact]
     public void No_hard_coded_colours_outside_the_token_blocks()
     {
-        var css = Assets.StripComments(Assets.Css);
+        var offenders = Offenders(ReadableCss);
+
+        Assert.True(offenders.Count == 0,
+            "Every colour in the library must resolve through a token, or an app cannot rebrand " +
+            "by redefining tokens. Move these into the :root blocks and reference them with " +
+            $"var(--…). The one exception is a {SpectrumPrefix}* declaration in {SpectrumPart}:" +
+            $"{Environment.NewLine}{string.Join(Environment.NewLine, offenders)}");
+    }
+
+    [Theory]
+    // A literal in an ordinary part.
+    [InlineData("45-form-controls.css", ".x { color: #123456; }")]
+    // A spectrum name is no pass outside the spectrum's part.
+    [InlineData("45-form-controls.css", "    --spectrum-sky: #87ceeb;")]
+    // Inside the spectrum's part, a literal outside a --spectrum-* declaration.
+    [InlineData(SpectrumPart, ".form-color-area { border-color: rgb(0 0 0); }")]
+    [InlineData(SpectrumPart, ".form-color-area { color: white; }")]
+    public void The_spectrum_exception_admits_nothing_else(string part, string rule)
+    {
+        // The guard runs on the shipped stylesheet with one rule added to one part, which is
+        // what proves the exception is as narrow as it says: it must still fail.
+        var lines = ReadableCss.Split('\n').ToList();
+        var marker = lines.FindIndex(l => l.StartsWith($"/* ── {part} →", StringComparison.Ordinal));
+        Assert.True(marker >= 0, $"No marker for {part} in the readable stylesheet.");
+        // After the `@layer … {` line that opens the part.
+        lines.Insert(marker + 2, rule);
+
+        var offenders = Offenders(string.Join('\n', lines));
+
+        Assert.True(offenders.Count == 1, $"Expected the added rule alone to be reported, got: {string.Join("; ", offenders)}");
+        Assert.Contains(rule.Trim(), offenders[0], StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void The_spectrum_is_declared_in_its_part_alone_and_no_theme_remaps_it()
+    {
+        var declaring = Directory.GetFiles(Path.Combine(Assets.ProjectDir, "css-parts"), "*.css")
+            .Where(p => Regex.IsMatch(Assets.StripComments(File.ReadAllText(p)), @"(?<![\w-])--spectrum-[a-z0-9-]+\s*:"))
+            .Select(p => Path.GetFileName(p))
+            .ToList();
+        Assert.Equal([SpectrumPart], declaring);
+
+        var remapped = Assets.TokenBlocks(Assets.StripComments(Assets.Css))
+            .Where(b => b.Body.Contains(SpectrumPrefix, StringComparison.Ordinal))
+            .Select(b => Assets.Squash(b.Selector))
+            .ToList();
+        Assert.True(remapped.Count == 0,
+            "The spectrum is the same in every theme; these token blocks declare a spectrum value: "
+            + string.Join(", ", remapped));
+    }
+
+    /// <summary>
+    /// Every colour literal in a readable stylesheet outside the token blocks, the forced-colours
+    /// system keywords and the spectrum's own declarations.
+    /// </summary>
+    private static List<string> Offenders(string readable)
+    {
+        // Which part each line of the bundle came from, read off the markers before the
+        // comments that carry them are blanked.
+        var partOf = new Dictionary<int, string>();
+        var current = "";
+        var number = 0;
+        foreach (var raw in readable.Split('\n'))
+        {
+            number++;
+            var marker = PartMarker.Match(raw);
+            if (marker.Success) current = marker.Groups["part"].Value;
+            partOf[number] = current;
+        }
+
+        var css = Assets.StripComments(readable);
 
         // Inside a forced-colors block the system palette IS the token layer: the
         // browser has already replaced every colour with the user's choice, and
@@ -55,19 +145,23 @@ public class ColourTests
         var forcedColourLines = ForcedColourLineNumbers(css);
 
         var offenders = new List<string>();
-        foreach (var (line, number) in Assets.LinesOutsideTokenBlocks(css))
+        foreach (var (line, at) in Assets.LinesOutsideTokenBlocks(css))
         {
-            if (HexColour.IsMatch(line)) offenders.Add($"line {number}: hex — {line.Trim()}");
-            else if (ColourFunction.IsMatch(line)) offenders.Add($"line {number}: colour function — {line.Trim()}");
-            else if (NamedColour.IsMatch(line)) offenders.Add($"line {number}: named colour — {line.Trim()}");
-            else if (SystemColour.IsMatch(line) && !forcedColourLines.Contains(number))
-                offenders.Add($"line {number}: system colour — {line.Trim()}");
-        }
+            string? kind = null;
+            if (HexColour.IsMatch(line)) kind = "hex";
+            else if (ColourFunction.IsMatch(line)) kind = "colour function";
+            else if (NamedColour.IsMatch(line)) kind = "named colour";
+            else if (SystemColour.IsMatch(line) && !forcedColourLines.Contains(at)) kind = "system colour";
+            if (kind is null) continue;
 
-        Assert.True(offenders.Count == 0,
-            "Every colour in the library must resolve through a token, or an app cannot rebrand " +
-            "by redefining tokens. Move these into the :root blocks and reference them with " +
-            $"var(--…):{Environment.NewLine}{string.Join(Environment.NewLine, offenders)}");
+            // The spectrum's own declarations, and nothing else: a system colour is no part
+            // of a spectrum, and the line has to declare a --spectrum-* property in its part.
+            var part = partOf.GetValueOrDefault(at, "");
+            if (kind != "system colour" && part == SpectrumPart && SpectrumDeclaration.IsMatch(line)) continue;
+
+            offenders.Add($"{part} (line {at}): {kind} — {line.Trim()}");
+        }
+        return offenders;
     }
 
     /// <summary>

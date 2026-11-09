@@ -1,0 +1,23 @@
+@* MainLayout.razor, between the topbar and the page *@
+@if (!_dismissed)
+{
+    <div class="page-banner page-banner--info" role="region" aria-label="Service notice">
+        <i class="ri-information-line" aria-hidden="true"></i>
+        <div class="page-banner-body"><span>@_notice.Text</span></div>
+        <button class="page-banner-dismiss" type="button" aria-label="Dismiss this notice"
+                @onclick="DismissAsync">
+            <i class="ri-close-line" aria-hidden="true"></i>
+        </button>
+    </div>
+}
+
+@code {
+    private bool _dismissed;
+
+    // Remembered per notice, so the next notice shows again.
+    private async Task DismissAsync()
+    {
+        _dismissed = true;
+        await NoticeStore.DismissAsync(_notice.Id);
+    }
+}

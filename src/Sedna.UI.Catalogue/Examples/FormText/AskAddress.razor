@@ -1,0 +1,36 @@
+<fieldset class="form-section" style="max-width:520px">
+    <legend>Delivery address</legend>
+    <div class="form-section-body">
+        <div class="form-field">
+            <label class="form-label" for="aa-line1">Address line 1</label>
+            <input class="form-input" id="aa-line1" type="text" name="address-line1"
+                   autocomplete="address-line1" aria-invalid="true" aria-describedby="aa-line1-err" />
+            <p class="form-error" id="aa-line1-err">
+                <i class="ri-error-warning-line"></i>
+                <span>Enter address line 1, usually the building and street</span>
+            </p>
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="aa-line2">Address line 2 (optional)</label>
+            <input class="form-input" id="aa-line2" type="text" name="address-line2" autocomplete="address-line2" />
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="aa-town">Town or city</label>
+            <input class="form-input sedna-w sedna-w--lg" id="aa-town" type="text" name="address-level2" autocomplete="address-level2" />
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="aa-post">Postcode</label>
+            <input class="form-input sedna-w sedna-w--sm" id="aa-post" type="text" name="postal-code"
+                   autocomplete="postal-code" spellcheck="false" />
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="aa-country">Country</label>
+            <select class="form-input form-select sedna-w sedna-w--lg" id="aa-country" name="country" autocomplete="country">
+                <option value="DE">Germany</option>
+                <option value="AT">Austria</option>
+                <option value="CH">Switzerland</option>
+                <option value="GB">United Kingdom</option>
+            </select>
+        </div>
+    </div>
+</fieldset>

@@ -1,0 +1,25 @@
+<div style="max-width:460px">
+    <div class="form-field">
+        <label class="form-label" for="ta-mention">Comment</label>
+        <div class="mention-field">
+            <textarea class="form-input" id="ta-mention" rows="3" data-mention="ta-people"
+                      aria-describedby="ta-mention-hint"
+                      placeholder="Type &#64; to name someone">The pallets for bay 4 are ready. </textarea>
+            <div class="menu" id="ta-people" hidden aria-label="People">
+                <button class="menu-item" type="button" tabindex="-1" data-mention-value="alex.fischer" data-label="Alex Fischer">
+                    <span class="avatar avatar--sm">AF</span><span>Alex Fischer</span><span class="menu-item-note">alex.fischer</span>
+                </button>
+                <button class="menu-item" type="button" tabindex="-1" data-mention-value="priya.nair" data-label="Priya Nair">
+                    <span class="avatar avatar--sm avatar--viz-2">PN</span><span>Priya Nair</span><span class="menu-item-note">priya.nair</span>
+                </button>
+                <button class="menu-item" type="button" tabindex="-1" data-mention-value="tomas.ferreira" data-label="Tomás Ferreira">
+                    <span class="avatar avatar--sm avatar--viz-4">TF</span><span>Tomás Ferreira</span><span class="menu-item-note">tomas.ferreira</span>
+                </button>
+                <button class="menu-item" type="button" tabindex="-1" data-mention-value="warehouse" data-label="Warehouse team">
+                    <span class="avatar avatar--sm avatar--muted"><i class="ri-team-line"></i></span><span>Warehouse team</span><span class="menu-item-note">warehouse</span>
+                </button>
+            </div>
+        </div>
+        <p class="form-hint" id="ta-mention-hint">Type &#64; and a name to tell someone. Up and Down choose, Enter adds.</p>
+    </div>
+</div>

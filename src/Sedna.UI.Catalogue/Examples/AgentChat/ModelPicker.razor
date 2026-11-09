@@ -1,0 +1,45 @@
+<div style="padding-bottom: 380px">
+    <div class="chat-composer-tools">
+        <button class="btn btn--sm btn--ghost" type="button" popovertarget="model-picker"><i class="ri-cloud-line"></i><span>Balanced</span><i class="ri-arrow-down-s-line"></i></button>
+    </div>
+    <div class="popover popover--flush" id="model-picker" popover>
+        <div class="form-combo form-combo--inline" data-combo="single" data-combo-managed>
+            <div class="form-combo-box">
+                <span class="form-combo-icon"><i class="ri-search-line"></i></span>
+                <input class="form-combo-input" type="text" role="combobox" placeholder="Search models" aria-label="Model"
+                       aria-expanded="false" aria-controls="model-picker-list" aria-autocomplete="list" autocomplete="off" />
+            </div>
+            <div class="form-combo-panel">
+                <div class="form-combo-list" id="model-picker-list" role="listbox" aria-label="Models">
+                    <div class="form-combo-group" role="presentation">Hosted</div>
+                    <div class="form-combo-option" role="option" id="model-large" data-value="large" aria-selected="false">
+                        <i class="ri-cloud-line" aria-hidden="true"></i>
+                        <span class="form-combo-option-text">Large<span class="form-combo-option-note">Deepest reasoning, slowest to answer</span></span>
+                        <kbd class="kbd">Alt 1</kbd>
+                    </div>
+                    <div class="form-combo-option" role="option" id="model-balanced" data-value="balanced" aria-selected="true">
+                        <i class="ri-cloud-line" aria-hidden="true"></i>
+                        <span class="form-combo-option-text">Balanced<span class="form-combo-option-note">Good for most questions</span></span>
+                        <kbd class="kbd">Alt 2</kbd>
+                    </div>
+                    <div class="form-combo-option" role="option" id="model-fast" data-value="fast" aria-selected="false">
+                        <i class="ri-cloud-line" aria-hidden="true"></i>
+                        <span class="form-combo-option-text">Fast<span class="form-combo-option-note">Short answers, lowest cost</span></span>
+                        <kbd class="kbd">Alt 3</kbd>
+                    </div>
+                    <div class="form-combo-group" role="presentation">Self-hosted</div>
+                    <div class="form-combo-option" role="option" id="model-code" data-value="code" aria-selected="false">
+                        <i class="ri-server-line" aria-hidden="true"></i>
+                        <span class="form-combo-option-text">Code<span class="form-combo-option-note">Runs on build-runner-04, stays inside</span></span>
+                    </div>
+                    <div class="form-combo-group" role="presentation">On this device</div>
+                    <div class="form-combo-option" role="option" id="model-compact" data-value="compact" aria-selected="false">
+                        <i class="ri-computer-line" aria-hidden="true"></i>
+                        <span class="form-combo-option-text">Compact<span class="form-combo-option-note">Works offline, short context</span></span>
+                    </div>
+                </div>
+                <div class="form-combo-empty"><i class="ri-search-line"></i><span>No model matches.</span></div>
+            </div>
+        </div>
+    </div>
+</div>

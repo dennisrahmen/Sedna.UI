@@ -346,6 +346,193 @@
     border-inline-end: 2px solid currentColor;
 }
 
+/* ── A stack bar with marks and labels ──────────────────────────────────────
+   A target on a bar in parts — "85% decided by Friday" — and the running totals at
+   the boundaries between its parts. `.stack-bar-figure` holds the bar, any number of
+   `.meter-mark`s (the same mark a meter takes, at `--at`) and a `.stack-bar-labels`
+   line under the bar:
+
+     <div class="stack-bar-figure">
+       <div class="stack-bar" role="img" aria-label="…">…segments…</div>
+       <span class="meter-mark" style="--at: 85%" data-tip="Target: 85% decided by Friday">
+         <span class="meter-mark-label">target</span>
+       </span>
+       <div class="stack-bar-labels" aria-hidden="true">
+         <span class="stack-bar-label" style="--at: 62%">79</span>
+         <span class="stack-bar-total">128</span>
+       </div>
+     </div>
+
+   The bar and its marks share the figure's first row, so a mark reaches past the bar
+   by the same amount whatever its thickness, and the bar keeps the clip that rounds its
+   ends. The line under the bar belongs to the labels, so a mark's own label sits over
+   the bar, and the figure reserves that line once a mark has one. Each `.stack-bar-label`
+   is centred on its `--at`, the boundary it counts up to; `.stack-bar-total` closes the
+   line at the end. The bar's `aria-label` already says every number, so the line of
+   labels is `aria-hidden`.
+
+   A mark with a `data-tip` is the hint's trigger, and a 2px line is no target for a
+   pointer: its `::before` widens what the pointer can find without widening the line. */
+.stack-bar-figure {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+.stack-bar-figure:has(.meter-mark-label) { margin-top: calc(var(--text-2) + var(--space-5)); }
+.stack-bar-figure > .stack-bar,
+.stack-bar-figure > .meter-mark { grid-area: 1 / 1 / 2 / 2; }   /* both ends: an absolute box takes an end left auto from the figure's edge */
+.stack-bar-figure .meter-mark-label {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: var(--space-2);
+}
+.meter-mark[data-tip]::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc(var(--space-3) * -1);
+}
+.stack-bar-labels {
+    grid-row: 2;
+    display: grid;
+    margin-top: var(--space-2);
+    font-size: var(--text-2);
+    line-height: round(1.4em, 2px);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+.stack-bar-label,
+.stack-bar-total {
+    grid-area: 1 / 1;
+    white-space: nowrap;
+}
+.stack-bar-label {
+    --at: 0%;
+    justify-self: start;
+    margin-inline-start: var(--at);
+    translate: -50% 0;
+}
+.stack-bar-total {
+    justify-self: end;
+    color: var(--fg-soft);
+    font-weight: 600;
+}
+
+/* ── Tracker ────────────────────────────────────────────────────────────────
+   A row of blocks, one per day or per check — ninety days of uptime, the last fifty
+   builds — each in the tone of what happened then. The tone is a series modifier, a
+   semantic family where the block means something (`.series-go`, `--warn`, `--danger`)
+   and `.series-muted` for a period with no data. Each block's own `data-tip` is the
+   detail, shown by the hover hint; pointing at one dims the rest, so the reader sees
+   which block the hint is about.
+
+     <div class="tracker" role="img" aria-label="Last 30 days: 27 operational, 2 degraded, 1 outage">
+       <span class="tracker-block series-go" data-tip="1 Nov: operational"></span>
+       <span class="tracker-block series-warn" data-tip="2 Nov: degraded, 14 min"></span>
+       …
+     </div>
+
+   The row is one picture with one accessible name that says the totals; the hints are
+   the detail for the eye. `--sm` and `--lg` are the shorter and the taller row. */
+.tracker {
+    --tracker-height: 28px;
+    display: flex;
+    gap: var(--space-1);
+    block-size: var(--tracker-height);
+}
+.tracker--sm { --tracker-height: 16px; }
+.tracker--lg { --tracker-height: 40px; }
+.tracker-block {
+    flex: 1 1 0;
+    min-inline-size: 2px;
+    border-radius: var(--radius-small);
+    background: currentColor;
+    color: var(--viz-1);
+    print-color-adjust: exact;
+    transition: opacity var(--motion-fast);
+}
+.tracker:has(> .tracker-block:hover) > .tracker-block:not(:hover) { opacity: 0.35; }
+
+/* ── Gauge ──────────────────────────────────────────────────────────────────
+   A value on a dial: a half circle for a figure read against its range — CPU, a score
+   out of a hundred — and `.gauge--arc`, three quarters of a circle, where the figure
+   sits in the middle. The arc is `--value`, a percentage, as on a meter; the figure
+   and its caption are the app's text, inside:
+
+     <div class="gauge series-warn" style="--value: 72%" role="img" aria-label="CPU 72%">
+       <span class="gauge-value">72%</span>
+       <span class="gauge-label">CPU</span>
+     </div>
+
+   Drawn like `.progress-ring`, a conic gradient through a ring mask on `::before`, so
+   the element holds only the app's text. The fill is the series modifier, the brand by
+   default; the rest of the sweep is the track. `--value` is copied into a registered
+   percentage, so a new value glides along the arc as a bar's width does, and lands at
+   once under reduced motion. `--sm` and `--lg` are the family's other two sizes, and
+   at each the figure and a one-word caption fit inside the half circle's opening. */
+@property --gauge-fill {
+    syntax: '<percentage>';
+    inherits: true;
+    initial-value: 0%;
+}
+.gauge {
+    --value: 0%;
+    --gauge-size: 120px;
+    --gauge-width: 12px;
+    --gauge-sweep: 0.5;   /* of a turn */
+    --gauge-text: var(--text-8);
+    --gauge-label-text: var(--text-2);
+    --gauge-fill: var(--value);
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    inline-size: var(--gauge-size);
+    block-size: calc(var(--gauge-size) / 2);
+    overflow: clip;   /* the dial is a whole circle; its unused half adds nothing to the page */
+    color: var(--viz-1);
+    transition: --gauge-fill var(--motion-slow) ease;
+}
+.gauge::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    block-size: var(--gauge-size);
+    border-radius: 50%;
+    background: conic-gradient(from calc(var(--gauge-sweep) * -180deg),
+        currentColor calc(var(--gauge-fill) * var(--gauge-sweep)),
+        var(--progress-track) 0 calc(var(--gauge-sweep) * 100%),
+        transparent 0);
+    mask: radial-gradient(farthest-side, transparent calc(100% - var(--gauge-width)), currentColor calc(100% - var(--gauge-width) + 0.5px));
+    print-color-adjust: exact;
+}
+.gauge--arc {
+    --gauge-sweep: 0.75;
+    justify-content: center;
+    block-size: var(--gauge-size);
+}
+.gauge--sm { --gauge-size: 80px; --gauge-width: 6px; --gauge-text: var(--text-4); --gauge-label-text: var(--text-1); }
+.gauge--lg { --gauge-size: 180px; --gauge-width: 16px; --gauge-text: var(--text-10); }
+.gauge-value {
+    position: relative;
+    font-size: var(--gauge-text);
+    font-weight: 600;
+    line-height: round(1.2em, 2px);
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+}
+.gauge-label {
+    position: relative;
+    margin-top: var(--space-1);
+    font-size: var(--gauge-label-text);
+    line-height: round(1.2em, 2px);
+    color: var(--muted);
+}
+
 /* ── Series colours ─────────────────────────────────────────────────────────
    Last in the part on purpose. Every fill above sets its default `color`, and a
    modifier at the same specificity wins only by coming later — so this block stays

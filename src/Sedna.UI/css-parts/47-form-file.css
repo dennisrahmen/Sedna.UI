@@ -114,6 +114,30 @@
 .dropzone--lg { padding: var(--space-11); gap: var(--space-5); font-size: var(--text-5); }
 .dropzone--lg i { font-size: var(--text-10); }
 
+/* The whole window as the target, while files are dragged over it: the app's overlay,
+   written once with `data-dropzone="page"`, which the script shows with `.dropzone--over`
+   and nothing else (26-dropzone.js). It covers the page on the modal backdrop's rung
+   and takes no pointer, so an ordinary zone under it still lights up and keeps its own
+   drop. Hidden until then, with or without the script. */
+.dropzone--page {
+    display: none;
+    position: fixed;
+    inset: var(--space-6);
+    z-index: 500;
+    justify-content: center;
+    padding: var(--space-11);
+    border-width: 2px;
+    background-color: var(--bg-elevated);
+    box-shadow: var(--shadow-modal);
+    font-size: var(--text-6);
+    pointer-events: none;
+}
+.dropzone--page.dropzone--over {
+    display: flex;
+    background-image: linear-gradient(var(--brand-tint), var(--brand-tint));
+}
+.dropzone--page i { font-size: var(--text-11); }
+
 /* ── File list ──────────────────────────────────────────────────────────────
    What was attached, and how to remove it. A real <ul>, so the count is announced.
    The size is monospace so a column of them lines up. */
@@ -168,6 +192,64 @@
 .file-item--error .file-item-status { color: var(--danger-fg); }
 .file-item--error .file-meta { color: var(--danger-fg); }
 .file-item-actions { display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0; }
+/* Paused by the reader: the bar keeps its place and loses its colour, so the row reads
+   as stopped rather than as going. The resume button beside it says the rest. A
+   `.file-meta` under the bar carries the speed and the time left while it runs. */
+.file-item--paused .progress-bar { background: var(--muted); }
+.file-item--paused .file-meta { color: var(--muted); }
 a.file-item { color: inherit; text-decoration: none; }
 a.file-item:hover { border-color: var(--border-strong); text-decoration: none; }
 a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+
+/* ── The whole batch ────────────────────────────────────────────────────────
+   One line over a list of uploads: how far the batch has got, "3 of 5", its speed and
+   time left, and the buttons that act on all of it — pause all, resume all, cancel all.
+   The bar runs along its foot. `--paused`, `--done` and `--error` colour the glyph and
+   the bar the way the same modifiers colour an item's.
+
+     <div class="file-batch" role="group" aria-label="Uploads">
+       <i class="ri-upload-cloud-2-line file-batch-status" aria-hidden="true"></i>
+       <span class="file-batch-main">
+         <span class="file-batch-title">Uploading 3 of 5</span>
+         <span class="file-meta"><span>45%</span><span>2.1 MB/s</span><span>12 s left</span></span>
+       </span>
+       <span class="file-batch-actions">…</span>
+       <span class="progress" role="progressbar" aria-valuenow="45" aria-label="All uploads"><span class="progress-bar" style="width:45%"></span></span>
+     </div> */
+.file-batch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-4);
+    row-gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+    font-size: var(--text-3);
+}
+.file-batch-status { flex-shrink: 0; font-size: var(--text-7); color: var(--brand-text); }
+.file-batch-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-4);
+    row-gap: var(--space-1);
+}
+.file-batch-title {
+    font-weight: 600;
+    color: var(--fg);
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.file-batch-actions { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+.file-batch > .progress { flex-basis: 100%; height: 4px; }
+.file-batch--paused .file-batch-status { color: var(--muted); }
+.file-batch--paused .progress-bar { background: var(--muted); }
+.file-batch--done .file-batch-status { color: var(--go-fg); }
+.file-batch--done .progress-bar { background: var(--go-solid); }
+.file-batch--error { border-color: var(--danger-border); }
+.file-batch--error .file-batch-status { color: var(--danger-fg); }
+.file-batch--error .progress-bar { background: var(--danger-solid); }

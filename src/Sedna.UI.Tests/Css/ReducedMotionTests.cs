@@ -56,7 +56,7 @@ public class ReducedMotionTests
         {
             var css = Assets.StripComments(File.ReadAllText(part));
 
-            foreach (var (selector, body) in Assets.TopLevelRules(css))
+            foreach (var (selector, body) in Rules(css))
             {
                 if (!DeclaresMotion(body)) continue;
 
@@ -96,7 +96,7 @@ public class ReducedMotionTests
                      .Where(p => Path.GetFileName(p) != Part))
         {
             foreach (var (selector, body) in
-                     Assets.TopLevelRules(Assets.StripComments(File.ReadAllText(part))))
+                     Rules(Assets.StripComments(File.ReadAllText(part))))
             {
                 if (!DeclaresMotion(body)) continue;
                 foreach (var one in selector.Split(',').Select(Normalise))
@@ -114,6 +114,16 @@ public class ReducedMotionTests
         Assert.True(stale.Count == 0,
             $"These switch off motion nothing declares any more: {string.Join(", ", stale)}");
     }
+
+    /// <summary>
+    /// The rules of a part, with those inside an <c>@supports</c> block read as rules of their
+    /// own: a scroll-driven animation is declared only where the engine has one, and its
+    /// off switch is the same selector as anywhere else.
+    /// </summary>
+    private static IEnumerable<(string Selector, string Body)> Rules(string css) =>
+        Assets.TopLevelRules(css).SelectMany(r => r.Selector.StartsWith("@supports", StringComparison.Ordinal)
+            ? Rules(r.Body)
+            : [r]);
 
     /// <remarks>
     /// The lookahead sits INSIDE the whitespace, not after it. Written as

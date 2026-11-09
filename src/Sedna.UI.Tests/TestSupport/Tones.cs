@@ -9,7 +9,7 @@ namespace Sedna.UI.Tests.TestSupport;
 internal static class Tones
 {
     private static readonly Regex Carrier = new(
-        @"(?<selectors>\.[a-z]+--[a-z]+(?:,\s*\.[a-z]+--[a-z]+)*)\s*\{(?<body>[^{}]*--tone-fg\s*:[^{}]*)\}", RegexOptions.Compiled);
+        @"(?<selectors>\.[a-z]+(?:-[a-z]+)*--[a-z]+(?:,\s*\.[a-z]+(?:-[a-z]+)*--[a-z]+)*)\s*\{(?<body>[^{}]*--tone-fg\s*:[^{}]*)\}", RegexOptions.Compiled);
 
     /// <summary>tone → (property without <c>--tone-</c> → token it reads, e.g. <c>--warn-bg</c>).</summary>
     public static Dictionary<string, Dictionary<string, string>> Carriers()
@@ -32,7 +32,7 @@ internal static class Tones
         var css = Assets.StripComments(Assets.Css);
         var families = new Dictionary<string, SortedSet<string>>(StringComparer.Ordinal);
         foreach (Match m in Carrier.Matches(css))
-            foreach (Match s in Regex.Matches(m.Groups["selectors"].Value, @"\.(?<f>[a-z]+)--(?<t>[a-z]+)"))
+            foreach (Match s in Regex.Matches(m.Groups["selectors"].Value, @"\.(?<f>[a-z]+(?:-[a-z]+)*)--(?<t>[a-z]+)"))
             {
                 if (!families.TryGetValue(s.Groups["f"].Value, out var set))
                     families[s.Groups["f"].Value] = set = new SortedSet<string>(StringComparer.Ordinal);

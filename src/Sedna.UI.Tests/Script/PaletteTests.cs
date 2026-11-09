@@ -210,4 +210,267 @@ public class PaletteTests : ScriptTestBase
 
         Assert.Equal(0, clicks);
     }
+
+    /// <summary>The palette with every optional part: the path, and the separator, loading and crumb templates.</summary>
+    private const string Full = """
+        <dialog class="palette" data-palette aria-label="Befehle">
+            <div class="palette-path" data-palette-path hidden>
+                <button class="btn btn--sm btn--icon" type="button" data-palette-back aria-label="Zurück">←</button>
+                <span class="palette-trail" data-palette-trail></span>
+            </div>
+            <input class="palette-input" type="text" aria-label="Befehl suchen">
+            <ul class="palette-list" aria-label="Befehle"></ul>
+            <template data-palette-item>
+                <li role="presentation"><div class="palette-item" role="option"><span data-label></span></div></li>
+            </template>
+            <template data-palette-group>
+                <li role="presentation"><div class="palette-group" data-group></div></li>
+            </template>
+            <template data-palette-separator>
+                <li role="presentation" class="palette-separator"></li>
+            </template>
+            <template data-palette-empty>
+                <li role="presentation"><div class="palette-empty">Kein Treffer für „<span data-query></span>“</div></li>
+            </template>
+            <template data-palette-loading>
+                <li role="presentation"><div class="palette-loading">Lädt…</div></li>
+            </template>
+            <template data-palette-crumb><span class="palette-crumb" data-label></span></template>
+        </dialog>
+        """;
+
+    /// <summary>A root with one page, "theme".</summary>
+    private const string WithPages = """
+        () => {
+            sednaUi.palette.register([
+                { label: 'Design ändern…', opens: 'theme' },
+                { label: 'Warteschlange öffnen', run: () => {} },
+                { label: 'Bericht drucken', run: () => {} },
+                { page: 'theme', label: 'Dunkel', run: () => {} },
+                { page: 'theme', label: 'Hell', run: () => {} }
+            ]);
+            sednaUi.palette.open();
+        }
+        """;
+
+    /// <summary>What the reader sees: the open state, the option labels, the selected label, the path and its crumbs.</summary>
+    private const string Read = """
+        () => {
+            const d = document.querySelector('dialog[data-palette]');
+            const options = [...d.querySelectorAll('[role="option"]')];
+            const selected = options.find(o => o.getAttribute('aria-selected') === 'true');
+            return [
+                String(d.open),
+                options.map(o => o.textContent.trim()).join('|'),
+                selected ? selected.textContent.trim() : '',
+                d.querySelector('[data-palette-path]').hidden ? 'root' : 'page',
+                [...d.querySelectorAll('.palette-crumb')].map(c => c.textContent).join('>'),
+                d.querySelector('.palette-input').value
+            ];
+        }
+        """;
+
+    [Fact]
+    public async Task A_command_that_opens_a_page_lists_that_pages_commands_under_a_trail()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Full);
+        await Js.Run(page, WithPages);
+
+        Assert.Equal(["true", "Design ändern…|Warteschlange öffnen|Bericht drucken", "Design ändern…", "root", "", ""],
+            await page.EvaluateAsync<string[]>(Read));
+
+        await page.Keyboard.PressAsync("Enter");
+
+        // Still open: the command opened a page instead of running.
+        Assert.Equal(["true", "Dunkel|Hell", "Dunkel", "page", "Design ändern…", ""],
+            await page.EvaluateAsync<string[]>(Read));
+        Assert.Equal(["Hell"], await page.EvaluateAsync<string[]>(
+            "() => sednaUi.palette.rank('hell', 'theme').map(c => c.label)"));
+        Assert.Empty(await page.EvaluateAsync<string[]>("() => sednaUi.palette.rank('hell').map(c => c.label)"));
+    }
+
+    [Fact]
+    public async Task Backspace_in_an_empty_search_goes_back_to_the_query_and_row_the_reader_left()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Full);
+        await Js.Run(page, WithPages);
+
+        // "dr" ranks "Bericht drucken" first and the opener second.
+        await page.Keyboard.TypeAsync("dr");
+        await page.Keyboard.PressAsync("ArrowDown");
+        var selected = (await page.EvaluateAsync<string[]>(Read))[2];
+        Assert.Equal("Design ändern…", selected);
+        await page.Keyboard.PressAsync("Enter");
+
+        // With text in the input, Backspace edits it and the page stays.
+        await page.Keyboard.TypeAsync("h");
+        await page.Keyboard.PressAsync("Backspace");
+        Assert.Equal("page", (await page.EvaluateAsync<string[]>(Read))[3]);
+
+        await page.Keyboard.PressAsync("Backspace");
+        var back = await page.EvaluateAsync<string[]>(Read);
+        Assert.Equal("root", back[3]);
+        Assert.Equal("dr", back[5]);
+        Assert.Equal("Bericht drucken|Design ändern…", back[1]);
+        Assert.Equal(selected, back[2]);
+    }
+
+    [Fact]
+    public async Task Escape_goes_back_one_page_and_closes_only_on_the_root()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Full);
+        await Js.Run(page, WithPages);
+        await page.Keyboard.PressAsync("Enter");
+
+        await page.Keyboard.PressAsync("Escape");
+        var state = await page.EvaluateAsync<string[]>(Read);
+        Assert.Equal("true", state[0]);
+        Assert.Equal("root", state[3]);
+
+        await page.Keyboard.PressAsync("Escape");
+        Assert.Equal("false", (await page.EvaluateAsync<string[]>(Read))[0]);
+    }
+
+    [Fact]
+    public async Task The_apps_back_button_goes_back_one_page()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Full);
+        await Js.Run(page, WithPages);
+        await page.Keyboard.PressAsync("Enter");
+
+        await page.Locator("[data-palette-back]").ClickAsync();
+
+        var state = await page.EvaluateAsync<string[]>(Read);
+        Assert.Equal(["true", "root"], [state[0], state[3]]);
+        Assert.True(await page.EvaluateAsync<bool>(
+            "() => document.activeElement === document.querySelector('.palette-input')"));
+        Assert.False(await page.EvaluateAsync<bool>("() => sednaUi.palette.back()"));
+    }
+
+    [Fact]
+    public async Task The_arrow_keys_wrap_around_the_list()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Full);
+        await Js.Run(page, WithPages);
+
+        await page.Keyboard.PressAsync("ArrowUp");
+        Assert.Equal("Bericht drucken", (await page.EvaluateAsync<string[]>(Read))[2]);
+
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal("Design ändern…", (await page.EvaluateAsync<string[]>(Read))[2]);
+    }
+
+    [Fact]
+    public async Task While_the_app_is_loading_the_list_ends_with_its_loading_row_and_holds_back_nothing_found()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Full);
+
+        var states = await page.EvaluateAsync<string[]>("""
+            async () => {
+                const d = document.querySelector('dialog[data-palette]');
+                const input = d.querySelector('.palette-input');
+                const read = () => [...d.querySelector('.palette-list').children]
+                    .map(li => li.querySelector('.palette-loading') ? 'loading'
+                             : li.querySelector('.palette-empty') ? 'empty'
+                             : li.textContent.trim()).join('|');
+
+                sednaUi.palette.register([{ label: 'Warteschlange', run: () => {} }]);
+                sednaUi.palette.open();
+                const out = [];
+
+                d.setAttribute('aria-busy', 'true');
+                await null;                                // the observer's microtask
+                out.push(read());
+
+                input.value = 'xyz';
+                input.dispatchEvent(new Event('input'));
+                out.push(read());
+
+                // The page's commands arrive, then the app clears the signal.
+                sednaUi.palette.register([{ label: 'Warteschlange', run: () => {} }, { label: 'xyz-Bericht', run: () => {} }]);
+                out.push(read());
+                d.removeAttribute('aria-busy');
+                await null;
+                out.push(read());
+
+                input.value = 'qqq';
+                input.dispatchEvent(new Event('input'));
+                out.push(read());
+                return out;
+            }
+            """);
+
+        Assert.Equal(["Warteschlange|loading", "loading", "xyz-Bericht|loading", "xyz-Bericht", "empty"], states);
+    }
+
+    [Fact]
+    public async Task Groups_and_separators_show_only_while_nothing_is_typed()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Full);
+
+        var counts = await page.EvaluateAsync<int[]>("""
+            () => {
+                sednaUi.palette.register([
+                    { label: 'Warteschlange', group: 'Navigation', run: () => {} },
+                    { label: 'Berichte', group: 'Navigation', run: () => {} },
+                    { label: 'Abmelden', group: 'Konto', run: () => {} },
+                    { label: 'Profil', group: 'Konto', run: () => {} }
+                ]);
+                sednaUi.palette.open();
+                const d = document.querySelector('dialog[data-palette]');
+                const count = () => [d.querySelectorAll('.palette-group').length, d.querySelectorAll('.palette-separator').length];
+                const before = count();
+                const input = d.querySelector('.palette-input');
+                input.value = 'e';
+                input.dispatchEvent(new Event('input'));
+                return before.concat(count());
+            }
+            """);
+
+        // A separator between the two runs, never above the first.
+        Assert.Equal([2, 1, 0, 0], counts);
+    }
+
+    [Fact]
+    public async Task A_pinned_command_follows_the_matches_whatever_is_typed()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Full);
+
+        var lists = await page.EvaluateAsync<string[]>("""
+            () => {
+                sednaUi.palette.register([
+                    { label: 'In der Hilfe suchen', pinned: true, run: () => {} },
+                    { label: 'Warteschlange', run: () => {} },
+                    { label: 'Berichte', run: () => {} }
+                ]);
+                sednaUi.palette.open();
+                const d = document.querySelector('dialog[data-palette]');
+                const input = d.querySelector('.palette-input');
+                const read = () => [...d.querySelector('.palette-list').children]
+                    .map(li => li.querySelector('.palette-empty') ? 'empty' : li.textContent.trim()).join('|');
+                const out = [read()];
+                input.value = 'ber';
+                input.dispatchEvent(new Event('input'));
+                out.push(read());
+                input.value = 'zzz';
+                input.dispatchEvent(new Event('input'));
+                out.push(read());
+                return out;
+            }
+            """);
+
+        Assert.Equal([
+            "In der Hilfe suchen|Warteschlange|Berichte",
+            "Berichte|In der Hilfe suchen",
+            "empty|In der Hilfe suchen",
+        ], lists);
+    }
 }

@@ -1,0 +1,57 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Length 525 >>
+stream
+BT /F2 20 Tf 72 760 Td (Delivery note 1042) Tj ET
+BT /F1 11 Tf 72 736 Td (Northwind Retail - sample document for the Sedna.UI catalogue) Tj ET
+BT /F1 11 Tf 72 700 Td (Ship to: Alex Fischer, alex.fischer@example.com) Tj ET
+BT /F1 11 Tf 72 670 Td (Line  Item                      Qty) Tj ET
+BT /F1 11 Tf 72 652 Td (1     Storage box, large        4) Tj ET
+BT /F1 11 Tf 72 634 Td (2     Label roll, 500 labels    2) Tj ET
+BT /F1 11 Tf 72 616 Td (3     Packing tape              6) Tj ET
+BT /F1 9 Tf 72 72 Td (Page 1 of 2) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 156 >>
+stream
+BT /F2 14 Tf 72 760 Td (Returns) Tj ET
+BT /F1 11 Tf 72 736 Td (Unused items may be returned within 30 days.) Tj ET
+BT /F1 9 Tf 72 72 Td (Page 2 of 2) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000197 00000 n 
+0000000272 00000 n 
+0000000847 00000 n 
+0000000983 00000 n 
+0000001189 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+1325
+%%EOF

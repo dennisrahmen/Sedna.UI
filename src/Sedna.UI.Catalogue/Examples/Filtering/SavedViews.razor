@@ -1,0 +1,63 @@
+<div style="padding-bottom:280px">
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <div class="menu-anchor">
+                <button class="btn" type="button" data-menu-toggle aria-expanded="false" aria-label="View: Held this week, modified">
+                    <i class="ri-bookmark-line"></i> <span>Held this week</span> <i class="ri-arrow-down-s-line"></i>
+                </button>
+                <div class="menu menu--start" hidden>
+                    <span class="menu-label">Views</span>
+                    <button class="menu-item" type="button" aria-current="true">
+                        <i class="ri-bookmark-fill"></i> <span>Held this week</span><span class="menu-item-note">Default</span>
+                    </button>
+                    <button class="menu-item" type="button">
+                        <i class="ri-bookmark-line"></i> <span>All open orders</span>
+                    </button>
+                    <button class="menu-item" type="button">
+                        <i class="ri-bookmark-line"></i> <span>EU-West, over 500</span>
+                    </button>
+                    <hr class="menu-sep" />
+                    <button class="menu-item" type="button">
+                        <i class="ri-save-line"></i> <span>Save view</span>
+                    </button>
+                    <button class="menu-item" type="button" onclick="document.getElementById('sv-save-as').showModal()">
+                        <i class="ri-file-copy-line"></i> <span>Save as new view…</span>
+                    </button>
+                    <button class="menu-item" type="button" aria-disabled="true">
+                        <i class="ri-star-line"></i> <span>Set as default</span>
+                    </button>
+                    <hr class="menu-sep" />
+                    <button class="menu-item menu-item--danger" type="button">
+                        <i class="ri-delete-bin-line"></i> <span>Delete view</span>
+                    </button>
+                </div>
+            </div>
+            <span class="badge badge--warn">Modified</span>
+            <button class="btn btn--sm btn--ghost" type="button">Save view</button>
+            <button class="btn btn--sm btn--ghost" type="button">Discard changes</button>
+        </div>
+        <div class="toolbar-actions">
+            <span class="toolbar-count">41 of 1,656 orders</span>
+        </div>
+    </div>
+
+    <dialog class="modal" id="sv-save-as" aria-labelledby="sv-save-as-title">
+        <form method="dialog">
+            <div class="modal-header">
+                <h3 id="sv-save-as-title">Save as a new view</h3>
+                <button class="modal-close" value="cancel" aria-label="Close"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-field">
+                    <label class="form-label form-label--required" for="sv-name">Name</label>
+                    <input class="form-input" id="sv-name" required value="Held this week, EU-West" />
+                </div>
+                <label class="form-check"><input type="checkbox" /> <span>Open with this view</span></label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" value="cancel" formnovalidate>Cancel</button>
+                <button class="btn btn--brand btn--solid" value="save">Save view</button>
+            </div>
+        </form>
+    </dialog>
+</div>

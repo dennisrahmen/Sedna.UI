@@ -1,0 +1,45 @@
+@* MainLayout.razor — the bar along the top of the window while the next page loads: shown
+   when a navigation starts, hidden once the router has the new page. *@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager Nav
+
+<div class="progress progress--route progress--indeterminate" role="progressbar"
+     aria-label="Loading the page" hidden="@(!_loading)">
+    <div class="progress-bar"></div>
+</div>
+
+<div class="layout">
+    @* the sidebar, the topbar and the page, as on the Shell & nav page *@
+    @Body
+</div>
+
+@code {
+    private bool _loading;
+    private IDisposable? _changing;
+
+    protected override void OnInitialized()
+    {
+        _changing = Nav.RegisterLocationChangingHandler(Starting);
+        Nav.LocationChanged += Arrived;
+    }
+
+    private ValueTask Starting(LocationChangingContext context)
+    {
+        _loading = true;
+        StateHasChanged();
+        return ValueTask.CompletedTask;
+    }
+
+    private void Arrived(object? sender, LocationChangedEventArgs e)
+    {
+        _loading = false;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _changing?.Dispose();
+        Nav.LocationChanged -= Arrived;
+    }
+}

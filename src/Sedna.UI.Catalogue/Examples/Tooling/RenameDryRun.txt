@@ -1,0 +1,17 @@
+$ python3 -I ~/.nuget/packages/sedna.ui/0.28.0/tooling/rename-classes.py --from 0.27.0 --dry-run .
+--- ./Components/Pages/Orders.razor
++++ ./Components/Pages/Orders.razor
+@@ -12,3 +12,3 @@
+     <div class="toolbar">
+-        <button class="btn btn-go @(_sending ? "sedna-busy" : null)" type="submit">Send</button>
++        <button class="btn btn--go btn--solid @(_sending ? "sedna-busy" : null)" type="submit">Send</button>
+     </div>
+--- ./wwwroot/css/app.css
++++ ./wwwroot/css/app.css
+@@ -7 +7 @@
+-.orders-summary .badge-sm { margin-inline-start: var(--space-2); }
++.orders-summary .badge--sm { margin-inline-start: var(--space-2); }
+2 classes would change in 2 files (renames of 0.28.0).
+
+$ python3 -I ~/.nuget/packages/sedna.ui/0.28.0/tooling/rename-classes.py --from 0.27.0 .
+2 classes changed in 2 files (renames of 0.28.0).

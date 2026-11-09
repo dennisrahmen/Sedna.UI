@@ -75,7 +75,7 @@ internal static class TokenGroups
 
         // The edge of every box a reader types or picks into, at rest and focused, apart
         // from --border so fields can be firmed up without firming up every divider.
-        new("Fields", ["--field-border", "--field-border-focus", "--field-border-danger", "--field-border-warn", "--control-border", "--control-on", "--focus-ring"]),
+        new("Fields", ["--field-border", "--field-border-focus", "--field-border-danger", "--field-border-warn", "--control-border", "--control-on", "--rating-on", "--rating-off", "--focus-ring"]),
 
         // A disabled control: its label, fill and edge — the label still at 4.5:1.
         new("Disabled", ["--disabled-fg", "--disabled-bg", "--disabled-border"]),
@@ -177,12 +177,12 @@ internal static class TokenGroups
         new("Motion", [
             "--motion-fast", "--motion-mid", "--motion-slow",
             "--spin-duration", "--progress-duration", "--skeleton-duration", "--pulse-duration",
-            "--shimmer-duration", "--caret-duration", "--flow-duration", "--stagger-step", "--hover-delay",
+            "--shimmer-duration", "--caret-duration", "--flow-duration", "--stagger-step", "--hover-delay", "--roll-duration",
         ], Swatch: false),
 
         new("Density and metrics", [
             "--page-max", "--cell-pad-x", "--cell-pad-y", "--card-pad-block", "--card-pad-inline",
-            "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--code-clamp", "--page-rhythm", "--page-pad",
+            "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--kv-key-width", "--code-clamp", "--page-rhythm", "--page-pad", "--page-banner-pad-block",
             "--cap-gap",
         ], Swatch: false),
 
@@ -207,6 +207,9 @@ internal static class TokenGroups
         // brand, then hues ordered so neighbours differ. Remapped two steps darker in
         // the light theme, where a 400 is a pastel.
         new("Data visualisation", ["--viz-1", "--viz-2", "--viz-3", "--viz-4", "--viz-5", "--viz-6", "--viz-previous"]),
+
+        // A heatmap's intensity: step 0 is the empty track, 1–4 rise in strength.
+        new("Heatmap steps", ["--heat-0", "--heat-1", "--heat-2", "--heat-3", "--heat-4"]),
 
         // A workflow's light: the streak running into the step at work, the line under
         // it, and the step's ring and glow — aliases of the info colours.

@@ -1,0 +1,35 @@
+<div class="sedna-col sedna-gap-5" style="max-width:560px">
+    <section class="card" aria-label="Page feedback">
+        <div class="card-body sedna-row-wrap">
+            <span id="feedback-question">Is this page useful?</span>
+            <button class="btn btn--sm" type="button" aria-describedby="feedback-question">Yes</button>
+            <button class="btn btn--sm" type="button" aria-describedby="feedback-question">No</button>
+            <button class="btn btn--sm btn--ghost sedna-push" type="button">Report a problem with this page</button>
+        </div>
+    </section>
+
+    <section class="card" aria-labelledby="feedback-form-title">
+        <div class="card-head"><h3 id="feedback-form-title">Help us improve this page</h3></div>
+        <form class="card-body sedna-col">
+            <p class="form-hint">Do not include personal details such as an address or an order number.</p>
+            <div class="form-field">
+                <label class="form-label" for="feedback-doing">What were you doing?</label>
+                <input class="form-input" id="feedback-doing" type="text" />
+            </div>
+            <div class="form-field">
+                <label class="form-label" for="feedback-wrong">What went wrong?</label>
+                <textarea class="form-input" id="feedback-wrong" rows="3"></textarea>
+            </div>
+            <div class="form-actions form-actions--start">
+                <button class="btn btn--brand btn--solid" type="submit">Send</button>
+                <button class="btn" type="button">Cancel</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="card" aria-label="Page feedback">
+        <div class="card-body">
+            <span role="status">Thank you for your feedback.</span>
+        </div>
+    </section>
+</div>

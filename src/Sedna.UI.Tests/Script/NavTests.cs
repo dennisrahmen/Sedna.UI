@@ -272,4 +272,89 @@ public class NavTests : ScriptTestBase
 
         Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('bar').hasAttribute('data-away')"));
     }
+
+    /// <summary>
+    /// A frame: topbar, sidebar with a nav inside, main with a header scoped to an article,
+    /// a hidden aside, an off-canvas drawer, a bottom bar, and a modeless sheet.
+    /// </summary>
+    private const string RegionFixture = """
+        <header class="topbar" id="top"><a href="#x" id="top-first">Home</a><button id="top-second">Menu</button></header>
+        <aside class="sidebar" id="side">
+            <nav class="nav" aria-label="Pages"><a class="nav-link" href="#a" id="side-first"><span>Queue</span></a></nav>
+        </aside>
+        <main id="main">
+            <article><header><h2>Order</h2></header><p>No controls in here.</p></article>
+        </main>
+        <aside id="hidden-aside" hidden><button>Never</button></aside>
+        <aside id="away" style="position:fixed; top:0; left:0; width:200px; transform:translateX(-100%)"><button id="away-btn">Off canvas</button></aside>
+        <nav class="bottombar" id="bar" aria-label="Sections"><button id="bar-first" disabled>Off</button><a href="#b" id="bar-second">Stock</a></nav>
+        <dialog class="drawer" data-modeless id="sheet"><button id="sheet-first">Filter</button></dialog>
+        <dialog class="modal" id="modal"><button id="modal-first">OK</button></dialog>
+        """;
+
+    private const string Focused = """
+        () => { const a = document.activeElement; return a ? (a.id || a.tagName) : ''; }
+        """;
+
+    [Fact]
+    public async Task F6_visits_the_regions_in_document_order_and_wraps()
+    {
+        if (NoBrowser) return;
+        var page = await Open(RegionFixture);
+        await Js.Run(page, "() => document.getElementById('sheet').show()");
+
+        var seen = new List<string>();
+        for (var i = 0; i < 6; i++)
+        {
+            await page.Keyboard.PressAsync("F6");
+            seen.Add(await page.EvaluateAsync<string>(Focused));
+        }
+
+        // The nav inside the sidebar and the header inside the article are not stops; the
+        // hidden aside and the off-canvas one are skipped; a disabled control is not the
+        // first; main has no control, so it takes the focus itself.
+        Assert.Equal(["top-first", "side-first", "main", "bar-second", "sheet-first", "top-first"], seen);
+    }
+
+    [Fact]
+    public async Task Shift_F6_goes_back_and_a_region_without_a_control_loses_its_borrowed_tabindex()
+    {
+        if (NoBrowser) return;
+        var page = await Open(RegionFixture);
+
+        await page.Locator("#bar-second").FocusAsync();
+        await page.Keyboard.PressAsync("Shift+F6");
+        Assert.Equal("main", await page.EvaluateAsync<string>(Focused));
+        Assert.Equal("-1", await page.EvaluateAsync<string>("() => document.getElementById('main').getAttribute('tabindex')"));
+
+        await page.Keyboard.PressAsync("Shift+F6");
+        Assert.Equal("side-first", await page.EvaluateAsync<string>(Focused));
+        Assert.Null(await page.EvaluateAsync<string?>("() => document.getElementById('main').getAttribute('tabindex')"));
+
+        // From the first region, back wraps to the last.
+        await page.Locator("#top-second").FocusAsync();
+        await page.Keyboard.PressAsync("Shift+F6");
+        Assert.Equal("bar-second", await page.EvaluateAsync<string>(Focused));
+    }
+
+    [Fact]
+    public async Task Inside_a_modal_dialog_F6_is_left_to_the_browser()
+    {
+        if (NoBrowser) return;
+        var page = await Open(RegionFixture);
+        await Js.Run(page, "() => document.getElementById('modal').showModal()");
+        await page.Locator("#modal-first").FocusAsync();
+
+        var prevented = await page.EvaluateAsync<bool>("""
+            () => {
+                const e = new KeyboardEvent('keydown', { key: 'F6', bubbles: true, cancelable: true });
+                document.activeElement.dispatchEvent(e);
+                return e.defaultPrevented;
+            }
+            """);
+
+        Assert.False(prevented);
+        Assert.Equal("modal-first", await page.EvaluateAsync<string>(Focused));
+        Assert.Null(await page.EvaluateAsync<string?>("() => sednaUi.nav.moveRegion(1) && 'moved'"));
+    }
 }

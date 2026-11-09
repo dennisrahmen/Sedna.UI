@@ -201,8 +201,25 @@
    is the harmless failure. The app still empties the value on click.
 
    The platform's own ✕ on `type="search"` sits in the same place and does not follow
-   the theme, so a group holding this button hides it. */
-.input-clear {
+   the theme, so a group holding this button hides it.
+
+   `.input-reveal` is the same button for a password field: it shows the password as
+   text and hides it again. 21-reveal.js switches the field's `type` and the button's
+   `aria-pressed`; the label is the app's and stays the same either way, because the
+   pressed state is what a screen reader announces as the change:
+
+     <div class="input-group">
+       <input class="form-input" id="pw" type="password" autocomplete="current-password">
+       <button class="input-reveal" type="button" data-reveal aria-controls="pw" aria-pressed="false" aria-label="Show password">
+         <i class="ri-eye-line"></i><i class="ri-eye-off-line"></i>
+       </button>
+     </div>
+
+   With two icons, the first shows while the password is hidden and the second while it
+   is shown. Edge draws an eye of its own on a password field, which a group holding
+   this button hides. */
+.input-clear,
+.input-reveal {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -220,10 +237,44 @@
     line-height: 1;
     cursor: pointer;
 }
-.input-clear:hover { background: var(--bg-hover); color: var(--fg); }
-.input-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+.input-clear:hover,
+.input-reveal:hover { background: var(--bg-hover); color: var(--fg); }
+.input-clear:focus-visible,
+.input-reveal:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .input-group:has(> .form-input:placeholder-shown) > .input-clear { display: none; }
 .input-group:has(> .input-clear) > .form-input::-webkit-search-cancel-button { display: none; }
+.input-reveal[aria-pressed="true"] { color: var(--fg); }
+.input-reveal:not([aria-pressed="true"]) > i + i,
+.input-reveal[aria-pressed="true"] > i:has(+ i) { display: none; }
+.input-group:has(> .input-reveal) > .form-input::-ms-reveal { display: none; }
+
+/* ── A value shown masked ───────────────────────────────────────────────────
+   `.secret-value` is a value read but not shown until asked — an API key, a connection
+   string, an environment variable — drawn as dots and not selectable while masked. The
+   reveal is any button with `data-reveal` and `aria-controls` naming it: 21-reveal.js
+   marks the value `data-sedna-revealed` and the button `aria-pressed`, and the button's
+   two icons swap as `.input-reveal`'s do.
+
+     <div class="kv">
+       <dt class="k text-mono">DATABASE_URL</dt>
+       <dd class="v"><span class="secret-value" id="env-db">postgres://orders:…</span></dd>
+       <dd class="kv-action">
+         <button class="btn btn--sm btn--ghost btn--icon" type="button" data-reveal aria-controls="env-db"
+                 aria-pressed="false" aria-label="Show DATABASE_URL">
+           <i class="ri-eye-line"></i><i class="ri-eye-off-line"></i></button>
+         <button class="btn btn--sm btn--ghost btn--icon" type="button" data-copy="…" aria-label="Copy DATABASE_URL">…</button>
+       </dd>
+     </div>
+
+   The value is in the page, masked by the stylesheet, so copy works either way. A
+   value the page must not hold until the reader asks for it is the app's to fetch on
+   the reveal and render then. */
+.secret-value:not([data-sedna-revealed]) {
+    -webkit-text-security: disc;
+    user-select: none;
+}
+[data-reveal]:not(.input-reveal):not([aria-pressed="true"]) > i + i,
+[data-reveal]:not(.input-reveal)[aria-pressed="true"] > i:has(+ i) { display: none; }
 
 /* ── Trigger field ──────────────────────────────────────────────────────────
    A <button> in the shape of a field, for a value that is chosen in a panel and
@@ -283,6 +334,103 @@
 .form-actions--split { justify-content: space-between; }
 .form-actions--start { justify-content: flex-start; }
 
+/* ── Sticky actions and the save bar ────────────────────────────────────────
+   A form longer than the screen keeps its actions in reach: the row sticks to the
+   bottom of what scrolls it — the page, or a `.sedna-scroll` — while the form is in
+   view, and settles at the form's end when the reader gets there. A form in a modal
+   or a drawer has `.modal-footer` or `.drawer-foot` for this, which never scroll.
+
+     <form>
+       …
+       <div class="form-actions form-actions--sticky">
+         <button class="btn" type="button">Cancel</button>
+         <button class="btn btn--brand btn--solid" type="submit">Save</button>
+       </div>
+     </form>
+
+   `--save-bar` is the same row shown only while the work is unsaved: the app puts
+   `data-dirty` on the form, or on any element around the row, while what is on
+   screen differs from what was saved, and takes it off when it saves or discards.
+   The row then says so in `.form-actions-status`, which sits on the leading side:
+
+     <form data-close-guard data-dirty>
+       …
+       <div class="form-actions form-actions--save-bar">
+         <p class="form-actions-status"><i class="ri-error-warning-line"></i><span>Unsaved changes</span></p>
+         <button class="btn" type="reset">Discard</button>
+         <button class="btn btn--brand btn--solid" type="submit">Save</button>
+       </div>
+     </form>
+
+   With no `data-dirty` the save bar is not there at all, so a form that must save
+   on a page with no script uses `--sticky`, which always shows. `data-close-guard`
+   beside `data-dirty` asks before the page is left (42-modal.js).
+
+   The row paints the surface it sits on, so the fields scrolling under it do not
+   show through, and draws a rule on the edge they scroll under. It pads itself
+   clear of the home indicator where it reaches the device's edge, which is in a
+   page with no bottom bar below it; with one, the bar does that. Under
+   `.layout--flow` on a phone, where the document scrolls and the bar is stuck to
+   the bottom of the viewport, the row stands on the bar instead of under it —
+   `--bottombar-reach`, in 24-frame-bottombar.css. z-index 3 is local: it keeps the
+   row above a sticky table header or a pinned column it scrolls over. */
+.form-actions--sticky,
+.form-actions--save-bar {
+    position: sticky;
+    inset-block-end: 0;
+    z-index: 3;
+    padding-block: var(--space-5);
+    background: var(--surface-here, var(--bg));
+    border-top: 1px solid var(--border);
+}
+/* A sticky box stops at its scroller's padding, and the page pads its bottom edge,
+   so the row in a page reaches through that padding to the edge itself — otherwise
+   the fields show through the gap under it. The pairs below follow the page's own
+   padding in 16-frame-page-scroll.css and 24-frame-bottombar.css. A row in a
+   scroller inside the page sticks to that scroller instead, so give a scroller of
+   the app's own `.sedna-scroll`, which is how the rule knows it is one. */
+.page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+    inset-block-end: calc(-1 * (var(--page-pad) + var(--safe-block-end)));
+    padding-block-end: calc(var(--space-5) + var(--safe-block-end));
+}
+.content:has(> .bottombar) > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+    inset-block-end: calc(-1 * var(--space-9));
+    padding-block-end: var(--space-5);
+}
+@media (min-width: 561px) {
+    .layout--bottombar .content:has(> .bottombar) > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: calc(-1 * (var(--space-9) + var(--safe-block-end)));
+        padding-block-end: calc(var(--space-5) + var(--safe-block-end));
+    }
+}
+/* A flowing page is not a scroller: the viewport is, and it has no padding. */
+@media (max-width: 560px) {
+    .layout--flow > .content > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) { inset-block-end: 0; }
+    .layout--flow:has(> .content > .bottombar) > .content > .page :is(.form-actions--sticky, .form-actions--save-bar):not(:is(.sedna-scroll, .modal-body, .drawer-body) *) {
+        inset-block-end: var(--bottombar-reach);
+    }
+}
+
+/* A card clips its content to its corners with `overflow: hidden`, which makes it a
+   scroll container of its own, and a row cannot stick inside a box that never
+   scrolls. `clip` cuts to the same corners without being one, so the row sticks to
+   the scroller around the card. */
+.card:has(.form-actions--sticky, .form-actions--save-bar) { overflow: clip; }
+
+.form-actions--save-bar { display: none; }
+[data-dirty] .form-actions--save-bar { display: flex; }
+
+.form-actions-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    margin-inline-end: auto;
+    color: var(--muted-here, var(--muted));
+    font-size: var(--text-3);
+}
+.form-actions-status i { color: var(--warn-fg); font-size: var(--text-5); }
+
 /* ── Form section ───────────────────────────────────────────────────────────
    A titled group of fields. Use <fieldset> + <legend>: the legend is then
    announced together with every control inside the group, which a heading above
@@ -319,6 +467,18 @@
     flex-direction: column;
     gap: var(--space-7);
 }
+/* A page that asks one question: the legend holds the page's <h1>, so the question is
+   the heading and the name of the group at once. It is the page's title rather than a
+   group's, so it has no rule under it and takes the heading's size, and the heading
+   gives up its own margin to the legend's. */
+.form-section--question > legend {
+    padding-block-end: 0;
+    margin-bottom: var(--space-6);
+    border-bottom: none;
+    font-size: inherit;
+}
+.form-section--question > legend > :is(h1, h2) { margin: 0; }
+.form-section--question > legend > .eyebrow { margin-bottom: var(--space-2); }
 
 /* ── Dependent options ──────────────────────────────────────────────────────
    Fields that only matter while the option above them is on: the recipients under
@@ -397,4 +557,78 @@
        own columns from inside its query, so its children span them instead. */
     .transfer > * { grid-column: 1 / span 3; }
     .transfer-actions { flex-direction: row; justify-content: center; }
+}
+
+/* ── Rule group ─────────────────────────────────────────────────────────────
+   A query builder's frame: conditions that combine with AND or OR, and groups of them
+   nested inside one another — "status is Held AND (region is EU-West OR amount is over
+   500)". The fields are the library's own controls; this is only the frame, the
+   indentation that shows what belongs to which group, and a row that keeps its fields
+   in columns.
+
+     <div class="rule-group" role="group" aria-label="Conditions">
+       <div class="rule-group-head">  the AND/OR `.segmented`, the group's own buttons  </div>
+       <div class="rule-group-body">
+         <div class="rule-group-row">  field, operator, value, remove — the remove button last  </div>
+         <div class="rule-group">  a nested group, the same shape  </div>
+         <div class="rule-group-actions">  Add condition, Add group  </div>
+       </div>
+     </div>
+
+   The body is indented from the head's inline start and drawn with a line down that
+   edge, so a nested group's line sits inside its parent's and the nesting reads at a
+   glance, in either direction. Nothing here evaluates anything: what a group means,
+   adding and removing rows, and turning the tree into a query are the app's.
+
+   A row is four columns while the group is wide enough — field, operator, value at half
+   as wide again, and the remove button — and below 480px of the group's own width the
+   fields go one under the other with the remove button beside the first. Measured on
+   the group, so a deeply nested one stacks before its parent does. */
+.rule-group {
+    container: sedna-rule-group / inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+}
+.rule-group .rule-group {
+    padding: var(--space-5);
+    background: var(--surface-soft);
+}
+.rule-group-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+}
+.rule-group-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+    margin-inline-start: var(--space-3);
+    padding-inline-start: var(--space-6);
+    border-inline-start: 2px solid var(--border);
+}
+.rule-group-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 3fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+}
+.rule-group-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+@container sedna-rule-group (width < 480px) {
+    .rule-group-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .rule-group-row > :not(:last-child) { grid-column: 1; }
+    .rule-group-row > :last-child { grid-column: 2; grid-row: 1; }
 }

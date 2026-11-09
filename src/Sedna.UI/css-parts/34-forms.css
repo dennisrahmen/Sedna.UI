@@ -152,6 +152,20 @@ textarea.form-input::-webkit-resizer {
 .form-check:has(input:disabled) { color: var(--disabled-fg); cursor: not-allowed; }
 .form-check input:disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
 
+/* A count at the end of a choice: how many records it would leave — a facet beside
+   each value of a column's filter. The choice takes the width it is given, so a column
+   of counts lines up at the end edge, in figures of one width. */
+.form-check:has(> .form-check-count) { display: flex; }
+.form-check-count {
+    margin-inline-start: auto;
+    padding-inline-start: var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+
 .form-input:disabled,
 .form-select:disabled,
 .form-input[readonly] { cursor: not-allowed; background: var(--disabled-bg); border-color: var(--disabled-border); color: var(--disabled-fg); }

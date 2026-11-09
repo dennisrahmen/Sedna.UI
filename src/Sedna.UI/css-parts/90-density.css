@@ -6,7 +6,7 @@
 
    What moves: table cells (--cell-pad-*), card parts (--card-pad-*), list rows
    (--list-pad-*, plus --list-gap between the cards of `.list--cards`), the page's
-   rhythm and padding, and the three control heights every button, field, select,
+   rhythm and padding and a page banner's, and the three control heights every button, field, select,
    segmented control and toolbar reads. Compact keeps the small tier at 24px, the
    WCAG 2.5.8 floor; touch puts the default tier at 44px, the 2.5.5 target size.
    Anything else that should tighten with them reads the same tokens and gets it for
@@ -28,6 +28,7 @@
     --list-gap: var(--space-2);
     --page-rhythm: var(--space-5);
     --page-pad: var(--space-7);
+    --page-banner-pad-block: var(--space-3);
     --control-height-sm: 24px;
     --control-height: 30px;
     --control-height-lg: 38px;
@@ -42,6 +43,7 @@
     --list-pad-inline: var(--space-7);
     --list-gap: var(--space-6);
     --page-rhythm: var(--space-8);
+    --page-banner-pad-block: var(--space-7);
     --control-height-sm: 36px;
     --control-height: 44px;
     --control-height-lg: 52px;

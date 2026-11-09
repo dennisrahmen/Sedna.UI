@@ -1,0 +1,64 @@
+<div class="sedna-grid">
+    <div class="card" data-chart-frame>
+        <div class="card-head">
+            <h3>Open orders, by state</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart" data-chart="donut" id="chart-order-states"
+                 aria-label="Open orders by state, 412 in all" aria-roledescription="chart">
+                <table class="chart-data" data-chart-data>
+                    <caption>Open orders by state</caption>
+                    <thead><tr><th scope="col">State</th><th scope="col">Orders</th></tr></thead>
+                    <tbody>
+                        <tr data-tone="1"><th scope="row">Picking</th><td>164</td></tr>
+                        <tr data-tone="2"><th scope="row">Packed</th><td>118</td></tr>
+                        <tr data-tone="4"><th scope="row">With the carrier</th><td>96</td></tr>
+                        <tr data-tone="warn"><th scope="row">On hold</th><td>34</td></tr>
+                    </tbody>
+                </table>
+                <div class="chart-plot"></div>
+                <div class="chart-total">
+                    <span class="chart-total-value">412</span>
+                    <span class="chart-total-label">open orders</span>
+                </div>
+                <div class="chart-wait skeleton skeleton-block"></div>
+            </div>
+            <p class="visually-hidden" data-chart-live aria-live="polite"
+               data-chart-announce="{category}: {value} orders, {percent}."></p>
+        </div>
+        <div class="card-foot">
+            <div class="chart-legend">
+                <button class="chart-key" type="button" data-chart-toggle="Picking" aria-pressed="true">
+                    <span class="chart-swatch chart-swatch--block series-1"></span><span>Picking</span></button>
+                <button class="chart-key" type="button" data-chart-toggle="Packed" aria-pressed="true">
+                    <span class="chart-swatch chart-swatch--block series-2"></span><span>Packed</span></button>
+                <button class="chart-key" type="button" data-chart-toggle="With the carrier" aria-pressed="true">
+                    <span class="chart-swatch chart-swatch--block series-4"></span><span>With the carrier</span></button>
+                <button class="chart-key" type="button" data-chart-toggle="On hold" aria-pressed="true">
+                    <span class="chart-swatch chart-swatch--block series-warn"></span><span>On hold</span></button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-head">
+            <h3>Storage used</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart" data-chart="pie" id="chart-storage"
+                 aria-label="Storage used by kind of file" aria-roledescription="chart">
+                <table class="chart-data" data-chart-data>
+                    <caption>Storage used by kind of file</caption>
+                    <thead><tr><th scope="col">Kind</th><th scope="col">Gigabytes</th></tr></thead>
+                    <tbody>
+                        <tr><th scope="row">Images</th><td>412</td></tr>
+                        <tr><th scope="row">Documents</th><td>186</td></tr>
+                        <tr><th scope="row">Backups</th><td>340</td></tr>
+                        <tr><th scope="row">Logs</th><td>74</td></tr>
+                    </tbody>
+                </table>
+                <div class="chart-plot"></div>
+                <div class="chart-wait skeleton skeleton-block"></div>
+            </div>
+        </div>
+    </div>
+</div>

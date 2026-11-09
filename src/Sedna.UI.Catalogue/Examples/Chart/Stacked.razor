@@ -1,0 +1,48 @@
+<div class="card" data-chart-frame>
+    <div class="card-head">
+        <h3>Tickets closed, by how they ended</h3>
+    </div>
+    <div class="card-body">
+        <div class="chart-legend">
+            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-go"></span><span>Within target</span></span>
+            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-warn"></span><span>Close to target</span></span>
+            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-danger"></span><span>Breached</span></span>
+        </div>
+        <div class="chart" data-chart="column" data-chart-stack id="chart-tickets"
+             aria-label="Tickets closed per week, by whether they met their target" aria-roledescription="chart">
+            <table class="chart-data" data-chart-data>
+                <caption>Tickets closed per week</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Week</th>
+                        <th scope="col" data-tone="go">Within target</th>
+                        <th scope="col" data-tone="warn">Close to target</th>
+                        <th scope="col" data-tone="danger">Breached</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">Week 40</th><td>182</td><td>24</td><td>6</td></tr>
+                    <tr><th scope="row">Week 41</th><td>175</td><td>31</td><td>9</td></tr>
+                    <tr><th scope="row">Week 42</th><td>198</td><td>18</td><td>3</td></tr>
+                    <tr><th scope="row">Week 43</th><td>164</td><td>40</td><td>14</td></tr>
+                    <tr><th scope="row">Week 44</th><td>201</td><td>22</td><td>5</td></tr>
+                    <tr><th scope="row">Week 45</th><td>190</td><td>27</td><td>4</td></tr>
+                </tbody>
+            </table>
+            <div class="chart-plot"></div>
+            <div class="chart-tip" data-chart-tip hidden>
+                <span class="chart-tip-title" data-chart-field="category"></span>
+                <template data-chart-tip-row>
+                    <span class="chart-tip-row">
+                        <span class="chart-tip-swatch"></span>
+                        <span data-chart-field="series"></span>
+                        <span class="chart-tip-value" data-chart-field="value"></span>
+                    </span>
+                </template>
+            </div>
+            <div class="chart-wait skeleton skeleton-block"></div>
+        </div>
+        <p class="visually-hidden" data-chart-live aria-live="polite"
+           data-chart-announce="{category}, {series}: {value} tickets, {percent} of the week."></p>
+    </div>
+</div>

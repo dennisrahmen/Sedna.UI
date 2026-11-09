@@ -70,6 +70,26 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Chat.EditResend" Title="Edit and send again" Demo="ex-demo--block">
+    <p>
+        <code>.chat-bubble--editing</code> is a message being edited: the bubble becomes a form holding
+        the field, with Cancel and Send under it, and the message takes the width it may have. Sending it
+        again starts a branch of the conversation; <a href="/agent-chat"><code>.chat-versions</code></a>
+        in the message's meta line pages between the branches, and <code>.chat-edited</code> says so.
+        Which branch is shown, and what follows it, is the app's state.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Failed" Title="When a message fails" Demo="ex-demo--block">
+    <p>
+        <code>.chat-bubble--failed</code> is a message that did not go or an answer that did not come.
+        Mine keeps its text, with <code>.chat-status--failed</code> and a retry in the meta line. An
+        agent's answer says what went wrong in the app's words, with Retry in the
+        <code>.chat-feedback</code> under it; on an agent's turn the failed bubble gets its edge and
+        padding back.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Chat.Composer" Title="The composer" Demo="ex-demo--block">
     <p>
         <code>.chat-composer</code> is what is being answered, what is attached, the field and the
@@ -82,6 +102,15 @@
         six lines and scrolls after that (<code>field-sizing: content</code>; a browser without
         it keeps the <code>rows</code>). <code>.chat-closed</code> takes the composer's place
         when nothing can be sent any more.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Chat.Mention" Title="Naming someone in a message" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; type <kbd class="kbd">@@</kbd>.</strong> The composer's field inside a
+        <a href="/form-textarea"><code>.mention-field</code></a>, which takes the row's room as a bare field does.
+        The list opens above the composer when there is no room below it. While it is open,
+        <kbd class="kbd">Enter</kbd> chooses a name and does not reach the composer's own Enter-to-send.
     </p>
 </CatExample>
 

@@ -1,0 +1,35 @@
+<table class="table" role="grid" aria-label="Delivery addresses">
+    <thead>
+        <tr>
+            <th>Recipient</th>
+            <th>Street</th>
+            <th>City</th>
+            <th class="col-fit"><span class="visually-hidden">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Alex Fischer</td><td>Lindenweg 4</td><td>Bern</td>
+            <td class="col-fit">
+                <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Edit the address for Alex Fischer"><i class="ri-pencil-line"></i></button>
+            </td>
+        </tr>
+        <tr data-editing>
+            <td>Northwind Retail<input class="cell-editor" value="Northwind Retail" aria-label="Recipient" /></td>
+            <td>Hafenstrasse 12<input class="cell-editor" value="Hafenstrasse 12" aria-label="Street" /></td>
+            <td>Basel<input class="cell-editor" value="Basel" aria-label="City" /></td>
+            <td class="col-fit">
+                <div class="sedna-row sedna-gap-0">
+                    <button class="btn btn--sm btn--ghost btn--icon" type="button" data-row-save aria-label="Save"><i class="ri-check-line"></i></button>
+                    <button class="btn btn--sm btn--ghost btn--icon" type="button" data-row-cancel aria-label="Cancel"><i class="ri-close-line"></i></button>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Priya Nair</td><td>Seestrasse 31</td><td>Zürich</td>
+            <td class="col-fit">
+                <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Edit the address for Priya Nair"><i class="ri-pencil-line"></i></button>
+            </td>
+        </tr>
+    </tbody>
+</table>

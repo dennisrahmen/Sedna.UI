@@ -1,0 +1,97 @@
+@page "/table-large"
+
+<CatHead Title="Large tables">
+    A <a href="/table"><code>.table</code></a> with more rows than a page can hold: rendered a window
+    at a time, loaded a page at a time, folded into a hierarchy, or narrowed by a filter that says how
+    many each choice would leave. The totals stay in view while the rows scroll.
+</CatHead>
+
+<div class="callout callout--info">
+    <i class="ri-information-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">The table's state is the app's</span>
+        The sort, the filters and the page are your query, and you render the rows they return &mdash; keep
+        them in your component, your address or your store, wherever the app keeps state. The script
+        holds only what the reader does inside the table, and each part of it is readable:
+        <code>sednaUi.grid.range(grid)</code> is the selected cells of a
+        <a href="/table-editing">keyboard grid</a>, <code>sednaUi.grid.expanded(grid)</code> the open
+        branches of a tree grid, and a tree grid says each change with
+        <code>sedna-tree-expand</code> and <code>sedna-tree-collapse</code>.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Interop.VirtualizedRows" Title="Virtualized rows" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; scroll it.</strong> Blazor's <code>&lt;Virtualize&gt;</code> inside the
+        <code>&lt;tbody&gt;</code>, with <code>SpacerElement="tr"</code>: the rows in view are in the page,
+        and an empty <code>&lt;tr&gt;</code> before and after them stands in for the rest. Nothing in the
+        table paints that row &mdash; the zebra stripe counts past it, a stacked table does not make it a
+        card, and a keyboard grid never lands on it.
+    </p>
+    <p>
+        Give each row <code>aria-rowindex</code>, its place in the whole table with the header as row 1,
+        and the table <code>aria-rowcount</code>. A screen reader is told where the window is, and the
+        stripe follows the row's own number rather than its place among the rows rendered, so it does not
+        flicker as the window moves. Keep <code>ItemSize</code> near the real row height.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.TableLarge.LoadMore" Title="Loading more" Demo="ex-demo--block">
+    <p>
+        For a list the reader pages through on request rather than by scrolling: a <code>.tr-more</code>
+        row after the rows, one cell spanning the table with the button and a
+        <code>.tr-more-count</code>. While the next page loads, <code>aria-busy="true"</code> on the button
+        shows the spinner and stops a second press; keep the focus on it, and append the rows above it.
+        The row is never striped. <strong>The buttons here do nothing.</strong>
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.TableLarge.TreeGrid" Title="A tree grid" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; Tab in, then use the arrow keys.</strong> <code>role="treegrid"</code> on the
+        table, <code>aria-level</code> on each body row and <code>aria-expanded</code> on a branch; the
+        cell holding a <code>.tree-toggle</code> is the tree column, indented a step per level. It is a
+        <a href="/table-editing">keyboard grid</a> throughout: on the tree cell <kbd>&rarr;</kbd> opens a
+        closed branch and <kbd>&larr;</kbd> closes an open one, then climbs to its parent &mdash; mirrored
+        right to left &mdash;, <kbd>Enter</kbd> or a click on the caret opens and closes, and every other
+        key moves between cells.
+    </p>
+    <p>
+        The rows stay flat in the <code>&lt;tbody&gt;</code>. The script owns <code>hidden</code> on them:
+        a row is shown while every branch above it is open. Render the rows under a closed branch
+        <code>hidden</code> for the first paint, as here, or leave them out until the branch opens.
+        <code>--treegrid-indent</code> is the step.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.TreeGridLazy" Title="A tree grid from Blazor" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; open a year.</strong> The rows under a branch are rendered when it opens.
+        <code>data-tree-lazy</code> on a row with none yet makes the open row busy and sends
+        <code>Lazy</code> with <code>sedna-tree-expand</code>; the app loads the rows, renders them and
+        drops the attribute. <code>@@onsedna-tree-expand</code> and <code>@@onsedna-tree-collapse</code> on
+        the table keep the app's own copy of what is open, the same events and arguments as a
+        <a href="/tree">tree</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.TableLarge.StickyTotals" Title="Totals and your row, pinned" Demo="ex-demo--block">
+    <p>
+        <code>.table--sticky-foot</code> holds the <code>&lt;tfoot&gt;</code> at the bottom of the
+        scroller as <code>.table--sticky</code> holds the header at the top, so the totals stay in view
+        while the rows scroll under them. A <code>.tr-pinned</code> row in the <code>&lt;thead&gt;</code>,
+        after the headings, is a record kept in view &mdash; the reader's own store, their place in a
+        ranking. Both work with a pinned column, and a keyboard grid keeps the cell it reaches clear of
+        them.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.TableLarge.FacetCounts" Title="Filter choices with counts" Demo="ex-demo--block">
+    <p>
+        A <code>.form-check-count</code> at the end of each choice in a
+        <a href="/table"><code>.th-filter</code></a> popover says how many records the choice would leave
+        &mdash; the facet counts your query returns beside the rows. The counts line up at the end edge
+        in figures of one width. Disable a choice that would leave none, and say how many the filter
+        will show on the button that applies it.
+    </p>
+</CatExample>

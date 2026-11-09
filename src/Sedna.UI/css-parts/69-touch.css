@@ -11,10 +11,17 @@
    off whichever box it has. TouchTargetTests finds every control drawn under the
    target size and holds it to this list. */
 @media (pointer: coarse) {
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark) { position: relative; }
-    :where(.chip-dismiss, .input-clear, .search-clear, .th-filter, .modal-close, .toast-close, button.cal-mark)::before {
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, .page-banner-dismiss, button.cal-mark) { position: relative; }
+    :where(.chip-dismiss, .input-clear, .input-reveal, .search-clear, .th-filter, .modal-close, .toast-close, .page-banner-dismiss, button.cal-mark)::before {
         content: "";
         position: absolute;
         inset: min(0px, calc((var(--touch-target) - 100%) / -2));
     }
+
+    /* A rating's stars sit side by side, so a hit area grown around one would land on
+       its neighbour: the editable stars themselves grow to the target instead, and a
+       star split into halves grows until each half is at least the 24px WCAG asks of a
+       target. A shown score takes no pointer and keeps its size. */
+    .rating:has(input) { --rating-size: var(--touch-target); }
+    .rating:has(.rating-half) { --rating-size: calc(var(--touch-target) * 1.5); }
 }

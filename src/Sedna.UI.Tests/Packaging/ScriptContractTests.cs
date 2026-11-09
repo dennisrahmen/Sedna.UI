@@ -121,6 +121,29 @@ public class ScriptContractTests
     }
 
     [Fact]
+    public void The_chart_module_draws_svg_from_text_and_names_nothing()
+    {
+        // The chart draws, and draws only SVG: every element made in its own namespace, every
+        // word put in as text, no markup as a string, no colour but a `.series-*` class, and
+        // nothing real in the copy that ships with its comments.
+        var readable = File.ReadAllText(Assets.Readable("Sedna.UI.chart.js"));
+        var code = Regex.Replace(readable, @"/\*.*?\*/", string.Empty, RegexOptions.Singleline);
+        code = Regex.Replace(code, @"(?m)(^|\s)//.*$", "$1");
+
+        Assert.DoesNotMatch(@"innerHTML|outerHTML|insertAdjacentHTML|document\.write|DOMParser|createContextualFragment", code);
+        Assert.DoesNotMatch(@"\.style\.(?:fill|stroke|color|background)|setAttribute\(\s*'(?:fill|stroke|style)'", code);
+        Assert.DoesNotMatch(@"['""`]#[0-9a-fA-F]{3,8}['""`]|\b(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb)\(\s*[\d.]", code);
+        // The one HTML element is the measurer: a canvas never put on the page.
+        var made = Regex.Matches(code, @"document\.createElement\(\s*'([a-z]+)'").Select(m => m.Groups[1].Value).ToArray();
+        Assert.Equal(["canvas"], made);
+        Assert.Contains("createElementNS(SVG_NS", code, StringComparison.Ordinal);
+        Assert.Contains("textContent = words", code, StringComparison.Ordinal);
+
+        var found = RealWorldShapes.FoundIn(readable);
+        Assert.True(found.Count == 0, $"Sedna.UI.chart.js names something real: {string.Join(", ", found)}");
+    }
+
+    [Fact]
     public void The_stylesheet_names_nothing_real()
     {
         // The same shapes for the sheet, which ships and is served publicly too, and

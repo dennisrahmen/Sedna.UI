@@ -1,0 +1,60 @@
+@page "/filtering"
+
+<CatHead Title="Filtering">
+    Narrowing a long list down to what the reader is after: facets in a side panel, the filters that
+    apply shown as chips above the results, the reader's own saved views, and conditions combined with
+    AND and OR. Every piece is the library's existing form, chip, menu and drawer classes; the app keeps
+    the filters, applies them and stores the views. A filter per column belongs on the
+    <a href="/table">table</a> itself, and a short bar of them in a <a href="/toolbar">toolbar</a>.
+</CatHead>
+
+<CatExample TExample="Examples.Filtering.SidePanel" Title="Filter side panel" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        A <code>.sedna-split</code> with the panel first, so it sits at the inline start and stacks above the
+        results once the list would get too narrow. Each facet is a <code>fieldset.form-section</code> of
+        checkboxes, each with its <code>.form-check-count</code> &mdash; the rows the list would show with
+        that choice, so a choice that empties the list is visibly a zero and is disabled. The panel's
+        <code>.card-foot--split</code> holds Reset and an Apply that says what it will show.
+    </p>
+    <p>
+        Above the results, every filter that applies is a <code>.chip--active</code> whose dismiss button
+        removes that one, then Clear all, then the count of what is left. The chips are what the reader
+        checks after coming back to the page, so they show each filter in words, not as a number.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Filtering.FilterDrawer" Title="On a narrow screen, a drawer" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> Where there is no room for the panel, the same facets go in a
+        <code>dialog.drawer.drawer--start</code> opened from a Filters button, which shows how many filters
+        apply in a <code>.badge</code> and says it in its <code>aria-label</code>. The form is the drawer's
+        body, which scrolls on its own, so the footer's Reset and Apply stay in view however long the
+        facets get. A Blazor app renders its filter form as one component in both places and picks the
+        panel or the drawer by the width it has.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Filtering.SavedViews" Title="Saved views" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> The reader's own named filters, switched from a <code>.menu</code> whose
+        trigger names the view in use; the current one carries <code>aria-current="true"</code> and a filled
+        icon, and the default is noted with <code>.menu-item-note</code>. Once the filters no longer match the
+        view, a <code>.badge--warn</code> says Modified beside the trigger, with Save view and Discard changes
+        next to it. Save as new view opens the app's own <code>dialog.modal</code> for the name. The app
+        stores the views and decides what a modified view is &mdash; with only a few views, a
+        <a href="/segmented">segmented control</a> in the same place does the switching.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Filtering.QueryBuilder" Title="Query builder" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        Conditions that combine with AND or OR, in groups nested inside one another.
+        <code>.rule-group</code> is the frame: a <code>.rule-group-head</code> with the group's
+        <code>.segmented</code> AND/OR choice and its own buttons, then a <code>.rule-group-body</code>
+        indented from the head with a line down its inline-start edge, holding the
+        <code>.rule-group-row</code> conditions, nested <code>.rule-group</code>s and the
+        <code>.rule-group-actions</code>. A row is the field, the operator, the value and the remove button,
+        in that order; in a group under 480px wide its fields go one under the other, with the remove button
+        beside the first. What the conditions mean, and turning them into a query, is the app's.
+    </p>
+</CatExample>

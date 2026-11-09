@@ -40,6 +40,14 @@ public sealed class SednaDropEventArgs : EventArgs
 
     /// <summary>True when the move was made from the keyboard.</summary>
     public bool Keyboard { get; set; }
+
+    /// <summary>
+    /// For a drop on a slot — a zone with <c>data-drag-axis="slot"</c>, a day of a month or a
+    /// half hour of a week — the <c>data-drag-zone</c> of the slot the drag started over: under
+    /// the pointer where it was picked up, or under the item's own start from the keyboard.
+    /// Move the item by the distance from here to <see cref="To"/>. Null for any other drop.
+    /// </summary>
+    public string? FromSlot { get; set; }
 }
 
 /// <summary>

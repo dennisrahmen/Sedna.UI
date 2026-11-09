@@ -137,7 +137,7 @@
             <tr><td><code>data-drag-group="name"</code></td><td>a zone</td><td>Zones sharing a group trade items.</td></tr>
             <tr><td><code>data-drag-type="name"</code></td><td>an item</td><td>What <code>data-drag-accept</code> matches.</td></tr>
             <tr><td><code>data-drag-accept="a b"</code></td><td>a zone</td><td>The only types it takes. Empty takes nothing.</td></tr>
-            <tr><td><code>data-drag-axis</code></td><td>a zone</td><td><code>y</code> by default, <code>x</code> for a row, <code>grid</code> for tiles.</td></tr>
+            <tr><td><code>data-drag-axis</code></td><td>a zone</td><td><code>y</code> by default, <code>x</code> for a row, <code>grid</code> for tiles, <code>slot</code> for a place an item is put rather than a list it joins — a <a href="/calendar-agenda">calendar</a>'s day or half hour.</td></tr>
             <tr><td><code>data-drag-label</code></td><td>an item or a zone</td><td>Its name in an announcement. An item falls back to its text, a zone to its <code>aria-label</code>.</td></tr>
             <tr><td><code>aria-disabled="true"</code></td><td>an item or a zone</td><td>Nothing lifts from it or lands in it.</td></tr>
             <tr><td><code>data-drag-live</code></td><td>a live region</td><td>Where a keyboard drag is announced, in the sentences below.</td></tr>
@@ -153,7 +153,7 @@
         </thead>
         <tbody>
             <tr><td><code>sedna-dragstart</code></td><td>the item</td><td><code>item</code>, <code>type</code>, <code>zone</code>, <code>index</code>, <code>keyboard</code>. Cancelable.</td></tr>
-            <tr><td><code>sedna-drop</code></td><td>the zone it landed in</td><td><code>item</code>, <code>type</code>, <code>from</code>, <code>to</code>, <code>index</code>, <code>fromIndex</code>, <code>keyboard</code>. Only when the item moved.</td></tr>
+            <tr><td><code>sedna-drop</code></td><td>the zone it landed in</td><td><code>item</code>, <code>type</code>, <code>from</code>, <code>to</code>, <code>index</code>, <code>fromIndex</code>, <code>keyboard</code>, and <code>fromSlot</code> for a drop on a <a href="/calendar-agenda">slot</a>. Only when the item moved.</td></tr>
             <tr><td><code>sedna-dragend</code></td><td>the item</td><td>As <code>sedna-dragstart</code>, plus <code>dropped</code>. Always, last.</td></tr>
         </tbody>
     </table>

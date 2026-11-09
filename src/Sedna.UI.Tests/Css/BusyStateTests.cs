@@ -33,11 +33,12 @@ public class BusyStateTests
     private static readonly HashSet<string> NotBusy = new(StringComparer.Ordinal)
     {
         "btn",                                  // its own label-hiding busy state, 33-buttons.css
-        "form-check", "switch", "form-range", "form-color", "form-combo-btn", "input-clear", "form-input",
+        "form-check", "switch", "form-range", "form-color", "form-color-area", "form-combo-btn", "input-clear", "form-input",
         "form-select", "form-combo-box", "dropzone", "form-file",   // fields: read-only, not busy
         "chip-dismiss", "modal-close", "toast-close", "th-sort", "th-filter", "skip-link", "swatch",
-        "deck-dot", "drag-item", "drag-handle", "card-resize", "split-resize", "value-trigger",
-        "accordion", "tree", "tree-leaf", "nav-group", "nav-area", "topbar-nav-link", "reasoning",
+        "deck-dot", "drag-item", "drag-handle", "card-resize", "split-resize", "col-resize", "value-trigger",
+        "accordion", "tree", "nav-group", "nav-area", "topbar-nav-link", "reasoning",
+        "agent-tool",                           // opens on a call; the call's state is its badge
         "output-details", "media-transcript", "media-transcript-time", "media-open", "lightbox-prev",
         "lightbox-next", "code-block-copy", "code-block-expand", "file-item", "file-tile", "file-tile-open",
         "link-preview", "gallery", "media-frame", "chat-reaction", "chat-emoji", "chat-jump", "chat-launcher",
@@ -46,8 +47,24 @@ public class BusyStateTests
         "form-combo-group-action", "form-combo-input", "form-combo-option", "form-combo",
         "choice-tile",                          // a choice, read-only not busy
         "cal-mark",                             // opens a list; nothing of its own runs
+        "cal-more",                             // opens a day's list; nothing of its own runs
+        "cal-agenda-title",                     // a link to an event, as a list row's title is
+        "cal-resize",                           // a grip, as card-resize is
         "sticky-group-toggle",                  // folds a group; nothing of its own runs
+        "badge-ai",                             // opens an explanation; nothing of its own runs
+        "output-frames-fold", "test-suite",     // fold what is already there; nothing of their own runs
         "editor",                               // a field: read-only, not busy — the form it sits in is
+        "input-reveal",                         // shows the field's text; nothing of its own runs
+        "rating-star", "rating-half",           // a choice, as a radio is
+        "inbox-item",                           // its ring is its title's, a link; nothing of its own runs
+        "page-banner-dismiss",                  // removes the banner; nothing of its own runs
+        "chart",                                // a figure; the app says it loads with aria-busy on it, 54-chart.css
+        "chart-key",                            // hides a series at once; nothing of its own runs
+        "app-switcher-item",                    // a link to another app
+        "page-toc-fold", "page-toc-link",       // folds the contents, jumps within the page; nothing runs
+        "back-to-top",                          // scrolls the page it is in; nothing runs
+        "sheet-handle",                         // moves its sheet between heights; nothing of its own runs
+        "carousel-track",                       // a scroller the arrow keys move; nothing of its own runs
     };
 
     [Fact]

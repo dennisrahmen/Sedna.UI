@@ -1,0 +1,94 @@
+<div class="sedna-col sedna-gap-3" style="max-width: 600px">
+    <details class="card agent-tool" data-state="done">
+        <summary>
+            <span class="agent-tool-icon"><i class="ri-search-line"></i></span>
+            <span class="agent-tool-name">search_runbook</span>
+            <span class="badge agent-tool-status"><i class="ri-check-line"></i><span>Completed</span></span>
+            <span class="agent-tool-meta">1.2 s</span>
+            <i class="ri-arrow-down-s-line agent-tool-chevron"></i>
+        </summary>
+        <div class="agent-tool-body">
+            <div class="code-block"><div class="code-block-head"><span>Parameters</span></div><pre tabindex="0"><code>{ "index": "runbook", "query": "sync timeout", "limit": 4 }</code></pre></div>
+            <div class="code-block"><div class="code-block-head"><span>Result</span></div><pre tabindex="0"><code>4 results — "Order sync: timeouts and retries" first</code></pre></div>
+        </div>
+    </details>
+
+    <details class="card agent-tool" data-state="failed" open>
+        <summary>
+            <span class="agent-tool-icon"><i class="ri-terminal-box-line"></i></span>
+            <span class="agent-tool-name">open_shell</span>
+            <span class="badge agent-tool-status"><i class="ri-close-line"></i><span>Error</span></span>
+            <span class="agent-tool-meta">0.3 s</span>
+            <i class="ri-arrow-down-s-line agent-tool-chevron"></i>
+        </summary>
+        <div class="agent-tool-body">
+            <div class="code-block"><div class="code-block-head"><span>Parameters</span></div><pre tabindex="0"><code>{ "host": "orders-console-01" }</code></pre></div>
+            <div class="code-block agent-tool-error"><div class="code-block-head"><span>Error</span></div><pre tabindex="0"><code>permission denied: the agent's role may not open a shell on orders-console-01</code></pre></div>
+        </div>
+    </details>
+
+    <details class="card agent-tool" data-state="waiting" open>
+        <summary>
+            <span class="agent-tool-icon"><i class="ri-calendar-schedule-line"></i></span>
+            <span class="agent-tool-name">set_schedule</span>
+            <span class="badge agent-tool-status"><i class="ri-shield-check-line"></i><span>Needs approval</span></span>
+            <i class="ri-arrow-down-s-line agent-tool-chevron"></i>
+        </summary>
+        <div class="agent-tool-body">
+            <div class="code-block"><div class="code-block-head"><span>Parameters</span></div><pre tabindex="0"><code>{ "host": "src-db-14", "job": "vacuum", "start": "03:30" }</code></pre></div>
+            <div class="agent-approval-actions">
+                <button class="btn btn--sm btn--ghost" type="button">Deny</button>
+                <button class="btn btn--sm btn--go btn--solid" type="button"><i class="ri-check-line"></i><span>Approve</span></button>
+            </div>
+        </div>
+    </details>
+
+    <details class="card agent-tool" data-state="running">
+        <summary>
+            <span class="agent-tool-icon"><span class="orb orb--sm" data-orb="working" role="img" aria-label="Running"></span></span>
+            <span class="agent-tool-name">query_locks</span>
+            <span class="badge agent-tool-status"><span>Running</span></span>
+            <span class="agent-tool-meta">0.8 s</span>
+            <i class="ri-arrow-down-s-line agent-tool-chevron"></i>
+        </summary>
+        <div class="agent-tool-body">
+            <div class="code-block"><div class="code-block-head"><span>Parameters</span></div><pre tabindex="0"><code>{ "host": "src-db-14", "held_over": "60 s" }</code></pre></div>
+        </div>
+    </details>
+
+    <details class="card agent-tool" data-state="streaming">
+        <summary>
+            <span class="agent-tool-icon"><i class="ri-mail-send-line"></i></span>
+            <span class="agent-tool-name">draft_notice</span>
+            <span class="badge agent-tool-status"><span>Writing input</span></span>
+            <i class="ri-arrow-down-s-line agent-tool-chevron"></i>
+        </summary>
+        <div class="agent-tool-body">
+            <div class="code-block"><div class="code-block-head"><span>Parameters</span></div><pre tabindex="0"><code>{ "to": "alex.fischer@example.com", "subject": "Maintenance window mo</code></pre></div>
+        </div>
+    </details>
+
+    <details class="card agent-tool" data-state="approved">
+        <summary>
+            <span class="agent-tool-icon"><i class="ri-restart-line"></i></span>
+            <span class="agent-tool-name">restart_sync</span>
+            <span class="badge agent-tool-status"><i class="ri-check-line"></i><span>Approved</span></span>
+            <i class="ri-arrow-down-s-line agent-tool-chevron"></i>
+        </summary>
+        <div class="agent-tool-body">
+            <div class="code-block"><div class="code-block-head"><span>Parameters</span></div><pre tabindex="0"><code>{ "region": "EU-West" }</code></pre></div>
+        </div>
+    </details>
+
+    <details class="card agent-tool" data-state="denied">
+        <summary>
+            <span class="agent-tool-icon"><i class="ri-delete-bin-line"></i></span>
+            <span class="agent-tool-name">drop_stale_locks</span>
+            <span class="badge agent-tool-status"><i class="ri-forbid-line"></i><span>Denied</span></span>
+            <i class="ri-arrow-down-s-line agent-tool-chevron"></i>
+        </summary>
+        <div class="agent-tool-body">
+            <div class="code-block"><div class="code-block-head"><span>Parameters</span></div><pre tabindex="0"><code>{ "host": "src-db-14", "older_than": "10 min" }</code></pre></div>
+        </div>
+    </details>
+</div>

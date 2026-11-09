@@ -1,0 +1,109 @@
+@using System.Globalization
+
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}, on {zone}. Arrow keys move it a day or a week, Space puts it down, Escape cancels."
+   data-drag-move="{zone}."
+   data-drag-drop="{item} moved to {zone}."
+   data-drag-cancel="{item} stays on {zone}."></p>
+
+<div class="cal-month cal-month--grow" style="--cal-lanes: 2; max-width: 760px" @onsedna-drop="Drop">
+    <div class="cal-weekdays">
+        @foreach (var name in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
+        {
+            <span class="cal-weekday">@name</span>
+        }
+    </div>
+    @for (var w = 0; w < Weeks; w++)
+    {
+        var monday = First.AddDays(7 * w);
+        <div class="cal-row">
+            @for (var d = 0; d < 7; d++)
+            {
+                var day = monday.AddDays(d);
+                <div class="@(d >= 5 ? "cal-day cal-day--weekend" : "cal-day")"
+                     data-drag-zone="@Key(day)" data-drag-group="month" data-drag-axis="slot"
+                     data-drag-label="@day.ToString("dddd d MMMM", CultureInfo.InvariantCulture)"
+                     aria-current="@(day == Today ? "date" : null)">
+                    <span class="cal-day-num">@day.Day</span>
+                </div>
+            }
+            <div class="cal-row-events" data-drag-zone="week-@w" data-drag-group="month" data-drag-accept="">
+                @foreach (var pill in Pills(monday))
+                {
+                    <button class="@pill.Classes" type="button" @key="pill.Key" data-drag-item="@pill.Event.Id"
+                            data-drag-label="@pill.Event.Title"
+                            style="grid-column: @pill.Column / span @pill.Span; grid-row: @pill.Lane">@pill.Event.Title</button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private sealed record Booking(string Id, string Title, DateOnly Start, int Days, string? Hue = null);
+
+    private sealed record Pill(Booking Event, int Column, int Span, int Lane, string Classes)
+    {
+        public string Key => $"{Event.Id}@{Column}";
+    }
+
+    private const int Weeks = 2;
+    private static readonly DateOnly First = new(2026, 9, 14);
+    private static readonly DateOnly Today = new(2026, 9, 16);
+
+    private readonly List<Booking> _bookings =
+    [
+        new("e1", "Stand-up", new(2026, 9, 14), 1),
+        new("e2", "Stocktake", new(2026, 9, 15), 2, "cal-event--warn"),
+        new("e3", "Dispatch ORD-4209", new(2026, 9, 16), 1, "cal-event--go"),
+        new("e4", "Carrier visit", new(2026, 9, 18), 4, "cal-event--teal"),
+        new("e5", "Audit", new(2026, 9, 23), 1, "cal-event--danger"),
+    ];
+
+    private static string Key(DateOnly day) => day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+    // The library names the day it landed on and the day it was picked up from; the
+    // event moves by the distance between them, so the day the reader held stays under
+    // the pointer — and a four-day visit dropped by its third day keeps its shape.
+    private void Drop(SednaDropEventArgs e)
+    {
+        if (e.FromSlot is null) return;
+        var booking = _bookings.Find(b => b.Id == e.Item);
+        if (booking is null) return;
+
+        var by = DateOnly.Parse(e.To, CultureInfo.InvariantCulture).DayNumber
+                 - DateOnly.Parse(e.FromSlot, CultureInfo.InvariantCulture).DayNumber;
+        _bookings[_bookings.IndexOf(booking)] = booking with { Start = booking.Start.AddDays(by) };
+    }
+
+    // One pill per week an event touches, in the first lane free on all of its days.
+    private IEnumerable<Pill> Pills(DateOnly monday)
+    {
+        var sunday = monday.AddDays(6);
+        var lanes = new HashSet<int>[7];
+        for (var i = 0; i < 7; i++) lanes[i] = [];
+
+        foreach (var b in _bookings.OrderBy(b => b.Start).ThenByDescending(b => b.Days))
+        {
+            var end = b.Start.AddDays(b.Days - 1);
+            if (end < monday || b.Start > sunday) continue;
+
+            var from = b.Start < monday ? monday : b.Start;
+            var to = end > sunday ? sunday : end;
+            var column = from.DayNumber - monday.DayNumber + 1;
+            var span = to.DayNumber - from.DayNumber + 1;
+
+            var lane = 1;
+            while (Enumerable.Range(column - 1, span).Any(i => lanes[i].Contains(lane))) lane++;
+            foreach (var i in Enumerable.Range(column - 1, span)) lanes[i].Add(lane);
+
+            var classes = string.Join(' ', new[]
+            {
+                "cal-event", b.Hue,
+                b.Start < monday ? "cal-event--continues-start" : null,
+                end > sunday ? "cal-event--continues-end" : null,
+            }.OfType<string>());
+            yield return new Pill(b, column, span, lane, classes);
+        }
+    }
+}

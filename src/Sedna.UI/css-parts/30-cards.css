@@ -264,4 +264,36 @@
 /* A value that is prose — a role, a date, a name: the body font, broken only where a
    single word is wider than the row. */
 .kv--text .v { font-family: var(--font-sans); overflow-wrap: break-word; }
+/* A row of a definition list — `<dl>`, a `<div class="kv">` round each `<dt class="k">`
+   and `<dd class="v">` — is a row like any other: a <dd> loses the indent the platform
+   gives a quotation. */
+.kv > :is(dt, dd) { margin: 0; }
+
+/* ── An answer and the link that changes it ─────────────────────────────────
+   `.kv-action` is a third column at the row's inline end — "Change", with the answer's
+   name in a `.visually-hidden` span so the link says which answer it changes. Once one
+   row in a list carries it, every `.kv` beside it lays out the same columns: the key
+   takes `--kv-key-width` of the row, every value starts on one edge, and a row with
+   nothing to change leaves the action column empty. Rows are divided and follow
+   density, as a table's do.
+
+   The items stand on their first line's baseline, so "Change" sits beside the first
+   line of an address that runs to three. Each row is the query container for its own
+   width: under 30rem the key takes a line of its own, and the value and the action
+   share the next. */
+:has(> .kv > .kv-action) > .kv {
+    container: sedna-kv / inline-size;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-start;
+    row-gap: var(--space-2);
+    padding-block: var(--cell-pad-y);
+}
+:has(> .kv > .kv-action) > .kv + .kv { border-top: 1px solid var(--divider); }
+:has(> .kv > .kv-action) > .kv > .k { flex: 0 0 var(--kv-key-width); max-width: none; }
+:has(> .kv > .kv-action) > .kv > .v { flex: 1 1 0; }
+.kv-action { flex-shrink: 0; margin-inline-start: auto; text-align: end; white-space: nowrap; }
+@container sedna-kv (width < 30rem) {
+    :has(> .kv > .kv-action) > .kv > .k { flex-basis: 100%; }
+}
 

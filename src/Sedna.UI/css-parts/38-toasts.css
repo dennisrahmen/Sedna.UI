@@ -103,6 +103,10 @@
 .toast i        { font-size: var(--text-7); flex-shrink: 0; color: var(--muted); }
 .toast > i      { margin-block-start: calc((var(--row-line) - 1em) / 2); }
 .toast:not(:has(strong)) > i { margin-block-start: 0; }
+/* Work still running: a `.spinner` where the icon would be, at the icon's size and on its
+   line — the toast toast.replace() turns into the outcome when the work ends. */
+.toast > .spinner { flex-shrink: 0; font-size: var(--text-7); margin-block-start: calc((var(--row-line) - 1em) / 2); }
+.toast:not(:has(strong)) > .spinner { margin-block-start: 0; }
 .toast strong   { display: block; color: var(--fg); font-weight: 600; }
 .toast-body     { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 /* A message with no title is the row's one line; with a title, the <strong> is the label
@@ -144,3 +148,74 @@
 
 /* The semantic families again, carried on the leading rule and the icon. */
 
+
+/* The first toast of a new stack waits a moment with `hidden` (51-toast.js says why), and
+   `.toast` sets display of its own, which outranks the UA's [hidden]. */
+.toast[hidden] { display: none; }
+
+/* ── The pile, the limit, the swipe ─────────────────────────────────────────
+   `.toast-stack--pile` lays every toast in one place: the newest, last in the source,
+   in front, and the two before it peeking out above it, smaller, their words faded out.
+   The pointer or the focus on the stack opens it out into the plain column, and it stays
+   open while the pointer is anywhere over it — the gaps between the toasts included —
+   so it does not close under a pointer moving from one toast to the next.
+   sednaUi.configure({ toastPile: true }) puts the class on the stack the library keeps;
+   a stack an app writes can carry it too.
+
+   A toast behind the front one is as tall as the front one: it adds nothing to the
+   cell's height (height 0) and then fills the cell (min-height 100%), so a long toast
+   behind a short one does not stand out above the pile. */
+.toast-stack--pile {
+    --toast-pile-step: var(--space-4);
+    display: grid;
+    align-items: end;
+}
+.toast-stack--pile > .toast {
+    grid-area: 1 / 1;
+    transform-origin: 50% 0;
+    transition: transform var(--motion-mid) ease, opacity var(--motion-mid) ease;
+}
+.toast-stack--pile > .toast:not(:last-child) {
+    height: 0;
+    min-height: 100%;
+    overflow: hidden;
+}
+.toast-stack--pile > .toast:not(:last-child) > * { opacity: 0; }
+.toast-stack--pile > .toast:nth-last-child(2) { transform: translateY(calc(var(--toast-pile-step) * -1)) scale(0.95); }
+.toast-stack--pile > .toast:nth-last-child(3) { transform: translateY(calc(var(--toast-pile-step) * -2)) scale(0.9); }
+.toast-stack--pile > .toast:nth-last-child(n+4) { transform: translateY(calc(var(--toast-pile-step) * -2)) scale(0.9); opacity: 0; }
+
+.toast-stack--pile:is(:hover, :focus-within) {
+    display: flex;
+    pointer-events: auto;
+}
+.toast-stack--pile:is(:hover, :focus-within) > .toast {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    transform: none;
+    opacity: 1;
+}
+.toast-stack--pile:is(:hover, :focus-within) > .toast > * { opacity: 1; }
+
+/* Over the limit, sednaUi.configure({ toastLimit }): the oldest wait, out of sight. */
+.toast-stack > .toast[data-toast-queued] { display: none; }
+
+/* A swipe, which 51-toast.js reads from the pointer and writes as two numbers: how far,
+   and how far to gone. The library's own stack only — a toast the app placed is not
+   one it could swipe away. `pan-y` keeps a vertical drag scrolling the page while a
+   sideways one reaches the script. */
+[data-sedna-toasts] > .toast {
+    --toast-swipe: 0px;
+    --toast-swipe-progress: 0;
+    touch-action: pan-y;
+    translate: var(--toast-swipe) 0;
+    /* The pile's own transition and the swipe's, in one list: this rule outranks the
+       pile's by coming later. */
+    transition: translate var(--motion-mid) ease, transform var(--motion-mid) ease, opacity var(--motion-mid) ease;
+}
+[data-sedna-toasts] > .toast[data-toast-swiping] {
+    opacity: calc(1 - var(--toast-swipe-progress));
+    transition: none;
+    user-select: none;
+}

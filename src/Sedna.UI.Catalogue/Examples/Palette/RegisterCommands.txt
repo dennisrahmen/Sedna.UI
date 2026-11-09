@@ -4,6 +4,11 @@ sednaUi.palette.register([
       note: 'Reserved lines only', keywords: 'send ship release',
       run: () => dispatchCurrentOrder() },
     { label: 'Open the queue', icon: 'ri-inbox-line', group: 'Go to', href: '/queue' },
+
+    // A page: choosing this opens the commands whose `page` is 'theme'.
+    { label: 'Change theme…', icon: 'ri-palette-line', group: 'Settings', opens: 'theme' },
+    { page: 'theme', label: 'Dark', icon: 'ri-moon-line', run: () => sednaUi.settings.save('variant', 'dark') },
+    { page: 'theme', label: 'Light', icon: 'ri-sun-line', run: () => sednaUi.settings.save('variant', 'light') },
 ]);
 
 // C# — a command registered from .NET carries an Href, never a callback: the

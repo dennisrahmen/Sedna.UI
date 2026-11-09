@@ -59,7 +59,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     private static readonly string[] Kinds = ["example", "class", "token", "page"];
 
     /// <summary>The sections <c>get_integration_guide</c> serves.</summary>
-    private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules", "graph", "editor", "upgrade"];
+    private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules", "graph", "editor", "charts", "upgrade"];
 
     [McpServerTool(Name = "search", ReadOnly = true, Destructive = false, Idempotent = true,
         OpenWorld = false)]
@@ -220,8 +220,10 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         OpenWorld = false)]
     [Description("""
         What a CSS class actually does: the rules the shipped stylesheet declares for it, its
-        cascade layer, its modifiers, and which examples use it. Use it to choose between
-        variants, or to check a class an app already styles before upgrading.
+        cascade layer, its modifiers, its family's variants, the states its rules answer to —
+        the attribute selectors and pseudo-classes written on the class itself — and which
+        examples use it. Use it to choose between variants, to find the attribute that puts a
+        class in a state, or to check a class an app already styles before upgrading.
         """)]
     public object DescribeClass(
         [Description("Class names, with or without the leading dot. At most 10.")]
@@ -262,6 +264,17 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 // what a browser would apply.
                 declarations = c.Declarations,
                 modifiers = c.Modifiers.Select(m => "." + m),
+                // Derived from the selectors by build/class-states.sh: the block, its
+                // block--modifier classes, and what is written on the same compound as this
+                // class — so an attribute on an ancestor is never reported as its state.
+                family = "." + c.States.Family,
+                variants = c.States.Variants.Select(m => "." + m),
+                states = new
+                {
+                    attributes = c.States.Attributes,
+                    pseudoClasses = c.States.PseudoClasses,
+                },
+                combinedWith = c.States.CombinedWith.Select(m => "." + m),
                 usedByExamples = c.UsedByExamples,
                 since = Since(versions.SinceClass(c.Name)),
             }),
@@ -422,13 +435,13 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
         Idempotent = true, OpenWorld = false)]
     [Description("""
         How to install, set up and configure Sedna.UI in an app: the host page with its load order, the branding
-        recipe, the JavaScript and C# surface, the rules a consuming app follows, the graph's and
-        the rich-text editor's references, and — for an app moving to a newer release — every
+        recipe, the JavaScript and C# surface, the rules a consuming app follows, the graph's,
+        the rich-text editor's and the chart's references, and — for an app moving to a newer release — every
         class each release renamed, old name to the classes that look the same. Call once when
         integrating or upgrading, not per page.
         """)]
     public object GetIntegrationGuide(
-        [Description("One of: host-page, branding, javascript, rules, graph, editor, upgrade. Omit for host-page.")]
+        [Description("One of: host-page, branding, javascript, rules, graph, editor, charts, upgrade. Omit for host-page.")]
         string? section = null)
     {
         var name = section?.ToLowerInvariant() ?? "host-page";
@@ -440,6 +453,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
             "rules" => Docs.Read("CLAUDE.consuming-app.md"),
             "graph" => Docs.Read("graph.md"),
             "editor" => Docs.Read("editor.md"),
+            "charts" => Docs.Read("charts.md"),
             "upgrade" => Upgrade(),
             _ => throw new McpException(
                 $"Unknown section \"{section}\". Use one of: {string.Join(", ", Sections)} — "

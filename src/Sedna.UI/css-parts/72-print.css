@@ -29,27 +29,46 @@
     .toast-stack,
     .sedna-tip,
     .fab,
+    .back-to-top,
+    .progress--route,
+    .dropzone--page,
+    .fab-dial,
     .drawer,
     .drawer-scrim,
     .spotlight-hole,
     .spotlight-tip,
     .status-bar,
+    .page-banner,
     .modal-backdrop,
     .page-head-actions,
     .form-actions,
     .code-block-copy,
+    .confirmation-panel [data-copy],
     .chat-launcher,
     .chat-flyover,
     .chat-composer,
     .chat-closed,
     .chat-actions,
     .chat-jump,
-    .chat-quick-replies { display: none; }
+    .chat-quick-replies,
+    .col-resize { display: none; }
+    .ghost-text[data-ghost-rest] { display: none; }
+    /* On its own: a selector a browser does not know drops the whole list with it. */
+    .selection-toolbar:popover-open { display: none; }
+    .agent-plan-actions,
+    .reasoning-bar > .btn { display: none; }
+    /* A step still to be added is a control: on paper the run ends where it ends. */
+    .workflow-step:has(> .workflow-node--add) { display: none; }
 
     /* A thread prints whole: the scroller lets its messages out, and a message is
        not cut across a page. */
     .chat-pane > .chat { overflow: visible; }
     .chat-message { break-inside: avoid; }
+    /* An agenda prints as a list: a day's heading is not pinned, and a day with its
+       events is not cut across a page. The grips and the drop slots are for the screen. */
+    .cal-agenda-head { position: relative; inset-block-start: auto; }
+    .cal-agenda-day { break-inside: avoid; }
+    .cal-resize { display: none; }
 
     /* A card is a box on screen; on paper the border is what keeps it a box, and the
        shadow is nothing. Kept whole across a page break: a card split in half loses
@@ -57,19 +76,30 @@
     .card,
     .code-block,
     .callout,
+    .confirmation-panel,
     .media-frame { box-shadow: none; break-inside: avoid; }
 
     /* A table's header repeats on every page — that is what <thead> is for, and it
        only happens if the header is not sticky. */
-    .table--sticky thead { position: static; }
+    .table--sticky thead,
+    .table--sticky-foot tfoot { position: static; }
+    /* A head that folds is pinned to a scroller paper does not have. */
+    .page-head--collapse { position: static; }
     .table thead { display: table-header-group; }
     .table tfoot { display: table-footer-group; }
+    /* A virtualized table's spacer rows stand in for rows that are not there; on paper
+       they are only a gap. */
+    .table tr:empty { display: none; }
     .table tr { break-inside: avoid; }
+    /* A cell prints its value, not the editor laid over it — in a row in edit mode as
+       well, whose rule this has to outweigh. */
+    .table tr:is(*, [data-editing]) > :is(td, th):is(*, [data-editing]) > .cell-editor { display: none; }
 
     /* Scroll containers have no scrollbar on paper, so their content must be allowed
        out rather than clipped to the box it had on screen. */
     .sedna-scroll,
     .drawer-body,
+    .artifact-body,
     .md-editor .md-preview,
     .palette-list { max-height: none; overflow: visible; }
 
@@ -86,6 +116,27 @@
         font-size: 0.85em;
         word-break: break-all;
     }
+
+    /* A figure that counts up prints as the app wrote it, not part way there. */
+    .stat-value--roll { animation: none; }
+
+    /* A carousel prints every slide, one under the other, and not the controls that
+       moved between them. */
+    .carousel-track { flex-direction: column; overflow: visible; }
+    .carousel-slide { flex-basis: auto; break-inside: avoid; }
+    .carousel-controls { display: none; }
+
+    /* A diff prints every line whole: on paper nothing scrolls, so a long line wraps
+       under itself, and the marker still says which side it is. */
+    .diff-body { overflow: visible; }
+    .diff-code { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .diff-table tr { break-inside: avoid; }
+    /* A PDF frame has nothing to print — the document prints from its own viewer. */
+    .pdf-frame { display: none; }
+    /* A signature prints as signed, without the buttons that changed it; a QR code
+       prints whole, never split across two pages. */
+    .form-signature-actions { display: none; }
+    .qr { break-inside: avoid; }
 
     /* Headings should not be the last line on a page. */
     h1, h2, h3, .card-head, .page-head { break-after: avoid; }

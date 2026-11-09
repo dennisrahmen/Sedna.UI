@@ -1,0 +1,197 @@
+/* ── Tree ───────────────────────────────────────────────────────────────────
+   Nested structure the reader walks and picks from — a group hierarchy, a folder of
+   files, a configuration path. A real ARIA tree: one tab stop, the arrow keys, typeahead,
+   single or multiple selection, tri-state checkboxes, children loaded on demand.
+   22-tree.js is the keyboard and the state; this part is the paint.
+
+     <ul class="tree" role="tree" aria-label="Teams">
+       <li role="treeitem" aria-expanded="true" aria-selected="false" tabindex="0">
+         <span class="tree-row">
+           <span class="tree-toggle"></span>
+           <span class="tree-check"></span>          only with aria-checked
+           <i class="ri-folder-line"></i>
+           <span class="tree-label">Fulfilment</span>
+           <span class="tree-count">64</span>
+         </span>
+         <ul role="group">
+           <li role="treeitem" aria-selected="false" tabindex="-1">…</li>
+         </ul>
+       </li>
+     </ul>
+
+   THE STATE IS ARIA, AND NOTHING ELSE. Open is `aria-expanded`, picked is
+   `aria-selected`, ticked is `aria-checked` (`mixed` for a branch partly ticked), waiting
+   for children is `aria-busy`, unavailable is `aria-disabled`. The attribute a screen
+   reader announces is the one that paints, so the two cannot disagree.
+
+   The item is the focusable element, and its ring is drawn on its row: the <li> holds
+   its whole subtree, and a ring around that would circle every child as well.
+
+   The indent is one step per level, applied by nesting rather than by a `--depth`
+   variable the markup has to keep correct.
+   ─────────────────────────────────────────────────────────────────────────── */
+.tree,
+.tree [role="group"] { list-style: none; margin: 0; padding: 0; }
+.tree [role="group"] {
+    padding-inline-start: var(--space-7);
+    margin-inline-start: var(--space-5);
+    border-inline-start: 1px solid var(--divider);
+}
+.tree [role="treeitem"] { font-size: var(--text-4); outline: none; }
+/* A collapsed branch keeps its children in the markup, so a branch that opens shows
+   them at once; the attribute alone hides them. */
+.tree [aria-expanded="false"] > [role="group"] { display: none; }
+
+.tree-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-inner);
+    color: var(--fg-soft);
+    line-height: round(1.4em, 2px);
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.tree-row:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.tree [role="treeitem"]:focus-visible > .tree-row { box-shadow: 0 0 0 2px var(--focus-ring); }
+/* Inside a combo field the keyboard stays in the input, and the item it is on is
+   `data-active` — the same tint an option takes there. */
+.tree [role="treeitem"][data-active] > .tree-row { background: var(--bg-hover); color: var(--fg); }
+
+.tree [aria-selected="true"] > .tree-row,
+.tree [aria-current]:not([aria-current="false"]) > .tree-row { background: var(--brand-tint); color: var(--brand-text); }
+.tree [aria-disabled="true"] > .tree-row { color: var(--muted); cursor: default; }
+.tree [aria-disabled="true"] > .tree-row:hover { background: none; }
+
+.tree-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.tree-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
+
+/* ── The caret ──────────────────────────────────────────────────────────────
+   Every row starts with one, so a leaf's label lines up with its branch siblings'; on a
+   leaf — no `aria-expanded` — it draws nothing and keeps its width. It points along the
+   inline axis, which a logical border already mirrors in RTL; open turns it towards the
+   children, and 70-rtl.css turns it the other way there. */
+.tree-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--space-5);
+    height: 1em;
+}
+.tree [aria-expanded] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-block: 4px solid transparent;
+    border-inline-start: 5px solid currentColor;
+    opacity: 0.55;
+    transition: transform var(--motion-fast) ease;
+}
+.tree [aria-expanded="true"] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-expanded="true"] > * > .tree-toggle::before { transform: rotate(90deg); }
+/* Children on their way: the caret becomes the spinner's ring until the app renders
+   them and the script lifts `aria-busy`. */
+.tree [aria-busy="true"] > .tree-row > .tree-toggle::before,
+.table[role="treegrid"] tr[aria-busy="true"] > * > .tree-toggle::before {
+    width: 0.75em;
+    height: 0.75em;
+    border: 1.5px solid var(--border);
+    border-top-color: var(--brand-soft);
+    border-radius: 50%;
+    opacity: 1;
+    transform: none;
+    animation: sedna-spin var(--spin-duration) linear infinite;
+}
+
+/* ── Tree grid ──────────────────────────────────────────────────────────────
+   A `.table` with `role="treegrid"`: records in a hierarchy, each with columns — a cost
+   centre and its teams, a folder and its files with their sizes. The rows stay flat in
+   the `<tbody>`; a row's depth is `aria-level`, a branch is `aria-expanded`, and the
+   cell holding the `.tree-toggle` is the tree column, indented a step per level.
+   22-grid.js is the keyboard and the state.
+
+     <table class="table" role="treegrid" aria-label="Cost by team">
+       <thead><tr><th>Team</th><th class="col-num">Cost</th></tr></thead>
+       <tbody>
+         <tr aria-level="1" aria-expanded="true" data-value="ops">
+           <td><span class="tree-toggle"></span>Operations</td><td class="col-num">412,000</td>
+         </tr>
+         <tr aria-level="2" data-value="ops-network">
+           <td><span class="tree-toggle"></span>Network</td><td class="col-num">96,500</td>
+         </tr>
+       </tbody>
+     </table>
+
+   Every row's tree cell starts with a toggle, so a leaf's label lines up with its
+   branch siblings' — the caret is drawn only on a row with `aria-expanded`. The step is
+   `--treegrid-indent`; the depth is read from `aria-level` up to the eighth level, and
+   `--tree-depth` on a row (its level less one) sets a deeper one. */
+.table[role="treegrid"] { --treegrid-indent: var(--space-7); }
+.table[role="treegrid"] tr[aria-level="2"] { --tree-depth: 1; }
+.table[role="treegrid"] tr[aria-level="3"] { --tree-depth: 2; }
+.table[role="treegrid"] tr[aria-level="4"] { --tree-depth: 3; }
+.table[role="treegrid"] tr[aria-level="5"] { --tree-depth: 4; }
+.table[role="treegrid"] tr[aria-level="6"] { --tree-depth: 5; }
+.table[role="treegrid"] tr[aria-level="7"] { --tree-depth: 6; }
+.table[role="treegrid"] tr[aria-level="8"] { --tree-depth: 7; }
+.table[role="treegrid"] tr > :has(> .tree-toggle) {
+    padding-inline-start: calc(var(--cell-pad-x) + var(--tree-depth, 0) * var(--treegrid-indent));
+    white-space: nowrap;
+}
+/* The caret's box is an em square on the text's baseline; lowered to centre it on the
+   capitals of the label beside it. */
+.table[role="treegrid"] .tree-toggle {
+    margin-inline-end: var(--space-2);
+    vertical-align: -0.15em;
+}
+.table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle { cursor: pointer; }
+
+/* ── The checkbox ───────────────────────────────────────────────────────────
+   Drawn, not an <input>: the item is the control, and a checkbox inside it would be a
+   second tab stop with a second name. The same box `.form-check` draws. */
+.tree-check {
+    position: relative;
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+}
+.tree :is([aria-checked="true"], [aria-checked="mixed"]) > .tree-row > .tree-check {
+    background: var(--brand);
+    border-color: var(--brand);
+}
+.tree [aria-checked="true"] > .tree-row > .tree-check::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border-inline-end: 2px solid var(--on-solid);
+    border-bottom: 2px solid var(--on-solid);
+    transform: rotate(45deg);
+}
+.tree [aria-checked="mixed"] > .tree-row > .tree-check::after {
+    content: '';
+    position: absolute;
+    inset-inline: 3px;
+    top: calc(50% - 1px);
+    height: 2px;
+    background: var(--on-solid);
+}
+.tree [aria-disabled="true"] > .tree-row > .tree-check { opacity: 0.5; }

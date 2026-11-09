@@ -1,0 +1,147 @@
+{
+  "$description": "Sedna.UI design tokens for :root[data-variant=\"light\"][data-cvd=\"1\"]. Load after the files in load.",
+  "$extensions": {
+    "com.sedna-ui": {
+      "selector": ":root[data-variant=\"light\"][data-cvd=\"1\"]",
+      "media": null,
+      "load": [
+        "Sedna.UI.tokens.dtcg.json",
+        "Sedna.UI.tokens.dtcg.variant-light.json",
+        "Sedna.UI.tokens.dtcg.cvd-1.json"
+      ],
+      "cssOnly": {}
+    }
+  },
+  "danger": {
+    "danger-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.651,
+          0.0235,
+          0.3255
+        ],
+        "hex": "#a60653"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--danger-solid), var(--danger-fg) 25%)"
+        }
+      }
+    },
+    "danger-fg": {
+      "$type": "color",
+      "$value": "{crimson.crimson-800}"
+    },
+    "danger-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.651,
+          0.0235,
+          0.3255
+        ],
+        "hex": "#a60653"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--danger-solid), var(--danger-fg) 15%)"
+        }
+      }
+    }
+  },
+  "go": {
+    "go-bg": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.349,
+          0.7647,
+          1.0
+        ],
+        "alpha": 0.08,
+        "hex": "#59c3ff"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--orbit-400) 8%, transparent)"
+        }
+      }
+    },
+    "go-bg-active": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0846,
+          0.5389,
+          0.7326
+        ],
+        "alpha": 0.264,
+        "hex": "#1689bb"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--go-bg), var(--go-solid) 20%)"
+        }
+      }
+    },
+    "go-bg-hover": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.129,
+          0.5769,
+          0.7776
+        ],
+        "alpha": 0.1904,
+        "hex": "#2193c6"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--go-bg), var(--go-solid) 12%)"
+        }
+      }
+    },
+    "go-border": {
+      "$type": "color",
+      "$value": "{orbit.orbit-300}"
+    },
+    "go-fg": {
+      "$type": "color",
+      "$value": "{orbit.orbit-800}"
+    }
+  },
+  "sev": {
+    "sev-2-bg": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4588,
+          0.2941,
+          0.8275
+        ],
+        "alpha": 0.22,
+        "hex": "#754bd3"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--violet-700) 22%, transparent)"
+        }
+      }
+    },
+    "sev-2-border": {
+      "$type": "color",
+      "$value": "{violet.violet-300}"
+    },
+    "sev-2-fg": {
+      "$type": "color",
+      "$value": "{violet.violet-800}"
+    }
+  }
+}

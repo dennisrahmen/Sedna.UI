@@ -1,0 +1,28 @@
+<div class="card" style="max-width:600px">
+    <div class="card-body">
+        <div class="chat" role="log" aria-label="Conversation with Ops agent">
+            <div class="chat-message chat-message--mine">
+                <div class="chat-body">
+                    <div class="chat-bubble chat-bubble--failed">Which jobs touch the orders table at night?</div>
+                    <div class="chat-meta">
+                        <i class="ri-error-warning-line chat-status chat-status--failed" aria-label="Not sent" role="img"></i>
+                        <span>Not sent</span>
+                        <button class="btn-bare btn-bare--link" type="button">Retry</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-message chat-message--agent">
+                <span class="agent-avatar" role="img" aria-label="Ops agent"></span>
+                <div class="chat-body">
+                    <div class="chat-meta"><span class="chat-author">Ops agent</span><time class="chat-time" datetime="2026-09-14T09:16">09:16</time></div>
+                    <div class="chat-bubble chat-bubble--failed"><p>The answer stopped: the model did not respond within 60 s.</p></div>
+                    <div class="chat-feedback" role="toolbar" aria-label="Answer actions">
+                        <button class="btn btn--sm btn--ghost" type="button"><i class="ri-refresh-line"></i><span>Retry</span></button>
+                        <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Copy the error"><i class="ri-file-copy-line"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

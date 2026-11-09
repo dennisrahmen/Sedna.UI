@@ -1,0 +1,51 @@
+@page "/qr"
+
+<CatHead Title="QR codes" Tier="@CatHead.Tier3">
+    Your text or address as a QR code, for a camera to read. You write one element with the text and a
+    name, and the human-readable text beside it; the library's own encoder draws the symbol inside it.
+</CatHead>
+
+<div class="callout callout--info">
+    <i class="ri-qr-code-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Nothing goes in the host page</span>
+        <code>Sedna.UI.js</code> finds every <code>[data-qr]</code> and imports the encoder the first time one
+        comes within a screen of the viewport, so a page without a code never downloads it. Every
+        attribute, level and size is in <code>docs/qr.md</code>.
+    </div>
+</div>
+
+<CatExample TExample="Examples.Qr.Pairing" Title="A code with its text" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-qr</code> on a <code>.qr</code> holds the text to encode; change it and the code is drawn
+        again. The text is UTF-8 in byte mode, and the smallest symbol that holds it is used.
+        <strong>The name is yours.</strong> The code draws no words: <code>aria-label</code> says what
+        scanning it does, and <code>role="img"</code> is added for you if it is missing.
+    </p>
+    <p>
+        <code>.qr-figure</code> stacks the code over its <code>.qr-caption</code> &mdash; the address written
+        out for the reader who cannot scan and the one who wants to see where it goes. Give a way to use it
+        without a camera as well, like the copy button here.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Qr.Levels" Title="Error correction" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-qr-level</code> picks how much of the symbol can be lost and still read: <code>L</code>,
+        <code>M</code> (the default), <code>Q</code> or <code>H</code>. A higher level makes a denser code for
+        the same text &mdash; use it for a code that is printed on a label that may be scuffed, not for one on
+        a screen. The element says how dense its code came out in <code>data-qr-version</code>, and
+        <code>data-qr-state</code> is <code>ready</code>, <code>empty</code>, or <code>overflow</code> for a
+        text too long for any symbol at that level.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Qr.Sizes" Title="Sizes" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>.qr--sm</code> (6rem), the bare <code>.qr</code> (10rem) and <code>.qr--lg</code> (15rem);
+        <code>--qr-size</code> sets any other. The size is the whole square, the quiet zone the standard needs
+        around a symbol included. <strong>The paper stays light and the ink dark in every theme</strong>,
+        because cameras read dark on light: <code>--qr-ink</code> and <code>--qr-paper</code> re-point them,
+        and forced colours leave a code as it is, as they leave an image.
+    </p>
+</CatExample>

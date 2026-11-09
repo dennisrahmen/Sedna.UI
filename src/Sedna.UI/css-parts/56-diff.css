@@ -1,0 +1,167 @@
+/* ── Line diff ───────────────────────────────────────────────────────────────
+   Two versions of a text, line by line: a config file before and after a change, a
+   template, a script. The app computes the diff and writes the rows; this draws them.
+   Words that changed inside running text are `<ins>` and `<del>` (06-base-elements.css)
+   and need nothing here.
+
+     <div class="diff">
+       <div class="diff-head"><span class="diff-file">deploy/orders.yaml</span> …</div>
+       <div class="diff-body">
+         <table class="diff-table">
+           <tbody>
+             <tr class="diff-fold"><td colspan="3"><button class="btn-bare" type="button"><i …></i> <span>…</span></button></td></tr>
+             <tr><td class="diff-num">12</td><td class="diff-num">12</td><td class="diff-code">replicas: 2</td></tr>
+             <tr class="diff-del"><td class="diff-num">13</td><td class="diff-num"></td><td class="diff-code">image: orders:1.4</td></tr>
+             <tr class="diff-add"><td class="diff-num"></td><td class="diff-num">13</td><td class="diff-code">image: orders:<ins>1.5</ins></td></tr>
+           </tbody>
+         </table>
+       </div>
+     </div>
+
+   A unified diff is one table: the old line number, the new one, the line. `.diff-add`
+   and `.diff-del` on a row mark it added or removed; a context row carries neither.
+
+   `.diff--split` is side by side: four cells a row — the old number and line, then the
+   new — and the state goes on the cells instead, `.diff-del` on the old pair and
+   `.diff-add` on the new. A side with no line in that row is `.diff-gap` on both of its
+   cells. Being one table row, the two halves of a change stay level however either
+   wraps.
+
+   Every added and removed line draws a + or − before its text, so the change does not
+   rest on the tint alone; the stylesheet draws it, so it is never copied with the code.
+   The line numbers are not selectable either. Inside a line, `<ins>` and `<del>` mark
+   the words that changed in a stronger tint of the row's.
+
+   `.diff-fold` is a row standing for lines left out — "14 unchanged lines" — and holds
+   the app's own button, which loads them. The same row heads a hunk, `@@ -12,7 +12,9 @@`.
+
+   Lines do not wrap in a unified diff: the body scrolls sideways, as code does.
+   `.diff--wrap` wraps them instead. A side-by-side diff always wraps, because two
+   halves cannot scroll as one.
+
+   The lines are code and stay left to right under `dir="rtl"`; the head and the fold
+   row follow the page (70-rtl.css).
+
+   The tokens, on the diff or an ancestor:
+
+     --diff-num   the width of a line-number column
+     --diff-min   the narrowest a side-by-side half becomes before the body scrolls
+   ─────────────────────────────────────────────────────────────────────────── */
+.diff {
+    --diff-num: 5ch;
+    --diff-min: 280px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    overflow: hidden;
+}
+.diff-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    background: var(--surface-soft);
+    border-block-end: 1px solid var(--border);
+    font-size: var(--text-3);
+}
+/* The file a diff is of: monospace, and the first thing to give way when the head is
+   narrow. */
+.diff-file {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.diff-body {
+    overflow-x: auto;
+    direction: ltr;
+}
+.diff-table {
+    inline-size: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    line-height: round(1.6em, 2px);
+    color: var(--fg-soft);
+    tab-size: 4;
+}
+.diff-table td { vertical-align: top; }
+
+.diff-num {
+    inline-size: calc(var(--diff-num) + 2 * var(--space-4));
+    padding-block: 0;
+    padding-inline: var(--space-4);
+    color: var(--muted);
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    user-select: none;
+}
+.diff-num + .diff-code { border-inline-start: 1px solid var(--divider); }
+.diff-code {
+    position: relative;
+    padding-block: 0;
+    padding-inline: calc(var(--space-4) + 2ch) var(--space-7);
+    white-space: pre;
+    text-align: start;
+}
+/* The marker, in its own gutter at the line's start. */
+.diff-code::before {
+    position: absolute;
+    inset-inline-start: var(--space-4);
+    user-select: none;
+}
+
+/* Added and removed: the row in unified, the cell in side by side. */
+:is(tr.diff-add > td, td.diff-add) { background: var(--go-bg); }
+:is(tr.diff-del > td, td.diff-del) { background: var(--danger-bg); }
+:is(tr.diff-add > td, td.diff-add).diff-num { color: var(--go-fg); }
+:is(tr.diff-del > td, td.diff-del).diff-num { color: var(--danger-fg); }
+:is(tr.diff-add > .diff-code, .diff-code.diff-add)::before { content: "+"; color: var(--go-fg); }
+:is(tr.diff-del > .diff-code, .diff-code.diff-del)::before { content: "\2212"; color: var(--danger-fg); }
+/* No line on this side of the row. */
+td.diff-gap { background: var(--surface-soft); }
+
+/* What changed inside a line: the row's tint, stronger. No underline or strike — the
+   row's marker already says which side it is — and no padding, so the columns of a
+   monospace line stay where they are. */
+.diff-code :is(ins, del) {
+    padding-inline: 0;
+    border-radius: var(--radius-small);
+    color: inherit;
+    text-decoration-line: none;
+}
+.diff-code ins { background: var(--go-bg-active); }
+.diff-code del { background: var(--danger-bg-active); }
+
+/* Lines left out, or a hunk's header. */
+.diff-fold > td {
+    padding: var(--space-2) var(--space-6);
+    background: var(--surface-soft);
+    border-block: 1px solid var(--divider);
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-3);
+}
+.diff-table tr:first-child.diff-fold > td { border-block-start: none; }
+.diff-table tr:last-child.diff-fold > td { border-block-end: none; }
+
+/* Wrapped lines: long ones continue under themselves rather than scroll. */
+.diff--wrap .diff-code,
+.diff--split .diff-code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Side by side: two equal halves, each a number and a line. The lines wrap, so they
+   take the width they are given, and a fold row anywhere — the first included — leaves
+   the columns alone. */
+.diff--split .diff-table { min-inline-size: calc(2 * (var(--diff-min) + var(--diff-num))); }
+.diff--split .diff-code { inline-size: 50%; }
+.diff--split .diff-code + .diff-num { border-inline-start: 1px solid var(--border); }

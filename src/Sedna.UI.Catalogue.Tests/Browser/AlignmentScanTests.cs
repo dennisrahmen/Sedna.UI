@@ -112,9 +112,21 @@ public class AlignmentScanTests(CatalogueAppFixture app)
           // a figure hanging over a row, a sticky bar over a scrolled one — still changes what is
           // drawn there.
           const points = [[0.5, 0.5], [0.2, 0.2], [0.8, 0.2], [0.2, 0.8], [0.8, 0.8]];
+          // Wholly inside every scroller around it: a row cut by a scroller's edge a few pixels
+          // from its bottom still passes the five points, and its picture is a cut one.
+          const unclipped = (n, r) => {
+            for (let e = n.parentElement; e && e !== document.body; e = e.parentElement) {
+              const cs = getComputedStyle(e);
+              if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue;
+              const c = e.getBoundingClientRect();
+              const top = c.top + e.clientTop, left = c.left + e.clientLeft;
+              if (r.top < top - 0.5 || r.bottom > top + e.clientHeight + 0.5 || r.left < left - 0.5 || r.right > left + e.clientWidth + 0.5) return false;
+            }
+            return true;
+          };
           return JSON.stringify({ y: scrollY, items: nodes.map((n, k) => {
             const r = n.getBoundingClientRect();
-            const inView = r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth;
+            const inView = r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth && unclipped(n, r);
             const clear = inView && points.every(([fx, fy]) => {
               const hit = document.elementFromPoint(r.left + r.width * fx, r.top + r.height * fy);
               return !!hit && (n.contains(hit) || hit.contains(n));

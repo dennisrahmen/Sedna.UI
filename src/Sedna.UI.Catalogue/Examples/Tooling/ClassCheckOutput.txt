@@ -1,0 +1,4 @@
+$ dotnet build
+Pages/Orders.razor(14,22,14,28): Sedna.UI warning SEDNAUI001: Sedna.UI 0.28.0 renamed the class 'btn-go' to 'btn--go btn--solid'. Replace the whole class, never a prefix: tooling/rename-classes.py in the package does it.
+Pages/Orders.razor(31,18,31,27): Sedna.UI warning SEDNAUI002: Sedna.UI 0.17.0 removed the class 'card-grid' with no rename, so it styles nothing. The release notes say what to use instead.
+wwwroot/css/app.css(8,15,8,23): Sedna.UI warning SEDNAUI001: Sedna.UI 0.28.0 renamed the class 'badge-sm' to 'badge--sm'. Replace the whole class, never a prefix: tooling/rename-classes.py in the package does it.

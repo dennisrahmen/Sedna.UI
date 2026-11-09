@@ -126,4 +126,105 @@ public class EventRegistrationTests
         Assert.Contains($"register({export.Groups["arg"].Value})", export.Groups["body"].Value, StringComparison.Ordinal);
         Assert.NotEqual("", export.Groups["arg"].Value);
     }
+
+    /// <summary>
+    /// The tree's events by name, so a refactor that stops dispatching one — and so drops it
+    /// from every list at once, which the agreement test above would accept — still fails.
+    /// </summary>
+    [Theory]
+    [InlineData("sedna-tree-expand", typeof(SednaTreeEventArgs))]
+    [InlineData("sedna-tree-collapse", typeof(SednaTreeEventArgs))]
+    [InlineData("sedna-tree-select", typeof(SednaTreeSelectEventArgs))]
+    [InlineData("sedna-tree-check", typeof(SednaTreeSelectEventArgs))]
+    public void The_tree_s_events_are_dispatched_registered_and_bindable_with_their_data(string name, Type args)
+    {
+        Assert.True(Dispatched().ContainsKey(name), $"No shipped script dispatches {name}.");
+        Assert.Contains(name, Registered());
+        Assert.Equal(args, Declared()[name].EventArgsType);
+    }
+
+    [Fact]
+    public void The_tree_s_event_data_reads_into_its_arguments()
+    {
+        // The initializer passes event.detail through as it is; these are the script's names.
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var expand = System.Text.Json.JsonSerializer.Deserialize<SednaTreeEventArgs>("""{"item":"2024","lazy":true}""", web)!;
+        Assert.Equal("2024", expand.Item);
+        Assert.True(expand.Lazy);
+
+        var check = System.Text.Json.JsonSerializer.Deserialize<SednaTreeSelectEventArgs>(
+            """{"item":"north","selected":true,"items":["north","north-inbound"]}""", web)!;
+        Assert.Equal("north", check.Item);
+        Assert.True(check.Selected);
+        Assert.Equal(["north", "north-inbound"], check.Items);
+    }
+
+    [Fact]
+    public void The_resize_event_carries_the_column_key_into_its_arguments()
+    {
+        Assert.True(Dispatched().ContainsKey("sedna-resize"), "No shipped script dispatches sedna-resize.");
+        Assert.Equal(typeof(SednaResizeEventArgs), Declared()["sedna-resize"].EventArgsType);
+        Assert.Matches(@"detail:\s*\{[^}]*\bkey:", Script("26-resize.js"));
+
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var column = System.Text.Json.JsonSerializer.Deserialize<SednaResizeEventArgs>(
+            """{"property":"--col-width","value":240,"folded":false,"key":"customer"}""", web)!;
+        Assert.Equal("--col-width", column.Property);
+        Assert.Equal(240, column.Value);
+        Assert.Equal("customer", column.Key);
+
+        var card = System.Text.Json.JsonSerializer.Deserialize<SednaResizeEventArgs>(
+            """{"property":"--card-height","value":null,"folded":false,"key":null}""", web)!;
+        Assert.Null(card.Value);
+        Assert.Null(card.Key);
+    }
+
+    [Fact]
+    public void The_selection_event_carries_the_action_the_text_and_where_it_came_from()
+    {
+        Assert.True(Dispatched().ContainsKey("sedna-selection"), "No shipped script dispatches sedna-selection.");
+        Assert.Contains("sedna-selection", Registered());
+        Assert.Equal(typeof(SednaSelectionEventArgs), Declared()["sedna-selection"].EventArgsType);
+        Assert.False(Declared()["sedna-selection"].EnablePreventDefault);
+
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var quote = System.Text.Json.JsonSerializer.Deserialize<SednaSelectionEventArgs>(
+            """{"action":"quote","text":"nightly sync","item":"m-1","source":"thread"}""", web)!;
+        Assert.Equal("quote", quote.Action);
+        Assert.Equal("nightly sync", quote.Text);
+        Assert.Equal("m-1", quote.Item);
+        Assert.Equal("thread", quote.Source);
+
+        var across = System.Text.Json.JsonSerializer.Deserialize<SednaSelectionEventArgs>(
+            """{"action":"copy","text":"two messages","item":null,"source":null}""", web)!;
+        Assert.Null(across.Item);
+        Assert.Null(across.Source);
+    }
+
+    [Fact]
+    public void The_chart_s_choice_carries_its_point_into_its_arguments()
+    {
+        Assert.True(Dispatched().ContainsKey("sedna-chart-select"), "No shipped script dispatches sedna-chart-select.");
+        Assert.Contains("sedna-chart-select", Registered());
+        Assert.Equal(typeof(SednaChartEventArgs), Declared()["sedna-chart-select"].EventArgsType);
+        Assert.False(Declared()["sedna-chart-select"].EnablePreventDefault);
+
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var point = System.Text.Json.JsonSerializer.Deserialize<SednaChartEventArgs>(
+            """{"chart":"orders","series":"2026","category":"Mar","value":1480.5,"text":"1 480.5","index":2,"seriesIndex":0}""", web)!;
+        Assert.Equal("orders", point.Chart);
+        Assert.Equal("2026", point.Series);
+        Assert.Equal("Mar", point.Category);
+        Assert.Equal(1480.5, point.Value!.Value, 6);
+        Assert.Equal("1 480.5", point.Text);
+        Assert.Equal(2, point.Index);
+        Assert.Equal(0, point.SeriesIndex);
+
+        var gap = System.Text.Json.JsonSerializer.Deserialize<SednaChartEventArgs>(
+            """{"chart":"","series":"2025","category":"Mar","value":null,"text":"","index":2,"seriesIndex":1}""", web)!;
+        Assert.Null(gap.Value);
+    }
+
+    private static string Script(string part) =>
+        File.ReadAllText(Path.Combine(Assets.ProjectDir, "js-parts", part));
 }

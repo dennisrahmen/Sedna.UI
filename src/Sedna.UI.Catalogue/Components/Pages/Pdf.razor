@@ -1,0 +1,43 @@
+@page "/pdf"
+
+<CatHead Title="PDF documents">
+    A PDF in the page, drawn by the browser's own viewer, with a bar you write and a way out where the
+    browser has no viewer. Nothing is loaded for it: no script and no PDF engine.
+</CatHead>
+
+<CatExample TExample="Examples.Pdf.Frame" Title="A PDF in the page" Demo="ex-demo--block">
+    <p>
+        <code>.pdf-frame</code> holds a <code>.pdf-frame-bar</code> — the file's
+        <code>.pdf-frame-name</code> and your actions, open in a new tab and download — and an
+        <code>&lt;object type="application/pdf"&gt;</code>, which takes the rest of
+        <code>--pdf-height</code>. <strong>Write a fallback inside the object.</strong> Where the browser
+        can draw the PDF it does; where it cannot — its viewer switched off, a headless browser, a phone
+        that only offers the file — it shows what you wrote inside instead, centred in the frame. Give the
+        object an <code>aria-label</code> naming the document.
+    </p>
+    <p>
+        Chrome, Edge and Safari on a computer draw every page with their own toolbar. Safari on iPhone
+        and iPad draws the document without a toolbar and may show only its first page, so keep
+        <em>Open</em> in the bar: it hands the file to the system's own reader. Write the fallback every
+        time, and never decide it from <code>navigator.pdfViewerEnabled</code>: a browser can report a
+        viewer and still draw the fallback, as the WebKit build this catalogue is tested in does, while
+        headless Chromium reports none.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Pdf.Page" Title="One page at a time" Demo="ex-demo--block">
+    <p>
+        <code>.pdf-frame--page</code> gives the frame the shape of a page instead of a height —
+        <code>--media-ratio</code>, as every framed medium reads it, A4 unless you set another — for a document read a page at a time beside
+        something else, a form or a list. <code>#view=FitH</code> on the address asks a viewer that
+        understands it to fit the page's width.
+    </p>
+</CatExample>
+
+<CatSnippet Name="Pdf/Iframe.html" Title="An iframe, where every reader has a viewer">
+    <p>
+        An <code>&lt;iframe&gt;</code> works in the same frame, but it has no fallback: where there is no
+        viewer it downloads the file or stays empty. Use it only where you know every reader's browser —
+        an internal tool on managed machines — and keep the download in the bar.
+    </p>
+</CatSnippet>

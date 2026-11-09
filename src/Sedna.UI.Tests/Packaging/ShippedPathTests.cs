@@ -15,6 +15,9 @@ public class ShippedPathTests
     [InlineData("wwwroot/js/Sedna.UI.boot.js")]
     // build/verify-package.sh has always required this; nothing here pinned it.
     [InlineData("wwwroot/tokens/Sedna.UI.tokens.json")]
+    // A design tool's import points at this one; it names every other DTCG file by path.
+    [InlineData("wwwroot/tokens/Sedna.UI.tokens.dtcg.json")]
+    [InlineData("wwwroot/tokens/Sedna.UI.tokens.dtcg.variant-light.json")]
     [InlineData("wwwroot/lib/remixicon/remixicon.css")]
     [InlineData("wwwroot/lib/remixicon/remixicon.woff2")]
     [InlineData("wwwroot/lib/remixicon/LICENSE")]
@@ -31,6 +34,9 @@ public class ShippedPathTests
     [InlineData("wwwroot/lib/quill/quill.js")]
     [InlineData("wwwroot/lib/quill/VENDORED.txt")]
     [InlineData("wwwroot/js/Sedna.UI.orb.js")]
+    [InlineData("wwwroot/js/Sedna.UI.chart.js")]
+    [InlineData("wwwroot/js/Sedna.UI.signature.js")]
+    [InlineData("wwwroot/js/Sedna.UI.qr.js")]
     public void Shipped_asset_exists_at_its_documented_path(string relativePath)
     {
         // Consuming apps write these paths out by hand as
@@ -38,6 +44,23 @@ public class ShippedPathTests
         // 404 there, so the names are part of the public contract.
         var full = Path.Combine(Assets.ProjectDir, relativePath.Replace('/', Path.DirectorySeparatorChar));
         Assert.True(File.Exists(full), $"Missing shipped asset: {relativePath}");
+    }
+
+    /// <summary>
+    /// The sources of the app tooling the package carries under <c>build/</c> and
+    /// <c>tooling/</c>. An app's Stylelint config extends the config by its path in the
+    /// restored package, and an agent installs the skill from it, so a rename here breaks both.
+    /// <c>PackageConfigTests</c> pins where each is packed.
+    /// </summary>
+    [Theory]
+    [InlineData("src/Sedna.UI/Tooling/Sedna.UI.targets")]
+    [InlineData("build/rename-classes.py")]
+    [InlineData("tooling/stylelint/sedna-ui.stylelintrc.json")]
+    [InlineData("skills/sedna-ui/SKILL.md")]
+    public void Packed_tooling_exists_at_its_source_path(string relativePath)
+    {
+        var full = Path.Combine(Assets.RepoRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
+        Assert.True(File.Exists(full), $"Missing packed tooling: {relativePath}");
     }
 
     [Fact]

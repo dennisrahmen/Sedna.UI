@@ -583,4 +583,161 @@ public class EditorTests : ScriptTestBase
         var page = await Open("<p>No editor here.</p>", head: StylesheetTag);
         Assert.True(await page.EvaluateAsync<bool>("() => sednaUi.editor.invoke('nothing', 'state').then(r => r === null)"));
     }
+
+    // ── The slash menu ────────────────────────────────────────────────────────
+
+    // The toolbar offers a heading and a bulleted list, not a quote: the quote item is never shown.
+    private const string SlashMenu = """
+        <div class="menu editor-slash" data-editor-slash hidden aria-label="Turn the line into" id="slash">
+          <div class="menu-label" id="slash-label">Turn into</div>
+          <button class="menu-item" type="button" tabindex="-1" data-editor-block="paragraph" id="s-text"><span>Text</span></button>
+          <button class="menu-item" type="button" tabindex="-1" data-editor-block="header" value="2" id="s-head"><span>Heading</span></button>
+          <button class="menu-item" type="button" tabindex="-1" data-editor-block="list" value="bullet" id="s-list"><span>Bulleted list</span></button>
+          <button class="menu-item" type="button" tabindex="-1" data-editor-block="blockquote" id="s-quote"><span>Quote</span></button>
+        </div>
+        """;
+
+    private async Task<IPage> OpenSlash(string value = "", string dir = "ltr")
+    {
+        var page = await OpenEditor($"<div dir=\"{dir}\" style=\"width:560px\">" + Editor(value, link: LinkForm + SlashMenu) + "</div>");
+        await page.Locator(".ql-editor").ClickAsync(new() { Position = new() { X = 6, Y = 6 } });
+        await page.Keyboard.PressAsync(Keys.DocumentEnd);
+        return page;
+    }
+
+    private static Task<bool> SlashOpen(IPage page) =>
+        page.EvaluateAsync<bool>("() => !document.getElementById('slash').hidden");
+
+    private static Task<string[]> SlashShown(IPage page) =>
+        page.EvaluateAsync<string[]>("() => [...document.querySelectorAll('#slash .menu-item')].filter(i => !i.hidden).map(i => i.id)");
+
+    private static Task<string?> SlashActive(IPage page) =>
+        page.EvaluateAsync<string?>("() => document.querySelector('#slash [data-active]')?.id ?? null");
+
+    [Fact]
+    public async Task Slash_at_the_start_of_a_line_opens_the_apps_menu_with_only_what_the_editor_takes()
+    {
+        if (NoBrowser) return;
+        var page = await OpenSlash();
+        Assert.False(await SlashOpen(page));
+
+        await page.Keyboard.TypeAsync("/");
+        await page.WaitForFunctionAsync("() => !document.getElementById('slash').hidden");
+        Assert.Equal(["s-text", "s-head", "s-list"], await SlashShown(page));
+        Assert.Equal("s-text", await SlashActive(page));
+        Assert.Equal("s-text", await page.EvaluateAsync<string>("() => document.querySelector('.ql-editor').getAttribute('aria-activedescendant')"));
+        Assert.Equal("listbox", await page.GetAttributeAsync("#slash", "role"));
+        Assert.Equal("option", await page.GetAttributeAsync("#s-head", "role"));
+        // The focus stays in the document.
+        Assert.True(await page.EvaluateAsync<bool>("() => document.activeElement.classList.contains('ql-editor')"));
+        // Under the line the "/" is on.
+        var caret = await page.EvaluateAsync<double>("() => document.querySelector('.ql-editor p').getBoundingClientRect().bottom");
+        var menu = (await page.Locator("#slash").BoundingBoxAsync())!;
+        Assert.True(menu.Y >= caret - 0.5, $"The menu at {menu.Y} is not under the line ending at {caret}.");
+    }
+
+    [Fact]
+    public async Task Typing_after_the_slash_filters_the_menu_and_hides_its_headings()
+    {
+        if (NoBrowser) return;
+        var page = await OpenSlash();
+        await page.Keyboard.TypeAsync("/he");
+        await page.WaitForFunctionAsync("() => !document.getElementById('slash').hidden");
+
+        Assert.Equal(["s-head"], await SlashShown(page));
+        Assert.Equal("s-head", await SlashActive(page));
+        Assert.True(await page.EvaluateAsync<bool>("() => document.getElementById('slash-label').hidden"));
+
+        await page.Keyboard.TypeAsync("zz");
+        await page.WaitForFunctionAsync("() => document.getElementById('slash').hidden");
+        Assert.Null(await page.EvaluateAsync<string?>("() => document.querySelector('.ql-editor').getAttribute('aria-activedescendant')"));
+    }
+
+    [Fact]
+    public async Task Enter_turns_the_line_into_the_chosen_block_and_takes_the_slash_away()
+    {
+        if (NoBrowser) return;
+        var page = await OpenSlash();
+        await page.Keyboard.TypeAsync("/head");
+        await page.WaitForFunctionAsync("() => !document.getElementById('slash').hidden");
+        await page.Keyboard.PressAsync("Enter");
+
+        Assert.False(await SlashOpen(page));
+        await page.Keyboard.TypeAsync("Shift handover");
+        Assert.Equal("<h2>Shift handover</h2>", await Value(page));
+        Assert.Equal("true", await Pressed(page, "h2"));
+    }
+
+    [Fact]
+    public async Task The_arrows_choose_and_the_rest_of_the_line_keeps_its_text()
+    {
+        if (NoBrowser) return;
+        var page = await OpenSlash("&lt;p&gt;Reserve lines&lt;/p&gt;");
+        await page.Keyboard.TypeAsync(" /");
+        await page.WaitForFunctionAsync("() => !document.getElementById('slash').hidden");
+        await page.Keyboard.PressAsync("ArrowDown");
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal("s-list", await SlashActive(page));
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal("s-text", await SlashActive(page));   // it wraps
+        await page.Keyboard.PressAsync("ArrowUp");
+        Assert.Equal("s-list", await SlashActive(page));
+        await page.Keyboard.PressAsync("Enter");
+
+        Assert.Equal("<ul><li>Reserve lines </li></ul>", await Value(page));
+    }
+
+    [Fact]
+    public async Task Escape_closes_it_and_Enter_is_a_new_line_again()
+    {
+        if (NoBrowser) return;
+        var page = await OpenSlash();
+        await page.Keyboard.TypeAsync("/he");
+        await page.WaitForFunctionAsync("() => !document.getElementById('slash').hidden");
+        await page.Keyboard.PressAsync("Escape");
+        Assert.False(await SlashOpen(page));
+
+        // The same word stays closed as it goes on.
+        await page.Keyboard.TypeAsync("a");
+        await Js.Frames(page);
+        Assert.False(await SlashOpen(page));
+        await page.Keyboard.PressAsync("Enter");
+        await page.Keyboard.TypeAsync("next");
+        Assert.Equal("<p>/hea</p><p>next</p>", await Value(page));
+    }
+
+    [Fact]
+    public async Task A_slash_inside_a_word_opens_nothing_and_a_press_on_an_item_applies_it()
+    {
+        if (NoBrowser) return;
+        var page = await OpenSlash();
+        await page.Keyboard.TypeAsync("and/or");
+        await Js.Frames(page);
+        Assert.False(await SlashOpen(page));
+
+        await page.Keyboard.PressAsync("Enter");
+        await page.Keyboard.TypeAsync("/");
+        await page.WaitForFunctionAsync("() => !document.getElementById('slash').hidden");
+        await page.Locator("#s-list").ClickAsync();
+
+        Assert.False(await SlashOpen(page));
+        Assert.True(await page.EvaluateAsync<bool>("() => document.activeElement.classList.contains('ql-editor')"));
+        await page.Keyboard.TypeAsync("first");
+        Assert.Equal("<p>and/or</p><ul><li>first</li></ul>", await Value(page));
+    }
+
+    [Fact]
+    public async Task In_rtl_the_menu_lines_up_with_the_slash_from_the_right()
+    {
+        if (NoBrowser) return;
+        var page = await OpenSlash(dir: "rtl");
+        await page.Keyboard.TypeAsync("/");
+        await page.WaitForFunctionAsync("() => !document.getElementById('slash').hidden");
+
+        var right = await page.EvaluateAsync<double[]>("""
+            () => [document.querySelector('.ql-editor').getBoundingClientRect().right,
+                   document.getElementById('slash').getBoundingClientRect().right]
+            """);
+        Assert.True(Math.Abs(right[0] - right[1]) < 40, $"The menu ends at {right[1]}, the line at {right[0]}.");
+    }
 }

@@ -332,4 +332,256 @@ public class ToastTests : ScriptTestBase
         await page.Locator(".toast-close").ClickAsync();
         Assert.Equal(0, await page.Locator(".toast").CountAsync());
     }
+
+    // ── The pile, the limit and the swipe ────────────────────────────────────────
+
+    /// <summary>The stylesheet, with transitions off so a measurement reads where a toast lands.</summary>
+    private Task<IPage> OpenStack(string dir = "ltr", DateTime? clockPausedAt = null) =>
+        Open($"<p>Orders</p><script>document.documentElement.dir = '{dir}';</script>", head: StylesheetTag,
+            reducedMotion: ReducedMotion.Reduce, clockPausedAt: clockPausedAt);
+
+    private static Task ShowAll(IPage page) => page.WaitForFunctionAsync(
+        "() => [...document.querySelectorAll('[data-sedna-toasts] > .toast')].every(t => !t.hidden)");
+
+    private static Task<double[][]> Boxes(IPage page) => page.EvaluateAsync<double[][]>("""
+        () => [...document.querySelectorAll('[data-sedna-toasts] > .toast')].map(t => {
+            const r = t.getBoundingClientRect();
+            return [r.top, r.bottom, r.left, r.right];
+        })
+        """);
+
+    [Fact]
+    public async Task A_pile_puts_the_newest_in_front_and_opens_under_the_pointer()
+    {
+        if (NoBrowser) return;
+        var page = await OpenStack();
+
+        await Js.Run(page, """
+            () => {
+                sednaUi.configure({ toastPile: true });
+                sednaUi.toast('ORD-4182 is on its way.', { title: 'Order dispatched', timeout: 0 });
+                sednaUi.toast('Two of five lines are awaiting stock, and the rest is packed and waiting at the dock.', { title: 'Partially fulfilled', timeout: 0 });
+                sednaUi.toast('ORD-4209 is on its way.', { title: 'Order dispatched', timeout: 0 });
+            }
+            """);
+        await ShowAll(page);
+        Assert.True(await page.EvaluateAsync<bool>(
+            "() => document.querySelector('[data-sedna-toasts]').classList.contains('toast-stack--pile')"));
+
+        // Piled: the newest in front, each one before it peeking out above it and no taller
+        // than it, so a long toast behind a short one does not stand out of the pile.
+        var piled = await Boxes(page);
+        var front = piled[2];
+        var stack = await page.Locator("[data-sedna-toasts]").BoundingBoxAsync();
+        Assert.True(Math.Abs(stack!.Height - (front[1] - front[0])) < 1,
+            $"A pile is as tall as its front toast; the stack is {stack.Height}px for a {front[1] - front[0]}px toast.");
+        Assert.True(piled[1][0] < front[0] - 2 && piled[1][1] < front[1], "The second toast does not peek out above the front one.");
+        Assert.True(piled[0][0] < piled[1][0] - 2, "The third toast does not peek out above the second.");
+        Assert.True(piled[1][1] - piled[1][0] <= front[1] - front[0] + 1, "A toast behind the front one is taller than it.");
+
+        // Opened: the plain column, each toast in its own place, the newest still nearest the corner.
+        await page.Locator("[data-sedna-toasts] > .toast").Last.HoverAsync();
+        var open = await Boxes(page);
+        Assert.True(open[0][1] <= open[1][0] + 0.5 && open[1][1] <= open[2][0] + 0.5,
+            "Opened, the toasts still overlap: " + string.Join(" | ", open.Select(b => $"{b[0]:0}-{b[1]:0}")));
+        Assert.True(Math.Abs(open[2][1] - front[1]) < 1, "Opening the pile moved the front toast out from under the pointer.");
+
+        // The pointer gone, it piles up again.
+        await page.Mouse.MoveAsync(0, 0);
+        var again = await Boxes(page);
+        Assert.True(again[1][0] < again[2][0] && again[1][1] < again[2][1], "The pile did not close again.");
+    }
+
+    [Fact]
+    public async Task An_open_pile_holds_every_toast_in_it()
+    {
+        if (NoBrowser) return;
+        // Opened out, the pile is being read: a toast the pointer is not on must not go from
+        // under the reader while they read it.
+        var page = await OpenStack(clockPausedAt: new DateTime(2030, 1, 1));
+
+        await Js.Run(page, """
+            () => {
+                sednaUi.configure({ toastPile: true });
+                ['First', 'Second', 'Third'].forEach(m => sednaUi.toast(m, { timeout: 4000 }));
+            }
+            """);
+        await page.Clock.RunForAsync(200);
+        await page.Locator("[data-sedna-toasts] > .toast").Last.HoverAsync();
+        await page.Clock.RunForAsync(10000);
+        Assert.Equal(3, await page.Locator(".toast").CountAsync());
+
+        await page.Mouse.MoveAsync(0, 0);
+        await page.Clock.RunForAsync(6000);
+        Assert.Equal(0, await page.Locator(".toast").CountAsync());
+    }
+
+    [Fact]
+    public async Task The_limit_shows_the_newest_and_the_rest_wait_their_turn()
+    {
+        if (NoBrowser) return;
+        var page = await OpenStack(clockPausedAt: new DateTime(2030, 1, 1));
+
+        await Js.Run(page, """
+            () => {
+                sednaUi.configure({ toastLimit: 2 });
+                ['First', 'Second', 'Third', 'Fourth'].forEach(m => sednaUi.toast(m, { timeout: 4000 }));
+            }
+            """);
+        await page.Clock.RunForAsync(200);
+
+        const string Showing = """
+            () => [...document.querySelectorAll('[data-sedna-toasts] > .toast')]
+                .filter(t => getComputedStyle(t).display !== 'none')
+                .map(t => t.querySelector('.toast-body').textContent)
+            """;
+        Assert.Equal(["Third", "Fourth"], await page.EvaluateAsync<string[]>(Showing));
+        Assert.Equal(2, await page.Locator("[data-toast-queued]").CountAsync());
+
+        // The two in front time out; the two that waited show, with their whole time still
+        // ahead of them — they were never on screen to be read.
+        await page.Clock.RunForAsync(4000);
+        Assert.Equal(["First", "Second"], await page.EvaluateAsync<string[]>(Showing));
+        Assert.Equal(0, await page.Locator("[data-toast-queued]").CountAsync());
+        await page.Clock.RunForAsync(3000);
+        Assert.Equal(2, await page.Locator(".toast").CountAsync());
+        await page.Clock.RunForAsync(1500);
+        Assert.Equal(0, await page.Locator(".toast").CountAsync());
+    }
+
+    /// <summary>Drags from the middle of the newest toast by <paramref name="dx"/> pixels.</summary>
+    private static async Task Swipe(IPage page, double dx)
+    {
+        var box = (await page.Locator("[data-sedna-toasts] > .toast").Last.BoundingBoxAsync())!;
+        var (x, y) = (box.X + box.Width / 2, box.Y + box.Height / 2);
+        await page.Mouse.MoveAsync(x, y);
+        await page.Mouse.DownAsync();
+        await page.Mouse.MoveAsync((float)(x + dx), y, new() { Steps = 10 });
+        await page.Mouse.UpAsync();
+    }
+
+    [Theory]
+    [InlineData("ltr", 200)]
+    [InlineData("rtl", -200)]
+    public async Task A_swipe_toward_the_stacks_edge_dismisses_a_toast(string dir, double toward)
+    {
+        if (NoBrowser) return;
+        var page = await OpenStack(dir);
+
+        await Js.Run(page, """
+            () => { const id = sednaUi.toast.show('Saved', { timeout: 0 }); sednaUi.toast.result(id).then(v => { window.__ended = v; }); }
+            """);
+        await ShowAll(page);
+
+        // The other way, it gives a little and springs back.
+        await Swipe(page, -toward);
+        Assert.Equal(1, await page.Locator(".toast").CountAsync());
+        Assert.False(await page.EvaluateAsync<bool>("() => document.querySelector('.toast').hasAttribute('data-toast-swiping')"));
+
+        // A short swipe the right way springs back too, to where it was.
+        var before = await Boxes(page);
+        await Swipe(page, toward / 10);
+        Assert.Equal(1, await page.Locator(".toast").CountAsync());
+        var after = await Boxes(page);
+        Assert.True(Math.Abs(after[0][2] - before[0][2]) < 0.5, $"A short swipe left the toast {after[0][2] - before[0][2]}px out of place.");
+
+        // Far enough, and it goes as its close button would take it.
+        await Swipe(page, toward);
+        Assert.Equal(0, await page.Locator(".toast").CountAsync());
+        await page.WaitForFunctionAsync("() => window.__ended === null");
+    }
+
+    [Fact]
+    public async Task A_swipe_that_springs_back_does_not_follow_the_link_it_started_on()
+    {
+        if (NoBrowser) return;
+        // A notification card's body is a link. Dragging it sideways and letting go short of
+        // dismissing it is not a click on it.
+        var page = await Open(
+            """
+            <p>Orders</p>
+            <template id="card">
+              <div class="toast toast--info">
+                <a class="toast-body" data-href data-toast-value="open"><strong data-title></strong></a>
+                <button class="toast-close" type="button" aria-label="Dismiss">x</button>
+              </div>
+            </template>
+            """, head: StylesheetTag, reducedMotion: ReducedMotion.Reduce);
+        await Js.Run(page, """
+            () => { const id = sednaUi.toast.present('card', { title: 'Assigned to you', href: '#followed' }, { timeout: 0 }); sednaUi.toast.result(id).then(v => { window.__ended = v; }); }
+            """);
+        await ShowAll(page);
+
+        await Swipe(page, 20);
+        await Js.Frames(page);
+        Assert.Equal(1, await page.Locator(".toast").CountAsync());
+        Assert.Equal("", await page.EvaluateAsync<string>("() => location.hash"));
+        Assert.True(await page.EvaluateAsync<bool>("() => window.__ended === undefined"), "The swipe ended the toast with a value.");
+
+        // A real click still opens it.
+        await page.Locator(".toast-body").ClickAsync();
+        await page.WaitForFunctionAsync("() => window.__ended === 'open'");
+    }
+
+    [Fact]
+    public async Task A_toast_that_cannot_be_closed_cannot_be_swiped_away()
+    {
+        if (NoBrowser) return;
+        // "Uploading…" with no close button is waiting for its outcome; a swipe is a close.
+        var page = await OpenStack();
+        await Js.Run(page, "() => sednaUi.toast('Uploading…', { timeout: 0, dismissible: false })");
+        await ShowAll(page);
+
+        await Swipe(page, 200);
+        Assert.Equal(1, await page.Locator(".toast").CountAsync());
+    }
+
+    [Fact]
+    public async Task The_swipe_moves_the_toast_with_the_pointer()
+    {
+        if (NoBrowser) return;
+        var page = await OpenStack();
+        await Js.Run(page, "() => sednaUi.toast('Saved', { timeout: 0 })");
+        await ShowAll(page);
+
+        var box = (await page.Locator(".toast").BoundingBoxAsync())!;
+        var (x, y) = (box.X + box.Width / 2, box.Y + box.Height / 2);
+        await page.Mouse.MoveAsync(x, y);
+        await page.Mouse.DownAsync();
+        await page.Mouse.MoveAsync(x + 60, y, new() { Steps = 6 });
+
+        var moved = (await page.Locator(".toast").BoundingBoxAsync())!;
+        Assert.True(moved.X > box.X + 30, $"Mid-swipe the toast is at {moved.X}, it started at {box.X}.");
+        Assert.True(await page.EvaluateAsync<bool>("() => document.querySelector('.toast').hasAttribute('data-toast-swiping')"));
+        await page.Mouse.UpAsync();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task The_pile_and_the_spring_back_move_at_once_with_reduced_motion(bool reduce)
+    {
+        if (NoBrowser) return;
+        var page = await Open("<p>Orders</p>", head: StylesheetTag,
+            reducedMotion: reduce ? ReducedMotion.Reduce : ReducedMotion.NoPreference);
+        await Js.Run(page, """
+            () => {
+                sednaUi.configure({ toastPile: true });
+                sednaUi.toast('First', { timeout: 0 });
+                sednaUi.toast('Second', { timeout: 0 });
+            }
+            """);
+
+        var durations = await page.EvaluateAsync<string[]>("""
+            () => [...document.querySelectorAll('[data-sedna-toasts] > .toast')].map(t => getComputedStyle(t).transitionDuration)
+            """);
+        Assert.NotEmpty(durations);
+        foreach (var d in durations)
+        {
+            var moving = d.Split(',').Any(v => double.Parse(v.Trim().TrimEnd('s'), System.Globalization.CultureInfo.InvariantCulture) > 0);
+            Assert.True(moving != reduce, reduce
+                ? $"With reduced motion a toast still transitions: {d}."
+                : $"Without reduced motion the pile has no transition at all: {d}; the measurement is not reading the rule.");
+        }
+    }
 }

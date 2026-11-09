@@ -1,0 +1,51 @@
+@page "/tracker"
+
+<CatHead Title="Trackers and heatmaps">
+    What happened in each slot of a period: a row of blocks, one per day or per run, in the tone
+    of what happened then, and a calendar grid of cells whose intensity says how much. The app
+    works out each slot's tone or step from its own data; the classes draw it, and each slot's
+    hover hint is the detail.
+</CatHead>
+
+<CatExample TExample="Examples.Tracker.Uptime" Title="Thirty days of uptime" Demo="ex-demo--block">
+    <p>
+        <code>.tracker</code> is a row of <code>.tracker-block</code>s that share its width. Each
+        block's tone is a <a href="/bars">series modifier</a>: the semantic families where a block
+        means something, and <code>.series-muted</code> for a day with no data. Each block's
+        <code>data-tip</code> is the day's detail, shown by the <a href="/hover-hints">hover hint</a>, and
+        pointing at one dims the rest, so the reader sees which day the hint is about. The row is one
+        picture: give it <code>role="img"</code> and a label with the totals. A
+        <code>.meter-scale</code> under it says how far back it goes, and a
+        <code>.stack-bar-legend</code> names the tones.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Tracker.Sizes" Title="Three heights" Demo="ex-demo--block">
+    <p>
+        <code>.tracker--sm</code> is the row for a dense list of hosts or runners, the bare
+        <code>.tracker</code> the default, and <code>.tracker--lg</code> the row a status page leads
+        with. The blocks keep their share of the width at every height.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Tracker.Heatmap" Title="A calendar of activity" Demo="ex-demo--block">
+    <p>
+        <code>.heatmap</code> fills a column of seven days and then moves to the next week. Each
+        <code>.heatmap-cell</code> takes a step from <code>.heatmap-cell--1</code> to
+        <code>.heatmap-cell--4</code>, or none for an empty day; the app decides the bands, and the
+        <code>.heatmap-legend</code> under it shows them from less to more. A week that starts on a
+        Wednesday begins with two bare <code>&lt;span&gt;</code>s, which take a slot and paint
+        nothing. The steps are one hue moving away from the card, so their order holds in every
+        theme, in the colour-blind palette and in high contrast; in forced colours they become the
+        reader's own ink and every cell keeps an outline. A year is wider than a phone: put a long
+        one in a <code>.sedna-scroll</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Tracker.HeatmapHours" Title="Hours by day, in two sizes" Demo="ex-demo--block">
+    <p>
+        <code>--heatmap-rows</code> on the heatmap sets the column's length &mdash; 24 for the hours of
+        a day. <code>.heatmap--sm</code> and <code>.heatmap--lg</code> are the smaller and larger cell;
+        the bare class sits between them.
+    </p>
+</CatExample>

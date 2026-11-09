@@ -80,6 +80,16 @@
     font-weight: 600;
 }
 
+/* The buttons that act on what the panel explains — "Revert to the original", "Keep
+   it" — at its foot, at the end edge. */
+.popover-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-block-start: var(--space-6);
+}
+
 /* For content that brings its own edge — a table, a list. The panel's padding then
    draws a frame inside a frame, and a table in it cannot reach the corners it is
    rounded to. The title keeps its own inset, because a heading pressed against the
@@ -90,4 +100,10 @@
     margin-bottom: 0;
     padding: var(--space-6) var(--space-7) var(--space-3);
 }
-.popover--flush > .table tr:last-child > td { border-bottom: none; }
+/* The last row with cells: a virtualized table ends with an empty spacer row. */
+.popover--flush > .table tr:nth-last-child(1 of :where(:not(:empty))) > td { border-bottom: none; }
+
+/* A hover card's trigger opens its card on a long press under a finger (22-popover.js),
+   so the platform's own long-press callout — a link's preview, its address — must not
+   open over it. */
+:where([data-popover][data-popover-hover]) { -webkit-touch-callout: none; }

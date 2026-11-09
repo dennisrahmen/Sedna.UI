@@ -67,7 +67,7 @@ function listOf(value) {
     return String(value).split(/[\s,]+/).filter(Boolean);
 }
 const NODE_KEYS = new Set(['id', 'node', 'label', 'kind', 'tone', 'tones', 'shape', 'icon', 'group', 'cluster',
-    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'state', 'fields']);
+    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'state', 'placeholder', 'fields']);
 const EDGE_KEYS = new Set(['id', 'edge', 'source', 'target', 'label', 'kind', 'tone', 'line', 'weight', 'arrow',
     'muted', 'state', 'fields']);
 function node(raw) {
@@ -85,6 +85,7 @@ function node(raw) {
     const shape = text(raw.shape);
     if (shape && !own(SHAPES, shape)) warnOnce('shape:' + shape, `"${shape}" is not a shape; drawing a circle.`);
     const display = text(raw.display);
+    const placeholder = flag(raw.placeholder);
     return {
         id,
         label: text(raw.label) ?? id,
@@ -92,7 +93,7 @@ function node(raw) {
         tone: toneOf(raw.tone),
         tones,
         shape: shape ? (own(SHAPES, shape) || null) : null,
-        icon: text(raw.icon),
+        icon: text(raw.icon) ?? (placeholder ? 'ri-add-line' : null),
         group: text(raw.group),
         cluster: text(raw.cluster),
         parent: text(raw.parent),
@@ -107,6 +108,7 @@ function node(raw) {
         y: number(raw.y),
         display: display === 'box' || display === 'dot' ? display : null,
         state: stateOf(raw.state),
+        placeholder,
         fields,
     };
 }
@@ -410,7 +412,7 @@ const labelSide = options => (options.nodes !== 'box' && (options.layout === 'tr
 function nodeTone(n, options) {
     const key = options.colourBy;
     const alt = key && key !== 'tone' ? (n.data('tones') || {})[camel(key)] : null;
-    return tokenOfTone(alt ?? n.data('tone') ?? (n.data('muted') ? 'muted' : '1'));
+    return tokenOfTone(alt ?? n.data('tone') ?? (n.data('muted') || n.data('placeholder') ? 'muted' : '1'));
 }
 function resolveRules(rules, colours) {
     const resolve = v => {
@@ -437,7 +439,7 @@ function styleFor(colours, icons, options, extra) {
         'target-arrow-shape': a === 'both' || a === 'target' ? 'triangle' : 'none',
         'source-arrow-shape': a === 'both' || a === 'source' ? 'triangle' : 'none',
     });
-    const iconFor = n => icons.image(n.data('icon'), box(n) ? toneColour(n) : p.ground, 32) || 'none';
+    const iconFor = n => icons.image(n.data('icon'), box(n) || n.data('placeholder') ? toneColour(n) : p.ground, 32) || 'none';
     const dots = options.nodes !== 'box';
     const routed = options.layout === 'dagre' && !options.curveChosen;
     const route = routed ? {
@@ -535,6 +537,18 @@ function styleFor(colours, icons, options, extra) {
         },
         { selector: 'node[display = "box"][?shape]', style: { 'shape': 'data(shape)' } },
         { selector: 'node[display = "box"][?muted]', style: { 'background-opacity': 0.6, 'border-opacity': 0.6, 'color': p.muted } },
+        {
+            selector: 'node[?placeholder]',
+            style: {
+                'background-opacity': 0,
+                'border-style': 'dashed',
+                'border-dash-pattern': [5, 3],
+                'border-color': toneColour,
+                'border-opacity': 1,
+                'border-width': n => (box(n) ? 1.5 : 1.5 * held(n)),
+                'color': p.soft,
+            },
+        },
         {
             selector: ':parent',
             style: {
@@ -2609,6 +2623,7 @@ async function option(g, name, value) {
         case 'colour': case 'color': o.colourBy = value || 'tone'; restyle(g); break;
         case 'curve': o.curve = value || 'bezier'; o.curveChosen = !!value; restyle(g); break;
         case 'arrows': o.arrows = value; restyle(g); break;
+        case 'zoom': return zoomTo(g, value);
         case 'depth':
             g.depth = Math.max(1, Math.min(Number(value) || 1, 6));
             if (g.focusId) await refilter(g, true);
@@ -2618,6 +2633,43 @@ async function option(g, name, value) {
     }
     changed(g);
 }
+const percentOf = g => Math.round(ownZoom(g) * 100);
+function zoomTo(g, percent) {
+    const cy = g.cy;
+    const asked = Number(percent);
+    if (!(asked > 0)) return;
+    g.touched = true;
+    const level = Math.max(cy.minZoom(), Math.min(cy.maxZoom(), (asked / 100) * g.options.scale));
+    cy.stop();
+    cy.zoom({ level, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
+}
+function showZoom(g, all) {
+    if (g.disposed || !g.cy) return;
+    const percent = percentOf(g);
+    if (!all && g.shownZoom === percent) return;
+    g.shownZoom = percent;
+    for (const c of controlsOf(g)) {
+        if (c.getAttribute('data-graph-option') !== 'zoom') continue;
+        if (c.tagName === 'SELECT') {
+            const options = Array.from(c.options);
+            const at = options.findIndex(o => o.value !== '' && Math.round(Number(o.value)) === percent);
+            const index = at >= 0 ? at : options.findIndex(o => o.value === '');
+            if (c.selectedIndex !== index) c.selectedIndex = index;
+        } else if (c.type === 'radio') {
+            const on = Math.round(Number(c.value)) === percent;
+            if (c.checked !== on) c.checked = on;
+        } else if (c.tagName === 'INPUT') {
+            const range = percentRange(g);
+            if (!c.hasAttribute('min')) c.min = String(range.min);
+            if (!c.hasAttribute('max')) c.max = String(range.max);
+            if (c.value !== String(percent)) c.value = String(percent);
+        }
+    }
+}
+const percentRange = g => ({
+    min: Math.round((g.cy.minZoom() / g.options.scale) * 100),
+    max: Math.round((g.cy.maxZoom() / g.options.scale) * 100),
+});
 async function reset(g) {
     restoreControls(g);
     g.hiddenIds.clear();
@@ -2647,6 +2699,7 @@ async function reset(g) {
     await refilter(g, true);
     search(g, '', false);
     changed(g);
+    showZoom(g, true);
 }
 async function focusOn(g, id) {
     g.focusId = id;
@@ -2662,6 +2715,112 @@ function fullscreen(g, button) {
     const frame = g.el.closest('[data-graph-frame]') || g.el;
     if (document.fullscreenElement === frame) document.exitFullscreen?.();
     else frame.requestFullscreen?.().catch(() => button?.setAttribute('aria-pressed', 'false'));
+}
+function edgeTools(g) {
+    const templates = [...g.el.querySelectorAll('template[data-graph-edge-tool]')].filter(t => t.closest('[data-graph]') === g.el);
+    if (!templates.length) return null;
+    const cy = g.cy;
+    const copies = new Map();
+    let queued = false;
+    const kindsOf = t => (t.getAttribute('data-graph-edge-tool') || '').split(/\s+/).filter(Boolean);
+    const templateFor = e => templates.find(t => {
+        const kinds = kindsOf(t);
+        return !kinds.length || kinds.includes(e.data('kind') || '');
+    });
+    const eligible = e => !e.hasClass('hidden') && !e.hasClass('eh-preview') && !e.hasClass('eh-ghost-edge')
+        && !e.hasClass('cy-expand-collapse-meta-edge') && !e.source().hasClass('hidden') && !e.target().hasClass('hidden');
+    function sync() {
+        if (g.disposed) return;
+        const want = new Map();
+        cy.edges().forEach(e => {
+            if (!eligible(e)) return;
+            const t = templateFor(e);
+            if (t) want.set(e.id(), { e, t });
+        });
+        for (const [id, copy] of copies) {
+            if (want.get(id)?.t === copy.__graphTemplate) continue;
+            copy.remove();
+            copies.delete(id);
+        }
+        for (const [id, { e, t }] of want) {
+            let copy = copies.get(id);
+            if (!copy) {
+                copy = cloneTemplate(t);
+                if (!copy) continue;
+                copy.__graphTemplate = t;
+                copy.setAttribute('data-graph-edge-id', id);
+                copy.hidden = true;
+                t.parentNode.insertBefore(copy, t);
+                copies.set(id, copy);
+            }
+            fillSlots(copy, e.data());
+            copy.setAttribute('data-graph-tone', e.data('tone') || '');
+        }
+        place();
+    }
+    function place() {
+        queued = false;
+        if (g.disposed || !copies.size) return;
+        const zoom = cy.zoom(), pan = cy.pan(), w = cy.width(), h = cy.height();
+        for (const [id, copy] of copies) {
+            const e = cy.getElementById(id);
+            let m = null;
+            try {
+                m = e.nonempty() ? e.midpoint() : null;
+            } catch (x) { /* not drawn yet */ }
+            const x = m ? m.x * zoom + pan.x : NaN, y = m ? m.y * zoom + pan.y : NaN;
+            const off = !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || y < 0 || x > w || y > h;
+            if (copy.hidden !== off) copy.hidden = off;
+            if (!off) copy.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+        }
+    }
+    const soon = () => {
+        if (queued) return;
+        queued = true;
+        queueMicrotask(place);
+    };
+    function onClick(ev) {
+        const copy = ev.target.closest?.('[data-graph-edge-id]');
+        if (!copy || !copies.has(copy.getAttribute('data-graph-edge-id'))) return;
+        const button = ev.target.closest('button, [role="button"]');
+        if (!button || !copy.contains(button)) return;
+        const e = cy.getElementById(copy.getAttribute('data-graph-edge-id'));
+        if (e.empty()) return;
+        const detail = edgeDetail(e, button.getAttribute('value') || null);
+        if (!g.emit('sedna-graph-edge', detail, true)) return;
+        if (g.options.managed && detail.value === 'remove') {
+            g.set({ nodes: g.model.nodes, edges: g.model.edges.filter(x => x.id !== detail.id) }, { quiet: true }).catch(report);
+        }
+    }
+    cy.on('viewport resize', soon);
+    cy.on('position', 'node', soon);
+    g.el.addEventListener('click', onClick);
+    return {
+        sync,
+        destroy() {
+            cy.off('viewport resize', soon);
+            cy.off('position', 'node', soon);
+            g.el.removeEventListener('click', onClick);
+            for (const copy of copies.values()) copy.remove();
+            copies.clear();
+        },
+    };
+}
+function edgeDetail(e, value) {
+    const d = e.data();
+    const fields = {};
+    for (const [k, v] of Object.entries(d.fields || {})) fields[k] = v === null || v === undefined ? null : String(v);
+    return {
+        id: d.id,
+        source: d.source,
+        target: d.target,
+        label: d.label ?? null,
+        kind: d.kind ?? null,
+        tone: d.tone ?? null,
+        state: d.state ?? null,
+        fields,
+        value: value ?? null,
+    };
 }
 const SVG_NS = 'http://www.w3.org/2000/svg';
 async function exportImage(g, format) {
@@ -3233,6 +3392,7 @@ function nodeDetail(ele, extra) {
         href: d.href ?? null,
         tone: d.tone ?? null,
         state: d.state ?? null,
+        placeholder: !!d.placeholder,
         tags: d.tags || [],
         fields,
         keyboard: false,
@@ -3257,6 +3417,8 @@ function changed(g) {
     if (g.failed) g.el.setAttribute('data-graph-state', 'error');
     else if (!g.awaiting) g.el.setAttribute('data-graph-state', empty ? 'empty' : s.nodes === 0 ? 'filtered' : 'ready');
     writeStats(g, s);
+    g.edgeTools?.sync();
+    showZoom(g, true);
     g.emit('sedna-graph-change', s);
     return s;
 }
@@ -3529,6 +3691,7 @@ function wire(g) {
     };
     let pending = 0;
     cy.on('viewport', () => {
+        showZoom(g, false);
         clearTimeout(pending);
         pending = setTimeout(() => {
             pending = 0;
@@ -3578,7 +3741,7 @@ function wire(g) {
         const node = event.target;
         if (node.hasClass('eh-handle') || node.hasClass('eh-ghost') || g.drawing) return;
         g.menu.close(false);
-        if (g.options.open === 'tap') {
+        if (g.options.open === 'tap' || (node.data('placeholder') && g.options.open !== 'none')) {
             open(g, node, false);
             return;
         }
@@ -3588,7 +3751,7 @@ function wire(g) {
     cy.on('dbltap', 'node', event => {
         if (g.drawing) return;
         if (toggleFold(g, event.target)) return;
-        if (g.options.open !== 'none' && !event.target.isParent()) open(g, event.target, false);
+        if (g.options.open !== 'none' && !event.target.isParent() && !event.target.data('placeholder')) open(g, event.target, false);
     });
     cy.on('tap', event => {
         if (event.target !== cy) return;
@@ -3749,6 +3912,7 @@ async function start(g) {
     g.styleKey = styleKeyOf(g.options);
     g.tip = tips(g);
     g.menu = menus(g);
+    g.edgeTools = edgeTools(g);
     wire(g);
     g.keys = keyboard(g);
     rememberControls(g);
@@ -3796,6 +3960,7 @@ function dispose(g) {
     g.observers.splice(0).forEach(o => o.disconnect());
     g.keys?.destroy();
     g.menu?.destroy();
+    g.edgeTools?.destroy();
     g.minimap?.destroy();
     g.tip?.hide();
     try { g.eh?.destroy(); } catch (e) { /* ignore */ }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Verifies that a built .nupkg contains the CSS, the JS, the icons, the tokens and
-# the engines of the surfaces that ship one — and that it contains no catalogue.
+# the engines of the surfaces that ship one and the app tooling — and that it contains no catalogue.
 #
 # This exists because static web assets have historically been dropped from
 # packages under some build configurations, and the failure is silent: the
@@ -12,6 +12,7 @@
 #
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKAGE="${1:?usage: verify-package.sh <path-to-nupkg>}"
 
 # Only $1 is read, so a glob matching several packages would silently verify one
@@ -46,6 +47,10 @@ REQUIRED=(
     # The token export. A design tool reads this path out of the restored package,
     # so it is as much a shipped contract as the stylesheet.
     "staticwebassets/tokens/Sedna.UI.tokens.json"
+    # The same tokens for design tools that read the Design Tokens format: the default file,
+    # which lists the others, and the light variant beside it.
+    "staticwebassets/tokens/Sedna.UI.tokens.dtcg.json"
+    "staticwebassets/tokens/Sedna.UI.tokens.dtcg.variant-light.json"
     "staticwebassets/lib/remixicon/remixicon.css"
     "staticwebassets/lib/remixicon/remixicon.woff2"
     "staticwebassets/lib/remixicon/LICENSE"
@@ -64,17 +69,38 @@ REQUIRED=(
     "staticwebassets/lib/quill/VENDORED.txt"
     # The orb: its module, which Sedna.UI.js imports the first time a page shows one.
     "staticwebassets/js/Sedna.UI.orb.js"
+    # The chart: its module, which Sedna.UI.js imports the first time a page shows one.
+    "staticwebassets/js/Sedna.UI.chart.js"
+    # The signature pad and the QR code: their modules, imported the same way.
+    "staticwebassets/js/Sedna.UI.signature.js"
+    "staticwebassets/js/Sedna.UI.qr.js"
     # The commented copies of the generated bundles: packed, never served.
     "readable/Sedna.UI.css"
     "readable/Sedna.UI.js"
     "readable/Sedna.UI.graph.js"
     "readable/Sedna.UI.editor.js"
     "readable/Sedna.UI.orb.js"
+    "readable/Sedna.UI.chart.js"
+    "readable/Sedna.UI.signature.js"
+    "readable/Sedna.UI.qr.js"
+    # The app's own tooling. NuGet imports the class check into every app that references the
+    # package, by this exact name; the rest is read from the restored package by path.
+    "build/Sedna.UI.targets"
+    "buildTransitive/Sedna.UI.targets"
+    "tooling/class-history.json"
+    "tooling/rename-classes.py"
+    "tooling/stylelint/sedna-ui.stylelintrc.json"
+    "tooling/skills/sedna-ui/SKILL.md"
     "README.md"
     "LICENSE"
     "THIRD-PARTY-NOTICES.md"
     "icon.png"
 )
+
+# Every rename map, so the class check and rename-classes.py know every release's renames.
+for map in "$ROOT"/docs/renames/*.json; do
+    REQUIRED+=("tooling/renames/$(basename "$map")")
+done
 
 failed=0
 for entry in "${REQUIRED[@]}"; do
@@ -146,6 +172,16 @@ if grep -q '^staticwebassets/catalogue/' <<<"$CONTENTS"; then
     failed=1
 else
     echo "  ok      no catalogue in the package"
+fi
+
+# NuGet adds a contentFiles/ entry to the consuming app's own project. The package has none
+# to add; the Razor SDK packs every .json that way unless told otherwise.
+if grep -Eq '^(content|contentFiles)/' <<<"$CONTENTS"; then
+    echo "::error::The package carries content files, which NuGet adds to every consuming project:"
+    grep -E '^(content|contentFiles)/' <<<"$CONTENTS" | sed 's/^/         /'
+    failed=1
+else
+    echo "  ok      no content files for the consuming project"
 fi
 
 # And the app itself must never be packed with the library.

@@ -1,0 +1,19 @@
+<button class="btn" type="button" onclick="document.getElementById('route-sheet').showModal()">
+    <i class="ri-route-line"></i> <span>Open the route</span>
+</button>
+
+<dialog class="drawer sheet" data-sheet data-sheet-snap="50%" id="route-sheet" aria-labelledby="route-sheet-title">
+    <button class="sheet-handle" type="button" data-sheet-expand aria-expanded="false" aria-label="Resize the sheet"></button>
+    <div class="drawer-header">
+        <h3 id="route-sheet-title">Route for build-runner-04</h3>
+        <button class="modal-close" type="button" aria-label="Close"
+                onclick="this.closest('dialog').close()"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="drawer-body">
+        <p>Half the screen while the reader glances at the stops; drag it up, or press the handle, for the whole list.</p>
+        <p>1. Northwind Retail, Harbour Street</p>
+        <p>2. Depot 2, loading bay 4</p>
+        <p>3. Collection point, Market Square</p>
+        <p>4. Depot 1, returns desk</p>
+    </div>
+</dialog>

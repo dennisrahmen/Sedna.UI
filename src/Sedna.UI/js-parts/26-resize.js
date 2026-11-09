@@ -21,6 +21,16 @@
    on the handle, and the property on the element. A bubbling `sedna-resize` on that element, with `property` and `value` in
    pixels (null once reset), says where it ended, so an app can keep it.
 
+   A TABLE COLUMN. A `.col-resize` grip in a header cell of a `.table--fixed` is a handle
+   on `--col-width`, written on that cell. `data-resize-key` names the column, and
+   `sedna-resize` carries it as `key`, so an app keeps a width per column. Without
+   `aria-valuemin` and `aria-valuemax`, the bounds are the handle's `--resize-min` and
+   `--resize-max` — lengths, which a grip takes from its column's `--col-min` and
+   `--col-max`. In a keyboard grid the grip is one of the cell's controls and keeps the
+   arrows along its axis and Home; the rest of the keys are the grid's. On a cell that
+   holds a grip, Alt+Shift with an arrow moves it a step, and Alt+Shift+Home resets it,
+   without leaving the cell.
+
    FOLDING. `data-resize-fold="<px>"` lets the reader put a thing away by dragging it
    small: a drag that ends with the pointer below that size, or an arrow key towards
    smaller when the size is already at its minimum, folds instead of resizing. The size
@@ -40,7 +50,10 @@
         var measured = sel ? target.querySelector(sel) : target;
         if (!measured) return null;
         var block = handle.getAttribute('aria-orientation') !== 'vertical';
-        return { target: target, measured: measured, block: block, property: handle.getAttribute('data-resize') };
+        return {
+            target: target, measured: measured, block: block,
+            property: handle.getAttribute('data-resize'), key: handle.getAttribute('data-resize-key')
+        };
     }
 
     function size(p) {
@@ -58,9 +71,17 @@
         return before ? 1 : -1;
     }
 
+    /* `aria-valuemin` and `aria-valuemax`, else the handle's `--resize-min` and
+       `--resize-max`: registered lengths, so the browser has already resolved a rem or a
+       percentage to pixels, and `none` where nothing set one. */
     function bounds(handle) {
         var min = parseFloat(handle.getAttribute('aria-valuemin'));
         var max = parseFloat(handle.getAttribute('aria-valuemax'));
+        if (isNaN(min) || isNaN(max)) {
+            var cs = getComputedStyle(handle);
+            if (isNaN(min)) min = parseFloat(cs.getPropertyValue('--resize-min'));
+            if (isNaN(max)) max = parseFloat(cs.getPropertyValue('--resize-max'));
+        }
         return { min: isNaN(min) ? 48 : min, max: isNaN(max) ? Infinity : max };
     }
 
@@ -80,7 +101,7 @@
     function done(p, value, folded) {
         p.target.dispatchEvent(new CustomEvent('sedna-resize', {
             bubbles: true,
-            detail: { property: p.property, value: value, folded: !!folded }
+            detail: { property: p.property, value: value, folded: !!folded, key: p.key }
         }));
     }
 
@@ -156,24 +177,63 @@
         if (handle) reset(handle);
     });
 
-    document.addEventListener('keydown', function (e) {
-        var handle = e.target instanceof Element ? e.target : null;
-        if (!handle || !handle.hasAttribute('data-resize')) return;
+    /* +1 or -1 for an arrow along the handle's axis — the way it moves the handle on
+       screen, as a drag would — or 0 for any other key. */
+    function arrow(handle, key) {
+        var block = handle.getAttribute('aria-orientation') !== 'vertical';
+        var forward = block ? { ArrowDown: 1, ArrowUp: -1 } : { ArrowRight: 1, ArrowLeft: -1 };
+        return forward[key] || 0;
+    }
+
+    /* One key on a handle: Home resets it, an arrow along its axis moves it `steps` steps.
+       False for any other key. */
+    function press(handle, key, steps) {
         var p = parts(handle);
-        if (!p) return;
-        if (e.key === 'Home') { e.preventDefault(); reset(handle); return; }
-        // An arrow moves the handle that way on screen, as a drag would.
-        var forward = p.block ? { ArrowDown: 1, ArrowUp: -1 } : { ArrowRight: 1, ArrowLeft: -1 };
-        var by = forward[e.key];
-        if (!by) return;
-        e.preventDefault();
-        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * (e.shiftKey ? 4 : 1);
+        if (!p) return false;
+        if (key === 'Home') { reset(handle); return true; }
+        var by = arrow(handle, key);
+        if (!by) return false;
+        var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * steps;
         // Already as small as it goes, and asked for less: put it away.
         if (foldAt(handle) !== null && wanted < current && current <= bounds(handle).min + 0.5) {
             fold(handle, p, p.target.style.getPropertyValue(p.property), handle.getAttribute('aria-valuenow'));
-            return;
+            return true;
         }
         done(p, apply(handle, p, wanted));
+        return true;
+    }
+
+    /* The grip that belongs to `el` itself — a header cell's own — not one further in. */
+    function ownGrip(el) {
+        for (var c = el.firstElementChild; c; c = c.nextElementSibling) {
+            if (c.hasAttribute('data-resize')) return c;
+        }
+        return null;
+    }
+
+    document.addEventListener('keydown', function (e) {
+        var el = e.target instanceof Element ? e.target : null;
+        if (!el || e.ctrlKey || e.metaKey) return;
+        if (el.hasAttribute('data-resize')) {
+            if (e.altKey) return;
+            if (press(el, e.key, e.shiftKey ? 4 : 1)) e.preventDefault();
+            return;
+        }
+        // Alt+Shift on the cell a grip sits in: the column resizes and the focus stays.
+        if (!e.altKey || !e.shiftKey) return;
+        var grip = ownGrip(el);
+        if (grip && press(grip, e.key, 1)) e.preventDefault();
     });
+
+    /* In a keyboard grid the grip is one of its cell's controls, and the grid moves on from
+       a control with the arrows. Its own axis and Home are the grip's; the grid keeps the
+       rest — the other axis, Escape back to the cell. */
+    if (ui._.grid) {
+        ui._.grid.keys.push(function (e, grid, cell) {
+            var el = e.target;
+            if (el === cell || !el.hasAttribute('data-resize') || e.altKey || e.ctrlKey || e.metaKey) return false;
+            return e.key === 'Home' || arrow(el, e.key) !== 0;
+        });
+    }
 
 })(window.sednaUi);

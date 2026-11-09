@@ -34,3 +34,16 @@
         <code>.text-break</code> breaks inside a word when there is nowhere else to break.
     </p>
 </CatExample>
+
+<CatExample TExample="Examples.UtilityText.ShowMore" Title="Show more" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> A button with <code>data-clamp-toggle</code> and <code>aria-controls</code>
+        naming a <code>.text-clamp-2</code> or <code>.text-clamp-3</code> block opens it in full and closes it
+        again: the script flips the button's <code>aria-expanded</code> and writes
+        <code>data-clamp-open</code> on the block, which lifts the clamp. Both labels are the app's &mdash;
+        <code>.text-clamp-more</code> shows while it is closed and <code>.text-clamp-less</code> while it is
+        open. Where the text fits inside the clamp, as in the second note, the button carries
+        <code>data-clamp-fits</code> and is not shown; that is measured again whenever the block changes size.
+        <code>sednaUi.clamp.toggle(button, open?)</code> does the same from script.
+    </p>
+</CatExample>

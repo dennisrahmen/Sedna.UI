@@ -1,0 +1,59 @@
+<div style="max-width:860px">
+    <div class="toolbar">
+        <div class="toolbar-filters">
+            <button class="form-input form-input--sm form-trigger sedna-w-fit" type="button" popovertarget="deploy-log-range"
+                    aria-label="Time range: the last hour">
+                <i class="ri-time-line"></i><span>Last hour</span>
+            </button>
+            <div class="popover" id="deploy-log-range" popover>
+                <strong class="popover-title">Show the</strong>
+                <div class="chip-set" role="group" aria-label="Time range">
+                    <button class="chip" type="button" aria-pressed="false">Last 15 minutes</button>
+                    <button class="chip chip--active" type="button" aria-pressed="true">Last hour</button>
+                    <button class="chip" type="button" aria-pressed="false">Last 24 hours</button>
+                    <button class="chip" type="button" aria-pressed="false">Today</button>
+                </div>
+                <strong class="popover-title sedna-mt-4">Recently used</strong>
+                <div class="sedna-col sedna-gap-1">
+                    <button class="btn-bare btn-bare--link" type="button">8 Nov, 13:55 &rarr; 14:10</button>
+                    <button class="btn-bare btn-bare--link" type="button">Last 4 hours</button>
+                </div>
+            </div>
+        </div>
+        <div class="toolbar-actions">
+            <select class="form-input form-select form-select--sm sedna-w-fit" aria-label="Refresh every">
+                <option>Refresh off</option>
+                <option>Every 5 s</option>
+                <option selected>Every 30 s</option>
+                <option>Every minute</option>
+            </select>
+            <button class="btn btn--sm btn--icon" type="button" aria-label="Refresh now"><i class="ri-refresh-line"></i></button>
+        </div>
+    </div>
+    <ul class="output output--columns" tabindex="0" aria-label="Deploy log, last hour">
+        <li class="output-line output-line--info">
+            <span class="output-time">14:02:11.204</span>
+            <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> <span>INFO</span></span>
+            <span class="output-source">deploy.runner</span>
+            <span class="output-msg">checking out release <span class="output-str">"2026.09.3"</span></span>
+        </li>
+        <li class="output-line output-line--warn">
+            <span class="output-time">14:02:34.870</span>
+            <span class="output-level"><i class="ri-alert-line" aria-hidden="true"></i> <span>WARN</span></span>
+            <span class="output-source">deploy.build</span>
+            <span class="output-msg"><span class="output-str">"Retry.Legacy"</span> is obsolete, use <span class="output-str">"Retry.WithBackoff"</span></span>
+        </li>
+        <li class="output-line output-line--error">
+            <span class="output-time">14:04:25.017</span>
+            <span class="output-level"><i class="ri-close-circle-line" aria-hidden="true"></i> <span>ERROR</span></span>
+            <span class="output-source">deploy.health</span>
+            <span class="output-msg">health check on <span class="output-id">orders-console-01</span> returned <span class="output-num">503</span></span>
+        </li>
+        <li class="output-line output-line--info">
+            <span class="output-time">14:04:31.552</span>
+            <span class="output-level"><i class="ri-information-line" aria-hidden="true"></i> <span>INFO</span></span>
+            <span class="output-source">deploy.health</span>
+            <span class="output-msg"><span class="output-id">orders-console-01</span> healthy after <span class="output-num">2</span> attempts</span>
+        </li>
+    </ul>
+</div>

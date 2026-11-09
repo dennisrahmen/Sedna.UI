@@ -1,0 +1,68 @@
+<div class="rule-group" role="group" aria-label="Orders where">
+    <div class="rule-group-head">
+        <span>Match</span>
+        <div class="segmented segmented--sm" role="radiogroup" aria-label="How the conditions combine">
+            <label class="segmented-option"><input type="radio" name="qb-root" checked /> <span>AND</span></label>
+            <label class="segmented-option"><input type="radio" name="qb-root" /> <span>OR</span></label>
+        </div>
+        <span>of these</span>
+    </div>
+    <div class="rule-group-body">
+        <div class="rule-group-row">
+            <select class="form-select form-select--sm" aria-label="Field">
+                <option selected>Status</option><option>Region</option><option>Amount</option><option>Customer</option>
+            </select>
+            <select class="form-select form-select--sm" aria-label="Operator">
+                <option selected>is</option><option>is not</option>
+            </select>
+            <select class="form-select form-select--sm" aria-label="Value">
+                <option>Open</option><option selected>Held</option><option>Shipped</option>
+            </select>
+            <button class="btn btn--icon btn--sm btn--ghost" type="button" aria-label="Remove the status condition"><i class="ri-delete-bin-line"></i></button>
+        </div>
+
+        <div class="rule-group" role="group" aria-label="Nested group">
+            <div class="rule-group-head">
+                <span>Match</span>
+                <div class="segmented segmented--sm" role="radiogroup" aria-label="How the nested conditions combine">
+                    <label class="segmented-option"><input type="radio" name="qb-nested" /> <span>AND</span></label>
+                    <label class="segmented-option"><input type="radio" name="qb-nested" checked /> <span>OR</span></label>
+                </div>
+                <span>of these</span>
+                <button class="btn btn--icon btn--sm btn--ghost sedna-push" type="button" aria-label="Remove this group"><i class="ri-delete-bin-line"></i></button>
+            </div>
+            <div class="rule-group-body">
+                <div class="rule-group-row">
+                    <select class="form-select form-select--sm" aria-label="Field">
+                        <option>Status</option><option selected>Region</option><option>Amount</option><option>Customer</option>
+                    </select>
+                    <select class="form-select form-select--sm" aria-label="Operator">
+                        <option selected>is</option><option>is not</option>
+                    </select>
+                    <select class="form-select form-select--sm" aria-label="Value">
+                        <option selected>EU-West</option><option>EU-Central</option><option>US-East</option>
+                    </select>
+                    <button class="btn btn--icon btn--sm btn--ghost" type="button" aria-label="Remove the region condition"><i class="ri-delete-bin-line"></i></button>
+                </div>
+                <div class="rule-group-row">
+                    <select class="form-select form-select--sm" aria-label="Field">
+                        <option>Status</option><option>Region</option><option selected>Amount</option><option>Customer</option>
+                    </select>
+                    <select class="form-select form-select--sm" aria-label="Operator">
+                        <option>is</option><option selected>is over</option><option>is under</option>
+                    </select>
+                    <input class="form-input form-input--sm" type="number" value="500" aria-label="Value" />
+                    <button class="btn btn--icon btn--sm btn--ghost" type="button" aria-label="Remove the amount condition"><i class="ri-delete-bin-line"></i></button>
+                </div>
+                <div class="rule-group-actions">
+                    <button class="btn btn--sm btn--ghost" type="button"><i class="ri-add-line"></i> <span>Add condition</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="rule-group-actions">
+            <button class="btn btn--sm btn--ghost" type="button"><i class="ri-add-line"></i> <span>Add condition</span></button>
+            <button class="btn btn--sm btn--ghost" type="button"><i class="ri-folder-add-line"></i> <span>Add group</span></button>
+        </div>
+    </div>
+</div>

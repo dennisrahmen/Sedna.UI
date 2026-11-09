@@ -1,0 +1,14 @@
+<div class="form-field" style="max-width:420px">
+    <label class="form-label" for="tk-sample">Sampling rate</label>
+    <div class="form-range-box">
+        <input class="form-range" id="tk-sample" type="range" min="0" max="100" step="25" value="50" list="tk-sample-marks" />
+        <datalist class="form-range-ticks" id="tk-sample-marks">
+            <option value="0">0%</option>
+            <option value="25"></option>
+            <option value="50">50%</option>
+            <option value="75"></option>
+            <option value="100">100%</option>
+        </datalist>
+    </div>
+    <p class="form-hint">The share of requests whose traces are kept.</p>
+</div>

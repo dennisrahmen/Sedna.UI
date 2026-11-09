@@ -16,6 +16,9 @@
      data-graph-search         a text field: marks matching records as it is typed in.
      data-graph-option="layout" a select or radios: layout, direction, spacing, labels,
                                edge-labels, colour, depth, nodes.
+     data-graph-option="zoom"  a range, a select or radios: the zoom in percent of the
+                               drawing's own size, both ways — choosing one zooms, and
+                               a zoom by wheel, pinch, key or button moves it.
      data-graph-stats="{nodes} records · {edges} links"
                                text the script keeps current, in the app's words.
 
@@ -260,6 +263,8 @@ async function option(g, name, value) {
         // Chosen by the reader, so drawn even over the route a layered layout found.
         case 'curve': o.curve = value || 'bezier'; o.curveChosen = !!value; restyle(g); break;
         case 'arrows': o.arrows = value; restyle(g); break;
+        // The zoom is the view, not the drawing: nothing changes that a change event reports.
+        case 'zoom': return zoomTo(g, value);
         case 'depth':
             g.depth = Math.max(1, Math.min(Number(value) || 1, 6));
             if (g.focusId) await refilter(g, true);
@@ -269,6 +274,54 @@ async function option(g, name, value) {
     }
     changed(g);
 }
+
+/* The zoom a control shows: the drawing's own, the engine's divided by
+   `data-graph-scale`, in percent. */
+const percentOf = g => Math.round(ownZoom(g) * 100);
+
+/* A zoom chosen on a control, about the middle of the frame. Not animated, so a slider
+   being dragged is followed as it moves; the names are placed when the view rests. */
+function zoomTo(g, percent) {
+    const cy = g.cy;
+    const asked = Number(percent);
+    if (!(asked > 0)) return;
+    g.touched = true;
+    const level = Math.max(cy.minZoom(), Math.min(cy.maxZoom(), (asked / 100) * g.options.scale));
+    cy.stop();
+    cy.zoom({ level, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
+}
+
+/* Every zoom control shows the zoom as it is, however it got there. A range or a number
+   field the app gave no `min` or `max` takes the graph's zoom range. A select shows the
+   option of that percentage, else its option with an empty value — "a zoom no option
+   names" — else none; radios the same. Only when the zoom changed, unless `all`. */
+function showZoom(g, all) {
+    if (g.disposed || !g.cy) return;
+    const percent = percentOf(g);
+    if (!all && g.shownZoom === percent) return;
+    g.shownZoom = percent;
+    for (const c of controlsOf(g)) {
+        if (c.getAttribute('data-graph-option') !== 'zoom') continue;
+        if (c.tagName === 'SELECT') {
+            const options = Array.from(c.options);
+            const at = options.findIndex(o => o.value !== '' && Math.round(Number(o.value)) === percent);
+            const index = at >= 0 ? at : options.findIndex(o => o.value === '');
+            if (c.selectedIndex !== index) c.selectedIndex = index;
+        } else if (c.type === 'radio') {
+            const on = Math.round(Number(c.value)) === percent;
+            if (c.checked !== on) c.checked = on;
+        } else if (c.tagName === 'INPUT') {
+            const range = percentRange(g);
+            if (!c.hasAttribute('min')) c.min = String(range.min);
+            if (!c.hasAttribute('max')) c.max = String(range.max);
+            if (c.value !== String(percent)) c.value = String(percent);
+        }
+    }
+}
+const percentRange = g => ({
+    min: Math.round((g.cy.minZoom() / g.options.scale) * 100),
+    max: Math.round((g.cy.maxZoom() / g.options.scale) * 100),
+});
 
 /* Everything back as it was first drawn: the controls, and what they changed — the
    filter, the focus, the search, the view options, the outlines, drawing mode and the
@@ -302,6 +355,7 @@ async function reset(g) {
     await refilter(g, true);
     search(g, '', false);
     changed(g);
+    showZoom(g, true);
 }
 
 async function focusOn(g, id) {

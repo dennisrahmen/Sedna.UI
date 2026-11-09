@@ -130,3 +130,56 @@
 .fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 /* Icon-only: circular, and the label goes in an aria-label. */
 .fab--icon { width: 48px; padding: 0; }
+
+/* ── Speed dial ─────────────────────────────────────────────────────────────
+   A FAB that fans out a few related actions above itself instead of doing one:
+
+     <div class="menu-anchor fab-dial">
+       <button class="fab fab--icon" data-menu-toggle aria-expanded="false" aria-label="Create">…</button>
+       <div class="menu" hidden>
+         <button class="menu-item" type="button"><i …></i> <span>Order</span></button>
+       </div>
+     </div>
+
+   The wrapper takes the FAB's corner, so the button inside is in its flow and is what
+   the panel anchors to. The panel is the ordinary `.menu` with `data-menu-toggle`'s
+   behaviour — Escape, the arrow keys, a click outside — opening ABOVE the button with
+   its items as separate pills lined up on the button's end edge, and the button's icon
+   turns while it is open. Three to five actions; past that it is a menu or a sheet. */
+.menu-anchor.fab-dial {
+    position: fixed;
+    inset-block-end: calc(var(--space-8) + var(--safe-block-end));
+    inset-block-end: calc(var(--space-8) + anchor-size(--sedna-bottombar block, var(--safe-block-end)));
+    inset-inline-end: calc(var(--space-8) + var(--safe-inline-end));
+    z-index: 60;
+}
+.fab-dial > .fab { position: static; }
+.fab-dial > .fab i { transition: transform var(--motion-fast) ease; }
+.fab-dial > .fab[aria-expanded="true"] i { transform: rotate(45deg); }
+.fab-dial > .menu {
+    position-area: block-start span-inline-start;
+    justify-self: end;
+    align-self: end;
+    position-try-fallbacks: flip-block;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-3);
+    width: max-content;
+    min-width: 0;
+    margin-block: 0 var(--space-4);
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+.fab-dial > .menu[hidden] { display: none; }
+.fab-dial > .menu > .menu-item {
+    width: auto;
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-dropdown);
+}
+.fab-dial > .menu > .menu-item:hover { background: var(--bg-hover); }

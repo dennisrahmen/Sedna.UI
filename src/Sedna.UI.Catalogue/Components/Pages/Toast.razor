@@ -5,6 +5,31 @@
     act on is an <a href="/alert">alert</a>, which stays until the state changes.
 </CatHead>
 
+<h2 id="when-not">When not to use a toast <CatAnchor Id="when-not" /></h2>
+<div class="callout callout--warn">
+    <i class="ri-error-warning-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">A toast can be missed, so nothing important may live only in one</span>
+        A toast appears away from where the reader is looking and goes again on its own. A screen
+        reader announces it once, politely, and may not announce it at all while something else is
+        being read; a reader using a screen magnifier is usually looking at another part of the
+        screen and never sees it. So:
+        <ul>
+            <li>Information the reader needs, or something that stays true &mdash; read-only mode, a
+                failed connection, a validation error &mdash; goes <strong>inline</strong>, beside what
+                it is about, or in an <a href="/alert">alert</a> banner that stays until the state
+                changes.</li>
+            <li>Something the reader must act on goes in the page or in a <a href="/modal">dialog</a>.
+                A toast can carry an action as a shortcut, never as the only way to it.</li>
+            <li>Something the reader should be able to come back to goes in the
+                <a href="/notifications">notification inbox</a>; a toast may announce it as it
+                arrives.</li>
+        </ul>
+        A toast is for a receipt: confirmation of something the reader just did, that would change
+        nothing if they missed it.
+    </div>
+</div>
+
 <CatExample TExample="Examples.Toast.MoreTones" Title="Brand and secret" Demo="ex-demo--block ex-demo--pad">
     <p>Beside go, warn, danger and info, a toast takes <code>brand</code> and <code>secret</code>, from script as <code>kind</code> too.</p>
 </CatExample>
@@ -28,6 +53,43 @@
         replacing it shows a new one, because the outcome still has to reach them. The close button's
         name is <code>SednaUiOptions.ToastDismissLabel</code> — the one word the library writes
         itself — or <code>dismissLabel</code> for one toast.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Toast.PromiseToast" Title="One toast from saving to saved" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> Work that ends later is one toast, not two: present a toast for the
+        running work from your own <code>&lt;template&gt;</code> &mdash; a <code>.spinner</code>
+        where the icon goes, no close button, <code>timeout: 0</code> &mdash; and when the promise
+        settles, <code>sednaUi.toast.replace(id, message, options)</code> turns it into the outcome
+        in place, with the usual timeout for a success and <code>timeout: 0</code> for a failure.
+        From C#, <code>PresentToastAsync</code> then <code>ReplaceAsync</code> on the handle it
+        returns does the same.
+    </p>
+</CatExample>
+
+<h2 id="pile">A pile, a limit and a swipe <CatAnchor Id="pile" /></h2>
+<p class="cat-lede">
+    Several toasts at once can take over a corner of the screen. Pile them, cap how many show, and
+    let a pointer swipe one away. All three are the library's stack; nothing changes in what you
+    write.
+</p>
+
+<CatExample TExample="Examples.Toast.Pile" Title="Piled, and opened by the pointer" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> <code>sednaUi.configure({ toastPile: true })</code> &mdash;
+        <code>SednaUiOptions.ToastPile</code> from C# &mdash; gives the stack
+        <code>.toast-stack--pile</code>: the newest toast in front and the two before it peeking out
+        above. The pointer or the focus on the stack opens it out, and while it is open no toast in
+        it runs out. <code>toastLimit: 3</code> (<code>ToastLimit</code>) shows the newest three;
+        older ones wait out of sight with their timers held and come back as the ones in front go.
+        A stack you write takes <code>.toast-stack--pile</code> too and opens the same way.
+    </p>
+    <p>
+        A toast with a close button can be swiped toward the edge the stack sits on &mdash; the
+        inline end, so leftward in a right-to-left page; a short swipe springs back. The close
+        button stays the way to do it without a pointer. With reduced motion the pile opens and a
+        toast springs back in one step.
     </p>
 </CatExample>
 
@@ -96,6 +158,7 @@
         <code>id</code> also names it for <code>toast.dismiss(id)</code> and
         <code>toast.replace(id, message, options)</code>. <code>toast.present</code> and
         <code>toast.result</code> are a toast you write and how it ended. <code>dismissLabel</code> names the close
-        button, and <code>configure({ toastDismissLabel })</code> sets it once for every toast.
+        button, and <code>configure({ toastDismissLabel })</code> sets it once for every toast;
+        <code>configure({ toastPile, toastLimit })</code> sets the stack's shape.
     </p>
 </CatSnippet>

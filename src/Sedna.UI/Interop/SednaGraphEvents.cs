@@ -68,6 +68,9 @@ public class SednaGraphNodeEventArgs : EventArgs
     /// <summary>Where a run has got to on it, or null for a step not reached yet.</summary>
     public SednaGraphState? State { get; set; }
 
+    /// <summary>True for a placeholder — <see cref="SednaGraphNode.Placeholder"/> — a place a record can go.</summary>
+    public bool Placeholder { get; set; }
+
     /// <summary>Its tags.</summary>
     public string[] Tags { get; set; } = [];
 
@@ -108,4 +111,43 @@ public sealed class SednaGraphConnectEventArgs : EventArgs
 
     /// <summary>The record it was drawn to.</summary>
     public string Target { get; set; } = "";
+}
+
+/// <summary>
+/// A button pressed on a link — a copy of the app's <c>&lt;template data-graph-edge-tool&gt;</c>, set
+/// on the link's midpoint: <c>sedna-graph-edge</c>.
+/// </summary>
+/// <remarks>
+/// The app changes its own data — removes the link, puts a step into it — and the graph shows it.
+/// With <c>data-graph-managed</c> a <c>value="remove"</c> button removes the link unless the event
+/// is cancelled: <c>@onsedna-graph-edge:preventDefault</c>.
+/// </remarks>
+public sealed class SednaGraphEdgeEventArgs : EventArgs
+{
+    /// <summary>The link's id.</summary>
+    public string Id { get; set; } = "";
+
+    /// <summary>The record it starts at.</summary>
+    public string Source { get; set; } = "";
+
+    /// <summary>The record it ends at.</summary>
+    public string Target { get; set; } = "";
+
+    /// <summary>Its label.</summary>
+    public string? Label { get; set; }
+
+    /// <summary>Its <see cref="SednaGraphEdge.Kind"/>.</summary>
+    public string? Kind { get; set; }
+
+    /// <summary>Its tone.</summary>
+    public string? Tone { get; set; }
+
+    /// <summary>Its own <see cref="SednaGraphEdge.State"/>, or null.</summary>
+    public SednaGraphState? State { get; set; }
+
+    /// <summary>Its own fields: every other <c>data-*</c> attribute, or <see cref="SednaGraphEdge.Fields"/>.</summary>
+    public Dictionary<string, string?> Fields { get; set; } = [];
+
+    /// <summary>The pressed button's <c>value</c> — which of the template's buttons it was — or null.</summary>
+    public string? Value { get; set; }
 }

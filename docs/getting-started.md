@@ -118,6 +118,9 @@ No configuration is required. `sednaUi.configure()` is only needed for the optio
 | `langCookie` | `false` | Mirror the language into a cookie for server-side prerendering. |
 | `storagePrefix` | `sedna.` | See below. Rarely needed. |
 | `themeDefault` | `sedna` | Which theme name applies with nothing stored. See [The default theme](#the-default-theme). |
+| `toastDismissLabel` | `Dismiss` | The accessible name of a toast's close button, the one word the library writes. |
+| `toastPile` | `false` | Pile the toasts, newest in front, opened under the pointer or the focus. |
+| `toastLimit` | `0` | How many toasts show at once; the older ones wait. `0` shows every one. |
 
 `ISednaUi.ConfigureAsync()` pushes these from `SednaUiOptions`, so an app registering the services
 does not call `configure()` by hand.
@@ -483,7 +486,7 @@ The catalogue has an MCP server. Add one URL:
 |---|---|
 | `search` | "What is there for a sortable table with status badges?" Returns references, never markup. |
 | `get_example` | The exact markup for an example, byte-for-byte what the site renders. |
-| `describe_class` | What a class does: its rules from the shipped stylesheet, its layer, its modifiers. |
+| `describe_class` | What a class does: its rules from the shipped stylesheet, its layer, its variants, and the attributes and pseudo-classes that put it in a state. |
 | `get_page` | Everything on one page, or the list of pages. |
 | `get_tokens` | The design tokens, for writing `brand.css`. |
 | `get_integration_guide` | This document, the branding recipe, the JavaScript surface, the rules, the graph's or the editor's reference, or — when upgrading — every class each release renamed. |
@@ -491,3 +494,26 @@ The catalogue has an MCP server. Add one URL:
 Pass `installedVersion` and the response names anything your version does not have.
 
 Then copy the block in [`CLAUDE.consuming-app.md`](CLAUDE.consuming-app.md) into your app's `CLAUDE.md`.
+
+## App tooling
+
+The package carries the tooling an app runs against its own files, matched to the installed version. In a
+restored package they sit under `~/.nuget/packages/sedna.ui/<version>/`; the catalogue's
+[App tooling](https://www.sedna-ui.com/tooling) page has every snippet.
+
+- **The class check** runs in the app's build with no setup. After each build it reads the app's
+  `.razor`, `.cshtml`, `.html` and `.css` files and warns once per use of a class a release renamed
+  (`SEDNAUI001`, with the classes that replace it) or removed (`SEDNAUI002`), naming the file and the
+  line. `<SednaUiClassCheck>false</SednaUiClassCheck>` turns it off, `<NoWarn>` silences one code, and
+  `SednaUiClassCheckFile` items replace the files it reads.
+- **The rename script**, `tooling/rename-classes.py`, applies the renames between two versions to the
+  app's files: `python3 -I <package>/tooling/rename-classes.py --from 0.27.0 --dry-run .` prints the diff,
+  and the same line without `--dry-run` writes it. It replaces whole classes only, and writes a class
+  that became two as two.
+- **The Stylelint config**, `tooling/stylelint/sedna-ui.stylelintrc.json`, reports a selector that names
+  a class the library owns and a colour literal anywhere but as a token's value in `brand.css`. Copy it
+  beside the app's own Stylelint config, extend it from there, and copy it again after each upgrade.
+- **The agent skill**, `tooling/skills/sedna-ui/`, is the block in
+  [`CLAUDE.consuming-app.md`](CLAUDE.consuming-app.md) as a skill. Copy the folder to
+  `.claude/skills/sedna-ui/` in the app, or copy the block into the app's `CLAUDE.md`; one of the two,
+  not both.

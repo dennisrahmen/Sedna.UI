@@ -34,3 +34,14 @@ var card = await Ui.PresentToastAsync("toast-assigned",
     new Dictionary<string, string?> { ["title"] = "Assigned to you", ["href"] = "/orders/4182" },
     timeoutMs: 0);
 if (card is not null && await card.ResultAsync() == "open") { /* mark it read */ }
+
+// The stack's shape, once for every toast: a pile that opens under the pointer, and
+// at most three showing — the older ones wait, held, until one in front goes.
+sednaUi.configure({ toastPile: true, toastLimit: 3 });
+// C#: new SednaUiOptions { ToastPile = true, ToastLimit = 3 }, pushed by ConfigureAsync.
+
+// Work that ends later, as one toast: present a "saving" card from your template, then
+// replace it with the outcome when the promise settles.
+const id = sednaUi.toast.present('toast-saving', { title: 'Saving route plan 14' }, { timeout: 0 });
+save().then(() => sednaUi.toast.replace(id, 'Saved.', { kind: 'go' }),
+            () => sednaUi.toast.replace(id, 'Nothing was saved.', { kind: 'danger', timeout: 0 }));

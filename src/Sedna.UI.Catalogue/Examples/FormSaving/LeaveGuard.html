@@ -1,0 +1,11 @@
+<!-- data-close-guard asks the browser to confirm before the page is left while
+     data-dirty is on the form. The app writes data-dirty when a field changes and
+     takes it off when the form is saved or discarded. -->
+<form data-close-guard data-dirty>
+    …
+    <div class="form-actions form-actions--save-bar">
+        <p class="form-actions-status"><i class="ri-error-warning-line"></i><span>Unsaved changes</span></p>
+        <button class="btn" type="reset">Discard</button>
+        <button class="btn btn--brand btn--solid" type="submit">Save</button>
+    </div>
+</form>

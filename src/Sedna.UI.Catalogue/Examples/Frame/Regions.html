@@ -1,0 +1,19 @@
+<!-- F6 visits these in document order: the sidebar, the topbar, main, the footer,
+     the bottom bar — and an open modeless drawer — then wraps. Shift+F6 goes back.
+     The nav inside the sidebar, and anything inside main, is part of its region. -->
+<div class="layout">
+    <aside class="sidebar">
+        <nav class="nav" aria-label="Pages">…</nav>
+    </aside>
+    <div class="content">
+        <header class="topbar">…</header>
+        <div class="page">
+            <main id="main" tabindex="-1">…</main>
+            <footer>…</footer>
+        </div>
+        <nav class="bottombar" aria-label="Sections">…</nav>
+    </div>
+</div>
+
+<!-- Not modal, so a region of its own while it is open. -->
+<dialog class="drawer" data-modeless aria-label="Filters">…</dialog>

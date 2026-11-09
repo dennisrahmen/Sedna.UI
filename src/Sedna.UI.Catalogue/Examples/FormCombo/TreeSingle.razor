@@ -1,0 +1,48 @@
+<div class="form-field" style="max-width:360px">
+    <label class="form-label" for="cb-location">Storage location</label>
+    <div class="form-combo" data-combo="single" data-combo-managed>
+        <div class="form-combo-box">
+            <span class="form-combo-value">Aisle 3</span>
+            <input class="form-combo-input" id="cb-location" type="text" role="combobox" placeholder="Pick a location…"
+                   aria-expanded="false" aria-haspopup="tree" aria-controls="cb-location-tree" aria-autocomplete="list" autocomplete="off" />
+            <span class="form-combo-actions">
+                <button class="form-combo-btn form-combo-clear" type="button" aria-label="Clear the location"><i class="ri-close-line"></i></button>
+                <button class="form-combo-btn form-combo-toggle" type="button" tabindex="-1" aria-label="Show locations"><i class="ri-arrow-down-s-line"></i></button>
+            </span>
+        </div>
+        <input type="hidden" name="location" value="north-a3" data-combo-field />
+        <div class="form-combo-panel">
+            <ul class="tree" id="cb-location-tree" role="tree" aria-label="Locations">
+                <li role="treeitem" id="cb-location-north" aria-expanded="true" aria-selected="false" data-value="north">
+                    <span class="tree-row"><span class="tree-toggle"></span><span class="tree-label">North hub</span></span>
+                    <ul role="group">
+                        <li role="treeitem" id="cb-location-north-a1" aria-selected="false" data-value="north-a1">
+                            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-label">Aisle 1</span></span>
+                        </li>
+                        <li role="treeitem" id="cb-location-north-a2" aria-selected="false" data-value="north-a2">
+                            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-label">Aisle 2</span></span>
+                        </li>
+                        <li role="treeitem" id="cb-location-north-a3" aria-selected="true" data-value="north-a3">
+                            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-label">Aisle 3</span></span>
+                        </li>
+                    </ul>
+                </li>
+                <li role="treeitem" id="cb-location-south" aria-expanded="false" aria-selected="false" data-value="south">
+                    <span class="tree-row"><span class="tree-toggle"></span><span class="tree-label">South hub</span></span>
+                    <ul role="group">
+                        <li role="treeitem" id="cb-location-south-cold" aria-selected="false" data-value="south-cold">
+                            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-label">Cold store</span></span>
+                        </li>
+                        <li role="treeitem" id="cb-location-south-bulk" aria-selected="false" data-value="south-bulk">
+                            <span class="tree-row"><span class="tree-toggle"></span><span class="tree-label">Bulk racking</span></span>
+                        </li>
+                    </ul>
+                </li>
+                <li role="treeitem" id="cb-location-returns" aria-selected="false" data-value="returns">
+                    <span class="tree-row"><span class="tree-toggle"></span><span class="tree-label">Returns centre</span></span>
+                </li>
+            </ul>
+            <div class="form-combo-empty"><i class="ri-search-line"></i><span>No location matches.</span></div>
+        </div>
+    </div>
+</div>

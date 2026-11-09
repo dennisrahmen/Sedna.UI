@@ -60,6 +60,31 @@ public class PackageConfigTests
             + string.Join(", ", thirdParty));
     }
 
+    /// <summary>
+    /// The app's tooling is packed where the app reads it. NuGet imports
+    /// <c>build/&lt;PackageId&gt;.targets</c> and <c>buildTransitive/&lt;PackageId&gt;.targets</c> by that
+    /// name alone, and the targets find the maps and the history beside them under
+    /// <c>tooling/</c>. <c>build/verify-package.sh</c> asserts the same against a real .nupkg.
+    /// </summary>
+    [Theory]
+    [InlineData(@"Tooling\Sedna.UI.targets", @"build\Sedna.UI.targets;buildTransitive\Sedna.UI.targets")]
+    [InlineData(@"..\..\docs\renames\*.json", @"tooling\renames\")]
+    [InlineData(@"..\..\build\rename-classes.py", @"tooling\")]
+    [InlineData(@"..\..\tooling\stylelint\sedna-ui.stylelintrc.json", @"tooling\stylelint\")]
+    [InlineData(@"..\..\skills\sedna-ui\SKILL.md", @"tooling\skills\sedna-ui\")]
+    [InlineData(@"Contract\class-history.json", @"tooling\class-history.json")]
+    public void The_app_tooling_is_packed_where_the_app_reads_it(string source, string packagePath)
+    {
+        var project = XDocument.Load(Path.Combine(Assets.ProjectDir, "Sedna.UI.csproj"));
+        var item = project.Descendants()
+            .Where(e => e.Name.LocalName is "None" or "Content")
+            .SingleOrDefault(e => (e.Attribute("Include") ?? e.Attribute("Update"))?.Value == source);
+
+        Assert.True(item is not null, $"Sedna.UI.csproj does not pack {source}.");
+        Assert.Equal("true", item.Attribute("Pack")?.Value);
+        Assert.Equal(packagePath, item.Attribute("PackagePath")?.Value);
+    }
+
     [Fact]
     public void The_readme_and_license_packed_into_the_nupkg_exist()
     {

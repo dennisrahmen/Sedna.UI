@@ -1,0 +1,137 @@
+@using System.Globalization
+
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}, at {zone}. Up and down move it half an hour, left and right a day, Space puts it down."
+   data-drag-move="{zone}."
+   data-drag-drop="{item} moved to {zone}."
+   data-drag-cancel="{item} stays at {zone}."></p>
+
+<div class="cal-week" style="--cal-days: 4; --cal-hours: @Hours; --cal-hour-height: @(HourHeight)px"
+     @onsedna-drop="Drop" @onsedna-resize="Resize">
+    <div class="cal-week-head">
+        <span></span>
+        @foreach (var day in Days)
+        {
+            <span class="cal-weekday" aria-current="@(day == Today ? "date" : null)">@day.ToString("ddd d", CultureInfo.InvariantCulture)</span>
+        }
+    </div>
+    <div class="cal-week-body sedna-scroll">
+        <div class="cal-hours">
+            @for (var h = 0; h < Hours; h++)
+            {
+                <span class="cal-hour">@Clock(h)</span>
+            }
+        </div>
+        @foreach (var day in Days)
+        {
+            <div class="cal-day-col" aria-current="@(day == Today ? "date" : null)"
+                 data-drag-zone="@Key(day)" data-drag-group="week" data-drag-accept="">
+                <div class="cal-slots">
+                    @for (var s = 0; s < Hours * 2; s++)
+                    {
+                        var at = s / 2.0;
+                        <div class="cal-slot" data-drag-zone="@($"{Key(day)}T{Clock(at)}")" data-drag-group="week" data-drag-axis="slot"
+                             data-drag-label="@day.ToString("dddd", CultureInfo.InvariantCulture) @Clock(at)"
+                             aria-disabled="@(at < Opens ? "true" : null)"></div>
+                    }
+                </div>
+                <div class="cal-closed" style="--cal-start: 0; --cal-span: @Opens"></div>
+                @{ var lanes = Lanes(day); }
+                @foreach (var b in _blocks.Where(b => b.Day == day))
+                {
+                    <div class="@($"cal-block {b.Hue}")" tabindex="0" @key="b.Id" data-drag-item="@b.Id" data-drag-label="@b.Title"
+                         style="@Style(b, lanes[b.Id])">
+                        <span class="cal-event-time">@Clock(b.Start)</span> <span>@b.Title</span>
+                        <div class="cal-resize" data-resize="--cal-height" data-resize-key="@b.Id" data-resize-step="@(HourHeight / 2)"
+                             role="separator" aria-orientation="horizontal" aria-label="End of @b.Title"
+                             aria-valuemin="@(HourHeight / 2)" aria-valuenow="@(b.Span * HourHeight)"
+                             aria-valuetext="Ends @Clock(b.Start + b.Span)" tabindex="0"></div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private sealed record Block(string Id, string Title, DateOnly Day, double Start, double Span, string Hue = "");
+
+    // The axis runs from 07:00 for eleven hours; the site opens an hour in.
+    private const int Hours = 11;
+    private const int HourHeight = 48;
+    private const double Opens = 1;
+    private static readonly DateOnly Today = new(2026, 9, 15);
+    private static readonly DateOnly[] Days = [new(2026, 9, 14), new(2026, 9, 15), new(2026, 9, 16), new(2026, 9, 17)];
+
+    private readonly List<Block> _blocks =
+    [
+        new("b1", "Stand-up", new(2026, 9, 14), 1.5, 0.5),
+        new("b2", "Carrier review", new(2026, 9, 14), 4, 1.5, "cal-event--teal"),
+        new("b3", "Dispatch ORD-4209", new(2026, 9, 15), 2, 1, "cal-event--go"),
+        new("b4", "Audit", new(2026, 9, 16), 5, 2, "cal-event--danger"),
+    ];
+
+    private static string Key(DateOnly day) => day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+    private static string Clock(double hours) =>
+        TimeOnly.FromTimeSpan(TimeSpan.FromHours(7 + hours)).ToString("HH:mm", CultureInfo.InvariantCulture);
+
+    private static string Style(Block b, (int Lane, int Of) lane) =>
+        string.Create(CultureInfo.InvariantCulture,
+            $"--cal-start: {b.Start}; --cal-span: {b.Span}; --cal-lane: {lane.Lane}; --cal-lanes: {lane.Of}");
+
+    // Blocks that overlap go side by side: each takes the first lane free when it starts,
+    // and every block of a run that overlaps shares that run's count of lanes.
+    private Dictionary<string, (int Lane, int Of)> Lanes(DateOnly day)
+    {
+        var placed = new Dictionary<string, (int Lane, int Of)>();
+        var run = new List<(Block Block, int Lane)>();
+        var runEnd = double.MinValue;
+
+        void Close()
+        {
+            var of = run.Count == 0 ? 1 : run.Max(r => r.Lane) + 1;
+            foreach (var (block, lane) in run) placed[block.Id] = (lane, of);
+            run.Clear();
+        }
+
+        foreach (var b in _blocks.Where(b => b.Day == day).OrderBy(b => b.Start))
+        {
+            if (b.Start >= runEnd) Close();
+            var lane = 0;
+            while (run.Any(r => r.Lane == lane && r.Block.Start + r.Block.Span > b.Start)) lane++;
+            run.Add((b, lane));
+            runEnd = Math.Max(runEnd, b.Start + b.Span);
+        }
+        Close();
+        return placed;
+    }
+
+    private static DateTime When(string slot) =>
+        DateTime.ParseExact(slot, "yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture);
+
+    // Moved by the distance from the slot it was picked up over to the slot it was put
+    // down on — a day across, half hours down — and kept inside the open hours.
+    private void Drop(SednaDropEventArgs e)
+    {
+        if (e.FromSlot is null) return;
+        var i = _blocks.FindIndex(b => b.Id == e.Item);
+        if (i < 0) return;
+
+        var b = _blocks[i];
+        var start = b.Day.ToDateTime(TimeOnly.MinValue).AddHours(7 + b.Start) + (When(e.To) - When(e.FromSlot));
+        var hours = Math.Clamp(start.TimeOfDay.TotalHours - 7, Opens, Hours - b.Span);
+        _blocks[i] = b with { Day = DateOnly.FromDateTime(start), Start = hours };
+    }
+
+    // The grip reports the block's new length in pixels; it becomes an end time, in half hours.
+    private void Resize(SednaResizeEventArgs e)
+    {
+        var i = _blocks.FindIndex(b => b.Id == e.Key);
+        if (i < 0 || e.Value is not { } pixels) return;
+
+        var b = _blocks[i];
+        var span = Math.Max(0.5, Math.Round(pixels / HourHeight * 2) / 2);
+        _blocks[i] = b with { Span = Math.Min(span, Hours - b.Start) };
+    }
+}

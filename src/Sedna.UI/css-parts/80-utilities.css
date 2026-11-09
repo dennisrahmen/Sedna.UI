@@ -90,6 +90,21 @@
 }
 .text-clamp-2 { -webkit-line-clamp: 2; }
 .text-clamp-3 { -webkit-line-clamp: 3; }
+/* Show more. A button with `data-clamp-toggle` and `aria-controls` naming the clamped
+   block opens it in full and closes it again (28-clamp.js); the block carries
+   `data-clamp-open` while it is open. The button's words are the app's, both of them:
+   `.text-clamp-more` shows while it is closed and `.text-clamp-less` while it is open,
+   following `aria-expanded`. Where the text fits inside the clamp, the script marks
+   the button `data-clamp-fits` and it is not shown — a "Show more" that shows nothing
+   more is a broken promise. */
+:is(.text-clamp-2, .text-clamp-3)[data-clamp-open] {
+    display: block;
+    -webkit-line-clamp: none;
+    overflow: visible;
+}
+[data-clamp-toggle][data-clamp-fits] { display: none; }
+[data-clamp-toggle][aria-expanded="true"] .text-clamp-more,
+[data-clamp-toggle]:not([aria-expanded="true"]) .text-clamp-less { display: none; }
 /* One line, cut with an ellipsis. `min-width: 0` is included because the usual
    parent is a flex item, which otherwise refuses to shrink below its content and
    the ellipsis never appears — the single most common reason truncation "does not

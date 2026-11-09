@@ -118,6 +118,12 @@ public interface ISednaUi
     /// result, use <see cref="ISednaOverlays"/>.
     /// </para>
     /// <para>
+    /// A <c>.drawer</c> or <c>.sheet</c> that carries <c>data-modeless</c> is opened with
+    /// <c>show()</c> instead: no backdrop and no focus trap, and the page behind it stays
+    /// usable. It is awaited the same way, and <kbd>Escape</kbd> with the focus inside it
+    /// closes it.
+    /// </para>
+    /// <para>
     /// A second call on a dialog that is already open joins the first wait. An id that is
     /// not a <c>&lt;dialog&gt;</c> completes with <see langword="null"/> and a console
     /// warning rather than an exception, because an exception crossing the interop
@@ -270,8 +276,8 @@ public interface ISednaUi
     /// </remarks>
     Task RegisterCommandsAsync(IReadOnlyList<PaletteCommand> commands);
 
-    /// <summary>Ranks the registered commands against a query, best first.</summary>
-    /// <param name="query">The search text. Empty returns every command in registration order.</param>
+    /// <summary>Ranks the commands registered on the root page against a query, best first.</summary>
+    /// <param name="query">The search text. Empty returns every root command in registration order.</param>
     /// <returns>The matching commands.</returns>
     /// <remarks>For an app that wants the palette's ranking in its own UI.</remarks>
     Task<IReadOnlyList<PaletteCommand>> RankCommandsAsync(string query);

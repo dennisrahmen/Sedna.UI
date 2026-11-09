@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 #
 # Generates wwwroot/tokens/Sedna.UI.tokens.json from the token parts in
-# css-parts/ (00-04) plus the density remap in 90.
+# css-parts/ (00-04) plus the density remap in 90, and from that the same tokens in the
+# Design Tokens Community Group format: wwwroot/tokens/Sedna.UI.tokens.dtcg*.json, one
+# file per block, written by build/export-tokens-dtcg.py. docs/architecture.md says how
+# to load them.
 #
 # Why a JSON export exists: the tokens are the design contract, and things outside
 # CSS need to read it — a Figma import, a report generator picking chart colours, a
@@ -36,7 +39,8 @@ OUT="$ROOT/src/Sedna.UI/wwwroot/tokens/Sedna.UI.tokens.json"
 
 mkdir -p "$(dirname "$OUT")"
 TMP="$(mktemp)"
-trap 'rm -f "$TMP"' EXIT
+DTCG="$(mktemp -d)"
+trap 'rm -f "$TMP"; rm -rf "${DTCG:?}"' EXIT
 
 # Emits TSV: media <TAB> selector <TAB> name <TAB> value.
 # Bash does the JSON escaping, because awk doing both parsing and escaping is how a
@@ -149,15 +153,37 @@ esc() { local s=${1//\\/\\\\}; printf '%s' "${s//\"/\\\"}"; }
     echo '}'
 } > "$TMP"
 
+python3 -I "$ROOT/build/export-tokens-dtcg.py" "$TMP" "$DTCG"
+OUT_DIR="$(dirname "$OUT")"
+
 if [[ "${1:-}" == "--check" ]]; then
-    if cmp -s "$TMP" "$OUT"; then
-        echo "ok      token export is up to date"
-        exit 0
+    stale=0
+    if ! cmp -s "$TMP" "$OUT"; then
+        echo "::error::$OUT does not match css-parts/. Run build/export-tokens.sh"
+        diff "$OUT" "$TMP" | head -30 || true
+        stale=1
     fi
-    echo "::error::$OUT does not match css-parts/. Run build/export-tokens.sh"
-    diff "$OUT" "$TMP" | head -30 || true
-    exit 1
+    # Both directions: a file the generator writes, and a committed one it no longer does.
+    mapfile -t NAMES < <(for file in "$DTCG"/*.json "$OUT_DIR"/Sedna.UI.tokens.dtcg*.json; do
+        basename "$file"; done | sort -u)
+    for name in "${NAMES[@]}"; do
+        if ! cmp -s "$DTCG/$name" "$OUT_DIR/$name"; then
+            echo "::error::$OUT_DIR/$name does not match css-parts/. Run build/export-tokens.sh"
+            stale=1
+        fi
+    done
+    if [[ "$stale" == "0" ]]; then
+        echo "ok      token export is up to date"
+    fi
+    exit "$stale"
 fi
 
 cp "$TMP" "$OUT"
 echo "wrote   $(basename "$OUT")"
+for file in "$OUT_DIR"/Sedna.UI.tokens.dtcg*.json; do
+    [[ -e "$file" && ! -e "$DTCG/$(basename "$file")" ]] && rm -f "$file"
+done
+for file in "$DTCG"/*.json; do
+    cp "$file" "$OUT_DIR/"
+    echo "wrote   $(basename "$file")"
+done

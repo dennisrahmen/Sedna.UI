@@ -1,0 +1,44 @@
+<div class="card" style="max-width:600px">
+    <div class="card-body">
+        <div class="chat" role="log" aria-label="Conversation with Ops agent">
+            <div class="chat-message chat-message--mine">
+                <div class="chat-body">
+                    <form class="chat-bubble chat-bubble--editing" aria-label="Edit message">
+                        <textarea class="form-input" rows="2" aria-label="Message">Why did the EU-West order sync fail on Tuesday night?</textarea>
+                        <div class="sedna-row sedna-gap-2">
+                            <button class="btn btn--sm btn--ghost sedna-push" type="button">Cancel</button>
+                            <button class="btn btn--sm btn--solid" type="submit">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="chat-message chat-message--mine">
+                <div class="chat-body">
+                    <div class="chat-bubble">Why did the EU-West order sync fail on Tuesday night?</div>
+                    <div class="chat-meta">
+                        <span class="chat-versions">
+                            <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Previous version"><i class="ri-arrow-left-s-line"></i></button>
+                            <span>2 / 2</span>
+                            <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Next version" disabled><i class="ri-arrow-right-s-line"></i></button>
+                        </span>
+                        <span class="chat-edited">edited</span>
+                        <time class="chat-time" datetime="2026-09-14T09:14">09:14</time>
+                    </div>
+                </div>
+                <div class="chat-actions" role="toolbar" aria-label="Message actions">
+                    <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Edit and send again"><i class="ri-pencil-line"></i></button>
+                    <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Copy"><i class="ri-file-copy-line"></i></button>
+                </div>
+            </div>
+
+            <div class="chat-message chat-message--agent">
+                <span class="agent-avatar" role="img" aria-label="Ops agent"></span>
+                <div class="chat-body">
+                    <div class="chat-meta"><span class="chat-author">Ops agent</span><time class="chat-time" datetime="2026-09-14T09:14">09:14</time></div>
+                    <div class="chat-bubble"><p>On Tuesday the sync ran clean. It was Wednesday's run, at 02:14, that timed out waiting for a lock on the orders table.</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -82,6 +82,54 @@ a.stat:hover { background: var(--bg-hover); text-decoration: none; }
 a.stat:hover .stat-value { color: var(--brand-text); }
 a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 
+/* ── Rolling up to the figure ───────────────────────────────────────────────
+   A figure that counts up from zero when it appears — the one number a wall screen or a
+   landing tile leads with. The figure stays the app's own text: `--roll-to` is the same
+   number as a plain integer, and the count is drawn over the text while it runs.
+
+     <span class="stat-value stat-value--roll" style="--roll-to: 1240">1 240</span>
+
+   The text is in the element all along, so a screen reader reads "1 240" from the first
+   moment, and the count is generated content with an empty alternative (`/ ""`), so it
+   is never read. While the count runs the text's fill is transparent; when it ends the
+   count goes and the text is what is left, formatted as the app wrote it. A unit or any
+   other child keeps its ink throughout. It counts in whole numbers: a figure with a
+   fraction counts its whole part and lands on the fraction.
+
+   It plays once, when the element first renders. A new value does not replay it: an app
+   that wants that renders a new element, with `@key` on the value. Under reduced motion,
+   and on paper, the figure is simply there. */
+@property --stat-roll {
+    syntax: '<integer>';
+    inherits: true;
+    initial-value: 0;
+}
+@property --stat-rolling {
+    syntax: '<integer>';
+    inherits: true;
+    initial-value: 0;
+}
+.stat-value--roll {
+    --roll-to: 0;
+    position: relative;
+    animation: sedna-stat-roll var(--roll-duration) cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.stat-value--roll > * { -webkit-text-fill-color: currentColor; }
+.stat-value--roll::after {
+    content: counter(stat-roll) / "";
+    counter-reset: stat-roll calc(var(--stat-roll));   /* calc() rounds: an engine may interpolate the integer as a fraction */
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    opacity: var(--stat-rolling);
+    -webkit-text-fill-color: currentColor;
+    pointer-events: none;
+}
+@keyframes sedna-stat-roll {
+    from { --stat-roll: 0; --stat-rolling: 1; -webkit-text-fill-color: transparent; }
+    to   { --stat-roll: var(--roll-to); --stat-rolling: 1; -webkit-text-fill-color: transparent; }
+}
+
 /* ── Unavailable ────────────────────────────────────────────────────────────
    The number could not be read. An em dash, not a zero: zero is a measurement and
    this is the absence of one, and a dashboard that shows 0 for "the endpoint did not

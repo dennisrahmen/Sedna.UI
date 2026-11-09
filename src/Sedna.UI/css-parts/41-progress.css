@@ -1,13 +1,18 @@
 /* ── Progress ───────────────────────────────────────────────────────────────
    Determinate: set the inline width on .progress-bar, which is the one value
-   only the app knows. Indeterminate: omit the width and add the modifier. */
+   only the app knows. Indeterminate: omit the width and add the modifier.
+   Both are blocks whatever element carries them, so a bar written as <span>s inside a
+   line of phrasing content — a file item's name and meta — has a height and a width. */
 .progress {
+    display: block;
     height: 6px;
     background: var(--progress-track);
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
+.progress[hidden] { display: none; }
 .progress-bar {
+    display: block;
     height: 100%;
     background: var(--brand);
     border-radius: inherit;
@@ -40,6 +45,35 @@
 @keyframes sedna-progress {
     from { transform: translateX(-110%); }
     to   { transform: translateX(340%); }
+}
+
+/* ── Route progress ─────────────────────────────────────────────────────────
+   A thin bar along the top edge of the window while the next page loads. The app
+   writes it once, in the layout, and shows it with the `hidden` attribute — on from
+   the moment a navigation starts, off when the page has arrived:
+
+     <div class="progress progress--route progress--indeterminate" role="progressbar"
+          aria-label="Loading the page" hidden>
+       <div class="progress-bar"></div>
+     </div>
+
+   It fades in only after a moment, so a page that arrives at once shows nothing. Above
+   everything but the top layer, with the reconnect banner, so a navigation started from
+   a drawer is still seen; it takes no pointer. With a width on the bar and no
+   `.progress--indeterminate` it is a determinate bar in the same place. */
+.progress--route {
+    position: fixed;
+    inset-block-start: var(--safe-block-start);
+    inset-inline: 0;
+    z-index: 1000;
+    height: 3px;
+    background: transparent;
+    border-radius: 0;
+    pointer-events: none;
+    animation: sedna-progress-route var(--motion-mid) ease var(--motion-slow) both;
+}
+@keyframes sedna-progress-route {
+    from { opacity: 0; }
 }
 
 

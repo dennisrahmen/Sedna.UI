@@ -1,0 +1,47 @@
+<table class="table" role="grid" aria-label="Order ORD-4209, lines">
+    <thead>
+        <tr><th>Line</th><th class="col-num">Quantity</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var line in _lines)
+        {
+            var bad = line.Quantity < 1;
+            var changed = line.Quantity != line.Saved;
+            <tr @key="line">
+                <td>@line.Name</td>
+                <td class="col-num" data-dirty="@changed" aria-invalid="@(bad ? "true" : null)">
+                    @line.Quantity
+                    @if (bad) { <span class="visually-hidden">, must be at least 1</span> }
+                    else if (changed) { <span class="visually-hidden">, changed</span> }
+                    <input class="cell-editor" type="number" min="1" @bind="line.Quantity"
+                           aria-invalid="@(bad ? "true" : null)" aria-label="@($"Quantity, {line.Name}")" />
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="sedna-row sedna-mt-4">
+    <button class="btn btn--sm btn--go btn--solid" type="button" disabled="@(!CanSave)" @onclick="Save">Save changes</button>
+    <button class="btn btn--sm" type="button" disabled="@(!Changed)" @onclick="Discard">Discard</button>
+</div>
+
+@code {
+    private sealed class Line(string name, int quantity)
+    {
+        public string Name { get; } = name;
+        public int Quantity { get; set; } = quantity;
+        public int Saved { get; set; } = quantity;
+    }
+
+    private readonly List<Line> _lines = [new("Desk lamp", 12), new("Monitor arm", 4), new("Footrest", 1)];
+
+    // The values and the rule are the app's. The script writes data-editing on the cell
+    // being edited and moves the focus; @bind commits on the editor's own change event,
+    // and data-dirty and aria-invalid are rendered from the state here.
+    private bool Changed => _lines.Any(l => l.Quantity != l.Saved);
+    private bool CanSave => Changed && _lines.All(l => l.Quantity >= 1);
+
+    private void Save() => _lines.ForEach(l => l.Saved = l.Quantity);
+    private void Discard() => _lines.ForEach(l => l.Quantity = l.Saved);
+}

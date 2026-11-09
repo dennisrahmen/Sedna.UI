@@ -18,10 +18,12 @@ src/
     js-parts/                         the script, one short file per behaviour
     graph-parts/                      the graph module, one file per concern
     editor-parts/                     the rich-text editor module, one file per concern
+    orb-parts/, chart-parts/          the orb's and the chart's modules, one file per concern
     wwwroot/css/Sedna.UI.css      GENERATED from css-parts/ — do not edit
     wwwroot/js/Sedna.UI.js        GENERATED from js-parts/ — do not edit
     wwwroot/js/Sedna.UI.graph.js  GENERATED from graph-parts/ — do not edit
     wwwroot/js/Sedna.UI.editor.js GENERATED from editor-parts/ — do not edit
+    wwwroot/js/Sedna.UI.chart.js  GENERATED from chart-parts/ — do not edit
     wwwroot/lib/cytoscape/            VENDORED by build/vendor-cytoscape.sh — the graph engine
     wwwroot/lib/quill/                VENDORED by build/vendor-quill.sh — the editor's engine
     wwwroot/js/Sedna.UI.boot.js   pre-paint theme, loaded in <head>; standalone
@@ -171,8 +173,13 @@ CI runs every one before the build:
 ```bash
 build/bundle-css.sh          # wwwroot/css/Sedna.UI.css   from css-parts/
 build/bundle-js.sh           # wwwroot/js/Sedna.UI.js     from js-parts/, and each surface module from its parts
-build/export-tokens.sh       # wwwroot/tokens/…tokens.json    from the token parts
+build/export-tokens.sh       # wwwroot/tokens/…tokens.json    from the token parts, and the …tokens.dtcg*.json files from it
+build/class-states.sh        # the catalogue's Data/class-states.json   from the shipped stylesheet
+build/app-tooling.sh         # tooling/stylelint/…stylelintrc.json from the shipped stylesheet, skills/sedna-ui/SKILL.md from docs/CLAUDE.consuming-app.md
 ```
+
+`bundle-css.sh` runs `class-states.sh` and `app-tooling.sh` after it writes the stylesheet. After editing
+`docs/CLAUDE.consuming-app.md`, run `app-tooling.sh` yourself: the agent skill is that file.
 
 One is generated and never committed, because the release tags date it. Run it after cloning and after
 fetching a new tag (it needs bash 4 or later); CI, the release and the catalogue image run it themselves:
@@ -222,6 +229,8 @@ not the CSS.
 - the packed stylesheet still contains the token layer
 - the catalogue's relative CSS link resolves inside the package
 - a scoped-CSS bundle is present if any `.razor.css` exists
+- the app tooling is packed: the class check as `build/` and `buildTransitive/Sedna.UI.targets`, and under
+  `tooling/` every rename map, the class history, `rename-classes.py`, the Stylelint config and the agent skill
 
 Static web assets can be dropped from a package without failing the build, and the result is a runtime
 404. CI runs this on every push.
@@ -233,8 +242,8 @@ that ships:
 
 ```bash
 build/bundle-css.sh            # regenerate wwwroot/css/Sedna.UI.css from css-parts/
-build/bundle-js.sh             # regenerate wwwroot/js/Sedna.UI.js  from js-parts/, and Sedna.UI.graph.js and Sedna.UI.editor.js from their parts
-build/export-tokens.sh         # regenerate wwwroot/tokens/Sedna.UI.tokens.json
+build/bundle-js.sh             # regenerate wwwroot/js/Sedna.UI.js  from js-parts/, and every surface module from its parts
+build/export-tokens.sh         # regenerate wwwroot/tokens/Sedna.UI.tokens.json and the Design Tokens files
 build/bundle-css.sh --check    # fail if it is out of date
 build/bundle-js.sh  --check
 build/export-tokens.sh --check
@@ -243,7 +252,8 @@ build/export-tokens.sh --check
 The token export is the design contract for consumers that are not CSS — a Figma import, a report
 generator picking chart colours, a contrast audit. It is an ordered array of blocks with their media
 conditions rather than a map of themes, because `:root` appears twice (once at the top level and again
-inside `prefers-contrast`) and a map would silently lose one.
+inside `prefers-contrast`) and a map would silently lose one. `build/export-tokens-dtcg.py` writes the
+same blocks in the Design Tokens format, one file per block; `docs/architecture.md` says how to load them.
 
 `Sedna.UI.boot.js` is deliberately outside this: it is a standalone ~40-line file loaded in
 `<head>` to apply the stored theme before first paint, and bundling it would defeat its purpose.
@@ -274,6 +284,7 @@ Conventions live next to the files themselves, one `CLAUDE.md` per directory:
 [`js-parts/`](../src/Sedna.UI/js-parts/CLAUDE.md),
 [`graph-parts/`](../src/Sedna.UI/graph-parts/CLAUDE.md),
 [`editor-parts/`](../src/Sedna.UI/editor-parts/CLAUDE.md),
+[`chart-parts/`](../src/Sedna.UI/chart-parts/CLAUDE.md),
 and [`Sedna.UI.Catalogue/`](../src/Sedna.UI.Catalogue/CLAUDE.md).
 
 Two things deliberately not done:

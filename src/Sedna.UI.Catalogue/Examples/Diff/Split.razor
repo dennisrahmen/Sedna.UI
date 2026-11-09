@@ -1,0 +1,46 @@
+<div class="diff diff--split">
+    <div class="diff-head">
+        <span class="diff-file">templates/shipping-confirmation.txt</span>
+        <span class="badge badge--go">+2</span>
+        <span class="badge badge--danger">&minus;1</span>
+    </div>
+    <div class="diff-body">
+        <table class="diff-table">
+            <caption class="visually-hidden">Changes to templates/shipping-confirmation.txt, side by side</caption>
+            <thead class="visually-hidden">
+                <tr><th scope="col">Old line</th><th scope="col">Before</th><th scope="col">New line</th><th scope="col">After</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="diff-num">1</td><td class="diff-code">Hello {first_name},</td>
+                    <td class="diff-num">1</td><td class="diff-code">Hello {first_name},</td>
+                </tr>
+                <tr>
+                    <td class="diff-num">2</td><td class="diff-code"></td>
+                    <td class="diff-num">2</td><td class="diff-code"></td>
+                </tr>
+                <tr>
+                    <td class="diff-num diff-del">3</td><td class="diff-code diff-del">Your order {order_id} has shipped and should arrive <del>within five working days</del>.</td>
+                    <td class="diff-num diff-add">3</td><td class="diff-code diff-add">Your order {order_id} has shipped and should arrive <ins>on {delivery_date}, between {window_start} and {window_end}</ins>.</td>
+                </tr>
+                <tr>
+                    <td class="diff-num diff-gap"></td><td class="diff-code diff-gap"></td>
+                    <td class="diff-num diff-add">4</td><td class="diff-code diff-add">Track it at https://example.com/track/{order_id}</td>
+                </tr>
+                <tr>
+                    <td class="diff-num">4</td><td class="diff-code"></td>
+                    <td class="diff-num">5</td><td class="diff-code"></td>
+                </tr>
+                <tr>
+                    <td class="diff-num">5</td><td class="diff-code">Northwind Retail</td>
+                    <td class="diff-num">6</td><td class="diff-code">Northwind Retail</td>
+                </tr>
+                <tr class="diff-fold">
+                    <td colspan="4">
+                        <button class="btn-bare" type="button"><i class="ri-expand-up-down-line" aria-hidden="true"></i> <span>Show 12 unchanged lines</span></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

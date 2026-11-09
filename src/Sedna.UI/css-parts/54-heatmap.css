@@ -1,0 +1,67 @@
+/* ── Heatmap ────────────────────────────────────────────────────────────────
+   How much happened in each slot of a calendar — deployments a day over half a year,
+   tickets an hour across a week. A grid of cells that fills down a column of seven days
+   and then across to the next week, each cell coloured by an intensity step the app has
+   already worked out from its own data:
+
+     <div class="heatmap" role="img" aria-label="Deployments, May to October: 214 in total, …">
+       <span></span><span></span>
+       <span class="heatmap-cell heatmap-cell--2" data-tip="Wed 6 May: 4 deployments"></span>
+       <span class="heatmap-cell" data-tip="Thu 7 May: none"></span>
+       …
+     </div>
+
+   `.heatmap-cell` with no step is the empty cell; `--1` to `--4` are the steps, the
+   `--heat-*` tokens, one hue that moves away from the surface as the count grows. The
+   steps are what the app decides — quartiles of its own range, or fixed bands — and the
+   legend says which. A week that starts mid-column begins with bare `<span>`s, which
+   take a slot and paint nothing.
+
+   `--heatmap-rows` is the column's length, seven by default; an hours-by-day grid sets
+   24. `--heatmap-cell` is the cell's side, set by `--sm` and `--lg` or by the app. A
+   year of cells is wider than a phone, so an app puts a long one in a `.sedna-scroll`.
+
+   The grid is one picture: `role="img"` and a label that says the totals and the
+   busiest stretch. Each cell's `data-tip` is the detail for the eye. In forced colours
+   the steps become the reader's own ink mixed into their canvas, and every cell is
+   outlined, so an empty one is still a cell — 71-forced-colors.css. */
+.heatmap {
+    --heatmap-rows: 7;
+    --heatmap-cell: 12px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(var(--heatmap-rows), var(--heatmap-cell));
+    grid-auto-columns: var(--heatmap-cell);
+    gap: var(--space-1);
+    inline-size: max-content;
+}
+.heatmap--sm { --heatmap-cell: 9px; }
+.heatmap--lg { --heatmap-cell: 16px; }
+.heatmap-cell {
+    inline-size: var(--heatmap-cell, 12px);
+    block-size: var(--heatmap-cell, 12px);
+    border-radius: var(--radius-small);
+    background: var(--heat-0);
+    print-color-adjust: exact;
+}
+.heatmap-cell--1 { background: var(--heat-1); }
+.heatmap-cell--2 { background: var(--heat-2); }
+.heatmap-cell--3 { background: var(--heat-3); }
+.heatmap-cell--4 { background: var(--heat-4); }
+/* The cell the hint is about. An outline, so it moves nothing and forced colours keeps it. */
+.heatmap-cell[data-tip]:hover { outline: 1px solid var(--fg-soft); }
+
+/* "Less ▢▢▢▢▢ More": the steps in order, with the app's words at either end. The cells
+   are the same `.heatmap-cell`s, at the size of the heatmap the legend sits under. */
+.heatmap-legend {
+    --heatmap-cell: 12px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: var(--space-4);
+    font-size: var(--text-2);
+    color: var(--muted);
+}
+.heatmap-legend > :not(.heatmap-cell) { margin-inline: var(--space-2); }
+.heatmap-legend > :not(.heatmap-cell):first-child { margin-inline-start: 0; }
+.heatmap-legend > :not(.heatmap-cell):last-child { margin-inline-end: 0; }
