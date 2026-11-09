@@ -202,8 +202,8 @@ internal static class CataloguePages
             "Ranges, steppers and date inputs — the controls whose internals are per-engine.",
             "range slider stepper number spinner appearance disabled dual two-thumb span ticks datalist vertical bubble output"),
         new("/form-color", Forms, "Colour", "ri-palette-line",
-            "The platform's colour picker in the field's chrome, and a preset palette of swatches.",
-            "color colour picker form-color swatch swatch-grid palette aria-pressed label category"),
+            "The platform's colour picker, a preset palette of swatches, and a spectrum picker for any colour.",
+            "color colour picker form-color swatch swatch-grid palette aria-pressed label category spectrum hue saturation brightness alpha opacity hex rgb form-color-picker form-color-area form-color-preview form-range--hue form-range--alpha"),
 
         new("/table", Data, "Tables", "ri-table-line",
             "One class on the table, plus sticky headers, sorting, pinned columns and a stacked layout.",

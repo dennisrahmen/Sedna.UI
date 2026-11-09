@@ -150,6 +150,13 @@ main script would defeat its purpose.
 Every colour, tint and shadow in `wwwroot/css/Sedna.UI.css` resolves through a token declared in one
 of the `:root` blocks. No hex, no `rgb()`, no colour keyword anywhere else in the file.
 
+**One scoped exception: the colour picker's spectrum.** `css-parts/45-colour-picker.css` declares the
+hue rainbow, the area's white and black and the pure hue as `--spectrum-*` properties on
+`.form-color-picker`, with literal values, because a spectrum is the same in every theme. A literal is
+allowed on a `--spectrum-*` declaration in that part and nowhere else; no token block declares or remaps
+one. `ColourTests` names the part and the prefix, and fails on a literal anywhere else — in another part,
+or in that part outside a `--spectrum-*` declaration. Do not add a second exception.
+
 The guards in `src/Sedna.UI.Tests/Css/` also enforce that:
 
 - every `var(--x)` used is declared;
@@ -507,7 +514,7 @@ engine is [Quill](https://quilljs.com/) 2, vendored with the licences of what it
 ## JavaScript
 
 `Sedna.UI.js` holds generic UI behaviour only: hover hints, theme settings, clipboard, notifications,
-toasts, the dialog presenter, delegated menus, tabs, combo fields, the command palette and the header
+toasts, the dialog presenter, delegated menus, tabs, combo fields, a colour picker's area and sliders, the command palette and the header
 search, drag and drop, the section in view of a page's contents, the Markdown editor, the inert state of a dimmed dependent block, the two ends and the fill of a range box, the toolbar over a text selection, a carousel's buttons and position, a clamped block's show more, a textarea's ghost-text suggestion, the list a textarea's "@" opens, a closing
 drawer's slide where the engine cannot keep a closed dialog displayed, and the graph's front door, which imports the graph module
 when a page first shows a graph. Drag and drop moves no node: it writes attributes and dispatches

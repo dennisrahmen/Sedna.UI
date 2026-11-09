@@ -59,6 +59,9 @@ public class TokenTierTests
         foreach (var (name, value) in Declarations(Assets.StripComments(Assets.Css)))
         {
             if (PaletteNames.Contains(name)) continue;
+            // The colour picker's spectrum: fixed values, declared in its own part alone and
+            // remapped by no theme, which ColourTests holds it to.
+            if (name.StartsWith(ColourTests.SpectrumPrefix, StringComparison.Ordinal)) continue;
             if (!HexLiteral.IsMatch(value)) continue;
 
             offenders.Add($"{name}: {value}");

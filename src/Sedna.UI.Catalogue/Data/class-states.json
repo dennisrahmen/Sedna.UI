@@ -2437,6 +2437,21 @@
         "form-input--sm"
       ]
     },
+    "form-color-area": {
+      "family": "form-color-area",
+      "attributes": [
+        "[aria-disabled=\"true\"]"
+      ],
+      "pseudoClasses": [
+        ":focus-visible"
+      ]
+    },
+    "form-color-picker": {
+      "family": "form-color-picker"
+    },
+    "form-color-preview": {
+      "family": "form-color-preview"
+    },
     "form-combo": {
       "family": "form-combo",
       "variants": [
@@ -2646,6 +2661,8 @@
     "form-range": {
       "family": "form-range",
       "variants": [
+        "form-range--alpha",
+        "form-range--hue",
         "form-range--lg",
         "form-range--sm"
       ],
@@ -2657,6 +2674,22 @@
       "pseudoClasses": [
         ":disabled",
         ":focus-visible"
+      ],
+      "combinedWith": [
+        "form-range--alpha",
+        "form-range--hue"
+      ]
+    },
+    "form-range--alpha": {
+      "family": "form-range",
+      "combinedWith": [
+        "form-range"
+      ]
+    },
+    "form-range--hue": {
+      "family": "form-range",
+      "combinedWith": [
+        "form-range"
       ]
     },
     "form-range--lg": {

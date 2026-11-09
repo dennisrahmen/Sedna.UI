@@ -1,8 +1,8 @@
 @page "/form-color"
 
 <CatHead Title="Colour">
-    Picking a colour: the platform's own picker in the field's chrome, and a preset palette to choose
-    from. There is no picker logic in the library — the native input already is one.
+    Picking a colour: the platform's own picker in the field's chrome, a preset palette to choose
+    from, and a spectrum picker for a reader who may choose any colour at all.
 </CatHead>
 
 <CatExample TExample="Examples.FormColor.ColourField" Title="A colour field" Demo="ex-demo--block">
@@ -22,5 +22,40 @@
         is <code>aria-pressed="true"</code>, drawn as a ring rather than a tint so it shows on any
         colour. <strong>Name every swatch</strong> with <code>aria-label</code>: a colour is not an
         accessible name, and a reader who cannot tell two greens apart needs the word.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormColor.Picker" Title="Any colour: a spectrum picker" Demo="ex-demo--block">
+    <p>
+        For a reader who chooses any colour at all, not one of yours — a brand colour, a theme.
+        <code>.form-color-picker</code> holds a <code>.form-color-area</code> for saturation and brightness,
+        <code>.form-range--hue</code> and <code>.form-range--alpha</code> on native ranges, and a
+        <code>.form-color-preview</code> beside your own field. The value lives in the
+        <code>[data-color-value]</code> field: the script writes it as the reader drags or presses a key and
+        dispatches its <code>input</code> and <code>change</code>, so bind the field and nothing else. Typing
+        in it moves the thumbs, and on leaving it is rewritten as lower-case hex, eight digits below full
+        opacity.
+    </p>
+    <p>
+        The area is one tab stop: the arrows move its thumb by one per cent and by ten with Shift, Home and
+        End go to no and full saturation, Page Up and Page Down to full and no brightness. Give it an
+        <code>aria-label</code> and a <code>data-color-valuetext</code> in your own words — <code>{s}</code>,
+        <code>{v}</code>, <code>{h}</code>, <code>{a}</code> and <code>{hex}</code> are filled in. Leave the
+        alpha slider out for an opaque colour.
+    </p>
+    <p>
+        The spectrum is the same in every theme and does not mirror under <code>dir="rtl"</code>: saturation
+        grows to the right and the hue runs red to red left to right, as in every colour tool. In forced
+        colours it keeps its own colours, and so do the thumbs.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormColor.PickerChannels" Title="RGB fields and opacity" Demo="ex-demo--block">
+    <p>
+        <code>data-color-format="rgb"</code> on the field writes <code>rgb(r g b / a)</code> instead of hex,
+        and number inputs with <code>data-color-channel</code> — <code>r</code>, <code>g</code> and
+        <code>b</code> from 0 to 255, <code>a</code> as a percentage — edit one channel each. Every field is
+        kept on the same colour, and an <code>input type="color"</code> with <code>data-color-value</code>
+        works as well, holding the colour without its opacity.
     </p>
 </CatExample>

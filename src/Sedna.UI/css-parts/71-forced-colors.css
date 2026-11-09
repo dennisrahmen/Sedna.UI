@@ -135,6 +135,7 @@
     .page-toc-fold > .page-toc-title:focus-visible,
     button.sheet-handle:focus-visible,
     .form-color:focus-visible,
+    .form-color-area:focus-visible,
     .swatch:focus-visible,
     .editor:focus-within,
     a.file-item:focus-visible,
@@ -329,4 +330,12 @@
     /* A heatmap cell keeps its step from the remap above, and an outline in the
        user's muted ink, so an empty cell is still a cell and not a hole in the grid. */
     .heatmap-cell { forced-color-adjust: none; outline: 1px solid GrayText; outline-offset: -1px; }
+
+    /* A colour picker's spectrum is the choice itself, and its thumbs are drawn in the
+       spectrum's own white and black so they show on any colour of it. All of it opts
+       out (45-colour-picker.css); the focus ring above is still the user's Highlight. */
+    .form-color-area,
+    .form-range--hue,
+    .form-range--alpha,
+    .form-color-preview { forced-color-adjust: none; }
 }

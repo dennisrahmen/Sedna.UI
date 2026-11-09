@@ -3666,6 +3666,94 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .editor-slash[hidden] { display: none; }
 }
 @layer sedna.paint {
+.form-color-picker {
+    --spectrum-white: #ffffff;
+    --spectrum-black: #000000;
+    --spectrum-hue: hsl(var(--picker-hue) 100% 50%);
+    --spectrum-hues: linear-gradient(to right, #ff0000 0%, #ffff00 16.667%, #00ff00 33.333%, #00ffff 50%, #0000ff 66.667%, #ff00ff 83.333%, #ff0000 100%);
+    --picker-hue: 0;
+    --picker-x: 100%;
+    --picker-y: 0%;
+    --picker-color: transparent;
+    --picker-opaque: transparent;
+    --picker-width: 280px;
+    --picker-area: 160px;
+    --picker-thumb: 16px;
+    --picker-track: 12px;
+    display: grid;
+    gap: var(--space-6);
+    inline-size: 100%;
+    max-inline-size: var(--picker-width);
+}
+.form-color-area {
+    position: relative;
+    direction: ltr;
+    block-size: var(--picker-area);
+    border-radius: var(--radius-control);
+    background:
+        linear-gradient(to top, var(--spectrum-black), transparent),
+        linear-gradient(to right, var(--spectrum-white), transparent),
+        var(--spectrum-hue);
+    cursor: crosshair;
+    touch-action: none;
+}
+.form-color-area:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }
+.form-color-area[aria-disabled="true"] { cursor: not-allowed; opacity: var(--disabled-opacity); }
+.form-color-area::after {
+    content: "";
+    position: absolute;
+    left: var(--picker-x);
+    inset-block-start: var(--picker-y);
+    inline-size: var(--picker-thumb);
+    block-size: var(--picker-thumb);
+    translate: -50% -50%;
+    border: 2px solid var(--spectrum-white);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--spectrum-black), inset 0 0 0 1px var(--spectrum-black);
+    pointer-events: none;
+}
+.form-range.form-range--hue,
+.form-range.form-range--alpha {
+    --range-thumb: var(--picker-thumb);
+    --range-track: var(--picker-track);
+    direction: ltr;
+}
+.form-range.form-range--hue::-webkit-slider-runnable-track { background: var(--spectrum-hues); }
+.form-range.form-range--hue::-moz-range-track { background: var(--spectrum-hues); }
+.form-range.form-range--alpha::-webkit-slider-runnable-track {
+    background:
+        linear-gradient(to right, transparent, var(--picker-opaque)),
+        repeating-conic-gradient(var(--border) 0 25%, var(--surface-soft) 0 50%) 0 0 / calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
+.form-range.form-range--alpha::-moz-range-track {
+    background:
+        linear-gradient(to right, transparent, var(--picker-opaque)),
+        repeating-conic-gradient(var(--border) 0 25%, var(--surface-soft) 0 50%) 0 0 / calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
+.form-range.form-range--hue::-webkit-slider-thumb,
+.form-range.form-range--alpha::-webkit-slider-thumb {
+    background: transparent;
+    border: 2px solid var(--spectrum-white);
+    box-shadow: 0 0 0 1px var(--spectrum-black), inset 0 0 0 1px var(--spectrum-black);
+}
+.form-range.form-range--hue::-moz-range-thumb,
+.form-range.form-range--alpha::-moz-range-thumb {
+    background: transparent;
+    border: 2px solid var(--spectrum-white);
+    box-shadow: 0 0 0 1px var(--spectrum-black), inset 0 0 0 1px var(--spectrum-black);
+}
+.form-color-preview {
+    flex: none;
+    inline-size: var(--control-height);
+    block-size: var(--control-height);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-control);
+    background:
+        linear-gradient(var(--picker-color), var(--picker-color)),
+        repeating-conic-gradient(var(--border) 0 25%, var(--surface-soft) 0 50%) 0 0 / calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
+}
+@layer sedna.paint {
 .form-select { cursor: pointer; }
 .form-select[multiple],
 .form-select[size]:not([size="1"]) { cursor: auto; }
@@ -13527,7 +13615,7 @@ button.inbox-item-title {
     color: var(--fg);
     pointer-events: none;
 }
-:is(.segmented, .form-range, .choice-tiles)[aria-readonly="true"],
+:is(.segmented, .form-range, .choice-tiles, .form-color-area)[aria-readonly="true"],
 :is(.form-check, .switch):has(input[aria-readonly="true"]) {
     pointer-events: none;
 }
@@ -14064,6 +14152,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .page-toc-fold > .page-toc-title:focus-visible,
     button.sheet-handle:focus-visible,
     .form-color:focus-visible,
+    .form-color-area:focus-visible,
     .swatch:focus-visible,
     .editor:focus-within,
     a.file-item:focus-visible,
@@ -14215,6 +14304,10 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .rating-star::before,
     .rating-star::after { forced-color-adjust: none; }
     .heatmap-cell { forced-color-adjust: none; outline: 1px solid GrayText; outline-offset: -1px; }
+    .form-color-area,
+    .form-range--hue,
+    .form-range--alpha,
+    .form-color-preview { forced-color-adjust: none; }
 }
 }
 @layer sedna.paint {

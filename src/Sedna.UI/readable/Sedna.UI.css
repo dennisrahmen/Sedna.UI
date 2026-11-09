@@ -48,6 +48,7 @@
      43-content-grids.css
      44-markdown.css
      44-rich-text.css
+     45-colour-picker.css
      45-form-controls.css
      46-form-layout.css
      47-form-file.css
@@ -6851,6 +6852,162 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     overflow-y: auto;
 }
 .editor-slash[hidden] { display: none; }
+}
+
+/* ── 45-colour-picker.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Colour picker: a spectrum area, a hue and an alpha slider ─────────────────
+   Any colour, not only the palette's: the reader drags a thumb over a saturation and
+   brightness area, picks the hue and the opacity on two native ranges, and reads or
+   types the value in a field the app writes. Beside `.form-color`, the platform's own
+   picker, and `.swatch-grid`, a preset palette (45-form-controls.css).
+
+     <div class="form-color-picker" data-color-picker>
+       <div class="form-color-area" data-color-area role="slider" tabindex="0"
+            aria-label="Saturation and brightness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="74"
+            data-color-valuetext="Saturation {s}%, brightness {v}%"></div>
+       <input class="form-range form-range--hue" data-color-hue type="range" min="0" max="360" value="201" aria-label="Hue">
+       <input class="form-range form-range--alpha" data-color-alpha type="range" min="0" max="100" value="100" aria-label="Opacity">
+       <div class="sedna-row sedna-gap-2">
+         <span class="form-color-preview" aria-hidden="true"></span>
+         <input class="form-input" data-color-value type="text" value="#3aa8e2" aria-label="Colour as hex" spellcheck="false">
+       </div>
+     </div>
+
+   The value lives in the app's `[data-color-value]` input. Sedna.UI.js (23-colour.js)
+   reads it, writes it as the reader drags or presses a key, and dispatches its `input`
+   and `change`; it keeps what CSS cannot read in custom properties on the picker:
+
+     --picker-hue      the hue, 0 to 360
+     --picker-x        the saturation, as a share of the area's width
+     --picker-y        how far below full brightness, as a share of the area's height
+     --picker-color    the picked colour, opacity included — the preview and the alpha thumb
+     --picker-opaque   the same colour at full opacity — the end of the alpha track
+
+   The picker's own sizes, redefined on it or on an ancestor:
+
+     --picker-width    the most width it takes
+     --picker-area     the area's height
+     --picker-thumb    a thumb's diameter
+     --picker-track    a slider's thickness
+
+   ── The spectrum is the one place literal colours are allowed ──
+   A spectrum is a fact about colour, not a decision about the brand: red is at hue 0 in
+   every theme, and the area runs to pure white and pure black whatever the variant.
+   So every literal value here is declared once, as a `--spectrum-*` property on the
+   picker, and nothing else in the stylesheet holds one. No theme, colour-vision or
+   contrast block remaps them, and ColourTests fails on a literal anywhere else — in
+   another part, or in this one outside a `--spectrum-*` declaration. The thumbs take
+   the same white and black, because they have to show on any colour of the spectrum.
+
+   ── Physical, in both directions ──
+   The spectrum does not mirror: saturation grows to the right, brightness upward and the
+   hue runs red to red left to right under `dir="rtl"` as well, which is how every colour
+   tool draws it. The two sliders are `direction: ltr` for that reason, and the arrow keys
+   follow the picture, not the reading direction.
+
+   Forced colours keep the spectrum and the thumbs as they are (71-forced-colors.css):
+   a colour picker drawn in the user's two system colours picks nothing.
+   ─────────────────────────────────────────────────────────────────────────── */
+.form-color-picker {
+    --spectrum-white: #ffffff;
+    --spectrum-black: #000000;
+    --spectrum-hue: hsl(var(--picker-hue) 100% 50%);
+    --spectrum-hues: linear-gradient(to right, #ff0000 0%, #ffff00 16.667%, #00ff00 33.333%, #00ffff 50%, #0000ff 66.667%, #ff00ff 83.333%, #ff0000 100%);
+    --picker-hue: 0;
+    --picker-x: 100%;
+    --picker-y: 0%;
+    --picker-color: transparent;
+    --picker-opaque: transparent;
+    --picker-width: 280px;
+    --picker-area: 160px;
+    --picker-thumb: 16px;
+    --picker-track: 12px;
+    display: grid;
+    gap: var(--space-6);
+    inline-size: 100%;
+    max-inline-size: var(--picker-width);
+}
+
+/* The area: the pure hue under a white fade from the left edge and a black fade from the
+   bottom, so the top right corner is the hue itself and the bottom edge is black. */
+.form-color-area {
+    position: relative;
+    direction: ltr;
+    block-size: var(--picker-area);
+    border-radius: var(--radius-control);
+    background:
+        linear-gradient(to top, var(--spectrum-black), transparent),
+        linear-gradient(to right, var(--spectrum-white), transparent),
+        var(--spectrum-hue);
+    cursor: crosshair;
+    touch-action: none;
+}
+.form-color-area:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }
+.form-color-area[aria-disabled="true"] { cursor: not-allowed; opacity: var(--disabled-opacity); }
+/* The thumb: a ring with a dark edge either side of it, which shows on every colour the
+   area can hold. It is centred on the point, so it may hang over the area's edge. */
+.form-color-area::after {
+    content: "";
+    position: absolute;
+    /* rtl-ok: the spectrum is physical — saturation grows to the right in every
+       direction, and the translate below centres the thumb on its point. */
+    left: var(--picker-x);
+    inset-block-start: var(--picker-y);
+    inline-size: var(--picker-thumb);
+    block-size: var(--picker-thumb);
+    translate: -50% -50%;
+    border: 2px solid var(--spectrum-white);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--spectrum-black), inset 0 0 0 1px var(--spectrum-black);
+    pointer-events: none;
+}
+
+/* The two sliders are `.form-range`s with the spectrum as their track. The selectors name
+   both classes because 48-form-numeric.css, later in the cascade, draws the plain track. */
+.form-range.form-range--hue,
+.form-range.form-range--alpha {
+    --range-thumb: var(--picker-thumb);
+    --range-track: var(--picker-track);
+    direction: ltr;
+}
+.form-range.form-range--hue::-webkit-slider-runnable-track { background: var(--spectrum-hues); }
+.form-range.form-range--hue::-moz-range-track { background: var(--spectrum-hues); }
+.form-range.form-range--alpha::-webkit-slider-runnable-track {
+    background:
+        linear-gradient(to right, transparent, var(--picker-opaque)),
+        repeating-conic-gradient(var(--border) 0 25%, var(--surface-soft) 0 50%) 0 0 / calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
+.form-range.form-range--alpha::-moz-range-track {
+    background:
+        linear-gradient(to right, transparent, var(--picker-opaque)),
+        repeating-conic-gradient(var(--border) 0 25%, var(--surface-soft) 0 50%) 0 0 / calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
+.form-range.form-range--hue::-webkit-slider-thumb,
+.form-range.form-range--alpha::-webkit-slider-thumb {
+    background: transparent;
+    border: 2px solid var(--spectrum-white);
+    box-shadow: 0 0 0 1px var(--spectrum-black), inset 0 0 0 1px var(--spectrum-black);
+}
+.form-range.form-range--hue::-moz-range-thumb,
+.form-range.form-range--alpha::-moz-range-thumb {
+    background: transparent;
+    border: 2px solid var(--spectrum-white);
+    box-shadow: 0 0 0 1px var(--spectrum-black), inset 0 0 0 1px var(--spectrum-black);
+}
+
+/* The picked colour, opacity included, over the checkerboard that says how much of it
+   shows through. The size of a field, so it sits in a row beside the value. */
+.form-color-preview {
+    flex: none;
+    inline-size: var(--control-height);
+    block-size: var(--control-height);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-control);
+    background:
+        linear-gradient(var(--picker-color), var(--picker-color)),
+        repeating-conic-gradient(var(--border) 0 25%, var(--surface-soft) 0 50%) 0 0 / calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+}
 }
 
 /* ── 45-form-controls.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -23118,7 +23275,7 @@ button.inbox-item-title {
     color: var(--fg);
     pointer-events: none;
 }
-:is(.segmented, .form-range, .choice-tiles)[aria-readonly="true"],
+:is(.segmented, .form-range, .choice-tiles, .form-color-area)[aria-readonly="true"],
 :is(.form-check, .switch):has(input[aria-readonly="true"]) {
     pointer-events: none;
 }
@@ -24082,6 +24239,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .page-toc-fold > .page-toc-title:focus-visible,
     button.sheet-handle:focus-visible,
     .form-color:focus-visible,
+    .form-color-area:focus-visible,
     .swatch:focus-visible,
     .editor:focus-within,
     a.file-item:focus-visible,
@@ -24276,6 +24434,14 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     /* A heatmap cell keeps its step from the remap above, and an outline in the
        user's muted ink, so an empty cell is still a cell and not a hole in the grid. */
     .heatmap-cell { forced-color-adjust: none; outline: 1px solid GrayText; outline-offset: -1px; }
+
+    /* A colour picker's spectrum is the choice itself, and its thumbs are drawn in the
+       spectrum's own white and black so they show on any colour of it. All of it opts
+       out (45-colour-picker.css); the focus ring above is still the user's Highlight. */
+    .form-color-area,
+    .form-range--hue,
+    .form-range--alpha,
+    .form-color-preview { forced-color-adjust: none; }
 }
 }
 

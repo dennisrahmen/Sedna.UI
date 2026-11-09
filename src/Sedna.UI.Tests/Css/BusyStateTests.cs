@@ -33,7 +33,7 @@ public class BusyStateTests
     private static readonly HashSet<string> NotBusy = new(StringComparer.Ordinal)
     {
         "btn",                                  // its own label-hiding busy state, 33-buttons.css
-        "form-check", "switch", "form-range", "form-color", "form-combo-btn", "input-clear", "form-input",
+        "form-check", "switch", "form-range", "form-color", "form-color-area", "form-combo-btn", "input-clear", "form-input",
         "form-select", "form-combo-box", "dropzone", "form-file",   // fields: read-only, not busy
         "chip-dismiss", "modal-close", "toast-close", "th-sort", "th-filter", "skip-link", "swatch",
         "deck-dot", "drag-item", "drag-handle", "card-resize", "split-resize", "col-resize", "value-trigger",
