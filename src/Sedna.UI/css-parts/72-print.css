@@ -126,6 +126,14 @@
     .carousel-slide { flex-basis: auto; break-inside: avoid; }
     .carousel-controls { display: none; }
 
+    /* A diff prints every line whole: on paper nothing scrolls, so a long line wraps
+       under itself, and the marker still says which side it is. */
+    .diff-body { overflow: visible; }
+    .diff-code { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .diff-table tr { break-inside: avoid; }
+    /* A PDF frame has nothing to print — the document prints from its own viewer. */
+    .pdf-frame { display: none; }
+
     /* Headings should not be the last line on a page. */
     h1, h2, h3, .card-head, .page-head { break-after: avoid; }
 }

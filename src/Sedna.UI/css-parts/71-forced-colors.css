@@ -331,6 +331,10 @@
        user's muted ink, so an empty cell is still a cell and not a hole in the grid. */
     .heatmap-cell { forced-color-adjust: none; outline: 1px solid GrayText; outline-offset: -1px; }
 
+    /* A diff's row tints are not painted here; the + and − markers still say which
+       side a line is on, and a word that changed inside a line keeps a box round it. */
+    .diff-code :is(ins, del) { outline: 1px solid CanvasText; outline-offset: -1px; }
+
     /* A colour picker's spectrum is the choice itself, and its thumbs are drawn in the
        spectrum's own white and black so they show on any colour of it. All of it opts
        out (45-colour-picker.css); the focus ring above is still the user's Highlight. */

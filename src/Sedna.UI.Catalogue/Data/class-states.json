@@ -1921,6 +1921,49 @@
     "deck-step": {
       "family": "deck-step"
     },
+    "diff": {
+      "family": "diff",
+      "variants": [
+        "diff--split",
+        "diff--wrap"
+      ]
+    },
+    "diff--split": {
+      "family": "diff"
+    },
+    "diff--wrap": {
+      "family": "diff"
+    },
+    "diff-add": {
+      "family": "diff-add"
+    },
+    "diff-body": {
+      "family": "diff-body"
+    },
+    "diff-code": {
+      "family": "diff-code"
+    },
+    "diff-del": {
+      "family": "diff-del"
+    },
+    "diff-file": {
+      "family": "diff-file"
+    },
+    "diff-fold": {
+      "family": "diff-fold"
+    },
+    "diff-gap": {
+      "family": "diff-gap"
+    },
+    "diff-head": {
+      "family": "diff-head"
+    },
+    "diff-num": {
+      "family": "diff-num"
+    },
+    "diff-table": {
+      "family": "diff-table"
+    },
     "divider": {
       "family": "divider"
     },
@@ -4245,6 +4288,21 @@
     },
     "palette-trail": {
       "family": "palette-trail"
+    },
+    "pdf-frame": {
+      "family": "pdf-frame",
+      "variants": [
+        "pdf-frame--page"
+      ]
+    },
+    "pdf-frame--page": {
+      "family": "pdf-frame"
+    },
+    "pdf-frame-bar": {
+      "family": "pdf-frame-bar"
+    },
+    "pdf-frame-name": {
+      "family": "pdf-frame-name"
     },
     "popover": {
       "family": "popover",

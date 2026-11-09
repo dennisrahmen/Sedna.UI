@@ -1,0 +1,37 @@
+<div class="diff">
+    <div class="diff-head">
+        <span class="diff-file">deploy/orders.yaml</span>
+        <span class="badge badge--go">+3</span>
+        <span class="badge badge--danger">&minus;2</span>
+    </div>
+    <div class="diff-body">
+        <table class="diff-table">
+            <caption class="visually-hidden">Changes to deploy/orders.yaml</caption>
+            <thead class="visually-hidden">
+                <tr><th scope="col">Old line</th><th scope="col">New line</th><th scope="col">Text</th></tr>
+            </thead>
+            <tbody>
+                <tr class="diff-fold">
+                    <td colspan="3">
+                        <button class="btn-bare" type="button"><i class="ri-expand-up-down-line" aria-hidden="true"></i> <span>Show 9 unchanged lines</span></button>
+                    </td>
+                </tr>
+                <tr><td class="diff-num">10</td><td class="diff-num">10</td><td class="diff-code">service: orders</td></tr>
+                <tr><td class="diff-num">11</td><td class="diff-num">11</td><td class="diff-code">replicas: 2</td></tr>
+                <tr class="diff-del"><td class="diff-num">12</td><td class="diff-num"></td><td class="diff-code">image: registry.example.com/orders:<del>1.4.2</del></td></tr>
+                <tr class="diff-add"><td class="diff-num"></td><td class="diff-num">12</td><td class="diff-code">image: registry.example.com/orders:<ins>1.5.0</ins></td></tr>
+                <tr><td class="diff-num">13</td><td class="diff-num">13</td><td class="diff-code">env:</td></tr>
+                <tr class="diff-del"><td class="diff-num">14</td><td class="diff-num"></td><td class="diff-code">  LOG_LEVEL: <del>debug</del></td></tr>
+                <tr class="diff-add"><td class="diff-num"></td><td class="diff-num">14</td><td class="diff-code">  LOG_LEVEL: <ins>info</ins></td></tr>
+                <tr class="diff-add"><td class="diff-num"></td><td class="diff-num">15</td><td class="diff-code">  QUEUE_HOST: queue-01.example.com</td></tr>
+                <tr><td class="diff-num">15</td><td class="diff-num">16</td><td class="diff-code">ports:</td></tr>
+                <tr><td class="diff-num">16</td><td class="diff-num">17</td><td class="diff-code">  - 8080</td></tr>
+                <tr class="diff-fold">
+                    <td colspan="3">
+                        <button class="btn-bare" type="button"><i class="ri-expand-up-down-line" aria-hidden="true"></i> <span>Show 22 unchanged lines</span></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

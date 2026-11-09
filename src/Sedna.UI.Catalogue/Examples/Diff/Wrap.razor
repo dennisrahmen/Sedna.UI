@@ -1,0 +1,16 @@
+<div class="diff diff--wrap">
+    <div class="diff-body">
+        <table class="diff-table">
+            <caption class="visually-hidden">Changes to scripts/nightly-export.sh</caption>
+            <thead class="visually-hidden">
+                <tr><th scope="col">Old line</th><th scope="col">New line</th><th scope="col">Text</th></tr>
+            </thead>
+            <tbody>
+                <tr><td class="diff-num">7</td><td class="diff-num">7</td><td class="diff-code">set -euo pipefail</td></tr>
+                <tr class="diff-del"><td class="diff-num">8</td><td class="diff-num"></td><td class="diff-code">export-orders --since "$(date -d yesterday +%F)" --format csv --out /var/exports/orders.csv --notify ops@example.com</td></tr>
+                <tr class="diff-add"><td class="diff-num"></td><td class="diff-num">8</td><td class="diff-code">export-orders --since "$(date -d yesterday +%F)" --format <ins>parquet</ins> --out /var/exports/orders.<ins>parquet</ins> --notify ops@example.com <ins>--retry 3</ins></td></tr>
+                <tr><td class="diff-num">9</td><td class="diff-num">9</td><td class="diff-code">echo "export finished"</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -176,3 +176,7 @@
    go, and in RTL the next slide is on the left. The arrow turns round; the button keeps
    its place at the inline start or end, which already mirrors. */
 [dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
+
+/* 56 — a diff's lines are code and stay left to right (56-diff.css sets the body
+   `direction: ltr`); a fold row holds the app's own words, which follow the page. */
+[dir="rtl"] .diff-fold > td { direction: rtl; }

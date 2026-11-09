@@ -1,0 +1,45 @@
+@page "/diff"
+
+<CatHead Title="Diffs">
+    Two versions of a text, line by line: a configuration before and after a change, a template, a
+    script. Your app computes the diff and writes the rows; the classes draw them. A word that changed
+    in running text needs none of this — <code>&lt;ins&gt;</code> and <code>&lt;del&gt;</code> mark it
+    on their own (<a href="/prose">Prose</a>).
+</CatHead>
+
+<CatExample TExample="Examples.Diff.Unified" Title="A unified diff" Demo="ex-demo--block">
+    <p>
+        <code>.diff</code> around a <code>.diff-head</code> you write and a <code>.diff-body</code> holding a
+        <code>table.diff-table</code>: per line the old number, the new number and the text, each
+        <code>.diff-num</code> or <code>.diff-code</code>. <code>.diff-add</code> and <code>.diff-del</code> on
+        a row mark it added or removed; a context row carries neither. Every changed line draws a + or −
+        before its text, so the change never rests on its tint, and neither the marker nor the numbers are
+        copied with the code. Inside a line, <code>&lt;ins&gt;</code> and <code>&lt;del&gt;</code> mark the
+        words that changed.
+    </p>
+    <p>
+        <code>.diff-fold</code> is a row for lines left out, with your own button that loads them — the
+        library loads nothing. Give the table a visually hidden caption and header row, as here, so a
+        screen reader can say which column is which. The lines are code: they scroll sideways rather
+        than wrap, and stay left to right on a right-to-left page.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Diff.Split" Title="Side by side" Demo="ex-demo--block">
+    <p>
+        <code>.diff--split</code> puts the old text beside the new: four cells a row, the old number and
+        line, then the new. The state goes on the cells — <code>.diff-del</code> on the old pair,
+        <code>.diff-add</code> on the new — and a side with no line in that row is <code>.diff-gap</code>.
+        One row holds both halves of a change, so they stay level however either wraps; long lines wrap,
+        because two halves cannot scroll as one, and the body scrolls once a half would be narrower than
+        <code>--diff-min</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Diff.Wrap" Title="Wrapped lines" Demo="ex-demo--block">
+    <p>
+        <code>.diff--wrap</code> wraps a unified diff's long lines under themselves instead of scrolling —
+        right for a command line or a sentence, where seeing the whole change matters more than the
+        columns. The marker and the line numbers stay on the first line of the row.
+    </p>
+</CatExample>
