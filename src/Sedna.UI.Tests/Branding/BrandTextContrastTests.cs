@@ -93,6 +93,10 @@ public class BrandTextContrastTests
         // the label sits on either one.
         [".form-select option:checked"] = (Ink.Text, ["--brand-tint", "--brand-tint-strong"]),
         [".form-select option::checkmark"] = (Ink.Icon, ["--brand-tint", "--brand-tint-strong"]),
+        // A workflow's step to add, pointed at: on the tint it takes then.
+        [".workflow-node.workflow-node--add:hover"] = (Ink.Text, ["--brand-tint"]),
+        [".workflow-node.workflow-node--add:hover .workflow-node-title"] = (Ink.Text, ["--brand-tint"]),
+        [".workflow-node.workflow-node--add:hover .workflow-node-icon"] = (Ink.Icon, ["--brand-tint"]),
         [".tab--active"] = (Ink.Text, []),
         [".tab[aria-selected=\"true\"]"] = (Ink.Text, []),
         [".tab--active:hover"] = (Ink.Text, []),

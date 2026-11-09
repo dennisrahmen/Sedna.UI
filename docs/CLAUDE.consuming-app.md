@@ -241,6 +241,8 @@ library ships the engine and loads it itself; the host page needs nothing added.
   `@onsedna-graph-*` events. Records that arrive by call want `data-graph-deferred`; a large graph wants
   `data-graph-src` or `SetDataAsync` rather than a Razor-rendered list.
 - **A link the reader draws is yours to add** (`@onsedna-graph-connect`), as a drop is.
+- **A button on a link is yours to act on** (`@onsedna-graph-edge`, with the button's `value`), and so is a
+  placeholder record opened (`@onsedna-graph-open`, `Placeholder` true): change your data and render.
 
 ### Workflows
 
@@ -259,6 +261,8 @@ the catalogue's Workflow pages. It is markup and classes; no script draws it.
 - **Write the structure, not positions.** A fork holds branches, a branch holds a path, a loop holds the
   path it repeats; the connectors are drawn from that. A flow too large to write by hand — generated from
   the automation's own definition — is a graph with `data-state` on its records instead.
+- **A step the reader adds** is a `<button class="workflow-node workflow-node--add">` in a step of its
+  own with no state, handled by your `@onclick`: it is dashed and unfilled, and so is the wire into it.
 - **A diagram that scrolls takes `tabindex="0"`**, so the keyboard can reach it, and `data-follow` keeps
   the step at work in view in one wider than its container.
 - **On a phone or a tablet held upright** the diagram runs down: `--down`, or `--auto` to run across on

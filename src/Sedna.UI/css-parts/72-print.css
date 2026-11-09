@@ -57,6 +57,8 @@
     .selection-toolbar:popover-open { display: none; }
     .agent-plan-actions,
     .reasoning-bar > .btn { display: none; }
+    /* A step still to be added is a control: on paper the run ends where it ends. */
+    .workflow-step:has(> .workflow-node--add) { display: none; }
 
     /* A thread prints whole: the scroller lets its messages out, and a message is
        not cut across a page. */

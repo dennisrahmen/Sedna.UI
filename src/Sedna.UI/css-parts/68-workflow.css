@@ -361,6 +361,16 @@
         repeating-linear-gradient(var(--workflow-dash-angle), var(--workflow-wire-colour) 0 4px, transparent 4px 9px),
         linear-gradient(var(--workflow-surface), var(--workflow-surface));
 }
+/* Into a step not written yet — `.workflow-node--add` — a dashed line: a way the run
+   could go, not one it will. */
+.workflow > .workflow-step:has(> .workflow-node--add),
+.workflow-path > .workflow-step:has(> .workflow-node--add),
+.workflow-fork:has(+ .workflow-step > .workflow-node--add) > .workflow-branch:last-child::after {
+    --workflow-wire-colour: var(--border-strong);
+    --workflow-wire-paint:
+        repeating-linear-gradient(var(--workflow-dash-angle), var(--workflow-wire-colour) 0 4px, transparent 4px 9px),
+        linear-gradient(var(--workflow-surface), var(--workflow-surface));
+}
 /* Data on its way into the step at work: the line the light runs on. The light itself
    is laid over it under "The light" below. */
 .workflow > [data-state="running"],
@@ -633,6 +643,38 @@
 .workflow-branch[data-state="skipped"] .workflow-node-title { color: var(--muted); font-weight: 500; }
 .workflow-step[data-state="skipped"] .workflow-node-head > :first-child,
 .workflow-branch[data-state="skipped"] .workflow-node-head > :first-child { opacity: 0.55; filter: grayscale(1); }
+
+/* ── A step to add ──────────────────────────────────────────────────────────
+   Where the reader adds the next step — at the end of a path, in a branch still empty:
+   a <button class="workflow-node workflow-node--add"> the app handles, in a step of its
+   own with no state. Dashed and unfilled, with no state mark, its head the "+" tile and
+   the app's words. The wire into it is dashed.
+
+     <li class="workflow-step">
+       <button class="workflow-node workflow-node--add" type="button">
+         <span class="workflow-node-head">
+           <span class="workflow-node-icon"><i class="ri-add-line" aria-hidden="true"></i></span>
+           <span class="workflow-node-title">Add a step</span>
+         </span>
+       </button>
+     </li> */
+.workflow-node--add {
+    border-style: dashed;
+    border-color: var(--border-strong);
+    background: transparent;
+    color: var(--fg-soft);
+}
+.workflow-node--add::before,
+.workflow-node--add::after { content: none; }
+.workflow-node--add > .workflow-node-head { padding-inline-end: 0; }
+.workflow-node--add .workflow-node-title { color: var(--fg-soft); font-weight: 500; }
+.workflow-node.workflow-node--add:hover {
+    border-color: var(--brand-soft);
+    background: var(--brand-tint);
+    color: var(--brand-text);
+}
+.workflow-node.workflow-node--add:hover .workflow-node-title,
+.workflow-node.workflow-node--add:hover .workflow-node-icon { color: var(--brand-text); }
 
 /* ── An end ─────────────────────────────────────────────────────────────────
    Where a run starts or stops: a pill on the port line instead of a node. */
@@ -918,8 +960,8 @@
 :where(.workflow-branch:not(:first-child))::after { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), arc to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-wire)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-wire)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 100%, line to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) 100%, arc to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-r) var(--workflow-cw), close, move to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), close); }
 :where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path)::before { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-wire)), line to calc(100% - var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-way-r)))) calc(100% - var(--workflow-wire)), arc to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) 0, line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 0, line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-way-r)), arc to calc(100% - var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-way-r)))) 100% of var(--workflow-way-r) var(--workflow-cw), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 100%, close, move to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-way-r)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-out)), line to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-out)), close); }
 :where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path)::after { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 100%, arc to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 0 of var(--workflow-way-r) var(--workflow-cw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) var(--workflow-wire), arc to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 100% of var(--workflow-way-ri) var(--workflow-ccw), close); }
-:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]))::before,
-:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]):not(:first-child))::after {
+:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]), .workflow-branch:has(> .workflow-path > :first-child > .workflow-node--add))::before,
+:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]):not(:first-child), .workflow-branch:has(> .workflow-path > :first-child > .workflow-node--add):not(:first-child))::after {
     border-style: dashed;
     border-color: var(--workflow-in);
     background: none;
@@ -1334,7 +1376,7 @@
     }
     .workflow-fork:not(:last-child) > .workflow-branch:last-child:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(> .workflow-path > :first-child[data-state="running"])) { --workflow-stub-in: 1; }
     :where(.workflow-branch)::before { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), arc to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-wire)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-wire)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 100%, line to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) 100%, arc to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-r) var(--workflow-cw), close, move to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), close); }
-    :where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]))::before { clip-path: none; }
+    :where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]), .workflow-branch:has(> .workflow-path > :first-child > .workflow-node--add))::before { clip-path: none; }
     /* Down, the light's transition still comes from the rail it leaves below. */
     .workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > :first-child[data-state="running"])::before,
     .workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before {

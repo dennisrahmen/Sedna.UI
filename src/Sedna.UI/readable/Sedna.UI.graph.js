@@ -24,6 +24,7 @@
      53-menu.js
      54-detail.js
      55-controls.js
+     56-edge-tools.js
      60-export.js
      61-plugins.js
      70-graph.js
@@ -69,7 +70,8 @@ import cytoscape from '../lib/cytoscape/cytoscape.js';
      3. a call    graph.set({ nodes, edges }) from script; ISednaGraph.SetDataAsync.
 
    A node:  { id, label, kind, tone, tones, shape, icon, group, cluster, parent,
-              weight, muted, root, hub, href, meta, tags, x, y, display, state, fields }
+              weight, muted, root, hub, href, meta, tags, x, y, display, state, placeholder,
+              fields }
    An edge: { id, source, target, label, kind, tone, line, weight, arrow, muted, state, fields }
 
    In markup each is the attribute of the same name — `data-tone="3"`, `data-muted` —
@@ -166,7 +168,7 @@ function listOf(value) {
 }
 
 const NODE_KEYS = new Set(['id', 'node', 'label', 'kind', 'tone', 'tones', 'shape', 'icon', 'group', 'cluster',
-    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'state', 'fields']);
+    'parent', 'weight', 'muted', 'root', 'hub', 'href', 'meta', 'tags', 'x', 'y', 'display', 'state', 'placeholder', 'fields']);
 const EDGE_KEYS = new Set(['id', 'edge', 'source', 'target', 'label', 'kind', 'tone', 'line', 'weight', 'arrow',
     'muted', 'state', 'fields']);
 
@@ -185,6 +187,8 @@ function node(raw) {
     const shape = text(raw.shape);
     if (shape && !own(SHAPES, shape)) warnOnce('shape:' + shape, `"${shape}" is not a shape; drawing a circle.`);
     const display = text(raw.display);
+    // A place a record can go: its "+" unless the app chose another icon.
+    const placeholder = flag(raw.placeholder);
     return {
         id,
         label: text(raw.label) ?? id,
@@ -192,7 +196,7 @@ function node(raw) {
         tone: toneOf(raw.tone),
         tones,
         shape: shape ? (own(SHAPES, shape) || null) : null,
-        icon: text(raw.icon),
+        icon: text(raw.icon) ?? (placeholder ? 'ri-add-line' : null),
         group: text(raw.group),
         cluster: text(raw.cluster),
         parent: text(raw.parent),
@@ -207,6 +211,7 @@ function node(raw) {
         y: number(raw.y),
         display: display === 'box' || display === 'dot' ? display : null,
         state: stateOf(raw.state),
+        placeholder,
         fields,
     };
 }
@@ -628,7 +633,7 @@ const labelSide = options => (options.nodes !== 'box' && (options.layout === 'tr
 function nodeTone(n, options) {
     const key = options.colourBy;
     const alt = key && key !== 'tone' ? (n.data('tones') || {})[camel(key)] : null;
-    return tokenOfTone(alt ?? n.data('tone') ?? (n.data('muted') ? 'muted' : '1'));
+    return tokenOfTone(alt ?? n.data('tone') ?? (n.data('muted') || n.data('placeholder') ? 'muted' : '1'));
 }
 
 /* An app's own rules on top of the library's — `graph.style([...])`. A value written
@@ -661,7 +666,8 @@ function styleFor(colours, icons, options, extra) {
         'target-arrow-shape': a === 'both' || a === 'target' ? 'triangle' : 'none',
         'source-arrow-shape': a === 'both' || a === 'source' ? 'triangle' : 'none',
     });
-    const iconFor = n => icons.image(n.data('icon'), box(n) ? toneColour(n) : p.ground, 32) || 'none';
+    // On a filled dot the glyph is the ground; in a box, and on a placeholder, which is not filled, its tone.
+    const iconFor = n => icons.image(n.data('icon'), box(n) || n.data('placeholder') ? toneColour(n) : p.ground, 32) || 'none';
     const dots = options.nodes !== 'box';
     // A layered layout knows where each link has to go to pass the ranks between its ends;
     // its route is drawn unless the app chose a curve. Read from where the layout left it.
@@ -773,6 +779,20 @@ function styleFor(colours, icons, options, extra) {
         },
         { selector: 'node[display = "box"][?shape]', style: { 'shape': 'data(shape)' } },
         { selector: 'node[display = "box"][?muted]', style: { 'background-opacity': 0.6, 'border-opacity': 0.6, 'color': p.muted } },
+        /* A place a record can go — the "add a step" at the end of a flow: not filled, a dashed
+           border and its "+" in its tone, the muted one unless it has its own. A click opens it. */
+        {
+            selector: 'node[?placeholder]',
+            style: {
+                'background-opacity': 0,
+                'border-style': 'dashed',
+                'border-dash-pattern': [5, 3],
+                'border-color': toneColour,
+                'border-opacity': 1,
+                'border-width': n => (box(n) ? 1.5 : 1.5 * held(n)),
+                'color': p.soft,
+            },
+        },
         // A group that holds records — a compound node. A whisper of its tone, its name at the top,
         // held at a screen size around dots like the names inside it.
         {
@@ -3270,6 +3290,9 @@ function showDetail(g) {
      data-graph-search         a text field: marks matching records as it is typed in.
      data-graph-option="layout" a select or radios: layout, direction, spacing, labels,
                                edge-labels, colour, depth, nodes.
+     data-graph-option="zoom"  a range, a select or radios: the zoom in percent of the
+                               drawing's own size, both ways — choosing one zooms, and
+                               a zoom by wheel, pinch, key or button moves it.
      data-graph-stats="{nodes} records · {edges} links"
                                text the script keeps current, in the app's words.
 
@@ -3514,6 +3537,8 @@ async function option(g, name, value) {
         // Chosen by the reader, so drawn even over the route a layered layout found.
         case 'curve': o.curve = value || 'bezier'; o.curveChosen = !!value; restyle(g); break;
         case 'arrows': o.arrows = value; restyle(g); break;
+        // The zoom is the view, not the drawing: nothing changes that a change event reports.
+        case 'zoom': return zoomTo(g, value);
         case 'depth':
             g.depth = Math.max(1, Math.min(Number(value) || 1, 6));
             if (g.focusId) await refilter(g, true);
@@ -3523,6 +3548,54 @@ async function option(g, name, value) {
     }
     changed(g);
 }
+
+/* The zoom a control shows: the drawing's own, the engine's divided by
+   `data-graph-scale`, in percent. */
+const percentOf = g => Math.round(ownZoom(g) * 100);
+
+/* A zoom chosen on a control, about the middle of the frame. Not animated, so a slider
+   being dragged is followed as it moves; the names are placed when the view rests. */
+function zoomTo(g, percent) {
+    const cy = g.cy;
+    const asked = Number(percent);
+    if (!(asked > 0)) return;
+    g.touched = true;
+    const level = Math.max(cy.minZoom(), Math.min(cy.maxZoom(), (asked / 100) * g.options.scale));
+    cy.stop();
+    cy.zoom({ level, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
+}
+
+/* Every zoom control shows the zoom as it is, however it got there. A range or a number
+   field the app gave no `min` or `max` takes the graph's zoom range. A select shows the
+   option of that percentage, else its option with an empty value — "a zoom no option
+   names" — else none; radios the same. Only when the zoom changed, unless `all`. */
+function showZoom(g, all) {
+    if (g.disposed || !g.cy) return;
+    const percent = percentOf(g);
+    if (!all && g.shownZoom === percent) return;
+    g.shownZoom = percent;
+    for (const c of controlsOf(g)) {
+        if (c.getAttribute('data-graph-option') !== 'zoom') continue;
+        if (c.tagName === 'SELECT') {
+            const options = Array.from(c.options);
+            const at = options.findIndex(o => o.value !== '' && Math.round(Number(o.value)) === percent);
+            const index = at >= 0 ? at : options.findIndex(o => o.value === '');
+            if (c.selectedIndex !== index) c.selectedIndex = index;
+        } else if (c.type === 'radio') {
+            const on = Math.round(Number(c.value)) === percent;
+            if (c.checked !== on) c.checked = on;
+        } else if (c.tagName === 'INPUT') {
+            const range = percentRange(g);
+            if (!c.hasAttribute('min')) c.min = String(range.min);
+            if (!c.hasAttribute('max')) c.max = String(range.max);
+            if (c.value !== String(percent)) c.value = String(percent);
+        }
+    }
+}
+const percentRange = g => ({
+    min: Math.round((g.cy.minZoom() / g.options.scale) * 100),
+    max: Math.round((g.cy.maxZoom() / g.options.scale) * 100),
+});
 
 /* Everything back as it was first drawn: the controls, and what they changed — the
    filter, the focus, the search, the view options, the outlines, drawing mode and the
@@ -3556,6 +3629,7 @@ async function reset(g) {
     await refilter(g, true);
     search(g, '', false);
     changed(g);
+    showZoom(g, true);
 }
 
 async function focusOn(g, id) {
@@ -3578,6 +3652,159 @@ function fullscreen(g, button) {
     // element's — the browser hands full screen over.
     if (document.fullscreenElement === frame) document.exitFullscreen?.();
     else frame.requestFullscreen?.().catch(() => button?.setAttribute('aria-pressed', 'false'));
+}
+
+/* ── 56-edge-tools.js ──────────────────────────────────────────────── */
+/* ── A button on a link ───────────────────────────────────────────────────────
+   A control at the middle of each link — remove it, put a step into it — for a
+   diagram the reader edits: a flow, a pipeline, a state machine. The control is the
+   app's markup, written once inside the graph as a template:
+
+     <template data-graph-edge-tool>
+       <span class="graph-edge-tool">
+         <button class="btn btn--sm btn--icon" type="button" value="remove">
+           <i class="ri-close-line" aria-hidden="true"></i>
+           <span class="visually-hidden">Remove the link <span data-graph-field="label"></span></span>
+         </button>
+       </span>
+     </template>
+
+   One copy per link on screen, beside the template, with `data-graph-edge-id` naming its
+   link and every `[data-graph-field]` slot filled with the link's field as text. Each sits
+   on its link's midpoint — the engine's own, read from the drawing, so nothing is
+   measured — and follows the view, a record dragged and a layout as they move; one whose
+   midpoint is outside the frame is hidden. `data-graph-edge-tool="calls reads"` gives
+   the control only to links of those kinds, and a template for each kind can give each
+   its own.
+
+   Pressing a button in a copy dispatches `sedna-graph-edge` on the graph — the link, and
+   the button's `value` — cancelable. The app changes its own data, as it does for a link
+   the reader drew. `data-graph-managed`, for a page with no app behind it, removes the
+   link for `value="remove"` unless the event was cancelled.
+
+   For a diagram the reader edits, not a large map: every copy is placed again whenever
+   the view moves.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+function edgeTools(g) {
+    const templates = [...g.el.querySelectorAll('template[data-graph-edge-tool]')].filter(t => t.closest('[data-graph]') === g.el);
+    if (!templates.length) return null;
+    const cy = g.cy;
+    const copies = new Map();
+    let queued = false;
+
+    const kindsOf = t => (t.getAttribute('data-graph-edge-tool') || '').split(/\s+/).filter(Boolean);
+    const templateFor = e => templates.find(t => {
+        const kinds = kindsOf(t);
+        return !kinds.length || kinds.includes(e.data('kind') || '');
+    });
+    // A link of the app's: on screen, and neither a line being drawn nor a folded group's stand-in.
+    const eligible = e => !e.hasClass('hidden') && !e.hasClass('eh-preview') && !e.hasClass('eh-ghost-edge')
+        && !e.hasClass('cy-expand-collapse-meta-edge') && !e.source().hasClass('hidden') && !e.target().hasClass('hidden');
+
+    /* The copies the links on screen ask for: made, filled, and taken away again. */
+    function sync() {
+        if (g.disposed) return;
+        const want = new Map();
+        cy.edges().forEach(e => {
+            if (!eligible(e)) return;
+            const t = templateFor(e);
+            if (t) want.set(e.id(), { e, t });
+        });
+        for (const [id, copy] of copies) {
+            if (want.get(id)?.t === copy.__graphTemplate) continue;
+            copy.remove();
+            copies.delete(id);
+        }
+        for (const [id, { e, t }] of want) {
+            let copy = copies.get(id);
+            if (!copy) {
+                copy = cloneTemplate(t);
+                if (!copy) continue;
+                copy.__graphTemplate = t;
+                copy.setAttribute('data-graph-edge-id', id);
+                copy.hidden = true;
+                t.parentNode.insertBefore(copy, t);
+                copies.set(id, copy);
+            }
+            fillSlots(copy, e.data());
+            copy.setAttribute('data-graph-tone', e.data('tone') || '');
+        }
+        place();
+    }
+
+    /* Each copy on its link's midpoint, in the frame's own pixels: the canvas fills the
+       frame, so the drawing's point times the zoom plus the pan is where it is. */
+    function place() {
+        queued = false;
+        if (g.disposed || !copies.size) return;
+        const zoom = cy.zoom(), pan = cy.pan(), w = cy.width(), h = cy.height();
+        for (const [id, copy] of copies) {
+            const e = cy.getElementById(id);
+            let m = null;
+            try {
+                m = e.nonempty() ? e.midpoint() : null;
+            } catch (x) { /* not drawn yet */ }
+            const x = m ? m.x * zoom + pan.x : NaN, y = m ? m.y * zoom + pan.y : NaN;
+            const off = !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || y < 0 || x > w || y > h;
+            if (copy.hidden !== off) copy.hidden = off;
+            if (!off) copy.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+        }
+    }
+
+    // Placed once for everything that moved in one turn — a layout moves every record.
+    const soon = () => {
+        if (queued) return;
+        queued = true;
+        queueMicrotask(place);
+    };
+
+    function onClick(ev) {
+        const copy = ev.target.closest?.('[data-graph-edge-id]');
+        if (!copy || !copies.has(copy.getAttribute('data-graph-edge-id'))) return;
+        const button = ev.target.closest('button, [role="button"]');
+        if (!button || !copy.contains(button)) return;
+        const e = cy.getElementById(copy.getAttribute('data-graph-edge-id'));
+        if (e.empty()) return;
+        const detail = edgeDetail(e, button.getAttribute('value') || null);
+        if (!g.emit('sedna-graph-edge', detail, true)) return;
+        if (g.options.managed && detail.value === 'remove') {
+            g.set({ nodes: g.model.nodes, edges: g.model.edges.filter(x => x.id !== detail.id) }, { quiet: true }).catch(report);
+        }
+    }
+
+    cy.on('viewport resize', soon);
+    cy.on('position', 'node', soon);
+    g.el.addEventListener('click', onClick);
+
+    return {
+        sync,
+        destroy() {
+            cy.off('viewport resize', soon);
+            cy.off('position', 'node', soon);
+            g.el.removeEventListener('click', onClick);
+            for (const copy of copies.values()) copy.remove();
+            copies.clear();
+        },
+    };
+}
+
+/* A link as the events carry it: plain data, every field a string or null. */
+function edgeDetail(e, value) {
+    const d = e.data();
+    const fields = {};
+    for (const [k, v] of Object.entries(d.fields || {})) fields[k] = v === null || v === undefined ? null : String(v);
+    return {
+        id: d.id,
+        source: d.source,
+        target: d.target,
+        label: d.label ?? null,
+        kind: d.kind ?? null,
+        tone: d.tone ?? null,
+        state: d.state ?? null,
+        fields,
+        value: value ?? null,
+    };
 }
 
 /* ── 60-export.js ──────────────────────────────────────────────── */
@@ -4309,6 +4536,7 @@ function nodeDetail(ele, extra) {
         href: d.href ?? null,
         tone: d.tone ?? null,
         state: d.state ?? null,
+        placeholder: !!d.placeholder,
         tags: d.tags || [],
         fields,
         keyboard: false,
@@ -4345,6 +4573,8 @@ function changed(g) {
     if (g.failed) g.el.setAttribute('data-graph-state', 'error');
     else if (!g.awaiting) g.el.setAttribute('data-graph-state', empty ? 'empty' : s.nodes === 0 ? 'filtered' : 'ready');
     writeStats(g, s);
+    g.edgeTools?.sync();
+    showZoom(g, true);
     g.emit('sedna-graph-change', s);
     return s;
 }
@@ -4716,6 +4946,8 @@ function wire(g) {
     // never comes for a tab that is not being painted.
     let pending = 0;
     cy.on('viewport', () => {
+        // A zoom control follows the zoom as it moves, not once it rests.
+        showZoom(g, false);
         clearTimeout(pending);
         pending = setTimeout(() => {
             pending = 0;
@@ -4771,7 +5003,8 @@ function wire(g) {
         const node = event.target;
         if (node.hasClass('eh-handle') || node.hasClass('eh-ghost') || g.drawing) return;
         g.menu.close(false);
-        if (g.options.open === 'tap') {
+        // A placeholder is an affordance, not a record to read: one click opens it.
+        if (g.options.open === 'tap' || (node.data('placeholder') && g.options.open !== 'none')) {
             open(g, node, false);
             return;
         }
@@ -4782,7 +5015,8 @@ function wire(g) {
         if (g.drawing) return;
         // A group that folds is folded or unfolded by a double click; any other record opens.
         if (toggleFold(g, event.target)) return;
-        if (g.options.open !== 'none' && !event.target.isParent()) open(g, event.target, false);
+        // A placeholder opened at the first click of the two.
+        if (g.options.open !== 'none' && !event.target.isParent() && !event.target.data('placeholder')) open(g, event.target, false);
     });
     cy.on('tap', event => {
         if (event.target !== cy) return;
@@ -4987,6 +5221,7 @@ async function start(g) {
 
     g.tip = tips(g);
     g.menu = menus(g);
+    g.edgeTools = edgeTools(g);
     wire(g);
     g.keys = keyboard(g);
     rememberControls(g);
@@ -5039,6 +5274,7 @@ function dispose(g) {
     g.observers.splice(0).forEach(o => o.disconnect());
     g.keys?.destroy();
     g.menu?.destroy();
+    g.edgeTools?.destroy();
     g.minimap?.destroy();
     g.tip?.hide();
     try { g.eh?.destroy(); } catch (e) { /* ignore */ }

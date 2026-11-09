@@ -122,6 +122,14 @@ public sealed record SednaGraphNode(string Id, string Label)
     public SednaGraphState? State { get; init; }
 
     /// <summary>
+    /// A place a record can go — the "add a step" at the end of a flow: drawn unfilled with a dashed
+    /// border, a "+" unless <see cref="Icon"/> names another, and opened by a single click, so the
+    /// app handles <c>sedna-graph-open</c> and adds the record. Its words are its <c>Label</c>.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Placeholder { get; init; }
+
+    /// <summary>
     /// The app's own fields, by name — what a filter, a tooltip slot (<c>data-graph-field="owner"</c>)
     /// and an announcement (<c>{owner}</c>) can name, and what the events carry back.
     /// </summary>

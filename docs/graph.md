@@ -74,6 +74,7 @@ with CSS alone: `[data-graph-colouring="status"] .legend-status`.
 | `data-x`, `data-y` | `x`, `y` | A position, for the `preset` layout. |
 | `data-display` | `display` | `dot` or `box`, whatever the graph draws the rest as. |
 | `data-state` | `state` | Where a run has got to: `next`, `running`, `waiting`, `done`, `failed`, `skipped`. None is a step not reached yet. See [A run](#a-run). |
+| `data-placeholder` | `placeholder` | A place a record can go — the "add a step" at the end of a flow: not filled, a dashed border and a "+" in its tone (muted unless it has `data-tone`), `data-icon` for another glyph. One click opens it, so the app handles `sedna-graph-open` and adds the record. Its words are its label. |
 | any other `data-*` | `fields` | The app's own field — a filter, a tooltip slot and an announcement can name it. |
 
 ### Links
@@ -151,6 +152,7 @@ On the `[data-graph]` element:
 | `.graph-minimap` | The minimap canvas: bottom right; `--start`, `--top`. Hidden on a phone. |
 | `.graph-tip` | The app's tooltip: `.graph-tip-head`, `-title`, `-meta`, `-ref`. |
 | `.graph-menu` | On a `.menu`: the context menu, opened where the pointer is. |
+| `.graph-edge-tool` | A button or a few on a link's midpoint, on a raised pill — the copy of a `<template data-graph-edge-tool>`; see [A button on a link](#a-button-on-a-link). |
 | `.graph-wait` | Covers the canvas while loading — on a `.skeleton`. |
 | `.graph-empty` | Covers the canvas when there is nothing — on an `.empty-state`; `--filtered`, `--error`. |
 | `.graph-legend`, `.graph-key` | A row of keys. |
@@ -180,6 +182,7 @@ inside, else the one in its `[data-graph-frame]`.
 | `data-graph-show="muted"` / `"isolated"` | a checkbox or toggle | Show muted records / records with no visible link. |
 | `data-graph-search` | a text field | Marks matches as it is typed in. |
 | `data-graph-option="…"` | a select or radios | `layout`, `direction`, `spacing`, `labels`, `edge-labels`, `colour`, `nodes`, `curve`, `arrows`, `depth`. |
+| `data-graph-option="zoom"` | a range, a select or radios | The zoom, in percent of the drawing's own size, both ways: choosing a value zooms about the middle, and a zoom by wheel, pinch, key, button or call moves the control. A range the app gave no `min` or `max` takes the graph's zoom range. A select shows the option of the zoom, else its option with an empty value, which stands for a zoom no option names. |
 | `data-graph-stats="{nodes} records · {edges} links"` | any element | Kept current in the app's words: `{nodes}`, `{edges}`, `{matches}`, `{totalNodes}`, `{totalEdges}`. `data-graph-stats-match` replaces it while a search marks records. |
 
 A toggle `button` is flipped by the script, so its `aria-pressed` is the script's; a checkbox, a
@@ -211,6 +214,33 @@ record's tone.
 - **Announcements** — `[data-graph-live]`, a polite live region, says each record the keyboard reaches
   in `data-graph-announce`, a selection in `data-graph-announce-select`, and a record added live in
   `data-graph-announce-arrive`: `{label}`, `{kind}`, `{meta}`, any field, and `{links}`.
+
+### A button on a link
+
+A control at the middle of each link — remove it, put a step into it — is the app's markup, written
+once inside the graph as a template:
+
+```html
+<template data-graph-edge-tool>
+    <span class="graph-edge-tool">
+        <button class="btn btn--ghost btn--sm btn--icon" type="button" value="remove" data-tip="Remove the link">
+            <i class="ri-close-line" aria-hidden="true"></i>
+            <span class="visually-hidden">Remove the link <span data-graph-field="label"></span></span>
+        </button>
+    </span>
+</template>
+```
+
+- **One copy per link on screen**, beside the template, with `data-graph-edge-id` naming its link and
+  every `[data-graph-field]` slot filled with the link's field as text. A link a filter hides has none.
+- **On the link's midpoint**, the engine's own, so nothing is measured: it follows the view, a record
+  dragged and a layout as they move, and is hidden while the midpoint is outside the frame.
+- **`data-graph-edge-tool="calls reads"`** gives it only to links of those kinds; a template for each kind
+  gives each its own.
+- **Pressing a button in it** dispatches `sedna-graph-edge` — the link and the button's `value`. The app
+  changes its own data. `data-graph-managed` removes the link for `value="remove"` unless the event was
+  cancelled.
+- For a diagram the reader edits, not a large map: every copy is placed again whenever the view moves.
 
 ## Reading a graph
 
@@ -330,10 +360,12 @@ Bubbling from the `[data-graph]` element, with plain data in `detail`:
 | `sedna-graph-hover` | record | Pointed at, or reached by keyboard. |
 | `sedna-graph-context` | record + `x`, `y` | Cancelable: cancelled, the app's `[data-graph-menu]` does not open. |
 | `sedna-graph-connect` | `{ source, target }` | A link the reader drew. |
+| `sedna-graph-edge` | link + `value` | A button on a link pressed. Cancelable: cancelled, `data-graph-managed` does not remove the link. |
 | `sedna-graph-expand`, `-collapse` | `{ id, label }` | |
 
 Stats are `{ nodes, edges, matches, totalNodes, totalEdges, selected }`. A record is
-`{ id, label, kind, group, cluster, parent, meta, href, tone, state, tags, fields, keyboard }`.
+`{ id, label, kind, group, cluster, parent, meta, href, tone, state, placeholder, tags, fields, keyboard }`.
+A link is `{ id, source, target, label, kind, tone, state, fields, value }`.
 
 ## Script
 
@@ -344,7 +376,7 @@ Stats are `{ nodes, edges, matches, totalNodes, totalEdges, selected }`. A recor
 | `set(data, { relayout })` | New records `{ nodes, edges }`; resolves stats. |
 | `filter(spec)` | `{ nodes, except, edges, edgesExcept, hide, muted, isolated, focus, depth }`; controls apply on top. |
 | `search(text)`, `select(id)`, `focus(id, depth)` | |
-| `layout(name, { direction, spacing })`, `option(name, value)` | |
+| `layout(name, { direction, spacing })`, `option(name, value)` | `option('zoom', 150)` zooms to a percentage of the drawing's own size. |
 | `fit()`, `zoom(factor)` | |
 | `export('svg' \| 'png')` | A `Blob` of the whole drawing. |
 | `download(format, filename)` | |
@@ -390,9 +422,11 @@ document is taken down with it.
 `CollapseAsync`, `ExpandAsync`, `SetDrawingAsync`, `SetHullsAsync`, `ReloadAsync`, `StatsAsync`. A graph that is not
 in the page answers null with a console warning, never an exception into the circuit.
 
-`@onsedna-graph-select`, `-open`, `-hover`, `-context`, `-connect`, `-expand`, `-collapse`, `-change`
-and `-ready` are bindable with `@using Sedna.UI`, with `SednaGraphNodeEventArgs`,
-`SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs` and `SednaGraphEventArgs`. A record's
+`@onsedna-graph-select`, `-open`, `-hover`, `-context`, `-connect`, `-edge`, `-expand`, `-collapse`,
+`-change` and `-ready` are bindable with `@using Sedna.UI`, with `SednaGraphNodeEventArgs`,
+`SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs`, `SednaGraphEdgeEventArgs` and
+`SednaGraphEventArgs`. `Placeholder` on `SednaGraphNode` sends a placeholder, and comes back on
+`SednaGraphNodeEventArgs`. A record's
 `State` — a `SednaGraphState`, sent only when set — travels on `SednaGraphNode` and `SednaGraphEdge`
 and comes back on `SednaGraphNodeEventArgs`.
 

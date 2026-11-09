@@ -7256,7 +7256,7 @@ window.sednaUi = window.sednaUi || {};
         var c = e.target && e.target.closest ? e.target.closest(CONTROLS) : null;
         if (!c) return;
         var typing = c.hasAttribute('data-graph-search');
-        if (e.type === 'input' && !typing) return;
+        if (e.type === 'input' && !typing && c.type !== 'range') return;
         if (e.type === 'change' && typing) return;
         if (e.type === 'click' && (c.tagName === 'INPUT' || c.tagName === 'SELECT' || c.tagName === 'TEXTAREA')) return;
         var el = graphOf(c);

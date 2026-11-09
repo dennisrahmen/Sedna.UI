@@ -415,6 +415,101 @@ public class GraphControlTests : GraphTestBase
             const p = n.position(); return p.x > e.x1 && p.x < e.x2 && p.y > e.y1 && p.y < e.y2; }); }
         """;
 
+    private const string ZoomControls = """
+        <div class="graph-tools" role="toolbar" aria-label="Zoom">
+          <button type="button" data-graph-action="zoom-in" id="zoom-in" aria-label="Zoom in"></button>
+          <input class="form-range form-range--sm" type="range" data-graph-option="zoom" id="zoom" aria-label="Zoom" />
+        </div>
+        """;
+
+    private const string OwnZoom = "() => String(Math.round(cyOf('g').zoom() * 100))";
+
+    private const string ViewCentre =
+        "() => { const e = cyOf('g').extent(); return [(e.x1 + e.x2) / 2, (e.y1 + e.y2) / 2]; }";
+
+    [Fact]
+    public async Task A_zoom_slider_zooms_the_graph_and_follows_every_other_zoom()
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Graph(inside: Services + ZoomControls));
+        await Ready(page);
+        await ClearLog(page);
+
+        // It shows the zoom the fit chose, over the graph's zoom range.
+        Assert.Equal(await Eval<string>(page, OwnZoom), await page.Locator("#zoom").InputValueAsync());
+        Assert.Equal("5", await page.Locator("#zoom").GetAttributeAsync("min"));
+        Assert.Equal("800", await page.Locator("#zoom").GetAttributeAsync("max"));
+
+        // Moved — by a drag's input events, not only on release — it zooms about the middle.
+        var centre = await Eval<double[]>(page, ViewCentre);
+        await Js.Run(page, "() => { const r = document.getElementById('zoom'); r.value = '150'; r.dispatchEvent(new Event('input', { bubbles: true })); }");
+        await page.WaitForFunctionAsync("() => Math.abs(cyOf('g').zoom() - 1.5) < 1e-9");
+        var after = await Eval<double[]>(page, ViewCentre);
+        Assert.Equal(centre[0], after[0], 3);
+        Assert.Equal(centre[1], after[1], 3);
+
+        // The keyboard on the slider zooms too, and stays with the slider rather than the records.
+        await page.Locator("#zoom").FocusAsync();
+        await page.Keyboard.PressAsync("ArrowRight");
+        await page.WaitForFunctionAsync("() => Math.round(cyOf('g').zoom() * 100) === 151");
+        Assert.Equal("zoom", await Eval<string>(page, "() => document.activeElement.id"));
+
+        // Any other zoom moves it: a button, a call, the wheel.
+        await page.Locator("#zoom-in").ClickAsync();
+        Assert.Equal(await Eval<string>(page, OwnZoom), await page.Locator("#zoom").InputValueAsync());
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.option('zoom', 80))");
+        await page.WaitForFunctionAsync("() => document.getElementById('zoom').value === '80'");
+        var box = (await page.Locator("#g .graph-canvas").BoundingBoxAsync())!;
+        await page.Mouse.ClickAsync(box.X + 8, box.Y + box.Height - 8);
+        await page.Mouse.WheelAsync(0, -200);
+        await page.WaitForFunctionAsync("() => document.getElementById('zoom').value !== '80'");
+        Assert.Equal(await Eval<string>(page, OwnZoom), await page.Locator("#zoom").InputValueAsync());
+        // A zoom is the view, not the drawing: no change event for it.
+        Assert.Empty(await Log(page, "sedna-graph-change"));
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task A_zoom_select_chooses_a_percentage_and_shows_its_empty_option_for_a_zoom_no_option_names()
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Framed("""
+            <select data-graph-option="zoom" id="percent" aria-label="Zoom">
+              <option value="">Other</option><option value="50">50 %</option><option value="100">100 %</option><option value="200">200 %</option>
+            </select>
+            """, inside: Services + ZoomControls));
+        await Ready(page);
+
+        await page.Locator("#percent").SelectOptionAsync("200");
+        await page.WaitForFunctionAsync("() => Math.abs(cyOf('g').zoom() - 2) < 1e-9");
+        Assert.Equal("200", await page.Locator("#zoom").InputValueAsync());
+
+        await page.Locator("#zoom-in").ClickAsync();
+        Assert.Equal("", await page.Locator("#percent").InputValueAsync());
+
+        await Js.Run(page, "() => sednaUi.graph.get('g').then(g => g.option('zoom', 50))");
+        await page.WaitForFunctionAsync("() => document.getElementById('percent').value === '50'");
+        Assert.Equal("50", await page.Locator("#zoom").InputValueAsync());
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task A_zoom_slider_keeps_the_range_the_app_gave_it_and_counts_the_drawings_own_zoom_at_any_scale()
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Graph(inside: Services + """
+            <div class="graph-tools"><input type="range" min="25" max="300" data-graph-option="zoom" id="zoom" aria-label="Zoom" /></div>
+            """, attrs: "data-graph-eager data-graph-scale=\"2\""));
+        await Ready(page);
+        Assert.Equal("25", await page.Locator("#zoom").GetAttributeAsync("min"));
+        Assert.Equal("300", await page.Locator("#zoom").GetAttributeAsync("max"));
+
+        // 100 is the drawing at its own size: the engine's zoom divided by the scale.
+        await Js.Run(page, "() => { const r = document.getElementById('zoom'); r.value = '100'; r.dispatchEvent(new Event('change', { bubbles: true })); }");
+        await page.WaitForFunctionAsync("() => Math.abs(cyOf('g').zoom() - 2) < 1e-9");
+        AssertQuiet();
+    }
+
     [Fact]
     public async Task Zoom_in_zoom_out_and_fit_move_the_view()
     {

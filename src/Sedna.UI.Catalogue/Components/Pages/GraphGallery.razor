@@ -115,6 +115,23 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.GraphGallery.FlowEditor" Title="A flow being edited" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live.</strong> A record with <code>data-placeholder</code> is where the next step can go: unfilled,
+        dashed, with a plus and your words. One click opens it, so your handler of <code>sedna-graph-open</code>
+        adds the step to your data. A <code>&lt;template data-graph-edge-tool&gt;</code> inside the graph puts a
+        copy of your button on the middle of every link, and keeps it there as the view moves;
+        <code>data-graph-edge-tool="flow"</code> gives it only to the links of that kind, so the dashed way to the
+        placeholder has none.
+    </p>
+    <p>
+        Pressing it dispatches <code>sedna-graph-edge</code> with the link and the button's <code>value</code>, and
+        your app removes the link from its data. This page has no app behind it, so
+        <code>data-graph-managed</code> removes it instead. The state of a run is drawn the same way on a flow like
+        this one &mdash; see the automation above.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.GraphGallery.DependencyTree" Title="A dependency tree" Demo="ex-demo--block ex-demo--pad">
     <p>
         Versions in <code>data-meta</code>, deprecated packages <code>data-muted</code> behind a

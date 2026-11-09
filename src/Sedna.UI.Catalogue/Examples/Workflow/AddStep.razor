@@ -1,0 +1,57 @@
+<ol class="workflow workflow--sm" tabindex="0" aria-label="Returns flow, being edited">
+    <li class="workflow-step">
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon series-1"><i class="ri-arrow-go-back-line"></i></span>
+                <span class="workflow-node-title">Return requested</span>
+                <span class="workflow-node-meta">Trigger</span>
+            </header>
+        </article>
+    </li>
+    <li class="workflow-step">
+        <article class="workflow-node">
+            <header class="workflow-node-head">
+                <span class="workflow-node-icon series-6"><i class="ri-git-branch-line"></i></span>
+                <span class="workflow-node-title">Within 30 days?</span>
+                <span class="workflow-node-meta">Decision</span>
+            </header>
+        </article>
+    </li>
+    <li class="workflow-fork workflow-fork--decision">
+        <div class="workflow-branch">
+            <span class="workflow-label">Yes</span>
+            <ol class="workflow-path">
+                <li class="workflow-step">
+                    <article class="workflow-node">
+                        <header class="workflow-node-head">
+                            <span class="workflow-node-icon series-3"><i class="ri-printer-line"></i></span>
+                            <span class="workflow-node-title">Send a return label</span>
+                            <span class="workflow-node-meta">Action</span>
+                        </header>
+                    </article>
+                </li>
+                <li class="workflow-step">
+                    <button class="workflow-node workflow-node--add" type="button">
+                        <span class="workflow-node-head">
+                            <span class="workflow-node-icon"><i class="ri-add-line" aria-hidden="true"></i></span>
+                            <span class="workflow-node-title">Add a step</span>
+                        </span>
+                    </button>
+                </li>
+            </ol>
+        </div>
+        <div class="workflow-branch">
+            <span class="workflow-label">No</span>
+            <ol class="workflow-path">
+                <li class="workflow-step">
+                    <button class="workflow-node workflow-node--add" type="button">
+                        <span class="workflow-node-head">
+                            <span class="workflow-node-icon"><i class="ri-add-line" aria-hidden="true"></i></span>
+                            <span class="workflow-node-title">Add the first step</span>
+                        </span>
+                    </button>
+                </li>
+            </ol>
+        </div>
+    </li>
+</ol>

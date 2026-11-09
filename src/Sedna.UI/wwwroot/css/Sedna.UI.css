@@ -5987,6 +5987,15 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     background: var(--border);
 }
 .graph-tools--stack .graph-tools-sep { width: auto; height: 1px; }
+.graph-tools > .form-range {
+    inline-size: 7rem;
+    align-self: center;
+    margin-inline: var(--space-2);
+}
+.graph-tools--stack > .form-range {
+    writing-mode: vertical-lr;
+    direction: rtl;
+}
 .graph-tools .btn[aria-pressed="true"] {
     background: var(--brand-tint);
     color: var(--brand-text);
@@ -6053,6 +6062,21 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     min-width: 12rem;
 }
 .graph-menu[hidden] { display: none; }
+.graph-edge-tool {
+    position: absolute;
+    left: 0;
+    inset-block-start: 0;
+    z-index: 1;
+    display: flex;
+    gap: var(--space-1);
+    padding: 1px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-float);
+    translate: -50% -50%;
+}
+.graph-edge-tool > .btn { border-radius: var(--radius-pill); }
 .graph-wait,
 .graph-empty {
     position: absolute;
@@ -6218,7 +6242,8 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     .graph-tools,
     .graph-minimap,
     .graph-tip,
-    .graph-menu { display: none; }
+    .graph-menu,
+    .graph-edge-tool { display: none; }
 }
 }
 @layer sedna.paint {
@@ -12512,6 +12537,14 @@ button.inbox-item-title {
         repeating-linear-gradient(var(--workflow-dash-angle), var(--workflow-wire-colour) 0 4px, transparent 4px 9px),
         linear-gradient(var(--workflow-surface), var(--workflow-surface));
 }
+.workflow > .workflow-step:has(> .workflow-node--add),
+.workflow-path > .workflow-step:has(> .workflow-node--add),
+.workflow-fork:has(+ .workflow-step > .workflow-node--add) > .workflow-branch:last-child::after {
+    --workflow-wire-colour: var(--border-strong);
+    --workflow-wire-paint:
+        repeating-linear-gradient(var(--workflow-dash-angle), var(--workflow-wire-colour) 0 4px, transparent 4px 9px),
+        linear-gradient(var(--workflow-surface), var(--workflow-surface));
+}
 .workflow > [data-state="running"],
 .workflow-path > [data-state="running"],
 .workflow-fork:has(+ .workflow-step[data-state="running"]) > .workflow-branch:last-child::after {
@@ -12729,6 +12762,23 @@ button.inbox-item-title {
 .workflow-branch[data-state="skipped"] .workflow-node-title { color: var(--muted); font-weight: 500; }
 .workflow-step[data-state="skipped"] .workflow-node-head > :first-child,
 .workflow-branch[data-state="skipped"] .workflow-node-head > :first-child { opacity: 0.55; filter: grayscale(1); }
+.workflow-node--add {
+    border-style: dashed;
+    border-color: var(--border-strong);
+    background: transparent;
+    color: var(--fg-soft);
+}
+.workflow-node--add::before,
+.workflow-node--add::after { content: none; }
+.workflow-node--add > .workflow-node-head { padding-inline-end: 0; }
+.workflow-node--add .workflow-node-title { color: var(--fg-soft); font-weight: 500; }
+.workflow-node.workflow-node--add:hover {
+    border-color: var(--brand-soft);
+    background: var(--brand-tint);
+    color: var(--brand-text);
+}
+.workflow-node.workflow-node--add:hover .workflow-node-title,
+.workflow-node.workflow-node--add:hover .workflow-node-icon { color: var(--brand-text); }
 .workflow-end {
     display: inline-flex;
     align-items: center;
@@ -12944,8 +12994,8 @@ button.inbox-item-title {
 :where(.workflow-branch:not(:first-child))::after { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), arc to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-wire)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-wire)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 100%, line to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) 100%, arc to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-r) var(--workflow-cw), close, move to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), close); }
 :where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path)::before { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-wire)), line to calc(100% - var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-way-r)))) calc(100% - var(--workflow-wire)), arc to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) 0, line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 0, line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-way-r)), arc to calc(100% - var(--workflow-way-r) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-way-r)))) 100% of var(--workflow-way-r) var(--workflow-cw), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 100%, close, move to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-way-r)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-out)), line to calc(100% - var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (100% - var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-out)), close); }
 :where(:is(.workflow-fork:not(:last-child), .workflow-fork:not(:last-child) > .workflow-branch > .workflow-path > .workflow-fork:last-child) > .workflow-branch:not(:first-child) > .workflow-path)::after { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 100%, arc to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 0 of var(--workflow-way-r) var(--workflow-cw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) var(--workflow-wire), arc to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 100% of var(--workflow-way-ri) var(--workflow-ccw), close); }
-:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]))::before,
-:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]):not(:first-child))::after {
+:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]), .workflow-branch:has(> .workflow-path > :first-child > .workflow-node--add))::before,
+:where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]):not(:first-child), .workflow-branch:has(> .workflow-path > :first-child > .workflow-node--add):not(:first-child))::after {
     border-style: dashed;
     border-color: var(--workflow-in);
     background: none;
@@ -13260,7 +13310,7 @@ button.inbox-item-title {
     }
     .workflow-fork:not(:last-child) > .workflow-branch:last-child:is([data-state="taken"]:not(:has(> .workflow-path > :first-child[data-state="running"])), :has(> .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"])), :has(> .workflow-path > :first-child[data-state="running"])) { --workflow-stub-in: 1; }
     :where(.workflow-branch)::before { clip-path: shape(from calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) 0, line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), arc to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-wire)) of var(--workflow-way-ri) var(--workflow-ccw), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) calc(100% - var(--workflow-wire)), line to calc(100% + var(--workflow-mirror) * (100% - 2 * (100%))) 100%, line to calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) 100%, arc to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)) of var(--workflow-way-r) var(--workflow-cw), close, move to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r)), line to calc(var(--workflow-wire) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire)))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), line to calc(0px + var(--workflow-mirror) * (100% - 2 * (0px))) calc(100% - var(--workflow-way-r) + var(--workflow-way-fade) * var(--workflow-stub-in)), close); }
-    :where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]))::before { clip-path: none; }
+    :where(.workflow-branch[data-state="skipped"], .workflow-branch:has(> .workflow-path > :first-child[data-state="next"]), .workflow-branch:has(> .workflow-path > :first-child > .workflow-node--add))::before { clip-path: none; }
     .workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > :first-child[data-state="running"])::before,
     .workflow-fork:not(:has(> .workflow-branch > .workflow-path > :first-child:is([data-state="waiting"], [data-state="done"], [data-state="failed"]))) > .workflow-branch:nth-child(n):has(> .workflow-path > .workflow-fork:first-child > .workflow-branch > .workflow-path > :first-child[data-state="running"])::before {
         --workflow-way-over: conic-gradient(from var(--workflow-seam-b) at calc(var(--workflow-wire) / 2 + var(--workflow-curve) + var(--workflow-mirror) * (100% - 2 * (var(--workflow-wire) / 2 + var(--workflow-curve)))) calc(100% - var(--workflow-way-r)), transparent 0, var(--workflow-under-in) var(--workflow-seam-bd-p0), var(--workflow-under-in) var(--workflow-seam-bd-p1), transparent var(--workflow-seam-bd-t1), transparent 0);
@@ -14208,6 +14258,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .selection-toolbar:popover-open { display: none; }
     .agent-plan-actions,
     .reasoning-bar > .btn { display: none; }
+    .workflow-step:has(> .workflow-node--add) { display: none; }
     .chat-pane > .chat { overflow: visible; }
     .chat-message { break-inside: avoid; }
     .cal-agenda-head { position: relative; inset-block-start: auto; }

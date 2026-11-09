@@ -41,7 +41,7 @@ public abstract class GraphTestBase : ScriptTestBase
         <script>
         window.graphLog = [];
         for (const name of ['sedna-graph-ready', 'sedna-graph-change', 'sedna-graph-select', 'sedna-graph-open',
-                            'sedna-graph-hover', 'sedna-graph-context', 'sedna-graph-connect',
+                            'sedna-graph-hover', 'sedna-graph-context', 'sedna-graph-connect', 'sedna-graph-edge',
                             'sedna-graph-expand', 'sedna-graph-collapse'])
             document.addEventListener(name, e => graphLog.push({ name, on: e.target.id, cancelable: e.cancelable, detail: e.detail }));
         window.cyOf = id => document.querySelector('#' + id + ' .graph-canvas')._cyreg.cy;

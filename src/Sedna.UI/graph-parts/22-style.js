@@ -79,7 +79,7 @@ const labelSide = options => (options.nodes !== 'box' && (options.layout === 'tr
 function nodeTone(n, options) {
     const key = options.colourBy;
     const alt = key && key !== 'tone' ? (n.data('tones') || {})[camel(key)] : null;
-    return tokenOfTone(alt ?? n.data('tone') ?? (n.data('muted') ? 'muted' : '1'));
+    return tokenOfTone(alt ?? n.data('tone') ?? (n.data('muted') || n.data('placeholder') ? 'muted' : '1'));
 }
 
 /* An app's own rules on top of the library's — `graph.style([...])`. A value written
@@ -112,7 +112,8 @@ function styleFor(colours, icons, options, extra) {
         'target-arrow-shape': a === 'both' || a === 'target' ? 'triangle' : 'none',
         'source-arrow-shape': a === 'both' || a === 'source' ? 'triangle' : 'none',
     });
-    const iconFor = n => icons.image(n.data('icon'), box(n) ? toneColour(n) : p.ground, 32) || 'none';
+    // On a filled dot the glyph is the ground; in a box, and on a placeholder, which is not filled, its tone.
+    const iconFor = n => icons.image(n.data('icon'), box(n) || n.data('placeholder') ? toneColour(n) : p.ground, 32) || 'none';
     const dots = options.nodes !== 'box';
     // A layered layout knows where each link has to go to pass the ranks between its ends;
     // its route is drawn unless the app chose a curve. Read from where the layout left it.
@@ -224,6 +225,20 @@ function styleFor(colours, icons, options, extra) {
         },
         { selector: 'node[display = "box"][?shape]', style: { 'shape': 'data(shape)' } },
         { selector: 'node[display = "box"][?muted]', style: { 'background-opacity': 0.6, 'border-opacity': 0.6, 'color': p.muted } },
+        /* A place a record can go — the "add a step" at the end of a flow: not filled, a dashed
+           border and its "+" in its tone, the muted one unless it has its own. A click opens it. */
+        {
+            selector: 'node[?placeholder]',
+            style: {
+                'background-opacity': 0,
+                'border-style': 'dashed',
+                'border-dash-pattern': [5, 3],
+                'border-color': toneColour,
+                'border-opacity': 1,
+                'border-width': n => (box(n) ? 1.5 : 1.5 * held(n)),
+                'color': p.soft,
+            },
+        },
         // A group that holds records — a compound node. A whisper of its tone, its name at the top,
         // held at a screen size around dots like the names inside it.
         {

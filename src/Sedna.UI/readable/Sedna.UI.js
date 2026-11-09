@@ -11619,9 +11619,10 @@ window.sednaUi = window.sednaUi || {};
     function control(e) {
         var c = e.target && e.target.closest ? e.target.closest(CONTROLS) : null;
         if (!c) return;
-        // A text field answers to typing, everything else to its change or its click.
+        // A text field answers to typing, and a slider to being dragged; everything else
+        // to its change or its click.
         var typing = c.hasAttribute('data-graph-search');
-        if (e.type === 'input' && !typing) return;
+        if (e.type === 'input' && !typing && c.type !== 'range') return;
         if (e.type === 'change' && typing) return;
         if (e.type === 'click' && (c.tagName === 'INPUT' || c.tagName === 'SELECT' || c.tagName === 'TEXTAREA')) return;
         var el = graphOf(c);

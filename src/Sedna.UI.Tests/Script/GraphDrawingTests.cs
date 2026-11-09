@@ -219,4 +219,73 @@ public class GraphDrawingTests : GraphTestBase
 
         static string Normalise(string rgb) => rgb.Replace(" ", "", StringComparison.Ordinal);
     }
+
+    // ── A placeholder ─────────────────────────────────────────────────────────
+
+    private const string Draft = """
+        <ul class="graph-data" data-graph-data>
+          <li data-node="order" data-tone="1">Order placed</li>
+          <li data-node="pay" data-tone="3">Take payment</li>
+          <li data-node="next" data-placeholder>Add a step</li>
+          <li data-node="branch" data-placeholder data-tone="2" data-icon="ri-git-branch-line">Add a branch</li>
+          <li data-edge data-source="order" data-target="pay"></li>
+          <li data-edge data-source="pay" data-target="next"></li>
+          <li data-edge data-source="pay" data-target="branch"></li>
+        </ul>
+        """;
+
+    private const string Placeholders = """
+        () => {
+            const cy = cyOf('g');
+            const of = id => { const n = cy.getElementById(id); return {
+                border: flat(n.style('border-color')), borderStyle: n.style('border-style'), fill: n.numericStyle('background-opacity'),
+                icon: n.data('icon'), image: n.style('background-image') !== 'none' }; };
+            return { next: of('next'), branch: of('branch'), pay: of('pay'),
+                     muted: paintOf('var(--muted)'), tone: paintOf('var(--viz-2)'), toneOfPay: paintOf('var(--viz-3)') };
+        }
+        """;
+
+    [Theory]
+    [InlineData("dot")]
+    [InlineData("box")]
+    public async Task A_placeholder_is_drawn_unfilled_and_dashed_with_its_plus_in_its_tones_token(string nodes)
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Graph(inside: Draft, attrs: $"data-graph-eager data-graph-layout=\"dagre\" data-graph-direction=\"LR\" data-graph-nodes=\"{nodes}\""));
+        await Ready(page);
+
+        var drawn = await page.EvaluateAsync<JsonElement>(Placeholders);
+        string Of(string id, string what) => drawn.GetProperty(id).GetProperty(what).ToString();
+
+        Assert.Equal("dashed", Of("next", "borderStyle"));
+        Assert.Equal("0", Of("next", "fill"));
+        // The muted token unless it has a tone of its own — never a literal.
+        Assert.Equal(drawn.GetProperty("muted").GetString(), Of("next", "border"));
+        Assert.Equal(drawn.GetProperty("tone").GetString(), Of("branch", "border"));
+        // A "+" unless the app chose another glyph, drawn on the canvas.
+        Assert.Equal("ri-add-line", Of("next", "icon"));
+        Assert.Equal("ri-git-branch-line", Of("branch", "icon"));
+        Assert.Equal("True", Of("next", "image"));
+        // A record beside it is drawn as it always is.
+        Assert.Equal("solid", Of("pay", "borderStyle"));
+        Assert.NotEqual("0", Of("pay", "fill"));
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task A_placeholders_colour_follows_the_theme()
+    {
+        if (NoBrowser) return;
+        var page = await OpenGraph(Graph(inside: Draft, attrs: "data-graph-eager data-graph-nodes=\"box\""));
+        await Ready(page);
+        var before = await Eval<string>(page, "() => flat(cyOf('g').getElementById('next').style('border-color'))");
+        Assert.Equal(await Eval<string>(page, "() => paintOf('var(--muted)')"), before);
+
+        await Js.Run(page, "() => sednaUi.settings.save('variant', 'light')");
+        await page.WaitForFunctionAsync("c => flat(cyOf('g').getElementById('next').style('border-color')) !== c", before);
+
+        Assert.Equal(await Eval<string>(page, "() => paintOf('var(--muted)')"),
+            await Eval<string>(page, "() => flat(cyOf('g').getElementById('next').style('border-color'))"));
+        AssertQuiet();
+    }
 }
