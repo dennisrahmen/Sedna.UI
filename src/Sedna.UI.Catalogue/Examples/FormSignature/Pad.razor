@@ -1,0 +1,28 @@
+<fieldset class="form-section" style="max-width:560px">
+    <legend class="form-section-title">Proof of delivery</legend>
+    <p class="form-section-hint">Order ORD-4209, two parcels, handed over at the front desk.</p>
+    <div class="form-section-body">
+        <div class="form-field">
+            <span class="form-label form-label--required" id="pod-sign-label">Recipient's signature</span>
+            <div class="form-signature" data-signature>
+                <div class="form-signature-pad" data-signature-pad aria-labelledby="pod-sign-label" aria-describedby="pod-sign-alt">
+                    <span class="form-signature-hint">Sign here</span>
+                </div>
+                <input type="hidden" name="signature" data-signature-value />
+                <div class="form-signature-actions">
+                    <button class="btn btn--sm btn--ghost" type="button" data-signature-undo><i class="ri-arrow-go-back-line"></i> <span>Undo</span></button>
+                    <button class="btn btn--sm btn--ghost" type="button" data-signature-clear><i class="ri-eraser-line"></i> <span>Clear</span></button>
+                </div>
+            </div>
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="pod-sign-name">Or type the recipient's full name</label>
+            <input class="form-input" id="pod-sign-name" name="signatureName" type="text" autocomplete="name" placeholder="Alex Fischer" />
+            <p class="form-hint" id="pod-sign-alt">Drawing needs a mouse, a pen or a finger. A typed full name signs the delivery as well.</p>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn" type="button">Cancel</button>
+        <button class="btn btn--go btn--solid" type="button"><i class="ri-check-line"></i> <span>Confirm delivery</span></button>
+    </div>
+</fieldset>

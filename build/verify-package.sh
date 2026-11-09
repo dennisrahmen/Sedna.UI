@@ -70,6 +70,9 @@ REQUIRED=(
     "staticwebassets/js/Sedna.UI.orb.js"
     # The chart: its module, which Sedna.UI.js imports the first time a page shows one.
     "staticwebassets/js/Sedna.UI.chart.js"
+    # The signature pad and the QR code: their modules, imported the same way.
+    "staticwebassets/js/Sedna.UI.signature.js"
+    "staticwebassets/js/Sedna.UI.qr.js"
     # The commented copies of the generated bundles: packed, never served.
     "readable/Sedna.UI.css"
     "readable/Sedna.UI.js"
@@ -77,6 +80,8 @@ REQUIRED=(
     "readable/Sedna.UI.editor.js"
     "readable/Sedna.UI.orb.js"
     "readable/Sedna.UI.chart.js"
+    "readable/Sedna.UI.signature.js"
+    "readable/Sedna.UI.qr.js"
     "README.md"
     "LICENSE"
     "THIRD-PARTY-NOTICES.md"

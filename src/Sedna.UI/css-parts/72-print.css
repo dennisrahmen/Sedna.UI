@@ -133,6 +133,10 @@
     .diff-table tr { break-inside: avoid; }
     /* A PDF frame has nothing to print — the document prints from its own viewer. */
     .pdf-frame { display: none; }
+    /* A signature prints as signed, without the buttons that changed it; a QR code
+       prints whole, never split across two pages. */
+    .form-signature-actions { display: none; }
+    .qr { break-inside: avoid; }
 
     /* Headings should not be the last line on a page. */
     h1, h2, h3, .card-head, .page-head { break-after: avoid; }

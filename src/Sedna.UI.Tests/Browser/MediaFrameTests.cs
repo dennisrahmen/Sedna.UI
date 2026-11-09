@@ -14,8 +14,11 @@ namespace Sedna.UI.Tests;
 /// </remarks>
 public class MediaFrameTests : ScriptTestBase
 {
-    /// <summary>A box at a fixed ratio that is not a picture's frame.</summary>
-    private static readonly string[] NotAFrame = ["cal-day"];
+    /// <summary>
+    /// A box at a fixed ratio that is not a picture's frame: a calendar day, and a signature pad,
+    /// whose ratio is the box its value is written in and has a token of its own.
+    /// </summary>
+    private static readonly string[] NotAFrame = ["cal-day", "form-signature-pad"];
 
     /// <summary>A picture that is the thing itself — a face, a mark, an icon — never one being checked.</summary>
     private static readonly string[] NotAnUpload = ["avatar", "brand-logo", "file-icon", "link-preview"];

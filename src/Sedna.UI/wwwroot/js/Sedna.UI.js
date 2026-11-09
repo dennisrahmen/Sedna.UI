@@ -7673,6 +7673,29 @@ window.sednaUi = window.sednaUi || {};
     else start();
 })(window.sednaUi);
 (function (ui) {
+    ui._.surface({
+        name: 'signature',
+        selector: '[data-signature]',
+        module: 'Sedna.UI.signature.js',
+        eager: 'data-signature-eager',
+        found: function (el) {
+            var pad = el.querySelector('[data-signature-pad]');
+            if (pad && !pad.hasAttribute('role')) pad.setAttribute('role', 'img');
+        }
+    });
+})(window.sednaUi);
+(function (ui) {
+    ui._.surface({
+        name: 'qr',
+        selector: '[data-qr]',
+        module: 'Sedna.UI.qr.js',
+        eager: 'data-qr-eager',
+        found: function (el) {
+            if (!el.hasAttribute('role')) el.setAttribute('role', 'img');
+        }
+    });
+})(window.sednaUi);
+(function (ui) {
     var config = ui._.config;
     ui.requestNotify = function () {
         try {

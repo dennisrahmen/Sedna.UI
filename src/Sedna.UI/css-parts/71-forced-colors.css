@@ -353,4 +353,7 @@
     .form-range--hue,
     .form-range--alpha,
     .form-color-preview { forced-color-adjust: none; }
+    /* A QR code is read by a camera, not the reader: it keeps its dark ink on light paper,
+       as an image does, or a dark palette would invert it into a code few cameras read. */
+    .qr { forced-color-adjust: none; }
 }

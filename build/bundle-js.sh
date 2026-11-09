@@ -7,6 +7,8 @@
 #   src/Sedna.UI/editor-parts/  → wwwroot/js/Sedna.UI.editor.js  the ES module an editor imports on demand
 #   src/Sedna.UI/orb-parts/     → wwwroot/js/Sedna.UI.orb.js     the ES module an orb imports on demand
 #   src/Sedna.UI/chart-parts/   → wwwroot/js/Sedna.UI.chart.js   the ES module a chart imports on demand
+#   src/Sedna.UI/signature-parts/ → wwwroot/js/Sedna.UI.signature.js  the ES module a signature pad imports on demand
+#   src/Sedna.UI/qr-parts/      → wwwroot/js/Sedna.UI.qr.js      the ES module a QR code imports on demand
 #
 # Mirrors build/bundle-css.sh: the parts are DISCOVERED, never listed anywhere, so
 # adding a file to either directory puts it in the next build and there is no manifest
@@ -19,10 +21,10 @@
 #     2x  behaviour attached to the document (hover hints, menus, tabs, …)
 #     3x  the Markdown editor
 #     4x  interop helpers and presenters, the surface loader, and the chart's, the
-#         graph's, the editor's and the orb's front doors
+#         graph's, the editor's, the orb's, the signature pad's and the QR code's front doors
 #     5x  notifications and the audio ping
 #
-#   graph-parts/, editor-parts/, orb-parts/, chart-parts/  — see the CLAUDE.md in each
+#   graph-parts/, editor-parts/, orb-parts/, chart-parts/, signature-parts/, qr-parts/  — see the CLAUDE.md in each
 #     00  the imports, and nothing else
 #     1x–8x  the surface, one concern a file
 #     99  the exports, and nothing else
@@ -163,5 +165,7 @@ bundle "$ROOT/src/Sedna.UI/graph-parts" "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.
 bundle "$ROOT/src/Sedna.UI/editor-parts" "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.editor.js" module
 bundle "$ROOT/src/Sedna.UI/orb-parts" "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.orb.js" module
 bundle "$ROOT/src/Sedna.UI/chart-parts" "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.chart.js" module
+bundle "$ROOT/src/Sedna.UI/signature-parts" "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.signature.js" module
+bundle "$ROOT/src/Sedna.UI/qr-parts" "$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.qr.js" module
 
 exit "$failed"

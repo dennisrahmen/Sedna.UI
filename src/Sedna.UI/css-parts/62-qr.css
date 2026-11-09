@@ -1,0 +1,59 @@
+/* ── QR code ──────────────────────────────────────────────────────────────────
+   The app's text or address as a QR code. A tier 3 surface (docs/surfaces.md,
+   docs/qr.md): the app writes one element with its text and its name, and the
+   library's own encoder draws the symbol as an SVG inside it.
+
+     <span class="qr" data-qr="https://example.com/pair/7Q4K" aria-label="QR code to pair the device"></span>
+
+   ── Colour ──
+   A code is read by a camera, and cameras read dark modules on light paper: the
+   paper stays light and the ink dark in every variant, the code is an image to forced
+   colours, and it prints as it shows. `--qr-ink` and `--qr-paper` re-point them, and the
+   app owns the contrast of what it picks.
+
+   ── Size ──
+   `--qr-size` is the whole square, quiet zone included — the four light modules the
+   standard needs around a symbol are part of the drawing, not a margin. A denser code
+   needs a bigger square to stay readable; `data-qr-version` says how dense it is.
+
+   ── Without the script ──
+   An empty light square; the human-readable text the app writes beside it is the
+   alternative, there and for every reader who cannot scan.
+   ─────────────────────────────────────────────────────────────────────────── */
+.qr {
+    --qr-size: 10rem;
+    --qr-ink: var(--slate-900);
+    --qr-paper: var(--white);
+    display: inline-block;
+    flex: none;
+    inline-size: var(--qr-size);
+    block-size: var(--qr-size);
+    vertical-align: middle;
+    background: var(--qr-paper);
+    border-radius: var(--radius-inner);
+}
+.qr > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    fill: var(--qr-ink);
+}
+
+.qr--sm { --qr-size: 6rem; }
+.qr--lg { --qr-size: 15rem; }
+
+/* A code with its caption: the app's human-readable text under it, centred on it. */
+.qr-figure {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+}
+.qr-caption {
+    max-inline-size: 18rem;
+    color: var(--muted);
+    font-size: var(--text-3);
+    text-align: center;
+    overflow-wrap: anywhere;
+}

@@ -2970,6 +2970,24 @@
     "form-select--sm": {
       "family": "form-select"
     },
+    "form-signature": {
+      "family": "form-signature",
+      "attributes": [
+        "[data-signature-inked]"
+      ]
+    },
+    "form-signature-actions": {
+      "family": "form-signature-actions"
+    },
+    "form-signature-hint": {
+      "family": "form-signature-hint"
+    },
+    "form-signature-pad": {
+      "family": "form-signature-pad",
+      "pseudoClasses": [
+        ":hover"
+      ]
+    },
     "form-trigger": {
       "family": "form-trigger",
       "attributes": [
@@ -4700,6 +4718,25 @@
     },
     "ql-video": {
       "family": "ql-video"
+    },
+    "qr": {
+      "family": "qr",
+      "variants": [
+        "qr--lg",
+        "qr--sm"
+      ]
+    },
+    "qr--lg": {
+      "family": "qr"
+    },
+    "qr--sm": {
+      "family": "qr"
+    },
+    "qr-caption": {
+      "family": "qr-caption"
+    },
+    "qr-figure": {
+      "family": "qr-figure"
     },
     "rating": {
       "family": "rating",

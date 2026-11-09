@@ -52,6 +52,7 @@
      45-form-controls.css
      46-form-layout.css
      47-form-file.css
+     47-form-signature.css
      48-form-code.css
      48-form-numeric.css
      49-form-combo.css
@@ -80,6 +81,7 @@
      62-carousel.css
      62-media-and-prose.css
      62-pdf.css
+     62-qr.css
      63-drag.css
      63-drawer.css
      64-files.css
@@ -8163,6 +8165,113 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .file-batch--error .progress-bar { background: var(--danger-solid); }
 }
 
+/* ── 47-form-signature.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Signature pad ────────────────────────────────────────────────────────────
+   A signature drawn with a mouse, a pen or a finger. A tier 3 surface (docs/surfaces.md,
+   docs/signature.md): the app writes the frame, the hint, the buttons and the field the
+   form posts; the library's own module draws the strokes on a canvas it adds inside
+   the pad, and writes them to the field as SVG path data.
+
+     <div class="form-signature" data-signature>
+       <div class="form-signature-pad" data-signature-pad aria-label="Signature, drawn with a mouse, pen or finger">
+         <span class="form-signature-hint">Sign here</span>
+       </div>
+       <input type="hidden" name="signature" data-signature-value>
+       <div class="form-signature-actions">…the app's undo and clear buttons…</div>
+     </div>
+
+   ── States ──
+   Inked — the script marks the frame `data-signature-inked`, and the hint steps aside.
+   Disabled and read-only are the field's own attributes; the pad takes them from it.
+   Rejected is `aria-invalid="true"` on the field and unusual `data-state="warn"`, as on
+   every control.
+
+   ── Tokens ──
+   --signature-ink        the strokes' colour, read by the script through the pad
+   --signature-ink-width  the strokes' width, in CSS pixels at any pad size
+   --signature-ratio      the pad's width to its height; the value's box follows it
+
+   ── Without the script ──
+   The pad is an empty field with its hint and its line: the reader signs with the typed
+   name the app writes beside it, which is the alternative for every reader without a
+   pointer as well.
+   ─────────────────────────────────────────────────────────────────────────── */
+.form-signature {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    inline-size: 100%;
+    max-inline-size: 36rem;
+}
+
+.form-signature-pad {
+    --signature-ink: var(--fg);
+    --signature-ink-width: 2.5px;
+    --signature-ratio: 3 / 1;
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 100%;
+    aspect-ratio: var(--signature-ratio);
+    background: var(--bg);
+    border: 1px solid var(--field-border);
+    border-radius: var(--radius-control);
+    overflow: hidden;
+    cursor: crosshair;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+/* The line a signature sits on, three quarters down: where a hand puts it on paper. */
+.form-signature-pad::before {
+    content: "";
+    position: absolute;
+    inset-inline: 6%;
+    inset-block-start: 74%;
+    border-block-start: 1px dashed var(--border-hover);
+    pointer-events: none;
+}
+.form-signature-pad > canvas {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    touch-action: none;
+}
+.form-signature-pad:hover { border-color: var(--border-hover); }
+
+/* The app's own words on an empty pad. Under the canvas, and gone once there is ink. */
+.form-signature-hint {
+    color: var(--placeholder);
+    font-size: var(--text-4);
+    pointer-events: none;
+    user-select: none;
+}
+.form-signature[data-signature-inked] .form-signature-hint { visibility: hidden; }
+
+.form-signature-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2);
+}
+
+/* The pad takes its state from the field, which is what the form posts. */
+.form-signature:has([data-signature-value]:disabled) .form-signature-pad,
+.form-signature:has([data-signature-value][readonly]) .form-signature-pad {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    cursor: not-allowed;
+}
+/* A locked pad takes no stroke, so a finger on it scrolls the page again. */
+.form-signature:has([data-signature-value]:disabled, [data-signature-value][readonly]) .form-signature-pad > canvas { touch-action: auto; }
+.form-signature:has([data-signature-value]:disabled) .form-signature-pad { opacity: var(--disabled-opacity); }
+/* Read-only keeps the ink at full strength: the signature is still the record. */
+.form-signature:has([data-signature-value][readonly]) .form-signature-pad { cursor: default; }
+/* Unusual, then rejected — the later wins when the field carries both, as on every control. */
+.form-signature:has([data-signature-value][data-state="warn"]) .form-signature-pad { border-color: var(--field-border-warn); }
+.form-signature:has([data-signature-value][aria-invalid="true"]) .form-signature-pad { border-color: var(--field-border-danger); }
+}
+
 /* ── 48-form-code.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── One-time code ──────────────────────────────────────────────────────────
@@ -15698,6 +15807,69 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     min-block-size: 0;
     border: 0;
     overflow: auto;
+}
+}
+
+/* ── 62-qr.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── QR code ──────────────────────────────────────────────────────────────────
+   The app's text or address as a QR code. A tier 3 surface (docs/surfaces.md,
+   docs/qr.md): the app writes one element with its text and its name, and the
+   library's own encoder draws the symbol as an SVG inside it.
+
+     <span class="qr" data-qr="https://example.com/pair/7Q4K" aria-label="QR code to pair the device"></span>
+
+   ── Colour ──
+   A code is read by a camera, and cameras read dark modules on light paper: the
+   paper stays light and the ink dark in every variant, the code is an image to forced
+   colours, and it prints as it shows. `--qr-ink` and `--qr-paper` re-point them, and the
+   app owns the contrast of what it picks.
+
+   ── Size ──
+   `--qr-size` is the whole square, quiet zone included — the four light modules the
+   standard needs around a symbol are part of the drawing, not a margin. A denser code
+   needs a bigger square to stay readable; `data-qr-version` says how dense it is.
+
+   ── Without the script ──
+   An empty light square; the human-readable text the app writes beside it is the
+   alternative, there and for every reader who cannot scan.
+   ─────────────────────────────────────────────────────────────────────────── */
+.qr {
+    --qr-size: 10rem;
+    --qr-ink: var(--slate-900);
+    --qr-paper: var(--white);
+    display: inline-block;
+    flex: none;
+    inline-size: var(--qr-size);
+    block-size: var(--qr-size);
+    vertical-align: middle;
+    background: var(--qr-paper);
+    border-radius: var(--radius-inner);
+}
+.qr > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    fill: var(--qr-ink);
+}
+
+.qr--sm { --qr-size: 6rem; }
+.qr--lg { --qr-size: 15rem; }
+
+/* A code with its caption: the app's human-readable text under it, centred on it. */
+.qr-figure {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+}
+.qr-caption {
+    max-inline-size: 18rem;
+    color: var(--muted);
+    font-size: var(--text-3);
+    text-align: center;
+    overflow-wrap: anywhere;
 }
 }
 
@@ -25074,6 +25246,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-range--hue,
     .form-range--alpha,
     .form-color-preview { forced-color-adjust: none; }
+    /* A QR code is read by a camera, not the reader: it keeps its dark ink on light paper,
+       as an image does, or a dark palette would invert it into a code few cameras read. */
+    .qr { forced-color-adjust: none; }
 }
 }
 
@@ -25214,6 +25389,10 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .diff-table tr { break-inside: avoid; }
     /* A PDF frame has nothing to print — the document prints from its own viewer. */
     .pdf-frame { display: none; }
+    /* A signature prints as signed, without the buttons that changed it; a QR code
+       prints whole, never split across two pages. */
+    .form-signature-actions { display: none; }
+    .qr { break-inside: avoid; }
 
     /* Headings should not be the last line on a page. */
     h1, h2, h3, .card-head, .page-head { break-after: avoid; }
@@ -25691,6 +25870,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
     .editor           { transition: none; }   /* 44 */
     .form-color       { transition: none; }   /* 45 */
+    .form-signature-pad { transition: none; } /* 47 */
     /* 49 — the caret is drawn in its open position instead of turning over, and the
        drop-down is simply there. Neither carries information: `:open` already
        changes the border, and a panel that appears is a panel. */

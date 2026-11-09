@@ -4390,6 +4390,71 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .file-batch--error .progress-bar { background: var(--danger-solid); }
 }
 @layer sedna.paint {
+.form-signature {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    inline-size: 100%;
+    max-inline-size: 36rem;
+}
+.form-signature-pad {
+    --signature-ink: var(--fg);
+    --signature-ink-width: 2.5px;
+    --signature-ratio: 3 / 1;
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 100%;
+    aspect-ratio: var(--signature-ratio);
+    background: var(--bg);
+    border: 1px solid var(--field-border);
+    border-radius: var(--radius-control);
+    overflow: hidden;
+    cursor: crosshair;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.form-signature-pad::before {
+    content: "";
+    position: absolute;
+    inset-inline: 6%;
+    inset-block-start: 74%;
+    border-block-start: 1px dashed var(--border-hover);
+    pointer-events: none;
+}
+.form-signature-pad > canvas {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    touch-action: none;
+}
+.form-signature-pad:hover { border-color: var(--border-hover); }
+.form-signature-hint {
+    color: var(--placeholder);
+    font-size: var(--text-4);
+    pointer-events: none;
+    user-select: none;
+}
+.form-signature[data-signature-inked] .form-signature-hint { visibility: hidden; }
+.form-signature-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2);
+}
+.form-signature:has([data-signature-value]:disabled) .form-signature-pad,
+.form-signature:has([data-signature-value][readonly]) .form-signature-pad {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    cursor: not-allowed;
+}
+.form-signature:has([data-signature-value]:disabled, [data-signature-value][readonly]) .form-signature-pad > canvas { touch-action: auto; }
+.form-signature:has([data-signature-value]:disabled) .form-signature-pad { opacity: var(--disabled-opacity); }
+.form-signature:has([data-signature-value][readonly]) .form-signature-pad { cursor: default; }
+.form-signature:has([data-signature-value][data-state="warn"]) .form-signature-pad { border-color: var(--field-border-warn); }
+.form-signature:has([data-signature-value][aria-invalid="true"]) .form-signature-pad { border-color: var(--field-border-danger); }
+}
+@layer sedna.paint {
 .form-code {
     display: inline-flex;
     align-items: center;
@@ -8664,6 +8729,42 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     min-block-size: 0;
     border: 0;
     overflow: auto;
+}
+}
+@layer sedna.paint {
+.qr {
+    --qr-size: 10rem;
+    --qr-ink: var(--slate-900);
+    --qr-paper: var(--white);
+    display: inline-block;
+    flex: none;
+    inline-size: var(--qr-size);
+    block-size: var(--qr-size);
+    vertical-align: middle;
+    background: var(--qr-paper);
+    border-radius: var(--radius-inner);
+}
+.qr > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    fill: var(--qr-ink);
+}
+.qr--sm { --qr-size: 6rem; }
+.qr--lg { --qr-size: 15rem; }
+.qr-figure {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+}
+.qr-caption {
+    max-inline-size: 18rem;
+    color: var(--muted);
+    font-size: var(--text-3);
+    text-align: center;
+    overflow-wrap: anywhere;
 }
 }
 @layer sedna.paint {
@@ -14723,6 +14824,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-range--hue,
     .form-range--alpha,
     .form-color-preview { forced-color-adjust: none; }
+    .qr { forced-color-adjust: none; }
 }
 }
 @layer sedna.paint {
@@ -14804,6 +14906,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .diff-code { white-space: pre-wrap; overflow-wrap: anywhere; }
     .diff-table tr { break-inside: avoid; }
     .pdf-frame { display: none; }
+    .form-signature-actions { display: none; }
+    .qr { break-inside: avoid; }
     h1, h2, h3, .card-head, .page-head { break-after: avoid; }
 }
 }
@@ -15034,6 +15138,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-check input[type="checkbox"] { transition: none; }
     .editor           { transition: none; }
     .form-color       { transition: none; }
+    .form-signature-pad { transition: none; }
     .form-select::picker-icon      { transition: none; }
     .form-select::picker(select)   { transition: none; }
     .form-combo-box,
