@@ -150,7 +150,7 @@ internal static class QrDecoder
                 if (x < 9 && y < 9) f[y, x] = true;
                 if (x >= n - 8 && y < 9) f[y, x] = true;
                 if (x < 9 && y >= n - 8) f[y, x] = true;
-                if (version >= 7 && ((x >= n - 11 && x < n - 8 && y < 6) || (y >= n - 11 && y < n - 8 && x < 6))) f[y, x] = true;
+                if (version >= 7 && (InVersionBlock(x, y, n) || InVersionBlock(y, x, n))) f[y, x] = true;
             }
         }
         var centres = AlignmentCentres(version);
@@ -160,13 +160,21 @@ internal static class QrDecoder
             for (var j = 0; j <= last; j++)
             {
                 // None over the three finders.
-                if ((i == 0 && j == 0) || (i == 0 && j == last) || (i == last && j == 0)) continue;
+                if (OverFinder(i, j, last)) continue;
                 for (var dy = -2; dy <= 2; dy++)
                     for (var dx = -2; dx <= 2; dx++) f[centres[i] + dy, centres[j] + dx] = true;
             }
         }
         return f;
     }
+
+    /// <summary>The version block beside the top-right finder: three columns wide, six rows tall.
+    /// Called with x and y swapped it is the block below the bottom-left finder.</summary>
+    private static bool InVersionBlock(int x, int y, int n) => x >= n - 11 && x < n - 8 && y < 6;
+
+    /// <summary>Whether the alignment centre at row <paramref name="i"/>, column <paramref name="j"/>
+    /// would sit on one of the three finders, where no alignment pattern is drawn.</summary>
+    private static bool OverFinder(int i, int j, int last) => i == 0 ? j == 0 || j == last : i == last && j == 0;
 
     private static void CheckFunctionPatterns(bool[,] m, int version)
     {
@@ -194,7 +202,7 @@ internal static class QrDecoder
         {
             for (var j = 0; j <= last; j++)
             {
-                if ((i == 0 && j == 0) || (i == 0 && j == last) || (i == last && j == 0)) continue;
+                if (OverFinder(i, j, last)) continue;
                 for (var dy = -2; dy <= 2; dy++)
                     for (var dx = -2; dx <= 2; dx++)
                         if (m[centres[i] + dy, centres[j] + dx] != (Math.Max(Math.Abs(dx), Math.Abs(dy)) != 1))

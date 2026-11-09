@@ -1,3 +1,4 @@
+using Microsoft.Playwright;
 using Sedna.UI.Tests.TestSupport;
 
 namespace Sedna.UI.Tests;
@@ -27,6 +28,11 @@ public class CellStateTests : ScriptTestBase
         </div>
         """;
 
+    private static async Task Press(IPage page, string key, int times)
+    {
+        for (var i = 0; i < times; i++) await page.Keyboard.PressAsync(key);
+    }
+
     [Fact]
     public async Task Pinned_columns_and_the_sticky_header_still_pin_in_a_grid_and_the_keyboard_never_lands_under_them()
     {
@@ -40,7 +46,7 @@ public class CellStateTests : ScriptTestBase
         Assert.Equal(["sticky", "sticky", "sticky", "relative"], positions);
 
         await page.Locator("#c01").ClickAsync();
-        for (var i = 0; i < 6; i++) await page.Keyboard.PressAsync("ArrowRight");
+        await Press(page, "ArrowRight", 6);
         Assert.Equal("c07", await page.EvaluateAsync<string>("() => document.activeElement.id"));
 
         // Back along the row: each cell the keyboard reaches is clear of both pinned columns.
@@ -59,8 +65,8 @@ public class CellStateTests : ScriptTestBase
         }
 
         // Down the column: each cell clears the sticky header.
-        for (var i = 0; i < 11; i++) await page.Keyboard.PressAsync("ArrowDown");
-        for (var i = 0; i < 10; i++) await page.Keyboard.PressAsync("ArrowUp");
+        await Press(page, "ArrowDown", 11);
+        await Press(page, "ArrowUp", 10);
         var underHead = await page.EvaluateAsync<string>("""
             () => {
                 const c = document.activeElement.getBoundingClientRect(), h = document.querySelector('thead').getBoundingClientRect();
