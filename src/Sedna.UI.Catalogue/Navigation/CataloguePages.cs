@@ -67,7 +67,7 @@ internal static class CataloguePages
             "install nuget host page brand.css tokens registration setup agent mcp"),
         new("/concepts", Start, "Concepts", "ri-shapes-line",
             "The three tiers, the cascade layers, the z-order scale and the token contract.",
-            "tier layer cascade z-index override specificity naming contract state hover focus-visible aria-pressed aria-selected aria-current aria-expanded aria-busy"),
+            "tier layer cascade z-index override specificity naming contract state hover focus-visible aria-pressed aria-selected aria-current aria-expanded aria-busy words wording copy content writing label save apply sentence case error message empty state"),
         new("/tokens", Start, "Tokens", "ri-palette-line",
             "Every colour, font and shadow token, read live from the loaded stylesheet.",
             "colour color token variable var swatch"),

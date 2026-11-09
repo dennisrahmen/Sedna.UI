@@ -213,6 +213,13 @@ Assert.True(SednaContract.Classes.ContainsKey("card-head"), ".card-head is not a
 `SednaContract.LatestRelease` is the newest release the history knows, so a test can say which
 version a class map was checked against.
 
+### Words
+
+Buttons are verbs and saving is **Save**; an empty state's headline says what to do; an error says
+what went wrong and how to fix it; status is never colour alone; sentence case; no "please"; numbers
+as digits; dates that cannot be read two ways. The full table is under **Writing the words** on
+<https://www.sedna-ui.com/concepts#words>.
+
 ### Do not style a class name the library owns
 
 Every class in the catalogue belongs to the library. If this app defines a rule for one of those names,

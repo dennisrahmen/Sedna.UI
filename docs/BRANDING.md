@@ -611,3 +611,25 @@ Three things worth checking on a new theme, in this order:
 
 The catalogue's **Theme builder** page measures the first two, and the brand and link pairs on both
 canvases, for any brand colour and accent, and prints the `brand.css` that applies them.
+
+---
+
+## 9. Writing the words
+
+The words on a screen follow these rules, in the library's examples and in an app built with it.
+
+| Rule | Write | Not |
+|---|---|---|
+| Saving is **Save**. | Save | Update, Submit, OK |
+| **Apply** is for a change that is not kept until something else confirms it — a filter, a preview. | Apply filters | Apply (for a saved setting) |
+| A button label is a verb, or a verb and its object. | Delete order | Deletion, Yes |
+| An empty state's headline says what to do. | Create your first order | No data |
+| An error says what went wrong and how to fix it. | The file is over 10 MB. Choose a smaller file. | Invalid input |
+| Status is never colour alone: pair it with an icon or a shape, and with text. | A green badge with a check and "Sent" | A green dot |
+| Sentence case, everywhere — titles, buttons, labels, menu items. | Export all orders | Export All Orders |
+| No "please", no apology. | Choose a date. | Please choose a date. Sorry, … |
+| Numbers as digits. | 3 orders | three orders |
+| Dates that cannot be read two ways: the month as a word, or ISO 8601. | 9 Nov 2026, 2026-11-09 | 09/11/26 |
+
+- A confirmation's buttons repeat the action: **Delete order** and **Cancel**, never **Yes** and **No**.
+- A label names the value, not the control: **Due date**, not **Select a due date**.
