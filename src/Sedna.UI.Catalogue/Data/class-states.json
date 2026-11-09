@@ -2030,6 +2030,7 @@
       "variants": [
         "dropzone--lg",
         "dropzone--over",
+        "dropzone--page",
         "dropzone--sm"
       ],
       "pseudoClasses": [
@@ -2041,7 +2042,16 @@
       "family": "dropzone"
     },
     "dropzone--over": {
-      "family": "dropzone"
+      "family": "dropzone",
+      "combinedWith": [
+        "dropzone--page"
+      ]
+    },
+    "dropzone--page": {
+      "family": "dropzone",
+      "combinedWith": [
+        "dropzone--over"
+      ]
     },
     "dropzone--sm": {
       "family": "dropzone"
@@ -2082,6 +2092,12 @@
     },
     "editor-sep": {
       "family": "editor-sep"
+    },
+    "editor-slash": {
+      "family": "editor-slash",
+      "attributes": [
+        "[hidden]"
+      ]
     },
     "editor-toolbar": {
       "family": "editor-toolbar"
@@ -2150,6 +2166,35 @@
         "menu-anchor"
       ]
     },
+    "file-batch": {
+      "family": "file-batch",
+      "variants": [
+        "file-batch--done",
+        "file-batch--error",
+        "file-batch--paused"
+      ]
+    },
+    "file-batch--done": {
+      "family": "file-batch"
+    },
+    "file-batch--error": {
+      "family": "file-batch"
+    },
+    "file-batch--paused": {
+      "family": "file-batch"
+    },
+    "file-batch-actions": {
+      "family": "file-batch-actions"
+    },
+    "file-batch-main": {
+      "family": "file-batch-main"
+    },
+    "file-batch-status": {
+      "family": "file-batch-status"
+    },
+    "file-batch-title": {
+      "family": "file-batch-title"
+    },
     "file-cell": {
       "family": "file-cell",
       "pseudoClasses": [
@@ -2206,7 +2251,8 @@
       "family": "file-item",
       "variants": [
         "file-item--done",
-        "file-item--error"
+        "file-item--error",
+        "file-item--paused"
       ],
       "pseudoClasses": [
         ":focus-visible",
@@ -2217,6 +2263,9 @@
       "family": "file-item"
     },
     "file-item--error": {
+      "family": "file-item"
+    },
+    "file-item--paused": {
       "family": "file-item"
     },
     "file-item-actions": {
@@ -2795,6 +2844,9 @@
     },
     "graph-direction-out": {
       "family": "graph-direction-out"
+    },
+    "graph-edge-tool": {
+      "family": "graph-edge-tool"
     },
     "graph-empty": {
       "family": "graph-empty",
@@ -3428,6 +3480,9 @@
         ":hover"
       ]
     },
+    "mention-field": {
+      "family": "mention-field"
+    },
     "menu": {
       "family": "menu",
       "variants": [
@@ -3461,6 +3516,7 @@
       ],
       "attributes": [
         "[aria-disabled=\"true\"]",
+        "[data-active]",
         "[data-menu-sub]",
         "[hidden]"
       ],
@@ -4180,6 +4236,9 @@
       "variants": [
         "progress--indeterminate",
         "progress--route"
+      ],
+      "attributes": [
+        "[hidden]"
       ]
     },
     "progress--indeterminate": {
@@ -6611,6 +6670,7 @@
     "workflow-node": {
       "family": "workflow-node",
       "variants": [
+        "workflow-node--add",
         "workflow-node--agent",
         "workflow-node--glow"
       ],
@@ -6620,6 +6680,18 @@
       "pseudoClasses": [
         ":focus-visible",
         ":hover"
+      ],
+      "combinedWith": [
+        "workflow-node--add"
+      ]
+    },
+    "workflow-node--add": {
+      "family": "workflow-node",
+      "pseudoClasses": [
+        ":hover"
+      ],
+      "combinedWith": [
+        "workflow-node"
       ]
     },
     "workflow-node--agent": {
