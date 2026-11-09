@@ -4563,6 +4563,10 @@ window.sednaUi = window.sednaUi || {};
         var handle = handleOf(item);
         return handle && !pointerOnly(handle) ? handle : item;
     }
+    function effectOf(item, from) {
+        var own = item.getAttribute('data-drag-effect');
+        return (own || from.getAttribute('data-drag-effect')) === 'copy' ? 'copy' : 'move';
+    }
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
     function isSlot(zone) { return !!zone && axisOf(zone) === 'slot'; }
     function validSlot(zone) { return isSlot(zone) && zone.getAttribute('data-drop-state') === 'valid'; }
@@ -4596,8 +4600,9 @@ window.sednaUi = window.sednaUi || {};
         return zone.getAttribute('data-drag-label') || zone.getAttribute('aria-label')
             || zone.getAttribute('data-drag-zone');
     }
-    function accepts(zone, item, from) {
+    function accepts(zone, item, from, effect) {
         if (disabled(zone) || item.contains(zone)) return false;
+        if (effect === 'copy' && zone === from) return false;
         if (zone !== from) {
             var group = zone.getAttribute('data-drag-group');
             if (!group || group !== from.getAttribute('data-drag-group')) return false;
@@ -4622,10 +4627,11 @@ window.sednaUi = window.sednaUi || {};
     function announce(kind) {
         if (!drag || drag.mode !== 'keyboard') return;
         var live = liveFor(drag.item);
-        var sentence = live && live.getAttribute('data-drag-' + kind);
-        if (!sentence) return;
+        if (!live) return;
         var back = kind === 'cancel' || !drag.zone;
         var zone = back ? (drag.home || drag.from) : drag.zone;
+        var sentence = zone.getAttribute('data-drag-' + kind) || live.getAttribute('data-drag-' + kind);
+        if (!sentence) return;
         var count = others(zone).length + 1;
         var index = back ? drag.start : drag.index;
         var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
@@ -4678,28 +4684,31 @@ window.sednaUi = window.sednaUi || {};
         var first = all.indexOf(carried[0]);
         var start = first - all.slice(0, first).filter(function (el) { return carried.indexOf(el) !== -1; }).length;
         var together = all.indexOf(carried[carried.length - 1]) - first === carried.length - 1;
+        var effect = effectOf(item, from);
         var detail = {
             item: item.getAttribute('data-drag-item'),
             items: carried.map(function (el) { return el.getAttribute('data-drag-item'); }),
             type: item.getAttribute('data-drag-type'),
             zone: from.getAttribute('data-drag-zone'),
             index: fromIndex,
-            keyboard: mode === 'keyboard'
+            keyboard: mode === 'keyboard',
+            effect: effect
         };
         if (!send(item, 'sedna-dragstart', detail, true)) return false;
         var rect = item.getBoundingClientRect();
         drag = {
             item: item, mode: mode, from: from, fromIndex: fromIndex, detail: detail,
-            carried: carried, start: start, together: together,
+            carried: carried, start: start, together: together, copy: effect === 'copy',
             name: itemName(item),
             hadStyle: item.hasAttribute('style'),
             grabX: x - rect.left, grabY: y - rect.top, x: x, y: y, x0: x, y0: y, tx: 0, ty: 0,
+            left0: rect.left, top0: rect.top, ref: null,
             zone: null, index: fromIndex, over: null, edge: null, zones: [], frame: 0
         };
         toArray(document.querySelectorAll('[data-drag-zone]')).forEach(function (zone) {
             var group = zone.getAttribute('data-drag-group');
             if (zone !== from && (!group || group !== from.getAttribute('data-drag-group'))) return;
-            var takes = carried.every(function (el) { return accepts(zone, el, from); });
+            var takes = carried.every(function (el) { return accepts(zone, el, from, effect); });
             zone.setAttribute('data-drop-state', takes ? 'valid' : 'invalid');
             drag.zones.push(zone);
         });
@@ -4715,6 +4724,10 @@ window.sednaUi = window.sednaUi || {};
             item.setAttribute('data-drag-count', String(carried.length));
             carried.forEach(function (el) { if (el !== item) el.setAttribute('data-drag-carried', ''); });
         }
+        if (drag.copy) {
+            carried.forEach(function (el) { el.setAttribute('data-drag-copy', ''); });
+            item.style.setProperty('--drag-name', '"' + drag.name.replace(/["\\]/g, '\\$&') + '"');
+        }
         if (mode === 'pointer') lift(item, rect);
         if (ui.tips && ui.tips.hide) ui.tips.hide();
         try { window.getSelection().removeAllRanges(); } catch (e) { /* nothing selected */ }
@@ -4728,7 +4741,7 @@ window.sednaUi = window.sednaUi || {};
         }
         return true;
     }
-    var BOX = ['--drag-x', '--drag-y', '--drag-left', '--drag-top', '--drag-width', '--drag-height'];
+    var BOX = ['--drag-x', '--drag-y', '--drag-left', '--drag-top', '--drag-width', '--drag-height', '--drag-name'];
     function lift(item, rect) {
         drag.lifted = false;
         drag.slot = null;
@@ -4760,7 +4773,7 @@ window.sednaUi = window.sednaUi || {};
             clearSlot();
             return;
         }
-        if (axis === 'grid') return;
+        if (axis === 'grid') { follow(next || prev); return; }
         var inline = axis === 'x';
         if (next) {
             var after = next.getBoundingClientRect();
@@ -4773,6 +4786,25 @@ window.sednaUi = window.sednaUi || {};
             var end = parseFloat(getComputedStyle(prev)[inline ? 'marginInlineEnd' : 'marginBlockEnd']) || 0;
             if (shrunk > 0) slot(prev, 'end', '--drag-slot-size', (shrunk + end) + 'px');
         }
+        follow(next || prev);
+    }
+    function follow(ref) {
+        drag.ref = null;
+        if (!drag.copy) return;
+        var el = ref || drag.from;
+        var r = el.getBoundingClientRect();
+        drag.ref = { el: el, own: !ref, left: r.left, top: r.top, sl: el.scrollLeft, st: el.scrollTop };
+    }
+    function shift() {
+        var ref = drag.ref;
+        if (!ref) return { x: 0, y: 0 };
+        var r = ref.el.getBoundingClientRect();
+        var x = r.left - ref.left, y = r.top - ref.top;
+        if (ref.own) {
+            x -= ref.el.scrollLeft - ref.sl;
+            y -= ref.el.scrollTop - ref.st;
+        }
+        return { x: x, y: y };
     }
     function slot(el, kind, prop, value) {
         drag.slot = { el: el, prop: prop, hadStyle: el.hasAttribute('style') };
@@ -4794,6 +4826,7 @@ window.sednaUi = window.sednaUi || {};
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
         var moved = landed && (zone !== d.from || !d.together || d.index !== d.start) && zone !== d.home;
+        var effect = d.detail.effect;
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
         clearEdge();
         setOver(null);
@@ -4805,7 +4838,10 @@ window.sednaUi = window.sednaUi || {};
         }
         d.item.removeAttribute('data-dragging');
         d.item.removeAttribute('data-drag-count');
-        d.carried.forEach(function (el) { el.removeAttribute('data-drag-carried'); });
+        d.carried.forEach(function (el) {
+            el.removeAttribute('data-drag-carried');
+            el.removeAttribute('data-drag-copy');
+        });
         BOX.forEach(function (name) { d.item.style.removeProperty(name); });
         if (!d.hadStyle && !d.item.getAttribute('style')) d.item.removeAttribute('style');
         drag = null;
@@ -4820,18 +4856,21 @@ window.sednaUi = window.sednaUi || {};
                 index: d.index,
                 fromIndex: d.fromIndex,
                 keyboard: d.mode === 'keyboard',
-                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null
+                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null,
+                effect: effect
             });
         }
+        var went = moved && !d.copy;
         var end = {
             item: id, items: d.detail.items, type: d.detail.type,
-            zone: moved ? zone.getAttribute('data-drag-zone') : d.detail.zone,
-            index: moved ? d.index : d.fromIndex,
+            zone: went ? zone.getAttribute('data-drag-zone') : d.detail.zone,
+            index: went ? d.index : d.fromIndex,
             keyboard: d.mode === 'keyboard',
-            dropped: !!moved
+            dropped: !!moved,
+            effect: effect
         };
         send(d.item.isConnected ? d.item : document, 'sedna-dragend', end);
-        if (moved && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
+        if (went && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
     }
     function refocus(id, viaHandle) {
         var observer = null;
@@ -4935,9 +4974,19 @@ window.sednaUi = window.sednaUi || {};
     }
     function update() {
         var d = drag;
-        if (d.lifted) {
+        if (d.lifted && d.copy) {
+            var by = shift();
+            d.item.style.setProperty('--drag-left', (d.left0 + by.x) + 'px');
+            d.item.style.setProperty('--drag-top', (d.top0 + by.y) + 'px');
+            d.tx = Math.round(d.x - d.x0 - by.x);
+            d.ty = Math.round(d.y - d.y0 - by.y);
+        } else if (d.lifted) {
             d.tx = Math.round(d.x - d.x0);
             d.ty = Math.round(d.y - d.y0);
+        } else if (d.copy) {
+            var box = d.item.getBoundingClientRect();
+            d.tx = Math.round(d.x - d.grabX - box.left);
+            d.ty = Math.round(d.y - d.grabY - box.top);
         } else {
             var r = d.item.getBoundingClientRect();
             d.tx = Math.round(d.x - d.grabX - (r.left - d.tx));
@@ -5100,7 +5149,14 @@ window.sednaUi = window.sednaUi || {};
         }
         if (hop) {
             var zones = reachable();
-            var next = zones[zones.indexOf(zone) + hop];
+            var at = zones.indexOf(zone);
+            if (at === -1) {
+                var before = zones.filter(function (z) {
+                    return !!(z.compareDocumentPosition(zone) & Node.DOCUMENT_POSITION_FOLLOWING);
+                }).length;
+                at = hop < 0 ? before : before - 1;
+            }
+            var next = zones[at + hop];
             if (!next) return;
             zone = next;
             index = Math.min(index, others(zone).length);

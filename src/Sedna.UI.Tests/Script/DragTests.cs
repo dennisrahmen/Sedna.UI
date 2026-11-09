@@ -141,9 +141,9 @@ public class DragTests : ScriptTestBase
     {
         Assert.Equal(0, await page.EvaluateAsync<int>("() => nodesMoved"));
         Assert.Equal(0, await page.EvaluateAsync<int>(
-            "() => document.querySelectorAll('[data-dragging], [data-drop-state], [data-drop-over], [data-drop-edge], [popover], [data-drag-slot], [data-drag-carried], [data-drag-count]').length"));
+            "() => document.querySelectorAll('[data-dragging], [data-drop-state], [data-drop-over], [data-drop-edge], [popover], [data-drag-slot], [data-drag-carried], [data-drag-count], [data-drag-copy]').length"));
         Assert.Equal(0, await page.EvaluateAsync<int>(
-            "() => [...document.querySelectorAll('[data-drag-item]')].filter(el => el.hasAttribute('style') && el.style.getPropertyValue('--drag-x')).length"));
+            "() => [...document.querySelectorAll('[data-drag-item]')].filter(el => el.hasAttribute('style') && (el.style.getPropertyValue('--drag-x') || el.style.getPropertyValue('--drag-name'))).length"));
     }
 
     private static Task<string> RowTops(IPage page, string selector = "[data-drag-item]:not([data-dragging])") =>
@@ -154,8 +154,9 @@ public class DragTests : ScriptTestBase
         await page.EvaluateAsync<string>(
             $"() => [...document.querySelector('[data-drag-zone=\"{zone}\"]').children].map(el => el.getAttribute('data-drag-item')).filter(Boolean).join(',')");
 
-    private static void AssertDrop(Logged drop, string item, string from, string to, int index, int fromIndex, bool keyboard)
+    private static void AssertDrop(Logged drop, string item, string from, string to, int index, int fromIndex, bool keyboard, string effect = "move")
     {
+        Assert.Equal(effect, drop.Detail.GetProperty("effect").GetString());
         Assert.Equal("sedna-drop", drop.Name);
         Assert.Equal(item, drop.Detail.GetProperty("item").GetString());
         Assert.Equal(from, drop.Detail.GetProperty("from").GetString());
@@ -1049,5 +1050,178 @@ public class DragTests : ScriptTestBase
         await MouseDrag(page, await Point(page, "[data-drag-item=a]"), await Point(page, "[data-drag-item=c]", fy: 0.8f));
         var drop = (await Log(page)).Single(l => l.Name == "sedna-drop");
         Assert.Equal(JsonValueKind.Null, drop.Detail.GetProperty("fromSlot").ValueKind);
+    }
+
+    // ── From a zone that takes nothing back ────────────────────────────────────
+
+    private const string AroundASource = Live + """
+        <div style="display: grid; gap: 12px; width: 260px">
+          <div class="drag-list" data-drag-zone="first" data-drag-group="g" data-drag-accept="row" aria-label="First"><span class="drag-empty">First</span></div>
+          <div class="drag-list" data-drag-zone="second" data-drag-group="g" data-drag-accept="row" aria-label="Second"><span class="drag-empty">Second</span></div>
+          <ul class="drag-list" data-drag-zone="rows" data-drag-group="g" data-drag-accept="" aria-label="Rows">
+            <li class="drag-item" data-drag-item="r1" data-drag-type="row" tabindex="0">Row one</li>
+            <li class="drag-item" data-drag-item="r2" data-drag-type="row" tabindex="0">Row two</li>
+          </ul>
+          <div class="drag-list" data-drag-zone="third" data-drag-group="g" data-drag-accept="row" aria-label="Third"><span class="drag-empty">Third</span></div>
+        </div>
+        """;
+
+    [Fact]
+    public async Task Page_Up_and_Page_Down_from_a_zone_that_takes_nothing_back_reach_the_nearest_zone_each_way()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(AroundASource);
+
+        await page.Locator("[data-drag-item=r2]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await page.Keyboard.PressAsync("PageUp");
+        await Assertions.Expect(page.Locator("[data-drag-zone=second]")).ToHaveAttributeAsync("data-drop-over", "");
+        await page.Keyboard.PressAsync("PageUp");
+        await Assertions.Expect(page.Locator("[data-drag-zone=first]")).ToHaveAttributeAsync("data-drop-over", "");
+        await page.Keyboard.PressAsync("Escape");
+
+        await page.Locator("[data-drag-item=r2]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await page.Keyboard.PressAsync("PageDown");
+        await Assertions.Expect(page.Locator("[data-drag-zone=third]")).ToHaveAttributeAsync("data-drop-over", "");
+        await page.Keyboard.PressAsync("Enter");
+
+        AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "r2", "rows", "third", index: 0, fromIndex: 1, keyboard: true);
+        await AssertNothingLeftBehind(page);
+    }
+
+    // ── Copies ─────────────────────────────────────────────────────────────────
+
+    private const string Palette = Live + """
+        <div style="display: flex; gap: 48px; align-items: flex-start">
+          <ul class="drag-list" style="width: 220px" data-drag-zone="palette" data-drag-group="show" data-drag-effect="copy" aria-label="Sequences">
+            <li class="drag-item" data-drag-item="q1" data-drag-type="sequence" tabindex="0">Spring promo</li>
+            <li class="drag-item" data-drag-item="q2" data-drag-type="sequence" data-drag-label="Opening hours loop" tabindex="0">Opening hours</li>
+            <li class="drag-item" data-drag-item="q3" data-drag-type="sequence" data-drag-effect="move" tabindex="0">Closing loop</li>
+          </ul>
+          <div style="display: grid; gap: 12px; width: 200px">
+            <div class="drag-list" data-drag-zone="button-1" data-drag-group="show" data-drag-accept="sequence" aria-label="Button 1"
+                 data-drag-move="{item} onto {zone}." data-drag-drop="{item} put on {zone}."><span class="drag-empty">Button 1</span></div>
+            <div class="drag-list" data-drag-zone="button-2" data-drag-group="show" data-drag-accept="sequence" aria-label="Button 2"
+                 data-drag-move="{item} onto {zone}." data-drag-drop="{item} put on {zone}."><span class="drag-empty">Button 2</span></div>
+          </div>
+        </div>
+        <div style="height: 2000px"></div>
+        """;
+
+    private static async Task<int[]> Box(IPage page, string selector) =>
+        await page.EvaluateAsync<int[]>(
+            $"() => {{ const r = document.querySelector('{selector}').getBoundingClientRect(); return [r.left, r.top, r.width, r.height].map(Math.round); }}");
+
+    [Fact]
+    public async Task A_copy_leaves_the_original_in_place_carries_its_name_and_reports_the_effect()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Palette);
+        var original = await Box(page, "[data-drag-item=q1]");
+        var others = await RowTops(page, "[data-drag-item]:not([data-drag-item=q1])");
+
+        await MouseDrag(page, await Point(page, "[data-drag-item=q1]"), await Point(page, "[data-drag-zone=button-2]"), release: false);
+
+        var item = page.Locator("[data-drag-item=q1]");
+        await Assertions.Expect(item).ToHaveAttributeAsync("data-drag-copy", "");
+        // The zone it came from does not take it back: the original is still there.
+        await Assertions.Expect(page.Locator("[data-drag-zone=palette]")).ToHaveAttributeAsync("data-drop-state", "invalid");
+        await Assertions.Expect(page.Locator("[data-drag-zone=button-2]")).ToHaveAttributeAsync("data-drop-over", "");
+        // Nothing has moved: not the original, not the rows around it.
+        Assert.Equal(original, await Box(page, "[data-drag-item=q1]"));
+        Assert.Equal(others, await RowTops(page, "[data-drag-item]:not([data-drag-item=q1])"));
+        Assert.Equal("none", await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('[data-drag-item=q1]')).translate"));
+        // What travels is the item's name, in a box carried by the pointer.
+        Assert.Equal("\"Spring promo\"", await page.EvaluateAsync<string>(
+            "() => getComputedStyle(document.querySelector('[data-drag-item=q1]'), '::before').content"));
+        Assert.NotEqual("none", await page.EvaluateAsync<string>(
+            "() => getComputedStyle(document.querySelector('[data-drag-item=q1]'), '::before').translate"));
+
+        // Scrolled while it is carried, the original stays over its own place.
+        await Js.Run(page, "() => window.scrollBy(0, 40)");
+        await Js.Frames(page);
+        var scrolled = await Box(page, "[data-drag-item=q1]");
+        Assert.Equal(original[0], scrolled[0]);
+        Assert.InRange(scrolled[1], original[1] - 41, original[1] - 39);
+        await Js.Run(page, "() => window.scrollBy(0, -40)");
+        await Js.Frames(page);
+
+        await page.Mouse.UpAsync();
+
+        var log = await Log(page);
+        Assert.Equal(["sedna-dragstart", "sedna-drop", "sedna-dragend"], log.Select(l => l.Name));
+        Assert.Equal("copy", log[0].Detail.GetProperty("effect").GetString());
+        AssertDrop(log[1], "q1", "palette", "button-2", index: 0, fromIndex: 0, keyboard: false, effect: "copy");
+        // The original never left, and dragend says where it still is.
+        Assert.Equal("palette", log[2].Detail.GetProperty("zone").GetString());
+        Assert.Equal(0, log[2].Detail.GetProperty("index").GetInt32());
+        Assert.True(log[2].Detail.GetProperty("dropped").GetBoolean());
+        Assert.Equal("copy", log[2].Detail.GetProperty("effect").GetString());
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task A_copy_from_the_keyboard_is_announced_in_the_target_zones_own_words()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Palette);
+        var live = page.Locator("[data-drag-live]");
+
+        await page.Locator("[data-drag-item=q2]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await Assertions.Expect(page.Locator("[data-drag-item=q2]")).ToHaveAttributeAsync("data-drag-copy", "");
+        await Assertions.Expect(live).ToHaveTextAsync("Picked up Opening hours loop.");
+
+        await page.Keyboard.PressAsync("PageDown");
+        await Assertions.Expect(live).ToHaveTextAsync(new Regex(@"^Opening hours loop onto Button 1\.\s?$"));
+        await page.Keyboard.PressAsync("ArrowRight");
+        await Assertions.Expect(live).ToHaveTextAsync(new Regex(@"^Opening hours loop onto Button 2\.\s?$"));
+        await page.Keyboard.PressAsync("Enter");
+        await Assertions.Expect(live).ToHaveTextAsync("Opening hours loop put on Button 2.");
+
+        AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "q2", "palette", "button-2", index: 0, fromIndex: 1, keyboard: true, effect: "copy");
+        // The original kept the focus; nothing was moved away from it.
+        await Assertions.Expect(page.Locator("[data-drag-item=q2]")).ToBeFocusedAsync();
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task An_item_that_says_move_in_a_copying_zone_moves()
+    {
+        if (NoBrowser) return;
+        var page = await OpenDrag(Palette);
+
+        await page.Locator("[data-drag-item=q3]").FocusAsync();
+        await page.Keyboard.PressAsync("Space");
+        await Assertions.Expect(page.Locator("[data-drag-zone=palette]")).ToHaveAttributeAsync("data-drop-state", "valid");
+        Assert.Null(await page.Locator("[data-drag-item=q3]").GetAttributeAsync("data-drag-copy"));
+        await page.Keyboard.PressAsync("Escape");
+
+        var log = await Log(page);
+        Assert.Equal("move", log[0].Detail.GetProperty("effect").GetString());
+        await AssertNothingLeftBehind(page);
+    }
+
+    [Fact]
+    public async Task A_finger_carries_a_copy_and_leaves_the_original()
+    {
+        // Raw touch input needs CDP (see BrowserEngine).
+        if (NoBrowser || !BrowserEngine.HasRawTouch) return;
+        var page = await OpenDrag(Palette, hasTouch: true);
+        var cdp = await page.Context.NewCDPSessionAsync(page);
+        var original = await Box(page, "[data-drag-item=q1]");
+
+        var from = await Point(page, "[data-drag-item=q1]");
+        var to = await Point(page, "[data-drag-zone=button-1]");
+        await Touch(cdp, "touchStart", from);
+        await Assertions.Expect(page.Locator("[data-drag-item=q1]")).ToHaveAttributeAsync("data-drag-copy", "");
+        await TouchMove(cdp, from, to, steps: 10);
+        await Assertions.Expect(page.Locator("[data-drag-zone=button-1]")).ToHaveAttributeAsync("data-drop-over", "");
+        Assert.Equal(original, await Box(page, "[data-drag-item=q1]"));
+        await Touch(cdp, "touchEnd", null);
+
+        AssertDrop((await Log(page)).Single(l => l.Name == "sedna-drop"), "q1", "palette", "button-1", index: 0, fromIndex: 0, keyboard: false, effect: "copy");
+        await AssertNothingLeftBehind(page);
     }
 }

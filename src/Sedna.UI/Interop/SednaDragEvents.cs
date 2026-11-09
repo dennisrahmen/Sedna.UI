@@ -48,6 +48,13 @@ public sealed class SednaDropEventArgs : EventArgs
     /// Move the item by the distance from here to <see cref="To"/>. Null for any other drop.
     /// </summary>
     public string? FromSlot { get; set; }
+
+    /// <summary>
+    /// <c>"copy"</c> when the item was dragged from a zone, or is an item, with
+    /// <c>data-drag-effect="copy"</c>: add a copy to <see cref="To"/> and leave <see cref="From"/>
+    /// as it is. <c>"move"</c> for every other drop.
+    /// </summary>
+    public string Effect { get; set; } = "move";
 }
 
 /// <summary>
@@ -65,7 +72,10 @@ public sealed class SednaDragEventArgs : EventArgs
     /// <summary>The item's <c>data-drag-type</c>, or null when it has none.</summary>
     public string? Type { get; set; }
 
-    /// <summary>The <c>data-drag-zone</c> the item is in: where it started, or where it was dropped.</summary>
+    /// <summary>
+    /// The <c>data-drag-zone</c> the item is in: where it started, or where it was dropped — and
+    /// where it started for a copy.
+    /// </summary>
     public string Zone { get; set; } = "";
 
     /// <summary>Its position in <see cref="Zone"/>.</summary>
@@ -79,4 +89,11 @@ public sealed class SednaDragEventArgs : EventArgs
     /// <c>sedna-drop</c> went before it. Always false on <c>sedna-dragstart</c>.
     /// </summary>
     public bool Dropped { get; set; }
+
+    /// <summary>
+    /// <c>"copy"</c> for a drag that drops a copy — <c>data-drag-effect="copy"</c> on the item
+    /// or its zone — after which <see cref="Zone"/> and <see cref="Index"/> still name where
+    /// the item started, because it never left; <c>"move"</c> otherwise.
+    /// </summary>
+    public string Effect { get; set; } = "move";
 }

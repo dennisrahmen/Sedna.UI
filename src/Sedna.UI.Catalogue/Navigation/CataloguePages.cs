@@ -156,7 +156,7 @@ internal static class CataloguePages
             "popover popovertarget anchor top layer light dismiss definition detail explain tooltip rich"),
         new("/drag-drop", Actions, "Drag and drop", "ri-drag-move-2-line",
             "Reorder a list, move cards between lanes, rearrange tiles — by mouse, touch and keyboard.",
-            "drag drop dnd sortable reorder sort move kanban board lane column tile grid nested restricted accept handle grip touch hold long press keyboard auto-scroll autoscroll data-drag-zone data-drag-item data-drag-handle sedna-drop SednaDropEventArgs onsedna-drop"),
+            "drag drop dnd sortable reorder sort move kanban board lane column tile grid nested restricted accept handle grip touch hold long press keyboard auto-scroll autoscroll copy duplicate palette template slot data-drag-zone data-drag-item data-drag-handle data-drag-effect sedna-drop SednaDropEventArgs onsedna-drop"),
 
         new("/form", Forms, "Form layout", "ri-edit-box-line",
             "The anatomy of a field, two-up rows, sections and the actions row.",
