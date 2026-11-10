@@ -152,6 +152,28 @@ The app's own form, written once inside the editor, which an image or video cont
 An upload belongs in the app's own markup: a file field or a dropzone in the form that, once the file
 is stored, writes its address into `[data-editor-media-url]`.
 
+### A file that is not taken
+
+A file pasted or dropped into the document sends `sedna-editor-file`, and **the app takes it by
+cancelling the event** — `@onsedna-editor-file:preventDefault` beside the handler, or `preventDefault()`
+in a listener. So that a picture pasted into a field that takes none does not vanish without a word, write
+the words once inside the editor:
+
+```html
+<p class="editor-notice form-warning" role="alert" data-editor-file-notice hidden>
+  <i class="ri-image-line" aria-hidden="true"></i>
+  <span>Pictures cannot be pasted here. Attach them to the order instead.</span>
+</p>
+```
+
+- **`[data-editor-file-notice]`** is shown when a pasted or dropped file is not taken: the event was not
+  cancelled, or the file is not an image or a video the editor knows — which sends no event at all. It
+  hides again at the next change to the document, or when a later file is taken.
+- `.editor-notice` makes it a strip at the foot of the frame; `.form-warning` gives it its colour and its
+  icon. `role="alert"` has it read out when it shows.
+- An editor without the notice behaves as before. The notice is the app's markup: the app may show or hide
+  it itself — after an upload that failed, say.
+
 ### Your own dialog
 
 Before the form opens, the editor sends `sedna-editor-media`, cancelable, with `{ kind, src, alt }` —
@@ -215,12 +237,12 @@ Bubbling from the `[data-editor]` element, with plain data in `detail`:
 | `sedna-editor-ready` | `{ html, text, length, isEmpty }`, once the document has loaded. |
 | `sedna-editor-change` | The same, after each change. |
 | `sedna-editor-media` | `{ kind, src, alt }`, cancelable, before the media form opens. |
-| `sedna-editor-file` | `{ files: [{ id, name, type, size }], index }`, when an image or a video is pasted or dropped. Nothing is inserted: read each file by its `id`, upload it, and answer with `insertImage` or `insertVideo`. |
+| `sedna-editor-file` | `{ files: [{ id, name, type, size }], index }`, cancelable, when an image or a video is pasted or dropped. Nothing is inserted: read each file by its `id`, upload it, and answer with `insertImage` or `insertVideo`. Cancel it to say the app took them; otherwise `[data-editor-file-notice]` shows. |
 
 From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor-change`, each a
 `SednaEditorEventArgs`; `@onsedna-editor-media`, a `SednaEditorMediaEventArgs` —
 `@onsedna-editor-media:preventDefault` cancels it; and `@onsedna-editor-file`, a
-`SednaEditorFileEventArgs`.
+`SednaEditorFileEventArgs` — `@onsedna-editor-file:preventDefault` says the app took the files.
 
 ## Script
 

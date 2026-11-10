@@ -33,6 +33,17 @@
    rather open its own dialog — with an upload in it — cancels it and answers with
    `insertImage(url, alt)` or `insertVideo(url, label)`, which put the media where the
    caret was.
+
+   A file pasted or dropped in sends `sedna-editor-file`, cancelable: an app that takes
+   the files cancels it. One that is not taken — not cancelled, or not an image or a video
+   the editor knows — shows the app's own notice, written once inside the editor, so the
+   reader knows why nothing appeared:
+
+     <p class="editor-notice form-warning" role="alert" data-editor-file-notice hidden>
+       <i class="ri-image-line" aria-hidden="true"></i> Pictures cannot be pasted here. Add them as attachments.
+     </p>
+
+   It hides again at the next change to the document, or the next file that is taken.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const Delta = Quill.import('delta');
@@ -110,26 +121,63 @@ const MEDIA_MATCHERS = [['img', dropUnsafe('image')], ['video', dropUnsafe('vide
    File under that id, where the app reads it (handle.file(id); from C#,
    ISednaEditors.OpenFileAsync) and answers with insertImage once it is uploaded. A paste
    that carries HTML as well — a picture copied from a page — is pasted as HTML, so its
-   address is kept rather than the file. */
+   address is kept rather than the file.
+
+   The app says it took them by cancelling the event. What it did not take — and a file of
+   any other type, which the event never names — shows the notice. */
 const FILE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif', 'image/svg+xml',
     'video/mp4', 'video/webm'];
 const FILES_KEPT = 20;
 let fileSeq = 0;
 
+/* Quill's uploader hands on only the types it lists, and drops every other file in
+   silence. This one hands on all of them, so the handler can say which were not taken. */
+const QuillUploader = Quill.import('modules/uploader');
+class SednaUploader extends QuillUploader {
+    upload(range, files) {
+        const all = Array.from(files || []).filter(Boolean);
+        if (all.length) this.options.handler.call(this, range, all);
+    }
+}
+Quill.register({ 'modules/uploader': SednaUploader }, true);
+
 function uploaderFor(e) {
     return {
         mimetypes: FILE_TYPES,
         handler: (range, files) => {
-            const listed = Array.from(files).map(file => {
-                const id = 'file-' + (++fileSeq);
-                e.files.set(id, file);
-                return { id, name: file.name || '', type: file.type || '', size: file.size || 0 };
-            });
-            while (e.files.size > FILES_KEPT) e.files.delete(e.files.keys().next().value);
-            if (range) e.lastRange = range;
-            e.emit('sedna-editor-file', { files: listed, index: range ? range.index : null });
+            const kept = files.filter(file => FILE_TYPES.includes(file.type));
+            let taken = false;
+            if (kept.length) {
+                const listed = kept.map(file => {
+                    const id = 'file-' + (++fileSeq);
+                    e.files.set(id, file);
+                    return { id, name: file.name || '', type: file.type || '', size: file.size || 0 };
+                });
+                while (e.files.size > FILES_KEPT) e.files.delete(e.files.keys().next().value);
+                if (range) e.lastRange = range;
+                taken = !e.emit('sedna-editor-file', { files: listed, index: range ? range.index : null }, true);
+            }
+            notify(e, !taken || kept.length < files.length);
         },
     };
+}
+
+/* Shows the app's notice, or hides it. Shown again while it is already showing, it is
+   hidden for a frame first, so a screen reader hears the alert a second time. */
+function notify(e, show) {
+    const notice = e.notice;
+    if (!notice) return;
+    cancelAnimationFrame(e.noticeFrame);
+    if (!show) {
+        notice.hidden = true;
+        return;
+    }
+    if (notice.hidden) {
+        notice.hidden = false;
+        return;
+    }
+    notice.hidden = true;
+    e.noticeFrame = requestAnimationFrame(() => { if (!e.disposed) notice.hidden = false; });
 }
 
 function fileOf(e, id) {

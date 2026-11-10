@@ -134,4 +134,89 @@ public class EditorContentTests : ScriptTestBase
         // Nothing went into the document: uploading is the app's.
         Assert.Equal("", await Html(page));
     }
+
+    // ── A file nobody takes ─────────────────────────────────────────────────────
+
+    private const string Notice = """
+        <p class="editor-notice form-warning" role="alert" data-editor-file-notice hidden>Pictures cannot be pasted here.</p>
+        """;
+
+    private static string WithNotice(string toolbar) =>
+        Editor("", toolbar).Replace("<textarea", Notice + "<textarea", StringComparison.Ordinal);
+
+    private const string ImageButton = """<button type="button" data-editor-format="image" aria-label="Image"></button>""";
+
+    private static Task Paste(IPage page, string name, string type) => Js.Run(page, $$"""
+        () => {
+            const q = document.querySelector('.ql-editor');
+            q.focus();
+            const data = new DataTransfer();
+            data.items.add(new File([new Uint8Array([137, 80, 78, 71])], '{{name}}', { type: '{{type}}' }));
+            q.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+        }
+        """);
+
+    [Fact]
+    public async Task A_pasted_picture_nobody_takes_shows_the_apps_notice_until_the_reader_types()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(WithNotice(ImageButton));
+        var notice = page.Locator("[data-editor-file-notice]");
+        await Assertions.Expect(notice).ToBeHiddenAsync();
+
+        await Paste(page, "screenshot.png", "image/png");
+        await Assertions.Expect(notice).ToBeVisibleAsync();
+        Assert.Equal("", await Html(page));
+
+        await page.Keyboard.TypeAsync("x");
+        await Assertions.Expect(notice).ToBeHiddenAsync();
+    }
+
+    [Fact]
+    public async Task A_picture_the_app_takes_shows_no_notice()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(WithNotice(ImageButton));
+        await Js.Run(page, "() => { window.arrived = null; document.addEventListener('sedna-editor-file', e => { e.preventDefault(); window.arrived = e.detail; }); }");
+
+        await Paste(page, "screenshot.png", "image/png");
+        await page.WaitForFunctionAsync("() => window.arrived !== null");
+        await Js.Frames(page);
+
+        await Assertions.Expect(page.Locator("[data-editor-file-notice]")).ToBeHiddenAsync();
+    }
+
+    [Fact]
+    public async Task A_file_the_editor_cannot_hold_shows_the_notice_and_sends_no_event()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(WithNotice(ImageButton));
+        await Js.Run(page, "() => { window.arrived = 0; document.addEventListener('sedna-editor-file', e => { e.preventDefault(); window.arrived++; }); }");
+
+        await Paste(page, "minutes.pdf", "application/pdf");
+
+        await Assertions.Expect(page.Locator("[data-editor-file-notice]")).ToBeVisibleAsync();
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => window.arrived"));
+    }
+
+    [Fact]
+    public async Task A_dropped_picture_nobody_takes_shows_the_notice()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(WithNotice(ImageButton));
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(h => h.set('<p>Delivery note</p>'))");
+
+        await Js.Run(page, """
+            () => {
+                const p = document.querySelector('.ql-editor p');
+                const r = p.getBoundingClientRect();
+                const data = new DataTransfer();
+                data.items.add(new File([new Uint8Array([255, 216, 255])], 'pallet.jpg', { type: 'image/jpeg' }));
+                p.dispatchEvent(new DragEvent('drop', { dataTransfer: data, bubbles: true, cancelable: true, clientX: r.left + 4, clientY: r.top + r.height / 2 }));
+            }
+            """);
+
+        await Assertions.Expect(page.Locator("[data-editor-file-notice]")).ToBeVisibleAsync();
+        Assert.Equal("<p>Delivery note</p>", await Html(page));
+    }
 }

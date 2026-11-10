@@ -335,7 +335,7 @@ internal static class CataloguePages
             "qr qr code barcode 2d scan camera link url pairing wifi ticket qr--sm qr--lg qr-figure qr-caption data-qr error correction level"),
         new("/editor", Content, "Rich-text editor", "ri-edit-box-line",
             "Formatted text a reader writes, posted as HTML from a textarea.",
-            "editor data-editor editor-toolbar editor-sep editor-body editor-link editor-media rich text wysiwyg quill html textarea bind toolbar aria-pressed link bold list heading image video picture upload"),
+            "editor data-editor editor-toolbar editor-sep editor-body editor-link editor-media editor-notice data-editor-file-notice paste drop notice rich text wysiwyg quill html textarea bind toolbar aria-pressed link bold list heading image video picture upload"),
         new("/chat", Content, "Chat", "ri-chat-3-line",
             "Bubbles, groups, replies, reactions and emoji, the composer, and the launcher with its flyover.",
             "chat message bubble thread conversation group reply quote mention reaction emoji picker typing seen read receipt composer attachment launcher flyover widget support messenger"),

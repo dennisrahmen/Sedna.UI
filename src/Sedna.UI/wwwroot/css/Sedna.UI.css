@@ -3655,6 +3655,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .editor-media .form-input { inline-size: 16rem; }
 .editor-media { flex-wrap: wrap; max-inline-size: calc(100% - 2 * var(--space-4)); }
 .editor-media .form-input { flex: 1 1 12rem; inline-size: auto; }
+.editor-notice {
+    margin: 0;
+    padding: var(--space-3) var(--space-6);
+    border-block-start: 1px solid var(--divider);
+}
+.editor-notice[hidden] { display: none; }
 .editor-slash {
     position: absolute;
     inset-block-start: 0;

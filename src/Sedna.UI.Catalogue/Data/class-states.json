@@ -2303,6 +2303,12 @@
         "[hidden]"
       ]
     },
+    "editor-notice": {
+      "family": "editor-notice",
+      "attributes": [
+        "[hidden]"
+      ]
+    },
     "editor-sep": {
       "family": "editor-sep"
     },
