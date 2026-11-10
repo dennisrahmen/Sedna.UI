@@ -65,8 +65,10 @@ jobs:
     timeout-minutes: 45
     permissions:
       contents: read
+    # Every slice runs to the end, so one red run names every failure instead of the
+    # first slice's, and a fix is not followed by a second red tag for the next one.
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         project: [src/Sedna.UI.Tests, src/Sedna.UI.Catalogue.Tests]
         engine: [chromium, webkit]
