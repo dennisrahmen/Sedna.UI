@@ -58,8 +58,8 @@
                     <i class="@item.Icon"></i><span>@item.Label</span>
                 </a>
             }
-            @* A page that belongs in the area but not in its main list — the reference
-               pages under Start — sits in a labelled .nav-section after it. *@
+            @* A long group is split into labelled .nav-section blocks after its main
+               list, one per section its pages carry. *@
             @foreach (var section in CataloguePages.SectionsOf(CurrentGroup))
             {
                 <div class="nav-section">
