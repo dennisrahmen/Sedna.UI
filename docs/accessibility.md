@@ -105,7 +105,8 @@ interaction once more:
 **No `role="menu"`.** The script moves focus between a `.menu`'s items with the arrow keys, Home and
 End, jumps to an item by its first letters and opens a submenu with the arrow towards it — but the
 items stay ordinary links and buttons, each its own Tab stop, with no roving tabindex, and a menu may
-hold a filter field. `role="menu"` promises a single tab stop and children that are all `menuitem`s,
+hold a filter field. The Tab that takes the focus out of an open menu closes it, as the menu pattern
+does, and the focus goes on where the key sent it. `role="menu"` promises a single tab stop and children that are all `menuitem`s,
 and a screen reader stops announcing a link as a link inside it. The disclosure pattern —
 `aria-expanded` on the trigger, no role on the panel — is correct and complete.
 

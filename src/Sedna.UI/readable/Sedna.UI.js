@@ -1538,6 +1538,9 @@ window.sednaUi = window.sednaUi || {};
             : (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null);
         if (!trigger) return;
         ui._.layer.whenGone(trigger, function () {
+            // A panel shared by many triggers may have moved on to another since.
+            var now = ui.popover ? ui.popover.triggerOf(panel) : null;
+            if (now && now !== trigger) return;
             try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* already closed */ }
         });
     }, true);
@@ -2510,6 +2513,39 @@ window.sednaUi = window.sednaUi || {};
         try { open.focus(); } catch (err) { /* detached */ }
     });
 
+    /* ── Tab leaves a menu ─────────────────────────────────────────────────
+       Each item is a Tab stop of its own, and the Tab or Shift+Tab that takes the focus out
+       of an open menu closes it, as the WAI-ARIA menu pattern does: a dropdown, a menu at the
+       pointer and a `.menu[popover]` a popovertarget button opened. The focus goes on where
+       the key sent it — nothing is held back and nothing moved. A menu held by the app — the
+       user widget's — is the app's to close. */
+    function outermost(el) {
+        var menu = el.closest('.menu');
+        for (var up = menu && menu.parentElement ? menu.parentElement.closest('.menu') : null; up;
+            up = up.parentElement ? up.parentElement.closest('.menu') : null) menu = up;
+        return menu;
+    }
+
+    function closeMenu(menu) {
+        if (menu.hasAttribute('popover')) {
+            try { if (menu.matches(':popover-open')) menu.hidePopover(); } catch (err) { /* closed */ }
+            return;
+        }
+        var anchor = menu.closest('.menu-anchor');
+        var toggle = anchor ? anchor.querySelector('[data-menu-toggle]') : null;
+        if (toggle && panelOf(toggle) === menu && toggle.getAttribute('aria-expanded') === 'true') setOpen(toggle, menu, false);
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab' || e.defaultPrevented) return;
+        var menu = e.target instanceof Element ? outermost(e.target) : null;
+        if (!menu) return;
+        // The focus moves as the key's own default action, which has run by the next task.
+        setTimeout(function () {
+            if (!menu.contains(document.activeElement)) closeMenu(menu);
+        }, 0);
+    });
+
     /* ── Moving through a menu with the keyboard ───────────────────────────
        Up and Down move between the items of the open menu that has the focus, Home and
        End go to its ends; Right on a `[data-menu-sub]` item opens its submenu and enters
@@ -2793,12 +2829,54 @@ window.sednaUi = window.sednaUi || {};
 
    The trigger gets aria-expanded and aria-controls; it needs a role and a tabindex of
    the app's own when it is not focusable already, as any control does.
+
+   ONE PANEL, MANY TRIGGERS. Any number of triggers may name the same popover. Open at one
+   and asked to open at another, it closes and opens again there — an anchored panel is
+   placed as it is shown, so moving its anchor while it is open would leave it where it was.
+   A trigger inside another open popover opens the panel as that popover's child, so the
+   one it sits in stays open.
+
+   FILLED PER TRIGGER — data-popover-for. A panel that carries `data-popover-for` holds the
+   content of one trigger at a time, and its value names which: the trigger's id. Before
+   such a panel opens at a trigger, a bubbling `sedna-popover-fill` is dispatched on the
+   trigger, with `detail.trigger` (its id) and `detail.popover` (the panel's id). The app
+   fills the panel and writes the trigger's id into `data-popover-for`, and the panel opens
+   when it reads that id — at once when it already does. In Blazor that is the handler and
+   one attribute, written in the same render as the content:
+
+     <div class="popover" id="order-card" popover data-popover-for="@_cardFor">…</div>
+     <tr id="@($"o-{o.Id}")" data-popover="order-card" data-popover-hover
+         @onsedna-popover-fill="() => Fill(o)">…</tr>
+
+   Nothing waits on .NET and nothing is called back: the render the app makes anyway is the
+   answer. A request the reader has already left behind — the pointer gone, another
+   trigger asked for — opens nothing when its answer comes. A trigger with no id cannot be
+   named, and its panel opens as it is, with a warning in the console.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
     var triggers = new WeakMap();
     var pinned = new WeakSet();   // hover cards a click has pinned open
     var count = 0;
+
+    function isOpen(panel) {
+        try { return panel.matches(':popover-open'); } catch (err) { return false; }
+    }
+
+    // Whether showPopover() takes a `source`, which makes the trigger the panel's invoker and
+    // so the popover around the trigger its ancestor. Read from the dictionary itself: the
+    // argument is converted, and its getter run, before the call fails on <html>, which is
+    // no popover — so nothing is shown and nothing is made.
+    var takesSource = false;
+    try {
+        document.documentElement.showPopover({ get source() { takesSource = true; return null; } });
+    } catch (err) { /* not a popover: thrown after the argument was read */ }
+
+    // The open auto popover a trigger sits in, which opening a panel from it must not close.
+    function around(trigger) {
+        var host = trigger.parentElement ? trigger.parentElement.closest('[popover]') : null;
+        return host && isOpen(host) ? host : null;
+    }
 
     function anchor(panel, trigger) {
         var name = trigger.style.getPropertyValue('anchor-name');
@@ -2811,12 +2889,21 @@ window.sednaUi = window.sednaUi || {};
 
     function show(panel, trigger) {
         if (!panel || typeof panel.showPopover !== 'function') return;
+        var was = triggers.get(panel);
         if (trigger) {
             triggers.set(panel, trigger);
             anchor(panel, trigger);
             if (panel.id) trigger.setAttribute('aria-controls', panel.id);
         }
-        try { panel.showPopover(); } catch (err) { /* already open, or not a popover */ }
+        // Open at another trigger: closed and opened again, which places it at this one.
+        if (trigger && was && was !== trigger && isOpen(panel)) {
+            if (was.hasAttribute('data-popover')) was.setAttribute('aria-expanded', 'false');
+            hide(panel);
+        }
+        try {
+            if (trigger && takesSource && around(trigger)) panel.showPopover({ source: trigger });
+            else panel.showPopover();
+        } catch (err) { /* already open, or not a popover */ }
     }
 
     function hide(panel) {
@@ -2846,16 +2933,84 @@ window.sednaUi = window.sednaUi || {};
         return id ? document.getElementById(id) : null;
     }
 
+    /* Opens a panel at a trigger the reader reached — by click, key, hover, focus or a long
+       press — asking the app to fill it first when it carries `data-popover-for`. `pin` pins a
+       hover card once it opens. One request is outstanding at a time: a newer one, or the
+       reader leaving, drops the last. */
+    var pending = null;   // { panel, trigger, observer } while the app fills a panel
+
+    function cancelFill() {
+        if (pending) pending.observer.disconnect();
+        pending = null;
+    }
+
+    function request(panel, trigger, pin) {
+        cancelFill();
+        var go = function () {
+            if (pin) pinned.add(panel);
+            show(panel, trigger);
+        };
+        if (!panel.hasAttribute('data-popover-for')) { go(); return; }
+        var name = trigger.id;
+        if (!name) {
+            console.warn('sednaUi.popover: a trigger of #' + panel.id + ' has no id, so data-popover-for cannot name it; the panel opens as it is.');
+            go();
+            return;
+        }
+        trigger.dispatchEvent(new CustomEvent('sedna-popover-fill', {
+            bubbles: true,
+            detail: { trigger: name, popover: panel.id || null }
+        }));
+        if (panel.getAttribute('data-popover-for') === name) { go(); return; }
+        if (typeof MutationObserver !== 'function') { go(); return; }
+        var p = pending = { panel: panel, trigger: trigger };
+        p.observer = new MutationObserver(function () {
+            if (pending !== p || panel.getAttribute('data-popover-for') !== name) return;
+            cancelFill();
+            if (trigger.isConnected) go();
+        });
+        p.observer.observe(panel, { attributes: true, attributeFilter: ['data-popover-for'] });
+    }
+
+    /* Whether a hover card would close something the reader opened. Showing an auto popover
+       closes every other open one that is not its ancestor, so a card on hover or focus waits
+       while another is open: a menu, a picker, a list in a popover, a card a click pinned.
+       Not one it sits inside — it opens as that one's child — and not another hover card,
+       which is only a glance and gives way. */
+    function blocked(panel, trigger) {
+        var open;
+        try { open = document.querySelectorAll(':popover-open'); } catch (err) { return false; }
+        for (var i = 0; i < open.length; i++) {
+            var p = open[i];
+            if (p === panel || p.contains(panel)) continue;
+            if (takesSource && p.contains(trigger)) continue;
+            var kind = (p.getAttribute('popover') || '').toLowerCase();
+            if (kind !== '' && kind !== 'auto') continue;
+            var t = triggers.get(p);
+            if (t && t.hasAttribute('data-popover-hover') && !pinned.has(p)) continue;
+            return true;
+        }
+        return false;
+    }
+
     /* A press on the trigger of an open panel light-dismisses it before the click
        arrives, and the click would open it again. The platform knows a popovertarget
        button and skips that; this remembers which panel was open when the press began. */
-    var wasOpen = null;
+    var wasOpen = null, wasAt = null;
     document.addEventListener('pointerdown', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover]') : null;
         var panel = trigger ? target(trigger) : null;
-        wasOpen = null;
-        try { if (panel && panel.matches(':popover-open')) wasOpen = panel; } catch (err) { /* no :popover-open */ }
+        wasOpen = wasAt = null;
+        if (panel && isOpen(panel)) { wasOpen = panel; wasAt = triggers.get(panel) || null; }
     }, true);
+
+    // Whether the panel is open at this trigger, or was when the press began: a press light-
+    // dismisses it before the click arrives. Open at another trigger is not open here.
+    function openAt(panel, trigger) {
+        var at = wasOpen === panel ? wasAt : (isOpen(panel) ? triggers.get(panel) : null);
+        wasOpen = wasAt = null;
+        return at === trigger;
+    }
 
     document.addEventListener('click', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover]') : null;
@@ -2866,30 +3021,28 @@ window.sednaUi = window.sednaUi || {};
         // a dialog — and gets out of its way, so it does not sit above what the click opened.
         if (hoverOnly(trigger)) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            cancelFill();
             hide(panel);
             return;
         }
         e.preventDefault();
         e.stopPropagation();
+        var here = openAt(panel, trigger);
         // A hover card clicked is pinned: shown, and no longer closed by the pointer leaving.
         // Clicked again once pinned, it closes, as a popovertarget button toggles its panel.
         if (trigger.hasAttribute('data-popover-hover')) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
-            var open = false;
-            try { open = panel.matches(':popover-open'); } catch (err) { /* no :popover-open */ }
-            if (pinned.has(panel) && (open || wasOpen === panel)) {
-                wasOpen = null;
+            if (pinned.has(panel) && here) {
+                cancelFill();
                 pinned.delete(panel);
                 hide(panel);
                 return;
             }
-            wasOpen = null;
-            pinned.add(panel);
-            show(panel, trigger);
+            request(panel, trigger, true);
             return;
         }
-        if (wasOpen === panel) { wasOpen = null; hide(panel); return; }
-        ui.popover.toggle(panel, trigger);
+        if (here) { cancelFill(); hide(panel); return; }
+        request(panel, trigger, false);
     });
 
     document.addEventListener('keydown', function (e) {
@@ -2901,7 +3054,8 @@ window.sednaUi = window.sednaUi || {};
         var panel = target(trigger);
         if (!panel) return;
         e.preventDefault();
-        ui.popover.toggle(panel, trigger);
+        if (isOpen(panel) && triggers.get(panel) === trigger) { cancelFill(); hide(panel); }
+        else request(panel, trigger, false);
     });
 
     /* ── A hover card ──────────────────────────────────────────────────────
@@ -2915,7 +3069,12 @@ window.sednaUi = window.sednaUi || {};
        `data-popover-hover="only"` is for a trigger with a click action of its own — a
        button that opens a dialog, beside a summary of what the dialog holds. Hover and
        focus open the card; a click neither opens nor pins it, is left to the trigger, and
-       closes the card. */
+       closes the card.
+
+       Any number of triggers can share one card, which follows the pointer or the focus to
+       each after the same rest, filled per trigger with `data-popover-for` (above). A card a
+       click pinned stays where it was pinned. A hover card does not open over another open
+       popover — a menu, a picker, a list, a pinned card — that opening it would close. */
     var hoverTimer = 0, leaveTimer = 0, hovered = null;
 
     function hoverOnly(trigger) { return trigger.getAttribute('data-popover-hover') === 'only'; }
@@ -2930,9 +3089,14 @@ window.sednaUi = window.sednaUi || {};
         if (!panel) return;
         clearTimeout(leaveTimer);
         clearTimeout(hoverTimer);
+        if (pinned.has(panel) && isOpen(panel)) return;   // pinned where the reader left it
         hovered = panel;
-        hoverTimer = setTimeout(function () { show(panel, trigger); }, delayOf(trigger));
+        hoverTimer = setTimeout(function () {
+            if (!blocked(panel, trigger)) request(panel, trigger, false);
+        }, delayOf(trigger));
     }
+
+    function engaged(el) { return !!el && (el.matches(':hover') || el === document.activeElement); }
 
     function leave() {
         clearTimeout(hoverTimer);
@@ -2941,9 +3105,10 @@ window.sednaUi = window.sednaUi || {};
         clearTimeout(leaveTimer);
         leaveTimer = setTimeout(function () {
             var trigger = triggers.get(panel);
+            var waiting = pending && pending.panel === panel ? pending.trigger : null;
             var stay = panel.matches(':hover') || panel.contains(document.activeElement)
-                || (trigger && (trigger.matches(':hover') || trigger === document.activeElement));
-            if (!stay) { hide(panel); hovered = null; }
+                || engaged(trigger) || engaged(waiting);
+            if (!stay) { cancelFill(); hide(panel); hovered = null; }
         }, 200);
     }
 
@@ -3008,8 +3173,7 @@ window.sednaUi = window.sednaUi || {};
             pressed = trigger;
             held = { trigger: trigger, panel: panel };
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
-            pinned.add(panel);
-            show(panel, trigger);
+            request(panel, trigger, true);
         }, LONG_PRESS);
     }, true);
 
@@ -3046,15 +3210,18 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
-        if (e.newState === 'closed') pinned.delete(panel);
-        if (e.newState === 'closed' && held && held.panel === panel && held.trigger.isConnected) {
+        // Read from the panel as it is now: a card moved to another trigger closed and opened
+        // again in one go, and an engine may report that as one event or as two.
+        var open = isOpen(panel);
+        if (!open) pinned.delete(panel);
+        if (!open && held && held.panel === panel && held.trigger.isConnected) {
             pinned.add(panel);
             show(panel, held.trigger);
             return;
         }
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
-        trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     }, true);
 
 })(window.sednaUi);
@@ -11493,6 +11660,12 @@ window.sednaUi = window.sednaUi || {};
    — a combo, a drag — and Escape meant for an open popover are left alone, exactly
    as the platform would leave them.
 
+   CLOSED BY A CLICK BESIDE IT — closedby="any". The platform's own light dismiss, on any
+   of these dialogs: a click whose press and release both land on the backdrop is a close
+   request, so on a guarded dialog it raises `cancel` like Escape and the app decides. A
+   drag from a field out to the backdrop is not one. A `.lightbox` has no backdrop to click
+   — it fills the screen — so here a click on its stage beside the picture stands in.
+
    ASKING BEFORE THE PAGE IS LEFT — data-close-guard with data-dirty. A form, or any
    element, that carries both holds work that is not saved, and closing the tab,
    reloading or following a link out of the app raises the browser's own "leave
@@ -11655,6 +11828,35 @@ window.sednaUi = window.sednaUi || {};
         if (!d || d.matches(':modal')) return;
         if (document.querySelector(':popover-open:not([popover="manual"])')) return;
         e.preventDefault();
+        if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
+    });
+
+    /* A lightbox fills the screen, so a press beside its picture lands inside its box and
+       `closedby="any"` never sees it. On a `.lightbox` that carries it, a click on the stage
+       around the picture — or the dialog's own ground — is the same close request a click on
+       the backdrop is for every other dialog: both ends of the press have to land there, so a
+       drag that starts on the picture or a control closes nothing, and data-close-guard asks
+       first. */
+    var besideDown = null;
+    function beside(e) {
+        var t = e.target instanceof Element ? e.target : null;
+        var d = t ? t.closest('dialog.lightbox[open]') : null;
+        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
+        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+    }
+    document.addEventListener('pointerdown', function (e) {
+        besideDown = e.button === 0 ? beside(e) : null;
+    }, true);
+    // A press and a release on two elements click their common ancestor — the stage, for a
+    // release on the picture — so the release is checked where it lands.
+    document.addEventListener('pointerup', function (e) {
+        if (besideDown && beside(e) !== besideDown) besideDown = null;
+    }, true);
+    document.addEventListener('click', function (e) {
+        var was = besideDown;
+        besideDown = null;
+        var d = e.button === 0 && !e.defaultPrevented ? beside(e) : null;
+        if (!d || d !== was) return;
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
 

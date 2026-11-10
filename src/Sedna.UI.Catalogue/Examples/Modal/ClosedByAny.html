@@ -1,5 +1,6 @@
-<!-- closedby="any": a click on the backdrop closes it, as Escape does. Leave it off a
-     dialog that holds unsaved work, or add data-close-guard, which refuses this close too. -->
+<!-- closedby="any": a click on the backdrop closes it, as Escape does, on a modal, a drawer,
+     a sheet or a lightbox. On a dialog that holds unsaved work add data-close-guard as well:
+     the click then raises cancel instead of closing, and your handler decides. -->
 <dialog id="shortcuts" class="modal" closedby="any" aria-labelledby="shortcuts-title">
     <div class="modal-header">
         <h3 id="shortcuts-title">Keyboard shortcuts</h3>

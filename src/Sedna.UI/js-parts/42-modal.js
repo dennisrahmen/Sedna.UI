@@ -66,6 +66,12 @@
    — a combo, a drag — and Escape meant for an open popover are left alone, exactly
    as the platform would leave them.
 
+   CLOSED BY A CLICK BESIDE IT — closedby="any". The platform's own light dismiss, on any
+   of these dialogs: a click whose press and release both land on the backdrop is a close
+   request, so on a guarded dialog it raises `cancel` like Escape and the app decides. A
+   drag from a field out to the backdrop is not one. A `.lightbox` has no backdrop to click
+   — it fills the screen — so here a click on its stage beside the picture stands in.
+
    ASKING BEFORE THE PAGE IS LEFT — data-close-guard with data-dirty. A form, or any
    element, that carries both holds work that is not saved, and closing the tab,
    reloading or following a link out of the app raises the browser's own "leave
@@ -228,6 +234,35 @@
         if (!d || d.matches(':modal')) return;
         if (document.querySelector(':popover-open:not([popover="manual"])')) return;
         e.preventDefault();
+        if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
+    });
+
+    /* A lightbox fills the screen, so a press beside its picture lands inside its box and
+       `closedby="any"` never sees it. On a `.lightbox` that carries it, a click on the stage
+       around the picture — or the dialog's own ground — is the same close request a click on
+       the backdrop is for every other dialog: both ends of the press have to land there, so a
+       drag that starts on the picture or a control closes nothing, and data-close-guard asks
+       first. */
+    var besideDown = null;
+    function beside(e) {
+        var t = e.target instanceof Element ? e.target : null;
+        var d = t ? t.closest('dialog.lightbox[open]') : null;
+        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
+        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+    }
+    document.addEventListener('pointerdown', function (e) {
+        besideDown = e.button === 0 ? beside(e) : null;
+    }, true);
+    // A press and a release on two elements click their common ancestor — the stage, for a
+    // release on the picture — so the release is checked where it lands.
+    document.addEventListener('pointerup', function (e) {
+        if (besideDown && beside(e) !== besideDown) besideDown = null;
+    }, true);
+    document.addEventListener('click', function (e) {
+        var was = besideDown;
+        besideDown = null;
+        var d = e.button === 0 && !e.defaultPrevented ? beside(e) : null;
+        if (!d || d !== was) return;
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
 

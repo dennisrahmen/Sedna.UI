@@ -11,8 +11,9 @@ namespace Sedna.UI;
 /// <c>@onsedna-editor-media</c> — a chart's point chosen, <c>@onsedna-chart-select</c> — a pane or a diagram following what is newest,
 /// <c>@onsedna-follow</c> — a tree, <c>@onsedna-tree-expand</c>, <c>-collapse</c>,
 /// <c>-select</c> and <c>-check</c> — a <c>&lt;time data-countdown&gt;</c> reaching zero,
-/// <c>@onsedna-countdown-end</c> — and an action pressed in a selection toolbar,
-/// <c>@onsedna-selection</c>.
+/// <c>@onsedna-countdown-end</c> — an action pressed in a selection toolbar,
+/// <c>@onsedna-selection</c> — and a shared popover asking to be filled for its trigger,
+/// <c>@onsedna-popover-fill</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -53,6 +54,7 @@ namespace Sedna.UI;
 [EventHandler("onsedna-tree-check", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-countdown-end", typeof(SednaCountdownEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-selection", typeof(SednaSelectionEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-popover-fill", typeof(SednaPopoverEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 public static class EventHandlers
 {
 }
