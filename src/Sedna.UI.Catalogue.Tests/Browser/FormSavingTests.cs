@@ -27,6 +27,11 @@ public class FormSavingTests(CatalogueAppFixture app)
         return page;
     }
 
+    // An internal link is a navigation inside the document, which fires no load event, so
+    // the wait is on the address itself rather than on WaitForURL's default load state.
+    private static Task AtPath(IPage page, string path) =>
+        page.WaitForFunctionAsync("p => location.pathname === p", path);
+
     private static Task<bool> Dirty(IPage page) =>
         page.Locator(Form).EvaluateAsync<bool>("f => f.hasAttribute('data-dirty')");
 
@@ -83,7 +88,7 @@ public class FormSavingTests(CatalogueAppFixture app)
         await link.ClickAsync();
         await page.WaitForFunctionAsync("() => document.getElementById('leave-unsaved').open");
         await leave.GetByRole(AriaRole.Button, new() { Name = "Leave and discard" }).ClickAsync();
-        await page.WaitForURLAsync(url => new Uri(url).AbsolutePath == "/form");
+        await AtPath(page, "/form");
 
         await page.Context.CloseAsync();
     }
@@ -95,7 +100,7 @@ public class FormSavingTests(CatalogueAppFixture app)
         var page = await OpenAt("/form-saving");
 
         await page.Locator("a[href='/form#where-the-actions-sit']").First.ClickAsync();
-        await page.WaitForURLAsync(url => new Uri(url).AbsolutePath == "/form");
+        await AtPath(page, "/form");
 
         await page.Context.CloseAsync();
     }
