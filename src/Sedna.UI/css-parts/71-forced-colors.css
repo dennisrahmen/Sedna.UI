@@ -127,6 +127,7 @@
     .th-filter:focus-visible,
     .input-clear:focus-visible,
     .accordion summary:focus-visible,
+    .form-section--box > summary:focus-visible > .form-section-legend,
     .tree [role="treeitem"]:focus-visible > .tree-row,
     .skip-link:focus,
     .fab:focus-visible,
@@ -279,6 +280,13 @@
     .cal-event--background,
     .cal-closed { outline: 1px dashed GrayText; outline-offset: -1px; }
     .cal-agenda-event > .cal-event-dot { forced-color-adjust: none; }
+
+    /* A boxed section's folding title and its action stand on the frame's line and
+       hide it with the surface behind them, which is a gradient; forced colours drop
+       every gradient and the line would run through the words. Their tokens are the
+       user's palette already, so they keep painting it. */
+    .form-section--box > summary > .form-section-legend,
+    .form-section-action { forced-color-adjust: none; }
 
     /* A filtered column's heading is marked by a colour and an inset shadow, and
        neither survives; an outline inside the cell is what is left. */

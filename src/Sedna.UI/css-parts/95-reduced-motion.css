@@ -79,6 +79,7 @@
     .input-group      { transition: none; }   /* 46 */
     .form-check-list--cards > .form-check { transition: none; }   /* 46 */
     .form-trigger::after { transition: none; }   /* 46 */
+    .form-section--box > summary > .form-section-legend::before { transition: none; }   /* 46 — the boxed section's caret */
     .dropzone         { transition: none; }   /* 47 */
     dialog.modal      { animation: none; }    /* 36 */
     .modal-close      { transition: none; }   /* 36 */
