@@ -38,7 +38,9 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` �
    leaves the site's own copy in charge, which under-reports and never over-reports. Locally, run the
    script after cloning and after fetching a new tag; it needs bash 4 or later.
 
-`release.yml` runs the full suite first — every test project in every engine, as parallel jobs — and
+`release.yml` runs the full suite first — every test project in every engine, as parallel jobs, without
+the catalogue's tests of the website alone (`Scope=Site`), which `catalogue.yml` runs on every push to
+`main` — and
 only then builds, packs, verifies the package contents, publishes to nuget.org, and creates the
 GitHub release. A pull request runs a smoke pass without a browser, so the tag is where a browser
 regression is caught.

@@ -14,6 +14,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// Without the status-code middleware the response was the server's bare 404, so a
 /// mistyped address showed the browser's own error page with no way back into the site.
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class NotFoundTests(CatalogueAppFixture app)
 {

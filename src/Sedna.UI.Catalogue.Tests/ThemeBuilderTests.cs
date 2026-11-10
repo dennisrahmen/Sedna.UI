@@ -8,6 +8,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// <summary>
 /// <c>/theme-builder</c>: the <c>brand.css</c> it generates, and the page that shows it.
 /// </summary>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class ThemeBuilderTests(CatalogueAppFixture app)
 {

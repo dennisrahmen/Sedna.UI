@@ -1,0 +1,57 @@
+name: Catalogue
+
+# The catalogue's tests of the website alone — search metadata, routes and links, the MCP
+# server, its own stylesheet and data — tagged Scope=Site. They cannot break the package,
+# so the release leaves them out and they run here, on every push to main, in every engine.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalogue-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    # The same image as the release's tests: browsers and their libraries included.
+    container: mcr.microsoft.com/playwright/dotnet:v1.64.1-noble
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    name: site (${{ matrix.engine }})
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0      # the tags: class-history.sh dates every entry from them
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Trust the checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install Python
+        timeout-minutes: 5
+        run: apt-get update && apt-get install -y --no-install-recommends python3
+
+      - name: Generate the class history
+        run: bash build/class-history.sh
+
+      - name: Build
+        run: dotnet build src/Sedna.UI.Catalogue.Tests -c Release
+
+      - name: Test
+        env:
+          SEDNA_UI_BROWSER_TESTS: '1'
+          SEDNA_UI_BROWSER: ${{ matrix.engine }}
+        run: dotnet test src/Sedna.UI.Catalogue.Tests -c Release --no-build --verbosity normal --blame-hang --blame-hang-timeout 5m --filter "Scope=Site"

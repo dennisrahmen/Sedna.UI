@@ -17,6 +17,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// the assertion is that nothing happens, and the router answers a click it
 /// intercepted within a few milliseconds.
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class SamePageLinkTests(CatalogueAppFixture app)
 {

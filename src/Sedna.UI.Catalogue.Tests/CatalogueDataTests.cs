@@ -21,6 +21,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// must be attributed to it.</b>
 /// </para>
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 public class CatalogueDataTests
 {
     private static JsonDocument History() => JsonDocument.Parse(File.ReadAllText(
