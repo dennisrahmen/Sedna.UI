@@ -167,9 +167,12 @@ dialog.modal::backdrop {
     overflow-y: auto;
     min-height: 0;
 }
-.modal-body p { margin: 0; }
+/* A bare paragraph's margin is reset at the weight of the element alone, so a classed
+   one — a section hint, a field hint — keeps its own spacing inside a modal. */
+:where(.modal-body) p { margin: 0; }
 .modal-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     align-items: center;
     flex-shrink: 0;
@@ -230,6 +233,7 @@ dialog.modal::backdrop {
 }
 .deck-footer {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;

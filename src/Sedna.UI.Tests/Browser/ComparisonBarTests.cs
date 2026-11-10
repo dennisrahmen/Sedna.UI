@@ -200,12 +200,18 @@ public class ComparisonBarTests : ScriptTestBase
     private static readonly Regex RgbFunction = new(
         @"rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+))?\s*\)", RegexOptions.Compiled);
 
+    // A token mixed with transparent computes to color(srgb r g b / a), in the 0–1 range.
+    private static readonly Regex SrgbFunction = new(
+        @"color\(srgb\s+([\d.e-]+)\s+([\d.e-]+)\s+([\d.e-]+)(?:\s*/\s*([\d.e-]+))?\s*\)", RegexOptions.Compiled);
+
     private static ((double R, double G, double B) Rgb, double A) Parse(string css)
     {
-        var m = RgbFunction.Match(css);
-        Assert.True(m.Success, $"\"{css}\" is not an rgb() colour.");
-        double N(int g) => double.Parse(m.Groups[g].Value, CultureInfo.InvariantCulture);
-        return ((N(1) / 255, N(2) / 255, N(3) / 255), m.Groups[4].Success ? N(4) : 1);
+        var srgb = SrgbFunction.Match(css);
+        var m = srgb.Success ? srgb : RgbFunction.Match(css);
+        Assert.True(m.Success, $"\"{css}\" is not an rgb() or color(srgb) colour.");
+        double N(int g) => double.Parse(m.Groups[g].Value, NumberStyles.Float, CultureInfo.InvariantCulture);
+        var scale = srgb.Success ? 1 : 255;
+        return ((N(1) / scale, N(2) / scale, N(3) / scale), m.Groups[4].Success ? N(4) : 1);
     }
 
     private static ((double R, double G, double B) Rgb, double A) Over(

@@ -227,16 +227,22 @@ function placeNames(g, all) {
     const font = g.colours.font();
     const show = [];
     const hide = [];
+    /* Screen pixels per held pixel: a name is styled at its size over the step of the zoom
+       (22-style.js), so on screen it is that size times the zoom over the step — the scale
+       at a zoom on a step, a few percent either side of it between steps, and less below
+       the floor, where a name shrinks with the drawing. Its room is measured at the size it
+       is drawn: measured at the scale alone, a name drawn up to 3.6% larger than its room
+       wrote its outline over the next one whenever the view rested just above a step. */
+    const drawn = zoom / (g.step || 1);
     const ranked = nodes.toArray().map(n => ({ n, rank: labelPriority(n) })).sort((a, b) => b.rank - a.rank);
     for (const { n, rank } of ranked) {
         const at = n.position();
         const x = at.x * zoom + pan.x;
         const y = at.y * zoom + pan.y;
         const r = ((n.data('size') || 20) * held(n) * zoom) / 2;
-        // On screen: below the floor, a name shrinks with the drawing.
-        const px = labelPx(n) * s * Math.min(1, zoom / s / (g.step || 1));
+        const px = labelPx(n) * drawn;
         const bold = n.data('hub') || n.data('root') || n.hasClass('focus');
-        const w = Math.min(textWidth(n.data('label') || '', bold ? 600 : 400, px, font), LABEL_MAX_PX * s) + 8 * s;
+        const w = Math.min(textWidth(n.data('label') || '', bold ? 600 : 400, px, font), LABEL_MAX_PX * drawn) + 8 * s;
         const box = side === 'right' ? { x1: x + r + 3 * s, x2: x + r + 3 * s + w, y1: y - px * 0.85, y2: y + px * 0.85 }
             : side === 'left' ? { x1: x - r - 3 * s - w, x2: x - r - 3 * s, y1: y - px * 0.85, y2: y + px * 0.85 }
                 : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2 * s, y2: y + r + 2 * s + px * 1.7 };

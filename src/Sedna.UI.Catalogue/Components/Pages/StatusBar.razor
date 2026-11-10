@@ -7,7 +7,7 @@
 
 <CatExample TExample="Examples.StatusBar.StatusBar" Title="Status bar" Demo="ex-demo--block ex-demo--flush">
     <p>
-        All five modifiers are shown together here; in an app one shows at a time. The bar's own
+        All six modifiers are shown together here; in an app one shows at a time. The bar's own
         controls are <code>.status-bar-action</code> — filled, and never a <code>.btn</code>, whose
         tint disappears on a crimson bar — <code>.status-bar-dismiss</code> for the error bar's
         close button, and <code>.status-bar-attempt</code> for the retry counter, hidden until
@@ -19,7 +19,8 @@
         <tbody>
             <tr><td><code>.status-bar--reconnecting</code></td><td>the circuit dropped and is being re-established &mdash; the only one that pulses</td></tr>
             <tr><td><code>.status-bar--paused</code></td><td>the server released the circuit and kept the state</td></tr>
-            <tr><td><code>.status-bar--failed</code></td><td>reconnecting is over; only a reload helps</td></tr>
+            <tr><td><code>.status-bar--failed</code></td><td>reconnecting is over; retry, and reload if that fails</td></tr>
+            <tr><td><code>.status-bar--resume-failed</code></td><td>the state the server held could not be resumed; optional, falls back to <code>--failed</code></td></tr>
             <tr><td><code>.status-bar--expired</code></td><td>the session is gone from the server</td></tr>
             <tr><td><code>.status-bar--error</code></td><td>an unhandled error reached the browser</td></tr>
         </tbody>
@@ -42,7 +43,7 @@
             <tr><td><code>components-reconnect-retrying</code></td><td><code>.status-bar--reconnecting</code>, with its counter revealed</td></tr>
             <tr><td><code>components-reconnect-paused</code></td><td><code>.status-bar--paused</code>, or the reconnecting row if there is none</td></tr>
             <tr><td><code>components-reconnect-failed</code></td><td><code>.status-bar--failed</code></td></tr>
-            <tr><td><code>components-reconnect-resume-failed</code></td><td><code>.status-bar--failed</code></td></tr>
+            <tr><td><code>components-reconnect-resume-failed</code></td><td><code>.status-bar--resume-failed</code>, or the failed row if there is none</td></tr>
             <tr><td><code>components-reconnect-rejected</code></td><td><code>.status-bar--expired</code></td></tr>
             <tr><td><code>components-reconnect-hide</code></td><td class="col-muted">none &mdash; connected</td></tr>
         </tbody>
@@ -51,9 +52,12 @@
     <p>
         <code>retrying</code> is added <em>alongside</em> <code>show</code> and only reveals the
         counter; <code>.status-bar--paused</code> is optional and falls back to the reconnecting
-        row, but the other three are not — omit one and that state renders as an empty strip. The
-        reload buttons are plain <code>onclick</code> handlers: the circuit is gone in those
-        states, so a Blazor handler cannot run.
+        row, and <code>.status-bar--resume-failed</code> to the failed row, but the other three are
+        not — omit one and that state renders as an empty strip. The buttons are plain
+        <code>onclick</code> handlers, because the circuit is gone in those states and a Blazor
+        handler cannot run. Resume calls <code>Blazor.resumeCircuit()</code> and Retry
+        <code>Blazor.reconnect()</code>, then a resume, so the reader keeps their state whenever the
+        server still holds it; each falls back to a reload.
     </p>
 </CatSnippet>
 

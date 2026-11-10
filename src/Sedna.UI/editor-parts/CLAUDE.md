@@ -41,7 +41,7 @@ Everything an editor holds lives on its own object, `e`, made in `70-editor.js`.
 - **The textarea is the field.** Every change is written back to it with `input`, and `change` when the
   focus leaves the editor; a value written to it from outside is loaded. Never keep the document
   anywhere a form post or a Blazor binding cannot read it.
-- **The app's markup is the UI.** The toolbar, the link form, the media form, the slash menu and every word on them are the app's. Fill,
+- **The app's markup is the UI.** The toolbar, the link form, the media form, the slash menu, the file notice and every word on them are the app's. Fill,
   toggle `hidden`, `aria-pressed` and `disabled`, set a transform — never build an element the reader
   sees, never `innerHTML`. Quill writes the document; nothing else here writes markup.
 - **Quill's own toolbar, themes and stylesheet stay off.** `44-rich-text.css` dresses what Quill writes.

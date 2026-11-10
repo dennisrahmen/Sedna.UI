@@ -1,0 +1,13 @@
+<div class="editor" data-editor id="handover" style="--editor-max-height: 10rem">
+    <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold" data-tip="Bold · Ctrl+B"><i class="ri-bold"></i></button>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="italic" aria-label="Italic" data-tip="Italic · Ctrl+I"><i class="ri-italic"></i></button>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list" data-tip="Bulleted list"><i class="ri-list-unordered"></i></button>
+    </div>
+    <div class="editor-body prose" data-editor-body></div>
+    <p class="editor-notice form-warning" role="alert" data-editor-file-notice hidden>
+        <i class="ri-image-line" aria-hidden="true"></i>
+        <span>Pictures cannot be pasted into a handover note. Attach them to the order instead.</span>
+    </p>
+    <textarea name="handover" data-editor-value hidden aria-label="Handover note" placeholder="Paste a screenshot here to see the notice"></textarea>
+</div>

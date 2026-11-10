@@ -55,6 +55,24 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.PopoverPerTrigger" Title="One card for many triggers, filled for each" Demo="ex-demo--block">
+    <p>
+        <strong>Live &mdash; rest on one order, then on another.</strong> Any number of
+        <code>data-popover</code> triggers can name the same popover, and it opens at whichever one
+        the reader reached &mdash; moving from one to the next moves the card. A list of hundreds
+        renders one card, not hundreds: <code>data-popover-for</code> on the panel says it holds one
+        trigger's content at a time, and before it opens at a trigger,
+        <code>&#64;onsedna-popover-fill</code> names that trigger's id. Render its content and write the
+        same id into <code>data-popover-for</code> in that render; the card opens when it reads it.
+        A trigger needs an id for this.
+    </p>
+    <p>
+        A request the reader has already left behind opens nothing when its render arrives, and a
+        hover card does not open over another open popover &mdash; a picker, a menu, a pinned card
+        &mdash; that opening it would close, unless its trigger is inside that popover.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Popover.Shapes" Title="Four shapes" Demo="ex-demo--block">
     <p>
         A definition, a key/value detail block, a small table, and one with an action in it. One

@@ -72,6 +72,17 @@
 
 .tab-panel { padding-top: var(--space-7); }
 
+/* Tabs that share the row equally, so a short strip of them — four on a phone — stays
+   in view without scrolling. A long label wraps onto a second line inside its tab. */
+.tabs--fill > .tab {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 /* A strip inside a card head is `.card-head--tabs`, declared beside `.card-head` in
    30-cards.css because it is that head's modifier. It drops this padding, the strip's
    own bottom border and the head's block padding, so the indicator meets the body

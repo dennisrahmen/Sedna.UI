@@ -31,6 +31,7 @@ public class TokenTierTests
         File.ReadAllText(Path.Combine(Assets.ProjectDir, "css-parts", PalettePart)));
 
     private static readonly Regex HexLiteral = new(@"#[0-9a-fA-F]{3,8}\b", RegexOptions.Compiled);
+    private static readonly Regex TranslucentLiteral = new(@"\b(?:rgba|hsla)\(", RegexOptions.Compiled);
     private static readonly Regex Declaration = new(
         @"(?<name>(?<![\w-])--[a-z0-9-]+)\s*:\s*(?<value>[^;]+);", RegexOptions.Compiled);
 
@@ -62,7 +63,10 @@ public class TokenTierTests
             // The colour picker's spectrum: fixed values, declared in its own part alone and
             // remapped by no theme, which ColourTests holds it to.
             if (name.StartsWith(ColourTests.SpectrumPrefix, StringComparison.Ordinal)) continue;
-            if (!HexLiteral.IsMatch(value)) continue;
+            // A translucent literal is a hex by another name: a brand theme that remaps the
+            // ramp it was sampled from leaves it behind, tinted the old colour. Mix the step
+            // with transparent instead.
+            if (!HexLiteral.IsMatch(value) && !TranslucentLiteral.IsMatch(value)) continue;
 
             offenders.Add($"{name}: {value}");
         }

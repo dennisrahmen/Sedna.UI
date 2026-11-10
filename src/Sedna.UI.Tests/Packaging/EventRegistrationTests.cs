@@ -202,6 +202,21 @@ public class EventRegistrationTests
     }
 
     [Fact]
+    public void A_shared_popover_s_request_names_the_trigger_and_the_panel()
+    {
+        Assert.True(Dispatched().ContainsKey("sedna-popover-fill"), "No shipped script dispatches sedna-popover-fill.");
+        Assert.Contains("sedna-popover-fill", Registered());
+        Assert.Equal(typeof(SednaPopoverEventArgs), Declared()["sedna-popover-fill"].EventArgsType);
+        Assert.False(Declared()["sedna-popover-fill"].EnablePreventDefault);
+
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var fill = System.Text.Json.JsonSerializer.Deserialize<SednaPopoverEventArgs>(
+            """{"trigger":"o-4182","popover":"order-card"}""", web)!;
+        Assert.Equal("o-4182", fill.Trigger);
+        Assert.Equal("order-card", fill.Popover);
+    }
+
+    [Fact]
     public void The_chart_s_choice_carries_its_point_into_its_arguments()
     {
         Assert.True(Dispatched().ContainsKey("sedna-chart-select"), "No shipped script dispatches sedna-chart-select.");

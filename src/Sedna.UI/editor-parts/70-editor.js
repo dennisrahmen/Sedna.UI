@@ -13,6 +13,7 @@
      sedna-editor-ready    { html, text, length, isEmpty }
      sedna-editor-change   the same, after each change
      sedna-editor-media    { kind, src, alt }, cancelable, before the media form opens
+     sedna-editor-file     { files, index }, cancelable — cancelled when the app takes them
 
    and the textarea's own `input` and `change`, which is what `@bind` listens to.
    ─────────────────────────────────────────────────────────────────────────── */
@@ -61,12 +62,12 @@ function describe(e) {
 }
 
 function start(e) {
-    const { value, body, toolbar, link, media, slash } = readMarkup(e.el);
+    const { value, body, toolbar, link, media, slash, notice } = readMarkup(e.el);
     if (!value || !body) {
         e.el.setAttribute('data-editor-state', 'error');
         throw new Error('a [data-editor] element needs a <textarea data-editor-value> and a <div class="editor-body"> inside it.');
     }
-    Object.assign(e, { value, body, toolbar, link, media, slash, controls: controlsOf(e.el) });
+    Object.assign(e, { value, body, toolbar, link, media, slash, notice, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
 
     const formats = formatsOf(e.el);
@@ -103,7 +104,11 @@ function start(e) {
     wireSlash(e);
 
     const q = e.quill;
-    q.on('text-change', () => written(e));
+    q.on('text-change', (delta, old, source) => {
+        written(e);
+        // The reader has moved on: the notice about a file that was not taken goes.
+        if (source === 'user') notify(e, false);
+    });
     q.on('editor-change', () => reflect(e));
     q.on('selection-change', range => { if (range) e.lastRange = range; });
     // `change` when the focus leaves the editor after an edit — the document, its toolbar and its

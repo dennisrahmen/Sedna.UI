@@ -693,6 +693,7 @@
       "variants": [
         "btn--brand",
         "btn--danger",
+        "btn--fill",
         "btn--ghost",
         "btn--go",
         "btn--icon",
@@ -718,6 +719,7 @@
       ],
       "combinedWith": [
         "beam",
+        "btn--fill",
         "btn--ghost",
         "btn--solid",
         "btn--wrap",
@@ -729,6 +731,12 @@
     },
     "btn--danger": {
       "family": "btn"
+    },
+    "btn--fill": {
+      "family": "btn",
+      "combinedWith": [
+        "btn"
+      ]
     },
     "btn--ghost": {
       "family": "btn",
@@ -901,6 +909,9 @@
       "family": "cal-day",
       "attributes": [
         ":not([aria-current=\"date\"])"
+      ],
+      "combinedWith": [
+        "cal-weekday"
       ]
     },
     "cal-day--in-range": {
@@ -928,6 +939,9 @@
       "family": "cal-day",
       "attributes": [
         ":not([aria-current=\"date\"])"
+      ],
+      "combinedWith": [
+        "cal-weekday"
       ]
     },
     "cal-day-col": {
@@ -1173,10 +1187,14 @@
     "cal-week": {
       "family": "cal-week",
       "variants": [
-        "cal-week--by-lanes"
+        "cal-week--by-lanes",
+        "cal-week--day-tones"
       ]
     },
     "cal-week--by-lanes": {
+      "family": "cal-week"
+    },
+    "cal-week--day-tones": {
       "family": "cal-week"
     },
     "cal-week-body": {
@@ -1188,7 +1206,12 @@
     "cal-weekday": {
       "family": "cal-weekday",
       "attributes": [
+        ":not([aria-current=\"date\"])",
         "[aria-current=\"date\"]"
+      ],
+      "combinedWith": [
+        "cal-day--holiday",
+        "cal-day--weekend"
       ]
     },
     "cal-weekdays": {
@@ -1844,7 +1867,8 @@
       "family": "choice-dependent",
       "variants": [
         "choice-dependent--dim",
-        "choice-dependent--hide"
+        "choice-dependent--hide",
+        "choice-dependent--off"
       ],
       "attributes": [
         "[hidden]"
@@ -1856,8 +1880,14 @@
     "choice-dependent--hide": {
       "family": "choice-dependent"
     },
+    "choice-dependent--off": {
+      "family": "choice-dependent"
+    },
     "choice-hint": {
       "family": "choice-hint"
+    },
+    "choice-meta": {
+      "family": "choice-meta"
     },
     "choice-text": {
       "family": "choice-text"
@@ -2303,6 +2333,12 @@
         "[hidden]"
       ]
     },
+    "editor-notice": {
+      "family": "editor-notice",
+      "attributes": [
+        "[hidden]"
+      ]
+    },
     "editor-sep": {
       "family": "editor-sep"
     },
@@ -2617,6 +2653,58 @@
     },
     "form-check-count": {
       "family": "form-check-count"
+    },
+    "form-check-group": {
+      "family": "form-check-group"
+    },
+    "form-check-group-title": {
+      "family": "form-check-group-title"
+    },
+    "form-check-list": {
+      "family": "form-check-list",
+      "variants": [
+        "form-check-list--cards",
+        "form-check-list--inline",
+        "form-check-list--lg",
+        "form-check-list--scroll",
+        "form-check-list--sm"
+      ]
+    },
+    "form-check-list--cards": {
+      "family": "form-check-list",
+      "combinedWith": [
+        "form-check-list--sm"
+      ]
+    },
+    "form-check-list--inline": {
+      "family": "form-check-list"
+    },
+    "form-check-list--lg": {
+      "family": "form-check-list"
+    },
+    "form-check-list--scroll": {
+      "family": "form-check-list"
+    },
+    "form-check-list--sm": {
+      "family": "form-check-list",
+      "combinedWith": [
+        "form-check-list--cards"
+      ]
+    },
+    "form-check-list-count": {
+      "family": "form-check-list-count"
+    },
+    "form-check-list-empty": {
+      "family": "form-check-list-empty"
+    },
+    "form-check-list-head": {
+      "family": "form-check-list-head"
+    },
+    "form-check-or": {
+      "family": "form-check-or"
+    },
+    "form-check-skeleton": {
+      "family": "form-check-skeleton"
     },
     "form-code": {
       "family": "form-code",
@@ -5685,8 +5773,18 @@
     "segmented": {
       "family": "segmented",
       "variants": [
+        "segmented--fill",
         "segmented--lg",
         "segmented--sm"
+      ],
+      "combinedWith": [
+        "segmented--fill"
+      ]
+    },
+    "segmented--fill": {
+      "family": "segmented",
+      "combinedWith": [
+        "segmented"
       ]
     },
     "segmented--lg": {
@@ -6162,7 +6260,8 @@
         "status-bar--expired",
         "status-bar--failed",
         "status-bar--paused",
-        "status-bar--reconnecting"
+        "status-bar--reconnecting",
+        "status-bar--resume-failed"
       ]
     },
     "status-bar--error": {
@@ -6178,6 +6277,9 @@
       "family": "status-bar"
     },
     "status-bar--reconnecting": {
+      "family": "status-bar"
+    },
+    "status-bar--resume-failed": {
       "family": "status-bar"
     },
     "status-bar-action": {
@@ -6284,6 +6386,7 @@
         "[role=\"treegrid\"]"
       ],
       "combinedWith": [
+        "table--stack",
         "table--sticky-foot"
       ]
     },
@@ -6303,7 +6406,10 @@
       ]
     },
     "table--stack": {
-      "family": "table"
+      "family": "table",
+      "combinedWith": [
+        "table"
+      ]
     },
     "table--stagger": {
       "family": "table"
@@ -6325,6 +6431,12 @@
       "family": "table"
     },
     "tabs": {
+      "family": "tabs",
+      "variants": [
+        "tabs--fill"
+      ]
+    },
+    "tabs--fill": {
       "family": "tabs"
     },
     "test-case": {

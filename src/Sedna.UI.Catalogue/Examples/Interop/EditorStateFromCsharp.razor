@@ -1,10 +1,11 @@
 @inject ISednaEditors Editors
 
 @* data-editor-formats names video, which the toolbar does not offer, so the app's own button
-   below can put one in. A screenshot pasted or dropped in arrives as sedna-editor-file. *@
+   below can put one in. A screenshot pasted or dropped in arrives as sedna-editor-file, and
+   cancelling it says this page took the file. *@
 <div class="sedna-stack">
     <div class="editor" data-editor id="runbook-step" data-editor-formats="bold list video"
-         @onsedna-editor-file="FilesArrived">
+         @onsedna-editor-file="FilesArrived" @onsedna-editor-file:preventDefault>
         <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
             <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
             <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="ordered" aria-label="Numbered list"><i class="ri-list-ordered"></i></button>

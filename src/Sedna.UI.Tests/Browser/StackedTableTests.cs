@@ -76,4 +76,27 @@ public class StackedTableTests : ScriptTestBase
             "() => [document.getElementById('group').getBoundingClientRect().width, document.getElementById('t').getBoundingClientRect().width]");
         Assert.True(widths[0] >= widths[1] - 1, $"The group row is {widths[0]:0}px wide in a {widths[1]:0}px table.");
     }
+
+    [Fact]
+    public async Task A_value_that_cannot_wrap_in_a_wide_cell_wraps_in_a_card()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled("""
+            <div style="width: 341px" id="box">
+              <table class="table table--stack" id="t">
+                <thead><tr><th>Customer</th><th>Address</th><th>Site</th></tr></thead>
+                <tbody><tr>
+                  <td data-label="Customer">Northwind Retail</td>
+                  <td data-label="Address" class="col-muted">Obere Hauptstrasse 114, 3rd floor, rear building, 12345 Example Town</td>
+                  <td data-label="Site" class="col-fit">https://www.example.com/a/very/long/path/that/never/ends</td>
+                </tr></tbody>
+              </table>
+            </div>
+            """);
+        await page.SetViewportSizeAsync(375, 700);
+
+        var widths = await page.EvaluateAsync<double[]>(
+            "() => [document.getElementById('t').getBoundingClientRect().width, document.getElementById('box').getBoundingClientRect().width]");
+        Assert.True(widths[0] <= widths[1] + 0.5, $"The stacked table is {widths[0]:0}px wide in a {widths[1]:0}px column.");
+    }
 }

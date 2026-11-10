@@ -20,7 +20,8 @@ function readMarkup(el) {
     const link = el.querySelector('[data-editor-link]');
     const media = el.querySelector('[data-editor-media]');
     const slash = el.querySelector('[data-editor-slash]');
-    return { value, body, toolbar, link, media, slash };
+    const notice = el.querySelector('[data-editor-file-notice]');
+    return { value, body, toolbar, link, media, slash, notice };
 }
 function formatsOf(el) {
     const named = (el.getAttribute('data-editor-formats') || '').split(/\s+/).filter(Boolean);
@@ -623,20 +624,48 @@ const FILE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image
     'video/mp4', 'video/webm'];
 const FILES_KEPT = 20;
 let fileSeq = 0;
+const QuillUploader = Quill.import('modules/uploader');
+class SednaUploader extends QuillUploader {
+    upload(range, files) {
+        const all = Array.from(files || []).filter(Boolean);
+        if (all.length) this.options.handler.call(this, range, all);
+    }
+}
+Quill.register({ 'modules/uploader': SednaUploader }, true);
 function uploaderFor(e) {
     return {
         mimetypes: FILE_TYPES,
         handler: (range, files) => {
-            const listed = Array.from(files).map(file => {
-                const id = 'file-' + (++fileSeq);
-                e.files.set(id, file);
-                return { id, name: file.name || '', type: file.type || '', size: file.size || 0 };
-            });
-            while (e.files.size > FILES_KEPT) e.files.delete(e.files.keys().next().value);
-            if (range) e.lastRange = range;
-            e.emit('sedna-editor-file', { files: listed, index: range ? range.index : null });
+            const kept = files.filter(file => FILE_TYPES.includes(file.type));
+            let taken = false;
+            if (kept.length) {
+                const listed = kept.map(file => {
+                    const id = 'file-' + (++fileSeq);
+                    e.files.set(id, file);
+                    return { id, name: file.name || '', type: file.type || '', size: file.size || 0 };
+                });
+                while (e.files.size > FILES_KEPT) e.files.delete(e.files.keys().next().value);
+                if (range) e.lastRange = range;
+                taken = !e.emit('sedna-editor-file', { files: listed, index: range ? range.index : null }, true);
+            }
+            notify(e, !taken || kept.length < files.length);
         },
     };
+}
+function notify(e, show) {
+    const notice = e.notice;
+    if (!notice) return;
+    cancelAnimationFrame(e.noticeFrame);
+    if (!show) {
+        notice.hidden = true;
+        return;
+    }
+    if (notice.hidden) {
+        notice.hidden = false;
+        return;
+    }
+    notice.hidden = true;
+    e.noticeFrame = requestAnimationFrame(() => { if (!e.disposed) notice.hidden = false; });
 }
 function fileOf(e, id) {
     return e.files.get(id) ?? null;
@@ -817,12 +846,12 @@ function describe(e) {
     reflect(e);
 }
 function start(e) {
-    const { value, body, toolbar, link, media, slash } = readMarkup(e.el);
+    const { value, body, toolbar, link, media, slash, notice } = readMarkup(e.el);
     if (!value || !body) {
         e.el.setAttribute('data-editor-state', 'error');
         throw new Error('a [data-editor] element needs a <textarea data-editor-value> and a <div class="editor-body"> inside it.');
     }
-    Object.assign(e, { value, body, toolbar, link, media, slash, controls: controlsOf(e.el) });
+    Object.assign(e, { value, body, toolbar, link, media, slash, notice, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
     const formats = formatsOf(e.el);
     e.formats = formats;
@@ -852,7 +881,10 @@ function start(e) {
     wireMedia(e);
     wireSlash(e);
     const q = e.quill;
-    q.on('text-change', () => written(e));
+    q.on('text-change', (delta, old, source) => {
+        written(e);
+        if (source === 'user') notify(e, false);
+    });
     q.on('editor-change', () => reflect(e));
     q.on('selection-change', range => { if (range) e.lastRange = range; });
     const onFocusOut = ev => { if (!e.el.contains(ev.relatedTarget)) left(e); };

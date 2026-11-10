@@ -251,6 +251,7 @@
     .editor-toolbar [aria-pressed="true"],
     .workflow-node[aria-pressed="true"],
     .choice-tile:has(> input:checked),
+    .form-check-list--cards > .form-check:has(> input:checked),
     .app-switcher-item[aria-current]:not([aria-current="false"]) { outline: 1px solid Highlight; }
     /* A selected table row is a tint and an inset bar, and neither is painted here. Each
        cell is outlined inside its own box, so the row reads as one marked band. */

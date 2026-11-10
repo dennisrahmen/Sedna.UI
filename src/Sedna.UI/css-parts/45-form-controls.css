@@ -190,6 +190,15 @@
    starts where the label starts with nothing to measure. */
 .choice-text { display: flex; flex-direction: column; gap: var(--space-1); }
 .choice-hint { font-size: var(--text-3); color: var(--muted); }
+/* What tells one option from another of the same name, on a line of its own under
+   the label: an agent's address, a group's member count. Data, where `.choice-hint`
+   is a sentence; set it in `.text-mono` where it is an address or a key. */
+.choice-meta {
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
 
 /* ── Colour ─────────────────────────────────────────────────────────────────
    `<input type="color" class="form-color">`. The native input IS the picker, so there

@@ -1,0 +1,69 @@
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Copying {item}. Page Down reaches the shortcut keys, Space puts it on one, Escape cancels."
+   data-drag-cancel="Cancelled. {item} stays in {zone}."></p>
+
+<div class="sedna-grid sedna-grid--sm sedna-grid--fit" @onsedna-drop="Drop">
+    <div class="sedna-col sedna-gap-2">
+        <span class="form-label" id="templates-label">Reply templates</span>
+        <ul class="drag-list" data-drag-zone="templates" data-drag-group="replies" data-drag-accept=""
+            data-drag-effect="copy" aria-labelledby="templates-label" data-drag-label="Reply templates">
+            @foreach (var template in Templates)
+            {
+                <li class="drag-item" @key="template.Id" data-drag-item="@template.Id" data-drag-type="template"
+                    data-drag-label="@template.Title" tabindex="0">
+                    <i class="ri-chat-quote-line" aria-hidden="true"></i>
+                    <span>@template.Title</span>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div class="sedna-col sedna-gap-2">
+        <span class="form-label">Shortcut keys</span>
+        @foreach (var key in Keys)
+        {
+            <div class="drag-list" @key="key" data-drag-zone="@key" data-drag-group="replies" data-drag-accept="template"
+                 aria-label="@key" data-drag-move="{item} onto {zone}." data-drag-drop="{zone} now sends {item}.">
+                @if (_slots.TryGetValue(key, out var held))
+                {
+                    <div class="drag-item">
+                        <kbd class="kbd">@key</kbd>
+                        <span>@held.Title</span>
+                    </div>
+                }
+                else
+                {
+                    <span class="drag-empty"><kbd class="kbd">@key</kbd> <span>Drop a template here</span></span>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private sealed record Template(string Id, string Title);
+
+    private static readonly Template[] Templates =
+    [
+        new("tpl-received", "We have your order"),
+        new("tpl-delay", "Your delivery is running late"),
+        new("tpl-refund", "Your refund is on its way"),
+        new("tpl-closed", "Closing this request"),
+    ];
+
+    private static readonly string[] Keys = ["F1", "F2", "F3"];
+
+    private readonly Dictionary<string, Template> _slots = new()
+    {
+        ["F1"] = Templates[0],
+    };
+
+    // Effect is "copy": the template stays in its list, and the key it landed on takes it,
+    // replacing whatever it held. The zone it came from never takes it back.
+    private void Drop(SednaDropEventArgs e)
+    {
+        var template = Array.Find(Templates, t => t.Id == e.Item);
+        if (template is null || e.Effect != "copy") return;
+        _slots[e.To] = template;
+    }
+}

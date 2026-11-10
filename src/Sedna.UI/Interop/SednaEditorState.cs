@@ -60,7 +60,9 @@ public sealed class SednaEditorMediaEventArgs : EventArgs
 /// The editor never inlines a file — uploading is the app's. Read each one with
 /// <see cref="ISednaEditors.OpenFileAsync"/>, upload it, and answer with
 /// <see cref="ISednaEditors.InsertImageAsync"/> or <see cref="ISednaEditors.InsertVideoAsync"/>,
-/// which put it where the caret was.
+/// which put it where the caret was. The event is cancelable, and cancelling it —
+/// <c>@onsedna-editor-file:preventDefault</c> — says the app took the files; files that are not
+/// taken show the editor's <c>[data-editor-file-notice]</c>, when it has one.
 /// </remarks>
 public sealed class SednaEditorFileEventArgs : EventArgs
 {

@@ -198,6 +198,81 @@ public class MenuTests : ScriptTestBase
         Assert.Empty(errors);
     }
 
+    // ── Tab out of a menu ───────────────────────────────────────────────────
+    // Every way the script opens a menu, so the next one that leaves a menu hanging open
+    // after Tab fails here.
+    private const string Items = """
+        <button class="menu-item" type="button" id="first">Rename</button>
+        <button class="menu-item" type="button" id="last">Delete</button>
+        """;
+
+    public static TheoryData<string, string, string> TabFixtures => new()
+    {
+        {
+            "dropdown",
+            $"""
+            <button type="button" id="before">Before</button>
+            <div class="menu-anchor">
+                <button type="button" data-menu-toggle aria-expanded="false" id="trigger">Actions</button>
+                <div class="menu" id="m" hidden>{Items}</div>
+            </div>
+            <button type="button" id="after">After</button>
+            """,
+            "() => document.getElementById('trigger').click()"
+        },
+        {
+            "at a point",
+            $"""
+            <button type="button" id="before">Before</button>
+            <div class="menu" id="m" popover>{Items}</div>
+            <button type="button" id="after">After</button>
+            """,
+            "() => sednaUi.menu.openAt('m', 120, 120)"
+        },
+        {
+            "popovertarget",
+            $"""
+            <button type="button" id="before" popovertarget="m">Actions</button>
+            <div class="menu" id="m" popover>{Items}</div>
+            <button type="button" id="after">After</button>
+            """,
+            "() => document.getElementById('before').click()"
+        },
+    };
+
+    private const string MenuShown =
+        "() => { const m = document.getElementById('m'); return m.hasAttribute('popover') ? m.matches(':popover-open') : !m.hidden; }";
+
+    [Theory]
+    [MemberData(nameof(TabFixtures))]
+    public async Task Tab_out_of_a_menu_closes_it_and_the_focus_goes_on(string kind, string markup, string open)
+    {
+        if (NoBrowser) return;
+        _ = kind;
+        var (page, errors) = await OpenStyled(markup);
+
+        await Js.Run(page, open);
+        await Js.Run(page, "() => document.getElementById('first').focus()");
+        Assert.True(await page.EvaluateAsync<bool>(MenuShown));
+
+        await page.Keyboard.PressAsync(Keys.Tab);                   // to the next item: still open
+        Assert.Equal("last", await Focused(page));
+        await Js.Frames(page);
+        Assert.True(await page.EvaluateAsync<bool>(MenuShown));
+
+        await page.Keyboard.PressAsync(Keys.Tab);                   // out of it: closed, focus moved on
+        await page.WaitForFunctionAsync($"() => !({MenuShown})()");
+        Assert.Equal("after", await Focused(page));
+
+        await Js.Run(page, open);
+        await Js.Run(page, "() => document.getElementById('first').focus()");
+        Assert.True(await page.EvaluateAsync<bool>(MenuShown));
+        await page.Keyboard.PressAsync(Keys.ShiftTab);              // and backwards out of it
+        await page.WaitForFunctionAsync($"() => !({MenuShown})()");
+        Assert.NotEqual("first", await Focused(page));
+        Assert.Empty(errors);
+    }
+
     [Fact]
     public async Task A_menu_at_the_pointer_with_a_filter_opens_on_the_filter()
     {

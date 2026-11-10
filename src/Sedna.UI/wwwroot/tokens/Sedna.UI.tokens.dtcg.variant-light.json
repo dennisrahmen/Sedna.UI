@@ -218,6 +218,11 @@
         ],
         "alpha": 0.04,
         "hex": "#0f172a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--slate-900) 4%, transparent)"
+        }
       }
     },
     "badge-cyan-active": {
@@ -765,6 +770,11 @@
         ],
         "alpha": 0.07,
         "hex": "#0f172a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--slate-900) 7%, transparent)"
+        }
       }
     }
   },
@@ -1040,6 +1050,11 @@
         ],
         "alpha": 0.08,
         "hex": "#0f172a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--slate-900) 8%, transparent)"
+        }
       }
     }
   },
@@ -1061,6 +1076,11 @@
         ],
         "alpha": 0.16,
         "hex": "#0f172a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--slate-900) 16%, transparent)"
+        }
       }
     }
   },
@@ -1737,6 +1757,11 @@
         ],
         "alpha": 0.06,
         "hex": "#0f172a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--slate-900) 6%, transparent)"
+        }
       }
     },
     "skeleton-sheen": {
@@ -1750,6 +1775,11 @@
         ],
         "alpha": 0.11,
         "hex": "#0f172a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--slate-900) 11%, transparent)"
+        }
       }
     }
   },
@@ -1793,6 +1823,11 @@
         ],
         "alpha": 0.03,
         "hex": "#0f172a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--slate-900) 3%, transparent)"
+        }
       }
     },
     "surface-strong": {
@@ -1806,6 +1841,11 @@
         ],
         "alpha": 0.055,
         "hex": "#0f172a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--slate-900) 5.5%, transparent)"
+        }
       }
     }
   },
@@ -1821,6 +1861,11 @@
         ],
         "alpha": 0.03,
         "hex": "#0f172a"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--slate-900) 3%, transparent)"
+        }
       }
     }
   },

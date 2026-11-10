@@ -124,7 +124,7 @@ textarea.form-input::-webkit-resizer {
     transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 .form-check input[type="checkbox"]:hover { border-color: var(--border-hover); }
-.form-check input[type="checkbox"]:checked {
+.form-check input[type="checkbox"]:is(:checked, :indeterminate, [aria-checked="mixed"]) {
     background: var(--control-on);
     border-color: var(--control-on);
 }
@@ -137,6 +137,29 @@ textarea.form-input::-webkit-resizer {
     border-inline-end: 2px solid var(--on-solid);
     border-bottom: 2px solid var(--on-solid);
     transform: translate(-50%, -60%) rotate(45deg);
+}
+/* ── Half ticked ────────────────────────────────────────────────────────────
+   A "select all" over a list some of whose rows are ticked: filled like a ticked box,
+   with a dash where the tick would be, so the three states differ in shape as well as
+   in fill. Two ways to say it, and both draw it:
+
+     input.indeterminate = true     the platform's own state, which a script sets — it
+                                    is a property, so no markup can
+     aria-checked="mixed"           written in the markup, by an app that renders the
+                                    state itself, as a Blazor page does
+
+   It wins over `checked`, as the platform's own box does: a box that is both shows the
+   dash. Every control in the library that draws its own checkbox draws this state too;
+   CheckboxMixedTests finds each one. */
+.form-check input[type="checkbox"]:is(:indeterminate, [aria-checked="mixed"])::after {
+    content: '';
+    position: absolute;
+    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
+    left: 50%; top: 50%;
+    width: 7px; height: 2px;
+    border: 0;
+    background: var(--on-solid);
+    transform: translate(-50%, -50%);
 }
 .form-check input[type="checkbox"]:focus-visible {
     outline: none;

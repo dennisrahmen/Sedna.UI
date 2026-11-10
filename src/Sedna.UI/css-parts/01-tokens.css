@@ -43,10 +43,10 @@
     --border:          var(--slate-700);
     --border-strong:   var(--slate-600);
     --border-hover:    var(--slate-500);
-    --divider:         rgba(255, 255, 255, 0.06);
+    --divider:         color-mix(in srgb, var(--white) 6%, transparent);
     --card-bg:         var(--slate-800);
-    --surface-soft:    rgba(255, 255, 255, 0.03);
-    --surface-strong:  rgba(255, 255, 255, 0.05);
+    --surface-soft:    color-mix(in srgb, var(--white) 3%, transparent);
+    --surface-strong:  color-mix(in srgb, var(--white) 5%, transparent);
     /* ── Named surfaces ─────────────────────────────────────────────────
        Which surface a thing IS, rather than which colour it happens to take.
        An app asking "what colour is the navigation?" had to know that the
@@ -444,15 +444,15 @@
     --sev-5-fg:     var(--slate-300);
 
     /* ── Component surfaces ─────────────────────────────────────────────── */
-    --badge-bg:      rgba(255, 255, 255, 0.07);
-    --table-head-bg: rgba(255, 255, 255, 0.04);
+    --badge-bg:      color-mix(in srgb, var(--white) 7%, transparent);
+    --table-head-bg: color-mix(in srgb, var(--white) 4%, transparent);
 
     /* Feedback surfaces. Tinted from the theme rather than the brand: a loading
        placeholder is not a branded element, and a brand-tinted skeleton reads as
        content that is already there. */
-    --skeleton-bg:    rgba(255, 255, 255, 0.06);
-    --skeleton-sheen: rgba(255, 255, 255, 0.11);
-    --progress-track: rgba(255, 255, 255, 0.08);
+    --skeleton-bg:    color-mix(in srgb, var(--white) 6%, transparent);
+    --skeleton-sheen: color-mix(in srgb, var(--white) 11%, transparent);
+    --progress-track: color-mix(in srgb, var(--white) 8%, transparent);
     --btn-active-bg: var(--slate-850);
     --code-fg:       var(--indigo-300);
     --code-bg:       color-mix(in srgb, var(--indigo-500) 10%, transparent);
@@ -462,7 +462,7 @@
        own near-black navy under Graphite, over a canvas that had gone neutral grey.
        --backdrop is the exception that proves it — pure black belongs to no ramp,
        has no hue to drift, and is what a modal backdrop should be in every theme. */
-    --backdrop:      rgba(0, 0, 0, 0.65);       /* modal backdrop */
+    --backdrop:      color-mix(in srgb, var(--black) 65%, transparent);       /* modal backdrop */
     /* A video's letterbox, and the scrim under a label or a play glyph on a picture.
        Black in every theme for the same reason as --backdrop: a film is framed in
        black, and a label on a photograph cannot know what the photograph is. */
@@ -478,7 +478,7 @@
     --tip-fg:        var(--slate-50);
     --scrollbar:       var(--slate-700);
     --scrollbar-hover: var(--slate-600);
-    --scroll-shade:    rgba(0, 0, 0, 0.3);      /* scroll-edge fade */
+    --scroll-shade:    color-mix(in srgb, var(--black) 30%, transparent);      /* scroll-edge fade */
 
     /* ── Shadows (full box-shadow values — themes swap the colour) ─────────
        A shadow's own black has no palette step to trace to, so these carry
@@ -487,21 +487,21 @@
        on a white surface, which is how .menu, the select panel and the
        search panel came to cast near-black in light mode. ShadowTokenTests
        asserts the two blocks list the same names. */
-    --shadow-topbar:    0 3px 8px rgba(0, 0, 0, 0.28);
-    --shadow-bottombar: 0 -3px 8px rgba(0, 0, 0, 0.28);
-    --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.18);
-    --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.5);
-    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.42);
-    --shadow-flyout:    0 6px 18px rgba(0, 0, 0, 0.38);
-    --shadow-dropdown:  0 10px 30px rgba(0, 0, 0, 0.3);
-    --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.34);
-    --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.45);
+    --shadow-topbar:    0 3px 8px color-mix(in srgb, var(--black) 28%, transparent);
+    --shadow-bottombar: 0 -3px 8px color-mix(in srgb, var(--black) 28%, transparent);
+    --shadow-nav-tools: 0 -6px 12px 0 color-mix(in srgb, var(--black) 18%, transparent);
+    --shadow-modal:     0 24px 64px color-mix(in srgb, var(--black) 50%, transparent);
+    --shadow-tip:       0 8px 22px color-mix(in srgb, var(--black) 42%, transparent);
+    --shadow-flyout:    0 6px 18px color-mix(in srgb, var(--black) 38%, transparent);
+    --shadow-dropdown:  0 10px 30px color-mix(in srgb, var(--black) 30%, transparent);
+    --shadow-float:     0 10px 30px color-mix(in srgb, var(--black) 34%, transparent);
+    --shadow-pop:       0 14px 40px color-mix(in srgb, var(--black) 45%, transparent);
     /* A hairline ring plus a long drop, for a SMALL element that should read as
        lifted clean off the page — a logo tile, an icon plate over a hero. Every
        other shadow here is panel-sized: a 32px tile under --shadow-float shows a
        soft smudge and no edge, because the edge is what sells the lift at that
        size. The ring is inside the token so it cannot be forgotten. */
-    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px rgba(0, 0, 0, 0.38);
+    --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px color-mix(in srgb, var(--black) 38%, transparent);
     /* The edge of a horizontally scrolled region — a pinned table column, a
        sticky first cell. Every shadow above casts downwards; this pair casts
        sideways, which is the axis a sideways scroller needs and the only one the
@@ -511,8 +511,8 @@
        start and end are the two PHYSICAL directions, named for the logical edge
        they belong to under dir="ltr"; 70-rtl.css swaps which one a pinned column
        reaches for, because box-shadow has no logical form. */
-    --shadow-edge-start:  6px 0 8px -6px rgba(0, 0, 0, 0.45);
-    --shadow-edge-end:   -6px 0 8px -6px rgba(0, 0, 0, 0.45);
+    --shadow-edge-start:  6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
+    --shadow-edge-end:   -6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
        Not covered by docs/BRANDING.md's per-token tables. The border and the

@@ -94,6 +94,23 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Editor.FileNotice" Title="When a pasted picture is not taken" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; paste or drop a screenshot into the note.</strong> The editor never inlines a file,
+        so in a field that takes no pictures one would vanish without a word. Write the words once, inside the
+        editor, as <code>.editor-notice[data-editor-file-notice]</code> with <code>hidden</code>: a strip at the
+        foot of the frame, coloured by <code>.form-warning</code> and announced by <code>role="alert"</code>.
+        The editor shows it when a pasted or dropped file is not taken, and hides it at the next change to the
+        document.
+    </p>
+    <p>
+        Taken means the app cancelled <code>sedna-editor-file</code> &mdash;
+        <code>@@onsedna-editor-file:preventDefault</code> beside the handler that uploads it, or
+        <code>preventDefault()</code> in a listener. A file that is not an image or a video the editor knows
+        sends no event and always shows the notice. An editor without the notice is unchanged.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Interop.EditorImagePicker" Title="Your own picker for images" Demo="ex-demo--block ex-demo--pad">
     <p>
         <strong>Live &mdash; put the caret in the report, then add a photo.</strong> Before the media form opens,
@@ -156,6 +173,8 @@
     <p>
         A file pasted or dropped into the document is never inlined. The editor sends
         <code>@@onsedna-editor-file</code> with an id, a name, a type and a size for each, and keeps the last few;
+        <code>@@onsedna-editor-file:preventDefault</code> says the app took them, so a
+        <code>[data-editor-file-notice]</code> stays hidden;
         <code>OpenFileAsync(id, fileId)</code> opens one as a stream reference, which
         <code>OpenReadStreamAsync(maxAllowedSize)</code> reads. This one counts the bytes and lists the file as an
         attachment. An app uploads them there, and answers an image meant for the text with
@@ -191,7 +210,7 @@
             <tr><td><code>sedna-editor-ready</code></td><td><code>{ html, text, length, isEmpty }</code>, once the document has loaded.</td></tr>
             <tr><td><code>sedna-editor-change</code></td><td>The same, after each change.</td></tr>
             <tr><td><code>sedna-editor-media</code></td><td><code>{ kind, src, alt }</code>, cancelable, before the media form opens: the image or video under the caret, or empty strings.</td></tr>
-            <tr><td><code>sedna-editor-file</code></td><td><code>{ files: [{ id, name, type, size }], index }</code>, when an image or a video file is pasted or dropped. Nothing is inserted: read each by its <code>id</code>.</td></tr>
+            <tr><td><code>sedna-editor-file</code></td><td><code>{ files: [{ id, name, type, size }], index }</code>, cancelable, when an image or a video file is pasted or dropped. Nothing is inserted: read each by its <code>id</code>, and cancel the event to say the app took them &mdash; otherwise the editor's <code>[data-editor-file-notice]</code> shows.</td></tr>
             <tr><td>the textarea's <code>input</code>, <code>change</code></td><td>As a textarea sends them: at each change, and when the focus leaves after one.</td></tr>
         </tbody>
     </table>

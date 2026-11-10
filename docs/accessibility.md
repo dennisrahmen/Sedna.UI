@@ -68,7 +68,7 @@ something, it is listed below and repeated in the class's own comment.
 | `.stat-delta` | an arrow icon. The colour is not the direction. |
 | `.skip-link` | `href="#main"`, and `tabindex="-1"` on `<main id="main">` so the jump moves focus rather than only scrolling. Under `<base href="/">` the jump needs `Sedna.UI.js` — see [getting started](getting-started.md#base-href) |
 | any icon-only button | `aria-label`, plus `data-tip` when the purpose is not obvious — and `.btn--icon`, which squares it to the shared control height instead of leaving a wide box around one glyph |
-| `data-drag-zone` | `tabindex="0"` on a whole item, or a real `<button>` as its `data-drag-handle`, with an `aria-label` naming what it moves; a `[data-drag-live]` region carrying the sentences a keyboard drag is announced in; and `aria-disabled="true"` on an item that cannot move. |
+| `data-drag-zone` | `tabindex="0"` on a whole item, or a real `<button>` as its `data-drag-handle`, with an `aria-label` naming what it moves; a `[data-drag-live]` region carrying the sentences a keyboard drag is announced in, and on a zone that takes one thing — a slot, a button — sentences of its own without `{position}`; and `aria-disabled="true"` on an item that cannot move. |
 | `.graph` | an `aria-label` naming what the graph shows; the `.graph-data` list written as sentences a screen reader reads out ("Orders API reads the orders database"), with `data-label` for the short word the canvas writes; a `[data-graph-live]` polite region carrying the sentences a keyboard move is announced in; `aria-label` and `data-tip` on every icon-only tool; and colour never the only carrier — a kind gets a shape, a link a line style and a label. `aria-roledescription="graph"` is yours to add in your own language. See **The graph** below. |
 | `.col-resize` | `role="separator"`, `aria-orientation="vertical"`, an `aria-label` naming the column, the starting `aria-valuenow`, and `tabindex="0"` — a keyboard grid takes it out of the tab order and Alt+Shift with ← or → on the header cell resizes instead. A reordered header row needs a `[data-drag-live]` region and a header cell the keyboard reaches: `tabindex="0"`, or a keyboard grid's own tab stop. |
 | `.carousel` | `aria-roledescription="carousel"` and a name on the `.carousel`; `role="group"`, `aria-roledescription="slide"` and an `aria-label` giving its position ("2 of 5") on every slide; `tabindex="0"` and a name on the `.carousel-track`; an `aria-label` on the previous, next and dot buttons; and a `.visually-hidden` `aria-live="polite"` `[data-carousel-live]` region, left empty, for the position the script says. Nothing may move on a timer. |
@@ -105,7 +105,8 @@ interaction once more:
 **No `role="menu"`.** The script moves focus between a `.menu`'s items with the arrow keys, Home and
 End, jumps to an item by its first letters and opens a submenu with the arrow towards it — but the
 items stay ordinary links and buttons, each its own Tab stop, with no roving tabindex, and a menu may
-hold a filter field. `role="menu"` promises a single tab stop and children that are all `menuitem`s,
+hold a filter field. The Tab that takes the focus out of an open menu closes it, as the menu pattern
+does, and the focus goes on where the key sent it. `role="menu"` promises a single tab stop and children that are all `menuitem`s,
 and a screen reader stops announcing a link as a link inside it. The disclosure pattern —
 `aria-expanded` on the trigger, no role on the panel — is correct and complete.
 

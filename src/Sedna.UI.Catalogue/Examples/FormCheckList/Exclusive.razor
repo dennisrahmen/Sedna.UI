@@ -1,0 +1,11 @@
+<fieldset class="form-field" aria-describedby="affected-hint" style="max-width:480px">
+    <legend class="form-label form-label--required">Which deliveries were affected?</legend>
+    <p class="form-hint" id="affected-hint">Select all that apply.</p>
+    <div class="form-check-list">
+        <label class="form-check"><input type="checkbox" name="affected" value="late" /> <span>Arrived late</span></label>
+        <label class="form-check"><input type="checkbox" name="affected" value="damaged" /> <span>Arrived damaged</span></label>
+        <label class="form-check"><input type="checkbox" name="affected" value="missing" /> <span>Never arrived</span></label>
+        <p class="form-check-or">or</p>
+        <label class="form-check"><input type="checkbox" name="affected" value="none" data-check-exclusive /> <span>None of these</span></label>
+    </div>
+</fieldset>

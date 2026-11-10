@@ -1454,15 +1454,16 @@ function placeNames(g, all) {
     const font = g.colours.font();
     const show = [];
     const hide = [];
+    const drawn = zoom / (g.step || 1);
     const ranked = nodes.toArray().map(n => ({ n, rank: labelPriority(n) })).sort((a, b) => b.rank - a.rank);
     for (const { n, rank } of ranked) {
         const at = n.position();
         const x = at.x * zoom + pan.x;
         const y = at.y * zoom + pan.y;
         const r = ((n.data('size') || 20) * held(n) * zoom) / 2;
-        const px = labelPx(n) * s * Math.min(1, zoom / s / (g.step || 1));
+        const px = labelPx(n) * drawn;
         const bold = n.data('hub') || n.data('root') || n.hasClass('focus');
-        const w = Math.min(textWidth(n.data('label') || '', bold ? 600 : 400, px, font), LABEL_MAX_PX * s) + 8 * s;
+        const w = Math.min(textWidth(n.data('label') || '', bold ? 600 : 400, px, font), LABEL_MAX_PX * drawn) + 8 * s;
         const box = side === 'right' ? { x1: x + r + 3 * s, x2: x + r + 3 * s + w, y1: y - px * 0.85, y2: y + px * 0.85 }
             : side === 'left' ? { x1: x - r - 3 * s - w, x2: x - r - 3 * s, y1: y - px * 0.85, y2: y + px * 0.85 }
                 : { x1: x - w / 2, x2: x + w / 2, y1: y + r + 2 * s, y2: y + r + 2 * s + px * 1.7 };

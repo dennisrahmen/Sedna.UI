@@ -81,4 +81,60 @@ public class CalendarMarksTests : ScriptTestBase
         await Assertions.Expect(page.Locator("#mark")).ToHaveAttributeAsync("aria-expanded", "true");
         Assert.Empty(errors);
     }
+
+    [Fact]
+    public async Task A_day_head_takes_its_tone_whole_and_its_column_stays_plain()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div class="cal-week cal-week--day-tones" style="--cal-days: 4; --cal-hours: 1; width: 600px">
+              <div class="cal-week-head">
+                <span></span>
+                <span class="cal-weekday" id="plain">Fri 2</span>
+                <span class="cal-weekday cal-day--weekend" id="weekend">Sat 3</span>
+                <span class="cal-weekday cal-day--weekend cal-day--holiday" id="both">Sun 4</span>
+                <span class="cal-weekday cal-day--holiday" id="holiday">Mon 5</span>
+              </div>
+              <div class="cal-week-body">
+                <div class="cal-hours"><span class="cal-hour">09:00</span></div>
+                <div class="cal-day-col" id="col"></div><div class="cal-day-col"></div><div class="cal-day-col"></div><div class="cal-day-col"></div>
+              </div>
+            </div>
+            <span id="info" style="background: var(--info-bg); color: var(--info-fg)"></span>
+            <span id="danger" style="background: var(--danger-bg); color: var(--danger-fg)"></span>
+            """);
+
+        var c = await page.EvaluateAsync<string[]>("""
+            () => ['plain', 'weekend', 'both', 'holiday', 'info', 'danger'].map(id => {
+                const s = getComputedStyle(document.getElementById(id));
+                return s.backgroundColor + ' / ' + s.color;
+            })
+            """);
+        Assert.NotEqual(c[4], c[0]);
+        Assert.Equal(c[4], c[1]);    // a weekend in the info tone
+        Assert.Equal(c[5], c[2]);    // a holiday on a weekend reads as a holiday
+        Assert.Equal(c[5], c[3]);
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task Markers_in_a_column_head_follow_its_date()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled("""
+            <div class="cal-week" style="--cal-days: 1; --cal-hours: 1; width: 400px">
+              <div class="cal-week-head">
+                <span></span>
+                <span class="cal-weekday" id="head"><span id="date">Fri 2</span>
+                  <span class="cal-marks"><span class="cal-mark" id="mark" role="img" aria-label="Deadline"><i class="ri-flag-line"></i></span></span>
+                </span>
+              </div>
+            </div>
+            """);
+
+        var gap = await page.EvaluateAsync<double>("""
+            () => document.getElementById('mark').getBoundingClientRect().left - document.getElementById('date').getBoundingClientRect().right
+            """);
+        Assert.InRange(gap, 0, 12);
+    }
 }

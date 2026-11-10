@@ -12,6 +12,7 @@
      10-settings.js
      20-select.js
      20-tips.js
+     21-checks.js
      21-copy.js
      21-dependent.js
      21-range.js
@@ -887,6 +888,174 @@ window.sednaUi = window.sednaUi || {};
 
 })(window.sednaUi);
 
+/* ── 21-checks.js ──────────────────────────────────────────────── */
+/* ── A field of checkboxes: select all, the count, an exclusive option ───────
+   Three behaviours of a `.form-check-list`, each keyed by the `name` its items post,
+   among the checkboxes of the same `<fieldset>` — or `<form>`, or page:
+
+     <input type="checkbox" data-check-all="agents">
+         A "select all". It ticks every item named `agents` when it is ticked and
+         clears them when it is cleared, and follows them: ticked when every item that
+         can be changed is, half ticked (`indeterminate`) when some are, clear when
+         none is.
+
+     <span class="form-check-list-count" data-check-count="agents"
+           data-check-format="{n} of {m} selected">2 of 12 selected</span>
+         The count, in the app's words: `{n}` is how many are ticked and `{m}` how many
+         there are. Render the first value yourself; it is kept from then on.
+
+     <input type="checkbox" name="agents" value="none" data-check-exclusive>
+         An option that excludes the rest — "None of these" after a `.form-check-or`.
+         Ticking it clears every item named `agents`; ticking any of them clears it.
+
+   A box this changes gets a bubbling `change`, so a form's own handler and a Blazor
+   binding see it as they would a click. A disabled box, and one with
+   `aria-readonly="true"`, is never changed. A value set without an event — a Blazor
+   render writing `checked` — is followed at the next change, `reset` or render that
+   adds markup, or by calling `sednaUi.checks.refresh()`.
+
+   An app that renders the "select all" state itself writes `aria-checked` on it
+   instead — "mixed", "true" or "false" — and leaves `data-check-all` off: the two are
+   one state with two owners otherwise. The stylesheet draws "mixed" with no script;
+   this part also sets the box's `indeterminate` to match, whenever the attribute is
+   rendered or changes, because a native checkbox is announced from its own state and
+   an `aria-checked` that disagrees with it is an error to a screen reader's checker.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var changing = false;
+
+    function scopeOf(el) { return el.closest('fieldset, form') || document; }
+
+    function quote(name) { return '"' + String(name).replace(/["\\]/g, '\\$&') + '"'; }
+
+    function toArray(list) { return Array.prototype.slice.call(list); }
+
+    function named(scope, name) {
+        return toArray(scope.querySelectorAll('input[type="checkbox"][name=' + quote(name) + ']:not([data-check-all])'));
+    }
+
+    function items(scope, name) {
+        return named(scope, name).filter(function (b) { return !b.hasAttribute('data-check-exclusive'); });
+    }
+
+    function exclusives(scope, name) {
+        return named(scope, name).filter(function (b) { return b.hasAttribute('data-check-exclusive'); });
+    }
+
+    function changeable(box) { return !box.disabled && box.getAttribute('aria-readonly') !== 'true'; }
+
+    /* Sets a box and says so, as a click would. */
+    function set(box, on) {
+        if (box.checked === on || !changeable(box)) return;
+        box.checked = on;
+        changing = true;
+        try { box.dispatchEvent(new Event('change', { bubbles: true })); }
+        finally { changing = false; }
+    }
+
+    /* Writes the count into the text node already there, so a framework that rendered
+       it keeps the node it knows. */
+    function write(el, text) {
+        if (el.textContent === text) return;
+        var node = el.firstChild;
+        if (node && node.nodeType === 3 && !node.nextSibling) node.nodeValue = text;
+        else el.textContent = text;
+    }
+
+    function sync(scope, name) {
+        var list = items(scope, name);
+        var open = list.filter(changeable);
+        var ticked = list.filter(function (b) { return b.checked; }).length;
+        var openTicked = open.filter(function (b) { return b.checked; }).length;
+        var every = open.length > 0 && openTicked === open.length;
+
+        toArray(scope.querySelectorAll('input[type="checkbox"][data-check-all=' + quote(name) + ']')).forEach(function (all) {
+            all.checked = every;
+            all.indeterminate = !every && ticked > 0;
+        });
+        toArray(scope.querySelectorAll('[data-check-count=' + quote(name) + ']')).forEach(function (count) {
+            var format = count.getAttribute('data-check-format');
+            if (format === null) return;
+            write(count, format.replace(/\{n\}/g, String(ticked)).replace(/\{m\}/g, String(list.length)));
+        });
+    }
+
+    /* A native box's own state, from the `aria-checked` the app rendered on it. */
+    function mirror(box) {
+        var mixed = box.getAttribute('aria-checked') === 'mixed';
+        if (box.indeterminate !== mixed) box.indeterminate = mixed;
+    }
+
+    function refresh(root) {
+        toArray((root || document).querySelectorAll('input[type="checkbox"][aria-checked]')).forEach(mirror);
+        var seen = [];
+        toArray((root || document).querySelectorAll('[data-check-all], [data-check-count]')).forEach(function (el) {
+            var name = el.getAttribute('data-check-all') || el.getAttribute('data-check-count');
+            if (!name) return;
+            var scope = scopeOf(el);
+            for (var i = 0; i < seen.length; i++) if (seen[i].scope === scope && seen[i].name === name) return;
+            seen.push({ scope: scope, name: name });
+            sync(scope, name);
+        });
+    }
+
+    ui.checks = {
+        /* Brings every "select all" and count in line with its items, for a page that
+           changed them some way this part did not see. */
+        refresh: function () { refresh(document); }
+    };
+
+    document.addEventListener('change', function (e) {
+        if (changing) return;
+        var box = e.target;
+        if (!(box instanceof HTMLInputElement) || box.type !== 'checkbox') return;
+        var scope = scopeOf(box);
+
+        var all = box.getAttribute('data-check-all');
+        if (all) {
+            items(scope, all).forEach(function (b) { set(b, box.checked); });
+            if (box.checked) exclusives(scope, all).forEach(function (b) { set(b, false); });
+            sync(scope, all);
+            return;
+        }
+        if (!box.name) return;
+        if (box.checked) {
+            var others = box.hasAttribute('data-check-exclusive') ? items(scope, box.name) : exclusives(scope, box.name);
+            others.forEach(function (b) { if (b !== box) set(b, false); });
+        }
+        sync(scope, box.name);
+    });
+
+    var queued = false;
+    function soon() {
+        if (queued) return;
+        queued = true;
+        (window.queueMicrotask || setTimeout)(function () { queued = false; refresh(document); });
+    }
+
+    function init() {
+        refresh(document);
+        document.addEventListener('reset', function () { setTimeout(soon, 0); }, true);
+        if (typeof MutationObserver === 'function') {
+            new MutationObserver(function (records) {
+                var added = false;
+                for (var i = 0; i < records.length; i++) {
+                    var r = records[i];
+                    if (r.type === 'attributes') {
+                        if (r.target instanceof HTMLInputElement && r.target.type === 'checkbox') mirror(r.target);
+                    } else if (r.addedNodes.length || r.removedNodes.length) added = true;
+                }
+                if (added) soon();
+            }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-checked'] });
+        }
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+
+})(window.sednaUi);
+
 /* ── 21-copy.js ──────────────────────────────────────────────── */
 /* ── Declarative copy-to-clipboard ───────────────────────────────────────────
    Put data-copy on a button and the click is handled for you:
@@ -968,6 +1137,9 @@ window.sednaUi = window.sednaUi || {};
      <label class="switch"><input type="checkbox" checked> Send a digest</label>
      <div class="choice-dependent choice-dependent--dim">…</div>
 
+   `.choice-dependent--off` turns it round, and is inert while its option is ON. A
+   `.form-error` or `.form-warning` between the option and the block keeps the pair.
+
    It follows the option on every `change` and `reset`, and after a render adds or
    swaps markup. A value set by script without either — a Blazor binding writing
    `checked` — is picked up at the next of those; the fade itself never waits, being
@@ -981,6 +1153,7 @@ window.sednaUi = window.sednaUi || {};
 
     function controlOf(block) {
         var host = block.previousElementSibling;
+        if (host && host.matches('.form-error, .form-warning')) host = host.previousElementSibling;
         if (!host || !host.matches('.form-check, .switch')) return null;
         for (var i = 0; i < host.children.length; i++) {
             var c = host.children[i];
@@ -992,7 +1165,7 @@ window.sednaUi = window.sednaUi || {};
     function sync(block) {
         var input = controlOf(block);
         if (!input) return;
-        var off = !input.checked;
+        var off = block.classList.contains('choice-dependent--off') ? input.checked : !input.checked;
         if (off && !block.hasAttribute('inert')) {
             block.setAttribute('inert', '');
             block.setAttribute(MARK, '');
@@ -1538,6 +1711,9 @@ window.sednaUi = window.sednaUi || {};
             : (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null);
         if (!trigger) return;
         ui._.layer.whenGone(trigger, function () {
+            // A panel shared by many triggers may have moved on to another since.
+            var now = ui.popover ? ui.popover.triggerOf(panel) : null;
+            if (now && now !== trigger) return;
             try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* already closed */ }
         });
     }, true);
@@ -2510,6 +2686,39 @@ window.sednaUi = window.sednaUi || {};
         try { open.focus(); } catch (err) { /* detached */ }
     });
 
+    /* ── Tab leaves a menu ─────────────────────────────────────────────────
+       Each item is a Tab stop of its own, and the Tab or Shift+Tab that takes the focus out
+       of an open menu closes it, as the WAI-ARIA menu pattern does: a dropdown, a menu at the
+       pointer and a `.menu[popover]` a popovertarget button opened. The focus goes on where
+       the key sent it — nothing is held back and nothing moved. A menu held by the app — the
+       user widget's — is the app's to close. */
+    function outermost(el) {
+        var menu = el.closest('.menu');
+        for (var up = menu && menu.parentElement ? menu.parentElement.closest('.menu') : null; up;
+            up = up.parentElement ? up.parentElement.closest('.menu') : null) menu = up;
+        return menu;
+    }
+
+    function closeMenu(menu) {
+        if (menu.hasAttribute('popover')) {
+            try { if (menu.matches(':popover-open')) menu.hidePopover(); } catch (err) { /* closed */ }
+            return;
+        }
+        var anchor = menu.closest('.menu-anchor');
+        var toggle = anchor ? anchor.querySelector('[data-menu-toggle]') : null;
+        if (toggle && panelOf(toggle) === menu && toggle.getAttribute('aria-expanded') === 'true') setOpen(toggle, menu, false);
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab' || e.defaultPrevented) return;
+        var menu = e.target instanceof Element ? outermost(e.target) : null;
+        if (!menu) return;
+        // The focus moves as the key's own default action, which has run by the next task.
+        setTimeout(function () {
+            if (!menu.contains(document.activeElement)) closeMenu(menu);
+        }, 0);
+    });
+
     /* ── Moving through a menu with the keyboard ───────────────────────────
        Up and Down move between the items of the open menu that has the focus, Home and
        End go to its ends; Right on a `[data-menu-sub]` item opens its submenu and enters
@@ -2793,12 +3002,54 @@ window.sednaUi = window.sednaUi || {};
 
    The trigger gets aria-expanded and aria-controls; it needs a role and a tabindex of
    the app's own when it is not focusable already, as any control does.
+
+   ONE PANEL, MANY TRIGGERS. Any number of triggers may name the same popover. Open at one
+   and asked to open at another, it closes and opens again there — an anchored panel is
+   placed as it is shown, so moving its anchor while it is open would leave it where it was.
+   A trigger inside another open popover opens the panel as that popover's child, so the
+   one it sits in stays open.
+
+   FILLED PER TRIGGER — data-popover-for. A panel that carries `data-popover-for` holds the
+   content of one trigger at a time, and its value names which: the trigger's id. Before
+   such a panel opens at a trigger, a bubbling `sedna-popover-fill` is dispatched on the
+   trigger, with `detail.trigger` (its id) and `detail.popover` (the panel's id). The app
+   fills the panel and writes the trigger's id into `data-popover-for`, and the panel opens
+   when it reads that id — at once when it already does. In Blazor that is the handler and
+   one attribute, written in the same render as the content:
+
+     <div class="popover" id="order-card" popover data-popover-for="@_cardFor">…</div>
+     <tr id="@($"o-{o.Id}")" data-popover="order-card" data-popover-hover
+         @onsedna-popover-fill="() => Fill(o)">…</tr>
+
+   Nothing waits on .NET and nothing is called back: the render the app makes anyway is the
+   answer. A request the reader has already left behind — the pointer gone, another
+   trigger asked for — opens nothing when its answer comes. A trigger with no id cannot be
+   named, and its panel opens as it is, with a warning in the console.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
     var triggers = new WeakMap();
     var pinned = new WeakSet();   // hover cards a click has pinned open
     var count = 0;
+
+    function isOpen(panel) {
+        try { return panel.matches(':popover-open'); } catch (err) { return false; }
+    }
+
+    // Whether showPopover() takes a `source`, which makes the trigger the panel's invoker and
+    // so the popover around the trigger its ancestor. Read from the dictionary itself: the
+    // argument is converted, and its getter run, before the call fails on <html>, which is
+    // no popover — so nothing is shown and nothing is made.
+    var takesSource = false;
+    try {
+        document.documentElement.showPopover({ get source() { takesSource = true; return null; } });
+    } catch (err) { /* not a popover: thrown after the argument was read */ }
+
+    // The open auto popover a trigger sits in, which opening a panel from it must not close.
+    function around(trigger) {
+        var host = trigger.parentElement ? trigger.parentElement.closest('[popover]') : null;
+        return host && isOpen(host) ? host : null;
+    }
 
     function anchor(panel, trigger) {
         var name = trigger.style.getPropertyValue('anchor-name');
@@ -2811,12 +3062,21 @@ window.sednaUi = window.sednaUi || {};
 
     function show(panel, trigger) {
         if (!panel || typeof panel.showPopover !== 'function') return;
+        var was = triggers.get(panel);
         if (trigger) {
             triggers.set(panel, trigger);
             anchor(panel, trigger);
             if (panel.id) trigger.setAttribute('aria-controls', panel.id);
         }
-        try { panel.showPopover(); } catch (err) { /* already open, or not a popover */ }
+        // Open at another trigger: closed and opened again, which places it at this one.
+        if (trigger && was && was !== trigger && isOpen(panel)) {
+            if (was.hasAttribute('data-popover')) was.setAttribute('aria-expanded', 'false');
+            hide(panel);
+        }
+        try {
+            if (trigger && takesSource && around(trigger)) panel.showPopover({ source: trigger });
+            else panel.showPopover();
+        } catch (err) { /* already open, or not a popover */ }
     }
 
     function hide(panel) {
@@ -2846,16 +3106,84 @@ window.sednaUi = window.sednaUi || {};
         return id ? document.getElementById(id) : null;
     }
 
+    /* Opens a panel at a trigger the reader reached — by click, key, hover, focus or a long
+       press — asking the app to fill it first when it carries `data-popover-for`. `pin` pins a
+       hover card once it opens. One request is outstanding at a time: a newer one, or the
+       reader leaving, drops the last. */
+    var pending = null;   // { panel, trigger, observer } while the app fills a panel
+
+    function cancelFill() {
+        if (pending) pending.observer.disconnect();
+        pending = null;
+    }
+
+    function request(panel, trigger, pin) {
+        cancelFill();
+        var go = function () {
+            if (pin) pinned.add(panel);
+            show(panel, trigger);
+        };
+        if (!panel.hasAttribute('data-popover-for')) { go(); return; }
+        var name = trigger.id;
+        if (!name) {
+            console.warn('sednaUi.popover: a trigger of #' + panel.id + ' has no id, so data-popover-for cannot name it; the panel opens as it is.');
+            go();
+            return;
+        }
+        trigger.dispatchEvent(new CustomEvent('sedna-popover-fill', {
+            bubbles: true,
+            detail: { trigger: name, popover: panel.id || null }
+        }));
+        if (panel.getAttribute('data-popover-for') === name) { go(); return; }
+        if (typeof MutationObserver !== 'function') { go(); return; }
+        var p = pending = { panel: panel, trigger: trigger };
+        p.observer = new MutationObserver(function () {
+            if (pending !== p || panel.getAttribute('data-popover-for') !== name) return;
+            cancelFill();
+            if (trigger.isConnected) go();
+        });
+        p.observer.observe(panel, { attributes: true, attributeFilter: ['data-popover-for'] });
+    }
+
+    /* Whether a hover card would close something the reader opened. Showing an auto popover
+       closes every other open one that is not its ancestor, so a card on hover or focus waits
+       while another is open: a menu, a picker, a list in a popover, a card a click pinned.
+       Not one it sits inside — it opens as that one's child — and not another hover card,
+       which is only a glance and gives way. */
+    function blocked(panel, trigger) {
+        var open;
+        try { open = document.querySelectorAll(':popover-open'); } catch (err) { return false; }
+        for (var i = 0; i < open.length; i++) {
+            var p = open[i];
+            if (p === panel || p.contains(panel)) continue;
+            if (takesSource && p.contains(trigger)) continue;
+            var kind = (p.getAttribute('popover') || '').toLowerCase();
+            if (kind !== '' && kind !== 'auto') continue;
+            var t = triggers.get(p);
+            if (t && t.hasAttribute('data-popover-hover') && !pinned.has(p)) continue;
+            return true;
+        }
+        return false;
+    }
+
     /* A press on the trigger of an open panel light-dismisses it before the click
        arrives, and the click would open it again. The platform knows a popovertarget
        button and skips that; this remembers which panel was open when the press began. */
-    var wasOpen = null;
+    var wasOpen = null, wasAt = null;
     document.addEventListener('pointerdown', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover]') : null;
         var panel = trigger ? target(trigger) : null;
-        wasOpen = null;
-        try { if (panel && panel.matches(':popover-open')) wasOpen = panel; } catch (err) { /* no :popover-open */ }
+        wasOpen = wasAt = null;
+        if (panel && isOpen(panel)) { wasOpen = panel; wasAt = triggers.get(panel) || null; }
     }, true);
+
+    // Whether the panel is open at this trigger, or was when the press began: a press light-
+    // dismisses it before the click arrives. Open at another trigger is not open here.
+    function openAt(panel, trigger) {
+        var at = wasOpen === panel ? wasAt : (isOpen(panel) ? triggers.get(panel) : null);
+        wasOpen = wasAt = null;
+        return at === trigger;
+    }
 
     document.addEventListener('click', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover]') : null;
@@ -2866,30 +3194,28 @@ window.sednaUi = window.sednaUi || {};
         // a dialog — and gets out of its way, so it does not sit above what the click opened.
         if (hoverOnly(trigger)) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            cancelFill();
             hide(panel);
             return;
         }
         e.preventDefault();
         e.stopPropagation();
+        var here = openAt(panel, trigger);
         // A hover card clicked is pinned: shown, and no longer closed by the pointer leaving.
         // Clicked again once pinned, it closes, as a popovertarget button toggles its panel.
         if (trigger.hasAttribute('data-popover-hover')) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
-            var open = false;
-            try { open = panel.matches(':popover-open'); } catch (err) { /* no :popover-open */ }
-            if (pinned.has(panel) && (open || wasOpen === panel)) {
-                wasOpen = null;
+            if (pinned.has(panel) && here) {
+                cancelFill();
                 pinned.delete(panel);
                 hide(panel);
                 return;
             }
-            wasOpen = null;
-            pinned.add(panel);
-            show(panel, trigger);
+            request(panel, trigger, true);
             return;
         }
-        if (wasOpen === panel) { wasOpen = null; hide(panel); return; }
-        ui.popover.toggle(panel, trigger);
+        if (here) { cancelFill(); hide(panel); return; }
+        request(panel, trigger, false);
     });
 
     document.addEventListener('keydown', function (e) {
@@ -2901,7 +3227,8 @@ window.sednaUi = window.sednaUi || {};
         var panel = target(trigger);
         if (!panel) return;
         e.preventDefault();
-        ui.popover.toggle(panel, trigger);
+        if (isOpen(panel) && triggers.get(panel) === trigger) { cancelFill(); hide(panel); }
+        else request(panel, trigger, false);
     });
 
     /* ── A hover card ──────────────────────────────────────────────────────
@@ -2915,7 +3242,12 @@ window.sednaUi = window.sednaUi || {};
        `data-popover-hover="only"` is for a trigger with a click action of its own — a
        button that opens a dialog, beside a summary of what the dialog holds. Hover and
        focus open the card; a click neither opens nor pins it, is left to the trigger, and
-       closes the card. */
+       closes the card.
+
+       Any number of triggers can share one card, which follows the pointer or the focus to
+       each after the same rest, filled per trigger with `data-popover-for` (above). A card a
+       click pinned stays where it was pinned. A hover card does not open over another open
+       popover — a menu, a picker, a list, a pinned card — that opening it would close. */
     var hoverTimer = 0, leaveTimer = 0, hovered = null;
 
     function hoverOnly(trigger) { return trigger.getAttribute('data-popover-hover') === 'only'; }
@@ -2930,9 +3262,14 @@ window.sednaUi = window.sednaUi || {};
         if (!panel) return;
         clearTimeout(leaveTimer);
         clearTimeout(hoverTimer);
+        if (pinned.has(panel) && isOpen(panel)) return;   // pinned where the reader left it
         hovered = panel;
-        hoverTimer = setTimeout(function () { show(panel, trigger); }, delayOf(trigger));
+        hoverTimer = setTimeout(function () {
+            if (!blocked(panel, trigger)) request(panel, trigger, false);
+        }, delayOf(trigger));
     }
+
+    function engaged(el) { return !!el && (el.matches(':hover') || el === document.activeElement); }
 
     function leave() {
         clearTimeout(hoverTimer);
@@ -2941,9 +3278,10 @@ window.sednaUi = window.sednaUi || {};
         clearTimeout(leaveTimer);
         leaveTimer = setTimeout(function () {
             var trigger = triggers.get(panel);
+            var waiting = pending && pending.panel === panel ? pending.trigger : null;
             var stay = panel.matches(':hover') || panel.contains(document.activeElement)
-                || (trigger && (trigger.matches(':hover') || trigger === document.activeElement));
-            if (!stay) { hide(panel); hovered = null; }
+                || engaged(trigger) || engaged(waiting);
+            if (!stay) { cancelFill(); hide(panel); hovered = null; }
         }, 200);
     }
 
@@ -3008,8 +3346,7 @@ window.sednaUi = window.sednaUi || {};
             pressed = trigger;
             held = { trigger: trigger, panel: panel };
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
-            pinned.add(panel);
-            show(panel, trigger);
+            request(panel, trigger, true);
         }, LONG_PRESS);
     }, true);
 
@@ -3046,15 +3383,18 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
-        if (e.newState === 'closed') pinned.delete(panel);
-        if (e.newState === 'closed' && held && held.panel === panel && held.trigger.isConnected) {
+        // Read from the panel as it is now: a card moved to another trigger closed and opened
+        // again in one go, and an engine may report that as one event or as two.
+        var open = isOpen(panel);
+        if (!open) pinned.delete(panel);
+        if (!open && held && held.panel === panel && held.trigger.isConnected) {
             pinned.add(panel);
             show(panel, held.trigger);
             return;
         }
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
-        trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     }, true);
 
 })(window.sednaUi);
@@ -6174,12 +6514,17 @@ window.sednaUi = window.sednaUi || {};
     function managed(list) { return list.getAttribute('data-tabs') === 'managed'; }
 
     ui.tabs = {
-        // Selects a tab programmatically, by element or by its aria-controls id. In a
-        // managed tablist that is a click on it, which the app's handler answers.
+        // Selects a tab programmatically: by element, by the tab's own id or by the id of
+        // the panel it controls. In a managed tablist that is a click on it, which the
+        // app's handler answers.
         select: function (tabOrPanelId) {
-            var tab = typeof tabOrPanelId === 'string'
-                ? document.querySelector('[role="tab"][aria-controls="' + tabOrPanelId + '"]')
-                : tabOrPanelId;
+            var tab = tabOrPanelId;
+            if (typeof tabOrPanelId === 'string') {
+                var own = document.getElementById(tabOrPanelId);
+                tab = own && own.getAttribute('role') === 'tab'
+                    ? own
+                    : document.querySelector('[role="tab"][aria-controls="' + CSS.escape(tabOrPanelId) + '"]');
+            }
             var list = tab && tab.closest('[data-tabs]');
             if (!list) return;
             if (managed(list)) tab.click();
@@ -7101,6 +7446,8 @@ window.sednaUi = window.sednaUi || {};
                                 `slot` is a place with no order of its own: see below
      data-drag-label="…"        what an announcement calls an item or a zone; an item
                                 falls back to its text, a zone to its aria-label
+     data-drag-effect="copy"    on a zone or an item: what is dropped is a copy, and the
+                                original stays where it is. See COPIES below
      aria-disabled="true"       on an item, it does not lift; on a zone, nothing lifts
                                 from it or lands in it
 
@@ -7109,9 +7456,9 @@ window.sednaUi = window.sednaUi || {};
    worse, diffed against the wrong sibling — on the next render. So a drag changes
    attributes only, and the move itself is an event the app handles:
 
-     sedna-dragstart   on the item, cancelable       { item, items, type, zone, index, keyboard }
-     sedna-drop        on the zone it landed in      { item, items, type, from, to, index, fromIndex, keyboard, fromSlot }
-     sedna-dragend     on the item, always, last     { item, items, type, zone, index, keyboard, dropped }
+     sedna-dragstart   on the item, cancelable       { item, items, type, zone, index, keyboard, effect }
+     sedna-drop        on the zone it landed in      { item, items, type, from, to, index, fromIndex, keyboard, fromSlot, effect }
+     sedna-dragend     on the item, always, last     { item, items, type, zone, index, keyboard, dropped, effect }
 
    `index` in sedna-drop is where the item goes in `to` once it has left `from`, so
    the app's whole handler is a remove and an insert. A drop back where it started
@@ -7127,6 +7474,16 @@ window.sednaUi = window.sednaUi || {};
    distance between the two. Dropped back on `fromSlot` it sends no sedna-drop. From the
    keyboard the item starts on that slot, and the arrows move it to the nearest slot
    that way on screen. Every other drop has `fromSlot: null`.
+
+   COPIES. data-drag-effect="copy" on the zone an item is dragged from — a palette, a
+   list of templates — or on the item itself makes every drag from it a copy: `effect` is
+   "copy" in all three events, and the app adds the item to `to` and leaves `from` as it
+   is. The original stays where it is, outlined, under the pointer and from the keyboard
+   alike; what travels under a pointer is its name, read the way an announcement reads
+   it, in a box the item's size drawn by the stylesheet from --drag-name. Nothing leaves
+   the zone, so the zone it came from does not take it back, and sedna-dragend names the
+   original's own place. data-drag-effect="move" on an item inside a copying zone moves
+   that one. Every other drag has `effect: "move"`.
 
    SEVERAL AT ONCE. An item lifted while it is selected carries every other selected
    item of its zone with it. Selected is what the app already writes: aria-selected="true"
@@ -7151,9 +7508,12 @@ window.sednaUi = window.sednaUi || {};
      data-drag-slot="start|end|column"  the neighbour holding a raised item's slot open
      data-drag-carried                  the other selected items travelling with it
      data-drag-count="3"                on the dragged item, when it carries others
+     data-drag-copy                     on the dragged item and those it carries, for a copy
 
    The lifted item, the line and the zone states are all CSS on those attributes
-   (63-drag.css). Nothing is drawn: there is no ghost and no placeholder element.
+   (63-drag.css). Nothing is drawn: there is no ghost element and no placeholder — a
+   copy's travelling name is the stylesheet's ::before on the original, from the
+   --drag-name this writes on its style.
 
    Input, three ways:
 
@@ -7242,6 +7602,13 @@ window.sednaUi = window.sednaUi || {};
         return handle && !pointerOnly(handle) ? handle : item;
     }
 
+    /* "copy" when what is dropped is a copy and the original stays: the item's own
+       data-drag-effect, else its zone's. Anything else is a move. */
+    function effectOf(item, from) {
+        var own = item.getAttribute('data-drag-effect');
+        return (own || from.getAttribute('data-drag-effect')) === 'copy' ? 'copy' : 'move';
+    }
+
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
 
     function isSlot(zone) { return !!zone && axisOf(zone) === 'slot'; }
@@ -7290,9 +7657,11 @@ window.sednaUi = window.sednaUi || {};
             || zone.getAttribute('data-drag-zone');
     }
 
-    /* Could `item`, lifted from `from`, land in `zone`? */
-    function accepts(zone, item, from) {
+    /* Could `item`, lifted from `from`, land in `zone`? A copy never lands where it came
+       from: the original is still there. */
+    function accepts(zone, item, from, effect) {
         if (disabled(zone) || item.contains(zone)) return false;
+        if (effect === 'copy' && zone === from) return false;
         if (zone !== from) {
             var group = zone.getAttribute('data-drag-group');
             if (!group || group !== from.getAttribute('data-drag-group')) return false;
@@ -7326,7 +7695,16 @@ window.sednaUi = window.sednaUi || {};
 
        {items} is how many are being carried, for a sentence about a selection.
        A step with no sentence says nothing. Leave the element empty in the markup: this
-       writes its text. */
+       writes its text.
+
+       A zone may carry its own sentence for a step, in the same attribute, and then it is
+       the one read for that zone: the zone the item moves into or is dropped in, and the
+       zone it is picked up from or put back in. A place that takes one thing — a slot, a
+       button an item is dropped on — words it without a position:
+
+         <div class="drag-list" data-drag-zone="slot-3" data-drag-accept="sequence"
+              aria-label="Button 3" data-drag-move="{item} onto {zone}."
+              data-drag-drop="{item} put on {zone}."></div> */
     function liveFor(el) {
         for (var n = el; n && n.nodeType === 1; n = n.parentElement) {
             var live = n.matches('[data-drag-live]') ? n : n.querySelector('[data-drag-live]');
@@ -7338,11 +7716,12 @@ window.sednaUi = window.sednaUi || {};
     function announce(kind) {
         if (!drag || drag.mode !== 'keyboard') return;
         var live = liveFor(drag.item);
-        var sentence = live && live.getAttribute('data-drag-' + kind);
-        if (!sentence) return;
-
+        if (!live) return;
         var back = kind === 'cancel' || !drag.zone;
         var zone = back ? (drag.home || drag.from) : drag.zone;
+        var sentence = zone.getAttribute('data-drag-' + kind) || live.getAttribute('data-drag-' + kind);
+        if (!sentence) return;
+
         var count = others(zone).length + 1;
         var index = back ? drag.start : drag.index;
         var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
@@ -7413,23 +7792,26 @@ window.sednaUi = window.sednaUi || {};
         var first = all.indexOf(carried[0]);
         var start = first - all.slice(0, first).filter(function (el) { return carried.indexOf(el) !== -1; }).length;
         var together = all.indexOf(carried[carried.length - 1]) - first === carried.length - 1;
+        var effect = effectOf(item, from);
         var detail = {
             item: item.getAttribute('data-drag-item'),
             items: carried.map(function (el) { return el.getAttribute('data-drag-item'); }),
             type: item.getAttribute('data-drag-type'),
             zone: from.getAttribute('data-drag-zone'),
             index: fromIndex,
-            keyboard: mode === 'keyboard'
+            keyboard: mode === 'keyboard',
+            effect: effect
         };
         if (!send(item, 'sedna-dragstart', detail, true)) return false;
 
         var rect = item.getBoundingClientRect();
         drag = {
             item: item, mode: mode, from: from, fromIndex: fromIndex, detail: detail,
-            carried: carried, start: start, together: together,
+            carried: carried, start: start, together: together, copy: effect === 'copy',
             name: itemName(item),
             hadStyle: item.hasAttribute('style'),
             grabX: x - rect.left, grabY: y - rect.top, x: x, y: y, x0: x, y0: y, tx: 0, ty: 0,
+            left0: rect.left, top0: rect.top, ref: null,
             zone: null, index: fromIndex, over: null, edge: null, zones: [], frame: 0
         };
 
@@ -7438,7 +7820,7 @@ window.sednaUi = window.sednaUi || {};
         toArray(document.querySelectorAll('[data-drag-zone]')).forEach(function (zone) {
             var group = zone.getAttribute('data-drag-group');
             if (zone !== from && (!group || group !== from.getAttribute('data-drag-group'))) return;
-            var takes = carried.every(function (el) { return accepts(zone, el, from); });
+            var takes = carried.every(function (el) { return accepts(zone, el, from, effect); });
             zone.setAttribute('data-drop-state', takes ? 'valid' : 'invalid');
             drag.zones.push(zone);
         });
@@ -7458,6 +7840,11 @@ window.sednaUi = window.sednaUi || {};
             item.setAttribute('data-drag-count', String(carried.length));
             carried.forEach(function (el) { if (el !== item) el.setAttribute('data-drag-carried', ''); });
         }
+        if (drag.copy) {
+            carried.forEach(function (el) { el.setAttribute('data-drag-copy', ''); });
+            // The words the travelling copy shows: the app's, as a CSS string for `content`.
+            item.style.setProperty('--drag-name', '"' + drag.name.replace(/["\\]/g, '\\$&') + '"');
+        }
         if (mode === 'pointer') lift(item, rect);
         if (ui.tips && ui.tips.hide) ui.tips.hide();
         try { window.getSelection().removeAllRanges(); } catch (e) { /* nothing selected */ }
@@ -7473,7 +7860,7 @@ window.sednaUi = window.sednaUi || {};
         return true;
     }
 
-    var BOX = ['--drag-x', '--drag-y', '--drag-left', '--drag-top', '--drag-width', '--drag-height'];
+    var BOX = ['--drag-x', '--drag-y', '--drag-left', '--drag-top', '--drag-width', '--drag-height', '--drag-name'];
 
     /* Raises the carried item into the top layer, as a manual popover, where it is the
        box the reader holds: nothing clips it — not a .card's overflow, not a scrolling
@@ -7529,7 +7916,7 @@ window.sednaUi = window.sednaUi || {};
             return;
         }
 
-        if (axis === 'grid') return;
+        if (axis === 'grid') { follow(next || prev); return; }
         var inline = axis === 'x';
         if (next) {
             var after = next.getBoundingClientRect();
@@ -7542,6 +7929,31 @@ window.sednaUi = window.sednaUi || {};
             var end = parseFloat(getComputedStyle(prev)[inline ? 'marginInlineEnd' : 'marginBlockEnd']) || 0;
             if (shrunk > 0) slot(prev, 'end', '--drag-slot-size', (shrunk + end) + 'px');
         }
+        follow(next || prev);
+    }
+
+    /* A copy's original is pinned in the top layer over the place it never left, so it
+       follows that place when anything scrolls: by how far a neighbour still in the flow
+       has moved — or the zone, less its own scrolling, when it has none. A move needs
+       none of this; its item is carried by the pointer. */
+    function follow(ref) {
+        drag.ref = null;
+        if (!drag.copy) return;
+        var el = ref || drag.from;
+        var r = el.getBoundingClientRect();
+        drag.ref = { el: el, own: !ref, left: r.left, top: r.top, sl: el.scrollLeft, st: el.scrollTop };
+    }
+
+    function shift() {
+        var ref = drag.ref;
+        if (!ref) return { x: 0, y: 0 };
+        var r = ref.el.getBoundingClientRect();
+        var x = r.left - ref.left, y = r.top - ref.top;
+        if (ref.own) {
+            x -= ref.el.scrollLeft - ref.sl;
+            y -= ref.el.scrollTop - ref.st;
+        }
+        return { x: x, y: y };
     }
 
     function slot(el, kind, prop, value) {
@@ -7569,6 +7981,7 @@ window.sednaUi = window.sednaUi || {};
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
         var moved = landed && (zone !== d.from || !d.together || d.index !== d.start) && zone !== d.home;
+        var effect = d.detail.effect;
 
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
 
@@ -7582,7 +7995,10 @@ window.sednaUi = window.sednaUi || {};
         }
         d.item.removeAttribute('data-dragging');
         d.item.removeAttribute('data-drag-count');
-        d.carried.forEach(function (el) { el.removeAttribute('data-drag-carried'); });
+        d.carried.forEach(function (el) {
+            el.removeAttribute('data-drag-carried');
+            el.removeAttribute('data-drag-copy');
+        });
         BOX.forEach(function (name) { d.item.style.removeProperty(name); });
         if (!d.hadStyle && !d.item.getAttribute('style')) d.item.removeAttribute('style');
         drag = null;
@@ -7598,20 +8014,25 @@ window.sednaUi = window.sednaUi || {};
                 index: d.index,
                 fromIndex: d.fromIndex,
                 keyboard: d.mode === 'keyboard',
-                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null
+                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null,
+                effect: effect
             });
         }
 
+        // A copy's original never left: dragend names where it still is.
+        var went = moved && !d.copy;
         var end = {
             item: id, items: d.detail.items, type: d.detail.type,
-            zone: moved ? zone.getAttribute('data-drag-zone') : d.detail.zone,
-            index: moved ? d.index : d.fromIndex,
+            zone: went ? zone.getAttribute('data-drag-zone') : d.detail.zone,
+            index: went ? d.index : d.fromIndex,
             keyboard: d.mode === 'keyboard',
-            dropped: !!moved
+            dropped: !!moved,
+            effect: effect
         };
         send(d.item.isConnected ? d.item : document, 'sedna-dragend', end);
 
-        if (moved && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
+        // A copy's original kept the focus; nothing the app renders moves it.
+        if (went && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
     }
 
     /* The app's render moves the item it was told about, and moving a focused node drops
@@ -7751,10 +8172,22 @@ window.sednaUi = window.sednaUi || {};
        the slot under a pointer that is standing still. */
     function update() {
         var d = drag;
-        if (d.lifted) {
+        if (d.lifted && d.copy) {
+            // The original stays over its place, and the copy travels from there.
+            var by = shift();
+            d.item.style.setProperty('--drag-left', (d.left0 + by.x) + 'px');
+            d.item.style.setProperty('--drag-top', (d.top0 + by.y) + 'px');
+            d.tx = Math.round(d.x - d.x0 - by.x);
+            d.ty = Math.round(d.y - d.y0 - by.y);
+        } else if (d.lifted) {
             // Pinned to the viewport, so the distance the pointer has travelled is the offset.
             d.tx = Math.round(d.x - d.x0);
             d.ty = Math.round(d.y - d.y0);
+        } else if (d.copy) {
+            // Not raised, and not moved: the copy travels from the item's own box.
+            var box = d.item.getBoundingClientRect();
+            d.tx = Math.round(d.x - d.grabX - box.left);
+            d.ty = Math.round(d.y - d.grabY - box.top);
         } else {
             // Still in the flow: from the untransformed box, which moves when anything
             // around it scrolls.
@@ -7955,7 +8388,16 @@ window.sednaUi = window.sednaUi || {};
 
         if (hop) {
             var zones = reachable();
-            var next = zones[zones.indexOf(zone) + hop];
+            var at = zones.indexOf(zone);
+            // From a zone the item cannot land in — the one it was picked up from, when that
+            // takes nothing back — the nearest zone before or after it in the document.
+            if (at === -1) {
+                var before = zones.filter(function (z) {
+                    return !!(z.compareDocumentPosition(zone) & Node.DOCUMENT_POSITION_FOLLOWING);
+                }).length;
+                at = hop < 0 ? before : before - 1;
+            }
+            var next = zones[at + hop];
             if (!next) return;
             zone = next;
             index = Math.min(index, others(zone).length);
@@ -11493,6 +11935,12 @@ window.sednaUi = window.sednaUi || {};
    — a combo, a drag — and Escape meant for an open popover are left alone, exactly
    as the platform would leave them.
 
+   CLOSED BY A CLICK BESIDE IT — closedby="any". The platform's own light dismiss, on any
+   of these dialogs: a click whose press and release both land on the backdrop is a close
+   request, so on a guarded dialog it raises `cancel` like Escape and the app decides. A
+   drag from a field out to the backdrop is not one. A `.lightbox` has no backdrop to click
+   — it fills the screen — so here a click on its stage beside the picture stands in.
+
    ASKING BEFORE THE PAGE IS LEFT — data-close-guard with data-dirty. A form, or any
    element, that carries both holds work that is not saved, and closing the tab,
    reloading or following a link out of the app raises the browser's own "leave
@@ -11655,6 +12103,35 @@ window.sednaUi = window.sednaUi || {};
         if (!d || d.matches(':modal')) return;
         if (document.querySelector(':popover-open:not([popover="manual"])')) return;
         e.preventDefault();
+        if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
+    });
+
+    /* A lightbox fills the screen, so a press beside its picture lands inside its box and
+       `closedby="any"` never sees it. On a `.lightbox` that carries it, a click on the stage
+       around the picture — or the dialog's own ground — is the same close request a click on
+       the backdrop is for every other dialog: both ends of the press have to land there, so a
+       drag that starts on the picture or a control closes nothing, and data-close-guard asks
+       first. */
+    var besideDown = null;
+    function beside(e) {
+        var t = e.target instanceof Element ? e.target : null;
+        var d = t ? t.closest('dialog.lightbox[open]') : null;
+        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
+        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+    }
+    document.addEventListener('pointerdown', function (e) {
+        besideDown = e.button === 0 ? beside(e) : null;
+    }, true);
+    // A press and a release on two elements click their common ancestor — the stage, for a
+    // release on the picture — so the release is checked where it lands.
+    document.addEventListener('pointerup', function (e) {
+        if (besideDown && beside(e) !== besideDown) besideDown = null;
+    }, true);
+    document.addEventListener('click', function (e) {
+        var was = besideDown;
+        besideDown = null;
+        var d = e.button === 0 && !e.defaultPrevented ? beside(e) : null;
+        if (!d || d !== was) return;
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
 

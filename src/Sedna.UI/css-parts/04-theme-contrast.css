@@ -134,8 +134,8 @@
     --btn-active-bg:  var(--slate-700);
     --code-fg:        var(--indigo-200);
     --code-bg:        var(--indigo-900);
-    --backdrop:       rgba(0, 0, 0, 0.85);
-    --overlay:        rgba(0, 0, 0, 0.85);
+    --backdrop:       color-mix(in srgb, var(--black) 85%, transparent);
+    --overlay:        color-mix(in srgb, var(--black) 85%, transparent);
     --scrollbar:       var(--slate-400);
     --scrollbar-hover: var(--slate-300);
 }
@@ -229,8 +229,8 @@
     --btn-active-bg:  var(--slate-400);
     --code-fg:        var(--indigo-900);
     --code-bg:        var(--indigo-200);
-    --backdrop:       rgba(0, 0, 0, 0.6);
-    --overlay:        rgba(255, 255, 255, 0.9);
+    --backdrop:       color-mix(in srgb, var(--black) 60%, transparent);
+    --overlay:        color-mix(in srgb, var(--white) 90%, transparent);
     /* Follows the light variant's hint rather than inheriting the dark bubble
        from 01-tokens.css, which would leave this the one light surface in the
        library still painted dark. The border goes to full strength, as every

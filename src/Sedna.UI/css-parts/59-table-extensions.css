@@ -928,6 +928,10 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
        value, laid out the way it is in a wide cell. A flex row made each child a value
        of its own and spaced them apart. */
     .table--stack :is(tbody, tfoot) :is(td, th) { display: flow-root; text-align: end; border-bottom: 1px solid var(--divider); }
+    /* The value wraps at the end edge whatever keeps a wide cell on one line — a muted
+       column, a fitted one, a fixed table's ellipsis: a card has no column to run into,
+       and a value that cannot wrap makes the table wider than the screen. */
+    .table.table--stack :is(tbody, tfoot) :is(td, th) { white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
     .table--stack tr > :is(td, th):last-child { border-bottom: none; }
     .table--stack :is(td, th)[data-label]::before {
         content: attr(data-label);

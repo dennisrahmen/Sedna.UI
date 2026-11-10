@@ -1,10 +1,11 @@
 /* ── Status bar ─────────────────────────────────────────────────────────────
    One strip across the bottom of the window that says the app is not working
-   normally, and ONE class family for every case of it. Five modifiers:
+   normally, and ONE class family for every case of it. Six modifiers:
 
      --reconnecting   the circuit dropped and is being re-established   pulses
      --paused         the server released the circuit and kept the state
-     --failed         reconnecting is over — only a reload helps
+     --failed         reconnecting is over — retry, then reload
+     --resume-failed  the held state could not be resumed — optional, falls back to --failed
      --expired        the session is gone from the server
      --error          an unhandled error reached the browser
 
@@ -32,7 +33,7 @@
    A `.status-bar` outside either id is visible on its own, which is how the
    catalogue shows all five at once.
 
-   Blazor sets six state classes on the modal. They map onto four of the five
+   Blazor sets six state classes on the modal. They map onto the five connection
    rows — `--error` is not a connection state and belongs to the other id:
 
    | Blazor sets                          | The row that shows                          |
@@ -41,13 +42,14 @@
    | `components-reconnect-retrying`      | `.status-bar--reconnecting`, plus its counter |
    | `components-reconnect-paused`        | `.status-bar--paused`, or reconnecting if absent |
    | `components-reconnect-failed`        | `.status-bar--failed`                       |
-   | `components-reconnect-resume-failed` | `.status-bar--failed`                       |
+   | `components-reconnect-resume-failed` | `.status-bar--resume-failed`, or failed if absent |
    | `components-reconnect-rejected`      | `.status-bar--expired`                      |
    | `components-reconnect-hide`          | nothing — this is the connected state       |
 
    `retrying` is added alongside `show`; every other state replaces the last.
-   `.status-bar--paused` is optional and falls back to the reconnecting row, so a
-   host page written without it only misses the softer wording.
+   `.status-bar--paused` is optional and falls back to the reconnecting row, and
+   `.status-bar--resume-failed` to the failed row, so a host page written without
+   them only misses the more precise wording.
 
    The palette tokens are still named `--reconnect-*`. They are the two
    severities this bar has, and a token rename is its own break in its own
@@ -99,6 +101,7 @@
 
 /* Crimson: over. A reload is the only way forward. */
 .status-bar--failed,
+.status-bar--resume-failed,
 .status-bar--expired,
 .status-bar--error {
     background: var(--reconnect-fail-bg);
@@ -160,6 +163,7 @@
 .status-bar--reconnecting .status-bar-action,
 .status-bar--paused .status-bar-action { background: var(--warn-solid); }
 .status-bar--failed .status-bar-action,
+.status-bar--resume-failed .status-bar-action,
 .status-bar--expired .status-bar-action,
 .status-bar--error .status-bar-action { background: var(--danger-solid); }
 
@@ -200,8 +204,10 @@
 #components-reconnect-modal.components-reconnect-paused   .status-bar--paused       { display: flex; }
 #components-reconnect-modal.components-reconnect-failed   .status-bar--failed       { display: flex; }
 #components-reconnect-modal.components-reconnect-rejected .status-bar--expired      { display: flex; }
-/* A failed resume reads as a failed reconnect. */
-#components-reconnect-modal.components-reconnect-resume-failed .status-bar--failed { display: flex; }
+#components-reconnect-modal.components-reconnect-resume-failed .status-bar--resume-failed { display: flex; }
+/* A failed resume with no row of its own reads as a failed reconnect. */
+#components-reconnect-modal.components-reconnect-resume-failed:not(:has(.status-bar--resume-failed))
+    .status-bar--failed { display: flex; }
 /* Paused with no row of its own falls back to reconnecting, rather than to an
    empty bar. */
 #components-reconnect-modal.components-reconnect-paused:not(:has(.status-bar--paused))

@@ -84,6 +84,11 @@
         ],
         "alpha": 0.6,
         "hex": "#000000"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--black) 60%, transparent)"
+        }
       }
     }
   },
@@ -653,6 +658,11 @@
         ],
         "alpha": 0.9,
         "hex": "#ffffff"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--white) 90%, transparent)"
+        }
       }
     }
   },

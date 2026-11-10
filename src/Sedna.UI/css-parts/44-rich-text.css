@@ -272,6 +272,17 @@
 .editor-media { flex-wrap: wrap; max-inline-size: calc(100% - 2 * var(--space-4)); }
 .editor-media .form-input { flex: 1 1 12rem; inline-size: auto; }
 
+/* ── The notice about a file ────────────────────────────────────────────────
+   The app's own words, `[data-editor-file-notice]`, which the script shows when a file
+   pasted or dropped into the document is not taken, and hides at the next change. A strip
+   at the foot of the frame; `.form-warning` beside it gives it its colour and its icon. */
+.editor-notice {
+    margin: 0;
+    padding: var(--space-3) var(--space-6);
+    border-block-start: 1px solid var(--divider);
+}
+.editor-notice[hidden] { display: none; }
+
 /* ── The slash menu ──────────────────────────────────────────────────────────
    The app's `.menu` with `data-editor-slash`, which "/" opens at the caret to turn the
    line into another block. The script places it with a transform from the frame's

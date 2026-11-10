@@ -211,6 +211,7 @@ dialog.drawer[open] { visibility: visible; transform: none; }
 .drawer-body--flush > .list > .sticky-group-head { padding-inline: var(--space-8); }
 .drawer-footer {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
     gap: var(--space-4);

@@ -54,7 +54,8 @@ function readMarkup(el) {
     const link = el.querySelector('[data-editor-link]');
     const media = el.querySelector('[data-editor-media]');
     const slash = el.querySelector('[data-editor-slash]');
-    return { value, body, toolbar, link, media, slash };
+    const notice = el.querySelector('[data-editor-file-notice]');
+    return { value, body, toolbar, link, media, slash, notice };
 }
 
 /* The formats this editor accepts, as Quill names them. A list needs indent, for its

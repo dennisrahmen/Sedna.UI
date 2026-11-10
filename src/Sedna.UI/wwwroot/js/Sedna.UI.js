@@ -456,6 +456,113 @@ window.sednaUi = window.sednaUi || {};
     })();
 })(window.sednaUi);
 (function (ui) {
+    var changing = false;
+    function scopeOf(el) { return el.closest('fieldset, form') || document; }
+    function quote(name) { return '"' + String(name).replace(/["\\]/g, '\\$&') + '"'; }
+    function toArray(list) { return Array.prototype.slice.call(list); }
+    function named(scope, name) {
+        return toArray(scope.querySelectorAll('input[type="checkbox"][name=' + quote(name) + ']:not([data-check-all])'));
+    }
+    function items(scope, name) {
+        return named(scope, name).filter(function (b) { return !b.hasAttribute('data-check-exclusive'); });
+    }
+    function exclusives(scope, name) {
+        return named(scope, name).filter(function (b) { return b.hasAttribute('data-check-exclusive'); });
+    }
+    function changeable(box) { return !box.disabled && box.getAttribute('aria-readonly') !== 'true'; }
+    function set(box, on) {
+        if (box.checked === on || !changeable(box)) return;
+        box.checked = on;
+        changing = true;
+        try { box.dispatchEvent(new Event('change', { bubbles: true })); }
+        finally { changing = false; }
+    }
+    function write(el, text) {
+        if (el.textContent === text) return;
+        var node = el.firstChild;
+        if (node && node.nodeType === 3 && !node.nextSibling) node.nodeValue = text;
+        else el.textContent = text;
+    }
+    function sync(scope, name) {
+        var list = items(scope, name);
+        var open = list.filter(changeable);
+        var ticked = list.filter(function (b) { return b.checked; }).length;
+        var openTicked = open.filter(function (b) { return b.checked; }).length;
+        var every = open.length > 0 && openTicked === open.length;
+        toArray(scope.querySelectorAll('input[type="checkbox"][data-check-all=' + quote(name) + ']')).forEach(function (all) {
+            all.checked = every;
+            all.indeterminate = !every && ticked > 0;
+        });
+        toArray(scope.querySelectorAll('[data-check-count=' + quote(name) + ']')).forEach(function (count) {
+            var format = count.getAttribute('data-check-format');
+            if (format === null) return;
+            write(count, format.replace(/\{n\}/g, String(ticked)).replace(/\{m\}/g, String(list.length)));
+        });
+    }
+    function mirror(box) {
+        var mixed = box.getAttribute('aria-checked') === 'mixed';
+        if (box.indeterminate !== mixed) box.indeterminate = mixed;
+    }
+    function refresh(root) {
+        toArray((root || document).querySelectorAll('input[type="checkbox"][aria-checked]')).forEach(mirror);
+        var seen = [];
+        toArray((root || document).querySelectorAll('[data-check-all], [data-check-count]')).forEach(function (el) {
+            var name = el.getAttribute('data-check-all') || el.getAttribute('data-check-count');
+            if (!name) return;
+            var scope = scopeOf(el);
+            for (var i = 0; i < seen.length; i++) if (seen[i].scope === scope && seen[i].name === name) return;
+            seen.push({ scope: scope, name: name });
+            sync(scope, name);
+        });
+    }
+    ui.checks = {
+        refresh: function () { refresh(document); }
+    };
+    document.addEventListener('change', function (e) {
+        if (changing) return;
+        var box = e.target;
+        if (!(box instanceof HTMLInputElement) || box.type !== 'checkbox') return;
+        var scope = scopeOf(box);
+        var all = box.getAttribute('data-check-all');
+        if (all) {
+            items(scope, all).forEach(function (b) { set(b, box.checked); });
+            if (box.checked) exclusives(scope, all).forEach(function (b) { set(b, false); });
+            sync(scope, all);
+            return;
+        }
+        if (!box.name) return;
+        if (box.checked) {
+            var others = box.hasAttribute('data-check-exclusive') ? items(scope, box.name) : exclusives(scope, box.name);
+            others.forEach(function (b) { if (b !== box) set(b, false); });
+        }
+        sync(scope, box.name);
+    });
+    var queued = false;
+    function soon() {
+        if (queued) return;
+        queued = true;
+        (window.queueMicrotask || setTimeout)(function () { queued = false; refresh(document); });
+    }
+    function init() {
+        refresh(document);
+        document.addEventListener('reset', function () { setTimeout(soon, 0); }, true);
+        if (typeof MutationObserver === 'function') {
+            new MutationObserver(function (records) {
+                var added = false;
+                for (var i = 0; i < records.length; i++) {
+                    var r = records[i];
+                    if (r.type === 'attributes') {
+                        if (r.target instanceof HTMLInputElement && r.target.type === 'checkbox') mirror(r.target);
+                    } else if (r.addedNodes.length || r.removedNodes.length) added = true;
+                }
+                if (added) soon();
+            }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-checked'] });
+        }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+})(window.sednaUi);
+(function (ui) {
     var RESTORE_MS = 1400;
     function textFor(btn) {
         if (btn.hasAttribute('data-copy')) return btn.getAttribute('data-copy') || '';
@@ -487,6 +594,7 @@ window.sednaUi = window.sednaUi || {};
     var MARK = 'data-sedna-inert';
     function controlOf(block) {
         var host = block.previousElementSibling;
+        if (host && host.matches('.form-error, .form-warning')) host = host.previousElementSibling;
         if (!host || !host.matches('.form-check, .switch')) return null;
         for (var i = 0; i < host.children.length; i++) {
             var c = host.children[i];
@@ -497,7 +605,7 @@ window.sednaUi = window.sednaUi || {};
     function sync(block) {
         var input = controlOf(block);
         if (!input) return;
-        var off = !input.checked;
+        var off = block.classList.contains('choice-dependent--off') ? input.checked : !input.checked;
         if (off && !block.hasAttribute('inert')) {
             block.setAttribute('inert', '');
             block.setAttribute(MARK, '');
@@ -807,6 +915,8 @@ window.sednaUi = window.sednaUi || {};
             : (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null);
         if (!trigger) return;
         ui._.layer.whenGone(trigger, function () {
+            var now = ui.popover ? ui.popover.triggerOf(panel) : null;
+            if (now && now !== trigger) return;
             try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* already closed */ }
         });
     }, true);
@@ -1491,6 +1601,29 @@ window.sednaUi = window.sednaUi || {};
         closeAll(null);
         try { open.focus(); } catch (err) { /* detached */ }
     });
+    function outermost(el) {
+        var menu = el.closest('.menu');
+        for (var up = menu && menu.parentElement ? menu.parentElement.closest('.menu') : null; up;
+            up = up.parentElement ? up.parentElement.closest('.menu') : null) menu = up;
+        return menu;
+    }
+    function closeMenu(menu) {
+        if (menu.hasAttribute('popover')) {
+            try { if (menu.matches(':popover-open')) menu.hidePopover(); } catch (err) { /* closed */ }
+            return;
+        }
+        var anchor = menu.closest('.menu-anchor');
+        var toggle = anchor ? anchor.querySelector('[data-menu-toggle]') : null;
+        if (toggle && panelOf(toggle) === menu && toggle.getAttribute('aria-expanded') === 'true') setOpen(toggle, menu, false);
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab' || e.defaultPrevented) return;
+        var menu = e.target instanceof Element ? outermost(e.target) : null;
+        if (!menu) return;
+        setTimeout(function () {
+            if (!menu.contains(document.activeElement)) closeMenu(menu);
+        }, 0);
+    });
     function items(menu) {
         return Array.prototype.filter.call(menu.querySelectorAll('.menu-item'), function (el) {
             return el.closest('.menu') === menu && !el.disabled && el.getAttribute('aria-disabled') !== 'true'
@@ -1692,6 +1825,17 @@ window.sednaUi = window.sednaUi || {};
     var triggers = new WeakMap();
     var pinned = new WeakSet();   // hover cards a click has pinned open
     var count = 0;
+    function isOpen(panel) {
+        try { return panel.matches(':popover-open'); } catch (err) { return false; }
+    }
+    var takesSource = false;
+    try {
+        document.documentElement.showPopover({ get source() { takesSource = true; return null; } });
+    } catch (err) { /* not a popover: thrown after the argument was read */ }
+    function around(trigger) {
+        var host = trigger.parentElement ? trigger.parentElement.closest('[popover]') : null;
+        return host && isOpen(host) ? host : null;
+    }
     function anchor(panel, trigger) {
         var name = trigger.style.getPropertyValue('anchor-name');
         if (!name) {
@@ -1702,12 +1846,20 @@ window.sednaUi = window.sednaUi || {};
     }
     function show(panel, trigger) {
         if (!panel || typeof panel.showPopover !== 'function') return;
+        var was = triggers.get(panel);
         if (trigger) {
             triggers.set(panel, trigger);
             anchor(panel, trigger);
             if (panel.id) trigger.setAttribute('aria-controls', panel.id);
         }
-        try { panel.showPopover(); } catch (err) { /* already open, or not a popover */ }
+        if (trigger && was && was !== trigger && isOpen(panel)) {
+            if (was.hasAttribute('data-popover')) was.setAttribute('aria-expanded', 'false');
+            hide(panel);
+        }
+        try {
+            if (trigger && takesSource && around(trigger)) panel.showPopover({ source: trigger });
+            else panel.showPopover();
+        } catch (err) { /* already open, or not a popover */ }
     }
     function hide(panel) {
         try { if (panel && panel.matches(':popover-open')) panel.hidePopover(); }
@@ -1731,13 +1883,65 @@ window.sednaUi = window.sednaUi || {};
         var id = trigger.getAttribute('data-popover');
         return id ? document.getElementById(id) : null;
     }
-    var wasOpen = null;
+    var pending = null;   // { panel, trigger, observer } while the app fills a panel
+    function cancelFill() {
+        if (pending) pending.observer.disconnect();
+        pending = null;
+    }
+    function request(panel, trigger, pin) {
+        cancelFill();
+        var go = function () {
+            if (pin) pinned.add(panel);
+            show(panel, trigger);
+        };
+        if (!panel.hasAttribute('data-popover-for')) { go(); return; }
+        var name = trigger.id;
+        if (!name) {
+            console.warn('sednaUi.popover: a trigger of #' + panel.id + ' has no id, so data-popover-for cannot name it; the panel opens as it is.');
+            go();
+            return;
+        }
+        trigger.dispatchEvent(new CustomEvent('sedna-popover-fill', {
+            bubbles: true,
+            detail: { trigger: name, popover: panel.id || null }
+        }));
+        if (panel.getAttribute('data-popover-for') === name) { go(); return; }
+        if (typeof MutationObserver !== 'function') { go(); return; }
+        var p = pending = { panel: panel, trigger: trigger };
+        p.observer = new MutationObserver(function () {
+            if (pending !== p || panel.getAttribute('data-popover-for') !== name) return;
+            cancelFill();
+            if (trigger.isConnected) go();
+        });
+        p.observer.observe(panel, { attributes: true, attributeFilter: ['data-popover-for'] });
+    }
+    function blocked(panel, trigger) {
+        var open;
+        try { open = document.querySelectorAll(':popover-open'); } catch (err) { return false; }
+        for (var i = 0; i < open.length; i++) {
+            var p = open[i];
+            if (p === panel || p.contains(panel)) continue;
+            if (takesSource && p.contains(trigger)) continue;
+            var kind = (p.getAttribute('popover') || '').toLowerCase();
+            if (kind !== '' && kind !== 'auto') continue;
+            var t = triggers.get(p);
+            if (t && t.hasAttribute('data-popover-hover') && !pinned.has(p)) continue;
+            return true;
+        }
+        return false;
+    }
+    var wasOpen = null, wasAt = null;
     document.addEventListener('pointerdown', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover]') : null;
         var panel = trigger ? target(trigger) : null;
-        wasOpen = null;
-        try { if (panel && panel.matches(':popover-open')) wasOpen = panel; } catch (err) { /* no :popover-open */ }
+        wasOpen = wasAt = null;
+        if (panel && isOpen(panel)) { wasOpen = panel; wasAt = triggers.get(panel) || null; }
     }, true);
+    function openAt(panel, trigger) {
+        var at = wasOpen === panel ? wasAt : (isOpen(panel) ? triggers.get(panel) : null);
+        wasOpen = wasAt = null;
+        return at === trigger;
+    }
     document.addEventListener('click', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover]') : null;
         if (!trigger) return;
@@ -1745,28 +1949,26 @@ window.sednaUi = window.sednaUi || {};
         if (!panel) return;
         if (hoverOnly(trigger)) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            cancelFill();
             hide(panel);
             return;
         }
         e.preventDefault();
         e.stopPropagation();
+        var here = openAt(panel, trigger);
         if (trigger.hasAttribute('data-popover-hover')) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
-            var open = false;
-            try { open = panel.matches(':popover-open'); } catch (err) { /* no :popover-open */ }
-            if (pinned.has(panel) && (open || wasOpen === panel)) {
-                wasOpen = null;
+            if (pinned.has(panel) && here) {
+                cancelFill();
                 pinned.delete(panel);
                 hide(panel);
                 return;
             }
-            wasOpen = null;
-            pinned.add(panel);
-            show(panel, trigger);
+            request(panel, trigger, true);
             return;
         }
-        if (wasOpen === panel) { wasOpen = null; hide(panel); return; }
-        ui.popover.toggle(panel, trigger);
+        if (here) { cancelFill(); hide(panel); return; }
+        request(panel, trigger, false);
     });
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -1777,7 +1979,8 @@ window.sednaUi = window.sednaUi || {};
         var panel = target(trigger);
         if (!panel) return;
         e.preventDefault();
-        ui.popover.toggle(panel, trigger);
+        if (isOpen(panel) && triggers.get(panel) === trigger) { cancelFill(); hide(panel); }
+        else request(panel, trigger, false);
     });
     var hoverTimer = 0, leaveTimer = 0, hovered = null;
     function hoverOnly(trigger) { return trigger.getAttribute('data-popover-hover') === 'only'; }
@@ -1790,9 +1993,13 @@ window.sednaUi = window.sednaUi || {};
         if (!panel) return;
         clearTimeout(leaveTimer);
         clearTimeout(hoverTimer);
+        if (pinned.has(panel) && isOpen(panel)) return;   // pinned where the reader left it
         hovered = panel;
-        hoverTimer = setTimeout(function () { show(panel, trigger); }, delayOf(trigger));
+        hoverTimer = setTimeout(function () {
+            if (!blocked(panel, trigger)) request(panel, trigger, false);
+        }, delayOf(trigger));
     }
+    function engaged(el) { return !!el && (el.matches(':hover') || el === document.activeElement); }
     function leave() {
         clearTimeout(hoverTimer);
         var panel = hovered;
@@ -1800,9 +2007,10 @@ window.sednaUi = window.sednaUi || {};
         clearTimeout(leaveTimer);
         leaveTimer = setTimeout(function () {
             var trigger = triggers.get(panel);
+            var waiting = pending && pending.panel === panel ? pending.trigger : null;
             var stay = panel.matches(':hover') || panel.contains(document.activeElement)
-                || (trigger && (trigger.matches(':hover') || trigger === document.activeElement));
-            if (!stay) { hide(panel); hovered = null; }
+                || engaged(trigger) || engaged(waiting);
+            if (!stay) { cancelFill(); hide(panel); hovered = null; }
         }, 200);
     }
     document.addEventListener('pointerover', function (e) {
@@ -1848,8 +2056,7 @@ window.sednaUi = window.sednaUi || {};
             pressed = trigger;
             held = { trigger: trigger, panel: panel };
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
-            pinned.add(panel);
-            show(panel, trigger);
+            request(panel, trigger, true);
         }, LONG_PRESS);
     }, true);
     document.addEventListener('pointermove', function (e) {
@@ -1877,15 +2084,16 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
-        if (e.newState === 'closed') pinned.delete(panel);
-        if (e.newState === 'closed' && held && held.panel === panel && held.trigger.isConnected) {
+        var open = isOpen(panel);
+        if (!open) pinned.delete(panel);
+        if (!open && held && held.panel === panel && held.trigger.isConnected) {
             pinned.add(panel);
             show(panel, held.trigger);
             return;
         }
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
-        trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     }, true);
 })(window.sednaUi);
 (function (ui) {
@@ -4021,9 +4229,13 @@ window.sednaUi = window.sednaUi || {};
     function managed(list) { return list.getAttribute('data-tabs') === 'managed'; }
     ui.tabs = {
         select: function (tabOrPanelId) {
-            var tab = typeof tabOrPanelId === 'string'
-                ? document.querySelector('[role="tab"][aria-controls="' + tabOrPanelId + '"]')
-                : tabOrPanelId;
+            var tab = tabOrPanelId;
+            if (typeof tabOrPanelId === 'string') {
+                var own = document.getElementById(tabOrPanelId);
+                tab = own && own.getAttribute('role') === 'tab'
+                    ? own
+                    : document.querySelector('[role="tab"][aria-controls="' + CSS.escape(tabOrPanelId) + '"]');
+            }
             var list = tab && tab.closest('[data-tabs]');
             if (!list) return;
             if (managed(list)) tab.click();
@@ -4563,6 +4775,10 @@ window.sednaUi = window.sednaUi || {};
         var handle = handleOf(item);
         return handle && !pointerOnly(handle) ? handle : item;
     }
+    function effectOf(item, from) {
+        var own = item.getAttribute('data-drag-effect');
+        return (own || from.getAttribute('data-drag-effect')) === 'copy' ? 'copy' : 'move';
+    }
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
     function isSlot(zone) { return !!zone && axisOf(zone) === 'slot'; }
     function validSlot(zone) { return isSlot(zone) && zone.getAttribute('data-drop-state') === 'valid'; }
@@ -4596,8 +4812,9 @@ window.sednaUi = window.sednaUi || {};
         return zone.getAttribute('data-drag-label') || zone.getAttribute('aria-label')
             || zone.getAttribute('data-drag-zone');
     }
-    function accepts(zone, item, from) {
+    function accepts(zone, item, from, effect) {
         if (disabled(zone) || item.contains(zone)) return false;
+        if (effect === 'copy' && zone === from) return false;
         if (zone !== from) {
             var group = zone.getAttribute('data-drag-group');
             if (!group || group !== from.getAttribute('data-drag-group')) return false;
@@ -4622,10 +4839,11 @@ window.sednaUi = window.sednaUi || {};
     function announce(kind) {
         if (!drag || drag.mode !== 'keyboard') return;
         var live = liveFor(drag.item);
-        var sentence = live && live.getAttribute('data-drag-' + kind);
-        if (!sentence) return;
+        if (!live) return;
         var back = kind === 'cancel' || !drag.zone;
         var zone = back ? (drag.home || drag.from) : drag.zone;
+        var sentence = zone.getAttribute('data-drag-' + kind) || live.getAttribute('data-drag-' + kind);
+        if (!sentence) return;
         var count = others(zone).length + 1;
         var index = back ? drag.start : drag.index;
         var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
@@ -4678,28 +4896,31 @@ window.sednaUi = window.sednaUi || {};
         var first = all.indexOf(carried[0]);
         var start = first - all.slice(0, first).filter(function (el) { return carried.indexOf(el) !== -1; }).length;
         var together = all.indexOf(carried[carried.length - 1]) - first === carried.length - 1;
+        var effect = effectOf(item, from);
         var detail = {
             item: item.getAttribute('data-drag-item'),
             items: carried.map(function (el) { return el.getAttribute('data-drag-item'); }),
             type: item.getAttribute('data-drag-type'),
             zone: from.getAttribute('data-drag-zone'),
             index: fromIndex,
-            keyboard: mode === 'keyboard'
+            keyboard: mode === 'keyboard',
+            effect: effect
         };
         if (!send(item, 'sedna-dragstart', detail, true)) return false;
         var rect = item.getBoundingClientRect();
         drag = {
             item: item, mode: mode, from: from, fromIndex: fromIndex, detail: detail,
-            carried: carried, start: start, together: together,
+            carried: carried, start: start, together: together, copy: effect === 'copy',
             name: itemName(item),
             hadStyle: item.hasAttribute('style'),
             grabX: x - rect.left, grabY: y - rect.top, x: x, y: y, x0: x, y0: y, tx: 0, ty: 0,
+            left0: rect.left, top0: rect.top, ref: null,
             zone: null, index: fromIndex, over: null, edge: null, zones: [], frame: 0
         };
         toArray(document.querySelectorAll('[data-drag-zone]')).forEach(function (zone) {
             var group = zone.getAttribute('data-drag-group');
             if (zone !== from && (!group || group !== from.getAttribute('data-drag-group'))) return;
-            var takes = carried.every(function (el) { return accepts(zone, el, from); });
+            var takes = carried.every(function (el) { return accepts(zone, el, from, effect); });
             zone.setAttribute('data-drop-state', takes ? 'valid' : 'invalid');
             drag.zones.push(zone);
         });
@@ -4715,6 +4936,10 @@ window.sednaUi = window.sednaUi || {};
             item.setAttribute('data-drag-count', String(carried.length));
             carried.forEach(function (el) { if (el !== item) el.setAttribute('data-drag-carried', ''); });
         }
+        if (drag.copy) {
+            carried.forEach(function (el) { el.setAttribute('data-drag-copy', ''); });
+            item.style.setProperty('--drag-name', '"' + drag.name.replace(/["\\]/g, '\\$&') + '"');
+        }
         if (mode === 'pointer') lift(item, rect);
         if (ui.tips && ui.tips.hide) ui.tips.hide();
         try { window.getSelection().removeAllRanges(); } catch (e) { /* nothing selected */ }
@@ -4728,7 +4953,7 @@ window.sednaUi = window.sednaUi || {};
         }
         return true;
     }
-    var BOX = ['--drag-x', '--drag-y', '--drag-left', '--drag-top', '--drag-width', '--drag-height'];
+    var BOX = ['--drag-x', '--drag-y', '--drag-left', '--drag-top', '--drag-width', '--drag-height', '--drag-name'];
     function lift(item, rect) {
         drag.lifted = false;
         drag.slot = null;
@@ -4760,7 +4985,7 @@ window.sednaUi = window.sednaUi || {};
             clearSlot();
             return;
         }
-        if (axis === 'grid') return;
+        if (axis === 'grid') { follow(next || prev); return; }
         var inline = axis === 'x';
         if (next) {
             var after = next.getBoundingClientRect();
@@ -4773,6 +4998,25 @@ window.sednaUi = window.sednaUi || {};
             var end = parseFloat(getComputedStyle(prev)[inline ? 'marginInlineEnd' : 'marginBlockEnd']) || 0;
             if (shrunk > 0) slot(prev, 'end', '--drag-slot-size', (shrunk + end) + 'px');
         }
+        follow(next || prev);
+    }
+    function follow(ref) {
+        drag.ref = null;
+        if (!drag.copy) return;
+        var el = ref || drag.from;
+        var r = el.getBoundingClientRect();
+        drag.ref = { el: el, own: !ref, left: r.left, top: r.top, sl: el.scrollLeft, st: el.scrollTop };
+    }
+    function shift() {
+        var ref = drag.ref;
+        if (!ref) return { x: 0, y: 0 };
+        var r = ref.el.getBoundingClientRect();
+        var x = r.left - ref.left, y = r.top - ref.top;
+        if (ref.own) {
+            x -= ref.el.scrollLeft - ref.sl;
+            y -= ref.el.scrollTop - ref.st;
+        }
+        return { x: x, y: y };
     }
     function slot(el, kind, prop, value) {
         drag.slot = { el: el, prop: prop, hadStyle: el.hasAttribute('style') };
@@ -4794,6 +5038,7 @@ window.sednaUi = window.sednaUi || {};
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
         var moved = landed && (zone !== d.from || !d.together || d.index !== d.start) && zone !== d.home;
+        var effect = d.detail.effect;
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
         clearEdge();
         setOver(null);
@@ -4805,7 +5050,10 @@ window.sednaUi = window.sednaUi || {};
         }
         d.item.removeAttribute('data-dragging');
         d.item.removeAttribute('data-drag-count');
-        d.carried.forEach(function (el) { el.removeAttribute('data-drag-carried'); });
+        d.carried.forEach(function (el) {
+            el.removeAttribute('data-drag-carried');
+            el.removeAttribute('data-drag-copy');
+        });
         BOX.forEach(function (name) { d.item.style.removeProperty(name); });
         if (!d.hadStyle && !d.item.getAttribute('style')) d.item.removeAttribute('style');
         drag = null;
@@ -4820,18 +5068,21 @@ window.sednaUi = window.sednaUi || {};
                 index: d.index,
                 fromIndex: d.fromIndex,
                 keyboard: d.mode === 'keyboard',
-                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null
+                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null,
+                effect: effect
             });
         }
+        var went = moved && !d.copy;
         var end = {
             item: id, items: d.detail.items, type: d.detail.type,
-            zone: moved ? zone.getAttribute('data-drag-zone') : d.detail.zone,
-            index: moved ? d.index : d.fromIndex,
+            zone: went ? zone.getAttribute('data-drag-zone') : d.detail.zone,
+            index: went ? d.index : d.fromIndex,
             keyboard: d.mode === 'keyboard',
-            dropped: !!moved
+            dropped: !!moved,
+            effect: effect
         };
         send(d.item.isConnected ? d.item : document, 'sedna-dragend', end);
-        if (moved && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
+        if (went && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
     }
     function refocus(id, viaHandle) {
         var observer = null;
@@ -4935,9 +5186,19 @@ window.sednaUi = window.sednaUi || {};
     }
     function update() {
         var d = drag;
-        if (d.lifted) {
+        if (d.lifted && d.copy) {
+            var by = shift();
+            d.item.style.setProperty('--drag-left', (d.left0 + by.x) + 'px');
+            d.item.style.setProperty('--drag-top', (d.top0 + by.y) + 'px');
+            d.tx = Math.round(d.x - d.x0 - by.x);
+            d.ty = Math.round(d.y - d.y0 - by.y);
+        } else if (d.lifted) {
             d.tx = Math.round(d.x - d.x0);
             d.ty = Math.round(d.y - d.y0);
+        } else if (d.copy) {
+            var box = d.item.getBoundingClientRect();
+            d.tx = Math.round(d.x - d.grabX - box.left);
+            d.ty = Math.round(d.y - d.grabY - box.top);
         } else {
             var r = d.item.getBoundingClientRect();
             d.tx = Math.round(d.x - d.grabX - (r.left - d.tx));
@@ -5100,7 +5361,14 @@ window.sednaUi = window.sednaUi || {};
         }
         if (hop) {
             var zones = reachable();
-            var next = zones[zones.indexOf(zone) + hop];
+            var at = zones.indexOf(zone);
+            if (at === -1) {
+                var before = zones.filter(function (z) {
+                    return !!(z.compareDocumentPosition(zone) & Node.DOCUMENT_POSITION_FOLLOWING);
+                }).length;
+                at = hop < 0 ? before : before - 1;
+            }
+            var next = zones[at + hop];
             if (!next) return;
             zone = next;
             index = Math.min(index, others(zone).length);
@@ -7314,6 +7582,26 @@ window.sednaUi = window.sednaUi || {};
         if (!d || d.matches(':modal')) return;
         if (document.querySelector(':popover-open:not([popover="manual"])')) return;
         e.preventDefault();
+        if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
+    });
+    var besideDown = null;
+    function beside(e) {
+        var t = e.target instanceof Element ? e.target : null;
+        var d = t ? t.closest('dialog.lightbox[open]') : null;
+        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
+        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+    }
+    document.addEventListener('pointerdown', function (e) {
+        besideDown = e.button === 0 ? beside(e) : null;
+    }, true);
+    document.addEventListener('pointerup', function (e) {
+        if (besideDown && beside(e) !== besideDown) besideDown = null;
+    }, true);
+    document.addEventListener('click', function (e) {
+        var was = besideDown;
+        besideDown = null;
+        var d = e.button === 0 && !e.defaultPrevented ? beside(e) : null;
+        if (!d || d !== was) return;
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
     function syncToggles(d) {

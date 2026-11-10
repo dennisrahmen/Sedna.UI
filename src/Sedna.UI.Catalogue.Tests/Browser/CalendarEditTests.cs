@@ -50,29 +50,20 @@ public class CalendarEditTests(CatalogueAppFixture app)
     }
 
     [Fact]
-    public async Task A_block_moved_from_the_keyboard_and_stretched_by_its_grip_is_rendered_there()
+    public async Task A_block_stretched_by_its_grip_is_rendered_with_its_new_end()
     {
+        // Moving a block by the keyboard is the library's (DragTests, both engines); what only
+        // a running app shows is the grip's sedna-resize reaching C# and the render giving
+        // the block its new span.
         if (app.NoBrowser) return;
         var page = await Open();
+        var grip = page.Locator("[data-drag-item=b3] .cal-resize");
 
-        // Dispatch, Tuesday 09:00: an hour later and a day on.
-        await page.Locator(".cal-week [data-drag-item=b3]").FocusAsync();
-        await page.Keyboard.PressAsync("Space");
-        await page.Keyboard.PressAsync("ArrowDown");
-        await page.Keyboard.PressAsync("ArrowDown");
-        await page.Keyboard.PressAsync("ArrowRight");
-        await page.Keyboard.PressAsync("Space");
-
-        await page.Locator("[data-drag-zone='2026-09-16'] > [data-drag-item=b3]").WaitForAsync();
-        Assert.Contains("--cal-start: 3;", await page.Locator("[data-drag-item=b3]").GetAttributeAsync("style") ?? "", StringComparison.Ordinal);
-
-        // Its end, half an hour later: the render gives it the new span and the grip's
-        // pixel height goes with the old style.
-        await page.Locator("[data-drag-item=b3] .cal-resize").FocusAsync();
+        await grip.FocusAsync();
         await page.Keyboard.PressAsync("ArrowDown");
         await page.WaitForFunctionAsync(
             "() => { const s = document.querySelector('[data-drag-item=b3]').getAttribute('style'); return s.includes('--cal-span: 1.5') && !s.includes('--cal-height'); }");
-        Assert.Equal("Ends 11:30", await page.Locator("[data-drag-item=b3] .cal-resize").GetAttributeAsync("aria-valuetext"));
+        Assert.Equal("Ends 10:30", await grip.GetAttributeAsync("aria-valuetext"));
         await page.Context.CloseAsync();
     }
 }
