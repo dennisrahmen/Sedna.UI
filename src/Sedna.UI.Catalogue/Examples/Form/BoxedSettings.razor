@@ -1,0 +1,73 @@
+<form style="max-width:880px">
+    <div class="sedna-grid sedna-grid--fit">
+        <fieldset class="form-section form-section--box">
+            <legend>Appearance</legend>
+            <div class="form-section-body">
+                <div class="form-field">
+                    <label class="form-label" for="bx-theme">Theme</label>
+                    <select class="form-input form-select" id="bx-theme">
+                        <option selected>Follow the system</option>
+                        <option>Dark</option>
+                        <option>Light</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="bx-density">Density</label>
+                    <select class="form-input form-select" id="bx-density">
+                        <option selected>Comfortable</option>
+                        <option>Compact</option>
+                    </select>
+                </div>
+                <label class="form-check"><input type="checkbox" checked /> <span>Reduce motion</span></label>
+            </div>
+        </fieldset>
+
+        <fieldset class="form-section form-section--box">
+            <legend><label class="switch"><input type="checkbox" checked /> <span>E-mail notifications</span></label></legend>
+            <div class="form-section-body choice-dependent choice-dependent--dim">
+                <div class="form-field">
+                    <label class="form-label" for="bx-mail">Send to</label>
+                    <input class="form-input" id="bx-mail" type="email" value="alex.fischer@example.com" />
+                </div>
+                <label class="form-check"><input type="checkbox" checked /> <span>A daily digest instead of one mail per event</span></label>
+            </div>
+        </fieldset>
+
+        <fieldset class="form-section form-section--box sedna-span-full">
+            <legend><span>Agents</span> <span class="badge">3 of 5</span></legend>
+            <a class="form-section-action" href="#">Manage agents</a>
+            <div class="form-section-body">
+                <div class="form-check-list">
+                    <label class="form-check"><input type="checkbox" name="bx-agents" value="build-runner-01" checked />
+                        <span class="choice-text"><span>build-runner-01</span><span class="choice-meta text-mono">198.51.100.11</span></span></label>
+                    <label class="form-check"><input type="checkbox" name="bx-agents" value="build-runner-02" checked />
+                        <span class="choice-text"><span>build-runner-02</span><span class="choice-meta text-mono">198.51.100.12</span></span></label>
+                    <label class="form-check"><input type="checkbox" name="bx-agents" value="orders-console-01" checked />
+                        <span class="choice-text"><span>orders-console-01</span><span class="choice-meta text-mono">203.0.113.40</span></span></label>
+                </div>
+            </div>
+        </fieldset>
+
+        <details class="form-section form-section--box sedna-span-full">
+            <summary>
+                <span class="form-section-legend">Advanced</span>
+                <span class="form-section-summary">Keep history for 90 days · Audit log on</span>
+            </summary>
+            <div class="form-section-body">
+                <div class="form-field">
+                    <label class="form-label" for="bx-keep">Keep history for</label>
+                    <div class="input-group">
+                        <input class="form-input" id="bx-keep" type="number" value="90" />
+                        <span class="input-affix">days</span>
+                    </div>
+                </div>
+                <label class="form-check"><input type="checkbox" checked /> <span>Write an audit log</span></label>
+            </div>
+        </details>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn" type="button">Cancel</button>
+        <button class="btn btn--brand btn--solid" type="submit">Save settings</button>
+    </div>
+</form>

@@ -486,6 +486,146 @@
 .form-section--question > legend > :is(h1, h2) { margin: 0; }
 .form-section--question > legend > .eyebrow { margin-bottom: var(--space-2); }
 
+/* ── A boxed section ────────────────────────────────────────────────────────
+   The section framed, its title set into the frame's top edge — a group box: the
+   connection settings of a page of settings, the proxy a switch turns on, the
+   advanced options folded away. Any mix of fields goes inside, a check list as
+   well as a select.
+
+     <fieldset class="form-section form-section--box">
+       <legend>Connection</legend>
+       <div class="form-section-body">…</div>
+     </fieldset>
+
+   The fieldset's own legend sits in the notch: the browser cuts the frame round it,
+   so the box needs no surface behind its title and stands on any background. The
+   legend lays out a row — an `i.ri-*` icon, the title in a `<span>` beside them, a
+   `.badge` or a `.switch` — on one line, `--section-line` high, the line every part
+   on the frame is centred on.
+
+   Folding is `<details class="form-section form-section--box">` with a `<summary>`
+   holding a `.form-section-legend`: a summary is no legend, so that span paints the
+   surface it stands on (`--surface-here`) over the frame's line, the top half only,
+   and lands where a legend would — the caret beside it is drawn, not a glyph. A
+   `.form-section-summary` after it, in the summary, says what is inside while the box
+   is closed: "Timeout 30 s · Audit log on".
+
+   `.form-section-action` — a link or a small button — sits on the frame line at the
+   far end, painted the same way. A `.switch` or `.form-check` in the legend makes the
+   box checkable: give the body `.choice-dependent` and `--dim` or `--hide` and it
+   follows that control, as a dependent block follows the option above it. A
+   `.form-error` straight inside the box, under the legend, turns the frame; a
+   `fieldset[disabled]` greys the legend, and the browser disables every control in
+   the box but those in the legend. `--filled` tints the inside.
+
+   The padding is the card's, so the box tightens with `[data-density="compact"]`,
+   and a box nests in another's body. Boxes go side by side in a `.sedna-grid`. */
+.form-section--box {
+    --section-line: round(calc(var(--text-4) * 1.4), 2px);
+    position: relative;
+    padding: var(--card-pad-block) var(--card-pad-inline);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+}
+.form-section--box > legend,
+.form-section--box > summary > .form-section-legend {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    inline-size: auto;
+    margin: 0;
+    margin-inline-start: calc(-1 * var(--space-3));
+    padding: 0 var(--space-3);
+    border: 0;
+    font-size: var(--text-4);
+    font-weight: 600;
+    line-height: var(--section-line);
+    color: var(--fg);
+}
+/* The title's line is the frame's: a badge or a switch taller than it overhangs both
+   edges evenly rather than pushing the frame down. */
+.form-section--box > legend,
+.form-section--box > summary > .form-section-legend { block-size: var(--section-line); }
+.form-section--box > .form-section-hint { margin-block-start: calc(-1 * var(--space-3)); }
+
+/* A summary is laid out in the flow, not in the frame: it is lifted by half its line
+   and the frame's width so its line is centred on the frame exactly where a legend's
+   is, and the details takes the legend's overhang above itself as margin, so a folding
+   box and a fieldset beside it start on the same line. */
+details.form-section--box {
+    margin-block-start: calc((var(--section-line) - 1px) / 2);
+    padding-block-start: 0;
+}
+.form-section--box > summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-block: calc(-0.5 * (var(--section-line) + 1px)) 0;
+    list-style: none;
+    cursor: pointer;
+}
+details[open].form-section--box > summary { margin-block-end: var(--card-pad-block); }
+.form-section--box > summary::-webkit-details-marker { display: none; }
+.form-section--box > summary:focus-visible { outline: none; }
+.form-section--box > summary:focus-visible > .form-section-legend {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 0;
+    border-radius: var(--radius-small);
+}
+.form-section--box > summary > .form-section-legend::before {
+    content: '';
+    inline-size: 0;
+    block-size: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.6;
+    rotate: -90deg;
+    transition: rotate var(--motion-fast) ease;
+}
+.form-section--box > summary > .form-section-legend:dir(rtl)::before { rotate: 90deg; }
+details[open].form-section--box > summary > .form-section-legend::before { rotate: 0deg; }
+.form-section-summary {
+    margin-block-start: var(--space-3);
+    font-size: var(--text-3);
+    line-height: round(1.4em, 2px);
+    color: var(--muted);
+}
+details[open] > summary > .form-section-summary { display: none; }
+
+/* What stands on the frame line paints the surface outside the box over it, down to
+   just past the line, and lets the inside show below. Inside a filled box the tint is
+   laid over that surface too, so a box nested in one paints what is really behind it. */
+.form-section--box > summary > .form-section-legend,
+.form-section-action {
+    background:
+        linear-gradient(var(--section-tint, transparent) 0 0) top / 100% calc(50% + 1px) no-repeat,
+        linear-gradient(var(--surface-here, var(--bg)) 0 0) top / 100% calc(50% + 1px) no-repeat;
+}
+.form-section-action {
+    position: absolute;
+    inset-block-start: -0.5px;
+    inset-inline-end: calc(var(--card-pad-inline) - var(--space-3));
+    translate: 0 -50%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 0 var(--space-3);
+    font-size: var(--text-3);
+    line-height: var(--section-line);
+}
+.form-section-action:has(.btn) { padding-inline: var(--space-2); }
+/* A fieldset's padding box starts under its legend rather than under the frame, so
+   the action is lifted by half the legend's line there. */
+fieldset.form-section--box > .form-section-action { inset-block-start: calc(-0.5 * var(--section-line)); }
+
+.form-section--box:has(> .form-error) { border-color: var(--field-border-danger); }
+.form-section--box > .form-error { margin-block: 0 var(--space-6); }
+fieldset.form-section--box:disabled > legend { color: var(--muted); }
+fieldset.form-section--box:disabled { border-color: var(--border); }
+
+.form-section--filled { background: var(--surface-soft); }
+.form-section--filled > :not(legend, summary, .form-section-action) { --section-tint: var(--surface-soft); }
+
 /* ── Dependent options ──────────────────────────────────────────────────────
    Fields that only matter while the option above them is on: the recipients under
    "E-mail notifications", a threshold under "Close stale topics". Put the
@@ -524,18 +664,25 @@
 
    `--dim` is also inert: a block that looks unavailable and still takes focus and
    typing is the worse of both. It is not `disabled` — the values still submit with
-   the form. */
+   the form.
+
+   A section's body pairs with a `.form-check` or `.switch` in the section's legend the
+   same way — a checkable `.form-section--box`. */
 :is(
     :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
-    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off,
+    .form-section > legend:has(> :is(.form-check, .switch) > input:not(:checked)) ~ .choice-dependent:not(.choice-dependent--off),
+    .form-section > legend:has(> :is(.form-check, .switch) > input:checked) ~ .choice-dependent--off
 ).choice-dependent--hide { display: none; }
 :is(
     :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
-    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off,
+    .form-section > legend:has(> :is(.form-check, .switch) > input:not(:checked)) ~ .choice-dependent:not(.choice-dependent--off),
+    .form-section > legend:has(> :is(.form-check, .switch) > input:checked) ~ .choice-dependent--off
 ).choice-dependent--dim {
     opacity: 0.45;
     interactivity: inert;
@@ -546,7 +693,9 @@
     :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
-    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off,
+    .form-section > legend:has(> :is(.form-check, .switch) > input:not(:checked)) ~ .choice-dependent:not(.choice-dependent--off),
+    .form-section > legend:has(> :is(.form-check, .switch) > input:checked) ~ .choice-dependent--off
 ).choice-dependent--dim .choice-dependent--dim { opacity: 1; }
 
 /* ── Transfer ───────────────────────────────────────────────────────────────

@@ -1139,6 +1139,8 @@ window.sednaUi = window.sednaUi || {};
 
    `.choice-dependent--off` turns it round, and is inert while its option is ON. A
    `.form-error` or `.form-warning` between the option and the block keeps the pair.
+   A section's body pairs with a `.form-check` or `.switch` in the section's legend:
+   a checkable `.form-section--box`.
 
    It follows the option on every `change` and `reset`, and after a render adds or
    swaps markup. A value set by script without either — a Blazor binding writing
@@ -1151,15 +1153,33 @@ window.sednaUi = window.sednaUi || {};
     var SELECTOR = '.choice-dependent--dim';
     var MARK = 'data-sedna-inert';
 
-    function controlOf(block) {
-        var host = block.previousElementSibling;
-        if (host && host.matches('.form-error, .form-warning')) host = host.previousElementSibling;
-        if (!host || !host.matches('.form-check, .switch')) return null;
+    function inputOf(host) {
         for (var i = 0; i < host.children.length; i++) {
             var c = host.children[i];
             if (c.tagName === 'INPUT' && (c.type === 'checkbox' || c.type === 'radio')) return c;
         }
         return null;
+    }
+
+    // A checkable section: the body follows the control in its section's legend.
+    function legendControlOf(block) {
+        var section = block.parentElement;
+        if (!section || !section.matches('.form-section')) return null;
+        for (var el = block.previousElementSibling; el; el = el.previousElementSibling) {
+            if (el.tagName !== 'LEGEND') continue;
+            for (var i = 0; i < el.children.length; i++) {
+                if (el.children[i].matches('.form-check, .switch')) return inputOf(el.children[i]);
+            }
+            return null;
+        }
+        return null;
+    }
+
+    function controlOf(block) {
+        var host = block.previousElementSibling;
+        if (host && host.matches('.form-error, .form-warning')) host = host.previousElementSibling;
+        if (!host || !host.matches('.form-check, .switch')) return legendControlOf(block);
+        return inputOf(host);
     }
 
     function sync(block) {

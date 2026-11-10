@@ -592,15 +592,30 @@ window.sednaUi = window.sednaUi || {};
 (function (ui) {
     var SELECTOR = '.choice-dependent--dim';
     var MARK = 'data-sedna-inert';
-    function controlOf(block) {
-        var host = block.previousElementSibling;
-        if (host && host.matches('.form-error, .form-warning')) host = host.previousElementSibling;
-        if (!host || !host.matches('.form-check, .switch')) return null;
+    function inputOf(host) {
         for (var i = 0; i < host.children.length; i++) {
             var c = host.children[i];
             if (c.tagName === 'INPUT' && (c.type === 'checkbox' || c.type === 'radio')) return c;
         }
         return null;
+    }
+    function legendControlOf(block) {
+        var section = block.parentElement;
+        if (!section || !section.matches('.form-section')) return null;
+        for (var el = block.previousElementSibling; el; el = el.previousElementSibling) {
+            if (el.tagName !== 'LEGEND') continue;
+            for (var i = 0; i < el.children.length; i++) {
+                if (el.children[i].matches('.form-check, .switch')) return inputOf(el.children[i]);
+            }
+            return null;
+        }
+        return null;
+    }
+    function controlOf(block) {
+        var host = block.previousElementSibling;
+        if (host && host.matches('.form-error, .form-warning')) host = host.previousElementSibling;
+        if (!host || !host.matches('.form-check, .switch')) return legendControlOf(block);
+        return inputOf(host);
     }
     function sync(block) {
         var input = controlOf(block);

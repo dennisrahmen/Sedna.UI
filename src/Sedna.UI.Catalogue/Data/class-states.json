@@ -3020,17 +3020,40 @@
     "form-section": {
       "family": "form-section",
       "variants": [
+        "form-section--box",
+        "form-section--filled",
         "form-section--question"
       ]
     },
+    "form-section--box": {
+      "family": "form-section",
+      "attributes": [
+        "[open]"
+      ],
+      "pseudoClasses": [
+        ":disabled"
+      ]
+    },
+    "form-section--filled": {
+      "family": "form-section"
+    },
     "form-section--question": {
       "family": "form-section"
+    },
+    "form-section-action": {
+      "family": "form-section-action"
     },
     "form-section-body": {
       "family": "form-section-body"
     },
     "form-section-hint": {
       "family": "form-section-hint"
+    },
+    "form-section-legend": {
+      "family": "form-section-legend"
+    },
+    "form-section-summary": {
+      "family": "form-section-summary"
     },
     "form-section-title": {
       "family": "form-section-title"

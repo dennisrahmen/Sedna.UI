@@ -1,0 +1,28 @@
+<div class="sedna-grid sedna-grid--fit" style="max-width:880px">
+    <details class="form-section form-section--box" open>
+        <summary><span class="form-section-legend">Advanced</span></summary>
+        <div class="form-section-body">
+            <div class="form-field">
+                <label class="form-label" for="bx-timeout">Request timeout</label>
+                <div class="input-group">
+                    <input class="form-input" id="bx-timeout" type="number" value="30" />
+                    <span class="input-affix">seconds</span>
+                </div>
+            </div>
+            <label class="form-check"><input type="checkbox" checked /> <span>Write an audit log</span></label>
+        </div>
+    </details>
+
+    <details class="form-section form-section--box">
+        <summary>
+            <span class="form-section-legend">Webhooks</span>
+            <span class="form-section-summary">2 endpoints · Signed with a shared secret</span>
+        </summary>
+        <div class="form-section-body">
+            <div class="form-field">
+                <label class="form-label" for="bx-hook">Endpoint</label>
+                <input class="form-input" id="bx-hook" type="url" value="https://example.com/hooks/orders" />
+            </div>
+        </div>
+    </details>
+</div>

@@ -4309,6 +4309,96 @@ fieldset.form-field > legend {
 }
 .form-section--question > legend > :is(h1, h2) { margin: 0; }
 .form-section--question > legend > .eyebrow { margin-bottom: var(--space-2); }
+.form-section--box {
+    --section-line: round(calc(var(--text-4) * 1.4), 2px);
+    position: relative;
+    padding: var(--card-pad-block) var(--card-pad-inline);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+}
+.form-section--box > legend,
+.form-section--box > summary > .form-section-legend {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    inline-size: auto;
+    margin: 0;
+    margin-inline-start: calc(-1 * var(--space-3));
+    padding: 0 var(--space-3);
+    border: 0;
+    font-size: var(--text-4);
+    font-weight: 600;
+    line-height: var(--section-line);
+    color: var(--fg);
+}
+.form-section--box > legend,
+.form-section--box > summary > .form-section-legend { block-size: var(--section-line); }
+.form-section--box > .form-section-hint { margin-block-start: calc(-1 * var(--space-3)); }
+details.form-section--box {
+    margin-block-start: calc((var(--section-line) - 1px) / 2);
+    padding-block-start: 0;
+}
+.form-section--box > summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-block: calc(-0.5 * (var(--section-line) + 1px)) 0;
+    list-style: none;
+    cursor: pointer;
+}
+details[open].form-section--box > summary { margin-block-end: var(--card-pad-block); }
+.form-section--box > summary::-webkit-details-marker { display: none; }
+.form-section--box > summary:focus-visible { outline: none; }
+.form-section--box > summary:focus-visible > .form-section-legend {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 0;
+    border-radius: var(--radius-small);
+}
+.form-section--box > summary > .form-section-legend::before {
+    content: '';
+    inline-size: 0;
+    block-size: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.6;
+    rotate: -90deg;
+    transition: rotate var(--motion-fast) ease;
+}
+.form-section--box > summary > .form-section-legend:dir(rtl)::before { rotate: 90deg; }
+details[open].form-section--box > summary > .form-section-legend::before { rotate: 0deg; }
+.form-section-summary {
+    margin-block-start: var(--space-3);
+    font-size: var(--text-3);
+    line-height: round(1.4em, 2px);
+    color: var(--muted);
+}
+details[open] > summary > .form-section-summary { display: none; }
+.form-section--box > summary > .form-section-legend,
+.form-section-action {
+    background:
+        linear-gradient(var(--section-tint, transparent) 0 0) top / 100% calc(50% + 1px) no-repeat,
+        linear-gradient(var(--surface-here, var(--bg)) 0 0) top / 100% calc(50% + 1px) no-repeat;
+}
+.form-section-action {
+    position: absolute;
+    inset-block-start: -0.5px;
+    inset-inline-end: calc(var(--card-pad-inline) - var(--space-3));
+    translate: 0 -50%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 0 var(--space-3);
+    font-size: var(--text-3);
+    line-height: var(--section-line);
+}
+.form-section-action:has(.btn) { padding-inline: var(--space-2); }
+fieldset.form-section--box > .form-section-action { inset-block-start: calc(-0.5 * var(--section-line)); }
+.form-section--box:has(> .form-error) { border-color: var(--field-border-danger); }
+.form-section--box > .form-error { margin-block: 0 var(--space-6); }
+fieldset.form-section--box:disabled > legend { color: var(--muted); }
+fieldset.form-section--box:disabled { border-color: var(--border); }
+.form-section--filled { background: var(--surface-soft); }
+.form-section--filled > :not(legend, summary, .form-section-action) { --section-tint: var(--surface-soft); }
 .choice-dependent {
     display: flex;
     flex-direction: column;
@@ -4324,13 +4414,17 @@ fieldset.form-field > legend {
     :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
-    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off,
+    .form-section > legend:has(> :is(.form-check, .switch) > input:not(:checked)) ~ .choice-dependent:not(.choice-dependent--off),
+    .form-section > legend:has(> :is(.form-check, .switch) > input:checked) ~ .choice-dependent--off
 ).choice-dependent--hide { display: none; }
 :is(
     :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
-    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off,
+    .form-section > legend:has(> :is(.form-check, .switch) > input:not(:checked)) ~ .choice-dependent:not(.choice-dependent--off),
+    .form-section > legend:has(> :is(.form-check, .switch) > input:checked) ~ .choice-dependent--off
 ).choice-dependent--dim {
     opacity: 0.45;
     interactivity: inert;
@@ -4339,7 +4433,9 @@ fieldset.form-field > legend {
     :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
     :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
-    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off,
+    .form-section > legend:has(> :is(.form-check, .switch) > input:not(:checked)) ~ .choice-dependent:not(.choice-dependent--off),
+    .form-section > legend:has(> :is(.form-check, .switch) > input:checked) ~ .choice-dependent--off
 ).choice-dependent--dim .choice-dependent--dim { opacity: 1; }
 .transfer {
     container: sedna-transfer / inline-size;
@@ -14907,6 +15003,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .th-filter:focus-visible,
     .input-clear:focus-visible,
     .accordion summary:focus-visible,
+    .form-section--box > summary:focus-visible > .form-section-legend,
     .tree [role="treeitem"]:focus-visible > .tree-row,
     .skip-link:focus,
     .fab:focus-visible,
@@ -15039,6 +15136,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .cal-event--background,
     .cal-closed { outline: 1px dashed GrayText; outline-offset: -1px; }
     .cal-agenda-event > .cal-event-dot { forced-color-adjust: none; }
+    .form-section--box > summary > .form-section-legend,
+    .form-section-action { forced-color-adjust: none; }
     .table thead tr:not(.tr-filter) > th.col-filtered { outline: 2px solid Highlight; outline-offset: -2px; }
     .nav-status-dot,
     .health-dot,
@@ -15403,6 +15502,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .input-group      { transition: none; }
     .form-check-list--cards > .form-check { transition: none; }
     .form-trigger::after { transition: none; }
+    .form-section--box > summary > .form-section-legend::before { transition: none; }
     .dropzone         { transition: none; }
     dialog.modal      { animation: none; }
     .modal-close      { transition: none; }
