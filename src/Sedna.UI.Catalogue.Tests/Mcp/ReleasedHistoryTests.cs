@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Sedna.UI.Catalogue.Mcp;
+using Sedna.UI.Catalogue.Tests.TestSupport;
 
 namespace Sedna.UI.Catalogue.Tests.Mcp;
 
@@ -13,6 +14,7 @@ namespace Sedna.UI.Catalogue.Tests.Mcp;
 /// generated at the tag — is asked only there, so it can turn "unreleased" into a
 /// version and can never turn a version into a different one.
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 public class ReleasedHistoryTests
 {
     private const string Embedded = """

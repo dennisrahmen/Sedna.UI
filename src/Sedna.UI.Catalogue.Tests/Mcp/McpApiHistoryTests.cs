@@ -23,6 +23,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// implementations of "what is that surface" are held against each other here.
 /// </para>
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class McpApiHistoryTests(CatalogueAppFixture app)
 {

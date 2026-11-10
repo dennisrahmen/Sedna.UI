@@ -7,6 +7,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// <c>check_markup</c>, <c>get_changes</c> and <c>describe_api</c>, driven over the endpoint
 /// the way an agent drives them.
 /// </summary>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class McpReferenceToolTests(CatalogueAppFixture app)
 {

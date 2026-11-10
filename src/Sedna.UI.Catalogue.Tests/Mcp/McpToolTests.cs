@@ -16,6 +16,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// rejection, a serialiser that drops a null. Calling the C# method would have
 /// passed through every one of those.
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class McpToolTests(CatalogueAppFixture app)
 {

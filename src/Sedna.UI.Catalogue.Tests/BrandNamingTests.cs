@@ -19,6 +19,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// brand to describe and detect it, so scanning the test projects would make the
 /// guard trip on its own documentation.
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 public class BrandNamingTests
 {
     /// <summary>

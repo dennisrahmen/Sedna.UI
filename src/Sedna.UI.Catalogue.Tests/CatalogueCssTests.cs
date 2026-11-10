@@ -22,6 +22,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// the theme toggles.
 /// </para>
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 public class CatalogueCssTests
 {
     [Fact]
