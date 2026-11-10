@@ -49,8 +49,9 @@ jobs:
 
   # ── The full suite ───────────────────────────────────────────────────────
   # A pull request runs a smoke pass (ci.yml); the whole suite runs here, once per
-  # test project and engine, in parallel. Nothing publishes unless every slice is
-  # green. A red slice leaves nothing on nuget.org, so the same version is still
+  # test project and engine, in parallel. The catalogue's tests of the website alone
+  # (Scope=Site) are left out: a release publishes the package, and catalogue.yml runs
+  # them on main. Nothing publishes unless every slice is green. A red slice leaves nothing on nuget.org, so the same version is still
   # free: delete the tag, merge the fix, tag again (docs/releasing.md).
   test:
     needs: preflight
@@ -108,7 +109,7 @@ jobs:
           SEDNA_UI_BROWSER_TESTS: '1'
           SEDNA_UI_BROWSER: ${{ matrix.engine }}
         # One hung test fails with a dump of where it hung, rather than using up the job.
-        run: dotnet test ${{ matrix.project }} -c Release --no-build --verbosity normal --blame-hang --blame-hang-timeout 5m
+        run: dotnet test ${{ matrix.project }} -c Release --no-build --verbosity normal --blame-hang --blame-hang-timeout 5m --filter "Scope!=Site"
 
   release:
     needs: [preflight, test]

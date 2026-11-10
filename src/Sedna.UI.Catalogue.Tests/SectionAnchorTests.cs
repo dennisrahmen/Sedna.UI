@@ -14,6 +14,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// opened the landing page. The markup reads as correct, so each href is resolved the
 /// way a browser resolves it — against the document's own base.
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class SectionAnchorTests(CatalogueAppFixture app)
 {

@@ -12,6 +12,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// so every page reached by a link kept the first page's title in the tab, in a
 /// bookmark and in a link shared from it.
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class HeadNavigationTests(CatalogueAppFixture app)
 {

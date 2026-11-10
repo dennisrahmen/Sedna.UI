@@ -693,7 +693,9 @@ version first.
 7. Nothing follows the tag in the repo. `class-history.json` is generated, never committed, and the
    running catalogue reads the release's own copy.
 
-`release.yml` runs the full suite — every test project in every engine, in parallel — and only then
+`release.yml` runs the full suite — every test project in every engine, in parallel, without the
+catalogue's tests of the website alone (`Scope=Site`), which `catalogue.yml` runs on every push to
+`main` — and only then
 builds, packs, verifies the package contents, publishes to nuget.org, and creates the GitHub release.
 A pull request runs a smoke pass, so the tag is where a browser regression is caught. **A red tag has
 published nothing**, so the version is still free: delete the tag (`git push --delete origin v0.2.0`

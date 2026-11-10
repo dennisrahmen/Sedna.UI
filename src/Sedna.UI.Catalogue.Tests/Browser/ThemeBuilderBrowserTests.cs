@@ -7,6 +7,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// <c>/theme-builder</c> through a real circuit: picking a colour changes the printed
 /// <c>brand.css</c> and the page's own tokens together, because the page applies what it prints.
 /// </summary>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class ThemeBuilderBrowserTests(CatalogueAppFixture app)
 {

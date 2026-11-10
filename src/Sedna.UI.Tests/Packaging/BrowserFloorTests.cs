@@ -49,6 +49,19 @@ public class BrowserFloorTests
     }
 
     [Fact]
+    public void The_website_tests_leave_the_release_and_run_on_main()
+    {
+        // The catalogue's Scope=Site tests check the website, not the package. The release
+        // leaves exactly those out, and catalogue.yml runs exactly those, so none is lost.
+        Assert.Contains("--filter \"Scope!=Site\"", Workflow("release.yml"), StringComparison.Ordinal);
+        var site = Workflow("catalogue.yml");
+        Assert.Contains("--filter \"Scope=Site\"", site, StringComparison.Ordinal);
+        Assert.Contains("branches: [main]", site, StringComparison.Ordinal);
+        foreach (var engine in BrowserEngine.All)
+            Assert.True(MatrixList(site, "engine").Contains(engine), $"catalogue.yml does not run {engine}.");
+    }
+
+    [Fact]
     public void The_release_runs_the_browser_tests_in_the_matrix_engine()
     {
         var yaml = Workflow("release.yml");

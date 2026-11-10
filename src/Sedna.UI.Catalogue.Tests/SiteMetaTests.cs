@@ -17,6 +17,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// Against the served HTML, because a crawler and a preview fetcher read exactly that
 /// and never wait for the circuit.
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class SiteMetaTests(CatalogueAppFixture app)
 {

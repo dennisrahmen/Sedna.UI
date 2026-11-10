@@ -13,6 +13,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// entry with no page is a dead link in the sidebar. Both directions are asserted,
 /// because each hides the other.
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 public class NavigationTests
 {
     [Fact]

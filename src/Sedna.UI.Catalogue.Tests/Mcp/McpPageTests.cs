@@ -10,6 +10,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// <c>Examples/Mcp/</c> for a page routed <c>/mcp-server</c>; filed by folder, those pages
 /// answered <c>get_page</c> with no examples at all.
 /// </summary>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class McpPageTests(CatalogueAppFixture app)
 {

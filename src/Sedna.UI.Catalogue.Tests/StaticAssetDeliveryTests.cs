@@ -35,6 +35,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// stylesheet.
 /// </para>
 /// </remarks>
+[Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public class StaticAssetDeliveryTests(CatalogueAppFixture app)
 {
